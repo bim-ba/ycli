@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Edit",
+      "Write",
+      "Grep",
+      "Glob"
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "spark": {
+      "source": {
+        "source": "github",
+        "repo": "bim-ba/spark"
+      }
+    },
+    "ycli": {
+      "source": {
+        "source": "directory",
+        "path": "."
+      }
+    }
+  },
+  "enabledPlugins": {
+    "plugin-dev@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "core@spark": true,
+    "data@spark": true,
+    "yandex-360@ycli": true
+  }
+}

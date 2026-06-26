@@ -1,0 +1,11 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "yandex-360",
+  "version": "0.1.0",
+  "description": "Skills for driving Yandex 360 services (Tracker, Wiki, Forms) through the ycli CLI, its MCP server, or the Python SDK.",
+  "author": {
+    "name": "bim-ba",
+    "email": "careless.sava@gmail.com"
+  },
+  "keywords": ["yandex", "yandex-360", "tracker", "wiki", "forms", "ycli", "mcp"]
+}

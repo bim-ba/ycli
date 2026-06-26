@@ -1,0 +1,8 @@
+{
+  "extends": "claudelint:recommended",
+  "rules": {
+    "skill-reference-not-linked": "off",
+    "skill-description-missing-trigger": "error",
+    "skill-description-quality": "error"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "ycli",
+  "owner": {
+    "name": "bim-ba",
+    "email": "careless.sava@gmail.com"
+  },
+  "metadata": {
+    "description": "Plugins for the ycli toolchain — interact with Yandex 360 services from Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "yandex-360",
+      "source": "./plugins/yandex-360",
+      "description": "Skills for driving Yandex 360 services (Tracker, Wiki, Forms) via the ycli CLI, MCP server, or Python SDK."
+    }
+  ]
+}

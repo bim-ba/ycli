@@ -1,0 +1,1 @@
+"""Tracker /linktypes resource package."""

@@ -1,0 +1,31 @@
+# Dependencies / build / test — never agent-instruction surface
+node_modules/
+vendor/
+dist/
+build/
+coverage/
+*.log
+
+# Historical, immutable artifacts — not live instruction surface
+.claude/drift-log/applied/
+.claude/drift-log/open/
+
+# Vendor-mirrored reference docs — tracked byte-for-byte, not ours to lint
+# .claude/skills/*/references/docs/
+
+# ── Optional project additions ────────────────────────────────────────────────
+# Uncomment or add lines below for your project's specific layout.
+# Examples (do NOT copy verbatim — adjust to your actual paths):
+#
+#   # Sibling repos in a monorepo — each owns its own agent files
+#   api/
+#   backend/
+#   services/worker/
+#
+#   # Generated / vendor-mirrored docs that are not live instruction surface
+#   docs/vendor/
+#   docs/generated/
+#
+#   # Historical audit outputs
+#   .claude/audit/
+#   docs/superpowers/
