@@ -28,6 +28,21 @@ dependency lists.
 - **Secrets:** `.env` and `.mcp.json` are gitignored. Keep real tokens out of commits;
   use `.env.example` / `.mcp.example.json` placeholders.
 
+## Commits & releases
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) —
+they drive **automated releases** via [python-semantic-release](https://python-semantic-release.readthedocs.io/).
+On every push to `main`, the version, `CHANGELOG.md`, git tag, GitHub Release, and the
+PyPI upload are produced automatically from the commit messages:
+
+- `fix: …` → patch release (`0.1.0` → `0.1.1`)
+- `feat: …` → minor release (`0.1.0` → `0.2.0`)
+- `feat!: …` / a `BREAKING CHANGE:` footer → major (kept at `0.x` until 1.0)
+- `docs: … / chore: … / ci: … / refactor: … / test: …` → no release
+
+So write the commit (or the squash-merge title) as the change it makes. No manual version
+bumps or changelog edits.
+
 ## Demo GIF
 
 The README demo (`docs/assets/demo.gif`) is generated from `docs/demo/demo.tape` with

@@ -89,3 +89,19 @@ dev = [
     "pytest-cov>=7.1.0",
     "responses>=0.26.1",
 ]
+
+# Automated versioning from Conventional Commits. CI runs `semantic-release version`
+# on push to main; a separate job publishes the tagged build to PyPI.
+[tool.semantic_release]
+commit_parser = "conventional"
+version_toml = ["pyproject.toml:project.version"]
+tag_format = "v{version}"
+allow_zero_version = true
+major_on_zero = false
+build_command = ""   # skip PSR's build; the release workflow builds with `uv build`
+
+[tool.semantic_release.changelog]
+mode = "update"
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
