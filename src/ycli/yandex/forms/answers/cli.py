@@ -21,5 +21,5 @@ def _group() -> None:
 
 @app.command("list")
 def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
-    """List a form's responses (the {columns, answers, next} envelope)."""
-    print(forms_client(ctx).answers.list(survey_id).model_dump_json(by_alias=True))
+    """List ALL of a form's responses (drains every page via the next cursor)."""
+    print(forms_client(ctx).answers.list_all(survey_id).model_dump_json(by_alias=True))

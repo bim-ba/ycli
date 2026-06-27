@@ -11,5 +11,5 @@ mcp = FastMCP("forms-answers")
 
 @mcp.tool(name="answers_list", annotations=RO, tags=TAGS)
 def list_(survey_id: str, client: FormsClient = Depends(forms_client)) -> AnswersResponse:
-    """A form's responses (columns + answers + next cursor)."""
-    return client.answers.list(survey_id)
+    """ALL of a form's responses (drains every page via the next cursor)."""
+    return client.answers.list_all(survey_id)

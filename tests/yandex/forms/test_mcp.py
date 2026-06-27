@@ -1,4 +1,7 @@
 """Forms FastMCP domain server — 5 reads-only tools, named <resource>_<action>."""
+import json
+from urllib.parse import parse_qs, urlparse
+
 import requests
 import responses
 from fastmcp import Client
@@ -31,6 +34,25 @@ async def test_answers_list_tool(monkeypatch):
     async with Client(forms_mcp.mcp) as client:
         result = await client.call_tool("answers_list", {"survey_id": SID})
     assert result.data.answers[0].id == 99
+
+
+@responses.activate
+async def test_answers_list_tool_drains_all_pages(monkeypatch):
+    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+
+    def cb(request):
+        if "id" not in parse_qs(urlparse(request.url).query):
+            body = {"columns": [], "answers": [{"id": 1, "created": "x", "data": []}],
+                    "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=100"}}
+        else:
+            body = {"columns": [], "answers": [{"id": 2, "created": "x", "data": []}], "next": None}
+        return (200, {}, json.dumps(body))
+
+    responses.add_callback(responses.GET, f"{BASE}/surveys/{SID}/answers",
+                           callback=cb, content_type="application/json")
+    async with Client(forms_mcp.mcp) as client:
+        result = await client.call_tool("answers_list", {"survey_id": SID})
+    assert [a.id for a in result.data.answers] == [1, 2]  # MCP drains all pages too
 
 
 @responses.activate

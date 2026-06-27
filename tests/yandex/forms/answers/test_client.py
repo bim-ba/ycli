@@ -1,4 +1,7 @@
 """TDD for AnswersClient — returns the {columns, answers, next} envelope verbatim."""
+import json
+from urllib.parse import parse_qs, urlparse
+
 import requests
 import responses
 
@@ -27,3 +30,65 @@ def test_list_returns_envelope_verbatim():
     assert ar.answers[0].id == 99 and ar.answers[0].data == [{"value": "x"}]
     assert ar.next is None
     assert responses.calls[0].request.url == f"{BASE}/surveys/{SID}/answers"
+
+
+def _paginated_callback(request):
+    """Two-page stub: page 1 hands a next_url carrying ``id=100``; page 2 drains it."""
+    params = parse_qs(urlparse(request.url).query)
+    if "id" not in params:
+        body = {
+            "columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
+            "answers": [{"id": 1, "created": "2026-01-01", "data": [{"value": "a"}]}],
+            "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=100&page_size=1"},
+        }
+    else:
+        body = {
+            "columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
+            "answers": [{"id": 2, "created": "2026-01-02", "data": [{"value": "b"}]}],
+            "next": None,
+        }
+    return (200, {}, json.dumps(body))
+
+
+@responses.activate
+def test_list_all_follows_next_url_and_concatenates():
+    responses.add_callback(
+        responses.GET, f"{BASE}/surveys/{SID}/answers",
+        callback=_paginated_callback, content_type="application/json",
+    )
+    ar = _client().list_all(SID)
+    assert isinstance(ar, AnswersResponse)
+    # every page drained, answers concatenated in order
+    assert [a.id for a in ar.answers] == [1, 2]
+    assert ar.columns[0].text == "T"  # columns kept from the first page
+    assert ar.next is None  # merged envelope is fully drained
+    assert len(responses.calls) == 2  # page 1 + the followed next_url
+    assert "id=100" in responses.calls[1].request.url  # followed the server's cursor verbatim
+
+
+@responses.activate
+def test_list_all_breaks_on_self_pointing_cursor():
+    """A server whose next_url points at itself must terminate, not loop forever."""
+    same = f"{BASE}/surveys/{SID}/answers?id=100"
+
+    def cb(request):
+        body = {"columns": [], "answers": [{"id": 1, "created": "x", "data": []}],
+                "next": {"next_url": same}}  # every page hands back the SAME cursor
+        return (200, {}, json.dumps(body))
+
+    responses.add_callback(responses.GET, f"{BASE}/surveys/{SID}/answers",
+                           callback=cb, content_type="application/json")
+    ar = _client().list_all(SID)
+    # page 1 (no id) + one follow of id=100; the second sighting of id=100 trips the guard
+    assert len(responses.calls) == 2
+    assert [a.id for a in ar.answers] == [1, 1]
+
+
+@responses.activate
+def test_list_all_single_page_makes_one_call():
+    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
+                  json={"columns": [], "answers": [{"id": 7, "created": "x", "data": []}],
+                        "next": None}, status=200)
+    ar = _client().list_all(SID)
+    assert [a.id for a in ar.answers] == [7]
+    assert len(responses.calls) == 1  # no next_url → no extra request
