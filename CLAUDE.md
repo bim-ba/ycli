@@ -38,10 +38,13 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Auto-release on push to main.** Every push to `main` runs python-semantic-release,
   which versions from Conventional Commits and publishes to PyPI. Use `feat:` / `fix:` /
   `docs:` / `chore:` … prefixes; the squash-merge title becomes the release.
-- **Never write a skip-ci token.** `[skip ci]` / `[ci skip]` / `[no ci]` anywhere in a
-  commit **or squash-merge** message makes GitHub silently cancel the workflow run — and
-  with it the release. This is enforced three ways: the `git_guard` PreToolUse hook
-  (`.claude/hooks/`), the `no-skip-ci` pre-commit hook, and this rule.
+- **Never write a skip-ci token.** `[skip ci]` / `[ci skip]` / `[no ci]` / `[skip actions]` /
+  `[actions skip]`, or a `skip-checks: true` commit trailer, anywhere in a commit **or
+  squash-merge** message makes GitHub silently cancel the workflow run — and with it the
+  release. The `git_guard` PreToolUse hook (`.claude/hooks/`) blocks these in `git`/`gh`
+  commit/merge commands; the `no-skip-ci` pre-commit hook blocks the literal tokens from
+  being staged into tracked files; this rule covers what neither can see (e.g. a message
+  typed in the GitHub UI).
 - **Secrets never reach a commit.** gitleaks runs in pre-commit and CI. Credentials come
   from the env (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`); `.env` / `.mcp.json`
   are gitignored. Config and tests reference `${VAR}`, never literal values.

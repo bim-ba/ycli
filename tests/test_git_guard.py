@@ -35,6 +35,9 @@ git_guard = _load()
         "gh pr create -t z -b 'body [no ci]'",
         "git commit -m 'FIX: case [SKIP CI]'",
         "git merge feature -m 'merge [skip actions]'",
+        "git commit -m 'feat: x [actions skip]'",
+        "git commit -m 'fix: x' -m 'skip-checks: true'",
+        "git commit --trailer skip-checks:true -m 'fix: x'",
     ],
 )
 def test_skip_ci_commands_are_denied(command):

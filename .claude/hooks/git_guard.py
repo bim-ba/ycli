@@ -19,6 +19,8 @@ SKIP_CI_TOKENS = (
     "[no ci]",
     "[skip actions]",
     "[actions skip]",
+    "skip-checks: true",
+    "skip-checks:true",
 )
 COMMIT_CMD_RE = re.compile(r"\bgit\s+(?:commit|merge)\b|\bgh\s+pr\s+(?:merge|create)\b")
 
@@ -57,6 +59,7 @@ def main() -> None:
     decision = decide(command)
     if decision is not None:
         json.dump(decision, sys.stdout)
+        sys.stdout.write("\n")
 
 
 if __name__ == "__main__":
