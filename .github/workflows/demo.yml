@@ -47,7 +47,7 @@ jobs:
       - name: Commit regenerated GIF
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "docs: regenerate demo GIF [skip ci]"
+          commit_message: "docs: regenerate demo GIF"
           file_pattern: docs/assets/demo.gif
           commit_user_name: vhs-action 📼
           commit_user_email: actions@github.com
