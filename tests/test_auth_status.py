@@ -1,6 +1,7 @@
 """`ycli auth status` — env check + a real /myself probe, errors caught."""
 from __future__ import annotations
 
+import pytest
 import responses
 from typer.testing import CliRunner
 
@@ -10,14 +11,17 @@ _URL = "https://api.tracker.yandex.net/v3/myself"
 _RUNNER = CliRunner()
 
 
+@pytest.mark.integration
 def test_auth_status_missing_env(monkeypatch):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     result = _RUNNER.invoke(app, ["auth", "status"])
     assert result.exit_code != 0
-    assert "not configured" in result.stdout.lower() or "configured" in result.stdout.lower()
+    assert "not configured" in result.stdout.lower()
+    assert "YANDEX_ID_OAUTH_TOKEN" in result.stdout
 
 
+@pytest.mark.integration
 @responses.activate
 def test_auth_status_valid(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
@@ -28,6 +32,7 @@ def test_auth_status_valid(monkeypatch):
     assert "alice" in result.stdout
 
 
+@pytest.mark.integration
 @responses.activate
 def test_auth_status_invalid_token(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "bad")
@@ -35,8 +40,10 @@ def test_auth_status_invalid_token(monkeypatch):
     responses.add(responses.GET, _URL, json={"errorMessages": ["unauthorized"]}, status=401)
     result = _RUNNER.invoke(app, ["auth", "status"])
     assert result.exit_code != 0
+    assert "token invalid or expired" in result.stdout
 
 
+@pytest.mark.integration
 @responses.activate
 def test_auth_status_generic_error(monkeypatch):
     """Exercises the generic ``except YandexError`` branch (non-auth API error)."""
@@ -47,3 +54,4 @@ def test_auth_status_generic_error(monkeypatch):
     result = _RUNNER.invoke(app, ["auth", "status"])
     assert result.exit_code != 0
     assert "configured" in result.stdout.lower()
+    assert "422" in result.stdout
