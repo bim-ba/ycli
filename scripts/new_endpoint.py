@@ -28,21 +28,24 @@ class {cls}(BaseModel):
     id: str = ""
 '''
 
-CLIENT = '''"""{domain} /{resource} SDK calls (uplink). The only place HTTP happens for this resource."""
-from __future__ import annotations
+CLIENT = '''"""{domain} /{resource} SDK calls (uplink) — transport ONLY.
 
-from uplink import Consumer, get, returns
+NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
+annotations eagerly. Subclasses the domain base for session + base_url DI.
+"""
+import uplink
 
+from ycli.yandex.{domain}._base import {domain_cls}Resource
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
-class {cls}Client(Consumer):
-    """Read calls for /{resource}."""
+class {cls}Client({domain_cls}Resource):
+    """Declarative HTTP for /{resource} (read-only to start)."""
 
-    @returns.json
-    @get("FILL/{resource}/{{item_id}}")  # FILL: real path
-    def get(self, item_id: str) -> {cls}:  # type: ignore[empty-body]
-        """Fetch one {resource} by id."""
+    @uplink.returns.json()
+    @uplink.get("FILL/{resource}/{{item_id}}")  # FILL: real path
+    def get(self, item_id: uplink.Path) -> {cls}:  # type: ignore[empty-body]
+        """GET one {resource} by id."""
 '''
 
 CLI = '''"""{domain} /{resource} Typer commands. Output via ycli.output.render."""
@@ -113,9 +116,18 @@ def main() -> None:
     ):
         (target / filename).write_text(template.format(**ctx), encoding="utf-8")
 
+    cls = ctx["cls"]
     print(f"scaffolded {target.relative_to(ROOT.parent.parent.parent)}")
-    print("next: replace the FILL markers, wire the sub-app/subserver into the domain "
-          "cli.py + mcp.py, and add tests under tests/yandex/.")
+    print(
+        "next:\n"
+        "  1. replace the FILL markers in client.py/models.py with the real path + fields\n"
+        f"  2. register the resource on the domain client: in {args.domain}/client.py __init__ add\n"
+        f"     self.{resource} = {cls}Client(session=session)\n"
+        f"  3. mount the sub-app into {args.domain}/cli.py (app.add_typer) and the subserver into\n"
+        f"     {args.domain}/mcp.py (mcp.mount), mirroring a sibling resource\n"
+        "  4. add tests under tests/yandex/ and run: uv run pytest && "
+        "uv run python -m tests.snapshots --update"
+    )
 
 
 if __name__ == "__main__":

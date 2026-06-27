@@ -17,7 +17,12 @@ SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
 YANDEX = SRC / "yandex"
 DOMAINS = ("tracker", "wiki", "forms")
 CANONICAL = {"__init__.py", "client.py", "cli.py", "mcp.py", "models.py"}
-WRITE_VERBS = {"create", "update", "add", "execute", "delete", "set", "remove"}
+# Allow-list (fail-closed): an MCP tool's verb MUST be a known read. A new read
+# operation adds its verb here deliberately; any other verb (modify/patch/post/…)
+# fails, so a write tool can't slip in by naming. Keep in sync with ARCHITECTURE.md.
+READ_VERBS = {"get", "list", "count", "full", "search", "descendants", "meta"}
+# Behavioral backstop: even a read-named tool must not call a client write method.
+_WRITE_CALL_RE = re.compile(r"\.(create|update|add|execute|delete|remove|set)\(")
 
 
 def _resource_dirs():
@@ -49,9 +54,21 @@ def test_arch3_mcp_tools_are_read_only():
     assert tools, "no MCP tools discovered"
     for t in tools:
         verb = t.name.rsplit("_", 1)[-1]
-        assert verb not in WRITE_VERBS, f"MCP tool {t.name!r} has a write verb"
+        assert verb in READ_VERBS, (
+            f"MCP tool {t.name!r} verb {verb!r} is not a known read verb {sorted(READ_VERBS)} "
+            "— writes ship SDK+CLI only; if this is a new read, add the verb to READ_VERBS"
+        )
         ann = getattr(t, "annotations", None)
         assert ann is not None and ann.readOnlyHint is True, f"{t.name!r} lacks readOnlyHint"
+
+
+def test_arch3_mcp_modules_call_no_write_methods():
+    """Even a read-named tool must not invoke a client write method from an mcp.py."""
+    offenders = []
+    for mcp_py in YANDEX.rglob("mcp.py"):
+        for m in _WRITE_CALL_RE.finditer(mcp_py.read_text(encoding="utf-8")):
+            offenders.append(f"{mcp_py.relative_to(SRC)}: calls .{m.group(1)}(")
+    assert not offenders, f"MCP modules must not call client write methods: {offenders}"
 
 
 def test_arch4_model_dump_json_only_in_output():
@@ -75,7 +92,7 @@ def test_arch5_single_sources_of_truth():
         text = p.read_text(encoding="utf-8")
         if _TOKEN_RE.search(text):
             offenders.append(f"{rel}: hardcoded YANDEX_ID token literal")
-        if p.name != "__init__.py" and _VERSION_RE.search(text):
+        if rel != Path("__init__.py") and _VERSION_RE.search(text):
             offenders.append(f"{rel}: hardcoded __version__ literal")
         if p.name != "transport.py" and _ORG_HEADER_RE.search(text):
             offenders.append(f"{rel}: org header string outside transport.py")

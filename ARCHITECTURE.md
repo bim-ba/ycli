@@ -29,8 +29,10 @@ src/ycli/
 - **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests` or
   `uplink`. All HTTP lives in `client.py` / `base.py` / `transport.py`.
 - **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py`. Every MCP
-  tool wraps a read (no `create/update/add/execute/delete/set/remove`) and carries
-  `readOnlyHint=True` (via the `RO` annotation).
+  tool's verb (last `_`-segment of its name) must be in a fail-closed read-verb **allow-list**
+  (`get/list/count/full/search/descendants/meta` — a new read adds its verb deliberately), it
+  carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
+  method (`.create/.update/.add/.execute/…`).
 - **ARCH-4 — Output discipline.** CLI results render through `ycli.output.render`;
   `model_dump_json` may appear only in `src/ycli/output.py`. (Raw passthroughs like
   `json.dumps(raw)`, `print(count)`, `.content` are intentional and allowed.)
@@ -39,6 +41,20 @@ src/ycli/
   from `importlib.metadata`).
 - **ARCH-6 — Public-surface stability.** The CLI command tree and MCP tool list change only by
   regenerating the snapshots in `tests/snapshots/` on purpose.
+
+## Scope & limits of enforcement
+
+The checks are guardrails, not a proof. Known boundaries (the `/arch-review` rubric and human
+review cover the rest):
+
+- **ARCH-2/ARCH-3 catch _direct_ imports** (`allow_indirect_imports=true`, since `cli.py`/`mcp.py`
+  legitimately reach HTTP transitively through `client.py`). An HTTP call hidden behind a new
+  helper module that `cli.py` imports is not caught by import-linter.
+- **ARCH-5 is single-source-of-truth, not secret scanning.** It catches hardcoded `__version__`,
+  `YANDEX_ID_*` assignments, and org-header strings — not an arbitrary raw token literal (that is
+  the job of the token-leak guard, a separate piece of work).
+- **ARCH-6 locks names, not signatures.** A tool/command keeping its name while changing its
+  parameters, description, or return type does not trip the snapshot.
 
 ## Changing an invariant
 
