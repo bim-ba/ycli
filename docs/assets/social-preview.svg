@@ -26,9 +26,6 @@
     <circle cx="1140" cy="580" r="2"/><circle cx="1200" cy="580" r="2"/>
   </g>
 
-  <!-- Left decorative vertical line -->
-  <rect x="80" y="80" width="2" height="480" fill="#313244" opacity="0.8"/>
-
   <!-- Main title: ycli -->
   <text
     x="640" y="210"
@@ -39,9 +36,6 @@
     text-anchor="middle"
     dominant-baseline="middle"
     letter-spacing="-2">ycli</text>
-
-  <!-- Accent underline below title -->
-  <rect x="480" y="258" width="320" height="3" rx="2" fill="#cba6f7"/>
 
   <!-- Tagline -->
   <text
@@ -54,10 +48,10 @@
 
   <!-- Four pill labels -->
   <!-- CLI pill -->
-  <rect x="230" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="230" y="400" width="140" height="52" rx="10" fill="none" stroke="#89b4fa" stroke-width="1.5"/>
+  <rect x="315" y="400" width="140" height="52" rx="10" fill="#313244"/>
+  <rect x="315" y="400" width="140" height="52" rx="10" fill="none" stroke="#89b4fa" stroke-width="1.5"/>
   <text
-    x="300" y="427"
+    x="385" y="427"
     font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
     font-size="20"
     font-weight="bold"
@@ -66,10 +60,10 @@
     dominant-baseline="middle">CLI</text>
 
   <!-- MCP pill -->
-  <rect x="400" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="400" y="400" width="140" height="52" rx="10" fill="none" stroke="#cba6f7" stroke-width="1.5"/>
+  <rect x="485" y="400" width="140" height="52" rx="10" fill="#313244"/>
+  <rect x="485" y="400" width="140" height="52" rx="10" fill="none" stroke="#cba6f7" stroke-width="1.5"/>
   <text
-    x="470" y="427"
+    x="555" y="427"
     font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
     font-size="20"
     font-weight="bold"
@@ -78,10 +72,10 @@
     dominant-baseline="middle">MCP</text>
 
   <!-- SDK pill -->
-  <rect x="570" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="570" y="400" width="140" height="52" rx="10" fill="none" stroke="#a6e3a1" stroke-width="1.5"/>
+  <rect x="655" y="400" width="140" height="52" rx="10" fill="#313244"/>
+  <rect x="655" y="400" width="140" height="52" rx="10" fill="none" stroke="#a6e3a1" stroke-width="1.5"/>
   <text
-    x="640" y="427"
+    x="725" y="427"
     font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
     font-size="20"
     font-weight="bold"
@@ -90,10 +84,10 @@
     dominant-baseline="middle">SDK</text>
 
   <!-- Plugin pill -->
-  <rect x="740" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="740" y="400" width="140" height="52" rx="10" fill="none" stroke="#f9e2af" stroke-width="1.5"/>
+  <rect x="825" y="400" width="140" height="52" rx="10" fill="#313244"/>
+  <rect x="825" y="400" width="140" height="52" rx="10" fill="none" stroke="#f9e2af" stroke-width="1.5"/>
   <text
-    x="810" y="427"
+    x="895" y="427"
     font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
     font-size="20"
     font-weight="bold"

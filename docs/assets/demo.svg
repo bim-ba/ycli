@@ -19,7 +19,7 @@
   <!-- Terminal content area -->
   <g font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace" font-size="13" fill="#cdd6f4">
 
-    <!-- Block 1: ycli --help -->
+    <!-- Block 1: ycli help command -->
     <!-- Prompt -->
     <text x="20" y="70"><tspan fill="#f38ba8" font-weight="bold">❯</tspan><tspan fill="#89dceb"> ycli --help</tspan></text>
 
