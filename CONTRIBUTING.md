@@ -28,6 +28,20 @@ dependency lists.
 - **Secrets:** `.env` and `.mcp.json` are gitignored. Keep real tokens out of commits;
   use `.env.example` / `.mcp.example.json` placeholders.
 
+## Demo GIF
+
+The README demo (`docs/assets/demo.gif`) is generated from `docs/demo/demo.tape` with
+[VHS](https://github.com/charmbracelet/vhs) — never hand-edited. The tape types real
+`ycli` commands; the shims in `docs/demo/bin/` serve the genuine `--help` and leak-free
+baked sample data (no network, no credentials). Regenerate it with:
+
+```bash
+vhs docs/demo/demo.tape    # needs vhs + ttyd + ffmpeg on PATH
+```
+
+CI (`.github/workflows/demo.yml`) re-renders and commits it automatically whenever
+`docs/demo/**` changes, so the demo always reflects the current CLI.
+
 ## Layout
 
 Per-domain SDK lives under `src/ycli/yandex/<domain>/` — each resource group has
