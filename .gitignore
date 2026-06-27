@@ -23,6 +23,9 @@ htmlcov/
 # AI-agent local files
 PROMPT.md
 .mcp.json
+# …except the bundled plugin config, which holds only ${VAR} references (not real secrets).
+!plugins/yandex-360/.mcp.json
 
 # Secrets
 .env
+

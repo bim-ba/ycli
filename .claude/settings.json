@@ -39,6 +39,17 @@
     "yandex-360@ycli": true
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/git_guard.py\""
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
