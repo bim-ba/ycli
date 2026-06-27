@@ -37,7 +37,7 @@ jobs:
       released: ${{ steps.psr.outputs.released }}
       tag: ${{ steps.psr.outputs.tag }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@v7.0.0
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0   # PSR needs full history to evaluate commits
@@ -45,7 +45,7 @@ jobs:
         run: git reset --hard ${{ github.sha }}
       - name: Semantic version release
         id: psr
-        uses: python-semantic-release/python-semantic-release@350c48fcb3ffcdfd2e0a235206bc2ecea6b69df0 # v10.5.3
+        uses: python-semantic-release/python-semantic-release@v10.5.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           git_committer_name: "github-actions"
@@ -65,12 +65,12 @@ jobs:
     permissions:
       id-token: write   # trusted publishing (OIDC)
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@v7.0.0
         with:
           ref: ${{ needs.release.outputs.tag || github.ref }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           python-version: "3.12"
           enable-cache: true
