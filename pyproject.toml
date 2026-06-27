@@ -105,7 +105,16 @@ version_toml = ["pyproject.toml:project.version"]
 tag_format = "v{version}"
 allow_zero_version = true
 major_on_zero = false
-build_command = ""   # skip PSR's build; the release workflow builds with `uv build`
+# PSR doesn't build the package (the publish job does that with `uv build` from the tag).
+# It DOES refresh uv.lock: PSR stamps the new version into pyproject, then this runs so the
+# lock's recorded project version follows — otherwise uv.lock drifts behind every release and
+# CI's `uv sync --locked` goes red on main. The PSR action is a Docker container without uv,
+# so install it here; `git add` stages the lock into PSR's version commit.
+build_command = """
+python -m pip install uv
+uv lock
+git add uv.lock
+"""
 
 [tool.semantic_release.changelog]
 mode = "update"
