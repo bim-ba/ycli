@@ -34,3 +34,10 @@ def test_mcp_subcommand_launches_server(monkeypatch):
     res = runner.invoke(cli.app, ["mcp"])
     assert res.exit_code == 0
     assert calls == ["ran"]
+
+
+def test_completion_is_enabled():
+    """Shell completion is enabled: --install-completion appears in --help."""
+    result = runner.invoke(cli.app, ["--help"])
+    assert result.exit_code == 0
+    assert "install-completion" in result.output
