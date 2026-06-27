@@ -33,7 +33,8 @@ jobs:
       - name: Install VHS toolchain
         run: |
           set -euo pipefail
-          ffmpeg -version >/dev/null   # provided by the runner image
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
           sudo curl -fsSL -o /usr/local/bin/ttyd \
             https://github.com/tsl0922/ttyd/releases/latest/download/ttyd.x86_64
           sudo chmod +x /usr/local/bin/ttyd
