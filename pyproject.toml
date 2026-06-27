@@ -89,6 +89,7 @@ exclude_also = [
 
 [dependency-groups]
 dev = [
+    "import-linter>=2.12",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
@@ -110,3 +111,31 @@ mode = "update"
 
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"
+
+[tool.importlinter]
+root_package = "ycli"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "ARCH-2: cli/mcp/models never import HTTP libraries directly"
+type = "forbidden"
+source_modules = [
+    "ycli.yandex.**.cli",
+    "ycli.yandex.**.mcp",
+    "ycli.yandex.**.models",
+]
+forbidden_modules = ["requests", "uplink"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "ARCH-3: fastmcp is imported only in mcp modules"
+type = "forbidden"
+source_modules = [
+    "ycli.cli",
+    "ycli.output",
+    "ycli.yandex.**.cli",
+    "ycli.yandex.**.client",
+    "ycli.yandex.**.models",
+]
+forbidden_modules = ["fastmcp"]
+allow_indirect_imports = true
