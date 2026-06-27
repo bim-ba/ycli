@@ -5,9 +5,12 @@ Run a subcommand directly: ``uv run ycli wiki pages get <slug>`` (or ``python -m
 
 from __future__ import annotations
 
+from typing import Annotated
+
 import typer
 
 from ycli.log import configure
+from ycli.output import OutputFormat, set_format
 from ycli.yandex.forms.cli import app as forms_app
 from ycli.yandex.tracker.cli import app as tracker_app
 from ycli.yandex.wiki.cli import app as wiki_app
@@ -22,9 +25,15 @@ app = typer.Typer(
 
 
 @app.callback()
-def _main() -> None:
-    """Configure logging once before any subcommand runs."""
+def _main(
+    output_format: Annotated[
+        OutputFormat,
+        typer.Option("--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."),
+    ] = OutputFormat.auto,
+) -> None:
+    """Configure logging and the output format before any subcommand runs."""
     configure()
+    set_format(output_format)
 
 
 app.add_typer(wiki_app)

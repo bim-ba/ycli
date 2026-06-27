@@ -5,6 +5,8 @@ from typing import Annotated
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.wiki._clideps import wiki_client
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
@@ -17,4 +19,4 @@ def list_(
 ) -> None:
     """List comments on a page id (GET /pages/{id}/comments)."""
     client = wiki_client(ctx)
-    print(client.comments.list(page_id=page_id).model_dump_json(by_alias=True))
+    render(client.comments.list(page_id=page_id))

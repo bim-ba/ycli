@@ -6,6 +6,8 @@ from typing import Annotated
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.tracker._clideps import tracker_client
 
 app = typer.Typer(name="links", help="Tracker issue links.", no_args_is_help=True)
@@ -28,7 +30,7 @@ class Relationship(str, Enum):
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List links for issue KEY."""
-    print(tracker_client(ctx).links.list(key).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).links.list(key))
 
 
 @app.command()
@@ -40,4 +42,4 @@ def add(
 ) -> None:
     """Link issue KEY to TARGET with RELATIONSHIP."""
     body = {"relationship": relationship.value, "issue": target}
-    print(tracker_client(ctx).links.add(key, body=body).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).links.add(key, body=body))
