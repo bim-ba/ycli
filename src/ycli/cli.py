@@ -9,6 +9,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.authcli import app as auth_app
 from ycli.log import configure
 from ycli.output import OutputFormat, set_format
 from ycli.yandex.forms.cli import app as forms_app
@@ -35,6 +36,7 @@ def _main(
     set_format(output_format)
 
 
+app.add_typer(auth_app)
 app.add_typer(wiki_app)
 app.add_typer(tracker_app)
 app.add_typer(forms_app)

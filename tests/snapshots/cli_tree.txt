@@ -1,3 +1,5 @@
+auth
+auth status
 forms
 forms answers
 forms answers list
