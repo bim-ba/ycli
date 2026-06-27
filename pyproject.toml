@@ -6,6 +6,19 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
+authors = [{ name = "Sava Znatnov", email = "careless.sava@gmail.com" }]
+keywords = ["yandex", "yandex-360", "tracker", "wiki", "forms", "cli", "mcp", "sdk", "fastmcp", "typer"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
 dependencies = [
     "fastmcp>=3.4.2",
     "loguru>=0.7.3",
@@ -19,12 +32,32 @@ dependencies = [
 ycli = "ycli.cli:main"
 ycli-mcp = "ycli.mcp:main"
 
+[project.urls]
+Homepage = "https://github.com/bim-ba/ycli"
+Repository = "https://github.com/bim-ba/ycli"
+Issues = "https://github.com/bim-ba/ycli/issues"
+Changelog = "https://github.com/bim-ba/ycli/blob/main/CHANGELOG.md"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ycli"]
+
+# Keep the sdist lean: ship only the package + changelog (pyproject, README, and
+# LICENSE are always included from metadata) — not the repo's docs, tests, Claude
+# plugin, agent config, or vendored API references.
+[tool.hatch.build.targets.sdist]
+only-include = ["src/ycli", "CHANGELOG.md"]
+
+# TestPyPI as an explicit publish target (used by `uv publish --index testpypi`).
+# `explicit = true` keeps it out of normal dependency resolution.
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

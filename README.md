@@ -13,7 +13,7 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 [![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed?style=for-the-badge)](https://modelcontextprotocol.io/)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-d97757?style=for-the-badge)](plugins/yandex-360/)
 
-<img src="docs/assets/demo.gif" alt="ycli in action" width="760">
+<img src="https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/demo.gif" alt="ycli in action" width="760">
 
 </div>
 
