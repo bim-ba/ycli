@@ -9,6 +9,8 @@ Lives at the repo root (not under ``tests/``) so the coverage-gated pytest suite
 does not collect it, and it is excluded from the published distribution.
 """
 
+from importlib import resources
+
 import ycli
 from ycli import cli
 
@@ -18,4 +20,8 @@ from ycli import cli
 assert callable(cli.main), "ycli entry point missing"
 assert any(c.name == "mcp" for c in cli.app.registered_commands), "mcp subcommand missing"
 
-print(f"smoke test OK — {ycli.__name__} {ycli.__version__} imports; CLI + mcp subcommand present")
+# The PEP 561 marker must survive the build into the installed package, or
+# downstream type checkers won't see ycli's types.
+assert resources.files("ycli").joinpath("py.typed").is_file(), "py.typed not shipped in the dist"
+
+print(f"smoke test OK — {ycli.__name__} {ycli.__version__} imports; CLI + mcp subcommand + py.typed present")

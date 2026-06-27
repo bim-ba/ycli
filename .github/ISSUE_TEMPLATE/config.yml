@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/bim-ba/ycli/security/advisories/new
+    about: Please report security issues privately — not as a public issue. See SECURITY.md.
+  - name: 💬 Questions & ideas
+    url: https://github.com/bim-ba/ycli/discussions
+    about: Ask a question or float an idea before filing a feature request.
