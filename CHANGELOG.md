@@ -9,6 +9,14 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.3.0 (2026-06-27)
+
+### Features
+
+- Architecture guardrails enforcing the six ARCH invariants
+  ([`6bbc381`](https://github.com/bim-ba/ycli/commit/6bbc38148a9a0b930171210351166a7cac51b128))
+
+
 ## v0.2.1 (2026-06-27)
 
 ### Bug Fixes
