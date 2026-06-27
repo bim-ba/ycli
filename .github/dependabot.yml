@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Python runtime + dev dependencies (uv project — Dependabot reads pyproject.toml + uv.lock).
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["dependencies"]
+    groups:
+      python:
+        patterns: ["*"]
+
+  # Keep the SHA-pinned GitHub Actions current (and patched).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["ci"]
+    groups:
+      actions:
+        patterns: ["*"]
