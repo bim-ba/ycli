@@ -6,6 +6,31 @@ type: index
 
 # Wiki API — Comprehensive Reference
 
+> [!WARNING]
+> **This `index/` is navigation-only. `../07-api/` is the single source of truth.**
+> The endpoint listings here (and in `index/endpoints/*`) were machine-generated and contain
+> **phantom paths that do not exist in the real v1 API.** Never implement an endpoint from this
+> file without confirming it under `../07-api/`. The public API has ~39 endpoints.
+>
+> **Confirmed phantom / wrong (verified against the live API — do NOT implement as written):**
+> - `PATCH /pages/{id}` — page update is `POST /pages/{idx}` (PATCH returns 405).
+> - `GET /pages/get-by-slug` → real is `GET /pages?slug=…`.
+> - `GET /pages/children-by-slug` → real is `GET /pages/descendants?slug=…`.
+> - `GET /pages/search` — **no full-text search API** (UI-only).
+> - `POST /pages/{id}/move` — **no move operation exists.**
+> - `GET /pages/{id}/history` (+ `/history/{revisionId}`) — **no history/versions API** (UI-only).
+> - `POST /pages/{id}/restore` → real is `POST /recovery_tokens/{idx}/recover`.
+> - `POST /pages/{id}/content/append` → real is `POST /pages/{idx}/append-content`.
+> - `POST /pages/{id}/copy` → real is `POST /pages/{idx}/clone`.
+> - `GET /operations/{operationId}` → real are `/operations/clone/{task_id}` and
+>   `/operations/clone_inline_grid/{task_id}`.
+> - Page-nested `…/attachments/upload-session/*` → real upload sessions are top-level
+>   `/upload_sessions/{idx}/{upload_part,finish,abort}`.
+> - Grid per-row/column/cell ID-addressed `PATCH`/`DELETE` and `GET …/rows|columns` → real grid
+>   ops are bulk `POST`/`DELETE` on collection paths (`/grids/{idx}/rows`, `/cells`, `/{rows,columns}/move`).
+>
+> Not gaps (no public API, UI-only): full-text search, page history/versions, ACL/permissions, move.
+
 **Base URL:** `https://api.wiki.yandex.net`
 **Auth header:** `Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN`
 **Org header:** `X-Org-Id: $YANDEX_ID_ORGANIZATION_ID`

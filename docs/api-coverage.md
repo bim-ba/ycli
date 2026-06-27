@@ -10,26 +10,32 @@ audit of `src/ycli/yandex/**` cross-checked against the vendored docs in
 
 ## Coverage at a glance
 
-| Service | Resource families | Endpoints wrapped | Read coverage | Write coverage |
-|---------|-------------------|-------------------|---------------|----------------|
-| **Tracker** | 9 / ~25 (~35%) | ~10 | issue-centric path solid; org-level absent (~40–45%) | minimal (~15–20%): issue create/update, comment add, link add, transition execute |
-| **Wiki** | 3 / ~9 (~33%) | ~7 / ~35 (~20%) | common path solid; gaps remain | `pages create`/`update` only |
-| **Forms** | 4 / 9 (~44%) | 5 / ~30 (~17%) | ~36% (no pagination, no single-item gets) | **0%** — entirely absent (public API supports it) |
+Verified 2026-06-27 by a per-service source audit cross-checked against the live official API
+(supersedes the earlier estimates — endpoint counts were inflated by the navigation-only `index/`
+trees, now corrected to the authoritative `18-api/` / `07-api/` / `09-api/` figures).
+
+| Service | Public endpoints | Wrapped | Read coverage | Write coverage |
+|---------|------------------|---------|---------------|----------------|
+| **Tracker** | ~152 | 16 | ~17% | ~6% (issue create/update, comment add, link add, transition execute) |
+| **Wiki** | 39 | 6 | ~25% | ~9% (`pages create`/`update` only) |
+| **Forms** | 31 | 5 | ~28% | **0%** — entirely absent (public API supports it) |
+| **Total** | **~222** | **27** | — | **≈12% overall** |
 
 ## Cross-cutting findings (act on these first)
 
-1. **🐞 Bug — Forms `answers list` ignores pagination.** It returns only the first page; the
-   API paginates via `next.next_url`. Today `ycli forms answers list <id>` silently under-reports
-   responses. This is a correctness bug, not just a missing feature. **Fix first.**
-2. **📄 Docs rot — Wiki `index/` describes phantom endpoints.** `docs/references/yandex/wiki/index/docs.md`
-   (and `index/endpoints/*`) list endpoints that do **not** exist in the real v1 API
-   (`PATCH /pages/{id}`, `/pages/{id}/move`, `/pages/{id}/history`, `/pages/search`, a `/restore`
-   path, `upload-session` paths). The authoritative source is `07-api/`, which the current code
-   already matches (e.g. update is `POST /pages/{id}`). **Reconcile `index/` to `07-api/`** so we
-   never implement a phantom endpoint.
-3. **🔑 Write auth header.** Adding writes (esp. Forms) needs the `forms:write` scope and the org
-   header. Verify `src/ycli/yandex/base.py::session_from_env` sends the org header on the write
-   path before implementing Forms/Wiki write expansion.
+1. **🐞 ✅ FIXED (2026-06-27) — Forms `answers list` ignored pagination.** It returned only the
+   first page; the API paginates via `next.next_url`. Now `AnswersClient.list_all` follows the
+   `next_url` cursor verbatim until exhausted, and the CLI (`forms answers list`) + MCP
+   (`answers_list`) call it — draining every page. Covered by tests across all three surfaces.
+2. **📄 ✅ RECONCILED (2026-06-27) — `index/` described phantom endpoints.** Both
+   `docs/references/yandex/{tracker,wiki}/index/docs.md` now carry a prominent warning banner
+   naming the authoritative dir (`18-api/` / `07-api/`) and listing every confirmed phantom/wrong
+   path (e.g. Tracker has **no** `DELETE /v3/issues/{key}`; Wiki has no `PATCH /pages/{id}`,
+   `/move`, `/history`, `/search`). Treat `index/` as navigation-only; never implement from it.
+3. **🔑 ✅ VERIFIED (2026-06-27) — Write auth header is sent.** `Transport.session` sets a single
+   canonical `X-Org-Id` header on the session for **every** request, writes included
+   (case-insensitive per RFC 9110 → serves Tracker's `X-Org-ID` too). No change needed; the
+   `forms:write` OAuth scope is a token-provisioning concern, not a code gap.
 4. **Read-only MCP stays read-only.** Any new write endpoint goes to SDK + CLI only; never add an
    MCP write tool.
 
@@ -83,7 +89,7 @@ transitions (list/execute), worklog (list), changelog, priorities, issuetypes, l
 
 | Tier | Capability | Surfaces | Why |
 |------|-----------|----------|-----|
-| **🐞 Fix first** | answers pagination (follow `next.next_url`) | SDK+CLI+MCP | Correctness — current list returns page 1 only |
+| ~~**🐞 Fix first**~~ ✅ done | answers pagination (follow `next.next_url`) | SDK+CLI+MCP | Correctness — was returning page 1 only; `list_all` now drains all pages |
 | **Quick win** | publish / unpublish survey | CLI | The flagship "automate forms" use-case; single call, no body |
 | **Quick win (read)** | get single question / get single answer | SDK+CLI+MCP | Round out reads; MCP-safe |
 | **Medium** | answer export + Operations poll (`export` → `operations/{id}` → `export-results`) | CLI | The real way to pull all responses as xlsx/csv |

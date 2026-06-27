@@ -6,7 +6,27 @@ type: index
 
 # Yandex Tracker API — Documentation Index
 
-Full docs: `docs/40-references/yandex/tracker/` (the section directories beside this index) (18 directories, 397 files, ~500 API endpoints)
+> [!WARNING]
+> **This `index/` is navigation-only. `../18-api/` is the single source of truth.**
+> The quick-reference tables below were machine-generated: the count is inflated (the real
+> surface is ~152 endpoints, not "~500") and several paths are **phantom or wrong**. Never
+> implement an endpoint from this file without confirming it exists under `../18-api/`.
+>
+> **Confirmed phantom / wrong (verified against the live API — do NOT implement as written):**
+> - `DELETE /v3/issues/{key}` — **no issue-deletion endpoint exists** in the Tracker API.
+> - `GET /v3/fields/{id}/values` — phantom; field values come from `GET /v3/fields/{id}`.
+> - `…/issues/{key}/move` → real path is `…/issues/{key}/_move?queue=…`.
+> - `…/issues/{key}/history` → real resource is `…/issues/{key}/changelog`.
+> - `GET /v3/bulkchange/_status/{id}` → real path is `GET /v3/bulkchange/{id}`.
+> - Reactions need the emoji name: `…/comments/{id}/reactions/{name}`.
+> - `…/issues/{id}/externalLinks` → real path is `…/issues/{id}/remotelinks`.
+> - `POST /v3/boards/` → boards are created via `POST /v3/liveBoards/`.
+> - `…/attachments/upload` (temp) → real path is `POST …/attachments/`.
+> - Entities: `_bulk_edit` → `entities/bulkchange/_update`; `/files` → `/attachments`;
+>   `/checklists` → `/checklistItems`.
+> - Import worklog `…/worklog/_import` → real path is `…/worklogs/_import`.
+
+Full docs: `../18-api/` (the section directories beside this index) — ~152 endpoints across 18 resource families.
 
 Base URL: `https://api.tracker.yandex.net/v3`
 Auth: `Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN` + `X-Org-ID: $YANDEX_ID_ORGANIZATION_ID`
