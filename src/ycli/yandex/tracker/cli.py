@@ -9,12 +9,14 @@ from ycli.yandex.tracker.issues.cli import app as issues_app
 from ycli.yandex.tracker.issuetypes.cli import app as issuetypes_app
 from ycli.yandex.tracker.links.cli import app as links_app
 from ycli.yandex.tracker.linktypes.cli import app as linktypes_app
+from ycli.yandex.tracker.me.cli import app as me_app
 from ycli.yandex.tracker.priorities.cli import app as priorities_app
 from ycli.yandex.tracker.transitions.cli import app as transitions_app
 from ycli.yandex.tracker.worklog.cli import app as worklog_app
 
 app = typer.Typer(name="tracker", help="Yandex Tracker read/write.", no_args_is_help=True)
 
+app.add_typer(me_app)
 app.add_typer(issues_app)
 app.add_typer(comments_app)
 app.add_typer(links_app)

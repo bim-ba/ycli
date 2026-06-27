@@ -13,6 +13,7 @@ tracker_issues_search
 tracker_issuetypes_list
 tracker_links_list
 tracker_linktypes_list
+tracker_me_get
 tracker_priorities_list
 tracker_transitions_list
 tracker_worklog_list
