@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.2.1 (2026-06-27)
+
+### Bug Fixes
+
+- Ship PEP 561 py.typed marker so type checkers see ycli's types
+  ([`22986e4`](https://github.com/bim-ba/ycli/commit/22986e4c0992e580112e99a16f0bc1d8492eea29))
+
+### Continuous Integration
+
+- Re-trigger release pipeline for the pending py.typed fix
+  ([`69458c1`](https://github.com/bim-ba/ycli/commit/69458c1a3b91661aa798f16eb4d86f31d9469084))
+
+
 ## v0.2.0 (2026-06-27)
 
 ### Continuous Integration
