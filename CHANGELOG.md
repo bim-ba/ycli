@@ -9,6 +9,15 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.4.0 (2026-06-27)
+
+### Features
+
+- Track B — AI-infra hardening (CI-skip guard, gitleaks, bundled plugin MCP, release/conventions
+  docs)
+  ([`5ae61ad`](https://github.com/bim-ba/ycli/commit/5ae61ad938631c76daf6202e1318bbbd6f1d5623))
+
+
 ## v0.3.0 (2026-06-27)
 
 ### Features
