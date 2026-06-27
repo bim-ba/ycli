@@ -9,7 +9,7 @@ from ycli.yandex.tracker.issuetypes.models import IssueTypeList
 mcp = FastMCP("tracker-issuetypes")
 
 
-@mcp.tool(name="issuetypes_list", annotations=RO, tags=TAGS)
+@mcp.tool(name="issuetypes_list", annotations={**RO, "title": "List Tracker issue types"}, tags=TAGS)
 def list_(client: TrackerClient = Depends(tracker_client)) -> IssueTypeList:
     """All available issue types (e.g. task, bug, epic)."""
     return client.issuetypes.list()

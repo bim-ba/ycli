@@ -9,7 +9,7 @@ from ycli.yandex.tracker.transitions.models import TransitionList
 mcp = FastMCP("tracker-transitions")
 
 
-@mcp.tool(name="transitions_list", annotations=RO, tags=TAGS)
+@mcp.tool(name="transitions_list", annotations={**RO, "title": "List Tracker issue transitions"}, tags=TAGS)
 def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> TransitionList:
     """Available workflow transitions for a Tracker issue."""
     return client.transitions.list(key)

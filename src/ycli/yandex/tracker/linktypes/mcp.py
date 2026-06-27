@@ -9,7 +9,7 @@ from ycli.yandex.tracker.linktypes.models import LinkTypeList
 mcp = FastMCP("tracker-linktypes")
 
 
-@mcp.tool(name="linktypes_list", annotations=RO, tags=TAGS)
+@mcp.tool(name="linktypes_list", annotations={**RO, "title": "List Tracker link types"}, tags=TAGS)
 def list_(client: TrackerClient = Depends(tracker_client)) -> LinkTypeList:
     """All available link types (e.g. relates, depends on, blocks)."""
     return client.linktypes.list()

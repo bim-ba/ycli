@@ -11,7 +11,14 @@ from ycli.yandex.tracker.priorities.mcp import mcp as priorities_mcp
 from ycli.yandex.tracker.transitions.mcp import mcp as transitions_mcp
 from ycli.yandex.tracker.worklog.mcp import mcp as worklog_mcp
 
-mcp = FastMCP("tracker")
+mcp = FastMCP(
+    "tracker",
+    instructions=(
+        "Read-only Yandex Tracker. Reference issues by key (e.g. QUEUE-123). "
+        "issues_search / issues_count take a TQL query string; issues_list takes structured "
+        "filters (queue/status/assignee/epic/type)."
+    ),
+)
 mcp.mount(issues_mcp)
 mcp.mount(comments_mcp)
 mcp.mount(links_mcp)

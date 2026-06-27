@@ -9,7 +9,7 @@ from ycli.yandex.forms.me.models import User
 mcp = FastMCP("forms-me")
 
 
-@mcp.tool(name="me_get", annotations=RO, tags=TAGS)
+@mcp.tool(name="me_get", annotations={**RO, "title": "Get current Forms user"}, tags=TAGS)
 def get(client: FormsClient = Depends(forms_client)) -> User:
     """The authenticated Yandex Forms user (a safe auth probe)."""
     result = client.me.get()

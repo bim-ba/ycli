@@ -9,7 +9,7 @@ from ycli.yandex.tracker.worklog.models import WorklogList
 mcp = FastMCP("tracker-worklog")
 
 
-@mcp.tool(name="worklog_list", annotations=RO, tags=TAGS)
+@mcp.tool(name="worklog_list", annotations={**RO, "title": "List Tracker worklog"}, tags=TAGS)
 def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> WorklogList:
     """Time-tracking entries logged against a Tracker issue."""
     return client.worklog.list(key)
