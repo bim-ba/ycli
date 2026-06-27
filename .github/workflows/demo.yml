@@ -27,12 +27,21 @@ jobs:
       - name: Install project
         run: uv sync --locked --dev
 
+      # Install VHS + ttyd ourselves (ffmpeg is preinstalled on ubuntu-latest).
+      # The charmbracelet/vhs-action bundles flaky font/ffmpeg downloaders that
+      # break on the runner, so we set the toolchain up directly instead.
+      - name: Install VHS toolchain
+        run: |
+          set -euo pipefail
+          ffmpeg -version >/dev/null   # provided by the runner image
+          sudo curl -fsSL -o /usr/local/bin/ttyd \
+            https://github.com/tsl0922/ttyd/releases/latest/download/ttyd.x86_64
+          sudo chmod +x /usr/local/bin/ttyd
+          go install github.com/charmbracelet/vhs@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Render demo GIF
-        uses: charmbracelet/vhs-action@v1
-        with:
-          path: docs/demo/demo.tape
-          # default JetBrains Mono is enough; the extra-fonts download is flaky in CI
-          install-fonts: "false"
+        run: vhs docs/demo/demo.tape
 
       - name: Commit regenerated GIF
         uses: stefanzweifel/git-auto-commit-action@v5
