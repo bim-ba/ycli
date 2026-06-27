@@ -1,30 +1,73 @@
 name: release
 
-# Phase A (manual): build and publish to TestPyPI or PyPI via PyPI Trusted
-# Publishing (OIDC) — no tokens/secrets. Pick the index when dispatching.
-# Phase B will add automated python-semantic-release versioning on top of this
-# same workflow file (keep the filename stable: the trusted publisher points here).
+# Automated releases (python-semantic-release) + PyPI publishing via trusted
+# publishing (OIDC, no tokens). On push to main, PSR computes the next version
+# from Conventional Commits, stamps pyproject + CHANGELOG, tags `vX.Y.Z`, and
+# creates a GitHub Release; the publish job then builds that tag and uploads to
+# PyPI — all in one run (so no PAT is needed to chain the tag). The manual
+# workflow_dispatch path stays for ad-hoc publishing to TestPyPI/PyPI.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       index:
-        description: "Index to publish to"
+        description: "Index to publish to (manual runs only)"
         type: choice
         options:
           - testpypi
           - pypi
         default: testpypi
 
+permissions:
+  contents: read
+
 jobs:
-  publish:
+  release:
+    # Automated versioning only on push to main; manual dispatch skips straight to publish.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: ${{ inputs.index }}
+    concurrency:
+      group: ${{ github.workflow }}-release
+      cancel-in-progress: false
     permissions:
-      id-token: write   # required for trusted publishing (OIDC)
-      contents: read
+      contents: write   # PSR pushes the release commit + tag and creates the GitHub Release
+    outputs:
+      released: ${{ steps.psr.outputs.released }}
+      tag: ${{ steps.psr.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0   # PSR needs full history to evaluate commits
+      - name: Pin to the triggering commit
+        run: git reset --hard ${{ github.sha }}
+      - name: Semantic version release
+        id: psr
+        uses: python-semantic-release/python-semantic-release@v10
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
+
+  publish:
+    needs: [release]
+    # Auto: only when PSR cut a release. Manual: always, to the chosen index.
+    if: >-
+      always() &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'push' && needs.release.outputs.released == 'true')
+      )
+    runs-on: ubuntu-latest
+    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.index) || 'pypi' }}
+    permissions:
+      id-token: write   # trusted publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release.outputs.tag || github.ref }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -39,9 +82,9 @@ jobs:
       - name: Smoke test (sdist)
         run: uv run --isolated --no-project --with dist/*.tar.gz smoke_test.py
 
-      - name: Publish to ${{ inputs.index }}
+      - name: Publish
         run: |
-          if [ "${{ inputs.index }}" = "testpypi" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.index }}" = "testpypi" ]; then
             uv publish --index testpypi
           else
             uv publish
