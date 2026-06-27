@@ -41,13 +41,15 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Never write a skip-ci token.** `[skip ci]` / `[ci skip]` / `[no ci]` / `[skip actions]` /
   `[actions skip]`, or a `skip-checks: true` commit trailer, anywhere in a commit **or
   squash-merge** message makes GitHub silently cancel the workflow run — and with it the
-  release. The `git_guard` PreToolUse hook (`.claude/hooks/`) blocks these in `git`/`gh`
-  commit/merge commands; the `no-skip-ci` pre-commit hook blocks the literal tokens from
-  being staged into tracked files; this rule covers what neither can see (e.g. a message
-  typed in the GitHub UI).
+  release. The `git_guard` PreToolUse hook (`.claude/hooks/`) blocks all of these in the
+  `git`/`gh` commit/merge command string (its one blind spot: a message passed via file,
+  e.g. `git commit -F`); the `no-skip-ci` pre-commit hook additionally catches `[skip ci]` /
+  `[ci skip]` written into staged file *content*; this rule covers what neither can see (a
+  message typed in the GitHub UI).
 - **Secrets never reach a commit.** gitleaks runs in pre-commit and CI. Credentials come
-  from the env (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`); `.env` / `.mcp.json`
-  are gitignored. Config and tests reference `${VAR}`, never literal values.
+  from the env (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`); the root `.env` /
+  `.mcp.json` are gitignored. The one committed `.mcp.json` (the bundled plugin config)
+  holds only `${VAR}` references — config and tests never embed literal values.
 - **Reproducible artifacts.** Generated demos/tables come from a committed source —
   regenerate, never hand-author (the `demo.svg` incident).
 - **Branch → PR → explicit approval before merge.** No direct pushes to `main`.

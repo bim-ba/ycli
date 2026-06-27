@@ -36,7 +36,14 @@ def _deny(reason: str) -> dict:
 
 
 def decide(command: str) -> dict | None:
-    """Return a PreToolUse deny payload for a skip-ci commit/merge, else None."""
+    """Return a PreToolUse deny payload for a skip-ci commit/merge, else None.
+
+    Scope: this inspects the command STRING only. A token supplied out-of-band —
+    ``git commit -F msg.txt``, ``gh pr merge --body-file b.txt``, ``--amend --no-edit`` —
+    is invisible here and falls through to the other two layers (the no-skip-ci
+    pre-commit hook and the human merge step). The common agent path (``-m``/``-b``)
+    is fully covered.
+    """
     if not COMMIT_CMD_RE.search(command):
         return None
     low = command.lower()
@@ -60,6 +67,7 @@ def main() -> None:
     if decision is not None:
         json.dump(decision, sys.stdout)
         sys.stdout.write("\n")
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":
