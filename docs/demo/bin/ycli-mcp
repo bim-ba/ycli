@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# Demo shim for docs/demo/demo.tape — prints a representative read-only MCP
-# startup banner with REAL tool names, then exits (does not block recording).
-cat <<'OUT'
-Starting MCP server on stdio …
-Tools: wiki_pages_get, wiki_pages_descendants, tracker_issues_get,
-       tracker_issues_list, tracker_issues_search, forms_surveys_list, forms_answers_list
-OUT

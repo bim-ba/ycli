@@ -1,0 +1,48 @@
+name: release
+
+# Phase A (manual): build and publish to TestPyPI or PyPI via PyPI Trusted
+# Publishing (OIDC) — no tokens/secrets. Pick the index when dispatching.
+# Phase B will add automated python-semantic-release versioning on top of this
+# same workflow file (keep the filename stable: the trusted publisher points here).
+
+on:
+  workflow_dispatch:
+    inputs:
+      index:
+        description: "Index to publish to"
+        type: choice
+        options:
+          - testpypi
+          - pypi
+        default: testpypi
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.index }}
+    permissions:
+      id-token: write   # required for trusted publishing (OIDC)
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build
+        run: uv build
+
+      - name: Smoke test (wheel)
+        run: uv run --isolated --no-project --with dist/*.whl smoke_test.py
+      - name: Smoke test (sdist)
+        run: uv run --isolated --no-project --with dist/*.tar.gz smoke_test.py
+
+      - name: Publish to ${{ inputs.index }}
+        run: |
+          if [ "${{ inputs.index }}" = "testpypi" ]; then
+            uv publish --index testpypi
+          else
+            uv publish
+          fi

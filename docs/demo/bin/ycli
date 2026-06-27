@@ -18,6 +18,13 @@ onboarding  ·  Team Onboarding Guide
 author: bob   revision: 7   children: 4
 OUT
     ;;
+  "mcp")
+    cat <<'OUT'
+Starting MCP server on stdio …
+Tools: wiki_pages_get, wiki_pages_descendants, tracker_issues_get,
+       tracker_issues_list, tracker_issues_search, forms_surveys_list, forms_answers_list
+OUT
+    ;;
   *)
     exec uv run ycli "$@" ;;
 esac

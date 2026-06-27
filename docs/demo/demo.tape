@@ -37,5 +37,5 @@ Type "ycli wiki pages get onboarding" Sleep 500ms Enter
 Sleep 2s
 
 # Read-only MCP server banner with real tool names.
-Type "ycli-mcp" Sleep 500ms Enter
+Type "ycli mcp" Sleep 500ms Enter
 Sleep 3s

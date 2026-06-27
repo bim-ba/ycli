@@ -5,8 +5,9 @@
 ## Project Overview
 
 `ycli` interacts with Yandex 360 services (Tracker, Wiki, Forms; more to come) and exposes
-the same SDK four ways: a Typer **CLI** (`ycli`), a FastMCP **server** (`ycli-mcp`), an
-importable **Python SDK** (`ycli.yandex.*`), and a Claude Code **plugin** under `plugins/yandex-360/`.
+the same SDK four ways: a Typer **CLI** (`ycli` / `yandex-cli`), a FastMCP **server**
+(`ycli mcp`, optional `[mcp]` extra), an importable **Python SDK** (`ycli.yandex.*`), and a
+Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex-cli`.
 
 - **Stack:** Python ≥3.12, managed with `uv`. `requests` + `uplink` (HTTP/SDK), `typer`
   (CLI), `fastmcp` (MCP), `pydantic` (models), `loguru` (logging).
