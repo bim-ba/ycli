@@ -30,5 +30,5 @@ Or, working inside this repository, it is registered as a local marketplace in
 
 ## Requires
 
-The [`ycli`](../../README.md) package on `PATH` (`uv add ycli`) and two environment variables:
+The [`ycli`](../../README.md) package on `PATH` (`uv add 'yandex-cli[mcp]'`) and two environment variables:
 `YANDEX_ID_OAUTH_TOKEN`, `YANDEX_ID_ORGANIZATION_ID`. The `yandex-360` skill walks through setup.

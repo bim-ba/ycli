@@ -22,12 +22,13 @@ gets access configured and routes you to the right domain skill.
 
 ## 1. Install
 
-`ycli` is a Python package (managed with `uv`):
+`ycli` is published on PyPI as **`yandex-cli`** (managed with `uv`):
 
 ```bash
-uv add ycli          # into a project
+uv add yandex-cli           # into a project (CLI + SDK)
+uv add 'yandex-cli[mcp]'    # …with the MCP server
 # or run ad-hoc:
-uvx --from ycli ycli --help
+uvx yandex-cli --help
 ```
 
 ## 2. Authenticate (required before any call)
@@ -48,7 +49,7 @@ clients handle this for you; it only matters if you fall back to raw HTTP.
 | Surface | Use when | How |
 |---------|----------|-----|
 | **CLI** | Interactive / shell / scripting | `uv run ycli <domain> <group> <cmd>` (e.g. `uv run ycli tracker issues get KEY`) |
-| **MCP server** | An LLM agent needs Yandex 360 tools | Run `uv run ycli-mcp` (stdio); tools are namespaced `tracker_*`, `wiki_*`, `forms_*` — **reads only** |
+| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp` (stdio; needs the `[mcp]` extra); tools are namespaced `tracker_*`, `wiki_*`, `forms_*` — **reads only** |
 | **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient.from_env()` |
 
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
@@ -56,7 +57,7 @@ Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 ```json
 {
   "mcpServers": {
-    "yandex": { "command": "uv", "args": ["run", "ycli-mcp"] }
+    "yandex": { "command": "uvx", "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp"] }
   }
 }
 ```

@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release: Yandex 360 toolkit for **Tracker**, **Wiki**, and **Forms**.
-- Four surfaces from one codebase: Typer **CLI** (`ycli`), FastMCP **server** (`ycli-mcp`,
-  read-only), importable **Python SDK** (`ycli.yandex.*`), and a **Claude Code plugin**
-  (`plugins/yandex-360/`).
+- Four surfaces from one codebase: Typer **CLI** (`ycli` / `yandex-cli`), FastMCP **server**
+  (`ycli mcp`, read-only, `[mcp]` extra), importable **Python SDK** (`ycli.yandex.*`), and a
+  **Claude Code plugin** (`plugins/yandex-360/`).
+- Published on PyPI as **`yandex-cli`** (`uv add yandex-cli`, or `yandex-cli[mcp]` for the server).
 - Test suite at 100% coverage with `responses`-stubbed HTTP.

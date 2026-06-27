@@ -1612,16 +1612,20 @@ wheels = [
 ]
 
 [[package]]
-name = "ycli"
+name = "yandex-cli"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "fastmcp" },
     { name = "loguru" },
     { name = "pydantic" },
     { name = "requests" },
     { name = "typer" },
     { name = "uplink" },
+]
+
+[package.optional-dependencies]
+mcp = [
+    { name = "fastmcp" },
 ]
 
 [package.dev-dependencies]
@@ -1634,13 +1638,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastmcp", specifier = ">=3.4.2" },
+    { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=3.4.2" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "typer", specifier = ">=0.26.8" },
     { name = "uplink", specifier = ">=0.10.0" },
 ]
+provides-extras = ["mcp"]
 
 [package.metadata.requires-dev]
 dev = [

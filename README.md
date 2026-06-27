@@ -25,7 +25,24 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
   tools so agents explore safely; writes stay in the CLI/SDK.
 - 🛡️ **Trustworthy** — typed pydantic models, the real Yandex API quirks handled for you,
   and a test suite kept at **100% coverage**.
-- ⚡ **Zero-friction start** — `uv sync`, two env vars, go.
+- ⚡ **Zero-friction start** — `uv add yandex-cli`, two env vars, go.
+
+## Install
+
+```bash
+uv add yandex-cli            # CLI + Python SDK
+uv add 'yandex-cli[mcp]'     # …plus the MCP server (`ycli mcp`)
+```
+
+Run it without installing, or install it as a standalone tool:
+
+```bash
+uvx yandex-cli --help                 # one-off, no install
+uv tool install yandex-cli            # persistent CLI
+uv tool install 'yandex-cli[mcp]'     # …with the MCP server
+```
+
+`pip install yandex-cli` works too. The CLI ships as both `yandex-cli` and the short `ycli`.
 
 ## Quick start
 
@@ -35,31 +52,31 @@ Pick the surface that fits how you work.
 <summary><b>CLI</b></summary>
 
 ```bash
-uv sync
-uv run ycli --help
-uv run ycli tracker issues get TRACKER-1
-uv run ycli wiki pages get onboarding
+uv add yandex-cli
+ycli --help
+ycli tracker issues get TRACKER-1
+ycli wiki pages get onboarding
 ```
 </details>
 
 <details>
 <summary><b>MCP server</b> (read-only)</summary>
 
-Run it over stdio:
+Run it over stdio (needs the `mcp` extra):
 
 ```bash
-uv run ycli-mcp
+ycli mcp
 ```
 
-Point an MCP client at it (tools are namespaced `tracker_*`, `wiki_*`, `forms_*`):
+Point an MCP client at it — no prior install needed via `uvx` (tools are namespaced
+`tracker_*`, `wiki_*`, `forms_*`):
 
 ```json
 {
   "mcpServers": {
-    "ycli": {
-      "command": "uv",
-      "args": ["run", "ycli-mcp"],
-      "cwd": "/path/to/ycli",
+    "yandex": {
+      "command": "uvx",
+      "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp"],
       "env": {
         "YANDEX_ID_OAUTH_TOKEN": "...",
         "YANDEX_ID_ORGANIZATION_ID": "..."
@@ -166,8 +183,8 @@ handles it for you.
 
 ```text
 src/ycli/
-├── cli.py              # root Typer CLI  → `ycli`
-├── mcp.py              # root FastMCP server → `ycli-mcp` (read-only)
+├── cli.py              # root Typer CLI  → `ycli` / `yandex-cli`
+├── mcp.py              # root FastMCP server → `ycli mcp` (read-only, `[mcp]` extra)
 ├── log.py              # central loguru config
 └── yandex/
     ├── tracker/        # per-domain SDK …
@@ -180,7 +197,7 @@ docs/references/        # vendored Yandex API reference docs
 ## Development
 
 ```bash
-uv sync
+uv sync --all-extras   # --all-extras pulls in the `mcp` extra the tests exercise
 uv run pytest          # 100% coverage gate; HTTP stubbed with `responses` (no live network)
 ```
 

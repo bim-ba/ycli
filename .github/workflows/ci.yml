@@ -19,6 +19,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: uv sync --locked --dev
+        # --all-extras pulls in the optional 'mcp' extra (fastmcp) so the
+        # 100%-coverage suite, which exercises the MCP modules, can import it.
+        run: uv sync --locked --all-extras --dev
       - name: Run tests
         run: uv run pytest

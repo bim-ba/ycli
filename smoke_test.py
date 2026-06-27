@@ -10,10 +10,12 @@ does not collect it, and it is excluded from the published distribution.
 """
 
 import ycli
-from ycli import cli, mcp
+from ycli import cli
 
-# The console-script entry points (`ycli`, `ycli-mcp`) resolve to these callables.
+# Verify the BASE install (no 'mcp' extra): the package and the CLI entry point
+# import without pulling in fastmcp. The `ycli mcp` subcommand is registered here
+# but only imports the server lazily, so this must not require the extra.
 assert callable(cli.main), "ycli entry point missing"
-assert callable(mcp.main), "ycli-mcp entry point missing"
+assert any(c.name == "mcp" for c in cli.app.registered_commands), "mcp subcommand missing"
 
-print(f"smoke test OK — {ycli.__name__} imports and exposes both entry points")
+print(f"smoke test OK — {ycli.__name__} {ycli.__version__} imports; CLI + mcp subcommand present")
