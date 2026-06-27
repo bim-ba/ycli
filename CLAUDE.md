@@ -28,3 +28,12 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **MCP server is read-only;** writes are CLI/SDK only.
 - **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
   (`.env.example` / `.mcp.example.json` hold placeholders).
+
+## Architecture invariants (enforced)
+
+The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
+for the six invariants (ARCH-1..6). They are verified by `tests/test_architecture.py`,
+import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
+them: HTTP only in `client.py`; CLI output only via `ycli.output.render`; MCP tools read-only;
+new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
+enforcing check in the **same** PR and flag it.

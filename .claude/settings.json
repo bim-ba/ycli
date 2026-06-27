@@ -37,5 +37,17 @@
     "core@spark": true,
     "data@spark": true,
     "yandex-360@ycli": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/test_architecture.py tests/test_snapshots.py --no-cov && uv run lint-imports'"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -1,0 +1,21 @@
+# Fast local guardrails — run: uv run pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: lint-imports
+        name: import-linter (ARCH-2/3 boundaries)
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        files: ^src/ycli/.*\.py$
+      - id: architecture-tests
+        name: architecture invariants (ARCH-1/3/4/5)
+        entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov
+        language: system
+        pass_filenames: false
+        files: ^(src/ycli/|tests/).*\.py$
+      - id: no-skip-ci
+        name: block skip-ci tokens in tracked files
+        entry: bash -c '! git diff --cached -U0 | grep -nE "\[(skip ci|ci skip)\]"'
+        language: system
+        pass_filenames: false

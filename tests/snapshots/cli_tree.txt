@@ -1,0 +1,49 @@
+forms
+forms answers
+forms answers list
+forms me
+forms me get
+forms questions
+forms questions list
+forms surveys
+forms surveys get
+forms surveys list
+mcp
+tracker
+tracker changelog
+tracker changelog list
+tracker comments
+tracker comments add
+tracker comments list
+tracker issues
+tracker issues count
+tracker issues create
+tracker issues full
+tracker issues get
+tracker issues list
+tracker issues search
+tracker issues update
+tracker issuetypes
+tracker issuetypes list
+tracker links
+tracker links add
+tracker links list
+tracker linktypes
+tracker linktypes list
+tracker priorities
+tracker priorities list
+tracker transitions
+tracker transitions execute
+tracker transitions list
+tracker worklog
+tracker worklog list
+wiki
+wiki attachments
+wiki attachments list
+wiki comments
+wiki comments list
+wiki pages
+wiki pages create
+wiki pages descendants
+wiki pages get
+wiki pages update

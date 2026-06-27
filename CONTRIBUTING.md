@@ -14,6 +14,17 @@ You need Python ≥ 3.12. Dependencies are managed with `uv` — add them with
 `uv add <pkg>` (runtime) or `uv add --dev <pkg>`; never hand-edit `pyproject.toml`
 dependency lists.
 
+### Architecture guardrails
+
+The structure in [`ARCHITECTURE.md`](ARCHITECTURE.md) is enforced. Install the local hooks once:
+
+```bash
+uv run pre-commit install
+```
+
+They run import-linter + the architecture/snapshot tests on commit. CI runs the same. If you
+change the public surface on purpose, regenerate snapshots: `uv run python -m tests.snapshots --update`.
+
 ## Conventions
 
 - **Tests:** `uv run pytest`. The suite must stay at **100% coverage** (`--cov-fail-under=100`).
