@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import typer
 
+from ycli._group import SuggestGroup
 from ycli.yandex.wiki.attachments.cli import app as attachments_app
 from ycli.yandex.wiki.comments.cli import app as comments_app
 from ycli.yandex.wiki.pages.cli import app as pages_app
 
-app = typer.Typer(name="wiki", help="Yandex Wiki API.", no_args_is_help=True)
+app = typer.Typer(name="wiki", help="Yandex Wiki API.", no_args_is_help=True, cls=SuggestGroup)
 
 app.add_typer(pages_app)
 app.add_typer(comments_app)
