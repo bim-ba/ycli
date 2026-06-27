@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Demo shim used ONLY by docs/demo/demo.tape. Real `--help` output (no creds,
+# no network); baked safe sample data for the data commands. Keeps the recorded
+# GIF reproducible and leak-free. Not installed; not on a user's PATH.
+case "$*" in
+  "--help"|"")
+    exec uv run ycli --help ;;
+  "tracker issues get TRACKER-1")
+    cat <<'OUT'
+TRACKER-1  ·  Set up project scaffolding
+status:    In Progress      assignee: alice
+priority:  Normal           updated:  2026-06-20
+OUT
+    ;;
+  "wiki pages get onboarding")
+    cat <<'OUT'
+onboarding  ·  Team Onboarding Guide
+author: bob   revision: 7   children: 4
+OUT
+    ;;
+  *)
+    exec uv run ycli "$@" ;;
+esac
