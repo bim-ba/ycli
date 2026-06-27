@@ -60,7 +60,15 @@ def mcp() -> None:
 
 def main() -> None:  # pragma: no cover
     """Console-script entry point (``ycli`` / ``yandex-cli``)."""
-    app()
+    from ycli.yandex.errors import YandexError
+
+    try:
+        app()
+    except YandexError as exc:
+        import typer
+
+        typer.secho(f"Error: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
 
 
 if __name__ == "__main__":  # pragma: no cover
