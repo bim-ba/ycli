@@ -49,8 +49,9 @@ Section order, each scaled to its weight:
    - **Plugin** — `/plugin marketplace add bim-ba/ycli` → `/plugin install yandex-360@ycli`.
 4. **Skills table** — surface the 4 plugin skills (`yandex-360`, `-tracker`, `-wiki`,
    `-forms`) with "use for" column (mirrors `plugins/yandex-360/README.md`).
-5. **Service coverage matrix** — Tracker / Wiki / Forms × capability groups (issues, pages,
-   surveys, etc.), with a "Mail and more — coming" row.
+5. **Service coverage matrix** — Tracker / Wiki / Forms × capability groups, with a
+   "Mail and more — coming" row. Data is **source-validated** (see appendix); use those
+   exact operations/surfaces — do not paraphrase from `docs/api-coverage.md` alone.
 6. **Architecture / folder map** — annotated tree (fenced block) explaining each top-level
    path and the per-domain `client.py`/`cli.py`/`mcp.py`/`models.py` pattern.
 7. **Install & Configure** — `uv sync`; the two env vars; link to
@@ -149,3 +150,56 @@ classifier in `pyproject.toml` so the package metadata matches.
 - `gh repo view --json description,repositoryTopics` shows the new metadata.
 - No real org data in committed demo artifacts (grep the fixture/cast for org id / token).
 - CI workflow passes on a pushed branch before claiming the badge is real.
+
+---
+
+## Appendix — validated coverage matrix (source-audited 2026-06-27)
+
+Validated by per-service source audit of `src/ycli/yandex/**` (3 parallel agents), confirming
+the `docs/api-coverage.md` "Covered" claims. MCP is read-only by design — writes are SDK+CLI
+only, which is correct, not a gap. Two refinements found where source has **more** than the
+prior doc stated (marked ⁺). Use this table verbatim for the README matrix.
+
+### Tracker
+
+| Resource | Operations | SDK | CLI | MCP |
+|----------|-----------|-----|-----|-----|
+| issues | get, full (raw), search, list⁺, count | ✅ | ✅ | ✅ |
+| issues | create, update | ✅ | ✅ | — (write) |
+| comments | list | ✅ | ✅ | ✅ |
+| comments | add | ✅ | ✅ | — (write) |
+| links | list | ✅ | ✅ | ✅ |
+| links | add | ✅ | ✅ | — (write) |
+| transitions | list | ✅ | ✅ | ✅ |
+| transitions | execute | ✅ | ✅ | — (write) |
+| worklog | list | ✅ | ✅ | ✅ |
+| changelog | list | ✅ | ✅ | ✅ |
+| priorities | list | ✅ | ✅ | ✅ |
+| issuetypes | list | ✅ | ✅ | ✅ |
+| linktypes | list | ✅ | ✅ | ✅ |
+
+⁺ `issues list` (filter-based) exists in source though not named in the prior doc's claim.
+
+### Wiki
+
+| Resource | Operations | SDK | CLI | MCP |
+|----------|-----------|-----|-----|-----|
+| pages | get (by slug), descendants | ✅ | ✅ | ✅ |
+| pages | meta⁺ (metadata-only read) | — | — | ✅ only |
+| pages | create, update | ✅ | ✅ | — (write) |
+| comments | list | ✅ | ✅ | ✅ |
+| attachments | list | ✅ | ✅ | ✅ |
+
+⁺ MCP splits reads into `pages_get` (content) and `pages_meta` (metadata).
+
+### Forms (read-only today)
+
+| Resource | Operations | SDK | CLI | MCP |
+|----------|-----------|-----|-----|-----|
+| me | get (whoami) | ✅ | ✅ | ✅ |
+| surveys | list, get | ✅ | ✅ | ✅ |
+| questions | list | ✅ | ✅ | ✅ |
+| answers | list (paginated, drains all pages) | ✅ | ✅ | ✅ |
+
+Note: SDK exposes raw single-page `answers.list()`; CLI/MCP intentionally expose only the
+paginated `list_all()` (follows `next.next_url`). No write operations yet (by design).
