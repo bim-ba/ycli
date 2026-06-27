@@ -9,6 +9,19 @@ Conventional Commits — new entries are inserted below.
 
 <!-- version list -->
 
+## v0.2.0 (2026-06-27)
+
+### Continuous Integration
+
+- Automate releases with python-semantic-release
+  ([`982256e`](https://github.com/bim-ba/ycli/commit/982256e98baf3df3023ef0bfca7ffa39ae1ff617))
+
+### Features
+
+- Global --format/-o for CLI output (auto/json/yaml/pretty)
+  ([`ccab9a3`](https://github.com/bim-ba/ycli/commit/ccab9a3ebffcde5752a2a580bce23439abf13f02))
+
+
 ## [0.1.0] — 2026-06-27
 
 ### Added

@@ -1,6 +1,6 @@
 [project]
 name = "yandex-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "Interact with Yandex 360 services (Wiki, Tracker, Forms, …) from a CLI, an MCP server, or a Python SDK."
 readme = "README.md"
 license = "MIT"
