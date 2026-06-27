@@ -31,7 +31,8 @@ jobs:
         uses: charmbracelet/vhs-action@v1
         with:
           path: docs/demo/demo.tape
-          install-fonts: "true"
+          # default JetBrains Mono is enough; the extra-fonts download is flaky in CI
+          install-fonts: "false"
 
       - name: Commit regenerated GIF
         uses: stefanzweifel/git-auto-commit-action@v5
