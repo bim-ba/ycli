@@ -57,6 +57,14 @@ ycli --help
 ycli tracker issues get TRACKER-1
 ycli wiki pages get onboarding
 ```
+
+**Output formats** — a global `--format` / `-o` picks how results print:
+
+```bash
+ycli tracker issues get TRACKER-1            # auto: a pretty table on a TTY…
+ycli tracker issues get TRACKER-1 | jq .     # …and raw JSON when piped (agent/script-safe)
+ycli -o yaml wiki pages get onboarding       # or: -o json | -o yaml | -o pretty
+```
 </details>
 
 <details>

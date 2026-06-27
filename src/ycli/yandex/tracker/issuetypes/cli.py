@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.tracker._clideps import tracker_client
 
 app = typer.Typer(name="issuetypes", help="Tracker issue types.", no_args_is_help=True)
@@ -16,4 +18,4 @@ def _callback() -> None:
 @app.command("list")
 def list_(ctx: typer.Context) -> None:
     """List all issue types."""
-    print(tracker_client(ctx).issuetypes.list().model_dump_json(by_alias=True))
+    render(tracker_client(ctx).issuetypes.list())

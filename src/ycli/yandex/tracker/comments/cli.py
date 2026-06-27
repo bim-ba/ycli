@@ -5,6 +5,8 @@ from typing import Annotated
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.tracker._clideps import tracker_client
 
 app = typer.Typer(name="comments", help="Tracker issue comments.", no_args_is_help=True)
@@ -15,7 +17,7 @@ KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List comments on issue KEY."""
-    print(tracker_client(ctx).comments.list(key).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).comments.list(key))
 
 
 @app.command()
@@ -25,4 +27,4 @@ def add(
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
 ) -> None:
     """Add a comment to issue KEY."""
-    print(tracker_client(ctx).comments.add(key, body={"text": text}).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).comments.add(key, body={"text": text}))

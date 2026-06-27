@@ -6,6 +6,8 @@ from typing import Annotated
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.tracker._clideps import parse_fields, tracker_client
 
 app = typer.Typer(name="transitions", help="Tracker issue transitions.", no_args_is_help=True)
@@ -16,7 +18,7 @@ KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List available transitions for issue KEY."""
-    print(tracker_client(ctx).transitions.list(key).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).transitions.list(key))
 
 
 @app.command()

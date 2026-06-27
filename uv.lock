@@ -1618,7 +1618,9 @@ source = { editable = "." }
 dependencies = [
     { name = "loguru" },
     { name = "pydantic" },
+    { name = "pyyaml" },
     { name = "requests" },
+    { name = "rich" },
     { name = "typer" },
     { name = "uplink" },
 ]
@@ -1641,7 +1643,9 @@ requires-dist = [
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=3.4.2" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "pydantic", specifier = ">=2.13.4" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "requests", specifier = ">=2.34.2" },
+    { name = "rich", specifier = ">=15.0.0" },
     { name = "typer", specifier = ">=0.26.8" },
     { name = "uplink", specifier = ">=0.10.0" },
 ]

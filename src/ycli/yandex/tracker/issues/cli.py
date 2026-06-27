@@ -6,6 +6,8 @@ from typing import Annotated, Any
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.tracker._clideps import parse_fields, tracker_client
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
@@ -20,7 +22,7 @@ FieldOpt = Annotated[
 @app.command()
 def get(ctx: typer.Context, key: KeyArg) -> None:
     """Print a single issue (full model) for KEY."""
-    print(tracker_client(ctx).issues.get(key).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).issues.get(key))
 
 
 @app.command()
@@ -46,13 +48,13 @@ def list_(
         }.items()
         if v
     }
-    print(tracker_client(ctx).issues.search(body={"filter": flt}).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).issues.search(body={"filter": flt}))
 
 
 @app.command()
 def search(ctx: typer.Context, query: Annotated[str, typer.Argument(help="TQL query.")]) -> None:
     """Search issues by a TQL query string."""
-    print(tracker_client(ctx).issues.search(body={"query": query}).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).issues.search(body={"query": query}))
 
 
 @app.command()
@@ -99,7 +101,7 @@ def create(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    print(tracker_client(ctx).issues.create(body=body).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).issues.create(body=body))
 
 
 @app.command()
@@ -129,4 +131,4 @@ def update(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    print(tracker_client(ctx).issues.update(key, body=body).model_dump_json(by_alias=True))
+    render(tracker_client(ctx).issues.update(key, body=body))

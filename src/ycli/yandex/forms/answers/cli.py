@@ -5,6 +5,8 @@ from typing import Annotated
 
 import typer
 
+from ycli.output import render
+
 from ycli.yandex.forms._clideps import forms_client
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
@@ -22,4 +24,4 @@ def _group() -> None:
 @app.command("list")
 def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
     """List ALL of a form's responses (drains every page via the next cursor)."""
-    print(forms_client(ctx).answers.list_all(survey_id).model_dump_json(by_alias=True))
+    render(forms_client(ctx).answers.list_all(survey_id))
