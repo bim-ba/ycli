@@ -23,6 +23,10 @@ htmlcov/
 # AI-agent local files
 PROMPT.md
 .mcp.json
+!plugins/**/.mcp.json
 
 # Secrets
 .env
+
+# IDEs
+.vscode

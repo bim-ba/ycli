@@ -28,7 +28,17 @@ From a marketplace that lists this plugin:
 Or, working inside this repository, it is registered as a local marketplace in
 `.claude/settings.json` (`source: "./"`), so the skills load once the repo is committed to git.
 
+## MCP server (auto-wired)
+
+This plugin bundles `.mcp.json`, so installing it registers the **read-only** Yandex 360
+MCP server automatically — no hand-copied config. The server launches via
+`uvx --from "yandex-cli[mcp]" ycli mcp`, so you need [`uv`](https://docs.astral.sh/uv/)
+on `PATH` but no global `ycli` install. Writes stay on the CLI/SDK; the MCP surface is
+read-only.
+
 ## Requires
 
-The [`ycli`](../../README.md) package on `PATH` (`uv add 'yandex-cli[mcp]'`) and two environment variables:
-`YANDEX_ID_OAUTH_TOKEN`, `YANDEX_ID_ORGANIZATION_ID`. The `yandex-360` skill walks through setup.
+[`uv`](https://docs.astral.sh/uv/) on `PATH` (for the bundled MCP server) and two
+environment variables, read from your shell: `YANDEX_ID_OAUTH_TOKEN`,
+`YANDEX_ID_ORGANIZATION_ID`. The `yandex-360` skill walks through setup. For direct CLI/SDK
+use, install the package with `uv add 'yandex-cli[mcp]'`.
