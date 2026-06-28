@@ -1,22 +1,22 @@
-"""TDD for tracker issues MCP subserver — Depends DI, RootModel return, in-memory client."""
+"""TDD for tracker issues MCP subserver — @cache factory, env+responses pattern."""
 import pytest
 import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
-from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues import mcp as issues_mcp
 
 BASE = "https://api.tracker.yandex.net/v3"
 
 
-def _stub() -> TrackerClient:
-    return TrackerClient(oauth_token="t", organization_id="o")
+@pytest.fixture
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate
-async def test_issues_get_tool(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_issues_get_tool(creds):
     responses.add(responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "summary": "S"}, status=200)
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_get", {"key": "DE-1"})
@@ -24,8 +24,7 @@ async def test_issues_get_tool(monkeypatch):
 
 
 @responses.activate
-async def test_issues_list_tool_returns_rootmodel(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_issues_list_tool_returns_rootmodel(creds):
     responses.add(responses.POST, f"{BASE}/issues/_search", json=[{"key": "DE-1"}, {"key": "DE-2"}], status=200)
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_list", {"queue": "DE"})
@@ -40,9 +39,7 @@ async def test_issue_tools_registered_read_only():
 
 
 @responses.activate
-async def test_issues_get_tool_not_found_raises(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
-    # 404 error body — Transport hook raises YandexNotFoundError, surfaced as ToolError.
+async def test_issues_get_tool_not_found_raises(creds):
     responses.add(responses.GET, f"{BASE}/issues/NOPE-1",
                   json={"statusCode": 404, "errorMessages": ["Not found"]}, status=404)
     async with Client(issues_mcp.mcp) as client:
@@ -51,9 +48,8 @@ async def test_issues_get_tool_not_found_raises(monkeypatch):
 
 
 @responses.activate
-async def test_issues_get_tool_empty_response_guard(monkeypatch):
+async def test_issues_get_tool_empty_response_guard(creds):
     """200 with empty body hits the key-is-None guard (e.g. bad permissions → blank object)."""
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
     responses.add(responses.GET, f"{BASE}/issues/DE-1", json={}, status=200)
     async with Client(issues_mcp.mcp) as client:
         with pytest.raises(ToolError):
@@ -61,8 +57,7 @@ async def test_issues_get_tool_empty_response_guard(monkeypatch):
 
 
 @responses.activate
-async def test_issues_full_tool_returns_raw_dict(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_issues_full_tool_returns_raw_dict(creds):
     responses.add(responses.GET, f"{BASE}/issues/DE-1",
                   json={"key": "DE-1", "summary": "S", "extra": "kept"}, status=200)
     async with Client(issues_mcp.mcp) as client:
@@ -72,8 +67,7 @@ async def test_issues_full_tool_returns_raw_dict(monkeypatch):
 
 
 @responses.activate
-async def test_issues_search_tool(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_issues_search_tool(creds):
     responses.add(responses.POST, f"{BASE}/issues/_search", json=[{"key": "DE-1"}], status=200)
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_search", {"query": "Queue: DE"})
@@ -81,8 +75,7 @@ async def test_issues_search_tool(monkeypatch):
 
 
 @responses.activate
-async def test_issues_count_tool(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_issues_count_tool(creds):
     responses.add(responses.POST, f"{BASE}/issues/_count", json=42, status=200)
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_count", {"query": "Queue: DE"})
@@ -91,13 +84,11 @@ async def test_issues_count_tool(monkeypatch):
 
 @pytest.mark.integration
 @responses.activate
-async def test_issues_get_404_raises_through_transport_hook(monkeypatch):
-    """Prove the production not-found path: the real from_env() session (with the
-    Transport response hook) raises YandexNotFoundError on a 404, which FastMCP
-    surfaces as a ToolError — without any stub Session or monkeypatching of from_env.
+async def test_issues_get_404_raises_through_transport_hook(creds):
+    """Prove the production not-found path: the @cache factory builds a real client (with the
+    Transport response hook) that raises YandexNotFoundError on a 404, which FastMCP
+    surfaces as a ToolError.
     """
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
     responses.add(
         responses.GET,
         f"{BASE}/issues/NOPE-1",

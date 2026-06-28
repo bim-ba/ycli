@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import requests
 
-from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.transport import Transport
 from ycli.yandex.tracker.changelog.client import ChangelogClient
 from ycli.yandex.tracker.comments.client import CommentsClient
@@ -18,7 +17,11 @@ from ycli.yandex.tracker.worklog.client import WorklogClient
 
 
 class TrackerClient:
-    """Holds the per-resource tracker clients, all sharing one authed ``requests.Session``."""
+    """Holds the per-resource tracker clients, all sharing one authed ``requests.Session``.
+
+    Example:
+        >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+    """
 
     def __init__(
         self,
@@ -46,14 +49,3 @@ class TrackerClient:
         self.priorities = PrioritiesClient(session=transport)
         self.issuetypes = IssueTypesClient(session=transport)
         self.linktypes = LinkTypesClient(session=transport)
-
-    @classmethod
-    def from_env(cls) -> "TrackerClient":
-        """TEMPORARY shim for the MCP _deps.py — removed in Task 6."""
-        credentials, config = Credentials(), AppConfig()
-        return cls(
-            oauth_token=credentials.oauth_token,
-            organization_id=credentials.organization_id,
-            timeout_seconds=int(config.timeout_seconds),
-            retries=config.retries,
-        )

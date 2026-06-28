@@ -17,7 +17,7 @@ class SurveysClient(FormsResource):
         """``GET /surveys`` → the ``{links, result}`` envelope (verbatim).
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.list().result[0].name  # doctest: +SKIP
             'Новая задача'
         """
@@ -28,7 +28,7 @@ class SurveysClient(FormsResource):
         """``GET /surveys/{id}`` → a single ``Survey`` (settings).
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.get(survey_id="686d0a1b2c3d4e5f").is_published  # doctest: +SKIP
             True
         """

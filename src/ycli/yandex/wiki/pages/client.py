@@ -22,7 +22,7 @@ class PagesClient(WikiResource):
         """``GET /pages?slug=&fields=`` → a single page (raises on non-2xx).
 
         Example:
-            >>> client = WikiClient.from_env()  # doctest: +SKIP
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.pages.get(slug="data/architecture", fields="content").title  # doctest: +SKIP
             'Архитектура данных'
         """
@@ -39,7 +39,7 @@ class PagesClient(WikiResource):
         """``GET /pages/descendants`` → one page of ``{id, slug}`` refs + ``next_cursor``.
 
         Example:
-            >>> client = WikiClient.from_env()  # doctest: +SKIP
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> page = client.pages.descendants(slug="data", page_size=50)  # doctest: +SKIP
             >>> page.results[0].slug, page.next_cursor  # doctest: +SKIP
             ('data/architecture', 'eyJvZmZzZXQiOjUwfQ==')
@@ -52,7 +52,7 @@ class PagesClient(WikiResource):
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
 
         Example:
-            >>> client = WikiClient.from_env()  # doctest: +SKIP
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.pages.create({"slug": "data/guides/x", "title": "X", "content": "# X"}).id  # doctest: +SKIP
             12345
         """
@@ -64,7 +64,7 @@ class PagesClient(WikiResource):
         """``POST /pages/{id}`` — update (POST not PATCH; PATCH returns 405).
 
         Example:
-            >>> client = WikiClient.from_env()  # doctest: +SKIP
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.pages.update(12345, {"content": "# Updated"}).id  # doctest: +SKIP
             12345
         """

@@ -22,7 +22,7 @@ class AttachmentsClient(WikiResource):
         """``GET /pages/{id}/attachments`` → attachment listing.
 
         Example:
-            >>> client = WikiClient.from_env()  # doctest: +SKIP
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.attachments.list(12345).results[0].name  # doctest: +SKIP
             'diagram.png'
         """

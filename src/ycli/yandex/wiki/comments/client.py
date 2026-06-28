@@ -22,7 +22,7 @@ class CommentsClient(WikiResource):
         """``GET /pages/{id}/comments`` → comment listing.
 
         Example:
-            >>> client = WikiClient.from_env()  # doctest: +SKIP
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.comments.list(12345).results[0].author_display  # doctest: +SKIP
             'Сава Знатнов'
         """

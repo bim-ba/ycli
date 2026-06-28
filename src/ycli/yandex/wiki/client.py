@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import requests
 
-from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.transport import Transport
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
 from ycli.yandex.wiki.comments.client import CommentsClient
@@ -12,7 +11,11 @@ from ycli.yandex.wiki.pages.client import PagesClient
 
 
 class WikiClient:
-    """Holds the per-resource wiki clients, all sharing one authed ``requests.Session``."""
+    """Holds the per-resource wiki clients, all sharing one authed ``requests.Session``.
+
+    Example:
+        >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+    """
 
     def __init__(
         self,
@@ -34,14 +37,3 @@ class WikiClient:
         self.pages = PagesClient(session=transport)
         self.comments = CommentsClient(session=transport)
         self.attachments = AttachmentsClient(session=transport)
-
-    @classmethod
-    def from_env(cls) -> "WikiClient":
-        """TEMPORARY shim for the MCP _deps.py — removed in Task 6."""
-        credentials, config = Credentials(), AppConfig()
-        return cls(
-            oauth_token=credentials.oauth_token,
-            organization_id=credentials.organization_id,
-            timeout_seconds=int(config.timeout_seconds),
-            retries=config.retries,
-        )

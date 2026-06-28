@@ -28,7 +28,7 @@ def creds(monkeypatch):
 @responses.activate
 def test_client_get_parses_me(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
-    me = WikiClient.from_env().me.get()
+    me = WikiClient(oauth_token="tok", organization_id="org").me.get()
     assert isinstance(me, Me)
     assert me.username == "alice"
     assert me.identity.uid == "1"
@@ -49,7 +49,7 @@ def test_cli_wiki_me_get(creds):
 def test_mcp_wiki_me_get(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
     from ycli.yandex.wiki.me.mcp import get
-    result = get(client=WikiClient.from_env())
+    result = get(client=WikiClient(oauth_token="tok", organization_id="org"))
     assert result.username == "alice"
 
 

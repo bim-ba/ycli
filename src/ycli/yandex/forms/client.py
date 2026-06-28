@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import requests
 
-from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.transport import Transport
 from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.me.client import MeClient
@@ -12,7 +11,11 @@ from ycli.yandex.forms.surveys.client import SurveysClient
 
 
 class FormsClient:
-    """Holds the per-resource forms clients, all sharing one authed ``requests.Session``."""
+    """Holds the per-resource forms clients, all sharing one authed ``requests.Session``.
+
+    Example:
+        >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+    """
 
     def __init__(
         self,
@@ -34,14 +37,3 @@ class FormsClient:
         self.surveys = SurveysClient(session=transport)
         self.questions = QuestionsClient(session=transport)
         self.answers = AnswersClient(session=transport)
-
-    @classmethod
-    def from_env(cls) -> "FormsClient":
-        """TEMPORARY shim for the MCP _deps.py — removed in Task 6."""
-        credentials, config = Credentials(), AppConfig()
-        return cls(
-            oauth_token=credentials.oauth_token,
-            organization_id=credentials.organization_id,
-            timeout_seconds=int(config.timeout_seconds),
-            retries=config.retries,
-        )

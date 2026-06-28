@@ -21,7 +21,7 @@ class ChangelogClient(TrackerResource):
         """``GET /issues/{key}/changelog`` → changelog listing (``perPage`` paging).
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.changelog.list(key="DATAENGINEERING-1", per_page=50).root[0].author_display  # doctest: +SKIP
             'Сава Знатнов'
         """

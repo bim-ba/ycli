@@ -1,20 +1,21 @@
-"""Wiki FastMCP subserver tests — Depends DI, native errors, in-memory client."""
+"""Wiki FastMCP subserver tests — @cache factory, env+responses pattern."""
+import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.wiki import mcp as wiki_mcp
-from ycli.yandex.wiki.client import WikiClient
 
 BASE = "https://api.wiki.yandex.net/v1"
 
 
-def _stub() -> WikiClient:
-    return WikiClient(oauth_token="t", organization_id="o")
+@pytest.fixture
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate
-async def test_pages_get_tool_returns_body(monkeypatch):
-    monkeypatch.setattr(WikiClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_pages_get_tool_returns_body(creds):
     responses.add(
         responses.GET,
         f"{BASE}/pages",
@@ -27,8 +28,7 @@ async def test_pages_get_tool_returns_body(monkeypatch):
 
 
 @responses.activate
-async def test_comments_list_tool(monkeypatch):
-    monkeypatch.setattr(WikiClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_comments_list_tool(creds):
     responses.add(
         responses.GET,
         f"{BASE}/pages/42/comments",
@@ -41,8 +41,7 @@ async def test_comments_list_tool(monkeypatch):
 
 
 @responses.activate
-async def test_pages_meta_tool(monkeypatch):
-    monkeypatch.setattr(WikiClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_pages_meta_tool(creds):
     responses.add(
         responses.GET,
         f"{BASE}/pages",
@@ -56,8 +55,7 @@ async def test_pages_meta_tool(monkeypatch):
 
 
 @responses.activate
-async def test_pages_descendants_tool(monkeypatch):
-    monkeypatch.setattr(WikiClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_pages_descendants_tool(creds):
     responses.add(
         responses.GET,
         f"{BASE}/pages/descendants",
@@ -67,13 +65,12 @@ async def test_pages_descendants_tool(monkeypatch):
     async with Client(wiki_mcp.mcp) as client:
         result = await client.call_tool("pages_descendants", {"slug": "it"})
     assert result.data.results[0].slug == "it/child"
-    assert result.data.next_cursor is None  # null round-trips (pagination contract)
-    assert responses.calls[-1].request.params["slug"] == "it"  # slug threaded into the query
+    assert result.data.next_cursor is None
+    assert responses.calls[-1].request.params["slug"] == "it"
 
 
 @responses.activate
-async def test_attachments_list_tool(monkeypatch):
-    monkeypatch.setattr(WikiClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_attachments_list_tool(creds):
     responses.add(
         responses.GET,
         f"{BASE}/pages/42/attachments",

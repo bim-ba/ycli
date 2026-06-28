@@ -5,7 +5,7 @@ a pure ``requests.Session`` carrying ``Authorization: OAuth`` and a single canon
 (``X-Org-Id``), a ``urllib3.Retry`` adapter (idempotent methods only — GET/HEAD/OPTIONS;
 backoff on 429/5xx) on http/https, and a configured request timeout; non-idempotent POSTs
 are NOT retried here — a caller that needs that mounts its own adapter. Credential
-resolution is the consumer's ``from_env`` concern — this function never reads
+resolution is the composition root's concern — this function never reads
 ``os.environ``; an empty arg raises rather than firing an unauthenticated call.
 
 Example:

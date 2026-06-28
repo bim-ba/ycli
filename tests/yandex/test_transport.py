@@ -139,6 +139,7 @@ def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
         return real_send(self, request, **kw)
     monkeypatch.setattr(_TimeoutAdapter, "send", spy)
     responses.add(responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200)
-    TrackerClient.from_env().priorities.list()
+    from ycli.yandex.tracker._deps import tracker_client
+    tracker_client().priorities.list()
     assert seen["incoming_timeout"] is None, f"Expected None but got {seen['incoming_timeout']}"
     assert seen["adapter_timeout"] == 99.0, f"Expected 99.0 but got {seen['adapter_timeout']}"

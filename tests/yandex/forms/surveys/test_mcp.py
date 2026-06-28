@@ -1,23 +1,23 @@
-"""TDD for forms surveys MCP subserver — list envelope + get guard."""
+"""TDD for forms surveys MCP subserver — @cache factory, env+responses pattern."""
 import pytest
 import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
-from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.surveys import mcp as surveys_mcp
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 
 
-def _stub() -> FormsClient:
-    return FormsClient(oauth_token="t", organization_id="o")
+@pytest.fixture
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate
-async def test_surveys_list_tool_returns_envelope(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_surveys_list_tool_returns_envelope(creds):
     responses.add(responses.GET, f"{BASE}/surveys",
                   json={"links": {}, "result": [{"id": "a"}, {"id": "b"}]}, status=200)
     async with Client(surveys_mcp.mcp) as client:
@@ -26,8 +26,7 @@ async def test_surveys_list_tool_returns_envelope(monkeypatch):
 
 
 @responses.activate
-async def test_surveys_get_tool(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_surveys_get_tool(creds):
     responses.add(responses.GET, f"{BASE}/surveys/{SID}", json={"id": SID, "name": "F"}, status=200)
     async with Client(surveys_mcp.mcp) as client:
         result = await client.call_tool("surveys_get", {"survey_id": SID})
@@ -35,8 +34,7 @@ async def test_surveys_get_tool(monkeypatch):
 
 
 @responses.activate
-async def test_surveys_get_not_found_is_clean_error(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_surveys_get_not_found_is_clean_error(creds):
     responses.add(responses.GET, f"{BASE}/surveys/badid", json={"errors": {}}, status=404)
     async with Client(surveys_mcp.mcp) as client:
         with pytest.raises(ToolError):
@@ -44,9 +42,8 @@ async def test_surveys_get_not_found_is_clean_error(monkeypatch):
 
 
 @responses.activate
-async def test_surveys_get_empty_response_guard(monkeypatch):
+async def test_surveys_get_empty_response_guard(creds):
     """200 with empty body hits the id-is-None guard (blank object instead of 404)."""
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
     responses.add(responses.GET, f"{BASE}/surveys/{SID}", json={}, status=200)
     async with Client(surveys_mcp.mcp) as client:
         with pytest.raises(ToolError):

@@ -19,7 +19,7 @@ class AnswersClient(FormsResource):
         """``GET /surveys/{id}/answers`` → the ``{columns, answers, next}`` envelope (verbatim).
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.answers.list(survey_id="686d0a1b2c3d4e5f").columns[0].slug  # doctest: +SKIP
             'answer_short_text_1'
         """
@@ -34,7 +34,7 @@ class AnswersClient(FormsResource):
         first page (identical across pages); the merged ``next`` is always ``None``.
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> len(client.answers.list_all(survey_id="686d0a1b2c3d4e5f").answers)  # doctest: +SKIP
             317
         """

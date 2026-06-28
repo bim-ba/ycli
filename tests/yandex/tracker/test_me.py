@@ -30,7 +30,7 @@ def creds(monkeypatch):
 @responses.activate
 def test_me_client_get(creds):
     responses.add(responses.GET, _URL, json=_PAYLOAD, status=200)
-    me = TrackerClient.from_env().me.get()
+    me = TrackerClient(oauth_token="t", organization_id="o").me.get()
     assert isinstance(me, Me)
     assert me.login == "alice" and me.uid == 42
 
@@ -56,11 +56,7 @@ def test_me_mcp_tool(creds):
 
 
 @responses.activate
-async def test_me_mcp_auth_guard(monkeypatch):
-    def _stub() -> TrackerClient:
-        return TrackerClient(oauth_token="t", organization_id="o")
-
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_me_mcp_auth_guard(creds):
     responses.add(responses.GET, _URL, json={}, status=401)
     async with Client(me_mcp_module.mcp) as client:
         with pytest.raises(ToolError):
@@ -68,9 +64,8 @@ async def test_me_mcp_auth_guard(monkeypatch):
 
 
 @responses.activate
-async def test_me_mcp_empty_response_guard(monkeypatch):
+async def test_me_mcp_empty_response_guard(creds):
     """200 with empty body hits the login-is-None guard (e.g. bad permissions → blank object)."""
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: TrackerClient(oauth_token="t", organization_id="o")))
     responses.add(responses.GET, _URL, json={}, status=200)
     async with Client(me_mcp_module.mcp) as client:
         with pytest.raises(ToolError):
