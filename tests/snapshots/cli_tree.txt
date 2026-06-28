@@ -46,6 +46,8 @@ wiki attachments
 wiki attachments list
 wiki comments
 wiki comments list
+wiki me
+wiki me get
 wiki pages
 wiki pages create
 wiki pages descendants

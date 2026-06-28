@@ -6,6 +6,7 @@ import requests
 from ycli.yandex.base import FromEnvSession
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
 from ycli.yandex.wiki.comments.client import CommentsClient
+from ycli.yandex.wiki.me.client import MeClient
 from ycli.yandex.wiki.pages.client import PagesClient
 
 
@@ -17,6 +18,7 @@ class WikiClient(FromEnvSession):
     """
 
     def __init__(self, *, session: requests.Session) -> None:
+        self.me = MeClient(session=session)
         self.pages = PagesClient(session=session)
         self.comments = CommentsClient(session=session)
         self.attachments = AttachmentsClient(session=session)
