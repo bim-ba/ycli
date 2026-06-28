@@ -9,20 +9,27 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp.py · output.py · log.py     # roots
+├── cli.py · mcp.py · output.py · log.py · context.py · models.py   # roots
 └── yandex/
-    ├── base.py · transport.py               # shared HTTP/session
+    ├── base.py · transport.py · settings.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
-        ├── _base.py · _deps.py · _clideps.py · client.py · cli.py · mcp.py
+        ├── _base.py · _deps.py · _args.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
-            ├── cli.py      # Typer — output via ycli.output.render
+            ├── cli.py      # Typer — output via Serializer.serialize
             ├── mcp.py      # FastMCP read-only tools
-            ├── models.py   # pydantic
+            ├── models.py   # pydantic (inherit APIModel from ycli.models)
             └── __init__.py
 ```
 
-## Invariants
+Notable shared pieces:
+- `src/ycli/models.py` — `APIModel` base (lenient parse config, no serialization logic)
+- `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
+- `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
+- `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`)
+- `src/ycli/yandex/<domain>/_args.py` — deduplicated CLI argument/option type aliases
+
+## Invariants (ARCH-1..10)
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
@@ -33,14 +40,38 @@ src/ycli/
   (`get/list/count/full/search/descendants/meta` — a new read adds its verb deliberately), it
   carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
   method (`.create/.update/.add/.execute/…`).
-- **ARCH-4 — Output discipline.** CLI results render through `ycli.output.render`;
-  `model_dump_json` may appear only in `src/ycli/output.py`. (Raw passthroughs like
-  `json.dumps(raw)`, `print(count)`, `.content` are intentional and allowed.)
+- **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
+  `output.Serializer.serialize(...)`; `model_dump_json` and `yaml.safe_dump` appear only in
+  `src/ycli/output.py`. Models stay plain data (no serialize method); the strategies live only
+  in `output.py`. *Check:* `model_dump_json` / `yaml.safe_dump` only in `output.py`; CLI command
+  bodies render via `Serializer.serialize`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).
 - **ARCH-6 — Public-surface stability.** The CLI command tree and MCP tool list change only by
   regenerating the snapshots in `tests/snapshots/` on purpose.
+- **ARCH-7 — Composition-root dependency injection.** Clients receive their dependencies as
+  constructor arguments and never read the environment. Credentials enter only as the explicit
+  `oauth_token` / `organization_id` parameters; a client never constructs a settings object or
+  reads env. There is no `from_env` on any client. *Check:* grep — no `os.environ`, no
+  `from_env`, no `Credentials(` / `AppConfig(` inside `yandex/**/client.py` or `base.py`.
+- **ARCH-8 — Single configuration source.** No direct `os.environ` access and no `BaseSettings`
+  subclass definition outside `src/ycli/yandex/settings.py`; other modules obtain configuration
+  by instantiating the settings models (`Credentials()` / `AppConfig()`). *Check:* grep —
+  `os.environ` and `class …(BaseSettings)` appear only in `settings.py`.
+- **ARCH-9 — Typed boundary errors.** Non-2xx responses raise a typed `YandexError` subclass
+  from the transport hook; no surface parses an error body into a model. *Check:* the existing
+  status→exception mapping test, plus no `raise_for_status` / status-branching outside
+  `transport.py`.
+- **ARCH-10 — No shadowing of configurable values.** A configurable value is never overridden by
+  a hardcoded literal that wins over the configured one (the `@uplink.timeout(30)` bug). *Check:*
+  grep — no `@uplink.timeout`; no `max_items`/page-size literal at a call site inside
+  `cli.py`/`mcp.py`/leaf `client.py`. **Carve-out:** the public SDK constructor signature
+  defaults (`timeout_seconds: int = 30`, `retries: int = 3`) are parameter defaults, not
+  shadowing — they apply only when the caller passes nothing, and `AppContext` always passes the
+  configured value. These two literals must stay equal to `AppConfig`'s defaults; a test asserts
+  `inspect.signature(TrackerClient).parameters` defaults == `AppConfig` field defaults so the
+  duplication can't drift.
 
 ## Scope & limits of enforcement
 

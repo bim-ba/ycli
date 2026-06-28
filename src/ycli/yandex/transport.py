@@ -5,8 +5,8 @@ a pure ``requests.Session`` carrying ``Authorization: OAuth`` and a single canon
 (``X-Org-Id``), a ``urllib3.Retry`` adapter (idempotent methods only — GET/HEAD/OPTIONS;
 backoff on 429/5xx) on http/https, and a configured request timeout; non-idempotent POSTs
 are NOT retried here — a caller that needs that mounts its own adapter. Credential
-resolution is the composition root's concern — this function never reads
-``os.environ``; an empty arg raises rather than firing an unauthenticated call.
+resolution is the composition root's concern — this function never reads the environment;
+an empty arg raises rather than firing an unauthenticated call.
 
 Example:
     >>> s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
