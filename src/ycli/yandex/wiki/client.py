@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import requests
 
-from ycli.yandex.base import session_from_env
+from ycli.yandex.base import FromEnvSession
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
 from ycli.yandex.wiki.comments.client import CommentsClient
+from ycli.yandex.wiki.me.client import MeClient
 from ycli.yandex.wiki.pages.client import PagesClient
 
 
-class WikiClient:
+class WikiClient(FromEnvSession):
     """Holds the per-resource wiki clients, all sharing one ``requests.Session``.
 
     Example:
@@ -17,11 +18,7 @@ class WikiClient:
     """
 
     def __init__(self, *, session: requests.Session) -> None:
+        self.me = MeClient(session=session)
         self.pages = PagesClient(session=session)
         self.comments = CommentsClient(session=session)
         self.attachments = AttachmentsClient(session=session)
-
-    @classmethod
-    def from_env(cls) -> WikiClient:
-        """Build all sub-clients from one env-resolved session."""
-        return cls(session=session_from_env())

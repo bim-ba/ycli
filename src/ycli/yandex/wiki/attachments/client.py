@@ -12,7 +12,6 @@ from ycli.yandex.wiki.attachments.models import AttachmentsResponse
 class AttachmentsClient(WikiResource):
     """Declarative HTTP for ``/pages/{id}/attachments``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/attachments")
     def list(

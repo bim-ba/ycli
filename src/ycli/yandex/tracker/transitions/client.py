@@ -18,7 +18,6 @@ from ycli.yandex.tracker.transitions.models import TransitionList
 class TransitionsClient(TrackerResource):
     """Declarative HTTP for ``/issues/{key}/transitions``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}/transitions")
     def list(self, key: uplink.Path) -> TransitionList:  # ty: ignore[empty-body]
@@ -30,7 +29,6 @@ class TransitionsClient(TrackerResource):
             'start_progress'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/{key}/transitions/{transition_id}/_execute")

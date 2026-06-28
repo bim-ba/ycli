@@ -7,7 +7,7 @@ import pytest
 from pydantic import BaseModel
 from rich.console import Console
 
-from ycli.output import OutputFormat, render, set_format
+from ycli.output import OutputFormat, render
 
 
 class _Row(BaseModel):
@@ -15,16 +15,9 @@ class _Row(BaseModel):
     summary: str
 
 
-@pytest.fixture(autouse=True)
-def _reset_format():
-    yield
-    set_format(OutputFormat.auto)
-
-
 def _render(model, *, terminal: bool) -> str:
-    set_format(OutputFormat.pretty)
     console = Console(file=io.StringIO(), force_terminal=terminal, width=200)
-    render(model, console=console)
+    render(model, output_format=OutputFormat.pretty, console=console)
     return console.file.getvalue()
 
 

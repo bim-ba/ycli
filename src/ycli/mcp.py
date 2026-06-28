@@ -8,6 +8,7 @@ from fastmcp import FastMCP
 
 from ycli.log import configure
 from ycli.yandex.forms.mcp import mcp as forms_mcp
+from ycli.yandex.settings import AppConfig
 from ycli.yandex.tracker.mcp import mcp as tracker_mcp
 from ycli.yandex.wiki.mcp import mcp as wiki_mcp
 
@@ -26,13 +27,13 @@ mcp.mount(tracker_mcp, namespace="tracker")
 mcp.mount(forms_mcp, namespace="forms")
 
 
-def main() -> None:  # pragma: no cover
+def main() -> None:
     """Run the root server over stdio (the console-script entry point).
 
     Example:
         >>> main()  # doctest: +SKIP
     """
-    configure()  # match the CLI: single stderr sink, stdout stays clean for the protocol
+    configure(level=AppConfig().log_level)  # match the CLI: single stderr sink, stdout stays clean for the protocol
     mcp.run()
 
 

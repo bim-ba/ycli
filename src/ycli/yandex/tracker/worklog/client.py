@@ -11,7 +11,6 @@ from ycli.yandex.tracker.worklog.models import WorklogList
 class WorklogClient(TrackerResource):
     """Declarative HTTP for ``/issues/{key}/worklog``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}/worklog")
     def list(self, key: uplink.Path) -> WorklogList:  # ty: ignore[empty-body]

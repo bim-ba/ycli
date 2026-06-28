@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.tracker._clideps import tracker_client
@@ -18,4 +19,4 @@ def _callback() -> None:
 @app.command("list")
 def list_(ctx: typer.Context) -> None:
     """List all priorities."""
-    render(tracker_client(ctx).priorities.list())
+    render(tracker_client(ctx).priorities.list(), output_format=output_format(ctx))

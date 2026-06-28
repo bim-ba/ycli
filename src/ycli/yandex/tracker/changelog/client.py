@@ -11,7 +11,6 @@ from ycli.yandex.tracker.changelog.models import ChangelogList
 class ChangelogClient(TrackerResource):
     """Declarative HTTP for ``/issues/{key}/changelog``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}/changelog")
     def list(

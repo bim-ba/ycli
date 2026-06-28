@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.tracker._clideps import parse_fields, tracker_client
@@ -18,7 +19,7 @@ KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List available transitions for issue KEY."""
-    render(tracker_client(ctx).transitions.list(key))
+    render(tracker_client(ctx).transitions.list(key), output_format=output_format(ctx))
 
 
 @app.command()

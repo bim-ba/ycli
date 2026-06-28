@@ -11,7 +11,6 @@ from ycli.yandex.tracker.linktypes.models import LinkTypeList
 class LinkTypesClient(TrackerResource):
     """Declarative HTTP for ``/linktypes``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("linktypes")
     def list(self) -> LinkTypeList:  # ty: ignore[empty-body]

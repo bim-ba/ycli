@@ -5,6 +5,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.tracker._clideps import tracker_client
@@ -24,4 +25,4 @@ def list_(
     per_page: Annotated[int, typer.Option("--per-page", help="Entries per page.")] = 100,
 ) -> None:
     """List changelog entries for issue KEY."""
-    render(tracker_client(ctx).changelog.list(key, per_page=per_page))
+    render(tracker_client(ctx).changelog.list(key, per_page=per_page), output_format=output_format(ctx))

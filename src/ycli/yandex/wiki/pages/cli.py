@@ -5,6 +5,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.wiki._clideps import wiki_client
@@ -35,7 +36,7 @@ def descendants(
     """Print one page of descendant slugs under SLUG (caller paginates via --cursor)."""
     client = wiki_client(ctx)
     resp = client.pages.descendants(slug=slug, page_size=limit, cursor=cursor or None)
-    render(resp)
+    render(resp, output_format=output_format(ctx))
 
 
 @app.command()
@@ -48,7 +49,7 @@ def create(
     """Create a wiki page (POST /pages)."""
     client = wiki_client(ctx)
     page = client.pages.create(body={"slug": slug, "title": title, "content": content})
-    render(page)
+    render(page, output_format=output_format(ctx))
 
 
 @app.command()
@@ -63,4 +64,4 @@ def update(
     body: dict[str, str] = {"content": content}
     if title:
         body["title"] = title
-    render(client.pages.update(page_id=page_id, body=body))
+    render(client.pages.update(page_id=page_id, body=body), output_format=output_format(ctx))

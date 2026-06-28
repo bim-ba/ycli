@@ -12,7 +12,6 @@ from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails
 class PagesClient(WikiResource):
     """Declarative HTTP for ``/pages`` (get, descendants, create, update)."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("pages")
     def get(
@@ -28,7 +27,6 @@ class PagesClient(WikiResource):
             'Архитектура данных'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("pages/descendants")
     def descendants(
@@ -47,7 +45,6 @@ class PagesClient(WikiResource):
             ('data/architecture', 'eyJvZmZzZXQiOjUwfQ==')
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("pages")
@@ -60,7 +57,6 @@ class PagesClient(WikiResource):
             12345
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("pages/{page_id}")

@@ -11,7 +11,6 @@ from ycli.yandex.tracker.issuetypes.models import IssueTypeList
 class IssueTypesClient(TrackerResource):
     """Declarative HTTP for ``/issuetypes``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issuetypes")
     def list(self) -> IssueTypeList:  # ty: ignore[empty-body]

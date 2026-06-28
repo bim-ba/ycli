@@ -11,7 +11,6 @@ from ycli.yandex.forms.surveys.models import Survey, SurveyList
 class SurveysClient(FormsResource):
     """Declarative HTTP for ``/surveys`` (list envelope + single get)."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("surveys")
     def list(self) -> SurveyList:  # ty: ignore[empty-body]
@@ -23,7 +22,6 @@ class SurveysClient(FormsResource):
             'Новая задача'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("surveys/{survey_id}")
     def get(self, survey_id: uplink.Path) -> Survey:  # ty: ignore[empty-body]

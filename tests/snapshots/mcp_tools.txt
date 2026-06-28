@@ -19,6 +19,7 @@ tracker_transitions_list
 tracker_worklog_list
 wiki_attachments_list
 wiki_comments_list
+wiki_me_get
 wiki_pages_descendants
 wiki_pages_get
 wiki_pages_meta

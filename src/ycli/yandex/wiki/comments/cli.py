@@ -5,6 +5,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.wiki._clideps import wiki_client
@@ -19,4 +20,4 @@ def list_(
 ) -> None:
     """List comments on a page id (GET /pages/{id}/comments)."""
     client = wiki_client(ctx)
-    render(client.comments.list(page_id=page_id))
+    render(client.comments.list(page_id=page_id), output_format=output_format(ctx))
