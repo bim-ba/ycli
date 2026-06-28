@@ -33,6 +33,7 @@ These refine the spec's sequencing after reading the real code; each is defensib
    - `wiki/comments.list`, `wiki/attachments.list`, `forms/surveys.list` — single-page `{results}` / `{result}` envelopes → `SinglePageStrategy` (unwrap to flat collection).
    - `forms/questions.list` returns a *nested* `{pages:[{items}]}` structure (not a flat list) → left as-is, not a pagination target.
    Only the two real paginators gain `--limit`/`--all` CLI options (snapshot change); the single-page unwraps just change their return type. This minimizes snapshot churn while honoring "RootModel for Wiki/Forms".
+6. **MCP DI is a per-domain `@functools.cache` factory, NOT a root `lifespan`.** The Task 4 spike + fastmcp research disproved the spec's lifespan design: fastmcp v3 intentionally isolates each server, so a `mount`ed subserver's tool sees an empty `lifespan_context` and `Shared()` rebuilds per call. The **fastmcp-documented canonical pattern** for sharing one non-serializable client across mounted tools is a module-level cached factory — expressed as `@functools.cache` on each `_deps.py` provider, consumed via the unchanged `Depends(...)`. Build-once, blessed `mount` retained (no deprecated `import_server`), `mcp.py` unchanged, and the MCP tests get *simpler* (env + `responses` + an autouse `cache_clear` fixture; no wrapper server). Confirmed with the user. See Task 6.
 
 ---
 
@@ -44,7 +45,8 @@ These refine the spec's sequencing after reading the real code; each is defensib
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + `SinglePageStrategy` / `CursorStrategy` / `NextUrlStrategy`.
 - `src/ycli/yandex/tracker/_args.py` — shared `KeyArg` + the `parse_fields` helper (moved from `_clideps.py`).
 - `src/ycli/yandex/forms/_args.py` — shared `SurveyIdArg`.
-- `src/ycli/yandex/_mcp.py` — shared MCP annotation dict `RO` + `TAGS` factory (de-dupes the three `_deps.py` copies).
+- `src/ycli/yandex/_mcp.py` — shared MCP annotation dict `RO` (de-dupes the three `_deps.py` copies; `TAGS` stays per-domain). Also created in Task 6.
+- `tests/conftest.py` — autouse fixture clearing the three `@cache` client factories between tests (Task 6).
 
 **Deleted files**
 - `src/ycli/cliformat.py`, `src/ycli/yandex/tracker/_clideps.py`, `src/ycli/yandex/wiki/_clideps.py`, `src/ycli/yandex/forms/_clideps.py`, and the `FromEnvSession` mixin (from `base.py`).
@@ -472,7 +474,7 @@ def test_appcontext_strategy_and_retrieval():
 
 - [ ] **Step 2: Run it to verify it fails**
 
-Run: `uv run pytest tests/test_yandex_cli.py::test_appcontext_from_typer_context_round_trips -v`
+Run: `uv run pytest tests/test_yandex_cli.py::test_appcontext_strategy_and_retrieval -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'ycli.context'`.
 
 - [ ] **Step 3: Rewrite the three composition clients.** Each drops `FromEnvSession`, takes raw args, builds its session via `Transport.session`, and keeps a temporary `from_env`. Example — `tracker/client.py`:
@@ -768,142 +770,132 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-### Task 6: MCP `lifespan` composition root + remove `from_env`/`FromEnvSession`
+### Task 6: MCP per-domain `@functools.cache` client factories + remove `from_env`/`FromEnvSession`
+
+> **Design note (decided after the Task 4 spike + research).** The spec's "root `lifespan`
+> builds clients, subservers read `lifespan_context`" is **disproven** for ycli: fastmcp v3
+> *intentionally* isolates each server — a `mount`ed subserver's tool sees an EMPTY
+> `lifespan_context` (the parent lifespan does not propagate), and `Shared()` rebuilds per
+> call through a mount. The **fastmcp-documented canonical pattern** for "one non-serializable
+> client shared across all tools with mounted subservers" is a **module-level cached factory**.
+> Modern-Python form: `@functools.cache` on the per-domain provider, consumed via the existing
+> `Depends(...)`. This is build-once, uses the blessed `mount` (no deprecated `import_server`),
+> and needs NO context — so it works identically standalone and mounted, which makes the MCP
+> tests SIMPLER (just env + `responses` + a cache-clearing fixture; no wrapper server).
 
 **Files:**
-- Modify: `src/ycli/mcp.py`, `tracker/_deps.py`, `wiki/_deps.py`, `forms/_deps.py`, the three composition `client.py` (drop the temporary `from_env` shim), `src/ycli/yandex/base.py` (delete `FromEnvSession`)
+- Create: `src/ycli/yandex/_mcp.py` (shared `RO`), `tests/conftest.py` (autouse cache-clear fixture)
+- Modify: `tracker/_deps.py`, `wiki/_deps.py`, `forms/_deps.py` (→ `@cache` factory), the three composition `client.py` (drop the temporary `from_env` shim), `src/ycli/yandex/base.py` (delete `FromEnvSession`). **`src/ycli/mcp.py` is unchanged** (no lifespan; `mount` stays).
 - Test: every `test_mcp.py` (`tests/yandex/**/test_mcp.py`, `tests/test_yandex_mcp.py`, `tests/test_plugin_mcp.py`, `tests/test_mcp_metadata.py`)
 
 **Interfaces:**
-- Consumes: the verified spike pattern from Task 4; raw-arg clients (Task 5).
-- Produces: `mcp.py` root `lifespan` yielding `{"tracker": TrackerClient(...), "wiki": ..., "forms": ...}`; `_deps.py` providers returning `get_context().lifespan_context[<domain>]`.
+- Consumes: raw-arg clients (Task 5), `Credentials`/`AppConfig` (settings).
+- Produces: `tracker_client()` / `wiki_client()` / `forms_client()` — each `@functools.cache`, building a raw-arg domain client from `Credentials()`/`AppConfig()` once per process; consumed via the unchanged `Depends(<domain>_client)` in every `mcp.py` tool. `RO` shared from `yandex/_mcp.py`.
 
-- [ ] **Step 1: Write the failing test** — rewrite `tests/yandex/tracker/issues/test_mcp.py`'s injection to the lifespan model. Replace `_stub()` + `monkeypatch.setattr(..., "from_env", ...)` with a wrapper server that carries a test lifespan (per the Task 4 verified pattern). Add a helper at the top of the file:
-
-```python
-from contextlib import asynccontextmanager
-from fastmcp import FastMCP, Client
-from ycli.yandex.tracker.client import TrackerClient
-
-
-def _served(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-    @asynccontextmanager
-    async def life(server):
-        yield {"tracker": TrackerClient(oauth_token="t", organization_id="o")}
-
-    wrapper = FastMCP("test", lifespan=life)
-    wrapper.mount(issues_mcp.mcp)
-    return wrapper
-```
-
-and rewrite one test to use it:
+- [ ] **Step 1: Write the failing test** — rewrite `tests/yandex/tracker/issues/test_mcp.py`'s injection. Delete `_stub()` (it built a pre-authenticated `TrackerClient(session=...)` — the rejected design) and the `monkeypatch.setattr(TrackerClient, "from_env", ...)`. The new pattern is just env + `responses`; the `@cache` factory builds a real client (intercepted by `responses`). Example:
 
 ```python
+import responses
+from fastmcp import Client
+from ycli.yandex.tracker.issues import mcp as issues_mcp
+
+BASE = "https://api.tracker.yandex.net/v3"
+
+
 @responses.activate
 async def test_issues_get_tool(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
     responses.add(responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "summary": "S"}, status=200)
-    async with Client(_served(monkeypatch)) as client:
+    async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_get", {"key": "DE-1"})
     assert result.data.key == "DE-1"
 ```
 
-(If the Task 4 spike showed the provider must take `ctx: Context`, also apply that provider signature here.)
+(No wrapper server, no lifespan — the provider just calls the cached factory, so an isolated subserver works exactly like the mounted one.)
 
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `uv run pytest tests/yandex/tracker/issues/test_mcp.py::test_issues_get_tool -v`
-Expected: FAIL — the provider still calls `TrackerClient.from_env()` and there is no `lifespan_context` lookup yet (`KeyError`/attribute error), or the tool can't find the client.
+Expected: FAIL — the provider still calls `TrackerClient.from_env()` (which Task 6 removes), so the call errors.
 
-- [ ] **Step 3: Add the shared MCP annotation module** `src/ycli/yandex/_mcp.py`:
+- [ ] **Step 3: Add the shared MCP annotation module** `src/ycli/yandex/_mcp.py` (de-dupes the `RO` dict tripled across the three `_deps.py`):
 
 ```python
-"""Shared FastMCP annotations + tag factory — de-dupes the per-domain _deps.py copies."""
+"""Shared FastMCP tool annotations — de-dupes the per-domain _deps.py copies."""
 from __future__ import annotations
 
 RO: dict[str, bool] = {"readOnlyHint": True, "idempotentHint": True, "openWorldHint": True}
-
-
-def tags(domain: str) -> set[str]:
-    return {domain}
 ```
 
-- [ ] **Step 4: Rewrite the three `_deps.py`.** Example — `tracker/_deps.py`:
+- [ ] **Step 4: Rewrite the three `_deps.py` as `@cache` factories.** Example — `tracker/_deps.py`:
 
 ```python
-"""FastMCP dependency provider for the tracker subserver — reads the lifespan-built client."""
-from fastmcp.server.dependencies import get_context
+"""FastMCP dependency provider for the tracker subserver — one cached client per process.
 
-from ycli.yandex._mcp import RO, tags
-from ycli.yandex.tracker.client import TrackerClient
+fastmcp v3 isolates each mounted server's lifespan, so the canonical way to share a single
+non-serializable client across mounted tools is a module-level cached factory (see the
+fastmcp composition docs). ``@cache`` builds the client once from the env on first tool call;
+tests reset it via the autouse ``cache_clear`` fixture in tests/conftest.py.
+"""
+from functools import cache
 
-TAGS = tags("tracker")
-
-
-def tracker_client() -> TrackerClient:
-    """Provide the lifespan-built TrackerClient to tracker MCP tools."""
-    return get_context().lifespan_context["tracker"]
-```
-
-(Use the Task 4-verified signature: if the provider needs `ctx: Context`, declare it.) Apply identically to `wiki/_deps.py` (`"wiki"`) and `forms/_deps.py` (`"forms"`). The `RO`/`TAGS` symbols keep their names so `mcp.py` tool modules need no import changes.
-
-- [ ] **Step 5: Add the lifespan to `mcp.py`:**
-
-```python
-from contextlib import asynccontextmanager
-
-from fastmcp import FastMCP
-
-from ycli.log import configure
-from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.mcp import mcp as forms_mcp
+from ycli.yandex._mcp import RO
 from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.mcp import mcp as tracker_mcp
-from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.mcp import mcp as wiki_mcp
+
+TAGS: set[str] = {"tracker"}
 
 
-@asynccontextmanager
-async def _lifespan(server):
-    """Build the three domain clients once at startup from the env (the MCP composition root)."""
+@cache
+def tracker_client() -> TrackerClient:
+    """Build (once) and return the tracker client from the environment."""
     credentials, config = Credentials(), AppConfig()
-    kwargs = dict(
+    return TrackerClient(
         oauth_token=credentials.oauth_token,
         organization_id=credentials.organization_id,
         timeout_seconds=int(config.timeout_seconds),
         retries=config.retries,
     )
-    yield {
-        "tracker": TrackerClient(**kwargs),
-        "wiki": WikiClient(**kwargs),
-        "forms": FormsClient(**kwargs),
-    }
-
-
-mcp = FastMCP("yandex", instructions=(...unchanged...), lifespan=_lifespan)
-mcp.mount(wiki_mcp, namespace="wiki")
-mcp.mount(tracker_mcp, namespace="tracker")
-mcp.mount(forms_mcp, namespace="forms")
-# main() unchanged — still calls configure(level=AppConfig().log_level) then mcp.run()
 ```
+
+Apply identically to `wiki/_deps.py` (`{"wiki"}` / `WikiClient` / `wiki_client`) and `forms/_deps.py` (`{"forms"}` / `FormsClient` / `forms_client`). `RO`/`TAGS`/`<domain>_client` keep their names, so every `mcp.py` tool module (which does `from ...._deps import RO, TAGS, <domain>_client` and `Depends(<domain>_client)`) is UNCHANGED.
+
+- [ ] **Step 5: `src/ycli/mcp.py` — no change.** It keeps its `mount` composition and its `main()` (`configure(level=AppConfig().log_level); mcp.run()`). The cached factories need no lifespan. (Confirm by leaving the file untouched.)
 
 - [ ] **Step 6: Remove the transition scaffolding.** Delete the temporary `from_env` classmethod from `tracker/client.py`, `wiki/client.py`, `forms/client.py`. Delete the `FromEnvSession` class from `base.py` (and its now-unused `Self`, `AppConfig`, `Credentials`, `Transport` imports); `BaseYandex` keeps only `__init__(*, session)` + `base_url`. Update `base.py`'s module docstring (drop the `from_env` example).
 
-- [ ] **Step 7: Migrate the rest of the MCP tests.** Apply the `_served(monkeypatch)` wrapper pattern from Step 1 to every test in `tests/yandex/tracker/issues/test_mcp.py`, `tests/yandex/wiki/test_mcp.py`, `tests/yandex/forms/test_mcp.py`, `tests/yandex/forms/me/test_mcp.py`, `tests/yandex/forms/surveys/test_mcp.py`. The integration test that already sets env vars and skips the stub keeps working (it exercises the real lifespan path). `tests/test_yandex_mcp.py` (tool counts) and `tests/test_mcp_metadata.py` only list tools — they need no client, but if they instantiate the root server they now require env creds at lifespan entry; if a list-tools call triggers lifespan, add the two `monkeypatch.setenv` lines.
+- [ ] **Step 7: Add the autouse cache-clear fixture + migrate the MCP tests.** Create (or extend) `tests/conftest.py` so each test starts with empty client caches (a test sets its own env, so the next build must re-read it):
+
+```python
+import pytest
+
+from ycli.yandex.forms import _deps as forms_deps
+from ycli.yandex.tracker import _deps as tracker_deps
+from ycli.yandex.wiki import _deps as wiki_deps
+
+
+@pytest.fixture(autouse=True)
+def _reset_mcp_client_caches():
+    """Each test builds its domain client fresh from its own env (the @cache is process-wide)."""
+    for module in (tracker_deps, wiki_deps, forms_deps):
+        getattr(module, module.__name__.rsplit(".", 2)[-2] + "_client").cache_clear()
+    yield
+```
+
+(If the `getattr` indirection reads poorly, just clear the three named functions explicitly:
+`tracker_deps.tracker_client.cache_clear()`, etc.) Then migrate every MCP test to the env+`responses` pattern from Step 1, deleting each file's `_stub()` and `monkeypatch.setattr(..., "from_env", ...)`: `tests/yandex/tracker/issues/test_mcp.py`, `tests/yandex/wiki/test_mcp.py`, `tests/yandex/forms/test_mcp.py`, `tests/yandex/forms/me/test_mcp.py`, `tests/yandex/forms/surveys/test_mcp.py`. The existing `@pytest.mark.integration` test that already used env+`responses` (no stub) is the template. `tests/test_yandex_mcp.py` / `tests/test_mcp_metadata.py` only list tools (no client build) — they need no env.
 
 - [ ] **Step 8: Run the MCP surface, then the whole suite**
 
 Run: `uv run pytest tests/yandex -q -k mcp` then `uv run pytest -q`
-Expected: PASS, 100% coverage. `rg -n "from_env|FromEnvSession" src` returns nothing.
+Expected: PASS, 100% coverage. `rg -n "from_env|FromEnvSession" src` returns nothing; `rg -n "TrackerClient\(session=" tests` returns nothing (no pre-authed-session stubs left).
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add -A
-git commit -m "refactor(mcp): lifespan composition root reads env once; providers read lifespan_context; delete FromEnvSession
+git commit -m "refactor(mcp): per-domain @cache client factories (fastmcp canonical); delete from_env/FromEnvSession
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```

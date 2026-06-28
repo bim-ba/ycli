@@ -17,8 +17,10 @@ updated to encode the new principles.
 ## Decisions already taken (do not relitigate)
 
 - **Composition-root DI.** Clients receive their credentials/session via the constructor and
-  never read `os.environ`. The environment is read once at a composition root (the CLI
-  `AppContext`, the MCP `lifespan`). `FromEnvSession` and every `from_env` are deleted.
+  never read `os.environ`. The environment is read at a composition root: the CLI `AppContext`,
+  and — for MCP — a per-domain `@functools.cache` client factory in each `_deps.py` (the
+  fastmcp-canonical pattern; the spec's original "root `lifespan`" was disproven, see the MCP
+  composition-root item below). `FromEnvSession` and every `from_env` are deleted.
 - **Public SDK clients take raw credential arguments, not settings objects.** The three
   composition-root clients (`TrackerClient`/`WikiClient`/`FormsClient`) — the public SDK entry
   points — accept primitives: `oauth_token: str` (required), `organization_id: str`
@@ -228,12 +230,18 @@ deleted (their lazy-DI job moves into `AppContext`); commands call
 `AppContext.from_typer_context(ctx).tracker` etc. `parse_fields` (currently in
 `tracker/_clideps.py`) moves to a small `tracker/_args.py` (or stays a tracker-local helper).
 
-**MCP composition root — `lifespan`.** `src/ycli/mcp.py` gains a FastMCP `lifespan=` async
-context manager that reads `Credentials()`/`AppConfig()` once at startup and builds the three
-clients from their raw values (`oauth_token=…, organization_id=…, timeout_seconds=…, retries=…`),
-yielding them; the three `_deps.py` provider functions read `ctx.lifespan_context[...]`
-instead of calling `from_env()`. (Confirm the installed fastmcp version's `lifespan`/Context
-API during planning; fastmcp 3.4.2 supports `lifespan=` and `ctx.lifespan_context`.)
+**MCP composition root — per-domain `@functools.cache` factory.** *(Revised after a spike +
+fastmcp research.)* The original plan — a root `lifespan` building the clients, subservers
+reading `ctx.lifespan_context` — was **disproven**: fastmcp v3 intentionally isolates each
+server, so a `mount`ed subserver's tool sees an **empty** `lifespan_context` (the parent
+lifespan does not propagate), and `Shared()` rebuilds per call across a mount. The
+**fastmcp-documented canonical pattern** for sharing one non-serializable client across mounted
+tools is a *module-level cached factory*. So each `_deps.py` provider becomes a
+`@functools.cache` function that reads `Credentials()`/`AppConfig()` and builds its raw-arg
+domain client once per process, consumed via the unchanged `Depends(<domain>_client)`.
+`src/ycli/mcp.py` is unchanged (keeps `mount`, no deprecated `import_server`). Tests reset the
+caches via an autouse `cache_clear` fixture. This is build-once, blessed, and needs no request
+context — so it works identically standalone and mounted.
 
 **`auth.py`** keeps its own credential carve-out: it constructs `Credentials()` directly to
 report "not configured", and builds the three clients from its raw values (not via
@@ -336,8 +344,8 @@ list tools use the default cap (no cursor parameter); their descriptions state t
   helpers), `transport.py` (inline header, `base=` session), `base.py` (drop `FromEnvSession`),
   the three composition-root `client.py` (raw-arg constructor), every `models.py` (inherit
   `APIModel`), every list `client.py` (use a strategy) + list `cli.py`/`mcp.py` (`--limit`/`--all`,
-  drop `--cursor`), `cli.py` (`AppContext`), `mcp.py` (`lifespan`), the three `_deps.py`
-  (read lifespan context), `auth.py` (probe loop + own carve-out), `settings.py` (`max_items`),
+  drop `--cursor`), `cli.py` (`AppContext`), the three `_deps.py` (`@functools.cache` factory;
+  `mcp.py` itself unchanged), `auth.py` (probe loop + own carve-out), `settings.py` (`max_items`),
   `scripts/new_endpoint.py`, `ARCHITECTURE.md` + `tests/test_architecture.py`.
 - Delete: `src/ycli/cliformat.py`, the three `_clideps.py`, the `FromEnvSession` mixin.
 
@@ -353,7 +361,8 @@ On `feat/round-2-refactor`, subagent-driven. Foundations first so each phase sta
    this phase needs no AppContext yet.
 2. **`AppContext` + DI overhaul:** raw-arg composition-root clients, `AppContext`
    (output_format + console + strategy + lazy clients), delete
-   `from_env`/`FromEnvSession`/`_clideps`/`cliformat`, MCP `lifespan`, `auth` carve-out. Call
+   `from_env`/`FromEnvSession`/`_clideps`/`cliformat`, MCP `_deps.py` `@functools.cache`
+   factories (`mcp.py` unchanged), `auth` carve-out. Call
    sites swap `SerializationStrategy.from_format(cliformat.output_format(ctx))` → `app.strategy`
    (and `Console()` → `app.console`) and `…_client(ctx)` → `app.tracker`.
 3. **`YCLI_MAX_ITEMS`** in `AppConfig`.
