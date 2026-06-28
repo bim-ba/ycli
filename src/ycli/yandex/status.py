@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import typer
 
@@ -12,8 +12,9 @@ from pydantic import Field, ValidationError
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.settings import Credentials
+from ycli.settings import AppConfig, Credentials
 from ycli.yandex.errors import YandexAuthError, YandexError
+from ycli.yandex.factory import ClientFactory
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.client import TrackerClient
@@ -35,26 +36,32 @@ class AuthReport(APIModel):
     services: list[ServiceAuthStatus] = Field(default_factory=list)
 
 
-_PROBES: list[tuple[str, type, Callable[[object], str]]] = [
-    ("tracker", TrackerClient, lambda me: me.login),  # ty: ignore[unresolved-attribute]
-    ("wiki", WikiClient, lambda me: me.username),  # ty: ignore[unresolved-attribute]
-    ("forms", FormsClient, lambda me: me.email),  # ty: ignore[unresolved-attribute]
+class ServiceProbe:
+    """One service's identity check — name, client class, and identity extractor together."""
+
+    def __init__(
+        self, name: str, client_cls: type, identity_of: Callable[[Any], str | None]
+    ) -> None:
+        self._name, self._client_cls, self._identity_of = name, client_cls, identity_of
+
+    def run(self, credentials: Credentials) -> ServiceAuthStatus:
+        client = ClientFactory.build(self._client_cls, credentials, AppConfig())
+        try:
+            me = client.me.get()  # ty: ignore[unresolved-attribute]
+        except YandexAuthError:
+            return ServiceAuthStatus(
+                service=self._name, valid=False, detail="token invalid or expired"
+            )
+        except YandexError as exc:
+            return ServiceAuthStatus(service=self._name, valid=False, detail=str(exc))
+        return ServiceAuthStatus(service=self._name, valid=True, identity=self._identity_of(me))
+
+
+PROBES: list[ServiceProbe] = [
+    ServiceProbe("tracker", TrackerClient, lambda me: me.login),
+    ServiceProbe("wiki", WikiClient, lambda me: me.username),
+    ServiceProbe("forms", FormsClient, lambda me: me.email),
 ]
-
-
-def _probe(
-    name: str, client_cls: type, identity_of: Callable[[object], str], credentials: Credentials
-) -> ServiceAuthStatus:
-    client = client_cls(
-        oauth_token=credentials.oauth_token, organization_id=credentials.organization_id
-    )
-    try:
-        me = client.me.get()
-    except YandexAuthError:
-        return ServiceAuthStatus(service=name, valid=False, detail="token invalid or expired")
-    except YandexError as exc:
-        return ServiceAuthStatus(service=name, valid=False, detail=str(exc))
-    return ServiceAuthStatus(service=name, valid=True, identity=identity_of(me))
 
 
 @app.command()
@@ -75,7 +82,7 @@ def status(ctx: typer.Context) -> None:
         )
         raise typer.Exit(1) from None
 
-    services = [_probe(name, cls, ident, credentials) for name, cls, ident in _PROBES]
+    services = [p.run(credentials) for p in PROBES]
     report = AuthReport(
         configured=True, organization_id=credentials.organization_id, services=services
     )
