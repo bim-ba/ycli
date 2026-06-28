@@ -4,7 +4,7 @@ import requests
 import responses
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.client import PagesClient
-from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails, PageRefList
+from ycli.yandex.wiki.pages.models import PageDetails, PageRefList
 
 BASE = "https://api.wiki.yandex.net/v1"
 
@@ -32,6 +32,7 @@ def test_descendants_single_page_no_cursor():
     out = _client().descendants(slug="data")
     assert isinstance(out, PageRefList)
     assert [r.slug for r in out.root] == ["data/a"]
+    assert responses.calls[0].request.params["page_size"] == "100"
 
 
 @responses.activate

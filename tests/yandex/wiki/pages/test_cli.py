@@ -64,11 +64,15 @@ def test_pages_descendants_limit_option():
 @responses.activate
 def test_pages_descendants_all_flag():
     responses.add(responses.GET, f"{BASE}/pages/descendants",
-                  json={"results": [{"id": 1, "slug": "data/x/a"}], "next_cursor": None}, status=200)
+                  json={"results": [{"id": 1, "slug": "data/x/a"}], "next_cursor": "c1"}, status=200)
+    responses.add(responses.GET, f"{BASE}/pages/descendants",
+                  json={"results": [{"id": 2, "slug": "data/x/b"}], "next_cursor": None}, status=200)
     result = runner.invoke(cli.app, ["--format", "json", "wiki", "pages", "descendants", "data/x", "--all"])
     assert result.exit_code == 0
     out = json.loads(result.stdout)
-    assert out[0]["slug"] == "data/x/a"
+    slugs = [item["slug"] for item in out]
+    assert "data/x/a" in slugs
+    assert "data/x/b" in slugs
 
 
 @responses.activate
