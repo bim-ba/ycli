@@ -1,5 +1,6 @@
 """Root MCP server: the 3 subservers mount with namespaced tool names."""
 
+import pytest
 from fastmcp import Client
 
 from ycli.mcp import mcp
@@ -21,9 +22,6 @@ def test_main_is_callable():
     from ycli.mcp import main
 
     assert callable(main)
-
-
-import pytest
 
 
 @pytest.mark.integration
