@@ -4,6 +4,7 @@ Installing the yandex-360 plugin should register the MCP server with no hand-cop
 JSON. This locks the command form and guarantees credentials are passed by env-var
 reference, never as literal values.
 """
+
 from __future__ import annotations
 
 import json

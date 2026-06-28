@@ -1,4 +1,5 @@
 """Pydantic models for Tracker issue links (LinkObject + Link + LinkList)."""
+
 from __future__ import annotations
 
 from pydantic import RootModel
@@ -23,7 +24,9 @@ class Link(APIModel):
     """A linked issue reference (``/issues/{key}/links`` item).
 
     Example:
-        >>> Link.model_validate({"id": 7, "type": {"id": "relates"}, "object": {"key": "DE-2"}}).type_id
+        >>> Link.model_validate(
+        ...     {"id": 7, "type": {"id": "relates"}, "object": {"key": "DE-2"}}
+        ... ).type_id
         'relates'
     """
 

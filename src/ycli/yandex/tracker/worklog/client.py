@@ -2,6 +2,7 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.tracker._base import TrackerResource

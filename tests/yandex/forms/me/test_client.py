@@ -1,4 +1,5 @@
 """TDD for MeClient — pure declarative endpoint, mocked with `responses`."""
+
 import requests
 import responses
 
@@ -16,8 +17,12 @@ def _client() -> MeClient:
 
 @responses.activate
 def test_get_returns_user_model():
-    responses.add(responses.GET, f"{BASE}/users/me",
-                  json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/users/me",
+        json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"},
+        status=200,
+    )
     u = _client().get()
     assert isinstance(u, User)
     assert u.email == "e@x"

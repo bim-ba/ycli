@@ -1,4 +1,5 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses (extra='ignore')."""
+
 from __future__ import annotations
 
 from pydantic import RootModel

@@ -1,4 +1,5 @@
 """Pydantic models for Tracker priorities (Priority + PriorityList)."""
+
 from __future__ import annotations
 
 from pydantic import RootModel

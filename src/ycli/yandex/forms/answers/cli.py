@@ -1,4 +1,5 @@
 """`forms answers` commands."""
+
 from __future__ import annotations
 
 from typing import Annotated
@@ -28,4 +29,6 @@ def list_(
     """List a form's responses (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
     cap = None if all_ else (limit or AppConfig().max_items)
-    Serializer.serialize(app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console
+    )

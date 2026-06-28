@@ -3,6 +3,7 @@
 NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
 annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.pagination import SinglePageStrategy

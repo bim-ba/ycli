@@ -1,4 +1,5 @@
 """Tracker /myself resource — client + CLI + MCP, HTTP stubbed."""
+
 from __future__ import annotations
 
 import asyncio

@@ -1,4 +1,5 @@
 """FormsClient — composition root over the forms resource clients (one shared session)."""
+
 from __future__ import annotations
 
 import requests

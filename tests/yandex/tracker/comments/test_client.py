@@ -1,4 +1,5 @@
 """TDD for CommentsClient."""
+
 import json
 
 import requests
@@ -18,8 +19,12 @@ def _client() -> CommentsClient:
 
 @responses.activate
 def test_list_returns_commentlist():
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/comments",
-                  json=[{"id": 1, "createdBy": {"display": "Сава"}, "text": "hi"}], status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/DE-1/comments",
+        json=[{"id": 1, "createdBy": {"display": "Сава"}, "text": "hi"}],
+        status=200,
+    )
     out = _client().list("DE-1")
     assert isinstance(out, CommentList)
     assert out.root[0].text == "hi" and out.root[0].created_by_display == "Сава"
@@ -27,8 +32,9 @@ def test_list_returns_commentlist():
 
 @responses.activate
 def test_add_posts_body():
-    responses.add(responses.POST, f"{BASE}/issues/DE-1/comments/",
-                  json={"id": 5, "text": "added"}, status=201)
+    responses.add(
+        responses.POST, f"{BASE}/issues/DE-1/comments/", json={"id": 5, "text": "added"}, status=201
+    )
     c = _client().add("DE-1", body={"text": "added"})
     assert isinstance(c, Comment) and c.id == 5
     assert json.loads(responses.calls[0].request.body) == {"text": "added"}

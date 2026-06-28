@@ -1,4 +1,5 @@
 """Pydantic model for Forms /users/me (User)."""
+
 from __future__ import annotations
 
 from ycli.models import APIModel

@@ -1,4 +1,5 @@
 """`tracker links` commands."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -42,4 +43,6 @@ def add(
     """Link issue KEY to TARGET with RELATIONSHIP."""
     body = {"relationship": relationship.value, "issue": target}
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console
+    )

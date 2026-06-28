@@ -1,4 +1,5 @@
 """Shared tracker CLI arg types + the ``--field key=value`` JSON-coerce helper."""
+
 from __future__ import annotations
 
 import json

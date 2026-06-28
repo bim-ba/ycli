@@ -1,4 +1,5 @@
 """Property accessor on the PageDetails model — populated and None branches."""
+
 from ycli.yandex.wiki.pages.models import PageDetails
 
 

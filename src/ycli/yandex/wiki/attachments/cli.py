@@ -1,4 +1,5 @@
 """`wiki attachments` commands."""
+
 from __future__ import annotations
 
 from typing import Annotated
@@ -18,4 +19,6 @@ def list_(
 ) -> None:
     """List attachments on a page id (GET /pages/{id}/attachments)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.wiki.attachments.list(page_id=page_id), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.wiki.attachments.list(page_id=page_id), app_ctx.strategy, app_ctx.console
+    )

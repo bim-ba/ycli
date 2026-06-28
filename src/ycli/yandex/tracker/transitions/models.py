@@ -1,4 +1,5 @@
 """Pydantic models for Tracker issue transitions (Transition + TransitionList)."""
+
 from __future__ import annotations
 
 from pydantic import RootModel

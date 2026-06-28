@@ -42,6 +42,7 @@ def test_mcp_subcommand_launches_server(monkeypatch):
 
 def test_mcp_command_registered_from_launcher():
     from typer.main import get_command
+
     names = get_command(cli.app).commands  # click Group.commands maps name -> Command
     assert "mcp" in names
 

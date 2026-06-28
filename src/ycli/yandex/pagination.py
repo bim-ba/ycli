@@ -4,6 +4,7 @@ Each strategy owns ONE cursor mechanic and accepts injected page-access callable
 public client method never exposes a cursor: it picks a strategy, says how to read a page,
 and gets back a list capped at ``limit`` (``None`` = uncapped). Pure — no HTTP here.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

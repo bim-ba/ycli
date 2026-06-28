@@ -1,4 +1,5 @@
 """`tracker changelog` commands."""
+
 from __future__ import annotations
 
 from typing import Annotated
@@ -25,4 +26,6 @@ def list_(
 ) -> None:
     """List changelog entries for issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.changelog.list(key, per_page=per_page), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.changelog.list(key, per_page=per_page), app_ctx.strategy, app_ctx.console
+    )

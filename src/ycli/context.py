@@ -1,4 +1,5 @@
 """CLI composition root — reads the env once and hands raw primitives to the clients."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

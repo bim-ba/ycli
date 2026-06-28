@@ -1,4 +1,5 @@
 """WikiClient — composition root over the wiki resource clients (one shared session)."""
+
 from __future__ import annotations
 
 import requests

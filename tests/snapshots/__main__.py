@@ -1,4 +1,5 @@
 """Regenerate the committed surface snapshots: ``python -m tests.snapshots --update``."""
+
 from __future__ import annotations
 
 import sys

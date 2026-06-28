@@ -1,4 +1,5 @@
 """Wiki /pages/{id}/comments FastMCP tool."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 

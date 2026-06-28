@@ -1,4 +1,5 @@
 """TDD for SurveysClient — list returns flat SurveyCollection; get returns one Survey."""
+
 import requests
 import responses
 
@@ -17,8 +18,12 @@ def _client() -> SurveysClient:
 
 @responses.activate
 def test_list_returns_flat_collection():
-    responses.add(responses.GET, f"{BASE}/surveys",
-                  json={"links": {}, "result": [{"id": "a", "name": "A"}, {"id": "b", "name": "B"}]}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys",
+        json={"links": {}, "result": [{"id": "a", "name": "A"}, {"id": "b", "name": "B"}]},
+        status=200,
+    )
     out = _client().list()
     assert isinstance(out, SurveyCollection)
     assert [s.id for s in out.root] == ["a", "b"]
@@ -26,8 +31,12 @@ def test_list_returns_flat_collection():
 
 @responses.activate
 def test_get_returns_single_survey():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}",
-                  json={"id": SID, "name": "Новая Задача", "is_published": True, "language": "ru"}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}",
+        json={"id": SID, "name": "Новая Задача", "is_published": True, "language": "ru"},
+        status=200,
+    )
     s = _client().get(SID)
     assert isinstance(s, Survey)
     assert s.id == SID and s.is_published is True

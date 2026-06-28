@@ -3,6 +3,7 @@
 NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
 annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.pagination import CursorStrategy
@@ -59,7 +60,9 @@ class PagesClient(WikiResource):
             next_of=lambda page: page.next_cursor,
         )
         refs = strategy.collect(
-            lambda cursor: self._descendants_page(slug=slug, page_size=100, cursor=cursor, actuality=actuality),
+            lambda cursor: self._descendants_page(
+                slug=slug, page_size=100, cursor=cursor, actuality=actuality
+            ),
             limit,
         )
         return PageRefList(refs)
@@ -72,7 +75,9 @@ class PagesClient(WikiResource):
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.create({"slug": "data/guides/x", "title": "X", "content": "# X"}).id  # doctest: +SKIP
+            >>> client.pages.create(
+            ...     {"slug": "data/guides/x", "title": "X", "content": "# X"}
+            ... ).id  # doctest: +SKIP
             12345
         """
 

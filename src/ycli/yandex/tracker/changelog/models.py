@@ -1,4 +1,5 @@
 """Pydantic models for Tracker changelog (ChangeField + ChangelogEntry + ChangelogList)."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -34,7 +35,9 @@ class ChangelogEntry(APIModel):
     """A changelog event (``/issues/{key}/changelog`` item).
 
     Example:
-        >>> ChangelogEntry.model_validate({"id": "1", "updatedBy": {"display": "Сава"}, "fields": []}).author_display
+        >>> ChangelogEntry.model_validate(
+        ...     {"id": "1", "updatedBy": {"display": "Сава"}, "fields": []}
+        ... ).author_display
         'Сава'
     """
 

@@ -1,4 +1,5 @@
 """`tracker priorities` commands."""
+
 from __future__ import annotations
 
 import typer

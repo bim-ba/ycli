@@ -1,4 +1,5 @@
 """Pydantic models for Tracker issue comments (Comment + CommentList)."""
+
 from __future__ import annotations
 
 from pydantic import Field, RootModel

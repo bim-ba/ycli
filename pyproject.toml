@@ -96,6 +96,7 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "responses>=0.26.1",
+    "ruff>=0.15.20",
 ]
 
 # Automated versioning from Conventional Commits. CI runs `semantic-release version`
@@ -113,6 +114,18 @@ mode = "update"
 
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = true
 
 [tool.importlinter]
 root_package = "ycli"

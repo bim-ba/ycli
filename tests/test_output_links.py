@@ -1,4 +1,5 @@
 """Tracker keys become clickable links in pretty tables on a TTY, and stay bare otherwise."""
+
 from __future__ import annotations
 
 import io

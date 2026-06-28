@@ -1,4 +1,5 @@
 """`forms questions` commands."""
+
 from __future__ import annotations
 
 import typer

@@ -1,4 +1,5 @@
 """Forms answers FastMCP tool (reads-only)."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 

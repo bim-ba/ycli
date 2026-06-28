@@ -1,4 +1,5 @@
 """Property accessor on the wiki Comment model — populated and None branches."""
+
 from ycli.yandex.wiki.comments.models import Comment
 
 

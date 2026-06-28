@@ -1,4 +1,5 @@
 """Wiki FastMCP subserver tests — @cache factory, env+responses pattern."""
+
 import pytest
 import responses
 from fastmcp import Client

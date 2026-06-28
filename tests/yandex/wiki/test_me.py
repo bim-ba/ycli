@@ -1,4 +1,5 @@
 """Wiki /users/me resource — client, CLI, MCP."""
+
 import pytest
 import responses
 from fastmcp import Client
@@ -49,6 +50,7 @@ def test_cli_wiki_me_get(creds):
 def test_mcp_wiki_me_get(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
     from ycli.yandex.wiki.me.mcp import get
+
     result = get(client=WikiClient(oauth_token="tok", organization_id="org"))
     assert result.username == "alice"
 

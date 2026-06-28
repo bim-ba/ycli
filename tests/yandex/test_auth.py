@@ -1,4 +1,5 @@
 """`ycli auth status` — probes Tracker, Wiki, Forms identity endpoints."""
+
 import pytest
 import responses
 from typer.testing import CliRunner
@@ -31,7 +32,9 @@ def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
 
 @responses.activate
 def test_all_services_valid(creds):
-    responses.add(responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
+    responses.add(
+        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
+    )
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     responses.add(responses.GET, FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -64,7 +67,9 @@ def test_tracker_generic_error(creds):
 @responses.activate
 def test_forms_auth_error(creds):
     """Exercises the YandexAuthError branch for the forms probe (401)."""
-    responses.add(responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
+    responses.add(
+        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
+    )
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     responses.add(responses.GET, FORMS_ME, status=401)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -75,7 +80,9 @@ def test_forms_auth_error(creds):
 @responses.activate
 def test_forms_generic_error(creds):
     """Exercises the generic YandexError branch for the forms probe (422)."""
-    responses.add(responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
+    responses.add(
+        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
+    )
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     responses.add(responses.GET, FORMS_ME, json={"errorMessages": ["bad"]}, status=422)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -86,7 +93,9 @@ def test_forms_generic_error(creds):
 @responses.activate
 def test_wiki_auth_error(creds):
     """Exercises the YandexAuthError branch for the wiki probe (401)."""
-    responses.add(responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
+    responses.add(
+        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
+    )
     responses.add(responses.GET, WIKI_ME, status=401)
     responses.add(responses.GET, FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -97,7 +106,9 @@ def test_wiki_auth_error(creds):
 @responses.activate
 def test_wiki_generic_error(creds):
     """Exercises the generic YandexError branch for the wiki probe (422)."""
-    responses.add(responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
+    responses.add(
+        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
+    )
     responses.add(responses.GET, WIKI_ME, json={"errorMessages": ["bad"]}, status=422)
     responses.add(responses.GET, FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])

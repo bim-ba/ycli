@@ -1,4 +1,5 @@
 """`tracker comments` commands."""
+
 from __future__ import annotations
 
 from typing import Annotated
@@ -27,4 +28,6 @@ def add(
 ) -> None:
     """Add a comment to issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.comments.add(key, body={"text": text}), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.comments.add(key, body={"text": text}), app_ctx.strategy, app_ctx.console
+    )

@@ -1,4 +1,5 @@
 """TDD for QuestionsClient — returns the {pages} envelope verbatim (no flattening)."""
+
 import requests
 import responses
 
@@ -17,11 +18,17 @@ def _client() -> QuestionsClient:
 
 @responses.activate
 def test_list_returns_pages_envelope_verbatim():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/questions",
-                  json={"pages": [
-                      {"id": 1, "items": [{"id": 11, "slug": "s1", "type": "string", "label": "A"}]},
-                      {"id": 2, "items": [{"id": 22, "slug": "s2", "type": "enum", "label": "B"}]},
-                  ]}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/questions",
+        json={
+            "pages": [
+                {"id": 1, "items": [{"id": 11, "slug": "s1", "type": "string", "label": "A"}]},
+                {"id": 2, "items": [{"id": 22, "slug": "s2", "type": "enum", "label": "B"}]},
+            ]
+        },
+        status=200,
+    )
     out = _client().list(SID)
     assert isinstance(out, QuestionsResponse)
     assert [q.id for page in out.pages for q in page.items] == [11, 22]

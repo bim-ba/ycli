@@ -33,7 +33,9 @@ def main() -> None:
     Example:
         >>> main()  # doctest: +SKIP
     """
-    configure(level=AppConfig().log_level)  # match the CLI: single stderr sink, stdout stays clean for the protocol
+    configure(
+        level=AppConfig().log_level
+    )  # match the CLI: single stderr sink, stdout stays clean for the protocol
     mcp.run()
 
 

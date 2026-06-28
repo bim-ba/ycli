@@ -1,4 +1,5 @@
 """TDD for forms me MCP subserver — @cache factory, env+responses pattern."""
+
 import pytest
 import responses
 from fastmcp import Client
@@ -17,8 +18,12 @@ def creds(monkeypatch):
 
 @responses.activate
 async def test_me_get_tool(creds):
-    responses.add(responses.GET, f"{BASE}/users/me",
-                  json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/users/me",
+        json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"},
+        status=200,
+    )
     async with Client(me_mcp.mcp) as client:
         result = await client.call_tool("me_get", {})
     assert result.data.email == "e@x"

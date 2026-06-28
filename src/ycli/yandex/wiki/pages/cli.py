@@ -1,4 +1,5 @@
 """`wiki pages` commands — argument-based; dumps full pydantic models as JSON."""
+
 from __future__ import annotations
 
 from typing import Annotated
@@ -18,7 +19,9 @@ SlugArg = Annotated[str, typer.Argument(metavar="SLUG", help="Wiki page slug.")]
 def get(
     ctx: typer.Context,
     slug: SlugArg,
-    fields: Annotated[str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")] = "content",
+    fields: Annotated[
+        str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
+    ] = "content",
 ) -> None:
     """Print the page body (default fields=content) for SLUG."""
     app_ctx = AppContext.from_typer_context(ctx)
@@ -35,7 +38,9 @@ def descendants(
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
     cap = None if all_ else (limit or AppConfig().max_items)
-    Serializer.serialize(app_ctx.wiki.pages.descendants(slug=slug, limit=cap), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.wiki.pages.descendants(slug=slug, limit=cap), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
@@ -63,4 +68,6 @@ def update(
     body: dict[str, str] = {"content": content}
     if title:
         body["title"] = title
-    Serializer.serialize(app_ctx.wiki.pages.update(page_id=page_id, body=body), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.wiki.pages.update(page_id=page_id, body=body), app_ctx.strategy, app_ctx.console
+    )

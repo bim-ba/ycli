@@ -1,4 +1,5 @@
 """Pydantic models for Wiki /users/me (the authenticated user)."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel

@@ -1,4 +1,5 @@
 """Forms /surveys FastMCP tools (reads-only)."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
@@ -22,5 +23,7 @@ def get(survey_id: str, client: FormsClient = Depends(forms_client)) -> Survey:
     # A 404 deserializes into an all-None Survey (lenient model) rather than raising;
     # turn that into a clean not-found error instead of a phantom empty object.
     if result.id is None:
-        raise ValueError(f"survey {survey_id!r} not found (got empty response — check id or permissions)")
+        raise ValueError(
+            f"survey {survey_id!r} not found (got empty response — check id or permissions)"
+        )
     return result

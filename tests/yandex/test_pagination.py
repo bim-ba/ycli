@@ -9,7 +9,9 @@ def test_single_page_truncates_to_limit():
 
 def test_single_page_none_limit_returns_all():
     page = {"results": [1, 2, 3]}
-    out = SinglePageStrategy(extract=lambda p: p["results"]).collect(lambda cursor: page, limit=None)
+    out = SinglePageStrategy(extract=lambda p: p["results"]).collect(
+        lambda cursor: page, limit=None
+    )
     assert out == [1, 2, 3]
 
 

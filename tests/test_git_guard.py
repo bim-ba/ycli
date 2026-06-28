@@ -4,6 +4,7 @@ The hook lives outside the ``ycli`` package (it is repo tooling, not shipped), s
 it is loaded by path and is not measured by the coverage gate. These tests assert
 its decision logic and its stdin->stdout/exit contract.
 """
+
 from __future__ import annotations
 
 import importlib.util

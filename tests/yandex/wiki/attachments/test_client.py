@@ -5,6 +5,7 @@ from ycli.yandex.wiki.attachments.models import AttachmentList, AttachmentsRespo
 
 BASE = "https://api.wiki.yandex.net/v1"
 
+
 def _client():
     s = requests.Session()
     s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
@@ -13,8 +14,12 @@ def _client():
 
 @responses.activate
 def test_list_returns_flat_collection():
-    responses.add(responses.GET, f"{BASE}/pages/42/attachments",
-                  json={"results": [{"name": "f.pdf", "size": 1, "mime_type": "application/pdf"}]}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"name": "f.pdf", "size": 1, "mime_type": "application/pdf"}]},
+        status=200,
+    )
     out = _client().list(page_id=42)
     assert isinstance(out, AttachmentList)
     assert [a.name for a in out.root] == ["f.pdf"]
@@ -22,8 +27,12 @@ def test_list_returns_flat_collection():
 
 @responses.activate
 def test_list_attachments_for_page_id():
-    responses.add(responses.GET, f"{BASE}/pages/42/attachments",
-                  json={"results": [{"name": "f.pdf", "size": 1, "mime_type": "application/pdf"}]}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"name": "f.pdf", "size": 1, "mime_type": "application/pdf"}]},
+        status=200,
+    )
     out = _client().list(page_id=42)
     assert isinstance(out, AttachmentList)
     assert out.root[0].name == "f.pdf"

@@ -1,5 +1,9 @@
 # Fast local guardrails — run: uv run pre-commit install
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.20
+    hooks:
+      - id: ruff-format
   - repo: local
     hooks:
       - id: lint-imports

@@ -1,4 +1,5 @@
 """`tracker issues` commands — argument-based; dumps full pydantic models as JSON."""
+
 from __future__ import annotations
 
 import json
@@ -45,19 +46,27 @@ def list_(
     flt = {
         k: v
         for k, v in {
-            "queue": queue, "status": status, "assignee": assignee, "epic": epic, "type": type_,
+            "queue": queue,
+            "status": status,
+            "assignee": assignee,
+            "epic": epic,
+            "type": type_,
         }.items()
         if v
     }
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.search(body={"filter": flt}), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.issues.search(body={"filter": flt}), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
 def search(ctx: typer.Context, query: Annotated[str, typer.Argument(help="TQL query.")]) -> None:
     """Search issues by a TQL query string."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.search(body={"query": query}), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.issues.search(body={"query": query}), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
@@ -106,7 +115,9 @@ def create(
         body["tags"] = tag
     body |= parse_fields(field)
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.create(body=body), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.issues.create(body=body), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
@@ -117,7 +128,9 @@ def update(
     type_: Annotated[str, typer.Option("--type", help="New issue type key.")] = "",
     priority: Annotated[str, typer.Option(help="New priority key.")] = "",
     parent: Annotated[str, typer.Option(help="New parent issue key.")] = "",
-    description: Annotated[str, typer.Option(help='New markdown body — pass "$(cat file.md)".')] = "",
+    description: Annotated[
+        str, typer.Option(help='New markdown body — pass "$(cat file.md)".')
+    ] = "",
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
 ) -> None:
@@ -137,4 +150,6 @@ def update(
         body["tags"] = tag
     body |= parse_fields(field)
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.update(key, body=body), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.issues.update(key, body=body), app_ctx.strategy, app_ctx.console
+    )

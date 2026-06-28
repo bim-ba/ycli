@@ -6,6 +6,7 @@ Creates src/ycli/yandex/tracker/macros/{__init__,client,cli,mcp,models}.py wired
 domain deps, the render output path, and read-only MCP annotations. Fill the marked spots
 with the real endpoint; the structure already satisfies ARCH-1..4 and import-linter.
 """
+
 from __future__ import annotations
 
 import argparse

@@ -1,4 +1,5 @@
 """TDD for `forms answers` CLI — dumps the {columns, answers, next} envelope."""
+
 import json
 from urllib.parse import parse_qs, urlparse
 
@@ -22,8 +23,11 @@ def creds(monkeypatch):
 def _two_page_callback(request):
     """Page 1 hands a next_url with ``id=100``; page 2 drains it."""
     if "id" not in parse_qs(urlparse(request.url).query):
-        body = {"columns": [], "answers": [{"id": 1, "created": "x", "data": []}],
-                "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=100"}}
+        body = {
+            "columns": [],
+            "answers": [{"id": 1, "created": "x", "data": []}],
+            "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=100"},
+        }
     else:
         body = {"columns": [], "answers": [{"id": 2, "created": "x", "data": []}], "next": None}
     return (200, {}, json.dumps(body))
@@ -31,10 +35,16 @@ def _two_page_callback(request):
 
 @responses.activate
 def test_list_dumps_envelope():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                  json={"columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
-                        "answers": [{"id": 99, "created": "2026-01-01", "data": [{"value": "x"}]}],
-                        "next": None}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        json={
+            "columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
+            "answers": [{"id": 99, "created": "2026-01-01", "data": [{"value": "x"}]}],
+            "next": None,
+        },
+        status=200,
+    )
     res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "list", SID])
     assert res.exit_code == 0
     out = json.loads(res.stdout)
@@ -43,8 +53,12 @@ def test_list_dumps_envelope():
 
 @responses.activate
 def test_list_drains_all_pages():
-    responses.add_callback(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                           callback=_two_page_callback, content_type="application/json")
+    responses.add_callback(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        callback=_two_page_callback,
+        content_type="application/json",
+    )
     res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "list", SID])
     assert res.exit_code == 0
     out = json.loads(res.stdout)
@@ -54,11 +68,22 @@ def test_list_drains_all_pages():
 
 @responses.activate
 def test_list_with_limit_caps_results():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                  json={"columns": [], "answers": [{"id": 1, "created": "x", "data": []},
-                                                   {"id": 2, "created": "x", "data": []}],
-                        "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=2"}}, status=200)
-    res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "list", SID, "--limit", "1"])
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        json={
+            "columns": [],
+            "answers": [
+                {"id": 1, "created": "x", "data": []},
+                {"id": 2, "created": "x", "data": []},
+            ],
+            "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=2"},
+        },
+        status=200,
+    )
+    res = runner.invoke(
+        cli.app, ["--format", "json", "forms", "answers", "list", SID, "--limit", "1"]
+    )
     assert res.exit_code == 0
     out = json.loads(res.stdout)
     assert len(out["answers"]) == 1
@@ -67,8 +92,12 @@ def test_list_with_limit_caps_results():
 
 @responses.activate
 def test_list_with_all_flag_drains_all_pages():
-    responses.add_callback(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                           callback=_two_page_callback, content_type="application/json")
+    responses.add_callback(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        callback=_two_page_callback,
+        content_type="application/json",
+    )
     res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "list", SID, "--all"])
     assert res.exit_code == 0
     out = json.loads(res.stdout)

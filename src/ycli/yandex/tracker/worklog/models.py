@@ -1,4 +1,5 @@
 """Pydantic models for Tracker worklog (Worklog + WorklogList)."""
+
 from __future__ import annotations
 
 from pydantic import Field, RootModel
@@ -11,7 +12,9 @@ class Worklog(APIModel):
     """A worklog entry (``/issues/{key}/worklog`` item).
 
     Example:
-        >>> Worklog.model_validate({"id": 5, "createdBy": {"display": "X"}, "duration": "PT2H"}).author_display
+        >>> Worklog.model_validate(
+        ...     {"id": 5, "createdBy": {"display": "X"}, "duration": "PT2H"}
+        ... ).author_display
         'X'
     """
 

@@ -1,4 +1,5 @@
 """The ``ycli mcp`` launcher — isolated so cli.py only mounts. Importable without the mcp extra."""
+
 from __future__ import annotations
 
 import typer

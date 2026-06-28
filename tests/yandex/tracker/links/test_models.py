@@ -1,13 +1,16 @@
 """Property accessors on the Link model — populated and None branches."""
+
 from ycli.yandex.tracker.links.models import Link
 
 
 def test_link_properties_populated():
-    link = Link.model_validate({
-        "id": 7,
-        "type": {"id": "relates"},
-        "object": {"key": "DE-2", "display": "Other"},
-    })
+    link = Link.model_validate(
+        {
+            "id": 7,
+            "type": {"id": "relates"},
+            "object": {"key": "DE-2", "display": "Other"},
+        }
+    )
     assert link.type_id == "relates"
     assert link.object_key == "DE-2"
     assert link.object_display == "Other"

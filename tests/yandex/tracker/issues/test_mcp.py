@@ -1,4 +1,5 @@
 """TDD for tracker issues MCP subserver — @cache factory, env+responses pattern."""
+
 import pytest
 import responses
 from fastmcp import Client
@@ -17,7 +18,9 @@ def creds(monkeypatch):
 
 @responses.activate
 async def test_issues_get_tool(creds):
-    responses.add(responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "summary": "S"}, status=200)
+    responses.add(
+        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "summary": "S"}, status=200
+    )
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_get", {"key": "DE-1"})
     assert result.data.key == "DE-1"
@@ -25,7 +28,12 @@ async def test_issues_get_tool(creds):
 
 @responses.activate
 async def test_issues_list_tool_returns_rootmodel(creds):
-    responses.add(responses.POST, f"{BASE}/issues/_search", json=[{"key": "DE-1"}, {"key": "DE-2"}], status=200)
+    responses.add(
+        responses.POST,
+        f"{BASE}/issues/_search",
+        json=[{"key": "DE-1"}, {"key": "DE-2"}],
+        status=200,
+    )
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_list", {"queue": "DE"})
     assert [i.key for i in result.data] == ["DE-1", "DE-2"]
@@ -34,14 +42,20 @@ async def test_issues_list_tool_returns_rootmodel(creds):
 async def test_issue_tools_registered_read_only():
     async with Client(issues_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert {"issues_get", "issues_full", "issues_list", "issues_search", "issues_count"} <= set(tools)
+    assert {"issues_get", "issues_full", "issues_list", "issues_search", "issues_count"} <= set(
+        tools
+    )
     assert tools["issues_get"].annotations.readOnlyHint is True
 
 
 @responses.activate
 async def test_issues_get_tool_not_found_raises(creds):
-    responses.add(responses.GET, f"{BASE}/issues/NOPE-1",
-                  json={"statusCode": 404, "errorMessages": ["Not found"]}, status=404)
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/NOPE-1",
+        json={"statusCode": 404, "errorMessages": ["Not found"]},
+        status=404,
+    )
     async with Client(issues_mcp.mcp) as client:
         with pytest.raises(ToolError):
             await client.call_tool("issues_get", {"key": "NOPE-1"})
@@ -58,8 +72,12 @@ async def test_issues_get_tool_empty_response_guard(creds):
 
 @responses.activate
 async def test_issues_full_tool_returns_raw_dict(creds):
-    responses.add(responses.GET, f"{BASE}/issues/DE-1",
-                  json={"key": "DE-1", "summary": "S", "extra": "kept"}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/DE-1",
+        json={"key": "DE-1", "summary": "S", "extra": "kept"},
+        status=200,
+    )
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_full", {"key": "DE-1"})
     assert result.data["key"] == "DE-1"

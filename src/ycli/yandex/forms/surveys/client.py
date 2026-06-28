@@ -2,6 +2,7 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.forms._base import FormsResource

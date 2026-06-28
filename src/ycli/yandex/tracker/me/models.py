@@ -1,4 +1,5 @@
 """Pydantic model for Tracker /myself (Me)."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel

@@ -1,4 +1,5 @@
 """`ycli auth status` — validate credentials against each service's identity endpoint."""
+
 from __future__ import annotations
 
 from typing import Callable
@@ -38,7 +39,9 @@ _PROBES: list[tuple[str, type, Callable[[object], str]]] = [
 ]
 
 
-def _probe(name: str, client_cls: type, identity_of: Callable[[object], str], credentials: Credentials) -> ServiceAuthStatus:
+def _probe(
+    name: str, client_cls: type, identity_of: Callable[[object], str], credentials: Credentials
+) -> ServiceAuthStatus:
     client = client_cls(
         oauth_token=credentials.oauth_token, organization_id=credentials.organization_id
     )
@@ -55,17 +58,24 @@ def _probe(name: str, client_cls: type, identity_of: Callable[[object], str], cr
 def status(ctx: typer.Context) -> None:
     """Report whether the env credentials are set and actually work, per service."""
     app_ctx = AppContext.from_typer_context(ctx)
-    env_names = {"oauth_token": "YANDEX_ID_OAUTH_TOKEN", "organization_id": "YANDEX_ID_ORGANIZATION_ID"}
+    env_names = {
+        "oauth_token": "YANDEX_ID_OAUTH_TOKEN",
+        "organization_id": "YANDEX_ID_ORGANIZATION_ID",
+    }
     try:
         credentials = Credentials()
     except ValidationError as exc:
         missing = ", ".join(env_names.get(str(e["loc"][0]), str(e["loc"][0])) for e in exc.errors())
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
-        Serializer.serialize(AuthReport(configured=False, services=[]), app_ctx.strategy, app_ctx.console)
+        Serializer.serialize(
+            AuthReport(configured=False, services=[]), app_ctx.strategy, app_ctx.console
+        )
         raise typer.Exit(1) from None
 
     services = [_probe(name, cls, ident, credentials) for name, cls, ident in _PROBES]
-    report = AuthReport(configured=True, organization_id=credentials.organization_id, services=services)
+    report = AuthReport(
+        configured=True, organization_id=credentials.organization_id, services=services
+    )
     Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
     if not all(s.valid for s in services):
         raise typer.Exit(1)

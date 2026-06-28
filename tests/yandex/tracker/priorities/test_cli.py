@@ -1,4 +1,5 @@
 """TDD for the three Tracker lookup CLIs (priorities/issuetypes/linktypes)."""
+
 import json
 
 import pytest
@@ -19,14 +20,21 @@ def creds(monkeypatch):
 
 @responses.activate
 def test_priorities_list():
-    responses.add(responses.GET, f"{BASE}/priorities", json=[{"key": "critical", "display": "Critical"}], status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/priorities",
+        json=[{"key": "critical", "display": "Critical"}],
+        status=200,
+    )
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "priorities", "list"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["key"] == "critical"
 
 
 @responses.activate
 def test_issuetypes_list():
-    responses.add(responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "display": "Task"}], status=200)
+    responses.add(
+        responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "display": "Task"}], status=200
+    )
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "issuetypes", "list"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["key"] == "task"
 

@@ -1,4 +1,5 @@
 """Pydantic models for Tracker link types (LinkType + LinkTypeList)."""
+
 from __future__ import annotations
 
 from pydantic import RootModel

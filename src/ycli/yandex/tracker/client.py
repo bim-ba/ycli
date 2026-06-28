@@ -1,4 +1,5 @@
 """TrackerClient — composition root over the tracker resource clients (one shared session)."""
+
 from __future__ import annotations
 
 import requests

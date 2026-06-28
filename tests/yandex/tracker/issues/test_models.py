@@ -1,18 +1,21 @@
 """Property accessors on the Issue model — both the populated and the None branch."""
+
 from ycli.yandex.tracker.issues.models import Issue
 
 
 def test_key_and_display_properties_populated():
-    issue = Issue.model_validate({
-        "key": "DE-1",
-        "type": {"key": "task"},
-        "status": {"key": "open"},
-        "priority": {"key": "normal"},
-        "epic": {"key": "DE-100"},
-        "parent": {"key": "DE-99"},
-        "queue": {"key": "DE"},
-        "assignee": {"display": "Сава"},
-    })
+    issue = Issue.model_validate(
+        {
+            "key": "DE-1",
+            "type": {"key": "task"},
+            "status": {"key": "open"},
+            "priority": {"key": "normal"},
+            "epic": {"key": "DE-100"},
+            "parent": {"key": "DE-99"},
+            "queue": {"key": "DE"},
+            "assignee": {"display": "Сава"},
+        }
+    )
     assert issue.type_key == "task"
     assert issue.status_key == "open"
     assert issue.priority_key == "normal"

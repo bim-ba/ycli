@@ -3,6 +3,7 @@
 NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
 annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.tracker._base import TrackerResource
@@ -45,7 +46,9 @@ class IssuesClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.search({"query": "Queue: DATAENGINEERING"}).root[0].key  # doctest: +SKIP
+            >>> client.issues.search({"query": "Queue: DATAENGINEERING"}).root[
+            ...     0
+            ... ].key  # doctest: +SKIP
             'DATAENGINEERING-1'
         """
 
@@ -69,7 +72,9 @@ class IssuesClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.create({"queue": "DATAENGINEERING", "summary": "New", "type": {"key": "improvement"}}).key  # doctest: +SKIP
+            >>> client.issues.create(
+            ...     {"queue": "DATAENGINEERING", "summary": "New", "type": {"key": "improvement"}}
+            ... ).key  # doctest: +SKIP
             'DATAENGINEERING-200'
         """
 
@@ -81,6 +86,8 @@ class IssuesClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.update(key="DATAENGINEERING-1", body={"priority": {"key": "critical"}}).priority_key  # doctest: +SKIP
+            >>> client.issues.update(
+            ...     key="DATAENGINEERING-1", body={"priority": {"key": "critical"}}
+            ... ).priority_key  # doctest: +SKIP
             'critical'
         """

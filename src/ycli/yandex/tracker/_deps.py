@@ -5,6 +5,7 @@ non-serializable client across mounted tools is a module-level cached factory (s
 fastmcp composition docs). ``@cache`` builds the client once from the env on first tool call;
 tests reset it via the autouse ``cache_clear`` fixture in tests/conftest.py.
 """
+
 from functools import cache
 
 from ycli.yandex._mcp import RO

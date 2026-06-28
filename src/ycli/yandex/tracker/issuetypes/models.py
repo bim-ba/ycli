@@ -1,4 +1,5 @@
 """Pydantic models for Tracker issue types (IssueType + IssueTypeList)."""
+
 from __future__ import annotations
 
 from pydantic import RootModel

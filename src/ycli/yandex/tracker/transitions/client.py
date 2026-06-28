@@ -7,6 +7,7 @@ class shadows ``builtins.list`` in the class namespace — uplink resolves annot
 eagerly at class-definition time, so ``-> list:`` on ``execute`` would resolve to the
 uplink ``RequestDefinitionBuilder`` from the ``list`` method above it.
 """
+
 import builtins
 
 import uplink
@@ -45,6 +46,8 @@ class TransitionsClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.transitions.execute("DATAENGINEERING-1", "start_progress", {})[0]["id"]  # doctest: +SKIP
+            >>> client.transitions.execute("DATAENGINEERING-1", "start_progress", {})[0][
+            ...     "id"
+            ... ]  # doctest: +SKIP
             'stop_progress'
         """

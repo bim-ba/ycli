@@ -1,4 +1,5 @@
 """TDD for WikiClient composition root — sub-clients share one session."""
+
 import responses
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.client import PagesClient
@@ -22,9 +23,18 @@ def test_wiki_deps_factory_builds_from_env(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     from ycli.yandex.wiki._deps import wiki_client
-    responses.add(responses.GET, "https://api.wiki.yandex.net/v1/users/me",
-                  json={"username": "alice", "home_cluster": "homepage", "identity": {"uid": "1", "cloud_uid": "c1"}, "org": {"dir_id": "d1", "collab_id": "11111111-1111-1111-1111-111111111111"}},
-                  status=200)
+
+    responses.add(
+        responses.GET,
+        "https://api.wiki.yandex.net/v1/users/me",
+        json={
+            "username": "alice",
+            "home_cluster": "homepage",
+            "identity": {"uid": "1", "cloud_uid": "c1"},
+            "org": {"dir_id": "d1", "collab_id": "11111111-1111-1111-1111-111111111111"},
+        },
+        status=200,
+    )
     client = wiki_client()
     assert isinstance(client, WikiClient)
     result = client.me.get()

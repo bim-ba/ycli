@@ -63,7 +63,9 @@ class PrettyStrategy(SerializationStrategy):
     _KEY_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 
     def render(self, result: BaseModel, console: Console) -> None:
-        console.print(self._prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal))
+        console.print(
+            self._prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal)
+        )
 
     def _prettify(self, data: Any, *, link: bool = False) -> Any:
         if isinstance(data, list):
@@ -87,7 +89,9 @@ class PrettyStrategy(SerializationStrategy):
             for column in columns:
                 table.add_column(str(column), style="cyan", overflow="fold")
             for item in items:
-                table.add_row(*[self._cell(item.get(c), is_key=(c == "key"), link=link) for c in columns])
+                table.add_row(
+                    *[self._cell(item.get(c), is_key=(c == "key"), link=link) for c in columns]
+                )
         else:
             table.add_column("value", overflow="fold")
             for item in items:
@@ -116,4 +120,3 @@ class Serializer:
     @staticmethod
     def serialize(model: BaseModel, strategy: SerializationStrategy, console: Console) -> None:
         strategy.render(model, console)
-

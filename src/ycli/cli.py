@@ -32,7 +32,9 @@ def _main(
     ctx: typer.Context,
     output_format: Annotated[
         OutputFormat,
-        typer.Option("--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."),
+        typer.Option(
+            "--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."
+        ),
     ] = OutputFormat.auto,
 ) -> None:
     """Declare the global ``--format`` option, configure logging, build the AppContext."""
@@ -53,6 +55,7 @@ def main() -> None:  # pragma: no cover
     from pydantic import ValidationError
     from ycli.yandex.errors import YandexError
     import typer
+
     try:
         app()
     except (YandexError, ValidationError) as exc:

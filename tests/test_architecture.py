@@ -3,6 +3,7 @@
 A failure means a change drifted from the architecture. Fix the code, or — if the
 change is intentional — update ARCHITECTURE.md and this check together in one PR.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -46,6 +47,7 @@ def _mcp_tools():
     async def go():
         async with Client(root_mcp) as c:
             return await c.list_tools()
+
     return asyncio.run(go())
 
 
@@ -160,5 +162,7 @@ def test_arch10_sdk_defaults_match_appconfig():
     from ycli.yandex.tracker.client import TrackerClient
 
     params = inspect.signature(TrackerClient).parameters
-    assert params["timeout_seconds"].default == int(AppConfig.model_fields["timeout_seconds"].default)
+    assert params["timeout_seconds"].default == int(
+        AppConfig.model_fields["timeout_seconds"].default
+    )
     assert params["retries"].default == AppConfig.model_fields["retries"].default

@@ -1,4 +1,5 @@
 """Wiki /pages FastMCP tools — pure, DI via Depends, native error handling."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
@@ -22,8 +23,12 @@ def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     return client.pages.get(slug=slug, fields="attributes,owner")
 
 
-@mcp.tool(name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"}, tags=TAGS)
-def descendants(slug: str, limit: int = 0, client: WikiClient = Depends(wiki_client)) -> PageRefList:
+@mcp.tool(
+    name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"}, tags=TAGS
+)
+def descendants(
+    slug: str, limit: int = 0, client: WikiClient = Depends(wiki_client)
+) -> PageRefList:
     """All descendant refs under SLUG, auto-paginated. Capped at YCLI_MAX_ITEMS (default 500)
     unless ``limit`` is given; narrow by SLUG for large trees."""
     cap = limit or AppConfig().max_items

@@ -1,4 +1,5 @@
 """TDD for the forms per-domain base."""
+
 import requests
 
 from ycli.yandex.forms._base import FormsResource

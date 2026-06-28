@@ -1,10 +1,19 @@
 """output.py serialization strategies."""
+
 from io import StringIO
 
 from pydantic import BaseModel
 from rich.console import Console
 
-from ycli.output import AutoStrategy, JsonStrategy, OutputFormat, PrettyStrategy, Serializer, SerializationStrategy, YamlStrategy
+from ycli.output import (
+    AutoStrategy,
+    JsonStrategy,
+    OutputFormat,
+    PrettyStrategy,
+    Serializer,
+    SerializationStrategy,
+    YamlStrategy,
+)
 
 
 class _Row(BaseModel):
@@ -55,5 +64,7 @@ def test_from_format_maps_each_choice():
 def test_serializer_dispatches_to_strategy_render():
     buf = StringIO()
     console = Console(file=buf, force_terminal=False)
-    Serializer.serialize(_M(key="DE-1"), SerializationStrategy.from_format(OutputFormat.json), console)
+    Serializer.serialize(
+        _M(key="DE-1"), SerializationStrategy.from_format(OutputFormat.json), console
+    )
     assert '"key":"DE-1"' in buf.getvalue().replace(" ", "")

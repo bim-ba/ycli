@@ -1,4 +1,5 @@
 """`tracker transitions` commands."""
+
 from __future__ import annotations
 
 import json
@@ -24,10 +25,14 @@ def list_(ctx: typer.Context, key: KeyArg) -> None:
 def execute(
     ctx: typer.Context,
     key: KeyArg,
-    transition_id: Annotated[str, typer.Argument(metavar="ID", help="Transition id (from `transitions list`).")],
+    transition_id: Annotated[
+        str, typer.Argument(metavar="ID", help="Transition id (from `transitions list`).")
+    ],
     field: Annotated[
         list[str] | None,
-        typer.Option("--field", "-F", help="Transition body field key=value (JSON-coerced; repeatable)."),
+        typer.Option(
+            "--field", "-F", help="Transition body field key=value (JSON-coerced; repeatable)."
+        ),
     ] = None,
 ) -> None:
     """Execute transition ID on issue KEY (optional body via --field)."""
