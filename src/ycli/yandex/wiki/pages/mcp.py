@@ -3,7 +3,7 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.settings import AppConfig
+from ycli.settings import AppConfig
 from ycli.yandex.wiki._deps import RO, TAGS, wiki_client
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.models import PageDetails, PageRefList

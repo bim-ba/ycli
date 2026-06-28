@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     import typer
 
 from ycli.output import OutputFormat, SerializationStrategy
+from ycli.settings import AppConfig, Credentials
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.wiki.client import WikiClient
 

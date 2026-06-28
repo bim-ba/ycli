@@ -13,9 +13,9 @@ from ycli.context import AppContext
 from ycli.log import configure
 from ycli.mcp_launcher import launch_mcp_server
 from ycli.output import OutputFormat
+from ycli.settings import AppConfig
 from ycli.yandex.auth import app as auth_app
 from ycli.yandex.forms.cli import app as forms_app
-from ycli.yandex.settings import AppConfig
 from ycli.yandex.tracker.cli import app as tracker_app
 from ycli.yandex.wiki.cli import app as wiki_app
 

@@ -8,10 +8,10 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
+from ycli.settings import AppConfig
 from ycli.yandex.forms._args import (
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
-from ycli.yandex.settings import AppConfig
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 

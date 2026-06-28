@@ -8,7 +8,7 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.yandex.settings import AppConfig
+from ycli.settings import AppConfig
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 

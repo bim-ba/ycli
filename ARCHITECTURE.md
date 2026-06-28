@@ -9,9 +9,9 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp.py · output.py · log.py · context.py   # roots
+├── cli.py · mcp.py · output.py · log.py · context.py · settings.py  # roots
 └── yandex/
-    ├── base.py · transport.py · settings.py · pagination.py · _mcp.py  # shared
+    ├── base.py · transport.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
         ├── _base.py · _deps.py · _args.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
@@ -23,6 +23,7 @@ src/ycli/
 ```
 
 Notable shared pieces:
+- `src/ycli/settings.py` — `AppConfig` + `Credentials` pydantic-settings models (app-wide config)
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
@@ -56,7 +57,7 @@ Notable shared pieces:
   reads env. There is no `from_env` on any client. *Check:* grep — no `os.environ`, no
   `from_env`, no `Credentials(` / `AppConfig(` inside `yandex/**/client.py` or `base.py`.
 - **ARCH-8 — Single configuration source.** No direct `os.environ` access and no `BaseSettings`
-  subclass definition outside `src/ycli/yandex/settings.py`; other modules obtain configuration
+  subclass definition outside `src/ycli/settings.py`; other modules obtain configuration
   by instantiating the settings models (`Credentials()` / `AppConfig()`). *Check:* grep —
   `os.environ` and `class …(BaseSettings)` appear only in `settings.py`.
 - **ARCH-9 — Typed boundary errors.** Non-2xx responses raise a typed `YandexError` subclass

@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from ycli.yandex.settings import AppConfig, Credentials
+from ycli.settings import AppConfig, Credentials
 
 
 def test_app_config_defaults(monkeypatch):
@@ -64,7 +64,7 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
 def test_max_items_default_and_env(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)  # ignore any repo-root .env
     monkeypatch.delenv("YCLI_MAX_ITEMS", raising=False)
-    from ycli.yandex.settings import AppConfig
+    from ycli.settings import AppConfig
 
     assert AppConfig().max_items == 500
     monkeypatch.setenv("YCLI_MAX_ITEMS", "42")

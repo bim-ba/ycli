@@ -122,7 +122,7 @@ def test_arch7_clients_never_resolve_credentials():
 def test_arch8_single_config_source():
     """os.environ access and BaseSettings subclass definitions live only in settings.py."""
     offenders = []
-    settings = YANDEX / "settings.py"
+    settings = SRC / "settings.py"
     for p in SRC.rglob("*.py"):
         if p == settings:
             continue
@@ -158,7 +158,7 @@ def test_arch10_sdk_defaults_match_appconfig():
     """The SDK constructor defaults (carve-out) stay equal to AppConfig's defaults."""
     import inspect
 
-    from ycli.yandex.settings import AppConfig
+    from ycli.settings import AppConfig
     from ycli.yandex.tracker.client import TrackerClient
 
     params = inspect.signature(TrackerClient).parameters

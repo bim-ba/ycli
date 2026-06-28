@@ -3,10 +3,10 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.settings import AppConfig
 from ycli.yandex.forms._deps import RO, TAGS, forms_client
 from ycli.yandex.forms.answers.models import AnswersResponse
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.settings import AppConfig
 
 mcp = FastMCP("forms-answers")
 
