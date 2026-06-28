@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-import requests
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import requests
 
 from ycli.yandex.transport import Transport
 from ycli.yandex.wiki.attachments.client import AttachmentsClient

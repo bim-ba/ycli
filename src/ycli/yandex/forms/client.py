@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-import requests
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import requests
 
 from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.me.client import MeClient

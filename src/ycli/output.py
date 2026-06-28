@@ -12,12 +12,14 @@ import enum
 import json
 import re
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
-from pydantic import BaseModel
-from rich.console import Console
 from rich.table import Table
+
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+    from rich.console import Console
 
 
 class OutputFormat(enum.StrEnum):

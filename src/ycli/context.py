@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-import typer
 from rich.console import Console
+
+if TYPE_CHECKING:
+    import typer
 
 from ycli.output import OutputFormat, SerializationStrategy
 from ycli.yandex.forms.client import FormsClient

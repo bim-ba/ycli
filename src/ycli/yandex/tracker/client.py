@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-import requests
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import requests
 
 from ycli.yandex.tracker.changelog.client import ChangelogClient
 from ycli.yandex.tracker.comments.client import CommentsClient

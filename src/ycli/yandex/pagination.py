@@ -8,8 +8,10 @@ and gets back a list capped at ``limit`` (``None`` = uncapped). Pure — no HTTP
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class PaginationStrategy(ABC):
@@ -22,7 +24,7 @@ class SinglePageStrategy(PaginationStrategy):
     def __init__(self, *, extract: Callable[[Any], list]) -> None:
         self._extract = extract
 
-    def collect(self, fetch_page, limit):
+    def collect(self, fetch_page: Callable[[Any], Any], limit: int | None) -> list:
         items = list(self._extract(fetch_page(None)))
         return items if limit is None else items[:limit]
 
@@ -32,7 +34,7 @@ class CursorStrategy(PaginationStrategy):
         self._extract = extract
         self._next_of = next_of
 
-    def collect(self, fetch_page, limit):
+    def collect(self, fetch_page: Callable[[Any], Any], limit: int | None) -> list:
         items: list = []
         cursor: Any = None
         while True:
@@ -59,7 +61,7 @@ class NextUrlStrategy(PaginationStrategy):
         self._next_url_of = next_url_of
         self._fetch_url = fetch_url
 
-    def collect(self, fetch_page, limit):
+    def collect(self, fetch_page: Callable[[Any], Any], limit: int | None) -> list:
         page = fetch_page(None)
         items: list = list(self._extract(page))
         seen: set[str] = set()

@@ -5,7 +5,10 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.models import APIModel
-from ycli.yandex.tracker._models import _DisplayRef, _KeyRef
+from ycli.yandex.tracker._models import (  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+    _DisplayRef,
+    _KeyRef,
+)
 
 
 class Issue(APIModel):

@@ -128,7 +128,7 @@ skip-magic-trailing-comma = false
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF"]
+select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF", "ANN", "TC"]
 ignore = ["ANN401"]
 
 [tool.ruff.lint.flake8-bugbear]
@@ -138,8 +138,9 @@ extend-immutable-calls = ["fastmcp.dependencies.Depends"]
 known-first-party = ["ycli"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["N802"]
-"scripts/**/*.py" = ["T201"]
+"tests/**/*.py" = ["N802", "ANN"]
+"scripts/**/*.py" = ["T201", "ANN"]
+"src/ycli/yandex/**/client.py" = ["ANN"]
 
 [tool.importlinter]
 root_package = "ycli"
