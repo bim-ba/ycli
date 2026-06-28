@@ -74,13 +74,13 @@ def test_arch3_mcp_modules_call_no_write_methods():
 
 
 def test_arch4_serialization_confined_to_output():
-    """Rendering goes through Serializer; model_dump_json + yaml.safe_dump only in output.py."""
+    """Rendering via Serializer; model_dump_json/yaml.safe_dump/json.dumps only in output.py."""
     offenders = []
     for p in SRC.rglob("*.py"):
         if p.name == "output.py":
             continue
         text = p.read_text(encoding="utf-8")
-        if "model_dump_json" in text or "yaml.safe_dump" in text:
+        if "model_dump_json" in text or "yaml.safe_dump" in text or "json.dumps" in text:
             offenders.append(str(p.relative_to(SRC)))
     assert not offenders, f"serialization must live only in output.py; found in {offenders}"
 

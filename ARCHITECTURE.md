@@ -42,10 +42,13 @@ Notable shared pieces:
   carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
   method (`.create/.update/.add/.execute/…`).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
-  `output.Serializer.serialize(...)`; `model_dump_json` and `yaml.safe_dump` appear only in
-  `src/ycli/output.py`. Models stay plain data (no serialize method); the strategies live only
-  in `output.py`. *Check:* `model_dump_json` / `yaml.safe_dump` only in `output.py`; CLI command
-  bodies render via `Serializer.serialize`.
+  `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
+  appear only in `src/ycli/output.py`. Models stay plain data (no serialize method); the
+  strategies live only in `output.py`. Unmodeled API dicts are wrapped in `RawMapping`
+  (a `RootModel[dict]` in `ycli.yandex.models`) before being passed to the Serializer.
+  *Carve-out:* a bare `print(int)` for a scalar `count` result is fine — it is not model
+  output and needs no Serializer wrapping. *Check:* `model_dump_json` / `yaml.safe_dump` /
+  `json.dumps` only in `output.py`; CLI command bodies render via `Serializer.serialize`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).
