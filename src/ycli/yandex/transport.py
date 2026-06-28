@@ -42,11 +42,12 @@ def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
     this hook, so every SDK call is covered.
     """
     code = response.status_code
-    message = f"{code} {response.reason} for {response.request.method} {response.url}: {response.text[:300].replace(chr(10), ' ').strip()}"
+    if code < 400:
+        return response
+    snippet = response.text[:300].replace("\n", " ").strip()
+    message = f"{code} {response.reason} for {response.request.method} {response.url}: {snippet}"
     url = response.url
     match code:
-        case _ if code < 400:
-            return response
         case 401 | 403:
             raise YandexAuthError(message, status=code, url=url)
         case 404:

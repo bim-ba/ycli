@@ -61,6 +61,7 @@ def mcp() -> None:
 
 
 def main() -> None:  # pragma: no cover
+    """Console-script entry point (``ycli`` / ``yandex-cli``)."""
     from pydantic import ValidationError
     from ycli.yandex.errors import YandexError
     import typer

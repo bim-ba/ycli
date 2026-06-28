@@ -27,7 +27,7 @@ def test_session_applies_configured_timeout_and_retries():
 
 
 def test_session_rejects_empty_credentials():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="token"):
         Transport.session(token="", organization_id="o", timeout_seconds=30.0, retries=3)
 
 
