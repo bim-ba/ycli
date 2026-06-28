@@ -80,3 +80,23 @@ async def test_issues_count_tool(monkeypatch):
     async with Client(issues_mcp.mcp) as client:
         result = await client.call_tool("issues_count", {"query": "Queue: DE"})
     assert result.data == 42
+
+
+@pytest.mark.integration
+@responses.activate
+async def test_issues_get_404_raises_through_transport_hook(monkeypatch):
+    """Prove the production not-found path: the real from_env() session (with the
+    Transport response hook) raises YandexNotFoundError on a 404, which FastMCP
+    surfaces as a ToolError — without any stub Session or monkeypatching of from_env.
+    """
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/NOPE-1",
+        json={"errorMessages": ["not found"]},
+        status=404,
+    )
+    async with Client(issues_mcp.mcp) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("issues_get", {"key": "NOPE-1"})

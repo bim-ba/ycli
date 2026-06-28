@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 
+import pytest
 from pydantic import BaseModel
 from rich.console import Console
 
@@ -12,6 +13,12 @@ from ycli.output import OutputFormat, render, set_format
 class _Row(BaseModel):
     key: str
     summary: str
+
+
+@pytest.fixture(autouse=True)
+def _reset_format():
+    yield
+    set_format(OutputFormat.auto)
 
 
 def _render(model, *, terminal: bool) -> str:

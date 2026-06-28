@@ -13,7 +13,13 @@ mcp = FastMCP("tracker-issues")
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)
 def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
-    """A single Tracker issue by key (raises if not found)."""
+    """A single Tracker issue by key (raises if not found).
+
+    In production the Transport response hook raises ``YandexNotFoundError`` on a 404
+    before this guard is reached. This check only fires for a 2xx response that carries
+    an empty body (key=None) — an edge case unlikely in practice but defended here for
+    safety (e.g. incorrect permissions returning a blank object instead of a 403).
+    """
     result = client.issues.get(key)
     if result.key is None:
         raise ValueError(f"issue {key!r} not found (got empty response — check key or permissions)")

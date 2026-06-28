@@ -23,6 +23,7 @@ _KEY_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
 
 
 def _key_link(value: str) -> str:
+    """Wrap a Tracker issue key in a rich OSC8 link to its web UI page."""
     return f"[link=https://tracker.yandex.ru/{value}]{value}[/link]"
 
 
