@@ -74,3 +74,15 @@ class NextUrlStrategy(PaginationStrategy):
             items.extend(self._extract(page))
             url = self._next_url_of(page)
         return items if limit is None else items[:limit]
+
+
+def collect_single_page(
+    page_fn: Callable[[Any], Any],
+    *,
+    extract: Callable[[Any], list],
+    wrap: Callable[[list], Any],
+    limit: int | None = None,
+) -> Any:
+    """Single-page envelope -> bounded, wrapped flat collection (the wiki/forms list shape)."""
+    items = SinglePageStrategy(extract=extract).collect(page_fn, limit)
+    return wrap(items)

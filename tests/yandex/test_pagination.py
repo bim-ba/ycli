@@ -1,4 +1,9 @@
-from ycli.yandex.pagination import CursorStrategy, NextUrlStrategy, SinglePageStrategy
+from ycli.yandex.pagination import (
+    CursorStrategy,
+    NextUrlStrategy,
+    SinglePageStrategy,
+    collect_single_page,
+)
 
 
 def test_single_page_truncates_to_limit():
@@ -44,6 +49,12 @@ def test_next_url_strategy_drains_and_dedupes_self_loops():
         next_url_of=lambda p: (p["next"] or {}).get("next_url"),
         fetch_url=lambda url: pages[url],
     ).collect(lambda cursor: pages["start"], limit=None)
+    assert out == [1, 2]
+
+
+def test_collect_single_page_extracts_wraps_and_bounds():
+    pages = {"a": [1, 2, 3]}
+    out = collect_single_page(lambda cursor: pages, extract=lambda p: p["a"], wrap=list, limit=2)
     assert out == [1, 2]
 
 
