@@ -7,6 +7,7 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
+from ycli.yandex.settings import AppConfig
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
@@ -28,13 +29,13 @@ def get(
 def descendants(
     ctx: typer.Context,
     slug: SlugArg,
-    limit: Annotated[int, typer.Option(help="page_size (max 100/call).")] = 100,
-    cursor: Annotated[str, typer.Option(help="Pagination cursor (one page per call).")] = "",
+    limit: Annotated[int, typer.Option(help="Max refs (auto-paginates).")] = 0,
+    all_: Annotated[bool, typer.Option("--all", help="Fetch every descendant (no cap).")] = False,
 ) -> None:
-    """Print one page of descendant slugs under SLUG (caller paginates via --cursor)."""
+    """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    resp = app_ctx.wiki.pages.descendants(slug=slug, page_size=limit, cursor=cursor or None)
-    Serializer.serialize(resp, app_ctx.strategy, app_ctx.console)
+    cap = None if all_ else (limit or AppConfig().max_items)
+    Serializer.serialize(app_ctx.wiki.pages.descendants(slug=slug, limit=cap), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()

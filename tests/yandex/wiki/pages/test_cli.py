@@ -39,17 +39,36 @@ def test_pages_create_dumps_model_json():
 
 
 @responses.activate
-def test_pages_descendants_dumps_model_json():
+def test_pages_descendants_dumps_flat_list():
     responses.add(responses.GET, f"{BASE}/pages/descendants",
                   json={"results": [{"id": 2, "slug": "data/x/child"}], "next_cursor": None}, status=200)
-    result = runner.invoke(cli.app, ["--format", "json", "wiki", "pages", "descendants", "data/x", "--limit", "50"])
+    result = runner.invoke(cli.app, ["--format", "json", "wiki", "pages", "descendants", "data/x"])
     assert result.exit_code == 0
     out = json.loads(result.stdout)
-    assert out["results"][0]["slug"] == "data/x/child"
-    assert out["next_cursor"] is None
+    assert out[0]["slug"] == "data/x/child"
     req = responses.calls[-1].request
     assert req.params["slug"] == "data/x"
-    assert req.params["page_size"] == "50"
+
+
+@responses.activate
+def test_pages_descendants_limit_option():
+    responses.add(responses.GET, f"{BASE}/pages/descendants",
+                  json={"results": [{"id": 1, "slug": "data/x/a"}, {"id": 2, "slug": "data/x/b"}], "next_cursor": None}, status=200)
+    result = runner.invoke(cli.app, ["--format", "json", "wiki", "pages", "descendants", "data/x", "--limit", "1"])
+    assert result.exit_code == 0
+    out = json.loads(result.stdout)
+    assert len(out) == 1
+    assert out[0]["slug"] == "data/x/a"
+
+
+@responses.activate
+def test_pages_descendants_all_flag():
+    responses.add(responses.GET, f"{BASE}/pages/descendants",
+                  json={"results": [{"id": 1, "slug": "data/x/a"}], "next_cursor": None}, status=200)
+    result = runner.invoke(cli.app, ["--format", "json", "wiki", "pages", "descendants", "data/x", "--all"])
+    assert result.exit_code == 0
+    out = json.loads(result.stdout)
+    assert out[0]["slug"] == "data/x/a"
 
 
 @responses.activate

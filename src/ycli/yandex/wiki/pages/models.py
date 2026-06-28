@@ -1,6 +1,8 @@
 """Pydantic v2 models for Yandex Wiki /pages responses (extra='ignore')."""
 from __future__ import annotations
 
+from pydantic import RootModel
+
 from ycli.models import APIModel
 
 
@@ -76,3 +78,12 @@ class DescendantsResponse(APIModel):
 
     results: list[PageRef] = []
     next_cursor: str | None = None
+
+
+class PageRefList(RootModel[list[PageRef]]):
+    """A drained, flat list of descendant page refs (no cursor — pagination is internal).
+
+    Example:
+        >>> PageRefList([PageRef(id=1, slug="data/a")]).root[0].slug
+        'data/a'
+    """

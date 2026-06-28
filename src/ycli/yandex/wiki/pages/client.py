@@ -5,8 +5,9 @@ annotations eagerly.
 """
 import uplink
 
+from ycli.yandex.pagination import CursorStrategy
 from ycli.yandex.wiki._base import WikiResource
-from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails
+from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails, PageRefList
 
 
 class PagesClient(WikiResource):
@@ -29,21 +30,39 @@ class PagesClient(WikiResource):
 
     @uplink.returns.json()
     @uplink.get("pages/descendants")
-    def descendants(
+    def _descendants_page(
         self,
         slug: uplink.Query,
         page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
         cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
         actuality: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
     ) -> DescendantsResponse:  # ty: ignore[empty-body]
-        """``GET /pages/descendants`` → one page of ``{id, slug}`` refs + ``next_cursor``.
+        """One raw page of ``{id, slug}`` refs + ``next_cursor`` (internal — callers use ``descendants``)."""
+
+    def descendants(
+        self,
+        slug: str,
+        *,
+        limit: int | None = None,
+        actuality: str | None = None,
+    ) -> PageRefList:
+        """All descendant refs under ``slug``, draining ``next_cursor`` internally, capped at ``limit``.
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> page = client.pages.descendants(slug="data", page_size=50)  # doctest: +SKIP
-            >>> page.results[0].slug, page.next_cursor  # doctest: +SKIP
-            ('data/architecture', 'eyJvZmZzZXQiOjUwfQ==')
+            >>> refs = client.pages.descendants(slug="data", limit=50)  # doctest: +SKIP
+            >>> refs.root[0].slug  # doctest: +SKIP
+            'data/architecture'
         """
+        strategy = CursorStrategy(
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+        )
+        refs = strategy.collect(
+            lambda cursor: self._descendants_page(slug=slug, page_size=100, cursor=cursor, actuality=actuality),
+            limit,
+        )
+        return PageRefList(refs)
 
     @uplink.returns.json()
     @uplink.json

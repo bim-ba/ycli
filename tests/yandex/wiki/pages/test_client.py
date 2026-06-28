@@ -2,8 +2,9 @@
 import json
 import requests
 import responses
+from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.client import PagesClient
-from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails
+from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails, PageRefList
 
 BASE = "https://api.wiki.yandex.net/v1"
 
@@ -25,13 +26,25 @@ def test_get_deserializes_pagedetails():
 
 
 @responses.activate
-def test_descendants_single_call_with_cursor_param():
+def test_descendants_single_page_no_cursor():
     responses.add(responses.GET, f"{BASE}/pages/descendants",
-                  json={"results": [{"id": 1, "slug": "data/a"}], "next_cursor": "C2"}, status=200)
-    out = _client().descendants(slug="data", page_size=100, cursor="C0")
-    assert isinstance(out, DescendantsResponse)
-    assert out.next_cursor == "C2"
-    assert responses.calls[0].request.params["cursor"] == "C0"
+                  json={"results": [{"id": 1, "slug": "data/a"}], "next_cursor": None}, status=200)
+    out = _client().descendants(slug="data")
+    assert isinstance(out, PageRefList)
+    assert [r.slug for r in out.root] == ["data/a"]
+
+
+@responses.activate
+def test_descendants_auto_drains_cursor(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
+    responses.add(responses.GET, f"{BASE}/pages/descendants",
+                  json={"results": [{"id": 1, "slug": "a"}], "next_cursor": "c1"}, status=200)
+    responses.add(responses.GET, f"{BASE}/pages/descendants",
+                  json={"results": [{"id": 2, "slug": "b"}], "next_cursor": None}, status=200)
+    client = WikiClient(oauth_token="t", organization_id="o")
+    out = client.pages.descendants(slug="root")
+    assert [r.slug for r in out.root] == ["a", "b"]
 
 
 @responses.activate
