@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.6.0 (2026-06-28)
+
+### Build System
+
+- Sync uv.lock project version to 0.5.0
+  ([`e2f63de`](https://github.com/bim-ba/ycli/commit/e2f63de7348b9343a0c3c8e71bdd96470f72a2ce))
+
+### Features
+
+- Internals cleanup — env settings, transport, output strategies, multi-service auth, wiki me,
+  config fixes
+  ([`5d45127`](https://github.com/bim-ba/ycli/commit/5d451274f3798a85cb9061ab36af35dc9b3630a1))
+
+
 ## v0.5.0 (2026-06-28)
 
 ### Build System
