@@ -8,6 +8,7 @@ from __future__ import annotations
 import typer
 from pydantic import BaseModel, ValidationError
 
+from ycli.cliformat import output_format
 from ycli.output import render
 from ycli.yandex.errors import YandexAuthError, YandexError
 from ycli.yandex.forms.client import FormsClient
@@ -67,7 +68,7 @@ def _probe_wiki() -> ServiceAuthStatus:
 
 
 @app.command()
-def status() -> None:
+def status(ctx: typer.Context) -> None:
     """Report whether the env credentials are set and actually work, per service."""
     env_names = {
         "oauth_token": "YANDEX_ID_OAUTH_TOKEN",
@@ -80,7 +81,7 @@ def status() -> None:
             env_names.get(str(error["loc"][0]), str(error["loc"][0])) for error in exc.errors()
         )
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
-        render(AuthReport(configured=False, services=[]))
+        render(AuthReport(configured=False, services=[]), output_format=output_format(ctx))
         raise typer.Exit(1) from None
 
     services = [_probe_tracker(), _probe_wiki(), _probe_forms()]
@@ -89,6 +90,6 @@ def status() -> None:
         organization_id=credentials.organization_id,
         services=services,
     )
-    render(report)
+    render(report, output_format=output_format(ctx))
     if not all(service.valid for service in services):
         raise typer.Exit(1)

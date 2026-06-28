@@ -5,6 +5,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.forms._clideps import forms_client
@@ -24,4 +25,4 @@ def _group() -> None:
 @app.command("list")
 def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
     """List a form's questions (the {pages} envelope)."""
-    render(forms_client(ctx).questions.list(survey_id))
+    render(forms_client(ctx).questions.list(survey_id), output_format=output_format(ctx))

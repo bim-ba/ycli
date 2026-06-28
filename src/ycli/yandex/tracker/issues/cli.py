@@ -6,6 +6,7 @@ from typing import Annotated, Any
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 
 from ycli.yandex.tracker._clideps import parse_fields, tracker_client
@@ -22,7 +23,7 @@ FieldOpt = Annotated[
 @app.command()
 def get(ctx: typer.Context, key: KeyArg) -> None:
     """Print a single issue (full model) for KEY."""
-    render(tracker_client(ctx).issues.get(key))
+    render(tracker_client(ctx).issues.get(key), output_format=output_format(ctx))
 
 
 @app.command()
@@ -48,13 +49,13 @@ def list_(
         }.items()
         if v
     }
-    render(tracker_client(ctx).issues.search(body={"filter": flt}))
+    render(tracker_client(ctx).issues.search(body={"filter": flt}), output_format=output_format(ctx))
 
 
 @app.command()
 def search(ctx: typer.Context, query: Annotated[str, typer.Argument(help="TQL query.")]) -> None:
     """Search issues by a TQL query string."""
-    render(tracker_client(ctx).issues.search(body={"query": query}))
+    render(tracker_client(ctx).issues.search(body={"query": query}), output_format=output_format(ctx))
 
 
 @app.command()
@@ -101,7 +102,7 @@ def create(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    render(tracker_client(ctx).issues.create(body=body))
+    render(tracker_client(ctx).issues.create(body=body), output_format=output_format(ctx))
 
 
 @app.command()
@@ -131,4 +132,4 @@ def update(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    render(tracker_client(ctx).issues.update(key, body=body))
+    render(tracker_client(ctx).issues.update(key, body=body), output_format=output_format(ctx))

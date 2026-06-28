@@ -37,14 +37,6 @@ class OutputFormat(str, enum.Enum):
     pretty = "pretty"
 
 
-_format: OutputFormat = OutputFormat.auto
-
-
-def set_format(fmt: OutputFormat) -> None:
-    """Record the global ``--format`` choice (set once by the root CLI callback)."""
-    global _format
-    _format = fmt
-
 
 class SerializationStrategy(ABC):
     @abstractmethod
@@ -85,14 +77,14 @@ _STRATEGIES: dict[OutputFormat, type[SerializationStrategy]] = {
 }
 
 
-def render(result: BaseModel, *, console: Console | None = None) -> None:
-    """Print ``result`` in the active format.
+def render(result: BaseModel, *, output_format: OutputFormat, console: Console | None = None) -> None:
+    """Print ``result`` in the requested format.
 
     ``auto`` (the default) renders a pretty table on a TTY and raw JSON when piped,
     keeping stdout machine-readable for scripts and agents.
     """
     console = console or Console()
-    _STRATEGIES[_format]().serialize(result, console)
+    _STRATEGIES[output_format]().serialize(result, console)
 
 
 def _prettify(data: Any, *, link: bool = False) -> Any:

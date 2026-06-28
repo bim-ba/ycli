@@ -11,7 +11,7 @@ import typer
 
 from ycli.yandex.auth import app as auth_app
 from ycli.log import configure
-from ycli.output import OutputFormat, set_format
+from ycli.output import OutputFormat
 from ycli.yandex.settings import AppConfig
 from ycli.yandex.forms.cli import app as forms_app
 from ycli.yandex.tracker.cli import app as tracker_app
@@ -34,7 +34,6 @@ def _main(
 ) -> None:
     """Configure logging and the output format before any subcommand runs."""
     configure(level=AppConfig().log_level)
-    set_format(output_format)
 
 
 app.add_typer(auth_app)

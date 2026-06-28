@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import typer
 
+from ycli.cliformat import output_format
 from ycli.output import render
 from ycli.yandex.tracker._clideps import tracker_client
 
@@ -17,4 +18,4 @@ def _group() -> None:
 @app.command()
 def get(ctx: typer.Context) -> None:
     """Print the authenticated user (a safe auth probe)."""
-    render(tracker_client(ctx).me.get())
+    render(tracker_client(ctx).me.get(), output_format=output_format(ctx))
