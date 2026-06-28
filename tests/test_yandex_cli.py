@@ -36,6 +36,12 @@ def test_mcp_subcommand_launches_server(monkeypatch):
     assert calls == ["ran"]
 
 
+def test_mcp_command_registered_from_launcher():
+    from typer.main import get_command
+    names = get_command(cli.app).commands  # click Group.commands maps name -> Command
+    assert "mcp" in names
+
+
 def test_completion_is_enabled():
     """Shell completion is enabled: the completion options are registered on the root app.
 
