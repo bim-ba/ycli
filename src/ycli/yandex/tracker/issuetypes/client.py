@@ -17,7 +17,7 @@ class IssueTypesClient(TrackerResource):
         """``GET /issuetypes`` → issue-type listing.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issuetypes.list().root[0].key  # doctest: +SKIP
             'bug'
         """

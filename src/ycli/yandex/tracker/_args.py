@@ -1,26 +1,12 @@
-"""Lazy Typer DI for the tracker CLI + the ``--field key=value`` JSON-coerce helper."""
+"""Shared tracker CLI arg types + the ``--field key=value`` JSON-coerce helper."""
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Annotated, Any
 
 import typer
 
-from ycli.yandex.tracker.client import TrackerClient
-
-
-def tracker_client(ctx: typer.Context) -> TrackerClient:
-    """Return the request-scoped TrackerClient, building it from env on first access.
-
-    Lazy so ``--help`` (which never runs a command body) needs no creds; cached on
-    ``ctx.obj`` so multiple accesses within one invocation share the session.
-
-    Example:
-        >>> tracker_client(ctx)  # doctest: +SKIP
-    """
-    if ctx.obj is None:
-        ctx.obj = TrackerClient.from_env()
-    return ctx.obj
+KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key, e.g. DATAENGINEERING-1.")]
 
 
 def parse_fields(items: list[str] | None) -> dict[str, Any]:

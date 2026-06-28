@@ -56,3 +56,12 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
     # Root --help doesn't trigger the callback in Typer; use a subcommand invocation instead.
     CliRunner().invoke(cli.app, ["tracker", "issues", "--help"])
     assert captured["level"] == "ERROR"
+
+
+def test_max_items_default_and_env(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)  # ignore any repo-root .env
+    monkeypatch.delenv("YCLI_MAX_ITEMS", raising=False)
+    from ycli.yandex.settings import AppConfig
+    assert AppConfig().max_items == 500
+    monkeypatch.setenv("YCLI_MAX_ITEMS", "42")
+    assert AppConfig().max_items == 42

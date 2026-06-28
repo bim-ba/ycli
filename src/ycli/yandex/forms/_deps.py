@@ -1,10 +1,26 @@
-"""FastMCP dependency provider for the forms subserver — builds a FormsClient per call."""
+"""FastMCP dependency provider for the forms subserver — one cached client per process.
+
+fastmcp v3 isolates each mounted server's lifespan, so the canonical way to share a single
+non-serializable client across mounted tools is a module-level cached factory (see the
+fastmcp composition docs). ``@cache`` builds the client once from the env on first tool call;
+tests reset it via the autouse ``cache_clear`` fixture in tests/conftest.py.
+"""
+from functools import cache
+
+from ycli.yandex._mcp import RO
+from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.forms.client import FormsClient
 
-RO: dict[str, bool] = {"readOnlyHint": True, "idempotentHint": True, "openWorldHint": True}
 TAGS: set[str] = {"forms"}
 
 
+@cache
 def forms_client() -> FormsClient:
-    """Provide an env-built FormsClient to forms MCP tools (FastMCP caches within a call)."""
-    return FormsClient.from_env()
+    """Build (once) and return the forms client from the environment."""
+    credentials, config = Credentials(), AppConfig()
+    return FormsClient(
+        oauth_token=credentials.oauth_token,
+        organization_id=credentials.organization_id,
+        timeout_seconds=int(config.timeout_seconds),
+        retries=config.retries,
+    )

@@ -2,21 +2,20 @@
 import json
 from urllib.parse import parse_qs, urlparse
 
-import requests
+import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.forms import mcp as forms_mcp
-from ycli.yandex.forms.client import FormsClient
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 
 
-def _stub() -> FormsClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return FormsClient(session=s)
+@pytest.fixture
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 async def test_all_five_read_tools_registered():
@@ -26,8 +25,7 @@ async def test_all_five_read_tools_registered():
 
 
 @responses.activate
-async def test_answers_list_tool(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_answers_list_tool(creds):
     responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
                   json={"columns": [], "answers": [{"id": 99, "created": "2026-01-01", "data": []}], "next": None},
                   status=200)
@@ -37,9 +35,7 @@ async def test_answers_list_tool(monkeypatch):
 
 
 @responses.activate
-async def test_answers_list_tool_drains_all_pages(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
-
+async def test_answers_list_tool_drains_all_pages(creds):
     def cb(request):
         if "id" not in parse_qs(urlparse(request.url).query):
             body = {"columns": [], "answers": [{"id": 1, "created": "x", "data": []}],
@@ -52,12 +48,11 @@ async def test_answers_list_tool_drains_all_pages(monkeypatch):
                            callback=cb, content_type="application/json")
     async with Client(forms_mcp.mcp) as client:
         result = await client.call_tool("answers_list", {"survey_id": SID})
-    assert [a.id for a in result.data.answers] == [1, 2]  # MCP drains all pages too
+    assert [a.id for a in result.data.answers] == [1, 2]
 
 
 @responses.activate
-async def test_questions_list_tool(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_questions_list_tool(creds):
     responses.add(responses.GET, f"{BASE}/surveys/{SID}/questions",
                   json={"pages": [{"id": 7, "items": [{"id": 1, "slug": "s"}]}]}, status=200)
     async with Client(forms_mcp.mcp) as client:

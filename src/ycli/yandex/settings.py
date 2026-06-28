@@ -19,6 +19,7 @@ class AppConfig(BaseSettings):
     timeout_seconds: float = Field(default=30.0, validation_alias="YCLI_TIMEOUT_SECONDS")
     retries: int = Field(default=3, validation_alias="YCLI_RETRIES")
     log_level: str = Field(default="INFO", validation_alias="YCLI_LOG_LEVEL")
+    max_items: int = Field(default=500, validation_alias="YCLI_MAX_ITEMS")
 
 
 class Credentials(BaseSettings):

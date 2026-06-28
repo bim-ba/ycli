@@ -5,15 +5,14 @@ import asyncio
 import json
 
 import pytest
-import requests
 import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 from typer.testing import CliRunner
 
+import ycli.cli as cli
 from ycli.mcp import mcp as root_mcp
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.me.cli import app as me_cli_app
 from ycli.yandex.tracker.me.models import Me
 from ycli.yandex.tracker.me import mcp as me_mcp_module
 
@@ -22,38 +21,30 @@ _PAYLOAD = {"uid": 42, "login": "alice", "display": "Alice A.", "email": "alice@
 _runner = CliRunner()
 
 
-def _env(monkeypatch):
+@pytest.fixture
+def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
-def _stub() -> TrackerClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return TrackerClient(session=s)
-
-
 @responses.activate
-def test_me_client_get(monkeypatch):
-    _env(monkeypatch)
+def test_me_client_get(creds):
     responses.add(responses.GET, _URL, json=_PAYLOAD, status=200)
-    me = TrackerClient.from_env().me.get()
+    me = TrackerClient(oauth_token="t", organization_id="o").me.get()
     assert isinstance(me, Me)
     assert me.login == "alice" and me.uid == 42
 
 
 @responses.activate
-def test_me_cli_get(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+def test_me_cli_get(creds):
     responses.add(responses.GET, _URL, json=_PAYLOAD, status=200)
-    res = _runner.invoke(me_cli_app, ["get"])
+    res = _runner.invoke(cli.app, ["--format", "json", "tracker", "me", "get"])
     assert res.exit_code == 0
     assert json.loads(res.stdout)["login"] == "alice"
 
 
 @responses.activate
-def test_me_mcp_tool(monkeypatch):
-    _env(monkeypatch)
+def test_me_mcp_tool(creds):
     responses.add(responses.GET, _URL, json=_PAYLOAD, status=200)
 
     async def go():
@@ -65,9 +56,17 @@ def test_me_mcp_tool(monkeypatch):
 
 
 @responses.activate
-async def test_me_mcp_auth_guard(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+async def test_me_mcp_auth_guard(creds):
     responses.add(responses.GET, _URL, json={}, status=401)
+    async with Client(me_mcp_module.mcp) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("me_get", {})
+
+
+@responses.activate
+async def test_me_mcp_empty_response_guard(creds):
+    """200 with empty body hits the login-is-None guard (e.g. bad permissions → blank object)."""
+    responses.add(responses.GET, _URL, json={}, status=200)
     async with Client(me_mcp_module.mcp) as client:
         with pytest.raises(ToolError):
             await client.call_tool("me_get", {})

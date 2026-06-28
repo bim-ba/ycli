@@ -1,4 +1,4 @@
-"""Architecture invariants as tests — see ARCHITECTURE.md (ARCH-1/3/4/5).
+"""Architecture invariants as tests — see ARCHITECTURE.md (ARCH-1/2/3/4/5/6/7/8/9/10).
 
 A failure means a change drifted from the architecture. Fix the code, or — if the
 change is intentional — update ARCHITECTURE.md and this check together in one PR.
@@ -71,13 +71,16 @@ def test_arch3_mcp_modules_call_no_write_methods():
     assert not offenders, f"MCP modules must not call client write methods: {offenders}"
 
 
-def test_arch4_model_dump_json_only_in_output():
-    offenders = [
-        str(p.relative_to(SRC))
-        for p in SRC.rglob("*.py")
-        if p.name != "output.py" and "model_dump_json" in p.read_text(encoding="utf-8")
-    ]
-    assert not offenders, f"model_dump_json must live only in output.py; found in {offenders}"
+def test_arch4_serialization_confined_to_output():
+    """Rendering goes through Serializer; model_dump_json + yaml.safe_dump only in output.py."""
+    offenders = []
+    for p in SRC.rglob("*.py"):
+        if p.name == "output.py":
+            continue
+        text = p.read_text(encoding="utf-8")
+        if "model_dump_json" in text or "yaml.safe_dump" in text:
+            offenders.append(str(p.relative_to(SRC)))
+    assert not offenders, f"serialization must live only in output.py; found in {offenders}"
 
 
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
@@ -97,3 +100,65 @@ def test_arch5_single_sources_of_truth():
         if p.name != "transport.py" and _ORG_HEADER_RE.search(text):
             offenders.append(f"{rel}: org header string outside transport.py")
     assert not offenders, offenders
+
+
+def test_arch7_clients_never_resolve_credentials():
+    """No client reads the env or constructs settings — credentials arrive as constructor args."""
+    offenders = []
+    for client in YANDEX.rglob("client.py"):
+        text = client.read_text(encoding="utf-8")
+        for needle in ("os.environ", "from_env", "Credentials(", "AppConfig("):
+            if needle in text:
+                offenders.append(f"{client.relative_to(SRC)}: {needle}")
+    base = (YANDEX / "base.py").read_text(encoding="utf-8")
+    for needle in ("os.environ", "from_env", "Credentials(", "AppConfig("):
+        if needle in base:
+            offenders.append(f"yandex/base.py: {needle}")
+    assert not offenders, offenders
+
+
+def test_arch8_single_config_source():
+    """os.environ access and BaseSettings subclass definitions live only in settings.py."""
+    offenders = []
+    settings = YANDEX / "settings.py"
+    for p in SRC.rglob("*.py"):
+        if p == settings:
+            continue
+        text = p.read_text(encoding="utf-8")
+        if "os.environ" in text:
+            offenders.append(f"{p.relative_to(SRC)}: os.environ")
+        if re.search(r"class \w+\(BaseSettings\)", text):
+            offenders.append(f"{p.relative_to(SRC)}: BaseSettings subclass")
+    assert not offenders, offenders
+
+
+def test_arch9_no_status_branching_outside_transport():
+    """Non-2xx responses raise typed YandexError subclasses from transport.py only."""
+    offenders = [
+        str(p.relative_to(SRC))
+        for p in SRC.rglob("*.py")
+        if p.name != "transport.py" and "raise_for_status" in p.read_text(encoding="utf-8")
+    ]
+    assert not offenders, offenders
+
+
+def test_arch10_no_uplink_timeout_shadow():
+    """A configurable value is never overridden by a hardcoded literal at a call site."""
+    offenders = [
+        str(p.relative_to(SRC))
+        for p in SRC.rglob("*.py")
+        if "@uplink.timeout" in p.read_text(encoding="utf-8")
+    ]
+    assert not offenders, f"@uplink.timeout shadows YCLI_TIMEOUT_SECONDS: {offenders}"
+
+
+def test_arch10_sdk_defaults_match_appconfig():
+    """The SDK constructor defaults (carve-out) stay equal to AppConfig's defaults."""
+    import inspect
+
+    from ycli.yandex.settings import AppConfig
+    from ycli.yandex.tracker.client import TrackerClient
+
+    params = inspect.signature(TrackerClient).parameters
+    assert params["timeout_seconds"].default == int(AppConfig.model_fields["timeout_seconds"].default)
+    assert params["retries"].default == AppConfig.model_fields["retries"].default

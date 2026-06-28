@@ -9,6 +9,6 @@ from ycli.yandex.base import BaseYandex
 
 
 class TrackerResource(BaseYandex):
-    """Base for every Tracker resource client (inherits session DI + from_env)."""
+    """Base for every Tracker resource client (inherits session DI via constructor)."""
 
     base_url: ClassVar[str] = "https://api.tracker.yandex.net/v3"

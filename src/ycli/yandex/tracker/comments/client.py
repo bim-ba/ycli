@@ -17,7 +17,7 @@ class CommentsClient(TrackerResource):
         """``GET /issues/{key}/comments`` → comment listing.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.comments.list(key="DATAENGINEERING-1").root[0].created_by_display  # doctest: +SKIP
             'Сава Знатнов'
         """
@@ -29,7 +29,7 @@ class CommentsClient(TrackerResource):
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.comments.add("DATAENGINEERING-1", {"text": "Готово ✅"}).id  # doctest: +SKIP
             2238
         """

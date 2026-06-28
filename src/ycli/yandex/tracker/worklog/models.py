@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.tracker._models import _DisplayRef, _Lenient
+from ycli.models import APIModel
+from ycli.yandex.tracker._models import _DisplayRef
 
 
-class Worklog(_Lenient):
+class Worklog(APIModel):
     """A worklog entry (``/issues/{key}/worklog`` item).
 
     Example:

@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.tracker._models import _Lenient
+from ycli.models import APIModel
 
 
-class IssueType(_Lenient):
+class IssueType(APIModel):
     """An issue type descriptor (``/issuetypes`` item).
 
     Example:

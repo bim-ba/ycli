@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.tracker._models import _IdRef, _Lenient
+from ycli.models import APIModel
+from ycli.yandex.tracker._models import _IdRef
 
 
-class LinkObject(_Lenient):
+class LinkObject(APIModel):
     """The ``object`` sub-model in a ``Link`` — carries ``key`` and ``display``.
 
     Example:
@@ -18,7 +19,7 @@ class LinkObject(_Lenient):
     display: str | None = None
 
 
-class Link(_Lenient):
+class Link(APIModel):
     """A linked issue reference (``/issues/{key}/links`` item).
 
     Example:

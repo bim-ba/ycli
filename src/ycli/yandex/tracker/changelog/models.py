@@ -5,10 +5,11 @@ from typing import Any
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.tracker._models import _DisplayRef, _IdRef, _Lenient
+from ycli.models import APIModel
+from ycli.yandex.tracker._models import _DisplayRef, _IdRef
 
 
-class ChangeField(_Lenient):
+class ChangeField(APIModel):
     """One changed field within a ``ChangelogEntry``.
 
     ``from``/``to`` are polymorphic (string, object, array, or null depending on the
@@ -29,7 +30,7 @@ class ChangeField(_Lenient):
         return self.field.id if self.field else None
 
 
-class ChangelogEntry(_Lenient):
+class ChangelogEntry(APIModel):
     """A changelog event (``/issues/{key}/changelog`` item).
 
     Example:

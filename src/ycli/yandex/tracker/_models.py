@@ -1,21 +1,15 @@
-"""Shared pydantic sub-models for Tracker resources (lenient; key/id/display refs).
+"""Shared pydantic sub-models for Tracker resources (key/id/display refs).
 
-``_Lenient`` ignores extra fields and accepts population by name OR alias. The three
-ref models flatten the API's ``{key}`` / ``{id}`` / ``{display}`` wrapper objects that
-recur across issues, links, changelog, etc. See each class's own ``Example`` below.
+The three ref models flatten the API's ``{key}`` / ``{id}`` / ``{display}`` wrapper
+objects that recur across issues, links, changelog, etc. See each class's own
+``Example`` below.
 """
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from ycli.models import APIModel
 
 
-class _Lenient(BaseModel):
-    """Base model: extra fields silently ignored, population by name OR alias allowed."""
-
-    model_config = ConfigDict(extra="ignore", populate_by_name=True)
-
-
-class _KeyRef(_Lenient):
+class _KeyRef(APIModel):
     """A reference object carrying a ``key`` string.
 
     Example:
@@ -26,7 +20,7 @@ class _KeyRef(_Lenient):
     key: str | None = None
 
 
-class _IdRef(_Lenient):
+class _IdRef(APIModel):
     """A reference object carrying an ``id`` string.
 
     Example:
@@ -37,7 +31,7 @@ class _IdRef(_Lenient):
     id: str | None = None
 
 
-class _DisplayRef(_Lenient):
+class _DisplayRef(APIModel):
     """A reference object carrying a ``display`` string.
 
     Example:

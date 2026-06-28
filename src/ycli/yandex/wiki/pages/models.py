@@ -1,14 +1,12 @@
 """Pydantic v2 models for Yandex Wiki /pages responses (extra='ignore')."""
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import RootModel
+
+from ycli.models import APIModel
 
 
-class _Lenient(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-
-class PageAttributes(_Lenient):
+class PageAttributes(APIModel):
     """Optional page metadata (``fields=attributes``) — timestamps, draft flag.
 
     Example:
@@ -22,15 +20,15 @@ class PageAttributes(_Lenient):
     is_draft: bool | None = None
 
 
-class _OwnerUser(_Lenient):
+class _OwnerUser(APIModel):
     username: str | None = None
 
 
-class _Owner(_Lenient):
+class _Owner(APIModel):
     user: _OwnerUser | None = None
 
 
-class PageDetails(_Lenient):
+class PageDetails(APIModel):
     """A single wiki page (``GET /pages?slug=``) — id, slug, title, optional content.
 
     ``owner_username`` walks ``owner.user.username`` defensively.
@@ -53,7 +51,7 @@ class PageDetails(_Lenient):
         return self.owner.user.username if self.owner and self.owner.user else None
 
 
-class PageRef(_Lenient):
+class PageRef(APIModel):
     """A lightweight ``{id, slug}`` reference (``/pages/descendants`` item).
 
     Example:
@@ -65,7 +63,7 @@ class PageRef(_Lenient):
     slug: str
 
 
-class DescendantsResponse(_Lenient):
+class DescendantsResponse(APIModel):
     """``/pages/descendants`` — a paginated listing of ``{id, slug}`` refs.
 
     ``next_cursor`` is ``null`` (not absent / not empty string) when the listing is
@@ -80,3 +78,12 @@ class DescendantsResponse(_Lenient):
 
     results: list[PageRef] = []
     next_cursor: str | None = None
+
+
+class PageRefList(RootModel[list[PageRef]]):
+    """A drained, flat list of descendant page refs (no cursor — pagination is internal).
+
+    Example:
+        >>> PageRefList([PageRef(id=1, slug="data/a")]).root[0].slug
+        'data/a'
+    """

@@ -1,28 +1,26 @@
 """TDD for `forms me` CLI — dumps the full User model as JSON."""
 import json
 
-import requests
+import pytest
 import responses
 from typer.testing import CliRunner
 
-from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.me.cli import app
+import ycli.cli as cli
 
 BASE = "https://api.forms.yandex.net/v1"
 runner = CliRunner()
 
 
-def _stub() -> FormsClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return FormsClient(session=s)
+@pytest.fixture(autouse=True)
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate
-def test_get_dumps_user(monkeypatch):
-    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+def test_get_dumps_user():
     responses.add(responses.GET, f"{BASE}/users/me",
                   json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"}, status=200)
-    res = runner.invoke(app, ["get"])
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "me", "get"])
     assert res.exit_code == 0
     assert json.loads(res.stdout)["email"] == "e@x"

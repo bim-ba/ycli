@@ -17,7 +17,7 @@ class WorklogClient(TrackerResource):
         """``GET /issues/{key}/worklog`` → worklog listing.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.worklog.list(key="DATAENGINEERING-1").root[0].duration  # doctest: +SKIP
             'PT2H'
         """

@@ -17,7 +17,7 @@ class LinkTypesClient(TrackerResource):
         """``GET /linktypes`` → link-type listing.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.linktypes.list().root[0].id  # doctest: +SKIP
             'relates'
         """

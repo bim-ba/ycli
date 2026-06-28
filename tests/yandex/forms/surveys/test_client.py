@@ -1,9 +1,9 @@
-"""TDD for SurveysClient — list returns the envelope verbatim; get returns one Survey."""
+"""TDD for SurveysClient — list returns flat SurveyCollection; get returns one Survey."""
 import requests
 import responses
 
 from ycli.yandex.forms.surveys.client import SurveysClient
-from ycli.yandex.forms.surveys.models import Survey, SurveyList
+from ycli.yandex.forms.surveys.models import Survey, SurveyCollection
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -16,12 +16,12 @@ def _client() -> SurveysClient:
 
 
 @responses.activate
-def test_list_returns_envelope_verbatim():
+def test_list_returns_flat_collection():
     responses.add(responses.GET, f"{BASE}/surveys",
                   json={"links": {}, "result": [{"id": "a", "name": "A"}, {"id": "b", "name": "B"}]}, status=200)
     out = _client().list()
-    assert isinstance(out, SurveyList)
-    assert [s.id for s in out.result] == ["a", "b"]
+    assert isinstance(out, SurveyCollection)
+    assert [s.id for s in out.root] == ["a", "b"]
 
 
 @responses.activate

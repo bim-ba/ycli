@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.tracker._models import _Lenient
+from ycli.models import APIModel
 
 
-class LinkType(_Lenient):
+class LinkType(APIModel):
     """A link type descriptor (``/linktypes`` item).
 
     Example:

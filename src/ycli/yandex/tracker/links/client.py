@@ -17,7 +17,7 @@ class LinksClient(TrackerResource):
         """``GET /issues/{key}/links`` → link listing.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.links.list(key="DATAENGINEERING-130").root[0].object_key  # doctest: +SKIP
             'DATAENGINEERING-129'
         """
@@ -29,7 +29,7 @@ class LinksClient(TrackerResource):
         """``POST /issues/{key}/links`` — link two issues. Returns the link.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.links.add("DATAENGINEERING-130", {"relationship": "depends on", "issue": "DATAENGINEERING-129"}).object_key  # doctest: +SKIP
             'DATAENGINEERING-129'
         """

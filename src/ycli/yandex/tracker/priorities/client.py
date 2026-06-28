@@ -17,7 +17,7 @@ class PrioritiesClient(TrackerResource):
         """``GET /priorities`` → priority listing.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.priorities.list().root[0].key  # doctest: +SKIP
             'normal'
         """

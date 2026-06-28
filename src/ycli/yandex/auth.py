@@ -1,15 +1,14 @@
-"""`ycli auth status` — validate credentials against each service's identity endpoint.
-
-Cross-cutting: sits above the three domains and imports their clients. CLI-only — the MCP
-server stays read-only domain tools (no auth tool).
-"""
+"""`ycli auth status` — validate credentials against each service's identity endpoint."""
 from __future__ import annotations
 
-import typer
-from pydantic import BaseModel, ValidationError
+from typing import Callable
 
-from ycli.cliformat import output_format
-from ycli.output import render
+import typer
+from pydantic import ValidationError
+
+from ycli.context import AppContext
+from ycli.models import APIModel
+from ycli.output import Serializer
 from ycli.yandex.errors import YandexAuthError, YandexError
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.settings import Credentials
@@ -19,77 +18,54 @@ from ycli.yandex.wiki.client import WikiClient
 app = typer.Typer(name="auth", help="Inspect Yandex 360 credentials.", no_args_is_help=True)
 
 
-class ServiceAuthStatus(BaseModel):
-    """Per-service probe result. ``identity`` is the service's own user handle —
-    Tracker ``login``, Wiki ``username``, Forms ``email``."""
-
+class ServiceAuthStatus(APIModel):
     service: str
     valid: bool = False
     identity: str | None = None
     detail: str = ""
 
 
-class AuthReport(BaseModel):
-    """The full auth probe — rendered like any other ycli result."""
-
+class AuthReport(APIModel):
     configured: bool
     organization_id: str = ""
     services: list[ServiceAuthStatus] = []
 
 
-def _probe_tracker() -> ServiceAuthStatus:
+_PROBES: list[tuple[str, type, Callable[[object], str]]] = [
+    ("tracker", TrackerClient, lambda me: me.login),
+    ("wiki", WikiClient, lambda me: me.username),
+    ("forms", FormsClient, lambda me: me.email),
+]
+
+
+def _probe(name: str, client_cls: type, identity_of: Callable[[object], str], credentials: Credentials) -> ServiceAuthStatus:
+    client = client_cls(
+        oauth_token=credentials.oauth_token, organization_id=credentials.organization_id
+    )
     try:
-        me = TrackerClient.from_env().me.get()
+        me = client.me.get()
     except YandexAuthError:
-        return ServiceAuthStatus(service="tracker", valid=False, detail="token invalid or expired")
+        return ServiceAuthStatus(service=name, valid=False, detail="token invalid or expired")
     except YandexError as exc:
-        return ServiceAuthStatus(service="tracker", valid=False, detail=str(exc))
-    return ServiceAuthStatus(service="tracker", valid=True, identity=me.login)
-
-
-def _probe_forms() -> ServiceAuthStatus:
-    try:
-        me = FormsClient.from_env().me.get()
-    except YandexAuthError:
-        return ServiceAuthStatus(service="forms", valid=False, detail="token invalid or expired")
-    except YandexError as exc:
-        return ServiceAuthStatus(service="forms", valid=False, detail=str(exc))
-    return ServiceAuthStatus(service="forms", valid=True, identity=me.email)
-
-
-def _probe_wiki() -> ServiceAuthStatus:
-    try:
-        me = WikiClient.from_env().me.get()
-    except YandexAuthError:
-        return ServiceAuthStatus(service="wiki", valid=False, detail="token invalid or expired")
-    except YandexError as exc:
-        return ServiceAuthStatus(service="wiki", valid=False, detail=str(exc))
-    return ServiceAuthStatus(service="wiki", valid=True, identity=me.username)
+        return ServiceAuthStatus(service=name, valid=False, detail=str(exc))
+    return ServiceAuthStatus(service=name, valid=True, identity=identity_of(me))
 
 
 @app.command()
 def status(ctx: typer.Context) -> None:
     """Report whether the env credentials are set and actually work, per service."""
-    env_names = {
-        "oauth_token": "YANDEX_ID_OAUTH_TOKEN",
-        "organization_id": "YANDEX_ID_ORGANIZATION_ID",
-    }
+    app_ctx = AppContext.from_typer_context(ctx)
+    env_names = {"oauth_token": "YANDEX_ID_OAUTH_TOKEN", "organization_id": "YANDEX_ID_ORGANIZATION_ID"}
     try:
         credentials = Credentials()
     except ValidationError as exc:
-        missing = ", ".join(
-            env_names.get(str(error["loc"][0]), str(error["loc"][0])) for error in exc.errors()
-        )
+        missing = ", ".join(env_names.get(str(e["loc"][0]), str(e["loc"][0])) for e in exc.errors())
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
-        render(AuthReport(configured=False, services=[]), output_format=output_format(ctx))
+        Serializer.serialize(AuthReport(configured=False, services=[]), app_ctx.strategy, app_ctx.console)
         raise typer.Exit(1) from None
 
-    services = [_probe_tracker(), _probe_wiki(), _probe_forms()]
-    report = AuthReport(
-        configured=True,
-        organization_id=credentials.organization_id,
-        services=services,
-    )
-    render(report, output_format=output_format(ctx))
-    if not all(service.valid for service in services):
+    services = [_probe(name, cls, ident, credentials) for name, cls, ident in _PROBES]
+    report = AuthReport(configured=True, organization_id=credentials.organization_id, services=services)
+    Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
+    if not all(s.valid for s in services):
         raise typer.Exit(1)

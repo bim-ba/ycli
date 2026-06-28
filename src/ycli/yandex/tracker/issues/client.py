@@ -18,7 +18,7 @@ class IssuesClient(TrackerResource):
         """``GET /issues/{key}`` → a single ``Issue`` (raises on non-2xx).
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.get(key="DATAENGINEERING-1").status_key  # doctest: +SKIP
             'inProgress'
         """
@@ -32,7 +32,7 @@ class IssuesClient(TrackerResource):
         instantiate ``typing.Any`` for an empty-body method.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.get_raw(key="DATAENGINEERING-1")["key"]  # doctest: +SKIP
             'DATAENGINEERING-1'
         """
@@ -44,7 +44,7 @@ class IssuesClient(TrackerResource):
         """``POST /issues/_search`` → list of issues. ``body`` = ``{"filter": …}`` or ``{"query": …}``.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.search({"query": "Queue: DATAENGINEERING"}).root[0].key  # doctest: +SKIP
             'DATAENGINEERING-1'
         """
@@ -56,7 +56,7 @@ class IssuesClient(TrackerResource):
         """``POST /issues/_count`` → a bare integer count.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.count({"filter": {"queue": "DATAENGINEERING"}})  # doctest: +SKIP
             137
         """
@@ -68,7 +68,7 @@ class IssuesClient(TrackerResource):
         """``POST /issues/`` — create from a ready body. Returns the created ``Issue``.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.create({"queue": "DATAENGINEERING", "summary": "New", "type": {"key": "improvement"}}).key  # doctest: +SKIP
             'DATAENGINEERING-200'
         """
@@ -80,7 +80,7 @@ class IssuesClient(TrackerResource):
         """``PATCH /issues/{key}`` — update fields. Returns the updated ``Issue``.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.update(key="DATAENGINEERING-1", body={"priority": {"key": "critical"}}).priority_key  # doctest: +SKIP
             'critical'
         """

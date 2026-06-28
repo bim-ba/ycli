@@ -18,7 +18,7 @@ class MeClient(FormsResource):
         """``GET /users/me`` → the authenticated ``User`` (a safe auth probe).
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.me.get().email  # doctest: +SKIP
             'znatnov.s@example.com'
         """

@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.forms._models import _Lenient
+from ycli.models import APIModel
 
 
-class Column(_Lenient):
+class Column(APIModel):
     """An answers-table column descriptor (``…/answers`` → ``columns[]``).
 
     Example:
@@ -21,7 +21,7 @@ class Column(_Lenient):
     has_scores: bool | None = None
 
 
-class Answer(_Lenient):
+class Answer(APIModel):
     """A single form response (``…/answers`` → ``answers[]``).
 
     ``data`` is **positional**, aligned to ``columns``; each element is a
@@ -38,7 +38,7 @@ class Answer(_Lenient):
     data: list[Any] = []
 
 
-class AnswersResponse(_Lenient):
+class AnswersResponse(APIModel):
     """Envelope for ``GET …/answers`` — ``{columns, answers, next}``.
 
     ``next`` is ``{"next_url": …}`` or ``null`` (a pagination cursor), passed

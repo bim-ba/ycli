@@ -2,9 +2,10 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.yandex.settings import AppConfig
 from ycli.yandex.wiki._deps import RO, TAGS, wiki_client
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails
+from ycli.yandex.wiki.pages.models import PageDetails, PageRefList
 
 mcp = FastMCP("wiki-pages")
 
@@ -22,11 +23,8 @@ def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:
 
 
 @mcp.tool(name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"}, tags=TAGS)
-def descendants(
-    slug: str,
-    limit: int = 100,
-    cursor: str = "",
-    client: WikiClient = Depends(wiki_client),
-) -> DescendantsResponse:
-    """One page of descendant refs under SLUG (caller paginates via cursor)."""
-    return client.pages.descendants(slug=slug, page_size=limit, cursor=cursor or None)
+def descendants(slug: str, limit: int = 0, client: WikiClient = Depends(wiki_client)) -> PageRefList:
+    """All descendant refs under SLUG, auto-paginated. Capped at YCLI_MAX_ITEMS (default 500)
+    unless ``limit`` is given; narrow by SLUG for large trees."""
+    cap = limit or AppConfig().max_items
+    return client.pages.descendants(slug=slug, limit=cap)

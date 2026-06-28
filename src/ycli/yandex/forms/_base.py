@@ -12,6 +12,6 @@ from ycli.yandex.base import BaseYandex
 
 
 class FormsResource(BaseYandex):
-    """Base for every Forms resource client (inherits session DI + from_env)."""
+    """Base for every Forms resource client (inherits session DI via constructor)."""
 
     base_url: ClassVar[str] = "https://api.forms.yandex.net/v1"

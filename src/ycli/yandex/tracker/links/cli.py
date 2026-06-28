@@ -6,14 +6,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
+from ycli.yandex.tracker._args import KeyArg
 
 app = typer.Typer(name="links", help="Tracker issue links.", no_args_is_help=True)
-
-KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]
 
 
 class Relationship(str, Enum):
@@ -31,7 +28,8 @@ class Relationship(str, Enum):
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List links for issue KEY."""
-    render(tracker_client(ctx).links.list(key), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.links.list(key), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -43,4 +41,5 @@ def add(
 ) -> None:
     """Link issue KEY to TARGET with RELATIONSHIP."""
     body = {"relationship": relationship.value, "issue": target}
-    render(tracker_client(ctx).links.add(key, body=body), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console)

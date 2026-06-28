@@ -5,16 +5,12 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.forms._clideps import forms_client
+from ycli.yandex.settings import AppConfig
+from ycli.context import AppContext
+from ycli.output import Serializer
+from ycli.yandex.forms._args import SurveyIdArg
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
-
-SurveyIdArg = Annotated[
-    str, typer.Argument(metavar="SURVEY_ID", help="Form id, e.g. 6818ceffe010db4f59d11329.")
-]
 
 
 @app.callback()
@@ -23,6 +19,13 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
-    """List ALL of a form's responses (drains every page via the next cursor)."""
-    render(forms_client(ctx).answers.list_all(survey_id), output_format=output_format(ctx))
+def list_(
+    ctx: typer.Context,
+    survey_id: SurveyIdArg,
+    limit: Annotated[int, typer.Option(help="Max responses (auto-paginates).")] = 0,
+    all_: Annotated[bool, typer.Option("--all", help="Fetch every response (no cap).")] = False,
+) -> None:
+    """List a form's responses (auto-paginated; --all for everything)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    cap = None if all_ else (limit or AppConfig().max_items)
+    Serializer.serialize(app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console)

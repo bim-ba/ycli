@@ -1,12 +1,14 @@
-"""Pydantic models for Forms /surveys (Survey + SurveyList envelope)."""
+"""Pydantic models for Forms /surveys (Survey + SurveyList envelope + SurveyCollection flat list)."""
 from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.forms._models import _Lenient
+from pydantic import RootModel
+
+from ycli.models import APIModel
 
 
-class Survey(_Lenient):
+class Survey(APIModel):
     """A form/survey (``GET /v1/surveys`` item and ``GET /v1/surveys/{id}``).
 
     ``id`` is a hex ObjectId **string** (not numeric); ``answers`` is an int
@@ -32,8 +34,10 @@ class Survey(_Lenient):
     is_favourite: bool | None = None
 
 
-class SurveyList(_Lenient):
+class SurveyList(APIModel):
     """Envelope for ``GET /v1/surveys`` — ``{links, result:[Survey]}``.
+
+    Internal per-page parse type used by ``SurveysClient._list_page``.
 
     Example:
         >>> SurveyList.model_validate({"result": [{"id": "a"}]}).result[0].id
@@ -42,3 +46,14 @@ class SurveyList(_Lenient):
 
     links: dict[str, Any] = {}
     result: list[Survey] = []
+
+
+class SurveyCollection(RootModel[list[Survey]]):
+    """Flat collection of :class:`Survey` items — the public return type of ``SurveysClient.list``.
+
+    Example:
+        >>> SurveyCollection([Survey.model_validate({"id": "a"})]).root[0].id
+        'a'
+    """
+
+    root: list[Survey] = []

@@ -2,7 +2,7 @@
 import requests
 
 from ycli.yandex.tracker._base import TrackerResource
-from ycli.yandex.tracker._models import _DisplayRef, _IdRef, _KeyRef, _Lenient
+from ycli.yandex.tracker._models import _DisplayRef, _IdRef, _KeyRef
 
 
 class _Demo(TrackerResource):
@@ -18,9 +18,3 @@ def test_shared_refs_extract_scalar():
     assert _KeyRef.model_validate({"key": "task", "x": 1}).key == "task"
     assert _IdRef.model_validate({"id": "relates"}).id == "relates"
     assert _DisplayRef.model_validate({"display": "Сава"}).display == "Сава"
-
-
-def test_lenient_ignores_extra_and_populates_by_name():
-    m = _Lenient.model_validate({"unknown": 1})  # extra ignored, no error
-    assert m.model_config["extra"] == "ignore"
-    assert m.model_config["populate_by_name"] is True

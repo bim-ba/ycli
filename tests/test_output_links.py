@@ -7,7 +7,7 @@ import pytest
 from pydantic import BaseModel
 from rich.console import Console
 
-from ycli.output import OutputFormat, render
+from ycli.output import OutputFormat, Serializer, SerializationStrategy
 
 
 class _Row(BaseModel):
@@ -15,9 +15,9 @@ class _Row(BaseModel):
     summary: str
 
 
-def _render(model, *, terminal: bool) -> str:
+def _render(model: BaseModel, *, terminal: bool) -> str:
     console = Console(file=io.StringIO(), force_terminal=terminal, width=200)
-    render(model, output_format=OutputFormat.pretty, console=console)
+    Serializer.serialize(model, SerializationStrategy.from_format(OutputFormat.pretty), console)
     return console.file.getvalue()
 
 

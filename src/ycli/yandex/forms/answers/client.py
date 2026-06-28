@@ -8,6 +8,7 @@ import uplink
 
 from ycli.yandex.forms._base import FormsResource
 from ycli.yandex.forms.answers.models import AnswersResponse
+from ycli.yandex.pagination import NextUrlStrategy
 
 
 class AnswersClient(FormsResource):
@@ -19,37 +20,34 @@ class AnswersClient(FormsResource):
         """``GET /surveys/{id}/answers`` → the ``{columns, answers, next}`` envelope (verbatim).
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.answers.list(survey_id="686d0a1b2c3d4e5f").columns[0].slug  # doctest: +SKIP
             'answer_short_text_1'
         """
 
-    def list_all(self, survey_id: str) -> AnswersResponse:
-        """Drain *every* page of responses into one merged envelope.
+    def list_all(self, survey_id: str, *, limit: int | None = None) -> AnswersResponse:
+        """Drain responses across pages (HATEOAS ``next.next_url``), capped at ``limit``.
 
         The single-page :meth:`list` under-reports — the API paginates via the ``id``
         cursor and hands the next page back as ``next.next_url`` (null when exhausted).
-        Follow that link verbatim (HATEOAS-style — no fragile cursor reconstruction)
-        until it is null, concatenating ``answers``. ``columns`` are taken from the
-        first page (identical across pages); the merged ``next`` is always ``None``.
+        ``columns`` come from the first page (identical across pages); the merged
+        ``next`` is always ``None``. Pass ``limit=None`` to fetch every page.
 
         Example:
-            >>> client = FormsClient.from_env()  # doctest: +SKIP
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> len(client.answers.list_all(survey_id="686d0a1b2c3d4e5f").answers)  # doctest: +SKIP
             317
         """
-        page = self.list(survey_id)
-        columns = page.columns
-        answers = list(page.answers)
-        seen: set[str] = set()
-        nxt = page.next
-        while isinstance(nxt, dict) and nxt.get("next_url"):
-            url = urljoin(self.base_url.rstrip("/") + "/", str(nxt["next_url"]))
-            if url in seen:  # defensive: a server pointing at itself must not hang us
-                break
-            seen.add(url)
-            resp = self._session.get(url)
-            page = AnswersResponse.model_validate(resp.json())
-            answers.extend(page.answers)
-            nxt = page.next
+        first = self.list(survey_id)
+        columns = first.columns
+
+        def fetch_url(url: str) -> AnswersResponse:
+            absolute = urljoin(self.base_url.rstrip("/") + "/", url)
+            return AnswersResponse.model_validate(self._session.get(absolute).json())
+
+        answers = NextUrlStrategy(
+            extract=lambda page: page.answers,
+            next_url_of=lambda page: page.next.get("next_url") if isinstance(page.next, dict) else None,
+            fetch_url=fetch_url,
+        ).collect(lambda cursor: first, limit)
         return AnswersResponse(columns=columns, answers=answers, next=None)

@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.tracker._models import _Lenient
+from ycli.models import APIModel
 
 
-class Transition(_Lenient):
+class Transition(APIModel):
     """An available issue transition (``/issues/{key}/transitions`` item).
 
     Example:

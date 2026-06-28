@@ -24,7 +24,7 @@ class TransitionsClient(TrackerResource):
         """``GET /issues/{key}/transitions`` → available transitions.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.transitions.list(key="DATAENGINEERING-1").root[0].id  # doctest: +SKIP
             'start_progress'
         """
@@ -44,7 +44,7 @@ class TransitionsClient(TrackerResource):
            unambiguous. Runtime value is ``list[Any]``.
 
         Example:
-            >>> client = TrackerClient.from_env()  # doctest: +SKIP
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.transitions.execute("DATAENGINEERING-1", "start_progress", {})[0]["id"]  # doctest: +SKIP
             'stop_progress'
         """
