@@ -61,14 +61,12 @@ def mcp() -> None:
 
 
 def main() -> None:  # pragma: no cover
-    """Console-script entry point (``ycli`` / ``yandex-cli``)."""
+    from pydantic import ValidationError
     from ycli.yandex.errors import YandexError
-
+    import typer
     try:
         app()
-    except YandexError as exc:
-        import typer
-
+    except (YandexError, ValidationError) as exc:
         typer.secho(f"Error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(1) from exc
 

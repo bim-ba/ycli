@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import requests
 
-from ycli.yandex.base import session_from_env
+from ycli.yandex.base import FromEnvSession
 from ycli.yandex.tracker.changelog.client import ChangelogClient
 from ycli.yandex.tracker.comments.client import CommentsClient
 from ycli.yandex.tracker.issues.client import IssuesClient
@@ -16,7 +16,7 @@ from ycli.yandex.tracker.transitions.client import TransitionsClient
 from ycli.yandex.tracker.worklog.client import WorklogClient
 
 
-class TrackerClient:
+class TrackerClient(FromEnvSession):
     """Holds the per-resource tracker clients, all sharing one ``requests.Session``.
 
     Example:
@@ -34,8 +34,3 @@ class TrackerClient:
         self.priorities = PrioritiesClient(session=session)
         self.issuetypes = IssueTypesClient(session=session)
         self.linktypes = LinkTypesClient(session=session)
-
-    @classmethod
-    def from_env(cls) -> TrackerClient:
-        """Build all sub-clients from one env-resolved session."""
-        return cls(session=session_from_env())

@@ -1,23 +1,22 @@
 """Single auth boundary for every Yandex consumer.
 
-``Transport.session(*, token, org_id)`` returns a pure ``requests.Session``
-carrying ``Authorization: OAuth`` and a single canonical org header (``X-Org-Id``),
-a ``urllib3.Retry`` adapter (idempotent methods only — GET/HEAD/OPTIONS; total=3
-with backoff on 429/5xx) on http/https, and a default request timeout;
-non-idempotent POSTs are NOT retried here — a caller that needs that mounts its
-own adapter. Credential resolution is the consumer's ``from_env`` concern — this
-function never reads ``os.environ``; an empty arg raises rather than firing an
-unauthenticated call.
+``Transport.session(*, token, organization_id, timeout_seconds, retries)`` returns a pure
+``requests.Session`` carrying ``Authorization: OAuth`` and a single canonical org header
+(``X-Org-Id``), a ``urllib3.Retry`` adapter (idempotent methods only — GET/HEAD/OPTIONS;
+backoff on 429/5xx) on http/https, and a configured request timeout; non-idempotent POSTs
+are NOT retried here — a caller that needs that mounts its own adapter. Credential
+resolution is the consumer's ``from_env`` concern — this function never reads
+``os.environ``; an empty arg raises rather than firing an unauthenticated call.
 
 Example:
-    >>> s = Transport.session(token="t", org_id="o")
+    >>> s = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     >>> s.headers["Authorization"]
     'OAuth t'
 """
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import Any
 
 import requests
 from requests import PreparedRequest, Response
@@ -32,6 +31,8 @@ from ycli.yandex.errors import (
     YandexServerError,
 )
 
+ORGANIZATION_HEADER = "X-Org-Id"
+
 
 def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
     """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
@@ -41,20 +42,21 @@ def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
     this hook, so every SDK call is covered.
     """
     code = response.status_code
-    if code < 400:
-        return response
-    snippet = response.text[:300].replace("\n", " ").strip()
-    msg = f"{code} {response.reason} for {response.request.method} {response.url}: {snippet}"
+    message = f"{code} {response.reason} for {response.request.method} {response.url}: {response.text[:300].replace(chr(10), ' ').strip()}"
     url = response.url
-    if code in (401, 403):
-        raise YandexAuthError(msg, status=code, url=url)
-    if code == 404:
-        raise YandexNotFoundError(msg, status=code, url=url)
-    if code == 429:
-        raise YandexRateLimitError(msg, status=code, url=url)
-    if code >= 500:
-        raise YandexServerError(msg, status=code, url=url)
-    raise YandexClientError(msg, status=code, url=url)
+    match code:
+        case _ if code < 400:
+            return response
+        case 401 | 403:
+            raise YandexAuthError(message, status=code, url=url)
+        case 404:
+            raise YandexNotFoundError(message, status=code, url=url)
+        case 429:
+            raise YandexRateLimitError(message, status=code, url=url)
+        case _ if code >= 500:
+            raise YandexServerError(message, status=code, url=url)
+        case _:
+            raise YandexClientError(message, status=code, url=url)
 
 
 class _TimeoutAdapter(HTTPAdapter):
@@ -102,48 +104,34 @@ class _TimeoutAdapter(HTTPAdapter):
 
 
 class Transport:
-    """Builds an authed ``requests.Session`` — the single auth boundary.
-
-    PURE: ``session(*, token, org_id)`` never reads ``os.environ`` (credential
-    resolution is a consumer's ``from_env`` concern). Config (timeout, retry total,
-    org-header name) lives as ClassVars — no module-level globals. The org header is
-    a single canonical ``X-Org-Id`` (case-insensitive per RFC 9110 → serves all APIs).
-    POSTs are NOT retried (non-idempotent); only GET/HEAD/OPTIONS.
-
-    Example:
-        >>> s = Transport.session(token="t", org_id="o")
-        >>> s.headers["Authorization"], s.headers["X-Org-Id"]
-        ('OAuth t', 'o')
-    """
-
-    TIMEOUT_S: ClassVar[float] = 30.0
-    RETRY_TOTAL: ClassVar[int] = 3
-    ORG_HEADER: ClassVar[str] = "X-Org-Id"
+    """Builds an authed ``requests.Session`` — the single, env-free auth boundary."""
 
     @classmethod
-    def session(cls, *, token: str, org_id: str) -> requests.Session:
-        """Return a configured ``requests.Session``. Raises ``ValueError`` on an empty arg.
-
-        Example:
-            >>> Transport.session(token="", org_id="o")
-            Traceback (most recent call last):
-            ValueError: token must be a non-empty string
-        """
+    def session(
+        cls,
+        *,
+        token: str,
+        organization_id: str,
+        timeout_seconds: float,
+        retries: int,
+    ) -> requests.Session:
         if not token:
             raise ValueError("token must be a non-empty string")
-        if not org_id:
-            raise ValueError("org_id must be a non-empty string")
+        if not organization_id:
+            raise ValueError("organization_id must be a non-empty string")
         session = requests.Session()
-        session.headers.update({"Authorization": f"OAuth {token}", cls.ORG_HEADER: org_id})
+        session.headers.update(
+            {"Authorization": f"OAuth {token}", ORGANIZATION_HEADER: organization_id}
+        )
         session.hooks["response"].append(_raise_typed)
         retry = Retry(
-            total=cls.RETRY_TOTAL,
+            total=retries,
             backoff_factor=0.5,
             status_forcelist=(429, 500, 502, 503, 504),
             allowed_methods=frozenset({"GET", "HEAD", "OPTIONS"}),
             raise_on_status=False,
         )
-        adapter = _TimeoutAdapter(max_retries=retry, timeout=cls.TIMEOUT_S)
+        adapter = _TimeoutAdapter(max_retries=retry, timeout=timeout_seconds)
         session.mount("https://", adapter)
         session.mount("http://", adapter)
         return session

@@ -1,9 +1,10 @@
 """TDD for the Yandex Transport — the single auth boundary.
 
-Transport.session(*, token, org_id) is PURE: it never reads os.environ. It returns
-a requests.Session with OAuth + a single canonical org header (X-Org-Id; header names
-are case-insensitive per RFC 9110, so one casing serves Wiki/Tracker/Forms), a urllib3
-Retry adapter on idempotent methods only, and a default timeout. Empty args raise.
+Transport.session(*, token, organization_id, timeout_seconds, retries) is PURE: it never
+reads os.environ. It returns a requests.Session with OAuth + a single canonical org header
+(X-Org-Id; header names are case-insensitive per RFC 9110, so one casing serves
+Wiki/Tracker/Forms), a urllib3 Retry adapter on idempotent methods only, and a default
+timeout. Empty args raise.
 """
 
 import pytest
@@ -12,25 +13,38 @@ import requests
 from ycli.yandex.transport import Transport
 
 
-def test_empty_token_raises():
-    with pytest.raises(ValueError, match="token"):
-        Transport.session(token="", org_id="o")
+def test_session_sets_auth_and_org_headers():
+    s = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
+    assert s.headers["Authorization"] == "OAuth t"
+    assert s.headers["X-Org-Id"] == "o"
+
+
+def test_session_applies_configured_timeout_and_retries():
+    s = Transport.session(token="t", organization_id="o", timeout_seconds=12.5, retries=7)
+    adapter = s.get_adapter("https://example.com")
+    assert adapter._timeout == 12.5
+    assert adapter.max_retries.total == 7
+
+
+def test_session_rejects_empty_credentials():
+    with pytest.raises(ValueError):
+        Transport.session(token="", organization_id="o", timeout_seconds=30.0, retries=3)
 
 
 def test_empty_org_raises():
-    with pytest.raises(ValueError, match="org_id"):
-        Transport.session(token="t", org_id="")
+    with pytest.raises(ValueError, match="organization_id"):
+        Transport.session(token="t", organization_id="", timeout_seconds=30.0, retries=3)
 
 
 def test_session_carries_auth_and_org_headers():
-    s = Transport.session(token="tok", org_id="org")
+    s = Transport.session(token="tok", organization_id="org", timeout_seconds=30.0, retries=3)
     assert isinstance(s, requests.Session)
     assert s.headers["Authorization"] == "OAuth tok"
     assert s.headers["X-Org-Id"] == "org"
 
 
 def test_session_mounts_retry_adapter_on_https():
-    s = Transport.session(token="t", org_id="o")
+    s = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     adapter = s.get_adapter("https://api.wiki.yandex.net/v1/pages")
     assert adapter.max_retries.total == 3
     assert 429 in adapter.max_retries.status_forcelist
@@ -38,7 +52,7 @@ def test_session_mounts_retry_adapter_on_https():
 
 
 def test_post_not_retried_only_idempotent_methods():
-    s = Transport.session(token="t", org_id="o")
+    s = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     adapter = s.get_adapter("https://api.wiki.yandex.net/v1/pages")
     methods = adapter.max_retries.allowed_methods
     assert "POST" not in methods
@@ -47,7 +61,7 @@ def test_post_not_retried_only_idempotent_methods():
 
 def test_session_does_not_read_environment(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "should-be-ignored")
-    s = Transport.session(token="explicit", org_id="o")
+    s = Transport.session(token="explicit", organization_id="o", timeout_seconds=30.0, retries=3)
     assert s.headers["Authorization"] == "OAuth explicit"
 
 
