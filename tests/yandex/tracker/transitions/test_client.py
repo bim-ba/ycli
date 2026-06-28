@@ -31,7 +31,7 @@ def test_list_returns_transitionlist():
 
 
 @responses.activate
-def test_execute_posts_body_returns_raw():
+def test_execute_posts_body_returns_transitionlist():
     responses.add(
         responses.POST,
         f"{BASE}/issues/DE-1/transitions/close/_execute",
@@ -39,5 +39,7 @@ def test_execute_posts_body_returns_raw():
         status=200,
     )
     out = _client().execute("DE-1", "close", body={"comment": "done"})
-    assert out == [{"id": "reopen", "display": "Reopen"}]
+    assert isinstance(out, TransitionList)
+    assert out.root[0].id == "reopen"
+    assert out.root[0].display == "Reopen"
     assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]

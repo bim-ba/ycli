@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from typing import Annotated
 
 import typer
@@ -37,5 +36,5 @@ def execute(
 ) -> None:
     """Execute transition ID on issue KEY (optional body via --field)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    raw = app_ctx.tracker.transitions.execute(key, transition_id, body=parse_fields(field))
-    print(json.dumps(raw, ensure_ascii=False))
+    result = app_ctx.tracker.transitions.execute(key, transition_id, body=parse_fields(field))
+    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)

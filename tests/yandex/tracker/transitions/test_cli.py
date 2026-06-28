@@ -35,12 +35,25 @@ def test_execute_with_field():
     responses.add(
         responses.POST,
         f"{BASE}/issues/DE-1/transitions/close/_execute",
-        json=[{"id": "reopen"}],
+        json=[{"id": "reopen", "display": "Reopen"}],
         status=200,
     )
     res = runner.invoke(
-        cli.app, ["tracker", "transitions", "execute", "DE-1", "close", "--field", "comment=done"]
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "transitions",
+            "execute",
+            "DE-1",
+            "close",
+            "--field",
+            "comment=done",
+        ],
     )
     assert res.exit_code == 0
-    assert json.loads(res.stdout) == [{"id": "reopen"}]
+    parsed = json.loads(res.stdout)
+    assert parsed[0]["id"] == "reopen"
+    assert parsed[0]["display"] == "Reopen"
     assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]
