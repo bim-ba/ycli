@@ -11,6 +11,6 @@ mcp = FastMCP("wiki-attachments")
 
 
 @mcp.tool(name="attachments_list", annotations={**RO, "title": "List Wiki attachments"}, tags=TAGS)
-def list_(page_id: int, client: WikiClient = Depends(wiki_client)) -> AttachmentList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(page_id: int, client: WikiClient = Depends(wiki_client)) -> AttachmentList:
     """Attachments on a page id."""
     return client.attachments.list(page_id=page_id)

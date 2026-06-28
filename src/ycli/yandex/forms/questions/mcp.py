@@ -11,6 +11,6 @@ mcp = FastMCP("forms-questions")
 
 
 @mcp.tool(name="questions_list", annotations={**RO, "title": "List Forms questions"}, tags=TAGS)
-def list_(survey_id: str, client: FormsClient = Depends(forms_client)) -> QuestionsResponse:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(survey_id: str, client: FormsClient = Depends(forms_client)) -> QuestionsResponse:
     """A form's questions, grouped into pages (the {pages} envelope)."""
     return client.questions.list(survey_id)

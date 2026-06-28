@@ -93,7 +93,7 @@ mcp = FastMCP("{domain}-{resource}")
     annotations={{**RO, "title": "Get {domain} {resource}"}},
     tags=TAGS,
 )
-def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:  # noqa: B008
+def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:
     """Fetch one {resource} by id."""
     return client.{resource}.get(item_id)
 '''

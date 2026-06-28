@@ -11,13 +11,13 @@ mcp = FastMCP("forms-surveys")
 
 
 @mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
-def list_(client: FormsClient = Depends(forms_client)) -> SurveyCollection:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(client: FormsClient = Depends(forms_client)) -> SurveyCollection:
     """Every form (survey) the caller can see."""
     return client.surveys.list()
 
 
 @mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"}, tags=TAGS)
-def get(survey_id: str, client: FormsClient = Depends(forms_client)) -> Survey:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def get(survey_id: str, client: FormsClient = Depends(forms_client)) -> Survey:
     """One form's settings by id."""
     result = client.surveys.get(survey_id)
     # A 404 deserializes into an all-None Survey (lenient model) rather than raising;

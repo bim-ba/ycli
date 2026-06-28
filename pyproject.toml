@@ -131,6 +131,9 @@ docstring-code-format = true
 select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF"]
 ignore = ["ANN401"]
 
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastmcp.dependencies.Depends"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["ycli"]
 

@@ -12,7 +12,7 @@ mcp = FastMCP("forms-answers")
 
 
 @mcp.tool(name="answers_list", annotations={**RO, "title": "List Forms answers"}, tags=TAGS)
-def list_(survey_id: str, client: FormsClient = Depends(forms_client)) -> AnswersResponse:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(survey_id: str, client: FormsClient = Depends(forms_client)) -> AnswersResponse:
     """A form's responses, capped at AppConfig().max_items (drains pages via the next cursor).
 
     Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``

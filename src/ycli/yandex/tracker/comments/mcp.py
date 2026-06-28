@@ -13,6 +13,6 @@ mcp = FastMCP("tracker-comments")
 @mcp.tool(
     name="comments_list", annotations={**RO, "title": "List Tracker issue comments"}, tags=TAGS
 )
-def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> CommentList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> CommentList:
     """All comments on a Tracker issue."""
     return client.comments.list(key)

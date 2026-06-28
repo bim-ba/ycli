@@ -11,7 +11,7 @@ mcp = FastMCP("forms-me")
 
 
 @mcp.tool(name="me_get", annotations={**RO, "title": "Get current Forms user"}, tags=TAGS)
-def get(client: FormsClient = Depends(forms_client)) -> User:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def get(client: FormsClient = Depends(forms_client)) -> User:
     """The authenticated Yandex Forms user (a safe auth probe)."""
     result = client.me.get()
     # Forms models are fully lenient, so a 401/4xx deserializes into an all-None User

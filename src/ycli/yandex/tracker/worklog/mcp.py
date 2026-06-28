@@ -11,6 +11,6 @@ mcp = FastMCP("tracker-worklog")
 
 
 @mcp.tool(name="worklog_list", annotations={**RO, "title": "List Tracker worklog"}, tags=TAGS)
-def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> WorklogList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> WorklogList:
     """Time-tracking entries logged against a Tracker issue."""
     return client.worklog.list(key)

@@ -15,6 +15,6 @@ mcp = FastMCP("tracker-transitions")
     annotations={**RO, "title": "List Tracker issue transitions"},
     tags=TAGS,
 )
-def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> TransitionList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> TransitionList:
     """Available workflow transitions for a Tracker issue."""
     return client.transitions.list(key)

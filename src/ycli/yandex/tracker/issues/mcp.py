@@ -13,7 +13,7 @@ mcp = FastMCP("tracker-issues")
 
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)
-def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """A single Tracker issue by key (raises if not found).
 
     In production the Transport response hook raises ``YandexNotFoundError`` on a 404
@@ -30,7 +30,7 @@ def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:  # 
 @mcp.tool(
     name="issues_full", annotations={**RO, "title": "Get full Tracker issue (raw)"}, tags=TAGS
 )
-def full(key: str, client: TrackerClient = Depends(tracker_client)) -> dict[str, Any]:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def full(key: str, client: TrackerClient = Depends(tracker_client)) -> dict[str, Any]:
     """A single Tracker issue as a raw dict (all fields)."""
     return client.issues.get_raw(key)
 
@@ -42,7 +42,7 @@ def list_(
     assignee: str = "",
     epic: str = "",
     type_: str = "",
-    client: TrackerClient = Depends(tracker_client),  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+    client: TrackerClient = Depends(tracker_client),
 ) -> IssueList:
     """Issues matching the supplied filters (omitted filters dropped)."""
     flt = {
@@ -62,12 +62,12 @@ def list_(
 @mcp.tool(
     name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"}, tags=TAGS
 )
-def search(query: str, client: TrackerClient = Depends(tracker_client)) -> IssueList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def search(query: str, client: TrackerClient = Depends(tracker_client)) -> IssueList:
     """Issues matching a TQL query string."""
     return client.issues.search(body={"query": query})
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)
-def count(query: str, client: TrackerClient = Depends(tracker_client)) -> int:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def count(query: str, client: TrackerClient = Depends(tracker_client)) -> int:
     """Count of issues matching a TQL query string."""
     return client.issues.count(body={"query": query})

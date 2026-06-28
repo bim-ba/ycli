@@ -11,6 +11,6 @@ mcp = FastMCP("tracker-priorities")
 
 
 @mcp.tool(name="priorities_list", annotations={**RO, "title": "List Tracker priorities"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> PriorityList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
+def list_(client: TrackerClient = Depends(tracker_client)) -> PriorityList:
     """All available issue priorities in the organisation."""
     return client.priorities.list()
