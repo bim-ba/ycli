@@ -53,41 +53,48 @@ ARCH invariants.
 
 ### 1. Configuration layer — `pydantic-settings`
 
-New `src/ycli/yandex/settings.py`:
+New `src/ycli/yandex/settings.py` holds **two single-purpose settings models**. They are
+split deliberately: **app config must be constructible without credentials**, because the
+root CLI callback configures logging on *every* invocation (including `ycli --help` and
+credential-free `--help` on subcommands). Putting required credentials in the same model
+the callback reads at startup would make every such invocation raise. Credentials are
+required only when an actual API call is made.
 
 ```python
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-class YandexSettings(BaseSettings):
-    """All ycli configuration, resolved from the environment / .env once per process."""
+class AppConfig(BaseSettings):
+    """Process-wide app configuration — always constructible, never needs credentials."""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # Credentials — exact published env names (MCP servers pass these).
-    oauth_token: str = Field(default="", validation_alias="YANDEX_ID_OAUTH_TOKEN")
-    organization_id: str = Field(default="", validation_alias="YANDEX_ID_ORGANIZATION_ID")
-
-    # App config — new, full names under the YCLI_ prefix.
     timeout_seconds: float = Field(default=30.0, validation_alias="YCLI_TIMEOUT_SECONDS")
     retries: int = Field(default=3, validation_alias="YCLI_RETRIES")
     log_level: str = Field(default="INFO", validation_alias="YCLI_LOG_LEVEL")
 
-    def require_credentials(self) -> None:
-        """Raise ValueError naming the missing variable when a credential is absent."""
-        if not self.oauth_token:
-            raise ValueError("YANDEX_ID_OAUTH_TOKEN is empty — set it in the environment")
-        if not self.organization_id:
-            raise ValueError("YANDEX_ID_ORGANIZATION_ID is empty — set it in the environment")
+class Credentials(BaseSettings):
+    """Yandex 360 credentials — required; pydantic raises if either env var is absent."""
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    oauth_token: str = Field(validation_alias="YANDEX_ID_OAUTH_TOKEN")
+    organization_id: str = Field(validation_alias="YANDEX_ID_ORGANIZATION_ID")
 ```
 
-Defaults are empty strings (not required fields) so `YandexSettings()` never raises merely
-on import/instantiation; `require_credentials()` is the explicit gate used by the
-session factory and `auth status`. The hand-rolled `os.environ.get` checks in
-`base.session_from_env` and `authcli` are deleted in favor of this.
+`Credentials` fields have **no defaults**, so pydantic enforces presence natively —
+`Credentials()` with a missing variable raises `pydantic.ValidationError`. There is **no
+hand-written `require_credentials()` method** — validation is pydantic's job. The old
+`os.environ.get` checks in `base.session_from_env` and `authcli` are deleted.
 
-**Tests:** with `monkeypatch.setenv`, `YandexSettings()` reads each var; defaults apply
-when unset; `require_credentials()` raises naming the missing var; a `.env` file is read.
+`.env` support: `env_file=".env"` requires `python-dotenv`, which `pydantic-settings` does
+not always pull transitively — the plan verifies a `.env` is actually read by a test and
+adds `python-dotenv` via `uv add` if needed. This newly auto-loads `.env` for the CLI
+(today nothing does), which is the intended MCP-friendly behavior; `.env` stays gitignored.
+
+**Tests:** `AppConfig()` returns the documented defaults when unset and reads each `YCLI_*`
+override; `Credentials()` reads both `YANDEX_ID_*` vars; `Credentials()` raises
+`ValidationError` when either is unset; a `.env` file is honored.
 
 ### 2. Transport simplification
 
@@ -115,45 +122,49 @@ match code:
         raise YandexClientError(message, status=code, url=url)
 ```
 
-In `src/ycli/yandex/base.py`:
-
-- Delete the top-level `session_from_env()`. `BaseYandex.from_env` builds the session from
-  settings:
-
-```python
-@classmethod
-def from_env(cls) -> Self:
-    settings = YandexSettings()
-    settings.require_credentials()
-    return cls(session=settings.build_session())
-```
-
-- A single session factory lives on `YandexSettings` (it knows the values) and delegates
-  the actual HTTP wiring to `Transport` (keeping HTTP knowledge in the transport boundary):
+**Eliminate the top-level `session_from_env()` (#2).** There are four `from_env`
+constructors today — `BaseYandex` plus the three composition-root clients (`TrackerClient`
+/ `WikiClient` / `FormsClient`), which are not `uplink.Consumer`s and so can't inherit
+`BaseYandex.from_env`. Rather than a shared top-level function, provide **one** `from_env`
+classmethod via a small mixin that all four inherit, in `src/ycli/yandex/settings.py`:
 
 ```python
-def build_session(self) -> requests.Session:
-    return Transport.session(
-        token=self.oauth_token,
-        organization_id=self.organization_id,
-        timeout_seconds=self.timeout_seconds,
-        retries=self.retries,
-    )
+class FromEnvSession:
+    """Mixin: `from_env()` builds an authed session from the environment and injects it.
+
+    Inherited by BaseYandex and the three composition-root clients; each defines its own
+    `__init__(*, session: requests.Session)`, so `cls(session=...)` constructs correctly.
+    """
+
+    @classmethod
+    def from_env(cls) -> Self:
+        credentials = Credentials()  # raises ValidationError if a var is missing
+        config = AppConfig()
+        session = Transport.session(
+            token=credentials.oauth_token,
+            organization_id=credentials.organization_id,
+            timeout_seconds=config.timeout_seconds,
+            retries=config.retries,
+        )
+        return cls(session=session)
 ```
 
-  `require_credentials()` is called before `build_session()` so an empty credential raises
-  the named error rather than firing an unauthenticated request. The three composition-root
-  clients (`TrackerClient` / `WikiClient` / `FormsClient`) reuse the same path — their
-  `from_env` builds one `YandexSettings`, calls `require_credentials()`, and shares one
-  `build_session()` across sub-clients (no per-sub-client env reads).
+- `base.py`: `BaseYandex(FromEnvSession, uplink.Consumer)`; its bespoke `from_env` and the
+  top-level `session_from_env()` are deleted.
+- The three composition roots add `FromEnvSession` as a base and **delete their own
+  `from_env`** (they inherit the mixin's). Each keeps its `__init__(*, session)` that fans
+  the one session out to its sub-clients — so a `TrackerClient.from_env()` still builds
+  exactly one session shared across all tracker resources.
+- ARCH / import-linter: `settings.py` imports `Transport` and reads the env; it constructs
+  no HTTP itself (delegates to `Transport`, which stays env-free — it must never import
+  `settings`). Confirm `lint-imports` stays green; if the mixin's location trips a layering
+  rule, place `FromEnvSession` in `base.py` instead (it already sits at that layer) and
+  import `Credentials`/`AppConfig` from `settings.py`.
 
-  ARCH note: `settings.py` may import `Transport`; it constructs no HTTP itself. Confirm
-  import-linter stays green (settings → transport is allowed; transport must not import
-  settings — keep `Transport.session` parameterized, env-free).
-
-**Tests:** `Transport.session` applies the passed `timeout_seconds`/`retries`; the
-`match` mapping keeps the same status→exception behavior (extend `tests/yandex/test_errors.py`);
-`from_env` raises the named error when a credential is unset (no HTTP call).
+**Tests:** `Transport.session` applies the passed `timeout_seconds`/`retries`; the `match`
+mapping keeps the same status→exception behavior (extend `tests/yandex/test_errors.py`);
+`from_env` raises `ValidationError` when a credential is unset (no HTTP call), for both a
+resource client and a composition root.
 
 ### 3. `output.py` — Strategy classes, no module global
 
@@ -219,10 +230,11 @@ imports their clients; it is not a resource, so the five-file rule does not appl
   `wiki` → `WikiClient.from_env().me.get()` (`.username`). Each probe is wrapped: a caught
   `YandexAuthError` → `valid=False, detail="token invalid or expired"`; other `YandexError`
   → `valid=False, detail=str(exc)`; success → `valid=True` with the identity.
-- A small `auth` Typer app (`status` command) lives in this module: it reads
-  `YandexSettings()`, reports `configured=False` + non-zero exit (no HTTP) when a credential
-  is missing, else builds the `AuthReport` across all three services. Overall exit code is
-  non-zero if any probed service is invalid.
+- A small `auth` Typer app (`status` command) lives in this module: it constructs
+  `Credentials()` inside a `try` — on `ValidationError` it reports `configured=False` +
+  non-zero exit (no HTTP), naming the missing variable(s) from the error; otherwise it
+  builds the `AuthReport` across all three services. Overall exit code is non-zero if any
+  probed service is invalid.
 - Delete `src/ycli/authcli.py`; `cli.py` imports the `auth` app from `yandex.auth`.
 
 **Tests:** with `responses` stubbing each `/me` endpoint — all-valid → `AuthReport` with
@@ -238,9 +250,15 @@ Move the `ycli mcp` command body into a small dedicated module (e.g.
 (`app.command(name="mcp")(launch_mcp_server)`) so `cli.py` is back to pure mounting +
 registration. Behavior and the "requires the mcp extra" error are unchanged.
 
+Additionally, `cli.py`'s `main()` wrapper catches `pydantic.ValidationError` (raised by
+`from_env` when a credential is missing) alongside the existing `YandexError`, printing the
+same one-line `Error: ...` naming the missing variable instead of a traceback — so a
+credential-less API command stays friendly now that the missing-var check is pydantic's.
+
 **Tests:** the existing `test_mcp_subcommand_launches_server` keeps passing (adjust the
 monkeypatch target to the new module); the missing-extra path still raises the friendly
-`BadParameter`.
+`BadParameter`; a credential-less API command prints the friendly `Error:` line (no
+traceback).
 
 ## File structure (created / modified)
 
