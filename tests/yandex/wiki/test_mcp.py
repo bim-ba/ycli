@@ -37,7 +37,7 @@ async def test_comments_list_tool(creds):
     )
     async with Client(wiki_mcp.mcp) as client:
         result = await client.call_tool("comments_list", {"page_id": 42})
-    assert result.data.results[0].content == "hi"
+    assert result.data[0].content == "hi"
 
 
 @responses.activate
@@ -78,7 +78,7 @@ async def test_attachments_list_tool(creds):
     )
     async with Client(wiki_mcp.mcp) as client:
         result = await client.call_tool("attachments_list", {"page_id": 42})
-    assert result.data.results[0].name == "d.png"
+    assert result.data[0].name == "d.png"
 
 
 async def test_tools_registered_and_read_only():

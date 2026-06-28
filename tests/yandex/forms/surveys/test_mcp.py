@@ -17,12 +17,12 @@ def creds(monkeypatch):
 
 
 @responses.activate
-async def test_surveys_list_tool_returns_envelope(creds):
+async def test_surveys_list_tool_returns_flat_collection(creds):
     responses.add(responses.GET, f"{BASE}/surveys",
                   json={"links": {}, "result": [{"id": "a"}, {"id": "b"}]}, status=200)
     async with Client(surveys_mcp.mcp) as client:
         result = await client.call_tool("surveys_list", {})
-    assert [s.id for s in result.data.result] == ["a", "b"]
+    assert [s.id for s in result.data] == ["a", "b"]
 
 
 @responses.activate

@@ -1,4 +1,4 @@
-"""TDD for `forms surveys` CLI — list dumps the envelope; get dumps one survey."""
+"""TDD for `forms surveys` CLI — list dumps flat SurveyCollection; get dumps one survey."""
 import json
 
 import pytest
@@ -19,12 +19,12 @@ def creds(monkeypatch):
 
 
 @responses.activate
-def test_list_dumps_envelope():
+def test_list_dumps_flat_collection():
     responses.add(responses.GET, f"{BASE}/surveys",
                   json={"links": {}, "result": [{"id": "a", "name": "A"}]}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "forms", "surveys", "list"])
     assert res.exit_code == 0
-    assert json.loads(res.stdout)["result"][0]["id"] == "a"
+    assert json.loads(res.stdout)[0]["id"] == "a"
 
 
 @responses.activate
