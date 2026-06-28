@@ -8,7 +8,6 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.settings import AppConfig
 from ycli.yandex.forms._args import (
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -30,7 +29,7 @@ def list_(
 ) -> None:
     """List a form's responses (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or AppConfig().max_items)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
     Serializer.serialize(
         app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console
     )

@@ -8,7 +8,6 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.settings import AppConfig
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
@@ -37,7 +36,7 @@ def descendants(
 ) -> None:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or AppConfig().max_items)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
     Serializer.serialize(
         app_ctx.wiki.pages.descendants(slug=slug, limit=cap), app_ctx.strategy, app_ctx.console
     )
