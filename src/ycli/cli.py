@@ -9,7 +9,7 @@ from typing import Annotated
 
 import typer
 
-from ycli.authcli import app as auth_app
+from ycli.yandex.auth import app as auth_app
 from ycli.log import configure
 from ycli.output import OutputFormat, set_format
 from ycli.yandex.settings import AppConfig
