@@ -65,8 +65,7 @@ Notable shared pieces:
   `transport.py`.
 - **ARCH-10 — No shadowing of configurable values.** A configurable value is never overridden by
   a hardcoded literal that wins over the configured one (the `@uplink.timeout(30)` bug). *Check:*
-  grep — no `@uplink.timeout`; no `max_items`/page-size literal at a call site inside
-  `cli.py`/`mcp.py`/leaf `client.py`. **Carve-out:** the public SDK constructor signature
+  grep — no `@uplink.timeout` anywhere. **Carve-out:** the public SDK constructor signature
   defaults (`timeout_seconds: int = 30`, `retries: int = 3`) are parameter defaults, not
   shadowing — they apply only when the caller passes nothing, and `AppContext` always passes the
   configured value. These two literals must stay equal to `AppConfig`'s defaults; a test asserts
@@ -84,6 +83,11 @@ review cover the rest):
 - **ARCH-5 is single-source-of-truth, not secret scanning.** It catches hardcoded `__version__`,
   `YANDEX_ID_*` assignments, and org-header strings — not an arbitrary raw token literal (that is
   the job of the token-leak guard, a separate piece of work).
+- **ARCH-10 enforces the timeout/retries case, not `max_items`.** The `@uplink.timeout` grep plus
+  the SDK-defaults test cover the historical shadowing bug. A hardcoded pagination cap is NOT
+  grep-enforced — a literal `500` collides with the HTTP `500` status code in `transport.py`, so a
+  reliable check isn't worth the false positives; call sites read `AppConfig().max_items`, and the
+  single-config-source rule (ARCH-8) keeps the default in `settings.py`.
 - **ARCH-6 locks names, not signatures.** A tool/command keeping its name while changing its
   parameters, description, or return type does not trip the snapshot.
 
