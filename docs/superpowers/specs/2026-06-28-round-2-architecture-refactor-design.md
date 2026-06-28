@@ -37,7 +37,7 @@ updated to encode the new principles.
   `@staticmethod serialize(model: BaseModel, strategy: SerializationStrategy, console: Console)`
   — the single dispatch point that replaces the old global `_STRATEGIES` map and the scattered
   top-level helpers. Models stay **plain pydantic** (no `.serialize()` method); a shared
-  `ApiModel` base carries only lenient parse config. Format→strategy resolution is a
+  `APIModel` base carries only lenient parse config. Format→strategy resolution is a
   `SerializationStrategy.from_format(output_format)` factory. Reframes ARCH-4 to "serialization
   confinement".
 - **Bounded auto-pagination via a `PaginationStrategy` ABC.** Clients follow cursors
@@ -260,10 +260,10 @@ methods/attributes of `PrettyStrategy`. Format→strategy resolution is a factor
 (no module global): `SerializationStrategy.from_format(output_format) -> SerializationStrategy`.
 The top-level `render()` and `cliformat.output_format` are removed; `cliformat.py` is deleted.
 
-**Model base — `ApiModel`** (new `src/ycli/models.py`, pure pydantic, no serialization): the
+**Model base — `APIModel`** (new `src/ycli/models.py`, pure pydantic, no serialization): the
 four scattered `_Lenient` bases (tracker, forms, two inline copies in wiki) consolidate into
-one `ApiModel(BaseModel)` carrying `model_config = ConfigDict(extra="ignore",
-populate_by_name=True)`. Every `models.py` class inherits `ApiModel`. Pagination collections
+one `APIModel(BaseModel)` carrying `model_config = ConfigDict(extra="ignore",
+populate_by_name=True)`. Every `models.py` class inherits `APIModel`. Pagination collections
 (item 4) are `RootModel[...]` subclasses; `Serializer.serialize` accepts any `BaseModel`
 (including `RootModel`), so collections need no extra base.
 
@@ -272,7 +272,7 @@ populate_by_name=True)`. Every `models.py` class inherits `ApiModel`. Pagination
   app = AppContext.from_typer_context(ctx)
   Serializer.serialize(app.tracker.issues.get(key), app.strategy, app.console)
   ```
-- The public Python SDK returns plain `ApiModel` instances; SDK callers use pydantic directly
+- The public Python SDK returns plain `APIModel` instances; SDK callers use pydantic directly
   (`.model_dump()`), and never need `Serializer` (presentation is a CLI concern). MCP keeps
   returning JSON via `output.py` (the only place `model_dump_json` lives).
 
@@ -317,10 +317,10 @@ list tools use the default cap (no cursor parameter); their descriptions state t
   (tracker→`login`, wiki→`username`, forms→`email`).
 - **`scripts/new_endpoint.py`:** fix the CLI template to emit the post-refactor pattern
   (`app = AppContext.from_typer_context(ctx); Serializer.serialize(result, app.strategy,
-  app.console)`) with the right imports; ensure scaffolded models inherit `ApiModel` and (for
+  app.console)`) with the right imports; ensure scaffolded models inherit `APIModel` and (for
   list endpoints) wire a `PaginationStrategy`.
 - **Wiki `_models.py`:** add it (mirroring tracker/forms) so the three inline `_Lenient`
-  copies collapse into the shared `ApiModel` (with `populate_by_name=True`).
+  copies collapse into the shared `APIModel` (with `populate_by_name=True`).
 - **Type-alias dedupe:** `KeyArg` (tracker, 4 copies, one with drifted help text) → a single
   `tracker/_args.py`; `SurveyIdArg` (forms, 3 copies) → `forms/_args.py`.
 - **`RO` MCP-annotation dict** (tripled across the three `_deps.py`) → one shared definition.
@@ -329,13 +329,13 @@ list tools use the default cap (no cursor parameter); their descriptions state t
 
 ## File structure (high level)
 
-- Create: `src/ycli/context.py` (`AppContext`), `src/ycli/models.py` (`ApiModel` base),
+- Create: `src/ycli/context.py` (`AppContext`), `src/ycli/models.py` (`APIModel` base),
   `src/ycli/yandex/pagination.py` (`PaginationStrategy` + concrete strategies),
   `src/ycli/yandex/wiki/_models.py`, `src/ycli/yandex/{tracker,forms}/_args.py`.
 - Modify: `output.py` (`Serializer` + `SerializationStrategy` strategies absorb
   helpers), `transport.py` (inline header, `base=` session), `base.py` (drop `FromEnvSession`),
   the three composition-root `client.py` (raw-arg constructor), every `models.py` (inherit
-  `ApiModel`), every list `client.py` (use a strategy) + list `cli.py`/`mcp.py` (`--limit`/`--all`,
+  `APIModel`), every list `client.py` (use a strategy) + list `cli.py`/`mcp.py` (`--limit`/`--all`,
   drop `--cursor`), `cli.py` (`AppContext`), `mcp.py` (`lifespan`), the three `_deps.py`
   (read lifespan context), `auth.py` (probe loop + own carve-out), `settings.py` (`max_items`),
   `scripts/new_endpoint.py`, `ARCHITECTURE.md` + `tests/test_architecture.py`.
@@ -345,8 +345,8 @@ list tools use the default cap (no cursor parameter); their descriptions state t
 
 On `feat/round-2-refactor`, subagent-driven. Foundations first so each phase stays green:
 
-1. **`ApiModel` base + `Serializer`/`SerializationStrategy` absorb the output helpers**
-   (`output.py` + new `models.py`), models inherit `ApiModel`, the top-level `render()` and its
+1. **`APIModel` base + `Serializer`/`SerializationStrategy` absorb the output helpers**
+   (`output.py` + new `models.py`), models inherit `APIModel`, the top-level `render()` and its
    helpers are removed, call sites become `Serializer.serialize(result,
    SerializationStrategy.from_format(cliformat.output_format(ctx)), Console())` — reusing the
    existing `cliformat.output_format(ctx)` helper from v0.6.0 (still present at this point) so
