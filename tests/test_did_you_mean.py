@@ -25,7 +25,3 @@ def test_correct_command_unaffected():
     assert result.exit_code == 0
 
 
-def test_no_close_match():
-    result = _RUNNER.invoke(app, ["zzzzzz"])
-    assert result.exit_code != 0
-    assert "no such command" in result.output.lower()

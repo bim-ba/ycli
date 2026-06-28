@@ -9,7 +9,6 @@ from typing import Annotated
 
 import typer
 
-from ycli._group import SuggestGroup
 from ycli.authcli import app as auth_app
 from ycli.log import configure
 from ycli.output import OutputFormat, set_format
@@ -22,7 +21,6 @@ app = typer.Typer(
     help="ycli — Yandex 360 API SDK CLI.",
     no_args_is_help=True,
     pretty_exceptions_show_locals=False,
-    cls=SuggestGroup,
 )
 
 

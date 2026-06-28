@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import typer
 
-from ycli._group import SuggestGroup
 from ycli.yandex.tracker.changelog.cli import app as changelog_app
 from ycli.yandex.tracker.comments.cli import app as comments_app
 from ycli.yandex.tracker.issues.cli import app as issues_app
@@ -15,7 +14,7 @@ from ycli.yandex.tracker.priorities.cli import app as priorities_app
 from ycli.yandex.tracker.transitions.cli import app as transitions_app
 from ycli.yandex.tracker.worklog.cli import app as worklog_app
 
-app = typer.Typer(name="tracker", help="Yandex Tracker read/write.", no_args_is_help=True, cls=SuggestGroup)
+app = typer.Typer(name="tracker", help="Yandex Tracker read/write.", no_args_is_help=True)
 
 app.add_typer(me_app)
 app.add_typer(issues_app)

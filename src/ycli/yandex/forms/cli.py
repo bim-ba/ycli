@@ -3,13 +3,12 @@ from __future__ import annotations
 
 import typer
 
-from ycli._group import SuggestGroup
 from ycli.yandex.forms.answers.cli import app as answers_app
 from ycli.yandex.forms.me.cli import app as me_app
 from ycli.yandex.forms.questions.cli import app as questions_app
 from ycli.yandex.forms.surveys.cli import app as surveys_app
 
-app = typer.Typer(name="forms", help="Yandex Forms read.", no_args_is_help=True, cls=SuggestGroup)
+app = typer.Typer(name="forms", help="Yandex Forms read.", no_args_is_help=True)
 
 app.add_typer(me_app)
 app.add_typer(surveys_app)
