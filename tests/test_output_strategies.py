@@ -1,5 +1,4 @@
 """output.py serialization strategies."""
-import io
 from io import StringIO
 
 from pydantic import BaseModel
@@ -48,11 +47,13 @@ def test_auto_strategy_is_json_when_piped():
 
 def test_from_format_maps_each_choice():
     assert isinstance(SerializationStrategy.from_format(OutputFormat.json), JsonStrategy)
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.yaml), YamlStrategy)
     assert isinstance(SerializationStrategy.from_format(OutputFormat.pretty), PrettyStrategy)
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.auto), AutoStrategy)
 
 
 def test_serializer_dispatches_to_strategy_render():
-    buf = io.StringIO()
+    buf = StringIO()
     console = Console(file=buf, force_terminal=False)
     Serializer.serialize(_M(key="DE-1"), SerializationStrategy.from_format(OutputFormat.json), console)
     assert '"key":"DE-1"' in buf.getvalue().replace(" ", "")
