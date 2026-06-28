@@ -103,3 +103,38 @@ def test_list_all_respects_limit():
     ar = _client().list_all(SID, limit=1)
     assert len(ar.answers) == 1
     assert ar.next is None
+    assert len(responses.calls) == 1  # limit satisfied by page 1 — no second fetch
+
+
+@responses.activate
+def test_list_all_limit_spans_pages():
+    """limit=3 forces a second-page fetch (page 1 has 2 answers) then truncates within page 2."""
+    responses.add(
+        responses.GET, f"{BASE}/surveys/{SID}/answers",
+        json={
+            "columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
+            "answers": [
+                {"id": 1, "created": "x", "data": []},
+                {"id": 2, "created": "x", "data": []},
+            ],
+            "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=2&page_size=2"},
+        },
+        status=200,
+    )
+    responses.add(
+        responses.GET, f"{BASE}/surveys/{SID}/answers",
+        json={
+            "columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
+            "answers": [
+                {"id": 3, "created": "x", "data": []},
+                {"id": 4, "created": "x", "data": []},
+            ],
+            "next": None,
+        },
+        status=200,
+    )
+    ar = _client().list_all(SID, limit=3)
+    assert len(ar.answers) == 3  # page 1 (2) + page 2 first 1, truncated
+    assert [a.id for a in ar.answers] == [1, 2, 3]
+    assert ar.next is None
+    assert len(responses.calls) == 2  # page boundary was crossed
