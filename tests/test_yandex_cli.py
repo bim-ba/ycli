@@ -37,7 +37,13 @@ def test_mcp_subcommand_launches_server(monkeypatch):
 
 
 def test_completion_is_enabled():
-    """Shell completion is enabled: --install-completion appears in --help."""
-    result = runner.invoke(cli.app, ["--help"])
-    assert result.exit_code == 0
-    assert "install-completion" in result.output
+    """Shell completion is enabled: the completion options are registered on the root app.
+
+    Checked via the resolved Click command's params (width-independent) rather than the
+    rendered --help text, which rich truncates the option name on a narrow terminal.
+    """
+    from typer.main import get_command
+
+    params = {p.name for p in get_command(cli.app).params}
+    assert "install_completion" in params
+    assert "show_completion" in params
