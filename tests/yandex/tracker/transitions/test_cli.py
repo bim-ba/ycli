@@ -43,4 +43,4 @@ def test_execute_with_field():
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout) == [{"id": "reopen"}]
-    assert json.loads(responses.calls[0].request.body) == {"comment": "done"}
+    assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]

@@ -28,7 +28,7 @@ def test_app_config_reads_overrides(monkeypatch):
 def test_credentials_read_env(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    creds = Credentials()
+    creds = Credentials()  # ty: ignore[missing-argument]
     assert creds.oauth_token == "tok"
     assert creds.organization_id == "org"
 
@@ -38,7 +38,7 @@ def test_credentials_missing_raises(tmp_path, monkeypatch):
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.chdir(tmp_path)  # ensure no .env file is picked up
     with pytest.raises(ValidationError):
-        Credentials()
+        Credentials()  # ty: ignore[missing-argument]
 
 
 def test_settings_read_dotenv(tmp_path, monkeypatch):

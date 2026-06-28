@@ -18,7 +18,7 @@ class _Row(BaseModel):
 def _render(model: BaseModel, *, terminal: bool) -> str:
     console = Console(file=io.StringIO(), force_terminal=terminal, width=200)
     Serializer.serialize(model, SerializationStrategy.from_format(OutputFormat.pretty), console)
-    return console.file.getvalue()
+    return console.file.getvalue()  # ty: ignore[unresolved-attribute]
 
 
 def test_key_is_linked_on_terminal():

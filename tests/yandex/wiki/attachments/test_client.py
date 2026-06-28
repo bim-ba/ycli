@@ -37,4 +37,4 @@ def test_list_attachments_for_page_id():
     out = _client().list(page_id=42)
     assert isinstance(out, AttachmentList)
     assert out.root[0].name == "f.pdf"
-    assert responses.calls[0].request.params["page_size"] == "100"
+    assert responses.calls[0].request.params["page_size"] == "100"  # ty: ignore[unresolved-attribute]

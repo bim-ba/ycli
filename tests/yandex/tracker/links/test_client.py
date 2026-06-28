@@ -46,7 +46,7 @@ def test_add_posts_body():
     )
     lk = _client().add("DE-1", body={"relationship": "relates", "issue": "DE-2"})
     assert isinstance(lk, Link) and lk.id == 7
-    assert json.loads(responses.calls[0].request.body) == {
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "relationship": "relates",
         "issue": "DE-2",
     }

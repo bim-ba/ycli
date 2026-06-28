@@ -37,4 +37,4 @@ def test_add_posts_body():
     )
     c = _client().add("DE-1", body={"text": "added"})
     assert isinstance(c, Comment) and c.id == 5
-    assert json.loads(responses.calls[0].request.body) == {"text": "added"}
+    assert json.loads(responses.calls[0].request.body) == {"text": "added"}  # ty: ignore[invalid-argument-type]

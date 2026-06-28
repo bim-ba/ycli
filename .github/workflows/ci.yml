@@ -38,6 +38,9 @@ jobs:
         run: uv run ruff check .
       - name: Check architecture boundaries
         run: uv run lint-imports
+      - name: Type check (advisory)
+        run: uv run ty check
+        continue-on-error: true
       - name: Run tests
         run: uv run pytest
 

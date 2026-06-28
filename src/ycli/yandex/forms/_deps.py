@@ -18,7 +18,7 @@ TAGS: set[str] = {"forms"}
 @cache
 def forms_client() -> FormsClient:
     """Build (once) and return the forms client from the environment."""
-    credentials, config = Credentials(), AppConfig()
+    credentials, config = Credentials(), AppConfig()  # ty: ignore[missing-argument]
     return FormsClient(
         oauth_token=credentials.oauth_token,
         organization_id=credentials.organization_id,

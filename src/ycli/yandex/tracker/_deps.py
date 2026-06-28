@@ -18,7 +18,7 @@ TAGS: set[str] = {"tracker"}
 @cache
 def tracker_client() -> TrackerClient:
     """Build (once) and return the tracker client from the environment."""
-    credentials, config = Credentials(), AppConfig()
+    credentials, config = Credentials(), AppConfig()  # ty: ignore[missing-argument]
     return TrackerClient(
         oauth_token=credentials.oauth_token,
         organization_id=credentials.organization_id,

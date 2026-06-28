@@ -43,7 +43,7 @@ def test_mcp_subcommand_launches_server(monkeypatch):
 def test_mcp_command_registered_from_launcher():
     from typer.main import get_command
 
-    names = get_command(cli.app).commands  # click Group.commands maps name -> Command
+    names = get_command(cli.app).commands  # ty: ignore[unresolved-attribute]  # click Group.commands maps name -> Command
     assert "mcp" in names
 
 
@@ -52,7 +52,7 @@ def test_appcontext_strategy_and_retrieval():
     assert app.output_format is OutputFormat.pretty
     assert isinstance(app.strategy, PrettyStrategy)
     # from_typer_context just returns ctx.obj (set by the root callback)
-    assert AppContext.from_typer_context(SimpleNamespace(obj=app)) is app
+    assert AppContext.from_typer_context(SimpleNamespace(obj=app)) is app  # ty: ignore[invalid-argument-type]
 
 
 def test_completion_is_enabled():

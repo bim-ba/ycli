@@ -43,7 +43,7 @@ class AppContext:
 
     def _client(self, name: str, factory: type) -> object:
         if name not in self._clients:
-            self._credentials = self._credentials or Credentials()  # raises if env unset
+            self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]  # raises if env unset
             self._config = self._config or AppConfig()
             self._clients[name] = factory(
                 oauth_token=self._credentials.oauth_token,
@@ -55,12 +55,12 @@ class AppContext:
 
     @property
     def tracker(self) -> TrackerClient:
-        return self._client("tracker", TrackerClient)  # type: ignore[return-value]
+        return self._client("tracker", TrackerClient)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
     @property
     def wiki(self) -> WikiClient:
-        return self._client("wiki", WikiClient)  # type: ignore[return-value]
+        return self._client("wiki", WikiClient)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
     @property
     def forms(self) -> FormsClient:
-        return self._client("forms", FormsClient)  # type: ignore[return-value]
+        return self._client("forms", FormsClient)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]

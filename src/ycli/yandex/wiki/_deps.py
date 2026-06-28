@@ -18,7 +18,7 @@ TAGS: set[str] = {"wiki"}
 @cache
 def wiki_client() -> WikiClient:
     """Build (once) and return the wiki client from the environment."""
-    credentials, config = Credentials(), AppConfig()
+    credentials, config = Credentials(), AppConfig()  # ty: ignore[missing-argument]
     return WikiClient(
         oauth_token=credentials.oauth_token,
         organization_id=credentials.organization_id,

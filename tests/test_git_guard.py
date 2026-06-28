@@ -20,8 +20,8 @@ _HOOK = Path(__file__).resolve().parent.parent / ".claude" / "hooks" / "git_guar
 
 def _load():
     spec = importlib.util.spec_from_file_location("git_guard", _HOOK)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module = importlib.util.module_from_spec(spec)  # ty: ignore[invalid-argument-type]
+    spec.loader.exec_module(module)  # ty: ignore[unresolved-attribute]
     return module
 
 

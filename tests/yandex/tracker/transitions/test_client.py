@@ -40,4 +40,4 @@ def test_execute_posts_body_returns_raw():
     )
     out = _client().execute("DE-1", "close", body={"comment": "done"})
     assert out == [{"id": "reopen", "display": "Reopen"}]
-    assert json.loads(responses.calls[0].request.body) == {"comment": "done"}
+    assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]

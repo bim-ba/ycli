@@ -36,9 +36,9 @@ class AuthReport(APIModel):
 
 
 _PROBES: list[tuple[str, type, Callable[[object], str]]] = [
-    ("tracker", TrackerClient, lambda me: me.login),
-    ("wiki", WikiClient, lambda me: me.username),
-    ("forms", FormsClient, lambda me: me.email),
+    ("tracker", TrackerClient, lambda me: me.login),  # ty: ignore[unresolved-attribute]
+    ("wiki", WikiClient, lambda me: me.username),  # ty: ignore[unresolved-attribute]
+    ("forms", FormsClient, lambda me: me.email),  # ty: ignore[unresolved-attribute]
 ]
 
 
@@ -66,7 +66,7 @@ def status(ctx: typer.Context) -> None:
         "organization_id": "YANDEX_ID_ORGANIZATION_ID",
     }
     try:
-        credentials = Credentials()
+        credentials = Credentials()  # ty: ignore[missing-argument]
     except ValidationError as exc:
         missing = ", ".join(env_names.get(str(e["loc"][0]), str(e["loc"][0])) for e in exc.errors())
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)

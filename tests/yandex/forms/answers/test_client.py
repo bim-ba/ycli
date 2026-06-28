@@ -72,7 +72,7 @@ def test_list_all_follows_next_url_and_concatenates():
     assert ar.columns[0].text == "T"  # columns kept from the first page
     assert ar.next is None  # merged envelope is fully drained
     assert len(responses.calls) == 2  # page 1 + the followed next_url
-    assert "id=100" in responses.calls[1].request.url  # followed the server's cursor verbatim
+    assert "id=100" in responses.calls[1].request.url  # ty: ignore[unsupported-operator]  # followed the server's cursor verbatim
 
 
 @responses.activate

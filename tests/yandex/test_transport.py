@@ -26,8 +26,8 @@ def test_session_sets_auth_and_org_headers():
 def test_session_applies_configured_timeout_and_retries():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=12.5, retries=7)
     adapter = s.get_adapter("https://example.com")
-    assert adapter._timeout == 12.5
-    assert adapter.max_retries.total == 7
+    assert adapter._timeout == 12.5  # ty: ignore[unresolved-attribute]
+    assert adapter.max_retries.total == 7  # ty: ignore[unresolved-attribute]
 
 
 def test_session_rejects_empty_credentials():
@@ -50,15 +50,15 @@ def test_session_carries_auth_and_org_headers():
 def test_session_mounts_retry_adapter_on_https():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     adapter = s.get_adapter("https://api.wiki.yandex.net/v1/pages")
-    assert adapter.max_retries.total == 3
-    assert 429 in adapter.max_retries.status_forcelist
-    assert 500 in adapter.max_retries.status_forcelist
+    assert adapter.max_retries.total == 3  # ty: ignore[unresolved-attribute]
+    assert 429 in adapter.max_retries.status_forcelist  # ty: ignore[unresolved-attribute]
+    assert 500 in adapter.max_retries.status_forcelist  # ty: ignore[unresolved-attribute]
 
 
 def test_post_not_retried_only_idempotent_methods():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     adapter = s.get_adapter("https://api.wiki.yandex.net/v1/pages")
-    methods = adapter.max_retries.allowed_methods
+    methods = adapter.max_retries.allowed_methods  # ty: ignore[unresolved-attribute]
     assert "POST" not in methods
     assert "GET" in methods
 
@@ -82,7 +82,7 @@ def test_timeout_adapter_injects_default_when_none(monkeypatch):
         captured.update(kwargs)
         return requests.Response()
 
-    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)
+    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)  # ty: ignore[possibly-missing-submodule]
     adapter = _TimeoutAdapter(timeout=12.5)
     prepared = requests.Request("GET", "https://example.com").prepare()
 
@@ -99,7 +99,7 @@ def test_timeout_adapter_passes_explicit_timeout_through(monkeypatch):
         captured.update(kwargs)
         return requests.Response()
 
-    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)
+    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)  # ty: ignore[possibly-missing-submodule]
     adapter = _TimeoutAdapter(timeout=12.5)
     prepared = requests.Request("GET", "https://example.com").prepare()
 

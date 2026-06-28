@@ -43,7 +43,7 @@ def test_add():
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["id"] == 7
-    assert json.loads(responses.calls[0].request.body) == {
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "relationship": "relates",
         "issue": "DE-2",
     }

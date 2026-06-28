@@ -52,7 +52,7 @@ def test_list_builds_filter_body():
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)[0]["key"] == "DE-1"
-    assert json.loads(responses.calls[0].request.body) == {
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "filter": {"queue": "DE", "status": "open"}
     }
 
@@ -64,7 +64,7 @@ def test_search_builds_query_body():
         cli.app, ["--format", "json", "tracker", "issues", "search", "Queue: DE AND Status: open"]
     )
     assert res.exit_code == 0
-    assert json.loads(responses.calls[0].request.body) == {"query": "Queue: DE AND Status: open"}
+    assert json.loads(responses.calls[0].request.body) == {"query": "Queue: DE AND Status: open"}  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate
@@ -73,7 +73,7 @@ def test_count_query():
     res = runner.invoke(cli.app, ["tracker", "issues", "count", "--query", "Queue: DE"])
     assert res.exit_code == 0
     assert res.stdout.strip() == "42"
-    assert json.loads(responses.calls[0].request.body) == {"query": "Queue: DE"}
+    assert json.loads(responses.calls[0].request.body) == {"query": "Queue: DE"}  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate
@@ -84,7 +84,7 @@ def test_count_filters():
     )
     assert res.exit_code == 0
     assert res.stdout.strip() == "3"
-    assert json.loads(responses.calls[0].request.body) == {
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "filter": {"queue": "DE", "status": "open"}
     }
 
@@ -124,7 +124,7 @@ def test_create_assembles_body_with_polymorphic_wrap_and_fields():
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["key"] == "DE-10"
-    sent = json.loads(responses.calls[0].request.body)
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {
         "queue": "DE",
         "summary": "New",
@@ -158,7 +158,7 @@ def test_update_assembles_partial_body():
         ],
     )
     assert res.exit_code == 0
-    sent = json.loads(responses.calls[0].request.body)
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {"summary": "U", "type": {"key": "bug"}}
 
 
@@ -193,7 +193,7 @@ def test_update_assembles_full_body():
         ],
     )
     assert res.exit_code == 0
-    sent = json.loads(responses.calls[0].request.body)
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {
         "summary": "U",
         "type": {"key": "bug"},

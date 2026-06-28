@@ -50,7 +50,7 @@ def test_search_returns_issuelist():
     out = _client().search(body={"filter": {"queue": "DE"}})
     assert isinstance(out, IssueList)
     assert [i.key for i in out.root] == ["DE-1", "DE-2"]
-    assert json.loads(responses.calls[0].request.body) == {"filter": {"queue": "DE"}}
+    assert json.loads(responses.calls[0].request.body) == {"filter": {"queue": "DE"}}  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate
@@ -66,7 +66,7 @@ def test_create_posts_body():
     )
     i = _client().create(body={"queue": "DE", "summary": "New"})
     assert i.key == "DE-10"
-    assert json.loads(responses.calls[0].request.body) == {"queue": "DE", "summary": "New"}
+    assert json.loads(responses.calls[0].request.body) == {"queue": "DE", "summary": "New"}  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate

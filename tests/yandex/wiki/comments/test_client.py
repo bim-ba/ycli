@@ -37,4 +37,4 @@ def test_list_comments_for_page_id():
     out = _client().list(page_id=42)
     assert isinstance(out, CommentList)
     assert out.root[0].content == "hi"
-    assert responses.calls[0].request.params["page_size"] == "100"
+    assert responses.calls[0].request.params["page_size"] == "100"  # ty: ignore[unresolved-attribute]

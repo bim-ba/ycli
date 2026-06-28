@@ -55,7 +55,7 @@ def test_pages_create_dumps_model_json():
     assert result.exit_code == 0
     out = json.loads(result.stdout)
     assert out["id"] == 7 and out["slug"] == "data/x"
-    sent = json.loads(responses.calls[0].request.body)
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {"slug": "data/x", "title": "T", "content": "# B"}
 
 
@@ -72,7 +72,7 @@ def test_pages_descendants_dumps_flat_list():
     out = json.loads(result.stdout)
     assert out[0]["slug"] == "data/x/child"
     req = responses.calls[-1].request
-    assert req.params["slug"] == "data/x"
+    assert req.params["slug"] == "data/x"  # ty: ignore[unresolved-attribute]
 
 
 @responses.activate
@@ -134,7 +134,7 @@ def test_pages_update_dumps_model_json():
     assert result.exit_code == 0
     out = json.loads(result.stdout)
     assert out["id"] == 77 and out["title"] == "New"
-    sent = json.loads(responses.calls[0].request.body)
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {"content": "# U", "title": "New"}
 
 

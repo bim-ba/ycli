@@ -37,4 +37,4 @@ def test_add():
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["id"] == 5
-    assert json.loads(responses.calls[0].request.body) == {"text": "added"}
+    assert json.loads(responses.calls[0].request.body) == {"text": "added"}  # ty: ignore[invalid-argument-type]

@@ -17,4 +17,4 @@ def test_base_url_classvar_is_used_and_normalized():
 
 def test_init_requires_keyword_session():
     with pytest.raises(TypeError):
-        _Demo()  # type: ignore[call-arg]
+        _Demo()  # type: ignore[call-arg]  # ty: ignore[missing-argument]

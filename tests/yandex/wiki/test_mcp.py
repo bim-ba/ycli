@@ -66,7 +66,7 @@ async def test_pages_descendants_tool(creds):
     async with Client(wiki_mcp.mcp) as client:
         result = await client.call_tool("pages_descendants", {"slug": "it"})
     assert result.data[0].slug == "it/child"
-    assert responses.calls[-1].request.params["slug"] == "it"
+    assert responses.calls[-1].request.params["slug"] == "it"  # ty: ignore[unresolved-attribute]
 
 
 @responses.activate

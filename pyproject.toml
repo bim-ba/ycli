@@ -97,6 +97,7 @@ dev = [
     "pytest-cov>=7.1.0",
     "responses>=0.26.1",
     "ruff>=0.15.20",
+    "ty>=0.0.55",
 ]
 
 # Automated versioning from Conventional Commits. CI runs `semantic-release version`
@@ -141,6 +142,16 @@ known-first-party = ["ycli"]
 "tests/**/*.py" = ["N802", "ANN"]
 "scripts/**/*.py" = ["T201", "ANN"]
 "src/ycli/yandex/**/client.py" = ["ANN"]
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.terminal]
+error-on-warning = true
+
+[tool.ty.rules]
+possibly-unresolved-reference = "error"
+unused-ignore-comment = "warn"
 
 [tool.importlinter]
 root_package = "ycli"

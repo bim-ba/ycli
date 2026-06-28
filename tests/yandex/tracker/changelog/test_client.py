@@ -37,4 +37,4 @@ def test_list_passes_perpage_and_parses_polymorphic_fields():
     e = out.root[0]
     assert e.author_display == "Сава"
     assert e.fields[0].to == {"key": "done", "display": "Готово"}  # polymorphic passthrough
-    assert responses.calls[0].request.params["perPage"] == "50"
+    assert responses.calls[0].request.params["perPage"] == "50"  # ty: ignore[unresolved-attribute]
