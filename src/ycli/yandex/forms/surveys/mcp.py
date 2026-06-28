@@ -5,13 +5,13 @@ from fastmcp.dependencies import Depends
 
 from ycli.yandex.forms._deps import RO, TAGS, forms_client
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.surveys.models import Survey, SurveyCollection
+from ycli.yandex.forms.surveys.models import Survey, SurveyList
 
 mcp = FastMCP("forms-surveys")
 
 
 @mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
-def list_(client: FormsClient = Depends(forms_client)) -> SurveyCollection:
+def list_(client: FormsClient = Depends(forms_client)) -> SurveyList:
     """Every form (survey) the caller can see."""
     return client.surveys.list()
 

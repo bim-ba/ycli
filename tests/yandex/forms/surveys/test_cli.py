@@ -1,4 +1,4 @@
-"""TDD for `forms surveys` CLI — list dumps flat SurveyCollection; get dumps one survey."""
+"""TDD for `forms surveys` CLI — list dumps flat SurveyList; get dumps one survey."""
 
 import json
 

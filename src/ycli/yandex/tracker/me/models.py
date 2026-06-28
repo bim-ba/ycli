@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from ycli.yandex.models import APIModel
 
 
-class Me(BaseModel):
+class Me(APIModel):
     """The authenticated Tracker user (``GET /v3/myself``) — a safe auth probe."""
 
     uid: int | None = None

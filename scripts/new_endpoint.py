@@ -80,8 +80,7 @@ from __future__ import annotations
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex._mcp import RO
-from ycli.yandex.{domain}._deps import TAGS, {domain}_client
+from ycli.yandex.{domain}._deps import RO, TAGS, {domain}_client
 from ycli.yandex.{domain}.client import {domain_cls}Client
 from ycli.yandex.{domain}.{resource}.models import {cls}
 

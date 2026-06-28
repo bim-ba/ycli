@@ -95,6 +95,12 @@ review cover the rest):
 - **ARCH-6 locks names, not signatures.** A tool/command keeping its name while changing its
   parameters, description, or return type does not trip the snapshot.
 
+## Resource conventions (models, naming, MCP imports)
+
+The conventions that ARCH-1..10 do not capture — `APIModel` inheritance, `XList`/`XResponse`
+naming, the `_deps` import path, and the raw-accessor pattern — are documented in
+[`docs/conventions/resources.md`](docs/conventions/resources.md).
+
 ## Changing an invariant
 
 These are deliberate, not incidental. To change one: edit this file **and** its enforcing check

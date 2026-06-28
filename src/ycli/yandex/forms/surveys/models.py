@@ -1,4 +1,4 @@
-"""Pydantic models for Forms /surveys (Survey + SurveyList envelope + SurveyCollection)."""
+"""Pydantic models for Forms /surveys (Survey + SurveysResponse envelope + SurveyList)."""
 
 from __future__ import annotations
 
@@ -35,13 +35,13 @@ class Survey(APIModel):
     is_favourite: bool | None = None
 
 
-class SurveyList(APIModel):
+class SurveysResponse(APIModel):
     """Envelope for ``GET /v1/surveys`` — ``{links, result:[Survey]}``.
 
     Internal per-page parse type used by ``SurveysClient._list_page``.
 
     Example:
-        >>> SurveyList.model_validate({"result": [{"id": "a"}]}).result[0].id
+        >>> SurveysResponse.model_validate({"result": [{"id": "a"}]}).result[0].id
         'a'
     """
 
@@ -49,11 +49,11 @@ class SurveyList(APIModel):
     result: list[Survey] = Field(default_factory=list)
 
 
-class SurveyCollection(RootModel[list[Survey]]):
+class SurveyList(RootModel[list[Survey]]):
     """Flat collection of :class:`Survey` items — the public return type of ``SurveysClient.list``.
 
     Example:
-        >>> SurveyCollection([Survey.model_validate({"id": "a"})]).root[0].id
+        >>> SurveyList([Survey.model_validate({"id": "a"})]).root[0].id
         'a'
     """
 

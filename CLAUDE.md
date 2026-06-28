@@ -55,8 +55,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Branch → PR → explicit approval before merge.** No direct pushes to `main`.
 - **100% coverage gate.** `uv run pytest` enforces `--cov-fail-under=100`; new code ships
   with tests that keep it green.
-- **New resources via `/new-endpoint`**, respecting the six invariants in
-  [`ARCHITECTURE.md`](ARCHITECTURE.md). Authoring skills/commands follows
+- **New resources via `/new-endpoint`**, respecting the invariants in
+  [`ARCHITECTURE.md`](ARCHITECTURE.md) and the model/naming/import conventions in
+  [`docs/conventions/resources.md`](docs/conventions/resources.md). Authoring skills/commands follows
   [`docs/conventions/skills-and-commands.md`](docs/conventions/skills-and-commands.md).
 
 ## Architecture invariants (enforced)
