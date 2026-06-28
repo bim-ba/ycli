@@ -11,7 +11,6 @@ from ycli.yandex.forms.questions.models import QuestionsResponse
 class QuestionsClient(FormsResource):
     """Declarative HTTP for ``/surveys/{id}/questions``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("surveys/{survey_id}/questions")
     def list(self, survey_id: uplink.Path) -> QuestionsResponse:  # ty: ignore[empty-body]

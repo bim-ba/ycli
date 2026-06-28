@@ -12,7 +12,6 @@ from ycli.yandex.tracker.issues.models import Issue, IssueList
 class IssuesClient(TrackerResource):
     """Declarative HTTP for ``/issues`` (get, search, count, create, update)."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}")
     def get(self, key: uplink.Path) -> Issue:  # ty: ignore[empty-body]
@@ -24,7 +23,6 @@ class IssuesClient(TrackerResource):
             'inProgress'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}")
     def get_raw(self, key: uplink.Path) -> dict:  # ty: ignore[empty-body]
@@ -39,7 +37,6 @@ class IssuesClient(TrackerResource):
             'DATAENGINEERING-1'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/_search")
@@ -52,7 +49,6 @@ class IssuesClient(TrackerResource):
             'DATAENGINEERING-1'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/_count")
@@ -65,7 +61,6 @@ class IssuesClient(TrackerResource):
             137
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/")
@@ -78,7 +73,6 @@ class IssuesClient(TrackerResource):
             'DATAENGINEERING-200'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.patch("issues/{key}")

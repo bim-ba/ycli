@@ -11,7 +11,6 @@ from ycli.yandex.tracker.links.models import Link, LinkList
 class LinksClient(TrackerResource):
     """Declarative HTTP for ``/issues/{key}/links``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}/links")
     def list(self, key: uplink.Path) -> LinkList:  # ty: ignore[empty-body]
@@ -23,7 +22,6 @@ class LinksClient(TrackerResource):
             'DATAENGINEERING-129'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/{key}/links")

@@ -9,6 +9,7 @@ timeout. Empty args raise.
 
 import pytest
 import requests
+import responses
 
 from ycli.yandex.transport import Transport
 
@@ -98,3 +99,34 @@ def test_timeout_adapter_passes_explicit_timeout_through(monkeypatch):
 
     adapter.send(prepared, timeout=3.0)
     assert captured["timeout"] == 3.0
+
+
+from pathlib import Path
+
+
+def test_no_hardcoded_uplink_timeout_in_clients():
+    src = Path(__file__).resolve().parents[2] / "src" / "ycli" / "yandex"
+    offenders = [str(p) for p in src.rglob("client.py") if "@uplink.timeout" in p.read_text()]
+    assert not offenders, offenders
+
+
+@responses.activate
+def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
+    """Timeout from _TimeoutAdapter reaches the request; no per-method override interferes."""
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
+    monkeypatch.setenv("YCLI_TIMEOUT_SECONDS", "99")
+    import requests.adapters
+    from ycli.yandex.transport import _TimeoutAdapter
+    from ycli.yandex.tracker.client import TrackerClient
+    seen: dict = {}
+    real_send = _TimeoutAdapter.send
+    def spy(self, request, **kw):
+        seen["incoming_timeout"] = kw.get("timeout")
+        seen["adapter_timeout"] = self._timeout
+        return real_send(self, request, **kw)
+    monkeypatch.setattr(_TimeoutAdapter, "send", spy)
+    responses.add(responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200)
+    TrackerClient.from_env().priorities.list()
+    assert seen["incoming_timeout"] is None, f"Expected None but got {seen['incoming_timeout']}"
+    assert seen["adapter_timeout"] == 99.0, f"Expected 99.0 but got {seen['adapter_timeout']}"

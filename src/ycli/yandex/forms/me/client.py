@@ -12,7 +12,6 @@ from ycli.yandex.forms.me.models import User
 class MeClient(FormsResource):
     """Declarative HTTP for ``/users/me``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("users/me")
     def get(self) -> User:  # ty: ignore[empty-body]

@@ -12,7 +12,6 @@ from ycli.yandex.wiki.comments.models import CommentsResponse
 class CommentsClient(WikiResource):
     """Declarative HTTP for ``/pages/{id}/comments``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/comments")
     def list(

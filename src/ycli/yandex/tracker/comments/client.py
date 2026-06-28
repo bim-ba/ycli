@@ -11,7 +11,6 @@ from ycli.yandex.tracker.comments.models import Comment, CommentList
 class CommentsClient(TrackerResource):
     """Declarative HTTP for ``/issues/{key}/comments``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("issues/{key}/comments")
     def list(self, key: uplink.Path) -> CommentList:  # ty: ignore[empty-body]
@@ -23,7 +22,6 @@ class CommentsClient(TrackerResource):
             'Сава Знатнов'
         """
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/{key}/comments/")

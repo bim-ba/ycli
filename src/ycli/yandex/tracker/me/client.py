@@ -8,7 +8,6 @@ from ycli.yandex.tracker.me.models import Me
 class MeClient(TrackerResource):
     """Declarative HTTP for ``/myself``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("myself")
     def get(self) -> Me:  # ty: ignore[empty-body]

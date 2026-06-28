@@ -11,7 +11,6 @@ from ycli.yandex.tracker.priorities.models import PriorityList
 class PrioritiesClient(TrackerResource):
     """Declarative HTTP for ``/priorities``."""
 
-    @uplink.timeout(30)
     @uplink.returns.json()
     @uplink.get("priorities")
     def list(self) -> PriorityList:  # ty: ignore[empty-body]
