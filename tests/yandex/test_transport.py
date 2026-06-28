@@ -114,15 +114,24 @@ def test_no_hardcoded_uplink_timeout_in_clients():
 
 
 def test_session_configures_a_supplied_bare_base():
-    from ycli.yandex.transport import _raise_typed, _TimeoutAdapter
+    from ycli.yandex.transport import _TimeoutAdapter
 
     bare = requests.Session()
     out = Transport.session(oauth_token="t", organization_id="o", base=bare)
     assert out is bare  # configured in place, not replaced
     assert out.headers["Authorization"] == "OAuth t"
     assert out.headers["X-Org-Id"] == "o"
-    assert _raise_typed in out.hooks["response"]
+    assert Transport._raise_typed in out.hooks["response"]
     assert isinstance(out.get_adapter("https://example.com"), _TimeoutAdapter)
+
+
+def test_response_hook_is_registered():
+    s = Transport.session(oauth_token="t", organization_id="o")
+    assert Transport._raise_typed in s.hooks["response"]
+
+
+def test_authorization_header_uses_oauth_scheme():
+    assert Transport._authorization("abc") == "OAuth abc"
 
 
 @responses.activate
