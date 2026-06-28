@@ -899,6 +899,54 @@ git add -A
 git commit -m "refactor(conventions): me models -> APIModel; drop dead forms/_models; rename surveys models; resources.md"
 ```
 
+### Task D5: Align the `count` CLI ↔ MCP surface
+
+**Files:**
+- Read first: `src/ycli/yandex/tracker/issues/cli.py` (`count`), `src/ycli/yandex/tracker/issues/mcp.py` (`count`), `src/ycli/yandex/tracker/issues/client.py` (`count`)
+- Modify: `src/ycli/yandex/tracker/issues/mcp.py`
+- Test: `tests/yandex/tracker/issues/test_mcp.py`
+
+**Interfaces:**
+- Produces: the MCP `issues_count` tool accepts the SAME query/filter capability as the CLI `count` command (today the CLI takes `--query` OR `--queue`/`--status`; the MCP tool takes only `query`).
+
+- [ ] **Step 1: Read both surfaces over `client.issues.count`**
+
+Confirm the divergence: the CLI builds either `{"query": …}` or `{"filter": {…}}` from `--query`/`--queue`/`--status`; the MCP tool sends only `{"query": query}`. Note the exact client `count(...)` signature so both surfaces feed it identically.
+
+- [ ] **Step 2: Write the failing MCP test**
+
+In `tests/yandex/tracker/issues/test_mcp.py`, add a case asserting `issues_count` accepts filter params (e.g. `queue`/`status`) and forwards them like the CLI:
+```python
+async def test_count_accepts_filters(...):
+    # stub client.issues.count to capture its payload
+    result = await call_tool("tracker_issues_count", {"queue": "DE", "status": "open"})
+    # assert the captured payload is the filter form, not a bare {"query": ...}
+```
+(Mirror the existing MCP test harness in that file.)
+
+- [ ] **Step 3: Run (fails)**
+
+Run: `uv run pytest tests/yandex/tracker/issues/test_mcp.py -k count -v`
+Expected: FAIL (tool rejects the new params / sends the wrong payload).
+
+- [ ] **Step 4: Extend the MCP `count` tool**
+
+Give the `count` tool the same optional params the CLI exposes (`query`, `queue`, `status`, …) and build the payload with the SAME helper/logic the CLI uses — extract that payload-building into a shared function if it isn't already, so the two surfaces can't drift again (DRY).
+
+- [ ] **Step 5: Verify (incl. snapshot — params change, name does not)**
+
+Run: `uv run pytest tests/yandex/tracker/issues -v && uv run pytest tests/test_snapshots.py -v && uv run pytest`
+Expected: green; the snapshot is UNCHANGED (ARCH-6 locks tool names, not params) — but this IS an MCP-surface behavior change, so note it in the commit body.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add -A
+git commit -m "feat(tracker): align issues_count MCP tool with the CLI's query/filter capability
+
+MCP-surface behavior change (tool params widened); name unchanged so snapshots hold."
+```
+
 ---
 
 ## Phase E — CLI / MCP / output surface (snapshot-changing)
