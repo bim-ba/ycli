@@ -11,6 +11,7 @@ from __future__ import annotations
 import enum
 import json
 import re
+from abc import ABC, abstractmethod
 from typing import Any
 
 import yaml
@@ -45,6 +46,45 @@ def set_format(fmt: OutputFormat) -> None:
     _format = fmt
 
 
+class SerializationStrategy(ABC):
+    @abstractmethod
+    def serialize(self, result: BaseModel, console: Console) -> None: ...
+
+
+class JsonStrategy(SerializationStrategy):
+    def serialize(self, result: BaseModel, console: Console) -> None:
+        text = result.model_dump_json(by_alias=True)
+        if console.is_terminal:
+            console.print_json(text)
+        else:
+            console.file.write(text + "\n")  # pristine, unwrapped JSON for pipes
+
+
+class YamlStrategy(SerializationStrategy):
+    def serialize(self, result: BaseModel, console: Console) -> None:
+        data = result.model_dump(by_alias=True, mode="json")
+        console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
+
+
+class PrettyStrategy(SerializationStrategy):
+    def serialize(self, result: BaseModel, console: Console) -> None:
+        console.print(_prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal))
+
+
+class AutoStrategy(SerializationStrategy):
+    def serialize(self, result: BaseModel, console: Console) -> None:
+        strategy = PrettyStrategy() if console.is_terminal else JsonStrategy()
+        strategy.serialize(result, console)
+
+
+_STRATEGIES: dict[OutputFormat, type[SerializationStrategy]] = {
+    OutputFormat.json: JsonStrategy,
+    OutputFormat.yaml: YamlStrategy,
+    OutputFormat.pretty: PrettyStrategy,
+    OutputFormat.auto: AutoStrategy,
+}
+
+
 def render(result: BaseModel, *, console: Console | None = None) -> None:
     """Print ``result`` in the active format.
 
@@ -52,21 +92,7 @@ def render(result: BaseModel, *, console: Console | None = None) -> None:
     keeping stdout machine-readable for scripts and agents.
     """
     console = console or Console()
-    fmt = _format
-    if fmt is OutputFormat.auto:
-        fmt = OutputFormat.pretty if console.is_terminal else OutputFormat.json
-
-    if fmt is OutputFormat.json:
-        text = result.model_dump_json(by_alias=True)
-        if console.is_terminal:
-            console.print_json(text)
-        else:
-            console.file.write(text + "\n")  # pristine, unwrapped JSON for pipes
-    elif fmt is OutputFormat.yaml:
-        data = result.model_dump(by_alias=True, mode="json")
-        console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
-    else:  # pretty
-        console.print(_prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal))
+    _STRATEGIES[_format]().serialize(result, console)
 
 
 def _prettify(data: Any, *, link: bool = False) -> Any:
