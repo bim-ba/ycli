@@ -50,3 +50,27 @@ def test_list_drains_all_pages():
     out = json.loads(res.stdout)
     assert [a["id"] for a in out["answers"]] == [1, 2]
     assert out["next"] is None
+
+
+@responses.activate
+def test_list_with_limit_caps_results():
+    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
+                  json={"columns": [], "answers": [{"id": 1, "created": "x", "data": []},
+                                                   {"id": 2, "created": "x", "data": []}],
+                        "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=2"}}, status=200)
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "list", SID, "--limit", "1"])
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert len(out["answers"]) == 1
+    assert out["next"] is None
+
+
+@responses.activate
+def test_list_with_all_flag_drains_all_pages():
+    responses.add_callback(responses.GET, f"{BASE}/surveys/{SID}/answers",
+                           callback=_two_page_callback, content_type="application/json")
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "list", SID, "--all"])
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert [a["id"] for a in out["answers"]] == [1, 2]
+    assert out["next"] is None

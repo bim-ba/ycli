@@ -92,3 +92,14 @@ def test_list_all_single_page_makes_one_call():
     ar = _client().list_all(SID)
     assert [a.id for a in ar.answers] == [7]
     assert len(responses.calls) == 1  # no next_url → no extra request
+
+
+@responses.activate
+def test_list_all_respects_limit():
+    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
+                  json={"columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
+                        "answers": [{"id": 1, "created": "x", "data": []}, {"id": 2, "created": "x", "data": []}],
+                        "next": {"next_url": f"surveys/{SID}/answers?id=2"}}, status=200)
+    ar = _client().list_all(SID, limit=1)
+    assert len(ar.answers) == 1
+    assert ar.next is None
