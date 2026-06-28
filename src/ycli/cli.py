@@ -33,7 +33,7 @@ def _main(
         typer.Option("--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."),
     ] = OutputFormat.auto,
 ) -> None:
-    """Configure logging and the output format before any subcommand runs."""
+    """Declare the global ``--format`` option and configure logging before any subcommand runs."""
     configure(level=AppConfig().log_level)
 
 
