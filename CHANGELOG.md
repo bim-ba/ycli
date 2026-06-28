@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.5.0 (2026-06-28)
+
+### Build System
+
+- Sync uv.lock project version to 0.4.0
+  ([`ddb8dfe`](https://github.com/bim-ba/ycli/commit/ddb8dfe40b144dc7aa54f06eb632ecf652af50ed))
+
+### Features
+
+- Track C — UX quick-wins (typed errors, MCP metadata, completion, tracker me, auth status, key
+  links)
+  ([`a19cad7`](https://github.com/bim-ba/ycli/commit/a19cad7484dc22dc8883928d8e2f3a20a3f45747))
+
+
 ## v0.4.0 (2026-06-27)
 
 ### Features
