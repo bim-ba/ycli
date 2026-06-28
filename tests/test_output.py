@@ -10,7 +10,7 @@ import yaml
 from pydantic import BaseModel, RootModel
 from rich.console import Console
 
-from ycli.output import OutputFormat, _cell, _prettify, render
+from ycli.output import OutputFormat, PrettyStrategy, render
 
 
 class Item(BaseModel):
@@ -64,14 +64,16 @@ def test_pretty_list_renders_table():
 
 
 def test_prettify_dispatch():
-    assert _prettify("scalar") == "scalar"
-    assert _prettify([1, 2]).row_count == 2  # scalar list → single-column table
-    assert _prettify({"k": "v"}).row_count == 1  # dict → kv table
+    strategy = PrettyStrategy()
+    assert strategy._prettify("scalar") == "scalar"
+    assert strategy._prettify([1, 2]).row_count == 2  # scalar list → single-column table
+    assert strategy._prettify({"k": "v"}).row_count == 1  # dict → kv table
 
 
 def test_cell_rendering():
-    assert _cell(None) == ""
-    assert _cell("x") == "x"
-    assert _cell(3) == "3"
-    assert _cell({"a": 1}) == '{"a": 1}'
-    assert _cell([1, 2]) == "[1, 2]"
+    strategy = PrettyStrategy()
+    assert strategy._cell(None) == ""
+    assert strategy._cell("x") == "x"
+    assert strategy._cell(3) == "3"
+    assert strategy._cell({"a": 1}) == '{"a": 1}'
+    assert strategy._cell([1, 2]) == "[1, 2]"
