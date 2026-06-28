@@ -1,4 +1,4 @@
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 def test_apimodel_is_lenient_and_alias_friendly():

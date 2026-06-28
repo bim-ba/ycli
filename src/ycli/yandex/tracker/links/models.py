@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 from ycli.yandex.tracker._models import (
     _IdRef,  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
 )

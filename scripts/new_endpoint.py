@@ -20,7 +20,7 @@ INIT = '"""Yandex {domain} /{resource} resource (client · cli · mcp · models)
 MODELS = '''"""Pydantic models for {domain} /{resource}."""
 from __future__ import annotations
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class {cls}(APIModel):

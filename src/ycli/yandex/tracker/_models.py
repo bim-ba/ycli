@@ -7,7 +7,7 @@ objects that recur across issues, links, changelog, etc. See each class's own
 
 from __future__ import annotations
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class _KeyRef(APIModel):

@@ -11,10 +11,10 @@ if TYPE_CHECKING:
 from pydantic import Field, ValidationError
 
 from ycli.context import AppContext
-from ycli.models import APIModel
 from ycli.output import Serializer
 from ycli.yandex.errors import YandexAuthError, YandexError
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.models import APIModel
 from ycli.yandex.settings import Credentials
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.wiki.client import WikiClient

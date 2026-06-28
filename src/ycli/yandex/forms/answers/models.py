@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class Column(APIModel):

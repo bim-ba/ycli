@@ -9,7 +9,7 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp.py · output.py · log.py · context.py · models.py   # roots
+├── cli.py · mcp.py · output.py · log.py · context.py   # roots
 └── yandex/
     ├── base.py · transport.py · settings.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
@@ -18,12 +18,12 @@ src/ycli/
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
             ├── cli.py      # Typer — output via Serializer.serialize
             ├── mcp.py      # FastMCP read-only tools
-            ├── models.py   # pydantic (inherit APIModel from ycli.models)
+            ├── models.py   # pydantic (inherit APIModel from ycli.yandex.models)
             └── __init__.py
 ```
 
 Notable shared pieces:
-- `src/ycli/models.py` — `APIModel` base (lenient parse config, no serialization logic)
+- `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
 - `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`)

@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import Field, RootModel
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 from ycli.yandex.tracker._models import (  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
     _DisplayRef,
     _IdRef,
