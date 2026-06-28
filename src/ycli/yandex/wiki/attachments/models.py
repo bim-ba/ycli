@@ -1,14 +1,10 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/attachments responses (extra='ignore')."""
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from ycli.models import APIModel
 
 
-class _Lenient(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-
-class Attachment(_Lenient):
+class Attachment(APIModel):
     """A page attachment descriptor (``/pages/{id}/attachments`` item).
 
     Example:
@@ -21,7 +17,7 @@ class Attachment(_Lenient):
     mime_type: str | None = None
 
 
-class AttachmentsResponse(_Lenient):
+class AttachmentsResponse(APIModel):
     """Envelope for ``GET /pages/{id}/attachments`` — ``{results:[Attachment]}``.
 
     Example:

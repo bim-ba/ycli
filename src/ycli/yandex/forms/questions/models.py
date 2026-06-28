@@ -1,10 +1,10 @@
 """Pydantic models for Forms questions (Question + Page + QuestionsResponse envelope)."""
 from __future__ import annotations
 
-from ycli.yandex.forms._models import _Lenient
+from ycli.models import APIModel
 
 
-class Question(_Lenient):
+class Question(APIModel):
     """A single question item within a page (``…/questions`` → ``pages[].items[]``).
 
     ``id`` is an **int**. Type-specific fields (``data_source``, ``items``,
@@ -23,7 +23,7 @@ class Question(_Lenient):
     comment: str | None = None
 
 
-class Page(_Lenient):
+class Page(APIModel):
     """A page grouping questions (``…/questions`` → ``pages[]``).
 
     Example:
@@ -35,7 +35,7 @@ class Page(_Lenient):
     items: list[Question] = []
 
 
-class QuestionsResponse(_Lenient):
+class QuestionsResponse(APIModel):
     """Envelope for ``GET …/questions`` — ``{pages:[Page]}``.
 
     Example:

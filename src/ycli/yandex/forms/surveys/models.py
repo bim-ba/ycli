@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.forms._models import _Lenient
+from ycli.models import APIModel
 
 
-class Survey(_Lenient):
+class Survey(APIModel):
     """A form/survey (``GET /v1/surveys`` item and ``GET /v1/surveys/{id}``).
 
     ``id`` is a hex ObjectId **string** (not numeric); ``answers`` is an int
@@ -32,7 +32,7 @@ class Survey(_Lenient):
     is_favourite: bool | None = None
 
 
-class SurveyList(_Lenient):
+class SurveyList(APIModel):
     """Envelope for ``GET /v1/surveys`` — ``{links, result:[Survey]}``.
 
     Example:

@@ -1,10 +1,10 @@
 """Pydantic model for Forms /users/me (User)."""
 from __future__ import annotations
 
-from ycli.yandex.forms._models import _Lenient
+from ycli.models import APIModel
 
 
-class User(_Lenient):
+class User(APIModel):
     """The authenticated user (``GET /v1/users/me``) — a safe auth probe.
 
     Example:

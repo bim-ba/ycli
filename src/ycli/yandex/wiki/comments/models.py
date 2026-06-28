@@ -1,18 +1,14 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses (extra='ignore')."""
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from ycli.models import APIModel
 
 
-class _Lenient(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-
-class _CommentAuthor(_Lenient):
+class _CommentAuthor(APIModel):
     display: str | None = None
 
 
-class Comment(_Lenient):
+class Comment(APIModel):
     """A wiki page comment (``/pages/{id}/comments`` item).
 
     Example:
@@ -29,7 +25,7 @@ class Comment(_Lenient):
         return self.author.display if self.author else None
 
 
-class CommentsResponse(_Lenient):
+class CommentsResponse(APIModel):
     """Envelope for ``GET /pages/{id}/comments`` — ``{results:[Comment]}``.
 
     Example:

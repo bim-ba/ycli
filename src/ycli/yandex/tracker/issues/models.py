@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.tracker._models import _DisplayRef, _KeyRef, _Lenient
+from ycli.models import APIModel
+from ycli.yandex.tracker._models import _DisplayRef, _KeyRef
 
 
-class Issue(_Lenient):
+class Issue(APIModel):
     """A Yandex Tracker issue (``/issues/{key}`` response).
 
     Nested ``type``/``status``/``priority``/``epic``/``parent``/``queue`` each expose a

@@ -3,10 +3,10 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.tracker._models import _Lenient
+from ycli.models import APIModel
 
 
-class Priority(_Lenient):
+class Priority(APIModel):
     """A priority reference (``/priorities`` item).
 
     Example:

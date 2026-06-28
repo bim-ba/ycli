@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.tracker._models import _DisplayRef, _Lenient
+from ycli.models import APIModel
+from ycli.yandex.tracker._models import _DisplayRef
 
 
-class Comment(_Lenient):
+class Comment(APIModel):
     """A Tracker issue comment (``/issues/{key}/comments`` item).
 
     Example:
