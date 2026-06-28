@@ -1,9 +1,13 @@
 """TDD for the `yandex` CLI — tracker group smoke test + forms group smoke test."""
 
+from types import SimpleNamespace
+
 import pytest
 from typer.testing import CliRunner
 
 import ycli.cli as cli
+from ycli.context import AppContext
+from ycli.output import OutputFormat, PrettyStrategy
 
 pytestmark = pytest.mark.integration
 
@@ -40,6 +44,14 @@ def test_mcp_command_registered_from_launcher():
     from typer.main import get_command
     names = get_command(cli.app).commands  # click Group.commands maps name -> Command
     assert "mcp" in names
+
+
+def test_appcontext_strategy_and_retrieval():
+    app = AppContext(output_format=OutputFormat.pretty)
+    assert app.output_format is OutputFormat.pretty
+    assert isinstance(app.strategy, PrettyStrategy)
+    # from_typer_context just returns ctx.obj (set by the root callback)
+    assert AppContext.from_typer_context(SimpleNamespace(obj=app)) is app
 
 
 def test_completion_is_enabled():

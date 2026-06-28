@@ -5,10 +5,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
 
 app = typer.Typer(name="worklog", help="Tracker issue worklog.", no_args_is_help=True)
 
@@ -21,4 +19,5 @@ def _callback() -> None:
 @app.command("list")
 def list_(ctx: typer.Context, key: Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]) -> None:
     """List worklog entries for issue KEY."""
-    render(tracker_client(ctx).worklog.list(key), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.worklog.list(key), app_ctx.strategy, app_ctx.console)

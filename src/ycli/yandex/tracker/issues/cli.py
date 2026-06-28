@@ -6,14 +6,12 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import parse_fields, tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
+from ycli.yandex.tracker._args import KeyArg, parse_fields
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 
-KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key, e.g. DATAENGINEERING-1.")]
 FieldOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Extra field key=value (JSON-coerced; repeatable)."),
@@ -23,13 +21,15 @@ FieldOpt = Annotated[
 @app.command()
 def get(ctx: typer.Context, key: KeyArg) -> None:
     """Print a single issue (full model) for KEY."""
-    render(tracker_client(ctx).issues.get(key), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issues.get(key), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
 def full(ctx: typer.Context, key: KeyArg) -> None:
     """Print the raw API dict for KEY (no pydantic projection)."""
-    print(json.dumps(tracker_client(ctx).issues.get_raw(key), ensure_ascii=False))
+    app_ctx = AppContext.from_typer_context(ctx)
+    print(json.dumps(app_ctx.tracker.issues.get_raw(key), ensure_ascii=False))
 
 
 @app.command("list")
@@ -49,13 +49,15 @@ def list_(
         }.items()
         if v
     }
-    render(tracker_client(ctx).issues.search(body={"filter": flt}), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issues.search(body={"filter": flt}), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
 def search(ctx: typer.Context, query: Annotated[str, typer.Argument(help="TQL query.")]) -> None:
     """Search issues by a TQL query string."""
-    render(tracker_client(ctx).issues.search(body={"query": query}), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issues.search(body={"query": query}), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -74,7 +76,8 @@ def count(
         body: dict[str, Any] = {"query": query}
     else:
         body = {"filter": {k: v for k, v in (("queue", queue), ("status", status)) if v}}
-    print(tracker_client(ctx).issues.count(body=body))
+    app_ctx = AppContext.from_typer_context(ctx)
+    print(app_ctx.tracker.issues.count(body=body))
 
 
 @app.command()
@@ -102,7 +105,8 @@ def create(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    render(tracker_client(ctx).issues.create(body=body), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issues.create(body=body), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -132,4 +136,5 @@ def update(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    render(tracker_client(ctx).issues.update(key, body=body), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issues.update(key, body=body), app_ctx.strategy, app_ctx.console)

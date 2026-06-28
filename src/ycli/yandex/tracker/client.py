@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import requests
 
-from ycli.yandex.base import FromEnvSession
+from ycli.yandex.settings import AppConfig, Credentials
+from ycli.yandex.transport import Transport
 from ycli.yandex.tracker.changelog.client import ChangelogClient
 from ycli.yandex.tracker.comments.client import CommentsClient
 from ycli.yandex.tracker.issues.client import IssuesClient
@@ -16,21 +17,43 @@ from ycli.yandex.tracker.transitions.client import TransitionsClient
 from ycli.yandex.tracker.worklog.client import WorklogClient
 
 
-class TrackerClient(FromEnvSession):
-    """Holds the per-resource tracker clients, all sharing one ``requests.Session``.
+class TrackerClient:
+    """Holds the per-resource tracker clients, all sharing one authed ``requests.Session``."""
 
-    Example:
-        >>> TrackerClient.from_env().issues.get("DATAENGINEERING-1")  # doctest: +SKIP
-    """
+    def __init__(
+        self,
+        *,
+        oauth_token: str,
+        organization_id: str,
+        timeout_seconds: int = 30,
+        retries: int = 3,
+        session: requests.Session | None = None,
+    ) -> None:
+        transport = Transport.session(
+            oauth_token=oauth_token,
+            organization_id=organization_id,
+            timeout_seconds=timeout_seconds,
+            retries=retries,
+            base=session,
+        )
+        self.me = MeClient(session=transport)
+        self.issues = IssuesClient(session=transport)
+        self.comments = CommentsClient(session=transport)
+        self.links = LinksClient(session=transport)
+        self.transitions = TransitionsClient(session=transport)
+        self.worklog = WorklogClient(session=transport)
+        self.changelog = ChangelogClient(session=transport)
+        self.priorities = PrioritiesClient(session=transport)
+        self.issuetypes = IssueTypesClient(session=transport)
+        self.linktypes = LinkTypesClient(session=transport)
 
-    def __init__(self, *, session: requests.Session) -> None:
-        self.me = MeClient(session=session)
-        self.issues = IssuesClient(session=session)
-        self.comments = CommentsClient(session=session)
-        self.links = LinksClient(session=session)
-        self.transitions = TransitionsClient(session=session)
-        self.worklog = WorklogClient(session=session)
-        self.changelog = ChangelogClient(session=session)
-        self.priorities = PrioritiesClient(session=session)
-        self.issuetypes = IssueTypesClient(session=session)
-        self.linktypes = LinkTypesClient(session=session)
+    @classmethod
+    def from_env(cls) -> "TrackerClient":
+        """TEMPORARY shim for the MCP _deps.py — removed in Task 6."""
+        credentials, config = Credentials(), AppConfig()
+        return cls(
+            oauth_token=credentials.oauth_token,
+            organization_id=credentials.organization_id,
+            timeout_seconds=int(config.timeout_seconds),
+            retries=config.retries,
+        )

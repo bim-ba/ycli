@@ -117,7 +117,3 @@ class Serializer:
     def serialize(model: BaseModel, strategy: SerializationStrategy, console: Console) -> None:
         strategy.render(model, console)
 
-
-def render(result: BaseModel, *, output_format: OutputFormat, console: Console | None = None) -> None:
-    """Compatibility shim (removed in Phase 2). Renders ``result`` in ``output_format``."""
-    Serializer.serialize(result, SerializationStrategy.from_format(output_format), console or Console())

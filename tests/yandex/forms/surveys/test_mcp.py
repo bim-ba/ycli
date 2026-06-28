@@ -1,6 +1,5 @@
 """TDD for forms surveys MCP subserver — list envelope + get guard."""
 import pytest
-import requests
 import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
@@ -13,9 +12,7 @@ SID = "6818ceffe010db4f59d11329"
 
 
 def _stub() -> FormsClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return FormsClient(session=s)
+    return FormsClient(oauth_token="t", organization_id="o")
 
 
 @responses.activate
@@ -44,6 +41,16 @@ async def test_surveys_get_not_found_is_clean_error(monkeypatch):
     async with Client(surveys_mcp.mcp) as client:
         with pytest.raises(ToolError):
             await client.call_tool("surveys_get", {"survey_id": "badid"})
+
+
+@responses.activate
+async def test_surveys_get_empty_response_guard(monkeypatch):
+    """200 with empty body hits the id-is-None guard (blank object instead of 404)."""
+    monkeypatch.setattr(FormsClient, "from_env", classmethod(lambda cls: _stub()))
+    responses.add(responses.GET, f"{BASE}/surveys/{SID}", json={}, status=200)
+    async with Client(surveys_mcp.mcp) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("surveys_get", {"survey_id": SID})
 
 
 async def test_surveys_tools_registered_read_only():

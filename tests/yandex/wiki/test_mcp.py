@@ -1,5 +1,4 @@
 """Wiki FastMCP subserver tests — Depends DI, native errors, in-memory client."""
-import requests
 import responses
 from fastmcp import Client
 
@@ -10,9 +9,7 @@ BASE = "https://api.wiki.yandex.net/v1"
 
 
 def _stub() -> WikiClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return WikiClient(session=s)
+    return WikiClient(oauth_token="t", organization_id="o")
 
 
 @responses.activate

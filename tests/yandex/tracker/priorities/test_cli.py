@@ -1,44 +1,38 @@
 """TDD for the three Tracker lookup CLIs (priorities/issuetypes/linktypes)."""
 import json
 
-import requests
+import pytest
 import responses
 from typer.testing import CliRunner
 
-from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.issuetypes.cli import app as issuetypes_app
-from ycli.yandex.tracker.linktypes.cli import app as linktypes_app
-from ycli.yandex.tracker.priorities.cli import app as priorities_app
+import ycli.cli as cli
 
 BASE = "https://api.tracker.yandex.net/v3"
 runner = CliRunner()
 
 
-def _stub() -> TrackerClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return TrackerClient(session=s)
+@pytest.fixture(autouse=True)
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate
-def test_priorities_list(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+def test_priorities_list():
     responses.add(responses.GET, f"{BASE}/priorities", json=[{"key": "critical", "display": "Critical"}], status=200)
-    res = runner.invoke(priorities_app, ["list"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "priorities", "list"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["key"] == "critical"
 
 
 @responses.activate
-def test_issuetypes_list(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+def test_issuetypes_list():
     responses.add(responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "display": "Task"}], status=200)
-    res = runner.invoke(issuetypes_app, ["list"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "issuetypes", "list"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["key"] == "task"
 
 
 @responses.activate
-def test_linktypes_list(monkeypatch):
-    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+def test_linktypes_list():
     responses.add(responses.GET, f"{BASE}/linktypes", json=[{"id": "relates"}], status=200)
-    res = runner.invoke(linktypes_app, ["list"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "linktypes", "list"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["id"] == "relates"

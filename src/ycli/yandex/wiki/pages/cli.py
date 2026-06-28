@@ -5,10 +5,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.wiki._clideps import wiki_client
+from ycli.context import AppContext
+from ycli.output import Serializer
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
@@ -22,8 +20,8 @@ def get(
     fields: Annotated[str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")] = "content",
 ) -> None:
     """Print the page body (default fields=content) for SLUG."""
-    client = wiki_client(ctx)
-    print(client.pages.get(slug=slug, fields=fields).content or "")
+    app_ctx = AppContext.from_typer_context(ctx)
+    print(app_ctx.wiki.pages.get(slug=slug, fields=fields).content or "")
 
 
 @app.command()
@@ -34,9 +32,9 @@ def descendants(
     cursor: Annotated[str, typer.Option(help="Pagination cursor (one page per call).")] = "",
 ) -> None:
     """Print one page of descendant slugs under SLUG (caller paginates via --cursor)."""
-    client = wiki_client(ctx)
-    resp = client.pages.descendants(slug=slug, page_size=limit, cursor=cursor or None)
-    render(resp, output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    resp = app_ctx.wiki.pages.descendants(slug=slug, page_size=limit, cursor=cursor or None)
+    Serializer.serialize(resp, app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -47,9 +45,9 @@ def create(
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
 ) -> None:
     """Create a wiki page (POST /pages)."""
-    client = wiki_client(ctx)
-    page = client.pages.create(body={"slug": slug, "title": title, "content": content})
-    render(page, output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    page = app_ctx.wiki.pages.create(body={"slug": slug, "title": title, "content": content})
+    Serializer.serialize(page, app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -60,8 +58,8 @@ def update(
     title: Annotated[str, typer.Option(help="New title (optional).")] = "",
 ) -> None:
     """Update a wiki page by id (POST /pages/{id})."""
-    client = wiki_client(ctx)
+    app_ctx = AppContext.from_typer_context(ctx)
     body: dict[str, str] = {"content": content}
     if title:
         body["title"] = title
-    render(client.pages.update(page_id=page_id, body=body), output_format=output_format(ctx))
+    Serializer.serialize(app_ctx.wiki.pages.update(page_id=page_id, body=body), app_ctx.strategy, app_ctx.console)

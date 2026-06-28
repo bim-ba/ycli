@@ -1,6 +1,5 @@
 """TDD for tracker issues MCP subserver — Depends DI, RootModel return, in-memory client."""
 import pytest
-import requests
 import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
@@ -12,9 +11,7 @@ BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _stub() -> TrackerClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return TrackerClient(session=s)
+    return TrackerClient(oauth_token="t", organization_id="o")
 
 
 @responses.activate
@@ -45,12 +42,22 @@ async def test_issue_tools_registered_read_only():
 @responses.activate
 async def test_issues_get_tool_not_found_raises(monkeypatch):
     monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
-    # 404 error body — uplink deserializes it into an empty Issue (key=None); the tool must raise.
+    # 404 error body — Transport hook raises YandexNotFoundError, surfaced as ToolError.
     responses.add(responses.GET, f"{BASE}/issues/NOPE-1",
                   json={"statusCode": 404, "errorMessages": ["Not found"]}, status=404)
     async with Client(issues_mcp.mcp) as client:
         with pytest.raises(ToolError):
             await client.call_tool("issues_get", {"key": "NOPE-1"})
+
+
+@responses.activate
+async def test_issues_get_tool_empty_response_guard(monkeypatch):
+    """200 with empty body hits the key-is-None guard (e.g. bad permissions → blank object)."""
+    monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
+    responses.add(responses.GET, f"{BASE}/issues/DE-1", json={}, status=200)
+    async with Client(issues_mcp.mcp) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("issues_get", {"key": "DE-1"})
 
 
 @responses.activate

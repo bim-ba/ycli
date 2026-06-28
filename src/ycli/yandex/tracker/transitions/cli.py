@@ -6,20 +6,18 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import parse_fields, tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
+from ycli.yandex.tracker._args import KeyArg, parse_fields
 
 app = typer.Typer(name="transitions", help="Tracker issue transitions.", no_args_is_help=True)
-
-KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]
 
 
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List available transitions for issue KEY."""
-    render(tracker_client(ctx).transitions.list(key), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.transitions.list(key), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -33,5 +31,6 @@ def execute(
     ] = None,
 ) -> None:
     """Execute transition ID on issue KEY (optional body via --field)."""
-    raw = tracker_client(ctx).transitions.execute(key, transition_id, body=parse_fields(field))
+    app_ctx = AppContext.from_typer_context(ctx)
+    raw = app_ctx.tracker.transitions.execute(key, transition_id, body=parse_fields(field))
     print(json.dumps(raw, ensure_ascii=False))

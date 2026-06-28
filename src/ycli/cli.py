@@ -9,6 +9,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.context import AppContext
 from ycli.yandex.auth import app as auth_app
 from ycli.log import configure
 from ycli.mcp_launcher import launch_mcp_server
@@ -28,13 +29,15 @@ app = typer.Typer(
 
 @app.callback()
 def _main(
+    ctx: typer.Context,
     output_format: Annotated[
         OutputFormat,
         typer.Option("--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."),
     ] = OutputFormat.auto,
 ) -> None:
-    """Declare the global ``--format`` option and configure logging before any subcommand runs."""
+    """Declare the global ``--format`` option, configure logging, build the AppContext."""
     configure(level=AppConfig().log_level)
+    ctx.obj = AppContext(output_format=output_format)
 
 
 app.add_typer(auth_app)

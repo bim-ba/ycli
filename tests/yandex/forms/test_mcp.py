@@ -2,7 +2,6 @@
 import json
 from urllib.parse import parse_qs, urlparse
 
-import requests
 import responses
 from fastmcp import Client
 
@@ -14,9 +13,7 @@ SID = "6818ceffe010db4f59d11329"
 
 
 def _stub() -> FormsClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return FormsClient(session=s)
+    return FormsClient(oauth_token="t", organization_id="o")
 
 
 async def test_all_five_read_tools_registered():

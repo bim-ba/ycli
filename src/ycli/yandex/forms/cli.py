@@ -1,4 +1,4 @@
-"""Yandex Forms CLI — mounts the per-resource sub-apps (lazy client DI via _clideps)."""
+"""Yandex Forms CLI — mounts the per-resource sub-apps (AppContext DI via ctx.obj)."""
 from __future__ import annotations
 
 import typer

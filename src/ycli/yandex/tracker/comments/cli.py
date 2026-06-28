@@ -5,20 +5,18 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
+from ycli.yandex.tracker._args import KeyArg
 
 app = typer.Typer(name="comments", help="Tracker issue comments.", no_args_is_help=True)
-
-KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]
 
 
 @app.command("list")
 def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List comments on issue KEY."""
-    render(tracker_client(ctx).comments.list(key), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.comments.list(key), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -28,4 +26,5 @@ def add(
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
 ) -> None:
     """Add a comment to issue KEY."""
-    render(tracker_client(ctx).comments.add(key, body={"text": text}), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.comments.add(key, body={"text": text}), app_ctx.strategy, app_ctx.console)

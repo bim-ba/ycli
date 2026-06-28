@@ -1,20 +1,13 @@
 """`forms answers` commands."""
 from __future__ import annotations
 
-from typing import Annotated
-
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.forms._clideps import forms_client
+from ycli.context import AppContext
+from ycli.output import Serializer
+from ycli.yandex.forms._args import SurveyIdArg
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
-
-SurveyIdArg = Annotated[
-    str, typer.Argument(metavar="SURVEY_ID", help="Form id, e.g. 6818ceffe010db4f59d11329.")
-]
 
 
 @app.callback()
@@ -25,4 +18,5 @@ def _group() -> None:
 @app.command("list")
 def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
     """List ALL of a form's responses (drains every page via the next cursor)."""
-    render(forms_client(ctx).answers.list_all(survey_id), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.forms.answers.list_all(survey_id), app_ctx.strategy, app_ctx.console)

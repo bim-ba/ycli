@@ -1,5 +1,4 @@
 """Tracker FastMCP domain server — 14 reads-only tools, namespaced <resource>_<action>."""
-import requests
 import responses
 from fastmcp import Client
 
@@ -10,9 +9,7 @@ BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _stub() -> TrackerClient:
-    s = requests.Session()
-    s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return TrackerClient(session=s)
+    return TrackerClient(oauth_token="t", organization_id="o")
 
 
 async def test_all_fourteen_read_tools_registered():

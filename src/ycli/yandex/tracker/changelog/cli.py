@@ -5,10 +5,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
 
 app = typer.Typer(name="changelog", help="Tracker issue changelog.", no_args_is_help=True)
 
@@ -25,4 +23,5 @@ def list_(
     per_page: Annotated[int, typer.Option("--per-page", help="Entries per page.")] = 100,
 ) -> None:
     """List changelog entries for issue KEY."""
-    render(tracker_client(ctx).changelog.list(key, per_page=per_page), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.changelog.list(key, per_page=per_page), app_ctx.strategy, app_ctx.console)

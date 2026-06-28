@@ -5,10 +5,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.wiki._clideps import wiki_client
+from ycli.context import AppContext
+from ycli.output import Serializer
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
 
@@ -19,5 +17,5 @@ def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
 ) -> None:
     """List comments on a page id (GET /pages/{id}/comments)."""
-    client = wiki_client(ctx)
-    render(client.comments.list(page_id=page_id), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.wiki.comments.list(page_id=page_id), app_ctx.strategy, app_ctx.console)

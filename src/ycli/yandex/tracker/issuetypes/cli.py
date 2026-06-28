@@ -3,10 +3,8 @@ from __future__ import annotations
 
 import typer
 
-from ycli.cliformat import output_format
-from ycli.output import render
-
-from ycli.yandex.tracker._clideps import tracker_client
+from ycli.context import AppContext
+from ycli.output import Serializer
 
 app = typer.Typer(name="issuetypes", help="Tracker issue types.", no_args_is_help=True)
 
@@ -19,4 +17,5 @@ def _callback() -> None:
 @app.command("list")
 def list_(ctx: typer.Context) -> None:
     """List all issue types."""
-    render(tracker_client(ctx).issuetypes.list(), output_format=output_format(ctx))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issuetypes.list(), app_ctx.strategy, app_ctx.console)
