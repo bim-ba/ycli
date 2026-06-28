@@ -11,7 +11,16 @@ from ycli.yandex.forms.mcp import mcp as forms_mcp
 from ycli.yandex.tracker.mcp import mcp as tracker_mcp
 from ycli.yandex.wiki.mcp import mcp as wiki_mcp
 
-mcp = FastMCP("yandex")
+mcp = FastMCP(
+    "yandex",
+    instructions=(
+        "Read-only access to Yandex 360: Tracker (issues, comments, worklog, …), "
+        "Wiki (pages, attachments), and Forms. Tools are namespaced wiki_*, tracker_*, "
+        "forms_*, and are all read-only — create/update happens via the ycli CLI/SDK, not "
+        "here. Credentials come from the YANDEX_ID_OAUTH_TOKEN and "
+        "YANDEX_ID_ORGANIZATION_ID environment variables."
+    ),
+)
 mcp.mount(wiki_mcp, namespace="wiki")
 mcp.mount(tracker_mcp, namespace="tracker")
 mcp.mount(forms_mcp, namespace="forms")

@@ -10,6 +10,7 @@ from ycli.yandex.tracker.issues.client import IssuesClient
 from ycli.yandex.tracker.issuetypes.client import IssueTypesClient
 from ycli.yandex.tracker.links.client import LinksClient
 from ycli.yandex.tracker.linktypes.client import LinkTypesClient
+from ycli.yandex.tracker.me.client import MeClient
 from ycli.yandex.tracker.priorities.client import PrioritiesClient
 from ycli.yandex.tracker.transitions.client import TransitionsClient
 from ycli.yandex.tracker.worklog.client import WorklogClient
@@ -23,6 +24,7 @@ class TrackerClient:
     """
 
     def __init__(self, *, session: requests.Session) -> None:
+        self.me = MeClient(session=session)
         self.issues = IssuesClient(session=session)
         self.comments = CommentsClient(session=session)
         self.links = LinksClient(session=session)

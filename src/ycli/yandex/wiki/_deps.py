@@ -1,7 +1,7 @@
 """FastMCP dependency provider for the wiki subserver — builds a WikiClient per call."""
 from ycli.yandex.wiki.client import WikiClient
 
-RO: dict[str, bool] = {"readOnlyHint": True}
+RO: dict[str, bool] = {"readOnlyHint": True, "idempotentHint": True, "openWorldHint": True}
 TAGS: set[str] = {"wiki"}
 
 

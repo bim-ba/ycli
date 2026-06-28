@@ -9,13 +9,13 @@ from ycli.yandex.forms.surveys.models import Survey, SurveyList
 mcp = FastMCP("forms-surveys")
 
 
-@mcp.tool(name="surveys_list", annotations=RO, tags=TAGS)
+@mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
 def list_(client: FormsClient = Depends(forms_client)) -> SurveyList:
     """Every form (survey) the caller can see (the {links, result} envelope)."""
     return client.surveys.list()
 
 
-@mcp.tool(name="surveys_get", annotations=RO, tags=TAGS)
+@mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"}, tags=TAGS)
 def get(survey_id: str, client: FormsClient = Depends(forms_client)) -> Survey:
     """One form's settings by id."""
     result = client.surveys.get(survey_id)

@@ -1,0 +1,39 @@
+"""Tracker keys become clickable links in pretty tables on a TTY, and stay bare otherwise."""
+from __future__ import annotations
+
+import io
+
+import pytest
+from pydantic import BaseModel
+from rich.console import Console
+
+from ycli.output import OutputFormat, render, set_format
+
+
+class _Row(BaseModel):
+    key: str
+    summary: str
+
+
+@pytest.fixture(autouse=True)
+def _reset_format():
+    yield
+    set_format(OutputFormat.auto)
+
+
+def _render(model, *, terminal: bool) -> str:
+    set_format(OutputFormat.pretty)
+    console = Console(file=io.StringIO(), force_terminal=terminal, width=200)
+    render(model, console=console)
+    return console.file.getvalue()
+
+
+def test_key_is_linked_on_terminal():
+    out = _render(_Row(key="ABC-1", summary="x"), terminal=True)
+    assert "tracker.yandex.ru/ABC-1" in out  # the OSC8 target
+
+
+def test_key_is_bare_when_not_terminal():
+    out = _render(_Row(key="ABC-1", summary="x"), terminal=False)
+    assert "tracker.yandex.ru" not in out
+    assert "ABC-1" in out

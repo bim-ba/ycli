@@ -1,3 +1,5 @@
+auth
+auth status
 forms
 forms answers
 forms answers list
@@ -30,6 +32,8 @@ tracker links add
 tracker links list
 tracker linktypes
 tracker linktypes list
+tracker me
+tracker me get
 tracker priorities
 tracker priorities list
 tracker transitions

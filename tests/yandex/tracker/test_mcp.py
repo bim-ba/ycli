@@ -1,4 +1,4 @@
-"""Tracker FastMCP domain server — 13 reads-only tools, namespaced <resource>_<action>."""
+"""Tracker FastMCP domain server — 14 reads-only tools, namespaced <resource>_<action>."""
 import requests
 import responses
 from fastmcp import Client
@@ -15,10 +15,11 @@ def _stub() -> TrackerClient:
     return TrackerClient(session=s)
 
 
-async def test_all_thirteen_read_tools_registered():
+async def test_all_fourteen_read_tools_registered():
     async with Client(tracker_mcp.mcp) as client:
         names = {t.name for t in await client.list_tools()}
     assert names == {
+        "me_get",
         "issues_get", "issues_full", "issues_list", "issues_search", "issues_count",
         "comments_list", "links_list", "transitions_list", "worklog_list",
         "changelog_list", "priorities_list", "issuetypes_list", "linktypes_list",

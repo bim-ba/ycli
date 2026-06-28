@@ -10,12 +10,21 @@ from __future__ import annotations
 
 import enum
 import json
+import re
 from typing import Any
 
 import yaml
 from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
+
+
+_KEY_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
+
+
+def _key_link(value: str) -> str:
+    """Wrap a Tracker issue key in a rich OSC8 link to its web UI page."""
+    return f"[link=https://tracker.yandex.ru/{value}]{value}[/link]"
 
 
 class OutputFormat(str, enum.Enum):
@@ -57,29 +66,29 @@ def render(result: BaseModel, *, console: Console | None = None) -> None:
         data = result.model_dump(by_alias=True, mode="json")
         console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
     else:  # pretty
-        console.print(_prettify(result.model_dump(by_alias=True, mode="json")))
+        console.print(_prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal))
 
 
-def _prettify(data: Any) -> Any:
+def _prettify(data: Any, *, link: bool = False) -> Any:
     """Turn a JSON-able structure into a rich renderable (table) or plain string."""
     if isinstance(data, list):
-        return _list_table(data)
+        return _list_table(data, link=link)
     if isinstance(data, dict):
-        return _kv_table(data)
+        return _kv_table(data, link=link)
     return str(data)
 
 
-def _kv_table(data: dict[str, Any]) -> Table:
+def _kv_table(data: dict[str, Any], *, link: bool = False) -> Table:
     """A single object → a two-column field/value table."""
     table = Table(show_header=False, box=None, pad_edge=False)
     table.add_column(style="cyan", no_wrap=True)
     table.add_column(overflow="fold")
     for key, value in data.items():
-        table.add_row(str(key), _cell(value))
+        table.add_row(str(key), _cell(value, is_key=(key == "key"), link=link))
     return table
 
 
-def _list_table(items: list[Any]) -> Table:
+def _list_table(items: list[Any], *, link: bool = False) -> Table:
     """A list → a table: a column per field for dict items, else one value column."""
     table = Table()
     if items and isinstance(items[0], dict):
@@ -87,16 +96,21 @@ def _list_table(items: list[Any]) -> Table:
         for column in columns:
             table.add_column(str(column), style="cyan", overflow="fold")
         for item in items:
-            table.add_row(*[_cell(item.get(column)) for column in columns])
+            table.add_row(*[_cell(item.get(column), is_key=(column == "key"), link=link) for column in columns])
     else:
         table.add_column("value", overflow="fold")
         for item in items:
-            table.add_row(_cell(item))
+            table.add_row(_cell(item, link=link))
     return table
 
 
-def _cell(value: Any) -> str:
-    """Render one cell: nested structures as compact JSON, ``None`` as empty."""
+def _cell(value: Any, *, is_key: bool = False, link: bool = False) -> str:
+    """Render one cell: nested structures as compact JSON, ``None`` as empty; a Tracker key links on a TTY."""
     if isinstance(value, (dict, list)):
         return json.dumps(value, ensure_ascii=False)
-    return "" if value is None else str(value)
+    if value is None:
+        return ""
+    text = str(value)
+    if link and is_key and _KEY_RE.match(text):
+        return _key_link(text)
+    return text

@@ -24,6 +24,38 @@ from requests import PreparedRequest, Response
 from requests.adapters import DEFAULT_POOLBLOCK, DEFAULT_POOLSIZE, DEFAULT_RETRIES, HTTPAdapter
 from urllib3.util.retry import Retry
 
+from ycli.yandex.errors import (
+    YandexAuthError,
+    YandexClientError,
+    YandexNotFoundError,
+    YandexRateLimitError,
+    YandexServerError,
+)
+
+
+def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
+    """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
+
+    Runs after urllib3 retries (Retry has ``raise_on_status=False``), so only the
+    final response reaches here. uplink calls ``session.request``, which dispatches
+    this hook, so every SDK call is covered.
+    """
+    code = response.status_code
+    if code < 400:
+        return response
+    snippet = response.text[:300].replace("\n", " ").strip()
+    msg = f"{code} {response.reason} for {response.request.method} {response.url}: {snippet}"
+    url = response.url
+    if code in (401, 403):
+        raise YandexAuthError(msg, status=code, url=url)
+    if code == 404:
+        raise YandexNotFoundError(msg, status=code, url=url)
+    if code == 429:
+        raise YandexRateLimitError(msg, status=code, url=url)
+    if code >= 500:
+        raise YandexServerError(msg, status=code, url=url)
+    raise YandexClientError(msg, status=code, url=url)
+
 
 class _TimeoutAdapter(HTTPAdapter):
     """HTTPAdapter that applies a default timeout when the caller passes none.
@@ -103,6 +135,7 @@ class Transport:
             raise ValueError("org_id must be a non-empty string")
         session = requests.Session()
         session.headers.update({"Authorization": f"OAuth {token}", cls.ORG_HEADER: org_id})
+        session.hooks["response"].append(_raise_typed)
         retry = Retry(
             total=cls.RETRY_TOTAL,
             backoff_factor=0.5,

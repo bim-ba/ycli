@@ -9,7 +9,7 @@ from ycli.yandex.wiki.comments.models import CommentsResponse
 mcp = FastMCP("wiki-comments")
 
 
-@mcp.tool(name="comments_list", annotations=RO, tags=TAGS)
+@mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"}, tags=TAGS)
 def list_(page_id: int, client: WikiClient = Depends(wiki_client)) -> CommentsResponse:
     """Comments on a page id."""
     return client.comments.list(page_id=page_id)

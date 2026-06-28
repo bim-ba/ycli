@@ -9,6 +9,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.authcli import app as auth_app
 from ycli.log import configure
 from ycli.output import OutputFormat, set_format
 from ycli.yandex.forms.cli import app as forms_app
@@ -20,7 +21,6 @@ app = typer.Typer(
     help="ycli — Yandex 360 API SDK CLI.",
     no_args_is_help=True,
     pretty_exceptions_show_locals=False,
-    add_completion=False,
 )
 
 
@@ -36,6 +36,7 @@ def _main(
     set_format(output_format)
 
 
+app.add_typer(auth_app)
 app.add_typer(wiki_app)
 app.add_typer(tracker_app)
 app.add_typer(forms_app)
@@ -60,7 +61,15 @@ def mcp() -> None:
 
 def main() -> None:  # pragma: no cover
     """Console-script entry point (``ycli`` / ``yandex-cli``)."""
-    app()
+    from ycli.yandex.errors import YandexError
+
+    try:
+        app()
+    except YandexError as exc:
+        import typer
+
+        typer.secho(f"Error: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1) from exc
 
 
 if __name__ == "__main__":  # pragma: no cover

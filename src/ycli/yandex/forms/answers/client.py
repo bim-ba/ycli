@@ -50,7 +50,6 @@ class AnswersClient(FormsResource):
                 break
             seen.add(url)
             resp = self._session.get(url)
-            resp.raise_for_status()
             page = AnswersResponse.model_validate(resp.json())
             answers.extend(page.answers)
             nxt = page.next
