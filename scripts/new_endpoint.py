@@ -19,10 +19,10 @@ INIT = '"""Yandex {domain} /{resource} resource (client · cli · mcp · models)
 MODELS = '''"""Pydantic models for {domain} /{resource}."""
 from __future__ import annotations
 
-from pydantic import BaseModel
+from ycli.models import APIModel
 
 
-class {cls}(BaseModel):
+class {cls}(APIModel):
     """One {resource} record. FILL: add the real fields."""
 
     id: str = ""
@@ -48,21 +48,27 @@ class {cls}Client({domain_cls}Resource):
         """GET one {resource} by id."""
 '''
 
-CLI = '''"""{domain} /{resource} Typer commands. Output via ycli.output.render."""
+CLI = '''"""{domain} /{resource} Typer commands."""
 from __future__ import annotations
 
 import typer
 
-from ycli.output import render
-from ycli.yandex.{domain}._clideps import {domain}_client
+from ycli.context import AppContext
+from ycli.output import Serializer
 
 app = typer.Typer(name="{resource}", help="{domain} /{resource}.", no_args_is_help=True)
+
+
+@app.callback()
+def _group() -> None:
+    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
 
 
 @app.command()
 def get(ctx: typer.Context, item_id: str) -> None:
     """Fetch one {resource} by id."""
-    render({domain}_client(ctx).{resource}.get(item_id))
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.{domain}.{resource}.get(item_id), app_ctx.strategy, app_ctx.console)
 '''
 
 MCP = '''"""{domain} /{resource} FastMCP tools (read-only)."""
@@ -71,14 +77,15 @@ from __future__ import annotations
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.{domain}._deps import RO, TAGS, {domain}_client
+from ycli.yandex._mcp import RO
+from ycli.yandex.{domain}._deps import TAGS, {domain}_client
 from ycli.yandex.{domain}.client import {domain_cls}Client
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 mcp = FastMCP("{domain}-{resource}")
 
 
-@mcp.tool(name="{resource}_get", annotations=RO, tags=TAGS)
+@mcp.tool(name="{resource}_get", annotations={{**RO, "title": "Get {domain} {resource}"}}, tags=TAGS)
 def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:
     """Fetch one {resource} by id."""
     return client.{resource}.get(item_id)

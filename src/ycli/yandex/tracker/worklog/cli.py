@@ -1,23 +1,22 @@
 """`tracker worklog` commands."""
 from __future__ import annotations
 
-from typing import Annotated
-
 import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
+from ycli.yandex.tracker._args import KeyArg
 
 app = typer.Typer(name="worklog", help="Tracker issue worklog.", no_args_is_help=True)
 
 
 @app.callback()
-def _callback() -> None:
-    """Tracker issue worklog."""
+def _group() -> None:
+    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
 
 
 @app.command("list")
-def list_(ctx: typer.Context, key: Annotated[str, typer.Argument(metavar="KEY", help="Issue key.")]) -> None:
+def list_(ctx: typer.Context, key: KeyArg) -> None:
     """List worklog entries for issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(app_ctx.tracker.worklog.list(key), app_ctx.strategy, app_ctx.console)

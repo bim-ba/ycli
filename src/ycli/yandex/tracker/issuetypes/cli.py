@@ -10,8 +10,8 @@ app = typer.Typer(name="issuetypes", help="Tracker issue types.", no_args_is_hel
 
 
 @app.callback()
-def _callback() -> None:
-    """Tracker issue types."""
+def _group() -> None:
+    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
 
 
 @app.command("list")
