@@ -35,11 +35,20 @@ def test_execute_posts_body_returns_transitionlist():
     responses.add(
         responses.POST,
         f"{BASE}/issues/DE-1/transitions/close/_execute",
-        json=[{"id": "reopen", "display": "Reopen"}],
+        json=[
+            {
+                "self": "https://api.tracker.yandex.net/v3/issues/DE-1/transitions/close",
+                "id": "close",
+                "to": {"id": "3", "key": "closed", "display": "Closed"},
+                "screen": {"id": "scr1"},
+            }
+        ],
         status=200,
     )
     out = _client().execute("DE-1", "close", body={"comment": "done"})
     assert isinstance(out, TransitionList)
-    assert out.root[0].id == "reopen"
-    assert out.root[0].display == "Reopen"
+    assert out.root[0].id == "close"
+    assert out.root[0].to is not None
+    assert out.root[0].to.key == "closed"
+    assert out.root[0].to.display == "Closed"
     assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]

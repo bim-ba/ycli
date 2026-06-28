@@ -35,7 +35,14 @@ def test_execute_with_field():
     responses.add(
         responses.POST,
         f"{BASE}/issues/DE-1/transitions/close/_execute",
-        json=[{"id": "reopen", "display": "Reopen"}],
+        json=[
+            {
+                "self": "https://api.tracker.yandex.net/v3/issues/DE-1/transitions/close",
+                "id": "close",
+                "to": {"id": "3", "key": "closed", "display": "Closed"},
+                "screen": {"id": "scr1"},
+            }
+        ],
         status=200,
     )
     res = runner.invoke(
@@ -54,6 +61,7 @@ def test_execute_with_field():
     )
     assert res.exit_code == 0
     parsed = json.loads(res.stdout)
-    assert parsed[0]["id"] == "reopen"
-    assert parsed[0]["display"] == "Reopen"
+    assert parsed[0]["id"] == "close"
+    assert parsed[0]["to"]["key"] == "closed"
+    assert parsed[0]["to"]["display"] == "Closed"
     assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]
