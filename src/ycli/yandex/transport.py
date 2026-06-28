@@ -31,6 +31,7 @@ from ycli.yandex.errors import (
     YandexServerError,
 )
 
+
 def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
     """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
 
