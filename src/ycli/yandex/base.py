@@ -37,7 +37,7 @@ class FromEnvSession:
         credentials = Credentials()
         config = AppConfig()
         session = Transport.session(
-            token=credentials.oauth_token,
+            oauth_token=credentials.oauth_token,
             organization_id=credentials.organization_id,
             timeout_seconds=config.timeout_seconds,
             retries=config.retries,

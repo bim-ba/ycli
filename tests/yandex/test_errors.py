@@ -20,7 +20,7 @@ def _get(status: int):
     url = "https://api.tracker.yandex.net/v3/probe"
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET, url, status=status, json={"errorMessages": ["boom"]})
-        session = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
+        session = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
         return session.get(url)
 
 
@@ -47,5 +47,5 @@ def test_success_does_not_raise():
     url = "https://api.tracker.yandex.net/v3/ok"
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET, url, status=200, json={"ok": True})
-        session = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
+        session = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
         assert session.get(url).json() == {"ok": True}

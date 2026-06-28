@@ -1,7 +1,7 @@
 """Single auth boundary for every Yandex consumer.
 
-``Transport.session(*, token, organization_id, timeout_seconds, retries)`` returns a pure
-``requests.Session`` carrying ``Authorization: OAuth`` and a single canonical org header
+``Transport.session(*, oauth_token, organization_id, timeout_seconds, retries, base)`` returns
+a pure ``requests.Session`` carrying ``Authorization: OAuth`` and a single canonical org header
 (``X-Org-Id``), a ``urllib3.Retry`` adapter (idempotent methods only — GET/HEAD/OPTIONS;
 backoff on 429/5xx) on http/https, and a configured request timeout; non-idempotent POSTs
 are NOT retried here — a caller that needs that mounts its own adapter. Credential
@@ -9,7 +9,7 @@ resolution is the consumer's ``from_env`` concern — this function never reads
 ``os.environ``; an empty arg raises rather than firing an unauthenticated call.
 
 Example:
-    >>> s = Transport.session(token="t", organization_id="o", timeout_seconds=30.0, retries=3)
+    >>> s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     >>> s.headers["Authorization"]
     'OAuth t'
 """
@@ -30,9 +30,6 @@ from ycli.yandex.errors import (
     YandexRateLimitError,
     YandexServerError,
 )
-
-ORGANIZATION_HEADER = "X-Org-Id"
-
 
 def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
     """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
@@ -111,18 +108,19 @@ class Transport:
     def session(
         cls,
         *,
-        token: str,
+        oauth_token: str,
         organization_id: str,
-        timeout_seconds: float,
-        retries: int,
+        timeout_seconds: float = 30.0,
+        retries: int = 3,
+        base: requests.Session | None = None,
     ) -> requests.Session:
-        if not token:
-            raise ValueError("token must be a non-empty string")
+        if not oauth_token:
+            raise ValueError("oauth_token must be a non-empty string")
         if not organization_id:
             raise ValueError("organization_id must be a non-empty string")
-        session = requests.Session()
+        session = base or requests.Session()
         session.headers.update(
-            {"Authorization": f"OAuth {token}", ORGANIZATION_HEADER: organization_id}
+            {"Authorization": f"OAuth {oauth_token}", "X-Org-Id": organization_id}
         )
         session.hooks["response"].append(_raise_typed)
         retry = Retry(
