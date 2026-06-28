@@ -9,6 +9,127 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.7.0 (2026-06-28)
+
+### Build System
+
+- Sync uv.lock project version to 0.6.0
+  ([`c9ec02e`](https://github.com/bim-ba/ycli/commit/c9ec02e2f42ac3b8a55f2a5bf7c5ad4990d03636))
+
+### Code Style
+
+- **transport**: Restore PEP8 blank line; assert base= applies hook+adapter
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+### Documentation
+
+- Design spec for round-2 architecture refactor (DI, serialization, pagination, ARCH rules)
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- Implementation plan for round-2 architecture refactor (13 tasks, 6 phases)
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- Rename ApiModel -> APIModel in round-2 spec ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- Revise MCP DI to per-domain @functools.cache factory (fastmcp-canonical)
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- Revise round-2 spec — raw-arg clients + Serializer service
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **arch**: Align ARCH-10 Check with enforcement (max_items not grep-enforced — HTTP 500 collision)
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **arch**: ARCH-4 serialization confinement; add ARCH-7..10 (DI, single config, typed errors,
+  no-shadow) ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+### Features
+
+- Round-2 architecture refactor (raw-arg DI, Serializer, pagination strategies, ARCH-7..10)
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **config**: Add YCLI_MAX_ITEMS pagination cap (default 500)
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **forms**: Answers list_all via NextUrlStrategy, bounded by --limit/--all
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **pagination**: PaginationStrategy ABC + SinglePage/Cursor/NextUrl strategies
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **wiki**: Auto-paginate pages descendants (CursorStrategy) → flat PageRefList; --limit/--all
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **wiki,forms**: Unwrap comments/attachments/surveys envelopes to flat RootModel collections
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+### Refactoring
+
+- **cli**: Dedupe KeyArg into _args.py; standardize _group anchors; modernize scaffold template
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **di**: Raw-arg composition clients + AppContext; rewrite CLI call sites via Serializer; drop
+  cliformat/_clideps/from_env(CLI) ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **mcp**: Per-domain @cache client factories (fastmcp canonical); delete from_env/FromEnvSession
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **models**: Consolidate four _Lenient bases into a single APIModel
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **output**: Add Serializer service + SerializationStrategy.from_format; fold helpers into
+  PrettyStrategy ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **transport**: Raw oauth_token arg + bare-session base injection; inline org header
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+### Testing
+
+- **forms**: Limit-spans-pages drain test; assert single-fetch on page-1 cap
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **models**: Exercise APIModel lenient parsing at runtime, not just config
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **output**: Assert from_format covers all four formats; dedupe io import
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **tracker**: Stub TrackerClient via raw args, not a pre-authed session
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **wiki**: De-duplicate list tests via page_size assertion; PEP8 blank lines
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+- **wiki**: Drop dead import; --all test drains two pages; assert page_size=100
+  ([#10](https://github.com/bim-ba/ycli/pull/10),
+  [`38e28ff`](https://github.com/bim-ba/ycli/commit/38e28ff19dd6c799988c715d07c175bc1caca5d2))
+
+
 ## v0.6.0 (2026-06-28)
 
 ### Build System
