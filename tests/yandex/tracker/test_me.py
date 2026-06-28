@@ -5,7 +5,6 @@ import asyncio
 import json
 
 import pytest
-import requests
 import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
@@ -59,9 +58,7 @@ def test_me_mcp_tool(creds):
 @responses.activate
 async def test_me_mcp_auth_guard(monkeypatch):
     def _stub() -> TrackerClient:
-        s = requests.Session()
-        s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-        return TrackerClient(oauth_token="t", organization_id="o", session=s)
+        return TrackerClient(oauth_token="t", organization_id="o")
 
     monkeypatch.setattr(TrackerClient, "from_env", classmethod(lambda cls: _stub()))
     responses.add(responses.GET, _URL, json={}, status=401)
