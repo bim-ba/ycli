@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import typer
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
 from ycli.context import AppContext
 from ycli.models import APIModel
@@ -29,7 +29,7 @@ class ServiceAuthStatus(APIModel):
 class AuthReport(APIModel):
     configured: bool
     organization_id: str = ""
-    services: list[ServiceAuthStatus] = []
+    services: list[ServiceAuthStatus] = Field(default_factory=list)
 
 
 _PROBES: list[tuple[str, type, Callable[[object], str]]] = [

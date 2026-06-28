@@ -42,7 +42,9 @@ class IssuesClient(TrackerResource):
     @uplink.json
     @uplink.post("issues/_search")
     def search(self, body: uplink.Body) -> IssueList:  # ty: ignore[empty-body]
-        """``POST /issues/_search`` → list of issues. ``body`` = ``{"filter": …}`` or ``{"query": …}``.
+        """``POST /issues/_search`` → list of issues.
+
+        ``body`` is ``{"filter": …}`` or ``{"query": …}``.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP

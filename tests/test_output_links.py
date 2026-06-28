@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import io
 
-import pytest
 from pydantic import BaseModel
 from rich.console import Console
 
-from ycli.output import OutputFormat, Serializer, SerializationStrategy
+from ycli.output import OutputFormat, SerializationStrategy, Serializer
 
 
 class _Row(BaseModel):

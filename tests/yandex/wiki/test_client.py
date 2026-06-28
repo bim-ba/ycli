@@ -1,10 +1,11 @@
 """TDD for WikiClient composition root — sub-clients share one session."""
 
 import responses
-from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.pages.client import PagesClient
-from ycli.yandex.wiki.comments.client import CommentsClient
+
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
+from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.comments.client import CommentsClient
+from ycli.yandex.wiki.pages.client import PagesClient
 
 
 def test_composes_subclients_over_shared_authed_session():

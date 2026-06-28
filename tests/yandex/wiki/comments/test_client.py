@@ -1,7 +1,8 @@
 import requests
 import responses
+
 from ycli.yandex.wiki.comments.client import CommentsClient
-from ycli.yandex.wiki.comments.models import CommentList, CommentsResponse
+from ycli.yandex.wiki.comments.models import CommentList
 
 BASE = "https://api.wiki.yandex.net/v1"
 

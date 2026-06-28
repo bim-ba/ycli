@@ -10,8 +10,8 @@ from ycli.output import (
     JsonStrategy,
     OutputFormat,
     PrettyStrategy,
-    Serializer,
     SerializationStrategy,
+    Serializer,
     YamlStrategy,
 )
 

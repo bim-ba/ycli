@@ -11,7 +11,7 @@ mcp = FastMCP("wiki-me")
 
 
 @mcp.tool(name="me_get", annotations={**RO, "title": "Get current Wiki user"}, tags=TAGS)
-def get(client: WikiClient = Depends(wiki_client)) -> Me:
+def get(client: WikiClient = Depends(wiki_client)) -> Me:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """The authenticated Yandex Wiki user (a safe auth probe)."""
     result = client.me.get()
     if result.username is None:

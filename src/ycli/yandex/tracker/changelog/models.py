@@ -45,7 +45,7 @@ class ChangelogEntry(APIModel):
     updated_at: str | None = Field(default=None, alias="updatedAt")
     updated_by: _DisplayRef | None = Field(default=None, alias="updatedBy")
     type: str | None = None
-    fields: list[ChangeField] = []
+    fields: list[ChangeField] = Field(default_factory=list)
 
     @property
     def author_display(self) -> str | None:

@@ -7,8 +7,8 @@ from fastmcp.exceptions import ToolError
 from typer.testing import CliRunner
 
 import ycli.cli as cli
-from ycli.yandex.wiki.me import mcp as me_mcp_module
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.me import mcp as me_mcp_module
 from ycli.yandex.wiki.me.models import Me
 
 ME_URL = "https://api.wiki.yandex.net/v1/users/me"

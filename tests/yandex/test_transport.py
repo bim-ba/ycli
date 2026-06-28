@@ -8,6 +8,8 @@ timeout. Empty args raise. When base is supplied, that session is configured in 
 returned instead of a fresh one.
 """
 
+from pathlib import Path
+
 import pytest
 import requests
 import responses
@@ -70,7 +72,8 @@ def test_session_does_not_read_environment(monkeypatch):
 
 
 def test_timeout_adapter_injects_default_when_none(monkeypatch):
-    # responses mounts its own adapter and bypasses _TimeoutAdapter.send, so unit-test send() directly.
+    # responses mounts its own adapter and bypasses _TimeoutAdapter.send;
+    # unit-test send() directly.
     from ycli.yandex.transport import _TimeoutAdapter
 
     captured: dict[str, object] = {}
@@ -104,9 +107,6 @@ def test_timeout_adapter_passes_explicit_timeout_through(monkeypatch):
     assert captured["timeout"] == 3.0
 
 
-from pathlib import Path
-
-
 def test_no_hardcoded_uplink_timeout_in_clients():
     src = Path(__file__).resolve().parents[2] / "src" / "ycli" / "yandex"
     offenders = [str(p) for p in src.rglob("client.py") if "@uplink.timeout" in p.read_text()]
@@ -131,9 +131,7 @@ def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     monkeypatch.setenv("YCLI_TIMEOUT_SECONDS", "99")
-    import requests.adapters
     from ycli.yandex.transport import _TimeoutAdapter
-    from ycli.yandex.tracker.client import TrackerClient
 
     seen: dict = {}
     real_send = _TimeoutAdapter.send

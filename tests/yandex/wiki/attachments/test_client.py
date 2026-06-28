@@ -1,7 +1,8 @@
 import requests
 import responses
+
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
-from ycli.yandex.wiki.attachments.models import AttachmentList, AttachmentsResponse
+from ycli.yandex.wiki.attachments.models import AttachmentList
 
 BASE = "https://api.wiki.yandex.net/v1"
 

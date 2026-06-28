@@ -69,7 +69,9 @@ def _group() -> None:
 def get(ctx: typer.Context, item_id: str) -> None:
     """Fetch one {resource} by id."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.{domain}.{resource}.get(item_id), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.{domain}.{resource}.get(item_id), app_ctx.strategy, app_ctx.console
+    )
 '''
 
 MCP = '''"""{domain} /{resource} FastMCP tools (read-only)."""
@@ -86,8 +88,12 @@ from ycli.yandex.{domain}.{resource}.models import {cls}
 mcp = FastMCP("{domain}-{resource}")
 
 
-@mcp.tool(name="{resource}_get", annotations={{**RO, "title": "Get {domain} {resource}"}}, tags=TAGS)
-def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:
+@mcp.tool(
+    name="{resource}_get",
+    annotations={{**RO, "title": "Get {domain} {resource}"}},
+    tags=TAGS,
+)
+def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:  # noqa: B008
     """Fetch one {resource} by id."""
     return client.{resource}.get(item_id)
 '''
@@ -129,7 +135,8 @@ def main() -> None:
     print(
         "next:\n"
         "  1. replace the FILL markers in client.py/models.py with the real path + fields\n"
-        f"  2. register the resource on the domain client: in {args.domain}/client.py __init__ add\n"
+        f"  2. register the resource on the domain client: in "
+        f"{args.domain}/client.py __init__ add\n"
         f"     self.{resource} = {cls}Client(session=session)\n"
         f"  3. mount the sub-app into {args.domain}/cli.py (app.add_typer) and the subserver into\n"
         f"     {args.domain}/mcp.py (mcp.mount), mirroring a sibling resource\n"

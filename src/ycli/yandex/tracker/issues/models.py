@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
 from ycli.models import APIModel
 from ycli.yandex.tracker._models import _DisplayRef, _KeyRef
@@ -28,7 +28,7 @@ class Issue(APIModel):
     parent: _KeyRef | None = None
     queue: _KeyRef | None = None
     assignee: _DisplayRef | None = None
-    tags: list[str] = []
+    tags: list[str] = Field(default_factory=list)
 
     @property
     def type_key(self) -> str | None:

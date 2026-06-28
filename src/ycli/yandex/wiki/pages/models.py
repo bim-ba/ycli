@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
 from ycli.models import APIModel
 
@@ -81,7 +81,7 @@ class DescendantsResponse(APIModel):
         ('data/a', None)
     """
 
-    results: list[PageRef] = []
+    results: list[PageRef] = Field(default_factory=list)
     next_cursor: str | None = None
 
 

@@ -8,7 +8,7 @@ tests reset it via the autouse ``cache_clear`` fixture in tests/conftest.py.
 
 from functools import cache
 
-from ycli.yandex._mcp import RO
+from ycli.yandex._mcp import RO as RO
 from ycli.yandex.settings import AppConfig, Credentials
 from ycli.yandex.wiki.client import WikiClient
 

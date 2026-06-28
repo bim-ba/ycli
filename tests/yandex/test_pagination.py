@@ -1,4 +1,4 @@
-from ycli.yandex.pagination import SinglePageStrategy, CursorStrategy, NextUrlStrategy
+from ycli.yandex.pagination import CursorStrategy, NextUrlStrategy, SinglePageStrategy
 
 
 def test_single_page_truncates_to_limit():

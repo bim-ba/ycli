@@ -13,6 +13,6 @@ mcp = FastMCP("tracker-issuetypes")
 @mcp.tool(
     name="issuetypes_list", annotations={**RO, "title": "List Tracker issue types"}, tags=TAGS
 )
-def list_(client: TrackerClient = Depends(tracker_client)) -> IssueTypeList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> IssueTypeList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """All available issue types (e.g. task, bug, epic)."""
     return client.issuetypes.list()

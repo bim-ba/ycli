@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pydantic import Field
+
 from ycli.models import APIModel
 
 
@@ -33,7 +35,7 @@ class Page(APIModel):
     """
 
     id: int | None = None
-    items: list[Question] = []
+    items: list[Question] = Field(default_factory=list)
 
 
 class QuestionsResponse(APIModel):
@@ -46,4 +48,4 @@ class QuestionsResponse(APIModel):
         1
     """
 
-    pages: list[Page] = []
+    pages: list[Page] = Field(default_factory=list)

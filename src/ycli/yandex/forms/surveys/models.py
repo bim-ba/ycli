@@ -1,10 +1,10 @@
-"""Pydantic models for Forms /surveys (Survey + SurveyList envelope + SurveyCollection flat list)."""
+"""Pydantic models for Forms /surveys (Survey + SurveyList envelope + SurveyCollection)."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
 from ycli.models import APIModel
 
@@ -45,8 +45,8 @@ class SurveyList(APIModel):
         'a'
     """
 
-    links: dict[str, Any] = {}
-    result: list[Survey] = []
+    links: dict[str, Any] = Field(default_factory=dict)
+    result: list[Survey] = Field(default_factory=list)
 
 
 class SurveyCollection(RootModel[list[Survey]]):

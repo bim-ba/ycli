@@ -6,10 +6,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.yandex.settings import AppConfig
 from ycli.context import AppContext
 from ycli.output import Serializer
 from ycli.yandex.forms._args import SurveyIdArg
+from ycli.yandex.settings import AppConfig
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 

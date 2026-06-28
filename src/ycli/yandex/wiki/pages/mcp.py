@@ -12,13 +12,13 @@ mcp = FastMCP("wiki-pages")
 
 
 @mcp.tool(name="pages_get", annotations={**RO, "title": "Get Wiki page"}, tags=TAGS)
-def get(slug: str, client: WikiClient = Depends(wiki_client)) -> str:
+def get(slug: str, client: WikiClient = Depends(wiki_client)) -> str:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """The page's markdown body for SLUG."""
     return client.pages.get(slug=slug, fields="content").content or ""
 
 
 @mcp.tool(name="pages_meta", annotations={**RO, "title": "Get Wiki page metadata"}, tags=TAGS)
-def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:
+def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """Page metadata for SLUG (attributes + owner)."""
     return client.pages.get(slug=slug, fields="attributes,owner")
 
@@ -27,7 +27,7 @@ def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"}, tags=TAGS
 )
 def descendants(
-    slug: str, limit: int = 0, client: WikiClient = Depends(wiki_client)
+    slug: str, limit: int = 0, client: WikiClient = Depends(wiki_client)  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
 ) -> PageRefList:
     """All descendant refs under SLUG, auto-paginated. Capped at YCLI_MAX_ITEMS (default 500)
     unless ``limit`` is given; narrow by SLUG for large trees."""

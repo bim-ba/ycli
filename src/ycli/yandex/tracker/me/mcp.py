@@ -11,7 +11,7 @@ mcp = FastMCP("tracker-me")
 
 
 @mcp.tool(name="me_get", annotations={**RO, "title": "Get current Tracker user"}, tags=TAGS)
-def get(client: TrackerClient = Depends(tracker_client)) -> Me:
+def get(client: TrackerClient = Depends(tracker_client)) -> Me:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """The authenticated Yandex Tracker user (a safe auth probe)."""
     result = client.me.get()
     if result.login is None:

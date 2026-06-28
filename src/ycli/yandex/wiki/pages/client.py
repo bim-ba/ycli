@@ -38,7 +38,9 @@ class PagesClient(WikiResource):
         cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
         actuality: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
     ) -> DescendantsResponse:  # ty: ignore[empty-body]
-        """One raw page of ``{id, slug}`` refs + ``next_cursor`` (internal — callers use ``descendants``)."""
+        """One raw page of ``{id, slug}`` refs + ``next_cursor``.
+
+        Internal; callers use ``descendants``."""
 
     def descendants(
         self,
@@ -47,7 +49,9 @@ class PagesClient(WikiResource):
         limit: int | None = None,
         actuality: str | None = None,
     ) -> PageRefList:
-        """All descendant refs under ``slug``, draining ``next_cursor`` internally, capped at ``limit``.
+        """All descendant refs under ``slug``, draining ``next_cursor`` internally.
+
+        Capped at ``limit``.
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP

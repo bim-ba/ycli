@@ -25,5 +25,6 @@ assert any(c.name == "mcp" for c in cli.app.registered_commands), "mcp subcomman
 assert resources.files("ycli").joinpath("py.typed").is_file(), "py.typed not shipped in the dist"
 
 print(
-    f"smoke test OK — {ycli.__name__} {ycli.__version__} imports; CLI + mcp subcommand + py.typed present"
+    f"smoke test OK — {ycli.__name__} {ycli.__version__} imports; "
+    "CLI + mcp subcommand + py.typed present"
 )

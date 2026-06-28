@@ -1,8 +1,10 @@
 """TDD for PagesClient — pure declarative endpoints, mocked with `responses`."""
 
 import json
+
 import requests
 import responses
+
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.client import PagesClient
 from ycli.yandex.wiki.pages.models import PageDetails, PageRefList

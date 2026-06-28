@@ -20,7 +20,7 @@ from rich.console import Console
 from rich.table import Table
 
 
-class OutputFormat(str, enum.Enum):
+class OutputFormat(enum.StrEnum):
     """CLI ``--format`` choices."""
 
     auto = "auto"
@@ -34,7 +34,7 @@ class SerializationStrategy(ABC):
     def render(self, result: BaseModel, console: Console) -> None: ...
 
     @classmethod
-    def from_format(cls, output_format: OutputFormat) -> "SerializationStrategy":
+    def from_format(cls, output_format: OutputFormat) -> SerializationStrategy:
         """Resolve a CLI ``--format`` choice to its strategy (no module-level registry)."""
         return {
             OutputFormat.json: JsonStrategy,

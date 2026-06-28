@@ -25,7 +25,7 @@ class AppContext:
     _clients: dict[str, object] = field(default_factory=dict)
 
     @classmethod
-    def from_typer_context(cls, ctx: typer.Context) -> "AppContext":
+    def from_typer_context(cls, ctx: typer.Context) -> AppContext:
         return ctx.obj
 
     @property

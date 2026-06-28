@@ -11,6 +11,6 @@ mcp = FastMCP("tracker-linktypes")
 
 
 @mcp.tool(name="linktypes_list", annotations={**RO, "title": "List Tracker link types"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> LinkTypeList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> LinkTypeList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """All available link types (e.g. relates, depends on, blocks)."""
     return client.linktypes.list()

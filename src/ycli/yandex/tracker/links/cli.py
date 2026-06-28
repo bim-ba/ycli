@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+import enum
 from typing import Annotated
 
 import typer
@@ -14,7 +14,7 @@ from ycli.yandex.tracker._args import KeyArg
 app = typer.Typer(name="links", help="Tracker issue links.", no_args_is_help=True)
 
 
-class Relationship(str, Enum):
+class Relationship(enum.StrEnum):
     """Link relationship verbs accepted by ``POST /issues/{key}/links``."""
 
     DEPENDS_ON = "depends on"

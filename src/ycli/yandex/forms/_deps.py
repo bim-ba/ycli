@@ -8,9 +8,9 @@ tests reset it via the autouse ``cache_clear`` fixture in tests/conftest.py.
 
 from functools import cache
 
-from ycli.yandex._mcp import RO
-from ycli.yandex.settings import AppConfig, Credentials
+from ycli.yandex._mcp import RO as RO
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.settings import AppConfig, Credentials
 
 TAGS: set[str] = {"forms"}
 

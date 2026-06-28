@@ -5,12 +5,11 @@ from __future__ import annotations
 import io
 import json
 
-import pytest
 import yaml
 from pydantic import BaseModel, RootModel
 from rich.console import Console
 
-from ycli.output import OutputFormat, PrettyStrategy, Serializer, SerializationStrategy
+from ycli.output import OutputFormat, PrettyStrategy, SerializationStrategy, Serializer
 
 
 class Item(BaseModel):

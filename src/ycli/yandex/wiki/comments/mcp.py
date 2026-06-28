@@ -11,6 +11,6 @@ mcp = FastMCP("wiki-comments")
 
 
 @mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"}, tags=TAGS)
-def list_(page_id: int, client: WikiClient = Depends(wiki_client)) -> CommentList:
+def list_(page_id: int, client: WikiClient = Depends(wiki_client)) -> CommentList:  # noqa: B008 — FastMCP resolves Depends at call time, not definition time
     """Comments on a page id."""
     return client.comments.list(page_id=page_id)

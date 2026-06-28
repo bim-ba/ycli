@@ -10,12 +10,12 @@ from typing import Annotated
 import typer
 
 from ycli.context import AppContext
-from ycli.yandex.auth import app as auth_app
 from ycli.log import configure
 from ycli.mcp_launcher import launch_mcp_server
 from ycli.output import OutputFormat
-from ycli.yandex.settings import AppConfig
+from ycli.yandex.auth import app as auth_app
 from ycli.yandex.forms.cli import app as forms_app
+from ycli.yandex.settings import AppConfig
 from ycli.yandex.tracker.cli import app as tracker_app
 from ycli.yandex.wiki.cli import app as wiki_app
 
@@ -52,9 +52,10 @@ app.command(name="mcp")(launch_mcp_server)
 
 def main() -> None:  # pragma: no cover
     """Console-script entry point (``ycli`` / ``yandex-cli``)."""
-    from pydantic import ValidationError
-    from ycli.yandex.errors import YandexError
     import typer
+    from pydantic import ValidationError
+
+    from ycli.yandex.errors import YandexError
 
     try:
         app()
