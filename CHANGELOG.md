@@ -9,6 +9,121 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.9.0 (2026-06-29)
+
+### Bug Fixes
+
+- **status**: Discriminate the auth me union to survive the MCP round-trip
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+### Build System
+
+- Make the demo render pretty, realistic output ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Render demo output from committed fixtures, not hand-typed text
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Sync uv.lock project version to 0.8.1 ([#15](https://github.com/bim-ba/ycli/pull/15),
+  [`b442d41`](https://github.com/bim-ba/ycli/commit/b442d4157a72605d221eadd8cc296efb53b86481))
+
+### Code Style
+
+- Collapse the test_settings monkeypatch line (ruff format)
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+### Continuous Integration
+
+- Drop the CI-bypass marker from the demo-GIF auto-commit
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Mint a GitHub App token for PSR so it can push past branch protection
+  ([#17](https://github.com/bim-ba/ycli/pull/17),
+  [`e0674b5`](https://github.com/bim-ba/ycli/commit/e0674b5136a3b53071cfdb10d3ceae8b6dec4e14))
+
+### Documentation
+
+- Add module docstrings to the four empty __init__.py files
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Add round-4 architecture refactor design spec ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Add round-4 implementation plan (6 tasks) ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Regenerate demo GIF ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- **readme**: Match badge style to DeepWiki (flat, logos, semantic colors)
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+### Features
+
+- Remove the raw issues 'full' accessor and RawMapping
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Round-4 architecture refactor (remove RawMapping/full, status & mcp packages, pagination generics,
+  reproducible demo) ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Status package with native me + read-only status_get MCP tool
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+### Refactoring
+
+- Drop underscore prefixes from internal yandex modules
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Flatten API ref wrappers to scalars via BeforeValidator
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Move the MCP server + CLI into a ycli.mcp package ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Simplify the pretty renderer to lay out flat models
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Type pagination strategies with PEP 695 generics ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- **cli**: Drop the lazy __getattr__ shim; reference ycli.cli.app explicitly
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- **cli**: Group cli/context/output into the ycli.cli package
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- **cli**: Split domain _args.py into _types.py + _utils.py
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+### Testing
+
+- Align changelog/wiki-comments model test names with the flat-field shape
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Cover render.py unknown-command path + tighten renderer list test
+  ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+- Harden status_get wiki assertion + doc/typing nits ([#16](https://github.com/bim-ba/ycli/pull/16),
+  [`f1d95c6`](https://github.com/bim-ba/ycli/commit/f1d95c6c961b503d16f33f9b59a4a2f6c0f8a444))
+
+
 ## v0.8.1 (2026-06-29)
 
 ### Bug Fixes
