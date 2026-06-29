@@ -3,6 +3,7 @@ forms_me_get
 forms_questions_list
 forms_surveys_get
 forms_surveys_list
+status_get
 tracker_changelog_list
 tracker_comments_list
 tracker_issues_count

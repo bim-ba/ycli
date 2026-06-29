@@ -34,6 +34,9 @@ Notable shared pieces:
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
+  *Carve-out:* `yandex/status/` and the `ycli/mcp/` server package are cross-cutting surfaces,
+  not `<domain>/<resource>` dirs — the four-surface rule and the `_resource_dirs()` check
+  (which scans only `tracker/wiki/forms`) do not apply to them.
 - **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests` or
   `uplink`. All HTTP lives in `client.py` / `base.py` / `transport.py`.
 - **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py` and in the
