@@ -21,13 +21,18 @@ def _run(args: list[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_render_tracker_issue_get_emits_fixture_key():
-    proc = _run(["tracker", "issues", "get", "TRACKER-1"])
+def test_render_tracker_issue_get_is_pretty_and_flat():
+    proc = _run(["tracker", "issues", "get", "DEMO-42"])
     assert proc.returncode == 0, proc.stderr
-    assert "TRACKER-1" in proc.stdout
+    assert "DEMO-42" in proc.stdout
+    # the demo shows the pretty table, not raw JSON (a presentation, not a pipe)
+    assert not proc.stdout.lstrip().startswith("{")
+    # refs render flat (model-layer flattening), not as nested {"key": ...}
+    assert "inProgress" in proc.stdout
+    assert '{"key"' not in proc.stdout
 
 
-def test_render_wiki_page_get_emits_fixture_title():
+def test_render_wiki_page_get_emits_markdown_body():
     proc = _run(["wiki", "pages", "get", "onboarding"])
     assert proc.returncode == 0, proc.stderr
-    assert "onboarding" in proc.stdout
+    assert "Welcome to the team" in proc.stdout  # raw markdown body of the page

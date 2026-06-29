@@ -31,7 +31,7 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       - name: Install project
-        run: uv sync --locked --dev
+        run: uv sync --locked --dev --extra mcp  # mcp extra: the tape's `mcp methods` step
 
       # Install VHS + ttyd ourselves (ffmpeg is preinstalled on ubuntu-latest).
       # The charmbracelet/vhs-action bundles flaky font/ffmpeg downloaders that

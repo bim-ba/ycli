@@ -4,15 +4,16 @@
 # docs/demo/render.py (no network, no credentials). Keeps the GIF reproducible and
 # leak-free. Not installed; not on a user's PATH.
 #
-# Note: the `mcp methods` branch requires the mcp extra at regeneration time.
-# Regenerate the GIF with: uv run --extra mcp vhs docs/demo/demo.tape
+# `--no-sync`: the tape's Hide block runs `uv sync --extra mcp --dev` once up front, so
+# no command here re-resolves the environment mid-recording (which would print install
+# noise into the GIF, and would otherwise drop the mcp extra that `mcp methods` needs).
 case "$*" in
   "--help"|"")
-    exec uv run ycli --help ;;
-  "tracker issues get TRACKER-1"|"wiki pages get onboarding")
-    exec uv run python docs/demo/render.py "$@" ;;
+    exec uv run --no-sync ycli --help ;;
+  "tracker issues get DEMO-42"|"wiki pages get onboarding")
+    exec uv run --no-sync python docs/demo/render.py "$@" ;;
   "mcp methods")
-    exec uv run --extra mcp ycli mcp methods ;;
+    exec uv run --no-sync ycli mcp methods ;;
   *)
-    exec uv run ycli "$@" ;;
+    exec uv run --no-sync ycli "$@" ;;
 esac

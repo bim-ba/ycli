@@ -1,6 +1,6 @@
 {
   "id": 1,
   "slug": "onboarding",
-  "title": "Team Onboarding Guide",
-  "content": "# Team onboarding\n\nWelcome to the team!"
+  "title": "Team Onboarding 🚀",
+  "content": "# 👋 Welcome to the team!\n\nGlad to have you aboard. Here's your first week at a glance:\n\n## ✅ Day 1 — Setup\n- Get your accounts: **Tracker**, **Wiki**, Calendar\n- Say hi in **#team-general**\n\n## 📚 Day 2–3 — Ramp up\n- Skim the architecture docs\n- Pair with your onboarding buddy\n\n## 🚀 Day 4–5 — Ship\n- Grab a starter task from the **DEMO** queue\n- Open your first pull request!\n\n> 💡 Stuck on anything? Ask anyone — we're here to help.\n"
 }
