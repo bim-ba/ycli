@@ -1,0 +1,7 @@
+{
+  "key": "TRACKER-1",
+  "summary": "Set up project scaffolding",
+  "status": {"key": "inProgress", "display": "In Progress"},
+  "assignee": {"display": "Alice"},
+  "priority": {"key": "normal", "display": "Normal"}
+}

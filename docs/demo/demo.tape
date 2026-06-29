@@ -1,19 +1,21 @@
 # docs/demo/demo.tape — reproducible source for docs/assets/demo.gif
 #
 # Regenerate the GIF:
-#     vhs docs/demo/demo.tape
+#     uv run --extra mcp vhs docs/demo/demo.tape
 # Requires: vhs + ttyd + ffmpeg on PATH (see CONTRIBUTING / README).
+# The --extra mcp flag is needed for the `mcp methods` step.
 #
-# The recording runs the REAL `ycli --help` and leak-free baked sample data via
-# the shims in docs/demo/bin (no network, no credentials). The shims are put
-# first on PATH inside a Hide block so the demo types plain `ycli ...` commands.
+# The recording runs the REAL `ycli --help`, renders committed JSON fixtures
+# via docs/demo/render.py for the two data commands (no network, no credentials),
+# and shows the real `ycli mcp methods` tool list. The shims in docs/demo/bin put
+# the real ycli first on PATH inside a Hide block so the demo types plain `ycli ...`.
 
 Output docs/assets/demo.gif
 
 Set Shell bash
 Set FontSize 17
 Set Width 960
-Set Height 720
+Set Height 900
 Set Padding 24
 Set TypingSpeed 55ms
 Set Theme { "name": "Catppuccin Mocha", "background": "#1e1e2e", "foreground": "#cdd6f4", "cursor": "#f5e0dc", "selection": "#585b70", "black": "#45475a", "brightBlack": "#585b70", "red": "#f38ba8", "brightRed": "#f38ba8", "green": "#a6e3a1", "brightGreen": "#a6e3a1", "yellow": "#f9e2af", "brightYellow": "#f9e2af", "blue": "#89b4fa", "brightBlue": "#89b4fa", "magenta": "#cba6f7", "brightMagenta": "#cba6f7", "cyan": "#94e2d5", "brightCyan": "#94e2d5", "white": "#bac2de", "brightWhite": "#a6adc8" }
@@ -29,13 +31,13 @@ Show
 Type "ycli --help" Sleep 500ms Enter
 Sleep 2.5s
 
-# Baked, leak-free sample data.
+# Fixture-rendered data (committed JSON via render.py — deterministic, offline).
 Type "ycli tracker issues get TRACKER-1" Sleep 500ms Enter
 Sleep 2s
 
 Type "ycli wiki pages get onboarding" Sleep 500ms Enter
 Sleep 2s
 
-# Read-only MCP server banner with real tool names.
-Type "ycli mcp start" Sleep 500ms Enter
+# Real read-only MCP tool list (no creds, no network).
+Type "ycli mcp methods" Sleep 500ms Enter
 Sleep 3s
