@@ -22,7 +22,6 @@ tracker comments list
 tracker issues
 tracker issues count
 tracker issues create
-tracker issues full
 tracker issues get
 tracker issues list
 tracker issues search

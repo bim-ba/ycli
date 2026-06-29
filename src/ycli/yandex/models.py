@@ -7,16 +7,10 @@ well as its serialization alias. Serialization is NOT a model concern — see ``
 
 from __future__ import annotations
 
-from typing import Any
-
-from pydantic import BaseModel, ConfigDict, RootModel
+from pydantic import BaseModel, ConfigDict
 
 
 class APIModel(BaseModel):
     """Base for all Yandex API models: ignore unknown fields, allow name-or-alias population."""
 
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
-
-
-class RawMapping(RootModel[dict[str, Any]]):
-    """Wraps an unmodeled API dict so it renders through the Serializer (honoring --format)."""

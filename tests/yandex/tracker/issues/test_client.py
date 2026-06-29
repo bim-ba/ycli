@@ -31,15 +31,6 @@ def test_get_deserializes_issue():
 
 
 @responses.activate
-def test_get_raw_returns_dict():
-    responses.add(
-        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "extra": "field"}, status=200
-    )
-    raw = _client().get_raw("DE-1")
-    assert raw == {"key": "DE-1", "extra": "field"}
-
-
-@responses.activate
 def test_search_returns_issuelist():
     responses.add(
         responses.POST,

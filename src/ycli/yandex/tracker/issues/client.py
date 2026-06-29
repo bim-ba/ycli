@@ -25,20 +25,6 @@ class IssuesClient(TrackerResource):
         """
 
     @uplink.returns.json()
-    @uplink.get("issues/{key}")
-    def get_raw(self, key: uplink.Path) -> dict:  # ty: ignore[empty-body]
-        """``GET /issues/{key}`` → raw JSON dict (no pydantic pruning).
-
-        Bare ``dict`` (not ``dict[str, Any]``) — uplink raises ``TypeError`` trying to
-        instantiate ``typing.Any`` for an empty-body method.
-
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.get_raw(key="DATAENGINEERING-1")["key"]  # doctest: +SKIP
-            'DATAENGINEERING-1'
-        """
-
-    @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/_search")
     def search(self, body: uplink.Body) -> IssueList:  # ty: ignore[empty-body]

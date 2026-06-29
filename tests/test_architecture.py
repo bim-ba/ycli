@@ -21,7 +21,7 @@ CANONICAL = {"__init__.py", "client.py", "cli.py", "mcp.py", "models.py"}
 # Allow-list (fail-closed): an MCP tool's verb MUST be a known read. A new read
 # operation adds its verb here deliberately; any other verb (modify/patch/post/…)
 # fails, so a write tool can't slip in by naming. Keep in sync with ARCHITECTURE.md.
-READ_VERBS = {"get", "list", "count", "full", "search", "descendants", "meta"}
+READ_VERBS = {"get", "list", "count", "search", "descendants", "meta"}
 # Behavioral backstop: even a read-named tool must not call a client write method.
 _WRITE_CALL_RE = re.compile(r"\.(create|update|add|execute|delete|remove|set)\(")
 

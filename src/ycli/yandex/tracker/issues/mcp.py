@@ -1,7 +1,5 @@
 """Tracker /issues FastMCP tools (reads-only) — Depends DI, native error handling."""
 
-from typing import Any
-
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
@@ -26,14 +24,6 @@ def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     if result.key is None:
         raise ValueError(f"issue {key!r} not found (got empty response — check key or permissions)")
     return result
-
-
-@mcp.tool(
-    name="issues_full", annotations={**RO, "title": "Get full Tracker issue (raw)"}, tags=TAGS
-)
-def full(key: str, client: TrackerClient = Depends(tracker_client)) -> dict[str, Any]:
-    """A single Tracker issue as a raw dict (all fields)."""
-    return client.issues.get_raw(key)
 
 
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"}, tags=TAGS)

@@ -40,14 +40,14 @@ Notable shared pieces:
   `ycli.mcp` server package (`src/ycli/mcp/server.py`; its `__init__.py` stays fastmcp-free so the
   base install loads the CLI sub-app without the extra). Every MCP
   tool's verb (last `_`-segment of its name) must be in a fail-closed read-verb **allow-list**
-  (`get/list/count/full/search/descendants/meta` — a new read adds its verb deliberately), it
+  (`get/list/count/search/descendants/meta` — a new read adds its verb deliberately), it
   carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
   method (`.create/.update/.add/.execute/…`).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
   appear only in `src/ycli/output.py`. Models stay plain data (no serialize method); the
-  strategies live only in `output.py`. Unmodeled API dicts are wrapped in `RawMapping`
-  (a `RootModel[dict]` in `ycli.yandex.models`) before being passed to the Serializer.
+  strategies live only in `output.py`. Every rendered value is a typed pydantic model — there
+  is no raw-dict/`RawMapping` escape hatch.
   *Carve-out:* a bare `print(int)` for a scalar `count` result is fine — it is not model
   output and needs no Serializer wrapping. *Check:* `model_dump_json` / `yaml.safe_dump` /
   `json.dumps` only in `output.py`; CLI command bodies render via `Serializer.serialize`.
@@ -108,7 +108,7 @@ review cover the rest):
 ## Resource conventions (models, naming, MCP imports)
 
 The conventions that ARCH-1..10 do not capture — `APIModel` inheritance, `XList`/`XResponse`
-naming, the `_deps` import path, and the raw-accessor pattern — are documented in
+naming and the `_deps` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
 
 ## Changing an invariant

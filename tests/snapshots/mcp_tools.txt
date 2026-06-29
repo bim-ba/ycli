@@ -6,7 +6,6 @@ forms_surveys_list
 tracker_changelog_list
 tracker_comments_list
 tracker_issues_count
-tracker_issues_full
 tracker_issues_get
 tracker_issues_list
 tracker_issues_search

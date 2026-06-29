@@ -34,28 +34,6 @@ def test_get_dumps_issue_model():
 
 
 @responses.activate
-def test_full_renders_raw_dict_as_json():
-    responses.add(
-        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "extra": "field"}, status=200
-    )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "full", "DE-1"])
-    assert res.exit_code == 0
-    assert json.loads(res.stdout) == {"key": "DE-1", "extra": "field"}
-
-
-@responses.activate
-def test_full_renders_raw_dict_as_yaml():
-    responses.add(
-        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "extra": "field"}, status=200
-    )
-    res = runner.invoke(cli.app, ["--format", "yaml", "tracker", "issues", "full", "DE-1"])
-    assert res.exit_code == 0
-    import yaml
-
-    assert yaml.safe_load(res.stdout) == {"key": "DE-1", "extra": "field"}
-
-
-@responses.activate
 def test_list_builds_filter_body():
     responses.add(responses.POST, f"{BASE}/issues/_search", json=[{"key": "DE-1"}], status=200)
     res = runner.invoke(

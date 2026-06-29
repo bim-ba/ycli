@@ -63,34 +63,7 @@ import-linter and IDEs resolve the canonical source correctly.  The scaffold
 
 ---
 
-## 4. Raw / full unpruned accessor (`_raw` / `full` MCP tool)
-
-When a resource's pruned model omits fields that callers might need, offer a companion
-accessor that returns the raw `dict[str, Any]`:
-
-```python
-# client.py
-@uplink.returns.json()
-@uplink.get("issues/{key}")
-def get_raw(self, key: uplink.Path) -> dict:  # ty: ignore[empty-body]
-    """GET one issue — raw dict, all fields."""
-```
-
-```python
-# mcp.py  — exposed as a separate tool with the _full verb
-@mcp.tool(name="issues_full", annotations={**RO, "title": "Get full Tracker issue (raw)"}, tags=TAGS)
-def full(key: str, client: TrackerClient = Depends(tracker_client)) -> dict[str, Any]:
-    """A single Tracker issue as a raw dict (all fields)."""
-    return client.issues.get_raw(key)
-```
-
-Wrap the dict in `RawMapping` before passing it to `Serializer.serialize` in `cli.py`
-(ARCH-4).  Only add the raw accessor when the pruned model is intentionally incomplete
-and users are known to need the omitted fields.
-
----
-
-## 5. MCP tool-metadata standard
+## 4. MCP tool-metadata standard
 
 Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-derives
 `description` from the docstring and `outputSchema` from the return type annotation —
@@ -135,7 +108,7 @@ field `outputSchema`, exposed as camelCase by fastmcp 3.4.x).
 
 ---
 
-## 6. Where these rules are enforced
+## 5. Where these rules are enforced
 
 | Rule | Enforced by |
 |---|---|
