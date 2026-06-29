@@ -1,0 +1,31 @@
+# graphify corpus = src/ + docs/ (architecture, conventions, vendored Yandex API refs)
+# + key root docs. Merged with .gitignore (build artifacts already excluded there).
+# This file only ever EXCLUDES more — trims the tree down to the conceptual corpus.
+
+# --- non-corpus source trees ---
+/tests/
+/scripts/
+/.github/
+/.claude/
+/.cursor/
+
+# --- transient / historical docs (not durable concepts) ---
+docs/superpowers/
+docs/demo/
+docs/assets/
+
+# --- root noise (history, transcripts, boilerplate) ---
+/CHANGELOG.md
+/PROMPT.md
+/CODE_OF_CONDUCT.md
+/AGENTS.md
+
+# --- config / build files (concept-poor) ---
+/pyproject.toml
+/uv.lock
+/.pre-commit-config.yaml
+/mkdocs.yml
+/.mcp.example.json
+/.env.example
+/LICENSE
+/.graphifyignore
