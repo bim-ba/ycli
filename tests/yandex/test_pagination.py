@@ -2,7 +2,6 @@ from ycli.yandex.pagination import (
     CursorStrategy,
     NextUrlStrategy,
     SinglePageStrategy,
-    collect_single_page,
 )
 
 
@@ -39,6 +38,22 @@ def test_cursor_strategy_respects_limit():
     assert out == [1, 2, 3]  # stops without fetching c1
 
 
+def test_cursor_strategy_empty_string_cursor_is_not_terminal():
+    """Only ``None`` terminates: an empty-string cursor is a real cursor, fetched onward.
+
+    Locks the deliberate ``if cursor is None`` contract (vs the old falsy ``if not cursor``,
+    which would have stopped at the empty string) against a future regression.
+    """
+    pages = {
+        None: {"results": [1], "next_cursor": ""},
+        "": {"results": [2], "next_cursor": None},
+    }
+    out = CursorStrategy(
+        extract=lambda p: p["results"], next_of=lambda p: p["next_cursor"]
+    ).collect(lambda cursor: pages[cursor], limit=None)
+    assert out == [1, 2]  # "" is followed, not treated as exhausted
+
+
 def test_next_url_strategy_drains_and_dedupes_self_loops():
     pages = {
         "start": {"answers": [1], "next": {"next_url": "p2"}},
@@ -52,9 +67,11 @@ def test_next_url_strategy_drains_and_dedupes_self_loops():
     assert out == [1, 2]
 
 
-def test_collect_single_page_extracts_wraps_and_bounds():
+def test_single_page_collect_wrapped_extracts_wraps_and_bounds():
     pages = {"a": [1, 2, 3]}
-    out = collect_single_page(lambda cursor: pages, extract=lambda p: p["a"], wrap=list, limit=2)
+    out = SinglePageStrategy.collect_wrapped(
+        lambda cursor: pages, extract=lambda p: p["a"], wrap=list, limit=2
+    )
     assert out == [1, 2]
 
 
