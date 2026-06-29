@@ -16,7 +16,8 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   Yandex API docs live in `docs/references/yandex/`. The distributable plugin (skills +
   instructions) lives in `plugins/yandex-360/`, listed by the repo-root `.claude-plugin/marketplace.json`.
 - **Output:** every CLI command honors a global `--format/-o` flag (`auto` · `json` · `yaml`
-  · `pretty`); rendering goes through `ycli.output.render` (ARCH-4).
+  · `pretty`); rendering goes through `ycli.output.render` (ARCH-4). No output surface
+  hardcodes a service UI URL (ARCH-5); a general per-model deeplink mechanism is deferred.
 - **Typing:** the package ships a PEP 561 `py.typed` marker, so downstream type checkers
   see ycli's types. The MCP server is the `ycli mcp` subcommand (optional `[mcp]` extra).
 

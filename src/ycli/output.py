@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import enum
 import json
-import re
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
@@ -62,53 +61,44 @@ class YamlStrategy(SerializationStrategy):
 
 
 class PrettyStrategy(SerializationStrategy):
-    _KEY_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
-
     def render(self, result: BaseModel, console: Console) -> None:
-        console.print(
-            self._prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal)
-        )
+        console.print(self._prettify(result.model_dump(by_alias=True, mode="json")))
 
-    def _prettify(self, data: Any, *, link: bool = False) -> Any:
+    def _prettify(self, data: Any) -> Any:
         if isinstance(data, list):
-            return self._list_table(data, link=link)
+            return self._list_table(data)
         if isinstance(data, dict):
-            return self._kv_table(data, link=link)
+            return self._kv_table(data)
         return str(data)
 
-    def _kv_table(self, data: dict[str, Any], *, link: bool = False) -> Table:
+    def _kv_table(self, data: dict[str, Any]) -> Table:
         table = Table(show_header=False, box=None, pad_edge=False)
         table.add_column(style="cyan", no_wrap=True)
         table.add_column(overflow="fold")
         for key, value in data.items():
-            table.add_row(str(key), self._cell(value, is_key=(key == "key"), link=link))
+            table.add_row(str(key), self._cell(value))
         return table
 
-    def _list_table(self, items: list[Any], *, link: bool = False) -> Table:
+    def _list_table(self, items: list[Any]) -> Table:
         table = Table()
         if items and isinstance(items[0], dict):
             columns = list(items[0].keys())
             for column in columns:
                 table.add_column(str(column), style="cyan", overflow="fold")
             for item in items:
-                table.add_row(
-                    *[self._cell(item.get(c), is_key=(c == "key"), link=link) for c in columns]
-                )
+                table.add_row(*[self._cell(item.get(c)) for c in columns])
         else:
             table.add_column("value", overflow="fold")
             for item in items:
-                table.add_row(self._cell(item, link=link))
+                table.add_row(self._cell(item))
         return table
 
-    def _cell(self, value: Any, *, is_key: bool = False, link: bool = False) -> str:
+    def _cell(self, value: Any) -> str:
         if isinstance(value, (dict, list)):
             return json.dumps(value, ensure_ascii=False)
         if value is None:
             return ""
-        text = str(value)
-        if link and is_key and self._KEY_RE.match(text):
-            return f"[link=https://tracker.yandex.ru/{text}]{text}[/link]"
-        return text
+        return str(value)
 
 
 class AutoStrategy(SerializationStrategy):

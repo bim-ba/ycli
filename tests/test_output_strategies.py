@@ -42,10 +42,20 @@ def test_yaml_strategy_emits_yaml():
     assert "key: ABC-1" in buf.getvalue()
 
 
-def test_pretty_strategy_links_key_on_terminal():
+def test_pretty_strategy_renders_bare_key_on_terminal():
     console, buf = _console(terminal=True)
     PrettyStrategy().render(_Row(key="ABC-1", name="x"), console)
-    assert "tracker.yandex.ru/ABC-1" in buf.getvalue()
+    out = buf.getvalue()
+    assert "ABC-1" in out
+    assert "tracker.yandex.ru" not in out
+
+
+def test_pretty_strategy_renders_bare_key_when_piped():
+    console, buf = _console(terminal=False)
+    PrettyStrategy().render(_Row(key="ABC-1", name="x"), console)
+    out = buf.getvalue()
+    assert "ABC-1" in out
+    assert "tracker.yandex.ru" not in out
 
 
 def test_auto_strategy_is_json_when_piped():
