@@ -9,7 +9,6 @@ The MCP server never uses this module.
 from __future__ import annotations
 
 import enum
-import json
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
@@ -60,59 +59,69 @@ class YamlStrategy(SerializationStrategy):
         console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
 
 
-class RichCell:
-    """A single rendered cell: value → display text."""
-
-    def __init__(self, text: str) -> None:
-        self.text = text
-
-    @classmethod
-    def of(cls, value: Any) -> RichCell:
-        if isinstance(value, (dict, list)):
-            return cls(json.dumps(value, ensure_ascii=False))
-        if value is None:
-            return cls("")
-        return cls(str(value))
-
-
 class PrettyStrategy(SerializationStrategy):
+    """Render a model as a readable rich table — recursively, by structure, model-agnostic.
+
+    Presentation only — the model layer already flattens API wrappers to scalars (see
+    ``ycli.yandex.models`` ``KeyStr``/``IdStr``/``DisplayStr``), so this just lays data out:
+    - a scalar renders as its text; a ``None`` / empty object / empty list field is *omitted*
+      from the table (the data is unchanged — JSON/YAML still carry it);
+    - an object becomes a key/value table (nested recursively);
+    - a list of scalars joins with ``, ``; a list of objects becomes a column table whose
+      all-empty columns are dropped.
+    """
+
     def render(self, result: BaseModel, console: Console) -> None:
-        console.print(self._prettify(result.model_dump(by_alias=True, mode="json")))
+        rendered = self._render(result.model_dump(by_alias=True, mode="json"))
+        console.print("" if rendered is None else rendered)
 
-    def _prettify(self, data: Any) -> Any:
-        if isinstance(data, list):
-            return self._list_table(data)
-        if isinstance(data, dict):
-            return self._kv_table(data)
-        return str(data)
+    def _render(self, value: Any) -> Any:
+        """Value → a rich renderable (``str`` or ``Table``), or ``None`` to omit it."""
+        if isinstance(value, dict):
+            return self._render_object(value)
+        if isinstance(value, list):
+            return self._render_list(value)
+        if value is None:
+            return None
+        return str(value)
 
-    def _kv_table(self, data: dict[str, Any]) -> Table:
+    def _render_object(self, data: dict[str, Any]) -> Any:
+        fields = [(key, self._render(value)) for key, value in data.items()]
+        fields = [(key, rendered) for key, rendered in fields if rendered is not None]
+        if not fields:
+            return None
         table = Table(show_header=False, box=None, pad_edge=False)
         table.add_column(style="cyan", no_wrap=True)
         table.add_column(overflow="fold")
-        for key, value in data.items():
-            table.add_row(str(key), RichCell.of(value).text)
+        for key, rendered in fields:
+            table.add_row(key, rendered)
         return table
 
-    def _list_table(self, items: list[Any]) -> Table:
-        if items and isinstance(items[0], dict):
-            return self._list_of_dicts_table(items)
-        return self._list_of_scalars_table(items)
+    def _render_list(self, items: list[Any]) -> Any:
+        rendered = [r for r in (self._render(item) for item in items) if r is not None]
+        if not rendered:
+            return None
+        if all(isinstance(r, str) for r in rendered):
+            return ", ".join(rendered)
+        return self._render_object_list(items)
 
-    def _list_of_dicts_table(self, items: list[dict[str, Any]]) -> Table:
+    def _render_object_list(self, items: list[Any]) -> Table:
+        columns: list[str] = []
+        for item in items:
+            if isinstance(item, dict):
+                columns.extend(key for key in item if key not in columns)
+        cells = {
+            column: [
+                self._render(item.get(column)) if isinstance(item, dict) else None for item in items
+            ]
+            for column in columns
+        }
+        columns = [c for c in columns if any(value is not None for value in cells[c])]
         table = Table()
-        columns = list(items[0].keys())
         for column in columns:
-            table.add_column(str(column), style="cyan", overflow="fold")
-        for item in items:
-            table.add_row(*[RichCell.of(item.get(c)).text for c in columns])
-        return table
-
-    def _list_of_scalars_table(self, items: list[Any]) -> Table:
-        table = Table()
-        table.add_column("value", overflow="fold")
-        for item in items:
-            table.add_row(RichCell.of(item).text)
+            table.add_column(column, style="cyan", overflow="fold")
+        for index in range(len(items)):
+            table.add_row(*["" if cells[c][index] is None else cells[c][index] for c in columns])
         return table
 
 

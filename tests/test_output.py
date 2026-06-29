@@ -8,8 +8,9 @@ import json
 import yaml
 from pydantic import BaseModel, RootModel
 from rich.console import Console
+from rich.table import Table
 
-from ycli.output import OutputFormat, PrettyStrategy, RichCell, SerializationStrategy, Serializer
+from ycli.output import OutputFormat, PrettyStrategy, SerializationStrategy, Serializer
 
 
 class Item(BaseModel):
@@ -66,16 +67,62 @@ def test_pretty_list_renders_table():
     assert "name" in out and "a" in out and "b" in out
 
 
-def test_prettify_dispatch():
+def test_render_scalar_and_null():
     strategy = PrettyStrategy()
-    assert strategy._prettify("scalar") == "scalar"
-    assert strategy._prettify([1, 2]).row_count == 2  # scalar list → single-column table
-    assert strategy._prettify({"k": "v"}).row_count == 1  # dict → kv table
+    assert strategy._render("scalar") == "scalar"
+    assert strategy._render(3) == "3"
+    assert strategy._render(None) is None
 
 
-def test_cell_rendering():
-    assert RichCell.of(None).text == ""
-    assert RichCell.of("x").text == "x"
-    assert RichCell.of(3).text == "3"
-    assert RichCell.of({"a": 1}).text == '{"a": 1}'
-    assert RichCell.of([1, 2]).text == "[1, 2]"
+def test_render_object_omits_null_fields():
+    strategy = PrettyStrategy()
+    table = strategy._render({"a": "1", "b": None})  # b dropped; a remains as a one-row table
+    assert isinstance(table, Table)
+    assert table.row_count == 1
+    assert strategy._render({"a": None}) is None  # all-null object is omitted entirely
+
+
+def test_render_multi_field_object_is_kv_table():
+    strategy = PrettyStrategy()
+    table = strategy._render({"a": "1", "b": "2"})
+    assert isinstance(table, Table)
+    assert table.row_count == 2
+
+
+def test_render_nested_multifield_object_in_cell():
+    strategy = PrettyStrategy()
+    table = strategy._render({"name": "root", "meta": {"a": "1", "b": "2"}})
+    assert isinstance(table, Table)
+    assert table.row_count == 2  # name row + meta row (a nested table in the cell)
+
+
+def test_render_scalar_list_joins_and_empty_is_omitted():
+    strategy = PrettyStrategy()
+    assert strategy._render(["alpha", "beta"]) == "alpha, beta"
+    assert strategy._render([]) is None
+
+
+def test_render_object_list_table_drops_all_empty_columns():
+    strategy = PrettyStrategy()
+    table = strategy._render(
+        [{"id": "1", "name": "a", "extra": None}, {"id": "2", "name": "b", "extra": None}]
+    )
+    assert isinstance(table, Table)
+    assert [column.header for column in table.columns] == ["id", "name"]  # all-null 'extra' gone
+
+
+def test_render_object_list_with_mixed_nondict_item():
+    strategy = PrettyStrategy()
+    table = strategy._render([{"a": "1", "b": "2"}, "loose"])
+    assert isinstance(table, Table)
+    assert table.row_count == 2  # the non-dict row renders as empty cells
+
+
+def test_render_all_null_model_prints_blank_line():
+    console, buf = _console(tty=True)
+
+    class Empty(BaseModel):
+        a: int | None = None
+
+    PrettyStrategy().render(Empty(), console)
+    assert buf.getvalue().strip() == ""
