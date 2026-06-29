@@ -1,4 +1,4 @@
-"""TDD for ycli.output — the `--format` renderer over pydantic results."""
+"""TDD for ycli.cli.output — the `--format` renderer over pydantic results."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pydantic import BaseModel, RootModel
 from rich.console import Console
 from rich.table import Table
 
-from ycli.output import OutputFormat, PrettyStrategy, SerializationStrategy, Serializer
+from ycli.cli.output import OutputFormat, PrettyStrategy, SerializationStrategy, Serializer
 
 
 class Item(BaseModel):

@@ -9,7 +9,7 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp/ · output.py · log.py · context.py · settings.py  # roots
+├── cli/ · mcp/ · log.py · settings.py  # roots (cli/ = app · context · output)
 └── yandex/
     ├── base.py · transport.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
@@ -25,7 +25,7 @@ src/ycli/
 Notable shared pieces:
 - `src/ycli/settings.py` — `AppConfig` + `Credentials` pydantic-settings models (app-wide config)
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
-- `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
+- `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
 - `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
   providers (`make_cached_client`, `app_config`) that share one client across a mounted domain's tools
@@ -51,7 +51,7 @@ Notable shared pieces:
   method (`.create/.update/.add/.execute/…`).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
-  appear only in `src/ycli/output.py`. Models stay plain data (no serialize method); the
+  appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the
   strategies live only in `output.py`. Every rendered value is a typed pydantic model — there
   is no raw-dict/`RawMapping` escape hatch.
   *Carve-out:* a bare `print(int)` for a scalar `count` result is fine — it is not model

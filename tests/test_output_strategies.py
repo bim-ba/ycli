@@ -5,7 +5,7 @@ from io import StringIO
 from pydantic import BaseModel
 from rich.console import Console
 
-from ycli.output import (
+from ycli.cli.output import (
     AutoStrategy,
     JsonStrategy,
     OutputFormat,

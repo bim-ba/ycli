@@ -5,8 +5,8 @@ from __future__ import annotations
 import typer
 from pydantic import ValidationError
 
-from ycli.context import AppContext
-from ycli.output import Serializer
+from ycli.cli.context import AppContext
+from ycli.cli.output import Serializer
 from ycli.settings import Credentials
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import StatusReporter

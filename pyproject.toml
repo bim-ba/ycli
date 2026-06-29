@@ -173,7 +173,7 @@ name = "ARCH-3: fastmcp is imported only in mcp modules"
 type = "forbidden"
 source_modules = [
     "ycli.cli",
-    "ycli.output",
+    "ycli.cli.**",
     "ycli.yandex.**.cli",
     "ycli.yandex.**.client",
     "ycli.yandex.**.models",
