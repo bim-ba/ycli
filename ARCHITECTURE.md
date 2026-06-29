@@ -36,7 +36,9 @@ Notable shared pieces:
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
 - **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests` or
   `uplink`. All HTTP lives in `client.py` / `base.py` / `transport.py`.
-- **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py`. Every MCP
+- **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py` and in the
+  `ycli.mcp` server package (`src/ycli/mcp/server.py`; its `__init__.py` stays fastmcp-free so the
+  base install loads the CLI sub-app without the extra). Every MCP
   tool's verb (last `_`-segment of its name) must be in a fail-closed read-verb **allow-list**
   (`get/list/count/full/search/descendants/meta` — a new read adds its verb deliberately), it
   carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write

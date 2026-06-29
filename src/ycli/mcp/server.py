@@ -1,6 +1,6 @@
 """Root Yandex 360 FastMCP server — mounts the per-domain subservers.
 
-Run over stdio for LLM-agent clients: ``ycli mcp`` (or ``python -m ycli.mcp``).
+Run over stdio for LLM-agent clients: ``ycli mcp start`` (or ``python -m ycli.mcp``).
 Tools are namespaced per domain: ``wiki_*``, ``tracker_*``, ``forms_*``. Reads-only.
 """
 

@@ -11,7 +11,7 @@ import typer
 
 from ycli.context import AppContext
 from ycli.log import configure
-from ycli.mcp_cli import app as mcp_app
+from ycli.mcp.cli import app as mcp_app
 from ycli.output import OutputFormat
 from ycli.settings import AppConfig
 from ycli.yandex.forms.cli import app as forms_app
