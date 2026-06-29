@@ -9,7 +9,7 @@ import typer
 from ycli.context import AppContext
 from ycli.output import Serializer
 from ycli.yandex.models import RawMapping
-from ycli.yandex.tracker._args import KeyArg, parse_fields
+from ycli.yandex.tracker._args import KeyArg, count_body, parse_fields
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 
@@ -83,12 +83,8 @@ def count(
     With no ``--query`` and no filters this sends an empty filter — the API then counts
     EVERY issue in the org. Pass ``--queue``/``--status`` (or ``--query``) to narrow.
     """
-    if query:
-        body: dict[str, Any] = {"query": query}
-    else:
-        body = {"filter": {k: v for k, v in (("queue", queue), ("status", status)) if v}}
     app_ctx = AppContext.from_typer_context(ctx)
-    print(app_ctx.tracker.issues.count(body=body))
+    print(app_ctx.tracker.issues.count(body=count_body(query=query, queue=queue, status=status)))
 
 
 @app.command()

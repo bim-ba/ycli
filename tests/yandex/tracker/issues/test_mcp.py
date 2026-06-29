@@ -100,6 +100,19 @@ async def test_issues_count_tool(creds):
     assert result.data == 42
 
 
+@responses.activate
+async def test_issues_count_tool_filter_body(creds):
+    """MCP count tool must accept queue/status filters and forward the same filter body as CLI."""
+    import json as _json
+
+    responses.add(responses.POST, f"{BASE}/issues/_count", json=7, status=200)
+    async with Client(issues_mcp.mcp) as client:
+        result = await client.call_tool("issues_count", {"queue": "DE", "status": "open"})
+    assert result.data == 7
+    sent = _json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"filter": {"queue": "DE", "status": "open"}}
+
+
 @pytest.mark.integration
 @responses.activate
 async def test_issues_get_404_raises_through_transport_hook(creds):

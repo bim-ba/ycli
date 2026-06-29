@@ -5,6 +5,7 @@ from typing import Any
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.yandex.tracker._args import count_body
 from ycli.yandex.tracker._deps import RO, TAGS, tracker_client
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import Issue, IssueList
@@ -68,6 +69,16 @@ def search(query: str, client: TrackerClient = Depends(tracker_client)) -> Issue
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)
-def count(query: str, client: TrackerClient = Depends(tracker_client)) -> int:
-    """Count of issues matching a TQL query string."""
-    return client.issues.count(body={"query": query})
+def count(
+    query: str = "",
+    queue: str = "",
+    status: str = "",
+    client: TrackerClient = Depends(tracker_client),
+) -> int:
+    """Count of issues matching a TQL query or filters.
+
+    Pass ``query`` for a TQL query string (takes precedence over filters), or pass
+    ``queue``/``status`` to filter by those fields.  With no arguments the API counts
+    every issue in the org.
+    """
+    return client.issues.count(body=count_body(query=query, queue=queue, status=status))
