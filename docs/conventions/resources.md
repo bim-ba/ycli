@@ -94,8 +94,8 @@ and users are known to need the omitted fields.
 
 | Rule | Enforced by |
 |---|---|
-| `APIModel` base | `tests/test_architecture.py` (ARCH-1 layout check) + code review |
-| `XList` / `XResponse` naming | `tests/test_snapshots.py` (public surface) + code review |
+| `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
+| `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command/tool names) |
 | `_deps` import path | `scripts/new_endpoint.py` scaffold + code review |
 | Read-only MCP | `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
