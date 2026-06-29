@@ -4,20 +4,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
+from pydantic import TypeAdapter
+
 from ycli.yandex.errors import YandexAuthError, YandexError
 from ycli.yandex.forms.me.models import (
-    User as FormsMe,  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+    User as FormsMe,  # noqa: TC001  # used in the MeProbe protocol annotation
 )
 from ycli.yandex.status.models import AuthReport, ServiceAuthStatus
 from ycli.yandex.tracker.me.models import (
-    Me as TrackerMe,  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+    Me as TrackerMe,  # noqa: TC001  # used in the MeProbe protocol annotation
 )
 from ycli.yandex.wiki.me.models import (
-    Me as WikiMe,  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+    Me as WikiMe,  # noqa: TC001  # used in the MeProbe protocol annotation
 )
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
+# Routes a probe result to the right discriminated `ServiceAuthStatus` member by `service`
+# tag — the single source of truth for service→model is the Literal discriminator itself.
+_STATUS = TypeAdapter(ServiceAuthStatus)
 
 
 class MeProbe(Protocol):
@@ -41,7 +47,9 @@ class StatusReporter:
         try:
             me = me_client.get()
         except YandexAuthError:
-            return ServiceAuthStatus(service=name, valid=False, detail="token invalid or expired")
+            return _STATUS.validate_python(
+                {"service": name, "valid": False, "detail": "token invalid or expired"}
+            )
         except YandexError as exc:
-            return ServiceAuthStatus(service=name, valid=False, detail=str(exc))
-        return ServiceAuthStatus(service=name, valid=True, me=me)
+            return _STATUS.validate_python({"service": name, "valid": False, "detail": str(exc)})
+        return _STATUS.validate_python({"service": name, "valid": True, "me": me})

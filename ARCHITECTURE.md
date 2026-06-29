@@ -27,7 +27,8 @@ Notable shared pieces:
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
-- `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`)
+- `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
+  providers (`make_cached_client`, `app_config`) that share one client across a mounted domain's tools
 - `src/ycli/yandex/<domain>/_args.py` — deduplicated CLI argument/option type aliases
 
 ## Invariants (ARCH-1..11)

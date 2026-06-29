@@ -61,6 +61,23 @@ The `_deps` module re-exports `RO` (from `ycli.yandex._mcp`) in its `__all__`, s
 import-linter and IDEs resolve the canonical source correctly.  The scaffold
 (`scripts/new_endpoint.py`) generates this single-line import automatically.
 
+### Why `<domain>_client` is a cached provider
+
+fastmcp's `mount()` does not propagate lifespan context across server boundaries, so a
+mounted domain server cannot receive a shared client through startup state.  Each `_deps`
+therefore builds its provider with `make_cached_client` (in `ycli.yandex._mcp`), which wraps
+a `functools.cache`d zero-arg factory:
+
+```python
+# src/ycli/yandex/tracker/_deps.py
+tracker_client = make_cached_client(TrackerClient)
+```
+
+The provider reads credentials from the env once and returns the same client for every tool
+in the domain; `app_config()` is the matching `@cache`d config provider.  MCP tools consume
+them via `Depends(tracker_client)`.  This is the only approved sharing pattern — fastmcp's
+deprecated `import_server` must not be used.
+
 ---
 
 ## 4. MCP tool-metadata standard
@@ -108,7 +125,29 @@ field `outputSchema`, exposed as camelCase by fastmcp 3.4.x).
 
 ---
 
-## 5. Where these rules are enforced
+## 5. Heterogeneous MCP output unions must be discriminated
+
+fastmcp rebuilds `result.data` from the tool's output JSON schema and, for an undiscriminated
+`anyOf`, picks the *first* branch that validates — silently reshaping one member into another
+and dropping fields.  Any union a tool returns must carry a `Literal` discriminator tag via
+`Field(discriminator=…)`:
+
+```python
+class TrackerAuthStatus(_ServiceAuthStatus):
+    service: Literal["tracker"] = "tracker"
+    me: TrackerMe | None = None
+# … WikiAuthStatus, FormsAuthStatus …
+ServiceAuthStatus = Annotated[
+    TrackerAuthStatus | WikiAuthStatus | FormsAuthStatus, Field(discriminator="service")
+]
+```
+
+The CLI/SDK path carries the native model instance and is unaffected; only the MCP
+`result.data` reconstruction depends on the schema being self-describing.
+
+---
+
+## 6. Where these rules are enforced
 
 | Rule | Enforced by |
 |---|---|
@@ -117,4 +156,5 @@ field `outputSchema`, exposed as camelCase by fastmcp 3.4.x).
 | `_deps` import path | `scripts/new_endpoint.py` scaffold + code review |
 | Read-only MCP | `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
+| Discriminated MCP output unions | code review + regression test (`status_get` me round-trip) |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |

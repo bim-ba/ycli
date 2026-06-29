@@ -1,6 +1,17 @@
-"""Models for `ycli auth status` and the `status_get` MCP tool."""
+"""Models for `ycli auth status` and the `status_get` MCP tool.
+
+The per-service `me` payloads (Tracker/Wiki/Forms) are all-optional and ignore extras,
+so an *undiscriminated* ``me`` union is ambiguous: every payload validates against every
+member. fastmcp rebuilds ``result.data`` from the tool's output JSON schema and, on an
+undiscriminated ``anyOf``, picks the first matching branch — silently reshaping a wiki
+payload into the tracker shape and dropping fields like ``username``. Tagging each status
+with a ``Literal`` ``service`` discriminator makes the schema self-describing, so the
+round-trip stays loss-free. The CLI/SDK path keeps the bare native ``me`` model instance.
+"""
 
 from __future__ import annotations
+
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -16,13 +27,37 @@ from ycli.yandex.wiki.me.models import (
 )
 
 
-class ServiceAuthStatus(APIModel):
-    """One service's auth probe — the bare native `me` on success, else why it failed."""
+class _ServiceAuthStatus(APIModel):
+    """One service's auth probe — the bare native `me` on success, else why it failed.
+
+    Subclasses narrow ``service`` to a ``Literal`` tag (the union discriminator) and ``me``
+    to that service's model; field order is preserved through the overrides.
+    """
 
     service: str
     valid: bool = False
     me: TrackerMe | WikiMe | FormsMe | None = None
     detail: str = ""
+
+
+class TrackerAuthStatus(_ServiceAuthStatus):
+    service: Literal["tracker"] = "tracker"
+    me: TrackerMe | None = None
+
+
+class WikiAuthStatus(_ServiceAuthStatus):
+    service: Literal["wiki"] = "wiki"
+    me: WikiMe | None = None
+
+
+class FormsAuthStatus(_ServiceAuthStatus):
+    service: Literal["forms"] = "forms"
+    me: FormsMe | None = None
+
+
+ServiceAuthStatus = Annotated[
+    TrackerAuthStatus | WikiAuthStatus | FormsAuthStatus, Field(discriminator="service")
+]
 
 
 class AuthReport(APIModel):

@@ -25,6 +25,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 - **Dependencies:** add with `uv add <pkg>` (runtime) / `uv add --dev <pkg>` (dev) — never
   hand-edit `pyproject.toml` dependency lists.
+- **Naming:** spell identifiers and env-var names out in full — never abbreviate
+  (`timeout_seconds` not `timeout_s`, `organization_id` not `org_id`; `YANDEX_ID_OAUTH_TOKEN`
+  is already correct).
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
 - **Auth:** credentials (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`) are read once
