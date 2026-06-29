@@ -31,7 +31,7 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 
 ```bash
 uv add yandex-cli            # CLI + Python SDK
-uv add 'yandex-cli[mcp]'     # …plus the MCP server (`ycli mcp`)
+uv add 'yandex-cli[mcp]'     # …plus the MCP server (`ycli mcp start`)
 ```
 
 Run it without installing, or install it as a standalone tool:
@@ -73,7 +73,13 @@ ycli -o yaml wiki pages get onboarding       # or: -o json | -o yaml | -o pretty
 Run it over stdio (needs the `mcp` extra):
 
 ```bash
-ycli mcp
+ycli mcp start
+```
+
+List the exposed tool names without running the server:
+
+```bash
+ycli mcp methods
 ```
 
 Point an MCP client at it — no prior install needed via `uvx` (tools are namespaced
@@ -84,7 +90,7 @@ Point an MCP client at it — no prior install needed via `uvx` (tools are names
   "mcpServers": {
     "yandex": {
       "command": "uvx",
-      "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp"],
+      "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"],
       "env": {
         "YANDEX_ID_OAUTH_TOKEN": "...",
         "YANDEX_ID_ORGANIZATION_ID": "..."
@@ -101,7 +107,7 @@ Point an MCP client at it — no prior install needed via `uvx` (tools are names
 ```python
 from ycli.yandex.tracker.client import TrackerClient
 
-tracker = TrackerClient.from_env()
+tracker = TrackerClient(oauth_token="…", organization_id="…")
 issue = tracker.issues.get("TRACKER-1")
 print(issue.summary)
 ```
@@ -192,7 +198,7 @@ handles it for you.
 ```text
 src/ycli/
 ├── cli.py              # root Typer CLI  → `ycli` / `yandex-cli`
-├── mcp.py              # root FastMCP server → `ycli mcp` (read-only, `[mcp]` extra)
+├── mcp.py              # root FastMCP server → `ycli mcp start` (read-only, `[mcp]` extra)
 ├── log.py              # central loguru config
 └── yandex/
     ├── tracker/        # per-domain SDK …

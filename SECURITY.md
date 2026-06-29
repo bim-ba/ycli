@@ -11,7 +11,7 @@ within 72 hours and a coordinated disclosure once a fix is available.
 ## Scope
 
 `ycli` reads `YANDEX_ID_OAUTH_TOKEN` and `YANDEX_ID_ORGANIZATION_ID` from the
-environment (`session_from_env()`) and sends them only to the official Yandex 360
+environment (via `Credentials()` at the composition root) and sends them only to the official Yandex 360
 API endpoints — never logged, never written to disk, never transmitted elsewhere.
 
 In scope:
