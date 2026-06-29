@@ -9,6 +9,161 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.8.0 (2026-06-29)
+
+### Bug Fixes
+
+- **arch-4**: Route issues full through Serializer; forbid json.dumps outside output.py
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **tracker**: Model transition target status (to) faithfully; realistic _execute test fixtures
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+### Build System
+
+- Add ty type checker (advisory CI gate while ty is beta)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Sync uv.lock project version to 0.7.0 ([#11](https://github.com/bim-ba/ycli/pull/11),
+  [`e7788b5`](https://github.com/bim-ba/ycli/commit/e7788b5e4cf3488f6f8b72b91a260a5baa8393f3))
+
+### Chores
+
+- Commit graphify code-graph routine and built graph snapshot
+  ([#13](https://github.com/bim-ba/ycli/pull/13),
+  [`0972035`](https://github.com/bim-ba/ycli/commit/0972035194e580f91d6ff233a5ddd0561396a100))
+
+- **graph**: Gitignore graphify output; /codegraph-regen command (local index)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+### Code Style
+
+- Adopt ruff formatter (mechanical reformat, no behavior change)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Enable ruff lint (E,W,F,I,N,UP,B,A,C4,SIM,PTH,RUF) with autofix
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Ratchet ruff ANN+TC (annotations + type-checking imports)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **ruff**: Suppress B008 for fastmcp Depends via config, drop 25 inline noqa
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+### Documentation
+
+- Add Task D5 (align issues count CLI<->MCP surface) to round-3 plan
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Design spec for round-3 (tooling, composition/DI, surface, conventions, infra)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Fix stale idioms in README/CLAUDE/skills; update demo tape+shim; regen gif
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Implementation plan for round-3 (A tooling, B DI, C transport, D dedup, E surface, F infra)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Regenerate demo GIF [skip ci] ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **conventions**: Correct resources.md enforcement table (APIModel/naming are code-review only)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **drift**: Seed drift log with three round-2/round-3 genuine entries
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **mcp**: Write tool-metadata standard; scaffold comment; assert description+output schema
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **readme**: Minimalist flat-square badges + DeepWiki + PyPI
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+### Features
+
+- Round-3 architecture + tooling refactor (ARCH-1..11, ruff+ty, mcp sub-app)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **arch**: Add ARCH-11 doc-drift guard and close drift-log entry
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **cli**: Mcp Typer sub-app (mcp start/methods); delete mcp_launcher; regen snapshots
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **commands**: /snapshot-regen and /release-checklist
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **tracker**: Align issues_count MCP tool with the CLI's query/filter capability
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **tracker**: Model transitions execute as TransitionList; render via Serializer
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+### Refactoring
+
+- Hoist settings to top-level ycli.settings; update ARCH-8 path
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Move APIModel base into ycli.yandex.models (thin top-level)
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- Rename auth.py->status.py (keep 'auth status'); fold probes into ServiceProbe
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **conventions**: Me models -> APIModel; drop dead forms/_models; rename surveys models;
+  resources.md ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **di**: ClientFactory + cached MCP factory; collapse _deps; slim AppContext
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **di**: Inject AppConfig via Depends(app_config)/AppContext.config; no on-the-fly settings
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **output**: Decompose PrettyStrategy into RichCell + split list-table builders
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **output**: Remove Tracker-only deeplink (ARCH-5 leak); defer general deeplink design
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **pagination**: Hoist single-page list wrapper into collect_single_page helper
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+- **transport**: _raise_typed as Transport staticmethod; extract _authorization seam
+  ([#12](https://github.com/bim-ba/ycli/pull/12),
+  [`1a12f9f`](https://github.com/bim-ba/ycli/commit/1a12f9f331d77b082c20d19d8a3bcdf2dc524588))
+
+
 ## v0.7.0 (2026-06-28)
 
 ### Build System
