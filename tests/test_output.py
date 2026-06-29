@@ -115,6 +115,7 @@ def test_render_object_list_with_mixed_nondict_item():
     strategy = PrettyStrategy()
     table = strategy._render([{"a": "1", "b": "2"}, "loose"])
     assert isinstance(table, Table)
+    assert [column.header for column in table.columns] == ["a", "b"]  # columns from the dict only
     assert table.row_count == 2  # the non-dict row renders as empty cells
 
 

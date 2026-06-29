@@ -36,3 +36,10 @@ def test_render_wiki_page_get_emits_markdown_body():
     proc = _run(["wiki", "pages", "get", "onboarding"])
     assert proc.returncode == 0, proc.stderr
     assert "Welcome to the team" in proc.stdout  # raw markdown body of the page
+
+
+def test_render_unknown_command_exits_nonzero():
+    # guards against a typo'd ROUTES key silently emitting an error frame into the GIF
+    proc = _run(["tracker", "issues", "get", "NOPE-1"])
+    assert proc.returncode == 2
+    assert "unknown command" in proc.stderr

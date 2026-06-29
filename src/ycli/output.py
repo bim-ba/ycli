@@ -120,8 +120,8 @@ class PrettyStrategy(SerializationStrategy):
         table = Table()
         for column in columns:
             table.add_column(column, style="cyan", overflow="fold")
-        for index in range(len(items)):
-            table.add_row(*["" if cells[c][index] is None else cells[c][index] for c in columns])
+        for row in zip(*(cells[c] for c in columns), strict=True):
+            table.add_row(*["" if value is None else value for value in row])
         return table
 
 
