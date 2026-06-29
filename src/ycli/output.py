@@ -60,6 +60,21 @@ class YamlStrategy(SerializationStrategy):
         console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
 
 
+class RichCell:
+    """A single rendered cell: value → display text."""
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+    @classmethod
+    def of(cls, value: Any) -> RichCell:
+        if isinstance(value, (dict, list)):
+            return cls(json.dumps(value, ensure_ascii=False))
+        if value is None:
+            return cls("")
+        return cls(str(value))
+
+
 class PrettyStrategy(SerializationStrategy):
     def render(self, result: BaseModel, console: Console) -> None:
         console.print(self._prettify(result.model_dump(by_alias=True, mode="json")))
@@ -76,29 +91,29 @@ class PrettyStrategy(SerializationStrategy):
         table.add_column(style="cyan", no_wrap=True)
         table.add_column(overflow="fold")
         for key, value in data.items():
-            table.add_row(str(key), self._cell(value))
+            table.add_row(str(key), RichCell.of(value).text)
         return table
 
     def _list_table(self, items: list[Any]) -> Table:
-        table = Table()
         if items and isinstance(items[0], dict):
-            columns = list(items[0].keys())
-            for column in columns:
-                table.add_column(str(column), style="cyan", overflow="fold")
-            for item in items:
-                table.add_row(*[self._cell(item.get(c)) for c in columns])
-        else:
-            table.add_column("value", overflow="fold")
-            for item in items:
-                table.add_row(self._cell(item))
+            return self._list_of_dicts_table(items)
+        return self._list_of_scalars_table(items)
+
+    def _list_of_dicts_table(self, items: list[dict[str, Any]]) -> Table:
+        table = Table()
+        columns = list(items[0].keys())
+        for column in columns:
+            table.add_column(str(column), style="cyan", overflow="fold")
+        for item in items:
+            table.add_row(*[RichCell.of(item.get(c)).text for c in columns])
         return table
 
-    def _cell(self, value: Any) -> str:
-        if isinstance(value, (dict, list)):
-            return json.dumps(value, ensure_ascii=False)
-        if value is None:
-            return ""
-        return str(value)
+    def _list_of_scalars_table(self, items: list[Any]) -> Table:
+        table = Table()
+        table.add_column("value", overflow="fold")
+        for item in items:
+            table.add_row(RichCell.of(item).text)
+        return table
 
 
 class AutoStrategy(SerializationStrategy):

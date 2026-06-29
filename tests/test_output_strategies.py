@@ -10,6 +10,7 @@ from ycli.output import (
     JsonStrategy,
     OutputFormat,
     PrettyStrategy,
+    RichCell,
     SerializationStrategy,
     Serializer,
     YamlStrategy,
@@ -78,3 +79,35 @@ def test_serializer_dispatches_to_strategy_render():
         _M(key="DE-1"), SerializationStrategy.from_format(OutputFormat.json), console
     )
     assert '"key":"DE-1"' in buf.getvalue().replace(" ", "")
+
+
+def test_richcell_renders_none_as_blank_and_nested_as_json():
+    assert RichCell.of(None).text == ""
+    assert RichCell.of({"a": 1}).text == '{"a": 1}'
+    assert RichCell.of("DE-1").text == "DE-1"
+
+
+def test_richcell_renders_list_as_json():
+    assert RichCell.of([1, 2]).text == "[1, 2]"
+
+
+def test_pretty_strategy_renders_list_of_dicts():
+    class _RowList(BaseModel):
+        rows: list[_Row]
+
+    console, buf = _console(terminal=True)
+    PrettyStrategy().render(_RowList(rows=[_Row(key="A", name="foo")]), console)
+    out = buf.getvalue()
+    assert "A" in out
+
+
+def test_pretty_strategy_renders_list_of_scalars():
+    strategy = PrettyStrategy()
+    table = strategy._list_of_scalars_table(["alpha", "beta"])
+    assert table is not None
+
+
+def test_pretty_strategy_list_table_empty():
+    strategy = PrettyStrategy()
+    table = strategy._list_table([])
+    assert table is not None
