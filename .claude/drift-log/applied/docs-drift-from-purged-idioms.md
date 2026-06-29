@@ -1,6 +1,9 @@
 ---
 date: 2026-06-29
-status: OPEN
+status: APPLIED
+disposition: applied
+applied_date: 2026-06-29
+applied_in: tests/test_architecture.py::test_arch11_no_purged_idioms_in_live_docs
 priority: HIGH
 trigger: 5
 session_context: round-2/round-3 refactor sessions — doc audit after ARCH-7/ARCH-10 landed
@@ -51,3 +54,17 @@ Add **ARCH-11 — Doc-drift guard** to `ARCHITECTURE.md` and a corresponding tes
 ```
 
 Note: round-3 Task F4 implements this check. Once F4 lands, this entry can be closed.
+
+## Resolution
+
+ARCH-11 — Doc-drift guard — was codified in `ARCHITECTURE.md` (invariants ARCH-1..11) and
+enforced by `test_arch11_no_purged_idioms_in_live_docs` in `tests/test_architecture.py`.
+
+The test scans user-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`,
+`SECURITY.md`, `docs/api-coverage.md`, `docs/conventions/**/*.md`, `plugins/**/*.md`) for
+call-site occurrences of `.from_env(` and `session_from_env(` — the two purged idiom patterns
+that ARCH-7 eliminated from the codebase. Historical and rule-defining files (`ARCHITECTURE.md`,
+`CHANGELOG.md`, `PROMPT.md`, `docs/superpowers/**`) are excluded from scanning.
+
+The test passed immediately after implementation because Task F6 had already cleaned the live
+docs. This guard prevents the idioms from silently reappearing in future PRs.

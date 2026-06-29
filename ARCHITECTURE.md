@@ -30,7 +30,7 @@ Notable shared pieces:
 - `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`)
 - `src/ycli/yandex/<domain>/_args.py` — deduplicated CLI argument/option type aliases
 
-## Invariants (ARCH-1..10)
+## Invariants (ARCH-1..11)
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
@@ -75,6 +75,14 @@ Notable shared pieces:
   configured value. These two literals must stay equal to `AppConfig`'s defaults; a test asserts
   `inspect.signature(TrackerClient).parameters` defaults == `AppConfig` field defaults so the
   duplication can't drift.
+- **ARCH-11 — Doc-drift guard.** User-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
+  `CONTRIBUTING.md`, `SECURITY.md`, `docs/api-coverage.md`, `docs/conventions/**/*.md`,
+  `plugins/**/*.md`) must not show call-site usage of idioms purged by ARCH-7..10. Concretely,
+  the call patterns `.from_env(` and `session_from_env(` must not appear in any of those files.
+  Historical / rule-defining files are intentionally excluded: `docs/superpowers/**` (specs),
+  `PROMPT.md` (transcript), `CHANGELOG.md` (release history), and `ARCHITECTURE.md` itself
+  (which defines the rules). *Check:* `test_arch11_no_purged_idioms_in_live_docs` in
+  `tests/test_architecture.py`.
 
 ## Scope & limits of enforcement
 
