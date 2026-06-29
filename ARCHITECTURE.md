@@ -13,7 +13,7 @@ src/ycli/
 └── yandex/
     ├── base.py · transport.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
-        ├── _base.py · _deps.py · _args.py · client.py · cli.py · mcp.py
+        ├── _base.py · _deps.py · _types.py · _utils.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
             ├── cli.py      # Typer — output via Serializer.serialize
@@ -29,7 +29,9 @@ Notable shared pieces:
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
 - `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
   providers (`make_cached_client`, `app_config`) that share one client across a mounted domain's tools
-- `src/ycli/yandex/<domain>/_args.py` — deduplicated CLI argument/option type aliases
+- `src/ycli/yandex/<domain>/_types.py` — deduplicated CLI argument/option type aliases;
+  `_utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
+  `--field` JSON coercion)
 
 ## Invariants (ARCH-1..11)
 

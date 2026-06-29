@@ -8,7 +8,7 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.yandex.tracker._args import (
+from ycli.yandex.tracker._types import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
 

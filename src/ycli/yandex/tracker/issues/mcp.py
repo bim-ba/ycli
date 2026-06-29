@@ -3,8 +3,8 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.tracker._args import count_body
 from ycli.yandex.tracker._deps import RO, TAGS, tracker_client
+from ycli.yandex.tracker._utils import count_body
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import Issue, IssueList
 

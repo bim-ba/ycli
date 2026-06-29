@@ -1,13 +1,11 @@
-"""Shared tracker CLI arg types + the ``--field key=value`` JSON-coerce helper."""
+"""Tracker CLI helpers — request-body builders and the ``--field key=value`` JSON coercer."""
 
 from __future__ import annotations
 
 import json
-from typing import Annotated, Any
+from typing import Any
 
 import typer
-
-KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key, e.g. DATAENGINEERING-1.")]
 
 
 def count_body(query: str = "", queue: str = "", status: str = "") -> dict[str, Any]:

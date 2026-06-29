@@ -8,7 +8,7 @@ import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.yandex.forms._args import (
+from ycli.yandex.forms._types import (
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
 

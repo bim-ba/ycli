@@ -1,4 +1,4 @@
-"""Shared forms CLI arg types."""
+"""Shared forms CLI argument type aliases."""
 
 from __future__ import annotations
 
