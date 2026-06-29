@@ -3,7 +3,7 @@
 import pytest
 import typer
 
-from ycli.yandex.tracker._utils import parse_fields
+from ycli.yandex.tracker.utils import parse_fields
 
 
 def test_parse_fields_coerces_json_with_string_fallback():

@@ -36,7 +36,7 @@ annotations eagerly. Subclasses the domain base for session + base_url DI.
 """
 import uplink
 
-from ycli.yandex.{domain}._base import {domain_cls}Resource
+from ycli.yandex.{domain}.base import {domain_cls}Resource
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
@@ -80,7 +80,7 @@ from __future__ import annotations
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.{domain}._deps import RO, TAGS, {domain}_client
+from ycli.yandex.{domain}.dependencies import RO, TAGS, {domain}_client
 from ycli.yandex.{domain}.client import {domain_cls}Client
 from ycli.yandex.{domain}.{resource}.models import {cls}
 

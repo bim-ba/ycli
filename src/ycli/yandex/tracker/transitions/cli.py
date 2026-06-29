@@ -8,10 +8,10 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
-from ycli.yandex.tracker._types import (
+from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
-from ycli.yandex.tracker._utils import parse_fields
+from ycli.yandex.tracker.utils import parse_fields
 
 app = typer.Typer(name="transitions", help="Tracker issue transitions.", no_args_is_help=True)
 

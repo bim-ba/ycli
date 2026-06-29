@@ -11,9 +11,9 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 src/ycli/
 ├── cli/ · mcp/ · log.py · settings.py  # roots (cli/ = app · context · output)
 └── yandex/
-    ├── base.py · transport.py · pagination.py · _mcp.py  # shared
+    ├── base.py · transport.py · pagination.py · mcp.py  # shared (mcp.py = MCP helpers)
     └── <domain>/                            # tracker · wiki · forms
-        ├── _base.py · _deps.py · _types.py · _utils.py · client.py · cli.py · mcp.py
+        ├── base.py · dependencies.py · typedefs.py · utils.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
             ├── cli.py      # Typer — output via Serializer.serialize
@@ -27,10 +27,10 @@ Notable shared pieces:
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
-- `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
+- `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
   providers (`make_cached_client`, `app_config`) that share one client across a mounted domain's tools
-- `src/ycli/yandex/<domain>/_types.py` — deduplicated CLI argument/option type aliases;
-  `_utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
+- `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
+  `utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
   `--field` JSON coercion)
 
 ## Invariants (ARCH-1..11)
@@ -114,7 +114,7 @@ review cover the rest):
 ## Resource conventions (models, naming, MCP imports)
 
 The conventions that ARCH-1..10 do not capture — `APIModel` inheritance, `XList`/`XResponse`
-naming and the `_deps` import path — are documented in
+naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
 
 ## Changing an invariant

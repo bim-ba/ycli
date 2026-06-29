@@ -3,8 +3,8 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.forms._deps import RO, TAGS, forms_client
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
 from ycli.yandex.forms.surveys.models import Survey, SurveyList
 
 mcp = FastMCP("forms-surveys")

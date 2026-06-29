@@ -32,7 +32,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
 - **Auth:** credentials (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`) are read once
   at the composition root — `Credentials()` / `AppConfig()` in `AppContext` for the CLI, or
-  the `_deps` cached factory in each domain's MCP module — and passed as raw `oauth_token` /
+  the `dependencies` cached factory in each domain's MCP module — and passed as raw `oauth_token` /
   `organization_id` constructor arguments to each client. There is no `from_env` or
   `session_from_env`; never hardcode credentials. Header casing differs per service
   (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`).

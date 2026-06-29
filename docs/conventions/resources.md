@@ -47,29 +47,29 @@ appear in the public `client.list()` signature or in MCP tool return types.
 
 ---
 
-## 3. MCP `RO` / `TAGS` / `<domain>_client` come from the domain `_deps`
+## 3. MCP `RO` / `TAGS` / `<domain>_client` come from the domain `dependencies`
 
 Every `mcp.py` imports `RO`, `TAGS`, and the domain client provider from the domain's
-`_deps` module — not from the shared `ycli.yandex._mcp`:
+`dependencies` module — not from the shared `ycli.yandex.mcp`:
 
 ```python
 # src/ycli/yandex/tracker/issues/mcp.py
-from ycli.yandex.tracker._deps import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
 ```
 
-The `_deps` module re-exports `RO` (from `ycli.yandex._mcp`) in its `__all__`, so
+The `dependencies` module re-exports `RO` (from `ycli.yandex.mcp`) in its `__all__`, so
 import-linter and IDEs resolve the canonical source correctly.  The scaffold
 (`scripts/new_endpoint.py`) generates this single-line import automatically.
 
 ### Why `<domain>_client` is a cached provider
 
 fastmcp's `mount()` does not propagate lifespan context across server boundaries, so a
-mounted domain server cannot receive a shared client through startup state.  Each `_deps`
-therefore builds its provider with `make_cached_client` (in `ycli.yandex._mcp`), which wraps
-a `functools.cache`d zero-arg factory:
+mounted domain server cannot receive a shared client through startup state.  Each `dependencies`
+module therefore builds its provider with `make_cached_client` (in `ycli.yandex.mcp`), which
+wraps a `functools.cache`d zero-arg factory:
 
 ```python
-# src/ycli/yandex/tracker/_deps.py
+# src/ycli/yandex/tracker/dependencies.py
 tracker_client = make_cached_client(TrackerClient)
 ```
 
@@ -153,7 +153,7 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 |---|---|
 | `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
 | `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command/tool names) |
-| `_deps` import path | `scripts/new_endpoint.py` scaffold + code review |
+| `dependencies` import path | `scripts/new_endpoint.py` scaffold + code review |
 | Read-only MCP | `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
 | Discriminated MCP output unions | code review + regression test (`status_get` me round-trip) |

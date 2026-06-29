@@ -6,7 +6,7 @@ annotations eagerly.
 
 import uplink
 
-from ycli.yandex.tracker._base import TrackerResource
+from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.issues.models import Issue, IssueList
 
 

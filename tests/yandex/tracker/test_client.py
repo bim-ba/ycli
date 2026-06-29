@@ -26,10 +26,10 @@ def test_composes_subclients_over_shared_authed_session():
 
 @responses.activate
 def test_tracker_deps_factory_builds_from_env(monkeypatch):
-    """_deps.tracker_client() reads env and returns a working TrackerClient."""
+    """dependencies.tracker_client() reads env and returns a working TrackerClient."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    from ycli.yandex.tracker._deps import tracker_client
+    from ycli.yandex.tracker.dependencies import tracker_client
 
     responses.add(
         responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200

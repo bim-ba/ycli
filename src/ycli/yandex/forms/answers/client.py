@@ -7,8 +7,8 @@ from urllib.parse import urljoin
 
 import uplink
 
-from ycli.yandex.forms._base import FormsResource
 from ycli.yandex.forms.answers.models import AnswersResponse
+from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.pagination import NextUrlStrategy
 
 

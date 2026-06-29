@@ -7,7 +7,7 @@ annotations eagerly.
 import uplink
 
 from ycli.yandex.pagination import SinglePageStrategy
-from ycli.yandex.wiki._base import WikiResource
+from ycli.yandex.wiki.base import WikiResource
 from ycli.yandex.wiki.comments.models import CommentList, CommentsResponse
 
 

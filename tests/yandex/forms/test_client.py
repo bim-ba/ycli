@@ -16,10 +16,10 @@ def test_composes_subclients_over_shared_authed_session():
 
 @responses.activate
 def test_forms_deps_factory_builds_from_env(monkeypatch):
-    """_deps.forms_client() reads env and returns a working FormsClient."""
+    """dependencies.forms_client() reads env and returns a working FormsClient."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    from ycli.yandex.forms._deps import forms_client
+    from ycli.yandex.forms.dependencies import forms_client
 
     responses.add(
         responses.GET,

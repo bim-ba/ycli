@@ -3,15 +3,15 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex._mcp import RO
-from ycli.yandex.forms._deps import forms_client
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.dependencies import forms_client
+from ycli.yandex.mcp import RO
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import StatusReporter
-from ycli.yandex.tracker._deps import tracker_client
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.wiki._deps import wiki_client
+from ycli.yandex.tracker.dependencies import tracker_client
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.dependencies import wiki_client
 
 mcp = FastMCP("status")
 TAGS: set[str] = {"status"}

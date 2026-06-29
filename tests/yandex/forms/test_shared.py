@@ -2,7 +2,7 @@
 
 import requests
 
-from ycli.yandex.forms._base import FormsResource
+from ycli.yandex.forms.base import FormsResource
 
 
 class _Demo(FormsResource):

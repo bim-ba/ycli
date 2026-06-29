@@ -2,7 +2,7 @@
 
 import requests
 
-from ycli.yandex.tracker._base import TrackerResource
+from ycli.yandex.tracker.base import TrackerResource
 
 
 class _Demo(TrackerResource):
