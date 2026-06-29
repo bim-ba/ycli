@@ -28,6 +28,12 @@ async def test_status_get_reports_all_valid(creds):
     assert services["tracker"].valid is True
     assert services["tracker"].me.login == "alice"
     assert services["forms"].me.email == "alice@x"
+    # result.data re-hydrates the undiscriminated me union via fastmcp's smart-union and
+    # can mis-select the member for wiki (dropping username); the raw wire structured_content
+    # is correct, so assert wiki there. (A discriminated union / per-service me typing would
+    # make result.data reliable — deferred.)
+    wire = {s["service"]: s for s in result.structured_content["services"]}
+    assert wire["wiki"]["me"]["username"] == "alice"
 
 
 @responses.activate

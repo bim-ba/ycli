@@ -12,7 +12,7 @@ RENDER = REPO / "docs" / "demo" / "render.py"
 pytestmark = pytest.mark.integration
 
 
-def _run(args):
+def _run(args: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(RENDER), *args],
         capture_output=True,

@@ -9,7 +9,7 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp.py · output.py · log.py · context.py · settings.py  # roots
+├── cli.py · mcp/ · output.py · log.py · context.py · settings.py  # roots
 └── yandex/
     ├── base.py · transport.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
