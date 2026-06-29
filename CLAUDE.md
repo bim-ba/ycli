@@ -61,6 +61,10 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   [`docs/conventions/resources.md`](docs/conventions/resources.md). Authoring skills/commands follows
   [`docs/conventions/skills-and-commands.md`](docs/conventions/skills-and-commands.md).
 
+## Working notes
+
+- **Drift log:** when a session reveals a convention the codebase doesn't yet enforce, capture it via `core:creating-drift-logs` before ending.
+
 ## Architecture invariants (enforced)
 
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
