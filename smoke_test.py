@@ -12,15 +12,16 @@ does not collect it, and it is excluded from the published distribution.
 from importlib import resources
 
 import ycli
-from ycli import cli
+import ycli.cli.app as cli
 
 # Verify the BASE install (no 'mcp' extra): the package and the CLI entry point
 # import without pulling in fastmcp. The `ycli mcp` subcommand is registered here
 # but only imports the server lazily, so this must not require the extra.
 assert callable(cli.main), "ycli entry point missing"
-assert any(g.typer_instance.info.name == "mcp" for g in cli.app.registered_groups), (
-    "mcp subcommand missing"
-)
+assert any(
+    g.typer_instance is not None and g.typer_instance.info.name == "mcp"
+    for g in cli.app.registered_groups
+), "mcp subcommand missing"
 
 # The PEP 561 marker must survive the build into the installed package, or
 # downstream type checkers won't see ycli's types.

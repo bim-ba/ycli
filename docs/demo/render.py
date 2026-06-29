@@ -57,7 +57,7 @@ def main(argv: list[str]) -> int:
     method, url, fixture, cli_argv = route
     body = json.loads((FIXTURES / fixture).read_text(encoding="utf-8"))
 
-    from ycli import cli
+    import ycli.cli.app as cli
 
     runner = CliRunner()
     with responses.RequestsMock() as rsps:

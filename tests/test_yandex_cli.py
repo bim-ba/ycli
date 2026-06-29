@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 from typer.testing import CliRunner
 
-import ycli.cli as cli
+import ycli.cli.app as cli
 from ycli.cli.context import AppContext
 from ycli.cli.output import OutputFormat, PrettyStrategy
 
