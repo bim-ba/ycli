@@ -19,7 +19,7 @@ def test_plugin_mcp_declares_readonly_server():
     assert "yandex-360" in servers
     server = servers["yandex-360"]
     assert server["command"] == "uvx"
-    assert server["args"] == ["--from", "yandex-cli[mcp]", "ycli", "mcp"]
+    assert server["args"] == ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"]
 
 
 def test_plugin_mcp_passes_secrets_by_reference():

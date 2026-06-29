@@ -11,7 +11,7 @@ import typer
 
 from ycli.context import AppContext
 from ycli.log import configure
-from ycli.mcp_launcher import launch_mcp_server
+from ycli.mcp_cli import app as mcp_app
 from ycli.output import OutputFormat
 from ycli.settings import AppConfig
 from ycli.yandex.forms.cli import app as forms_app
@@ -47,7 +47,7 @@ app.add_typer(wiki_app)
 app.add_typer(tracker_app)
 app.add_typer(forms_app)
 
-app.command(name="mcp")(launch_mcp_server)
+app.add_typer(mcp_app)
 
 
 def main() -> None:  # pragma: no cover
