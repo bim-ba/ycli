@@ -1,11 +1,13 @@
 name: release
 
 # Automated releases (python-semantic-release) + PyPI publishing via trusted
-# publishing (OIDC, no tokens). On push to main, PSR computes the next version
-# from Conventional Commits, stamps pyproject + CHANGELOG, tags `vX.Y.Z`, and
-# creates a GitHub Release; the publish job then builds that tag and uploads to
-# PyPI — all in one run (so no PAT is needed to chain the tag). The manual
-# workflow_dispatch path stays for ad-hoc publishing to TestPyPI/PyPI.
+# publishing (OIDC). On push to main, PSR computes the next version from
+# Conventional Commits, stamps pyproject + CHANGELOG, tags `vX.Y.Z`, and creates
+# a GitHub Release; the publish job then builds that tag and uploads to PyPI —
+# all in one run. PyPI upload needs no token (OIDC); the git push uses a
+# short-lived GitHub App installation token (no long-lived PAT) so PSR can write
+# the release commit + tag to main past the branch-protection ruleset. The
+# manual workflow_dispatch path stays for ad-hoc publishing to TestPyPI/PyPI.
 
 on:
   push:
@@ -37,17 +39,29 @@ jobs:
       released: ${{ steps.psr.outputs.released }}
       tag: ${{ steps.psr.outputs.tag }}
     steps:
+      # Mint a short-lived GitHub App installation token so PSR can push the
+      # release commit + tag to main past branch protection. The default
+      # GITHUB_TOKEN provably cannot bypass a ruleset (it is not a valid bypass
+      # actor); the App is added to the ruleset's bypass list as an Integration.
+      # The token is scoped to this repo and auto-revoked when the job ends.
+      - name: Mint GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3.2.0
+        with:
+          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v7.0.0
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0   # PSR needs full history to evaluate commits
+          token: ${{ steps.app-token.outputs.token }}   # push as the App, not the default token
       - name: Pin to the triggering commit
         run: git reset --hard ${{ github.sha }}
       - name: Semantic version release
         id: psr
         uses: python-semantic-release/python-semantic-release@v10.5.3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
 
