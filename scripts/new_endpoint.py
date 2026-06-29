@@ -91,6 +91,10 @@ mcp = FastMCP("{domain}-{resource}")
     name="{resource}_get",
     annotations={{**RO, "title": "Get {domain} {resource}"}},
     tags=TAGS,
+    # The docstring below IS the client-facing description (the LLM\'s selector) —
+    # required; do not pass description= to @mcp.tool.
+    # The return type annotation IS the output schema (auto-derived by fastmcp) —
+    # required; do not pass output_schema= to @mcp.tool.
 )
 def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:
     """Fetch one {resource} by id."""

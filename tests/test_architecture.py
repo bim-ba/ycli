@@ -166,3 +166,20 @@ def test_arch10_sdk_defaults_match_appconfig():
         AppConfig.model_fields["timeout_seconds"].default
     )
     assert params["retries"].default == AppConfig.model_fields["retries"].default
+
+
+def test_every_mcp_tool_has_description_and_output_schema():
+    """Every tool has a docstring-derived description and a return-annotation-derived output schema.
+
+    The docstring IS the client-facing description (the LLM's selector).
+    The return type annotation IS the output schema (auto-derived by fastmcp).
+    Both are required — omitting either makes the tool invisible or unusable to agents.
+    See docs/conventions/resources.md §MCP tool-metadata standard.
+    """
+    tools = _mcp_tools()
+    assert tools, "no MCP tools discovered"
+    for tool in tools:
+        assert tool.description, f"{tool.name!r} is missing a docstring (→ description)"
+        assert tool.outputSchema is not None, (
+            f"{tool.name!r} is missing a return type annotation (→ outputSchema)"
+        )

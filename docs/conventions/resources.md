@@ -90,7 +90,52 @@ and users are known to need the omitted fields.
 
 ---
 
-## 5. Where these rules are enforced
+## 5. MCP tool-metadata standard
+
+Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-derives
+`description` from the docstring and `outputSchema` from the return type annotation —
+**never set either by hand**.
+
+### Required fields
+
+| Field | Where it lives | Requirement |
+|---|---|---|
+| `name` | `@mcp.tool(name=…)` | `snake_case`, pattern `<resource>_<verb>`, verb in `READ_VERBS` |
+| description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
+| output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required** |
+| `annotations` | `@mcp.tool(annotations={**RO, "title": "…"})` | Must include all RO hints + an imperative title |
+| `tags` | `@mcp.tool(tags=TAGS)` | Always the domain `TAGS` constant |
+
+### Prohibited
+
+- `description=` kwarg in `@mcp.tool(…)` — set the docstring instead
+- `output_schema=` kwarg in `@mcp.tool(…)` — set the return annotation instead
+- `meta`, `icons`, `version`, top-level `title=` — omit by default
+
+### Example
+
+```python
+@mcp.tool(
+    name="issues_get",
+    annotations={**RO, "title": "Get Tracker issue"},
+    tags=TAGS,
+)
+def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
+    """A single Tracker issue by key."""          # ← this IS the description
+    return client.issues.get(key)                 # return type IS the outputSchema
+```
+
+### Enforcement
+
+`tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema`
+asserts that every registered tool has a non-empty `description` and a non-`None`
+`outputSchema`.  The test uses `fastmcp.Client` to list tools from the mounted root
+server and checks the `tool.description` and `tool.outputSchema` attributes (MCP spec
+field `outputSchema`, exposed as camelCase by fastmcp 3.4.x).
+
+---
+
+## 6. Where these rules are enforced
 
 | Rule | Enforced by |
 |---|---|
@@ -99,8 +144,4 @@ and users are known to need the omitted fields.
 | `_deps` import path | `scripts/new_endpoint.py` scaffold + code review |
 | Read-only MCP | `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
-
----
-
-*For MCP tool metadata standards (title format, tag taxonomy, annotation fields), see
-Task E4 (forthcoming).*
+| MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |
