@@ -1,8 +1,8 @@
-"""Property accessor on the wiki Comment model — populated and None branches."""
+"""Wiki Comment author flattens to a bare scalar — populated and None branches."""
 
 from ycli.yandex.wiki.comments.models import Comment
 
 
-def test_author_display_populated_and_none():
+def test_author_flattens_to_scalar():
     assert Comment.model_validate({"author": {"display": "Сава"}}).author == "Сава"
     assert Comment.model_validate({"content": "ok"}).author is None
