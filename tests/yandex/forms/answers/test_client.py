@@ -1,4 +1,5 @@
 """TDD for AnswersClient — returns the {columns, answers, next} envelope verbatim."""
+
 import json
 from urllib.parse import parse_qs, urlparse
 
@@ -20,10 +21,16 @@ def _client() -> AnswersClient:
 
 @responses.activate
 def test_list_returns_envelope_verbatim():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                  json={"columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
-                        "answers": [{"id": 99, "created": "2026-01-01", "data": [{"value": "x"}]}],
-                        "next": None}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        json={
+            "columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
+            "answers": [{"id": 99, "created": "2026-01-01", "data": [{"value": "x"}]}],
+            "next": None,
+        },
+        status=200,
+    )
     ar = _client().list(SID)
     assert isinstance(ar, AnswersResponse)
     assert ar.columns[0].text == "T"
@@ -53,8 +60,10 @@ def _paginated_callback(request):
 @responses.activate
 def test_list_all_follows_next_url_and_concatenates():
     responses.add_callback(
-        responses.GET, f"{BASE}/surveys/{SID}/answers",
-        callback=_paginated_callback, content_type="application/json",
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        callback=_paginated_callback,
+        content_type="application/json",
     )
     ar = _client().list_all(SID)
     assert isinstance(ar, AnswersResponse)
@@ -63,7 +72,7 @@ def test_list_all_follows_next_url_and_concatenates():
     assert ar.columns[0].text == "T"  # columns kept from the first page
     assert ar.next is None  # merged envelope is fully drained
     assert len(responses.calls) == 2  # page 1 + the followed next_url
-    assert "id=100" in responses.calls[1].request.url  # followed the server's cursor verbatim
+    assert "id=100" in responses.calls[1].request.url  # ty: ignore[unsupported-operator]  # followed the server's cursor verbatim
 
 
 @responses.activate
@@ -72,12 +81,16 @@ def test_list_all_breaks_on_self_pointing_cursor():
     same = f"{BASE}/surveys/{SID}/answers?id=100"
 
     def cb(request):
-        body = {"columns": [], "answers": [{"id": 1, "created": "x", "data": []}],
-                "next": {"next_url": same}}  # every page hands back the SAME cursor
+        body = {
+            "columns": [],
+            "answers": [{"id": 1, "created": "x", "data": []}],
+            "next": {"next_url": same},
+        }  # every page hands back the SAME cursor
         return (200, {}, json.dumps(body))
 
-    responses.add_callback(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                           callback=cb, content_type="application/json")
+    responses.add_callback(
+        responses.GET, f"{BASE}/surveys/{SID}/answers", callback=cb, content_type="application/json"
+    )
     ar = _client().list_all(SID)
     # page 1 (no id) + one follow of id=100; the second sighting of id=100 trips the guard
     assert len(responses.calls) == 2
@@ -86,9 +99,12 @@ def test_list_all_breaks_on_self_pointing_cursor():
 
 @responses.activate
 def test_list_all_single_page_makes_one_call():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                  json={"columns": [], "answers": [{"id": 7, "created": "x", "data": []}],
-                        "next": None}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        json={"columns": [], "answers": [{"id": 7, "created": "x", "data": []}], "next": None},
+        status=200,
+    )
     ar = _client().list_all(SID)
     assert [a.id for a in ar.answers] == [7]
     assert len(responses.calls) == 1  # no next_url → no extra request
@@ -96,10 +112,19 @@ def test_list_all_single_page_makes_one_call():
 
 @responses.activate
 def test_list_all_respects_limit():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/answers",
-                  json={"columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
-                        "answers": [{"id": 1, "created": "x", "data": []}, {"id": 2, "created": "x", "data": []}],
-                        "next": {"next_url": f"surveys/{SID}/answers?id=2"}}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
+        json={
+            "columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
+            "answers": [
+                {"id": 1, "created": "x", "data": []},
+                {"id": 2, "created": "x", "data": []},
+            ],
+            "next": {"next_url": f"surveys/{SID}/answers?id=2"},
+        },
+        status=200,
+    )
     ar = _client().list_all(SID, limit=1)
     assert len(ar.answers) == 1
     assert ar.next is None
@@ -110,7 +135,8 @@ def test_list_all_respects_limit():
 def test_list_all_limit_spans_pages():
     """limit=3 forces a second-page fetch (page 1 has 2 answers) then truncates within page 2."""
     responses.add(
-        responses.GET, f"{BASE}/surveys/{SID}/answers",
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
         json={
             "columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
             "answers": [
@@ -122,7 +148,8 @@ def test_list_all_limit_spans_pages():
         status=200,
     )
     responses.add(
-        responses.GET, f"{BASE}/surveys/{SID}/answers",
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers",
         json={
             "columns": [{"id": 1, "slug": "c", "type": "string", "text": "C"}],
             "answers": [

@@ -31,3 +31,7 @@ PROMPT.md
 
 # IDEs
 .vscode
+
+# graphify code-graph (local navigation index — rebuilt on demand, not committed)
+/graphify-out/
+/.graphify/

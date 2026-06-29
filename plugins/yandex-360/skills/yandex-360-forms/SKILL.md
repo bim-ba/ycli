@@ -61,7 +61,7 @@ The gateway host uses the web UI's session cookies (CSRF + `Cookie`), not OAuth.
 
 - CLI: `uv run ycli forms <group> <cmd>`
 - MCP (read-only): `forms_me_get`, `forms_surveys_list`, `forms_surveys_get`, `forms_questions_list`, `forms_answers_list`
-- SDK: `from ycli.yandex.forms.client import FormsClient` → `FormsClient.from_env().me/.surveys/.questions/.answers`
+- SDK: `from ycli.yandex.forms.client import FormsClient` → `FormsClient(oauth_token=…, organization_id=…).me/.surveys/.questions/.answers`
 
 **Writes** use raw `http` (httpie). Load auth from env first:
 
@@ -97,7 +97,7 @@ http GET 'https://api.forms.yandex.net/v1/surveys' \
 ```python
 from ycli.yandex.forms.client import FormsClient
 
-forms = FormsClient.from_env()
+forms = FormsClient(oauth_token="…", organization_id="…")
 forms.me.get()                       # auth probe
 forms.surveys.list()                 # list forms
 forms.surveys.get("<form_id>")       # form settings

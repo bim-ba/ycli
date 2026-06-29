@@ -9,6 +9,7 @@ no-skip-ci pre-commit hook can catch that path — only a PreToolUse block can.
 
 Stdlib only (fast cold start). Registered on PreToolUse with matcher "Bash".
 """
+
 import json
 import re
 import sys

@@ -10,12 +10,12 @@ from typing import Annotated
 import typer
 
 from ycli.context import AppContext
-from ycli.yandex.auth import app as auth_app
 from ycli.log import configure
-from ycli.mcp_launcher import launch_mcp_server
+from ycli.mcp_cli import app as mcp_app
 from ycli.output import OutputFormat
-from ycli.yandex.settings import AppConfig
+from ycli.settings import AppConfig
 from ycli.yandex.forms.cli import app as forms_app
+from ycli.yandex.status import app as auth_app
 from ycli.yandex.tracker.cli import app as tracker_app
 from ycli.yandex.wiki.cli import app as wiki_app
 
@@ -32,7 +32,9 @@ def _main(
     ctx: typer.Context,
     output_format: Annotated[
         OutputFormat,
-        typer.Option("--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."),
+        typer.Option(
+            "--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."
+        ),
     ] = OutputFormat.auto,
 ) -> None:
     """Declare the global ``--format`` option, configure logging, build the AppContext."""
@@ -45,14 +47,16 @@ app.add_typer(wiki_app)
 app.add_typer(tracker_app)
 app.add_typer(forms_app)
 
-app.command(name="mcp")(launch_mcp_server)
+app.add_typer(mcp_app)
 
 
 def main() -> None:  # pragma: no cover
     """Console-script entry point (``ycli`` / ``yandex-cli``)."""
-    from pydantic import ValidationError
-    from ycli.yandex.errors import YandexError
     import typer
+    from pydantic import ValidationError
+
+    from ycli.yandex.errors import YandexError
+
     try:
         app()
     except (YandexError, ValidationError) as exc:

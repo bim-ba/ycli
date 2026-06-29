@@ -49,15 +49,15 @@ clients handle this for you; it only matters if you fall back to raw HTTP.
 | Surface | Use when | How |
 |---------|----------|-----|
 | **CLI** | Interactive / shell / scripting | `uv run ycli <domain> <group> <cmd>` (e.g. `uv run ycli tracker issues get KEY`) |
-| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp` (stdio; needs the `[mcp]` extra); tools are namespaced `tracker_*`, `wiki_*`, `forms_*` — **reads only** |
-| **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient.from_env()` |
+| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); tools are namespaced `tracker_*`, `wiki_*`, `forms_*` — **reads only** |
+| **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient(oauth_token=…, organization_id=…)` |
 
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 
 ```json
 {
   "mcpServers": {
-    "yandex": { "command": "uvx", "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp"] }
+    "yandex": { "command": "uvx", "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"] }
   }
 }
 ```

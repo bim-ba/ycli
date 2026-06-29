@@ -96,6 +96,8 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "responses>=0.26.1",
+    "ruff>=0.15.20",
+    "ty>=0.0.55",
 ]
 
 # Automated versioning from Conventional Commits. CI runs `semantic-release version`
@@ -113,6 +115,43 @@ mode = "update"
 
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF", "ANN", "TC"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastmcp.dependencies.Depends"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ycli"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["N802", "ANN"]
+"scripts/**/*.py" = ["T201", "ANN"]
+"src/ycli/yandex/**/client.py" = ["ANN"]
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.terminal]
+error-on-warning = true
+
+[tool.ty.rules]
+possibly-unresolved-reference = "error"
+unused-ignore-comment = "warn"
 
 [tool.importlinter]
 root_package = "ycli"

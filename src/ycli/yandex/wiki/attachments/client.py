@@ -3,9 +3,10 @@
 NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
 annotations eagerly.
 """
+
 import uplink
 
-from ycli.yandex.pagination import SinglePageStrategy
+from ycli.yandex.pagination import collect_single_page
 from ycli.yandex.wiki._base import WikiResource
 from ycli.yandex.wiki.attachments.models import AttachmentList, AttachmentsResponse
 
@@ -30,7 +31,9 @@ class AttachmentsClient(WikiResource):
             >>> client.attachments.list(12345).root[0].name  # doctest: +SKIP
             'diagram.png'
         """
-        items = SinglePageStrategy(extract=lambda page: page.results).collect(
-            lambda cursor: self._list_page(page_id, page_size=100), limit
+        return collect_single_page(
+            lambda cursor: self._list_page(page_id, page_size=100),
+            extract=lambda page: page.results,
+            wrap=AttachmentList,
+            limit=limit,
         )
-        return AttachmentList(items)

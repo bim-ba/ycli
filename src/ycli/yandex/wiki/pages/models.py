@@ -1,9 +1,10 @@
 """Pydantic v2 models for Yandex Wiki /pages responses (extra='ignore')."""
+
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class PageAttributes(APIModel):
@@ -34,7 +35,9 @@ class PageDetails(APIModel):
     ``owner_username`` walks ``owner.user.username`` defensively.
 
     Example:
-        >>> PageDetails.model_validate({"id": 42, "slug": "data/x", "title": "X", "owner": {"user": {"username": "ivan"}}}).owner_username
+        >>> PageDetails.model_validate(
+        ...     {"id": 42, "slug": "data/x", "title": "X", "owner": {"user": {"username": "ivan"}}}
+        ... ).owner_username
         'ivan'
     """
 
@@ -71,12 +74,14 @@ class DescendantsResponse(APIModel):
     as the next request's ``cursor``.
 
     Example:
-        >>> r = DescendantsResponse.model_validate({"results": [{"id": 1, "slug": "data/a"}], "next_cursor": None})
+        >>> r = DescendantsResponse.model_validate(
+        ...     {"results": [{"id": 1, "slug": "data/a"}], "next_cursor": None}
+        ... )
         >>> r.results[0].slug, r.next_cursor
         ('data/a', None)
     """
 
-    results: list[PageRef] = []
+    results: list[PageRef] = Field(default_factory=list)
     next_cursor: str | None = None
 
 

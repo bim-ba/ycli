@@ -1,4 +1,5 @@
 """Forms FastMCP subserver — mounts the per-resource tool servers (reads-only)."""
+
 from fastmcp import FastMCP
 
 from ycli.yandex.forms.answers.mcp import mcp as answers_mcp

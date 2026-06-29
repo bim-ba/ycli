@@ -39,7 +39,7 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 |---------|----------------|
 | **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|descendants`, `comments list`, `attachments list` |
 | **MCP tools** (read-only, 5) | `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`. **No write tools** — `pages create` / `pages update` are CLI-only. |
-| **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient.from_env()` exposes `.pages` (`get`, `descendants`, `create`, `update`), `.comments` (`list`), `.attachments` (`list`). |
+| **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages` (`get`, `descendants`, `create`, `update`), `.comments` (`list`), `.attachments` (`list`). |
 
 **Prefer the CLI / MCP tools over raw `http` calls** — they encode the API quirks (header name, `slug=` query form, POST-not-PATCH, `fields=` rules) correctly.
 

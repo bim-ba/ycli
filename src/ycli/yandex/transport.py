@@ -32,32 +32,6 @@ from ycli.yandex.errors import (
 )
 
 
-def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
-    """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
-
-    Runs after urllib3 retries (Retry has ``raise_on_status=False``), so only the
-    final response reaches here. uplink calls ``session.request``, which dispatches
-    this hook, so every SDK call is covered.
-    """
-    code = response.status_code
-    if code < 400:
-        return response
-    snippet = response.text[:300].replace("\n", " ").strip()
-    message = f"{code} {response.reason} for {response.request.method} {response.url}: {snippet}"
-    url = response.url
-    match code:
-        case 401 | 403:
-            raise YandexAuthError(message, status=code, url=url)
-        case 404:
-            raise YandexNotFoundError(message, status=code, url=url)
-        case 429:
-            raise YandexRateLimitError(message, status=code, url=url)
-        case _ if code >= 500:
-            raise YandexServerError(message, status=code, url=url)
-        case _:
-            raise YandexClientError(message, status=code, url=url)
-
-
 class _TimeoutAdapter(HTTPAdapter):
     """HTTPAdapter that applies a default timeout when the caller passes none.
 
@@ -105,6 +79,38 @@ class _TimeoutAdapter(HTTPAdapter):
 class Transport:
     """Builds an authed ``requests.Session`` — the single, env-free auth boundary."""
 
+    @staticmethod
+    def _authorization(oauth_token: str) -> str:
+        """The Authorization header value — the single point an auth scheme would vary."""
+        return f"OAuth {oauth_token}"
+
+    @staticmethod
+    def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
+        """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
+
+        Runs after urllib3 retries (Retry has ``raise_on_status=False``), so only the
+        final response reaches here. uplink calls ``session.request``, which dispatches
+        this hook, so every SDK call is covered.
+        """
+        code = response.status_code
+        if code < 400:
+            return response
+        snippet = response.text[:300].replace("\n", " ").strip()
+        method = response.request.method
+        message = f"{code} {response.reason} for {method} {response.url}: {snippet}"
+        url = response.url
+        match code:
+            case 401 | 403:
+                raise YandexAuthError(message, status=code, url=url)
+            case 404:
+                raise YandexNotFoundError(message, status=code, url=url)
+            case 429:
+                raise YandexRateLimitError(message, status=code, url=url)
+            case _ if code >= 500:
+                raise YandexServerError(message, status=code, url=url)
+            case _:
+                raise YandexClientError(message, status=code, url=url)
+
     @classmethod
     def session(
         cls,
@@ -121,9 +127,9 @@ class Transport:
             raise ValueError("organization_id must be a non-empty string")
         session = base or requests.Session()
         session.headers.update(
-            {"Authorization": f"OAuth {oauth_token}", "X-Org-Id": organization_id}
+            {"Authorization": cls._authorization(oauth_token), "X-Org-Id": organization_id}
         )
-        session.hooks["response"].append(_raise_typed)
+        session.hooks["response"].append(cls._raise_typed)
         retry = Retry(
             total=retries,
             backoff_factor=0.5,

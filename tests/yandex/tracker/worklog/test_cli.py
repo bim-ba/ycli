@@ -1,4 +1,5 @@
 """TDD for `tracker worklog` CLI."""
+
 import json
 
 import pytest
@@ -19,7 +20,11 @@ def creds(monkeypatch):
 
 @responses.activate
 def test_list():
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/worklog",
-                  json=[{"id": 5, "duration": "PT2H"}], status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/DE-1/worklog",
+        json=[{"id": 5, "duration": "PT2H"}],
+        status=200,
+    )
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "worklog", "list", "DE-1"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["duration"] == "PT2H"

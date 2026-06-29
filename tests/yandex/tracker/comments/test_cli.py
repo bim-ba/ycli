@@ -1,4 +1,5 @@
 """TDD for `tracker comments` CLI."""
+
 import json
 
 import pytest
@@ -19,17 +20,21 @@ def creds(monkeypatch):
 
 @responses.activate
 def test_list():
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/comments",
-                  json=[{"id": 1, "text": "hi"}], status=200)
+    responses.add(
+        responses.GET, f"{BASE}/issues/DE-1/comments", json=[{"id": 1, "text": "hi"}], status=200
+    )
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "comments", "list", "DE-1"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["text"] == "hi"
 
 
 @responses.activate
 def test_add():
-    responses.add(responses.POST, f"{BASE}/issues/DE-1/comments/",
-                  json={"id": 5, "text": "added"}, status=201)
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "comments", "add", "DE-1", "--text", "added"])
+    responses.add(
+        responses.POST, f"{BASE}/issues/DE-1/comments/", json={"id": 5, "text": "added"}, status=201
+    )
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "comments", "add", "DE-1", "--text", "added"]
+    )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["id"] == 5
-    assert json.loads(responses.calls[0].request.body) == {"text": "added"}
+    assert json.loads(responses.calls[0].request.body) == {"text": "added"}  # ty: ignore[invalid-argument-type]

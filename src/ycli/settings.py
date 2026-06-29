@@ -5,6 +5,7 @@ callback configures logging on every invocation, including ``--help``), while cr
 are required only when an API call is made. ``Credentials`` has no defaults, so pydantic
 enforces presence — no hand-written validation.
 """
+
 from __future__ import annotations
 
 from pydantic import Field

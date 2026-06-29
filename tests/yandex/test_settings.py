@@ -1,8 +1,9 @@
 """Settings models — env-driven config with required credentials."""
+
 import pytest
 from pydantic import ValidationError
 
-from ycli.yandex.settings import AppConfig, Credentials
+from ycli.settings import AppConfig, Credentials
 
 
 def test_app_config_defaults(monkeypatch):
@@ -27,7 +28,7 @@ def test_app_config_reads_overrides(monkeypatch):
 def test_credentials_read_env(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    creds = Credentials()
+    creds = Credentials()  # ty: ignore[missing-argument]
     assert creds.oauth_token == "tok"
     assert creds.organization_id == "org"
 
@@ -37,7 +38,7 @@ def test_credentials_missing_raises(tmp_path, monkeypatch):
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.chdir(tmp_path)  # ensure no .env file is picked up
     with pytest.raises(ValidationError):
-        Credentials()
+        Credentials()  # ty: ignore[missing-argument]
 
 
 def test_settings_read_dotenv(tmp_path, monkeypatch):
@@ -49,10 +50,12 @@ def test_settings_read_dotenv(tmp_path, monkeypatch):
 
 def test_cli_callback_uses_configured_log_level(monkeypatch):
     import ycli.cli as cli
+
     captured = {}
     monkeypatch.setenv("YCLI_LOG_LEVEL", "ERROR")
     monkeypatch.setattr("ycli.cli.configure", lambda level: captured.setdefault("level", level))
     from typer.testing import CliRunner
+
     # Root --help doesn't trigger the callback in Typer; use a subcommand invocation instead.
     CliRunner().invoke(cli.app, ["tracker", "issues", "--help"])
     assert captured["level"] == "ERROR"
@@ -61,7 +64,8 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
 def test_max_items_default_and_env(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)  # ignore any repo-root .env
     monkeypatch.delenv("YCLI_MAX_ITEMS", raising=False)
-    from ycli.yandex.settings import AppConfig
+    from ycli.settings import AppConfig
+
     assert AppConfig().max_items == 500
     monkeypatch.setenv("YCLI_MAX_ITEMS", "42")
     assert AppConfig().max_items == 42

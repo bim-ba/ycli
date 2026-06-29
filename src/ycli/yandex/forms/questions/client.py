@@ -2,6 +2,7 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.forms._base import FormsResource
@@ -18,6 +19,8 @@ class QuestionsClient(FormsResource):
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.questions.list(survey_id="686d0a1b2c3d4e5f").pages[0].items[0].slug  # doctest: +SKIP
+            >>> client.questions.list(survey_id="686d0a1b2c3d4e5f").pages[0].items[
+            ...     0
+            ... ].slug  # doctest: +SKIP
             'answer_short_text_1'
         """

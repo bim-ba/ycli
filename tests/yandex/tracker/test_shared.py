@@ -1,4 +1,5 @@
 """TDD for the tracker per-domain base + shared sub-models."""
+
 import requests
 
 from ycli.yandex.tracker._base import TrackerResource

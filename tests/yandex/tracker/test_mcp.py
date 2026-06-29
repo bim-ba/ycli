@@ -1,4 +1,5 @@
 """Tracker FastMCP domain server — 14 reads-only tools, namespaced <resource>_<action>."""
+
 import pytest
 import responses
 from fastmcp import Client
@@ -19,9 +20,19 @@ async def test_all_fourteen_read_tools_registered():
         names = {t.name for t in await client.list_tools()}
     assert names == {
         "me_get",
-        "issues_get", "issues_full", "issues_list", "issues_search", "issues_count",
-        "comments_list", "links_list", "transitions_list", "worklog_list",
-        "changelog_list", "priorities_list", "issuetypes_list", "linktypes_list",
+        "issues_get",
+        "issues_full",
+        "issues_list",
+        "issues_search",
+        "issues_count",
+        "comments_list",
+        "links_list",
+        "transitions_list",
+        "worklog_list",
+        "changelog_list",
+        "priorities_list",
+        "issuetypes_list",
+        "linktypes_list",
     }
 
 
@@ -59,8 +70,9 @@ async def test_comments_list_tool(creds):
 
 @responses.activate
 async def test_links_list_tool(creds):
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/links",
-                  json=[{"object": {"key": "DE-2"}}], status=200)
+    responses.add(
+        responses.GET, f"{BASE}/issues/DE-1/links", json=[{"object": {"key": "DE-2"}}], status=200
+    )
     async with Client(tracker_mcp.mcp) as client:
         result = await client.call_tool("links_list", {"key": "DE-1"})
     assert result.data[0].object.key == "DE-2"
@@ -68,7 +80,9 @@ async def test_links_list_tool(creds):
 
 @responses.activate
 async def test_transitions_list_tool(creds):
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/transitions", json=[{"id": "close"}], status=200)
+    responses.add(
+        responses.GET, f"{BASE}/issues/DE-1/transitions", json=[{"id": "close"}], status=200
+    )
     async with Client(tracker_mcp.mcp) as client:
         result = await client.call_tool("transitions_list", {"key": "DE-1"})
     assert result.data[0].id == "close"
@@ -76,7 +90,9 @@ async def test_transitions_list_tool(creds):
 
 @responses.activate
 async def test_worklog_list_tool(creds):
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/worklog", json=[{"duration": "PT2H"}], status=200)
+    responses.add(
+        responses.GET, f"{BASE}/issues/DE-1/worklog", json=[{"duration": "PT2H"}], status=200
+    )
     async with Client(tracker_mcp.mcp) as client:
         result = await client.call_tool("worklog_list", {"key": "DE-1"})
     assert result.data[0].duration == "PT2H"

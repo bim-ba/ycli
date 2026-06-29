@@ -11,6 +11,8 @@ forms surveys
 forms surveys get
 forms surveys list
 mcp
+mcp methods
+mcp start
 tracker
 tracker changelog
 tracker changelog list

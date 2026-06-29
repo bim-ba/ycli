@@ -1,9 +1,10 @@
 """Pydantic models for Tracker link types (LinkType + LinkTypeList)."""
+
 from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class LinkType(APIModel):

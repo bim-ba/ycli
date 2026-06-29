@@ -1,7 +1,10 @@
 """Pydantic models for Forms questions (Question + Page + QuestionsResponse envelope)."""
+
 from __future__ import annotations
 
-from ycli.models import APIModel
+from pydantic import Field
+
+from ycli.yandex.models import APIModel
 
 
 class Question(APIModel):
@@ -32,15 +35,17 @@ class Page(APIModel):
     """
 
     id: int | None = None
-    items: list[Question] = []
+    items: list[Question] = Field(default_factory=list)
 
 
 class QuestionsResponse(APIModel):
     """Envelope for ``GET …/questions`` — ``{pages:[Page]}``.
 
     Example:
-        >>> QuestionsResponse.model_validate({"pages": [{"items": [{"id": 1}]}]}).pages[0].items[0].id
+        >>> QuestionsResponse.model_validate({"pages": [{"items": [{"id": 1}]}]}).pages[0].items[
+        ...     0
+        ... ].id
         1
     """
 
-    pages: list[Page] = []
+    pages: list[Page] = Field(default_factory=list)

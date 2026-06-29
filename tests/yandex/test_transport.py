@@ -8,6 +8,8 @@ timeout. Empty args raise. When base is supplied, that session is configured in 
 returned instead of a fresh one.
 """
 
+from pathlib import Path
+
 import pytest
 import requests
 import responses
@@ -24,8 +26,8 @@ def test_session_sets_auth_and_org_headers():
 def test_session_applies_configured_timeout_and_retries():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=12.5, retries=7)
     adapter = s.get_adapter("https://example.com")
-    assert adapter._timeout == 12.5
-    assert adapter.max_retries.total == 7
+    assert adapter._timeout == 12.5  # ty: ignore[unresolved-attribute]
+    assert adapter.max_retries.total == 7  # ty: ignore[unresolved-attribute]
 
 
 def test_session_rejects_empty_credentials():
@@ -48,27 +50,30 @@ def test_session_carries_auth_and_org_headers():
 def test_session_mounts_retry_adapter_on_https():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     adapter = s.get_adapter("https://api.wiki.yandex.net/v1/pages")
-    assert adapter.max_retries.total == 3
-    assert 429 in adapter.max_retries.status_forcelist
-    assert 500 in adapter.max_retries.status_forcelist
+    assert adapter.max_retries.total == 3  # ty: ignore[unresolved-attribute]
+    assert 429 in adapter.max_retries.status_forcelist  # ty: ignore[unresolved-attribute]
+    assert 500 in adapter.max_retries.status_forcelist  # ty: ignore[unresolved-attribute]
 
 
 def test_post_not_retried_only_idempotent_methods():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     adapter = s.get_adapter("https://api.wiki.yandex.net/v1/pages")
-    methods = adapter.max_retries.allowed_methods
+    methods = adapter.max_retries.allowed_methods  # ty: ignore[unresolved-attribute]
     assert "POST" not in methods
     assert "GET" in methods
 
 
 def test_session_does_not_read_environment(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "should-be-ignored")
-    s = Transport.session(oauth_token="explicit", organization_id="o", timeout_seconds=30.0, retries=3)
+    s = Transport.session(
+        oauth_token="explicit", organization_id="o", timeout_seconds=30.0, retries=3
+    )
     assert s.headers["Authorization"] == "OAuth explicit"
 
 
 def test_timeout_adapter_injects_default_when_none(monkeypatch):
-    # responses mounts its own adapter and bypasses _TimeoutAdapter.send, so unit-test send() directly.
+    # responses mounts its own adapter and bypasses _TimeoutAdapter.send;
+    # unit-test send() directly.
     from ycli.yandex.transport import _TimeoutAdapter
 
     captured: dict[str, object] = {}
@@ -77,7 +82,7 @@ def test_timeout_adapter_injects_default_when_none(monkeypatch):
         captured.update(kwargs)
         return requests.Response()
 
-    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)
+    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)  # ty: ignore[possibly-missing-submodule]
     adapter = _TimeoutAdapter(timeout=12.5)
     prepared = requests.Request("GET", "https://example.com").prepare()
 
@@ -94,15 +99,12 @@ def test_timeout_adapter_passes_explicit_timeout_through(monkeypatch):
         captured.update(kwargs)
         return requests.Response()
 
-    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)
+    monkeypatch.setattr(requests.adapters.HTTPAdapter, "send", fake_send)  # ty: ignore[possibly-missing-submodule]
     adapter = _TimeoutAdapter(timeout=12.5)
     prepared = requests.Request("GET", "https://example.com").prepare()
 
     adapter.send(prepared, timeout=3.0)
     assert captured["timeout"] == 3.0
-
-
-from pathlib import Path
 
 
 def test_no_hardcoded_uplink_timeout_in_clients():
@@ -112,14 +114,24 @@ def test_no_hardcoded_uplink_timeout_in_clients():
 
 
 def test_session_configures_a_supplied_bare_base():
-    from ycli.yandex.transport import _raise_typed, _TimeoutAdapter
+    from ycli.yandex.transport import _TimeoutAdapter
+
     bare = requests.Session()
     out = Transport.session(oauth_token="t", organization_id="o", base=bare)
     assert out is bare  # configured in place, not replaced
     assert out.headers["Authorization"] == "OAuth t"
     assert out.headers["X-Org-Id"] == "o"
-    assert _raise_typed in out.hooks["response"]
+    assert Transport._raise_typed in out.hooks["response"]
     assert isinstance(out.get_adapter("https://example.com"), _TimeoutAdapter)
+
+
+def test_response_hook_is_registered():
+    s = Transport.session(oauth_token="t", organization_id="o")
+    assert Transport._raise_typed in s.hooks["response"]
+
+
+def test_authorization_header_uses_oauth_scheme():
+    assert Transport._authorization("abc") == "OAuth abc"
 
 
 @responses.activate
@@ -128,18 +140,22 @@ def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     monkeypatch.setenv("YCLI_TIMEOUT_SECONDS", "99")
-    import requests.adapters
     from ycli.yandex.transport import _TimeoutAdapter
-    from ycli.yandex.tracker.client import TrackerClient
+
     seen: dict = {}
     real_send = _TimeoutAdapter.send
+
     def spy(self, request, **kw):
         seen["incoming_timeout"] = kw.get("timeout")
         seen["adapter_timeout"] = self._timeout
         return real_send(self, request, **kw)
+
     monkeypatch.setattr(_TimeoutAdapter, "send", spy)
-    responses.add(responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200)
+    responses.add(
+        responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200
+    )
     from ycli.yandex.tracker._deps import tracker_client
+
     tracker_client().priorities.list()
     assert seen["incoming_timeout"] is None, f"Expected None but got {seen['incoming_timeout']}"
     assert seen["adapter_timeout"] == 99.0, f"Expected 99.0 but got {seen['adapter_timeout']}"

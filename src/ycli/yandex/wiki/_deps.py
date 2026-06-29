@@ -1,26 +1,9 @@
-"""FastMCP dependency provider for the wiki subserver — one cached client per process.
+"""Cached wiki MCP client provider (see ycli.yandex._mcp.make_cached_client)."""
 
-fastmcp v3 isolates each mounted server's lifespan, so the canonical way to share a single
-non-serializable client across mounted tools is a module-level cached factory (see the
-fastmcp composition docs). ``@cache`` builds the client once from the env on first tool call;
-tests reset it via the autouse ``cache_clear`` fixture in tests/conftest.py.
-"""
-from functools import cache
-
-from ycli.yandex._mcp import RO
-from ycli.yandex.settings import AppConfig, Credentials
+from ycli.yandex._mcp import RO, app_config, make_cached_client
 from ycli.yandex.wiki.client import WikiClient
 
 TAGS: set[str] = {"wiki"}
+wiki_client = make_cached_client(WikiClient)
 
-
-@cache
-def wiki_client() -> WikiClient:
-    """Build (once) and return the wiki client from the environment."""
-    credentials, config = Credentials(), AppConfig()
-    return WikiClient(
-        oauth_token=credentials.oauth_token,
-        organization_id=credentials.organization_id,
-        timeout_seconds=int(config.timeout_seconds),
-        retries=config.retries,
-    )
+__all__ = ["RO", "TAGS", "app_config", "wiki_client"]

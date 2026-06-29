@@ -3,9 +3,10 @@
 NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
 annotations eagerly.
 """
+
 import uplink
 
-from ycli.yandex.pagination import SinglePageStrategy
+from ycli.yandex.pagination import collect_single_page
 from ycli.yandex.wiki._base import WikiResource
 from ycli.yandex.wiki.comments.models import CommentList, CommentsResponse
 
@@ -30,7 +31,9 @@ class CommentsClient(WikiResource):
             >>> client.comments.list(12345).root[0].author_display  # doctest: +SKIP
             'Сава Знатнов'
         """
-        items = SinglePageStrategy(extract=lambda page: page.results).collect(
-            lambda cursor: self._list_page(page_id, page_size=100), limit
+        return collect_single_page(
+            lambda cursor: self._list_page(page_id, page_size=100),
+            extract=lambda page: page.results,
+            wrap=CommentList,
+            limit=limit,
         )
-        return CommentList(items)

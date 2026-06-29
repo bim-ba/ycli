@@ -1,4 +1,5 @@
 """Wiki FastMCP subserver — mounts the per-resource tool servers."""
+
 from fastmcp import FastMCP
 
 from ycli.yandex.wiki.attachments.mcp import mcp as attachments_mcp

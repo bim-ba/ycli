@@ -1,9 +1,12 @@
 """TrackerClient — composition root over the tracker resource clients (one shared session)."""
+
 from __future__ import annotations
 
-import requests
+from typing import TYPE_CHECKING
 
-from ycli.yandex.transport import Transport
+if TYPE_CHECKING:
+    import requests
+
 from ycli.yandex.tracker.changelog.client import ChangelogClient
 from ycli.yandex.tracker.comments.client import CommentsClient
 from ycli.yandex.tracker.issues.client import IssuesClient
@@ -14,6 +17,7 @@ from ycli.yandex.tracker.me.client import MeClient
 from ycli.yandex.tracker.priorities.client import PrioritiesClient
 from ycli.yandex.tracker.transitions.client import TransitionsClient
 from ycli.yandex.tracker.worklog.client import WorklogClient
+from ycli.yandex.transport import Transport
 
 
 class TrackerClient:

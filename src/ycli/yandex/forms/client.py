@@ -1,13 +1,17 @@
 """FormsClient — composition root over the forms resource clients (one shared session)."""
+
 from __future__ import annotations
 
-import requests
+from typing import TYPE_CHECKING
 
-from ycli.yandex.transport import Transport
+if TYPE_CHECKING:
+    import requests
+
 from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.me.client import MeClient
 from ycli.yandex.forms.questions.client import QuestionsClient
 from ycli.yandex.forms.surveys.client import SurveysClient
+from ycli.yandex.transport import Transport
 
 
 class FormsClient:

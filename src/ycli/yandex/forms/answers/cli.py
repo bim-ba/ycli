@@ -1,14 +1,16 @@
 """`forms answers` commands."""
+
 from __future__ import annotations
 
 from typing import Annotated
 
 import typer
 
-from ycli.yandex.settings import AppConfig
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.yandex.forms._args import SurveyIdArg
+from ycli.yandex.forms._args import (
+    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+)
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
@@ -27,5 +29,7 @@ def list_(
 ) -> None:
     """List a form's responses (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or AppConfig().max_items)
-    Serializer.serialize(app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
+    Serializer.serialize(
+        app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console
+    )

@@ -1,4 +1,5 @@
 """Forms /users/me FastMCP tool (reads-only) — Depends DI, native error handling."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 

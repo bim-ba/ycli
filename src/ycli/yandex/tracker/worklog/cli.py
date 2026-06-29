@@ -1,11 +1,14 @@
 """`tracker worklog` commands."""
+
 from __future__ import annotations
 
 import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.yandex.tracker._args import KeyArg
+from ycli.yandex.tracker._args import (
+    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+)
 
 app = typer.Typer(name="worklog", help="Tracker issue worklog.", no_args_is_help=True)
 

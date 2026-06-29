@@ -4,9 +4,10 @@ The three ref models flatten the API's ``{key}`` / ``{id}`` / ``{display}`` wrap
 objects that recur across issues, links, changelog, etc. See each class's own
 ``Example`` below.
 """
+
 from __future__ import annotations
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class _KeyRef(APIModel):

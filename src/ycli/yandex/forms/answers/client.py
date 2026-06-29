@@ -2,6 +2,7 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
+
 from urllib.parse import urljoin
 
 import uplink
@@ -47,7 +48,9 @@ class AnswersClient(FormsResource):
 
         answers = NextUrlStrategy(
             extract=lambda page: page.answers,
-            next_url_of=lambda page: page.next.get("next_url") if isinstance(page.next, dict) else None,
+            next_url_of=lambda page: (
+                page.next.get("next_url") if isinstance(page.next, dict) else None
+            ),
             fetch_url=fetch_url,
         ).collect(lambda cursor: first, limit)
         return AnswersResponse(columns=columns, answers=answers, next=None)

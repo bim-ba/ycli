@@ -1,4 +1,5 @@
 """Tracker /myself resource — client + CLI + MCP, HTTP stubbed."""
+
 from __future__ import annotations
 
 import asyncio
@@ -13,8 +14,8 @@ from typer.testing import CliRunner
 import ycli.cli as cli
 from ycli.mcp import mcp as root_mcp
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.me.models import Me
 from ycli.yandex.tracker.me import mcp as me_mcp_module
+from ycli.yandex.tracker.me.models import Me
 
 _URL = "https://api.tracker.yandex.net/v3/myself"
 _PAYLOAD = {"uid": 42, "login": "alice", "display": "Alice A.", "email": "alice@example.com"}

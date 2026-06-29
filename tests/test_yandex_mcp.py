@@ -28,9 +28,12 @@ def test_main_is_callable():
 def test_mcp_main_honors_log_level(monkeypatch, capsys):
     monkeypatch.setenv("YCLI_LOG_LEVEL", "ERROR")
     import ycli.mcp as mcp_module
+
     monkeypatch.setattr(mcp_module.mcp, "run", lambda *a, **k: None)
-    from ycli.mcp import main
     from loguru import logger
+
+    from ycli.mcp import main
+
     main()
     logger.info("hidden_line")
     logger.error("shown_line")

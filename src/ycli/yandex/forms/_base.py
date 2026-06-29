@@ -6,6 +6,7 @@ this base is the single place that fact is encoded.
 NOTE: no ``from __future__ import annotations`` — resource clients subclass this and
 uplink reads their method annotations eagerly. Keep this module annotation-eager too.
 """
+
 from typing import ClassVar
 
 from ycli.yandex.base import BaseYandex

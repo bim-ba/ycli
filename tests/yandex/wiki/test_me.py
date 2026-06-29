@@ -1,4 +1,5 @@
 """Wiki /users/me resource — client, CLI, MCP."""
+
 import pytest
 import responses
 from fastmcp import Client
@@ -6,8 +7,8 @@ from fastmcp.exceptions import ToolError
 from typer.testing import CliRunner
 
 import ycli.cli as cli
-from ycli.yandex.wiki.me import mcp as me_mcp_module
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.me import mcp as me_mcp_module
 from ycli.yandex.wiki.me.models import Me
 
 ME_URL = "https://api.wiki.yandex.net/v1/users/me"
@@ -49,6 +50,7 @@ def test_cli_wiki_me_get(creds):
 def test_mcp_wiki_me_get(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
     from ycli.yandex.wiki.me.mcp import get
+
     result = get(client=WikiClient(oauth_token="tok", organization_id="org"))
     assert result.username == "alice"
 

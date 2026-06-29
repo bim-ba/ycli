@@ -1,9 +1,10 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses (extra='ignore')."""
+
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class _CommentAuthor(APIModel):
@@ -37,15 +38,15 @@ class CommentsResponse(APIModel):
         'ok'
     """
 
-    results: list[Comment] = []
+    results: list[Comment] = Field(default_factory=list)
 
 
 class CommentList(RootModel[list[Comment]]):
-    """Flat collection of :class:`Comment` items — the public return type of ``CommentsClient.list``.
+    """Flat collection of :class:`Comment` items — public return type of ``CommentsClient.list``.
 
     Example:
         >>> CommentList([Comment.model_validate({"content": "ok"})]).root[0].content
         'ok'
     """
 
-    root: list[Comment] = []
+    root: list[Comment] = Field(default_factory=list)

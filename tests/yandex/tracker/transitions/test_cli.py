@@ -1,4 +1,5 @@
 """TDD for `tracker transitions` CLI."""
+
 import json
 
 import pytest
@@ -19,17 +20,48 @@ def creds(monkeypatch):
 
 @responses.activate
 def test_list():
-    responses.add(responses.GET, f"{BASE}/issues/DE-1/transitions",
-                  json=[{"id": "close", "display": "Close"}], status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/DE-1/transitions",
+        json=[{"id": "close", "display": "Close"}],
+        status=200,
+    )
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "transitions", "list", "DE-1"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["id"] == "close"
 
 
 @responses.activate
 def test_execute_with_field():
-    responses.add(responses.POST, f"{BASE}/issues/DE-1/transitions/close/_execute",
-                  json=[{"id": "reopen"}], status=200)
-    res = runner.invoke(cli.app, ["tracker", "transitions", "execute", "DE-1", "close", "--field", "comment=done"])
+    responses.add(
+        responses.POST,
+        f"{BASE}/issues/DE-1/transitions/close/_execute",
+        json=[
+            {
+                "self": "https://api.tracker.yandex.net/v3/issues/DE-1/transitions/close",
+                "id": "close",
+                "to": {"id": "3", "key": "closed", "display": "Closed"},
+                "screen": {"id": "scr1"},
+            }
+        ],
+        status=200,
+    )
+    res = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "transitions",
+            "execute",
+            "DE-1",
+            "close",
+            "--field",
+            "comment=done",
+        ],
+    )
     assert res.exit_code == 0
-    assert json.loads(res.stdout) == [{"id": "reopen"}]
-    assert json.loads(responses.calls[0].request.body) == {"comment": "done"}
+    parsed = json.loads(res.stdout)
+    assert parsed[0]["id"] == "close"
+    assert parsed[0]["to"]["key"] == "closed"
+    assert parsed[0]["to"]["display"] == "Closed"
+    assert json.loads(responses.calls[0].request.body) == {"comment": "done"}  # ty: ignore[invalid-argument-type]

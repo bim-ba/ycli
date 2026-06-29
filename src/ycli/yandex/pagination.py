@@ -4,10 +4,14 @@ Each strategy owns ONE cursor mechanic and accepts injected page-access callable
 public client method never exposes a cursor: it picks a strategy, says how to read a page,
 and gets back a list capped at ``limit`` (``None`` = uncapped). Pure — no HTTP here.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class PaginationStrategy(ABC):
@@ -20,7 +24,7 @@ class SinglePageStrategy(PaginationStrategy):
     def __init__(self, *, extract: Callable[[Any], list]) -> None:
         self._extract = extract
 
-    def collect(self, fetch_page, limit):
+    def collect(self, fetch_page: Callable[[Any], Any], limit: int | None) -> list:
         items = list(self._extract(fetch_page(None)))
         return items if limit is None else items[:limit]
 
@@ -30,7 +34,7 @@ class CursorStrategy(PaginationStrategy):
         self._extract = extract
         self._next_of = next_of
 
-    def collect(self, fetch_page, limit):
+    def collect(self, fetch_page: Callable[[Any], Any], limit: int | None) -> list:
         items: list = []
         cursor: Any = None
         while True:
@@ -57,7 +61,7 @@ class NextUrlStrategy(PaginationStrategy):
         self._next_url_of = next_url_of
         self._fetch_url = fetch_url
 
-    def collect(self, fetch_page, limit):
+    def collect(self, fetch_page: Callable[[Any], Any], limit: int | None) -> list:
         page = fetch_page(None)
         items: list = list(self._extract(page))
         seen: set[str] = set()
@@ -70,3 +74,15 @@ class NextUrlStrategy(PaginationStrategy):
             items.extend(self._extract(page))
             url = self._next_url_of(page)
         return items if limit is None else items[:limit]
+
+
+def collect_single_page(
+    page_fn: Callable[[Any], Any],
+    *,
+    extract: Callable[[Any], list],
+    wrap: Callable[[list], Any],
+    limit: int | None = None,
+) -> Any:
+    """Single-page envelope -> bounded, wrapped flat collection (the wiki/forms list shape)."""
+    items = SinglePageStrategy(extract=extract).collect(page_fn, limit)
+    return wrap(items)

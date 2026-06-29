@@ -241,7 +241,7 @@ uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
 ```python
 from ycli.yandex.tracker.client import TrackerClient
 
-client = TrackerClient.from_env()        # reads YANDEX_ID_* from the environment
+client = TrackerClient(oauth_token="…", organization_id="…")
 issue = client.issues.get("MYQUEUE-123")
 ```
 

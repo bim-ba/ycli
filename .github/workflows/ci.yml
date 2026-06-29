@@ -32,8 +32,15 @@ jobs:
         # --all-extras pulls in the optional 'mcp' extra (fastmcp) so the
         # 100%-coverage suite, which exercises the MCP modules, can import it.
         run: uv sync --locked --all-extras --dev
+      - name: Format check
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check .
       - name: Check architecture boundaries
         run: uv run lint-imports
+      - name: Type check (advisory)
+        run: uv run ty check
+        continue-on-error: true
       - name: Run tests
         run: uv run pytest
 

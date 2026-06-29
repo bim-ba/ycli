@@ -1,4 +1,5 @@
 """TDD for `forms questions` CLI — dumps the {pages} envelope."""
+
 import json
 
 import pytest
@@ -20,9 +21,16 @@ def creds(monkeypatch):
 
 @responses.activate
 def test_list_dumps_pages_envelope():
-    responses.add(responses.GET, f"{BASE}/surveys/{SID}/questions",
-                  json={"pages": [{"id": 1, "items": [{"id": 11, "slug": "s1", "type": "string", "label": "A"}]}]},
-                  status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/questions",
+        json={
+            "pages": [
+                {"id": 1, "items": [{"id": 11, "slug": "s1", "type": "string", "label": "A"}]}
+            ]
+        },
+        status=200,
+    )
     res = runner.invoke(cli.app, ["--format", "json", "forms", "questions", "list", SID])
     assert res.exit_code == 0
     assert json.loads(res.stdout)["pages"][0]["items"][0]["id"] == 11

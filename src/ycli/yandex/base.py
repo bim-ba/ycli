@@ -16,9 +16,10 @@ Example:
     >>> client = PagesClient(session=requests.Session())  # doctest: +SKIP
 """
 
+from typing import ClassVar
+
 import requests
 import uplink
-from typing import ClassVar
 
 
 class BaseYandex(uplink.Consumer):

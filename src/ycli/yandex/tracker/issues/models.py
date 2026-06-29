@@ -1,10 +1,14 @@
 """Pydantic models for Tracker /issues (Issue + IssueList root model)."""
+
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
-from ycli.models import APIModel
-from ycli.yandex.tracker._models import _DisplayRef, _KeyRef
+from ycli.yandex.models import APIModel
+from ycli.yandex.tracker._models import (  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+    _DisplayRef,
+    _KeyRef,
+)
 
 
 class Issue(APIModel):
@@ -27,7 +31,7 @@ class Issue(APIModel):
     parent: _KeyRef | None = None
     queue: _KeyRef | None = None
     assignee: _DisplayRef | None = None
-    tags: list[str] = []
+    tags: list[str] = Field(default_factory=list)
 
     @property
     def type_key(self) -> str | None:

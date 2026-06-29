@@ -6,12 +6,12 @@
 Drive **Tracker**, **Wiki**, and **Forms** from a CLI, an MCP server, a Python SDK,
 or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/bim-ba/ycli/ci.yml?branch=main&style=for-the-badge)](https://github.com/bim-ba/ycli/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=for-the-badge)](https://github.com/bim-ba/ycli)
-[![Python](https://img.shields.io/badge/python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
-[![MCP](https://img.shields.io/badge/MCP-compatible-7c3aed?style=for-the-badge)](https://modelcontextprotocol.io/)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-d97757?style=for-the-badge)](plugins/yandex-360/)
+[![CI](https://img.shields.io/github/actions/workflow/status/bim-ba/ycli/ci.yml?branch=main&style=flat-square&label=ci&color=555)](https://github.com/bim-ba/ycli/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-555?style=flat-square)](https://github.com/bim-ba/ycli)
+[![PyPI](https://img.shields.io/pypi/v/yandex-cli?style=flat-square&color=555&label=pypi)](https://pypi.org/project/yandex-cli/)
+[![Python](https://img.shields.io/badge/python-3.12%2B-555?style=flat-square)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-555?style=flat-square)](LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/bim-ba/ycli)
 
 <img src="https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/demo.gif" alt="ycli in action" width="760">
 
@@ -31,7 +31,7 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 
 ```bash
 uv add yandex-cli            # CLI + Python SDK
-uv add 'yandex-cli[mcp]'     # …plus the MCP server (`ycli mcp`)
+uv add 'yandex-cli[mcp]'     # …plus the MCP server (`ycli mcp start`)
 ```
 
 Run it without installing, or install it as a standalone tool:
@@ -73,7 +73,13 @@ ycli -o yaml wiki pages get onboarding       # or: -o json | -o yaml | -o pretty
 Run it over stdio (needs the `mcp` extra):
 
 ```bash
-ycli mcp
+ycli mcp start
+```
+
+List the exposed tool names without running the server:
+
+```bash
+ycli mcp methods
 ```
 
 Point an MCP client at it — no prior install needed via `uvx` (tools are namespaced
@@ -84,7 +90,7 @@ Point an MCP client at it — no prior install needed via `uvx` (tools are names
   "mcpServers": {
     "yandex": {
       "command": "uvx",
-      "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp"],
+      "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"],
       "env": {
         "YANDEX_ID_OAUTH_TOKEN": "...",
         "YANDEX_ID_ORGANIZATION_ID": "..."
@@ -101,7 +107,7 @@ Point an MCP client at it — no prior install needed via `uvx` (tools are names
 ```python
 from ycli.yandex.tracker.client import TrackerClient
 
-tracker = TrackerClient.from_env()
+tracker = TrackerClient(oauth_token="…", organization_id="…")
 issue = tracker.issues.get("TRACKER-1")
 print(issue.summary)
 ```
@@ -192,7 +198,7 @@ handles it for you.
 ```text
 src/ycli/
 ├── cli.py              # root Typer CLI  → `ycli` / `yandex-cli`
-├── mcp.py              # root FastMCP server → `ycli mcp` (read-only, `[mcp]` extra)
+├── mcp.py              # root FastMCP server → `ycli mcp start` (read-only, `[mcp]` extra)
 ├── log.py              # central loguru config
 └── yandex/
     ├── tracker/        # per-domain SDK …

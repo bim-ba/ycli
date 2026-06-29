@@ -1,4 +1,5 @@
 """Tracker FastMCP subserver — mounts the per-resource tool servers (reads-only)."""
+
 from fastmcp import FastMCP
 
 from ycli.yandex.tracker.changelog.mcp import mcp as changelog_mcp

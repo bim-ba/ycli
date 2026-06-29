@@ -1,12 +1,16 @@
 """Pydantic models for Tracker changelog (ChangeField + ChangelogEntry + ChangelogList)."""
+
 from __future__ import annotations
 
 from typing import Any
 
 from pydantic import Field, RootModel
 
-from ycli.models import APIModel
-from ycli.yandex.tracker._models import _DisplayRef, _IdRef
+from ycli.yandex.models import APIModel
+from ycli.yandex.tracker._models import (  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+    _DisplayRef,
+    _IdRef,
+)
 
 
 class ChangeField(APIModel):
@@ -34,7 +38,9 @@ class ChangelogEntry(APIModel):
     """A changelog event (``/issues/{key}/changelog`` item).
 
     Example:
-        >>> ChangelogEntry.model_validate({"id": "1", "updatedBy": {"display": "Сава"}, "fields": []}).author_display
+        >>> ChangelogEntry.model_validate(
+        ...     {"id": "1", "updatedBy": {"display": "Сава"}, "fields": []}
+        ... ).author_display
         'Сава'
     """
 
@@ -42,7 +48,7 @@ class ChangelogEntry(APIModel):
     updated_at: str | None = Field(default=None, alias="updatedAt")
     updated_by: _DisplayRef | None = Field(default=None, alias="updatedBy")
     type: str | None = None
-    fields: list[ChangeField] = []
+    fields: list[ChangeField] = Field(default_factory=list)
 
     @property
     def author_display(self) -> str | None:

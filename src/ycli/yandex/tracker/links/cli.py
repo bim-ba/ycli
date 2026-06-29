@@ -1,19 +1,22 @@
 """`tracker links` commands."""
+
 from __future__ import annotations
 
-from enum import Enum
+import enum
 from typing import Annotated
 
 import typer
 
 from ycli.context import AppContext
 from ycli.output import Serializer
-from ycli.yandex.tracker._args import KeyArg
+from ycli.yandex.tracker._args import (
+    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+)
 
 app = typer.Typer(name="links", help="Tracker issue links.", no_args_is_help=True)
 
 
-class Relationship(str, Enum):
+class Relationship(enum.StrEnum):
     """Link relationship verbs accepted by ``POST /issues/{key}/links``."""
 
     DEPENDS_ON = "depends on"
@@ -42,4 +45,6 @@ def add(
     """Link issue KEY to TARGET with RELATIONSHIP."""
     body = {"relationship": relationship.value, "issue": target}
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(
+        app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console
+    )

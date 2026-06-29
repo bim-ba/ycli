@@ -1,9 +1,12 @@
 """Pydantic models for Forms answers (Column + Answer + AnswersResponse envelope)."""
+
 from __future__ import annotations
 
 from typing import Any
 
-from ycli.models import APIModel
+from pydantic import Field
+
+from ycli.yandex.models import APIModel
 
 
 class Column(APIModel):
@@ -35,7 +38,7 @@ class Answer(APIModel):
 
     id: int | None = None
     created: str | None = None
-    data: list[Any] = []
+    data: list[Any] = Field(default_factory=list)
 
 
 class AnswersResponse(APIModel):
@@ -49,6 +52,6 @@ class AnswersResponse(APIModel):
         []
     """
 
-    columns: list[Column] = []
-    answers: list[Answer] = []
+    columns: list[Column] = Field(default_factory=list)
+    answers: list[Answer] = Field(default_factory=list)
     next: Any = None

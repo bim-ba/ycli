@@ -1,5 +1,7 @@
 """TDD for FormsClient composition root — sub-clients share one session."""
+
 import responses
+
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.me.client import MeClient
 
@@ -18,8 +20,13 @@ def test_forms_deps_factory_builds_from_env(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     from ycli.yandex.forms._deps import forms_client
-    responses.add(responses.GET, "https://api.forms.yandex.net/v1/users/me",
-                  json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"}, status=200)
+
+    responses.add(
+        responses.GET,
+        "https://api.forms.yandex.net/v1/users/me",
+        json={"id": 1, "uid": "u", "cloud_uid": "c", "email": "e@x"},
+        status=200,
+    )
     client = forms_client()
     assert isinstance(client, FormsClient)
     result = client.me.get()

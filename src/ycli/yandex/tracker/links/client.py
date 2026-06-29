@@ -2,6 +2,7 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.tracker._base import TrackerResource
@@ -30,6 +31,9 @@ class LinksClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.links.add("DATAENGINEERING-130", {"relationship": "depends on", "issue": "DATAENGINEERING-129"}).object_key  # doctest: +SKIP
+            >>> client.links.add(
+            ...     "DATAENGINEERING-130",
+            ...     {"relationship": "depends on", "issue": "DATAENGINEERING-129"},
+            ... ).object_key  # doctest: +SKIP
             'DATAENGINEERING-129'
         """

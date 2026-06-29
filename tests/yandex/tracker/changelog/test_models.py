@@ -1,4 +1,5 @@
 """Property accessors on the changelog models — populated and None branches."""
+
 from ycli.yandex.tracker.changelog.models import ChangeField, ChangelogEntry
 
 

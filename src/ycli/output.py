@@ -10,17 +10,18 @@ from __future__ import annotations
 
 import enum
 import json
-import re
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
-from pydantic import BaseModel
-from rich.console import Console
 from rich.table import Table
 
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+    from rich.console import Console
 
-class OutputFormat(str, enum.Enum):
+
+class OutputFormat(enum.StrEnum):
     """CLI ``--format`` choices."""
 
     auto = "auto"
@@ -34,7 +35,7 @@ class SerializationStrategy(ABC):
     def render(self, result: BaseModel, console: Console) -> None: ...
 
     @classmethod
-    def from_format(cls, output_format: OutputFormat) -> "SerializationStrategy":
+    def from_format(cls, output_format: OutputFormat) -> SerializationStrategy:
         """Resolve a CLI ``--format`` choice to its strategy (no module-level registry)."""
         return {
             OutputFormat.json: JsonStrategy,
@@ -59,50 +60,60 @@ class YamlStrategy(SerializationStrategy):
         console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
 
 
+class RichCell:
+    """A single rendered cell: value → display text."""
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+    @classmethod
+    def of(cls, value: Any) -> RichCell:
+        if isinstance(value, (dict, list)):
+            return cls(json.dumps(value, ensure_ascii=False))
+        if value is None:
+            return cls("")
+        return cls(str(value))
+
+
 class PrettyStrategy(SerializationStrategy):
-    _KEY_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d+$")
-
     def render(self, result: BaseModel, console: Console) -> None:
-        console.print(self._prettify(result.model_dump(by_alias=True, mode="json"), link=console.is_terminal))
+        console.print(self._prettify(result.model_dump(by_alias=True, mode="json")))
 
-    def _prettify(self, data: Any, *, link: bool = False) -> Any:
+    def _prettify(self, data: Any) -> Any:
         if isinstance(data, list):
-            return self._list_table(data, link=link)
+            return self._list_table(data)
         if isinstance(data, dict):
-            return self._kv_table(data, link=link)
+            return self._kv_table(data)
         return str(data)
 
-    def _kv_table(self, data: dict[str, Any], *, link: bool = False) -> Table:
+    def _kv_table(self, data: dict[str, Any]) -> Table:
         table = Table(show_header=False, box=None, pad_edge=False)
         table.add_column(style="cyan", no_wrap=True)
         table.add_column(overflow="fold")
         for key, value in data.items():
-            table.add_row(str(key), self._cell(value, is_key=(key == "key"), link=link))
+            table.add_row(str(key), RichCell.of(value).text)
         return table
 
-    def _list_table(self, items: list[Any], *, link: bool = False) -> Table:
-        table = Table()
+    def _list_table(self, items: list[Any]) -> Table:
         if items and isinstance(items[0], dict):
-            columns = list(items[0].keys())
-            for column in columns:
-                table.add_column(str(column), style="cyan", overflow="fold")
-            for item in items:
-                table.add_row(*[self._cell(item.get(c), is_key=(c == "key"), link=link) for c in columns])
-        else:
-            table.add_column("value", overflow="fold")
-            for item in items:
-                table.add_row(self._cell(item, link=link))
+            return self._list_of_dicts_table(items)
+        return self._list_of_scalars_table(items)
+
+    def _list_of_dicts_table(self, items: list[dict[str, Any]]) -> Table:
+        table = Table()
+        columns = list(items[0].keys())
+        for column in columns:
+            table.add_column(str(column), style="cyan", overflow="fold")
+        for item in items:
+            table.add_row(*[RichCell.of(item.get(c)).text for c in columns])
         return table
 
-    def _cell(self, value: Any, *, is_key: bool = False, link: bool = False) -> str:
-        if isinstance(value, (dict, list)):
-            return json.dumps(value, ensure_ascii=False)
-        if value is None:
-            return ""
-        text = str(value)
-        if link and is_key and self._KEY_RE.match(text):
-            return f"[link=https://tracker.yandex.ru/{text}]{text}[/link]"
-        return text
+    def _list_of_scalars_table(self, items: list[Any]) -> Table:
+        table = Table()
+        table.add_column("value", overflow="fold")
+        for item in items:
+            table.add_row(RichCell.of(item).text)
+        return table
 
 
 class AutoStrategy(SerializationStrategy):
@@ -116,4 +127,3 @@ class Serializer:
     @staticmethod
     def serialize(model: BaseModel, strategy: SerializationStrategy, console: Console) -> None:
         strategy.render(model, console)
-

@@ -1,4 +1,5 @@
 """Tracker /myself FastMCP tool (reads-only) — Depends DI."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 

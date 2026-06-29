@@ -1,4 +1,5 @@
 """Declarative Wiki /users/me client (uplink) — transport ONLY."""
+
 import uplink
 
 from ycli.yandex.wiki._base import WikiResource

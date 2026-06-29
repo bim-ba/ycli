@@ -1,4 +1,5 @@
 """Unknown subcommands suggest the closest valid one."""
+
 from __future__ import annotations
 
 from typer.testing import CliRunner
@@ -23,5 +24,3 @@ def test_domain_typo_suggests():
 def test_correct_command_unaffected():
     result = _RUNNER.invoke(app, ["--help"])
     assert result.exit_code == 0
-
-

@@ -1,9 +1,11 @@
 """Tracker /issues FastMCP tools (reads-only) — Depends DI, native error handling."""
+
 from typing import Any
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.yandex.tracker._args import count_body
 from ycli.yandex.tracker._deps import RO, TAGS, tracker_client
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import Issue, IssueList
@@ -26,7 +28,9 @@ def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     return result
 
 
-@mcp.tool(name="issues_full", annotations={**RO, "title": "Get full Tracker issue (raw)"}, tags=TAGS)
+@mcp.tool(
+    name="issues_full", annotations={**RO, "title": "Get full Tracker issue (raw)"}, tags=TAGS
+)
 def full(key: str, client: TrackerClient = Depends(tracker_client)) -> dict[str, Any]:
     """A single Tracker issue as a raw dict (all fields)."""
     return client.issues.get_raw(key)
@@ -42,18 +46,39 @@ def list_(
     client: TrackerClient = Depends(tracker_client),
 ) -> IssueList:
     """Issues matching the supplied filters (omitted filters dropped)."""
-    flt = {k: v for k, v in (("queue", queue), ("status", status), ("assignee", assignee),
-                             ("epic", epic), ("type", type_)) if v}
+    flt = {
+        k: v
+        for k, v in (
+            ("queue", queue),
+            ("status", status),
+            ("assignee", assignee),
+            ("epic", epic),
+            ("type", type_),
+        )
+        if v
+    }
     return client.issues.search(body={"filter": flt})
 
 
-@mcp.tool(name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"}, tags=TAGS)
+@mcp.tool(
+    name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"}, tags=TAGS
+)
 def search(query: str, client: TrackerClient = Depends(tracker_client)) -> IssueList:
     """Issues matching a TQL query string."""
     return client.issues.search(body={"query": query})
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)
-def count(query: str, client: TrackerClient = Depends(tracker_client)) -> int:
-    """Count of issues matching a TQL query string."""
-    return client.issues.count(body={"query": query})
+def count(
+    query: str = "",
+    queue: str = "",
+    status: str = "",
+    client: TrackerClient = Depends(tracker_client),
+) -> int:
+    """Count of issues matching a TQL query or filters.
+
+    Pass ``query`` for a TQL query string (takes precedence over filters), or pass
+    ``queue``/``status`` to filter by those fields.  With no arguments the API counts
+    every issue in the org.
+    """
+    return client.issues.count(body=count_body(query=query, queue=queue, status=status))

@@ -2,11 +2,12 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.forms._base import FormsResource
-from ycli.yandex.forms.surveys.models import Survey, SurveyCollection, SurveyList
-from ycli.yandex.pagination import SinglePageStrategy
+from ycli.yandex.forms.surveys.models import Survey, SurveyList, SurveysResponse
+from ycli.yandex.pagination import collect_single_page
 
 
 class SurveysClient(FormsResource):
@@ -14,21 +15,23 @@ class SurveysClient(FormsResource):
 
     @uplink.returns.json()
     @uplink.get("surveys")
-    def _list_page(self) -> SurveyList:  # ty: ignore[empty-body]
-        """``GET /surveys`` → raw ``SurveyList`` envelope (internal)."""
+    def _list_page(self) -> SurveysResponse:  # ty: ignore[empty-body]
+        """``GET /surveys`` → raw ``SurveysResponse`` envelope (internal)."""
 
-    def list(self, *, limit: int | None = None) -> SurveyCollection:
-        """``GET /surveys`` → flat :class:`SurveyCollection`.
+    def list(self, *, limit: int | None = None) -> SurveyList:
+        """``GET /surveys`` → flat :class:`SurveyList`.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.list().root[0].name  # doctest: +SKIP
             'Новая задача'
         """
-        items = SinglePageStrategy(extract=lambda page: page.result).collect(
-            lambda cursor: self._list_page(), limit
+        return collect_single_page(
+            lambda cursor: self._list_page(),
+            extract=lambda page: page.result,
+            wrap=SurveyList,
+            limit=limit,
         )
-        return SurveyCollection(items)
 
     @uplink.returns.json()
     @uplink.get("surveys/{survey_id}")

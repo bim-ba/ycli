@@ -1,9 +1,10 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/attachments responses (extra='ignore')."""
+
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
-from ycli.models import APIModel
+from ycli.yandex.models import APIModel
 
 
 class Attachment(APIModel):
@@ -29,15 +30,17 @@ class AttachmentsResponse(APIModel):
         'd.png'
     """
 
-    results: list[Attachment] = []
+    results: list[Attachment] = Field(default_factory=list)
 
 
 class AttachmentList(RootModel[list[Attachment]]):
-    """Flat collection of :class:`Attachment` items — the public return type of ``AttachmentsClient.list``.
+    """Flat collection of :class:`Attachment` items.
+
+    Public return type of ``AttachmentsClient.list``.
 
     Example:
         >>> AttachmentList([Attachment.model_validate({"name": "d.png"})]).root[0].name
         'd.png'
     """
 
-    root: list[Attachment] = []
+    root: list[Attachment] = Field(default_factory=list)

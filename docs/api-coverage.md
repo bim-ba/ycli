@@ -104,7 +104,7 @@ transitions (list/execute), worklog (list), changelog, priorities, issuetypes, l
 ## Recommended phased plan
 
 - **Phase 0 — correctness & hygiene (small):** fix Forms answers pagination; reconcile the Wiki
-  `index/` docs to `07-api/`; verify the org/write auth header in `session_from_env`.
+  `index/` docs to `07-api/`; verify the org/write auth header in `Transport.session`.
 - **Phase 1 — read quick-wins (high ROI, mirrors the `priorities list` pattern):** Tracker
   queues / fields / localFields / users / myself / statuses / resolutions / filters; Wiki
   get-by-id / users-me / attachment download; Forms single-question / single-answer. Each is one

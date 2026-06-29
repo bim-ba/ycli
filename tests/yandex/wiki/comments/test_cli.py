@@ -1,4 +1,5 @@
 """TDD for `wiki comments` CLI."""
+
 import pytest
 import responses
 from typer.testing import CliRunner
@@ -17,7 +18,11 @@ def creds(monkeypatch):
 
 @responses.activate
 def test_comments_list():
-    responses.add(responses.GET, f"{BASE}/pages/42/comments",
-                  json={"results": [{"content": "hi"}]}, status=200)
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/comments",
+        json={"results": [{"content": "hi"}]},
+        status=200,
+    )
     result = runner.invoke(cli.app, ["wiki", "comments", "list", "42"])
     assert result.exit_code == 0 and "hi" in result.stdout

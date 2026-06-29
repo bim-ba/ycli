@@ -1,4 +1,5 @@
-"""Every MCP tool carries the read/idempotent/open-world hints + a title; servers have instructions."""
+"""Every MCP tool carries the read/idempotent/open-world hints + a title; servers have instructions."""  # noqa: E501
+
 from __future__ import annotations
 
 import asyncio
@@ -15,6 +16,7 @@ def _tools():
     async def go():
         async with Client(root_mcp) as client:
             return await client.list_tools()
+
     return asyncio.run(go())
 
 

@@ -9,27 +9,28 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp.py · output.py · log.py · context.py · models.py   # roots
+├── cli.py · mcp.py · output.py · log.py · context.py · settings.py  # roots
 └── yandex/
-    ├── base.py · transport.py · settings.py · pagination.py · _mcp.py  # shared
+    ├── base.py · transport.py · pagination.py · _mcp.py  # shared
     └── <domain>/                            # tracker · wiki · forms
         ├── _base.py · _deps.py · _args.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
             ├── cli.py      # Typer — output via Serializer.serialize
             ├── mcp.py      # FastMCP read-only tools
-            ├── models.py   # pydantic (inherit APIModel from ycli.models)
+            ├── models.py   # pydantic (inherit APIModel from ycli.yandex.models)
             └── __init__.py
 ```
 
 Notable shared pieces:
-- `src/ycli/models.py` — `APIModel` base (lenient parse config, no serialization logic)
+- `src/ycli/settings.py` — `AppConfig` + `Credentials` pydantic-settings models (app-wide config)
+- `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
 - `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`)
 - `src/ycli/yandex/<domain>/_args.py` — deduplicated CLI argument/option type aliases
 
-## Invariants (ARCH-1..10)
+## Invariants (ARCH-1..11)
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
@@ -41,10 +42,13 @@ Notable shared pieces:
   carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
   method (`.create/.update/.add/.execute/…`).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
-  `output.Serializer.serialize(...)`; `model_dump_json` and `yaml.safe_dump` appear only in
-  `src/ycli/output.py`. Models stay plain data (no serialize method); the strategies live only
-  in `output.py`. *Check:* `model_dump_json` / `yaml.safe_dump` only in `output.py`; CLI command
-  bodies render via `Serializer.serialize`.
+  `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
+  appear only in `src/ycli/output.py`. Models stay plain data (no serialize method); the
+  strategies live only in `output.py`. Unmodeled API dicts are wrapped in `RawMapping`
+  (a `RootModel[dict]` in `ycli.yandex.models`) before being passed to the Serializer.
+  *Carve-out:* a bare `print(int)` for a scalar `count` result is fine — it is not model
+  output and needs no Serializer wrapping. *Check:* `model_dump_json` / `yaml.safe_dump` /
+  `json.dumps` only in `output.py`; CLI command bodies render via `Serializer.serialize`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).
@@ -56,7 +60,7 @@ Notable shared pieces:
   reads env. There is no `from_env` on any client. *Check:* grep — no `os.environ`, no
   `from_env`, no `Credentials(` / `AppConfig(` inside `yandex/**/client.py` or `base.py`.
 - **ARCH-8 — Single configuration source.** No direct `os.environ` access and no `BaseSettings`
-  subclass definition outside `src/ycli/yandex/settings.py`; other modules obtain configuration
+  subclass definition outside `src/ycli/settings.py`; other modules obtain configuration
   by instantiating the settings models (`Credentials()` / `AppConfig()`). *Check:* grep —
   `os.environ` and `class …(BaseSettings)` appear only in `settings.py`.
 - **ARCH-9 — Typed boundary errors.** Non-2xx responses raise a typed `YandexError` subclass
@@ -71,6 +75,14 @@ Notable shared pieces:
   configured value. These two literals must stay equal to `AppConfig`'s defaults; a test asserts
   `inspect.signature(TrackerClient).parameters` defaults == `AppConfig` field defaults so the
   duplication can't drift.
+- **ARCH-11 — Doc-drift guard.** User-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
+  `CONTRIBUTING.md`, `SECURITY.md`, `docs/api-coverage.md`, `docs/conventions/**/*.md`,
+  `plugins/**/*.md`) must not show call-site usage of idioms purged by ARCH-7..10. Concretely,
+  the call patterns `.from_env(` and `session_from_env(` must not appear in any of those files.
+  Historical / rule-defining files are intentionally excluded: `docs/superpowers/**` (specs),
+  `PROMPT.md` (transcript), `CHANGELOG.md` (release history), and `ARCHITECTURE.md` itself
+  (which defines the rules). *Check:* `test_arch11_no_purged_idioms_in_live_docs` in
+  `tests/test_architecture.py`.
 
 ## Scope & limits of enforcement
 
@@ -90,6 +102,12 @@ review cover the rest):
   single-config-source rule (ARCH-8) keeps the default in `settings.py`.
 - **ARCH-6 locks names, not signatures.** A tool/command keeping its name while changing its
   parameters, description, or return type does not trip the snapshot.
+
+## Resource conventions (models, naming, MCP imports)
+
+The conventions that ARCH-1..10 do not capture — `APIModel` inheritance, `XList`/`XResponse`
+naming, the `_deps` import path, and the raw-accessor pattern — are documented in
+[`docs/conventions/resources.md`](docs/conventions/resources.md).
 
 ## Changing an invariant
 

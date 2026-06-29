@@ -1,4 +1,5 @@
 """Wiki /users/me FastMCP tool (read-only) — Depends DI."""
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 

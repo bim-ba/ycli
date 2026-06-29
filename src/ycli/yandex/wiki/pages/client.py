@@ -3,6 +3,7 @@
 NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
 annotations eagerly.
 """
+
 import uplink
 
 from ycli.yandex.pagination import CursorStrategy
@@ -37,7 +38,9 @@ class PagesClient(WikiResource):
         cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
         actuality: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
     ) -> DescendantsResponse:  # ty: ignore[empty-body]
-        """One raw page of ``{id, slug}`` refs + ``next_cursor`` (internal — callers use ``descendants``)."""
+        """One raw page of ``{id, slug}`` refs + ``next_cursor``.
+
+        Internal; callers use ``descendants``."""
 
     def descendants(
         self,
@@ -46,7 +49,9 @@ class PagesClient(WikiResource):
         limit: int | None = None,
         actuality: str | None = None,
     ) -> PageRefList:
-        """All descendant refs under ``slug``, draining ``next_cursor`` internally, capped at ``limit``.
+        """All descendant refs under ``slug``, draining ``next_cursor`` internally.
+
+        Capped at ``limit``.
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
@@ -59,7 +64,9 @@ class PagesClient(WikiResource):
             next_of=lambda page: page.next_cursor,
         )
         refs = strategy.collect(
-            lambda cursor: self._descendants_page(slug=slug, page_size=100, cursor=cursor, actuality=actuality),
+            lambda cursor: self._descendants_page(
+                slug=slug, page_size=100, cursor=cursor, actuality=actuality
+            ),
             limit,
         )
         return PageRefList(refs)
@@ -72,7 +79,9 @@ class PagesClient(WikiResource):
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.create({"slug": "data/guides/x", "title": "X", "content": "# X"}).id  # doctest: +SKIP
+            >>> client.pages.create(
+            ...     {"slug": "data/guides/x", "title": "X", "content": "# X"}
+            ... ).id  # doctest: +SKIP
             12345
         """
 

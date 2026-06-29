@@ -6,7 +6,7 @@
 
 `ycli` interacts with Yandex 360 services (Tracker, Wiki, Forms; more to come) and exposes
 the same SDK four ways: a Typer **CLI** (`ycli` / `yandex-cli`), a FastMCP **server**
-(`ycli mcp`, optional `[mcp]` extra), an importable **Python SDK** (`ycli.yandex.*`), and a
+(`ycli mcp start`, optional `[mcp]` extra), an importable **Python SDK** (`ycli.yandex.*`), and a
 Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex-cli`.
 
 - **Stack:** Python ≥3.12, managed with `uv`. `requests` + `uplink` (HTTP/SDK), `typer`
@@ -16,9 +16,10 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   Yandex API docs live in `docs/references/yandex/`. The distributable plugin (skills +
   instructions) lives in `plugins/yandex-360/`, listed by the repo-root `.claude-plugin/marketplace.json`.
 - **Output:** every CLI command honors a global `--format/-o` flag (`auto` · `json` · `yaml`
-  · `pretty`); rendering goes through `ycli.output.render` (ARCH-4).
+  · `pretty`); rendering goes through `ycli.output.render` (ARCH-4). No output surface
+  hardcodes a service UI URL (ARCH-5); a general per-model deeplink mechanism is deferred.
 - **Typing:** the package ships a PEP 561 `py.typed` marker, so downstream type checkers
-  see ycli's types. The MCP server is the `ycli mcp` subcommand (optional `[mcp]` extra).
+  see ycli's types. The MCP server is the `ycli mcp start` subcommand (optional `[mcp]` extra).
 
 ## Project-Specific Conventions
 
@@ -26,8 +27,11 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   hand-edit `pyproject.toml` dependency lists.
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
-- **Auth:** clients read `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` from the env
-  (DI via `session_from_env()`); never hardcode credentials. Header casing differs per service
+- **Auth:** credentials (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`) are read once
+  at the composition root — `Credentials()` / `AppConfig()` in `AppContext` for the CLI, or
+  the `_deps` cached factory in each domain's MCP module — and passed as raw `oauth_token` /
+  `organization_id` constructor arguments to each client. There is no `from_env` or
+  `session_from_env`; never hardcode credentials. Header casing differs per service
   (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`).
 - **MCP server is read-only;** writes are CLI/SDK only.
 - **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
@@ -55,14 +59,19 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Branch → PR → explicit approval before merge.** No direct pushes to `main`.
 - **100% coverage gate.** `uv run pytest` enforces `--cov-fail-under=100`; new code ships
   with tests that keep it green.
-- **New resources via `/new-endpoint`**, respecting the six invariants in
-  [`ARCHITECTURE.md`](ARCHITECTURE.md). Authoring skills/commands follows
+- **New resources via `/new-endpoint`**, respecting the invariants in
+  [`ARCHITECTURE.md`](ARCHITECTURE.md) and the model/naming/import conventions in
+  [`docs/conventions/resources.md`](docs/conventions/resources.md). Authoring skills/commands follows
   [`docs/conventions/skills-and-commands.md`](docs/conventions/skills-and-commands.md).
+
+## Working notes
+
+- **Drift log:** when a session reveals a convention the codebase doesn't yet enforce, capture it via `core:creating-drift-logs` before ending.
 
 ## Architecture invariants (enforced)
 
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
-for the six invariants (ARCH-1..6). They are verified by `tests/test_architecture.py`,
+for the eleven invariants (ARCH-1..11). They are verified by `tests/test_architecture.py`,
 import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
 them: HTTP only in `client.py`; CLI output only via `ycli.output.render`; MCP tools read-only;
 new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
