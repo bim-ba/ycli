@@ -25,6 +25,6 @@ class ChangelogClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.changelog.list(key="DATAENGINEERING-1", per_page=50).root[
             ...     0
-            ... ].author_display  # doctest: +SKIP
+            ... ].updated_by  # doctest: +SKIP
             'Сава Знатнов'
         """

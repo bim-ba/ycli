@@ -19,9 +19,7 @@ class CommentsClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.list(key="DATAENGINEERING-1").root[
-            ...     0
-            ... ].created_by_display  # doctest: +SKIP
+            >>> client.comments.list(key="DATAENGINEERING-1").root[0].created_by  # doctest: +SKIP
             'Сава Знатнов'
         """
 

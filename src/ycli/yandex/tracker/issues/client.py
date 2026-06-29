@@ -20,7 +20,7 @@ class IssuesClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.get(key="DATAENGINEERING-1").status_key  # doctest: +SKIP
+            >>> client.issues.get(key="DATAENGINEERING-1").status  # doctest: +SKIP
             'inProgress'
         """
 
@@ -76,6 +76,6 @@ class IssuesClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.update(
             ...     key="DATAENGINEERING-1", body={"priority": {"key": "critical"}}
-            ... ).priority_key  # doctest: +SKIP
+            ... ).priority  # doctest: +SKIP
             'critical'
         """

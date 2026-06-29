@@ -4,28 +4,23 @@ from __future__ import annotations
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel
-
-
-class _CommentAuthor(APIModel):
-    display: str | None = None
+from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+    APIModel,
+    DisplayStr,
+)
 
 
 class Comment(APIModel):
     """A wiki page comment (``/pages/{id}/comments`` item).
 
     Example:
-        >>> Comment.model_validate({"author": {"display": "Сава"}, "content": "ok"}).author_display
+        >>> Comment.model_validate({"author": {"display": "Сава"}, "content": "ok"}).author
         'Сава'
     """
 
     created_at: str | None = None
-    author: _CommentAuthor | None = None
+    author: DisplayStr = None
     content: str | None = None
-
-    @property
-    def author_display(self) -> str | None:
-        return self.author.display if self.author else None
 
 
 class CommentsResponse(APIModel):

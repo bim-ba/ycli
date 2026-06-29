@@ -27,7 +27,7 @@ def test_list_returns_commentlist():
     )
     out = _client().list("DE-1")
     assert isinstance(out, CommentList)
-    assert out.root[0].text == "hi" and out.root[0].created_by_display == "Сава"
+    assert out.root[0].text == "hi" and out.root[0].created_by == "Сава"
 
 
 @responses.activate

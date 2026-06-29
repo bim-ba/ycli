@@ -28,7 +28,7 @@ class CommentsClient(WikiResource):
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.list(12345).root[0].author_display  # doctest: +SKIP
+            >>> client.comments.list(12345).root[0].author  # doctest: +SKIP
             'Сава Знатнов'
         """
         return SinglePageStrategy.collect_wrapped(

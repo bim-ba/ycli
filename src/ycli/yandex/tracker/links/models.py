@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.models import APIModel
-from ycli.yandex.tracker._models import (
-    _IdRef,  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+    APIModel,
+    IdStr,
 )
 
 
@@ -28,19 +28,14 @@ class Link(APIModel):
     Example:
         >>> Link.model_validate(
         ...     {"id": 7, "type": {"id": "relates"}, "object": {"key": "DE-2"}}
-        ... ).type_id
+        ... ).type
         'relates'
     """
 
     id: int | str | None = None
-    type: _IdRef | None = None
+    type: IdStr = None
     direction: str | None = None
     object: LinkObject | None = None
-
-    @property
-    def type_id(self) -> str | None:
-        """``type.id`` or ``None``."""
-        return self.type.id if self.type else None
 
     @property
     def object_key(self) -> str | None:

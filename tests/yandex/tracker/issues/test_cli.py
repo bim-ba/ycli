@@ -30,7 +30,7 @@ def test_get_dumps_issue_model():
     assert res.exit_code == 0
     out = json.loads(res.stdout)
     assert out["key"] == "DE-1"
-    assert out["type"] == {"key": "task"}
+    assert out["type"] == "task"
 
 
 @responses.activate

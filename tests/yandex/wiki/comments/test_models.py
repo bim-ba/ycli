@@ -4,5 +4,5 @@ from ycli.yandex.wiki.comments.models import Comment
 
 
 def test_author_display_populated_and_none():
-    assert Comment.model_validate({"author": {"display": "Сава"}}).author_display == "Сава"
-    assert Comment.model_validate({"content": "ok"}).author_display is None
+    assert Comment.model_validate({"author": {"display": "Сава"}}).author == "Сава"
+    assert Comment.model_validate({"content": "ok"}).author is None

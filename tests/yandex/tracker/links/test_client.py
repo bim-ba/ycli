@@ -33,7 +33,7 @@ def test_list_returns_linklist():
     )
     out = _client().list("DE-1")
     assert isinstance(out, LinkList)
-    assert out.root[0].type_id == "relates" and out.root[0].object_key == "DE-2"
+    assert out.root[0].type == "relates" and out.root[0].object_key == "DE-2"
 
 
 @responses.activate

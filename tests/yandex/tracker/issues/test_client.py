@@ -27,7 +27,7 @@ def test_get_deserializes_issue():
     )
     i = _client().get("DE-1")
     assert isinstance(i, Issue)
-    assert i.key == "DE-1" and i.type_key == "task"
+    assert i.key == "DE-1" and i.type == "task"
 
 
 @responses.activate
