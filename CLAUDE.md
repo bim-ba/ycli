@@ -42,9 +42,14 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 ## Release & safety
 
-- **Auto-release on push to main.** Every push to `main` runs python-semantic-release,
-  which versions from Conventional Commits and publishes to PyPI. Use `feat:` / `fix:` /
-  `docs:` / `chore:` … prefixes; the squash-merge title becomes the release.
+- **Auto-release on push to main.** Every push to `main` runs python-semantic-release (PSR),
+  which versions from Conventional Commits and publishes to PyPI (OIDC trusted publishing).
+  Use `feat:` / `fix:` / `docs:` / `chore:` … prefixes; the squash-merge title becomes the
+  release. PSR pushes the release commit + tag back to `main` with a short-lived **GitHub App**
+  installation token (App ID `4175048`; secrets `RELEASE_APP_CLIENT_ID` /
+  `RELEASE_APP_PRIVATE_KEY`, minted in `release.yml`) — the default `GITHUB_TOKEN` cannot bypass
+  the branch-protection ruleset below, so the App token is what lets a release land. After a
+  release, `uv.lock`'s own version lags `pyproject` until you re-lock (see the gate bullet).
 - **Never write a skip-ci token.** `[skip ci]` / `[ci skip]` / `[no ci]` / `[skip actions]` /
   `[actions skip]`, or a `skip-checks: true` commit trailer, anywhere in a commit **or
   squash-merge** message makes GitHub silently cancel the workflow run — and with it the
@@ -59,7 +64,14 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   holds only `${VAR}` references — config and tests never embed literal values.
 - **Reproducible artifacts.** Generated demos/tables come from a committed source —
   regenerate, never hand-author (the `demo.svg` incident).
-- **Branch → PR → explicit approval before merge.** No direct pushes to `main`.
+- **Branch → PR → explicit approval before merge — enforced.** `main` is protected by a
+  repository ruleset (`Protect main — require CI`): the checks `test (3.12)` · `test (3.13)` ·
+  `gitleaks` are **required** before any merge, and `main` cannot be force-pushed or deleted.
+  No direct pushes to `main`; only the release GitHub App (ID `4175048`) bypasses, so PSR can
+  land the release commit. **Consequence:** any red required check — including a stale `uv.lock`
+  after a release, where `uv sync --locked` fails — now *blocks every merge*, not just reds CI.
+  Re-lock (`uv lock`) and ship a `build:` commit immediately after each release. **Emergency
+  rollback:** set the ruleset to `disabled` (GitHub → Settings → Rules), fix, re-enable.
 - **100% coverage gate.** `uv run pytest` enforces `--cov-fail-under=100`; new code ships
   with tests that keep it green.
 - **New resources via `/new-endpoint`**, respecting the invariants in
