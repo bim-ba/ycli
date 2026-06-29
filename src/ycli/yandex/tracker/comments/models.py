@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel
-from ycli.yandex.tracker._models import (
-    _DisplayRef,  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+    APIModel,
+    DisplayStr,
 )
 
 
@@ -20,13 +20,8 @@ class Comment(APIModel):
 
     id: int | str | None = None
     created_at: str | None = Field(default=None, alias="createdAt")
-    created_by: _DisplayRef | None = Field(default=None, alias="createdBy")
+    created_by: DisplayStr = Field(default=None, alias="createdBy")
     text: str | None = None
-
-    @property
-    def created_by_display(self) -> str | None:
-        """``createdBy.display`` or ``None``."""
-        return self.created_by.display if self.created_by else None
 
 
 class CommentList(RootModel[list[Comment]]):

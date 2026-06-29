@@ -1,6 +1,6 @@
-"""Cached tracker MCP client provider (see ycli.yandex._mcp.make_cached_client)."""
+"""Cached tracker MCP client provider (see ycli.yandex.mcp.make_cached_client)."""
 
-from ycli.yandex._mcp import RO, app_config, make_cached_client
+from ycli.yandex.mcp import RO, app_config, make_cached_client
 from ycli.yandex.tracker.client import TrackerClient
 
 TAGS: set[str] = {"tracker"}

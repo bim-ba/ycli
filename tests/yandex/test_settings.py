@@ -49,11 +49,11 @@ def test_settings_read_dotenv(tmp_path, monkeypatch):
 
 
 def test_cli_callback_uses_configured_log_level(monkeypatch):
-    import ycli.cli as cli
+    import ycli.cli.app as cli
 
     captured = {}
     monkeypatch.setenv("YCLI_LOG_LEVEL", "ERROR")
-    monkeypatch.setattr("ycli.cli.configure", lambda level: captured.setdefault("level", level))
+    monkeypatch.setattr("ycli.cli.app.configure", lambda level: captured.setdefault("level", level))
     from typer.testing import CliRunner
 
     # Root --help doesn't trigger the callback in Typer; use a subcommand invocation instead.

@@ -6,9 +6,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.context import AppContext
-from ycli.output import Serializer
-from ycli.yandex.forms._args import (
+from ycli.cli.context import AppContext
+from ycli.cli.output import Serializer
+from ycli.yandex.forms.typedefs import (
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
 

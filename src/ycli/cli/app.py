@@ -9,10 +9,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.context import AppContext
+from ycli.cli.context import AppContext
+from ycli.cli.output import OutputFormat
 from ycli.log import configure
-from ycli.mcp_cli import app as mcp_app
-from ycli.output import OutputFormat
+from ycli.mcp.cli import app as mcp_app
 from ycli.settings import AppConfig
 from ycli.yandex.forms.cli import app as forms_app
 from ycli.yandex.status import app as auth_app
@@ -62,7 +62,3 @@ def main() -> None:  # pragma: no cover
     except (YandexError, ValidationError) as exc:
         typer.secho(f"Error: {exc}", fg=typer.colors.RED, err=True)
         raise typer.Exit(1) from exc
-
-
-if __name__ == "__main__":  # pragma: no cover
-    main()

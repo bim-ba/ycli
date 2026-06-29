@@ -6,10 +6,12 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.context import AppContext
-from ycli.output import Serializer
-from ycli.yandex.models import RawMapping
-from ycli.yandex.tracker._args import KeyArg, count_body, parse_fields
+from ycli.cli.context import AppContext
+from ycli.cli.output import Serializer
+from ycli.yandex.tracker.typedefs import (
+    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+)
+from ycli.yandex.tracker.utils import count_body, parse_fields
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 
@@ -24,15 +26,6 @@ def get(ctx: typer.Context, key: KeyArg) -> None:
     """Print a single issue (full model) for KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(app_ctx.tracker.issues.get(key), app_ctx.strategy, app_ctx.console)
-
-
-@app.command()
-def full(ctx: typer.Context, key: KeyArg) -> None:
-    """Print the raw API dict for KEY (no pydantic projection)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        RawMapping(app_ctx.tracker.issues.get_raw(key)), app_ctx.strategy, app_ctx.console
-    )
 
 
 @app.command("list")

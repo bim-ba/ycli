@@ -6,7 +6,7 @@ annotations eagerly.
 
 import uplink
 
-from ycli.yandex.tracker._base import TrackerResource
+from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.issues.models import Issue, IssueList
 
 
@@ -20,22 +20,8 @@ class IssuesClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.get(key="DATAENGINEERING-1").status_key  # doctest: +SKIP
+            >>> client.issues.get(key="DATAENGINEERING-1").status  # doctest: +SKIP
             'inProgress'
-        """
-
-    @uplink.returns.json()
-    @uplink.get("issues/{key}")
-    def get_raw(self, key: uplink.Path) -> dict:  # ty: ignore[empty-body]
-        """``GET /issues/{key}`` → raw JSON dict (no pydantic pruning).
-
-        Bare ``dict`` (not ``dict[str, Any]``) — uplink raises ``TypeError`` trying to
-        instantiate ``typing.Any`` for an empty-body method.
-
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.get_raw(key="DATAENGINEERING-1")["key"]  # doctest: +SKIP
-            'DATAENGINEERING-1'
         """
 
     @uplink.returns.json()
@@ -90,6 +76,6 @@ class IssuesClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.issues.update(
             ...     key="DATAENGINEERING-1", body={"priority": {"key": "critical"}}
-            ... ).priority_key  # doctest: +SKIP
+            ... ).priority  # doctest: +SKIP
             'critical'
         """

@@ -31,7 +31,7 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       - name: Install project
-        run: uv sync --locked --dev
+        run: uv sync --locked --dev --extra mcp  # mcp extra: the tape's `mcp methods` step
 
       # Install VHS + ttyd ourselves (ffmpeg is preinstalled on ubuntu-latest).
       # The charmbracelet/vhs-action bundles flaky font/ffmpeg downloaders that
@@ -53,8 +53,13 @@ jobs:
       - name: Commit regenerated GIF
         uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
-          # [skip ci]: the GIF-only commit shouldn't spin up CI or the release workflow.
-          commit_message: "docs: regenerate demo GIF [skip ci]"
+          # No CI-bypass marker in the message: recursion is already prevented
+          # structurally (this job triggers on docs/demo/** while the output lives in
+          # docs/assets/, so the GIF commit never re-renders), and the auto-commit
+          # rides the default GITHUB_TOKEN, whose pushes don't start new runs. A bypass
+          # marker here would instead ride a squash-merge into main and silently cancel
+          # the python-semantic-release run — the v0.8.0 release incident.
+          commit_message: "docs: regenerate demo GIF"
           file_pattern: docs/assets/demo.gif
           commit_user_name: vhs-action 📼
           commit_user_email: actions@github.com

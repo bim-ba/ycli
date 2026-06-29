@@ -10,7 +10,7 @@ from rich.console import Console
 if TYPE_CHECKING:
     import typer
 
-from ycli.output import OutputFormat, SerializationStrategy
+from ycli.cli.output import OutputFormat, SerializationStrategy
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.factory import ClientFactory
 from ycli.yandex.forms.client import FormsClient

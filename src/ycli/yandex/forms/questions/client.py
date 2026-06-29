@@ -5,7 +5,7 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 import uplink
 
-from ycli.yandex.forms._base import FormsResource
+from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.forms.questions.models import QuestionsResponse
 
 

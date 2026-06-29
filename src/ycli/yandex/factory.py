@@ -1,7 +1,7 @@
 """The single client-construction site — maps app config + credentials to raw client args.
 
 Env-free by design (ARCH-7/8): callers at the composition roots (AppContext, the MCP
-``_deps`` providers) read the environment and hand instances here.
+``dependencies`` providers) read the environment and hand instances here.
 """
 
 from __future__ import annotations

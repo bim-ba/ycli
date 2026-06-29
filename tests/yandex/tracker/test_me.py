@@ -11,7 +11,7 @@ from fastmcp import Client
 from fastmcp.exceptions import ToolError
 from typer.testing import CliRunner
 
-import ycli.cli as cli
+import ycli.cli.app as cli
 from ycli.mcp import mcp as root_mcp
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.me import mcp as me_mcp_module

@@ -6,8 +6,8 @@ annotations eagerly.
 
 import uplink
 
-from ycli.yandex.pagination import collect_single_page
-from ycli.yandex.wiki._base import WikiResource
+from ycli.yandex.pagination import SinglePageStrategy
+from ycli.yandex.wiki.base import WikiResource
 from ycli.yandex.wiki.comments.models import CommentList, CommentsResponse
 
 
@@ -28,10 +28,10 @@ class CommentsClient(WikiResource):
 
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.list(12345).root[0].author_display  # doctest: +SKIP
+            >>> client.comments.list(12345).root[0].author  # doctest: +SKIP
             'Сава Знатнов'
         """
-        return collect_single_page(
+        return SinglePageStrategy.collect_wrapped(
             lambda cursor: self._list_page(page_id, page_size=100),
             extract=lambda page: page.results,
             wrap=CommentList,

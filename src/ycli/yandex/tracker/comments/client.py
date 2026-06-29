@@ -5,7 +5,7 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 import uplink
 
-from ycli.yandex.tracker._base import TrackerResource
+from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.comments.models import Comment, CommentList
 
 
@@ -19,9 +19,7 @@ class CommentsClient(TrackerResource):
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.list(key="DATAENGINEERING-1").root[
-            ...     0
-            ... ].created_by_display  # doctest: +SKIP
+            >>> client.comments.list(key="DATAENGINEERING-1").root[0].created_by  # doctest: +SKIP
             'Сава Знатнов'
         """
 

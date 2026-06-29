@@ -6,11 +6,11 @@
 Drive **Tracker**, **Wiki**, and **Forms** from a CLI, an MCP server, a Python SDK,
 or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/bim-ba/ycli/ci.yml?branch=main&style=flat-square&label=ci&color=555)](https://github.com/bim-ba/ycli/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-555?style=flat-square)](https://github.com/bim-ba/ycli)
-[![PyPI](https://img.shields.io/pypi/v/yandex-cli?style=flat-square&color=555&label=pypi)](https://pypi.org/project/yandex-cli/)
-[![Python](https://img.shields.io/badge/python-3.12%2B-555?style=flat-square)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-555?style=flat-square)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/bim-ba/ycli/ci.yml?branch=main&logo=githubactions&logoColor=white&label=ci)](https://github.com/bim-ba/ycli/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?logo=pytest&logoColor=white)](https://github.com/bim-ba/ycli)
+[![PyPI](https://img.shields.io/pypi/v/yandex-cli?logo=pypi&logoColor=white&label=pypi)](https://pypi.org/project/yandex-cli/)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey?logo=opensourceinitiative&logoColor=white)](LICENSE)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/bim-ba/ycli)
 
 <img src="https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/demo.gif" alt="ycli in action" width="760">

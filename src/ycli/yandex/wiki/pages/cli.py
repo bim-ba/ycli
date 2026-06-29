@@ -6,8 +6,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.context import AppContext
-from ycli.output import Serializer
+from ycli.cli.context import AppContext
+from ycli.cli.output import Serializer
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 

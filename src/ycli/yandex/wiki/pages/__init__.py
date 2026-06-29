@@ -1,0 +1,1 @@
+"""Wiki /pages resource package."""

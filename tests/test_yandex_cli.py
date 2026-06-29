@@ -5,13 +5,18 @@ from types import SimpleNamespace
 import pytest
 from typer.testing import CliRunner
 
-import ycli.cli as cli
-from ycli.context import AppContext
-from ycli.output import OutputFormat, PrettyStrategy
+import ycli.cli.app as cli
+from ycli.cli.context import AppContext
+from ycli.cli.output import OutputFormat, PrettyStrategy
 
 pytestmark = pytest.mark.integration
 
 runner = CliRunner()
+
+
+def test_cli_main_module_importable():
+    """``python -m ycli.cli`` entry resolves — covers the __main__.py import line."""
+    import ycli.cli.__main__  # noqa: F401
 
 
 # ---------------------------------------------------------------------------

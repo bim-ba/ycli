@@ -3,9 +3,9 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.wiki._deps import RO, TAGS, wiki_client
 from ycli.yandex.wiki.attachments.models import AttachmentList
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.dependencies import RO, TAGS, wiki_client
 
 mcp = FastMCP("wiki-attachments")
 

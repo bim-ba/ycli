@@ -1,0 +1,10 @@
+{
+  "key": "DEMO-42",
+  "summary": "🚀 Ship the new onboarding flow",
+  "queue": {"key": "DEMO", "display": "Demo Project"},
+  "type": {"key": "task", "display": "Task"},
+  "status": {"key": "inProgress", "display": "In Progress"},
+  "priority": {"key": "critical", "display": "Critical"},
+  "assignee": {"display": "Alice Ivanova"},
+  "tags": ["onboarding", "q3-roadmap"]
+}

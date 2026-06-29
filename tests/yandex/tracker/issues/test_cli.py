@@ -6,7 +6,7 @@ import pytest
 import responses
 from typer.testing import CliRunner
 
-import ycli.cli as cli
+import ycli.cli.app as cli
 
 BASE = "https://api.tracker.yandex.net/v3"
 runner = CliRunner()
@@ -30,29 +30,7 @@ def test_get_dumps_issue_model():
     assert res.exit_code == 0
     out = json.loads(res.stdout)
     assert out["key"] == "DE-1"
-    assert out["type"] == {"key": "task"}
-
-
-@responses.activate
-def test_full_renders_raw_dict_as_json():
-    responses.add(
-        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "extra": "field"}, status=200
-    )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "full", "DE-1"])
-    assert res.exit_code == 0
-    assert json.loads(res.stdout) == {"key": "DE-1", "extra": "field"}
-
-
-@responses.activate
-def test_full_renders_raw_dict_as_yaml():
-    responses.add(
-        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "extra": "field"}, status=200
-    )
-    res = runner.invoke(cli.app, ["--format", "yaml", "tracker", "issues", "full", "DE-1"])
-    assert res.exit_code == 0
-    import yaml
-
-    assert yaml.safe_load(res.stdout) == {"key": "DE-1", "extra": "field"}
+    assert out["type"] == "task"
 
 
 @responses.activate

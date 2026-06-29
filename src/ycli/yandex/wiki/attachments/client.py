@@ -6,9 +6,9 @@ annotations eagerly.
 
 import uplink
 
-from ycli.yandex.pagination import collect_single_page
-from ycli.yandex.wiki._base import WikiResource
+from ycli.yandex.pagination import SinglePageStrategy
 from ycli.yandex.wiki.attachments.models import AttachmentList, AttachmentsResponse
+from ycli.yandex.wiki.base import WikiResource
 
 
 class AttachmentsClient(WikiResource):
@@ -31,7 +31,7 @@ class AttachmentsClient(WikiResource):
             >>> client.attachments.list(12345).root[0].name  # doctest: +SKIP
             'diagram.png'
         """
-        return collect_single_page(
+        return SinglePageStrategy.collect_wrapped(
             lambda cursor: self._list_page(page_id, page_size=100),
             extract=lambda page: page.results,
             wrap=AttachmentList,

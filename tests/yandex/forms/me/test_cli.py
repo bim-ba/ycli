@@ -6,7 +6,7 @@ import pytest
 import responses
 from typer.testing import CliRunner
 
-import ycli.cli as cli
+import ycli.cli.app as cli
 
 BASE = "https://api.forms.yandex.net/v1"
 runner = CliRunner()

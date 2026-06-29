@@ -6,7 +6,7 @@ annotations eagerly.
 
 import uplink
 
-from ycli.yandex.forms._base import FormsResource
+from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.forms.me.models import User
 
 

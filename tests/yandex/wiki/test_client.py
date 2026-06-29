@@ -20,10 +20,10 @@ def test_composes_subclients_over_shared_authed_session():
 
 @responses.activate
 def test_wiki_deps_factory_builds_from_env(monkeypatch):
-    """_deps.wiki_client() reads env and returns a working WikiClient."""
+    """dependencies.wiki_client() reads env and returns a working WikiClient."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    from ycli.yandex.wiki._deps import wiki_client
+    from ycli.yandex.wiki.dependencies import wiki_client
 
     responses.add(
         responses.GET,

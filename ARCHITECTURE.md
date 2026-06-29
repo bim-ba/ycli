@@ -9,11 +9,11 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ```
 src/ycli/
-├── cli.py · mcp.py · output.py · log.py · context.py · settings.py  # roots
+├── cli/ · mcp/ · log.py · settings.py  # roots (cli/ = app · context · output)
 └── yandex/
-    ├── base.py · transport.py · pagination.py · _mcp.py  # shared
+    ├── base.py · transport.py · pagination.py · mcp.py  # shared (mcp.py = MCP helpers)
     └── <domain>/                            # tracker · wiki · forms
-        ├── _base.py · _deps.py · _args.py · client.py · cli.py · mcp.py
+        ├── base.py · dependencies.py · typedefs.py · utils.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
             ├── cli.py      # Typer — output via Serializer.serialize
@@ -25,27 +25,35 @@ src/ycli/
 Notable shared pieces:
 - `src/ycli/settings.py` — `AppConfig` + `Credentials` pydantic-settings models (app-wide config)
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
-- `src/ycli/context.py` — `AppContext` (typed composition root for the CLI)
+- `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
-- `src/ycli/yandex/_mcp.py` — shared MCP annotation helpers (`RO`)
-- `src/ycli/yandex/<domain>/_args.py` — deduplicated CLI argument/option type aliases
+- `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
+  providers (`make_cached_client`, `app_config`) that share one client across a mounted domain's tools
+- `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
+  `utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
+  `--field` JSON coercion)
 
 ## Invariants (ARCH-1..11)
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
+  *Carve-out:* `yandex/status/` and the `ycli/mcp/` server package are cross-cutting surfaces,
+  not `<domain>/<resource>` dirs — the four-surface rule and the `_resource_dirs()` check
+  (which scans only `tracker/wiki/forms`) do not apply to them.
 - **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests` or
   `uplink`. All HTTP lives in `client.py` / `base.py` / `transport.py`.
-- **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py`. Every MCP
+- **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py` and in the
+  `ycli.mcp` server package (`src/ycli/mcp/server.py`; its `__init__.py` stays fastmcp-free so the
+  base install loads the CLI sub-app without the extra). Every MCP
   tool's verb (last `_`-segment of its name) must be in a fail-closed read-verb **allow-list**
-  (`get/list/count/full/search/descendants/meta` — a new read adds its verb deliberately), it
+  (`get/list/count/search/descendants/meta` — a new read adds its verb deliberately), it
   carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
   method (`.create/.update/.add/.execute/…`).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
-  appear only in `src/ycli/output.py`. Models stay plain data (no serialize method); the
-  strategies live only in `output.py`. Unmodeled API dicts are wrapped in `RawMapping`
-  (a `RootModel[dict]` in `ycli.yandex.models`) before being passed to the Serializer.
+  appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the
+  strategies live only in `output.py`. Every rendered value is a typed pydantic model — there
+  is no raw-dict/`RawMapping` escape hatch.
   *Carve-out:* a bare `print(int)` for a scalar `count` result is fine — it is not model
   output and needs no Serializer wrapping. *Check:* `model_dump_json` / `yaml.safe_dump` /
   `json.dumps` only in `output.py`; CLI command bodies render via `Serializer.serialize`.
@@ -106,7 +114,7 @@ review cover the rest):
 ## Resource conventions (models, naming, MCP imports)
 
 The conventions that ARCH-1..10 do not capture — `APIModel` inheritance, `XList`/`XResponse`
-naming, the `_deps` import path, and the raw-accessor pattern — are documented in
+naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
 
 ## Changing an invariant

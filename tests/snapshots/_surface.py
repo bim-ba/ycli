@@ -7,7 +7,7 @@ import asyncio
 import typer.main
 from fastmcp import Client
 
-from ycli.cli import app
+from ycli.cli.app import app
 from ycli.mcp import mcp
 
 

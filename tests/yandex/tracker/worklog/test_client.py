@@ -21,4 +21,4 @@ def test_list_returns_workloglist():
     )
     out = WorklogClient(session=s).list("DE-1")
     assert isinstance(out, WorklogList)
-    assert out.root[0].duration == "PT2H" and out.root[0].author_display == "X"
+    assert out.root[0].duration == "PT2H" and out.root[0].created_by == "X"

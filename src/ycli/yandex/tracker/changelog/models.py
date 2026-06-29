@@ -6,10 +6,10 @@ from typing import Any
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.models import APIModel
-from ycli.yandex.tracker._models import (  # noqa: TC001  # pydantic resolves field types via get_type_hints() at runtime
-    _DisplayRef,
-    _IdRef,
+from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+    APIModel,
+    DisplayStr,
+    IdStr,
 )
 
 
@@ -20,18 +20,13 @@ class ChangeField(APIModel):
     field that changed) — typed ``Any`` and passed through verbatim.
 
     Example:
-        >>> ChangeField.model_validate({"field": {"id": "status"}, "to": {"key": "open"}}).field_id
+        >>> ChangeField.model_validate({"field": {"id": "status"}, "to": {"key": "open"}}).field
         'status'
     """
 
-    field: _IdRef | None = None
+    field: IdStr = None
     from_: Any = Field(default=None, alias="from")
     to: Any = None
-
-    @property
-    def field_id(self) -> str | None:
-        """``field.id`` or ``None``."""
-        return self.field.id if self.field else None
 
 
 class ChangelogEntry(APIModel):
@@ -40,20 +35,15 @@ class ChangelogEntry(APIModel):
     Example:
         >>> ChangelogEntry.model_validate(
         ...     {"id": "1", "updatedBy": {"display": "Сава"}, "fields": []}
-        ... ).author_display
+        ... ).updated_by
         'Сава'
     """
 
     id: str | None = None
     updated_at: str | None = Field(default=None, alias="updatedAt")
-    updated_by: _DisplayRef | None = Field(default=None, alias="updatedBy")
+    updated_by: DisplayStr = Field(default=None, alias="updatedBy")
     type: str | None = None
     fields: list[ChangeField] = Field(default_factory=list)
-
-    @property
-    def author_display(self) -> str | None:
-        """``updatedBy.display`` or ``None``."""
-        return self.updated_by.display if self.updated_by else None
 
 
 class ChangelogList(RootModel[list[ChangelogEntry]]):

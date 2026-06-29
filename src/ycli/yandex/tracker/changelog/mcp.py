@@ -3,9 +3,9 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.tracker._deps import RO, TAGS, tracker_client
 from ycli.yandex.tracker.changelog.models import ChangelogList
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
 
 mcp = FastMCP("tracker-changelog")
 

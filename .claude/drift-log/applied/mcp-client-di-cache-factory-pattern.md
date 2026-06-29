@@ -1,6 +1,9 @@
 ---
 date: 2026-06-29
-status: OPEN
+status: APPLIED
+disposition: applied
+applied_date: 2026-06-29
+applied_in: docs/conventions/resources.md (§3), ARCHITECTURE.md
 priority: MEDIUM
 trigger: 4
 session_context: round-3 arch-tooling refactor — MCP server wiring research
@@ -51,3 +54,13 @@ To share one client instance across tools in a mounted domain server, define a
 MCP tool functions receive the client via `Depends(tracker_client)`. This is the
 only approved pattern; `import_server` is deprecated and must not be used.
 ```
+
+## Resolution
+
+Documented in `docs/conventions/resources.md` §3 ("Why `<domain>_client` is a cached provider")
+and in the `ARCHITECTURE.md` layout prose (the `_mcp.py` line). The codified docs reflect the
+pattern as it actually shipped: each `_deps` calls `make_cached_client(ClientCls)` from
+`ycli.yandex._mcp` — a helper that wraps a `functools.cache`d zero-arg factory and reads
+`Credentials()` from the env once — rather than the raw per-module `@functools.cache def`
+sketched in the proposal above. The rationale (fastmcp `mount()` not propagating lifespan
+context; `import_server` deprecated) and the `Depends(...)` consumption are unchanged.

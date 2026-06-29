@@ -4,7 +4,7 @@ import pytest
 import responses
 from typer.testing import CliRunner
 
-import ycli.cli as cli
+import ycli.cli.app as cli
 
 TRACKER_ME = "https://api.tracker.yandex.net/v3/myself"
 FORMS_ME = "https://api.forms.yandex.net/v1/users/me"

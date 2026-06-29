@@ -2,7 +2,7 @@
 
 import uplink
 
-from ycli.yandex.tracker._base import TrackerResource
+from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.me.models import Me
 
 

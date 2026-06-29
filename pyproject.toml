@@ -37,8 +37,8 @@ dependencies = [
 mcp = ["fastmcp>=3.4.2"]
 
 [project.scripts]
-yandex-cli = "ycli.cli:main"
-ycli = "ycli.cli:main"
+yandex-cli = "ycli.cli.app:main"
+ycli = "ycli.cli.app:main"
 
 [project.urls]
 Homepage = "https://github.com/bim-ba/ycli"
@@ -173,7 +173,7 @@ name = "ARCH-3: fastmcp is imported only in mcp modules"
 type = "forbidden"
 source_modules = [
     "ycli.cli",
-    "ycli.output",
+    "ycli.cli.**",
     "ycli.yandex.**.cli",
     "ycli.yandex.**.client",
     "ycli.yandex.**.models",

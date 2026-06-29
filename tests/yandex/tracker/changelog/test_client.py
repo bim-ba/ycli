@@ -35,6 +35,6 @@ def test_list_passes_perpage_and_parses_polymorphic_fields():
     out = ChangelogClient(session=s).list("DE-1", per_page=50)
     assert isinstance(out, ChangelogList)
     e = out.root[0]
-    assert e.author_display == "Сава"
+    assert e.updated_by == "Сава"
     assert e.fields[0].to == {"key": "done", "display": "Готово"}  # polymorphic passthrough
     assert responses.calls[0].request.params["perPage"] == "50"  # ty: ignore[unresolved-attribute]

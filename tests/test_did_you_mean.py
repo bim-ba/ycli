@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typer.testing import CliRunner
 
-from ycli.cli import app
+from ycli.cli.app import app
 
 _RUNNER = CliRunner()
 

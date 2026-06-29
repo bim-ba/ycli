@@ -2,7 +2,7 @@
 
 import uplink
 
-from ycli.yandex.wiki._base import WikiResource
+from ycli.yandex.wiki.base import WikiResource
 from ycli.yandex.wiki.me.models import Me
 
 

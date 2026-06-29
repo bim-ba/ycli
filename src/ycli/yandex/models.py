@@ -1,15 +1,19 @@
-"""Shared pydantic base for every Yandex API model — lenient parsing only, no behavior.
+"""Shared pydantic base + ref-flattening annotations for every Yandex API model.
 
-Consolidates the per-domain ``_Lenient`` bases. ``extra="ignore"`` keeps unknown API
-fields from raising; ``populate_by_name=True`` lets a field be set by its Python name as
-well as its serialization alias. Serialization is NOT a model concern — see ``output.py``.
+``APIModel`` is the lenient parse base. ``KeyStr`` / ``IdStr`` / ``DisplayStr`` normalize the
+API's single-field wrapper objects (``{"key": "x"}`` / ``{"id": "x"}`` / ``{"display": "x"}``)
+down to a bare string at parse time via ``BeforeValidator`` — so models expose plain scalars and
+need no per-model flattening property. Serialization is NOT a model concern — see ``output.py``.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, RootModel
+from pydantic import BaseModel, BeforeValidator, ConfigDict
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class APIModel(BaseModel):
@@ -18,5 +22,19 @@ class APIModel(BaseModel):
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
 
-class RawMapping(RootModel[dict[str, Any]]):
-    """Wraps an unmodeled API dict so it renders through the Serializer (honoring --format)."""
+def _extract(field: str) -> Callable[[Any], Any]:
+    """A ``BeforeValidator`` that pulls ``field`` out of an API wrapper object.
+
+    The Yandex APIs wrap many references as ``{"<field>": "value", …}``; this returns the bare
+    value and passes a scalar or ``None`` through untouched (so the field stays ``str | None``).
+    """
+
+    def pull(value: Any) -> Any:
+        return value.get(field) if isinstance(value, dict) else value
+
+    return pull
+
+
+KeyStr = Annotated[str | None, BeforeValidator(_extract("key"))]
+IdStr = Annotated[str | None, BeforeValidator(_extract("id"))]
+DisplayStr = Annotated[str | None, BeforeValidator(_extract("display"))]

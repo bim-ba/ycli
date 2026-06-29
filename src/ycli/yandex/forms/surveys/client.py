@@ -5,9 +5,9 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 import uplink
 
-from ycli.yandex.forms._base import FormsResource
+from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.forms.surveys.models import Survey, SurveyList, SurveysResponse
-from ycli.yandex.pagination import collect_single_page
+from ycli.yandex.pagination import SinglePageStrategy
 
 
 class SurveysClient(FormsResource):
@@ -26,7 +26,7 @@ class SurveysClient(FormsResource):
             >>> client.surveys.list().root[0].name  # doctest: +SKIP
             'Новая задача'
         """
-        return collect_single_page(
+        return SinglePageStrategy.collect_wrapped(
             lambda cursor: self._list_page(),
             extract=lambda page: page.result,
             wrap=SurveyList,

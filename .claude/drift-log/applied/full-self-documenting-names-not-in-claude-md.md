@@ -1,6 +1,9 @@
 ---
 date: 2026-06-29
-status: OPEN
+status: APPLIED
+disposition: applied
+applied_date: 2026-06-29
+applied_in: CLAUDE.md
 priority: MEDIUM
 trigger: 3
 session_context: round-2 internals-cleanup / round-3 arch-tooling refactor sessions
@@ -41,3 +44,9 @@ Add one line to the "Project-Specific Conventions" section of `CLAUDE.md`:
   (`timeout_seconds` not `timeout_s`, `organization_id` not `org_id`,
   `YANDEX_ID_OAUTH_TOKEN` is already correct).
 ```
+
+## Resolution
+
+Added the **Naming** bullet to the "Project-Specific Conventions" section of `CLAUDE.md`
+(verbatim from the proposed change). The convention is now visible to any agent or human
+contributor reading `CLAUDE.md` alone, not only to sessions with the personal memory injected.

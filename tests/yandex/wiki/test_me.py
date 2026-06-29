@@ -6,7 +6,7 @@ from fastmcp import Client
 from fastmcp.exceptions import ToolError
 from typer.testing import CliRunner
 
-import ycli.cli as cli
+import ycli.cli.app as cli
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.me import mcp as me_mcp_module
 from ycli.yandex.wiki.me.models import Me

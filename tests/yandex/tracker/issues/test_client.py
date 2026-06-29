@@ -27,16 +27,7 @@ def test_get_deserializes_issue():
     )
     i = _client().get("DE-1")
     assert isinstance(i, Issue)
-    assert i.key == "DE-1" and i.type_key == "task"
-
-
-@responses.activate
-def test_get_raw_returns_dict():
-    responses.add(
-        responses.GET, f"{BASE}/issues/DE-1", json={"key": "DE-1", "extra": "field"}, status=200
-    )
-    raw = _client().get_raw("DE-1")
-    assert raw == {"key": "DE-1", "extra": "field"}
+    assert i.key == "DE-1" and i.type == "task"
 
 
 @responses.activate

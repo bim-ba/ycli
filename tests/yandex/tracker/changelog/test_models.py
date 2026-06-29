@@ -1,13 +1,13 @@
-"""Property accessors on the changelog models — populated and None branches."""
+"""Changelog ref fields flatten to bare scalars — populated and None branches."""
 
 from ycli.yandex.tracker.changelog.models import ChangeField, ChangelogEntry
 
 
-def test_field_id_populated_and_none():
-    assert ChangeField.model_validate({"field": {"id": "status"}}).field_id == "status"
-    assert ChangeField.model_validate({}).field_id is None
+def test_field_flattens_to_scalar():
+    assert ChangeField.model_validate({"field": {"id": "status"}}).field == "status"
+    assert ChangeField.model_validate({}).field is None
 
 
-def test_author_display_populated_and_none():
-    assert ChangelogEntry.model_validate({"updatedBy": {"display": "X"}}).author_display == "X"
-    assert ChangelogEntry.model_validate({"id": "1"}).author_display is None
+def test_updated_by_flattens_to_scalar():
+    assert ChangelogEntry.model_validate({"updatedBy": {"display": "X"}}).updated_by == "X"
+    assert ChangelogEntry.model_validate({"id": "1"}).updated_by is None
