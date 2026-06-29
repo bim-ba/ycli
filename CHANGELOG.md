@@ -9,6 +9,15 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.8.1 (2026-06-29)
+
+### Bug Fixes
+
+- Detect mcp sub-app via registered_groups in post-build smoke test
+  ([#14](https://github.com/bim-ba/ycli/pull/14),
+  [`5175d2f`](https://github.com/bim-ba/ycli/commit/5175d2f02e71e8ad03f02f58b3c83d82153cd5a1))
+
+
 ## v0.8.0 (2026-06-29)
 
 ### Bug Fixes
