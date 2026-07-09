@@ -66,3 +66,12 @@ def test_attachments_download_by_url_writes_bytes_to_output(tmp_path):
     )
     assert result.exit_code == 0
     assert target.read_bytes() == b"%PDF blob"
+
+
+@responses.activate
+def test_attachments_delete_confirms():
+    responses.add(responses.DELETE, f"{BASE}/pages/42/attachments/7", body="", status=204)
+    result = runner.invoke(cli.app, ["wiki", "attachments", "delete", "42", "7"])
+    assert result.exit_code == 0
+    assert "Deleted attachment 7" in result.stdout
+    assert responses.calls[0].request.method == "DELETE"

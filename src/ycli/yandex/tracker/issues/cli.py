@@ -144,3 +144,14 @@ def update(
     Serializer.serialize(
         app_ctx.tracker.issues.update(key, body=body), app_ctx.strategy, app_ctx.console
     )
+
+
+@app.command()
+def move(
+    ctx: typer.Context,
+    key: KeyArg,
+    queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. NEW.")],
+) -> None:
+    """Move issue KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(app_ctx.tracker.issues.move(key, queue), app_ctx.strategy, app_ctx.console)

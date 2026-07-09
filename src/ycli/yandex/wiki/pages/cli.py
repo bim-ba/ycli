@@ -8,6 +8,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.wiki.pages.models import PageAppendContent, PageAppendContentBody
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
@@ -124,4 +125,37 @@ def update(
         body["title"] = title
     Serializer.serialize(
         app_ctx.wiki.pages.update(page_id=page_id, body=body), app_ctx.strategy, app_ctx.console
+    )
+
+
+@app.command()
+def delete(ctx: typer.Context, page_id: PageIdArg) -> None:
+    """Delete a wiki page (DELETE /pages/{id}); emits the recovery_token to undo it."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.wiki.pages.delete(page_id=page_id), app_ctx.strategy, app_ctx.console
+    )
+
+
+@app.command()
+def append(
+    ctx: typer.Context,
+    page_id: PageIdArg,
+    content: Annotated[str, typer.Option(help='YFM fragment to append — pass "$(cat file.md)".')],
+    location: Annotated[
+        str, typer.Option(help="Where in the body: top or bottom (default: end).")
+    ] = "",
+) -> None:
+    """Append content to a wiki page (POST /pages/{id}/append-content)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    payload = PageAppendContent(
+        content=content,
+        body=PageAppendContentBody(location=location) if location else None,  # ty: ignore[invalid-argument-type]
+    )
+    Serializer.serialize(
+        app_ctx.wiki.pages.append_content(
+            page_id=page_id, body=payload.model_dump(exclude_none=True)
+        ),
+        app_ctx.strategy,
+        app_ctx.console,
     )

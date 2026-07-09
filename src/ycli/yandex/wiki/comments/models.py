@@ -51,3 +51,62 @@ class CommentList(RootModel[list[Comment]]):
     """
 
     root: list[Comment] = Field(default_factory=list)
+
+
+class CommentCreate(APIModel):
+    """Typed body for ``POST /pages/{id}/comments`` — a new comment (or threaded reply).
+
+    ``body`` is the comment text; the rest place it: ``inline_text`` pins it to a quoted
+    fragment of the page, ``parent_id`` makes it a reply to another comment, ``thread_id``
+    files it into an existing thread.
+
+    Example:
+        >>> CommentCreate(body="LGTM", parent_id=7).model_dump(exclude_none=True)
+        {'body': 'LGTM', 'parent_id': 7}
+    """
+
+    body: str = Field(min_length=1, description="The comment text (non-empty).")
+    inline_text: str | None = Field(
+        default=None, description="Page fragment this comment is pinned to (inline comment)."
+    )
+    parent_id: int | None = Field(
+        default=None, description="Id of the comment this one replies to (threaded reply)."
+    )
+    thread_id: int | None = Field(
+        default=None, description="Id of an existing thread to file this comment into."
+    )
+
+
+class CommentCreated(APIModel):
+    """The comment returned by ``POST /pages/{id}/comments`` — id + echoed placement fields.
+
+    Example:
+        >>> CommentCreated.model_validate({"id": 5, "body": "LGTM"}).id
+        5
+    """
+
+    id: int | None = Field(default=None, description="Numeric id of the created comment.")
+    body: str | None = Field(default=None, description="The stored comment text.")
+    inline_text: str | None = Field(
+        default=None, description="Page fragment the comment is pinned to, if inline."
+    )
+    parent_id: int | None = Field(
+        default=None, description="Id of the parent comment, if this is a reply."
+    )
+    thread_id: int | None = Field(
+        default=None, description="Id of the thread the comment belongs to."
+    )
+    created_at: str | None = Field(default=None, description="ISO-8601 creation timestamp.")
+
+
+class CommentDeleteResult(APIModel):
+    """Result of ``DELETE /pages/{id}/comments/{comment_id}`` — the page's remaining comment count.
+
+    Example:
+        >>> CommentDeleteResult.model_validate({"comments_count": 4}).comments_count
+        4
+    """
+
+    comments_count: int = Field(
+        description="Number of comments left on the page after this deletion."
+    )

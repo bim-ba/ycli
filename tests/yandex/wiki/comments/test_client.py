@@ -1,8 +1,10 @@
+import json
+
 import requests
 import responses
 
 from ycli.yandex.wiki.comments.client import CommentsClient
-from ycli.yandex.wiki.comments.models import CommentList
+from ycli.yandex.wiki.comments.models import CommentCreated, CommentDeleteResult, CommentList
 
 BASE = "https://api.wiki.yandex.net/v1"
 
@@ -106,3 +108,33 @@ def test_thread_limit_truncates_without_second_fetch():
     out = _client().thread(page_id=42, comment_id=7, limit=1)
     assert [c.content for c in out.root] == ["a"]
     assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_create_posts_body_and_returns_created():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/comments",
+        json={"id": 99, "body": "LGTM", "parent_id": 7},
+        status=200,
+    )
+    out = _client().create(page_id=42, body={"body": "LGTM", "parent_id": 7})
+    assert isinstance(out, CommentCreated)
+    assert out.id == 99 and out.parent_id == 7
+    assert responses.calls[0].request.method == "POST"
+    assert json.loads(responses.calls[0].request.body) == {"body": "LGTM", "parent_id": 7}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_delete_returns_comments_count():
+    responses.add(
+        responses.DELETE,
+        f"{BASE}/pages/42/comments/7",
+        json={"comments_count": 4},
+        status=200,
+    )
+    out = _client().delete(page_id=42, comment_id=7)
+    assert isinstance(out, CommentDeleteResult)
+    assert out.comments_count == 4
+    assert responses.calls[0].request.method == "DELETE"
+    assert responses.calls[0].request.url.endswith("/pages/42/comments/7")  # ty: ignore[unresolved-attribute]

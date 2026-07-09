@@ -71,3 +71,12 @@ def test_update_patches_body():
     i = _client().update("DE-5", body={"summary": "Updated"})
     assert i.summary == "Updated"
     assert responses.calls[0].request.method == "PATCH"
+
+
+@responses.activate
+def test_move_posts_with_queue_query():
+    responses.add(responses.POST, f"{BASE}/issues/TEST-1/_move", json={"key": "NEW-1"}, status=200)
+    i = _client().move("TEST-1", "NEW")
+    assert isinstance(i, Issue) and i.key == "NEW-1"
+    assert responses.calls[0].request.method == "POST"
+    assert "queue=NEW" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]

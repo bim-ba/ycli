@@ -31,3 +31,14 @@ class CommentList(RootModel[list[Comment]]):
         >>> CommentList.model_validate([{"text": "hi"}]).root[0].text
         'hi'
     """
+
+
+class CommentUpdate(APIModel):
+    """Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment).
+
+    Example:
+        >>> CommentUpdate(text="fixed ✅").model_dump(exclude_none=True)
+        {'text': 'fixed ✅'}
+    """
+
+    text: str = Field(description="Corrected comment text (YFM markdown supported).")

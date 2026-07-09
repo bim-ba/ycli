@@ -56,3 +56,15 @@ def download_by_url(
     """Download an attachment by page-slug URL to --output (or stdout) as raw bytes."""
     app_ctx = AppContext.from_typer_context(ctx)
     write_output(app_ctx.wiki.attachments.download_by_url(url=url), output)
+
+
+@app.command()
+def delete(
+    ctx: typer.Context,
+    page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    file_id: Annotated[int, typer.Argument(metavar="FILE_ID", help="Numeric attachment id.")],
+) -> None:
+    """Delete an attachment by id (DELETE /pages/{id}/attachments/{file_id})."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    app_ctx.wiki.attachments.delete(page_id=page_id, file_id=file_id)
+    print(f"Deleted attachment {file_id} from page {page_id}.")

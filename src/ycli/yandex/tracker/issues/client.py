@@ -79,3 +79,16 @@ class IssuesClient(TrackerResource):
             ... ).priority  # doctest: +SKIP
             'critical'
         """
+
+    @uplink.returns.json()
+    @uplink.post("issues/{key}/_move")
+    def move(self, key: uplink.Path, queue: uplink.Query) -> Issue:  # ty: ignore[empty-body]
+        """``POST /issues/{key}/_move?queue=<key>`` — move an issue to another queue.
+
+        Returns the moved ``Issue`` (now bearing a key in the target queue).
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.issues.move(key="TEST-1", queue="NEW").key  # doctest: +SKIP
+            'NEW-1'
+        """

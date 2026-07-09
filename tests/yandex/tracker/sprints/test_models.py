@@ -1,6 +1,13 @@
 """Model tests for Tracker sprints — full fixture, board ref, ref-flattening, flat list."""
 
-from ycli.yandex.tracker.sprints.models import Sprint, SprintBoardRef, SprintList
+from ycli.yandex.tracker.sprints.models import (
+    Sprint,
+    SprintBoardInput,
+    SprintBoardRef,
+    SprintCreate,
+    SprintList,
+    SprintUpdate,
+)
 
 SPRINT = {
     "self": "https://api.tracker.yandex.net/v3/sprints/4405",
@@ -51,3 +58,25 @@ def test_sprint_defaults_when_fields_absent():
     sprint = Sprint.model_validate({"id": 7})
     assert sprint.name is None and sprint.board is None and sprint.created_by is None
     assert sprint.archived is None and sprint.start_date is None
+
+
+def test_sprint_create_dumps_nested_board_and_alias_dates():
+    body = SprintCreate(
+        name="New Sprint",
+        board=SprintBoardInput(id="1"),
+        start_date="2018-10-21",
+        end_date="2018-10-24",
+    )
+    assert body.model_dump(by_alias=True, exclude_none=True) == {
+        "name": "New Sprint",
+        "board": {"id": "1"},
+        "startDate": "2018-10-21",
+        "endDate": "2018-10-24",
+    }
+
+
+def test_sprint_update_dumps_only_supplied_fields():
+    dumped = SprintUpdate(name="Updated", status="in_progress").model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert dumped == {"name": "Updated", "status": "in_progress"}

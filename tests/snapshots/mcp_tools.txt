@@ -1,5 +1,7 @@
 forms_answers_get
 forms_answers_list
+forms_keysets_get
+forms_keysets_list
 forms_me_get
 forms_questions_get
 forms_questions_list
@@ -11,6 +13,9 @@ tracker_attachments_list
 tracker_boards_get
 tracker_boards_list
 tracker_changelog_list
+tracker_checklists_get
+tracker_columns_get
+tracker_columns_list
 tracker_comments_list
 tracker_components_list
 tracker_fields_get

@@ -11,6 +11,8 @@ from ycli.yandex.tracker.applications.client import ApplicationsClient
 from ycli.yandex.tracker.attachments.client import AttachmentsClient
 from ycli.yandex.tracker.boards.client import BoardsClient
 from ycli.yandex.tracker.changelog.client import ChangelogClient
+from ycli.yandex.tracker.checklists.client import ChecklistsClient
+from ycli.yandex.tracker.columns.client import ColumnsClient
 from ycli.yandex.tracker.comments.client import CommentsClient
 from ycli.yandex.tracker.components.client import ComponentsClient
 from ycli.yandex.tracker.fields.client import FieldsClient
@@ -62,6 +64,8 @@ class TrackerClient:
         self.transitions = TransitionsClient(session=transport)
         self.worklog = WorklogClient(session=transport)
         self.changelog = ChangelogClient(session=transport)
+        self.checklists = ChecklistsClient(session=transport)
+        self.columns = ColumnsClient(session=transport)
         self.priorities = PrioritiesClient(session=transport)
         self.issuetypes = IssueTypesClient(session=transport)
         self.linktypes = LinkTypesClient(session=transport)

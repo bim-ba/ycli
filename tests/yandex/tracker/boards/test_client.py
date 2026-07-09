@@ -7,7 +7,7 @@ import requests
 import responses
 
 from ycli.yandex.tracker.boards.client import BoardsClient
-from ycli.yandex.tracker.boards.models import Board, BoardList
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
 
 BASE = "https://api.tracker.yandex.net/v3"
 
@@ -82,3 +82,39 @@ def test_list_terminates_when_last_board_has_no_id():
     out = _client().list()
     assert [b.name for b in out.root] == ["X"]
     assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_create_posts_typed_body_to_liveboards():
+    """create() targets the /liveBoards/ path and sends the dumped, alias-cased body."""
+    responses.add(
+        responses.POST, f"{BASE}/liveBoards/", json={"id": 1, "name": "Testing"}, status=201
+    )
+    board = _client().create(BoardCreate(name="Testing", owner="username", sprints_available=True))
+    assert isinstance(board, Board) and board.id == 1
+    assert responses.calls[0].request.method == "POST"
+    assert responses.calls[0].request.url == f"{BASE}/liveBoards/"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "name": "Testing",
+        "owner": "username",
+        "sprintsAvailable": True,
+    }
+
+
+@responses.activate
+def test_edit_patches_board_with_only_supplied_fields():
+    responses.add(
+        responses.PATCH, f"{BASE}/boards/5", json={"id": 5, "name": "New name"}, status=200
+    )
+    board = _client().edit(5, BoardUpdate(name="New name"))
+    assert board.name == "New name"
+    assert responses.calls[0].request.method == "PATCH"
+    assert json.loads(responses.calls[0].request.body) == {"name": "New name"}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_delete_issues_delete_and_returns_response():
+    responses.add(responses.DELETE, f"{BASE}/boards/5", status=204)
+    resp = _client().delete(board_id=5)
+    assert resp.status_code == 204
+    assert responses.calls[0].request.method == "DELETE"

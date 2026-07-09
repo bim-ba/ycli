@@ -1,10 +1,18 @@
-"""TDD for SprintsClient — list a board's sprints + get one sprint by id."""
+"""TDD for SprintsClient — list/get reads + create/edit/delete/start/archive writes."""
+
+import json
 
 import requests
 import responses
 
 from ycli.yandex.tracker.sprints.client import SprintsClient
-from ycli.yandex.tracker.sprints.models import Sprint, SprintList
+from ycli.yandex.tracker.sprints.models import (
+    Sprint,
+    SprintBoardInput,
+    SprintCreate,
+    SprintList,
+    SprintUpdate,
+)
 
 BASE = "https://api.tracker.yandex.net/v3"
 
@@ -45,3 +53,73 @@ def test_get_returns_sprint_with_board_ref():
     sprint = _client().get(sprint_id=4405)
     assert isinstance(sprint, Sprint) and sprint.id == 4405
     assert sprint.board.id == "3" and sprint.board.display == "My board"
+
+
+@responses.activate
+def test_create_posts_typed_body_with_nested_board():
+    responses.add(responses.POST, f"{BASE}/sprints", json={"id": 4405, "name": "New"}, status=201)
+    sprint = _client().create(
+        SprintCreate(
+            name="New Sprint",
+            board=SprintBoardInput(id="1"),
+            start_date="2018-10-21",
+            end_date="2018-10-24",
+        )
+    )
+    assert isinstance(sprint, Sprint) and sprint.id == 4405
+    assert responses.calls[0].request.method == "POST"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "name": "New Sprint",
+        "board": {"id": "1"},
+        "startDate": "2018-10-21",
+        "endDate": "2018-10-24",
+    }
+
+
+@responses.activate
+def test_edit_patches_only_supplied_fields():
+    responses.add(
+        responses.PATCH, f"{BASE}/sprints/4405", json={"id": 4405, "name": "Updated"}, status=200
+    )
+    sprint = _client().edit(4405, SprintUpdate(name="Updated", status="in_progress"))
+    assert sprint.name == "Updated"
+    assert responses.calls[0].request.method == "PATCH"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "name": "Updated",
+        "status": "in_progress",
+    }
+
+
+@responses.activate
+def test_delete_issues_delete_and_returns_response():
+    responses.add(responses.DELETE, f"{BASE}/sprints/4405", status=204)
+    resp = _client().delete(sprint_id=4405)
+    assert resp.status_code == 204
+    assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_start_posts_to_start_action():
+    responses.add(
+        responses.POST,
+        f"{BASE}/sprints/4405/_start",
+        json={"id": 4405, "status": "in_progress"},
+        status=200,
+    )
+    sprint = _client().start(sprint_id=4405)
+    assert sprint.status == "in_progress"
+    assert responses.calls[0].request.method == "POST"
+    assert responses.calls[0].request.url == f"{BASE}/sprints/4405/_start"
+
+
+@responses.activate
+def test_archive_posts_to_archive_action():
+    responses.add(
+        responses.POST,
+        f"{BASE}/sprints/4405/_archive",
+        json={"id": 4405, "status": "archived", "archived": True},
+        status=200,
+    )
+    sprint = _client().archive(sprint_id=4405)
+    assert sprint.status == "archived" and sprint.archived is True
+    assert responses.calls[0].request.url == f"{BASE}/sprints/4405/_archive"

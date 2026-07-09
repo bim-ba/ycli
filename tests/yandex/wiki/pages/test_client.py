@@ -7,7 +7,12 @@ import responses
 
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.client import PagesClient
-from ycli.yandex.wiki.pages.models import GridRefList, PageDetails, PageRefList
+from ycli.yandex.wiki.pages.models import (
+    GridRefList,
+    PageDeleteResult,
+    PageDetails,
+    PageRefList,
+)
 
 BASE = "https://api.wiki.yandex.net/v1"
 
@@ -181,3 +186,37 @@ def test_grids_limit_truncates_without_second_fetch():
     out = _client().grids(page_id=42, limit=1)
     assert [g.id for g in out.root] == ["g1"]
     assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_delete_returns_recovery_token():
+    responses.add(
+        responses.DELETE,
+        f"{BASE}/pages/42",
+        json={"recovery_token": "a1b2-uuid"},
+        status=200,
+    )
+    out = _client().delete(page_id=42)
+    assert isinstance(out, PageDeleteResult)
+    assert out.recovery_token == "a1b2-uuid"
+    assert responses.calls[0].request.method == "DELETE"
+    assert responses.calls[0].request.url.endswith("/pages/42")  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_append_content_posts_body_and_returns_page():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/append-content",
+        json={"id": 42, "slug": "data/x", "title": "T"},
+        status=200,
+    )
+    out = _client().append_content(
+        page_id=42, body={"content": "## More", "body": {"location": "bottom"}}
+    )
+    assert isinstance(out, PageDetails)
+    assert out.id == 42
+    assert responses.calls[0].request.method == "POST"
+    assert responses.calls[0].request.url.endswith("/pages/42/append-content")  # ty: ignore[unresolved-attribute]
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"content": "## More", "body": {"location": "bottom"}}

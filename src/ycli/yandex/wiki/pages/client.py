@@ -12,13 +12,14 @@ from ycli.yandex.wiki.pages.models import (
     DescendantsResponse,
     GridRefList,
     GridsResponse,
+    PageDeleteResult,
     PageDetails,
     PageRefList,
 )
 
 
 class PagesClient(WikiResource):
-    """Declarative HTTP for ``/pages`` (get, descendants, grids, create, update)."""
+    """Declarative HTTP for ``/pages`` (get, descendants, grids, create, update, delete, append)."""
 
     @uplink.returns.json()
     @uplink.get("pages/{page_id}")
@@ -201,5 +202,37 @@ class PagesClient(WikiResource):
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.pages.update(12345, {"content": "# Updated"}).id  # doctest: +SKIP
+            12345
+        """
+
+    @uplink.returns.json()
+    @uplink.delete("pages/{page_id}")
+    def delete(self, page_id: uplink.Path) -> PageDeleteResult:  # ty: ignore[empty-body]
+        """``DELETE /pages/{id}`` → ``{recovery_token}``; keep the token to restore (undo).
+
+        The returned :class:`PageDeleteResult` carries the ``recovery_token`` — the only handle
+        to undo this delete, via ``RecoveryClient.restore`` (POST /recovery_tokens/{token}/recover).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.delete(12345).recovery_token  # doctest: +SKIP
+            'a1b2c3d4-…'
+        """
+
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.post("pages/{page_id}/append-content")
+    def append_content(self, page_id: uplink.Path, body: uplink.Body) -> PageDetails:  # ty: ignore[empty-body]
+        """``POST /pages/{id}/append-content`` — append YFM without rewriting the whole body.
+
+        ``body`` is a dumped :class:`PageAppendContent` (``{content, body?, section?, anchor?}``).
+        Unlike :meth:`update` (which replaces the body), this adds to it; ``body.location`` /
+        ``section`` / ``anchor`` pinpoint where. Returns the updated :class:`PageDetails`.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.append_content(
+            ...     12345, {"content": "## More", "body": {"location": "bottom"}}
+            ... ).id  # doctest: +SKIP
             12345
         """

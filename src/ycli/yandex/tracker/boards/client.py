@@ -3,11 +3,12 @@
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
 
+import requests
 import uplink
 
 from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.boards.models import Board, BoardList
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
 
 
 class BoardsClient(TrackerResource):
@@ -53,4 +54,53 @@ class BoardsClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.boards.get(board_id=1).name  # doctest: +SKIP
             'My board'
+        """
+
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.post("liveBoards/")
+    def _create(self, body: uplink.Body) -> Board:  # ty: ignore[empty-body]
+        """``POST /liveBoards/`` — create a board from a ready JSON body (see ``create``)."""
+
+    def create(self, body: BoardCreate) -> Board:
+        """Create an agile board from a typed ``BoardCreate`` body. Returns the new ``Board``.
+
+        The endpoint path is literally ``/liveBoards/`` — the older ``POST /boards/`` is
+        deprecated and silently ignores the request body.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.boards.create(
+            ...     BoardCreate(name="Testing", owner="username")
+            ... ).id  # doctest: +SKIP
+            1
+        """
+        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
+
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.patch("boards/{board_id}")
+    def _edit(self, board_id: uplink.Path, body: uplink.Body) -> Board:  # ty: ignore[empty-body]
+        """``PATCH /boards/{board_id}`` — edit a board from a ready JSON body (see ``edit``)."""
+
+    def edit(self, board_id: int, body: BoardUpdate) -> Board:
+        """Edit an agile board from a typed ``BoardUpdate`` body. Returns the updated ``Board``.
+
+        Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.boards.edit(1, BoardUpdate(name="New name")).name  # doctest: +SKIP
+            'New name'
+        """
+        return self._edit(board_id=board_id, body=body.model_dump(by_alias=True, exclude_none=True))
+
+    @uplink.delete("boards/{board_id}")
+    def delete(self, board_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
+        """``DELETE /boards/{board_id}`` — delete a board (``204``, empty body).
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.boards.delete(board_id=1).status_code  # doctest: +SKIP
+            204
         """

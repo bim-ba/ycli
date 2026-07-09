@@ -193,3 +193,12 @@ def test_update_assembles_full_body():
         "tags": ["a", "b"],
         "sprint": 123,
     }
+
+
+@responses.activate
+def test_move_to_queue():
+    responses.add(responses.POST, f"{BASE}/issues/TEST-1/_move", json={"key": "NEW-1"}, status=200)
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "move", "TEST-1", "NEW"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["key"] == "NEW-1"
+    assert "queue=NEW" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]

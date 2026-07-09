@@ -84,3 +84,21 @@ class AttachmentsClient(WikiResource):
             b'\\x89PNG...'
         """
         return self._download_by_url(url=url, download="true").content
+
+    @uplink.delete("pages/{page_id}/attachments/{file_id}")
+    def _delete(self, page_id: uplink.Path, file_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
+        """Raw ``204 No Content`` response for a delete (internal; callers use ``delete``).
+
+        No ``@uplink.returns.json()`` — the API returns an empty ``204`` body; the transport's
+        response hook has already raised on any non-2xx before this returns."""
+
+    def delete(self, page_id: int, file_id: int) -> None:
+        """``DELETE /pages/{id}/attachments/{file_id}`` — remove an attachment (``204``, no body).
+
+        Returns ``None`` on success; raises a typed ``YandexError`` on any non-2xx.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.attachments.delete(12345, 678)  # doctest: +SKIP
+        """
+        self._delete(page_id, file_id)

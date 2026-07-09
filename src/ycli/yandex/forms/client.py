@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     import requests
 
 from ycli.yandex.forms.answers.client import AnswersClient
+from ycli.yandex.forms.keysets.client import KeysetsClient
 from ycli.yandex.forms.me.client import MeClient
 from ycli.yandex.forms.questions.client import QuestionsClient
 from ycli.yandex.forms.surveys.client import SurveysClient
@@ -41,3 +42,4 @@ class FormsClient:
         self.surveys = SurveysClient(session=transport)
         self.questions = QuestionsClient(session=transport)
         self.answers = AnswersClient(session=transport)
+        self.keysets = KeysetsClient(session=transport)

@@ -8,11 +8,16 @@ import uplink
 
 from ycli.yandex.pagination import CursorStrategy
 from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.comments.models import CommentList, CommentsResponse
+from ycli.yandex.wiki.comments.models import (
+    CommentCreated,
+    CommentDeleteResult,
+    CommentList,
+    CommentsResponse,
+)
 
 
 class CommentsClient(WikiResource):
-    """Declarative HTTP for ``/pages/{id}/comments``."""
+    """Declarative HTTP for ``/pages/{id}/comments`` (list, thread, create, delete)."""
 
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/comments")
@@ -76,3 +81,29 @@ class CommentsClient(WikiResource):
             limit,
         )
         return CommentList(comments)
+
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.post("pages/{page_id}/comments")
+    def create(self, page_id: uplink.Path, body: uplink.Body) -> CommentCreated:  # ty: ignore[empty-body]
+        """``POST /pages/{id}/comments`` — add a comment; returns a :class:`CommentCreated`.
+
+        ``body`` is a dumped :class:`CommentCreate` (``body`` + optional
+        ``inline_text`` / ``parent_id`` / ``thread_id``).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.comments.create(12345, {"body": "LGTM"}).id  # doctest: +SKIP
+            678
+        """
+
+    @uplink.returns.json()
+    @uplink.delete("pages/{page_id}/comments/{comment_id}")
+    def delete(self, page_id: uplink.Path, comment_id: uplink.Path) -> CommentDeleteResult:  # ty: ignore[empty-body]
+        """``DELETE /pages/{id}/comments/{comment_id}`` → ``{comments_count}`` left on the page.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.comments.delete(12345, 678).comments_count  # doctest: +SKIP
+            4
+        """

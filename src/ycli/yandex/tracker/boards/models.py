@@ -114,3 +114,83 @@ class BoardList(RootModel[list[Board]]):
         >>> BoardList.model_validate([{"id": 1, "name": "My board"}]).root[0].name
         'My board'
     """
+
+
+class BoardColumnInput(APIModel):
+    """One column in a create/edit board request body (``columns[]`` item).
+
+    Example:
+        >>> BoardColumnInput(name="To Do", statuses=["new", "open"]).name
+        'To Do'
+    """
+
+    name: str = Field(description="Name of the column.")
+    statuses: list[str] | None = Field(
+        default=None,
+        description="Status keys whose issues are shown in this column (names/keys from settings).",
+    )
+    limit: int | None = Field(
+        default=None, description="Maximum number of issues allowed in the column."
+    )
+
+
+class BoardCreate(APIModel):
+    """Typed request body for ``boards.create`` (``POST /liveBoards/``).
+
+    ``name`` is the only required field; every other field is omitted from the JSON
+    body when left as ``None`` (see ``model_dump(by_alias=True, exclude_none=True)``).
+
+    Example:
+        >>> BoardCreate(name="Testing", owner="username").name
+        'Testing'
+    """
+
+    name: str = Field(description="Name of the new board (required).")
+    owner: str | None = Field(
+        default=None, description="Login or uid of the board owner (defaults to the caller)."
+    )
+    board_permissions_template: str | None = Field(
+        default=None,
+        serialization_alias="boardPermissionsTemplate",
+        description="Access template: 'private' (owner only) or 'public' (all staff, the default).",
+    )
+    backlog_available: bool | None = Field(
+        default=None,
+        serialization_alias="backlogAvailable",
+        description="Whether the board has a backlog enabled (pair with sprintsAvailable).",
+    )
+    sprints_available: bool | None = Field(
+        default=None,
+        serialization_alias="sprintsAvailable",
+        description="Whether the board has sprints enabled (pair with backlogAvailable).",
+    )
+    columns: list[BoardColumnInput] | None = Field(
+        default=None, description="Status-backed columns of the board, one bucket per column."
+    )
+
+
+class BoardUpdate(APIModel):
+    """Typed request body for ``boards.edit`` (``PATCH /boards/{board_id}``).
+
+    Every field is optional; only the fields you set are sent, so an omitted field
+    is left unchanged on the board.
+
+    Example:
+        >>> BoardUpdate(name="New name").name
+        'New name'
+    """
+
+    name: str | None = Field(default=None, description="New name of the board.")
+    backlog_available: bool | None = Field(
+        default=None,
+        serialization_alias="backlogAvailable",
+        description="Whether the board has a backlog enabled (pair with sprintsAvailable).",
+    )
+    sprints_available: bool | None = Field(
+        default=None,
+        serialization_alias="sprintsAvailable",
+        description="Whether the board has sprints enabled (pair with backlogAvailable).",
+    )
+    columns: list[BoardColumnInput] | None = Field(
+        default=None, description="Replacement status-backed columns of the board."
+    )

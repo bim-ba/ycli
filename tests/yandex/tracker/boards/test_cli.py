@@ -45,3 +45,40 @@ def test_boards_list_all_is_uncapped():
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "boards", "list", "--all"])
     assert res.exit_code == 0
     assert json.loads(res.stdout) == []
+
+
+@responses.activate
+def test_boards_create():
+    responses.add(
+        responses.POST, f"{BASE}/liveBoards/", json={"id": 1, "name": "Testing"}, status=201
+    )
+    res = runner.invoke(
+        cli.app,
+        ["--format", "json", "tracker", "boards", "create", "--name", "Testing", "--sprints"],
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["name"] == "Testing"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "name": "Testing",
+        "sprintsAvailable": True,
+    }
+
+
+@responses.activate
+def test_boards_edit():
+    responses.add(
+        responses.PATCH, f"{BASE}/boards/5", json={"id": 5, "name": "New name"}, status=200
+    )
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "boards", "edit", "5", "--name", "New name"]
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["name"] == "New name"
+
+
+@responses.activate
+def test_boards_delete():
+    responses.add(responses.DELETE, f"{BASE}/boards/5", status=204)
+    res = runner.invoke(cli.app, ["tracker", "boards", "delete", "5"])
+    assert res.exit_code == 0
+    assert "Deleted board 5" in res.stdout

@@ -4,14 +4,26 @@ forms
 forms answers
 forms answers get
 forms answers list
+forms keysets
+forms keysets create
+forms keysets delete
+forms keysets download
+forms keysets get
+forms keysets list
+forms keysets modify
 forms me
 forms me get
 forms questions
 forms questions get
 forms questions list
 forms surveys
+forms surveys create
+forms surveys delete
 forms surveys get
 forms surveys list
+forms surveys modify
+forms surveys publish
+forms surveys unpublish
 mcp
 mcp methods
 mcp start
@@ -23,13 +35,31 @@ tracker attachments download
 tracker attachments list
 tracker attachments thumbnail
 tracker boards
+tracker boards create
+tracker boards delete
+tracker boards edit
 tracker boards get
 tracker boards list
 tracker changelog
 tracker changelog list
+tracker checklists
+tracker checklists add
+tracker checklists clear
+tracker checklists delete
+tracker checklists edit
+tracker checklists get
+tracker columns
+tracker columns create
+tracker columns delete
+tracker columns edit
+tracker columns get
+tracker columns list
 tracker comments
 tracker comments add
+tracker comments delete
+tracker comments edit
 tracker comments list
+tracker comments react
 tracker components
 tracker components list
 tracker fields
@@ -42,12 +72,14 @@ tracker issues count
 tracker issues create
 tracker issues get
 tracker issues list
+tracker issues move
 tracker issues search
 tracker issues update
 tracker issuetypes
 tracker issuetypes list
 tracker links
 tracker links add
+tracker links delete
 tracker links list
 tracker linktypes
 tracker linktypes list
@@ -64,8 +96,13 @@ tracker queues list
 tracker resolutions
 tracker resolutions list
 tracker sprints
+tracker sprints archive
+tracker sprints create
+tracker sprints delete
+tracker sprints edit
 tracker sprints get
 tracker sprints list
+tracker sprints start
 tracker statuses
 tracker statuses list
 tracker transitions
@@ -75,24 +112,34 @@ tracker users
 tracker users get
 tracker users list
 tracker worklog
+tracker worklog add
+tracker worklog delete
+tracker worklog edit
 tracker worklog list
 wiki
 wiki attachments
+wiki attachments delete
 wiki attachments download
 wiki attachments download-by-url
 wiki attachments list
 wiki comments
+wiki comments create
+wiki comments delete
 wiki comments list
 wiki comments thread
 wiki me
 wiki me get
 wiki pages
+wiki pages append
 wiki pages create
+wiki pages delete
 wiki pages descendants
 wiki pages descendants-by-id
 wiki pages get
 wiki pages get-by-id
 wiki pages grids
 wiki pages update
+wiki recovery
+wiki recovery restore
 wiki resources
 wiki resources list

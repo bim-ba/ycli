@@ -187,6 +187,62 @@ def test_pages_grids_dumps_flat_list():
     assert responses.calls[-1].request.params["order_by"] == "title"  # ty: ignore[unresolved-attribute]
 
 
+@responses.activate
+def test_pages_delete_emits_recovery_token():
+    responses.add(
+        responses.DELETE, f"{BASE}/pages/42", json={"recovery_token": "tok-uuid"}, status=200
+    )
+    result = runner.invoke(cli.app, ["--format", "json", "wiki", "pages", "delete", "42"])
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["recovery_token"] == "tok-uuid"
+    assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_pages_append_posts_typed_body():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/append-content",
+        json={"id": 42, "slug": "data/x", "title": "T"},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "wiki",
+            "pages",
+            "append",
+            "42",
+            "--content",
+            "## More",
+            "--location",
+            "bottom",
+        ],
+    )
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["id"] == 42
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"content": "## More", "body": {"location": "bottom"}}
+
+
+@responses.activate
+def test_pages_append_without_location_sends_only_content():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/append-content",
+        json={"id": 42, "slug": "data/x", "title": "T"},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app, ["--format", "json", "wiki", "pages", "append", "42", "--content", "## More"]
+    )
+    assert result.exit_code == 0
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"content": "## More"}
+
+
 def test_pages_subcommand_help_needs_no_creds(monkeypatch):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)

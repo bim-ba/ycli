@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
@@ -143,3 +145,89 @@ class GridRefList(RootModel[list[GridRef]]):
     """
 
     root: list[GridRef] = Field(default_factory=list)
+
+
+class PageDeleteResult(APIModel):
+    """Result of ``DELETE /pages/{id}`` — carries the ``recovery_token`` for undo.
+
+    Keep this token: it is the only way to restore the just-deleted page (feed it to
+    ``wiki recovery restore`` → ``POST /recovery_tokens/{token}/recover``).
+
+    Example:
+        >>> PageDeleteResult.model_validate({"recovery_token": "abc-uuid4"}).recovery_token
+        'abc-uuid4'
+    """
+
+    recovery_token: str = Field(
+        description="UUID4 token restoring the deleted page via /recovery_tokens/{token}/recover."
+    )
+
+
+class PageAppendContentBody(APIModel):
+    """Where in the whole page body to append — ``top`` or ``bottom`` (``append-content`` ``body``).
+
+    Example:
+        >>> PageAppendContentBody(location="bottom").location
+        'bottom'
+    """
+
+    location: Literal["top", "bottom"] | None = Field(
+        default=None,
+        description="Anchor the appended content at the ``top`` or ``bottom`` of the page body.",
+    )
+
+
+class PageAppendContentSection(APIModel):
+    """Append relative to a numbered section (``append-content`` ``section``).
+
+    Example:
+        >>> PageAppendContentSection(id=3, location="top").id
+        3
+    """
+
+    id: int | None = Field(default=None, description="Target section id to append relative to.")
+    location: Literal["top", "bottom"] | None = Field(
+        default=None,
+        description="Place the content at the ``top`` or ``bottom`` of that section.",
+    )
+
+
+class PageAppendContentAnchor(APIModel):
+    """Append relative to a named text anchor (``append-content`` ``anchor``).
+
+    Example:
+        >>> PageAppendContentAnchor(name="Roadmap", regex=True).regex
+        True
+    """
+
+    name: str | None = Field(default=None, description="Anchor text to append next to.")
+    fallback: bool = Field(
+        default=False, description="Fall back to the body end if the anchor is not found."
+    )
+    regex: bool = Field(default=False, description="Treat ``name`` as a regular expression.")
+
+
+class PageAppendContent(APIModel):
+    """Typed body for ``POST /pages/{id}/append-content`` — add YFM without a full rewrite.
+
+    ``content`` is the required, non-empty YFM fragment to append; the optional ``body``,
+    ``section`` and ``anchor`` pinpoint where. Contrast with ``PagesClient.update``, which
+    replaces the whole page body.
+
+    Example:
+        >>> PageAppendContent(
+        ...     content="## More", body=PageAppendContentBody(location="bottom")
+        ... ).model_dump(exclude_none=True)
+        {'content': '## More', 'body': {'location': 'bottom'}}
+    """
+
+    content: str = Field(min_length=1, description="YFM fragment to append (non-empty).")
+    body: PageAppendContentBody | None = Field(
+        default=None, description="Append at the top/bottom of the whole page body."
+    )
+    section: PageAppendContentSection | None = Field(
+        default=None, description="Append relative to a numbered section."
+    )
+    anchor: PageAppendContentAnchor | None = Field(
+        default=None, description="Append relative to a named text anchor."
+    )

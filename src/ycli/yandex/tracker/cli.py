@@ -8,6 +8,8 @@ from ycli.yandex.tracker.applications.cli import app as applications_app
 from ycli.yandex.tracker.attachments.cli import app as attachments_app
 from ycli.yandex.tracker.boards.cli import app as boards_app
 from ycli.yandex.tracker.changelog.cli import app as changelog_app
+from ycli.yandex.tracker.checklists.cli import app as checklists_app
+from ycli.yandex.tracker.columns.cli import app as columns_app
 from ycli.yandex.tracker.comments.cli import app as comments_app
 from ycli.yandex.tracker.components.cli import app as components_app
 from ycli.yandex.tracker.fields.cli import app as fields_app
@@ -36,6 +38,8 @@ app.add_typer(links_app)
 app.add_typer(transitions_app)
 app.add_typer(worklog_app)
 app.add_typer(changelog_app)
+app.add_typer(checklists_app)
+app.add_typer(columns_app)
 app.add_typer(priorities_app)
 app.add_typer(issuetypes_app)
 app.add_typer(linktypes_app)

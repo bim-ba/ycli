@@ -30,6 +30,8 @@ async def test_all_read_tools_registered():
         "questions_get",
         "answers_list",
         "answers_get",
+        "keysets_list",
+        "keysets_get",
     }
 
 

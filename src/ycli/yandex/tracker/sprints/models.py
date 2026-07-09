@@ -99,3 +99,64 @@ class SprintList(RootModel[list[Sprint]]):
         >>> SprintList.model_validate([{"id": 4405, "name": "Sprint 1"}]).root[0].name
         'Sprint 1'
     """
+
+
+class SprintBoardInput(APIModel):
+    """The ``board`` object in a create-sprint body — a board identifier wrapper.
+
+    Example:
+        >>> SprintBoardInput(id="1").id
+        '1'
+    """
+
+    id: str = Field(description="Identifier of the board the sprint belongs to.")
+
+
+class SprintCreate(APIModel):
+    """Typed request body for ``sprints.create`` (``POST /sprints``).
+
+    Example:
+        >>> SprintCreate(
+        ...     name="New Sprint",
+        ...     board=SprintBoardInput(id="1"),
+        ...     start_date="2018-10-21",
+        ...     end_date="2018-10-24",
+        ... ).name
+        'New Sprint'
+    """
+
+    name: str = Field(description="Name of the new sprint.")
+    board: SprintBoardInput = Field(description="Board the sprint belongs to (its id).")
+    start_date: str = Field(
+        serialization_alias="startDate", description="Planned sprint start date (YYYY-MM-DD)."
+    )
+    end_date: str = Field(
+        serialization_alias="endDate", description="Planned sprint end date (YYYY-MM-DD)."
+    )
+
+
+class SprintUpdate(APIModel):
+    """Typed request body for ``sprints.edit`` (``PATCH /sprints/{sprint_id}``).
+
+    Every field is optional; only the fields you set are sent.
+
+    Example:
+        >>> SprintUpdate(name="Updated Sprint Name").name
+        'Updated Sprint Name'
+    """
+
+    name: str | None = Field(default=None, description="New name of the sprint.")
+    start_date: str | None = Field(
+        default=None,
+        serialization_alias="startDate",
+        description="New planned start date (YYYY-MM-DD).",
+    )
+    end_date: str | None = Field(
+        default=None,
+        serialization_alias="endDate",
+        description="New planned end date (YYYY-MM-DD).",
+    )
+    status: str | None = Field(
+        default=None,
+        description="New sprint status: draft, in_progress, released or archived.",
+    )

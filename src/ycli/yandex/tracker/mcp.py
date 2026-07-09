@@ -6,6 +6,8 @@ from ycli.yandex.tracker.applications.mcp import mcp as applications_mcp
 from ycli.yandex.tracker.attachments.mcp import mcp as attachments_mcp
 from ycli.yandex.tracker.boards.mcp import mcp as boards_mcp
 from ycli.yandex.tracker.changelog.mcp import mcp as changelog_mcp
+from ycli.yandex.tracker.checklists.mcp import mcp as checklists_mcp
+from ycli.yandex.tracker.columns.mcp import mcp as columns_mcp
 from ycli.yandex.tracker.comments.mcp import mcp as comments_mcp
 from ycli.yandex.tracker.components.mcp import mcp as components_mcp
 from ycli.yandex.tracker.fields.mcp import mcp as fields_mcp
@@ -40,6 +42,8 @@ mcp.mount(links_mcp)
 mcp.mount(transitions_mcp)
 mcp.mount(worklog_mcp)
 mcp.mount(changelog_mcp)
+mcp.mount(checklists_mcp)
+mcp.mount(columns_mcp)
 mcp.mount(priorities_mcp)
 mcp.mount(issuetypes_mcp)
 mcp.mount(linktypes_mcp)

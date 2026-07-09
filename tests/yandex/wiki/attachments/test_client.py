@@ -99,3 +99,17 @@ def test_download_by_url_returns_raw_bytes():
     params = responses.calls[0].request.params  # ty: ignore[unresolved-attribute]
     assert params["url"] == "data/x/.files/report.pdf"
     assert params["download"] == "true"
+
+
+@responses.activate
+def test_delete_sends_delete_and_returns_none():
+    responses.add(
+        responses.DELETE,
+        f"{BASE}/pages/42/attachments/7",
+        body="",
+        status=204,
+    )
+    out = _client().delete(page_id=42, file_id=7)
+    assert out is None  # 204 No Content — nothing to parse
+    assert responses.calls[0].request.method == "DELETE"
+    assert responses.calls[0].request.url.endswith("/pages/42/attachments/7")  # ty: ignore[unresolved-attribute]
