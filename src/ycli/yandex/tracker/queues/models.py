@@ -8,6 +8,8 @@ so a plain list stays valid.
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
@@ -197,3 +199,289 @@ class QueueList(RootModel[list[Queue]]):
         >>> QueueList.model_validate([{"key": "TEST"}]).root[0].key
         'TEST'
     """
+
+
+class QueueTagList(RootModel[list[str]]):
+    """A bare JSON array of queue tag names (``GET /queues/{id}/tags``).
+
+    Example:
+        >>> QueueTagList.model_validate(["tag1", "tag2"]).root[0]
+        'tag1'
+    """
+
+
+class QueueVersionInfo(APIModel):
+    """A queue version (``GET /queues/{id}/versions`` item, ``POST /versions/`` result).
+
+    Unlike the lean ``QueueVersion`` inside an ``expand=versions`` block, this carries the full
+    version record — release/archive flags, date range and the owning queue reference.
+
+    Example:
+        >>> QueueVersionInfo.model_validate({"id": 1, "name": "v0.1", "released": False}).name
+        'v0.1'
+    """
+
+    self_url: str | None = Field(
+        default=None,
+        alias="self",
+        description="API resource URL that returns full information about the version.",
+    )
+    id: int | None = Field(default=None, description="Unique identifier of the version.")
+    version: int | None = Field(default=None, description="Sequence number of the version.")
+    queue: QueueRef | None = Field(
+        default=None, description="Reference to the queue this version belongs to."
+    )
+    name: str | None = Field(default=None, description="Human-readable name of the version.")
+    description: str | None = Field(
+        default=None, description="Free-text description of the version."
+    )
+    start_date: str | None = Field(
+        default=None, alias="startDate", description="Version start date (YYYY-MM-DD)."
+    )
+    due_date: str | None = Field(
+        default=None, alias="dueDate", description="Version due/finish date (YYYY-MM-DD)."
+    )
+    released: bool | None = Field(
+        default=None, description="Whether the version has been released (true) or not (false)."
+    )
+    archived: bool | None = Field(
+        default=None, description="Whether the version is archived (true) or active (false)."
+    )
+
+
+class QueueVersionInfoList(RootModel[list[QueueVersionInfo]]):
+    """A bare JSON array of queue versions (``GET /queues/{id}/versions``).
+
+    Example:
+        >>> QueueVersionInfoList.model_validate([{"id": 1, "name": "v0.1"}]).root[0].name
+        'v0.1'
+    """
+
+
+class QueueField(APIModel):
+    """A required/local field defined on a queue (``GET /queues/{id}/fields`` item).
+
+    Example:
+        >>> QueueField.model_validate({"id": "myfield", "name": "My field"}).name
+        'My field'
+    """
+
+    self_url: str | None = Field(
+        default=None,
+        alias="self",
+        description="API resource URL that returns full information about the field.",
+    )
+    id: str | None = Field(default=None, description="Identifier of the field.")
+    name: str | None = Field(default=None, description="Human-readable name of the field.")
+    version: int | None = Field(
+        default=None, description="Field version; incremented on every change to the field."
+    )
+    field_schema: Any = Field(
+        default=None,
+        alias="schema",
+        description="Content-type descriptor: {type: float|string, required: bool}.",
+    )
+    readonly: bool | None = Field(
+        default=None, description="Whether the field is read-only (true) or editable (false)."
+    )
+    options: bool | None = Field(
+        default=None, description="Whether the field offers a fixed set of fill-in options."
+    )
+    suggest: bool | None = Field(
+        default=None, description="Whether suggestions are shown while filling the field in."
+    )
+    options_provider: Any = Field(
+        default=None,
+        alias="optionsProvider",
+        description="Descriptor of the set of allowed values for the field.",
+    )
+    query_provider: Any = Field(
+        default=None,
+        alias="queryProvider",
+        description="Descriptor of the field's type for query-language requests.",
+    )
+    order: int | None = Field(
+        default=None,
+        description="Display weight in the UI; lower-weight fields render above higher ones.",
+    )
+
+
+class QueueFieldList(RootModel[list[QueueField]]):
+    """A bare JSON array of queue required fields (``GET /queues/{id}/fields``).
+
+    Example:
+        >>> QueueFieldList.model_validate([{"id": "myfield"}]).root[0].id
+        'myfield'
+    """
+
+
+class IssueTypeConfigInput(APIModel):
+    """One ``issueTypesConfig`` row in a create-queue body — binds a type to its workflow.
+
+    Example:
+        >>> IssueTypeConfigInput(issue_type="task", workflow="oicn").issue_type
+        'task'
+    """
+
+    issue_type: str = Field(
+        alias="issueType", description="Key of the issue type this row configures."
+    )
+    workflow: str = Field(description="Identifier of the workflow bound to the issue type.")
+    resolutions: list[str] | None = Field(
+        default=None,
+        description="Keys/identifiers of resolutions selectable when closing this type.",
+    )
+
+
+class QueueCreate(APIModel):
+    """Typed request body for ``queues.create`` (``POST /queues/``).
+
+    Example:
+        >>> QueueCreate(
+        ...     key="DESIGN",
+        ...     name="Design",
+        ...     lead="username",
+        ...     default_type="task",
+        ...     default_priority="normal",
+        ... ).key
+        'DESIGN'
+    """
+
+    key: str = Field(description="Key of the new queue (case-sensitive, e.g. DESIGN).")
+    name: str = Field(description="Human-readable name of the queue.")
+    lead: str = Field(description="Login or identifier of the queue owner (lead).")
+    default_type: str = Field(
+        serialization_alias="defaultType",
+        description="Key or id of the issue type assigned to new issues by default.",
+    )
+    default_priority: str = Field(
+        serialization_alias="defaultPriority",
+        description="Key or id of the priority assigned to new issues by default.",
+    )
+    issue_types_config: list[IssueTypeConfigInput] | None = Field(
+        default=None,
+        serialization_alias="issueTypesConfig",
+        description="Per-issue-type workflow/resolution configuration of the queue.",
+    )
+
+
+class QueueTagRemove(APIModel):
+    """Typed request body for ``queues.tag_remove`` (``POST /queues/{id}/tags/_remove``).
+
+    Example:
+        >>> QueueTagRemove(tag="obsolete").tag
+        'obsolete'
+    """
+
+    tag: str = Field(description="Name of the tag to remove from the queue.")
+
+
+class QueueVersionCreate(APIModel):
+    """Typed request body for ``queues.version_create`` (``POST /versions/``).
+
+    Example:
+        >>> QueueVersionCreate(queue="TEST", name="v0.1").name
+        'v0.1'
+    """
+
+    queue: str = Field(description="Key of the queue the version is created in.")
+    name: str = Field(description="Name of the new version.")
+    description: str | None = Field(
+        default=None, description="Free-text description of the version."
+    )
+    start_date: str | None = Field(
+        default=None,
+        serialization_alias="startDate",
+        description="Version start date (YYYY-MM-DD).",
+    )
+    due_date: str | None = Field(
+        default=None, serialization_alias="dueDate", description="Version due date (YYYY-MM-DD)."
+    )
+
+
+class QueuePermissionSubjects(APIModel):
+    """The add/remove form of a permission subject list (users, groups or roles).
+
+    Passing a bare array instead overwrites the subject list; this object form incrementally
+    adds and/or revokes specific subjects.
+
+    Example:
+        >>> QueuePermissionSubjects(add=["author"]).add
+        ['author']
+    """
+
+    add: list[str | int] | None = Field(
+        default=None, description="Subjects (logins/ids/role keys) to grant the permission to."
+    )
+    remove: list[str | int] | None = Field(
+        default=None, description="Subjects (logins/ids/role keys) to revoke the permission from."
+    )
+
+
+class QueuePermissionScope(APIModel):
+    """One permission category (create/write/read/grant) in a permissions PATCH body.
+
+    Each subject list is either a bare array (which overwrites) or a
+    :class:`QueuePermissionSubjects` add/remove object (which mutates incrementally).
+
+    Example:
+        >>> QueuePermissionScope(roles=["author"]).roles
+        ['author']
+    """
+
+    users: list[str | int] | QueuePermissionSubjects | None = Field(
+        default=None, description="Users the permission applies to (logins/ids or add/remove)."
+    )
+    groups: list[str | int] | QueuePermissionSubjects | None = Field(
+        default=None, description="Groups the permission applies to (ids or add/remove)."
+    )
+    roles: list[str] | QueuePermissionSubjects | None = Field(
+        default=None,
+        description="Roles the permission applies to (author/assignee/follower/access).",
+    )
+
+
+class QueuePermissionsUpdate(APIModel):
+    """Typed request body for ``queues.set_permissions`` (``PATCH /queues/{id}/permissions``).
+
+    Set at least one category. Each names the users/groups/roles the permission applies to.
+
+    Example:
+        >>> QueuePermissionsUpdate(create=QueuePermissionScope(roles=["author"])).create.roles
+        ['author']
+    """
+
+    create: QueuePermissionScope | None = Field(
+        default=None, description="Who may create issues in the queue."
+    )
+    write: QueuePermissionScope | None = Field(
+        default=None, description="Who may edit issues in the queue."
+    )
+    read: QueuePermissionScope | None = Field(
+        default=None, description="Who may read issues in the queue."
+    )
+    grant: QueuePermissionScope | None = Field(
+        default=None, description="Who may change the queue's settings."
+    )
+
+
+class QueuePermissions(APIModel):
+    """The permissions object returned by ``PATCH /queues/{id}/permissions``.
+
+    Example:
+        >>> QueuePermissions.model_validate({"version": 11}).version
+        11
+    """
+
+    self_url: str | None = Field(
+        default=None,
+        alias="self",
+        description="API resource URL of the queue's permissions object.",
+    )
+    version: int | None = Field(
+        default=None, description="Permissions version; incremented on every change."
+    )
+    create: Any = Field(default=None, description="Effective create-issue permissions.")
+    write: Any = Field(default=None, description="Effective edit-issue permissions.")
+    read: Any = Field(default=None, description="Effective read-issue permissions.")
+    grant: Any = Field(default=None, description="Effective change-settings permissions.")

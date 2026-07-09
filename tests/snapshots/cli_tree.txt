@@ -38,12 +38,23 @@ tracker attachments
 tracker attachments download
 tracker attachments list
 tracker attachments thumbnail
+tracker autoactions
+tracker autoactions create
+tracker autoactions get
+tracker autoactions log-detail
+tracker autoactions logs
 tracker boards
 tracker boards create
 tracker boards delete
 tracker boards edit
 tracker boards get
 tracker boards list
+tracker bulk
+tracker bulk get
+tracker bulk issues
+tracker bulk move
+tracker bulk transition
+tracker bulk update
 tracker changelog
 tracker changelog list
 tracker checklists
@@ -65,21 +76,77 @@ tracker comments edit
 tracker comments list
 tracker comments react
 tracker components
+tracker components create
+tracker components edit
 tracker components list
+tracker dashboards
+tracker dashboards add-widget
+tracker dashboards add-widget cycletime
+tracker dashboards create
+tracker entities
+tracker entities attachments
+tracker entities attachments attach
+tracker entities attachments delete
+tracker entities attachments download
+tracker entities attachments get
+tracker entities attachments list
+tracker entities bulk
+tracker entities bulk-status
+tracker entities checklists
+tracker entities checklists create
+tracker entities checklists delete
+tracker entities checklists delete-item
+tracker entities checklists edit
+tracker entities checklists edit-item
+tracker entities checklists move
+tracker entities comments
+tracker entities comments create
+tracker entities comments delete
+tracker entities comments edit
+tracker entities comments get
+tracker entities comments list
+tracker entities create
+tracker entities delete
+tracker entities edit
+tracker entities get
+tracker entities history
+tracker entities links
+tracker entities links create
+tracker entities links delete
+tracker entities links list
+tracker entities permissions
+tracker entities search
+tracker entities set-permissions
 tracker fields
+tracker fields category-create
+tracker fields category-edit
+tracker fields create
+tracker fields edit
 tracker fields get
 tracker fields list
 tracker filters
+tracker filters create
+tracker filters edit
 tracker filters get
+tracker import
+tracker import comment
+tracker import file
+tracker import link
+tracker import task
+tracker import worklog
 tracker issues
 tracker issues count
 tracker issues create
 tracker issues get
 tracker issues list
 tracker issues move
+tracker issues scroll-clear
 tracker issues search
+tracker issues suggest
 tracker issues update
 tracker issuetypes
+tracker issuetypes create
+tracker issuetypes edit
 tracker issuetypes list
 tracker links
 tracker links add
@@ -88,16 +155,41 @@ tracker links list
 tracker linktypes
 tracker linktypes list
 tracker localfields
+tracker localfields create
+tracker localfields edit
 tracker localfields get
 tracker localfields list
+tracker macros
+tracker macros create
+tracker macros delete
+tracker macros edit
+tracker macros get
+tracker macros list
 tracker me
 tracker me get
 tracker priorities
+tracker priorities create
+tracker priorities edit
 tracker priorities list
 tracker queues
+tracker queues create
+tracker queues delete
+tracker queues fields
 tracker queues get
 tracker queues list
+tracker queues permissions
+tracker queues restore
+tracker queues tag-remove
+tracker queues tags
+tracker queues version-create
+tracker queues versions
+tracker remotelinks
+tracker remotelinks create
+tracker remotelinks delete
+tracker remotelinks list
 tracker resolutions
+tracker resolutions create
+tracker resolutions edit
 tracker resolutions list
 tracker sprints
 tracker sprints archive
@@ -108,10 +200,17 @@ tracker sprints get
 tracker sprints list
 tracker sprints start
 tracker statuses
+tracker statuses create
+tracker statuses edit
 tracker statuses list
 tracker transitions
 tracker transitions execute
 tracker transitions list
+tracker triggers
+tracker triggers create
+tracker triggers edit
+tracker triggers get
+tracker triggers webhook-log
 tracker users
 tracker users get
 tracker users list
@@ -119,7 +218,9 @@ tracker worklog
 tracker worklog add
 tracker worklog delete
 tracker worklog edit
+tracker worklog global-list
 tracker worklog list
+tracker worklog search
 wiki
 wiki attachments
 wiki attachments delete

@@ -9,7 +9,13 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
-from ycli.yandex.tracker.queues.models import Queue, QueueList
+from ycli.yandex.tracker.queues.models import (
+    Queue,
+    QueueFieldList,
+    QueueList,
+    QueueTagList,
+    QueueVersionInfoList,
+)
 
 mcp = FastMCP("tracker-queues")
 
@@ -66,3 +72,67 @@ def get(
             f"queue {queue_id!r} not found (got empty response — check key/id or permissions)"
         )
     return result
+
+
+@mcp.tool(
+    name="queues_tags_list", annotations={**RO, "title": "List Tracker queue tags"}, tags=TAGS
+)
+def tags_list(
+    queue_id: Annotated[
+        str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueTagList:
+    """Every tag name that has been added to the queue, as a flat string array.
+
+    These are the tags selectable on the queue's issues (the ``tags`` field). Removing a tag is
+    a write, so it lives on the CLI/SDK (``queues tag-remove``), not here.
+
+    Example:
+        >>> queues_tags_list("TEST")  # doctest: +SKIP
+    """
+    return client.queues.tags(queue_id)
+
+
+@mcp.tool(
+    name="queues_versions_list",
+    annotations={**RO, "title": "List Tracker queue versions"},
+    tags=TAGS,
+)
+def versions_list(
+    queue_id: Annotated[
+        str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueVersionInfoList:
+    """The queue's versions — release milestones issues can be assigned to.
+
+    Each item carries the version's name, date range and released/archived flags. Creating a
+    version is a write (``queues version-create`` on the CLI/SDK).
+
+    Example:
+        >>> queues_versions_list("TEST")  # doctest: +SKIP
+    """
+    return client.queues.versions(queue_id)
+
+
+@mcp.tool(
+    name="queues_fields_list",
+    annotations={**RO, "title": "List Tracker queue required fields"},
+    tags=TAGS,
+)
+def fields_list(
+    queue_id: Annotated[
+        str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueFieldList:
+    """The queue's required/local fields with their schema, options and display order.
+
+    Use this to learn which fields an issue in the queue expects (and whether each is required)
+    before creating or updating issues there.
+
+    Example:
+        >>> queues_fields_list("TEST")  # doctest: +SKIP
+    """
+    return client.queues.fields(queue_id)

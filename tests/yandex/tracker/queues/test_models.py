@@ -2,10 +2,22 @@
 
 from ycli.yandex.tracker.queues.models import (
     IssueTypeConfig,
+    IssueTypeConfigInput,
     Queue,
+    QueueCreate,
+    QueueField,
+    QueueFieldList,
     QueueList,
+    QueuePermissionScope,
+    QueuePermissionSubjects,
+    QueuePermissionsUpdate,
+    QueueTagList,
+    QueueTagRemove,
     QueueUser,
     QueueVersion,
+    QueueVersionCreate,
+    QueueVersionInfo,
+    QueueVersionInfoList,
 )
 
 
@@ -77,3 +89,67 @@ def test_queue_list_root_model():
     ql = QueueList.model_validate([{"key": "TEST"}, {"key": "DEMO"}])
     assert [q.key for q in ql.root] == ["TEST", "DEMO"]
     assert QueueList([Queue.model_validate({"key": "X"})]).root[0].key == "X"
+
+
+def test_tag_list_root_model():
+    tags = QueueTagList.model_validate(["a", "b"])
+    assert tags.root == ["a", "b"]
+
+
+def test_version_info_parses_full_payload():
+    v = QueueVersionInfo.model_validate(
+        {
+            "self": "https://api.tracker.yandex.net/v3/versions/1",
+            "id": 1,
+            "version": 1,
+            "queue": {"key": "TEST", "display": "Test"},
+            "name": "v0.1",
+            "description": "first",
+            "startDate": "2023-10-03",
+            "dueDate": "2024-06-03",
+            "released": False,
+            "archived": False,
+        }
+    )
+    assert v.name == "v0.1" and v.start_date == "2023-10-03" and v.due_date == "2024-06-03"
+    assert v.queue.key == "TEST" and v.released is False  # ty: ignore[unresolved-attribute]
+    assert QueueVersionInfoList.model_validate([{"id": 1}]).root[0].id == 1
+
+
+def test_queue_field_aliases_schema():
+    f = QueueField.model_validate(
+        {"id": "myfield", "name": "My field", "schema": {"type": "string"}, "order": 5}
+    )
+    assert f.field_schema == {"type": "string"} and f.order == 5
+    assert QueueFieldList.model_validate([{"id": "x"}]).root[0].id == "x"
+
+
+def test_queue_create_serializes_aliases():
+    body = QueueCreate(
+        key="DESIGN",
+        name="Design",
+        lead="u",
+        default_type="task",
+        default_priority="normal",
+        issue_types_config=[IssueTypeConfigInput(issue_type="task", workflow="oicn")],  # ty: ignore[missing-argument, unknown-argument]
+    ).model_dump(by_alias=True, exclude_none=True)
+    assert body["defaultType"] == "task" and body["defaultPriority"] == "normal"
+    assert body["issueTypesConfig"] == [{"issueType": "task", "workflow": "oicn"}]
+
+
+def test_tag_remove_and_version_create_bodies():
+    assert QueueTagRemove(tag="x").model_dump(by_alias=True, exclude_none=True) == {"tag": "x"}
+    vc = QueueVersionCreate(queue="TEST", name="v1", start_date="2023-10-03").model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert vc == {"queue": "TEST", "name": "v1", "startDate": "2023-10-03"}
+
+
+def test_permissions_update_accepts_array_and_add_remove():
+    subjects = QueuePermissionSubjects(add=["author"], remove=[12345])
+    body = QueuePermissionsUpdate(
+        create=QueuePermissionScope(users=["user1"]),
+        grant=QueuePermissionScope(users=subjects),
+    ).model_dump(by_alias=True, exclude_none=True)
+    assert body["create"] == {"users": ["user1"]}
+    assert body["grant"] == {"users": {"add": ["author"], "remove": [12345]}}

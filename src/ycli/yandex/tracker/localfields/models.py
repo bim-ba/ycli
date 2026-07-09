@@ -165,3 +165,98 @@ class LocalFieldList(RootModel[list[LocalField]]):
         >>> LocalFieldList.model_validate([{"key": "loc_field_key"}]).root[0].key
         'loc_field_key'
     """
+
+
+class LocalizedName(APIModel):
+    """A localized display name (the ``name`` object) — Russian and/or English text.
+
+    Example:
+        >>> LocalizedName(ru="Поле", en="Field").model_dump(exclude_none=True)
+        {'ru': 'Поле', 'en': 'Field'}
+    """
+
+    ru: str | None = Field(default=None, description="Name in Russian.")
+    en: str | None = Field(default=None, description="Name in English.")
+
+
+class OptionsProviderInput(APIModel):
+    """Typed ``optionsProvider`` block for a local-field create/edit body (a fixed drop-down).
+
+    Example:
+        >>> OptionsProviderInput(type="FixedListOptionsProvider", values=["a"]).model_dump()
+        {'type': 'FixedListOptionsProvider', 'values': ['a']}
+    """
+
+    type: str = Field(
+        description="Drop-down provider type, e.g. FixedListOptionsProvider or "
+        "FixedUserListOptionsProvider."
+    )
+    values: list[str] = Field(description="Allowed values offered by the drop-down.")
+
+
+class LocalFieldCreate(APIModel):
+    """Typed request body for ``POST /queues/{id}/localFields`` (create a local field).
+
+    Example:
+        >>> LocalFieldCreate(
+        ...     name=LocalizedName(ru="Поле"), id="loc", category="1", type="StringFieldType"
+        ... ).model_dump(by_alias=True, exclude_none=True)
+        {'name': {'ru': 'Поле'}, 'id': 'loc', 'category': '1', 'type': 'StringFieldType'}
+    """
+
+    name: LocalizedName = Field(description="Localized display name of the new local field.")
+    id: str = Field(description="Identifier (key) of the new local field.")
+    category: str = Field(
+        description="Identifier of the field's category (from GET /fields/categories)."
+    )
+    type: str = Field(
+        description="Field type, e.g. ru.yandex.startrek.core.fields.StringFieldType."
+    )
+    options_provider: OptionsProviderInput | None = Field(
+        default=None,
+        serialization_alias="optionsProvider",
+        description="Fixed drop-down values, when the field is a limited-choice list.",
+    )
+    order: int | None = Field(
+        default=None, description="Position of the field in the organisation's list of fields."
+    )
+    description: str | None = Field(default=None, description="Description of the local field.")
+    readonly: bool | None = Field(
+        default=None, description="Whether the value is read-only (true) or editable (false)."
+    )
+
+
+class LocalFieldUpdate(APIModel):
+    """Typed request body for ``PATCH /queues/{id}/localFields/{key}`` (edit a local field).
+
+    This endpoint has no ``?version=`` optimistic lock; only the fields that are set are sent.
+
+    Example:
+        >>> LocalFieldUpdate(order=102).model_dump(by_alias=True, exclude_none=True)
+        {'order': 102}
+    """
+
+    name: LocalizedName | None = Field(
+        default=None, description="New localized display name of the local field."
+    )
+    category: str | None = Field(
+        default=None, description="New category identifier (from GET /fields/categories)."
+    )
+    options_provider: OptionsProviderInput | None = Field(
+        default=None,
+        serialization_alias="optionsProvider",
+        description="Replacement fixed drop-down values for the field.",
+    )
+    order: int | None = Field(
+        default=None, description="New position of the field in the organisation's field list."
+    )
+    description: str | None = Field(default=None, description="New description of the local field.")
+    readonly: bool | None = Field(
+        default=None, description="Whether the value is read-only (true) or editable (false)."
+    )
+    visible: bool | None = Field(
+        default=None, description="Whether the field is always shown in the interface."
+    )
+    hidden: bool | None = Field(
+        default=None, description="Whether the field is fully hidden even when filled in."
+    )

@@ -1,6 +1,6 @@
-"""Model parsing for Tracker saved filters."""
+"""Model parsing for Tracker saved filters (+ write-body models)."""
 
-from ycli.yandex.tracker.filters.models import Filter
+from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
 
 
 def test_filter_parses_fields_permissions_and_owner():
@@ -25,3 +25,21 @@ def test_filter_parses_fields_permissions_and_owner():
     assert flt.permissions.read.groups[0].display == "Everyone"  # ty: ignore[unresolved-attribute]
     assert flt.permissions.write.users[0].display == "Ivan"  # ty: ignore[unresolved-attribute]
     assert flt.owner.passport_uid == 1  # ty: ignore[unresolved-attribute]
+
+
+def test_filter_create_body_serializes_filter_object():
+    body = FilterCreate(name="My open", filter={"status": "open"}).model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert body == {"name": "My open", "filter": {"status": "open"}}
+
+
+def test_filter_update_omits_unset_fields():
+    body = FilterUpdate(query="Status: open").model_dump(by_alias=True, exclude_none=True)
+    assert body == {"query": "Status: open"}
+
+
+def test_every_write_body_field_has_description():
+    for model in (FilterCreate, FilterUpdate):
+        for name, field in model.model_fields.items():
+            assert field.description, f"{model.__name__}.{name} is missing Field(description=…)"

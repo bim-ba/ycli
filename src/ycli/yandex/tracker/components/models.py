@@ -92,3 +92,44 @@ class ComponentList(RootModel[list[Component]]):
         >>> ComponentList.model_validate([{"name": "Test"}]).root[0].name
         'Test'
     """
+
+
+class ComponentCreate(APIModel):
+    """Typed request body for ``POST /components`` (create a component).
+
+    Example:
+        >>> ComponentCreate(name="UI", queue="TEST").model_dump(by_alias=True, exclude_none=True)
+        {'name': 'UI', 'queue': 'TEST'}
+    """
+
+    name: str = Field(description="Display name of the new component.")
+    queue: str = Field(description="Key of the queue the component is created in.")
+    description: str | None = Field(default=None, description="Text description of the component.")
+    lead: str | None = Field(default=None, description="Login of the component's owner (lead).")
+    assign_auto: bool | None = Field(
+        default=None,
+        serialization_alias="assignAuto",
+        description="Whether the owner is auto-assigned to new issues carrying this component.",
+    )
+
+
+class ComponentUpdate(APIModel):
+    """Typed request body for ``PATCH /components/{id}?version=`` (edit a component).
+
+    Only the fields that are set are sent, so omitted fields stay unchanged.
+
+    Example:
+        >>> ComponentUpdate(assign_auto=True).model_dump(by_alias=True, exclude_none=True)
+        {'assignAuto': True}
+    """
+
+    name: str | None = Field(default=None, description="New display name of the component.")
+    description: str | None = Field(
+        default=None, description="New text description of the component."
+    )
+    lead: str | None = Field(default=None, description="New login of the component's owner (lead).")
+    assign_auto: bool | None = Field(
+        default=None,
+        serialization_alias="assignAuto",
+        description="Whether the owner is auto-assigned to new issues carrying this component.",
+    )

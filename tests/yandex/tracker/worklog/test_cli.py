@@ -85,3 +85,57 @@ def test_delete():
     assert res.exit_code == 0
     assert "Deleted worklog 1 on DE-1" in res.stdout
     assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_search():
+    responses.add(
+        responses.POST, f"{BASE}/worklog/_search", json=[{"id": 1, "duration": "PT2H"}], status=200
+    )
+    res = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "worklog",
+            "search",
+            "--created-by",
+            "veikus",
+            "--from",
+            "2018-06-06",
+            "--to",
+            "2018-06-07",
+        ],
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)[0]["duration"] == "PT2H"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "createdBy": "veikus",
+        "createdAt": {"from": "2018-06-06", "to": "2018-06-07"},
+    }
+
+
+@responses.activate
+def test_global_list():
+    responses.add(responses.GET, f"{BASE}/worklog", json=[{"id": 1, "duration": "P3W"}], status=200)
+    res = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "worklog",
+            "global-list",
+            "--created-by",
+            "veikus",
+            "--from",
+            "2018-06-06",
+            "--to",
+            "2018-06-07",
+        ],
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)[0]["duration"] == "P3W"
+    url = responses.calls[0].request.url
+    assert "createdBy=veikus" in url and "createdAt=from" in url  # ty: ignore[unsupported-operator]

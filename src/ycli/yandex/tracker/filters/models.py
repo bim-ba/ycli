@@ -145,3 +145,45 @@ class Filter(APIModel):
     owner: FilterUser | None = Field(
         default=None, description="Object with information about the filter's owner."
     )
+
+
+class FilterCreate(APIModel):
+    """Typed request body for ``POST /filters/`` (create a saved filter).
+
+    Pass either ``filter`` (a field→condition mapping) or ``query`` (a Tracker query string),
+    not both.
+
+    Example:
+        >>> FilterCreate(name="My open", filter={"status": "open"}).model_dump(
+        ...     by_alias=True, exclude_none=True
+        ... )
+        {'name': 'My open', 'filter': {'status': 'open'}}
+    """
+
+    name: str = Field(description="Display name of the new filter.")
+    filter: dict[str, Any] | None = Field(
+        default=None, description="Filtering conditions as a field→condition mapping."
+    )
+    query: str | None = Field(
+        default=None, description="Filtering conditions written in the Tracker query language."
+    )
+
+
+class FilterUpdate(APIModel):
+    """Typed request body for ``PATCH /filters/{id}`` (edit a saved filter).
+
+    Only the fields that are set are sent; note the API replaces ``filter`` wholesale rather
+    than merging it, so pass every condition you want to keep.
+
+    Example:
+        >>> FilterUpdate(name="Renamed").model_dump(by_alias=True, exclude_none=True)
+        {'name': 'Renamed'}
+    """
+
+    name: str | None = Field(default=None, description="New display name of the filter.")
+    filter: dict[str, Any] | None = Field(
+        default=None, description="Replacement filtering conditions (replaces the whole object)."
+    )
+    query: str | None = Field(
+        default=None, description="New filtering conditions in the Tracker query language."
+    )

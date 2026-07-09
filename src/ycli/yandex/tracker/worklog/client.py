@@ -26,6 +26,40 @@ class WorklogClient(TrackerResource):
 
     @uplink.returns.json()
     @uplink.json
+    @uplink.post("worklog/_search")
+    def search(self, body: uplink.Body) -> WorklogList:  # ty: ignore[empty-body]
+        """``POST /worklog/_search`` → org-wide worklog entries matching the body filter.
+
+        ``body`` is ``{"createdBy": …, "createdAt": {"from": …, "to": …}}`` (all optional).
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.worklog.search({"createdBy": "veikus"}).root[0].duration  # doctest: +SKIP
+            'PT2H'
+        """
+
+    @uplink.returns.json()
+    @uplink.get("worklog")
+    def global_list(
+        self,
+        created_by: uplink.Query("createdBy") = None,  # ty: ignore[invalid-type-form]
+        created_at: uplink.Query("createdAt") = None,  # ty: ignore[invalid-type-form]
+    ) -> WorklogList:  # ty: ignore[empty-body]
+        """``GET /worklog?createdBy=…&createdAt=from:…&createdAt=to:…`` → org-wide worklog.
+
+        ``created_at`` is a list of ``from:<ts>`` / ``to:<ts>`` strings (repeated ``createdAt``
+        query params). Distinct from :meth:`list`, which is scoped to a single issue.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.worklog.global_list(
+            ...     created_by="veikus", created_at=["from:2018-06-06", "to:2018-06-07"]
+            ... ).root[0].duration  # doctest: +SKIP
+            'PT2H'
+        """
+
+    @uplink.returns.json()
+    @uplink.json
     @uplink.post("issues/{key}/worklog")
     def create(self, key: uplink.Path, body: uplink.Body) -> Worklog:  # ty: ignore[empty-body]
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.

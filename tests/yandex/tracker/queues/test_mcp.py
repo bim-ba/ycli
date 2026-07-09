@@ -72,9 +72,48 @@ async def test_queues_get_not_found_is_clean_error(creds):
             await client.call_tool("queues_get", {"queue_id": "NOPE"})
 
 
+@responses.activate
+async def test_queues_tags_list_tool(creds):
+    responses.add(responses.GET, f"{BASE}/queues/TEST/tags", json=["tag1", "tag2"], status=200)
+    async with Client(queues_mcp.mcp) as client:
+        result = await client.call_tool("queues_tags_list", {"queue_id": "TEST"})
+    assert result.data == ["tag1", "tag2"]
+
+
+@responses.activate
+async def test_queues_versions_list_tool(creds):
+    responses.add(
+        responses.GET,
+        f"{BASE}/queues/TEST/versions",
+        json=[{"id": 1, "name": "v0.1"}],
+        status=200,
+    )
+    async with Client(queues_mcp.mcp) as client:
+        result = await client.call_tool("queues_versions_list", {"queue_id": "TEST"})
+    assert result.data[0].name == "v0.1"
+
+
+@responses.activate
+async def test_queues_fields_list_tool(creds):
+    responses.add(
+        responses.GET,
+        f"{BASE}/queues/TEST/fields",
+        json=[{"id": "myfield", "name": "My field"}],
+        status=200,
+    )
+    async with Client(queues_mcp.mcp) as client:
+        result = await client.call_tool("queues_fields_list", {"queue_id": "TEST"})
+    assert result.data[0].id == "myfield"
+
+
 async def test_queues_tools_registered_read_only():
     async with Client(queues_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert set(tools) == {"queues_list", "queues_get"}
-    assert tools["queues_list"].annotations.readOnlyHint is True
-    assert tools["queues_get"].annotations.readOnlyHint is True
+    assert set(tools) == {
+        "queues_list",
+        "queues_get",
+        "queues_tags_list",
+        "queues_versions_list",
+        "queues_fields_list",
+    }
+    assert all(t.annotations.readOnlyHint is True for t in tools.values())

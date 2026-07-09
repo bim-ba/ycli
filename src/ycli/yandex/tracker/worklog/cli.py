@@ -33,6 +33,53 @@ def list_(ctx: typer.Context, key: KeyArg) -> None:
 
 
 @app.command()
+def search(
+    ctx: typer.Context,
+    created_by: Annotated[str, typer.Option("--created-by", help="Author login or id.")] = "",
+    created_from: Annotated[
+        str, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
+    ] = "",
+    created_to: Annotated[str, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")] = "",
+) -> None:
+    """Search org-wide worklog by author and/or time range (POST /worklog/_search)."""
+    body: dict[str, object] = {}
+    if created_by:
+        body["createdBy"] = created_by
+    created_at = {k: v for k, v in (("from", created_from), ("to", created_to)) if v}
+    if created_at:
+        body["createdAt"] = created_at
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.tracker.worklog.search(body=body), app_ctx.strategy, app_ctx.console
+    )
+
+
+@app.command("global-list")
+def global_list(
+    ctx: typer.Context,
+    created_by: Annotated[str, typer.Option("--created-by", help="Author login or id.")] = "",
+    created_from: Annotated[
+        str, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
+    ] = "",
+    created_to: Annotated[str, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")] = "",
+) -> None:
+    """List org-wide worklog via GET /worklog (createdAt filters need --created-by)."""
+    created_at = [
+        f"{prefix}:{value}"
+        for prefix, value in (("from", created_from), ("to", created_to))
+        if value
+    ]
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.tracker.worklog.global_list(
+            created_by=created_by or None, created_at=created_at or None
+        ),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
+
+
+@app.command()
 def add(
     ctx: typer.Context,
     key: KeyArg,

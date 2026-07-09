@@ -1,6 +1,11 @@
-"""Model parsing for Tracker components."""
+"""Model parsing for Tracker components (+ write-body models)."""
 
-from ycli.yandex.tracker.components.models import Component, ComponentList
+from ycli.yandex.tracker.components.models import (
+    Component,
+    ComponentCreate,
+    ComponentList,
+    ComponentUpdate,
+)
 
 
 def test_component_parses_queue_and_lead():
@@ -25,3 +30,21 @@ def test_component_parses_queue_and_lead():
 def test_component_list_is_flat_array():
     components = ComponentList.model_validate([{"name": "A"}, {"name": "B"}])
     assert [c.name for c in components.root] == ["A", "B"]
+
+
+def test_component_create_serializes_assign_auto_by_alias():
+    body = ComponentCreate(name="UI", queue="TEST", lead="ivan", assign_auto=False).model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert body == {"name": "UI", "queue": "TEST", "lead": "ivan", "assignAuto": False}
+
+
+def test_component_update_omits_unset_fields():
+    body = ComponentUpdate(name="New").model_dump(by_alias=True, exclude_none=True)
+    assert body == {"name": "New"}
+
+
+def test_every_write_body_field_has_description():
+    for model in (ComponentCreate, ComponentUpdate):
+        for name, field in model.model_fields.items():
+            assert field.description, f"{model.__name__}.{name} is missing Field(description=…)"

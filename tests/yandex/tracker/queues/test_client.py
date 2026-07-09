@@ -1,10 +1,25 @@
 """TDD for QueuesClient — list drains page/perPage pages; get returns one Queue."""
 
+import json
+
 import requests
 import responses
 
 from ycli.yandex.tracker.queues.client import QueuesClient
-from ycli.yandex.tracker.queues.models import Queue, QueueList
+from ycli.yandex.tracker.queues.models import (
+    Queue,
+    QueueCreate,
+    QueueFieldList,
+    QueueList,
+    QueuePermissions,
+    QueuePermissionScope,
+    QueuePermissionsUpdate,
+    QueueTagList,
+    QueueTagRemove,
+    QueueVersionCreate,
+    QueueVersionInfo,
+    QueueVersionInfoList,
+)
 
 BASE = "https://api.tracker.yandex.net/v3"
 
@@ -88,3 +103,138 @@ def test_get_without_expand_sends_no_query():
     q = _client().get("TEST")
     assert q.key == "TEST"
     assert "expand" not in responses.calls[0].request.params  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_tags_returns_flat_string_list():
+    responses.add(responses.GET, f"{BASE}/queues/TEST/tags", json=["tag1", "tag2"], status=200)
+    out = _client().tags("TEST")
+    assert isinstance(out, QueueTagList)
+    assert out.root == ["tag1", "tag2"]
+
+
+@responses.activate
+def test_versions_returns_version_list():
+    responses.add(
+        responses.GET,
+        f"{BASE}/queues/TEST/versions",
+        json=[{"id": 1, "name": "v0.1", "released": False, "queue": {"key": "TEST"}}],
+        status=200,
+    )
+    out = _client().versions("TEST")
+    assert isinstance(out, QueueVersionInfoList)
+    assert out.root[0].name == "v0.1" and out.root[0].queue.key == "TEST"
+
+
+@responses.activate
+def test_fields_returns_field_list():
+    responses.add(
+        responses.GET,
+        f"{BASE}/queues/TEST/fields",
+        json=[{"id": "myfield", "name": "My field", "schema": {"type": "string"}, "order": 222}],
+        status=200,
+    )
+    out = _client().fields("TEST")
+    assert isinstance(out, QueueFieldList)
+    assert out.root[0].id == "myfield" and out.root[0].field_schema == {"type": "string"}
+
+
+@responses.activate
+def test_create_posts_typed_body():
+    responses.add(
+        responses.POST, f"{BASE}/queues/", json={"id": "111", "key": "DESIGN"}, status=201
+    )
+    q = _client().create(
+        QueueCreate(
+            key="DESIGN",
+            name="Design",
+            lead="username",
+            default_type="task",
+            default_priority="normal",
+        )
+    )
+    assert isinstance(q, Queue) and q.key == "DESIGN"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "key": "DESIGN",
+        "name": "Design",
+        "lead": "username",
+        "defaultType": "task",
+        "defaultPriority": "normal",
+    }
+
+
+@responses.activate
+def test_create_includes_issue_types_config():
+    responses.add(responses.POST, f"{BASE}/queues/", json={"key": "DESIGN"}, status=201)
+    _client().create(
+        QueueCreate(
+            key="DESIGN",
+            name="Design",
+            lead="u",
+            default_type="task",
+            default_priority="normal",
+            issue_types_config=[  # ty: ignore[invalid-argument-type]
+                {"issueType": "task", "workflow": "oicn", "resolutions": ["wontFix"]}
+            ],
+        )
+    )
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent["issueTypesConfig"] == [
+        {"issueType": "task", "workflow": "oicn", "resolutions": ["wontFix"]}
+    ]
+
+
+@responses.activate
+def test_delete_issues_delete_and_returns_response():
+    responses.add(responses.DELETE, f"{BASE}/queues/TEST", status=204)
+    resp = _client().delete("TEST")
+    assert resp.status_code == 204
+    assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_restore_returns_queue():
+    responses.add(
+        responses.POST, f"{BASE}/queues/TEST/_restore", json={"id": "3", "key": "TEST"}, status=200
+    )
+    q = _client().restore("TEST")
+    assert isinstance(q, Queue) and q.key == "TEST"
+    assert responses.calls[0].request.method == "POST"
+
+
+@responses.activate
+def test_set_permissions_patches_typed_body():
+    responses.add(
+        responses.PATCH,
+        f"{BASE}/queues/TEST/permissions",
+        json={"self": "x", "version": 11},
+        status=200,
+    )
+    perms = _client().set_permissions(
+        "TEST", QueuePermissionsUpdate(create=QueuePermissionScope(roles=["author"]))
+    )
+    assert isinstance(perms, QueuePermissions) and perms.version == 11
+    assert responses.calls[0].request.method == "PATCH"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "create": {"roles": ["author"]}
+    }
+
+
+@responses.activate
+def test_tag_remove_posts_tag_body():
+    responses.add(responses.POST, f"{BASE}/queues/TEST/tags/_remove", status=204)
+    resp = _client().tag_remove("TEST", QueueTagRemove(tag="obsolete"))
+    assert resp.status_code == 204
+    assert json.loads(responses.calls[0].request.body) == {"tag": "obsolete"}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_version_create_posts_body_to_versions():
+    responses.add(responses.POST, f"{BASE}/versions/", json={"id": 1, "name": "v0.1"}, status=200)
+    version = _client().version_create(QueueVersionCreate(queue="TEST", name="v0.1"))
+    assert isinstance(version, QueueVersionInfo) and version.name == "v0.1"
+    assert responses.calls[0].request.url == f"{BASE}/versions/"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "queue": "TEST",
+        "name": "v0.1",
+    }

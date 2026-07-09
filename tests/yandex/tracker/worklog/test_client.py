@@ -63,3 +63,30 @@ def test_delete_returns_none():
     responses.add(responses.DELETE, f"{BASE}/issues/DE-1/worklog/1", status=204)
     assert _client().delete("DE-1", "1") is None
     assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_search_posts_body():
+    responses.add(
+        responses.POST,
+        f"{BASE}/worklog/_search",
+        json=[{"id": 1, "duration": "PT2H"}],
+        status=200,
+    )
+    out = _client().search(body={"createdBy": "veikus"})
+    assert isinstance(out, WorklogList)
+    assert out.root[0].duration == "PT2H"
+    assert json.loads(responses.calls[0].request.body) == {"createdBy": "veikus"}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_global_list_passes_repeated_created_at_query():
+    responses.add(responses.GET, f"{BASE}/worklog", json=[{"id": 1, "duration": "P3W"}], status=200)
+    out = _client().global_list(
+        created_by="veikus", created_at=["from:2018-06-06", "to:2018-06-07"]
+    )
+    assert isinstance(out, WorklogList)
+    assert out.root[0].duration == "P3W"
+    url = responses.calls[0].request.url
+    assert "createdBy=veikus" in url  # ty: ignore[unsupported-operator]
+    assert "createdAt=from" in url and "createdAt=to" in url  # ty: ignore[unsupported-operator]

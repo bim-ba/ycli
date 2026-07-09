@@ -1,10 +1,14 @@
-"""TDD for the localfields models — the schema alias, nested blocks, and LocalFieldList."""
+"""TDD for the localfields models — the schema alias, nested blocks, and write bodies."""
 
 from ycli.yandex.tracker.localfields.models import (
     LocalField,
+    LocalFieldCreate,
     LocalFieldList,
     LocalFieldSchema,
+    LocalFieldUpdate,
+    LocalizedName,
     OptionsProvider,
+    OptionsProviderInput,
 )
 
 
@@ -76,3 +80,31 @@ def test_options_provider_standalone():
 def test_local_field_list_root_model():
     lst = LocalFieldList.model_validate([{"key": "a"}, {"key": "b"}])
     assert [f.key for f in lst.root] == ["a", "b"]
+
+
+def test_local_field_create_serializes_options_provider_by_alias():
+    body = LocalFieldCreate(
+        name=LocalizedName(ru="Поле"),
+        id="loc",
+        category="1",
+        type="StringFieldType",
+        options_provider=OptionsProviderInput(type="FixedListOptionsProvider", values=["a", "b"]),
+    ).model_dump(by_alias=True, exclude_none=True)
+    assert body == {
+        "name": {"ru": "Поле"},
+        "id": "loc",
+        "category": "1",
+        "type": "StringFieldType",
+        "optionsProvider": {"type": "FixedListOptionsProvider", "values": ["a", "b"]},
+    }
+
+
+def test_local_field_update_omits_unset_fields():
+    body = LocalFieldUpdate(order=102, hidden=True).model_dump(by_alias=True, exclude_none=True)
+    assert body == {"order": 102, "hidden": True}
+
+
+def test_every_write_body_field_has_description():
+    for model in (LocalizedName, OptionsProviderInput, LocalFieldCreate, LocalFieldUpdate):
+        for name, field in model.model_fields.items():
+            assert field.description, f"{model.__name__}.{name} is missing Field(description=…)"
