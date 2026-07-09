@@ -38,3 +38,36 @@ def test_list_attachments_for_page_id():
     assert isinstance(out, AttachmentList)
     assert out.root[0].name == "f.pdf"
     assert responses.calls[0].request.params["page_size"] == "100"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_list_drains_next_cursor_across_pages():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"name": "a.png"}], "next_cursor": "c1"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"name": "b.png"}], "next_cursor": None},
+        status=200,
+    )
+    out = _client().list(page_id=42)
+    assert [a.name for a in out.root] == ["a.png", "b.png"]  # both pages drained
+    assert len(responses.calls) == 2
+    assert responses.calls[1].request.params["cursor"] == "c1"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_list_limit_truncates_without_second_fetch():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"name": "a.png"}, {"name": "b.png"}], "next_cursor": "c1"},
+        status=200,
+    )
+    out = _client().list(page_id=42, limit=1)
+    assert [a.name for a in out.root] == ["a.png"]  # capped before draining c1
+    assert len(responses.calls) == 1

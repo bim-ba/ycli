@@ -27,6 +27,41 @@ def test_list_returns_flat_collection():
     out = _client().list()
     assert isinstance(out, SurveyList)
     assert [s.id for s in out.root] == ["a", "b"]
+    assert responses.calls[0].request.params["offset"] == "0"  # ty: ignore[unresolved-attribute]
+    assert responses.calls[0].request.params["limit"] == "100"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_list_drains_offset_pages():
+    full_page = [
+        {"id": str(index)} for index in range(100)
+    ]  # exactly page_size → not the last page
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys",
+        json={"links": {"next": "x"}, "result": full_page},
+        status=200,
+    )
+    responses.add(
+        responses.GET, f"{BASE}/surveys", json={"links": {}, "result": [{"id": "tail"}]}, status=200
+    )
+    out = _client().list()
+    assert len(out.root) == 101 and out.root[-1].id == "tail"  # both pages drained
+    assert len(responses.calls) == 2
+    assert responses.calls[1].request.params["offset"] == "100"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_list_respects_limit_without_extra_fetch():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys",
+        json={"links": {}, "result": [{"id": "a"}, {"id": "b"}, {"id": "c"}]},
+        status=200,
+    )
+    out = _client().list(limit=2)
+    assert [s.id for s in out.root] == ["a", "b"]  # truncated to the cap
+    assert len(responses.calls) == 1
 
 
 @responses.activate

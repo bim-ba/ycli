@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 import typer
 
 from ycli.cli.context import AppContext
@@ -14,10 +16,15 @@ app = typer.Typer(name="surveys", help="Forms surveys.", no_args_is_help=True)
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
-    """List all forms (the {links, result} envelope)."""
+def list_(
+    ctx: typer.Context,
+    limit: Annotated[int, typer.Option(help="Max forms (auto-paginates).")] = 0,
+    all_: Annotated[bool, typer.Option("--all", help="Fetch every form (no cap).")] = False,
+) -> None:
+    """List all forms (auto-paginated over offset pages; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.surveys.list(), app_ctx.strategy, app_ctx.console)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
+    Serializer.serialize(app_ctx.forms.surveys.list(limit=cap), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()

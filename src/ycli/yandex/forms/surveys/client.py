@@ -7,31 +7,40 @@ import uplink
 
 from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.forms.surveys.models import Survey, SurveyList, SurveysResponse
-from ycli.yandex.pagination import SinglePageStrategy
+from ycli.yandex.pagination import OffsetStrategy
+
+_PAGE_SIZE = 100
 
 
 class SurveysClient(FormsResource):
-    """Declarative HTTP for ``/surveys`` (list envelope + single get)."""
+    """Declarative HTTP for ``/surveys`` (offset-paged list envelope + single get)."""
 
     @uplink.returns.json()
     @uplink.get("surveys")
-    def _list_page(self) -> SurveysResponse:  # ty: ignore[empty-body]
-        """``GET /surveys`` → raw ``SurveysResponse`` envelope (internal)."""
+    def _list_page(
+        self,
+        offset: uplink.Query = 0,  # ty: ignore[invalid-parameter-default]
+        limit: uplink.Query = _PAGE_SIZE,  # ty: ignore[invalid-parameter-default]
+    ) -> SurveysResponse:  # ty: ignore[empty-body]
+        """One raw page of surveys at ``offset`` (page size ``limit``); internal — use ``list``."""
 
     def list(self, *, limit: int | None = None) -> SurveyList:
-        """``GET /surveys`` → flat :class:`SurveyList`.
+        """``GET /surveys`` → flat :class:`SurveyList`, draining offset pages internally.
+
+        Capped at ``limit`` (``None`` = every form). The API pages by ``offset``/``limit``; this
+        advances the offset until a short page comes back.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.surveys.list().root[0].name  # doctest: +SKIP
+            >>> client.surveys.list(limit=50).root[0].name  # doctest: +SKIP
             'Новая задача'
         """
-        return SinglePageStrategy.collect_wrapped(
-            lambda cursor: self._list_page(),
-            extract=lambda page: page.result,
-            wrap=SurveyList,
-            limit=limit,
+        strategy = OffsetStrategy(extract=lambda page: page.result, page_size=_PAGE_SIZE)
+        surveys = strategy.collect(
+            lambda offset: self._list_page(offset=offset, limit=_PAGE_SIZE),
+            limit,
         )
+        return SurveyList(surveys)
 
     @uplink.returns.json()
     @uplink.get("surveys/{survey_id}")

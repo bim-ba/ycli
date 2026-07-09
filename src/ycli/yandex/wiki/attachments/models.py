@@ -21,9 +21,11 @@ class Attachment(APIModel):
 
 
 class AttachmentsResponse(APIModel):
-    """Envelope for ``GET /pages/{id}/attachments`` — ``{results:[Attachment]}``.
+    """Envelope for ``GET /pages/{id}/attachments`` — ``{results, next_cursor}``.
 
-    Internal per-page parse type used by ``AttachmentsClient._list_page``.
+    Internal per-page parse type used by ``AttachmentsClient._list_page``. ``next_cursor`` is
+    ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
+    feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 
     Example:
         >>> AttachmentsResponse.model_validate({"results": [{"name": "d.png"}]}).results[0].name
@@ -31,6 +33,10 @@ class AttachmentsResponse(APIModel):
     """
 
     results: list[Attachment] = Field(default_factory=list)
+    next_cursor: str | None = Field(
+        default=None,
+        description="Cursor for the next page; ``null`` when the listing is exhausted.",
+    )
 
 
 class AttachmentList(RootModel[list[Attachment]]):

@@ -16,9 +16,12 @@ app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=T
 def list_(
     ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    limit: Annotated[int, typer.Option(help="Max comments (auto-paginates).")] = 0,
+    all_: Annotated[bool, typer.Option("--all", help="Fetch every comment (no cap).")] = False,
 ) -> None:
-    """List comments on a page id (GET /pages/{id}/comments)."""
+    """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
     app_ctx = AppContext.from_typer_context(ctx)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
     Serializer.serialize(
-        app_ctx.wiki.comments.list(page_id=page_id), app_ctx.strategy, app_ctx.console
+        app_ctx.wiki.comments.list(page_id=page_id, limit=cap), app_ctx.strategy, app_ctx.console
     )
