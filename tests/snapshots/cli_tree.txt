@@ -14,8 +14,12 @@ forms keysets modify
 forms me
 forms me get
 forms questions
+forms questions create
+forms questions delete
 forms questions get
 forms questions list
+forms questions modify
+forms questions move
 forms surveys
 forms surveys create
 forms surveys delete
