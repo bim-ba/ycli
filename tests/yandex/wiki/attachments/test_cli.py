@@ -26,3 +26,43 @@ def test_attachments_list():
     )
     result = runner.invoke(cli.app, ["wiki", "attachments", "list", "42"])
     assert result.exit_code == 0 and "f.pdf" in result.stdout
+
+
+@responses.activate
+def test_attachments_download_writes_bytes_to_output(tmp_path):
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments/7/download",
+        body=b"\x00\x01BLOB",
+        status=200,
+    )
+    target = tmp_path / "out.bin"
+    result = runner.invoke(
+        cli.app, ["wiki", "attachments", "download", "42", "7", "--output", str(target)]
+    )
+    assert result.exit_code == 0
+    assert target.read_bytes() == b"\x00\x01BLOB"
+
+
+@responses.activate
+def test_attachments_download_by_url_writes_bytes_to_output(tmp_path):
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/attachments/download_by_url",
+        body=b"%PDF blob",
+        status=200,
+    )
+    target = tmp_path / "report.pdf"
+    result = runner.invoke(
+        cli.app,
+        [
+            "wiki",
+            "attachments",
+            "download-by-url",
+            "data/x/.files/report.pdf",
+            "--output",
+            str(target),
+        ],
+    )
+    assert result.exit_code == 0
+    assert target.read_bytes() == b"%PDF blob"

@@ -7,13 +7,29 @@ from urllib.parse import urljoin
 
 import uplink
 
-from ycli.yandex.forms.answers.models import AnswersResponse
+from ycli.yandex.forms.answers.models import AnswerDetail, AnswersResponse
 from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.pagination import NextUrlStrategy
 
 
 class AnswersClient(FormsResource):
     """Declarative HTTP for ``/surveys/{id}/answers``."""
+
+    @uplink.returns.json()
+    @uplink.get("surveys/{survey_id}/answers/{answer_id}")
+    def get(self, survey_id: uplink.Path, answer_id: uplink.Path) -> AnswerDetail:  # ty: ignore[empty-body]
+        """``GET /surveys/{id}/answers/{answer_id}`` → a single rich :class:`AnswerDetail`.
+
+        Where :meth:`list` returns a flat positional table across all responses, this returns
+        one response keyed by ``answer_id`` with per-question detail (label, type, value, scores).
+
+        Example:
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.answers.get(survey_id="686d0a1b", answer_id=99).data[
+            ...     0
+            ... ].label  # doctest: +SKIP
+            'Your name'
+        """
 
     @uplink.returns.json()
     @uplink.get("surveys/{survey_id}/answers")

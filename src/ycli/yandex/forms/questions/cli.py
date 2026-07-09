@@ -7,6 +7,7 @@ import typer
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.yandex.forms.typedefs import (
+    QuestionIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
 
@@ -23,3 +24,12 @@ def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
     """List a form's questions (the {pages} envelope)."""
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(app_ctx.forms.questions.list(survey_id), app_ctx.strategy, app_ctx.console)
+
+
+@app.command()
+def get(ctx: typer.Context, survey_id: SurveyIdArg, question_id: QuestionIdArg) -> None:
+    """Print one question's settings (SURVEY_ID / QUESTION_ID)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.forms.questions.get(survey_id, question_id), app_ctx.strategy, app_ctx.console
+    )

@@ -12,6 +12,7 @@ from ycli.yandex.wiki.attachments.client import AttachmentsClient
 from ycli.yandex.wiki.comments.client import CommentsClient
 from ycli.yandex.wiki.me.client import MeClient
 from ycli.yandex.wiki.pages.client import PagesClient
+from ycli.yandex.wiki.resources.client import ResourcesClient
 
 
 class WikiClient:
@@ -41,3 +42,4 @@ class WikiClient:
         self.pages = PagesClient(session=transport)
         self.comments = CommentsClient(session=transport)
         self.attachments = AttachmentsClient(session=transport)
+        self.resources = ResourcesClient(session=transport)

@@ -92,3 +92,54 @@ class PageRefList(RootModel[list[PageRef]]):
         >>> PageRefList([PageRef(id=1, slug="data/a")]).root[0].slug
         'data/a'
     """
+
+
+class GridRef(APIModel):
+    """A dynamic-table (grid) reference attached to a page (``/pages/{id}/grids`` item).
+
+    Grids are identified by a UUID string ``id`` (unlike pages, which use an integer id).
+
+    Example:
+        >>> GridRef.model_validate({"id": "abc-uuid", "title": "Roadmap"}).title
+        'Roadmap'
+    """
+
+    id: str = Field(description="The grid's permanent UUID4 identifier.")
+    title: str | None = Field(default=None, description="Human-readable grid title.")
+    created_at: str | None = Field(
+        default=None, description="ISO-8601 timestamp of when the grid was created."
+    )
+
+
+class GridsResponse(APIModel):
+    """Envelope for ``GET /pages/{id}/grids`` — ``{results, next_cursor}``.
+
+    Internal per-page parse type used by ``PagesClient._grids_page``. ``next_cursor`` is
+    ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
+    feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
+
+    Example:
+        >>> GridsResponse.model_validate({"results": [{"id": "g1", "title": "T"}]}).results[0].title
+        'T'
+    """
+
+    results: list[GridRef] = Field(
+        default_factory=list, description="Grid references on this page of the listing."
+    )
+    next_cursor: str | None = Field(
+        default=None,
+        description="Cursor for the next page; ``null`` when the listing is exhausted.",
+    )
+
+
+class GridRefList(RootModel[list[GridRef]]):
+    """A drained, flat list of grid refs (no cursor — pagination is internal).
+
+    Public return type of ``PagesClient.grids``.
+
+    Example:
+        >>> GridRefList([GridRef(id="g1", title="T")]).root[0].id
+        'g1'
+    """
+
+    root: list[GridRef] = Field(default_factory=list)

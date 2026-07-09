@@ -138,6 +138,55 @@ def test_pages_update_dumps_model_json():
     assert sent == {"content": "# U", "title": "New"}
 
 
+@responses.activate
+def test_pages_get_by_id_dumps_model_json():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/12345",
+        json={"id": 12345, "slug": "data/x", "title": "T", "content": "# B"},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app, ["--format", "json", "wiki", "pages", "get-by-id", "12345", "--fields", "content"]
+    )
+    assert result.exit_code == 0
+    out = json.loads(result.stdout)
+    assert out["id"] == 12345 and out["content"] == "# B"
+
+
+@responses.activate
+def test_pages_descendants_by_id_dumps_flat_list():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/12345/descendants",
+        json={"results": [{"id": 2, "slug": "data/x/child"}], "next_cursor": None},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app, ["--format", "json", "wiki", "pages", "descendants-by-id", "12345"]
+    )
+    assert result.exit_code == 0
+    out = json.loads(result.stdout)
+    assert out[0]["slug"] == "data/x/child"
+
+
+@responses.activate
+def test_pages_grids_dumps_flat_list():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/grids",
+        json={"results": [{"id": "g1", "title": "Roadmap"}], "next_cursor": None},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app, ["--format", "json", "wiki", "pages", "grids", "42", "--order-by", "title"]
+    )
+    assert result.exit_code == 0
+    out = json.loads(result.stdout)
+    assert out[0]["title"] == "Roadmap"
+    assert responses.calls[-1].request.params["order_by"] == "title"  # ty: ignore[unresolved-attribute]
+
+
 def test_pages_subcommand_help_needs_no_creds(monkeypatch):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)

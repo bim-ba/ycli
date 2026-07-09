@@ -34,6 +34,25 @@ def _two_page_callback(request):
 
 
 @responses.activate
+def test_get_dumps_answer_detail():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/99",
+        json={
+            "id": 99,
+            "created": "2026-01-01",
+            "survey": {"id": SID, "name": "F"},
+            "data": [{"id": "q1", "label": "Name", "type": "string", "value": "Ann"}],
+        },
+        status=200,
+    )
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "answers", "get", SID, "99"])
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert out["id"] == 99 and out["data"][0]["value"] == "Ann"
+
+
+@responses.activate
 def test_list_dumps_envelope():
     responses.add(
         responses.GET,

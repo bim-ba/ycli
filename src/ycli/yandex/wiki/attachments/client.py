@@ -4,6 +4,7 @@ NOTE: do NOT add ``from __future__ import annotations`` — uplink reads paramet
 annotations eagerly.
 """
 
+import requests
 import uplink
 
 from ycli.yandex.pagination import CursorStrategy
@@ -12,7 +13,7 @@ from ycli.yandex.wiki.base import WikiResource
 
 
 class AttachmentsClient(WikiResource):
-    """Declarative HTTP for ``/pages/{id}/attachments``."""
+    """Declarative HTTP for ``/pages/{id}/attachments`` (list + binary download)."""
 
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/attachments")
@@ -43,3 +44,43 @@ class AttachmentsClient(WikiResource):
             limit,
         )
         return AttachmentList(attachments)
+
+    @uplink.get("pages/{page_id}/attachments/{file_id}/download")
+    def _download(self, page_id: uplink.Path, file_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
+        """Raw binary response for a file by id (internal; callers use ``download``).
+
+        No ``@uplink.returns.json()`` — this is a byte stream, not JSON."""
+
+    def download(self, page_id: int, file_id: int) -> bytes:
+        """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.
+
+        Binary payload — SDK/CLI only (never MCP: base64 blobs are not an agent payload).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> Path("diagram.png").write_bytes(
+            ...     client.attachments.download(12345, 678)
+            ... )  # doctest: +SKIP
+        """
+        return self._download(page_id, file_id).content
+
+    @uplink.get("pages/attachments/download_by_url")
+    def _download_by_url(
+        self,
+        url: uplink.Query,
+        download: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+    ) -> requests.Response:  # ty: ignore[empty-body]
+        """Raw binary response for a file by page-slug URL (internal; use ``download_by_url``)."""
+
+    def download_by_url(self, url: str) -> bytes:
+        """``GET /pages/attachments/download_by_url?url=`` → the file's raw bytes.
+
+        Addresses a file by the ``<page-slug>/.files/<filename>`` URL instead of its numeric
+        id; follows page redirects server-side. Binary payload — SDK/CLI only.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.attachments.download_by_url("data/x/.files/diagram.png")  # doctest: +SKIP
+            b'\\x89PNG...'
+        """
+        return self._download_by_url(url=url, download="true").content

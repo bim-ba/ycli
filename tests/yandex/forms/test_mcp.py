@@ -1,4 +1,4 @@
-"""Forms FastMCP domain server — 5 reads-only tools, named <resource>_<action>."""
+"""Forms FastMCP domain server — reads-only tools, named <resource>_<action>."""
 
 import json
 from urllib.parse import parse_qs, urlparse
@@ -19,10 +19,18 @@ def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
-async def test_all_five_read_tools_registered():
+async def test_all_read_tools_registered():
     async with Client(forms_mcp.mcp) as client:
         names = {t.name for t in await client.list_tools()}
-    assert names == {"me_get", "surveys_list", "surveys_get", "questions_list", "answers_list"}
+    assert names == {
+        "me_get",
+        "surveys_list",
+        "surveys_get",
+        "questions_list",
+        "questions_get",
+        "answers_list",
+        "answers_get",
+    }
 
 
 @responses.activate

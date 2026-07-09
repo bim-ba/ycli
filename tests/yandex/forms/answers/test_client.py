@@ -7,7 +7,7 @@ import requests
 import responses
 
 from ycli.yandex.forms.answers.client import AnswersClient
-from ycli.yandex.forms.answers.models import AnswersResponse
+from ycli.yandex.forms.answers.models import AnswerDetail, AnswersResponse
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -17,6 +17,31 @@ def _client() -> AnswersClient:
     s = requests.Session()
     s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
     return AnswersClient(session=s)
+
+
+@responses.activate
+def test_get_returns_answer_detail():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/99",
+        json={
+            "id": 99,
+            "created": "2026-01-01",
+            "survey": {"id": SID, "name": "Feedback"},
+            "quiz": {"scores": 1.0, "total": 2.0, "questions": 1},
+            "data": [
+                {"id": "q1", "label": "Name", "type": "string", "value": "Ann", "scores": 0.5}
+            ],
+        },
+        status=200,
+    )
+    ad = _client().get(SID, "99")
+    assert isinstance(ad, AnswerDetail)
+    assert ad.id == 99 and ad.created == "2026-01-01"
+    assert ad.survey is not None and ad.survey.name == "Feedback"
+    assert ad.quiz is not None and ad.quiz.total == 2.0
+    assert ad.data[0].label == "Name" and ad.data[0].value == "Ann"
+    assert responses.calls[0].request.url == f"{BASE}/surveys/{SID}/answers/99"
 
 
 @responses.activate

@@ -20,6 +20,19 @@ def creds(monkeypatch):
 
 
 @responses.activate
+def test_get_dumps_single_question():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/questions/17",
+        json={"id": 17, "slug": "s1", "type": "string", "label": "Name"},
+        status=200,
+    )
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "questions", "get", SID, "17"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["id"] == 17
+
+
+@responses.activate
 def test_list_dumps_pages_envelope():
     responses.add(
         responses.GET,

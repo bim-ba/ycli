@@ -8,11 +8,36 @@ import uplink
 
 from ycli.yandex.pagination import CursorStrategy
 from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.pages.models import DescendantsResponse, PageDetails, PageRefList
+from ycli.yandex.wiki.pages.models import (
+    DescendantsResponse,
+    GridRefList,
+    GridsResponse,
+    PageDetails,
+    PageRefList,
+)
 
 
 class PagesClient(WikiResource):
-    """Declarative HTTP for ``/pages`` (get, descendants, create, update)."""
+    """Declarative HTTP for ``/pages`` (get, descendants, grids, create, update)."""
+
+    @uplink.returns.json()
+    @uplink.get("pages/{page_id}")
+    def get_by_id(
+        self,
+        page_id: uplink.Path,
+        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+    ) -> PageDetails:  # ty: ignore[empty-body]
+        """``GET /pages/{id}?fields=`` → a single page by numeric id (raises on non-2xx).
+
+        The slug-addressed sibling is :meth:`get`; use this when you hold the numeric id
+        (e.g. from a descendants listing). ``fields`` is the same comma-separated selector
+        (``content``, ``attributes``, ``breadcrumbs``, …); omit it for id/slug/title only.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.get_by_id(12345, fields="content").title  # doctest: +SKIP
+            'Архитектура данных'
+        """
 
     @uplink.returns.json()
     @uplink.get("pages")
@@ -70,6 +95,88 @@ class PagesClient(WikiResource):
             limit,
         )
         return PageRefList(refs)
+
+    @uplink.returns.json()
+    @uplink.get("pages/{page_id}/descendants")
+    def _descendants_by_id_page(
+        self,
+        page_id: uplink.Path,
+        page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
+        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+        actuality: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+    ) -> DescendantsResponse:  # ty: ignore[empty-body]
+        """One raw page of ``{id, slug}`` refs + ``next_cursor`` (by numeric id).
+
+        Internal; callers use ``descendants_by_id``."""
+
+    def descendants_by_id(
+        self,
+        page_id: int,
+        *,
+        limit: int | None = None,
+        actuality: str | None = None,
+    ) -> PageRefList:
+        """All descendant refs under numeric ``page_id``, draining ``next_cursor`` internally.
+
+        The numeric-id twin of :meth:`descendants`; capped at ``limit`` (``None`` = every ref).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> refs = client.pages.descendants_by_id(12345, limit=50)  # doctest: +SKIP
+            >>> refs.root[0].slug  # doctest: +SKIP
+            'data/architecture'
+        """
+        strategy = CursorStrategy(
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+        )
+        refs = strategy.collect(
+            lambda cursor: self._descendants_by_id_page(
+                page_id, page_size=100, cursor=cursor, actuality=actuality
+            ),
+            limit,
+        )
+        return PageRefList(refs)
+
+    @uplink.returns.json()
+    @uplink.get("pages/{page_id}/grids")
+    def _grids_page(
+        self,
+        page_id: uplink.Path,
+        page_size: uplink.Query = 50,  # ty: ignore[invalid-parameter-default]
+        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+        order_by: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+    ) -> GridsResponse:  # ty: ignore[empty-body]
+        """One raw page of grid refs + ``next_cursor`` (internal; callers use ``grids``)."""
+
+    def grids(
+        self,
+        page_id: int,
+        *,
+        limit: int | None = None,
+        order_by: str | None = None,
+    ) -> GridRefList:
+        """``GET /pages/{id}/grids`` → flat :class:`GridRefList`, draining ``next_cursor``.
+
+        Dynamic tables (grids) attached to the page. Capped at ``limit`` (``None`` = every
+        grid); ``order_by`` sorts the server-side listing (``title`` or ``created_at``).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.grids(12345, limit=50).root[0].title  # doctest: +SKIP
+            'Roadmap'
+        """
+        strategy = CursorStrategy(
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+        )
+        grids = strategy.collect(
+            lambda cursor: self._grids_page(
+                page_id, page_size=50, cursor=cursor, order_by=order_by
+            ),
+            limit,
+        )
+        return GridRefList(grids)
 
     @uplink.returns.json()
     @uplink.json

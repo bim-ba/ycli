@@ -7,7 +7,7 @@ import responses
 
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.pages.client import PagesClient
-from ycli.yandex.wiki.pages.models import PageDetails, PageRefList
+from ycli.yandex.wiki.pages.models import GridRefList, PageDetails, PageRefList
 
 BASE = "https://api.wiki.yandex.net/v1"
 
@@ -97,3 +97,87 @@ def test_get_omits_fields_when_none():
     )
     _client().get(slug="s")
     assert "fields" not in responses.calls[0].request.params  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_get_by_id_deserializes_pagedetails():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/12345",
+        json={"id": 12345, "slug": "data/x", "title": "T", "content": "# B"},
+        status=200,
+    )
+    page = _client().get_by_id(page_id=12345, fields="content")
+    assert isinstance(page, PageDetails)
+    assert page.id == 12345 and page.content == "# B"
+    assert responses.calls[0].request.params["fields"] == "content"  # ty: ignore[unresolved-attribute]
+    assert responses.calls[0].request.url.split("?")[0].endswith("/pages/12345")  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_descendants_by_id_auto_drains_cursor():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/99/descendants",
+        json={"results": [{"id": 1, "slug": "a"}], "next_cursor": "c1"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/99/descendants",
+        json={"results": [{"id": 2, "slug": "b"}], "next_cursor": None},
+        status=200,
+    )
+    out = _client().descendants_by_id(page_id=99)
+    assert isinstance(out, PageRefList)
+    assert [r.slug for r in out.root] == ["a", "b"]
+    assert len(responses.calls) == 2
+    assert responses.calls[1].request.params["cursor"] == "c1"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_grids_single_page_no_cursor():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/grids",
+        json={"results": [{"id": "g-uuid", "title": "Roadmap"}], "next_cursor": None},
+        status=200,
+    )
+    out = _client().grids(page_id=42)
+    assert isinstance(out, GridRefList)
+    assert [g.title for g in out.root] == ["Roadmap"]
+    assert responses.calls[0].request.params["page_size"] == "50"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_grids_auto_drains_cursor_and_passes_order_by():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/grids",
+        json={"results": [{"id": "g1", "title": "A"}], "next_cursor": "c1"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/grids",
+        json={"results": [{"id": "g2", "title": "B"}], "next_cursor": None},
+        status=200,
+    )
+    out = _client().grids(page_id=42, order_by="title")
+    assert [g.id for g in out.root] == ["g1", "g2"]
+    assert len(responses.calls) == 2
+    assert responses.calls[0].request.params["order_by"] == "title"  # ty: ignore[unresolved-attribute]
+    assert responses.calls[1].request.params["cursor"] == "c1"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_grids_limit_truncates_without_second_fetch():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/grids",
+        json={"results": [{"id": "g1"}, {"id": "g2"}], "next_cursor": "c1"},
+        status=200,
+    )
+    out = _client().grids(page_id=42, limit=1)
+    assert [g.id for g in out.root] == ["g1"]
+    assert len(responses.calls) == 1

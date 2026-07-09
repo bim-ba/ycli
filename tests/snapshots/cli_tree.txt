@@ -2,10 +2,12 @@ auth
 auth status
 forms
 forms answers
+forms answers get
 forms answers list
 forms me
 forms me get
 forms questions
+forms questions get
 forms questions list
 forms surveys
 forms surveys get
@@ -14,11 +16,27 @@ mcp
 mcp methods
 mcp start
 tracker
+tracker applications
+tracker applications list
+tracker attachments
+tracker attachments download
+tracker attachments list
+tracker attachments thumbnail
+tracker boards
+tracker boards get
+tracker boards list
 tracker changelog
 tracker changelog list
 tracker comments
 tracker comments add
 tracker comments list
+tracker components
+tracker components list
+tracker fields
+tracker fields get
+tracker fields list
+tracker filters
+tracker filters get
 tracker issues
 tracker issues count
 tracker issues create
@@ -33,24 +51,48 @@ tracker links add
 tracker links list
 tracker linktypes
 tracker linktypes list
+tracker localfields
+tracker localfields get
+tracker localfields list
 tracker me
 tracker me get
 tracker priorities
 tracker priorities list
+tracker queues
+tracker queues get
+tracker queues list
+tracker resolutions
+tracker resolutions list
+tracker sprints
+tracker sprints get
+tracker sprints list
+tracker statuses
+tracker statuses list
 tracker transitions
 tracker transitions execute
 tracker transitions list
+tracker users
+tracker users get
+tracker users list
 tracker worklog
 tracker worklog list
 wiki
 wiki attachments
+wiki attachments download
+wiki attachments download-by-url
 wiki attachments list
 wiki comments
 wiki comments list
+wiki comments thread
 wiki me
 wiki me get
 wiki pages
 wiki pages create
 wiki pages descendants
+wiki pages descendants-by-id
 wiki pages get
+wiki pages get-by-id
+wiki pages grids
 wiki pages update
+wiki resources
+wiki resources list

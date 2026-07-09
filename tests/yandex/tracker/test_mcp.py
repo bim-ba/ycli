@@ -1,4 +1,4 @@
-"""Tracker FastMCP domain server — 13 reads-only tools, namespaced <resource>_<action>."""
+"""Tracker FastMCP domain server — reads-only tools, namespaced <resource>_<action>."""
 
 import pytest
 import responses
@@ -15,7 +15,7 @@ def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
-async def test_all_thirteen_read_tools_registered():
+async def test_all_read_tools_registered():
     async with Client(tracker_mcp.mcp) as client:
         names = {t.name for t in await client.list_tools()}
     assert names == {
@@ -32,6 +32,24 @@ async def test_all_thirteen_read_tools_registered():
         "priorities_list",
         "issuetypes_list",
         "linktypes_list",
+        "users_get",
+        "users_list",
+        "statuses_list",
+        "resolutions_list",
+        "queues_get",
+        "queues_list",
+        "localfields_get",
+        "localfields_list",
+        "fields_get",
+        "fields_list",
+        "components_list",
+        "filters_get",
+        "applications_list",
+        "boards_get",
+        "boards_list",
+        "sprints_get",
+        "sprints_list",
+        "attachments_list",
     }
 
 

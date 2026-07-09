@@ -26,3 +26,15 @@ def test_comments_list():
     )
     result = runner.invoke(cli.app, ["wiki", "comments", "list", "42"])
     assert result.exit_code == 0 and "hi" in result.stdout
+
+
+@responses.activate
+def test_comments_thread():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/comments/7/thread",
+        json={"results": [{"content": "reply"}], "next_cursor": None},
+        status=200,
+    )
+    result = runner.invoke(cli.app, ["wiki", "comments", "thread", "42", "7"])
+    assert result.exit_code == 0 and "reply" in result.stdout

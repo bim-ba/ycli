@@ -12,6 +12,7 @@ from ycli.cli.output import Serializer
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
 SlugArg = Annotated[str, typer.Argument(metavar="SLUG", help="Wiki page slug.")]
+PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")]
 
 
 @app.command()
@@ -39,6 +40,60 @@ def descendants(
     cap = None if all_ else (limit or app_ctx.config.max_items)
     Serializer.serialize(
         app_ctx.wiki.pages.descendants(slug=slug, limit=cap), app_ctx.strategy, app_ctx.console
+    )
+
+
+@app.command("get-by-id")
+def get_by_id(
+    ctx: typer.Context,
+    page_id: PageIdArg,
+    fields: Annotated[
+        str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
+    ] = "content",
+) -> None:
+    """Fetch a page by numeric id (GET /pages/{id}); dumps the full model."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.wiki.pages.get_by_id(page_id=page_id, fields=fields),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
+
+
+@app.command("descendants-by-id")
+def descendants_by_id(
+    ctx: typer.Context,
+    page_id: PageIdArg,
+    limit: Annotated[int, typer.Option(help="Max refs (auto-paginates).")] = 0,
+    all_: Annotated[bool, typer.Option("--all", help="Fetch every descendant (no cap).")] = False,
+) -> None:
+    """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
+    Serializer.serialize(
+        app_ctx.wiki.pages.descendants_by_id(page_id=page_id, limit=cap),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
+
+
+@app.command()
+def grids(
+    ctx: typer.Context,
+    page_id: PageIdArg,
+    limit: Annotated[int, typer.Option(help="Max grids (auto-paginates).")] = 0,
+    all_: Annotated[bool, typer.Option("--all", help="Fetch every grid (no cap).")] = False,
+    order_by: Annotated[
+        str, typer.Option("--order-by", help="Sort field: title or created_at.")
+    ] = "",
+) -> None:
+    """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    cap = None if all_ else (limit or app_ctx.config.max_items)
+    Serializer.serialize(
+        app_ctx.wiki.pages.grids(page_id=page_id, limit=cap, order_by=order_by or None),
+        app_ctx.strategy,
+        app_ctx.console,
     )
 
 

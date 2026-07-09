@@ -71,3 +71,31 @@ def test_list_limit_truncates_without_second_fetch():
     out = _client().list(page_id=42, limit=1)
     assert [a.name for a in out.root] == ["a.png"]  # capped before draining c1
     assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_download_returns_raw_bytes():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments/7/download",
+        body=b"\x89PNG\r\n\x1a\n binary",
+        status=200,
+    )
+    out = _client().download(page_id=42, file_id=7)
+    assert out == b"\x89PNG\r\n\x1a\n binary"  # verbatim, no JSON parse
+    assert responses.calls[0].request.url.endswith("/pages/42/attachments/7/download")  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_download_by_url_returns_raw_bytes():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/attachments/download_by_url",
+        body=b"%PDF-1.7 blob",
+        status=200,
+    )
+    out = _client().download_by_url(url="data/x/.files/report.pdf")
+    assert out == b"%PDF-1.7 blob"
+    params = responses.calls[0].request.params  # ty: ignore[unresolved-attribute]
+    assert params["url"] == "data/x/.files/report.pdf"
+    assert params["download"] == "true"

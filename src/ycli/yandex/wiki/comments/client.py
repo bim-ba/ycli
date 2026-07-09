@@ -43,3 +43,36 @@ class CommentsClient(WikiResource):
             limit,
         )
         return CommentList(comments)
+
+    @uplink.returns.json()
+    @uplink.get("pages/{page_id}/comments/{comment_id}/thread")
+    def _thread_page(
+        self,
+        page_id: uplink.Path,
+        comment_id: uplink.Path,
+        page_size: uplink.Query = 50,  # ty: ignore[invalid-parameter-default]
+        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+    ) -> CommentsResponse:  # ty: ignore[empty-body]
+        """One raw page of a comment thread + ``next_cursor`` (internal; callers use ``thread``)."""
+
+    def thread(self, page_id: int, comment_id: int, *, limit: int | None = None) -> CommentList:
+        """``GET /pages/{id}/comments/{comment_id}/thread`` → the reply thread, draining cursors.
+
+        Returns the full reply thread rooted at ``comment_id`` as a flat :class:`CommentList`
+        (server ``page_size`` is capped at 50; this drains ``next_cursor`` internally). Capped
+        at ``limit`` (``None`` = every reply). Use after ``list`` surfaces a root comment.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.comments.thread(12345, 678, limit=50).root[0].content  # doctest: +SKIP
+            'Согласен'
+        """
+        strategy = CursorStrategy(
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+        )
+        comments = strategy.collect(
+            lambda cursor: self._thread_page(page_id, comment_id, page_size=50, cursor=cursor),
+            limit,
+        )
+        return CommentList(comments)
