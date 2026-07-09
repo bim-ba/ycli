@@ -9,6 +9,17 @@
       "Glob"
     ]
   },
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "parallel@parallel-agent-skills": true,
+    "context7@context7-marketplace": true,
+    "core@ai": true,
+    "data@ai": true,
+    "yandex-360@ycli": true
+  },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
@@ -16,10 +27,28 @@
         "repo": "anthropics/claude-plugins-official"
       }
     },
-    "spark": {
+    "superpowers": {
       "source": {
         "source": "github",
-        "repo": "bim-ba/spark"
+        "repo": "obra/superpowers-marketplace"
+      }
+    },
+    "parallel-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "parallel-web/parallel-agent-skills"
+      }
+    },
+    "context7": {
+      "source": {
+        "source": "github",
+        "repo": "upstash/context7"
+      }
+    },
+    "ai": {
+      "source": {
+        "source": "github",
+        "repo": "bim-ba/ai"
       }
     },
     "ycli": {
@@ -28,15 +57,6 @@
         "path": "."
       }
     }
-  },
-  "enabledPlugins": {
-    "plugin-dev@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "playground@claude-plugins-official": true,
-    "core@spark": true,
-    "data@spark": true,
-    "yandex-360@ycli": true
   },
   "hooks": {
     "PreToolUse": [
