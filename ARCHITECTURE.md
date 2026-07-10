@@ -54,9 +54,12 @@ Notable shared pieces:
   appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the
   strategies live only in `output.py`. Every rendered value is a typed pydantic model — there
   is no raw-dict/`RawMapping` escape hatch.
-  *Carve-out:* a bare `print(int)` for a scalar `count` result is fine — it is not model
-  output and needs no Serializer wrapping. *Check:* `model_dump_json` / `yaml.safe_dump` /
-  `json.dumps` only in `output.py`; CLI command bodies render via `Serializer.serialize`.
+  *Carve-outs:* (a) a bare `print(int)` for a scalar `count` result is fine — it is not model
+  output and needs no Serializer wrapping; (b) a **binary download** command writes raw
+  `bytes` to a file/stdout via `ycli.cli.binary.write_output` (attachments, exports, keyset
+  files) — bytes are not a model, so they bypass the Serializer too. Neither path touches the
+  three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` / `json.dumps` only
+  in `output.py`; CLI command bodies render model output via `Serializer.serialize`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).

@@ -50,3 +50,10 @@ def test_add_posts_body():
         "relationship": "relates",
         "issue": "DE-2",
     }
+
+
+@responses.activate
+def test_delete_returns_none():
+    responses.add(responses.DELETE, f"{BASE}/issues/DE-1/links/42", status=204)
+    assert _client().delete("DE-1", "42") is None
+    assert responses.calls[0].request.method == "DELETE"

@@ -1,0 +1,53 @@
+"""Forms /surveys/{id}/keysets FastMCP tools (reads-only).
+
+Only the two read endpoints are exposed here; key-set create/modify/delete/download are
+writes/binary and live on the CLI/SDK (MCP is read-only, ARCH-3).
+"""
+
+from typing import Annotated
+
+from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
+from pydantic import Field
+
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
+from ycli.yandex.forms.keysets.models import Keyset, KeysetList
+
+mcp = FastMCP("forms-keysets")
+
+
+@mcp.tool(name="keysets_list", annotations={**RO, "title": "List Forms key sets"}, tags=TAGS)
+def list_(
+    survey_id: Annotated[
+        str, Field(description="Form id (24-char hex), e.g. 6818ceffe010db4f59d11329.")
+    ],
+    client: FormsClient = Depends(forms_client),
+) -> KeysetList:
+    """Every personal-link key set on a form, as a flat array.
+
+    A key set is a batch of single-use keys that become personal form-filling links; each item's
+    integer ``id`` is what you pass to ``keysets_get``. Use ``surveys_list`` to find the
+    ``survey_id`` first. Creating, editing, and downloading key sets are CLI/SDK-only writes.
+
+    Example:
+        >>> keysets_list(survey_id="6818ceffe010db4f59d11329")  # doctest: +SKIP
+    """
+    return client.keysets.list(survey_id)
+
+
+@mcp.tool(name="keysets_get", annotations={**RO, "title": "Get Forms key set"}, tags=TAGS)
+def get(
+    survey_id: Annotated[str, Field(description="Form id (24-char hex) the key set belongs to.")],
+    keyset_id: Annotated[int, Field(description="Key set id (integer) from ``keysets_list``.")],
+    client: FormsClient = Depends(forms_client),
+) -> Keyset:
+    """One key set's settings and usage (``total`` keys, ``used`` count, ``is_enabled``).
+
+    Look up ``keyset_id`` via ``keysets_list``. To download the actual keys use the
+    ``forms keysets download`` CLI command (binary payload — not exposed over MCP).
+
+    Example:
+        >>> keysets_get(survey_id="6818ceffe010db4f59d11329", keyset_id=7)  # doctest: +SKIP
+    """
+    return client.keysets.get(survey_id, keyset_id)

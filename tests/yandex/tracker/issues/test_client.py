@@ -71,3 +71,29 @@ def test_update_patches_body():
     i = _client().update("DE-5", body={"summary": "Updated"})
     assert i.summary == "Updated"
     assert responses.calls[0].request.method == "PATCH"
+
+
+@responses.activate
+def test_move_posts_with_queue_query():
+    responses.add(responses.POST, f"{BASE}/issues/TEST-1/_move", json={"key": "NEW-1"}, status=200)
+    i = _client().move("TEST-1", "NEW")
+    assert isinstance(i, Issue) and i.key == "NEW-1"
+    assert responses.calls[0].request.method == "POST"
+    assert "queue=NEW" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_suggest_passes_input_query():
+    responses.add(responses.GET, f"{BASE}/issues/_suggest", json=[{"key": "TEST-123"}], status=200)
+    out = _client().suggest("fix bug")
+    assert isinstance(out, IssueList)
+    assert out.root[0].key == "TEST-123"
+    assert "input=fix" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_scroll_clear_posts_body_returns_none():
+    responses.add(responses.POST, f"{BASE}/system/search/scroll/_clear", status=200)
+    assert _client().scroll_clear({"scrollId": "scrollToken"}) is None
+    assert responses.calls[0].request.method == "POST"
+    assert json.loads(responses.calls[0].request.body) == {"scrollId": "scrollToken"}  # ty: ignore[invalid-argument-type]

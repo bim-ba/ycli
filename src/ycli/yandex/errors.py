@@ -34,3 +34,12 @@ class YandexServerError(YandexError):
 
 class YandexClientError(YandexError):
     """Other 4xx — a client-side problem not covered by the specific classes."""
+
+
+class YandexTimeoutError(YandexError):
+    """A client-side deadline elapsed — e.g. an async operation polled past its attempt budget.
+
+    Not raised by the transport (there is no HTTP status): the ``polling.poll`` helper raises
+    it when ``is_done`` never becomes true within the allotted attempts, so callers can catch a
+    single ``YandexError`` hierarchy for both transport failures and local timeouts.
+    """

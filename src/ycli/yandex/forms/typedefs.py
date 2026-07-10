@@ -9,3 +9,7 @@ import typer
 SurveyIdArg = Annotated[
     str, typer.Argument(metavar="SURVEY_ID", help="Form id, e.g. 6818ceffe010db4f59d11329.")
 ]
+
+QuestionIdArg = Annotated[
+    str, typer.Argument(metavar="QUESTION_ID", help="Question id (integer), e.g. 17.")
+]

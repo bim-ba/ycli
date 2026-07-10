@@ -3,6 +3,7 @@
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 """
 
+import requests
 import uplink
 
 from ycli.yandex.tracker.base import TrackerResource
@@ -37,3 +38,16 @@ class LinksClient(TrackerResource):
             ... ).object_key  # doctest: +SKIP
             'DATAENGINEERING-129'
         """
+
+    @uplink.delete("issues/{key}/links/{link_id}")
+    def _delete(self, key: uplink.Path, link_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
+        """``DELETE /issues/{key}/links/{link_id}`` (204, no body; internal)."""
+
+    def delete(self, key: str, link_id: str) -> None:
+        """Delete a link (``DELETE …/links/{link_id}`` → 204). Raises on non-2xx.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.links.delete("DATAENGINEERING-130", 42)  # doctest: +SKIP
+        """
+        self._delete(key, link_id)

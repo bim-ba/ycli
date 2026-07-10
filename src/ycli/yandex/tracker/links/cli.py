@@ -48,3 +48,15 @@ def add(
     Serializer.serialize(
         app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console
     )
+
+
+@app.command()
+def delete(
+    ctx: typer.Context,
+    key: KeyArg,
+    link_id: Annotated[str, typer.Argument(metavar="LINK_ID", help="Link id to remove.")],
+) -> None:
+    """Delete link LINK_ID from issue KEY."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    app_ctx.tracker.links.delete(key, link_id)
+    print(f"Deleted link {link_id} on {key}")

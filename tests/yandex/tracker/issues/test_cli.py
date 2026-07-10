@@ -193,3 +193,32 @@ def test_update_assembles_full_body():
         "tags": ["a", "b"],
         "sprint": 123,
     }
+
+
+@responses.activate
+def test_move_to_queue():
+    responses.add(responses.POST, f"{BASE}/issues/TEST-1/_move", json={"key": "NEW-1"}, status=200)
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "move", "TEST-1", "NEW"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["key"] == "NEW-1"
+    assert "queue=NEW" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_suggest():
+    responses.add(responses.GET, f"{BASE}/issues/_suggest", json=[{"key": "TEST-123"}], status=200)
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "suggest", "fix bug"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)[0]["key"] == "TEST-123"
+    assert "input=fix" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_scroll_clear():
+    responses.add(responses.POST, f"{BASE}/system/search/scroll/_clear", status=200)
+    res = runner.invoke(
+        cli.app, ["tracker", "issues", "scroll-clear", "--pair", "scrollId=scrollToken"]
+    )
+    assert res.exit_code == 0
+    assert "Cleared search scroll resources" in res.stdout
+    assert json.loads(responses.calls[0].request.body) == {"scrollId": "scrollToken"}  # ty: ignore[invalid-argument-type]
