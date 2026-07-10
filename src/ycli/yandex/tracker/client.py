@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import requests
 
+from ycli.yandex.base import DomainClient
 from ycli.yandex.tracker.applications.client import ApplicationsClient
 from ycli.yandex.tracker.attachments.client import AttachmentsClient
 from ycli.yandex.tracker.autoactions.client import AutoactionsClient
@@ -39,32 +40,16 @@ from ycli.yandex.tracker.transitions.client import TransitionsClient
 from ycli.yandex.tracker.triggers.client import TriggersClient
 from ycli.yandex.tracker.users.client import UsersClient
 from ycli.yandex.tracker.worklog.client import WorklogClient
-from ycli.yandex.transport import Transport
 
 
-class TrackerClient:
+class TrackerClient(DomainClient):
     """Holds the per-resource tracker clients, all sharing one authed ``requests.Session``.
 
     Example:
         >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
     """
 
-    def __init__(
-        self,
-        *,
-        oauth_token: str,
-        organization_id: str,
-        timeout_seconds: int = 30,
-        retries: int = 3,
-        session: requests.Session | None = None,
-    ) -> None:
-        transport = Transport.session(
-            oauth_token=oauth_token,
-            organization_id=organization_id,
-            timeout_seconds=timeout_seconds,
-            retries=retries,
-            base=session,
-        )
+    def _wire(self, transport: requests.Session) -> None:
         self.me = MeClient(session=transport)
         self.issues = IssuesClient(session=transport)
         self.comments = CommentsClient(session=transport)
