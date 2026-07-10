@@ -43,7 +43,7 @@ Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN
 X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 ```
 
-The OAuth token needs `forms:read` / `forms:write` scopes (see `../../../docs/references/yandex/forms/09-api/access.md`). The same token may work for Tracker/Wiki if those scopes were also granted, but Forms scopes are separate — a Tracker-only token will 401/403 here.
+The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section of the live API reference at <https://yandex.ru/dev/forms/>). The same token may work for Tracker/Wiki if those scopes were also granted, but Forms scopes are separate — a Tracker-only token will 401/403 here.
 
 ### Hosts
 
@@ -60,7 +60,7 @@ The gateway host uses the web UI's session cookies (CSRF + `Cookie`), not OAuth.
 **Reads** are available three ways:
 
 - CLI: `uv run ycli forms <group> <cmd>`
-- MCP (read-only): `forms_me_get`, `forms_surveys_list`, `forms_surveys_get`, `forms_questions_list`, `forms_answers_list`
+- MCP (read-only): **10** tools named `forms_<resource>_<action>` — the ones you reach for most are `forms_me_get`, `forms_surveys_list`, `forms_surveys_get`, `forms_questions_list`, `forms_answers_list`
 - SDK: `from ycli.yandex.forms.client import FormsClient` → `FormsClient(oauth_token=…, organization_id=…).me/.surveys/.questions/.answers`
 
 **Writes** use raw `http` (httpie). Load auth from env first:
@@ -81,16 +81,18 @@ http GET 'https://api.forms.yandex.net/v1/surveys' \
 
 ### 2.1. Read endpoints
 
-| Operation | Endpoint | CLI / MCP tool | Doc reference |
-|-----------|----------|----------------|---------------|
-| Auth probe (current user) | — | `uv run ycli forms me get` (MCP `forms_me_get`) | — |
-| List forms | `GET /v1/surveys` | `uv run ycli forms surveys list` (MCP `forms_surveys_list`) | `09-api/reference/03-forms/list.md` |
-| Get form settings | `GET /v1/surveys/{id}` | `uv run ycli forms surveys get <form_id>` (MCP `forms_surveys_get`) | `09-api/reference/03-forms/get-settings.md` |
-| List questions | `GET /v1/surveys/{id}/questions` | `uv run ycli forms questions list <form_id>` (MCP `forms_questions_list`) | `09-api/reference/06-questions/list.md` |
-| Get one question | `GET /v1/surveys/{id}/questions/{q_id}` | httpie only | `09-api/reference/06-questions/get.md` |
-| List answers (responses) | `GET /v1/surveys/{id}/answers` | `uv run ycli forms answers list <form_id>` (MCP `forms_answers_list`) | `09-api/reference/01-answers/get-many.md` |
-| Export answers | `POST /v1/surveys/{id}/answers/_export` | httpie only | `09-api/reference/01-answers/export.md` |
-| Get operation result (async) | `GET /v1/operations/{op_id}` | httpie only | `09-api/reference/08-operations/get-result.md` |
+| Operation | Endpoint | CLI / MCP tool |
+|-----------|----------|----------------|
+| Auth probe (current user) | — | `uv run ycli forms me get` (MCP `forms_me_get`) |
+| List forms | `GET /v1/surveys` | `uv run ycli forms surveys list` (MCP `forms_surveys_list`) |
+| Get form settings | `GET /v1/surveys/{id}` | `uv run ycli forms surveys get <form_id>` (MCP `forms_surveys_get`) |
+| List questions | `GET /v1/surveys/{id}/questions` | `uv run ycli forms questions list <form_id>` (MCP `forms_questions_list`) |
+| Get one question | `GET /v1/surveys/{id}/questions/{q_id}` | `uv run ycli forms questions get <form_id> <q_id>` |
+| List answers (responses) | `GET /v1/surveys/{id}/answers` | `uv run ycli forms answers list <form_id>` (MCP `forms_answers_list`) |
+| Export answers | `POST /v1/surveys/{id}/answers/_export` | `uv run ycli forms answers export <form_id>` |
+| Get operation result (async) | `GET /v1/operations/{op_id}` | `uv run ycli forms operations get <op_id>` (MCP `forms_operations_get`) |
+
+Endpoint paths and payloads are summarised in the bundled `references/forms-api-quick-ref.md`; the full live reference is at <https://yandex.ru/dev/forms/>.
 
 ### 2.2. SDK example
 
@@ -129,7 +131,7 @@ http POST 'https://api.forms.yandex.net/v1/surveys' \
 # Capture form_id from the response.
 ```
 
-See `../../../docs/references/yandex/forms/09-api/reference/03-forms/create.md`.
+See the create-form endpoint in the live API reference at <https://yandex.ru/dev/forms/>.
 
 ### 3.2. Question CRUD
 
@@ -151,7 +153,7 @@ http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/questions/<q_id>/_m
   position=3 ...
 ```
 
-Question types — see `../../../docs/references/yandex/forms/08-questions/` (one doc per type):
+Question types — summarised in the bundled `references/forms-api-quick-ref.md`; full per-type docs at <https://yandex.ru/support/forms/>:
 
 - `short-text` / `long-text` / `number` / `integer` / `date` / `email` / `phone` / `link`
 - `radiobutton` / `dropdown` / `multiple` / `yes-no` / `rating`
@@ -160,7 +162,7 @@ Question types — see `../../../docs/references/yandex/forms/08-questions/` (on
 - `tracker` / `wiki` (suggest from Tracker / Wiki resources)
 - `payment` / `tests` / `series` / `empty`
 
-For datasource-backed dropdowns (e.g. `datasource: tracker_component`, `tracker_user`, `dir_user`, `wiki_table_source`), see `08-questions/dropdown.md` + `08-questions/tracker.md`. These suggests are queue-/space-scoped: ensure the form's `dir_id` / target queue is set before adding such questions.
+For datasource-backed dropdowns (e.g. `datasource: tracker_component`, `tracker_user`, `dir_user`, `wiki_table_source`), see the dropdown/tracker question types in `references/forms-api-quick-ref.md` and the live docs at <https://yandex.ru/support/forms/>. These suggests are queue-/space-scoped: ensure the form's `dir_id` / target queue is set before adding such questions.
 
 ### 3.3. Publish / unpublish
 
@@ -169,11 +171,11 @@ http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/_publish" ...
 http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/_unpublish" ...
 ```
 
-See `09-api/reference/03-forms/publish.md` / `unpublish.md`. Unpublished forms reject submit-response calls — check the form settings (`is_published`) before testing submissions.
+See the publish/unpublish endpoints in the live API reference at <https://yandex.ru/dev/forms/>. Unpublished forms reject submit-response calls — check the form settings (`is_published`) before testing submissions.
 
 ### 3.4. Conditional logic
 
-Conditional show/hide is configured via the «Условия» feature in the UI, or via the question update endpoint's `conditions` field. See `../../../docs/references/yandex/forms/06-publish/conditions.md`.
+Conditional show/hide is configured via the «Условия» feature in the UI, or via the question update endpoint's `conditions` field. See the conditions docs at <https://yandex.ru/support/forms/>.
 
 ---
 
@@ -181,7 +183,7 @@ Conditional show/hide is configured via the «Условия» feature in the UI
 
 Integration hooks (create Tracker issue / Wiki page / send email / HTTP webhook on submit) are **not** in the public API. Two options:
 
-1. **UI** (recommended): open the form → «Интеграции» tab → add/edit/delete an action group, configure variables and conditions. For variable reference see `../../../docs/references/yandex/forms/05-integration/variables.md`.
+1. **UI** (recommended): open the form → «Интеграции» tab → add/edit/delete an action group, configure variables and conditions. For the integration-variable reference see <https://yandex.ru/support/forms/>.
 2. **Gateway** (`forms.yandex.ru/cloud/admin/gateway/root/form/getHooks` etc.): internal endpoints used by the web UI, authenticated with browser session cookies + CSRF token. Not headless-friendly; only usable with a curl-with-cookies exported from devtools.
 
 After a hook change, submit a test response and verify the resulting Tracker issue / Wiki page / email has the expected fields.
@@ -204,13 +206,6 @@ After a hook change, submit a test response and verify the resulting Tracker iss
 
 | Resource | When to use |
 |----------|-------------|
-| `../../../docs/references/yandex/forms/index/docs.md` | Navigation guide to all doc files — start here for any unfamiliar topic |
-| `../../../docs/references/yandex/forms/01-overview/` | Forms concepts, terminology, intro |
-| `../../../docs/references/yandex/forms/02-go-to-forms/` | Onboarding, activation, login |
-| `../../../docs/references/yandex/forms/03-quickstart/` | Quick-start workflow |
-| `../../../docs/references/yandex/forms/04-new/` | Creating new forms — appearance, questions, success page, validation, tests |
-| `../../../docs/references/yandex/forms/05-integration/` | Integration with Tracker / Wiki / Email / HTTP / cloud-functions / variables |
-| `../../../docs/references/yandex/forms/06-publish/` | Publishing, conditions, pre-fill, restrictions |
-| `../../../docs/references/yandex/forms/07-editing/` | Editing settings, access, personal settings |
-| `../../../docs/references/yandex/forms/08-questions/` | All question types — `short-text`, `dropdown`, `radiobutton`, `people`, `tracker`, etc. |
-| `../../../docs/references/yandex/forms/09-api/` | Public API — auth (`access.md`), examples (`examples.md`), endpoint reference under `reference/` |
+| `references/forms-api-quick-ref.md` | Bundled cheatsheet — host/auth, endpoint map, question types |
+| <https://yandex.ru/dev/forms/> | Developer portal — full public API reference (auth, surveys, questions, answers, operations) |
+| <https://yandex.ru/support/forms/> | Product docs — concepts, question types, integrations, publishing, conditions |
