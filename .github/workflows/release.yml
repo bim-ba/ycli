@@ -46,11 +46,11 @@ jobs:
       # The token is scoped to this repo and auto-revoked when the job ends.
       - name: Mint GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v3.2.0
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0   # PSR needs full history to evaluate commits
@@ -59,11 +59,38 @@ jobs:
         run: git reset --hard ${{ github.sha }}
       - name: Semantic version release
         id: psr
-        uses: python-semantic-release/python-semantic-release@v10.6.0
+        uses: python-semantic-release/python-semantic-release@37a30a7987cfebb6d49240bf1c4e9cd9817d0673 # v10.6.0
         with:
           github_token: ${{ steps.app-token.outputs.token }}
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
+
+      # PSR bumps pyproject's version but never touches uv.lock, so the very next
+      # push to main reds the required `uv sync --locked` check until a human ships
+      # a manual `build:` re-lock. Do it here, in the same run, as the same App that
+      # just pushed the release commit (its token is already checked out as the push
+      # remote and is the sole branch-protection bypass actor). The resulting `build:`
+      # commit lands PSR as a no-op on its next run — no version bump, no recursion.
+      - name: Install uv (for the post-release re-lock)
+        if: steps.psr.outputs.released == 'true'
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - name: Re-lock and commit uv.lock
+        if: steps.psr.outputs.released == 'true'
+        run: |
+          set -euo pipefail
+          uv lock
+          if git diff --quiet -- uv.lock; then
+            echo "uv.lock already current for ${{ steps.psr.outputs.version }} — nothing to re-lock."
+            exit 0
+          fi
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add uv.lock
+          git commit -m "build: re-lock uv.lock for ${{ steps.psr.outputs.version }}"
+          git push origin "HEAD:${{ github.ref_name }}"
 
   publish:
     needs: [release]
@@ -79,12 +106,12 @@ jobs:
     permissions:
       id-token: write   # trusted publishing (OIDC)
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           ref: ${{ needs.release.outputs.tag || github.ref }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           python-version: "3.12"
           enable-cache: true
