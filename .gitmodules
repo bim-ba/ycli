@@ -1,0 +1,3 @@
+[submodule "references/yandex-cloud"]
+	path = references/yandex-cloud
+	url = https://github.com/yandex-cloud/docs
