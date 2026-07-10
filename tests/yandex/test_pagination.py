@@ -77,6 +77,21 @@ def test_single_page_collect_wrapped_extracts_wraps_and_bounds():
     assert out == [1, 2]
 
 
+def test_cursor_collect_wrapped_extracts_wraps_next_and_bounds():
+    pages = {
+        None: {"results": [1, 2], "next_cursor": "c1"},
+        "c1": {"results": [3, 4], "next_cursor": None},
+    }
+    out = CursorStrategy.collect_wrapped(
+        lambda cursor: pages[cursor],
+        extract=lambda p: p["results"],
+        next_of=lambda p: p["next_cursor"],
+        wrap=list,
+        limit=3,
+    )
+    assert out == [1, 2, 3]
+
+
 def test_next_url_strategy_respects_limit():
     pages = {
         "start": {"answers": [1, 2], "next": {"next_url": "p2"}},

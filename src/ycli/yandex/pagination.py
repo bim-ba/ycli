@@ -68,6 +68,19 @@ class CursorStrategy[P, T](PaginationStrategy[P, T]):
             if cursor is None:
                 return items
 
+    @classmethod
+    def collect_wrapped[R](
+        cls,
+        page_fn: Callable[[str | None], P],
+        *,
+        extract: Callable[[P], list[T]],
+        next_of: Callable[[P], str | None],
+        wrap: Callable[[list[T]], R],
+        limit: int | None = None,
+    ) -> R:
+        """Cursor envelope -> bounded, wrapped flat collection (the wiki cursor list shape)."""
+        return wrap(cls(extract=extract, next_of=next_of).collect(page_fn, limit))
+
 
 class NextUrlStrategy[P, T](PaginationStrategy[P, T]):
     """HATEOAS: the first page comes from ``fetch_page``; subsequent ones from ``fetch_url``."""

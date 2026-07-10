@@ -48,14 +48,12 @@ class ResourcesClient(WikiResource):
             >>> client.resources.list(12345, types="attachment").root[0].type  # doctest: +SKIP
             'attachment'
         """
-        strategy = CursorStrategy(
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-        )
-        resources = strategy.collect(
+        return CursorStrategy.collect_wrapped(
             lambda cursor: self._list_page(
                 page_id, page_size=100, cursor=cursor, q=q, types=types, order_by=order_by
             ),
-            limit,
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+            wrap=ResourceItemList,
+            limit=limit,
         )
-        return ResourceItemList(resources)

@@ -86,17 +86,15 @@ class PagesClient(WikiResource):
             >>> refs.root[0].slug  # doctest: +SKIP
             'data/architecture'
         """
-        strategy = CursorStrategy(
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-        )
-        refs = strategy.collect(
+        return CursorStrategy.collect_wrapped(
             lambda cursor: self._descendants_page(
                 slug=slug, page_size=100, cursor=cursor, actuality=actuality
             ),
-            limit,
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+            wrap=PageRefList,
+            limit=limit,
         )
-        return PageRefList(refs)
 
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/descendants")
@@ -128,17 +126,15 @@ class PagesClient(WikiResource):
             >>> refs.root[0].slug  # doctest: +SKIP
             'data/architecture'
         """
-        strategy = CursorStrategy(
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-        )
-        refs = strategy.collect(
+        return CursorStrategy.collect_wrapped(
             lambda cursor: self._descendants_by_id_page(
                 page_id, page_size=100, cursor=cursor, actuality=actuality
             ),
-            limit,
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+            wrap=PageRefList,
+            limit=limit,
         )
-        return PageRefList(refs)
 
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/grids")
@@ -168,17 +164,15 @@ class PagesClient(WikiResource):
             >>> client.pages.grids(12345, limit=50).root[0].title  # doctest: +SKIP
             'Roadmap'
         """
-        strategy = CursorStrategy(
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-        )
-        grids = strategy.collect(
+        return CursorStrategy.collect_wrapped(
             lambda cursor: self._grids_page(
                 page_id, page_size=50, cursor=cursor, order_by=order_by
             ),
-            limit,
+            extract=lambda page: page.results,
+            next_of=lambda page: page.next_cursor,
+            wrap=GridRefList,
+            limit=limit,
         )
-        return GridRefList(grids)
 
     @uplink.returns.json()
     @uplink.json
