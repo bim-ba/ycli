@@ -237,6 +237,33 @@ class EntitiesClient(TrackerResource):
             'COMPLETE'
         """
 
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.post("entities/report/")
+    def create_report(self, body: uplink.Body) -> Entity:  # ty: ignore[empty-body]
+        """``POST /entities/report/`` — build an issue report from a ``{fields: …}`` body.
+
+        The body carries the report name plus export ``parameters`` (type/format, the issue
+        ``filter`` and the column ``fields``); the response is the created ``report`` entity.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.entities.create_report(
+            ...     {
+            ...         "fields": {
+            ...             "summary": "Export",
+            ...             "parameters": {
+            ...                 "type": "issueFilterExport",
+            ...                 "format": "xlsx",
+            ...                 "filter": {"query": "Queue: SUPPORT"},
+            ...                 "fields": ["key", "summary"],
+            ...             },
+            ...         }
+            ...     }
+            ... ).entity_type  # doctest: +SKIP
+            'report'
+        """
+
     # ---- comments ---------------------------------------------------------------------------
 
     @uplink.returns.json()

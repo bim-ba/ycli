@@ -23,6 +23,10 @@ from ycli.yandex.tracker.entities.models import (
     CommentUpdate,
     DeadlineInput,
     LinkInput,
+    ReportCreate,
+    ReportFieldsInput,
+    ReportFilter,
+    ReportParameters,
 )
 from ycli.yandex.tracker.utils import parse_fields
 
@@ -309,6 +313,34 @@ def bulk_status(
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
         app_ctx.tracker.entities.bulk_status(operation_id), app_ctx.strategy, app_ctx.console
+    )
+
+
+@app.command("create-report")
+def create_report(
+    ctx: typer.Context,
+    summary: Annotated[str, typer.Option(help="Report name (required).")],
+    query: Annotated[str, typer.Option(help="Issue filter in Tracker Query Language (required).")],
+    format_: Annotated[
+        str, typer.Option("--format", help="Export format: xlsx, xml or csv.")
+    ] = "xlsx",
+    field: Annotated[
+        list[str] | None,
+        typer.Option("--field", "-F", help="Issue field key to include as a column (repeatable)."),
+    ] = None,
+) -> None:
+    """Build an issue report (POST /entities/report/) from a TQL query and column fields."""
+    body = ReportCreate(
+        fields=ReportFieldsInput(
+            summary=summary,
+            parameters=ReportParameters(
+                format=format_, filter=ReportFilter(query=query), fields=field or []
+            ),
+        )
+    ).model_dump(by_alias=True, exclude_none=True)
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.tracker.entities.create_report(body=body), app_ctx.strategy, app_ctx.console
     )
 
 

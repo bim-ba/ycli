@@ -217,6 +217,31 @@ def test_bulk_status_reads_operation():
     assert out.status == "COMPLETE"
 
 
+@responses.activate
+def test_create_report_posts_body_and_returns_entity():
+    responses.add(
+        responses.POST,
+        f"{BASE}/entities/report/",
+        json={"id": "68f", "entityType": "report", "shortId": 142},
+        status=200,
+    )
+    body = {
+        "fields": {
+            "summary": "Export",
+            "parameters": {
+                "type": "issueFilterExport",
+                "format": "xlsx",
+                "filter": {"query": "Queue: SUPPORT"},
+                "fields": ["priority", "type", "key", "summary", "assignee", "status", "updated"],
+            },
+        }
+    }
+    out = _client().create_report(body=body)
+    assert isinstance(out, Entity)
+    assert out.entity_type == "report" and out.short_id == 142
+    assert json.loads(responses.calls[0].request.body) == body  # ty: ignore[invalid-argument-type]
+
+
 # ---- comments ----------------------------------------------------------------------------
 
 

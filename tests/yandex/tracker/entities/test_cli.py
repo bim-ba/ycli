@@ -214,6 +214,39 @@ def test_bulk_status():
     assert res.exit_code == 0 and json.loads(res.stdout)["status"] == "COMPLETE"
 
 
+@responses.activate
+def test_create_report_builds_typed_body():
+    responses.add(
+        responses.POST,
+        f"{BASE}/entities/report/",
+        json={"id": "68f", "entityType": "report"},
+        status=200,
+    )
+    res = _invoke(
+        "create-report",
+        "--summary",
+        "Export",
+        "--query",
+        "Queue: SUPPORT",
+        "--field",
+        "key",
+        "--field",
+        "summary",
+    )
+    assert res.exit_code == 0 and json.loads(res.stdout)["entityType"] == "report"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "fields": {
+            "summary": "Export",
+            "parameters": {
+                "type": "issueFilterExport",
+                "format": "xlsx",
+                "filter": {"query": "Queue: SUPPORT"},
+                "fields": ["key", "summary"],
+            },
+        }
+    }
+
+
 # ---- comments ----------------------------------------------------------------------------
 
 

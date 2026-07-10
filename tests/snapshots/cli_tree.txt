@@ -120,6 +120,7 @@ tracker entities comments edit
 tracker entities comments get
 tracker entities comments list
 tracker entities create
+tracker entities create-report
 tracker entities delete
 tracker entities edit
 tracker entities get

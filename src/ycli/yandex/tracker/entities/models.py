@@ -955,3 +955,80 @@ class BulkChangeUpdate(APIModel):
         alias="metaEntities", description="Identifiers of the entities to update."
     )
     values: BulkChangeValues = Field(description="What to change on every listed entity.")
+
+
+# --------------------------------------------------------------------------------------------
+# Report (issue-report builder)
+# --------------------------------------------------------------------------------------------
+
+
+class ReportSort(APIModel):
+    """A sort clause for a report filter (``parameters.filter.sorts`` element).
+
+    Example:
+        >>> ReportSort(order_by="updated", order_asc=False).model_dump(by_alias=True)
+        {'orderBy': 'updated', 'orderAsc': False}
+    """
+
+    order_by: str = Field(alias="orderBy", description="Issue field to sort the report by.")
+    order_asc: bool = Field(
+        default=True,
+        alias="orderAsc",
+        description="Sort direction: true ascending, false descending.",
+    )
+
+
+class ReportFilter(APIModel):
+    """The ``filter`` block of a report — a Tracker Query Language ``query`` plus optional sorts.
+
+    Example:
+        >>> ReportFilter(query="Queue: SUPPORT").model_dump(by_alias=True, exclude_none=True)
+        {'query': 'Queue: SUPPORT'}
+    """
+
+    query: str = Field(description="Issue filter in Tracker Query Language.")
+    sorts: list[ReportSort] | None = Field(
+        default=None, description="Sort clauses applied to the report."
+    )
+
+
+class ReportParameters(APIModel):
+    """The ``parameters`` block of a report — export settings plus the issue filter.
+
+    Example:
+        >>> ReportParameters(filter=ReportFilter(query="Q"), fields=["key"]).format
+        'xlsx'
+    """
+
+    type: str = Field(
+        default="issueFilterExport", description="Export type. Value: issueFilterExport."
+    )
+    format: str = Field(default="xlsx", description="Export format: xlsx, xml or csv.")
+    filter: ReportFilter = Field(description="Issue filtering parameters for the report.")
+    fields: list[str] = Field(description="Issue field keys to include as report columns.")
+
+
+class ReportFieldsInput(APIModel):
+    """The ``fields`` object of a report create body — the report name plus export ``parameters``.
+
+    Example:
+        >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
+        >>> ReportFieldsInput(summary="Export", parameters=params).summary
+        'Export'
+    """
+
+    summary: str = Field(description="Report name.")
+    parameters: ReportParameters = Field(description="Export settings and issue filter.")
+
+
+class ReportCreate(APIModel):
+    """Typed request body for ``POST /entities/report/`` — a ``{fields: {...}}`` envelope.
+
+    Example:
+        >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
+        >>> body = ReportFieldsInput(summary="Export", parameters=params)
+        >>> list(ReportCreate(fields=body).model_dump(by_alias=True))
+        ['fields']
+    """
+
+    fields: ReportFieldsInput = Field(description="Report settings (summary + export parameters).")
