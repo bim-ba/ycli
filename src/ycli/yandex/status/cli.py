@@ -121,7 +121,9 @@ def _implicit_flow(oauth_client: OAuthClient) -> str:
     typer.echo(f"Opening {url}")
     typer.echo("If it does not open, paste that URL into a browser, log in, and approve.")
     webbrowser.open(url)
-    return typer.prompt("Paste the token shown on the Yandex verification page").strip()
+    return typer.prompt(
+        "Paste the token shown on the Yandex verification page", hide_input=True
+    ).strip()
 
 
 def _device_flow(oauth_client: OAuthClient, device_name: str | None) -> str:

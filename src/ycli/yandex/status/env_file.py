@@ -30,6 +30,7 @@ class EnvFile:
             original = path.read_text(encoding="utf-8")
             backup = path.with_name(path.name + ".bak")
             backup.write_text(original, encoding="utf-8")
+            backup.chmod(0o600)  # the backup holds a real token — keep it owner-only
             existing_lines = original.splitlines()
         remaining = dict(values)
         output: list[str] = []
@@ -41,6 +42,7 @@ class EnvFile:
                 output.append(line)
         output.extend(f"{key}={value}" for key, value in remaining.items())
         path.write_text("\n".join(output) + "\n", encoding="utf-8")
+        path.chmod(0o600)  # holds a real OAuth token — keep it owner-only
         return backup
 
     @staticmethod

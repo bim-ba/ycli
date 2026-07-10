@@ -21,8 +21,12 @@ if TYPE_CHECKING:
 
 
 def default_backoff(attempt: int) -> float:
-    """The default delay schedule: ``0.5, 1, 2, 4, …`` seconds (doubling per 0-indexed attempt)."""
-    return 0.5 * (2**attempt)
+    """Default delay ``0.5, 1, 2, 4, …`` s (doubling per 0-indexed attempt), capped at 60 s.
+
+    The cap keeps a stuck long-poll (``--wait`` is the default for bulk ops) from ballooning to
+    hour- or day-long single sleeps instead of failing within the ``attempts`` budget.
+    """
+    return min(60.0, 0.5 * (2**attempt))
 
 
 def poll[P](
