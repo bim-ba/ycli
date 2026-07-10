@@ -292,17 +292,67 @@ See [`docs/api-coverage.md`](docs/api-coverage.md) for the intentional exclusion
 
 ## Configure
 
-```bash
-cp .env.example .env
-```
+`ycli` reads two values from the environment (or a `.env` file — `cp .env.example .env`):
 
 ```bash
-YANDEX_ID_OAUTH_TOKEN=...        # get one at https://oauth.yandex.ru/
-YANDEX_ID_ORGANIZATION_ID=...    # from the Yandex 360 admin panel
+YANDEX_ID_OAUTH_TOKEN=...        # a Yandex OAuth token with Tracker/Wiki/Forms access
+YANDEX_ID_ORGANIZATION_ID=...    # your Yandex 360 organization id
 ```
 
 Header casing differs per service (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`) — ycli
 handles it for you.
+
+### Get your credentials
+
+Yandex issues OAuth tokens only through a **registered application**, so it's a one-time
+app registration plus one command.
+
+**1. Register an OAuth app** at [oauth.yandex.ru](https://oauth.yandex.ru/client/new) and
+grant it the **Tracker**, **Wiki**, and **Forms** permissions (read **and** write for the
+full CLI; the read scopes alone are enough for the read-only MCP server). Copy the
+**ClientID** — and the **Client secret** if you want the headless flow:
+
+```bash
+export YANDEX_OAUTH_CLIENT_ID=...        # from your app
+export YANDEX_OAUTH_CLIENT_SECRET=...    # optional — enables the headless device flow
+```
+
+**2. Log in.** `ycli auth login` gets a token, detects your organization, and writes both
+into `.env`:
+
+```bash
+ycli auth login
+```
+
+- **client id + secret** → the **device flow**: ycli prints a code and a
+  `https://ya.ru/device` link; approve there and it captures the token — no redirect, works
+  over SSH.
+- **only the client id** (or `--implicit`) → the **browser flow**: ycli opens the Yandex
+  authorize page; approve, then copy the token it displays and paste it back.
+
+<details>
+<summary><b>Prefer to do it by hand?</b></summary>
+
+**Headless (device flow):**
+
+```bash
+# 1. start the flow — returns a user_code + verification_url
+curl -s -X POST https://oauth.yandex.ru/device/code -d "client_id=$YANDEX_OAUTH_CLIENT_ID"
+# 2. open https://ya.ru/device, enter the user_code, approve
+# 3. exchange the device_code for the token
+curl -s -X POST https://oauth.yandex.ru/token \
+  -d grant_type=device_code -d "code=<device_code>" \
+  -d "client_id=$YANDEX_OAUTH_CLIENT_ID" -d "client_secret=$YANDEX_OAUTH_CLIENT_SECRET"
+```
+
+**Browser (implicit):** open
+`https://oauth.yandex.ru/authorize?response_type=token&client_id=<ClientID>` in a logged-in
+browser, approve, and copy the token from the page. (Plain `curl` can't — implicit needs an
+interactive browser session.)
+
+**Organization id:** [tracker.yandex.ru/admin/orgs](https://tracker.yandex.ru/admin/orgs) →
+your organization → copy the identifier.
+</details>
 
 ## Project layout
 
