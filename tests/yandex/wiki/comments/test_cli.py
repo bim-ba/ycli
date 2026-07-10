@@ -32,10 +32,16 @@ def test_comments_list():
 
 @responses.activate
 def test_comments_thread():
+    """`thread` reconstructs from the flat comments list (the /thread endpoint is dead)."""
     responses.add(
         responses.GET,
-        f"{BASE}/pages/42/comments/7/thread",
-        json={"results": [{"content": "reply"}], "next_cursor": None},
+        f"{BASE}/pages/42/comments",
+        json={
+            "results": [
+                {"id": 7, "body": "root", "parent_id": None},
+                {"id": 8, "body": "reply", "parent_id": 7},
+            ]
+        },
         status=200,
     )
     result = runner.invoke(cli.app, ["wiki", "comments", "thread", "42", "7"])

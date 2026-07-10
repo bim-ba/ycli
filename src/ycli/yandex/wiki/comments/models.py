@@ -17,11 +17,20 @@ class Comment(APIModel):
     reads the ``body`` key (via ``validation_alias``; it still renders as ``content``) and
     ``author`` flattens ``display_name``.
 
+    ``id`` and ``parent_id`` carry the thread wiring: the list returns a reply *flat* — as a
+    sibling of its parent, tagged only by ``parent_id`` (``thread_id`` / ``thread_info`` come back
+    ``null``). ``CommentsClient.thread`` reads that wiring to reconstruct a single thread — the
+    target comment followed by its descendants — from an otherwise flat listing.
+
     Example:
         >>> Comment.model_validate({"author": {"display_name": "Сава"}, "body": "ok"}).content
         'ok'
     """
 
+    id: int | None = None
+    parent_id: int | None = Field(
+        default=None, description="Id of the comment this one replies to; ``None`` on a root."
+    )
     created_at: str | None = None
     author: DisplayNameStr = None
     content: str | None = Field(default=None, validation_alias="body")

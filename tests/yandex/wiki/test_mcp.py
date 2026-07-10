@@ -43,15 +43,21 @@ async def test_comments_list_tool(creds):
 
 @responses.activate
 async def test_comments_thread_list_tool(creds):
+    """The tool reconstructs the thread from the flat comments list (/thread endpoint is dead)."""
     responses.add(
         responses.GET,
-        f"{BASE}/pages/42/comments/7/thread",
-        json={"results": [{"content": "reply"}], "next_cursor": None},
+        f"{BASE}/pages/42/comments",
+        json={
+            "results": [
+                {"id": 7, "body": "root", "parent_id": None},
+                {"id": 8, "body": "reply", "parent_id": 7},
+            ]
+        },
         status=200,
     )
     async with Client(wiki_mcp.mcp) as client:
         result = await client.call_tool("comments_thread_list", {"page_id": 42, "comment_id": 7})
-    assert result.data[0].content == "reply"
+    assert [c.content for c in result.data] == ["root", "reply"]
 
 
 @responses.activate

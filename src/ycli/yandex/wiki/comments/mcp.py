@@ -40,10 +40,12 @@ def thread_list(
     client: WikiClient = Depends(wiki_client),
     cfg: AppConfig = Depends(app_config),
 ) -> CommentList:
-    """The reply thread rooted at a comment, auto-paginated (drains the ``next_cursor`` internally).
+    """A comment and its replies, reconstructed from the page's comment list.
 
-    Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Use ``comments_list``
-    first to discover a root comment id, then this to read its replies.
+    The Wiki ``/thread`` endpoint is dead (returns no replies), so this fetches every comment
+    on the page and chains ``parent_id`` from the target: the comment comes first, then its
+    descendants in depth-first order. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is
+    given. Use ``comments_list`` first to discover a root comment id, then this to read its thread.
 
     Example:
         >>> thread_list(page_id=12345, comment_id=678, limit=50)  # doctest: +SKIP

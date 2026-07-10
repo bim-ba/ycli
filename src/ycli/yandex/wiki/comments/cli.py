@@ -38,7 +38,11 @@ def thread(
     limit: Annotated[int, typer.Option(help="Max replies (auto-paginates).")] = 0,
     all_: Annotated[bool, typer.Option("--all", help="Fetch every reply (no cap).")] = False,
 ) -> None:
-    """Print the reply thread rooted at COMMENT_ID on PAGE_ID (auto-paginated)."""
+    """Print the thread for COMMENT_ID on PAGE_ID: the comment plus its replies.
+
+    Reconstructed from the page's comment list (the Wiki /thread endpoint is dead); the
+    comment comes first, then its descendants chained by parent_id.
+    """
     app_ctx = AppContext.from_typer_context(ctx)
     cap = None if all_ else (limit or app_ctx.config.max_items)
     Serializer.serialize(
