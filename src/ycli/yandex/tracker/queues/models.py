@@ -134,8 +134,9 @@ class Queue(APIModel):
         alias="self",
         description="API resource URL that returns full information about the queue.",
     )
-    id: str | None = Field(
-        default=None, description="Unique identifier of the queue (a number in string form)."
+    id: str | int | None = Field(
+        default=None,
+        description="Unique identifier of the queue (a number; may arrive as an int or a string).",
     )
     key: str | None = Field(
         default=None,

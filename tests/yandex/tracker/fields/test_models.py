@@ -33,6 +33,25 @@ def test_custom_field_parses_nested_schema_and_providers():
     assert field.self_url.endswith("/fields/ruName")  # ty: ignore[unresolved-attribute]
 
 
+def test_options_provider_accepts_integer_values():
+    # The live global field `possibleSpam` returns optionsProvider.values as JSON integers.
+    ints = CustomField.model_validate(
+        {
+            "id": "possibleSpam",
+            "optionsProvider": {"type": "IntegerFieldOptionsProvider", "values": [0, 1]},
+        }
+    )
+    assert ints.options_provider.values == [0, 1]  # ty: ignore[unresolved-attribute]
+    # A string-valued options provider must still parse.
+    strs = CustomField.model_validate(
+        {
+            "id": "priority",
+            "optionsProvider": {"type": "FixedListOptionsProvider", "values": ["a", "b"]},
+        }
+    )
+    assert strs.options_provider.values == ["a", "b"]  # ty: ignore[unresolved-attribute]
+
+
 def test_field_list_is_flat_array():
     fields = FieldList.model_validate([{"id": "summary"}, {"id": "status"}])
     assert [f.id for f in fields.root] == ["summary", "status"]

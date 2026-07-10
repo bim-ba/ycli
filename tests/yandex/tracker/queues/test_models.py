@@ -64,6 +64,17 @@ def test_queue_parses_full_payload_with_camelcase_aliases():
     assert cfg.resolutions[0].key == "wontFix"
 
 
+def test_queue_accepts_integer_id_from_top_level_endpoint():
+    # The live GET /queues/ and GET /queues/{id} return the top-level id as a JSON integer.
+    single = Queue.model_validate({"id": 2, "key": "TEST"})
+    assert single.id == 2
+    # ... and the same integer id inside a QueueList array must parse too.
+    listed = QueueList.model_validate([{"id": 2, "key": "TEST"}, {"id": 7, "key": "DEMO"}])
+    assert [q.id for q in listed.root] == [2, 7]
+    # A string id (as returned in expand blocks / older shapes) must still parse.
+    assert Queue.model_validate({"id": "3", "key": "TEST"}).id == "3"
+
+
 def test_queue_defaults_are_empty_not_none():
     q = Queue.model_validate({"key": "TEST"})
     assert q.team_users == [] and q.issue_types == [] and q.versions == []

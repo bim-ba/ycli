@@ -42,7 +42,7 @@ class FieldProvider(APIModel):
     type: str | None = Field(
         default=None, description="Provider class name; cannot be changed via the API."
     )
-    values: list[str] = Field(
+    values: list[str | int] = Field(
         default_factory=list,
         description="Allowed field values; present only on an options provider.",
     )
