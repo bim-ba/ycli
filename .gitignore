@@ -23,6 +23,8 @@ htmlcov/
 # AI-agent local files
 PROMPT.md
 .mcp.json
+# Playwright MCP browser session artifacts (traces/screenshots from local runs)
+.playwright-mcp/
 # …except the bundled plugin config, which holds only ${VAR} references (not real secrets).
 !plugins/yandex-360/.mcp.json
 
