@@ -116,7 +116,7 @@ review cover the rest):
 
 ## Resource conventions (models, naming, MCP imports)
 
-The conventions that ARCH-1..10 do not capture — `APIModel` inheritance, `XList`/`XResponse`
+The conventions that ARCH-1..11 do not capture — `APIModel` inheritance, `XList`/`XResponse`
 naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
 

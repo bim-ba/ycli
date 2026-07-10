@@ -11,7 +11,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 - **Stack:** Python ≥3.12, managed with `uv`. `requests` + `uplink` (HTTP/SDK), `typer`
   (CLI), `fastmcp` (MCP), `pydantic` (models), `loguru` (logging).
-- **Layout:** root entry points `src/ycli/cli.py` (CLI) and `src/ycli/mcp.py` (MCP); per-domain SDK
+- **Layout:** root entry-point packages `src/ycli/cli/` (CLI, `app.py`) and `src/ycli/mcp/` (MCP server, `server.py`); per-domain SDK
   under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, `mcp.py`, models). Vendored
   external docs live under `references/` (not `docs/`, which is the repo's own docs):
   `references/yandex-360/` holds the 360/dev-hub docs — git-ignored, local-only, regenerated with
@@ -20,7 +20,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   plugin (skills + instructions) lives in `plugins/yandex-360/`, listed by the repo-root
   `.claude-plugin/marketplace.json`.
 - **Output:** every CLI command honors a global `--format/-o` flag (`auto` · `json` · `yaml`
-  · `pretty`); rendering goes through `ycli.output.render` (ARCH-4). No output surface
+  · `pretty`); rendering goes through `output.Serializer.serialize` (`src/ycli/cli/output.py`, ARCH-4). No output surface
   hardcodes a service UI URL (ARCH-5); a general per-model deeplink mechanism is deferred.
 - **Typing:** the package ships a PEP 561 `py.typed` marker, so downstream type checkers
   see ycli's types. The MCP server is the `ycli mcp start` subcommand (optional `[mcp]` extra).
@@ -92,7 +92,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
 for the eleven invariants (ARCH-1..11). They are verified by `tests/test_architecture.py`,
 import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
-them: HTTP only in `client.py`; CLI output only via `ycli.output.render`; MCP tools read-only;
+them: HTTP only in `client.py`; CLI output only via `output.Serializer.serialize`; MCP tools read-only;
 new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
 enforcing check in the **same** PR and flag it.
 
