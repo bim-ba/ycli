@@ -10,10 +10,12 @@ import typer
 from ycli.cli.binary import write_output
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
 from ycli.yandex.forms.answers.models import AnswerExport
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.polling import poll
 
 if TYPE_CHECKING:
@@ -31,12 +33,12 @@ def _group() -> None:
 def list_(
     ctx: typer.Context,
     survey_id: SurveyIdArg,
-    limit: Annotated[int, typer.Option(help="Max responses (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every response (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """List a form's responses (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console
     )

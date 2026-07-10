@@ -13,6 +13,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
 from ycli.yandex.tracker.entities.models import (
@@ -103,7 +104,8 @@ def events_list(
     Example:
         >>> entities_events_list("project", "655f", limit=50)  # doctest: +SKIP
     """
-    return client.entities.history(entity_type, entity_id, limit=limit or cfg.max_items)
+    cap = resolve_cap(limit, cfg.max_items)
+    return client.entities.history(entity_type, entity_id, limit=cap)
 
 
 @mcp.tool(

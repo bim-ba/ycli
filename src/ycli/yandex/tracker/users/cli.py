@@ -8,6 +8,8 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.pagination import resolve_cap
 
 app = typer.Typer(name="users", help="Tracker organisation users.", no_args_is_help=True)
 
@@ -35,13 +37,13 @@ def get(
 @app.command("list")
 def list_(
     ctx: typer.Context,
-    limit: Annotated[int, typer.Option(help="Max users (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every user (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
     expand: Annotated[str, typer.Option(help="Extra data to include, e.g. groups.")] = "",
 ) -> None:
     """List all organisation users (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.tracker.users.list(limit=cap, expand=expand or None),
         app_ctx.strategy,

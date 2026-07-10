@@ -18,6 +18,25 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
+def resolve_cap(limit: int, max_items: int, *, all_: bool = False) -> int | None:
+    """Resolve a listing's item cap from a ``limit`` option and an optional ``--all`` flag.
+
+    Shared by the CLI and MCP so the "0 = default cap, ``--all`` = uncapped" rule lives once.
+    ``all_`` (the CLI ``--all`` flag) uncaps (returns ``None``); otherwise a positive ``limit``
+    wins, falling back to the configured ``max_items`` default. The MCP surface has no ``--all``
+    by design, so it simply omits the flag (always capped).
+
+    Example:
+        >>> resolve_cap(0, 500)
+        500
+        >>> resolve_cap(10, 500)
+        10
+        >>> resolve_cap(10, 500, all_=True) is None
+        True
+    """
+    return None if all_ else (limit or max_items)
+
+
 class PaginationStrategy[P, T](ABC):
     @abstractmethod
     def collect(self, fetch_page: Callable[..., P], limit: int | None) -> list[T]:
@@ -67,6 +86,19 @@ class CursorStrategy[P, T](PaginationStrategy[P, T]):
             cursor = self._next_of(page)
             if cursor is None:
                 return items
+
+    @classmethod
+    def collect_wrapped[R](
+        cls,
+        page_fn: Callable[[str | None], P],
+        *,
+        extract: Callable[[P], list[T]],
+        next_of: Callable[[P], str | None],
+        wrap: Callable[[list[T]], R],
+        limit: int | None = None,
+    ) -> R:
+        """Cursor envelope -> bounded, wrapped flat collection (the wiki cursor list shape)."""
+        return wrap(cls(extract=extract, next_of=next_of).collect(page_fn, limit))
 
 
 class NextUrlStrategy[P, T](PaginationStrategy[P, T]):

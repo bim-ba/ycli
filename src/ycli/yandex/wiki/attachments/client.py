@@ -45,15 +45,13 @@ class AttachmentsClient(WikiResource):
             >>> client.attachments.list(12345, limit=50).root[0].name  # doctest: +SKIP
             'diagram.png'
         """
-        strategy = CursorStrategy(
+        return CursorStrategy.collect_wrapped(
+            lambda cursor: self._list_page(page_id, page_size=100, cursor=cursor),
             extract=lambda page: page.results,
             next_of=lambda page: page.next_cursor,
+            wrap=AttachmentList,
+            limit=limit,
         )
-        attachments = strategy.collect(
-            lambda cursor: self._list_page(page_id, page_size=100, cursor=cursor),
-            limit,
-        )
-        return AttachmentList(attachments)
 
     @uplink.get("pages/{page_id}/attachments/{file_id}/download")
     def _download(self, page_id: uplink.Path, file_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]

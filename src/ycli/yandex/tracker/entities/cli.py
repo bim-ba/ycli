@@ -22,7 +22,9 @@ from ycli.yandex.tracker.entities.models import (
     CommentCreate,
     CommentUpdate,
     DeadlineInput,
+    EntityFieldsInput,
     LinkInput,
+    ParentEntityInput,
     ReportCreate,
     ReportFieldsInput,
     ReportFilter,
@@ -73,27 +75,22 @@ def _fields_body(
 ) -> dict[str, Any]:
     """Assemble the ``fields`` object (API alias keys) from CLI options, merging ``--field`` extras.
 
-    Mirrors the ``EntityFieldsInput`` model 1:1; a plain dict keeps the aliased keys explicit and
-    lets ``--field key=value`` override or add arbitrary field parameters.
+    Builds the typed :class:`EntityFieldsInput` (the single source of truth for every API alias)
+    and dumps it, so the CLI never hand-assembles the aliased dict; ``--field key=value`` still
+    overrides or adds arbitrary field parameters (last write wins).
     """
-    fields: dict[str, Any] = {}
-    for key, value in (
-        ("summary", summary),
-        ("description", description),
-        ("lead", lead),
-        ("author", author),
-        ("entityStatus", status),
-        ("start", start),
-        ("end", end),
-    ):
-        if value:
-            fields[key] = value
-    if parent:
-        fields["parentEntity"] = {"primary": parent}
-    if team_user:
-        fields["teamUsers"] = team_user
-    if tag:
-        fields["tags"] = tag
+    fields = EntityFieldsInput(
+        summary=summary or None,
+        description=description or None,
+        lead=lead or None,
+        author=author or None,
+        entityStatus=status or None,
+        start=start or None,
+        end=end or None,
+        parentEntity=ParentEntityInput(primary=parent) if parent else None,
+        teamUsers=team_user or None,
+        tags=tag or None,
+    ).model_dump(by_alias=True, exclude_none=True)
     fields |= parse_fields(field)
     return fields
 

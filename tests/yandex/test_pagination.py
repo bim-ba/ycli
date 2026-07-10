@@ -4,7 +4,18 @@ from ycli.yandex.pagination import (
     OffsetStrategy,
     RelativeCursorStrategy,
     SinglePageStrategy,
+    resolve_cap,
 )
+
+
+def test_resolve_cap_all_flag_uncaps():
+    assert resolve_cap(0, 500, all_=True) is None
+    assert resolve_cap(10, 500, all_=True) is None
+
+
+def test_resolve_cap_limit_wins_then_default():
+    assert resolve_cap(10, 500) == 10
+    assert resolve_cap(0, 500) == 500
 
 
 def test_single_page_truncates_to_limit():
@@ -75,6 +86,21 @@ def test_single_page_collect_wrapped_extracts_wraps_and_bounds():
         lambda cursor: pages, extract=lambda p: p["a"], wrap=list, limit=2
     )
     assert out == [1, 2]
+
+
+def test_cursor_collect_wrapped_extracts_wraps_next_and_bounds():
+    pages = {
+        None: {"results": [1, 2], "next_cursor": "c1"},
+        "c1": {"results": [3, 4], "next_cursor": None},
+    }
+    out = CursorStrategy.collect_wrapped(
+        lambda cursor: pages[cursor],
+        extract=lambda p: p["results"],
+        next_of=lambda p: p["next_cursor"],
+        wrap=list,
+        limit=3,
+    )
+    assert out == [1, 2, 3]
 
 
 def test_next_url_strategy_respects_limit():

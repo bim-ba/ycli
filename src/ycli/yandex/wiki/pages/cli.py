@@ -9,6 +9,8 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.polling import poll
 from ycli.yandex.wiki.pages.models import PageAppendContent, PageAppendContentBody, PageClone
 
@@ -35,12 +37,12 @@ def get(
 def descendants(
     ctx: typer.Context,
     slug: SlugArg,
-    limit: Annotated[int, typer.Option(help="Max refs (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every descendant (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.wiki.pages.descendants(slug=slug, limit=cap), app_ctx.strategy, app_ctx.console
     )
@@ -67,12 +69,12 @@ def get_by_id(
 def descendants_by_id(
     ctx: typer.Context,
     page_id: PageIdArg,
-    limit: Annotated[int, typer.Option(help="Max refs (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every descendant (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.wiki.pages.descendants_by_id(page_id=page_id, limit=cap),
         app_ctx.strategy,
@@ -84,15 +86,15 @@ def descendants_by_id(
 def grids(
     ctx: typer.Context,
     page_id: PageIdArg,
-    limit: Annotated[int, typer.Option(help="Max grids (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every grid (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
     order_by: Annotated[
         str, typer.Option("--order-by", help="Sort field: title or created_at.")
     ] = "",
 ) -> None:
     """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.wiki.pages.grids(page_id=page_id, limit=cap, order_by=order_by or None),
         app_ctx.strategy,

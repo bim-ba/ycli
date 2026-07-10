@@ -43,15 +43,13 @@ class CommentsClient(WikiResource):
             >>> client.comments.list(12345, limit=50).root[0].author  # doctest: +SKIP
             'Сава Знатнов'
         """
-        strategy = CursorStrategy(
+        return CursorStrategy.collect_wrapped(
+            lambda cursor: self._list_page(page_id, page_size=100, cursor=cursor),
             extract=lambda page: page.results,
             next_of=lambda page: page.next_cursor,
+            wrap=CommentList,
+            limit=limit,
         )
-        comments = strategy.collect(
-            lambda cursor: self._list_page(page_id, page_size=100, cursor=cursor),
-            limit,
-        )
-        return CommentList(comments)
 
     def thread(self, page_id: int, comment_id: int, *, limit: int | None = None) -> CommentList:
         """The comment ``comment_id`` followed by its replies, reconstructed from ``comments list``.
