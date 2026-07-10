@@ -22,11 +22,12 @@ repos:
         files: ^(src/ycli/|tests/).*\.py$
       - id: no-skip-ci
         name: block skip-ci tokens in tracked files
-        entry: bash -c '! git diff --cached -U0 | grep -nE "\[(skip ci|ci skip)\]"'
+        # Match the full token set GitHub honors (see CLAUDE.md "Never write a skip-ci token").
+        entry: bash -c '! git diff --cached -U0 | grep -niE "\[(skip ci|ci skip|no ci|skip actions|actions skip)\]|skip-checks:[[:space:]]*true"'
         language: system
         pass_filenames: false
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: 0.0.55
+    rev: v0.0.55  # tags are v-prefixed; a bare `0.0.55` can't be checked out and breaks every hook run
     hooks:
       - id: ty
   - repo: https://github.com/gitleaks/gitleaks

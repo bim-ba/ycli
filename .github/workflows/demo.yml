@@ -1,21 +1,29 @@
 name: demo
 
-# Regenerate docs/assets/demo.gif from docs/demo/demo.tape whenever the demo
-# source changes, and commit the result back — so the README demo is always a
-# real, current recording (never a hand-edited asset).
+# Verify-only: re-render docs/assets/demo.gif from docs/demo/demo.tape and FAIL if the
+# committed asset is stale. The committed GIF is the source of truth — a contributor
+# regenerates it locally (`vhs docs/demo/demo.tape`) and commits it; this check proves
+# it's current. It never pushes, so — unlike the old auto-commit design — it cannot fail
+# against branch protection on `main`, cannot run on release tags (fixing the every-release
+# failure), and cannot poison a PR's required-check gate with a bot commit.
 
 on:
+  pull_request:
+    paths:
+      - 'docs/demo/**'
+      - '.github/workflows/demo.yml'
   push:
+    branches: [main]
     paths:
       - 'docs/demo/**'
       - '.github/workflows/demo.yml'
 
 permissions:
-  contents: write
+  contents: read
 
-# One render at a time — two quick docs pushes would otherwise race to commit the GIF.
+# One render per ref is enough; a newer push supersedes an in-flight one.
 concurrency:
-  group: demo
+  group: demo-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -36,6 +44,8 @@ jobs:
       # Install VHS + ttyd ourselves (ffmpeg is preinstalled on ubuntu-latest).
       # The charmbracelet/vhs-action bundles flaky font/ffmpeg downloaders that
       # break on the runner, so we set the toolchain up directly instead.
+      # (Version-pinning the toolchain for byte-deterministic renders lands in a
+      # follow-up CI-hardening PR.)
       - name: Install VHS toolchain
         run: |
           set -euo pipefail
@@ -50,17 +60,11 @@ jobs:
       - name: Render demo GIF
         run: vhs docs/demo/demo.tape
 
-      - name: Commit regenerated GIF
-        uses: stefanzweifel/git-auto-commit-action@v7.2.0
-        with:
-          # No CI-bypass marker in the message: recursion is already prevented
-          # structurally (this job triggers on docs/demo/** while the output lives in
-          # docs/assets/, so the GIF commit never re-renders), and the auto-commit
-          # rides the default GITHUB_TOKEN, whose pushes don't start new runs. A bypass
-          # marker here would instead ride a squash-merge into main and silently cancel
-          # the python-semantic-release run — the v0.8.0 release incident.
-          commit_message: "docs: regenerate demo GIF"
-          file_pattern: docs/assets/demo.gif
-          commit_user_name: vhs-action 📼
-          commit_user_email: actions@github.com
-          commit_author: vhs-action 📼 <actions@github.com>
+      - name: Verify the committed GIF is current
+        run: |
+          if ! git diff --quiet -- docs/assets/demo.gif; then
+            git diff --stat -- docs/assets/demo.gif
+            echo '::error::docs/assets/demo.gif is stale — run `vhs docs/demo/demo.tape` and commit the result.'
+            exit 1
+          fi
+          echo 'docs/assets/demo.gif is up to date.'
