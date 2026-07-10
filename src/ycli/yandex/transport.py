@@ -85,6 +85,24 @@ class Transport:
         return f"OAuth {oauth_token}"
 
     @staticmethod
+    def _human_detail(response: Response) -> str:
+        """The human-readable line from a Yandex error body, or a raw snippet fallback.
+
+        Yandex APIs return ``{"errorMessages": ["…"], …}``; surfacing that message rather
+        than the raw JSON keeps CLI errors readable. Parsing the error body is the
+        transport's job (ARCH-9) — no downstream surface does it.
+        """
+        try:
+            body = response.json()
+        except ValueError:
+            body = None
+        if isinstance(body, dict):
+            messages = body.get("errorMessages")
+            if isinstance(messages, list) and messages:
+                return "; ".join(str(item) for item in messages)
+        return response.text[:300].replace("\n", " ").strip()
+
+    @staticmethod
     def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
         """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
 
@@ -95,9 +113,9 @@ class Transport:
         code = response.status_code
         if code < 400:
             return response
-        snippet = response.text[:300].replace("\n", " ").strip()
         method = response.request.method
-        message = f"{code} {response.reason} for {method} {response.url}: {snippet}"
+        detail = Transport._human_detail(response)
+        message = f"{code} {response.reason} for {method} {response.url}: {detail}"
         url = response.url
         match code:
             case 401 | 403:

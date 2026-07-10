@@ -73,7 +73,7 @@ class PrettyStrategy(SerializationStrategy):
 
     def render(self, result: BaseModel, console: Console) -> None:
         rendered = self._render(result.model_dump(by_alias=True, mode="json"))
-        console.print("" if rendered is None else rendered)
+        console.print("[dim]No results.[/dim]" if rendered is None else rendered)
 
     def _render(self, value: Any) -> Any:
         """Value → a rich renderable (``str`` or ``Table``), or ``None`` to omit it."""
@@ -83,6 +83,8 @@ class PrettyStrategy(SerializationStrategy):
             return self._render_list(value)
         if value is None:
             return None
+        if isinstance(value, bool):
+            return "[green]✓[/]" if value else "[red]✗[/]"
         return str(value)
 
     def _render_object(self, data: dict[str, Any]) -> Any:

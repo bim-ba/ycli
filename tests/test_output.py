@@ -119,11 +119,11 @@ def test_render_object_list_with_mixed_nondict_item():
     assert table.row_count == 2  # the non-dict row renders as empty cells
 
 
-def test_render_all_null_model_prints_blank_line():
+def test_render_all_null_model_prints_no_results():
     console, buf = _console(tty=True)
 
     class Empty(BaseModel):
         a: int | None = None
 
     PrettyStrategy().render(Empty(), console)
-    assert buf.getvalue().strip() == ""
+    assert "No results" in buf.getvalue()
