@@ -48,4 +48,7 @@ PROMPT.md
 /graphify-out/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
 /graphify-out/.graphify_*
 /graphify-out/manifest.json
-/.graphify/
+# .graphify/ is graphify's local cache — ignore its contents but keep the committed
+# rebuild recipe so the GLM-5.2 graph is reproducible.
+/.graphify/*
+!/.graphify/rebuild.sh
