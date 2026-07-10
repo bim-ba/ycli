@@ -62,16 +62,13 @@ def modify(
     ctx: typer.Context,
     survey_id: SurveyIdArg,
     keyset_id: KeysetIdArg,
-    name: Annotated[str, typer.Option(help="New key set name.")] = "",
-    total: Annotated[int, typer.Option(help="New key count (0 = leave unchanged).")] = 0,
-    enabled: Annotated[
-        bool | None, typer.Option("--enabled/--disabled", help="Enable / disable the set.")
-    ] = None,
+    name: Annotated[str, typer.Option(help="Key set name (required — replaces the record).")],
+    total: Annotated[int, typer.Option(help="Number of keys (required — replaces the record).")],
+    enabled: Annotated[bool, typer.Option("--enabled/--disabled", help="Active flag (required).")],
 ) -> None:
-    """Modify key set KEYSET_ID on SURVEY_ID (PATCH) — only supplied fields are sent."""
-    body = KeysetUpdate(name=name or None, total=total or None, is_enabled=enabled).model_dump(
-        exclude_none=True
-    )
+    """Modify key set KEYSET_ID on SURVEY_ID (PATCH) — the API replaces the whole record, so
+    every field (name, total, enabled) is required and sent together."""
+    body = KeysetUpdate(name=name, total=total, is_enabled=enabled).model_dump()
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
         app_ctx.forms.keysets.modify(survey_id, keyset_id, body=body),

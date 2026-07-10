@@ -76,21 +76,47 @@ def test_create_sends_typed_body():
 
 
 @responses.activate
-def test_modify_sends_only_supplied_fields():
+def test_modify_sends_full_record():
+    """PATCH replaces the whole key set, so modify sends name + total + is_enabled together."""
     responses.add(
         responses.PATCH,
         f"{BASE}/surveys/{SID}/keysets/{KID}",
-        json={"id": KID, "is_enabled": False},
+        json={"id": KID, "name": "Q2", "total": 300, "is_enabled": False},
         status=200,
     )
     res = runner.invoke(
         cli.app,
-        ["--format", "json", "forms", "keysets", "modify", SID, str(KID), "--disabled"],
+        [
+            "--format",
+            "json",
+            "forms",
+            "keysets",
+            "modify",
+            SID,
+            str(KID),
+            "--name",
+            "Q2",
+            "--total",
+            "300",
+            "--disabled",
+        ],
     )
     assert res.exit_code == 0
     assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "name": "Q2",
+        "total": 300,
         "is_enabled": False,
     }
+
+
+@responses.activate
+def test_modify_requires_full_record():
+    """The API rejects a partial PATCH (name+total+is_enabled all required), so the CLI requires
+    every field — omitting one is a usage error before any request is sent (no partial PATCH)."""
+    responses.add(responses.PATCH, f"{BASE}/surveys/{SID}/keysets/{KID}", json={}, status=200)
+    res = runner.invoke(cli.app, ["forms", "keysets", "modify", SID, str(KID), "--name", "Q2"])
+    assert res.exit_code != 0
+    assert len(responses.calls) == 0  # rejected at arg-parse; no partial body was ever sent
 
 
 @responses.activate

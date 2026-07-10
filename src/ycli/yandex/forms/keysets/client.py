@@ -55,15 +55,17 @@ class KeysetsClient(FormsResource):
     @uplink.json
     @uplink.patch("surveys/{survey_id}/keysets/{keyset_id}")
     def modify(self, survey_id: uplink.Path, keyset_id: uplink.Path, body: uplink.Body) -> Keyset:  # ty: ignore[empty-body]
-        """``PATCH /surveys/{id}/keysets/{keyset_id}`` — patch a key set → the :class:`Keyset`.
+        """``PATCH /surveys/{id}/keysets/{keyset_id}`` — replace a key set → the :class:`Keyset`.
 
-        Build ``body`` from a :class:`~ycli.yandex.forms.keysets.models.KeysetUpdate`; only the
-        keys present are changed.
+        Despite being a PATCH, the API validates the body as a full record: ``name``, ``total`` and
+        ``is_enabled`` are all required, and any missing field is rejected with ``400
+        value_error.missing``. Build ``body`` from a
+        :class:`~ycli.yandex.forms.keysets.models.KeysetUpdate` with every field set.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.keysets.modify(
-            ...     "686d0a1b2c3d4e5f", 7, {"is_enabled": False}
+            ...     "686d0a1b2c3d4e5f", 7, {"name": "Q1", "total": 250, "is_enabled": False}
             ... ).is_enabled  # doctest: +SKIP
             False
         """

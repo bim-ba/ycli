@@ -56,9 +56,11 @@ class KeysetCreate(APIModel):
 class KeysetUpdate(KeysetCreate):
     """Typed request body for modifying a key set (``PATCH /surveys/{id}/keysets/{keyset_id}``).
 
-    Same optional fields as :class:`KeysetCreate`; only the fields you set are sent.
+    Same fields as :class:`KeysetCreate`. Although the verb is PATCH, the API validates the body as
+    a full record — ``name``, ``total`` and ``is_enabled`` are all required (a missing field is
+    rejected with ``400 value_error.missing``), so set every field.
 
     Example:
-        >>> KeysetUpdate(is_enabled=False).is_enabled
+        >>> KeysetUpdate(name="Q1", total=250, is_enabled=False).is_enabled
         False
     """

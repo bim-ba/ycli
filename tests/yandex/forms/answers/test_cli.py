@@ -187,6 +187,37 @@ def test_export_wait_polls_then_downloads_file(tmp_path):
 
 
 @responses.activate
+def test_export_wait_completes_on_redirect_to_csv(tmp_path):
+    """--wait must reach the terminal state even when export-results 302-redirects straight to the
+    CSV file (the status endpoint never returns a JSON 'ok'), then download the file."""
+    file_url = "https://forms.s3-private.mds.yandex.net/uploads/answers.csv"
+    responses.add(
+        responses.POST,
+        f"{BASE}/surveys/{SID}/answers/export",
+        json={"id": "op-1", "status": "wait"},
+        status=202,
+    )
+    # both the terminal poll and the download hit export-results, which 302-redirects to the file
+    for _ in range(2):
+        responses.add(
+            responses.GET,
+            f"{BASE}/surveys/{SID}/answers/export-results",
+            status=302,
+            headers={"Location": file_url},
+        )
+        responses.add(
+            responses.GET, file_url, body=b"Name\nresp0\n", content_type="application/octet-stream"
+        )
+    target = tmp_path / "answers.csv"
+    res = runner.invoke(
+        cli.app,
+        ["forms", "answers", "export", SID, "--format", "csv", "--output", str(target)],
+    )
+    assert res.exit_code == 0
+    assert target.read_bytes() == b"Name\nresp0\n"
+
+
+@responses.activate
 def test_export_wait_failed_prints_status():
     responses.add(
         responses.POST,
