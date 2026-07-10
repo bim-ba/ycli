@@ -1,56 +1,294 @@
 auth
+auth login
 auth status
 forms
 forms answers
+forms answers export
 forms answers list
+forms files
+forms files delete
+forms files download
+forms files upload
+forms files verify
+forms filling
+forms filling get
+forms filling submit
+forms filling suggest
+forms images
+forms images upload
+forms keysets
+forms keysets create
+forms keysets delete
+forms keysets download
+forms keysets get
+forms keysets list
+forms keysets modify
 forms me
 forms me get
+forms operations
+forms operations get
 forms questions
+forms questions create
+forms questions delete
+forms questions get
 forms questions list
+forms questions modify
+forms questions move
 forms surveys
+forms surveys create
+forms surveys delete
 forms surveys get
 forms surveys list
+forms surveys modify
+forms surveys publish
+forms surveys unpublish
 mcp
 mcp methods
 mcp start
 tracker
+tracker applications
+tracker applications list
+tracker attachments
+tracker attachments download
+tracker attachments list
+tracker attachments thumbnail
+tracker autoactions
+tracker autoactions create
+tracker autoactions get
+tracker autoactions log-detail
+tracker autoactions logs
+tracker boards
+tracker boards create
+tracker boards delete
+tracker boards edit
+tracker boards get
+tracker boards list
+tracker bulk
+tracker bulk get
+tracker bulk issues
+tracker bulk move
+tracker bulk transition
+tracker bulk update
 tracker changelog
 tracker changelog list
+tracker checklists
+tracker checklists add
+tracker checklists clear
+tracker checklists delete
+tracker checklists edit
+tracker checklists get
+tracker columns
+tracker columns create
+tracker columns delete
+tracker columns edit
+tracker columns get
+tracker columns list
 tracker comments
 tracker comments add
+tracker comments delete
+tracker comments edit
 tracker comments list
+tracker comments react
+tracker components
+tracker components create
+tracker components edit
+tracker components list
+tracker dashboards
+tracker dashboards add-widget
+tracker dashboards add-widget cycletime
+tracker dashboards create
+tracker entities
+tracker entities attachments
+tracker entities attachments attach
+tracker entities attachments delete
+tracker entities attachments download
+tracker entities attachments get
+tracker entities attachments list
+tracker entities bulk
+tracker entities bulk-status
+tracker entities checklists
+tracker entities checklists create
+tracker entities checklists delete
+tracker entities checklists delete-item
+tracker entities checklists edit
+tracker entities checklists edit-item
+tracker entities checklists move
+tracker entities comments
+tracker entities comments create
+tracker entities comments delete
+tracker entities comments edit
+tracker entities comments get
+tracker entities comments list
+tracker entities create
+tracker entities create-report
+tracker entities delete
+tracker entities edit
+tracker entities get
+tracker entities history
+tracker entities links
+tracker entities links create
+tracker entities links delete
+tracker entities links list
+tracker entities permissions
+tracker entities search
+tracker entities set-permissions
+tracker fields
+tracker fields category-create
+tracker fields category-edit
+tracker fields create
+tracker fields edit
+tracker fields get
+tracker fields list
+tracker filters
+tracker filters create
+tracker filters edit
+tracker filters get
+tracker import
+tracker import comment
+tracker import file
+tracker import link
+tracker import task
+tracker import worklog
 tracker issues
 tracker issues count
 tracker issues create
 tracker issues get
 tracker issues list
+tracker issues move
+tracker issues scroll-clear
 tracker issues search
+tracker issues suggest
 tracker issues update
 tracker issuetypes
+tracker issuetypes create
+tracker issuetypes edit
 tracker issuetypes list
 tracker links
 tracker links add
+tracker links delete
 tracker links list
 tracker linktypes
 tracker linktypes list
+tracker localfields
+tracker localfields create
+tracker localfields edit
+tracker localfields get
+tracker localfields list
+tracker macros
+tracker macros create
+tracker macros delete
+tracker macros edit
+tracker macros get
+tracker macros list
 tracker me
 tracker me get
 tracker priorities
+tracker priorities create
+tracker priorities edit
 tracker priorities list
+tracker queues
+tracker queues create
+tracker queues delete
+tracker queues fields
+tracker queues get
+tracker queues list
+tracker queues permissions
+tracker queues restore
+tracker queues tag-remove
+tracker queues tags
+tracker queues version-create
+tracker queues versions
+tracker remotelinks
+tracker remotelinks create
+tracker remotelinks delete
+tracker remotelinks list
+tracker resolutions
+tracker resolutions create
+tracker resolutions edit
+tracker resolutions list
+tracker sprints
+tracker sprints archive
+tracker sprints create
+tracker sprints delete
+tracker sprints edit
+tracker sprints get
+tracker sprints list
+tracker sprints start
+tracker statuses
+tracker statuses create
+tracker statuses edit
+tracker statuses list
 tracker transitions
 tracker transitions execute
 tracker transitions list
+tracker triggers
+tracker triggers create
+tracker triggers edit
+tracker triggers get
+tracker triggers webhook-log
+tracker users
+tracker users get
+tracker users list
 tracker worklog
+tracker worklog add
+tracker worklog delete
+tracker worklog edit
+tracker worklog global-list
 tracker worklog list
+tracker worklog search
 wiki
 wiki attachments
+wiki attachments attach
+wiki attachments delete
+wiki attachments download
+wiki attachments download-by-url
 wiki attachments list
+wiki attachments upload
 wiki comments
+wiki comments create
+wiki comments delete
 wiki comments list
+wiki comments thread
+wiki grids
+wiki grids cells
+wiki grids cells update
+wiki grids clone
+wiki grids columns
+wiki grids columns add
+wiki grids columns move
+wiki grids columns remove
+wiki grids create
+wiki grids delete
+wiki grids get
+wiki grids rows
+wiki grids rows add
+wiki grids rows move
+wiki grids rows remove
+wiki grids update
 wiki me
 wiki me get
+wiki operations
+wiki operations clone
+wiki operations gridclone
 wiki pages
+wiki pages append
+wiki pages clone
 wiki pages create
+wiki pages delete
 wiki pages descendants
+wiki pages descendants-by-id
 wiki pages get
+wiki pages get-by-id
+wiki pages grids
 wiki pages update
+wiki recovery
+wiki recovery restore
+wiki resources
+wiki resources list
+wiki uploadsessions
+wiki uploadsessions abort
+wiki uploadsessions abort-all
+wiki uploadsessions create
+wiki uploadsessions finish
+wiki uploadsessions get
+wiki uploadsessions upload-part

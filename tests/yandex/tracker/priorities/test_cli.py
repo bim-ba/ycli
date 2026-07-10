@@ -44,3 +44,51 @@ def test_linktypes_list():
     responses.add(responses.GET, f"{BASE}/linktypes", json=[{"id": "relates"}], status=200)
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "linktypes", "list"])
     assert res.exit_code == 0 and json.loads(res.stdout)[0]["id"] == "relates"
+
+
+@responses.activate
+def test_priorities_create():
+    responses.add(responses.POST, f"{BASE}/priorities/", json={"id": 6, "key": "one"}, status=201)
+    res = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "priorities",
+            "create",
+            "--key",
+            "one",
+            "--name-ru",
+            "Низкий",
+            "--order",
+            "60",
+        ],
+    )
+    assert res.exit_code == 0 and json.loads(res.stdout)["key"] == "one"
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"key": "one", "name": {"ru": "Низкий"}, "order": 60}
+
+
+@responses.activate
+def test_priorities_edit_sends_version():
+    responses.add(
+        responses.PATCH, f"{BASE}/priorities/one", json={"id": 6, "key": "one"}, status=200
+    )
+    res = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "priorities",
+            "edit",
+            "one",
+            "--name-ru",
+            "Низкий",
+            "--version",
+            "1",
+        ],
+    )
+    assert res.exit_code == 0 and json.loads(res.stdout)["key"] == "one"
+    assert "version=1" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]

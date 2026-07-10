@@ -8,7 +8,12 @@ if TYPE_CHECKING:
     import requests
 
 from ycli.yandex.forms.answers.client import AnswersClient
+from ycli.yandex.forms.files.client import FilesClient
+from ycli.yandex.forms.filling.client import FillingClient
+from ycli.yandex.forms.images.client import ImagesClient
+from ycli.yandex.forms.keysets.client import KeysetsClient
 from ycli.yandex.forms.me.client import MeClient
+from ycli.yandex.forms.operations.client import OperationsClient
 from ycli.yandex.forms.questions.client import QuestionsClient
 from ycli.yandex.forms.surveys.client import SurveysClient
 from ycli.yandex.transport import Transport
@@ -41,3 +46,8 @@ class FormsClient:
         self.surveys = SurveysClient(session=transport)
         self.questions = QuestionsClient(session=transport)
         self.answers = AnswersClient(session=transport)
+        self.keysets = KeysetsClient(session=transport)
+        self.operations = OperationsClient(session=transport)
+        self.files = FilesClient(session=transport)
+        self.images = ImagesClient(session=transport)
+        self.filling = FillingClient(session=transport)

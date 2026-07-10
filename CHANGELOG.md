@@ -9,6 +9,29 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.10.0 (2026-07-10)
+
+### Build System
+
+- Sync uv.lock project version to 0.9.0
+  ([`7f62799`](https://github.com/bim-ba/ycli/commit/7f62799c5f518515d92f37c4079b03568ed62dd7))
+
+- **deps**: Bump the actions group with 2 updates (git-auto-commit 7.2.0, PSR 10.6.0)
+  ([`593f59a`](https://github.com/bim-ba/ycli/commit/593f59a9c314bb20580608042fc12cce8c77a7d7))
+
+### Documentation
+
+- Record enforced branch protection + GitHub App release flow
+  ([#19](https://github.com/bim-ba/ycli/pull/19),
+  [`7740588`](https://github.com/bim-ba/ycli/commit/7740588f30b303e58acffd16d838637b8960d02b))
+
+### Features
+
+- Full public API coverage, ycli auth login, and live-E2E fixes
+  ([#21](https://github.com/bim-ba/ycli/pull/21),
+  [`41e5df0`](https://github.com/bim-ba/ycli/commit/41e5df0baefde0faf85f342e363998d8fc3cc530))
+
+
 ## v0.9.0 (2026-06-29)
 
 ### Bug Fixes

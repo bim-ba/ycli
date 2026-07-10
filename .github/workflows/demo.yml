@@ -51,7 +51,7 @@ jobs:
         run: vhs docs/demo/demo.tape
 
       - name: Commit regenerated GIF
-        uses: stefanzweifel/git-auto-commit-action@v7.1.0
+        uses: stefanzweifel/git-auto-commit-action@v7.2.0
         with:
           # No CI-bypass marker in the message: recursion is already prevented
           # structurally (this job triggers on docs/demo/** while the output lives in

@@ -4,6 +4,7 @@ NOTE: do NOT add ``from __future__ import annotations`` — uplink reads paramet
 annotations eagerly.
 """
 
+import requests
 import uplink
 
 from ycli.yandex.tracker.base import TrackerResource
@@ -79,3 +80,46 @@ class IssuesClient(TrackerResource):
             ... ).priority  # doctest: +SKIP
             'critical'
         """
+
+    @uplink.returns.json()
+    @uplink.post("issues/{key}/_move")
+    def move(self, key: uplink.Path, queue: uplink.Query) -> Issue:  # ty: ignore[empty-body]
+        """``POST /issues/{key}/_move?queue=<key>`` — move an issue to another queue.
+
+        Returns the moved ``Issue`` (now bearing a key in the target queue).
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.issues.move(key="TEST-1", queue="NEW").key  # doctest: +SKIP
+            'NEW-1'
+        """
+
+    @uplink.returns.json()
+    @uplink.get("issues/_suggest")
+    def suggest(self, text: uplink.Query("input")) -> IssueList:  # ty: ignore[invalid-type-form, empty-body]
+        """``GET /issues/_suggest?input=<text>`` → issues whose summary contains ``text``.
+
+        A typeahead over visible issues (title match); returns an ``IssueList``.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.issues.suggest("fix bug").root[0].key  # doctest: +SKIP
+            'TEST-123'
+        """
+
+    @uplink.json
+    @uplink.post("system/search/scroll/_clear")
+    def _scroll_clear(self, body: uplink.Body) -> requests.Response:  # ty: ignore[empty-body]
+        """``POST /system/search/scroll/_clear`` (200; internal — use :meth:`scroll_clear`)."""
+
+    def scroll_clear(self, body: dict) -> None:
+        """Release a search scroll's server resources (``POST …/scroll/_clear`` → 200). No return.
+
+        ``body`` maps each ``X-Scroll-Id`` to its ``X-Scroll-Token`` from a scrolled
+        ``issues.search``. Raises on non-2xx.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.issues.scroll_clear({"scrollId": "scrollToken"})  # doctest: +SKIP
+        """
+        self._scroll_clear(body)

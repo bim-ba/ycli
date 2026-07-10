@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from ycli.settings import AppConfig, Credentials
+from ycli.settings import AppConfig, Credentials, OAuthAppConfig
 
 
 def test_app_config_defaults(monkeypatch):
@@ -59,6 +59,23 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
     # Root --help doesn't trigger the callback in Typer; use a subcommand invocation instead.
     CliRunner().invoke(cli.app, ["tracker", "issues", "--help"])
     assert captured["level"] == "ERROR"
+
+
+def test_oauth_app_config_defaults(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)  # ignore any repo-root .env
+    monkeypatch.delenv("YANDEX_OAUTH_CLIENT_ID", raising=False)
+    monkeypatch.delenv("YANDEX_OAUTH_CLIENT_SECRET", raising=False)
+    config = OAuthAppConfig()
+    assert config.client_id is None
+    assert config.client_secret is None
+
+
+def test_oauth_app_config_reads_env(monkeypatch):
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
+    config = OAuthAppConfig()
+    assert config.client_id == "app-id"
+    assert config.client_secret == "app-secret"
 
 
 def test_max_items_default_and_env(monkeypatch, tmp_path):

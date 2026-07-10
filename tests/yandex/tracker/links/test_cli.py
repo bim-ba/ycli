@@ -52,3 +52,12 @@ def test_add():
 def test_add_rejects_bad_relationship():
     res = runner.invoke(cli.app, ["tracker", "links", "add", "DE-1", "bogus", "DE-2"])
     assert res.exit_code != 0  # Enum validation rejects it
+
+
+@responses.activate
+def test_delete():
+    responses.add(responses.DELETE, f"{BASE}/issues/DE-1/links/42", status=204)
+    res = runner.invoke(cli.app, ["tracker", "links", "delete", "DE-1", "42"])
+    assert res.exit_code == 0
+    assert "Deleted link 42 on DE-1" in res.stdout
+    assert responses.calls[0].request.method == "DELETE"

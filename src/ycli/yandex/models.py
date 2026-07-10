@@ -1,9 +1,10 @@
 """Shared pydantic base + ref-flattening annotations for every Yandex API model.
 
-``APIModel`` is the lenient parse base. ``KeyStr`` / ``IdStr`` / ``DisplayStr`` normalize the
-API's single-field wrapper objects (``{"key": "x"}`` / ``{"id": "x"}`` / ``{"display": "x"}``)
-down to a bare string at parse time via ``BeforeValidator`` — so models expose plain scalars and
-need no per-model flattening property. Serialization is NOT a model concern — see ``output.py``.
+``APIModel`` is the lenient parse base. ``KeyStr`` / ``IdStr`` / ``DisplayStr`` /
+``DisplayNameStr`` normalize the API's single-field wrapper objects (``{"key": "x"}`` /
+``{"id": "x"}`` / ``{"display": "x"}`` / ``{"display_name": "x"}``) down to a bare string at parse
+time via ``BeforeValidator`` — so models expose plain scalars and need no per-model flattening
+property. Serialization is NOT a model concern — see ``output.py``.
 """
 
 from __future__ import annotations
@@ -38,3 +39,4 @@ def _extract(field: str) -> Callable[[Any], Any]:
 KeyStr = Annotated[str | None, BeforeValidator(_extract("key"))]
 IdStr = Annotated[str | None, BeforeValidator(_extract("id"))]
 DisplayStr = Annotated[str | None, BeforeValidator(_extract("display"))]
+DisplayNameStr = Annotated[str | None, BeforeValidator(_extract("display_name"))]

@@ -1,0 +1,33 @@
+"""TDD for `forms operations` CLI (wiring-dependent — run by the integrator after mount)."""
+
+import json
+
+import pytest
+import responses
+from typer.testing import CliRunner
+
+import ycli.cli.app as cli
+
+BASE = "https://api.forms.yandex.net/v1"
+OID = "op-4a1b"
+runner = CliRunner()
+
+
+@pytest.fixture(autouse=True)
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
+
+
+@responses.activate
+def test_get_dumps_operation_status():
+    responses.add(
+        responses.GET,
+        f"{BASE}/operations/{OID}",
+        json={"id": OID, "status": "wait", "message": "running"},
+        status=200,
+    )
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "operations", "get", OID])
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert out["id"] == OID and out["status"] == "wait"

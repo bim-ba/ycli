@@ -7,7 +7,7 @@ import requests
 import responses
 
 from ycli.yandex.forms.answers.client import AnswersClient
-from ycli.yandex.forms.answers.models import AnswersResponse
+from ycli.yandex.forms.answers.models import AnswersResponse, ExportResult
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -17,6 +17,11 @@ def _client() -> AnswersClient:
     s = requests.Session()
     s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
     return AnswersClient(session=s)
+
+
+def test_client_has_no_get():
+    """The single-answer endpoint is not deployed (404 at every path); the method was removed."""
+    assert "get" not in AnswersClient.__dict__
 
 
 @responses.activate
@@ -165,3 +170,110 @@ def test_list_all_limit_spans_pages():
     assert [a.id for a in ar.answers] == [1, 2, 3]
     assert ar.next is None
     assert len(responses.calls) == 2  # page boundary was crossed
+
+
+@responses.activate
+def test_export_posts_typed_body():
+    responses.add(
+        responses.POST,
+        f"{BASE}/surveys/{SID}/answers/export",
+        json={"id": "op-1", "status": "wait", "message": "started"},
+        status=202,
+    )
+    er = _client().export(SID, body={"format": "xlsx", "upload": "default", "limit": 10})
+    assert isinstance(er, ExportResult)
+    assert er.id == "op-1" and er.status == "wait" and er.is_terminal is False
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "format": "xlsx",
+        "upload": "default",
+        "limit": 10,
+    }
+    assert responses.calls[0].request.url == f"{BASE}/surveys/{SID}/answers/export"
+
+
+@responses.activate
+def test_list_all_rebuilds_dead_v3_next_url_onto_v1():
+    """The live API hands back a *relative* ``/v3/…/answers/?id=…`` next_url that 404s; ``list_all``
+    must re-issue the same cursor against the working v1 endpoint, not follow the dead v3 path."""
+
+    def cb(request):
+        params = parse_qs(urlparse(request.url).query)
+        if "id" not in params:
+            body = {
+                "columns": [{"id": 1, "slug": "s1", "type": "string", "text": "T"}],
+                "answers": [{"id": 200, "created": "2026-01-01", "data": [{"value": "a"}]}],
+                "next": {"next_url": f"/v3/surveys/{SID}/answers/?id=200&page_size=1"},
+            }
+        else:
+            body = {
+                "columns": [],
+                "answers": [{"id": 100, "created": "2026-01-02", "data": [{"value": "b"}]}],
+                "next": None,
+            }
+        return (200, {}, json.dumps(body))
+
+    responses.add_callback(
+        responses.GET, f"{BASE}/surveys/{SID}/answers", callback=cb, content_type="application/json"
+    )
+    ar = _client().list_all(SID)
+    assert [a.id for a in ar.answers] == [200, 100]  # both pages drained
+    assert len(responses.calls) == 2
+    follow_url = responses.calls[1].request.url
+    assert follow_url is not None
+    assert "/v1/surveys/" in follow_url  # pinned to the working v1 endpoint
+    assert "/v3/" not in follow_url  # NOT the dead path the server handed back
+    assert "id=200" in follow_url  # carried the server's cursor
+
+
+@responses.activate
+def test_export_results_ready_redirect_to_csv_is_terminal():
+    """Once ready, the status endpoint 302-redirects to the exported file (CSV/binary), not JSON;
+    ``export_results`` must read the followed redirect as terminal ``ok`` instead of choking on the
+    non-JSON body (the ``@uplink.returns.json()`` bug)."""
+    file_url = "https://forms.s3-private.mds.yandex.net/uploads/answers.csv"
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        status=302,
+        headers={"Location": file_url},
+    )
+    responses.add(
+        responses.GET,
+        file_url,
+        body=b"Name\nresp0\nresp1\n",
+        content_type="application/octet-stream",
+    )
+    er = _client().export_results(SID, "op-1")
+    assert isinstance(er, ExportResult)
+    assert er.is_terminal is True and er.is_ready is True
+
+
+@responses.activate
+def test_export_results_returns_status():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        json={"id": "op-1", "status": "ok", "message": "ready"},
+        status=200,
+    )
+    er = _client().export_results(SID, "op-1")
+    assert isinstance(er, ExportResult)
+    assert er.is_ready is True and er.is_terminal is True
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert parse_qs(urlparse(url).query)["task_id"] == ["op-1"]
+
+
+@responses.activate
+def test_download_export_returns_file_bytes():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        body=b"col1,col2\n1,2\n",
+        status=200,
+    )
+    data = _client().download_export(SID, "op-1")
+    assert data == b"col1,col2\n1,2\n"
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert parse_qs(urlparse(url).query)["task_id"] == ["op-1"]

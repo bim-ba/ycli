@@ -38,3 +38,37 @@ def test_add_posts_body():
     c = _client().add("DE-1", body={"text": "added"})
     assert isinstance(c, Comment) and c.id == 5
     assert json.loads(responses.calls[0].request.body) == {"text": "added"}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_edit_patches_body():
+    responses.add(
+        responses.PATCH,
+        f"{BASE}/issues/DE-1/comments/5",
+        json={"id": 5, "text": "fixed"},
+        status=200,
+    )
+    c = _client().edit("DE-1", "5", body={"text": "fixed"})
+    assert isinstance(c, Comment) and c.text == "fixed"
+    assert responses.calls[0].request.method == "PATCH"
+    assert json.loads(responses.calls[0].request.body) == {"text": "fixed"}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_delete_returns_none():
+    responses.add(responses.DELETE, f"{BASE}/issues/DE-1/comments/5", status=204)
+    assert _client().delete("DE-1", "5") is None
+    assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_react_posts_to_reaction_path():
+    responses.add(
+        responses.POST,
+        f"{BASE}/issues/DE-1/comments/5/reactions/LIKE",
+        json={"id": 5, "text": "hi"},
+        status=200,
+    )
+    c = _client().react("DE-1", "5", "LIKE")
+    assert isinstance(c, Comment) and c.id == 5
+    assert responses.calls[0].request.method == "POST"
