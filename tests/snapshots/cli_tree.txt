@@ -1,4 +1,5 @@
 auth
+auth login
 auth status
 forms
 forms answers

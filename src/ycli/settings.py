@@ -30,3 +30,17 @@ class Credentials(BaseSettings):
 
     oauth_token: str = Field(validation_alias="YANDEX_ID_OAUTH_TOKEN")
     organization_id: str = Field(validation_alias="YANDEX_ID_ORGANIZATION_ID")
+
+
+class OAuthAppConfig(BaseSettings):
+    """The user's OWN Yandex OAuth application, used by ``ycli auth login``.
+
+    Both are optional: with only ``client_id`` the browser (implicit) flow is used;
+    adding ``client_secret`` enables the headless device flow. Nothing is baked in —
+    the caller registers their app at https://oauth.yandex.ru.
+    """
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    client_id: str | None = Field(default=None, validation_alias="YANDEX_OAUTH_CLIENT_ID")
+    client_secret: str | None = Field(default=None, validation_alias="YANDEX_OAUTH_CLIENT_SECRET")
