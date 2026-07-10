@@ -46,11 +46,16 @@ def create(
     name: Annotated[str, typer.Option(help="Key set name.")],
     total: Annotated[int, typer.Option(help="Number of keys to generate.")],
     enabled: Annotated[
-        bool | None, typer.Option("--enabled/--disabled", help="Create the set active.")
-    ] = None,
+        bool,
+        typer.Option(
+            "--enabled/--disabled",
+            help="Create the set active (required — the API rejects a create without it).",
+        ),
+    ],
 ) -> None:
-    """Create a key set on form SURVEY_ID (POST /surveys/{id}/keysets)."""
-    body = KeysetCreate(name=name, total=total, is_enabled=enabled).model_dump(exclude_none=True)
+    """Create a key set on form SURVEY_ID (POST /surveys/{id}/keysets) — the API requires
+    is_enabled, so --enabled/--disabled is required and always sent in the body."""
+    body = KeysetCreate(name=name, total=total, is_enabled=enabled).model_dump()
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
         app_ctx.forms.keysets.create(survey_id, body=body), app_ctx.strategy, app_ctx.console

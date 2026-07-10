@@ -41,12 +41,14 @@ class KeysetsClient(FormsResource):
     def create(self, survey_id: uplink.Path, body: uplink.Body) -> Keyset:  # ty: ignore[empty-body]
         """``POST /surveys/{id}/keysets`` — create a key set. Returns the created :class:`Keyset`.
 
-        Build ``body`` from a :class:`~ycli.yandex.forms.keysets.models.KeysetCreate`.
+        The API requires ``is_enabled`` on create (a body without it is rejected), alongside
+        ``name`` and ``total``. Build ``body`` from a
+        :class:`~ycli.yandex.forms.keysets.models.KeysetCreate` with ``is_enabled`` set.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.keysets.create(
-            ...     "686d0a1b2c3d4e5f", {"name": "Q1", "total": 250}
+            ...     "686d0a1b2c3d4e5f", {"name": "Q1", "total": 250, "is_enabled": True}
             ... ).id  # doctest: +SKIP
             7
         """

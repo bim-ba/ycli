@@ -12,7 +12,6 @@ from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.yandex.forms.answers.models import AnswerExport
 from ycli.yandex.forms.typedefs import (
-    AnswerIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
 from ycli.yandex.polling import poll
@@ -26,15 +25,6 @@ app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 @app.callback()
 def _group() -> None:
     """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
-@app.command()
-def get(ctx: typer.Context, survey_id: SurveyIdArg, answer_id: AnswerIdArg) -> None:
-    """Print one response (SURVEY_ID / ANSWER_ID) with full per-question detail."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.answers.get(survey_id, answer_id), app_ctx.strategy, app_ctx.console
-    )
 
 
 @app.command("list")

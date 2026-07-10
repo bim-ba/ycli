@@ -76,6 +76,18 @@ def test_create_sends_typed_body():
 
 
 @responses.activate
+def test_create_requires_enabled_flag():
+    """The live API rejects a create without ``is_enabled``, so the CLI requires
+    --enabled/--disabled — omitting it is a usage error before any request is sent."""
+    responses.add(responses.POST, f"{BASE}/surveys/{SID}/keysets", json={}, status=200)
+    res = runner.invoke(
+        cli.app, ["forms", "keysets", "create", SID, "--name", "Q1", "--total", "250"]
+    )
+    assert res.exit_code != 0
+    assert len(responses.calls) == 0  # rejected at arg-parse; no is_enabled-less body was sent
+
+
+@responses.activate
 def test_modify_sends_full_record():
     """PATCH replaces the whole key set, so modify sends name + total + is_enabled together."""
     responses.add(

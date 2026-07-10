@@ -39,11 +39,14 @@ class KeysetList(RootModel[list[Keyset]]):
 class KeysetCreate(APIModel):
     """Typed request body for creating a key set (``POST /surveys/{id}/keysets``).
 
-    Unset (``None``) fields are dropped before the request is sent.
+    Unset (``None``) fields are dropped before the request is sent. The create endpoint,
+    however, **requires** ``is_enabled`` (a body without it is rejected), so the CLI marks
+    ``--enabled/--disabled`` required and always sends the flag; fields stay optional here so
+    :class:`KeysetUpdate` can reuse the shape.
 
     Example:
-        >>> KeysetCreate(name="Q1 invites", total=250).total
-        250
+        >>> KeysetCreate(name="Q1 invites", total=250, is_enabled=True).is_enabled
+        True
     """
 
     name: str | None = Field(default=None, description="Key set name.")

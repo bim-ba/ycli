@@ -26,8 +26,8 @@ generator, not estimates.
 |---------|-----------|----------------------|---------------------|---------------|
 | **Tracker** | 32 | 152 | 57 | ~100% of the documented public API\* |
 | **Wiki** | 9 | 43 | 13 | ~100% of the documented public API\* |
-| **Forms** | 9 | 35 | 11 | ~100% of the documented public API\*† |
-| **Total** | **50** | **230** | **81** | — |
+| **Forms** | 9 | 34 | 10 | ~100% of the documented public API\*† |
+| **Total** | **50** | **229** | **80** | — |
 
 \* Excludes the UI-only endpoints listed under [Intentional exclusions](#intentional-exclusions-not-gaps);
 those have no public REST API.
@@ -63,6 +63,9 @@ or navigation-only doc artifacts, and must not be inferred into endpoints.
 **Forms**
 - Integration **hooks / auto-actions** (Tracker / Wiki / email / webhook / Metrica / cloud-function)
   — configured in the Forms UI / gateway only.
+- Single-answer **`GET .../answers/{id}`** — no deployed route on any API version (every path
+  variant returns a server 404, confirmed by live E2E); the `answers.get` op was removed. Read a
+  single answer via `answers.list` / `answers.list_all`.
 
 ## Inferred signatures (honest caveats)
 
