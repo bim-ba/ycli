@@ -1,6 +1,7 @@
 """TDD for `forms questions` CLI — reads (get/list) plus writes (create/modify/delete/move)."""
 
 import json
+import re
 
 import pytest
 import responses
@@ -11,6 +12,16 @@ import ycli.cli.app as cli
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 runner = CliRunner()
+
+# Rich colourises option flags in error panels and even splits the leading dashes into
+# separately-styled tokens (``-`` + ``-type``), so the literal ``--type`` is absent from the
+# raw output whenever colour is on (CI forces it; a local TTY may not). Strip ANSI before
+# asserting on flag names so the check tests the message, not the terminal's colour state.
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _plain(text: str) -> str:
+    return _ANSI_RE.sub("", text)
 
 
 @pytest.fixture(autouse=True)
@@ -198,7 +209,7 @@ def test_create_unknown_type_is_a_bad_parameter():
 def test_create_without_type_or_body_file_errors():
     res = runner.invoke(cli.app, ["forms", "questions", "create", SID, "--label", "x"])
     assert res.exit_code != 0
-    assert "--type" in res.output
+    assert "--type" in _plain(res.output)
 
 
 @responses.activate
