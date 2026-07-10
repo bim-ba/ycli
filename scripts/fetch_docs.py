@@ -52,7 +52,7 @@ from urllib.parse import urlparse
 
 import requests
 
-DEFAULT_OUT = Path(__file__).resolve().parent.parent / "docs" / "references" / "yandex"
+DEFAULT_OUT = Path(__file__).resolve().parent.parent / "references" / "yandex-360"
 USER_AGENT = "ycli-docs-fetcher/1.0 (+https://github.com/bim-ba/ycli)"
 REQUEST_TIMEOUT_SECONDS = 30
 MAX_ATTEMPTS = 3

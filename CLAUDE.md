@@ -13,8 +13,12 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   (CLI), `fastmcp` (MCP), `pydantic` (models), `loguru` (logging).
 - **Layout:** root entry points `src/ycli/cli.py` (CLI) and `src/ycli/mcp.py` (MCP); per-domain SDK
   under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, `mcp.py`, models). Vendored
-  Yandex API docs live in `docs/references/yandex/`. The distributable plugin (skills +
-  instructions) lives in `plugins/yandex-360/`, listed by the repo-root `.claude-plugin/marketplace.json`.
+  external docs live under `references/` (not `docs/`, which is the repo's own docs):
+  `references/yandex-360/` holds the 360/dev-hub docs — git-ignored, local-only, regenerated with
+  `scripts/fetch_docs.py` (yandex.ru is not open-licensed); `references/yandex-cloud/` is a git
+  submodule of `github.com/yandex-cloud/docs` (CC BY 4.0, fetched on demand). The distributable
+  plugin (skills + instructions) lives in `plugins/yandex-360/`, listed by the repo-root
+  `.claude-plugin/marketplace.json`.
 - **Output:** every CLI command honors a global `--format/-o` flag (`auto` · `json` · `yaml`
   · `pretty`); rendering goes through `ycli.output.render` (ARCH-4). No output surface
   hardcodes a service UI URL (ARCH-5); a general per-model deeplink mechanism is deferred.
