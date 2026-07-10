@@ -19,6 +19,14 @@ def test_cli_main_module_importable():
     import ycli.cli.__main__  # noqa: F401
 
 
+def test_version_flag_prints_version_and_exits():
+    from ycli import __version__
+
+    res = runner.invoke(cli.app, ["--version"])
+    assert res.exit_code == 0
+    assert __version__ in res.stdout
+
+
 # ---------------------------------------------------------------------------
 # Tracker CLI smoke tests
 # ---------------------------------------------------------------------------

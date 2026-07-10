@@ -98,3 +98,27 @@ def test_pretty_strategy_renders_scalar_list_as_join():
 
     PrettyStrategy().render(_Tags(tags=["alpha", "beta"]), console)
     assert "alpha, beta" in buf.getvalue()
+
+
+def test_pretty_strategy_shows_no_results_for_empty_model():
+    console, buf = _console(terminal=True)
+
+    class _Empty(BaseModel):
+        maybe: str | None = None
+
+    PrettyStrategy().render(_Empty(), console)
+    assert "No results" in buf.getvalue()
+
+
+def test_pretty_strategy_renders_bool_as_check_and_cross():
+    console, buf = _console(terminal=True)
+
+    class _Flags(BaseModel):
+        ok: bool
+        bad: bool
+
+    PrettyStrategy().render(_Flags(ok=True, bad=False), console)
+    out = buf.getvalue()
+    assert "✓" in out
+    assert "✗" in out
+    assert "True" not in out and "False" not in out
