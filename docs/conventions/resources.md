@@ -1,7 +1,7 @@
 # Resource conventions
 
 These rules fill the gap between the structural invariants in
-[`ARCHITECTURE.md`](../../ARCHITECTURE.md) (ARCH-1..10) and the per-file conventions
+[`ARCHITECTURE.md`](../../ARCHITECTURE.md) (ARCH-1..11) and the per-file conventions
 documented in [`skills-and-commands.md`](skills-and-commands.md).  They apply to every
 `yandex/<domain>/<resource>/` package, including the singleton `me` resources.
 
