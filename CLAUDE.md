@@ -38,8 +38,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   at the composition root — `Credentials()` / `AppConfig()` in `AppContext` for the CLI, or
   the `dependencies` cached factory in each domain's MCP module — and passed as raw `oauth_token` /
   `organization_id` constructor arguments to each client. There is no `from_env` or
-  `session_from_env`; never hardcode credentials. Header casing differs per service
-  (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`).
+  `session_from_env`; never hardcode credentials. The transport sends one canonical
+  `X-Org-Id` org header for every service (HTTP header names are case-insensitive per
+  RFC 9110), so there is no per-service casing to track.
 - **MCP server is read-only;** writes are CLI/SDK only.
 - **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
   (`.env.example` / `.mcp.example.json` hold placeholders).
