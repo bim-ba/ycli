@@ -26,6 +26,7 @@ class AppContext:
     _credentials: Credentials | None = None
     _config: AppConfig | None = None
     _console: Console | None = None
+    _stderr_console: Console | None = None
     _clients: dict[str, object] = field(default_factory=dict)
 
     @classmethod
@@ -37,6 +38,13 @@ class AppContext:
         if self._console is None:
             self._console = Console()
         return self._console
+
+    @property
+    def stderr_console(self) -> Console:
+        """The stderr console for progress/guidance UI — data never touches this stream."""
+        if self._stderr_console is None:
+            self._stderr_console = Console(stderr=True)
+        return self._stderr_console
 
     @property
     def strategy(self) -> SerializationStrategy:

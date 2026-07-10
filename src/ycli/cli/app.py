@@ -24,6 +24,7 @@ app = typer.Typer(
     help="ycli — Yandex 360 API SDK CLI.",
     no_args_is_help=True,
     pretty_exceptions_show_locals=False,
+    rich_markup_mode="rich",
 )
 
 

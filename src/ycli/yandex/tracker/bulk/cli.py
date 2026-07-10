@@ -15,6 +15,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.progress import spinner
 from ycli.yandex.polling import poll
 from ycli.yandex.tracker.bulk.models import BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.utils import parse_fields
@@ -59,14 +60,20 @@ def _issues(issue: list[str] | None, query: str) -> list[str] | str:
 
 
 def _finish(app_ctx: AppContext, bulk: BulkChange, wait: bool) -> None:
-    """Print ``bulk`` — after polling it to a terminal status first when ``wait`` is set."""
+    """Print ``bulk`` — after polling it to a terminal status first when ``wait`` is set.
+
+    The wait is silent (default-on and potentially minutes long), so it is wrapped in a
+    stderr spinner; the spinner is a no-op when stderr is not a terminal, so a piped run's
+    stdout data stays byte-clean.
+    """
     if wait and bulk.id is not None:
         bulk_id = bulk.id  # narrowed to str — the poll re-reads this operation
-        bulk = poll(
-            lambda: app_ctx.tracker.bulk.get(bulk_id),
-            lambda change: change.is_terminal,
-            sleep=lambda seconds: time.sleep(seconds),
-        )
+        with spinner("Waiting for bulk change…", console=app_ctx.stderr_console):
+            bulk = poll(
+                lambda: app_ctx.tracker.bulk.get(bulk_id),
+                lambda change: change.is_terminal,
+                sleep=lambda seconds: time.sleep(seconds),
+            )
     Serializer.serialize(bulk, app_ctx.strategy, app_ctx.console)
 
 

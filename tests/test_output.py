@@ -89,11 +89,31 @@ def test_render_multi_field_object_is_kv_table():
     assert table.row_count == 2
 
 
-def test_render_nested_multifield_object_in_cell():
+def test_render_nested_object_flattens_to_dotted_keys():
     strategy = PrettyStrategy()
     table = strategy._render({"name": "root", "meta": {"a": "1", "b": "2"}})
     assert isinstance(table, Table)
-    assert table.row_count == 2  # name row + meta row (a nested table in the cell)
+    assert table.row_count == 3  # name + meta.a + meta.b — flattened, no nested sub-table
+    console, buf = _console(tty=True)
+    console.print(table)
+    out = buf.getvalue()
+    assert "meta.a" in out and "meta.b" in out
+
+
+def test_render_deeply_nested_object_uses_full_dotted_path():
+    strategy = PrettyStrategy()
+    table = strategy._render({"owner": {"contact": {"email": "someone@example.com"}}})
+    console, buf = _console(tty=True)
+    console.print(table)
+    out = buf.getvalue()
+    assert "owner.contact.email" in out
+    assert "someone@example.com" in out  # a long value keeps the row width, not shredded
+
+
+def test_render_object_with_empty_or_null_nested_dict_is_omitted():
+    strategy = PrettyStrategy()
+    assert strategy._render({"meta": {}}) is None  # empty nested object → whole object omitted
+    assert strategy._render({"meta": {"x": None}}) is None  # all-null nested object → omitted
 
 
 def test_render_scalar_list_joins_and_empty_is_omitted():

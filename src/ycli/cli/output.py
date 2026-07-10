@@ -16,6 +16,8 @@ import yaml
 from rich.table import Table
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from pydantic import BaseModel
     from rich.console import Console
 
@@ -66,7 +68,9 @@ class PrettyStrategy(SerializationStrategy):
     ``ycli.yandex.models`` ``KeyStr``/``IdStr``/``DisplayStr``), so this just lays data out:
     - a scalar renders as its text; a ``None`` / empty object / empty list field is *omitted*
       from the table (the data is unchanged — JSON/YAML still carry it);
-    - an object becomes a key/value table (nested recursively);
+    - an object becomes a key/value table; a *nested* object is flattened into dotted keys
+      (``meta.owner``) rather than a sub-table, so a long value (email, id) keeps the full row
+      width instead of a narrow inner column word-breaking it character-by-character;
     - a list of scalars joins with ``, ``; a list of objects becomes a column table whose
       all-empty columns are dropped.
     """
@@ -88,16 +92,32 @@ class PrettyStrategy(SerializationStrategy):
         return str(value)
 
     def _render_object(self, data: dict[str, Any]) -> Any:
-        fields = [(key, self._render(value)) for key, value in data.items()]
-        fields = [(key, rendered) for key, rendered in fields if rendered is not None]
-        if not fields:
+        rows = list(self._object_rows(data))
+        if not rows:
             return None
         table = Table(show_header=False, box=None, pad_edge=False)
         table.add_column(style="cyan", no_wrap=True)
         table.add_column(overflow="fold")
-        for key, rendered in fields:
+        for key, rendered in rows:
             table.add_row(key, rendered)
         return table
+
+    def _object_rows(self, data: dict[str, Any], prefix: str = "") -> Iterator[tuple[str, Any]]:
+        """Yield ``(dotted_key, renderable)`` rows, flattening nested objects one level deeper.
+
+        Recursing on dict values (instead of rendering them as an inner table) means a nested
+        ``{"owner": {"email": …}}`` becomes an ``owner.email`` row spanning the full width, so
+        long identifier-like values are not shredded across lines by a narrow sub-column. A
+        nested object that renders empty (all-null / ``{}``) yields no rows, so it stays omitted.
+        """
+        for key, value in data.items():
+            dotted = f"{prefix}{key}"
+            if isinstance(value, dict):
+                yield from self._object_rows(value, prefix=f"{dotted}.")
+            else:
+                rendered = self._render(value)
+                if rendered is not None:
+                    yield dotted, rendered
 
     def _render_list(self, items: list[Any]) -> Any:
         rendered = [r for r in (self._render(item) for item in items) if r is not None]
