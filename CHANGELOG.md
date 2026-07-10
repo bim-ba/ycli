@@ -9,6 +9,43 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.11.0 (2026-07-10)
+
+### Chores
+
+- Docs fetcher + stop committing yandex.ru corpus + re-lock 0.10.0
+  ([#22](https://github.com/bim-ba/ycli/pull/22),
+  [`468653e`](https://github.com/bim-ba/ycli/commit/468653e44f233cd0a5314aae63e8eda386503639))
+
+- Move vendored Yandex docs to top-level references/ (360 local + cloud submodule)
+  ([#23](https://github.com/bim-ba/ycli/pull/23),
+  [`48f2102`](https://github.com/bim-ba/ycli/commit/48f210266a78c40389826df4498c19b4aa81cb73))
+
+- Skip malformed sitemap locs (external links/PDFs) in fetch_docs
+  ([#24](https://github.com/bim-ba/ycli/pull/24),
+  [`7420bab`](https://github.com/bim-ba/ycli/commit/7420babecac510a5fafefbb8548cb18d550db43c))
+
+### Documentation
+
+- Correct stale per-service org-header-casing claim in CLAUDE.md
+  ([#25](https://github.com/bim-ba/ycli/pull/25),
+  [`67b6950`](https://github.com/bim-ba/ycli/commit/67b6950bd5a0d3cd240b38bb1f93bb82c030c8fd))
+
+- Fix AI-env doc drift + restore /new-endpoint and /arch-review commands
+  ([#25](https://github.com/bim-ba/ycli/pull/25),
+  [`67b6950`](https://github.com/bim-ba/ycli/commit/67b6950bd5a0d3cd240b38bb1f93bb82c030c8fd))
+
+- Fix AI-env doc drift and restore /new-endpoint + /arch-review commands
+  ([#25](https://github.com/bim-ba/ycli/pull/25),
+  [`67b6950`](https://github.com/bim-ba/ycli/commit/67b6950bd5a0d3cd240b38bb1f93bb82c030c8fd))
+
+### Features
+
+- Humane CLI errors, --version, and polished pretty output
+  ([#26](https://github.com/bim-ba/ycli/pull/26),
+  [`a1fccb3`](https://github.com/bim-ba/ycli/commit/a1fccb379834dac9312ab812754e8be656a78fc1))
+
+
 ## v0.10.0 (2026-07-10)
 
 ### Build System
