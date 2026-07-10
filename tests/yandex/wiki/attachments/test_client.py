@@ -1,16 +1,23 @@
+import json
+
 import requests
 import responses
 
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
-from ycli.yandex.wiki.attachments.models import AttachmentList
+from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
+from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 
 BASE = "https://api.wiki.yandex.net/v1"
 
 
-def _client():
+def _session():
     s = requests.Session()
     s.headers.update({"Authorization": "OAuth t", "X-Org-Id": "o"})
-    return AttachmentsClient(session=s)
+    return s
+
+
+def _client():
+    return AttachmentsClient(session=_session())
 
 
 @responses.activate
@@ -113,3 +120,76 @@ def test_delete_sends_delete_and_returns_none():
     assert out is None  # 204 No Content — nothing to parse
     assert responses.calls[0].request.method == "DELETE"
     assert responses.calls[0].request.url.endswith("/pages/42/attachments/7")  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_attach_posts_upload_sessions_body_and_flattens_results():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"id": 7, "name": "d.png", "mimetype": "image/png"}]},
+        status=200,
+    )
+    out = _client().attach(page_id=42, session_ids=["s-1", "s-2"])
+    assert isinstance(out, AttachedFileList)
+    assert [f.id for f in out.root] == [7]
+    assert out.root[0].mimetype == "image/png"
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "upload_sessions": ["s-1", "s-2"]
+    }
+
+
+@responses.activate
+def test_upload_runs_full_pipeline_in_order():
+    session = _session()
+    attachments = AttachmentsClient(session=session)
+    sessions = UploadSessionsClient(session=session)
+
+    responses.add(
+        responses.POST,
+        f"{BASE}/upload_sessions",
+        json={"session_id": "s-1", "status": "not_started"},
+        status=200,
+    )
+    responses.add(
+        responses.PUT,
+        f"{BASE}/upload_sessions/s-1/upload_part",
+        json={"session_id": "s-1", "status": "in_progress"},
+        status=200,
+    )
+    responses.add(
+        responses.POST,
+        f"{BASE}/upload_sessions/s-1/finish",
+        json={"session_id": "s-1", "status": "finished"},
+        status=200,
+    )
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"id": 9, "name": "d.png"}]},
+        status=200,
+    )
+
+    out = attachments.upload(sessions, 42, file_name="d.png", data=b"\x89PNGraw")
+    assert isinstance(out, AttachedFileList)
+    assert out.root[0].id == 9
+
+    # the four pipeline calls fired in order: create → upload_part → finish → attach
+    urls = [call.request.url for call in responses.calls]
+    methods = [call.request.method for call in responses.calls]
+    assert methods == ["POST", "PUT", "POST", "POST"]
+    assert urls[0].endswith("/upload_sessions")  # ty: ignore[unresolved-attribute]
+    assert "/upload_sessions/s-1/upload_part?part_number=1" in urls[1]  # ty: ignore[unsupported-operator]
+    assert urls[2].endswith("/upload_sessions/s-1/finish")  # ty: ignore[unresolved-attribute]
+    assert urls[3].endswith("/pages/42/attachments")  # ty: ignore[unresolved-attribute]
+
+    # create body was sized to the payload; part carried the raw octet-stream bytes
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "file_name": "d.png",
+        "file_size": 7,
+    }
+    assert responses.calls[1].request.body == b"\x89PNGraw"
+    assert responses.calls[1].request.headers["Content-Type"] == "application/octet-stream"
+    assert json.loads(responses.calls[3].request.body) == {  # ty: ignore[invalid-argument-type]
+        "upload_sessions": ["s-1"]
+    }

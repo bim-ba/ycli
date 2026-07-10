@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import time
 from typing import Annotated
 
 import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
-from ycli.yandex.wiki.pages.models import PageAppendContent, PageAppendContentBody
+from ycli.yandex.polling import poll
+from ycli.yandex.wiki.pages.models import PageAppendContent, PageAppendContentBody, PageClone
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
@@ -159,3 +161,34 @@ def append(
         app_ctx.strategy,
         app_ctx.console,
     )
+
+
+@app.command()
+def clone(
+    ctx: typer.Context,
+    page_id: PageIdArg,
+    target: Annotated[str, typer.Option("--target", help="Destination slug for the copy.")],
+    title: Annotated[str, typer.Option(help="Title of the copy, if renaming.")] = "",
+    subscribe_me: Annotated[
+        bool, typer.Option("--subscribe-me", help="Subscribe yourself to the copy.")
+    ] = False,
+    wait: Annotated[
+        bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
+    ] = True,
+) -> None:
+    """Copy a page to a new address (POST /pages/{id}/clone; async). --wait polls to completion."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    body = PageClone(target=target, title=title or None, subscribe_me=subscribe_me).model_dump(
+        exclude_none=True
+    )
+    operation = app_ctx.wiki.pages.clone(page_id=page_id, body=body)
+    if wait and operation.operation is not None and operation.operation.id is not None:
+        task_id = operation.operation.id
+        status = poll(
+            lambda: app_ctx.wiki.operations.clone_get(task_id),
+            lambda state: state.is_terminal,
+            sleep=lambda seconds: time.sleep(seconds),
+        )
+        Serializer.serialize(status, app_ctx.strategy, app_ctx.console)
+    else:
+        Serializer.serialize(operation, app_ctx.strategy, app_ctx.console)

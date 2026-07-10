@@ -249,3 +249,56 @@ def test_pages_subcommand_help_needs_no_creds(monkeypatch):
     result = runner.invoke(cli.app, ["wiki", "pages", "get", "--help"])
     assert result.exit_code == 0
     assert "Usage" in result.stdout or "usage" in result.stdout.lower()
+
+
+@responses.activate
+def test_pages_clone_no_wait_prints_operation():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/clone",
+        json={"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app,
+        ["--format", "json", "wiki", "pages", "clone", "42", "--target", "data/y", "--no-wait"],
+    )
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["operation"]["id"] == "task-1"
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"target": "data/y", "subscribe_me": False}
+
+
+@responses.activate
+def test_pages_clone_wait_polls_operations_to_terminal():
+    """NOTE wiring-dependent: --wait reaches ``wiki.operations`` (mounted by the integrator)."""
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/clone",
+        json={"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/operations/clone/task-1",
+        json={"status": "success", "result": {"page": {"id": 99, "slug": "data/y"}}},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "wiki",
+            "pages",
+            "clone",
+            "42",
+            "--target",
+            "data/y",
+            "--subscribe-me",
+        ],
+    )
+    assert result.exit_code == 0
+    out = json.loads(result.stdout)
+    assert out["status"] == "success"
+    assert out["result"]["page"]["slug"] == "data/y"

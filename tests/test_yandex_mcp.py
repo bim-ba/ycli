@@ -23,11 +23,11 @@ async def test_root_mounts_all_domains_with_namespaces():
     assert "tracker_issues_get" in names
     assert "forms_surveys_get" in names
     assert "status_get" in names
-    assert len([n for n in names if n.startswith("wiki_")]) == 9
+    assert len([n for n in names if n.startswith("wiki_")]) == 13
     assert len([n for n in names if n.startswith("tracker_")]) == 57
-    assert len([n for n in names if n.startswith("forms_")]) == 9
+    assert len([n for n in names if n.startswith("forms_")]) == 11
     assert len([n for n in names if n.startswith("status_")]) == 1
-    assert len(names) == 76
+    assert len(names) == 82
 
 
 def test_main_is_callable():

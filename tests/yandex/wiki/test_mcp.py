@@ -119,6 +119,10 @@ async def test_tools_registered_and_read_only():
         "comments_list",
         "comments_thread_list",
         "attachments_list",
+        "grids_get",
+        "operations_clone_get",
+        "operations_gridclone_get",
+        "uploadsessions_get",
     } <= set(tools)
     for name in ("pages_grids_list", "comments_thread_list"):
         assert tools[name].annotations.readOnlyHint is True

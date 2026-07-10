@@ -1,8 +1,10 @@
 forms_answers_get
 forms_answers_list
+forms_filling_get
 forms_keysets_get
 forms_keysets_list
 forms_me_get
+forms_operations_get
 forms_questions_get
 forms_questions_list
 forms_surveys_get
@@ -68,9 +70,13 @@ tracker_worklog_search
 wiki_attachments_list
 wiki_comments_list
 wiki_comments_thread_list
+wiki_grids_get
 wiki_me_get
+wiki_operations_clone_get
+wiki_operations_gridclone_get
 wiki_pages_descendants
 wiki_pages_get
 wiki_pages_grids_list
 wiki_pages_meta
 wiki_resources_list
+wiki_uploadsessions_get

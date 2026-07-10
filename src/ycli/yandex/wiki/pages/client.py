@@ -12,6 +12,7 @@ from ycli.yandex.wiki.pages.models import (
     DescendantsResponse,
     GridRefList,
     GridsResponse,
+    PageCloneOperation,
     PageDeleteResult,
     PageDetails,
     PageRefList,
@@ -235,4 +236,20 @@ class PagesClient(WikiResource):
             ...     12345, {"content": "## More", "body": {"location": "bottom"}}
             ... ).id  # doctest: +SKIP
             12345
+        """
+
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.post("pages/{page_id}/clone")
+    def clone(self, page_id: uplink.Path, body: uplink.Body) -> PageCloneOperation:  # ty: ignore[empty-body]
+        """``POST /pages/{id}/clone`` — copy the page to a new address (async trigger).
+
+        Returns a :class:`PageCloneOperation`; poll its ``operation.id`` via
+        ``OperationsClient.clone_get`` until terminal. ``body`` is a dumped :class:`PageClone`
+        (``{target, title?, subscribe_me}``).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.clone(12345, {"target": "data/y"}).operation.id  # doctest: +SKIP
+            'task-1'
         """

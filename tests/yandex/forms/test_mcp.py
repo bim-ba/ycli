@@ -32,6 +32,8 @@ async def test_all_read_tools_registered():
         "answers_get",
         "keysets_list",
         "keysets_get",
+        "operations_get",
+        "filling_get",
     }
 
 

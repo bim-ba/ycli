@@ -2,8 +2,20 @@ auth
 auth status
 forms
 forms answers
+forms answers export
 forms answers get
 forms answers list
+forms files
+forms files delete
+forms files download
+forms files upload
+forms files verify
+forms filling
+forms filling get
+forms filling submit
+forms filling suggest
+forms images
+forms images upload
 forms keysets
 forms keysets create
 forms keysets delete
@@ -13,6 +25,8 @@ forms keysets list
 forms keysets modify
 forms me
 forms me get
+forms operations
+forms operations get
 forms questions
 forms questions create
 forms questions delete
@@ -223,19 +237,41 @@ tracker worklog list
 tracker worklog search
 wiki
 wiki attachments
+wiki attachments attach
 wiki attachments delete
 wiki attachments download
 wiki attachments download-by-url
 wiki attachments list
+wiki attachments upload
 wiki comments
 wiki comments create
 wiki comments delete
 wiki comments list
 wiki comments thread
+wiki grids
+wiki grids cells
+wiki grids cells update
+wiki grids clone
+wiki grids columns
+wiki grids columns add
+wiki grids columns move
+wiki grids columns remove
+wiki grids create
+wiki grids delete
+wiki grids get
+wiki grids rows
+wiki grids rows add
+wiki grids rows move
+wiki grids rows remove
+wiki grids update
 wiki me
 wiki me get
+wiki operations
+wiki operations clone
+wiki operations gridclone
 wiki pages
 wiki pages append
+wiki pages clone
 wiki pages create
 wiki pages delete
 wiki pages descendants
@@ -248,3 +284,10 @@ wiki recovery
 wiki recovery restore
 wiki resources
 wiki resources list
+wiki uploadsessions
+wiki uploadsessions abort
+wiki uploadsessions abort-all
+wiki uploadsessions create
+wiki uploadsessions finish
+wiki uploadsessions get
+wiki uploadsessions upload-part

@@ -7,7 +7,7 @@ import requests
 import responses
 
 from ycli.yandex.forms.answers.client import AnswersClient
-from ycli.yandex.forms.answers.models import AnswerDetail, AnswersResponse
+from ycli.yandex.forms.answers.models import AnswerDetail, AnswersResponse, ExportResult
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -190,3 +190,53 @@ def test_list_all_limit_spans_pages():
     assert [a.id for a in ar.answers] == [1, 2, 3]
     assert ar.next is None
     assert len(responses.calls) == 2  # page boundary was crossed
+
+
+@responses.activate
+def test_export_posts_typed_body():
+    responses.add(
+        responses.POST,
+        f"{BASE}/surveys/{SID}/answers/export",
+        json={"id": "op-1", "status": "wait", "message": "started"},
+        status=202,
+    )
+    er = _client().export(SID, body={"format": "xlsx", "upload": "default", "limit": 10})
+    assert isinstance(er, ExportResult)
+    assert er.id == "op-1" and er.status == "wait" and er.is_terminal is False
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "format": "xlsx",
+        "upload": "default",
+        "limit": 10,
+    }
+    assert responses.calls[0].request.url == f"{BASE}/surveys/{SID}/answers/export"
+
+
+@responses.activate
+def test_export_results_returns_status():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        json={"id": "op-1", "status": "ok", "message": "ready"},
+        status=200,
+    )
+    er = _client().export_results(SID, "op-1")
+    assert isinstance(er, ExportResult)
+    assert er.is_ready is True and er.is_terminal is True
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert parse_qs(urlparse(url).query)["task_id"] == ["op-1"]
+
+
+@responses.activate
+def test_download_export_returns_file_bytes():
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        body=b"col1,col2\n1,2\n",
+        status=200,
+    )
+    data = _client().download_export(SID, "op-1")
+    assert data == b"col1,col2\n1,2\n"
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert parse_qs(urlparse(url).query)["task_id"] == ["op-1"]

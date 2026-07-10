@@ -231,3 +231,63 @@ class PageAppendContent(APIModel):
     anchor: PageAppendContentAnchor | None = Field(
         default=None, description="Append relative to a named text anchor."
     )
+
+
+class PageClone(APIModel):
+    """Typed body for ``POST /pages/{id}/clone`` — copy a page to a new address (async).
+
+    ``target`` is the destination slug; ``subscribe_me`` subscribes the caller to the copy.
+    Clone is deferred — see :class:`PageCloneOperation` and poll via the ``operations`` resource.
+
+    Example:
+        >>> PageClone(target="data/y", subscribe_me=True).model_dump(exclude_none=True)
+        {'target': 'data/y', 'subscribe_me': True}
+    """
+
+    target: str = Field(description="Slug of the page's new address after the copy.")
+    title: str | None = Field(
+        default=None, min_length=1, max_length=255, description="Title of the copy, if renaming."
+    )
+    subscribe_me: bool = Field(
+        default=False, description="Subscribe the caller to changes on the copy."
+    )
+
+
+class PageCloneOperationIdentity(APIModel):
+    """Reference to the deferred clone operation (``{type, id}``) inside a clone reply.
+
+    Example:
+        >>> PageCloneOperationIdentity(type="clone", id="task-1").id
+        'task-1'
+    """
+
+    type: Literal["clone", "clone_inline_grid"] | None = Field(
+        default=None, description="Operation kind — ``clone`` for a page clone."
+    )
+    id: str | None = Field(
+        default=None, description="Task id to poll via ``operations clone <id>``."
+    )
+
+
+class PageCloneOperation(APIModel):
+    """Reply of ``POST /pages/{id}/clone`` — a deferred operation reference to poll.
+
+    Page clone is asynchronous: this returns the ``operation`` and a ``status_url``; poll
+    ``operations clone <operation.id>`` until it reaches a terminal state.
+
+    Example:
+        >>> PageCloneOperation.model_validate(
+        ...     {"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"}
+        ... ).operation.id
+        'task-1'
+    """
+
+    operation: PageCloneOperationIdentity | None = Field(
+        default=None, description="The started operation (``id`` is the task to poll)."
+    )
+    status_url: str | None = Field(
+        default=None, description="URL that reports the operation's progress."
+    )
+    dry_run: bool | None = Field(
+        default=None, description="Whether this was a validation-only dry run."
+    )

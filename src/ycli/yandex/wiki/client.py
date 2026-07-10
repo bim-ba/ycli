@@ -10,10 +10,13 @@ if TYPE_CHECKING:
 from ycli.yandex.transport import Transport
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
 from ycli.yandex.wiki.comments.client import CommentsClient
+from ycli.yandex.wiki.grids.client import GridsClient
 from ycli.yandex.wiki.me.client import MeClient
+from ycli.yandex.wiki.operations.client import OperationsClient
 from ycli.yandex.wiki.pages.client import PagesClient
 from ycli.yandex.wiki.recovery.client import RecoveryClient
 from ycli.yandex.wiki.resources.client import ResourcesClient
+from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 
 
 class WikiClient:
@@ -45,3 +48,6 @@ class WikiClient:
         self.attachments = AttachmentsClient(session=transport)
         self.resources = ResourcesClient(session=transport)
         self.recovery = RecoveryClient(session=transport)
+        self.grids = GridsClient(session=transport)
+        self.operations = OperationsClient(session=transport)
+        self.uploadsessions = UploadSessionsClient(session=transport)

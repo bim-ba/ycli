@@ -1,5 +1,7 @@
 """TDD for `wiki attachments` CLI."""
 
+import json
+
 import pytest
 import responses
 from typer.testing import CliRunner
@@ -75,3 +77,55 @@ def test_attachments_delete_confirms():
     assert result.exit_code == 0
     assert "Deleted attachment 7" in result.stdout
     assert responses.calls[0].request.method == "DELETE"
+
+
+@responses.activate
+def test_attachments_attach():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"id": 7, "name": "d.png"}]},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app,
+        ["wiki", "attachments", "attach", "42", "--session", "s-1", "--session", "s-2"],
+    )
+    assert result.exit_code == 0 and "d.png" in result.stdout
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "upload_sessions": ["s-1", "s-2"]
+    }
+
+
+@responses.activate
+def test_attachments_upload_runs_pipeline(tmp_path):
+    """WIRING-DEPENDENT: needs UploadSessionsClient wired into WikiClient (integrator runs)."""
+    responses.add(
+        responses.POST,
+        f"{BASE}/upload_sessions",
+        json={"session_id": "s-1", "status": "not_started"},
+        status=200,
+    )
+    responses.add(
+        responses.PUT,
+        f"{BASE}/upload_sessions/s-1/upload_part",
+        json={"session_id": "s-1", "status": "in_progress"},
+        status=200,
+    )
+    responses.add(
+        responses.POST,
+        f"{BASE}/upload_sessions/s-1/finish",
+        json={"session_id": "s-1", "status": "finished"},
+        status=200,
+    )
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"id": 9, "name": "d.png"}]},
+        status=200,
+    )
+    local = tmp_path / "d.png"
+    local.write_bytes(b"\x89PNGraw")
+    result = runner.invoke(cli.app, ["wiki", "attachments", "upload", "42", str(local)])
+    assert result.exit_code == 0 and "d.png" in result.stdout
+    assert [c.request.method for c in responses.calls] == ["POST", "PUT", "POST", "POST"]

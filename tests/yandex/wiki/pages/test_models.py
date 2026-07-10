@@ -10,6 +10,8 @@ from ycli.yandex.wiki.pages.models import (
     PageAppendContentAnchor,
     PageAppendContentBody,
     PageAppendContentSection,
+    PageClone,
+    PageCloneOperation,
     PageDeleteResult,
     PageDetails,
 )
@@ -71,3 +73,23 @@ def test_append_content_rejects_empty_content():
 def test_append_content_body_rejects_invalid_location():
     with pytest.raises(ValidationError):
         PageAppendContentBody(location="middle")  # ty: ignore[invalid-argument-type]
+
+
+def test_page_clone_dumps_only_set_fields():
+    assert PageClone(target="data/y", subscribe_me=True).model_dump(exclude_none=True) == {
+        "target": "data/y",
+        "subscribe_me": True,
+    }
+
+
+def test_page_clone_rejects_empty_title():
+    with pytest.raises(ValidationError):
+        PageClone(target="data/y", title="")
+
+
+def test_page_clone_operation_parses_identity():
+    op = PageCloneOperation.model_validate(
+        {"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"}
+    )
+    assert op.operation is not None and op.operation.id == "task-1"
+    assert op.status_url == "u"

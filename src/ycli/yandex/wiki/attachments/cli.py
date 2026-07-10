@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -68,3 +69,39 @@ def delete(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.wiki.attachments.delete(page_id=page_id, file_id=file_id)
     print(f"Deleted attachment {file_id} from page {page_id}.")
+
+
+@app.command()
+def attach(
+    ctx: typer.Context,
+    page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    session: Annotated[
+        list[str],
+        typer.Option("--session", help="Finished upload-session id to attach (repeatable)."),
+    ],
+) -> None:
+    """Attach uploaded file(s) to a page by upload-session id (POST /pages/{id}/attachments)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    Serializer.serialize(
+        app_ctx.wiki.attachments.attach(page_id, session), app_ctx.strategy, app_ctx.console
+    )
+
+
+@app.command()
+def upload(
+    ctx: typer.Context,
+    page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    file_path: Annotated[
+        str, typer.Argument(metavar="FILE_PATH", help="Path to the local file to upload + attach.")
+    ],
+) -> None:
+    """Upload a local file and attach it to a page in one step (create→upload→finish→attach)."""
+    app_ctx = AppContext.from_typer_context(ctx)
+    path = Path(file_path)
+    result = app_ctx.wiki.attachments.upload(
+        app_ctx.wiki.uploadsessions,
+        page_id,
+        file_name=path.name,
+        data=path.read_bytes(),
+    )
+    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)

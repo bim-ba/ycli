@@ -1,6 +1,11 @@
-"""TDD for `forms answers` CLI — dumps the {columns, answers, next} envelope."""
+"""TDD for `forms answers` CLI — dumps the {columns, answers, next} envelope + async export.
+
+The ``export --wait`` tests poll ``answers export-results`` to a terminal state; ``time.sleep``
+is monkeypatched to a no-op so the wait → ok sequence resolves instantly.
+"""
 
 import json
+import time
 from urllib.parse import parse_qs, urlparse
 
 import pytest
@@ -18,6 +23,7 @@ runner = CliRunner()
 def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
+    monkeypatch.setattr(time, "sleep", lambda *_: None)  # no real waiting in the --wait poll
 
 
 def _two_page_callback(request):
@@ -122,3 +128,81 @@ def test_list_with_all_flag_drains_all_pages():
     out = json.loads(res.stdout)
     assert [a["id"] for a in out["answers"]] == [1, 2]
     assert out["next"] is None
+
+
+@responses.activate
+def test_export_no_wait_prints_started_operation():
+    responses.add(
+        responses.POST,
+        f"{BASE}/surveys/{SID}/answers/export",
+        json={"id": "op-1", "status": "wait", "message": "started"},
+        status=202,
+    )
+    res = runner.invoke(
+        cli.app,
+        ["--format", "json", "forms", "answers", "export", SID, "--format", "xlsx", "--no-wait"],
+    )
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert out["id"] == "op-1" and out["status"] == "wait"
+    assert json.loads(responses.calls[0].request.body)["format"] == "xlsx"  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_export_wait_polls_then_downloads_file(tmp_path):
+    responses.add(
+        responses.POST,
+        f"{BASE}/surveys/{SID}/answers/export",
+        json={"id": "op-1", "status": "wait"},
+        status=202,
+    )
+    # export-results is polled (wait, then ok), then hit once more to download the file bytes
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        json={"id": "op-1", "status": "wait"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        json={"id": "op-1", "status": "ok"},
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        body=b"xlsxbytes",
+        status=200,
+    )
+    target = tmp_path / "answers.xlsx"
+    res = runner.invoke(
+        cli.app,
+        ["forms", "answers", "export", SID, "--format", "xlsx", "--output", str(target)],
+    )
+    assert res.exit_code == 0
+    assert target.read_bytes() == b"xlsxbytes"
+    # POST + two status polls + one download == 4 calls
+    assert len(responses.calls) == 4
+
+
+@responses.activate
+def test_export_wait_failed_prints_status():
+    responses.add(
+        responses.POST,
+        f"{BASE}/surveys/{SID}/answers/export",
+        json={"id": "op-2", "status": "wait"},
+        status=202,
+    )
+    responses.add(
+        responses.GET,
+        f"{BASE}/surveys/{SID}/answers/export-results",
+        json={"id": "op-2", "status": "fail", "message": "boom"},
+        status=200,
+    )
+    res = runner.invoke(
+        cli.app, ["--format", "json", "forms", "answers", "export", SID, "--format", "csv"]
+    )
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert out["status"] == "fail" and out["message"] == "boom"

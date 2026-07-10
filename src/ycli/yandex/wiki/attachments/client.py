@@ -4,16 +4,26 @@ NOTE: do NOT add ``from __future__ import annotations`` — uplink reads paramet
 annotations eagerly.
 """
 
+from collections.abc import Sequence
+
 import requests
 import uplink
 
 from ycli.yandex.pagination import CursorStrategy
-from ycli.yandex.wiki.attachments.models import AttachmentList, AttachmentsResponse
+from ycli.yandex.wiki.attachments.models import (
+    AttachedFileList,
+    AttachmentCreate,
+    AttachmentList,
+    AttachmentsResponse,
+    AttachResponse,
+)
 from ycli.yandex.wiki.base import WikiResource
+from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
+from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 
 
 class AttachmentsClient(WikiResource):
-    """Declarative HTTP for ``/pages/{id}/attachments`` (list + binary download)."""
+    """Declarative HTTP for ``/pages/{id}/attachments`` (list + attach + binary download)."""
 
     @uplink.returns.json()
     @uplink.get("pages/{page_id}/attachments")
@@ -102,3 +112,55 @@ class AttachmentsClient(WikiResource):
             >>> client.attachments.delete(12345, 678)  # doctest: +SKIP
         """
         self._delete(page_id, file_id)
+
+    @uplink.returns.json()
+    @uplink.json
+    @uplink.post("pages/{page_id}/attachments")
+    def _attach(self, page_id: uplink.Path, body: uplink.Body) -> AttachResponse:  # ty: ignore[empty-body]
+        """``POST /pages/{id}/attachments`` — attach from a ready JSON body (see ``attach``)."""
+
+    def attach(self, page_id: int, session_ids: Sequence[str]) -> AttachedFileList:
+        """``POST /pages/{id}/attachments`` — attach file(s) from finished upload sessions.
+
+        ``session_ids`` are the ``session_id`` of each finished upload session (see
+        :class:`UploadSessionsClient`). Returns the flat list of newly-attached files.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.attachments.attach(12345, ["1e5c…"]).root[0].name  # doctest: +SKIP
+            'diagram.png'
+        """
+        body = AttachmentCreate(upload_sessions=list(session_ids))
+        response = self._attach(
+            page_id=page_id, body=body.model_dump(by_alias=True, exclude_none=True)
+        )
+        return AttachedFileList(response.results)
+
+    def upload(
+        self,
+        sessions: UploadSessionsClient,
+        page_id: int,
+        *,
+        file_name: str,
+        data: bytes,
+    ) -> AttachedFileList:
+        """Run the whole upload pipeline for one file, then attach it to ``page_id``.
+
+        Drives the four steps end to end against the injected ``sessions`` client: open a
+        session sized to ``data``, PUT the bytes as a single octet-stream part, finish the
+        session, then ``attach`` the finished session to the page. Small-file path — the bytes
+        go up as one ``part_number=1`` part (chunk large files with ``upload_part`` directly).
+        Returns the flat list of newly-attached files.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.attachments.upload(
+            ...     client.uploadsessions, 12345, file_name="d.png", data=b"\\x89PNG…"
+            ... ).root[0].name  # doctest: +SKIP
+            'd.png'
+        """
+        session = sessions.create(UploadSessionCreate(file_name=file_name, file_size=len(data)))
+        session_id = session.session_id or ""
+        sessions.upload_part(session_id, part_number=1, data=data)
+        sessions.finish(session_id=session_id)
+        return self.attach(page_id, [session_id])
