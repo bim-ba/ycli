@@ -13,7 +13,7 @@ update, transition, link and comment on issues.
 Three interfaces, same underlying API:
 
 - **CLI** — `uv run ycli tracker <group> <cmd>`. Full read **and** write surface.
-- **MCP tools** — 13 read-only tools named `tracker_<resource>_<action>`. No write tools.
+- **MCP tools** — 57 read-only tools named `tracker_<resource>_<action>`. No write tools.
 - **Python SDK** — `from ycli.yandex.tracker.client import TrackerClient`.
 
 **Prefer the CLI or the `tracker_*` MCP tools over raw `http` calls.** They handle
@@ -47,8 +47,9 @@ The CLI, MCP tools, and SDK all read credentials from the environment:
 | `YANDEX_ID_OAUTH_TOKEN` | OAuth token → sent as `Authorization: OAuth …` |
 | `YANDEX_ID_ORGANIZATION_ID` | Organization ID → sent as the `X-Org-ID` header |
 
-Full API reference is vendored at `../../../docs/references/yandex/tracker/`. Start
-from `../../../docs/references/yandex/tracker/index/docs.md` to find the right doc.
+Full Tracker API reference lives online at <https://yandex.ru/dev/tracker/> (developer
+portal) and <https://yandex.ru/support/tracker/> (product docs). For the day-to-day
+`ycli tracker …` commands, see the bundled `references/taskfile-quick-ref.md`.
 
 ---
 
@@ -59,8 +60,7 @@ read-only MCP tool.
 
 | CLI command | MCP tool | Purpose |
 |-------------|----------|---------|
-| `uv run ycli tracker issues get KEY` | `tracker_issues_get` | Compact view: key, summary, type, status, priority, **epic**, parent, assignee |
-| `uv run ycli tracker issues full KEY` | `tracker_issues_full` | Full JSON — every field |
+| `uv run ycli tracker issues get KEY` | `tracker_issues_get` | Compact view: key, summary, type, status, priority, **epic**, parent, assignee. Append `-o json` for the full raw payload (every field) |
 | `uv run ycli tracker issues list [--queue ...] [--status ...] [--assignee ...] [--epic ...] [--type ...]` | `tracker_issues_list` | Filtered list — all filters optional; pass none for everything you can read, any subset to narrow |
 | `uv run ycli tracker issues search '...'` | `tracker_issues_search` | Full-text search via Tracker Query Language |
 | `uv run ycli tracker issues count [--query '...'] [--queue X] [--status Y]` | `tracker_issues_count` | Count without listing — sanity-check a filter first. `--query` is mutually exclusive with `--queue`/`--status` |
@@ -70,11 +70,10 @@ read-only MCP tool.
 | `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
 | `uv run ycli tracker transitions list KEY` | `tracker_transitions_list` | Available transitions (a read — used before a write) |
 
-The 13 read-only MCP tools are: `tracker_issues_get`, `tracker_issues_full`,
-`tracker_issues_list`, `tracker_issues_search`, `tracker_issues_count`,
-`tracker_comments_list`, `tracker_links_list`, `tracker_changelog_list`,
-`tracker_worklog_list`, `tracker_transitions_list`, `tracker_priorities_list`,
-`tracker_linktypes_list`, `tracker_issuetypes_list`. Write operations are CLI-only.
+There are **57** read-only Tracker MCP tools, all following the
+`tracker_<resource>_<action>` naming (the rows above cover the ones you reach for
+most). To see the exact list for your build, start the server (`ycli mcp start`) and
+enumerate its tools. Write operations are CLI-only.
 
 ### Search — Tracker Query Language
 
@@ -260,5 +259,5 @@ issue = client.issues.get("MYQUEUE-123")
 |----------|-------------|
 | `rules/01-workflow.md` | Primary vs Quick Start workflow: types, statuses, lifecycle, transitions, resolution values |
 | `references/taskfile-quick-ref.md` | Cheatsheet of all `uv run ycli tracker …` operations |
-| `../../../docs/references/yandex/tracker/index/docs.md` | Navigation guide to the Yandex Tracker API docs |
-| `../../../docs/references/yandex/tracker/{N}-{topic}/` | Full Yandex Tracker API docs by topic area |
+| <https://yandex.ru/dev/tracker/> | Yandex Tracker developer portal — full API reference |
+| <https://yandex.ru/support/tracker/> | Yandex Tracker product docs — concepts, queues, workflows |

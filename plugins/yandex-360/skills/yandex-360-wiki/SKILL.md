@@ -38,12 +38,12 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 | Surface | What it covers |
 |---------|----------------|
 | **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|descendants`, `comments list`, `attachments list` |
-| **MCP tools** (read-only, 5) | `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`. **No write tools** — `pages create` / `pages update` are CLI-only. |
+| **MCP tools** (read-only, 13) | Named `wiki_<resource>_<action>` — the ones you reach for most are `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`. **No write tools** — `pages create` / `pages update` are CLI-only. |
 | **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages` (`get`, `descendants`, `create`, `update`), `.comments` (`list`), `.attachments` (`list`). |
 
 **Prefer the CLI / MCP tools over raw `http` calls** — they encode the API quirks (header name, `slug=` query form, POST-not-PATCH, `fields=` rules) correctly.
 
-Full API reference: `../../../docs/references/yandex/wiki/`. Start at `../../../docs/references/yandex/wiki/index/docs.md` to find the right doc.
+Full Wiki API reference lives online at <https://yandex.ru/dev/wiki/> (developer portal) and <https://yandex.ru/support/wiki/> (product docs). For YFM authoring syntax, see the bundled `references/yfm-quick-ref.md`.
 
 ---
 
@@ -94,7 +94,7 @@ uv run ycli wiki attachments list <page_id>
 
 ### There is no API text-search endpoint
 
-The Wiki UI has full-text search, but the **public API does not expose one** (see `../../../docs/references/yandex/wiki/04-navigation/search.md` — UI-only). To find a page programmatically, navigate the tree (`pages descendants` + `pages get`) from a known root, or use the Wiki UI search to locate the slug first, then fetch it via the CLI.
+The Wiki UI has full-text search, but the **public API does not expose one** (search is UI-only). To find a page programmatically, navigate the tree (`pages descendants` + `pages get`) from a known root, or use the Wiki UI search to locate the slug first, then fetch it via the CLI.
 
 ---
 
@@ -172,4 +172,4 @@ Yandex Flavored Markdown supports note blocks, cuts/spoilers, tabs, multi-column
 - `rules/03-include-usage.md` — the `{{include}}` element for DRY shared content.
 - `rules/01-page-structure.md` — slug conventions and the page preamble (status note + updated date).
 
-Full YFM syntax reference: [`../../../docs/references/yandex/wiki/yfm-quick-ref.md`](../../../docs/references/yandex/wiki/yfm-quick-ref.md).
+Full YFM syntax reference: the bundled [`references/yfm-quick-ref.md`](references/yfm-quick-ref.md), plus the live docs at <https://yandex.ru/support/wiki/>.

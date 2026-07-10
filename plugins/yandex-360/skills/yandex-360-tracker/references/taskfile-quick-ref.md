@@ -12,7 +12,7 @@ own queue keys, issue keys, and logins.
 
 # Single issue (works for any queue you can access)
 uv run ycli tracker issues get MYQUEUE-123       # compact view (incl. epic + parent)
-uv run ycli tracker issues full MYQUEUE-123      # raw API dict, every field
+uv run ycli tracker issues get MYQUEUE-123 -o json  # raw API dict, every field
 uv run ycli tracker comments list MYQUEUE-123
 uv run ycli tracker links list MYQUEUE-123
 uv run ycli tracker changelog list MYQUEUE-123
@@ -55,6 +55,6 @@ uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
 uv run ycli tracker transitions execute MYQUEUE-123 <id> -F 'resolution={"key":"fixed"}'
 ```
 
-Raw `http` snippets for endpoints the CLI does not cover live in
-`../../../../docs/references/yandex/tracker/`. Prefer the CLI/MCP tools over raw
-`http` wherever they cover the operation.
+For endpoints the CLI does not cover, consult the live Tracker API reference at
+<https://yandex.ru/dev/tracker/> before hand-rolling raw `http`. Prefer the CLI/MCP
+tools over raw `http` wherever they cover the operation.
