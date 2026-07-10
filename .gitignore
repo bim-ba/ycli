@@ -32,6 +32,9 @@ PROMPT.md
 # IDEs
 .vscode
 
+# Playwright MCP scratch (browser snapshots / console logs)
+.playwright-mcp/
+
 # graphify code-graph — committed snapshot of the queryable graph so the team
 # shares it (graph.json, graph.html, GRAPH_REPORT.md, wiki/, cost.json). The
 # machine-local + regenerable bits stay ignored: AST cache, dated backups,
