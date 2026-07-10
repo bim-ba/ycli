@@ -363,10 +363,13 @@ class DocsFetcher(_HttpClient):
                 return None
             for element in root.findall(_SITEMAP_LOC):
                 loc = (element.text or "").strip()
-                # Trailing-slash locs 404 as `.md` — skip them.
-                if loc and not loc.endswith("/") and loc not in seen:
-                    seen.add(loc)
-                    locs.append(loc)
+                # Skip trailing-slash locs (they 404 as `.md`) and malformed locs that embed a
+                # second URL after the origin — some Yandex sitemaps list external links / PDFs
+                # (t.me, /legal/…, *.pdf) as <loc>, which 401/404 when `.md` is appended.
+                if not loc or loc.endswith("/") or loc.count("://") > 1 or loc in seen:
+                    continue
+                seen.add(loc)
+                locs.append(loc)
         return locs
 
     # -- path mapping ------------------------------------------------------------------
