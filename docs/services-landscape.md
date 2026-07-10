@@ -1,9 +1,11 @@
 # Yandex developer-service landscape
 
-A point-in-time survey of which Yandex developer services expose **public REST API
-documentation** — the map of what `ycli` could wrap next, and what is deliberately out of
-scope. It complements [`api-coverage.md`](api-coverage.md) (which tracks coverage of the
-services already wrapped: Tracker, Wiki, Forms).
+A point-in-time survey of the Yandex developer services that expose **public REST API
+documentation** — the map of everything `ycli` can grow to cover. The aim is broad: wrap as
+much of the publicly-documented Yandex API surface as possible, sequenced so the Yandex 360
+workspace core lands first and the wider surface follows in later waves. Nothing below is
+"out of scope" — only earlier or later. It complements [`api-coverage.md`](api-coverage.md)
+(which tracks coverage of the services already wrapped: Tracker, Wiki, Forms).
 
 > **Provenance.** Verified **2026-07-10**. The service list was extracted from the live dev hub
 > `https://yandex.ru/dev/` and cross-probed against the Yandex 360 family. Each candidate was
@@ -27,26 +29,36 @@ services already wrapped: Tracker, Wiki, Forms).
 | **Yandex ID** | `yandex.ru/dev/id/doc/ru/` | ✅ Playwright | partial | OAuth token flows + user-info endpoint. `ycli` already consumes it for auth; only a `whoami`/userinfo read would be new surface |
 | DataLens | `datalens.ru/opensource/docs/` | ⚠️ partial | vendored | BI UI tool; opensource docs expose no REST reference, Cloud API is Passport-SSO-gated. Low API ROI — defer |
 
-### Merged / superseded (do **not** cover separately)
+### Merged into api360 (cover the replacement, not these)
 
-| Service | Docs | Why skip |
-|---------|------|----------|
+| Service | Docs | Note |
+|---------|------|------|
 | Connect / Directory | redirects → api360 | Legacy org-directory API, **merged into api360** |
 | Mail for Domain (pdd) | `yandex.ru/dev/pdd/` | Legacy mail-for-domain admin, largely **superseded by api360** mail services |
 
-### Protocol-only (no REST surface to wrap)
+### Protocol-only — no REST, a different integration model
+
+Still coverable eventually, but through a protocol client rather than a REST wrapper (their
+own track):
 
 | Service | Protocol | Note |
 |---------|----------|------|
-| Calendar | CalDAV (`caldav.yandex.ru`) | 360 service, but no REST API |
-| Contacts | CardDAV (`carddav.yandex.ru`) | 360 service, but no REST API |
-| Mail (messages) | IMAP / SMTP | Only mail *admin* settings are REST — via api360 |
+| Calendar | CalDAV (`caldav.yandex.ru`) | 360 service; access is CalDAV, not REST |
+| Contacts | CardDAV (`carddav.yandex.ru`) | 360 service; access is CardDAV, not REST |
+| Mail (messages) | IMAP / SMTP | Message access is IMAP/SMTP; mail *admin* settings are REST via api360 |
 
-## Out of scope (real dev services, but not the 360 workspace theme)
+## Later waves — the wider Yandex API surface (all eventual candidates)
 
-Consumer / ads / cloud-infra APIs, confirmed live but outside `ycli`'s remit:
-Metrica, Direct, Audience, Webmaster, Market Partner, Weather, Translate / AI Studio,
-Dictionary, SpeechKit, SmartCaptcha, Maps / Geocoder / Suggest, Yandex Cloud, Dialogs (Alice).
+Not part of the 360 workspace core, but real, live, publicly-documented REST APIs — **in scope
+for later coverage** as `ycli` grows toward wrapping everything, just sequenced after the core.
+Grouped by distance from the current focus:
+
+- **Analytics & site:** Metrica, Webmaster
+- **Ads & commerce:** Direct, Audience, Market Partner
+- **AI & language:** Translate / AI Studio, SpeechKit, Dictionary
+- **Maps & geo:** Maps, Geocoder, Suggest
+- **Cloud & infra:** Yandex Cloud, SmartCaptcha
+- **Assistant & misc:** Dialogs (Alice), Weather
 
 ## Recommended next to cover — ranked
 
@@ -63,5 +75,8 @@ Dictionary, SpeechKit, SmartCaptcha, Maps / Geocoder / Suggest, Yandex Cloud, Di
 5. **DataLens** — already vendored, but public REST is thin and Cloud/SSO-gated; defer until a
    concrete BI use-case appears.
 
-*Skip Connect and pdd (superseded by api360); skip Calendar/Contacts/Mail (CalDAV/CardDAV/IMAP,
-no REST).*
+…then the later waves above, working outward from the 360 core toward full coverage.
+
+*Connect and pdd are covered **by** api360 — don't wrap them separately. Calendar/Contacts/Mail
+have no REST surface: reaching them means a CalDAV/CardDAV/IMAP client, a separate track to plan
+on its own.*

@@ -33,31 +33,26 @@ Severity: 🔴 crash · 🟠 wrong data / broken flow · 🟡 minor. Status as o
 | 3 | 🟠 | Wiki | grids `add_columns`: `required=None` dropped by `exclude_none` → API 400 on every column | `wiki/grids/models.py` | ✅ Fixed — default `required=False` |
 | 4 | 🟠 | Wiki | comments list/thread render `content:null`/`author:null` (model read `content`/`display`, API sends `body`/`author.display_name`) | `wiki/comments/models.py`, `yandex/models.py` | ✅ Fixed — alias `body`→content, flatten `author.display_name` |
 | 5 | 🟡 | Wiki | attachments list `size:0`/`mime_type:null` (API sends size as a string like `"0.00"`; key is `mimetype`) | `wiki/attachments/models.py` | ✅ Fixed — `size: str`, `mimetype` |
-| 6 | 🟠 | Forms | `answers.get` (single answer) 404s at every version/path — the endpoint is **not deployed** on `api.forms.yandex.net` | `forms/answers/` | ⚠️ **Needs decision** (see below) |
+| 6 | 🟠 | Forms | `answers.get` (single answer) 404s at every version/path — the endpoint is **not deployed** on `api.forms.yandex.net` | `forms/answers/` | ✅ **Removed** (dead op, all surfaces) |
 | 7 | 🟠 | Forms | `answers.export_results` forces `@returns.json()` on a `302`→CSV redirect → `JSONDecodeError`; broke `answers export --wait` | `forms/answers/client.py` | ✅ Fixed — treat followed redirect as terminal |
 | 8 | 🟠 | Forms | `answers.list_all` / MCP drain followed a dead `/v3/…` `next_url` (HTML 404) | `forms/answers/client.py` | ✅ Fixed — rebuild the cursor on the working v1 path |
 | 9 | 🟡 | Forms | `keysets.modify` (PATCH) requires the full record; help/`exclude_none` implied partial | `forms/keysets/{cli,client,models}.py` | ✅ Fixed — full body required; help corrected |
 
-**8 of 9 fixed** in this branch (strict TDD, red→green confirmed, live-shape-verified, stubbed
-tests, 100% coverage held). Bug 6 has no server endpoint to call.
+**All 9 resolved** in this branch (strict TDD, red→green confirmed, live-shape-verified, stubbed
+tests, 100% coverage held): **8 fixed**, and **Bug 6 removed entirely** — no server endpoint
+exists to call.
 
-## Needs-decision (not guessed)
+## Resolved follow-ups
 
-- **Bug 6 — `answers.get` single-answer endpoint.** Every candidate path (v1/v2/v3, `{id}` and
-  `{answer_key}`, trailing slash, `/answer/`, `?id=`, `?pk=`) returns a **server-level HTML/plain
-  404**, never the API's JSON 404 — the route is not deployed. Options: (a) keep the operation and
-  document it as a known upstream gap; (b) remove it (changes the ARCH-6 CLI/MCP snapshot and the
-  coverage tables). Also: `forms/answers/mcp.py` carries an inaccurate comment claiming a 404
-  yields an all-`None` `AnswerDetail` — the real HTML 404 makes `.json()` raise. Left pending this
-  decision.
-- **Wiki comment threading.** In `GET /pages/{id}/comments` a `parent_id` reply is returned
-  **flat as a sibling** (not nested); `thread_id` is `null` on both root and reply; the
-  `/comments/{id}/thread` endpoint returns `{"results": []}` for real parent/child pairs. Correct
-  thread rendering needs a design choice (client-side grouping by `parent_id`, and/or reconsidering
-  what id `comments thread` is called with) — beyond a `models.py` mapping. The content/author
-  mapping (Bug 4) is fixed; the tree shape is deferred.
-- **Keyset `create` latent gap.** The API also requires `is_enabled` on `keysets.create`, but the
-  CLI's `--enabled` is optional there (same class as Bug 9, left out of that fix's scope).
+- **Bug 6 — `answers.get`.** Removed the operation from SDK / CLI / MCP (every candidate path —
+  v1/v2/v3, `{id}` and `{answer_key}`, trailing slash, `/answer/`, `?id=`, `?pk=` — returns a
+  server-level HTML/plain 404, so the route simply is not deployed). Its unused model chain
+  (`AnswerDetail` & friends) and the inaccurate `mcp.py` comment went with it; snapshots +
+  coverage tables regenerated (Forms now **34 ops · 10 MCP tools**).
+- **Wiki comment threading.** `comments thread` now reconstructs the thread **client-side** from
+  the flat comment list — grouping by `parent_id` from the target to any depth (DFS, cycle-guarded)
+  — instead of the dead `/thread` endpoint; `id` and `parent_id` were added to the comment model.
+- **Keyset `create`.** Now requires and always sends `is_enabled` (mirrors the Bug 9 `modify` fix).
 
 ## Doc / skill drift
 
