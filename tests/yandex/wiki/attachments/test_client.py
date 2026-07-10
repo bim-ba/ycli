@@ -25,7 +25,7 @@ def test_list_returns_flat_collection():
     responses.add(
         responses.GET,
         f"{BASE}/pages/42/attachments",
-        json={"results": [{"name": "f.pdf", "size": 1, "mime_type": "application/pdf"}]},
+        json={"results": [{"name": "f.pdf", "size": "1.00", "mimetype": "application/pdf"}]},
         status=200,
     )
     out = _client().list(page_id=42)
@@ -34,11 +34,25 @@ def test_list_returns_flat_collection():
 
 
 @responses.activate
+def test_list_maps_string_size_and_mimetype():
+    """Bug 5: real list payload carries ``size`` as a string and mime under ``mimetype``."""
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/attachments",
+        json={"results": [{"name": "shapecheck.txt", "size": "0.00", "mimetype": "text/plain"}]},
+        status=200,
+    )
+    out = _client().list(page_id=42)
+    assert out.root[0].size == "0.00"
+    assert out.root[0].mimetype == "text/plain"
+
+
+@responses.activate
 def test_list_attachments_for_page_id():
     responses.add(
         responses.GET,
         f"{BASE}/pages/42/attachments",
-        json={"results": [{"name": "f.pdf", "size": 1, "mime_type": "application/pdf"}]},
+        json={"results": [{"name": "f.pdf", "size": "1.00", "mimetype": "application/pdf"}]},
         status=200,
     )
     out = _client().list(page_id=42)

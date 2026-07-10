@@ -84,12 +84,23 @@ def test_columns_add_nested_new_column_dump():
     body = ColumnsAdd(revision="3", columns=[NewColumnSchema(title="C", type="string")]).model_dump(
         exclude_none=True
     )
-    assert body == {"revision": "3", "columns": [{"title": "C", "type": "string"}]}
+    assert body == {
+        "revision": "3",
+        "columns": [{"title": "C", "type": "string", "required": False}],
+    }
 
 
 def test_new_column_rejects_bad_type():
     with pytest.raises(ValidationError):
         NewColumnSchema(title="C", type="bogus")  # ty: ignore[invalid-argument-type]
+
+
+def test_columns_add_always_serializes_required():
+    """Bug 3: the API requires ``required`` on every column, so it must survive ``exclude_none``."""
+    body = ColumnsAdd(revision="3", columns=[{"title": "C", "type": "string"}]).model_dump(
+        exclude_none=True
+    )
+    assert body["columns"][0]["required"] is False
 
 
 def test_columns_remove_and_move_dump():

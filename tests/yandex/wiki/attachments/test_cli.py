@@ -23,7 +23,7 @@ def test_attachments_list():
     responses.add(
         responses.GET,
         f"{BASE}/pages/42/attachments",
-        json={"results": [{"name": "f.pdf", "size": 0, "mime_type": "application/pdf"}]},
+        json={"results": [{"name": "f.pdf", "size": "0.00", "mimetype": "application/pdf"}]},
         status=200,
     )
     result = runner.invoke(cli.app, ["wiki", "attachments", "list", "42"])

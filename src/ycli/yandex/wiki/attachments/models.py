@@ -10,14 +10,20 @@ from ycli.yandex.models import APIModel
 class Attachment(APIModel):
     """A page attachment descriptor (``/pages/{id}/attachments`` item).
 
+    The list payload reports ``size`` as a human-readable string (e.g. ``"0.00"``) and names the
+    MIME type ``mimetype`` — matching the sibling :class:`AttachedFile` and the ``resources``
+    listing.
+
     Example:
-        >>> Attachment.model_validate({"name": "d.png", "size": 100, "mime_type": "image/png"}).name
-        'd.png'
+        >>> Attachment.model_validate(
+        ...     {"name": "d.png", "size": "0.00", "mimetype": "image/png"}
+        ... ).mimetype
+        'image/png'
     """
 
     name: str | None = None
-    size: int | None = None
-    mime_type: str | None = None
+    size: str | None = None
+    mimetype: str | None = None
 
 
 class AttachmentsResponse(APIModel):

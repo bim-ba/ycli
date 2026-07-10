@@ -210,7 +210,35 @@ def test_grids_columns_add_sends_revision_and_columns():
     )
     assert result.exit_code == 0
     sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
-    assert sent == {"revision": "3", "columns": [{"title": "C", "type": "string"}]}
+    assert sent == {
+        "revision": "3",
+        "columns": [{"title": "C", "type": "string", "required": False}],
+    }
+
+
+@responses.activate
+def test_grids_columns_add_always_sends_required():
+    """Bug 3: the API rejects a column without ``required``; it must always be serialized."""
+    responses.add(responses.POST, f"{BASE}/grids/{GID}/columns", json={"revision": "4"}, status=200)
+    result = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "wiki",
+            "grids",
+            "columns",
+            "add",
+            GID,
+            "--revision",
+            "3",
+            "--columns",
+            '[{"title": "C", "type": "string"}]',
+        ],
+    )
+    assert result.exit_code == 0
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent["columns"][0]["required"] is False
 
 
 @responses.activate

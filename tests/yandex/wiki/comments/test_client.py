@@ -29,6 +29,24 @@ def test_list_returns_flat_collection():
 
 
 @responses.activate
+def test_list_maps_body_to_content_and_author_display_name():
+    """Bug 4: real list payload carries ``body`` + ``author.display_name``; both must populate."""
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/comments",
+        json={
+            "results": [
+                {"id": 1, "body": "hello there", "author": {"id": 9, "display_name": "Сава"}}
+            ]
+        },
+        status=200,
+    )
+    out = _client().list(page_id=42)
+    assert out.root[0].content == "hello there"
+    assert out.root[0].author == "Сава"
+
+
+@responses.activate
 def test_list_comments_for_page_id():
     responses.add(
         responses.GET,

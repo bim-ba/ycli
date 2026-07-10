@@ -12,8 +12,12 @@ from ycli.yandex.wiki.comments.models import (
 
 
 def test_author_flattens_to_scalar():
-    assert Comment.model_validate({"author": {"display": "Сава"}}).author == "Сава"
-    assert Comment.model_validate({"content": "ok"}).author is None
+    assert Comment.model_validate({"author": {"display_name": "Сава"}}).author == "Сава"
+    assert Comment.model_validate({"body": "ok"}).author is None
+
+
+def test_content_reads_body_key():
+    assert Comment.model_validate({"body": "hello"}).content == "hello"
 
 
 def test_comment_create_drops_none_placement_fields():

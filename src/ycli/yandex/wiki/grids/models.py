@@ -358,7 +358,7 @@ class NewColumnSchema(APIModel):
         >>> NewColumnSchema(title="Owner", type="staff", multiple=True).model_dump(
         ...     exclude_none=True
         ... )
-        {'title': 'Owner', 'type': 'staff', 'multiple': True}
+        {'title': 'Owner', 'type': 'staff', 'required': False, 'multiple': True}
     """
 
     title: str = Field(min_length=1, max_length=255, description="Column header (non-empty).")
@@ -366,7 +366,11 @@ class NewColumnSchema(APIModel):
     slug: str | None = Field(
         default=None, description="Explicit slug (server-generated if omitted)."
     )
-    required: bool | None = Field(default=None, description="Whether a value is mandatory.")
+    required: bool = Field(
+        default=False,
+        description="Whether a value is mandatory. The API requires this on every column, so it "
+        "defaults to ``False`` (never ``None``) to survive ``exclude_none`` serialization.",
+    )
     width: int | None = Field(default=None, description="Column width in ``width_units``.")
     width_units: WidthUnits | None = Field(default=None, description="Unit of ``width``.")
     pinned: ColumnPinType | None = Field(default=None, description="Edge to pin the column to.")
@@ -489,7 +493,7 @@ class ColumnsAdd(APIModel):
         >>> ColumnsAdd(
         ...     revision="3", columns=[NewColumnSchema(title="C", type="string")]
         ... ).model_dump(exclude_none=True)
-        {'revision': '3', 'columns': [{'title': 'C', 'type': 'string'}]}
+        {'revision': '3', 'columns': [{'title': 'C', 'type': 'string', 'required': False}]}
     """
 
     revision: str = Field(description="Current grid revision (optimistic lock).")

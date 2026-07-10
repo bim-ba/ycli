@@ -6,21 +6,25 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
-    DisplayStr,
+    DisplayNameStr,
 )
 
 
 class Comment(APIModel):
     """A wiki page comment (``/pages/{id}/comments`` item).
 
+    The list payload names the text ``body`` and the author ``{display_name: …}``, so ``content``
+    reads the ``body`` key (via ``validation_alias``; it still renders as ``content``) and
+    ``author`` flattens ``display_name``.
+
     Example:
-        >>> Comment.model_validate({"author": {"display": "Сава"}, "content": "ok"}).author
-        'Сава'
+        >>> Comment.model_validate({"author": {"display_name": "Сава"}, "body": "ok"}).content
+        'ok'
     """
 
     created_at: str | None = None
-    author: DisplayStr = None
-    content: str | None = None
+    author: DisplayNameStr = None
+    content: str | None = Field(default=None, validation_alias="body")
 
 
 class CommentsResponse(APIModel):
