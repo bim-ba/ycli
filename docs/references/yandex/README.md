@@ -1,17 +1,26 @@
-# Yandex 360 — Service References
+# Yandex service reference docs — local-only
 
-Normalized offline reference for the Yandex 360 services the platform automates against. Source of
-truth for "how does Tracker/Forms/Wiki work" — the `yandex-360-{tracker,forms,wiki}` skills link
-here. Org-wide `rg` over these docs replaces the old in-skill `references/docs/` corpus.
+This directory mirrors vendored Yandex **service** documentation (Tracker, Wiki, Forms and
+the wider dev hub) that the platform references. **The docs themselves are not committed.**
 
-(Distinct from `operational/yandex/wiki/` — that is the read-only mirror of other teams' wiki
-*content*; this is the vendor *product/API* documentation.)
+They are served from `yandex.ru`, which is covered by the Yandex User Agreement — not an open
+licence — so redistributing them in this repository isn't permitted. We therefore keep them
+**local-only (gitignored)** and regenerate them on demand from a committed, reproducible
+source: [`scripts/fetch_docs.py`](../../../scripts/fetch_docs.py).
 
-## Services
+## Regenerate locally
 
-- [`tracker/`](tracker/) — Yandex Tracker API + product docs (385 files, 18 sections).
-- [`forms/`](forms/) — Yandex Forms API + product docs (110 files, 9 sections).
-- [`wiki/`](wiki/) — Yandex Wiki API + product docs incl. YFM (111 files, 7 sections).
+```bash
+uv run python scripts/fetch_docs.py --all       # every diplodoc-served service
+uv run python scripts/fetch_docs.py tracker     # a single service
+uv run python scripts/fetch_docs.py wiki --dry-run
+```
 
-> 1:1 mirrors relocated from the `yandex-360-*` skills in sub-project G/M2. Agent-private maps (our
-> CLI cheatsheet, our `data/`-space maps) stayed in the skills.
+Output mirrors each service's URL path 1:1 under this directory. Run the script with `--help`
+for the full service list and `--lang {ru,en,all}`.
+
+## Yandex Cloud docs (CC BY 4.0)
+
+The open-source Yandex Cloud documentation (`github.com/yandex-cloud/docs`) *is* openly
+licensed (CC BY 4.0) and may be redistributed with attribution — it is handled separately from
+this local-only tree. Fetch it with `scripts/fetch_docs.py <service> --source cloud`.

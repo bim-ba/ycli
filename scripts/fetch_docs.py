@@ -247,6 +247,14 @@ def _tidy(text: str) -> str:
     return _REQUEST_EXAMPLE.sub(_unwrap_request_example, text)
 
 
+class _NoSource:
+    """Sentinel: a page URL has no YFM `.md` sibling (a section root / non-page) — an expected
+    absence, kept distinct from a fetch failure so it is skipped without counting as one."""
+
+
+_NO_SOURCE = _NoSource()
+
+
 @dataclass
 class _HttpClient:
     """Polite retry/backoff HTTP shared by both fetch strategies, over one Session."""
@@ -259,8 +267,12 @@ class _HttpClient:
 
     def __post_init__(self) -> None:
         self.session.headers.update({"User-Agent": USER_AGENT})
+        self.encountered_failure = False
 
     def _get(self, url: str) -> requests.Response | None:
+        """GET with retry/backoff. Returns the response for any completed HTTP status (callers
+        inspect ``status_code``); returns None only when the request never completed — a network
+        error, or a 5xx / 429 / 403 that persisted across every retry."""
         for attempt in range(1, MAX_ATTEMPTS + 1):
             try:
                 response = self.session.get(url, timeout=REQUEST_TIMEOUT_SECONDS)
@@ -270,18 +282,18 @@ class _HttpClient:
                     return None
                 time.sleep(self.delay_seconds * attempt)
                 continue
-            if response.status_code == 200:
-                return response
-            if response.status_code >= 500 and attempt < MAX_ATTEMPTS:
-                time.sleep(self.delay_seconds * attempt)
+            rate_limited = response.status_code in (429, 403)
+            if attempt < MAX_ATTEMPTS and (response.status_code >= 500 or rate_limited):
+                time.sleep(self.delay_seconds * attempt * (2 if rate_limited else 1))
                 continue
-            print(f"  ! {url} — HTTP {response.status_code}")
-            return None
+            return response
         return None
 
     def _get_json(self, url: str) -> dict | list | None:
         response = self._get(url)
-        if response is None:
+        if response is None or response.status_code != 200:
+            if response is not None:
+                print(f"  ! {url} — HTTP {response.status_code}")
             return None
         try:
             return response.json()
@@ -333,17 +345,25 @@ class DocsFetcher(_HttpClient):
         return f"/{self.lang}/" in loc or loc.endswith(f"/{self.lang}")
 
     # -- enumeration -------------------------------------------------------------------
-    def _enumerate(self, sitemaps: tuple[str, ...]) -> list[str]:
+    def _enumerate(self, sitemaps: tuple[str, ...]) -> list[str] | None:
+        """Fetchable page URLs from the sitemap(s). Returns None when a sitemap can't be fetched
+        or parsed — kept distinct from an empty list (a valid, genuinely empty map) so the caller
+        never mistakes a network / anti-bot failure for "this service has no pages"."""
         locs: list[str] = []
         seen: set[str] = set()
         for sitemap_url in sitemaps:
             response = self._get(sitemap_url)
-            if response is None:
-                continue
-            root = ElementTree.fromstring(response.content)
+            if response is None or response.status_code != 200:
+                print(f"  ! {sitemap_url} — could not fetch sitemap")
+                return None
+            try:
+                root = ElementTree.fromstring(response.content)
+            except ElementTree.ParseError as error:
+                print(f"  ! {sitemap_url} — invalid sitemap XML ({error})")
+                return None
             for element in root.findall(_SITEMAP_LOC):
                 loc = (element.text or "").strip()
-                # Section-root / trailing-slash locs 404 as `.md` — skip them.
+                # Trailing-slash locs 404 as `.md` — skip them.
                 if loc and not loc.endswith("/") and loc not in seen:
                     seen.add(loc)
                     locs.append(loc)
@@ -362,14 +382,20 @@ class DocsFetcher(_HttpClient):
         return Path(config.subdir) / remainder
 
     # -- single page -------------------------------------------------------------------
-    def _fetch_page(self, loc: str, config: ServiceConfig) -> tuple[Path, str] | None:
+    def _fetch_page(self, loc: str, config: ServiceConfig) -> tuple[Path, str] | _NoSource | None:
+        """Fetch one page's YFM source. Returns (path, text) on success, ``_NO_SOURCE`` when the
+        URL has no `.md` sibling (404 or non-markdown — expected for section roots), or None on a
+        genuine fetch failure (network / 5xx / rate-limit)."""
         response = self._get(f"{loc}.md")
         if response is None:
             return None
-        content_type = response.headers.get("Content-Type", "")
-        if "markdown" not in content_type:
-            print(f"  ! {loc}.md — unexpected Content-Type {content_type!r}")
+        if response.status_code == 404:
+            return _NO_SOURCE
+        if response.status_code != 200:
+            print(f"  ! {loc}.md — HTTP {response.status_code}")
             return None
+        if "markdown" not in response.headers.get("Content-Type", ""):
+            return _NO_SOURCE  # a section index / HTML page — no YFM source here
         # Derive the path from the *final* URL so redirects land at their real name.
         rel_path = self._relative_path(response.url, config)
         return rel_path, _tidy(response.text)
@@ -386,6 +412,10 @@ class DocsFetcher(_HttpClient):
     def fetch_service(self, name: str, config: ServiceConfig, limit: int | None) -> None:
         print(f"[{name}] enumerating {', '.join(config.sitemaps)}")
         locs = self._enumerate(config.sitemaps)
+        if locs is None:
+            print(f"[{name}] ⚠ enumeration failed — skipping (existing files/manifest left intact)")
+            self.encountered_failure = True
+            return
         if self.lang != "all":
             locs = [loc for loc in locs if self._matches_lang(loc)]
         print(f"[{name}] {len(locs)} fetchable pages ({self.lang})")
@@ -403,6 +433,8 @@ class DocsFetcher(_HttpClient):
             if limit is not None and len(written) >= limit:
                 break
             result = self._fetch_page(loc, config)
+            if isinstance(result, _NoSource):
+                continue  # no YFM sibling here (section root) — expected, not a failure
             if result is None:
                 failed += 1
                 continue
@@ -423,6 +455,7 @@ class DocsFetcher(_HttpClient):
             f"[{name}] wrote {len(written)} pages · revision={revision} · generator={generator}"
         )
         if failed:
+            self.encountered_failure = True
             summary += f" · ⚠ {failed} skipped (fetch failed) — mirror is incomplete"
         print(summary)
 
@@ -486,12 +519,13 @@ class CloudFetcher(_HttpClient):
             return {}
         return {e["name"]: e["sha"] for e in entries if e.get("type") == "dir"}
 
-    def _service_files(self, tree_sha: str) -> list[str]:
-        """Markdown paths (relative to the service dir) via one recursive subtree call."""
+    def _service_files(self, tree_sha: str) -> list[str] | None:
+        """Markdown paths (relative to the service dir) via one recursive subtree call. Returns
+        None when the API call fails (rate-limit / error) — distinct from a service with 0 files."""
         url = f"{GITHUB_API_BASE}/repos/{CLOUD_OWNER}/{CLOUD_REPO}/git/trees/{tree_sha}?recursive=1"
         data = self._get_json(url)
         if not isinstance(data, dict):
-            return []
+            return None
         if data.get("truncated"):
             print("  ! subtree truncated by GitHub — file list is partial")
         return sorted(
@@ -507,17 +541,20 @@ class CloudFetcher(_HttpClient):
             print(
                 "! could not resolve yandex-cloud/docs HEAD commit (rate-limited? set GITHUB_TOKEN)"
             )
+            self.encountered_failure = True
             return
         langs = ["ru", "en"] if self.lang == "all" else [self.lang]
         for lang in langs:
             available = self._lang_services(lang, commit)
             if not available:
-                print(f"[cloud/{lang}] no services found")
+                print(f"[cloud/{lang}] ⚠ no services listed (rate-limited? set GITHUB_TOKEN)")
+                self.encountered_failure = True
                 continue
             names = sorted(available) if all_services else [service]
             for name in names:
                 if name not in available:
                     print(f"[cloud/{lang}] unknown service {name!r} — not in repo")
+                    self.encountered_failure = True
                     continue
                 self._fetch_service(lang, name, available[name], commit, limit)
 
@@ -525,6 +562,10 @@ class CloudFetcher(_HttpClient):
         self, lang: str, service: str, tree_sha: str, commit: str, limit: int | None
     ) -> None:
         files = self._service_files(tree_sha)
+        if files is None:
+            print(f"[cloud/{lang}/{service}] ⚠ could not list files — skipping (nothing written)")
+            self.encountered_failure = True
+            return
         print(f"[cloud/{lang}/{service}] {len(files)} markdown files @ {commit[:8]}")
 
         if self.dry_run:
@@ -539,7 +580,9 @@ class CloudFetcher(_HttpClient):
                 break
             raw_url = f"{RAW_BASE}/{CLOUD_OWNER}/{CLOUD_REPO}/{commit}/{lang}/{service}/{path}"
             response = self._get(raw_url)
-            if response is None:
+            if response is None or response.status_code != 200:
+                if response is not None:
+                    print(f"  ! {raw_url} — HTTP {response.status_code}")
                 failed += 1
                 continue
             self._write_bytes(Path("cloud") / lang / service / path, response.content)
@@ -550,6 +593,7 @@ class CloudFetcher(_HttpClient):
         self._write_attribution(lang, service, commit, written)
         summary = f"[cloud/{lang}/{service}] wrote {len(written)} files · {CLOUD_LICENSE}"
         if failed:
+            self.encountered_failure = True
             summary += f" · ⚠ {failed} skipped (fetch failed) — set GITHUB_TOKEN if rate-limited"
         print(summary)
 
@@ -646,6 +690,8 @@ def main(argv: list[str] | None = None) -> None:
             out_dir=args.out, delay_seconds=args.delay, dry_run=args.dry_run, lang=args.lang
         )
         cloud.run(service=args.service, all_services=args.all, limit=args.limit)
+        if cloud.encountered_failure:
+            raise SystemExit(1)
         return
     fetcher = DocsFetcher(
         out_dir=args.out, delay_seconds=args.delay, dry_run=args.dry_run, lang=args.lang
@@ -653,6 +699,8 @@ def main(argv: list[str] | None = None) -> None:
     names = sorted(SERVICES) if args.all else [args.service]
     for name in names:
         fetcher.fetch_service(name, SERVICES[name], args.limit)
+    if fetcher.encountered_failure:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

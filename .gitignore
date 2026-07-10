@@ -34,8 +34,11 @@ PROMPT.md
 # IDEs
 .vscode
 
-# Playwright MCP scratch (browser snapshots / console logs)
-.playwright-mcp/
+# Vendored Yandex service docs — local-only. They come from yandex.ru (Yandex User
+# Agreement, not an open licence), so we regenerate them with scripts/fetch_docs.py
+# instead of committing them. Only the explanatory README stays tracked.
+/docs/references/yandex/*
+!/docs/references/yandex/README.md
 
 # graphify code-graph — committed snapshot of the queryable graph so the team
 # shares it (graph.json, graph.html, GRAPH_REPORT.md, wiki/, cost.json). The
