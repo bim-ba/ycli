@@ -4,6 +4,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
 from ycli.settings import AppConfig
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.attachments.models import AttachmentList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import RO, TAGS, app_config, wiki_client
@@ -23,5 +24,5 @@ def list_(
     Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. This is the list surface;
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
-    cap = limit or cfg.max_items
+    cap = resolve_cap(limit, cfg.max_items)
     return client.attachments.list(page_id=page_id, limit=cap)

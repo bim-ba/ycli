@@ -7,6 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.boards.models import Board, BoardList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
@@ -29,7 +30,7 @@ def list_(
 
     >>> boards_list(limit=50)  # doctest: +SKIP
     """
-    cap = limit or cfg.max_items
+    cap = resolve_cap(limit, cfg.max_items)
     return client.boards.list(limit=cap)
 
 

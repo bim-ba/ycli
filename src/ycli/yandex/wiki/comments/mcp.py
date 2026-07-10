@@ -7,6 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import CommentList
 from ycli.yandex.wiki.dependencies import RO, TAGS, app_config, wiki_client
@@ -26,7 +27,7 @@ def list_(
     Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Pair with
     ``pages_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
-    cap = limit or cfg.max_items
+    cap = resolve_cap(limit, cfg.max_items)
     return client.comments.list(page_id=page_id, limit=cap)
 
 
@@ -50,5 +51,5 @@ def thread_list(
     Example:
         >>> thread_list(page_id=12345, comment_id=678, limit=50)  # doctest: +SKIP
     """
-    cap = limit or cfg.max_items
+    cap = resolve_cap(limit, cfg.max_items)
     return client.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)

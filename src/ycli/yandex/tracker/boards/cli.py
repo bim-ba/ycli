@@ -8,6 +8,8 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.boards.models import BoardCreate, BoardUpdate
 
 app = typer.Typer(name="boards", help="Tracker agile boards.", no_args_is_help=True)
@@ -23,12 +25,12 @@ def _group() -> None:
 @app.command("list")
 def list_(
     ctx: typer.Context,
-    limit: Annotated[int, typer.Option(help="Max boards (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every board (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """List all agile boards (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(app_ctx.tracker.boards.list(limit=cap), app_ctx.strategy, app_ctx.console)
 
 

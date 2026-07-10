@@ -8,6 +8,8 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.comments.models import CommentCreate
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
@@ -19,12 +21,12 @@ PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page 
 def list_(
     ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
-    limit: Annotated[int, typer.Option(help="Max comments (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every comment (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.wiki.comments.list(page_id=page_id, limit=cap), app_ctx.strategy, app_ctx.console
     )
@@ -35,8 +37,8 @@ def thread(
     ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
-    limit: Annotated[int, typer.Option(help="Max replies (auto-paginates).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every reply (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """Print the thread for COMMENT_ID on PAGE_ID: the comment plus its replies.
 
@@ -44,7 +46,7 @@ def thread(
     comment comes first, then its descendants chained by parent_id.
     """
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.wiki.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap),
         app_ctx.strategy,

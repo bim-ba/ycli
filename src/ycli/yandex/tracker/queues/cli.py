@@ -9,6 +9,8 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.queues.models import (
     QueueCreate,
     QueuePermissionsUpdate,
@@ -31,12 +33,12 @@ def _group() -> None:
 @app.command("list")
 def list_(
     ctx: typer.Context,
-    limit: Annotated[int, typer.Option(help="Max queues (auto-paginates over pages).")] = 0,
-    all_: Annotated[bool, typer.Option("--all", help="Fetch every queue (no cap).")] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
     """List all queues (auto-paginated over pages; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = None if all_ else (limit or app_ctx.config.max_items)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(app_ctx.tracker.queues.list(limit=cap), app_ctx.strategy, app_ctx.console)
 
 

@@ -4,7 +4,18 @@ from ycli.yandex.pagination import (
     OffsetStrategy,
     RelativeCursorStrategy,
     SinglePageStrategy,
+    resolve_cap,
 )
+
+
+def test_resolve_cap_all_flag_uncaps():
+    assert resolve_cap(0, 500, all_=True) is None
+    assert resolve_cap(10, 500, all_=True) is None
+
+
+def test_resolve_cap_limit_wins_then_default():
+    assert resolve_cap(10, 500) == 10
+    assert resolve_cap(0, 500) == 500
 
 
 def test_single_page_truncates_to_limit():
