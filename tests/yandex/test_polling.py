@@ -61,3 +61,15 @@ def test_uses_default_backoff_when_not_overridden():
         sleep=slept.append,
     )
     assert slept == [0.5]  # one sleep, taken from the default exponential schedule
+
+
+def test_on_attempt_hook_fires_once_per_fetch_with_the_attempt_index():
+    seen: list[int] = []
+    result = poll(
+        _scripted({"done": False}, {"done": False}, {"done": True}),
+        lambda status: status["done"],
+        sleep=lambda seconds: None,
+        on_attempt=seen.append,
+    )
+    assert result == {"done": True}
+    assert seen == [0, 1, 2]  # called before each of the three fetches, 0-indexed

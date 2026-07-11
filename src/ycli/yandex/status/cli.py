@@ -2,17 +2,26 @@
 
 from __future__ import annotations
 
+import contextlib
+import os
 import time
 import webbrowser
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from pydantic import ValidationError
+from rich.panel import Panel
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.progress import spinner
 from ycli.settings import AppConfig, Credentials, OAuthAppConfig
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from rich.console import Console
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.env_file import EnvFile
@@ -105,9 +114,9 @@ def login(
     )
 
     if implicit or oauth_config.client_secret is None:
-        token = _implicit_flow(oauth_client)
+        token = _implicit_flow(oauth_client, app_ctx.stderr_console)
     else:
-        token = _device_flow(oauth_client, device_name)
+        token = _device_flow(oauth_client, device_name, app_ctx.stderr_console)
 
     organization_id = _resolve_organization_id(oauth_client, token)
     report = _build_report(token, organization_id, config)
@@ -115,30 +124,53 @@ def login(
     _write_env_file(token, organization_id, assume_yes=assume_yes)
 
 
-def _implicit_flow(oauth_client: OAuthClient) -> str:
+@contextlib.contextmanager
+def _suppressed_stderr() -> Iterator[None]:
+    """Silence fd-level stderr for the duration — the OS browser launcher (``xdg-open`` and
+    friends) prints chatter straight to fd 2 that would otherwise smear the login prompt."""
+    saved_stderr_fd = os.dup(2)
+    with Path(os.devnull).open("w", encoding="utf-8") as devnull:
+        os.dup2(devnull.fileno(), 2)
+        try:
+            yield
+        finally:
+            os.dup2(saved_stderr_fd, 2)
+            os.close(saved_stderr_fd)
+
+
+def _implicit_flow(oauth_client: OAuthClient, console: Console) -> str:
     """Open the authorize URL, then read the token the user pastes from the verify page."""
     url = oauth_client.authorize_url()
-    typer.echo(f"Opening {url}")
-    typer.echo("If it does not open, paste that URL into a browser, log in, and approve.")
-    webbrowser.open(url)
+    console.print(f"Opening {url}")
+    console.print("If it does not open, paste that URL into a browser, log in, and approve.")
+    with _suppressed_stderr():
+        webbrowser.open(url)
     return typer.prompt(
         "Paste the token shown on the Yandex verification page", hide_input=True
     ).strip()
 
 
-def _device_flow(oauth_client: OAuthClient, device_name: str | None) -> str:
-    """Request a device code, show it, then poll until the user approves (or it fails)."""
+def _device_flow(oauth_client: OAuthClient, device_name: str | None, console: Console) -> str:
+    """Request a device code, show it prominently, then poll until approved (or it fails)."""
     device = oauth_client.request_device_code(device_name=device_name)
-    typer.echo(f"Visit {device.verification_url} and enter code: {device.user_code}")
-    while True:
-        result: TokenPollResult = oauth_client.poll_token(device.device_code)
-        if result.token is not None:
-            return result.token.access_token
-        if result.pending:
-            time.sleep(device.interval)
-            continue
-        typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(1)
+    console.print(
+        Panel(
+            f"Visit [bold]{device.verification_url}[/bold] and enter code:\n\n"
+            f"    [bold cyan]{device.user_code}[/bold cyan]",
+            title="Authorize ycli",
+            expand=False,
+        )
+    )
+    with spinner("Waiting for authorization…", console=console):
+        while True:
+            result: TokenPollResult = oauth_client.poll_token(device.device_code)
+            if result.token is not None:
+                return result.token.access_token
+            if result.pending:
+                time.sleep(device.interval)
+                continue
+            typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
+            raise typer.Exit(1)
 
 
 def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:

@@ -1,12 +1,19 @@
 """`ycli auth login` — hybrid device/implicit OAuth flow, org resolution, .env write."""
 
+import os
 import webbrowser
+from io import StringIO
+from types import SimpleNamespace
 
 import pytest
 import responses
+from rich.console import Console
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from ycli.yandex.status.cli import _device_flow, _suppressed_stderr
+from ycli.yandex.status.client import TokenPollResult
+from ycli.yandex.status.oauth_models import TokenResponse
 
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
 TOKEN_URL = "https://oauth.yandex.ru/token"
@@ -231,6 +238,45 @@ def test_confirm_accepted_writes(monkeypatch, tmp_path):
 
     assert res.exit_code == 0, res.output
     assert (tmp_path / ".env").exists()
+
+
+class _FakeOAuth:
+    """A stand-in OAuthClient: yields the given poll results in order after one device code."""
+
+    def __init__(self, results):
+        self._results = iter(results)
+
+    def request_device_code(self, *, device_name=None):
+        return SimpleNamespace(
+            verification_url="https://ya.ru/device",
+            user_code="ABCD-EFGH",
+            device_code="dev-1",
+            interval=0,
+        )
+
+    def poll_token(self, device_code):
+        return next(self._results)
+
+
+def test_device_flow_shows_code_in_a_panel_and_returns_token(monkeypatch):
+    monkeypatch.setattr("time.sleep", lambda _seconds: None)
+    buf = StringIO()
+    console = Console(file=buf, force_terminal=False, width=80)
+    client = _FakeOAuth(
+        [TokenPollResult(pending=True), TokenPollResult(token=TokenResponse(access_token="tok-9"))]
+    )
+    token = _device_flow(client, None, console)  # ty: ignore[invalid-argument-type]
+    assert token == "tok-9"
+    out = buf.getvalue()
+    assert "ABCD-EFGH" in out  # the code is shown prominently
+    assert "Authorize ycli" in out  # inside a titled panel
+
+
+def test_suppressed_stderr_silences_fd_level_browser_noise(capfd):
+    with _suppressed_stderr():
+        os.write(2, b"browser-subprocess-noise")
+    _out, err = capfd.readouterr()
+    assert "browser-subprocess-noise" not in err  # fd-2 chatter swallowed during the launch
 
 
 @responses.activate
