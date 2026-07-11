@@ -47,27 +47,6 @@ class PaginationStrategy[P, T](ABC):
         """
 
 
-class SinglePageStrategy[P, T](PaginationStrategy[P, T]):
-    def __init__(self, *, extract: Callable[[P], list[T]]) -> None:
-        self._extract = extract
-
-    def collect(self, fetch_page: Callable[[str | None], P], limit: int | None) -> list[T]:
-        items = list(self._extract(fetch_page(None)))
-        return items if limit is None else items[:limit]
-
-    @classmethod
-    def collect_wrapped[R](
-        cls,
-        page_fn: Callable[[str | None], P],
-        *,
-        extract: Callable[[P], list[T]],
-        wrap: Callable[[list[T]], R],
-        limit: int | None = None,
-    ) -> R:
-        """Single-page envelope -> bounded, wrapped flat collection (the wiki/forms list shape)."""
-        return wrap(cls(extract=extract).collect(page_fn, limit))
-
-
 class CursorStrategy[P, T](PaginationStrategy[P, T]):
     def __init__(
         self, *, extract: Callable[[P], list[T]], next_of: Callable[[P], str | None]
