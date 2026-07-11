@@ -193,7 +193,7 @@ After a hook change, submit a test response and verify the resulting Tracker iss
 ## 5. Guardrails (Yandex Forms quirks)
 
 - **Different host than Tracker/Wiki.** `api.forms.yandex.net` — NOT `api.tracker.yandex.net`. Easy to miss when copy-pasting an auth block from a Tracker request.
-- **Header is `X-Org-Id` (lowercase `id`).** Tracker uses `X-Org-ID` (uppercase). httpie/curl pass headers verbatim, so case matters — verify with `--print=H` if a request fails with 422.
+- **Org header is `X-Org-Id`** — the same canonical header every Yandex 360 service uses. HTTP header names are case-insensitive (RFC 9110), so casing never matters; a 422 is not a casing problem.
 - **OAuth scopes are separate.** A 401/403 usually means the token lacks `forms:read` / `forms:write`. May require regenerating the token.
 - **Question IDs are server-assigned.** Don't hardcode them before creation; read them back from the create/list response.
 - **Hooks are not in the public API.** Do hook changes in the UI (§4).

@@ -10,7 +10,7 @@ and the product docs at <https://yandex.ru/support/forms/>.
 |---|---|
 | Base | `https://api.forms.yandex.net/v1/` |
 | Auth header | `Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN` |
-| Org header | `X-Org-Id: $YANDEX_ID_ORGANIZATION_ID` (lowercase `id` — unlike Tracker) |
+| Org header | `X-Org-Id: $YANDEX_ID_ORGANIZATION_ID` (same canonical header as Tracker/Wiki; case-insensitive) |
 | Scopes | `forms:read` / `forms:write` (separate from Tracker/Wiki) |
 
 The base host differs from Tracker/Wiki (`api.tracker.yandex.net`) — a frequent

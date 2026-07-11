@@ -34,8 +34,8 @@ change the public surface on purpose, regenerate snapshots: `uv run python -m te
 - **New endpoints:** ship reads across SDK + CLI + MCP; ship writes across SDK + CLI only.
   Each surface gets a test (TDD).
 - **Auth:** clients read `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` from the
-  environment. Never hardcode credentials. Header casing differs per service
-  (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`) — the transport handles this for you.
+  environment. Never hardcode credentials. The transport sends one canonical `X-Org-Id`
+  org header for every service (case-insensitive per RFC 9110).
 - **Secrets:** `.env` and `.mcp.json` are gitignored. Keep real tokens out of commits;
   use `.env.example` / `.mcp.example.json` placeholders.
 
