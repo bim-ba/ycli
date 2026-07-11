@@ -16,8 +16,8 @@ workspace core lands first and the wider surface follows in later waves. Nothing
 > is not sufficient evidence). This is a discovery snapshot, not a generated artifact — re-run
 > the method above to refresh it.
 
-`ycli` today wraps **Tracker, Wiki, Forms** across SDK + CLI + read-only MCP. DataLens is
-**vendored** under `docs/references/yandex/datalens/` but not wrapped.
+`ycli` today wraps **Tracker, Wiki, Forms** across SDK + CLI + read-only MCP. Other Yandex 360
+services (see below) are not wrapped.
 
 ## Uncovered, Yandex-360-relevant (candidates)
 

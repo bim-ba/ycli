@@ -18,16 +18,19 @@ doc "no MCP write tool" is *by design*, never counted as a gap — writes live i
 ## Coverage at a glance
 
 Verified **2026-07-09** (branch `feat/full-api-coverage`) by introspecting the domain clients
-and cross-checking the vendored references (`docs/references/yandex/{tracker/18-api,wiki/07-api,forms/09-api}`)
+and cross-checking the vendored references (`references/yandex-360/{tracker,wiki,forms}/ru/api-ref`)
 against the live official API. The counts below are the wrapped operations reported by the
 generator, not estimates.
 
 | Service | Resources | SDK + CLI operations | Read-only MCP tools | REST coverage |
 |---------|-----------|----------------------|---------------------|---------------|
-| **Tracker** | 32 | 152 | 57 | ~100% of the documented public API\* |
+| **Tracker** | 32 | 153 | 57 | ~100% of the documented public API\* |
 | **Wiki** | 9 | 43 | 13 | ~100% of the documented public API\* |
 | **Forms** | 9 | 34 | 10 | ~100% of the documented public API\*† |
-| **Total** | **50** | **229** | **80** | — |
+| **Total** | **50** | **230** | **80** | — |
+
+> Authoritative per-operation counts live in the [README Coverage section](../README.md#coverage),
+> generated from live code by `scripts/gen_coverage.py`; this glance table is a hand-verified snapshot.
 
 \* Excludes the UI-only endpoints listed under [Intentional exclusions](#intentional-exclusions-not-gaps);
 those have no public REST API.
@@ -84,5 +87,5 @@ Everything else is confirmed against the vendored references and the live offici
 ---
 
 *Sources: offline introspection of `src/ycli/yandex/**` via `scripts/gen_coverage.py`; vendored
-docs `docs/references/yandex/**` (Tracker `18-api/`, Wiki `07-api/`, Forms `09-api/`); live
+docs `references/yandex-360/**` (Tracker/Wiki/Forms `ru/api-ref/`); live
 official references at yandex.ru/support/{tracker,wiki,forms}/…/api-ref (verified 2026-07-09).*

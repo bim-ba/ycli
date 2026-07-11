@@ -358,15 +358,16 @@ your organization → copy the identifier.
 
 ```text
 src/ycli/
-├── cli.py              # root Typer CLI  → `ycli` / `yandex-cli`
-├── mcp.py              # root FastMCP server → `ycli mcp start` (read-only, `[mcp]` extra)
+├── cli/                # root Typer CLI  → `ycli` / `yandex-cli` (app · context · output)
+├── mcp/                # root FastMCP server → `ycli mcp start` (read-only, `[mcp]` extra)
+├── settings.py         # AppConfig + Credentials (pydantic-settings)
 ├── log.py              # central loguru config
 └── yandex/
     ├── tracker/        # per-domain SDK …
     ├── wiki/           #   each resource group has:
     └── forms/          #   client.py · cli.py · mcp.py · models.py
 plugins/yandex-360/     # distributable Claude Code plugin (skills + instructions)
-docs/references/        # vendored Yandex API reference docs
+references/             # vendored Yandex API reference docs (local-only; see references/README.md)
 ```
 
 ## Development
