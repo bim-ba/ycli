@@ -5,6 +5,10 @@
 #
 # Prereqs: OPENROUTER_API_KEY in .env; the RU docs present locally (scripts/fetch_docs.py).
 # Cost: ~$3-6 (GLM-5.2 is a reasoning model; output incl. reasoning tokens). Code = free AST.
+#
+# This full rebuild is the ONLY correct refresh path. `graphify update .` does NOT work here:
+# it ignores the --exclude set below and re-scans references/yandex-cloud/ (~90k files),
+# exploding the graph from ~5.3k to ~560k nodes. Re-run THIS script instead (costs credits).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export OPENAI_BASE_URL="https://openrouter.ai/api/v1"

@@ -103,6 +103,6 @@ This project has a knowledge graph at graphify-out/ with god nodes, community st
 
 Rules:
 - For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing (it's git-ignored/local — regenerate for free with `graphify export wiki` if absent).
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- **Do NOT run `graphify update .` here.** It ignores the curated `--exclude` set in `.graphify/rebuild.sh` and re-scans the vendored `references/yandex-cloud/` submodule (~90k files), exploding the graph from ~5.3k to ~560k nodes. Treat the committed graph as a periodically-rebuilt snapshot: refresh it only by re-running `.graphify/rebuild.sh` (a full GLM-5.2 rebuild that costs API credits), and accept minor staleness (e.g. a just-deleted symbol) between rebuilds.
