@@ -56,8 +56,6 @@ exists to call.
 
 ## Doc / skill drift
 
-- The `yandex-360-tracker` skill lists `issues full` / MCP `tracker_issues_full`; neither exists
-  (`issues get` is already the full view). Remove from the skill.
 - Minor CLI-contract gaps where the API requires a flag the CLI marks optional: Tracker
   `worklog add --start`, `priorities create --order`, and `edit` ops needing `--version`
   (components/triggers). Low priority.
