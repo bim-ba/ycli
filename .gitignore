@@ -41,13 +41,19 @@ PROMPT.md
 !/references/yandex-360/README.md
 
 # graphify code-graph — committed snapshot of the queryable graph so the team
-# shares it (graph.json, graph.html, GRAPH_REPORT.md, wiki/, cost.json). The
-# machine-local + regenerable bits stay ignored: AST cache, dated backups,
-# absolute-path interpreter/root markers, and internal analysis sidecars.
+# shares it (graph.json, GRAPH_REPORT.md). The machine-local + regenerable bits stay
+# ignored: AST cache, dated backups, absolute-path interpreter/root markers, internal
+# analysis sidecars, and the DERIVED navigation products (wiki/, the *.html tree/call-flow,
+# *.svg, *.graphml). Those regenerate for free and deterministically from the committed
+# graph.json (see .graphify/rebuild.sh) — no point committing hundreds of generated files.
 /graphify-out/cache/
 /graphify-out/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
 /graphify-out/.graphify_*
 /graphify-out/manifest.json
+/graphify-out/wiki/
+/graphify-out/*.html
+/graphify-out/*.svg
+/graphify-out/*.graphml
 # .graphify/ is graphify's local cache — ignore its contents but keep the committed
 # rebuild recipe so the GLM-5.2 graph is reproducible.
 /.graphify/*
