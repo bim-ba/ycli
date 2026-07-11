@@ -9,6 +9,66 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.12.0 (2026-07-11)
+
+### Build System
+
+- Re-lock uv.lock for 0.11.0 ([#28](https://github.com/bim-ba/ycli/pull/28),
+  [`c3bf839`](https://github.com/bim-ba/ycli/commit/c3bf83970716abf28a5bec7a85cdbd0e08c1e61f))
+
+### Chores
+
+- Rebuild graphify code-graph with GLM-5.2 deep extraction
+  ([#30](https://github.com/bim-ba/ycli/pull/30),
+  [`c0de08a`](https://github.com/bim-ba/ycli/commit/c0de08a283361a6f0e3036a601b34e4fe03a56b9))
+
+### Continuous Integration
+
+- Automate post-release uv.lock re-lock, SHA-pin actions, pin VHS toolchain
+  ([#31](https://github.com/bim-ba/ycli/pull/31),
+  [`ae496ce`](https://github.com/bim-ba/ycli/commit/ae496ce7e38972adeabeae705845810384b9c446))
+
+- Make the demo drift-check report-only ([#31](https://github.com/bim-ba/ycli/pull/31),
+  [`ae496ce`](https://github.com/bim-ba/ycli/commit/ae496ce7e38972adeabeae705845810384b9c446))
+
+- Verify-only demo workflow + fix pre-commit hooks ([#27](https://github.com/bim-ba/ycli/pull/27),
+  [`fe856db`](https://github.com/bim-ba/ycli/commit/fe856dbb8f197e49f5b561349ad9a98dbdecc4bf))
+
+### Documentation
+
+- Fix plugin-skill doc references (bundle quick-refs + live URLs), drop phantom tool, refresh tool
+  counts ([#32](https://github.com/bim-ba/ycli/pull/32),
+  [`7fbc625`](https://github.com/bim-ba/ycli/commit/7fbc625f234572d5c848ad75599f7f7ebe13157d))
+
+### Features
+
+- Progress spinners, guided auth login, and pretty/help polish
+  ([#33](https://github.com/bim-ba/ycli/pull/33),
+  [`6e3606e`](https://github.com/bim-ba/ycli/commit/6e3606e3da00fde0545e31e13d00916e3fec476e))
+
+### Refactoring
+
+- Add CursorStrategy.collect_wrapped and collapse wiki cursor blocks
+  ([#29](https://github.com/bim-ba/ycli/pull/29),
+  [`4be2e10`](https://github.com/bim-ba/ycli/commit/4be2e102d9890841a75cf124f237c9a68d124d42))
+
+- Build entity fields body from typed EntityFieldsInput
+  ([#29](https://github.com/bim-ba/ycli/pull/29),
+  [`4be2e10`](https://github.com/bim-ba/ycli/commit/4be2e102d9890841a75cf124f237c9a68d124d42))
+
+- Dedup domain clients, wiki cursor pagination, limit-cap, and entity fields
+  ([#29](https://github.com/bim-ba/ycli/pull/29),
+  [`4be2e10`](https://github.com/bim-ba/ycli/commit/4be2e102d9890841a75cf124f237c9a68d124d42))
+
+- Dedup pagination-cap logic behind resolve_cap + shared Typer aliases
+  ([#29](https://github.com/bim-ba/ycli/pull/29),
+  [`4be2e10`](https://github.com/bim-ba/ycli/commit/4be2e102d9890841a75cf124f237c9a68d124d42))
+
+- Extract shared DomainClient constructor for the three domain clients
+  ([#29](https://github.com/bim-ba/ycli/pull/29),
+  [`4be2e10`](https://github.com/bim-ba/ycli/commit/4be2e102d9890841a75cf124f237c9a68d124d42))
+
+
 ## v0.11.0 (2026-07-10)
 
 ### Chores
