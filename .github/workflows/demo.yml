@@ -1,11 +1,13 @@
 name: demo
 
-# Verify-only: re-render docs/assets/demo.gif from docs/demo/demo.tape and FAIL if the
-# committed asset is stale. The committed GIF is the source of truth — a contributor
-# regenerates it locally (`vhs docs/demo/demo.tape`) and commits it; this check proves
-# it's current. It never pushes, so — unlike the old auto-commit design — it cannot fail
-# against branch protection on `main`, cannot run on release tags (fixing the every-release
-# failure), and cannot poison a PR's required-check gate with a bot commit.
+# Report-only: re-render docs/assets/demo.gif from docs/demo/demo.tape and REPORT drift
+# (never fail) — a fresh render is uploaded as an artifact. Rendering still catches a
+# broken tape, but a byte-diff is a notice, not a failure: VHS/ttyd renders aren't
+# reliably byte-identical, so the committed GIF stays the source of truth and a
+# contributor regenerates it locally (`vhs docs/demo/demo.tape`) + commits when the tape
+# changes meaningfully. It never pushes, so — unlike the old auto-commit design — it cannot
+# fail against branch protection on `main`, cannot run on release tags, and cannot poison a
+# PR's required-check gate.
 
 on:
   pull_request:
@@ -46,7 +48,7 @@ jobs:
       # break on the runner, so we set the toolchain up directly instead.
       #
       # Both tools are version-pinned (no mutable `latest`) and ttyd is checksum-
-      # verified, so the verify-only GIF diff is byte-deterministic across runs.
+      # verified for a reproducible render (the drift report is informational).
       # Bump TTYD_VERSION / TTYD_SHA256 (from that release's SHA256SUMS) and
       # VHS_VERSION together when upgrading.
       - name: Cache VHS binary
@@ -76,11 +78,18 @@ jobs:
       - name: Render demo GIF
         run: vhs docs/demo/demo.tape
 
-      - name: Verify the committed GIF is current
+      - name: Report demo GIF drift (non-failing)
         run: |
           if ! git diff --quiet -- docs/assets/demo.gif; then
             git diff --stat -- docs/assets/demo.gif
-            echo '::error::docs/assets/demo.gif is stale — run `vhs docs/demo/demo.tape` and commit the result.'
-            exit 1
+            echo '::notice::demo.gif differs from a fresh render. VHS/ttyd output is not reliably byte-identical, so this is informational — the fresh render is uploaded as an artifact; regenerate + commit only if the tape changed meaningfully.'
+          else
+            echo 'demo.gif matches a fresh render.'
           fi
-          echo 'docs/assets/demo.gif is up to date.'
+      - name: Upload fresh render
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: demo-gif-fresh
+          path: docs/assets/demo.gif
+          if-no-files-found: error
