@@ -45,7 +45,7 @@ The CLI, MCP tools, and SDK all read credentials from the environment:
 | Env var | Purpose |
 |---------|---------|
 | `YANDEX_ID_OAUTH_TOKEN` | OAuth token → sent as `Authorization: OAuth …` |
-| `YANDEX_ID_ORGANIZATION_ID` | Organization ID → sent as the `X-Org-ID` header |
+| `YANDEX_ID_ORGANIZATION_ID` | Organization ID → sent as the `X-Org-Id` header |
 
 Full Tracker API reference lives online at <https://yandex.ru/dev/tracker/> (developer
 portal) and <https://yandex.ru/support/tracker/> (product docs). For the day-to-day

@@ -41,8 +41,9 @@ export YANDEX_ID_ORGANIZATION_ID=...    # Yandex 360 organization id (admin pane
 ```
 
 A missing/empty variable makes every client raise `ValueError` naming the variable.
-Header casing differs per service (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`) — the
-clients handle this for you; it only matters if you fall back to raw HTTP.
+Every service takes the org id in one canonical header, `X-Org-Id` (HTTP header names are
+case-insensitive per RFC 9110, so casing never matters — even in raw HTTP). The clients set
+it for you.
 
 ## 3. Pick a surface
 

@@ -205,12 +205,18 @@ _LIVE_DOC_GLOBS = [
     "plugins/**/*.md",
 ]
 
-# Patterns that match CALL/USAGE syntax of purged idioms — not prose rule-descriptions.
+# Patterns whose mere presence in a live doc signals a purged idiom — either the CALL/USAGE
+# syntax of a decommissioned API, or a decommissioned literal string.
 # Rationale: `.from_env(` and `session_from_env(` match invocation; prose like "no from_env"
-# does not match because it lacks the trailing `(`.
+# does not match because it lacks the trailing `(`. `X-Org-ID` (capital D) is the wrong-cased
+# org header from the old "casing differs per service" gotcha — the transport emits one
+# canonical `X-Org-Id` for every service (case-insensitive per RFC 9110), so the correct
+# `X-Org-Id` must never regress to `X-Org-ID`. The substring differs in the final letter, so
+# the correct casing is not matched.
 _PURGED_CALL_PATTERNS = [
     ".from_env(",
     "session_from_env(",
+    "X-Org-ID",
 ]
 
 
@@ -230,7 +236,7 @@ def test_arch11_no_purged_idioms_in_live_docs():
     docs/api-coverage.md, docs/conventions/**/*.md, plugins/**/*.md.
     Excluded (historical/rule-defining): docs/superpowers/**, PROMPT.md, CHANGELOG.md,
     ARCHITECTURE.md (it defines the forbidden idioms as rules), .venv/**, .git/**.
-    Patterns checked: .from_env(  session_from_env(
+    Patterns checked: .from_env(  session_from_env(  X-Org-ID
     """
     doc_files = _live_doc_files()
     assert doc_files, "expected at least one live doc file to scan; glob list may be broken"

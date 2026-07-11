@@ -31,7 +31,7 @@ Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN
 X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 ```
 
-> Wiki uses the header `X-Org-Id` (capital `I`, lowercase `d`) — **different** from Tracker's `X-Org-ID`. This is a real gotcha; the CLI/SDK handle it for you, but watch for it in raw `http` calls.
+> The org id goes in one canonical header, `X-Org-Id`, for every Yandex 360 service — the same header Tracker and Forms use. HTTP header names are case-insensitive (RFC 9110), so casing never matters; the CLI/SDK set it for you.
 
 **Three ways in:**
 

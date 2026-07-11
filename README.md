@@ -299,8 +299,8 @@ YANDEX_ID_OAUTH_TOKEN=...        # a Yandex OAuth token with Tracker/Wiki/Forms 
 YANDEX_ID_ORGANIZATION_ID=...    # your Yandex 360 organization id
 ```
 
-Header casing differs per service (Tracker `X-Org-ID`, Wiki/Forms `X-Org-Id`) — ycli
-handles it for you.
+ycli sends the org id as `X-Org-Id` for every service (HTTP header names are case-insensitive
+per RFC 9110, so one casing serves all).
 
 ### Get your credentials
 
