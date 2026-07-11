@@ -140,7 +140,7 @@ known-first-party = ["ycli"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["N802", "ANN"]
-"scripts/**/*.py" = ["T201", "ANN"]
+"scripts/**/*.py" = ["ANN"]
 "src/ycli/yandex/**/client.py" = ["ANN"]
 
 [tool.ty.environment]

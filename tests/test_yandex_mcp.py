@@ -19,15 +19,13 @@ def test_base_install_imports_cli_without_fastmcp():
 async def test_root_mounts_all_domains_with_namespaces():
     async with Client(mcp) as client:
         names = {t.name for t in await client.list_tools()}
+    # Membership smoke-check that each domain mounted under its namespace. The exact tool
+    # surface (all 81 names) is pinned authoritatively by tests/snapshots/mcp_tools.txt via
+    # test_snapshots.py — kept there as the single source of truth, not duplicated as counts here.
     assert "wiki_pages_get" in names
     assert "tracker_issues_get" in names
     assert "forms_surveys_get" in names
     assert "status_get" in names
-    assert len([n for n in names if n.startswith("wiki_")]) == 13
-    assert len([n for n in names if n.startswith("tracker_")]) == 57
-    assert len([n for n in names if n.startswith("forms_")]) == 10
-    assert len([n for n in names if n.startswith("status_")]) == 1
-    assert len(names) == 81
 
 
 def test_main_is_callable():

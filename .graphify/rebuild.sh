@@ -23,3 +23,9 @@ graphify extract . --backend openai --model z-ai/glm-5.2:floor --mode deep \
   --exclude '!references/yandex-360/id/'
 
 graphify label . --backend openai --model z-ai/glm-5.2:floor   # name communities
+
+# Derived navigation surfaces — free, deterministic, git-ignored (regenerate on demand,
+# never commit). These read graph.json + labels only — no LLM, no API cost:
+graphify export wiki                # -> graphify-out/wiki/ (index.md + one article per community)
+graphify tree --label ycli          # -> graphify-out/GRAPH_TREE.html (D3 collapsible tree)
+graphify export callflow-html       # -> graphify-out/ycli-callflow.html (Mermaid architecture)

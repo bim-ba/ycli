@@ -32,13 +32,20 @@ jobs:
         # --all-extras pulls in the optional 'mcp' extra (fastmcp) so the
         # 100%-coverage suite, which exercises the MCP modules, can import it.
         run: uv sync --locked --all-extras --dev
+      # Lint/format/imports/types are Python-version-independent — run them once (on 3.12)
+      # instead of in every matrix leg. pytest stays in every leg (the only version-sensitive
+      # step). The required check `test (3.12)` still carries the lint gate.
       - name: Format check
+        if: matrix.python-version == '3.12'
         run: uv run ruff format --check .
       - name: Lint
+        if: matrix.python-version == '3.12'
         run: uv run ruff check .
       - name: Check architecture boundaries
+        if: matrix.python-version == '3.12'
         run: uv run lint-imports
       - name: Type check (advisory)
+        if: matrix.python-version == '3.12'
         run: uv run ty check
         continue-on-error: true
       - name: Run tests
