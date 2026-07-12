@@ -17,7 +17,7 @@ src/ycli/
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
             ├── cli.py      # Typer — output via Serializer.serialize
-            ├── mcp.py      # FastMCP read-only tools
+            ├── mcp.py      # FastMCP tools (reads + writes, honest hints)
             ├── models.py   # pydantic (inherit APIModel from ycli.yandex.models)
             └── __init__.py
 ```
@@ -42,13 +42,19 @@ Notable shared pieces:
   (which scans only `tracker/wiki/forms`) do not apply to them.
 - **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests` or
   `uplink`. All HTTP lives in `client.py` / `base.py` / `transport.py`.
-- **ARCH-3 — MCP is read-only.** `fastmcp` is imported only in modules named `mcp.py` and in the
-  `ycli.mcp` server package (`src/ycli/mcp/server.py`; its `__init__.py` stays fastmcp-free so the
-  base install loads the CLI sub-app without the extra). Every MCP
-  tool's verb (last `_`-segment of its name) must be in a fail-closed read-verb **allow-list**
-  (`get/list/count/search/descendants/meta` — a new read adds its verb deliberately), it
-  carries `readOnlyHint=True` (via the `RO` annotation), and no `mcp.py` may call a client write
-  method (`.create/.update/.add/.execute/…`).
+- **ARCH-3 — MCP mirrors the SDK with honest annotations.** `fastmcp` is imported only in
+  modules named `mcp.py` and in the `ycli.mcp` server package (`src/ycli/mcp/server.py`; its
+  `__init__.py` stays fastmcp-free so the base install loads the CLI sub-app without the
+  extra). MCP tools cover reads **and writes**; honesty is enforced fail-closed: every tool's
+  verb (its longest known `_`-suffix) must classify into the READ / WRITE / WRITE_IDEMPOTENT /
+  DESTRUCTIVE maps in `tests/test_architecture.py` — an unknown verb fails the build and is
+  added deliberately. Hints must match the class exactly: reads carry `readOnlyHint=True`
+  (`RO`); writes carry `readOnlyHint=False` plus explicit `destructiveHint`/`idempotentHint`
+  (the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets in `ycli.yandex.mcp`) — explicit
+  because the MCP-spec default for an unannotated tool is `destructiveHint=true`. Every write
+  tool carries the `write` tag; `ycli mcp start --read-only` hides the tag wholesale for
+  cautious deployments. A read-classified tool never calls a client write method
+  (AST-checked).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
   appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the

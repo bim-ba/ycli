@@ -41,7 +41,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `session_from_env`; never hardcode credentials. The transport sends one canonical
   `X-Org-Id` org header for every service (HTTP header names are case-insensitive per
   RFC 9110), so there is no per-service casing to track.
-- **MCP server is read-only;** writes are CLI/SDK only.
+- **MCP server is read/write** (ARCH-3 annotation honesty: reads carry `readOnlyHint=True`,
+  writes carry explicit `destructiveHint`/`idempotentHint`); `ycli mcp start --read-only`
+  serves the reads-only view.
 - **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
   (`.env.example` / `.mcp.example.json` hold placeholders).
 

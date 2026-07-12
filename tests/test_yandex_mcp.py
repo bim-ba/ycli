@@ -34,6 +34,55 @@ def test_main_is_callable():
     assert callable(main)
 
 
+async def test_disable_write_tag_hides_mounted_write_tools():
+    """root.disable(tags={WRITE_TAG}) hides write-tagged tools mounted from subservers."""
+    from fastmcp import FastMCP
+
+    from ycli.yandex.mcp import RO, WRITE, WRITE_TAG
+
+    sub = FastMCP("sub")
+
+    @sub.tool(name="things_list", annotations={**RO, "title": "List things"}, tags={"sub"})
+    def things_list() -> str:
+        """List things."""
+        return "things"
+
+    @sub.tool(
+        name="things_create",
+        annotations={**WRITE, "title": "Create a thing"},
+        tags={"sub", WRITE_TAG},
+    )
+    def things_create() -> str:
+        """Create a thing."""
+        return "thing"
+
+    root = FastMCP("root")
+    root.mount(sub, namespace="sub")
+    root.disable(tags={WRITE_TAG})
+    async with Client(root) as client:
+        names = {t.name for t in await client.list_tools()}
+    assert "sub_things_list" in names
+    assert "sub_things_create" not in names
+
+
+def test_main_read_only_disables_write_tag(monkeypatch):
+    """main(read_only=True) hides the write tag before serving; default leaves it visible."""
+    from ycli.mcp import server
+    from ycli.yandex.mcp import WRITE_TAG
+
+    recorded: dict[str, object] = {}
+    monkeypatch.setattr(server.mcp, "run", lambda *a, **k: recorded.setdefault("ran", True))
+    monkeypatch.setattr(
+        server.mcp, "disable", lambda **kwargs: recorded.setdefault("disabled", kwargs)
+    )
+    server.main(read_only=True)
+    assert recorded == {"disabled": {"tags": {WRITE_TAG}}, "ran": True}
+
+    recorded.clear()
+    server.main()
+    assert recorded == {"ran": True}
+
+
 def test_mcp_main_module_importable():
     """``python -m ycli.mcp`` entry resolves — covers the __main__.py import line."""
     import ycli.mcp.__main__  # noqa: F401
