@@ -2,9 +2,9 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 
-Three endpoints hang off ``/surveys/{survey}``: a read **get** (fillable-form settings) that also
-reaches MCP, a write **submit** (post a response), and a **suggest** read whose verb is not an MCP
-read verb (so it ships SDK + CLI only).
+Three endpoints hang off ``/surveys/{survey}``: a read **get** (fillable-form settings), a write
+**submit** (post a response), and a **suggest** read. All three ship on every surface (CLI, MCP,
+SDK).
 """
 
 import uplink
@@ -102,8 +102,7 @@ class FillingClient(FormsResource):
 
         ``question`` is the question slug; ``text`` is the search text; ``suggest_id`` (the API's
         ``id``) is a comma-separated list of suggestion-object ids to resolve; ``parent_id`` scopes
-        a Master/Detail lookup. This is read-only, but ``suggest`` is not an MCP read verb, so it
-        ships SDK + CLI only.
+        a Master/Detail lookup. This is read-only (no mutation).
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP

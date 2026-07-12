@@ -8,6 +8,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.remotelinks.models import RemoteLinkCreate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
@@ -67,4 +68,6 @@ def delete(
     """Delete external link LINK_ID from issue KEY (DELETE /issues/{key}/remotelinks/{id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.remotelinks.delete(key, link_id)
-    print(f"Deleted remote link {link_id} on {key}")
+    Serializer.serialize(
+        Ack(detail=f"deleted remote link {link_id} on {key}"), app_ctx.strategy, app_ctx.console
+    )

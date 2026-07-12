@@ -4,6 +4,7 @@ auth status
 forms
 forms answers
 forms answers export
+forms answers get
 forms answers list
 forms files
 forms files delete

@@ -10,10 +10,12 @@ from ycli.yandex.tracker.priorities.models import (
 
 
 def test_priority_and_list_parse():
-    p = Priority.model_validate({"key": "normal", "display": "Normal"})
-    assert p.key == "normal" and p.display == "Normal"
-    pl = PriorityList.model_validate([{"key": "critical"}, {"key": "normal"}])
+    # The live v3 API carries the display name in `name` (`display` stays null).
+    p = Priority.model_validate({"key": "normal", "name": "Normal"})
+    assert p.key == "normal" and p.name == "Normal" and p.display is None
+    pl = PriorityList.model_validate([{"key": "critical", "name": "Critical"}, {"key": "normal"}])
     assert [x.key for x in pl.root] == ["critical", "normal"]
+    assert pl.root[0].name == "Critical"
 
 
 def test_priority_create_body_serializes_localized_name():

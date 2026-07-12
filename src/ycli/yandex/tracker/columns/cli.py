@@ -8,6 +8,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.columns.models import ColumnCreate, ColumnUpdate
 
 app = typer.Typer(name="columns", help="Tracker agile board columns.", no_args_is_help=True)
@@ -84,4 +85,8 @@ def delete(ctx: typer.Context, board_id: BoardIdArg, column_id: ColumnIdArg) -> 
     """Delete column COLUMN_ID on board BOARD_ID (DELETE /boards/{board_id}/columns/{column_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.columns.delete(board_id=board_id, column_id=column_id)
-    print(f"Deleted column {column_id} on board {board_id}")
+    Serializer.serialize(
+        Ack(detail=f"deleted column {column_id} on board {board_id}"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )

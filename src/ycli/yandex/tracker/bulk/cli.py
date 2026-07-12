@@ -1,22 +1,20 @@
 """`tracker bulk` commands — async mass update/move/transition (with ``--wait`` polling).
 
 Each trigger returns a bulk-change ``{id, status}``. With ``--wait`` (default) the command
-polls ``GET /bulkchange/{id}`` via :func:`ycli.yandex.polling.poll` until the status is
+polls ``GET /bulkchange/{id}`` via :func:`ycli.cli.progress.wait_for` until the status is
 terminal, then prints the final status; with ``--no-wait`` it prints the created ``{id,
 status}`` immediately.
 """
 
 from __future__ import annotations
 
-import time
 from typing import TYPE_CHECKING, Annotated
 
 import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
-from ycli.cli.progress import spinner
-from ycli.yandex.polling import poll
+from ycli.cli.progress import wait_for
 from ycli.yandex.tracker.bulk.models import BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.utils import parse_fields
 
@@ -62,18 +60,18 @@ def _issues(issue: list[str] | None, query: str) -> list[str] | str:
 def _finish(app_ctx: AppContext, bulk: BulkChange, wait: bool) -> None:
     """Print ``bulk`` — after polling it to a terminal status first when ``wait`` is set.
 
-    The wait is silent (default-on and potentially minutes long), so it is wrapped in a
-    stderr spinner; the spinner is a no-op when stderr is not a terminal, so a piped run's
-    stdout data stays byte-clean.
+    The wait is default-on and potentially minutes long, so it goes through the shared
+    :func:`ycli.cli.progress.wait_for` — a stderr spinner on a terminal, byte-clean
+    silence when piped.
     """
     if wait and bulk.id is not None:
         bulk_id = bulk.id  # narrowed to str — the poll re-reads this operation
-        with spinner("Waiting for bulk change…", console=app_ctx.stderr_console):
-            bulk = poll(
-                lambda: app_ctx.tracker.bulk.get(bulk_id),
-                lambda change: change.is_terminal,
-                sleep=lambda seconds: time.sleep(seconds),
-            )
+        bulk = wait_for(
+            lambda: app_ctx.tracker.bulk.get(bulk_id),
+            lambda change: change.is_terminal,
+            message="Waiting for bulk change…",
+            console=app_ctx.stderr_console,
+        )
     Serializer.serialize(bulk, app_ctx.strategy, app_ctx.console)
 
 

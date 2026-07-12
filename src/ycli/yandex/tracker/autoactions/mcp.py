@@ -1,4 +1,4 @@
-"""Tracker queue autoactions FastMCP tools (reads-only)."""
+"""Tracker queue autoactions FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -8,11 +8,12 @@ from pydantic import Field
 
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
+    AutoactionCreate,
     AutoactionLogList,
     AutoactionRunList,
 )
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import RO, TAGS, WRITE, WRITE_TAGS, tracker_client
 
 mcp = FastMCP("tracker-autoactions")
 
@@ -30,8 +31,8 @@ def get(
     """One queue autoaction by id — its filter/query, actions, schedule and run stats.
 
     An autoaction periodically applies its actions to every issue matching its filter/query.
-    Creating autoactions is a write (CLI/SDK only). For run history use ``autoactions_logs_list``
-    (summaries) then ``autoactions_logs_get`` (per-issue outcomes of one run).
+    For run history use ``autoactions_logs_list`` (summaries) then ``autoactions_logs_get``
+    (per-issue outcomes of one run).
 
     Example:
         >>> autoactions_get("DESIGN", 9)  # doctest: +SKIP
@@ -84,3 +85,21 @@ def logs_get(
         >>> autoactions_logs_get("DESIGN", 9, "6819cc43")  # doctest: +SKIP
     """
     return client.autoactions.log_detail(queue_id, action_id, run_id)
+
+
+@mcp.tool(
+    name="autoactions_create",
+    annotations={**WRITE, "title": "Create Tracker queue autoaction"},
+    tags=WRITE_TAGS,
+)
+def create(
+    queue_id: str, body: AutoactionCreate, client: TrackerClient = Depends(tracker_client)
+) -> Autoaction:
+    """Create an autoaction on a queue — actions applied on a schedule to matching issues.
+
+    Required: ``name`` and ``actions`` (e.g. ``[{"type": "Update", …}]``); scope the issues
+    with ``filter`` or ``query`` and set the cadence via ``intervalMillis`` / ``calendar``.
+    CAUTION: autoactions have no delete endpoint — the action persists until its queue is
+    deleted (it can be disabled in the UI).
+    """
+    return client.autoactions.create(queue_id, body)

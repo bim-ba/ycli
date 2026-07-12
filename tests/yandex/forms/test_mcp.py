@@ -1,4 +1,4 @@
-"""Forms FastMCP domain server — reads-only tools, named <resource>_<action>."""
+"""Forms FastMCP domain server — read + write tools, named <resource>_<action>."""
 
 import json
 from urllib.parse import parse_qs, urlparse
@@ -19,21 +19,51 @@ def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
-async def test_all_read_tools_registered():
+async def test_all_tools_registered():
     async with Client(forms_mcp.mcp) as client:
         names = {t.name for t in await client.list_tools()}
     assert names == {
         "me_get",
         "surveys_list",
         "surveys_get",
+        "surveys_create",
+        "surveys_modify",
+        "surveys_delete",
+        "surveys_publish",
+        "surveys_unpublish",
         "questions_list",
         "questions_get",
+        "questions_create",
+        "questions_modify",
+        "questions_delete",
+        "questions_move",
         "answers_list",
+        "answers_get",
+        "answers_export",
         "keysets_list",
         "keysets_get",
+        "keysets_create",
+        "keysets_modify",
+        "keysets_delete",
         "operations_get",
         "filling_get",
+        "filling_suggest",
+        "filling_submit",
+        "files_verify",
+        "files_delete",
     }
+
+
+async def test_every_write_tool_carries_the_write_tag():
+    """Write tools are taggable off wholesale (`ycli mcp start --read-only`); reads are not."""
+    async with Client(forms_mcp.mcp) as client:
+        tools = await client.list_tools()
+    for tool in tools:
+        tags = (tool.meta or {}).get("fastmcp", {}).get("tags", [])
+        if tool.annotations.readOnlyHint is True:
+            assert "write" not in tags, f"{tool.name} is a read but carries the write tag"
+        else:
+            assert "write" in tags, f"{tool.name} is a write but lacks the write tag"
 
 
 @responses.activate

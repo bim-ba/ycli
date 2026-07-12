@@ -61,21 +61,32 @@ class SprintsClient(TrackerResource):
     @uplink.returns.json()
     @uplink.json
     @uplink.patch("sprints/{sprint_id}")
-    def _edit(self, sprint_id: uplink.Path, body: uplink.Body) -> Sprint:  # ty: ignore[empty-body]
-        """``PATCH /sprints/{sprint_id}`` — edit a sprint from a ready JSON body (see ``edit``)."""
+    def _edit(
+        self,
+        sprint_id: uplink.Path,
+        body: uplink.Body,
+        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
+    ) -> Sprint:  # ty: ignore[empty-body]
+        """``PATCH /sprints/{sprint_id}?version=`` — edit from a ready JSON body (see ``edit``)."""
 
-    def edit(self, sprint_id: int, body: SprintUpdate) -> Sprint:
+    def edit(self, sprint_id: int, body: SprintUpdate, *, version: int | None = None) -> Sprint:
         """Edit a sprint from a typed ``SprintUpdate`` body. Returns the updated ``Sprint``.
 
-        Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
+        Only the fields set on ``body`` are sent, so omitted fields stay unchanged. ``version``
+        is the sprint's current version, sent as ``?version=`` — the API requires it (or an
+        ``If-Match`` header) for optimistic locking and answers 428 without one.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.sprints.edit(4405, SprintUpdate(name="Updated")).name  # doctest: +SKIP
+            >>> client.sprints.edit(
+            ...     4405, SprintUpdate(name="Updated"), version=1
+            ... ).name  # doctest: +SKIP
             'Updated'
         """
         return self._edit(
-            sprint_id=sprint_id, body=body.model_dump(by_alias=True, exclude_none=True)
+            sprint_id=sprint_id,
+            body=body.model_dump(by_alias=True, exclude_none=True),
+            version=version,
         )
 
     @uplink.delete("sprints/{sprint_id}")
@@ -90,22 +101,44 @@ class SprintsClient(TrackerResource):
 
     @uplink.returns.json()
     @uplink.post("sprints/{sprint_id}/_start")
-    def start(self, sprint_id: uplink.Path) -> Sprint:  # ty: ignore[empty-body]
+    def _start(
+        self,
+        sprint_id: uplink.Path,
+        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
+    ) -> Sprint:  # ty: ignore[empty-body]
+        """``POST /sprints/{sprint_id}/_start?version=`` (internal; use :meth:`start`)."""
+
+    def start(self, sprint_id: int, *, version: int | None = None) -> Sprint:
         """``POST /sprints/{sprint_id}/_start`` — start a sprint (status → in_progress).
+
+        ``version`` is the sprint's current version, sent as ``?version=`` — the API requires
+        it (or an ``If-Match`` header) for optimistic locking and answers 428 without one.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.sprints.start(sprint_id=4405).status  # doctest: +SKIP
+            >>> client.sprints.start(sprint_id=4405, version=1).status  # doctest: +SKIP
             'in_progress'
         """
+        return self._start(sprint_id=sprint_id, version=version)
 
     @uplink.returns.json()
     @uplink.post("sprints/{sprint_id}/_archive")
-    def archive(self, sprint_id: uplink.Path) -> Sprint:  # ty: ignore[empty-body]
+    def _archive(
+        self,
+        sprint_id: uplink.Path,
+        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
+    ) -> Sprint:  # ty: ignore[empty-body]
+        """``POST /sprints/{sprint_id}/_archive?version=`` (internal; use :meth:`archive`)."""
+
+    def archive(self, sprint_id: int, *, version: int | None = None) -> Sprint:
         """``POST /sprints/{sprint_id}/_archive`` — archive a sprint (status → archived).
+
+        ``version`` is the sprint's current version, sent as ``?version=`` — the API requires
+        it (or an ``If-Match`` header) for optimistic locking and answers 428 without one.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.sprints.archive(sprint_id=4405).status  # doctest: +SKIP
+            >>> client.sprints.archive(sprint_id=4405, version=1).status  # doctest: +SKIP
             'archived'
         """
+        return self._archive(sprint_id=sprint_id, version=version)

@@ -3,8 +3,9 @@
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 
 Every method here is an admin-only WRITE (import preserves the source ``createdAt`` /
-``createdBy``). The four JSON imports return the canonical sibling entity model; the file
-import is ``multipart/form-data`` — the file bytes ride in a :class:`uplink.Part`, while
+``createdBy``). The four JSON imports return the canonical sibling entity model (the worklog
+import returns the sibling ``WorklogList`` — the live endpoint answers with a JSON array); the
+file import is ``multipart/form-data`` — the file bytes ride in a :class:`uplink.Part`, while
 ``filename`` / ``createdAt`` / ``createdBy`` are query parameters (the public :meth:`file`
 wrapper hides the ``uplink.Part`` mechanics).
 """
@@ -16,7 +17,7 @@ from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.issues.models import Issue
 from ycli.yandex.tracker.links.models import Link
-from ycli.yandex.tracker.worklog.models import Worklog
+from ycli.yandex.tracker.worklog.models import WorklogList
 
 
 class ImportClient(TrackerResource):
@@ -73,17 +74,18 @@ class ImportClient(TrackerResource):
     @uplink.returns.json()
     @uplink.json
     @uplink.post("issues/{issue_key}/worklogs/_import")
-    def worklog(self, issue_key: uplink.Path, body: uplink.Body) -> Worklog:  # ty: ignore[empty-body]
+    def worklog(self, issue_key: uplink.Path, body: uplink.Body) -> WorklogList:  # ty: ignore[empty-body]
         """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).
 
-        Returns the created ``Worklog``.
+        Returns a ``WorklogList`` — the live endpoint answers with a JSON **array** of the
+        created worklog record(s), not a single object.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.import_.worklog(
             ...     "TEST-1",
             ...     {"duration": "PT1H", "createdAt": "…", "createdBy": "u", "start": "…"},
-            ... ).duration  # doctest: +SKIP
+            ... ).root[0].duration  # doctest: +SKIP
             'PT1H'
         """
 

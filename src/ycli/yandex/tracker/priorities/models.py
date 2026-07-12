@@ -10,12 +10,16 @@ from ycli.yandex.models import APIModel
 class Priority(APIModel):
     """A priority reference (``/priorities`` item).
 
+    The live v3 API carries the display name in ``name`` (``display`` stays null there), so
+    both fields are mapped.
+
     Example:
-        >>> Priority.model_validate({"key": "normal", "display": "Normal"}).key
-        'normal'
+        >>> Priority.model_validate({"key": "normal", "name": "Normal"}).name
+        'Normal'
     """
 
     key: str | None = None
+    name: str | None = None
     display: str | None = None
 
 

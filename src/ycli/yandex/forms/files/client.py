@@ -4,8 +4,9 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 Covers the four form-filling file-storage endpoints: a ``multipart/form-data`` **upload**, a
 read-via-POST **verify** (status of already-uploaded files), a **binary download** (returns raw
-bytes — never ``@uplink.returns.json()``), and a JSON-body **delete**. Upload / download / delete
-are writes/binary and verify's verb is not a read verb, so none of these reach MCP.
+bytes — never ``@uplink.returns.json()``), and a JSON-body **delete**. Upload and download move
+raw bytes (binary payloads a JSON MCP tool cannot carry), so they stay CLI/SDK-only; verify and
+delete also ship as MCP tools.
 """
 
 import requests
@@ -54,8 +55,7 @@ class FilesClient(FormsResource):
         """``POST …/files/verify`` (a read via POST) → per-file :class:`FileList` statuses.
 
         Checks the upload status and download access of already-uploaded files; ``files`` is the
-        list of ``{path, url}`` references to check. This is read-only (no mutation), but its verb
-        (``verify``) is not an MCP read verb, so it ships SDK + CLI only.
+        list of ``{path, url}`` references to check. This is read-only (no mutation).
 
         Example:
             >>> from ycli.yandex.forms.files.models import FileIn

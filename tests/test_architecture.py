@@ -134,7 +134,9 @@ def test_arch3_read_tools_call_no_write_methods():
                     names = [
                         kw.value.value
                         for kw in deco.keywords
-                        if kw.arg == "name" and isinstance(kw.value, ast.Constant)
+                        if kw.arg == "name"
+                        and isinstance(kw.value, ast.Constant)
+                        and isinstance(kw.value.value, str)
                     ]
                     if not names:
                         offenders.append(f"{rel}: {node.name} registers a tool without name=")

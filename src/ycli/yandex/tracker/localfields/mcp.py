@@ -1,4 +1,4 @@
-"""Tracker localFields FastMCP tools (reads-only)."""
+"""Tracker localFields FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -7,8 +7,20 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
-from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList
+from ycli.yandex.tracker.dependencies import (
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    tracker_client,
+)
+from ycli.yandex.tracker.localfields.models import (
+    LocalField,
+    LocalFieldCreate,
+    LocalFieldList,
+    LocalFieldUpdate,
+)
 
 mcp = FastMCP("tracker-localfields")
 
@@ -60,3 +72,38 @@ def get(
             "(got empty response — check keys or permissions)"
         )
     return result
+
+
+@mcp.tool(
+    name="localfields_create",
+    annotations={**WRITE, "title": "Create Tracker local field"},
+    tags=WRITE_TAGS,
+)
+def create(
+    queue_id: str, body: LocalFieldCreate, client: TrackerClient = Depends(tracker_client)
+) -> LocalField:
+    """Create a custom field scoped to one queue (a local field).
+
+    Required fields: ``id`` (latin key), ``name`` (ru/en display names), ``category`` (a category
+    id from ``fields_list``) and ``type`` (value type, e.g. ``ru.yandex.startrek.core.fields.
+    StringFieldType``). There is no delete endpoint — the field lives until its queue is deleted.
+    """
+    return client.localfields.create(queue_id, body)
+
+
+@mcp.tool(
+    name="localfields_edit",
+    annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker local field"},
+    tags=WRITE_TAGS,
+)
+def edit(
+    queue_id: str,
+    field_key: str,
+    body: LocalFieldUpdate,
+    client: TrackerClient = Depends(tracker_client),
+) -> LocalField:
+    """Edit a queue-local field; only the fields set in ``body`` are changed.
+
+    Get ``field_key`` from ``localfields_list``. Returns the updated field definition.
+    """
+    return client.localfields.edit(queue_id, field_key, body)

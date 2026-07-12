@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import time
 from typing import Annotated
 
 import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
 from ycli.yandex.pagination import resolve_cap
-from ycli.yandex.polling import poll
 from ycli.yandex.wiki.pages.models import PageAppendContent, PageAppendContentBody, PageClone
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
@@ -147,14 +146,19 @@ def append(
     page_id: PageIdArg,
     content: Annotated[str, typer.Option(help='YFM fragment to append — pass "$(cat file.md)".')],
     location: Annotated[
-        str, typer.Option(help="Where in the body: top or bottom (default: end).")
-    ] = "",
+        str, typer.Option(help="Where in the body: top or bottom (default: bottom).")
+    ] = "bottom",
 ) -> None:
-    """Append content to a wiki page (POST /pages/{id}/append-content)."""
+    """Append content to a wiki page (POST /pages/{id}/append-content).
+
+    The API requires exactly one placement selector (``body`` / ``section`` / ``anchor``) and
+    rejects a bare ``{content}`` with 400, so the CLI always sends the whole-page ``body``
+    selector — ``--location bottom`` unless overridden with ``--location top``.
+    """
     app_ctx = AppContext.from_typer_context(ctx)
     payload = PageAppendContent(
         content=content,
-        body=PageAppendContentBody(location=location) if location else None,  # ty: ignore[invalid-argument-type]
+        body=PageAppendContentBody(location=location),  # ty: ignore[invalid-argument-type]  # pydantic validates the top|bottom literal
     )
     Serializer.serialize(
         app_ctx.wiki.pages.append_content(
@@ -186,10 +190,11 @@ def clone(
     operation = app_ctx.wiki.pages.clone(page_id=page_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
-        status = poll(
+        status = wait_for(
             lambda: app_ctx.wiki.operations.clone_get(task_id),
             lambda state: state.is_terminal,
-            sleep=lambda seconds: time.sleep(seconds),
+            message="Waiting for page clone…",
+            console=app_ctx.stderr_console,
         )
         Serializer.serialize(status, app_ctx.strategy, app_ctx.console)
     else:

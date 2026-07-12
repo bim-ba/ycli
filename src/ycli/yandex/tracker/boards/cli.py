@@ -9,6 +9,7 @@ import typer
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.boards.models import BoardCreate, BoardUpdate
 
@@ -97,4 +98,4 @@ def delete(ctx: typer.Context, board_id: BoardIdArg) -> None:
     """Delete an agile board BOARD_ID (DELETE /boards/{board_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.boards.delete(board_id=board_id)
-    print(f"Deleted board {board_id}")
+    Serializer.serialize(Ack(detail=f"deleted board {board_id}"), app_ctx.strategy, app_ctx.console)

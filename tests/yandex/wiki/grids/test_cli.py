@@ -76,8 +76,33 @@ def test_grids_update_sends_revision():
 
 
 @responses.activate
-def test_grids_update_with_default_sort_json():
+def test_grids_update_with_default_sort_write_shape():
+    """``--default-sort`` sends the API's write shape ``[{"<column_slug>": "asc"|"desc"}]``
+    verbatim (the read shape ``[{slug, title, direction}]`` is a 400 live)."""
     responses.add(responses.POST, f"{BASE}/grids/{GID}", json={"revision": "4"}, status=200)
+    result = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "wiki",
+            "grids",
+            "update",
+            GID,
+            "--revision",
+            "3",
+            "--default-sort",
+            '[{"col": "asc"}]',
+        ],
+    )
+    assert result.exit_code == 0
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"revision": "3", "default_sort": [{"col": "asc"}]}
+
+
+@responses.activate
+def test_grids_update_default_sort_read_shape_fails_fast():
+    """Feeding the READ shape must fail client-side (no silent [{}] strip, no request sent)."""
     result = runner.invoke(
         cli.app,
         [
@@ -93,9 +118,8 @@ def test_grids_update_with_default_sort_json():
             '[{"slug": "a", "direction": "asc"}]',
         ],
     )
-    assert result.exit_code == 0
-    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
-    assert sent["default_sort"][0]["slug"] == "a"
+    assert result.exit_code != 0
+    assert len(responses.calls) == 0
 
 
 @responses.activate
@@ -212,8 +236,34 @@ def test_grids_columns_add_sends_revision_and_columns():
     sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {
         "revision": "3",
-        "columns": [{"title": "C", "type": "string", "required": False}],
+        "columns": [{"title": "C", "type": "string", "slug": "c", "required": False}],
     }
+
+
+@responses.activate
+def test_grids_columns_add_derives_slug_from_title():
+    """The live API 400s on a slug-less column; the documented slug-less JSON keeps working
+    because the slug is derived from the title client-side."""
+    responses.add(responses.POST, f"{BASE}/grids/{GID}/columns", json={"revision": "4"}, status=200)
+    result = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "wiki",
+            "grids",
+            "columns",
+            "add",
+            GID,
+            "--revision",
+            "3",
+            "--columns",
+            '[{"title":"My Col","type":"string"},{"title":"X","type":"number","slug":"n"}]',
+        ],
+    )
+    assert result.exit_code == 0
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert [c["slug"] for c in sent["columns"]] == ["my_col", "n"]
 
 
 @responses.activate

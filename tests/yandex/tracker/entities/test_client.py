@@ -313,16 +313,17 @@ def test_comments_create_posts_body():
 
 
 @responses.activate
-def test_comments_edit_patches_body_with_id():
+def test_comments_edit_patches_per_comment_route():
     responses.add(
         responses.PATCH,
-        f"{BASE}/entities/project/655f/comments",
+        f"{BASE}/entities/project/655f/comments/22",
         json={"id": 22, "text": "fixed"},
         status=200,
     )
-    out = _client().comments_edit("project", "655f", body={"id": 22, "text": "fixed"})
+    out = _client().comments_edit("project", "655f", "22", body={"text": "fixed"})
     assert out.text == "fixed"
-    assert json.loads(responses.calls[0].request.body) == {"id": 22, "text": "fixed"}  # ty: ignore[invalid-argument-type]
+    assert responses.calls[0].request.url == f"{BASE}/entities/project/655f/comments/22"
+    assert json.loads(responses.calls[0].request.body) == {"text": "fixed"}  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate
@@ -501,13 +502,8 @@ def test_attachments_attach_posts_and_returns_entity():
 
 
 @responses.activate
-def test_attachments_delete_returns_entity():
-    responses.add(
-        responses.DELETE,
-        f"{BASE}/entities/project/655f/attachments/5",
-        json={"id": "655f"},
-        status=200,
-    )
-    out = _client().attachments_delete("project", "655f", "5")
-    assert out.id == "655f"
+def test_attachments_delete_tolerates_empty_body():
+    # The live API answers 200 with an EMPTY body — parsing it as JSON crashed (regression).
+    responses.add(responses.DELETE, f"{BASE}/entities/project/655f/attachments/5", status=200)
+    assert _client().attachments_delete("project", "655f", "5") is None
     assert responses.calls[0].request.method == "DELETE"

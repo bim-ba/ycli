@@ -10,7 +10,7 @@ from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.import_.client import ImportClient
 from ycli.yandex.tracker.issues.models import Issue
 from ycli.yandex.tracker.links.models import Link
-from ycli.yandex.tracker.worklog.models import Worklog
+from ycli.yandex.tracker.worklog.models import WorklogList
 
 BASE = "https://api.tracker.yandex.net/v3"
 
@@ -64,18 +64,20 @@ def test_link_posts_body_and_returns_link():
 
 
 @responses.activate
-def test_worklog_posts_to_plural_path():
+def test_worklog_posts_to_plural_path_and_parses_array_response():
+    # The live endpoint answers with a JSON ARRAY of created records (regression: a single
+    # Worklog model choked on it with a pydantic validation error).
     responses.add(
         responses.POST,
         f"{BASE}/issues/TEST-1/worklogs/_import",
-        json={"id": 37, "duration": "PT1H"},
+        json=[{"id": 37, "duration": "PT1H"}],
         status=200,
     )
     out = _client().worklog(
         "TEST-1", body={"duration": "PT1H", "createdAt": "t", "createdBy": "u", "start": "s"}
     )
-    assert isinstance(out, Worklog) and out.duration == "PT1H"
-    assert responses.calls[0].request.url.endswith("/worklogs/_import")  # ty: ignore[unresolved-attribute]
+    assert isinstance(out, WorklogList) and out.root[0].duration == "PT1H"
+    assert (responses.calls[0].request.url or "").endswith("/worklogs/_import")
 
 
 @responses.activate

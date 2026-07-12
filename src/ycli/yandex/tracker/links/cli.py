@@ -9,6 +9,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -59,4 +60,6 @@ def delete(
     """Delete link LINK_ID from issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.links.delete(key, link_id)
-    print(f"Deleted link {link_id} on {key}")
+    Serializer.serialize(
+        Ack(detail=f"deleted link {link_id} on {key}"), app_ctx.strategy, app_ctx.console
+    )

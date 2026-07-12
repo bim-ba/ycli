@@ -1,4 +1,4 @@
-"""`forms images` commands (image upload — CLI/SDK only, never MCP)."""
+"""`forms images` commands (image upload — a binary payload, so CLI/SDK only)."""
 
 from __future__ import annotations
 

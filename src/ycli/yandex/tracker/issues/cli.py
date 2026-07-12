@@ -8,6 +8,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -181,4 +182,6 @@ def scroll_clear(
     """
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.issues.scroll_clear(parse_fields(pair))
-    print("Cleared search scroll resources")
+    Serializer.serialize(
+        Ack(detail="cleared search scroll resources"), app_ctx.strategy, app_ctx.console
+    )

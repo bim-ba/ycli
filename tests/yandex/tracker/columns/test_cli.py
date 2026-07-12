@@ -85,6 +85,6 @@ def test_columns_edit():
 @responses.activate
 def test_columns_delete():
     responses.add(responses.DELETE, f"{BASE}/boards/73/columns/5", status=204)
-    res = runner.invoke(cli.app, ["tracker", "columns", "delete", "73", "5"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "columns", "delete", "73", "5"])
     assert res.exit_code == 0
-    assert "Deleted column 5 on board 73" in res.stdout
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted column 5 on board 73"}

@@ -818,14 +818,13 @@ class CommentCreate(APIModel):
 
 
 class CommentUpdate(APIModel):
-    """Typed request body for ``PATCH …/comments`` (edit a comment; id travels in the body).
+    """Typed request body for ``PATCH …/comments/{comment_id}`` (the id travels in the path).
 
     Example:
-        >>> CommentUpdate(id=22, text="fixed").model_dump(by_alias=True, exclude_none=True)
-        {'id': 22, 'text': 'fixed'}
+        >>> CommentUpdate(text="fixed").model_dump(by_alias=True, exclude_none=True)
+        {'text': 'fixed'}
     """
 
-    id: int | str = Field(description="Identifier of the comment to edit.")
     text: str | None = Field(default=None, description="New comment text.")
     attachment_ids: list[str] | None = Field(
         default=None, alias="attachmentIds", description="Temp-file ids to attach as files."

@@ -1,16 +1,25 @@
-"""TDD for AnswersClient — returns the {columns, answers, next} envelope verbatim."""
+"""TDD for AnswersClient — single-answer get + the {columns, answers, next} envelope verbatim."""
 
 import json
 from urllib.parse import parse_qs, urlparse
 
+import pytest
 import requests
 import responses
 
 from ycli.yandex.forms.answers.client import AnswersClient
-from ycli.yandex.forms.answers.models import AnswersResponse, ExportResult
+from ycli.yandex.forms.answers.models import AnswerDetails, AnswersResponse, ExportResult
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
+
+ANSWER_BODY = {
+    "id": 2469549806,
+    "created": "2026-07-12T10:00:00Z",
+    "survey": {"id": SID, "name": "Feedback"},
+    "quiz": None,
+    "data": [{"id": "1", "label": "Q1", "type": "string", "value": "x"}],
+}
 
 
 def _client() -> AnswersClient:
@@ -19,9 +28,37 @@ def _client() -> AnswersClient:
     return AnswersClient(session=s)
 
 
-def test_client_has_no_get():
-    """The single-answer endpoint is not deployed (404 at every path); the method was removed."""
-    assert "get" not in AnswersClient.__dict__
+@responses.activate
+def test_get_by_answer_id_hits_flat_route():
+    """The single-answer read is the flat ``GET /v1/answers?answer_id=`` (live-verified 200);
+    the ``/surveys/{id}/answers/{answer_id}`` path variants 404."""
+    responses.add(responses.GET, f"{BASE}/answers", json=ANSWER_BODY, status=200)
+    out = _client().get(answer_id=2469549806)
+    assert isinstance(out, AnswerDetails)
+    assert out.id == 2469549806
+    assert out.survey is not None and out.survey.name == "Feedback"
+    assert out.data[0]["value"] == "x"
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert urlparse(url).path == "/v1/answers"
+    assert parse_qs(urlparse(url).query) == {"answer_id": ["2469549806"]}
+
+
+@responses.activate
+def test_get_by_answer_key_sends_only_key():
+    responses.add(responses.GET, f"{BASE}/answers", json=ANSWER_BODY, status=200)
+    out = _client().get(answer_key="a1b2c3hash")
+    assert isinstance(out, AnswerDetails) and out.id == 2469549806
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert parse_qs(urlparse(url).query) == {"answer_key": ["a1b2c3hash"]}
+
+
+def test_get_requires_exactly_one_selector():
+    with pytest.raises(ValueError, match="exactly one"):
+        _client().get()
+    with pytest.raises(ValueError, match="exactly one"):
+        _client().get(answer_id=1, answer_key="k")
 
 
 @responses.activate

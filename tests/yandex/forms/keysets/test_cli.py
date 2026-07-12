@@ -134,8 +134,12 @@ def test_modify_requires_full_record():
 @responses.activate
 def test_delete_keyset():
     responses.add(responses.DELETE, f"{BASE}/surveys/{SID}/keysets/{KID}", status=200)
-    res = runner.invoke(cli.app, ["forms", "keysets", "delete", SID, str(KID)])
-    assert res.exit_code == 0 and "deleted keyset 7" in res.stdout
+    res = runner.invoke(cli.app, ["--format", "json", "forms", "keysets", "delete", SID, str(KID)])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {
+        "ok": True,
+        "detail": f"deleted keyset {KID} on survey {SID}",
+    }
 
 
 @responses.activate

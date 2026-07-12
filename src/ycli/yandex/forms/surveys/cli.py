@@ -1,4 +1,4 @@
-"""`forms surveys` commands (reads + writes; writes are CLI/SDK only, never MCP)."""
+"""`forms surveys` commands (reads + writes; writes also ship as MCP tools)."""
 
 from __future__ import annotations
 

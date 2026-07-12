@@ -15,8 +15,12 @@ from ycli.yandex.wiki.uploadsessions.mcp import mcp as uploadsessions_mcp
 mcp = FastMCP(
     "wiki",
     instructions=(
-        "Read-only Yandex Wiki. Pages are addressed by their permanent slug: pages_get "
-        "fetches content, pages_meta the metadata, pages_descendants the child tree."
+        "Yandex Wiki, reads and writes. Pages are addressed by their permanent slug: "
+        "pages_get fetches content, pages_meta the metadata, pages_descendants the child "
+        "tree; writes (pages_create/pages_update/…, grids_*, comments_*, attachments_*) "
+        "carry honest readOnly/destructive/idempotent hints and the 'write' tag. Slugs are "
+        "permanent — only pages_clone gives content a new address; pages_delete returns the "
+        "recovery_token that recovery_restore redeems."
     ),
 )
 mcp.mount(me_mcp)

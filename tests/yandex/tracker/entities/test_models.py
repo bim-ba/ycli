@@ -192,8 +192,7 @@ def test_comment_create_and_update():
     assert CommentCreate(text="hi", summonees=["u1"]).model_dump(
         by_alias=True, exclude_none=True
     ) == {"text": "hi", "summonees": ["u1"]}
-    assert CommentUpdate(id=22, text="fixed").model_dump(by_alias=True, exclude_none=True) == {
-        "id": 22,
+    assert CommentUpdate(text="fixed").model_dump(by_alias=True, exclude_none=True) == {
         "text": "fixed",
     }
 

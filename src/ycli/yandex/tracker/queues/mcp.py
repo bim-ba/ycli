@@ -1,4 +1,4 @@
-"""Tracker /queues FastMCP tools (reads-only)."""
+"""Tracker /queues FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -7,14 +7,30 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    app_config,
+    tracker_client,
+)
 from ycli.yandex.tracker.queues.models import (
     Queue,
+    QueueCreate,
     QueueFieldList,
     QueueList,
+    QueuePermissions,
+    QueuePermissionsUpdate,
     QueueTagList,
+    QueueTagRemove,
+    QueueVersionCreate,
+    QueueVersionInfo,
     QueueVersionInfoList,
 )
 
@@ -86,8 +102,8 @@ def tags_list(
 ) -> QueueTagList:
     """Every tag name that has been added to the queue, as a flat string array.
 
-    These are the tags selectable on the queue's issues (the ``tags`` field). Removing a tag is
-    a write, so it lives on the CLI/SDK (``queues tag-remove``), not here.
+    These are the tags selectable on the queue's issues (the ``tags`` field). Remove one
+    everywhere with ``queues_tag_remove``.
 
     Example:
         >>> queues_tags_list("TEST")  # doctest: +SKIP
@@ -108,8 +124,8 @@ def versions_list(
 ) -> QueueVersionInfoList:
     """The queue's versions — release milestones issues can be assigned to.
 
-    Each item carries the version's name, date range and released/archived flags. Creating a
-    version is a write (``queues version-create`` on the CLI/SDK).
+    Each item carries the version's name, date range and released/archived flags. Create one
+    with ``queues_version_create``.
 
     Example:
         >>> queues_versions_list("TEST")  # doctest: +SKIP
@@ -137,3 +153,91 @@ def fields_list(
         >>> queues_fields_list("TEST")  # doctest: +SKIP
     """
     return client.queues.fields(queue_id)
+
+
+@mcp.tool(
+    name="queues_create", annotations={**WRITE, "title": "Create Tracker queue"}, tags=WRITE_TAGS
+)
+def create(body: QueueCreate, client: TrackerClient = Depends(tracker_client)) -> Queue:
+    """Create a Tracker queue (the container issues live in; its key prefixes issue keys).
+
+    Required: ``key`` (latin, uppercase), ``name``, ``lead`` (login), ``default_type`` (issue
+    type key, e.g. ``task``) and ``default_priority`` (priority key, e.g. ``normal``). Returns
+    the new queue.
+    """
+    return client.queues.create(body)
+
+
+@mcp.tool(
+    name="queues_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker queue"},
+    tags=WRITE_TAGS,
+)
+def delete(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+    """Delete a Tracker queue WITH ALL ITS ISSUES (recoverable via ``queues_restore``).
+
+    The queue moves to the recycle bin and can be restored for a limited time. Returns an
+    acknowledgement on success.
+    """
+    client.queues.delete(queue_id)
+    return Ack(detail=f"deleted queue {queue_id}")
+
+
+@mcp.tool(
+    name="queues_restore", annotations={**WRITE, "title": "Restore Tracker queue"}, tags=WRITE_TAGS
+)
+def restore(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Queue:
+    """Restore a previously deleted Tracker queue (and its issues) from the recycle bin.
+
+    Returns the restored queue.
+    """
+    return client.queues.restore(queue_id)
+
+
+@mcp.tool(
+    name="queues_set_permissions",
+    annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker queue permissions"},
+    tags=WRITE_TAGS,
+)
+def set_permissions(
+    queue_id: str, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
+) -> QueuePermissions:
+    """Replace access rules on a Tracker queue (grant/revoke read/write/create/grant rights).
+
+    Each right block takes ``users``/``groups``/``roles`` arrays; omitted blocks stay
+    unchanged. Returns the resulting permission set.
+    """
+    return client.queues.set_permissions(queue_id, body)
+
+
+@mcp.tool(
+    name="queues_tag_remove",
+    annotations={**DESTRUCTIVE, "title": "Remove Tracker queue tag"},
+    tags=WRITE_TAGS,
+)
+def tag_remove(
+    queue_id: str, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
+) -> Ack:
+    """Remove a tag from EVERY issue of a queue (irreversible; the tag disappears queue-wide).
+
+    ``body`` is ``{"tag": "<name>"}`` — pick the name from ``queues_tags_list``. Returns an
+    acknowledgement on success.
+    """
+    client.queues.tag_remove(queue_id, body)
+    return Ack(detail=f"removed tag {body.tag!r} from queue {queue_id}")
+
+
+@mcp.tool(
+    name="queues_version_create",
+    annotations={**WRITE, "title": "Create Tracker queue version"},
+    tags=WRITE_TAGS,
+)
+def version_create(
+    body: QueueVersionCreate, client: TrackerClient = Depends(tracker_client)
+) -> QueueVersionInfo:
+    """Create a version (release milestone) on a queue.
+
+    Required: ``queue`` (the queue key) and ``name``; optional ``description``,
+    ``start_date`` / ``due_date`` (``YYYY-MM-DD``). Returns the new version.
+    """
+    return client.queues.version_create(body)

@@ -9,14 +9,13 @@ optimistic-lock token read off ``grids get``) except ``create``. ``clone`` is as
 from __future__ import annotations
 
 import json
-import time
 from typing import Annotated
 
 import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
-from ycli.yandex.polling import poll
+from ycli.cli.progress import wait_for
 from ycli.yandex.wiki.grids.models import (
     CellsUpdate,
     ColumnsAdd,
@@ -116,10 +115,18 @@ def update(
     title: Annotated[str, typer.Option(help="New grid title.")] = "",
     default_sort: Annotated[
         str,
-        typer.Option("--default-sort", help='New default sort as JSON, e.g. \'[{"slug":"a"}]\'.'),
+        typer.Option(
+            "--default-sort",
+            help="New default sort as JSON in the write shape "
+            '\'[{"<column_slug>": "asc"|"desc"}]\', e.g. \'[{"priority": "desc"}]\'.',
+        ),
     ] = "",
 ) -> None:
-    """Rename / re-sort a grid (POST /grids/{id}; POST not PATCH)."""
+    """Rename / re-sort a grid (POST /grids/{id}; POST not PATCH).
+
+    ``--default-sort`` takes the API's write shape (column slug → direction mappings), not the
+    ``{slug, title, direction}`` read shape that ``grids get`` returns.
+    """
     body = GridUpdate(
         revision=revision,
         title=title or None,
@@ -161,10 +168,11 @@ def clone(
     operation = app_ctx.wiki.grids.clone(grid_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
-        status = poll(
+        status = wait_for(
             lambda: app_ctx.wiki.operations.gridclone_get(task_id),
             lambda state: state.is_terminal,
-            sleep=lambda seconds: time.sleep(seconds),
+            message="Waiting for grid clone…",
+            console=app_ctx.stderr_console,
         )
         Serializer.serialize(status, app_ctx.strategy, app_ctx.console)
     else:
@@ -248,12 +256,18 @@ def columns_add(
     columns: Annotated[
         str,
         typer.Option(
-            "--columns", help='Columns as JSON, e.g. \'[{"title":"C","type":"string"}]\'.'
+            "--columns",
+            help='Columns as JSON, e.g. \'[{"title":"C","type":"string"}]\' '
+            "(slug derived from the title when omitted).",
         ),
     ],
     position: PositionOpt = None,
 ) -> None:
-    """Add columns to a grid (POST /grids/{id}/columns)."""
+    """Add columns to a grid (POST /grids/{id}/columns).
+
+    The API requires a ``slug`` on every column; a column without one gets a slug derived from
+    its title (lowercased, non-alphanumeric runs collapsed to ``_``).
+    """
     body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position).model_dump(
         exclude_none=True
     )

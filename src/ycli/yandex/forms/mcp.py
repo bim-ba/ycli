@@ -1,4 +1,4 @@
-"""Forms FastMCP subserver — mounts the per-resource tool servers (reads-only)."""
+"""Forms FastMCP subserver — mounts the per-resource tool servers (reads + writes)."""
 
 from fastmcp import FastMCP
 
@@ -15,8 +15,11 @@ from ycli.yandex.forms.surveys.mcp import mcp as surveys_mcp
 mcp = FastMCP(
     "forms",
     instructions=(
-        "Read-only Yandex Forms. Reference a survey by id: surveys_list enumerates them, "
-        "questions_list / answers_list drill into one."
+        "Yandex Forms — reads and writes. Reference a survey by id: surveys_list enumerates "
+        "them, questions_list / answers_list drill into one. Write tools (create / modify / "
+        "delete / publish / submit / export / move) carry the 'write' tag and honest "
+        "destructive/idempotent hints; binary endpoints (file & image upload, downloads) stay "
+        "CLI/SDK-only."
     ),
 )
 mcp.mount(me_mcp)

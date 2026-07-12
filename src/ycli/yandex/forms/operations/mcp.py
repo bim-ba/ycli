@@ -25,7 +25,7 @@ def get(
 
     Returns ``{id, status, message}`` where ``status`` is one of ``ok`` (finished, result
     ready), ``fail``, ``wait`` (still running) or ``not_running``. Take the ``operation_id``
-    from the ``id`` an async trigger returned (writes are CLI/SDK-only, e.g.
+    from the ``id`` an async trigger returned (e.g. the ``answers_export`` tool or
     ``ycli forms answers export … --no-wait``); re-call until ``status`` is ``ok`` or ``fail``.
 
     >>> await client.call_tool("operations_get", {"operation_id": "op-4a1b"})  # doctest: +SKIP

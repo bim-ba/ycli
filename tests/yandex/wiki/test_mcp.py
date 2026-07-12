@@ -114,13 +114,15 @@ async def test_attachments_list_tool(creds):
     assert result.data[0].name == "d.png"
 
 
-async def test_tools_registered_and_read_only():
+async def test_tools_registered_with_honest_hints():
     async with Client(wiki_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert {
         "pages_get",
         "pages_meta",
         "pages_descendants",
+        "pages_by_id_get",
+        "pages_by_id_descendants",
         "pages_grids_list",
         "comments_list",
         "comments_thread_list",
@@ -129,10 +131,43 @@ async def test_tools_registered_and_read_only():
         "operations_clone_get",
         "operations_gridclone_get",
         "uploadsessions_get",
+        # writes — every resource mirrors its SDK write surface (ARCH-3 honesty)
+        "pages_create",
+        "pages_update",
+        "pages_delete",
+        "pages_append_content",
+        "pages_clone",
+        "comments_create",
+        "comments_delete",
+        "attachments_attach",
+        "attachments_upload",
+        "attachments_delete",
+        "grids_create",
+        "grids_update",
+        "grids_delete",
+        "grids_add_rows",
+        "grids_remove_rows",
+        "grids_move_rows",
+        "grids_add_columns",
+        "grids_remove_columns",
+        "grids_move_columns",
+        "grids_update_cells",
+        "grids_clone",
+        "recovery_restore",
+        "uploadsessions_create",
+        "uploadsessions_upload_part",
+        "uploadsessions_finish",
+        "uploadsessions_abort",
+        "uploadsessions_abort_all",
     } <= set(tools)
-    for name in ("pages_grids_list", "comments_thread_list"):
+    for name in ("pages_grids_list", "comments_thread_list", "pages_get"):
         assert tools[name].annotations.readOnlyHint is True
-    assert tools["pages_get"].annotations.readOnlyHint is True
+    for name in ("pages_create", "recovery_restore"):
+        assert tools[name].annotations.readOnlyHint is False
+        assert tools[name].annotations.destructiveHint is False
+    for name in ("pages_delete", "grids_remove_rows"):
+        assert tools[name].annotations.readOnlyHint is False
+        assert tools[name].annotations.destructiveHint is True
 
 
 async def test_attachments_expose_no_binary_download_tool():
@@ -140,5 +175,10 @@ async def test_attachments_expose_no_binary_download_tool():
     async with Client(wiki_mcp.mcp) as client:
         names = {t.name for t in await client.list_tools()}
     assert not any("download" in name for name in names)
-    # attachments contributes exactly its list surface — nothing binary.
-    assert {n for n in names if n.startswith("attachments_")} == {"attachments_list"}
+    # attachments = the list read plus the attach/upload/delete writes — nothing binary OUT.
+    assert {n for n in names if n.startswith("attachments_")} == {
+        "attachments_list",
+        "attachments_attach",
+        "attachments_upload",
+        "attachments_delete",
+    }

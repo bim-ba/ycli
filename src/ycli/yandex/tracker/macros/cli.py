@@ -9,6 +9,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.macros.models import MacroCreate, MacroUpdate
 
 app = typer.Typer(name="macros", help="Tracker queue macros.", no_args_is_help=True)
@@ -94,4 +95,8 @@ def delete(ctx: typer.Context, queue_id: QueueIdArg, macro_id: MacroIdArg) -> No
     """Delete macro MACRO_ID of QUEUE_ID (DELETE)."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.macros.delete(queue_id, macro_id)
-    print(f"Deleted macro {macro_id} from queue {queue_id}")
+    Serializer.serialize(
+        Ack(detail=f"deleted macro {macro_id} from queue {queue_id}"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )

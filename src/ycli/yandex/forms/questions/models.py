@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Literal
 
-from pydantic import Field, TypeAdapter
+from pydantic import Field, TypeAdapter, model_validator
 
 from ycli.yandex.models import APIModel
 
@@ -223,12 +223,17 @@ class QuestionHintSource(APIModel):
 class QuestionDataSource(APIModel):
     """The external data source backing a ``suggest`` question's options.
 
+    Live-verified source names: ``city`` and ``country`` (the API rejects other names with
+    400 "incorrect data source").
+
     Example:
-        >>> QuestionDataSource(name="departments").name
-        'departments'
+        >>> QuestionDataSource(name="city").name
+        'city'
     """
 
-    name: str | None = Field(default=None, description="Data-source name (e.g. departments).")
+    name: str | None = Field(
+        default=None, description="Data-source name — ``city`` or ``country``."
+    )
     params: list[DataSourceParam] | None = Field(
         default=None, description="Data-source parameters."
     )
@@ -543,15 +548,26 @@ QuestionCreateAdapter: TypeAdapter[Any] = TypeAdapter(QuestionCreate)
 class QuestionMove(APIModel):
     """Typed body for ``POST …/questions/{id}/move`` — where to reposition the question.
 
+    A bare ``position`` with no page target is a **silent no-op** live: the API answers 200
+    but moves nothing. To keep ``position``-only moves working, ``page`` defaults to 1 when
+    ``position`` is set and no target (``page`` / ``page_id`` / ``create_page`` / ``question``)
+    is given.
+
     Example:
         >>> QuestionMove(page=2, position=1).position
+        1
+        >>> QuestionMove(position=1).page  # bare position targets page 1
         1
     """
 
     question: int | str | None = Field(
         default=None, description="Question id or slug to move into a question series."
     )
-    page: int | None = Field(default=None, description="Target page number (1-based).")
+    page: int | None = Field(
+        default=None,
+        description="Target page number (1-based). Defaults to 1 when only ``position`` is "
+        "set — the API silently ignores a bare position.",
+    )
     page_id: int | None = Field(default=None, description="Target page ID.")
     create_page: bool | None = Field(
         default=None, description="Create a new page for the question (used with ``page``)."
@@ -559,6 +575,19 @@ class QuestionMove(APIModel):
     position: int | None = Field(
         default=None, description="New position of the question on the page (1-based)."
     )
+
+    @model_validator(mode="after")
+    def _default_page_for_bare_position(self) -> QuestionMove:
+        """Target page 1 for a bare ``position`` — the API 200s-but-ignores it otherwise."""
+        no_target = (
+            self.page is None
+            and self.page_id is None
+            and self.question is None
+            and not self.create_page
+        )
+        if self.position is not None and no_target:
+            self.page = 1
+        return self
 
 
 class QuestionMoveResult(APIModel):

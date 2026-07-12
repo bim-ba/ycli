@@ -201,12 +201,15 @@ class EntitiesClient(TrackerResource):
     ) -> ExtendedPermissions:  # ty: ignore[empty-body]
         """``PATCH …/extendedPermissions`` — set access settings. Returns the new settings.
 
+        The ``acl`` object accepts only ``grant`` / ``revoke`` actions, each mapping an access
+        level (``READ``/``WRITE``/``GRANT``) to users/groups/roles.
+
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.entities.set_permissions(
-            ...     "project", "655f", {"acl": {"READ": {"roles": ["OWNER"]}}}
-            ... ).acl.read.roles  # doctest: +SKIP
-            ['OWNER']
+            ...     "project", "655f", {"acl": {"grant": {"READ": {"users": ["800…2"]}}}}
+            ... ).acl.read.users  # doctest: +SKIP
+            ['800…2']
         """
 
     @uplink.returns.json()
@@ -355,16 +358,23 @@ class EntitiesClient(TrackerResource):
 
     @uplink.returns.json()
     @uplink.json
-    @uplink.patch("entities/{entity_type}/{entity_id}/comments")
+    @uplink.patch("entities/{entity_type}/{entity_id}/comments/{comment_id}")
     def comments_edit(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body
+        self,
+        entity_type: uplink.Path,
+        entity_id: uplink.Path,
+        comment_id: uplink.Path,
+        body: uplink.Body,
     ) -> Comment:  # ty: ignore[empty-body]
-        """``PATCH …/comments`` — edit a comment (its id travels in ``body``). Returns it.
+        """``PATCH …/comments/{comment_id}`` — edit a comment. Returns the updated comment.
+
+        The live v3 API only accepts the per-comment route (a PATCH on the ``…/comments``
+        collection answers 405), so the comment id travels in the path, not the body.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.entities.comments_edit(
-            ...     "project", "655f", {"id": 22, "text": "fixed"}
+            ...     "project", "655f", "22", {"text": "fixed"}
             ... ).text  # doctest: +SKIP
             'fixed'
         """
@@ -599,15 +609,18 @@ class EntitiesClient(TrackerResource):
             '655f…'
         """
 
-    @uplink.returns.json()
     @uplink.delete("entities/{entity_type}/{entity_id}/attachments/{file_id}")
-    def attachments_delete(
+    def _attachments_delete(
         self, entity_type: uplink.Path, entity_id: uplink.Path, file_id: uplink.Path
-    ) -> Entity:  # ty: ignore[empty-body]
-        """``DELETE …/attachments/{file_id}`` — detach a file. Returns the updated entity.
+    ) -> requests.Response:  # ty: ignore[empty-body]
+        """``DELETE …/attachments/{file_id}`` (internal; use :meth:`attachments_delete`)."""
+
+    def attachments_delete(self, entity_type: str, entity_id: str, file_id: str) -> None:
+        """Detach a file from an entity (the live API answers with an empty body). Raises on
+        non-2xx.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.entities.attachments_delete("project", "655f", "5").id  # doctest: +SKIP
-            '655f…'
+            >>> client.entities.attachments_delete("project", "655f", "5")  # doctest: +SKIP
         """
+        self._attachments_delete(entity_type, entity_id, file_id)

@@ -10,10 +10,12 @@ from ycli.yandex.tracker.issuetypes.models import (
 
 
 def test_issuetype_and_list_parse():
-    it = IssueType.model_validate({"key": "task", "display": "Task"})
-    assert it.key == "task" and it.display == "Task"
-    lst = IssueTypeList.model_validate([{"key": "bug"}, {"key": "task"}])
+    # The live v3 API carries the display name in `name` (`display` stays null).
+    it = IssueType.model_validate({"key": "task", "name": "Task"})
+    assert it.key == "task" and it.name == "Task" and it.display is None
+    lst = IssueTypeList.model_validate([{"key": "bug", "name": "Bug"}, {"key": "task"}])
     assert [x.key for x in lst.root] == ["bug", "task"]
+    assert lst.root[0].name == "Bug"
 
 
 def test_issuetype_create_body_serializes_localized_name():

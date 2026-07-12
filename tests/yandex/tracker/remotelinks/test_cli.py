@@ -67,6 +67,8 @@ def test_create():
 @responses.activate
 def test_delete():
     responses.add(responses.DELETE, f"{BASE}/issues/JUNE-2/remotelinks/51", status=204)
-    res = runner.invoke(cli.app, ["tracker", "remotelinks", "delete", "JUNE-2", "51"])
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "remotelinks", "delete", "JUNE-2", "51"]
+    )
     assert res.exit_code == 0
-    assert "Deleted remote link 51 on JUNE-2" in res.stdout
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted remote link 51 on JUNE-2"}

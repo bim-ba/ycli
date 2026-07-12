@@ -228,7 +228,9 @@ def test_pages_append_posts_typed_body():
 
 
 @responses.activate
-def test_pages_append_without_location_sends_only_content():
+def test_pages_append_default_sends_bottom_body_selector():
+    """Bare ``append`` (no --location) must send the ``body: bottom`` selector — the live API
+    requires exactly one of body/section/anchor and 400s on a content-only payload."""
     responses.add(
         responses.POST,
         f"{BASE}/pages/42/append-content",
@@ -240,7 +242,35 @@ def test_pages_append_without_location_sends_only_content():
     )
     assert result.exit_code == 0
     sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
-    assert sent == {"content": "## More"}
+    assert sent == {"content": "## More", "body": {"location": "bottom"}}
+
+
+@responses.activate
+def test_pages_append_location_top():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/42/append-content",
+        json={"id": 42, "slug": "data/x", "title": "T"},
+        status=200,
+    )
+    result = runner.invoke(
+        cli.app,
+        [
+            "--format",
+            "json",
+            "wiki",
+            "pages",
+            "append",
+            "42",
+            "--content",
+            "## More",
+            "--location",
+            "top",
+        ],
+    )
+    assert result.exit_code == 0
+    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    assert sent == {"content": "## More", "body": {"location": "top"}}
 
 
 def test_pages_subcommand_help_needs_no_creds(monkeypatch):

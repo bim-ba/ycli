@@ -6,6 +6,7 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 import requests
 import uplink
 
+from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.comments.models import Comment, CommentList
 
@@ -15,14 +16,35 @@ class CommentsClient(TrackerResource):
 
     @uplink.returns.json()
     @uplink.get("issues/{key}/comments")
-    def list(self, key: uplink.Path) -> CommentList:  # ty: ignore[empty-body]
-        """``GET /issues/{key}/comments`` → comment listing.
+    def _page(
+        self,
+        key: uplink.Path,
+        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
+        comment_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
+    ) -> CommentList:  # ty: ignore[empty-body]
+        """One raw ``/issues/{key}/comments`` page (a bare JSON array); callers use ``list``."""
+
+    def list(self, key: str, *, limit: int | None = None) -> CommentList:
+        """All comments on an issue, draining the ``id=<last comment id>`` relative cursor.
+
+        ``GET /issues/{key}/comments`` returns one page at a time (50 comments by default);
+        each next page repeats with ``id=<id of the last comment seen>`` until a page comes
+        back empty. Capped at ``limit`` (``None`` = every comment).
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.comments.list(key="DATAENGINEERING-1").root[0].created_by  # doctest: +SKIP
             'Сава Знатнов'
         """
+        strategy = RelativeCursorStrategy(
+            extract=lambda page: page.root,
+            id_of=lambda comment: str(comment.id) if comment.id is not None else None,
+        )
+        comments = strategy.collect(
+            lambda cursor: self._page(key, per_page=100, comment_id=cursor),
+            limit,
+        )
+        return CommentList(comments)
 
     @uplink.returns.json()
     @uplink.json

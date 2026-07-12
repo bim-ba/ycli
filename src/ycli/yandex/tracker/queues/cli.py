@@ -10,6 +10,7 @@ import typer
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.queues.models import (
     QueueCreate,
@@ -123,7 +124,7 @@ def delete(ctx: typer.Context, queue_id: QueueIdArg) -> None:
     """Delete QUEUE_ID (DELETE /queues/{queue_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.queues.delete(queue_id)
-    print(f"Deleted queue {queue_id}")
+    Serializer.serialize(Ack(detail=f"deleted queue {queue_id}"), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -174,7 +175,9 @@ def tag_remove(
     """Remove TAG from QUEUE_ID (POST /queues/{queue_id}/tags/_remove; admin only)."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.queues.tag_remove(queue_id, QueueTagRemove(tag=tag))
-    print(f"Removed tag {tag!r} from queue {queue_id}")
+    Serializer.serialize(
+        Ack(detail=f"removed tag {tag!r} from queue {queue_id}"), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command("version-create")

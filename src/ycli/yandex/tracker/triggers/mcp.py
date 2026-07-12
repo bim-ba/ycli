@@ -1,4 +1,4 @@
-"""Tracker queue triggers FastMCP tools (reads-only)."""
+"""Tracker queue triggers FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -7,8 +7,20 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
-from ycli.yandex.tracker.triggers.models import Trigger, WebhookLogList
+from ycli.yandex.tracker.dependencies import (
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    tracker_client,
+)
+from ycli.yandex.tracker.triggers.models import (
+    Trigger,
+    TriggerCreate,
+    TriggerUpdate,
+    WebhookLogList,
+)
 
 mcp = FastMCP("tracker-triggers")
 
@@ -23,8 +35,8 @@ def get(
 ) -> Trigger:
     """One queue trigger by id — its actions, firing conditions, order and active flag.
 
-    Triggers run actions on an issue when their conditions match. Creating/editing triggers is
-    a write (CLI/SDK only); the webhook-action run log is ``triggers_webhooklog_list``.
+    Triggers run actions on an issue when their conditions match. The webhook-action run log is
+    ``triggers_webhooklog_list``.
 
     Example:
         >>> triggers_get("DESIGN", 16)  # doctest: +SKIP
@@ -61,3 +73,39 @@ def webhooklog_list(
     return client.triggers.webhook_log(
         queue_id, trigger_id, issue_id=issue_id or None, limit=limit or None
     )
+
+
+@mcp.tool(
+    name="triggers_create",
+    annotations={**WRITE, "title": "Create Tracker queue trigger"},
+    tags=WRITE_TAGS,
+)
+def create(
+    queue_id: str, body: TriggerCreate, client: TrackerClient = Depends(tracker_client)
+) -> Trigger:
+    """Create a trigger on a queue — actions that fire when an issue event matches conditions.
+
+    Required: ``name`` and ``actions`` (e.g. ``[{"type": "Transition", …}]``); optional
+    ``conditions`` scope when it fires. Returns the new trigger.
+    """
+    return client.triggers.create(queue_id, body)
+
+
+@mcp.tool(
+    name="triggers_edit",
+    annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue trigger"},
+    tags=WRITE_TAGS,
+)
+def edit(
+    queue_id: str,
+    trigger_id: int,
+    body: TriggerUpdate,
+    version: int | None = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> Trigger:
+    """Edit a queue trigger; only the fields set in ``body`` are changed.
+
+    Get ``trigger_id`` from ``triggers_get`` / the queue settings. Pass ``version`` to guard
+    against concurrent edits (optimistic locking).
+    """
+    return client.triggers.edit(queue_id, trigger_id, body, version=version)

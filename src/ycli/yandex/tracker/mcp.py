@@ -1,4 +1,4 @@
-"""Tracker FastMCP subserver — mounts the per-resource tool servers (reads-only)."""
+"""Tracker FastMCP subserver — mounts the per-resource tool servers (reads + writes)."""
 
 from fastmcp import FastMCP
 
@@ -38,9 +38,11 @@ from ycli.yandex.tracker.worklog.mcp import mcp as worklog_mcp
 mcp = FastMCP(
     "tracker",
     instructions=(
-        "Read-only Yandex Tracker. Reference issues by key (e.g. QUEUE-123). "
+        "Yandex Tracker (reads and writes). Reference issues by key (e.g. QUEUE-123). "
         "issues_search / issues_count take a TQL query string; issues_list takes structured "
-        "filters (queue/status/assignee/epic/type)."
+        "filters (queue/status/assignee/epic/type). Write tools carry honest annotations: "
+        "readOnlyHint=false plus destructiveHint/idempotentHint per operation — check them "
+        "before mutating; destructive tools delete data irreversibly."
     ),
 )
 mcp.mount(me_mcp)

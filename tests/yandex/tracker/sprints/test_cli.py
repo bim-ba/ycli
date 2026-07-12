@@ -67,46 +67,65 @@ def test_sprints_create():
 
 
 @responses.activate
-def test_sprints_edit():
+def test_sprints_edit_sends_version():
     responses.add(
         responses.PATCH, f"{BASE}/sprints/4405", json={"id": 4405, "name": "Updated"}, status=200
     )
     res = runner.invoke(
-        cli.app, ["--format", "json", "tracker", "sprints", "edit", "4405", "--name", "Updated"]
+        cli.app,
+        [
+            "--format",
+            "json",
+            "tracker",
+            "sprints",
+            "edit",
+            "4405",
+            "--name",
+            "Updated",
+            "--version",
+            "1",
+        ],
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["name"] == "Updated"
+    assert "version=1" in (responses.calls[0].request.url or "")
 
 
 @responses.activate
 def test_sprints_delete():
     responses.add(responses.DELETE, f"{BASE}/sprints/4405", status=204)
-    res = runner.invoke(cli.app, ["tracker", "sprints", "delete", "4405"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "sprints", "delete", "4405"])
     assert res.exit_code == 0
-    assert "Deleted sprint 4405" in res.stdout
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted sprint 4405"}
 
 
 @responses.activate
-def test_sprints_start():
+def test_sprints_start_sends_version():
     responses.add(
         responses.POST,
         f"{BASE}/sprints/4405/_start",
         json={"id": 4405, "status": "in_progress"},
         status=200,
     )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "sprints", "start", "4405"])
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "sprints", "start", "4405", "--version", "1"]
+    )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["status"] == "in_progress"
+    assert "version=1" in (responses.calls[0].request.url or "")
 
 
 @responses.activate
-def test_sprints_archive():
+def test_sprints_archive_sends_version():
     responses.add(
         responses.POST,
         f"{BASE}/sprints/4405/_archive",
         json={"id": 4405, "status": "archived"},
         status=200,
     )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "sprints", "archive", "4405"])
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "sprints", "archive", "4405", "--version", "2"]
+    )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["status"] == "archived"
+    assert "version=2" in (responses.calls[0].request.url or "")

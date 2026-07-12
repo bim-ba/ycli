@@ -5,6 +5,7 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 import uplink
 
+from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.changelog.models import ChangelogList
 
@@ -14,17 +15,32 @@ class ChangelogClient(TrackerResource):
 
     @uplink.returns.json()
     @uplink.get("issues/{key}/changelog")
-    def list(
+    def _page(
         self,
         key: uplink.Path,
         per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
+        change_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
     ) -> ChangelogList:  # ty: ignore[empty-body]
-        """``GET /issues/{key}/changelog`` → changelog listing (``perPage`` paging).
+        """One raw ``/issues/{key}/changelog`` page (a bare JSON array); callers use ``list``."""
+
+    def list(self, key: str, *, limit: int | None = None) -> ChangelogList:
+        """All changelog events on an issue, draining the ``id=<last change id>`` cursor.
+
+        ``GET /issues/{key}/changelog`` returns one page at a time (50 changes by default);
+        each next page repeats with ``id=<id of the last change seen>`` until a page comes
+        back empty. Capped at ``limit`` (``None`` = the full history).
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.changelog.list(key="DATAENGINEERING-1", per_page=50).root[
-            ...     0
-            ... ].updated_by  # doctest: +SKIP
+            >>> client.changelog.list(key="DATAENGINEERING-1").root[0].updated_by  # doctest: +SKIP
             'Сава Знатнов'
         """
+        strategy = RelativeCursorStrategy(
+            extract=lambda page: page.root,
+            id_of=lambda entry: entry.id,
+        )
+        entries = strategy.collect(
+            lambda cursor: self._page(key, per_page=100, change_id=cursor),
+            limit,
+        )
+        return ChangelogList(entries)

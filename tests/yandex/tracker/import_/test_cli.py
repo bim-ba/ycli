@@ -114,11 +114,12 @@ def test_link():
 
 
 @responses.activate
-def test_worklog_plural_path():
+def test_worklog_plural_path_renders_array_response():
+    # The live endpoint answers with a JSON ARRAY of created records (regression).
     responses.add(
         responses.POST,
         f"{BASE}/issues/TEST-1/worklogs/_import",
-        json={"id": 37, "duration": "PT1H"},
+        json=[{"id": 37, "duration": "PT1H"}],
         status=200,
     )
     res = runner.invoke(
@@ -141,7 +142,8 @@ def test_worklog_plural_path():
         ],
     )
     assert res.exit_code == 0
-    assert responses.calls[0].request.url.endswith("/worklogs/_import")  # ty: ignore[unresolved-attribute]
+    assert json.loads(res.stdout)[0]["duration"] == "PT1H"
+    assert (responses.calls[0].request.url or "").endswith("/worklogs/_import")
 
 
 @responses.activate

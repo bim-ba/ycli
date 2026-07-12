@@ -9,6 +9,9 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.models import Ack
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.comments.models import CommentUpdate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
@@ -39,10 +42,18 @@ class Reaction(enum.StrEnum):
 
 
 @app.command("list")
-def list_(ctx: typer.Context, key: KeyArg) -> None:
-    """List comments on issue KEY."""
+def list_(
+    ctx: typer.Context,
+    key: KeyArg,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+) -> None:
+    """List all comments on issue KEY (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.comments.list(key), app_ctx.strategy, app_ctx.console)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
+    Serializer.serialize(
+        app_ctx.tracker.comments.list(key, limit=cap), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
@@ -80,7 +91,9 @@ def delete(ctx: typer.Context, key: KeyArg, comment_id: CommentIdArg) -> None:
     """Delete comment COMMENT_ID from issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.comments.delete(key, comment_id)
-    print(f"Deleted comment {comment_id} on {key}")
+    Serializer.serialize(
+        Ack(detail=f"deleted comment {comment_id} on {key}"), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()

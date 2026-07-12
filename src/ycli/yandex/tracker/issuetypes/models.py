@@ -10,12 +10,16 @@ from ycli.yandex.models import APIModel
 class IssueType(APIModel):
     """An issue type descriptor (``/issuetypes`` item).
 
+    The live v3 API carries the display name in ``name`` (``display`` stays null there), so
+    both fields are mapped.
+
     Example:
-        >>> IssueType.model_validate({"key": "task", "display": "Task"}).key
-        'task'
+        >>> IssueType.model_validate({"key": "task", "name": "Task"}).name
+        'Task'
     """
 
     key: str | None = None
+    name: str | None = None
     display: str | None = None
 
 

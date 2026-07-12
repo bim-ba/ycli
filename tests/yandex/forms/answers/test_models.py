@@ -1,6 +1,29 @@
-"""TDD for Forms answers models — export body + result flags parse cleanly."""
+"""TDD for Forms answers models — single-answer details + export body + result flags."""
 
-from ycli.yandex.forms.answers.models import AnswerExport, ExportResult
+from ycli.yandex.forms.answers.models import AnswerDetails, AnswerExport, ExportResult
+
+
+def test_answer_details_parses_full_answer():
+    details = AnswerDetails.model_validate(
+        {
+            "id": 2469549806,
+            "created": "2026-07-12T10:00:00Z",
+            "survey": {"id": "6818ceff", "name": "Feedback"},
+            "quiz": {"scores": 0.5, "total": 1.0},
+            "data": [{"id": "1", "label": "Q1", "type": "string", "value": "x"}],
+        }
+    )
+    assert details.id == 2469549806
+    assert details.survey is not None
+    assert details.survey.id == "6818ceff" and details.survey.name == "Feedback"
+    assert details.quiz == {"scores": 0.5, "total": 1.0}  # passed through verbatim
+    assert details.data[0]["value"] == "x"  # self-describing record, verbatim
+
+
+def test_answer_details_defaults_are_lenient():
+    details = AnswerDetails.model_validate({})
+    assert details.id is None and details.survey is None
+    assert details.quiz is None and details.data == []
 
 
 def test_answer_export_body_drops_unset_fields():
