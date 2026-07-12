@@ -44,10 +44,9 @@ jobs:
       - name: Check architecture boundaries
         if: matrix.python-version == '3.12'
         run: uv run lint-imports
-      - name: Type check (advisory)
+      - name: Type check
         if: matrix.python-version == '3.12'
         run: uv run ty check
-        continue-on-error: true
       - name: Run tests
         run: uv run pytest
 

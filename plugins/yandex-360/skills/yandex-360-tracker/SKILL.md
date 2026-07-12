@@ -1,6 +1,6 @@
 ---
 name: yandex-360-tracker
-description: Use when reading from or writing to Yandex Tracker via the ycli tool — look up an issue/epic/comment/changelog/worklog, search issues with Tracker Query Language, count matches, or create/update/transition/link/comment on issues. Covers the CLI (`uv run ycli tracker …`), the read-only `tracker_*` MCP tools, and the Python SDK. Reach for it whenever a task mentions a Tracker issue key (e.g. MYQUEUE-123), an epic, a queue, or driving Yandex Tracker programmatically. Not for Yandex Wiki (use yandex-360-wiki) or Yandex Forms (use yandex-360-forms).
+description: Use when reading from or writing to Yandex Tracker via the ycli tool — look up an issue/epic/comment/changelog/worklog, search issues with Tracker Query Language, count matches, or create/update/transition/link/comment on issues, manage queues, boards, sprints, and project entities. Covers the CLI (`uv run ycli tracker …`), the read/write `tracker_*` MCP tools, and the Python SDK. Reach for it whenever a task mentions a Tracker issue key (e.g. MYQUEUE-123), an epic, a queue, or driving Yandex Tracker programmatically. Not for Yandex Wiki (use yandex-360-wiki) or Yandex Forms (use yandex-360-forms).
 category: workflow
 ---
 
@@ -13,7 +13,10 @@ update, transition, link and comment on issues.
 Three interfaces, same underlying API:
 
 - **CLI** — `uv run ycli tracker <group> <cmd>`. Full read **and** write surface.
-- **MCP tools** — 57 read-only tools named `tracker_<resource>_<action>`. No write tools.
+- **MCP tools** — 151 tools named `tracker_<resource>_<action>` (61 reads + 90 writes).
+  Writes carry honest annotations: `readOnlyHint=False` plus an explicit
+  `destructiveHint` (`true` on delete/clear-class tools) and `idempotentHint` on
+  PATCH-style edits. `ycli mcp start --read-only` serves the reads-only view.
 - **Python SDK** — `from ycli.yandex.tracker.client import TrackerClient`.
 
 **Prefer the CLI or the `tracker_*` MCP tools over raw `http` calls.** They handle
@@ -55,8 +58,8 @@ portal) and <https://yandex.ru/support/tracker/> (product docs). For the day-to-
 
 ## Reading
 
-All read commands accept any issue key or queue you can access. Each is also a
-read-only MCP tool.
+All read commands accept any issue key or queue you can access. Each is also an
+MCP tool (annotated `readOnlyHint=True`).
 
 | CLI command | MCP tool | Purpose |
 |-------------|----------|---------|
@@ -70,10 +73,12 @@ read-only MCP tool.
 | `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
 | `uv run ycli tracker transitions list KEY` | `tracker_transitions_list` | Available transitions (a read — used before a write) |
 
-There are **57** read-only Tracker MCP tools, all following the
-`tracker_<resource>_<action>` naming (the rows above cover the ones you reach for
-most). To see the exact list for your build, start the server (`ycli mcp start`) and
-enumerate its tools. Write operations are CLI-only.
+There are **151** Tracker MCP tools, all following the `tracker_<resource>_<action>`
+naming (the rows above cover the reads you reach for most; every write below is a tool
+too — `tracker_issues_create`, `tracker_comments_add`, `tracker_transitions_execute`, …).
+To see the exact list for your build, start the server (`ycli mcp start`) and enumerate
+its tools. The only Tracker operations **not** on MCP are binary downloads
+(`attachments download` / `thumbnail` — CLI/SDK-only).
 
 ### Search — Tracker Query Language
 
@@ -119,7 +124,11 @@ from `transitions list` output and present the inference as fact. See
 
 ## Writing
 
-Writes are CLI-only. Target any queue where you have permission.
+Writes ship on all three surfaces — CLI, MCP write tools, and the SDK. The CLI examples
+below each have a matching `tracker_*` MCP tool (issue create/update, comments add,
+transitions execute, links add, plus queue/board/sprint/dictionary/entity admin).
+Target any queue where you have permission. On MCP, treat `destructiveHint=true` tools
+(deletes, clears) with care — prefer confirming with the user before calling them.
 
 ### Create an issue
 
@@ -233,6 +242,26 @@ uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
   `display`, and `cloudUid`. To get a login, call `GET /v3/users/{numericId}`
   separately. Never use `cloudUid` or `display` as a substitute for login.
 
+### Admin-surface quirks (live-verified 2026-07-12)
+
+- **Queue keys reject digits.** `--key YCLILTA9` → 422 («В ключе очереди может быть
+  только до 15 латинских символов») — up to 15 Latin *letters* only. Pick letter-only keys.
+- **`queues create` de-facto requires `--issue-type-config`.** The API 422s without it
+  (`issueTypesConfig: Требуется параметр.`), and the workflow id must exist in your org —
+  the classic `oicn` from docs does not; valid ids are the `*PresetWorkflow` set (e.g.
+  `quickStartV2PresetWorkflow`), discoverable via `queues get <existing-queue> --expand all`.
+- **Sprint edit/start/archive need optimistic locking.** The API demands `?version=` or
+  `If-Match` (HTTP 428 otherwise) on `sprints edit|start|archive` — pass `--version` (read
+  the current version from `sprints get`).
+- **`entities set-permissions` takes `grant=` / `revoke=` syntax.** e.g.
+  `--acl 'grant={"READ":{"users":["<uid>"]}}'` then `--acl 'revoke=…'` — a bare
+  `READ={…}` top-level key is rejected (422: only `grant` / `revoke` are known).
+- **Deleted queues 403-but-listed.** `queues delete` moves the queue to a trash state:
+  `queues get` returns **403** (not 404) and the queue keeps appearing in `queues list`
+  until Tracker purges it; `queues restore` works against that state.
+- **`queues tag-remove` 422s while the tag is still on any issue** («Тег ещё
+  используется») — clear issue tags first and allow ~1 min of search-index lag.
+
 ---
 
 ## Python SDK
@@ -245,8 +274,10 @@ issue = client.issues.get("MYQUEUE-123")
 ```
 
 `TrackerClient` exposes one sub-client per resource, all sharing a session:
-`issues`, `comments`, `links`, `transitions`, `worklog`, `changelog`, `priorities`,
-`issuetypes`, `linktypes`. Search, count, full-fetch, create and update are methods on
+`issues`, `comments`, `links`, `transitions`, `worklog`, `changelog`, `checklists`,
+`attachments`, `queues`, `boards`, `sprints`, `columns`, `entities`, `bulk`, `import_`,
+`dashboards`, and the dictionaries (`priorities`, `issuetypes`, `linktypes`, `statuses`,
+`resolutions`, `fields`, …). Search, count, full-fetch, create and update are methods on
 `client.issues` (`issues.search`, `issues.count`, `issues.get_raw`, `issues.create`,
 `issues.update`). Verify resource/method names against
 `src/ycli/yandex/tracker/client.py` if in doubt.
