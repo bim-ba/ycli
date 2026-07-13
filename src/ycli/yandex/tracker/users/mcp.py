@@ -47,7 +47,7 @@ def list_(
         Field(description="Extra data to include per user, e.g. groups."),
     ] = None,
     client: TrackerClient = Depends(tracker_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> UserList:
     """All users registered in the organisation, auto-paginated via the relative id-cursor and
     sorted by ascending uid. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given; use
@@ -55,5 +55,5 @@ def list_(
 
     >>> users_list(limit=50, expand="groups")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.users.list(limit=cap, expand=expand)

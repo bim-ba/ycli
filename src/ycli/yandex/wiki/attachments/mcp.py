@@ -33,14 +33,14 @@ def list_(
     page_id: int,
     limit: int = 0,
     client: WikiClient = Depends(wiki_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> AttachmentList:
     """Attachments (name, size, mime type) on a page id, auto-paginated (drains ``next_cursor``).
 
     Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. This is the list surface;
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.attachments.list(page_id=page_id, limit=cap)
 
 

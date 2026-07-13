@@ -48,14 +48,14 @@ def get(
 def list_(
     survey_id: str,
     client: FormsClient = Depends(forms_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> AnswersResponse:
-    """A form's responses, capped at cfg.max_items (drains pages via the next cursor).
+    """A form's responses, capped at config.max_items (drains pages via the next cursor).
 
     Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
     in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
     """
-    return client.answers.list_all(survey_id, limit=cfg.max_items)
+    return client.answers.list_all(survey_id, limit=config.max_items)
 
 
 @mcp.tool(
