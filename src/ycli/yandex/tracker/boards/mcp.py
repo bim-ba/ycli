@@ -98,4 +98,4 @@ def delete(board_id: int, client: TrackerClient = Depends(tracker_client)) -> Ac
     Returns an acknowledgement on success.
     """
     client.boards.delete(board_id=board_id)
-    return Ack(detail=f"deleted board {board_id}")
+    return Ack.deleted("board", board_id)

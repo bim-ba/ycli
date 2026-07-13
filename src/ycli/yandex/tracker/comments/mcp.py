@@ -82,7 +82,7 @@ def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_cl
     Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success.
     """
     client.comments.delete(key, comment_id)
-    return Ack(detail=f"deleted comment {comment_id} on {key}")
+    return Ack.deleted("comment", comment_id, on=key)
 
 
 @mcp.tool(

@@ -89,7 +89,7 @@ def delete(ctx: typer.Context, survey_id: SurveyIdArg, keyset_id: KeysetIdArg) -
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.forms.keysets.delete(survey_id, keyset_id)
     Serializer.serialize(
-        Ack(detail=f"deleted keyset {keyset_id} on survey {survey_id}"),
+        Ack.deleted("keyset", keyset_id, from_=f"survey {survey_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )

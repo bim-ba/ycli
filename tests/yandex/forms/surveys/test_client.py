@@ -6,7 +6,8 @@ import requests
 import responses
 
 from ycli.yandex.forms.surveys.client import SurveysClient
-from ycli.yandex.forms.surveys.models import Survey, SurveyActionResult, SurveyList
+from ycli.yandex.forms.surveys.models import Survey, SurveyList
+from ycli.yandex.models import Ack
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -111,8 +112,7 @@ def test_modify_patches_body_and_returns_survey():
 def test_delete_returns_synthesized_result():
     responses.add(responses.DELETE, f"{BASE}/surveys/{SID}", status=204)
     out = _client().delete(SID)
-    assert isinstance(out, SurveyActionResult)
-    assert out.survey_id == SID and out.action == "delete" and out.ok is True
+    assert out == Ack(detail=f"deleted survey {SID}")
     assert responses.calls[0].request.method == "DELETE"
 
 
@@ -120,7 +120,7 @@ def test_delete_returns_synthesized_result():
 def test_publish_posts_bodyless_and_returns_result():
     responses.add(responses.POST, f"{BASE}/surveys/{SID}/publish", body="OK", status=200)
     out = _client().publish(SID)
-    assert isinstance(out, SurveyActionResult) and out.action == "publish"
+    assert out == Ack(detail=f"published survey {SID}")
     assert responses.calls[0].request.url == f"{BASE}/surveys/{SID}/publish"
     assert not responses.calls[0].request.body  # no request body sent
 
@@ -129,5 +129,5 @@ def test_publish_posts_bodyless_and_returns_result():
 def test_unpublish_posts_bodyless_and_returns_result():
     responses.add(responses.POST, f"{BASE}/surveys/{SID}/unpublish", body="OK", status=200)
     out = _client().unpublish(SID)
-    assert isinstance(out, SurveyActionResult) and out.action == "unpublish"
+    assert out == Ack(detail=f"unpublished survey {SID}")
     assert responses.calls[0].request.url == f"{BASE}/surveys/{SID}/unpublish"

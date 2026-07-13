@@ -119,4 +119,4 @@ def delete(
     The API answers ``200 OK`` with no body, so a typed acknowledgement is returned.
     """
     client.keysets.delete(survey_id, keyset_id)
-    return Ack(detail=f"keyset {keyset_id} deleted from survey {survey_id}")
+    return Ack.deleted("keyset", keyset_id, from_=f"survey {survey_id}")

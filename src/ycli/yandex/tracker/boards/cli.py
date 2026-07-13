@@ -98,4 +98,4 @@ def delete(ctx: typer.Context, board_id: BoardIdArg) -> None:
     """Delete an agile board BOARD_ID (DELETE /boards/{board_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.boards.delete(board_id=board_id)
-    Serializer.serialize(Ack(detail=f"deleted board {board_id}"), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(Ack.deleted("board", board_id), app_ctx.strategy, app_ctx.console)

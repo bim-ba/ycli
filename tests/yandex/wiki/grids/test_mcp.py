@@ -78,7 +78,7 @@ async def test_grids_delete_tool_synthesizes_ack(creds):
     async with Client(grids_mcp.mcp) as client:
         result = await client.call_tool("grids_delete", {"grid_id": GID})
     assert result.data.ok is True
-    assert result.data.action == "delete"
+    assert result.data.detail == f"deleted grid {GID}"
     request = responses.calls[0].request
     assert request.method == "DELETE"
     assert request.url.endswith(f"/grids/{GID}")  # ty: ignore[unresolved-attribute]

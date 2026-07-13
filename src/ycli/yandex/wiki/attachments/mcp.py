@@ -114,4 +114,4 @@ def delete(
         >>> delete(page_id=12345, file_id=678)  # doctest: +SKIP
     """
     client.attachments.delete(page_id=page_id, file_id=file_id)
-    return Ack(detail=f"attachment {file_id} deleted from page {page_id}")
+    return Ack.deleted("attachment", file_id, from_=f"page {page_id}")

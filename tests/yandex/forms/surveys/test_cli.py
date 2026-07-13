@@ -99,7 +99,7 @@ def test_delete_survey():
     responses.add(responses.DELETE, f"{BASE}/surveys/{SID}", status=204)
     res = runner.invoke(cli.app, ["--format", "json", "forms", "surveys", "delete", SID])
     assert res.exit_code == 0
-    assert json.loads(res.stdout)["action"] == "delete"
+    assert json.loads(res.stdout) == {"ok": True, "detail": f"deleted survey {SID}"}
 
 
 @responses.activate
@@ -107,7 +107,7 @@ def test_publish_survey():
     responses.add(responses.POST, f"{BASE}/surveys/{SID}/publish", body="OK", status=200)
     res = runner.invoke(cli.app, ["--format", "json", "forms", "surveys", "publish", SID])
     assert res.exit_code == 0
-    assert json.loads(res.stdout)["action"] == "publish"
+    assert json.loads(res.stdout) == {"ok": True, "detail": f"published survey {SID}"}
 
 
 @responses.activate
@@ -115,4 +115,4 @@ def test_unpublish_survey():
     responses.add(responses.POST, f"{BASE}/surveys/{SID}/unpublish", body="OK", status=200)
     res = runner.invoke(cli.app, ["--format", "json", "forms", "surveys", "unpublish", SID])
     assert res.exit_code == 0
-    assert json.loads(res.stdout)["action"] == "unpublish"
+    assert json.loads(res.stdout) == {"ok": True, "detail": f"unpublished survey {SID}"}

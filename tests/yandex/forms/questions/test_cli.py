@@ -262,7 +262,7 @@ def test_delete_question():
     responses.add(responses.DELETE, f"{BASE}/surveys/{SID}/questions/17", status=204)
     res = runner.invoke(cli.app, ["--format", "json", "forms", "questions", "delete", SID, "17"])
     assert res.exit_code == 0
-    assert json.loads(res.stdout)["action"] == "delete"
+    assert json.loads(res.stdout) == {"ok": True, "detail": f"deleted question 17 on survey {SID}"}
     assert "force" not in (responses.calls[0].request.url or "")
 
 

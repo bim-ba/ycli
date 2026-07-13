@@ -61,6 +61,4 @@ def delete(
     """Delete link LINK_ID from issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.links.delete(key, link_id)
-    Serializer.serialize(
-        Ack(detail=f"deleted link {link_id} on {key}"), app_ctx.strategy, app_ctx.console
-    )
+    Serializer.serialize(Ack.deleted("link", link_id, on=key), app_ctx.strategy, app_ctx.console)

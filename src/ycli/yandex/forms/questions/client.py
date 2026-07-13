@@ -9,12 +9,12 @@ import uplink
 from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.forms.questions.models import (
     Question,
-    QuestionActionResult,
     QuestionCreate,
     QuestionMove,
     QuestionMoveResult,
     QuestionsResponse,
 )
+from ycli.yandex.models import Ack
 
 
 class QuestionsClient(FormsResource):
@@ -108,10 +108,8 @@ class QuestionsClient(FormsResource):
     ) -> requests.Response:  # ty: ignore[empty-body]
         """Raw ``DELETE …/questions/{id}`` (204 No Content); internal — callers use ``delete``."""
 
-    def delete(
-        self, survey_id: str, question_id: str, *, force: bool = False
-    ) -> QuestionActionResult:
-        """``DELETE /surveys/{id}/questions/{question_id}`` → a typed :class:`QuestionActionResult`.
+    def delete(self, survey_id: str, question_id: str, *, force: bool = False) -> Ack:
+        """``DELETE /surveys/{id}/questions/{question_id}`` → an :class:`Ack`.
 
         By default the API refuses to delete a question still referenced by another question's
         display conditions; pass ``force=True`` to skip that check. The API answers ``204 No
@@ -124,7 +122,7 @@ class QuestionsClient(FormsResource):
             True
         """
         self._delete(survey_id, question_id, force="true" if force else None)
-        return QuestionActionResult(survey_id=survey_id, question_id=question_id, action="delete")
+        return Ack.deleted("question", question_id, on=f"survey {survey_id}")
 
     @uplink.returns.json()
     @uplink.json

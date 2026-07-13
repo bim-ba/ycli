@@ -7,11 +7,11 @@ annotations eagerly.
 import requests
 import uplink
 
+from ycli.yandex.models import Ack
 from ycli.yandex.wiki.base import WikiResource
 from ycli.yandex.wiki.grids.models import (
     CellsUpdateResult,
     Grid,
-    GridActionResult,
     GridCloneOperation,
     RevisionResult,
     RowsAddResult,
@@ -88,8 +88,8 @@ class GridsClient(WikiResource):
     def _delete(self, grid_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
         """Raw ``DELETE /grids/{id}`` (204 No Content); internal — callers use ``delete``."""
 
-    def delete(self, grid_id: str) -> GridActionResult:
-        """``DELETE /grids/{id}`` → a typed :class:`GridActionResult` (``204 No Content``).
+    def delete(self, grid_id: str) -> Ack:
+        """``DELETE /grids/{id}`` → an :class:`Ack` (``204 No Content``).
 
         The API returns no body, so the result is synthesized; a non-2xx status raises a typed
         ``YandexError`` before this returns.
@@ -100,7 +100,7 @@ class GridsClient(WikiResource):
             True
         """
         self._delete(grid_id)
-        return GridActionResult(grid_id=grid_id, action="delete")
+        return Ack.deleted("grid", grid_id)
 
     @uplink.returns.json()
     @uplink.json

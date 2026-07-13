@@ -96,7 +96,7 @@ def delete(ctx: typer.Context, queue_id: QueueIdArg, macro_id: MacroIdArg) -> No
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.macros.delete(queue_id, macro_id)
     Serializer.serialize(
-        Ack(detail=f"deleted macro {macro_id} from queue {queue_id}"),
+        Ack.deleted("macro", macro_id, from_=f"queue {queue_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )

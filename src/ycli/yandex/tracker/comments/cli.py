@@ -93,7 +93,7 @@ def delete(ctx: typer.Context, key: KeyArg, comment_id: CommentIdArg) -> None:
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.comments.delete(key, comment_id)
     Serializer.serialize(
-        Ack(detail=f"deleted comment {comment_id} on {key}"), app_ctx.strategy, app_ctx.console
+        Ack.deleted("comment", comment_id, on=key), app_ctx.strategy, app_ctx.console
     )
 
 

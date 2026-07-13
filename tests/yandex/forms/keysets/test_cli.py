@@ -138,7 +138,7 @@ def test_delete_keyset():
     assert res.exit_code == 0
     assert json.loads(res.stdout) == {
         "ok": True,
-        "detail": f"deleted keyset {KID} on survey {SID}",
+        "detail": f"deleted keyset {KID} from survey {SID}",
     }
 
 

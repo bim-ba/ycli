@@ -312,22 +312,6 @@ class CellsUpdateResult(APIModel):
     )
 
 
-class GridActionResult(APIModel):
-    """Synthesized result of ``DELETE /grids/{id}`` (``204 No Content``, no JSON body).
-
-    The API answers a delete with an empty ``204``, so the client fabricates this typed record
-    for the CLI to render; a non-2xx status raises a typed ``YandexError`` before this returns.
-
-    Example:
-        >>> GridActionResult(grid_id="g-uuid", action="delete").ok
-        True
-    """
-
-    grid_id: str = Field(description="Id of the grid the action was applied to.")
-    action: str = Field(description="Action performed, e.g. ``delete``.")
-    ok: bool = Field(default=True, description="True when the API accepted the action (2xx).")
-
-
 class OperationIdentity(APIModel):
     """Reference to a deferred B2B operation (``{type, id}``) returned by a clone trigger.
 

@@ -9,10 +9,10 @@ import uplink
 from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.forms.surveys.models import (
     Survey,
-    SurveyActionResult,
     SurveyList,
     SurveysResponse,
 )
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import OffsetStrategy
 
 _PAGE_SIZE = 100
@@ -99,8 +99,8 @@ class SurveysClient(FormsResource):
     def _delete(self, survey_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
         """Raw ``DELETE /surveys/{id}`` (204 No Content); internal — callers use ``delete``."""
 
-    def delete(self, survey_id: str) -> SurveyActionResult:
-        """``DELETE /surveys/{id}`` → a typed :class:`SurveyActionResult` (``204 No Content``).
+    def delete(self, survey_id: str) -> Ack:
+        """``DELETE /surveys/{id}`` → an :class:`Ack` (``204 No Content``).
 
         The API returns no body, so the result is synthesized; a non-2xx status raises a
         typed ``YandexError`` before this returns.
@@ -111,14 +111,14 @@ class SurveysClient(FormsResource):
             True
         """
         self._delete(survey_id)
-        return SurveyActionResult(survey_id=survey_id, action="delete")
+        return Ack.deleted("survey", survey_id)
 
     @uplink.post("surveys/{survey_id}/publish")
     def _publish(self, survey_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
         """Raw bodyless ``POST /surveys/{id}/publish`` (200 OK); internal — use ``publish``."""
 
-    def publish(self, survey_id: str) -> SurveyActionResult:
-        """``POST /surveys/{id}/publish`` (no body) → a typed :class:`SurveyActionResult`.
+    def publish(self, survey_id: str) -> Ack:
+        """``POST /surveys/{id}/publish`` (no body) → an :class:`Ack`.
 
         Publishes the form. The API answers ``200 OK`` with no JSON body, so the result is
         synthesized. Fails (typed ``YandexError``) if the form is blocked, has hit its response
@@ -126,26 +126,26 @@ class SurveysClient(FormsResource):
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.surveys.publish("686d0a1b2c3d4e5f").action  # doctest: +SKIP
-            'publish'
+            >>> client.surveys.publish("686d0a1b2c3d4e5f").detail  # doctest: +SKIP
+            'published survey 686d0a1b2c3d4e5f'
         """
         self._publish(survey_id)
-        return SurveyActionResult(survey_id=survey_id, action="publish")
+        return Ack.published("survey", survey_id)
 
     @uplink.post("surveys/{survey_id}/unpublish")
     def _unpublish(self, survey_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
         """Raw bodyless ``POST /surveys/{id}/unpublish`` (200 OK); internal — use ``unpublish``."""
 
-    def unpublish(self, survey_id: str) -> SurveyActionResult:
-        """``POST /surveys/{id}/unpublish`` (no body) → a typed :class:`SurveyActionResult`.
+    def unpublish(self, survey_id: str) -> Ack:
+        """``POST /surveys/{id}/unpublish`` (no body) → an :class:`Ack`.
 
         Unpublishes the form (any published form, including auto-publication forms before their
         close time). The API answers ``200 OK`` with no JSON body, so the result is synthesized.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.surveys.unpublish("686d0a1b2c3d4e5f").action  # doctest: +SKIP
-            'unpublish'
+            >>> client.surveys.unpublish("686d0a1b2c3d4e5f").detail  # doctest: +SKIP
+            'unpublished survey 686d0a1b2c3d4e5f'
         """
         self._unpublish(survey_id)
-        return SurveyActionResult(survey_id=survey_id, action="unpublish")
+        return Ack.unpublished("survey", survey_id)

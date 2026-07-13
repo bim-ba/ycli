@@ -130,20 +130,3 @@ class SurveyUpdate(SurveyCreate):
         >>> SurveyUpdate(is_published=False).is_published
         False
     """
-
-
-class SurveyActionResult(APIModel):
-    """Synthesized result of a bodyless survey action (delete / publish / unpublish).
-
-    The API answers these with ``204 No Content`` (delete) or a bare ``200 OK`` (publish /
-    unpublish) and no JSON body, so the client fabricates this small typed record for the CLI
-    to render instead of returning an empty response.
-
-    Example:
-        >>> SurveyActionResult(survey_id="686d", action="publish").ok
-        True
-    """
-
-    survey_id: str = Field(description="Id of the form the action was applied to.")
-    action: str = Field(description="Action performed: ``delete``, ``publish`` or ``unpublish``.")
-    ok: bool = Field(default=True, description="True when the API accepted the action (2xx).")

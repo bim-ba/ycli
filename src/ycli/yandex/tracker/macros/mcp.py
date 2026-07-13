@@ -104,4 +104,4 @@ def delete(queue_id: str, macro_id: int, client: TrackerClient = Depends(tracker
     Returns an acknowledgement on success.
     """
     client.macros.delete(queue_id, macro_id)
-    return Ack(detail=f"deleted macro {macro_id} in queue {queue_id}")
+    return Ack.deleted("macro", macro_id, from_=f"queue {queue_id}")

@@ -5,11 +5,11 @@ import json
 import requests
 import responses
 
+from ycli.yandex.models import Ack
 from ycli.yandex.wiki.grids.client import GridsClient
 from ycli.yandex.wiki.grids.models import (
     CellsUpdateResult,
     Grid,
-    GridActionResult,
     GridCloneOperation,
     RevisionResult,
     RowsAddResult,
@@ -76,8 +76,7 @@ def test_update_posts_revision_and_returns_revision():
 def test_delete_returns_synthesized_result():
     responses.add(responses.DELETE, f"{BASE}/grids/{GID}", status=204)
     out = _client().delete(GID)
-    assert isinstance(out, GridActionResult)
-    assert out.grid_id == GID and out.action == "delete" and out.ok is True
+    assert out == Ack(detail=f"deleted grid {GID}")
     assert responses.calls[0].request.method == "DELETE"
 
 

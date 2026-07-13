@@ -72,7 +72,7 @@ def delete(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.wiki.attachments.delete(page_id=page_id, file_id=file_id)
     Serializer.serialize(
-        Ack(detail=f"deleted attachment {file_id} from page {page_id}"),
+        Ack.deleted("attachment", file_id, from_=f"page {page_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )

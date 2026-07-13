@@ -4,8 +4,8 @@ Two families live here:
 
 * **Read/out** — :class:`FileOut` (an uploaded/verified file: name, path, size, url, status) and
   the flat :class:`FileList` returned by ``verify``.
-* **Write/in** — :class:`FileIn` (the ``{path, url}`` reference that ``verify`` and ``delete`` take)
-  and the synthesized :class:`FileActionResult` for the bodyless ``delete``.
+* **Write/in** — :class:`FileIn` (the ``{path, url}`` reference ``verify``/``delete`` take). The
+  bodyless ``delete`` returns a shared :class:`~ycli.yandex.models.Ack`, not a domain-specific type.
 """
 
 from __future__ import annotations
@@ -65,20 +65,3 @@ class FileIn(APIModel):
 
     path: str | None = Field(default=None, description="File download path.")
     url: str | None = Field(default=None, description="File download URL.")
-
-
-class FileActionResult(APIModel):
-    """Synthesized result of the bodyless ``DELETE /files`` (``200 OK`` with no JSON body).
-
-    The API returns no body, so the client fabricates this typed record for the CLI to render;
-    a non-2xx status raises a typed ``YandexError`` before this is returned.
-
-    Example:
-        >>> FileActionResult(path="p", url="u").ok
-        True
-    """
-
-    path: str | None = Field(default=None, description="Path of the file the action targeted.")
-    url: str | None = Field(default=None, description="URL of the file the action targeted.")
-    action: str = Field(default="delete", description="Action performed: delete.")
-    ok: bool = Field(default=True, description="True when the API accepted the action (2xx).")
