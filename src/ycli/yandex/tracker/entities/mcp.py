@@ -31,13 +31,23 @@ from ycli.yandex.tracker.entities.models import (
     Attachment,
     AttachmentList,
     BulkChangeOperation,
+    BulkChangeUpdate,
+    ChecklistItemInput,
+    ChecklistItemsInput,
+    ChecklistMove,
     Comment,
+    CommentCreate,
     CommentList,
+    CommentUpdate,
     Entity,
+    EntityCreate,
     EntityEventList,
     EntityList,
+    EntityUpdate,
     ExtendedPermissions,
+    LinkInput,
     LinkList,
+    ReportCreate,
 )
 
 mcp = FastMCP("tracker-entities")
@@ -273,15 +283,10 @@ def comments_relative_list(
     name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"}, tags=WRITE_TAGS
 )
 def create(
-    entity_type: TypeArg, body: dict, client: TrackerClient = Depends(tracker_client)
+    entity_type: TypeArg, body: EntityCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Entity:
-    """Create a Tracker entity (project, portfolio or goal); returns it with its id.
-
-    ``body`` is the raw API payload — at minimum ``{"fields": {"summary": "…"}}``; other
-    ``fields`` keys include ``description``, ``entityStatus``, ``lead``, ``teamUsers``,
-    ``start``/``end``.
-    """
-    return client.entities.create(entity_type, body)
+    """Create a Tracker entity (project, portfolio or goal); returns it with its id."""
+    return client.entities.create(entity_type, body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -292,15 +297,16 @@ def create(
 def edit(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: dict,
+    body: EntityUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Edit a Tracker entity; only the ``fields`` keys present in ``body`` are changed.
 
-    ``body`` is the raw API payload, e.g. ``{"fields": {"summary": "…", "entityStatus":
-    "in_progress"}}``. Returns the updated entity.
+    Returns the updated entity.
     """
-    return client.entities.edit(entity_type, entity_id, body)
+    return client.entities.edit(
+        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -342,6 +348,12 @@ def set_permissions(
     actions, each mapping an access level (``READ``/``WRITE``/``GRANT``) to users/groups/roles,
     e.g. ``{"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}}``. Read the current
     ACL first with ``entities_permissions_get``.
+
+    NOTE: intentionally ``dict`` (not a typed model) — the wire shape nests READ/WRITE/GRANT
+    under ``grant``/``revoke`` verbs (see ``references/yandex-360/tracker/ru/api-ref/entities/
+    patch-access.md``); the existing ``ExtendedPermissionsUpdate``/``AclInput`` models describe
+    a different (direct READ/WRITE/GRANT) shape and would misrepresent this endpoint's real
+    body. Allowlisted in ``tests/test_architecture.py`` pending a correctly shaped model.
     """
     return client.entities.set_permissions(entity_type, entity_id, body)
 
@@ -352,14 +364,15 @@ def set_permissions(
     tags=WRITE_TAGS,
 )
 def bulk_update(
-    entity_type: TypeArg, body: dict, client: TrackerClient = Depends(tracker_client)
+    entity_type: TypeArg, body: BulkChangeUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> BulkChangeOperation:
     """Start an async bulk field update over many entities; returns the operation.
 
-    ``body`` is the raw API payload: ``{"entityIds": […], "values": {…}}``. Poll the returned
-    operation id with ``entities_bulk_status_get``.
+    Poll the returned operation id with ``entities_bulk_status_get``.
     """
-    return client.entities.bulk_update(entity_type, body)
+    return client.entities.bulk_update(
+        entity_type, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -367,13 +380,12 @@ def bulk_update(
     annotations={**WRITE, "title": "Create Tracker entity report"},
     tags=WRITE_TAGS,
 )
-def create_report(body: dict, client: TrackerClient = Depends(tracker_client)) -> Entity:
+def create_report(body: ReportCreate, client: TrackerClient = Depends(tracker_client)) -> Entity:
     """Request a report over Tracker entities (``POST /entities/report/``).
 
-    ``body`` is the raw API payload describing the report scope and grouping. Returns the
-    report entity.
+    Returns the report entity.
     """
-    return client.entities.create_report(body)
+    return client.entities.create_report(body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -384,14 +396,13 @@ def create_report(body: dict, client: TrackerClient = Depends(tracker_client)) -
 def comments_create(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: dict,
+    body: CommentCreate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
-    """Add a comment to a Tracker entity; returns the created comment.
-
-    ``body`` is the raw API payload — at minimum ``{"text": "…"}`` (YFM markup allowed).
-    """
-    return client.entities.comments_create(entity_type, entity_id, body)
+    """Add a comment to a Tracker entity; returns the created comment."""
+    return client.entities.comments_create(
+        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -403,15 +414,16 @@ def comments_edit(
     entity_type: TypeArg,
     entity_id: IdArg,
     comment_id: Annotated[str, Field(description="Comment id (from entities_comments_list).")],
-    body: dict,
+    body: CommentUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """Edit a comment on a Tracker entity; returns the updated comment.
 
-    ``comment_id`` addresses the comment (get it from ``entities_comments_list``); ``body`` is
-    the raw API payload with the new content, e.g. ``{"text": "…"}``.
+    ``comment_id`` addresses the comment (get it from ``entities_comments_list``).
     """
-    return client.entities.comments_edit(entity_type, entity_id, comment_id, body)
+    return client.entities.comments_edit(
+        entity_type, entity_id, comment_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -441,15 +453,16 @@ def comments_delete(
 def checklists_create(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: dict,
+    body: ChecklistItemsInput,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Add checklist item(s) to a Tracker entity; returns the entity with its checklist.
 
-    ``body`` is the raw API payload — a single item ``{"text": "…"}`` or a batch
-    ``{"notify": …, "items": [{"text": "…"}, …]}``.
+    ``body`` is a bare array of items, e.g. ``[{"text": "…"}]``.
     """
-    return client.entities.checklists_create(entity_type, entity_id, body)
+    return client.entities.checklists_create(
+        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -460,16 +473,17 @@ def checklists_create(
 def checklists_edit(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: dict,
+    body: ChecklistItemsInput,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Replace/update a Tracker entity's checklist items in one call.
 
-    ``body`` is the raw API payload (an array of items or ``{"items": […]}``, each with
-    ``id``/``text``/``checked``). To edit a single item by id use
-    ``entities_checklists_edit_item``. Returns the entity with its checklist.
+    ``body`` is a bare array of items, each with ``id``/``text``/``checked``. To edit a single
+    item by id use ``entities_checklists_edit_item``. Returns the entity with its checklist.
     """
-    return client.entities.checklists_edit(entity_type, entity_id, body)
+    return client.entities.checklists_edit(
+        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -481,15 +495,16 @@ def checklists_edit_item(
     entity_type: TypeArg,
     entity_id: IdArg,
     item_id: Annotated[str, Field(description="Checklist item id.")],
-    body: dict,
+    body: ChecklistItemInput,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Edit one checklist item on a Tracker entity (text, checked state, assignee, deadline).
 
-    ``body`` carries the fields to change, e.g. ``{"text": "…", "checked": true}``. Returns
-    the entity with its updated checklist.
+    Returns the entity with its updated checklist.
     """
-    return client.entities.checklists_edit_item(entity_type, entity_id, item_id, body)
+    return client.entities.checklists_edit_item(
+        entity_type, entity_id, item_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -534,15 +549,16 @@ def checklists_move(
     entity_type: TypeArg,
     entity_id: IdArg,
     item_id: Annotated[str, Field(description="Checklist item id to move.")],
-    body: dict,
+    body: ChecklistMove,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Reorder a checklist item within a Tracker entity's checklist.
 
-    ``body`` is the raw API payload, e.g. ``{"before": "<other item id>"}``. Returns the
-    entity with its reordered checklist.
+    Returns the entity with its reordered checklist.
     """
-    return client.entities.checklists_move(entity_type, entity_id, item_id, body)
+    return client.entities.checklists_move(
+        entity_type, entity_id, item_id, body.model_dump(by_alias=True, exclude_none=True)
+    )
 
 
 @mcp.tool(
@@ -553,15 +569,14 @@ def checklists_move(
 def links_create(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: dict,
+    body: LinkInput,
     client: TrackerClient = Depends(tracker_client),
 ) -> Ack:
-    """Link a Tracker entity to another entity.
+    """Link a Tracker entity to another entity (e.g. ``relates``, ``depends on``).
 
-    ``body`` is the raw API payload ``{"relationship": "…", "entity": "<other entity id>"}``
-    (e.g. ``relates``, ``depends on``). Returns an acknowledgement on success.
+    Returns an acknowledgement on success.
     """
-    client.entities.links_create(entity_type, entity_id, body)
+    client.entities.links_create(entity_type, entity_id, body.model_dump(by_alias=True))
     return Ack(detail=f"linked {entity_type} {entity_id}")
 
 

@@ -18,8 +18,10 @@ from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.entities.models import (
+    BulkChangeValues,
     ChecklistItemInput,
     ChecklistItemsInput,
+    ChecklistMove,
     CommentCreate,
     CommentUpdate,
     DeadlineInput,
@@ -298,12 +300,9 @@ def bulk(
     field: FieldOpt = None,
 ) -> None:
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
-    values: dict[str, Any] = {}
-    fields_body = parse_fields(field)
-    if fields_body:
-        values["fields"] = fields_body
-    if comment:
-        values["comment"] = comment
+    values = BulkChangeValues(
+        fields=parse_fields(field) or None, comment=comment or None
+    ).model_dump(by_alias=True, exclude_none=True)
     body = {"metaEntities": entity, "values": values}
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
@@ -585,7 +584,7 @@ def checklists_move(
     before: Annotated[str, typer.Option(help="Item id to insert the moved item before.")] = "",
 ) -> None:
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
-    body = {"before": before} if before else {}
+    body = ChecklistMove(before=before or None).model_dump(by_alias=True, exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
         app_ctx.tracker.entities.checklists_move(type_.value, entity_id, item_id, body=body),
