@@ -1,18 +1,11 @@
 """TDD for the wiki /operations MCP subserver (read-only clone-status pollers)."""
 
-import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.wiki.operations import mcp as operations_mcp
 
 BASE = "https://api.wiki.yandex.net/v1"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

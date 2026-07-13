@@ -5,7 +5,6 @@ upload / download move raw bytes (binary payloads), so they intentionally regist
 
 import json
 
-import pytest
 import responses
 from fastmcp import Client
 
@@ -13,12 +12,6 @@ from ycli.yandex.forms.files import mcp as files_mcp
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

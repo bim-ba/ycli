@@ -7,7 +7,6 @@ snapshots. The producer self-validates test_client/test_models/test_mcp instead.
 
 import json
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
@@ -16,12 +15,6 @@ import ycli.cli.app as cli
 BASE = "https://api.wiki.yandex.net/v1"
 GID = "g-uuid"
 runner = CliRunner()
-
-
-@pytest.fixture(autouse=True)
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

@@ -2,19 +2,12 @@
 
 import json
 
-import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.tracker.triggers import mcp as triggers_mcp
 
 BASE = "https://api.tracker.yandex.net/v3"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

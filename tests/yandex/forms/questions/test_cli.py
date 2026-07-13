@@ -3,7 +3,6 @@
 import json
 import re
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
@@ -22,12 +21,6 @@ _ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 def _plain(text: str) -> str:
     return _ANSI_RE.sub("", text)
-
-
-@pytest.fixture(autouse=True)
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 def _sent_body():

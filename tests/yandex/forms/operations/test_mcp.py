@@ -11,12 +11,6 @@ BASE = "https://api.forms.yandex.net/v1"
 OID = "op-4a1b"
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 async def test_operations_get_tool(creds):
     responses.add(

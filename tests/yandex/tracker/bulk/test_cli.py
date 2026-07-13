@@ -18,10 +18,9 @@ runner = CliRunner()
 
 
 @pytest.fixture(autouse=True)
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-    monkeypatch.setattr(time, "sleep", lambda *_: None)  # no real waiting in the --wait poll
+def _patch_sleep(monkeypatch):
+    """No real waiting in the --wait poll."""
+    monkeypatch.setattr(time, "sleep", lambda *_: None)
 
 
 @responses.activate

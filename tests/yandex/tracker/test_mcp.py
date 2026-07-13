@@ -1,18 +1,11 @@
 """Tracker FastMCP domain server — read + write tools, namespaced <resource>_<action>."""
 
-import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.tracker import mcp as tracker_mcp
 
 BASE = "https://api.tracker.yandex.net/v3"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 async def test_all_tools_registered():

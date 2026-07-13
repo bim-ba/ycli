@@ -7,7 +7,6 @@ test_client.py + test_models.py (+ the read-only MCP registration check).
 
 import json
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
@@ -15,12 +14,6 @@ import ycli.cli.app as cli
 
 BASE = "https://api.tracker.yandex.net/v3"
 runner = CliRunner()
-
-
-@pytest.fixture(autouse=True)
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

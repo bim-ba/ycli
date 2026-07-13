@@ -13,12 +13,6 @@ BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 async def test_surveys_list_tool_returns_flat_collection(creds):
     responses.add(

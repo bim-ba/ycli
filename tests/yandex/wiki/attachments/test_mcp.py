@@ -12,12 +12,6 @@ from ycli.yandex.wiki.attachments import mcp as attachments_mcp
 BASE = "https://api.wiki.yandex.net/v1"
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 async def test_attachments_attach_tool(creds):
     responses.add(

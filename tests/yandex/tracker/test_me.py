@@ -22,12 +22,6 @@ _PAYLOAD = {"uid": 42, "login": "alice", "display": "Alice A.", "email": "alice@
 _runner = CliRunner()
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 def test_me_client_get(creds):
     responses.add(responses.GET, _URL, json=_PAYLOAD, status=200)

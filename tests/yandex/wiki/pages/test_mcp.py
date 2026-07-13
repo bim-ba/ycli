@@ -11,12 +11,6 @@ from ycli.yandex.wiki.pages import mcp as pages_mcp
 BASE = "https://api.wiki.yandex.net/v1"
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 async def test_pages_by_id_get_tool(creds):
     responses.add(

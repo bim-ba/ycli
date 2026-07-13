@@ -12,12 +12,6 @@ BASE = "https://api.wiki.yandex.net/v1"
 GID = "g-uuid"
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 async def test_grids_get_tool_returns_grid(creds):
     responses.add(

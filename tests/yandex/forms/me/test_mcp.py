@@ -10,12 +10,6 @@ from ycli.yandex.forms.me import mcp as me_mcp
 BASE = "https://api.forms.yandex.net/v1"
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-
-
 @responses.activate
 async def test_me_get_tool(creds):
     responses.add(

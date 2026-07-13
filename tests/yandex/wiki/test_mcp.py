@@ -1,18 +1,11 @@
 """Wiki FastMCP subserver tests — @cache factory, env+responses pattern."""
 
-import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.wiki import mcp as wiki_mcp
 
 BASE = "https://api.wiki.yandex.net/v1"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

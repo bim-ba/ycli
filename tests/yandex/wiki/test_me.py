@@ -20,12 +20,6 @@ ME_BODY = {
 }
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-
-
 @responses.activate
 def test_client_get_parses_me(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
