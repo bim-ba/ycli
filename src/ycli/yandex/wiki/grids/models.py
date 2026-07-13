@@ -373,12 +373,12 @@ class NewColumnSchema(APIModel):
 
     ``title`` and ``type`` are required; the remaining fields shape a specific column type
     (``select_options`` for ``select``, ``ticket_field`` for ``ticket_field``, …). The live API
-    rejects a column without a ``slug`` (400 ``value_error.missing`` — it is no longer
-    server-generated), so when ``slug`` is omitted it is derived from ``title``: lowercased,
-    with every run of characters outside ``a-z0-9`` collapsed to a single ``_`` and edge
-    underscores stripped (``"Owner"`` → ``"owner"``, ``"My Col!"`` → ``"my_col"``). A title
-    with no ASCII alphanumerics (e.g. a fully Cyrillic one) cannot be derived from — pass an
-    explicit ``slug`` then, or validation fails with a clear error.
+    requires a ``slug`` on every column (400 ``value_error.missing`` without one), so when
+    ``slug`` is omitted it is derived from ``title``: lowercased, with every run of non-word
+    characters collapsed to a single ``_`` and edge underscores stripped (``"Owner"`` →
+    ``"owner"``, ``"My Col!"`` → ``"my_col"``). The derivation is Unicode-aware, so a Cyrillic
+    title yields a Cyrillic slug (``"Владелец"`` → ``"владелец"``); only a title with no word
+    characters at all (pure punctuation) needs an explicit ``slug``.
 
     Example:
         >>> NewColumnSchema(title="Owner", type="staff", multiple=True).model_dump(

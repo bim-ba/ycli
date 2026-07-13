@@ -306,7 +306,6 @@ _LIVE_DOC_GLOBS = [
     "AGENTS.md",
     "CONTRIBUTING.md",
     "SECURITY.md",
-    "docs/api-coverage.md",
     "docs/conventions/**/*.md",
     "plugins/**/*.md",
 ]
@@ -339,7 +338,7 @@ def test_arch11_no_purged_idioms_in_live_docs():
     """User-facing docs must not show purged call idioms that ARCH-7/ARCH-10 forbid in code.
 
     Scanned files: README.md, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, SECURITY.md,
-    docs/api-coverage.md, docs/conventions/**/*.md, plugins/**/*.md.
+    docs/conventions/**/*.md, plugins/**/*.md.
     Excluded (historical/rule-defining): docs/superpowers/**, PROMPT.md, CHANGELOG.md,
     ARCHITECTURE.md (it defines the forbidden idioms as rules), .venv/**, .git/**.
     Patterns checked: .from_env(  session_from_env(  X-Org-ID

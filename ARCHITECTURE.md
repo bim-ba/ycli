@@ -93,7 +93,7 @@ Notable shared pieces:
   `inspect.signature(TrackerClient).parameters` defaults == `AppConfig` field defaults so the
   duplication can't drift.
 - **ARCH-11 — Doc-drift guard.** User-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
-  `CONTRIBUTING.md`, `SECURITY.md`, `docs/api-coverage.md`, `docs/conventions/**/*.md`,
+  `CONTRIBUTING.md`, `SECURITY.md`, `docs/conventions/**/*.md`,
   `plugins/**/*.md`) must not show call-site usage of idioms purged by ARCH-7..10. Concretely,
   the call patterns `.from_env(` and `session_from_env(` must not appear in any of those files.
   Historical / rule-defining files are intentionally excluded: `docs/superpowers/**` (specs),

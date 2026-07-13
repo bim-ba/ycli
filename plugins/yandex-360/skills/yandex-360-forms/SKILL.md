@@ -147,7 +147,7 @@ MCP note: `forms_answers_export` triggers the export and `forms_operations_get` 
 
 ## 4. Integration hooks — the one raw-HTTP surface
 
-Hooks (create Tracker issue / Wiki page / send email / HTTP webhook on submit) are **documented in the current public api-ref** on `api.forms.yandex.net/v1` — hook groups (`/v1/surveys/{id}/hooks`), subscriptions (actions), conditions, template variables, notification history — but **ycli does not wrap them yet** (a tracked coverage gap, see `docs/api-coverage.md`). Two options:
+Hooks (create Tracker issue / Wiki page / send email / HTTP webhook on submit) are **documented in the current public api-ref** on `api.forms.yandex.net/v1` — hook groups (`/v1/surveys/{id}/hooks`), subscriptions (actions), conditions, template variables, notification history — but **ycli does not wrap them yet**. Two options:
 
 1. **UI**: open the form → «Интеграции» tab → add/edit/delete an action group, configure variables and conditions.
 2. **Raw HTTP with OAuth** against `api.forms.yandex.net/v1/surveys/{id}/hooks…` per the live reference at <https://yandex.ru/dev/forms/> (endpoints documented; not live-verified by this project — verify responses as you go).
