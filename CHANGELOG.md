@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.14.0 (2026-07-13)
+
+### Build System
+
+- Re-lock uv.lock for 0.13.1
+  ([`21bb37a`](https://github.com/bim-ba/ycli/commit/21bb37aceab63814e0dedfa5ad7d0c3fd764b943))
+
+### Features
+
+- Type all Tracker MCP write-tool bodies + fail-closed enforcement
+  ([#49](https://github.com/bim-ba/ycli/pull/49),
+  [`08c80fd`](https://github.com/bim-ba/ycli/commit/08c80fd73fffdf87aa7657e79a15d80225d21319))
+
+
 ## v0.13.1 (2026-07-13)
 
 ### Bug Fixes
