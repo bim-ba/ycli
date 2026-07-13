@@ -19,7 +19,10 @@ repos:
         entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov
         language: system
         pass_filenames: false
-        files: ^(src/ycli/|tests/).*\.py$
+        # Python surface OR any live doc ARCH-11 scans (plus ARCHITECTURE.md, which defines the
+        # invariants) — so a docs-only edit that trips the doc-drift guard is caught here, not
+        # only in CI. Keep in sync with _LIVE_DOC_GLOBS in tests/test_architecture.py.
+        files: '^(src/ycli/|tests/).*\.py$|^(README|CLAUDE|AGENTS|CONTRIBUTING|SECURITY|ARCHITECTURE)\.md$|^(docs/conventions|plugins)/.*\.md$'
       - id: no-skip-ci
         name: block skip-ci tokens in tracked files
         # Match the full token set GitHub honors (see CLAUDE.md "Never write a skip-ci token").
