@@ -57,14 +57,19 @@ class CursorStrategy[P, T](PaginationStrategy[P, T]):
     def collect(self, fetch_page: Callable[[str | None], P], limit: int | None) -> list[T]:
         items: list[T] = []
         cursor: str | None = None
+        seen: set[str] = set()
         while True:
             page = fetch_page(cursor)
             items.extend(self._extract(page))
             if limit is not None and len(items) >= limit:
                 return items[:limit]
             cursor = self._next_of(page)
-            if cursor is None:
+            # Terminal on ``None`` or on a cursor already seen — a repeated cursor means the
+            # API stopped advancing, so following it again would loop forever (mirrors the
+            # ``seen`` self-loop guard in :class:`NextUrlStrategy`).
+            if cursor is None or cursor in seen:
                 return items
+            seen.add(cursor)
 
     @classmethod
     def collect_wrapped[R](
@@ -145,8 +150,9 @@ class RelativeCursorStrategy[P, T](PaginationStrategy[P, T]):
     Like :class:`CursorStrategy`, but the next cursor is derived from the LAST item of the page
     rather than a ``next`` field the envelope hands back (Tracker ``_relative`` / ``worklog``
     ``id=`` scrolling). Terminal when a page comes back empty — there is no last item to
-    advance from — or when that last item yields no id. Empty is the shortest possible page,
-    so a short/empty final page ends the walk.
+    advance from — or when that last item yields no id, or when its id repeats one already
+    seen (a non-advancing cursor, which would otherwise loop forever). Empty is the shortest
+    possible page, so a short/empty final page ends the walk.
     """
 
     def __init__(
@@ -158,6 +164,7 @@ class RelativeCursorStrategy[P, T](PaginationStrategy[P, T]):
     def collect(self, fetch_page: Callable[[str | None], P], limit: int | None) -> list[T]:
         items: list[T] = []
         cursor: str | None = None
+        seen: set[str] = set()
         while True:
             page_items = list(self._extract(fetch_page(cursor)))
             if not page_items:
@@ -166,5 +173,9 @@ class RelativeCursorStrategy[P, T](PaginationStrategy[P, T]):
             if limit is not None and len(items) >= limit:
                 return items[:limit]
             cursor = self._id_of(page_items[-1])
-            if cursor is None:
+            # Terminal on a missing id or on an id already seen — a repeated last-item id
+            # means the walk stopped advancing, so re-fetching would loop forever (mirrors
+            # the ``seen`` self-loop guard in :class:`NextUrlStrategy`).
+            if cursor is None or cursor in seen:
                 return items
+            seen.add(cursor)
