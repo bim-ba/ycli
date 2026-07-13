@@ -82,6 +82,20 @@ re-renders the GIF, reports any drift against the committed one, and uploads the
 render as a workflow artifact — it never pushes. If it flags drift, regenerate locally
 with the command above and commit the result yourself.
 
+## Social preview image
+
+`docs/assets/social-preview.png` (used for the GitHub social-preview card) is rasterized
+from `docs/assets/social-preview.svg` — never hand-edited. Regenerate it with an SVG
+rasterizer, e.g. `rsvg-convert`:
+
+```bash
+rsvg-convert -w 1280 -h 640 docs/assets/social-preview.svg -o docs/assets/social-preview.png
+```
+
+`resvg` or ImageMagick's `convert` work as drop-in alternatives if `rsvg-convert` isn't on
+`PATH`. GitHub's social-preview image can't be set via `gh`/the API — after regenerating,
+upload it manually under repo **Settings → Social preview**.
+
 ## Layout
 
 Per-domain SDK lives under `src/ycli/yandex/<domain>/` — each resource group has

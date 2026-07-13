@@ -19,9 +19,10 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 
 - 🧩 **One SDK, four surfaces** — write logic once, use it as a CLI, an MCP server, a Python
   library, or a Claude Code plugin.
-- 🤖 **Agent-native** — the MCP server exposes read **and write** `tracker_*`, `wiki_*`,
-  `forms_*` tools with honest annotations (reads are marked read-only; writes declare
-  whether they are destructive/idempotent); `ycli mcp start --read-only` serves a
+- 🤖 **Agent-native** — the MCP server exposes 222 MCP tools (221 domain-scoped read
+  **and write** `tracker_*`, `wiki_*`, `forms_*` tools, one per SDK/CLI operation, plus a
+  cross-cutting `status` tool) with honest annotations (reads are marked read-only; writes
+  declare whether they are destructive/idempotent); `ycli mcp start --read-only` serves a
   reads-only view for cautious deployments.
 - 🛡️ **Trustworthy** — typed pydantic models, the real Yandex API quirks handled for you,
   and a test suite kept at **100% coverage**.
