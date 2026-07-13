@@ -53,8 +53,8 @@ Notable shared pieces:
   (the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets in `ycli.yandex.mcp`) — explicit
   because the MCP-spec default for an unannotated tool is `destructiveHint=true`. Every write
   tool carries the `write` tag; `ycli mcp start --read-only` hides the tag wholesale for
-  cautious deployments. A read-classified tool never calls a client write method
-  (AST-checked).
+  cautious deployments. A read-classified tool never calls a client write method — directly
+  or laundered one hop through a module-level helper in the same module (AST-checked).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
   appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the

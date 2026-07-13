@@ -6,6 +6,7 @@ change is intentional — update ARCHITECTURE.md and this check together in one 
 
 from __future__ import annotations
 
+import ast
 import asyncio
 import re
 from pathlib import Path
@@ -138,45 +139,112 @@ def test_arch3_write_tools_carry_write_tag():
         )
 
 
-def test_arch3_read_tools_call_no_write_methods():
-    """A read-classified tool must not invoke a client write method (AST-checked)."""
-    import ast
+_WRITE_CLASSES = frozenset({"write", "write_idempotent", "destructive"})
 
+
+def _write_method_calls(
+    node: ast.AST, module_defs: dict[str, ast.FunctionDef], seen: set[str]
+) -> list[str]:
+    """Write-method attribute names reachable from ``node``.
+
+    Collects ``.<verb>(…)`` calls whose verb classifies as a write, and **follows** bare-name
+    calls (``_helper(…)``) that resolve to a module-level ``def`` in ``module_defs`` so a write
+    laundered one hop through a same-module helper is still seen. ``seen`` guards recursion.
+    """
+    found: list[str] = []
+    for call in ast.walk(node):
+        if not isinstance(call, ast.Call):
+            continue
+        func = call.func
+        if isinstance(func, ast.Attribute) and _classify(func.attr) in _WRITE_CLASSES:
+            found.append(func.attr)
+        elif isinstance(func, ast.Name) and func.id in module_defs and func.id not in seen:
+            seen.add(func.id)
+            found.extend(_write_method_calls(module_defs[func.id], module_defs, seen))
+    return found
+
+
+def _read_tool_write_offenders(source: str) -> list[str]:
+    """Read-classified MCP tools in ``source`` that reach a client write method.
+
+    A tool is any ``@mcp.tool(name=…)``-decorated function; one without ``name=`` is itself an
+    offender. For each read-classified tool, writes reached directly or through a module-level
+    helper (see :func:`_write_method_calls`) are reported. Pure over source text so the guard
+    can be exercised on a synthetic module (the prove-it test).
+    """
+    tree = ast.parse(source)
+    module_defs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    offenders: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.FunctionDef):
+            continue
+        tool_name = None
+        for deco in node.decorator_list:
+            if (
+                isinstance(deco, ast.Call)
+                and isinstance(deco.func, ast.Attribute)
+                and deco.func.attr == "tool"
+            ):
+                names = [
+                    kw.value.value
+                    for kw in deco.keywords
+                    if kw.arg == "name"
+                    and isinstance(kw.value, ast.Constant)
+                    and isinstance(kw.value.value, str)
+                ]
+                if not names:
+                    offenders.append(f"{node.name} registers a tool without name=")
+                    continue
+                tool_name = names[0]
+        if tool_name is None or _classify(tool_name) != "read":
+            continue
+        for attr in _write_method_calls(node, module_defs, {node.name}):
+            offenders.append(f"read tool {tool_name!r} calls .{attr}(…)")
+    return offenders
+
+
+def test_arch3_read_tools_call_no_write_methods():
+    """A read-classified tool must not invoke a client write method — directly or laundered
+    through a module-level helper in the same module (AST-checked)."""
     offenders = []
     for mcp_py in YANDEX.rglob("mcp.py"):
-        tree = ast.parse(mcp_py.read_text(encoding="utf-8"))
         rel = mcp_py.relative_to(SRC)
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef):
-                continue
-            tool_name = None
-            for deco in node.decorator_list:
-                if (
-                    isinstance(deco, ast.Call)
-                    and isinstance(deco.func, ast.Attribute)
-                    and deco.func.attr == "tool"
-                ):
-                    names = [
-                        kw.value.value
-                        for kw in deco.keywords
-                        if kw.arg == "name"
-                        and isinstance(kw.value, ast.Constant)
-                        and isinstance(kw.value.value, str)
-                    ]
-                    if not names:
-                        offenders.append(f"{rel}: {node.name} registers a tool without name=")
-                        continue
-                    tool_name = names[0]
-            if tool_name is None or _classify(tool_name) != "read":
-                continue
-            for call in ast.walk(node):
-                if (
-                    isinstance(call, ast.Call)
-                    and isinstance(call.func, ast.Attribute)
-                    and _classify(call.func.attr) in {"write", "write_idempotent", "destructive"}
-                ):
-                    offenders.append(f"{rel}: read tool {tool_name!r} calls .{call.func.attr}(…)")
-    assert not offenders, f"read tools must not call client write methods: {offenders}"
+        offenders += [
+            f"{rel}: {offender}"
+            for offender in _read_tool_write_offenders(mcp_py.read_text(encoding="utf-8"))
+        ]
+    assert not offenders, f"read tools must not reach client write methods: {offenders}"
+
+
+def test_arch3_read_tool_helper_indirection_is_caught():
+    """Prove-it: a read tool laundering a write through a module-level helper trips the guard.
+
+    The old body-only walk saw only ``_helper(client)`` (a bare name) and missed the write
+    inside the helper; following module-level defs catches it. Direct writes stay caught and a
+    read-only helper stays clean.
+    """
+    laundered = (
+        "def _helper(client):\n"
+        "    client.pages.delete(page_id)\n"
+        "\n"
+        '@mcp.tool(name="pages_get")\n'
+        "def get(client):\n"
+        "    return _helper(client)\n"
+    )
+    assert _read_tool_write_offenders(laundered) == ["read tool 'pages_get' calls .delete(…)"]
+
+    direct = '@mcp.tool(name="pages_get")\ndef get(client):\n    return client.pages.delete(id)\n'
+    assert _read_tool_write_offenders(direct) == ["read tool 'pages_get' calls .delete(…)"]
+
+    clean = (
+        "def _helper(client):\n"
+        "    return client.pages.get(page_id)\n"
+        "\n"
+        '@mcp.tool(name="pages_get")\n'
+        "def get(client):\n"
+        "    return _helper(client)\n"
+    )
+    assert _read_tool_write_offenders(clean) == []
 
 
 def test_arch4_serialization_confined_to_output():
