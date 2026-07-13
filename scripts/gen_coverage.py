@@ -348,7 +348,19 @@ def _render(reports: list[DomainReport]) -> str:
     """The full inner Markdown block (without the surrounding markers)."""
     resources = sum(report.resource_count for report in reports)
     operations = sum(report.operation_count for report in reports)
-    mcp_tools = sum(report.mcp_tool_count for report in reports)
+    # The per-domain tables cover the three service domains, so their MCP counts sum to the
+    # domain-scoped `<slug>_…` tools only. The registered MCP surface also includes
+    # cross-cutting tools (e.g. `status`) that belong to no single domain; advertise the true
+    # total so the summary matches the server's registered tool count.
+    domain_mcp_tools = sum(report.mcp_tool_count for report in reports)
+    domain_prefixes = tuple(f"{report.slug}_" for report in reports)
+    cross_cutting_tools = [
+        tool for tool in _mcp_tool_names() if not tool.startswith(domain_prefixes)
+    ]
+    total_mcp_tools = domain_mcp_tools + len(cross_cutting_tools)
+    cross_cutting_names = ", ".join(
+        f"`{name}`" for name in sorted({tool.split("_", 1)[0] for tool in cross_cutting_tools})
+    )
     stats = link_stats(reports)
 
     lines = [
@@ -356,7 +368,8 @@ def _render(reports: list[DomainReport]) -> str:
         "",
         f"`ycli` wraps **{operations} operations across {resources} resources** of the Tracker, "
         f"Wiki, and Forms REST API — every one reachable from the **Python SDK** and the "
-        f"**CLI**, plus {mcp_tools} **MCP** tools for agents.",
+        f"**CLI**, plus {total_mcp_tools} **MCP** tools ({domain_mcp_tools} domain-scoped + "
+        f"{len(cross_cutting_tools)} cross-cutting: {cross_cutting_names}) for agents.",
         "",
         "> **Legend** — operations ship on **SDK + CLI**, and the **MCP** server mirrors them "
         "with honest annotations: reads carry `readOnlyHint`, writes carry explicit "
