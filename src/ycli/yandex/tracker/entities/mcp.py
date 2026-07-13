@@ -328,7 +328,7 @@ def delete(
     acknowledgement on success.
     """
     client.entities.delete(entity_type, entity_id, with_board=with_board)
-    return Ack(detail=f"deleted {entity_type} {entity_id}")
+    return Ack.deleted(entity_type, entity_id)
 
 
 @mcp.tool(
@@ -442,7 +442,7 @@ def comments_delete(
     Returns an acknowledgement on success.
     """
     client.entities.comments_delete(entity_type, entity_id, comment_id)
-    return Ack(detail=f"deleted comment {comment_id} on {entity_type} {entity_id}")
+    return Ack.deleted("comment", comment_id, on=f"{entity_type} {entity_id}")
 
 
 @mcp.tool(
@@ -577,7 +577,7 @@ def links_create(
     Returns an acknowledgement on success.
     """
     client.entities.links_create(entity_type, entity_id, body.model_dump(by_alias=True))
-    return Ack(detail=f"linked {entity_type} {entity_id}")
+    return Ack.linked(entity_type, entity_id, body.entity, body.relationship)
 
 
 @mcp.tool(
@@ -597,7 +597,7 @@ def links_delete(
     an acknowledgement on success.
     """
     client.entities.links_delete(entity_type, entity_id, right)
-    return Ack(detail=f"deleted link to {right} on {entity_type} {entity_id}")
+    return Ack.unlinked(entity_type, entity_id, right)
 
 
 @mcp.tool(
@@ -639,4 +639,4 @@ def attachments_delete(
     The API answers with an empty body; returns an acknowledgement on success.
     """
     client.entities.attachments_delete(entity_type, entity_id, file_id)
-    return Ack(detail=f"deleted attachment {file_id} on {entity_type} {entity_id}")
+    return Ack.deleted("attachment", file_id, on=f"{entity_type} {entity_id}")

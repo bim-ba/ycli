@@ -74,4 +74,4 @@ def delete(issue_key: str, link_id: str, client: TrackerClient = Depends(tracker
     Get ``link_id`` from ``remotelinks_list``. Returns an acknowledgement on success.
     """
     client.remotelinks.delete(issue_key, link_id)
-    return Ack(detail=f"deleted remote link {link_id} on {issue_key}")
+    return Ack.deleted("remote link", link_id, on=issue_key)

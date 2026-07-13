@@ -96,9 +96,7 @@ def delete(ctx: typer.Context, sprint_id: SprintIdArg) -> None:
     """Delete a sprint SPRINT_ID (DELETE /sprints/{sprint_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.sprints.delete(sprint_id=sprint_id)
-    Serializer.serialize(
-        Ack(detail=f"deleted sprint {sprint_id}"), app_ctx.strategy, app_ctx.console
-    )
+    Serializer.serialize(Ack.deleted("sprint", sprint_id), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()

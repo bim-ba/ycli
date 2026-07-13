@@ -139,4 +139,4 @@ def delete(key: str, record_id: str, client: TrackerClient = Depends(tracker_cli
     Get ``record_id`` from ``worklog_list``. Returns an acknowledgement on success.
     """
     client.worklog.delete(key, record_id)
-    return Ack(detail=f"deleted worklog record {record_id} on {key}")
+    return Ack.deleted("worklog", record_id, on=key)

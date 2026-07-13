@@ -41,4 +41,4 @@ def delete(key: str, link_id: str, client: TrackerClient = Depends(tracker_clien
     Get ``link_id`` from ``links_list``. Returns an acknowledgement on success.
     """
     client.links.delete(key, link_id)
-    return Ack(detail=f"deleted link {link_id} on {key}")
+    return Ack.deleted("link", link_id, on=key)

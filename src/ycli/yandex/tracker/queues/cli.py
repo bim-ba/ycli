@@ -124,7 +124,7 @@ def delete(ctx: typer.Context, queue_id: QueueIdArg) -> None:
     """Delete QUEUE_ID (DELETE /queues/{queue_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.queues.delete(queue_id)
-    Serializer.serialize(Ack(detail=f"deleted queue {queue_id}"), app_ctx.strategy, app_ctx.console)
+    Serializer.serialize(Ack.deleted("queue", queue_id), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -176,7 +176,7 @@ def tag_remove(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.queues.tag_remove(queue_id, QueueTagRemove(tag=tag))
     Serializer.serialize(
-        Ack(detail=f"removed tag {tag!r} from queue {queue_id}"), app_ctx.strategy, app_ctx.console
+        Ack.removed("tag", tag, from_=f"queue {queue_id}"), app_ctx.strategy, app_ctx.console
     )
 
 

@@ -195,9 +195,7 @@ def delete(
     """Delete entity ID (DELETE /entities/TYPE/ID)."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.delete(type_.value, entity_id, with_board=with_board or None)
-    Serializer.serialize(
-        Ack(detail=f"deleted {type_.value} {entity_id}"), app_ctx.strategy, app_ctx.console
-    )
+    Serializer.serialize(Ack.deleted(type_.value, entity_id), app_ctx.strategy, app_ctx.console)
 
 
 @app.command()
@@ -448,7 +446,7 @@ def comments_delete(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.comments_delete(type_.value, entity_id, comment_id)
     Serializer.serialize(
-        Ack(detail=f"deleted comment {comment_id} on {type_.value} {entity_id}"),
+        Ack.deleted("comment", comment_id, on=f"{type_.value} {entity_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )
@@ -630,7 +628,7 @@ def links_create(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.links_create(type_.value, entity_id, body=body)
     Serializer.serialize(
-        Ack(detail=f"linked {type_.value} {entity_id} -> {entity} ({relationship})"),
+        Ack.linked(type_.value, entity_id, entity, relationship),
         app_ctx.strategy,
         app_ctx.console,
     )
@@ -647,7 +645,7 @@ def links_delete(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.links_delete(type_.value, entity_id, right)
     Serializer.serialize(
-        Ack(detail=f"unlinked {type_.value} {entity_id} -> {right}"),
+        Ack.unlinked(type_.value, entity_id, right),
         app_ctx.strategy,
         app_ctx.console,
     )
@@ -731,7 +729,7 @@ def attachments_delete(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.attachments_delete(type_.value, entity_id, file_id)
     Serializer.serialize(
-        Ack(detail=f"deleted attachment {file_id} on {type_.value} {entity_id}"),
+        Ack.deleted("attachment", file_id, on=f"{type_.value} {entity_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )
