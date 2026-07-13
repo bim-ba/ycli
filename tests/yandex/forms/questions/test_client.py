@@ -10,7 +10,6 @@ from ycli.yandex.forms.questions.models import (
     EnumQuestion,
     MatrixQuestion,
     Question,
-    QuestionActionResult,
     QuestionEnumItem,
     QuestionMatrixRow,
     QuestionMove,
@@ -19,6 +18,7 @@ from ycli.yandex.forms.questions.models import (
     QuestionValidator,
     StringQuestion,
 )
+from ycli.yandex.models import Ack
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -138,9 +138,7 @@ def test_modify_patches_typed_body_and_returns_question():
 def test_delete_returns_synthesized_result():
     responses.add(responses.DELETE, f"{BASE}/surveys/{SID}/questions/17", status=204)
     out = _client().delete(SID, "17")
-    assert isinstance(out, QuestionActionResult)
-    assert out.survey_id == SID and out.question_id == "17" and out.action == "delete"
-    assert out.ok is True
+    assert out == Ack(detail=f"deleted question 17 on survey {SID}")
     assert responses.calls[0].request.method == "DELETE"
     assert "force" not in (responses.calls[0].request.url or "")
 

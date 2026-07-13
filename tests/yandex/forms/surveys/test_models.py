@@ -1,7 +1,6 @@
-"""TDD for Forms surveys write models (SurveyCreate/Update/Texts/ActionResult)."""
+"""TDD for Forms surveys write models (SurveyCreate/Update/Texts)."""
 
 from ycli.yandex.forms.surveys.models import (
-    SurveyActionResult,
     SurveyCreate,
     SurveyTexts,
     SurveyUpdate,
@@ -30,8 +29,3 @@ def test_survey_update_is_a_partial_body():
     body = SurveyUpdate(is_published=False).model_dump(exclude_none=True)
     assert body == {"is_published": False}  # PATCH sends only what was set
     assert issubclass(SurveyUpdate, SurveyCreate)
-
-
-def test_survey_action_result_defaults_ok_true():
-    result = SurveyActionResult(survey_id="686d", action="publish")
-    assert result.survey_id == "686d" and result.action == "publish" and result.ok is True

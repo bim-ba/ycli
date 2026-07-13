@@ -51,8 +51,7 @@ async def test_files_delete_tool_sends_body(creds):
     body = request.body
     assert isinstance(body, bytes)
     assert json.loads(body) == {"path": "a/b/cv.pdf"}
-    assert result.data.ok is True and result.data.action == "delete"
-    assert result.data.path == "a/b/cv.pdf"
+    assert result.data.ok is True and result.data.detail == "deleted file path=a/b/cv.pdf"
 
 
 async def test_files_tools_registered_with_honest_annotations():

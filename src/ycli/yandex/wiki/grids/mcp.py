@@ -10,6 +10,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import Ack
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -27,7 +28,6 @@ from ycli.yandex.wiki.grids.models import (
     ColumnsMove,
     ColumnsRemove,
     Grid,
-    GridActionResult,
     GridClone,
     GridCloneOperation,
     GridCreate,
@@ -134,7 +134,7 @@ def update(
 def delete(
     grid_id: GridIdParam,
     client: WikiClient = Depends(wiki_client),
-) -> GridActionResult:
+) -> Ack:
     """Delete a grid — irreversible (grids have NO recovery token, unlike pages).
 
     Verify the target with ``grids_get`` first. The API answers ``204 No Content``; the

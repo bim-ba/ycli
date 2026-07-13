@@ -6,7 +6,8 @@ import requests
 import responses
 
 from ycli.yandex.forms.files.client import FilesClient
-from ycli.yandex.forms.files.models import FileActionResult, FileIn, FileList, FileOut
+from ycli.yandex.forms.files.models import FileIn, FileList, FileOut
+from ycli.yandex.models import Ack
 
 BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
@@ -83,11 +84,10 @@ def test_download_omits_optional_query_when_unset():
 
 
 @responses.activate
-def test_delete_sends_body_and_returns_action_result():
+def test_delete_sends_body_and_returns_ack():
     responses.add(responses.DELETE, f"{BASE}/files", json={}, status=200)
     out = _client().delete(path="a/b/cv.pdf", url="https://x")
-    assert isinstance(out, FileActionResult)
-    assert out.ok is True and out.action == "delete" and out.path == "a/b/cv.pdf"
+    assert out == Ack(detail="deleted file path=a/b/cv.pdf url=https://x")
     assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "path": "a/b/cv.pdf",
         "url": "https://x",

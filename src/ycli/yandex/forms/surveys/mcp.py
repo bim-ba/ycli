@@ -17,11 +17,11 @@ from ycli.yandex.forms.dependencies import (
 )
 from ycli.yandex.forms.surveys.models import (
     Survey,
-    SurveyActionResult,
     SurveyCreate,
     SurveyList,
     SurveyUpdate,
 )
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 
 mcp = FastMCP("forms-surveys")
@@ -87,7 +87,7 @@ def modify(
     annotations={**DESTRUCTIVE, "title": "Delete Forms survey"},
     tags=WRITE_TAGS,
 )
-def delete(survey_id: str, client: FormsClient = Depends(forms_client)) -> SurveyActionResult:
+def delete(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
     """Delete a form permanently — IRREVERSIBLE: its questions and collected answers are lost.
 
     The API answers ``204 No Content``; the returned record confirms the accepted action.
@@ -98,7 +98,7 @@ def delete(survey_id: str, client: FormsClient = Depends(forms_client)) -> Surve
 @mcp.tool(
     name="surveys_publish", annotations={**WRITE, "title": "Publish Forms survey"}, tags=WRITE_TAGS
 )
-def publish(survey_id: str, client: FormsClient = Depends(forms_client)) -> SurveyActionResult:
+def publish(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
     """Publish a form so respondents can fill it; fails if the form is blocked or at its cap.
 
     The API answers a bare ``200 OK``; the returned record confirms the accepted action.
@@ -112,7 +112,7 @@ def publish(survey_id: str, client: FormsClient = Depends(forms_client)) -> Surv
     annotations={**WRITE, "title": "Unpublish Forms survey"},
     tags=WRITE_TAGS,
 )
-def unpublish(survey_id: str, client: FormsClient = Depends(forms_client)) -> SurveyActionResult:
+def unpublish(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
     """Take a published form offline (respondents can no longer fill it); reversible via publish.
 
     The API answers a bare ``200 OK``; the returned record confirms the accepted action.

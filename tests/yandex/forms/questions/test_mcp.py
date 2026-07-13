@@ -111,7 +111,7 @@ async def test_questions_delete_tool_forwards_force(creds):
     parsed = urlparse(url)
     assert parsed.path.endswith(f"/surveys/{SID}/questions/17")
     assert parse_qs(parsed.query) == {"force": ["true"]}
-    assert result.data.ok is True and result.data.action == "delete"
+    assert result.data.ok is True and result.data.detail == f"deleted question 17 on survey {SID}"
 
 
 @responses.activate
