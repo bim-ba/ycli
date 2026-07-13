@@ -546,7 +546,10 @@ async def test_entities_links_create_tool_returns_ack(creds):
             "entities_links_create",
             {"entity_type": "project", "entity_id": "655f", "body": body},
         )
-    assert result.data.ok is True and "655f" in result.data.detail
+    # Assert the richer unified form (target + relationship) — proves the MCP surface no
+    # longer emits the old lossy `linked {type} {id}` string.
+    assert result.data.ok is True
+    assert "655f" in result.data.detail and "-> 658 (relates)" in result.data.detail
     assert responses.calls[0].request.method == "POST"
     assert responses.calls[0].request.url == f"{BASE}/entities/project/655f/links"
     assert json.loads(responses.calls[0].request.body) == body  # ty: ignore[invalid-argument-type]
