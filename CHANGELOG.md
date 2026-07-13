@@ -9,6 +9,57 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.13.1 (2026-07-13)
+
+### Bug Fixes
+
+- Floor negative --limit to default cap; bump fastmcp lock to 3.4.4
+  ([#44](https://github.com/bim-ba/ycli/pull/44),
+  [`c129022`](https://github.com/bim-ba/ycli/commit/c1290229f467f0ef7f93568b619d4b89a635ca06))
+
+### Build System
+
+- Re-lock uv.lock for 0.13.0
+  ([`2c5c1f2`](https://github.com/bim-ba/ycli/commit/2c5c1f2a62d8f0c8fc16bee9ead196811a772a01))
+
+- **deps**: Bump the actions group with 3 updates ([#34](https://github.com/bim-ba/ycli/pull/34),
+  [`9a8b9de`](https://github.com/bim-ba/ycli/commit/9a8b9dedeb9c6d192adc658d9b5b8166b22ea3bd))
+
+### Chores
+
+- AI-environment ergonomics — scope perms, throttle graphify hook, harden git_guard
+  ([#47](https://github.com/bim-ba/ycli/pull/47),
+  [`61c8512`](https://github.com/bim-ba/ycli/commit/61c851220c6d2480252fd61ce3518c83ed8d8bf1))
+
+- **drift-log**: Codify typed MCP write-tool body; close open drift entry
+  ([#42](https://github.com/bim-ba/ycli/pull/42),
+  [`bd0447c`](https://github.com/bim-ba/ycli/commit/bd0447cbd9e41c75af0d6a695d25cd34ad8b2be7))
+
+### Documentation
+
+- Advertise 222 MCP tools, bump plugin version, document social-preview regen
+  ([#45](https://github.com/bim-ba/ycli/pull/45),
+  [`cf0be28`](https://github.com/bim-ba/ycli/commit/cf0be28103397f9f452d11f58f0e0bec04f8a6c9))
+
+- Base-cleanup design spec + implementation plan ([#43](https://github.com/bim-ba/ycli/pull/43),
+  [`3b11ac6`](https://github.com/bim-ba/ycli/commit/3b11ac6feb2ca1702de0ed132140ff72a87f6503))
+
+- Restructure README, delete internal notes, deep-link coverage tables
+  ([#41](https://github.com/bim-ba/ycli/pull/41),
+  [`fbec717`](https://github.com/bim-ba/ycli/commit/fbec717763469a00ccf088be19b5846e924a6f2a))
+
+### Refactoring
+
+- Rename cfg MCP-tool param to config ([#46](https://github.com/bim-ba/ycli/pull/46),
+  [`5eeaf5a`](https://github.com/bim-ba/ycli/commit/5eeaf5ab760c317aebeae827a78341cfc6fe6248))
+
+### Testing
+
+- Harden ARCH conformance harness (op-parity, helper-follow, print-guard, strict-markers)
+  ([#48](https://github.com/bim-ba/ycli/pull/48),
+  [`8494c88`](https://github.com/bim-ba/ycli/commit/8494c880fe5d4c6016588f94728b626c267baa25))
+
+
 ## v0.13.0 (2026-07-13)
 
 ### Bug Fixes
