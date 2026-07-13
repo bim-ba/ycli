@@ -144,4 +144,4 @@ def scroll_clear(body: ScrollClear, client: TrackerClient = Depends(tracker_clie
     ``issues.search`` response. Returns an acknowledgement on success.
     """
     client.issues.scroll_clear(body.model_dump())
-    return Ack(detail="scroll contexts cleared")
+    return Ack.cleared("search scroll resources")

@@ -182,6 +182,4 @@ def scroll_clear(
     """
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.issues.scroll_clear(parse_fields(pair))
-    Serializer.serialize(
-        Ack(detail="cleared search scroll resources"), app_ctx.strategy, app_ctx.console
-    )
+    Serializer.serialize(Ack.cleared("search scroll resources"), app_ctx.strategy, app_ctx.console)

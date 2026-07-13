@@ -98,4 +98,4 @@ def delete(board_id: int, column_id: int, client: TrackerClient = Depends(tracke
     Returns an acknowledgement on success.
     """
     client.columns.delete(board_id=board_id, column_id=column_id)
-    return Ack(detail=f"deleted column {column_id} on board {board_id}")
+    return Ack.deleted("column", column_id, on=f"board {board_id}")

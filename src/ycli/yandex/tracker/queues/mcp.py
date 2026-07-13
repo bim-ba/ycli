@@ -180,7 +180,7 @@ def delete(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Ac
     acknowledgement on success.
     """
     client.queues.delete(queue_id)
-    return Ack(detail=f"deleted queue {queue_id}")
+    return Ack.deleted("queue", queue_id)
 
 
 @mcp.tool(
@@ -224,7 +224,7 @@ def tag_remove(
     acknowledgement on success.
     """
     client.queues.tag_remove(queue_id, body)
-    return Ack(detail=f"removed tag {body.tag!r} from queue {queue_id}")
+    return Ack.removed("tag", body.tag, from_=f"queue {queue_id}")
 
 
 @mcp.tool(

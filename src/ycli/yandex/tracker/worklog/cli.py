@@ -136,5 +136,5 @@ def delete(ctx: typer.Context, key: KeyArg, record_id: RecordIdArg) -> None:
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.worklog.delete(key, record_id)
     Serializer.serialize(
-        Ack(detail=f"deleted worklog {record_id} on {key}"), app_ctx.strategy, app_ctx.console
+        Ack.deleted("worklog", record_id, on=key), app_ctx.strategy, app_ctx.console
     )

@@ -86,7 +86,7 @@ def delete(ctx: typer.Context, board_id: BoardIdArg, column_id: ColumnIdArg) -> 
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.columns.delete(board_id=board_id, column_id=column_id)
     Serializer.serialize(
-        Ack(detail=f"deleted column {column_id} on board {board_id}"),
+        Ack.deleted("column", column_id, on=f"board {board_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )

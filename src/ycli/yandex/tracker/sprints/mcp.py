@@ -95,7 +95,7 @@ def delete(sprint_id: int, client: TrackerClient = Depends(tracker_client)) -> A
     Returns an acknowledgement on success.
     """
     client.sprints.delete(sprint_id=sprint_id)
-    return Ack(detail=f"deleted sprint {sprint_id}")
+    return Ack.deleted("sprint", sprint_id)
 
 
 @mcp.tool(

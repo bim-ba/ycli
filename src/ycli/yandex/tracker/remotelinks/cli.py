@@ -69,5 +69,5 @@ def delete(
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.remotelinks.delete(key, link_id)
     Serializer.serialize(
-        Ack(detail=f"deleted remote link {link_id} on {key}"), app_ctx.strategy, app_ctx.console
+        Ack.deleted("remote link", link_id, on=key), app_ctx.strategy, app_ctx.console
     )
