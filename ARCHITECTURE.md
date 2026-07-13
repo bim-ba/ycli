@@ -63,9 +63,14 @@ Notable shared pieces:
   *Carve-outs:* (a) a bare `print(int)` for a scalar `count` result is fine — it is not model
   output and needs no Serializer wrapping; (b) a **binary download** command writes raw
   `bytes` to a file/stdout via `ycli.cli.binary.write_output` (attachments, exports, keyset
-  files) — bytes are not a model, so they bypass the Serializer too. Neither path touches the
-  three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` / `json.dumps` only
-  in `output.py`; CLI command bodies render model output via `Serializer.serialize`.
+  files) — bytes are not a model, so they bypass the Serializer too; (c) the `wiki pages get`
+  command prints a page's **raw YFM markdown** body (`….content`) with a bare `print(` — the
+  body is already a string (not a model to render) and is pinned this way so a piped/demo
+  render stays verbatim. These three files with an allowed bare print
+  (`tracker/issues/cli.py`, `wiki/pages/cli.py`) are the closed allowlist; no other path
+  touches the three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` /
+  `json.dumps` only in `output.py`; CLI command bodies render model output via
+  `Serializer.serialize`, and no `cli.py` outside the carve-out allowlist uses a bare `print(`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).
