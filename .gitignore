@@ -58,3 +58,6 @@ PROMPT.md
 # rebuild recipe so the GLM-5.2 graph is reproducible.
 /.graphify/*
 !/.graphify/rebuild.sh
+
+# internal living plan/backlog — not shipped (see README/CONTRIBUTING/git for user-facing)
+/STATE.md

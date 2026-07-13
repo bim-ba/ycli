@@ -88,5 +88,13 @@ Per-domain SDK lives under `src/ycli/yandex/<domain>/` — each resource group h
 `client.py` (uplink SDK), `cli.py` (Typer), `mcp.py` (FastMCP), `models.py` (pydantic).
 The distributable Claude Code plugin is under `plugins/yandex-360/`.
 
-See [`docs/api-coverage.md`](docs/api-coverage.md) for the current coverage gap analysis
-and roadmap — a great place to find a first contribution.
+The [README Coverage section](README.md#coverage) is generated from the code and is the
+source of truth for what's wrapped. A few Yandex features have **no public REST API** and are
+deliberately not wrapped — please don't try to add them:
+
+- **Tracker** — `DELETE /issues/{key}`, `GET /issues` (bulk list), `PATCH /queues/{id}`
+  (phantom paths that appear only in the navigation-only doc tree, not the API reference).
+- **Wiki** — full-text search and page history/versions listing (UI-only).
+- **Forms** — appearance/themes and analytics/charts (UI-only).
+
+Everything else that the api-ref documents is fair game — add it with `/new-endpoint`.

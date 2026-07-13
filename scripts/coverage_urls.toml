@@ -1,0 +1,417 @@
+# Public Yandex 360 API-reference deep links for the README Coverage tables.
+#
+# Consumed by scripts/gen_coverage.py to turn every resource/operation name in the
+# generated COVERAGE block into a link to the official docs. This file is the single
+# maintained source of those links (the vendored api-ref under references/ is
+# git-ignored, so it cannot be read at generation time).
+#
+# Derivation
+# ----------
+# Each value is a path RELATIVE TO
+#     https://yandex.ru/support/{domain}/en/api-ref/
+# with the trailing ".md" dropped. The vendored source for the same page is
+#     references/yandex-360/{domain}/ru/api-ref/{path}.md
+# whose front-matter `alternate:` lists the canonical en/ru URLs. The English
+# (`/en/`) pages were spot-checked to return 200 for all three domains (2026-07-13).
+#
+# Keys
+# ----
+# Tables:      [<domain>.<resource>]  where <domain> is tracker|wiki|forms and
+#              <resource> is the DISPLAY name (e.g. `import`, not `import_`).
+# `resource`:  links the resource name to its api-ref landing page.
+# `operations.<op>`: links that operation, where <op> is the SDK operation name
+#              exactly as introspected by gen_coverage (`_sdk_operations`).
+#
+# Rendering rules (enforced by gen_coverage.py)
+# ---------------------------------------------
+# * an operation with its own `operations.<op>` entry links to that endpoint page;
+# * an operation with no entry falls back to the resource's `resource` link;
+# * a resource with no `resource` value (and its ops) render as plain text — never a
+#   guessed/broken link. gen_coverage `--check` prints the plain-text gaps and
+#   tests/test_coverage_links.py pins them so a new gap is surfaced, not silent.
+#
+# /new-endpoint authors: add the new resource's `resource` + `operations.*` paths
+# here so its README row deep-links like the rest.
+
+# ─────────────────────────────── Tracker ────────────────────────────────
+[tracker.issues]
+resource = "issues/get-issue"
+operations.get = "issues/get-issue"
+operations.search = "issues/search-issues"
+operations.count = "issues/count-issues"
+operations.create = "issues/create-issue"
+operations.update = "issues/patch-issue"
+operations.move = "issues/move-issue"
+operations.suggest = "issues/get-suggest"
+operations.scroll_clear = "issues/search-release"
+
+[tracker.comments]
+resource = "issues/get-comments"
+operations.list = "issues/get-comments"
+operations.add = "issues/add-comment"
+operations.edit = "issues/edit-comment"
+operations.delete = "issues/delete-comment"
+operations.react = "issues/add-reaction-to-comment"
+
+[tracker.links]
+resource = "issues/get-links"
+operations.list = "issues/get-links"
+operations.add = "issues/link-issue"
+operations.delete = "issues/delete-link-issue"
+
+[tracker.transitions]
+resource = "issues/get-transitions"
+operations.list = "issues/get-transitions"
+operations.execute = "issues/new-transition"
+
+[tracker.worklog]
+resource = "issues/issue-worklog"
+operations.list = "issues/issue-worklog"
+operations.search = "issues/get-worklog"
+operations.global_list = "issues/get-worklog"
+operations.create = "issues/new-worklog"
+operations.edit = "issues/patch-worklog"
+operations.delete = "issues/delete-worklog"
+
+[tracker.changelog]
+resource = "issues/get-changelog"
+operations.list = "issues/get-changelog"
+
+[tracker.checklists]
+resource = "issues/get-checklist"
+operations.get = "issues/get-checklist"
+operations.create = "issues/add-checklist-item"
+operations.edit = "issues/edit-checklist"
+operations.delete = "issues/delete-checklist-item"
+operations.clear = "issues/delete-checklist"
+
+[tracker.attachments]
+resource = "issues/get-attachments-list"
+operations.list = "issues/get-attachments-list"
+operations.download = "issues/get-attachment"
+operations.download_thumbnail = "issues/get-attachment-preview"
+
+[tracker.remotelinks]
+resource = "issues/get-external-links"
+operations.list = "issues/get-external-links"
+operations.create = "issues/add-external-link"
+operations.delete = "issues/delete-external-link"
+
+[tracker.boards]
+resource = "boards/get-boards"
+operations.list = "boards/get-boards"
+operations.get = "boards/get-board"
+operations.create = "boards/post-board"
+operations.edit = "boards/patch-board"
+operations.delete = "boards/delete-board"
+
+[tracker.sprints]
+resource = "boards/get-sprints"
+operations.list = "boards/get-sprints"
+operations.get = "boards/get-sprint"
+operations.create = "boards/post-sprint"
+operations.edit = "boards/patch-sprint"
+operations.delete = "boards/delete-sprint"
+operations.start = "boards/start-sprint"
+operations.archive = "boards/archive-sprint"
+
+[tracker.columns]
+resource = "boards/get-columns"
+operations.list = "boards/get-columns"
+operations.get = "boards/get-column"
+operations.create = "boards/post-column"
+operations.edit = "boards/patch-column"
+operations.delete = "boards/delete-column"
+
+[tracker.priorities]
+resource = "admin/get-priorities"
+operations.list = "admin/get-priorities"
+operations.create = "admin/create-priority"
+operations.edit = "admin/patch-priority"
+
+[tracker.statuses]
+resource = "admin/get-statuses"
+operations.list = "admin/get-statuses"
+operations.create = "admin/create-status"
+operations.edit = "admin/patch-status"
+
+[tracker.resolutions]
+resource = "admin/get-resolutions"
+operations.list = "admin/get-resolutions"
+operations.create = "admin/create-resolution"
+operations.edit = "admin/patch-resolution"
+
+[tracker.issuetypes]
+resource = "admin/get-issue-types"
+operations.list = "admin/get-issue-types"
+operations.create = "admin/create-issue-type"
+operations.edit = "admin/patch-issue-type"
+
+# linktypes: no public api-ref page exists (rendered as plain text — see the gap list).
+
+[tracker.fields]
+resource = "issues/get-global-fields"
+operations.list = "issues/get-global-fields"
+operations.get = "issues/get-issue-fields"
+operations.create = "issues/create-field"
+operations.edit = "issues/patch-issue-field-name"
+operations.category_create = "issues/create-issue-field-category"
+operations.category_edit = "issues/patch-issue-field-category"
+
+[tracker.localfields]
+resource = "queues/get-local-fields"
+operations.list = "queues/get-local-fields"
+operations.get = "queues/get-info-local-field"
+operations.create = "queues/create-local-field"
+operations.edit = "queues/edit-local-field"
+
+[tracker.components]
+resource = "queues/get-components"
+operations.list = "queues/get-components"
+operations.create = "queues/post-component"
+operations.edit = "queues/patch-component"
+
+[tracker.queues]
+resource = "queues/get-queues"
+operations.list = "queues/get-queues"
+operations.get = "queues/get-queue"
+operations.tags = "queues/get-tags"
+operations.versions = "queues/get-versions"
+operations.fields = "queues/get-fields"
+operations.create = "queues/create-queue"
+operations.delete = "queues/delete-queue"
+operations.restore = "queues/restore-queue"
+operations.set_permissions = "queues/manage-access"
+operations.tag_remove = "queues/delete-tag"
+operations.version_create = "queues/create-version"
+
+[tracker.macros]
+resource = "get-macroses"
+operations.list = "get-macroses"
+operations.get = "get-macros"
+operations.create = "post-macros"
+operations.edit = "patch-macros"
+operations.delete = "delete-macros"
+
+[tracker.triggers]
+resource = "queues/get-trigger"
+operations.get = "queues/get-trigger"
+operations.create = "queues/create-trigger"
+operations.edit = "queues/change-trigger"
+operations.webhook_log = "queues/view-trigger-logs"
+
+[tracker.autoactions]
+resource = "queues/get-autoaction"
+operations.get = "queues/get-autoaction"
+operations.create = "queues/create-autoaction"
+operations.logs = "queues/view-autoaction-logs"
+operations.log_detail = "queues/view-autoaction-logs"
+
+[tracker.dashboards]
+resource = "dashboards/create-dashboard"
+operations.create = "dashboards/create-dashboard"
+operations.add_cycle_time_widget = "dashboards/create-widget"
+
+[tracker.bulk]
+resource = "bulkchange/bulk-update-issues"
+operations.update = "bulkchange/bulk-update-issues"
+operations.move = "bulkchange/bulk-move-issues"
+operations.transition = "bulkchange/bulk-transition"
+operations.get = "bulkchange/bulk-move-info"
+operations.issues = "bulkchange/bulk-move-info"
+
+[tracker.import]
+resource = "import/import-ticket"
+operations.task = "import/import-ticket"
+operations.comment = "import/import-comments"
+operations.link = "import/import-links"
+operations.worklog = "import/import-worklogs"
+operations.file = "import/import-attachments"
+
+[tracker.entities]
+resource = "entities/about-entities"
+operations.create = "entities/create-entity"
+operations.get = "entities/get-entity"
+operations.edit = "entities/update-entity"
+operations.delete = "entities/delete-entity"
+operations.search = "entities/search-entities"
+operations.history = "entities/get-events-relative"
+operations.permissions = "entities/get-access"
+operations.set_permissions = "entities/patch-access"
+operations.bulk_update = "entities/bulkchange-entities"
+operations.bulk_status = "entities/bulkchange-entities"
+operations.comments_list = "entities/comments/get-all-comments"
+operations.comments_relative = "entities/comments/get-all-comments"
+operations.comments_get = "entities/comments/get-comment"
+operations.comments_create = "entities/comments/add-comment"
+operations.comments_edit = "entities/comments/patch-comment"
+operations.comments_delete = "entities/comments/delete-comment"
+operations.checklists_create = "entities/checklists/add-checklist"
+operations.checklists_edit = "entities/checklists/patch-checklist"
+operations.checklists_edit_item = "entities/checklists/patch-checklist-item"
+operations.checklists_delete = "entities/checklists/delete-checklist"
+operations.checklists_delete_item = "entities/checklists/delete-checklist-item"
+operations.checklists_move = "entities/checklists/move-checklist-item"
+operations.links_list = "entities/links/get-links"
+operations.links_create = "entities/links/add-links"
+operations.links_delete = "entities/links/delete-link"
+operations.attachments_list = "entities/attachments/get-all-attachments"
+operations.attachments_get = "entities/attachments/get-attachment"
+operations.attachments_attach = "entities/attachments/add-attachment"
+operations.attachments_delete = "entities/attachments/delete-attachment"
+# create_report (POST /entities/report/) and attachment_download (raw bytes) have no
+# dedicated api-ref page — they fall back to the entities landing link above.
+
+[tracker.users]
+resource = "users/get-users"
+operations.get = "users/get-user"
+operations.list = "users/get-users"
+
+[tracker.applications]
+resource = "issues/get-applications"
+operations.list = "issues/get-applications"
+
+[tracker.filters]
+resource = "filters/get-filter"
+operations.get = "filters/get-filter"
+operations.create = "filters/create-filter"
+operations.edit = "filters/update-filter"
+
+[tracker.me]
+resource = "users/get-user-info"
+operations.get = "users/get-user-info"
+
+# ───────────────────────────────── Wiki ─────────────────────────────────
+[wiki.pages]
+resource = "pages/pages__get_page_details"
+operations.get_by_id = "pages/pages__get_page_details_by_id"
+operations.get = "pages/pages__get_page_details"
+operations.descendants = "pages/pages__descendants_by_slug"
+operations.descendants_by_id = "pages/pages__descendants_by_id"
+operations.grids = "pages/pages__page_grids"
+operations.create = "pages/pages__create_page"
+operations.update = "pages/pages__update_page_details"
+operations.delete = "pages/pages__delete_page"
+operations.append_content = "pages/pages__append_content"
+operations.clone = "pages/pages__clone_page"
+
+[wiki.resources]
+resource = "pagesresources/pagesresources__resources"
+operations.list = "pagesresources/pagesresources__resources"
+
+[wiki.recovery]
+resource = "recovery_tokens/recovery_tokens__recover_page_by_token"
+operations.restore = "recovery_tokens/recovery_tokens__recover_page_by_token"
+
+[wiki.comments]
+resource = "comments/pagescomments__comments"
+operations.list = "comments/pagescomments__comments"
+operations.thread = "comments/pagescomments__thread_comments"
+operations.create = "comments/pagescomments__create_comment"
+operations.delete = "comments/pagescomments__delete_comment"
+
+[wiki.attachments]
+resource = "attachments/pagesattachments__attachments"
+operations.list = "attachments/pagesattachments__attachments"
+operations.download = "attachments/pagesattachments__download_by_file_id"
+operations.download_by_url = "attachments/pagesattachments__download_by_filename_slug_pair"
+operations.delete = "attachments/pagesattachments__delete_attach"
+operations.attach = "attachments/pagesattachments__attach_file"
+# upload is a convenience wrapper over upload-sessions + attach (no single endpoint);
+# it falls back to the attachments landing link.
+
+[wiki.grids]
+resource = "grids/grids__get_grid"
+operations.get = "grids/grids__get_grid"
+operations.create = "grids/grids__create_grid"
+operations.update = "grids/grids__update_grid"
+operations.delete = "grids/grids__delete_grid"
+operations.add_rows = "grids/grids__add_rows"
+operations.remove_rows = "grids/grids__remove_rows"
+operations.move_rows = "grids/grids__move_rows"
+operations.add_columns = "grids/grids__add_columns"
+operations.remove_columns = "grids/grids__remove_columns"
+operations.move_columns = "grids/grids__move_columns"
+operations.update_cells = "grids/grids__update_cells"
+operations.clone = "grids/grids__clone_grid"
+
+[wiki.operations]
+resource = "operations/operations__get_clone_operation_status"
+operations.clone_get = "operations/operations__get_clone_operation_status"
+operations.gridclone_get = "operations/operations__get_clone_inline_grid_operation_status"
+
+[wiki.uploadsessions]
+resource = "upload_sessions/upload_sessions__create_upload_session"
+operations.create = "upload_sessions/upload_sessions__create_upload_session"
+operations.get = "upload_sessions/upload_sessions__get_upload_session"
+operations.upload_part = "upload_sessions/upload_sessions__upload_part"
+operations.finish = "upload_sessions/upload_sessions__complete_multipart_upload"
+operations.abort = "upload_sessions/upload_sessions__abort_multipart_upload"
+operations.abort_all = "upload_sessions/upload_sessions__abort_all"
+
+[wiki.me]
+resource = "users/users__me"
+operations.get = "users/users__me"
+
+# ──────────────────────────────── Forms ─────────────────────────────────
+[forms.surveys]
+resource = "surveys/events_b2b_v1_views_surveys_get_surveys_public_view"
+operations.list = "surveys/events_b2b_v1_views_surveys_get_surveys_public_view"
+operations.get = "surveys/events_b2b_v1_views_surveys_get_survey_public_view"
+operations.create = "surveys/events_b2b_v1_views_surveys_create_survey_public_view"
+operations.modify = "surveys/events_b2b_v1_views_surveys_modify_survey_public_view"
+operations.delete = "surveys/events_b2b_v1_views_surveys_delete_survey_public_view"
+operations.publish = "surveys/events_b2b_v1_views_surveys_publish_survey_public_view"
+operations.unpublish = "surveys/events_b2b_v1_views_surveys_unpublish_survey_public_view"
+
+[forms.questions]
+resource = "questions/events_b2b_v1_views_questions_get_questions_public_view"
+operations.get = "questions/events_b2b_v1_views_questions_get_question_public_view"
+operations.list = "questions/events_b2b_v1_views_questions_get_questions_public_view"
+operations.create = "questions/events_b2b_v1_views_questions_create_question_public_view"
+operations.modify = "questions/events_b2b_v1_views_questions_modify_question_public_view"
+operations.delete = "questions/events_b2b_v1_views_questions_delete_question_public_view"
+operations.move = "questions/events_b2b_v1_views_questions_move_question_public_view"
+
+[forms.answers]
+resource = "answers/events_b2b_v1_views_answers_get_answers_public_view"
+operations.get = "answers/events_b2b_v1_views_answers_get_answer_public_view"
+operations.list = "answers/events_b2b_v1_views_answers_get_answers_public_view"
+operations.list_all = "answers/events_b2b_v1_views_answers_get_answers_public_view"
+operations.export = "answers/events_b2b_v1_views_answers_export_answers_public_view"
+operations.export_results = "answers/events_b2b_v1_views_answers_export_answers_results_public_view"
+operations.download_export = "answers/events_b2b_v1_views_answers_export_answers_results_public_view"
+
+[forms.operations]
+resource = "operations/events_v1_views_operations_get_operation_view"
+operations.get = "operations/events_v1_views_operations_get_operation_view"
+
+[forms.keysets]
+resource = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"
+operations.list = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"
+operations.get = "keysets/events_b2b_v1_views_keysets_get_keyset_public_view"
+operations.create = "keysets/events_b2b_v1_views_keysets_create_keyset_public_view"
+operations.modify = "keysets/events_b2b_v1_views_keysets_modify_keyset_public_view"
+operations.delete = "keysets/events_b2b_v1_views_keysets_delete_keyset_public_view"
+operations.download = "keysets/events_b2b_v1_views_keysets_download_keyset_public_view"
+
+[forms.filling]
+resource = "filling/events_v1_views_frontend_get_form_view"
+operations.get = "filling/events_v1_views_frontend_get_form_view"
+operations.submit = "filling/events_b2b_v1_views_surveys_submit_form_public_view"
+operations.suggest = "filling/events_b2b_v1_views_surveys_get_suggest_public_view"
+
+[forms.files]
+resource = "files/events_b2b_v1_views_files_get_file_public_view"
+operations.upload = "files/events_b2b_v1_views_surveys_save_survey_file_public_view"
+operations.verify = "files/events_b2b_v1_views_surveys_verify_file_public_view"
+operations.download = "files/events_b2b_v1_views_files_get_file_public_view"
+operations.delete = "files/events_b2b_v1_views_files_delete_file_public_view"
+
+[forms.images]
+resource = "images/events_b2b_v1_views_surveys_create_image_public_view"
+operations.upload = "images/events_b2b_v1_views_surveys_create_image_public_view"
+
+[forms.me]
+resource = "users/events_v1_views_users_get_user_view"
+operations.get = "users/events_v1_views_users_get_user_view"
