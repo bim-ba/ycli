@@ -128,7 +128,12 @@ review cover the rest):
   the client through a local alias (`res = app_ctx.tracker.issues; res.get(…)`) instead of the
   canonical `….<resource>.<op>(…)` chain is not seen as coverage, so it would surface as a
   (false) asymmetry — flagged deliberately, so the non-standard wrapping has to be made explicit
-  (wired straight, or allowlisted).
+  (wired straight, or allowlisted). The silent false-*negative* twin: an unrelated same-named
+  `X.<resource>.<op>(…)` chain elsewhere in the surface file could satisfy the structural match
+  and mask a genuinely-missing wrapper. The same receiver-chain heuristic (a call is a client
+  op only when its receiver names a known resource) also backs the ARCH-3 read-tool backstop, so
+  a client write verb (`update`/`add`/`clear`/…) is not confused with the like-named container
+  method on a bare local.
 - **ARCH-5 is single-source-of-truth, not secret scanning.** It catches hardcoded `__version__`,
   `YANDEX_ID_*` assignments, and org-header strings — not an arbitrary raw token literal (that is
   the job of the token-leak guard, a separate piece of work).

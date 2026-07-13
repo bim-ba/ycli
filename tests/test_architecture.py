@@ -88,8 +88,17 @@ def _load_gen_coverage():
     spec = importlib.util.spec_from_file_location("gen_coverage", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module  # dataclasses need the module registered to resolve fields
-    spec.loader.exec_module(module)
+    # Registration is needed only *during* exec so gen_coverage's dataclasses can resolve their
+    # fields; scope the side effect by restoring any prior sys.modules entry afterwards.
+    saved = sys.modules.get(spec.name)
+    sys.modules[spec.name] = module
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if saved is not None:
+            sys.modules[spec.name] = saved
+        else:
+            sys.modules.pop(spec.name, None)
     return module
 
 
@@ -279,23 +288,37 @@ def test_arch3_write_tools_carry_write_tag():
 
 
 _WRITE_CLASSES = frozenset({"write", "write_idempotent", "destructive"})
+# Every resource attribute name (== resource directory name). A write verb only counts when its
+# receiver chain resolves to one of these — i.e. the call is `….<resource>.<op>(…)`, the same
+# structural-receiver signal ARCH-1 parity uses. This stops a client write-verb (`update`,
+# `add`, `clear`, `remove`, `set`, `move`, `append`) from being confused with the identically
+# named Python container method on a bare local (`result.append(row)`, `acc.update(d)`).
+_RESOURCE_NAMES = frozenset(d.name for d in _resource_dirs())
 
 
 def _write_method_calls(
     node: ast.AST, module_defs: dict[str, ast.FunctionDef], seen: set[str]
 ) -> list[str]:
-    """Write-method attribute names reachable from ``node``.
+    """Client write-method names reachable from ``node``.
 
-    Collects ``.<verb>(…)`` calls whose verb classifies as a write, and **follows** bare-name
-    calls (``_helper(…)``) that resolve to a module-level ``def`` in ``module_defs`` so a write
-    laundered one hop through a same-module helper is still seen. ``seen`` guards recursion.
+    Collects ``….<resource>.<verb>(…)`` calls whose verb classifies as a write — the receiver
+    must be an attribute access naming a known resource (a bare local/builtin container receiver
+    like ``result.append(…)`` is ignored, so a same-named container method is not mistaken for a
+    client write) — and **follows** bare-name calls (``_helper(…)``) that resolve to a
+    module-level ``def`` in ``module_defs`` so a write laundered one hop through a same-module
+    helper is still seen. ``seen`` guards recursion.
     """
     found: list[str] = []
     for call in ast.walk(node):
         if not isinstance(call, ast.Call):
             continue
         func = call.func
-        if isinstance(func, ast.Attribute) and _classify(func.attr) in _WRITE_CLASSES:
+        if (
+            isinstance(func, ast.Attribute)
+            and isinstance(func.value, ast.Attribute)
+            and func.value.attr in _RESOURCE_NAMES
+            and _classify(func.attr) in _WRITE_CLASSES
+        ):
             found.append(func.attr)
         elif isinstance(func, ast.Name) and func.id in module_defs and func.id not in seen:
             seen.add(func.id)
@@ -384,6 +407,45 @@ def test_arch3_read_tool_helper_indirection_is_caught():
         "    return _helper(client)\n"
     )
     assert _read_tool_write_offenders(clean) == []
+
+
+def test_arch3_container_methods_are_not_writes():
+    """Prove-it: a read tool whose helper builds a plain collection is not mis-flagged.
+
+    ``result.append(row)`` / ``acc.update(d)`` / ``seen.add(x)`` share names with client write
+    verbs but are container methods on bare locals — a write verb only counts when its receiver
+    chain names a known resource. A real ``self.client.<resource>.delete`` laundered through the
+    same helper is still caught, so pagination/collection helpers stay legal without opening a
+    hole.
+    """
+    container_only = (
+        "def _collect(client):\n"
+        "    result = []\n"
+        "    result.append(row)\n"
+        "    acc.update(d)\n"
+        "    seen.add(x)\n"
+        "    return result\n"
+        "\n"
+        '@mcp.tool(name="pages_list")\n'
+        "def list_(client):\n"
+        "    return _collect(client)\n"
+    )
+    assert _read_tool_write_offenders(container_only) == []
+
+    laundered_via_self = (
+        "def _collect(self):\n"
+        "    result = []\n"
+        "    result.append(row)\n"
+        "    self.client.pages.delete(page_id)\n"
+        "    return result\n"
+        "\n"
+        '@mcp.tool(name="pages_list")\n'
+        "def list_(self):\n"
+        "    return _collect(self)\n"
+    )
+    assert _read_tool_write_offenders(laundered_via_self) == [
+        "read tool 'pages_list' calls .delete(…)"
+    ]
 
 
 def test_arch4_serialization_confined_to_output():
