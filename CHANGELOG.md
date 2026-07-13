@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.16.0 (2026-07-13)
+
+### Build System
+
+- Re-lock uv.lock for 0.15.0
+  ([`2c7d435`](https://github.com/bim-ba/ycli/commit/2c7d435c064a52717c0775d4c43aa7d624dd0e2e))
+
+### Refactoring
+
+- Pagination fold+clamp, shared not-found guard, QuestionMove errors on bare position
+  ([#51](https://github.com/bim-ba/ycli/pull/51),
+  [`c938228`](https://github.com/bim-ba/ycli/commit/c9382284fd742007e1c4e6dbf515bd6e87d5fbfe))
+
+### Breaking Changes
+
+- MCP tool questions_move now returns a validation error when called with only 'position' (no
+  page/page_id/question/create_page) instead of silently retargeting to page 1. The CLI is
+  unaffected (defaults to page 1 visibly).
+
+
 ## v0.15.0 (2026-07-13)
 
 ### Build System
