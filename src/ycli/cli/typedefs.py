@@ -11,5 +11,7 @@ from typing import Annotated
 
 import typer
 
-LimitOption = Annotated[int, typer.Option(help="Max items to fetch; 0 uses the default cap.")]
+LimitOption = Annotated[
+    int, typer.Option(min=0, help="Max items to fetch; 0 uses the default cap.")
+]
 AllOption = Annotated[bool, typer.Option("--all", help="Fetch everything, ignoring the cap.")]

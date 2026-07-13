@@ -17,6 +17,13 @@ def test_resolve_cap_limit_wins_then_default():
     assert resolve_cap(0, 500) == 500
 
 
+def test_resolve_cap_floors_negative_to_default():
+    assert resolve_cap(-5, 500) == 500
+    assert resolve_cap(0, 500) == 500
+    assert resolve_cap(10, 500) == 10
+    assert resolve_cap(10, 500, all_=True) is None
+
+
 def test_cursor_strategy_drains_until_no_cursor():
     pages = {
         None: {"results": [1, 2], "next_cursor": "c1"},
