@@ -123,6 +123,31 @@ class Ack(APIModel):
         return cls(detail=f"cleared {what}")
 
 
+def require_found[M](result: M, *, sentinel: Callable[[M], bool], message: str) -> M:
+    """Turn an all-None "lenient 404" model into a clean not-found error.
+
+    Several Forms/Tracker models parse leniently — a 404 or an empty 2xx body deserializes
+    into an all-None model instead of the transport raising — so every MCP ``get``-style tool
+    over such a model must guard for that itself. ``sentinel`` decides what "empty" means for
+    that model (e.g. ``lambda r: r.id is None``); the caller composes ``message`` so the
+    wording stays specific to the resource being fetched.
+
+    Example:
+        >>> class _Result:
+        ...     value = None
+        >>> require_found(_Result(), sentinel=lambda r: r.value is None, message="not found")
+        Traceback (most recent call last):
+            ...
+        ValueError: not found
+        >>> _Result.value = "x"
+        >>> require_found(_Result(), sentinel=lambda r: r.value is None, message="x").value
+        'x'
+    """
+    if sentinel(result):
+        raise ValueError(message)
+    return result
+
+
 def _extract(field: str) -> Callable[[Any], Any]:
     """A ``BeforeValidator`` that pulls ``field`` out of an API wrapper object.
 

@@ -9,6 +9,7 @@ from pydantic import Field
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
 from ycli.yandex.forms.operations.models import OperationResult
+from ycli.yandex.models import require_found
 
 mcp = FastMCP("forms-operations")
 
@@ -33,8 +34,9 @@ def get(
     result = client.operations.get(operation_id)
     # Forms models are fully lenient — a 404 / empty body deserializes into an all-None
     # OperationResult rather than raising; turn that into a clean not-found error.
-    if result.id is None:
-        raise ValueError(
-            f"operation {operation_id!r} not found (empty response — check the id or permissions)"
-        )
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.id is None,
+        message=f"operation {operation_id!r} not found "
+        "(empty response — check the id or permissions)",
+    )

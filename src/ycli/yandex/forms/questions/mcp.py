@@ -23,7 +23,7 @@ from ycli.yandex.forms.questions.models import (
     QuestionMoveResult,
     QuestionsResponse,
 )
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-questions")
 
@@ -53,12 +53,12 @@ def get(
     result = client.questions.get(survey_id, question_id)
     # A 404 / empty body deserializes into an all-None Question (lenient model) rather than
     # raising; turn that into a clean not-found error instead of a phantom empty object.
-    if result.id is None:
-        raise ValueError(
-            f"question {question_id!r} not found in survey {survey_id!r} "
-            "(empty response — check ids or permissions)"
-        )
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.id is None,
+        message=f"question {question_id!r} not found in survey {survey_id!r} "
+        "(empty response — check ids or permissions)",
+    )
 
 
 @mcp.tool(

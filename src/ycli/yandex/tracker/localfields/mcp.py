@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -66,12 +67,12 @@ def get(
         >>> localfields_get("ORG", "loc_field_key")  # doctest: +SKIP
     """
     result = client.localfields.get(queue_id, field_key)
-    if result.key is None and result.id is None:
-        raise ValueError(
-            f"local field {field_key!r} not found in queue {queue_id!r} "
-            "(got empty response — check keys or permissions)"
-        )
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.key is None and r.id is None,
+        message=f"local field {field_key!r} not found in queue {queue_id!r} "
+        "(got empty response — check keys or permissions)",
+    )
 
 
 @mcp.tool(

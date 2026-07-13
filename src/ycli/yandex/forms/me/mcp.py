@@ -6,6 +6,7 @@ from fastmcp.dependencies import Depends
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
 from ycli.yandex.forms.me.models import User
+from ycli.yandex.models import require_found
 
 mcp = FastMCP("forms-me")
 
@@ -16,6 +17,8 @@ def get(client: FormsClient = Depends(forms_client)) -> User:
     result = client.me.get()
     # Forms models are fully lenient, so a 401/4xx deserializes into an all-None User
     # instead of raising. Guard so the auth probe actually fails on failure.
-    if result.id is None:
-        raise ValueError("auth probe failed — empty user (check YANDEX_ID_OAUTH_TOKEN)")
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.id is None,
+        message="auth probe failed — empty user (check YANDEX_ID_OAUTH_TOKEN)",
+    )

@@ -18,6 +18,7 @@ from ycli.yandex.forms.filling.models import (
     SubmitResult,
     SuggestionList,
 )
+from ycli.yandex.models import require_found
 
 mcp = FastMCP("forms-filling")
 
@@ -48,12 +49,12 @@ def get(
     result = client.filling.get(survey, key=key)
     # A 404 / empty body deserializes into an all-None FillableForm (lenient model) rather than
     # raising; turn that into a clean not-found error instead of a phantom empty object.
-    if result.id is None:
-        raise ValueError(
-            f"fillable form {survey!r} not found (empty response — check the id/slug, "
-            "the fill key, or whether the form is published)"
-        )
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.id is None,
+        message=f"fillable form {survey!r} not found (empty response — check the id/slug, "
+        "the fill key, or whether the form is published)",
+    )
 
 
 @mcp.tool(

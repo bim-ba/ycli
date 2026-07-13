@@ -3,7 +3,7 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -35,9 +35,11 @@ def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     safety (e.g. incorrect permissions returning a blank object instead of a 403).
     """
     result = client.issues.get(key)
-    if result.key is None:
-        raise ValueError(f"issue {key!r} not found (got empty response — check key or permissions)")
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.key is None,
+        message=f"issue {key!r} not found (got empty response — check key or permissions)",
+    )
 
 
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"}, tags=TAGS)
