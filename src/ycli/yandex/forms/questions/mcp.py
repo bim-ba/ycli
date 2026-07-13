@@ -23,7 +23,7 @@ from ycli.yandex.forms.questions.models import (
     QuestionMoveResult,
     QuestionsResponse,
 )
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-questions")
 
@@ -53,12 +53,12 @@ def get(
     result = client.questions.get(survey_id, question_id)
     # A 404 / empty body deserializes into an all-None Question (lenient model) rather than
     # raising; turn that into a clean not-found error instead of a phantom empty object.
-    if result.id is None:
-        raise ValueError(
-            f"question {question_id!r} not found in survey {survey_id!r} "
-            "(empty response — check ids or permissions)"
-        )
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.id is None,
+        message=f"question {question_id!r} not found in survey {survey_id!r} "
+        "(empty response — check ids or permissions)",
+    )
 
 
 @mcp.tool(
@@ -142,9 +142,10 @@ def move(
 ) -> QuestionMoveResult:
     """Reposition a question on the form (target page + position); returns the moved question's id.
 
-    ``body.position`` needs a page target to take effect — the API silently ignores a bare
-    position (200, nothing moves) — so ``page`` defaults to 1 when only ``position`` is given.
-    Display-condition consistency is validated server-side — moving a question above one its
-    conditions depend on is rejected.
+    ``body.position`` needs a page target to take effect — the underlying API silently ignores
+    a bare position (200, nothing moves) — so ``QuestionMove`` raises a validation error if
+    ``position`` is set with no ``page`` / ``page_id`` / ``question`` / ``create_page`` target;
+    pass one explicitly (e.g. ``page=1``). Display-condition consistency is validated
+    server-side — moving a question above one its conditions depend on is rejected.
     """
     return client.questions.move(survey_id, question_id, body)

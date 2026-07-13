@@ -65,6 +65,14 @@ def test_list_respects_limit_within_first_page():
 
 
 @responses.activate
+def test_list_clamps_per_page_to_a_small_limit():
+    """A small ``limit`` narrows the first request's ``perPage`` instead of always asking 100."""
+    responses.add(responses.GET, f"{BASE}/issues/DE-1/worklog", json=[], status=200)
+    _client().list("DE-1", limit=3)
+    assert responses.calls[0].request.params["perPage"] == "3"  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
 def test_list_terminates_when_last_record_has_no_id():
     """A last record with a null id yields no cursor, so the walk stops after one page."""
     responses.add(

@@ -5,7 +5,6 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 import uplink
 
-from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.changelog.models import ChangelogList
 
@@ -35,12 +34,12 @@ class ChangelogClient(TrackerResource):
             >>> client.changelog.list(key="DATAENGINEERING-1").root[0].updated_by  # doctest: +SKIP
             'Сава Знатнов'
         """
-        strategy = RelativeCursorStrategy(
+        entries = self._drain_relative(
             extract=lambda page: page.root,
             id_of=lambda entry: entry.id,
-        )
-        entries = strategy.collect(
-            lambda cursor: self._page(key, per_page=100, change_id=cursor),
-            limit,
+            fetch_page=lambda cursor, per_page: self._page(
+                key, per_page=per_page, change_id=cursor
+            ),
+            limit=limit,
         )
         return ChangelogList(entries)

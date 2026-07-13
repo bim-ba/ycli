@@ -6,7 +6,6 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 import requests
 import uplink
 
-from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.worklog.models import Worklog, WorklogList
 
@@ -36,13 +35,13 @@ class WorklogClient(TrackerResource):
             >>> client.worklog.list(key="DATAENGINEERING-1").root[0].duration  # doctest: +SKIP
             'PT2H'
         """
-        strategy = RelativeCursorStrategy(
+        records = self._drain_relative(
             extract=lambda page: page.root,
             id_of=lambda record: str(record.id) if record.id is not None else None,
-        )
-        records = strategy.collect(
-            lambda cursor: self._page(key, per_page=100, record_id=cursor),
-            limit,
+            fetch_page=lambda cursor, per_page: self._page(
+                key, per_page=per_page, record_id=cursor
+            ),
+            limit=limit,
         )
         return WorklogList(records)
 

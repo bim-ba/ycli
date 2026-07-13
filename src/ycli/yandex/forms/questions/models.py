@@ -549,15 +549,19 @@ class QuestionMove(APIModel):
     """Typed body for ``POST …/questions/{id}/move`` — where to reposition the question.
 
     A bare ``position`` with no page target is a **silent no-op** live: the API answers 200
-    but moves nothing. To keep ``position``-only moves working, ``page`` defaults to 1 when
-    ``position`` is set and no target (``page`` / ``page_id`` / ``create_page`` / ``question``)
-    is given.
+    but moves nothing. Rather than paper over that with a hidden default, this model RAISES
+    when ``position`` is set and no target (``page`` / ``page_id`` / ``create_page`` /
+    ``question``) is given — the caller must pick a target. The CLI ``move`` command defaults
+    ``page`` to 1 for a bare ``--position`` *visibly*, before constructing this model; an MCP
+    caller passing position-only gets this validation error instead of a silent re-page.
 
     Example:
         >>> QuestionMove(page=2, position=1).position
         1
-        >>> QuestionMove(position=1).page  # bare position targets page 1
-        1
+        >>> QuestionMove(position=1)  # doctest: +IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
+            ...
+        pydantic_core._pydantic_core.ValidationError: 1 validation error for QuestionMove
     """
 
     question: int | str | None = Field(
@@ -565,8 +569,8 @@ class QuestionMove(APIModel):
     )
     page: int | None = Field(
         default=None,
-        description="Target page number (1-based). Defaults to 1 when only ``position`` is "
-        "set — the API silently ignores a bare position.",
+        description="Target page number (1-based). Required (or another target) when "
+        "``position`` is set — the API silently ignores a bare position.",
     )
     page_id: int | None = Field(default=None, description="Target page ID.")
     create_page: bool | None = Field(
@@ -577,8 +581,8 @@ class QuestionMove(APIModel):
     )
 
     @model_validator(mode="after")
-    def _default_page_for_bare_position(self) -> QuestionMove:
-        """Target page 1 for a bare ``position`` — the API 200s-but-ignores it otherwise."""
+    def _require_target_for_position(self) -> QuestionMove:
+        """Reject a bare ``position`` — the API 200s-but-silently-ignores it otherwise."""
         no_target = (
             self.page is None
             and self.page_id is None
@@ -586,7 +590,10 @@ class QuestionMove(APIModel):
             and not self.create_page
         )
         if self.position is not None and no_target:
-            self.page = 1
+            raise ValueError(
+                "question move needs a target: pass page / page_id / question / create_page "
+                "(a bare position is a silent no-op live)"
+            )
         return self
 
 

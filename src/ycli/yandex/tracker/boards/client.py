@@ -6,7 +6,6 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 import requests
 import uplink
 
-from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
 
@@ -35,13 +34,13 @@ class BoardsClient(TrackerResource):
             >>> client.boards.list(limit=50).root[0].name  # doctest: +SKIP
             'My board'
         """
-        strategy = RelativeCursorStrategy(
+        boards = self._drain_relative(
             extract=lambda page: page.root,
             id_of=lambda board: str(board.id) if board.id is not None else None,
-        )
-        boards = strategy.collect(
-            lambda cursor: self._paginate_page(per_page=100, board_id=cursor),
-            limit,
+            fetch_page=lambda cursor, per_page: self._paginate_page(
+                per_page=per_page, board_id=cursor
+            ),
+            limit=limit,
         )
         return BoardList(boards)
 

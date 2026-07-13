@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, require_found
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -84,11 +84,11 @@ def get(
         >>> queues_get("TEST", expand="all")  # doctest: +SKIP
     """
     result = client.queues.get(queue_id, expand=expand or None)
-    if result.key is None and result.id is None:
-        raise ValueError(
-            f"queue {queue_id!r} not found (got empty response — check key/id or permissions)"
-        )
-    return result
+    return require_found(
+        result,
+        sentinel=lambda r: r.key is None and r.id is None,
+        message=f"queue {queue_id!r} not found (got empty response — check key/id or permissions)",
+    )
 
 
 @mcp.tool(

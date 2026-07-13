@@ -302,8 +302,9 @@ def test_move_question():
 
 @responses.activate
 def test_move_question_bare_position_defaults_page_to_1():
-    """``--position`` without ``--page`` used to 200-but-move-nothing live; the body now
-    defaults page to 1 so the move takes effect."""
+    """``--position`` without ``--page`` would 200-but-move-nothing live; the CLI now sets
+    ``page=1`` visibly before constructing ``QuestionMove`` (which itself raises on a bare
+    position with no target) so the move still takes effect."""
     responses.add(
         responses.POST, f"{BASE}/surveys/{SID}/questions/17/move", json={"id": 17}, status=200
     )
