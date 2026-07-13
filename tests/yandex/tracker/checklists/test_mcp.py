@@ -2,11 +2,14 @@
 
 import json
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.checklists import mcp as checklists_mcp
+
+pytestmark = pytest.mark.integration
 
 
 async def test_checklists_get_registered_read_only():

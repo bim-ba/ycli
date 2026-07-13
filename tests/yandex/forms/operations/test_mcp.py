@@ -8,6 +8,8 @@ from fastmcp.exceptions import ToolError
 from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.operations import mcp as operations_mcp
 
+pytestmark = pytest.mark.integration
+
 OID = "op-4a1b"
 
 

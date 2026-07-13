@@ -9,6 +9,8 @@ from fastmcp import Client
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.grids import mcp as grids_mcp
 
+pytestmark = pytest.mark.integration
+
 GID = "g-uuid"
 
 

@@ -9,6 +9,8 @@ from fastmcp import Client
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.comments import mcp as comments_mcp
 
+pytestmark = pytest.mark.integration
+
 
 @responses.activate
 async def test_comments_create_tool(creds):

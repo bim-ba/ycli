@@ -1,10 +1,13 @@
 """Wiki /recovery_tokens FastMCP subserver tests — the ``recovery_restore`` write tool."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.recovery import mcp as recovery_mcp
+
+pytestmark = pytest.mark.integration
 
 
 @responses.activate

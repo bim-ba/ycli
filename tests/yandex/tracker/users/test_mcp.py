@@ -1,10 +1,13 @@
 """TDD for the tracker users MCP subserver (fastmcp Client against the resource subserver)."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.users import mcp as users_mcp
+
+pytestmark = pytest.mark.integration
 
 
 @responses.activate

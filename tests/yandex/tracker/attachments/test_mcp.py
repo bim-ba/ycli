@@ -1,10 +1,13 @@
 """TDD for the tracker attachments MCP subserver — LIST tool only, read-only, no downloads."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.attachments import mcp as attachments_mcp
+
+pytestmark = pytest.mark.integration
 
 
 @responses.activate
