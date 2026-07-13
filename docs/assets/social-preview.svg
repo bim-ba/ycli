@@ -1,108 +1,61 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="ycli social preview">
-  <title>ycli — One Yandex 360 toolkit, four ways to use it</title>
+  <title>ycli — one Yandex toolkit, four ways to use it</title>
+
+  <!-- Fonts are pinned explicitly: on the author's machine `monospace`/`SF Mono` both
+       resolve to Noto Sans Mono, so we name it directly for a deterministic render.
+       Regenerate the PNG with scripts/gen_social_preview.sh — never hand-edit the PNG. -->
 
   <!-- Background -->
   <rect width="1280" height="640" fill="#1e1e2e"/>
 
-  <!-- Subtle top accent bar -->
+  <!-- Top accent bar -->
   <rect width="1280" height="4" fill="#cba6f7"/>
 
-  <!-- Decorative grid dots (subtle texture) -->
-  <g fill="#313244" opacity="0.6">
-    <!-- Row pattern - sparse dot grid -->
-    <circle cx="60" cy="60" r="2"/><circle cx="120" cy="60" r="2"/><circle cx="180" cy="60" r="2"/>
-    <circle cx="240" cy="60" r="2"/><circle cx="300" cy="60" r="2"/><circle cx="360" cy="60" r="2"/>
-    <circle cx="420" cy="60" r="2"/><circle cx="480" cy="60" r="2"/><circle cx="540" cy="60" r="2"/>
-    <circle cx="600" cy="60" r="2"/><circle cx="660" cy="60" r="2"/><circle cx="720" cy="60" r="2"/>
-    <circle cx="780" cy="60" r="2"/><circle cx="840" cy="60" r="2"/><circle cx="900" cy="60" r="2"/>
-    <circle cx="960" cy="60" r="2"/><circle cx="1020" cy="60" r="2"/><circle cx="1080" cy="60" r="2"/>
-    <circle cx="1140" cy="60" r="2"/><circle cx="1200" cy="60" r="2"/>
-    <circle cx="60" cy="580" r="2"/><circle cx="120" cy="580" r="2"/><circle cx="180" cy="580" r="2"/>
-    <circle cx="240" cy="580" r="2"/><circle cx="300" cy="580" r="2"/><circle cx="360" cy="580" r="2"/>
-    <circle cx="420" cy="580" r="2"/><circle cx="480" cy="580" r="2"/><circle cx="540" cy="580" r="2"/>
-    <circle cx="600" cy="580" r="2"/><circle cx="660" cy="580" r="2"/><circle cx="720" cy="580" r="2"/>
-    <circle cx="780" cy="580" r="2"/><circle cx="840" cy="580" r="2"/><circle cx="900" cy="580" r="2"/>
-    <circle cx="960" cy="580" r="2"/><circle cx="1020" cy="580" r="2"/><circle cx="1080" cy="580" r="2"/>
-    <circle cx="1140" cy="580" r="2"/><circle cx="1200" cy="580" r="2"/>
+  <!-- Sparse dot texture (symmetric about x=640) -->
+  <g fill="#313244" opacity="0.55">
+    <circle cx="100" cy="44" r="2"/><circle cx="220" cy="44" r="2"/><circle cx="340" cy="44" r="2"/><circle cx="460" cy="44" r="2"/><circle cx="580" cy="44" r="2"/><circle cx="700" cy="44" r="2"/><circle cx="820" cy="44" r="2"/><circle cx="940" cy="44" r="2"/><circle cx="1060" cy="44" r="2"/><circle cx="1180" cy="44" r="2"/>
+    <circle cx="100" cy="596" r="2"/><circle cx="220" cy="596" r="2"/><circle cx="340" cy="596" r="2"/><circle cx="460" cy="596" r="2"/><circle cx="580" cy="596" r="2"/><circle cx="700" cy="596" r="2"/><circle cx="820" cy="596" r="2"/><circle cx="940" cy="596" r="2"/><circle cx="1060" cy="596" r="2"/><circle cx="1180" cy="596" r="2"/>
   </g>
 
-  <!-- Main title: ycli -->
-  <text
-    x="640" y="210"
-    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
-    font-size="120"
-    font-weight="bold"
-    fill="#cdd6f4"
-    text-anchor="middle"
-    dominant-baseline="middle"
-    letter-spacing="-2">ycli</text>
+  <!-- Wordmark -->
+  <text x="640" y="168"
+    font-family="'Noto Sans Mono', 'JetBrainsMono Nerd Font', ui-monospace, 'DejaVu Sans Mono', monospace"
+    font-size="88" font-weight="bold" fill="#cdd6f4"
+    text-anchor="middle" dominant-baseline="middle" letter-spacing="-2">ycli</text>
 
   <!-- Tagline -->
-  <text
-    x="640" y="330"
-    font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
-    font-size="28"
-    fill="#a6adc8"
-    text-anchor="middle"
-    dominant-baseline="middle">One Yandex 360 toolkit — four ways to use it</text>
+  <text x="640" y="240"
+    font-family="'Noto Sans', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="23" fill="#a6adc8"
+    text-anchor="middle" dominant-baseline="middle">One Yandex toolkit — four ways to use it</text>
 
-  <!-- Four pill labels -->
-  <!-- CLI pill -->
-  <rect x="315" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="315" y="400" width="140" height="52" rx="10" fill="none" stroke="#89b4fa" stroke-width="1.5"/>
-  <text
-    x="385" y="427"
-    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
-    font-size="20"
-    font-weight="bold"
-    fill="#89b4fa"
-    text-anchor="middle"
-    dominant-baseline="middle">CLI</text>
+  <!-- Four surface pills (block centered on x=640: x 352..928) -->
+  <g font-family="'Noto Sans Mono', 'JetBrainsMono Nerd Font', ui-monospace, 'DejaVu Sans Mono', monospace"
+     font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="middle">
+    <rect x="352" y="280" width="132" height="46" rx="10" fill="#313244" stroke="#89b4fa" stroke-width="1.5"/><text x="418" y="304" fill="#89b4fa">CLI</text>
+    <rect x="500" y="280" width="132" height="46" rx="10" fill="#313244" stroke="#cba6f7" stroke-width="1.5"/><text x="566" y="304" fill="#cba6f7">MCP</text>
+    <rect x="648" y="280" width="132" height="46" rx="10" fill="#313244" stroke="#a6e3a1" stroke-width="1.5"/><text x="714" y="304" fill="#a6e3a1">SDK</text>
+    <rect x="796" y="280" width="132" height="46" rx="10" fill="#313244" stroke="#f9e2af" stroke-width="1.5"/><text x="862" y="304" fill="#f9e2af">Plugin</text>
+  </g>
 
-  <!-- MCP pill -->
-  <rect x="485" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="485" y="400" width="140" height="52" rx="10" fill="none" stroke="#cba6f7" stroke-width="1.5"/>
-  <text
-    x="555" y="427"
-    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
-    font-size="20"
-    font-weight="bold"
-    fill="#cba6f7"
-    text-anchor="middle"
-    dominant-baseline="middle">MCP</text>
+  <!-- Covered services — bright and prominent -->
+  <text x="640" y="388"
+    font-family="'Noto Sans Mono', 'JetBrainsMono Nerd Font', ui-monospace, 'DejaVu Sans Mono', monospace"
+    font-size="27" font-weight="bold" fill="#cdd6f4"
+    text-anchor="middle" dominant-baseline="middle">Tracker · Wiki · Forms</text>
 
-  <!-- SDK pill -->
-  <rect x="655" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="655" y="400" width="140" height="52" rx="10" fill="none" stroke="#a6e3a1" stroke-width="1.5"/>
-  <text
-    x="725" y="427"
-    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
-    font-size="20"
-    font-weight="bold"
-    fill="#a6e3a1"
-    text-anchor="middle"
-    dominant-baseline="middle">SDK</text>
+  <!-- Roadmap label -->
+  <text x="640" y="432"
+    font-family="'Noto Sans Mono', 'JetBrainsMono Nerd Font', ui-monospace, 'DejaVu Sans Mono', monospace"
+    font-size="13" fill="#7f849c"
+    text-anchor="middle" dominant-baseline="middle" letter-spacing="4">Building…</text>
 
-  <!-- Plugin pill -->
-  <rect x="825" y="400" width="140" height="52" rx="10" fill="#313244"/>
-  <rect x="825" y="400" width="140" height="52" rx="10" fill="none" stroke="#f9e2af" stroke-width="1.5"/>
-  <text
-    x="895" y="427"
-    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
-    font-size="20"
-    font-weight="bold"
-    fill="#f9e2af"
-    text-anchor="middle"
-    dominant-baseline="middle">Plugin</text>
-
-  <!-- Services line -->
-  <text
-    x="640" y="518"
-    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
-    font-size="16"
-    fill="#6c7086"
-    text-anchor="middle"
-    dominant-baseline="middle">Tracker · Wiki · Forms</text>
+  <!-- Planned services — quiet -->
+  <g font-family="'Noto Sans Mono', 'JetBrainsMono Nerd Font', ui-monospace, 'DejaVu Sans Mono', monospace"
+     font-size="16" fill="#6c7086" text-anchor="middle" dominant-baseline="middle">
+    <text x="640" y="466">Admin · Disk · Telemost · ID · Metrika · DataLens · Market · Direct · Audience · Webmaster</text>
+    <text x="640" y="496">Weather · Speller · Tanker · Schedules · SafeBrowsing · Dialogs · Games · Travel · Video · AdMetrica · RTB</text>
+  </g>
 
   <!-- Bottom accent bar -->
   <rect x="0" y="636" width="1280" height="4" fill="#313244"/>
