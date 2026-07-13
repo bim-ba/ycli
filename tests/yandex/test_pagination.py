@@ -59,6 +59,22 @@ def test_cursor_strategy_empty_string_cursor_is_not_terminal():
     assert out == [1, 2]  # "" is followed, not treated as exhausted
 
 
+def test_cursor_strategy_stops_on_non_advancing_cursor():
+    """A ``next`` cursor that repeats one already seen terminates the drain (no infinite loop).
+
+    Without the ``seen`` guard, ``limit=None`` on a self-looping cursor would fetch the same
+    page forever. Mirrors :func:`test_next_url_strategy_drains_and_dedupes_self_loops`.
+    """
+    pages = {
+        None: {"results": [1], "next_cursor": "c1"},
+        "c1": {"results": [2], "next_cursor": "c1"},  # non-advancing self-loop
+    }
+    out = CursorStrategy(
+        extract=lambda p: p["results"], next_of=lambda p: p["next_cursor"]
+    ).collect(lambda cursor: pages[cursor], limit=None)
+    assert out == [1, 2]  # stops after re-seeing "c1"; does not loop forever
+
+
 def test_next_url_strategy_drains_and_dedupes_self_loops():
     pages = {
         "start": {"answers": [1], "next": {"next_url": "p2"}},
@@ -219,3 +235,19 @@ def test_relative_cursor_last_item_without_id_terminates():
         id_of=lambda item: item.get("id"),  # last item yields None → stop
     ).collect(lambda cursor: [{"id": None}], limit=None)
     assert out == [{"id": None}]
+
+
+def test_relative_cursor_stops_on_non_advancing_id():
+    """A last-item id that repeats one already seen terminates the drain (no infinite loop).
+
+    Without the ``seen`` guard, an id-cursor endpoint that keeps returning the same last id
+    would re-fetch the same page forever under ``limit=None``.
+    """
+    pages = {
+        None: [{"id": "a"}],
+        "a": [{"id": "a"}],  # same last id → non-advancing
+    }
+    out = RelativeCursorStrategy(extract=lambda p: p, id_of=lambda item: item["id"]).collect(
+        lambda cursor: pages[cursor], limit=None
+    )
+    assert out == [{"id": "a"}, {"id": "a"}]  # stops after re-seeing id "a"
