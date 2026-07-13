@@ -18,12 +18,12 @@ from ycli.yandex.forms.dependencies import (
 )
 from ycli.yandex.forms.questions.models import (
     Question,
-    QuestionActionResult,
     QuestionCreate,
     QuestionMove,
     QuestionMoveResult,
     QuestionsResponse,
 )
+from ycli.yandex.models import Ack
 
 mcp = FastMCP("forms-questions")
 
@@ -120,7 +120,7 @@ def delete(
         ),
     ] = False,
     client: FormsClient = Depends(forms_client),
-) -> QuestionActionResult:
+) -> Ack:
     """Delete a question from a form; refuses if display conditions reference it unless ``force``.
 
     The API answers ``204 No Content``; the returned record confirms the accepted action.

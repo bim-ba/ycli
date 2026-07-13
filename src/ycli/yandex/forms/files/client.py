@@ -13,7 +13,8 @@ import requests
 import uplink
 
 from ycli.yandex.forms.base import FormsResource
-from ycli.yandex.forms.files.models import FileActionResult, FileIn, FileList, FileOut
+from ycli.yandex.forms.files.models import FileIn, FileList, FileOut
+from ycli.yandex.models import Ack
 
 
 class FilesClient(FormsResource):
@@ -100,12 +101,13 @@ class FilesClient(FormsResource):
     def _delete(self, body: uplink.Body) -> requests.Response:  # ty: ignore[empty-body]
         """Raw ``DELETE /files`` from a ready body; internal — callers use :meth:`delete`."""
 
-    def delete(self, *, path: str | None = None, url: str | None = None) -> FileActionResult:
-        """``DELETE /files`` (body ``{path, url}``) → a typed :class:`FileActionResult`.
+    def delete(self, *, path: str | None = None, url: str | None = None) -> Ack:
+        """``DELETE /files`` (body ``{path, url}``) → an :class:`Ack`.
 
         Deletes an attached file, identified by ``path`` and/or ``url``. The API answers
         ``200 OK`` with no useful body, so the result is synthesized; a non-2xx status raises a
-        typed ``YandexError`` before this returns.
+        typed ``YandexError`` before this returns. ``detail`` names whichever of ``path`` / ``url``
+        were passed, so no identifying information the caller gave is lost.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
@@ -113,4 +115,6 @@ class FilesClient(FormsResource):
             True
         """
         self._delete(FileIn(path=path, url=url).model_dump(exclude_none=True))
-        return FileActionResult(path=path, url=url, action="delete")
+        fields = (("path", path), ("url", url))
+        ident = " ".join(f"{name}={value}" for name, value in fields if value)
+        return Ack.deleted("file", ident)

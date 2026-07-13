@@ -13,7 +13,8 @@ from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, TAGS, WRITE_TAGS, forms_client
-from ycli.yandex.forms.files.models import FileActionResult, FileIn, FileList
+from ycli.yandex.forms.files.models import FileIn, FileList
+from ycli.yandex.models import Ack
 
 mcp = FastMCP("forms-files")
 
@@ -45,7 +46,7 @@ def delete(
     ] = None,
     url: Annotated[str | None, Field(description="File download URL.")] = None,
     client: FormsClient = Depends(forms_client),
-) -> FileActionResult:
+) -> Ack:
     """Delete a stored form-filling file, identified by its ``path`` and/or ``url``.
 
     At least one of ``path`` / ``url`` must identify the file. The API answers ``200 OK`` with

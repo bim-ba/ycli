@@ -96,7 +96,7 @@ async def test_surveys_delete_tool(creds):
         result = await client.call_tool("surveys_delete", {"survey_id": SID})
     request = responses.calls[0].request
     assert request.method == "DELETE" and request.url == f"{BASE}/surveys/{SID}"
-    assert result.data.ok is True and result.data.action == "delete"
+    assert result.data.ok is True and result.data.detail == f"deleted survey {SID}"
 
 
 @responses.activate
@@ -106,7 +106,7 @@ async def test_surveys_publish_tool(creds):
         result = await client.call_tool("surveys_publish", {"survey_id": SID})
     request = responses.calls[0].request
     assert request.method == "POST" and request.url == f"{BASE}/surveys/{SID}/publish"
-    assert result.data.ok is True and result.data.action == "publish"
+    assert result.data.ok is True and result.data.detail == f"published survey {SID}"
 
 
 @responses.activate
@@ -116,7 +116,7 @@ async def test_surveys_unpublish_tool(creds):
         result = await client.call_tool("surveys_unpublish", {"survey_id": SID})
     request = responses.calls[0].request
     assert request.method == "POST" and request.url == f"{BASE}/surveys/{SID}/unpublish"
-    assert result.data.ok is True and result.data.action == "unpublish"
+    assert result.data.ok is True and result.data.detail == f"unpublished survey {SID}"
 
 
 async def test_surveys_tools_registered_with_honest_annotations():

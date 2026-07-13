@@ -599,19 +599,3 @@ class QuestionMoveResult(APIModel):
     """
 
     id: int | None = Field(default=None, description="ID of the moved question.")
-
-
-class QuestionActionResult(APIModel):
-    """Synthesized result of the bodyless ``DELETE …/questions/{id}`` (``204 No Content``).
-
-    The API returns no body, so the client fabricates this typed record for the CLI to render.
-
-    Example:
-        >>> QuestionActionResult(survey_id="686d", question_id=17).ok
-        True
-    """
-
-    survey_id: str = Field(description="Id of the form the question belonged to.")
-    question_id: int | str = Field(description="Id of the deleted question.")
-    action: str = Field(default="delete", description="Action performed: delete.")
-    ok: bool = Field(default=True, description="True when the API accepted the action (2xx).")

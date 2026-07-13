@@ -9,7 +9,6 @@ from ycli.yandex.wiki.grids.models import (
     ColumnsMove,
     ColumnsRemove,
     Grid,
-    GridActionResult,
     GridClone,
     GridCloneOperation,
     GridCreate,
@@ -189,10 +188,6 @@ def test_grid_parses_structure_and_rows():
 
 def test_grid_row_defaults_empty():
     assert GridRow().row == []
-
-
-def test_grid_action_result_ok_default():
-    assert GridActionResult(grid_id="g1", action="delete").ok is True
 
 
 def test_grid_clone_operation_parses_identity():

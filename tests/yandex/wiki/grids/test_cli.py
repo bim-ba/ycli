@@ -127,7 +127,7 @@ def test_grids_delete_emits_result():
     responses.add(responses.DELETE, f"{BASE}/grids/{GID}", status=204)
     result = runner.invoke(cli.app, ["--format", "json", "wiki", "grids", "delete", GID])
     assert result.exit_code == 0
-    assert json.loads(result.stdout)["action"] == "delete"
+    assert json.loads(result.stdout) == {"ok": True, "detail": f"deleted grid {GID}"}
 
 
 @responses.activate

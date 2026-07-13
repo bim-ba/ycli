@@ -1,6 +1,6 @@
-"""TDD for Forms files models (FileOut / FileList / FileIn / FileActionResult)."""
+"""TDD for Forms files models (FileOut / FileList / FileIn)."""
 
-from ycli.yandex.forms.files.models import FileActionResult, FileIn, FileList, FileOut
+from ycli.yandex.forms.files.models import FileIn, FileList, FileOut
 
 
 def test_file_out_parses_all_fields():
@@ -17,8 +17,3 @@ def test_file_list_is_flat_root():
 
 def test_file_in_drops_unset_on_dump():
     assert FileIn(path="p").model_dump(exclude_none=True) == {"path": "p"}
-
-
-def test_file_action_result_defaults_ok_true():
-    result = FileActionResult(path="p", url="u")
-    assert result.ok is True and result.action == "delete"
