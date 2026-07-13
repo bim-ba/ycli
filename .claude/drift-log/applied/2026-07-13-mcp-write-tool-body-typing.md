@@ -1,12 +1,15 @@
 ---
 date: 2026-07-13
-status: OPEN
+status: APPLIED
 priority: MEDIUM
 trigger: 8
 session_context: adding MCP write tools across tracker/wiki/forms to mirror the SDK (drop ARCH-3 read-only)
 affected_source:
   - docs/conventions/resources.md
   - ARCHITECTURE.md
+applied_date: 2026-07-13
+applied_in: docs/conventions/resources.md §4 "Typed request body — never `dict`"
+disposition: applied
 ---
 
 ## What diverged
@@ -47,3 +50,14 @@ a `@mcp.tool`-decorated function has a parameter annotated `dict`/`dict[...]` ot
 than the documented binary/`Annotated` forms. Backfill the ~25 existing `body: dict`
 tracker tools (tracked as follow-up #1 in
 `docs/superpowers/specs/2026-07-12-improvement-roadmap.md`).
+
+## Resolution
+
+Codified the convention in `docs/conventions/resources.md` §4 as a new "Typed request body
+— never `dict`" subsection: an MCP write tool's body parameter is the resource's typed
+pydantic request model (the same one the CLI builds), with `Base64Bytes` the only exception,
+so new endpoints follow the rule by construction. The proposed fail-closed enforcement check
+is intentionally deferred: it would fail on the ~25 early Tracker tools that still take
+`body: dict`, so it lands together with their conversion — the tracked follow-up in
+`STATE.md` (§Code-review follow-ups #1) and the improvement roadmap. Disposition `applied`:
+the standing rule now exists; clearing the existing violations is code debt, not drift.

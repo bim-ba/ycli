@@ -132,6 +132,25 @@ def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_cl
     return Ack(detail=f"deleted comment {comment_id} on {key}")
 ```
 
+### Typed request body — never `dict`
+
+A write tool that sends a request body types that parameter as the resource's pydantic
+request model — the **same model the CLI command builds** — never a bare `body: dict`. The
+model becomes the tool's input schema, so an agent sees the field names, types, and aliases
+instead of an opaque `object`, and a malformed payload fails schema validation before the
+HTTP call rather than at the live API:
+
+```python
+@mcp.tool(name="bulk_update", annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update issues"},
+          tags=WRITE_TAGS)
+def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+    """Start an async bulk field update over many Tracker issues; returns the operation."""
+    return client.bulk.update(body)
+```
+
+The only exception is a binary upload, which takes `Base64Bytes` (see below). (Several early
+Tracker write tools still take `body: dict`; converting them is a tracked follow-up.)
+
 ### `Ack` for bodyless write responses
 
 MCP tools must expose an output schema and CLI output goes through the Serializer — a bare
