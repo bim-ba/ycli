@@ -5,6 +5,12 @@ description: "Use for any question about a codebase, its architecture, file rela
 
 # /graphify
 
+> **In THIS repo (`ycli`) only:** do NOT run `graphify update .` (or any bare `--update`/rebuild
+> invocation below). It ignores the curated `--exclude` set in `.graphify/rebuild.sh` and
+> re-scans the vendored `references/yandex-cloud/` submodule (~90k files), exploding the graph
+> from ~5.3k to ~560k nodes. Refresh the committed graph only via `.graphify/rebuild.sh`. See
+> `CLAUDE.md` for the full rationale.
+
 Turn any folder of files into a navigable knowledge graph with community detection, an honest audit trail, and three outputs: interactive HTML, GraphRAG-ready JSON, and a plain-language GRAPH_REPORT.md.
 
 ## Usage

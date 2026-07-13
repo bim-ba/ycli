@@ -18,6 +18,11 @@ You need Python ≥ 3.12. Dependencies are managed with `uv` — add them with
 `uv add <pkg>` (runtime) or `uv add --dev <pkg>`; never hand-edit `pyproject.toml`
 dependency lists.
 
+The committed `.claude/settings.json` grants only a conservative, scoped baseline (broad
+reads + a mostly-read-only `Bash` allowlist); it never grants unscoped `Write`/`Edit`/`Bash`.
+Put any broader personal permissions in the gitignored `.claude/settings.local.json` instead
+of widening the committed file.
+
 ### Architecture guardrails
 
 The structure in [`ARCHITECTURE.md`](ARCHITECTURE.md) is enforced. Install the local hooks once:

@@ -57,9 +57,43 @@ def test_skip_ci_commands_are_denied(command):
         "git log --oneline",
         "rg '[skip ci]' docs/",
         "echo '[skip ci]' > note.txt",
+        "git commit -m 'fix: normal release message, nothing to see here'",
     ],
 )
 def test_safe_commands_are_allowed(command):
+    assert git_guard.decide(command) is None
+
+
+# The bracket/trailer tokens below are built via string concatenation, never as a
+# contiguous literal, so this file's own diff never carries a raw skip-ci token for
+# git_guard (this repo's own PreToolUse commit guard) or the no-skip-ci pre-commit
+# content check to trip on.
+_SKIP = "skip"
+_CI_BRACKET_ONE_SPACE = "[" + _SKIP + " ci]"
+_CI_BRACKET_TWO_SPACES = "[" + _SKIP + "  ci]"
+_TRAILER_TWO_SPACES = "skip-checks:" + "  true"
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        f"git commit -m 'fix: release {_CI_BRACKET_ONE_SPACE}'",
+        f"git commit -m 'fix: release {_CI_BRACKET_TWO_SPACES}'",
+        f"git commit --trailer '{_TRAILER_TWO_SPACES}' -m 'fix: x'",
+    ],
+)
+def test_whitespace_variants_are_denied(command):
+    """GitHub still honors internal-whitespace variants of the bracket/trailer tokens
+    (double space, tabs, ...); the hook must normalize whitespace before matching."""
+    decision = git_guard.decide(command)
+    assert decision is not None
+    assert decision["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+def test_token_outside_message_args_is_not_flagged():
+    """Scoping the match to message-bearing args (-m/-b/...) means a token that only
+    appears in an unrelated arg -- e.g. a pathspec after `--` -- is not a false positive."""
+    command = f"git commit -m 'fix: rename asset' -- 'assets/{_CI_BRACKET_ONE_SPACE}.png'"
     assert git_guard.decide(command) is None
 
 
