@@ -9,6 +9,36 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.15.0 (2026-07-13)
+
+### Build System
+
+- Re-lock uv.lock for 0.14.0
+  ([`aed4b9b`](https://github.com/bim-ba/ycli/commit/aed4b9bbcda26c33816e7cca9004c334756012ce))
+
+### Features
+
+- Shared Ack detail source + retire *ActionResult wrappers
+  ([#55](https://github.com/bim-ba/ycli/pull/55),
+  [`3f5a6f3`](https://github.com/bim-ba/ycli/commit/3f5a6f3c3bb690214abc24209c24fbf29d408bb5))
+
+### Refactoring
+
+- Add single-source Ack detail builders + fix 7 drifted write-op details
+  ([#55](https://github.com/bim-ba/ycli/pull/55),
+  [`3f5a6f3`](https://github.com/bim-ba/ycli/commit/3f5a6f3c3bb690214abc24209c24fbf29d408bb5))
+
+- Retire *ActionResult wrappers in favor of shared Ack
+  ([#55](https://github.com/bim-ba/ycli/pull/55),
+  [`3f5a6f3`](https://github.com/bim-ba/ycli/commit/3f5a6f3c3bb690214abc24209c24fbf29d408bb5))
+
+### Testing
+
+- Strengthen entities link-create MCP assertion to prove richer detail form
+  ([#55](https://github.com/bim-ba/ycli/pull/55),
+  [`3f5a6f3`](https://github.com/bim-ba/ycli/commit/3f5a6f3c3bb690214abc24209c24fbf29d408bb5))
+
+
 ## v0.14.0 (2026-07-13)
 
 ### Build System
