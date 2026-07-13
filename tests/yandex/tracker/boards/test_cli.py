@@ -40,6 +40,12 @@ def test_boards_list_with_limit():
 
 
 @responses.activate
+def test_boards_list_negative_limit_rejected():
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "boards", "list", "--limit", "-5"])
+    assert res.exit_code != 0
+
+
+@responses.activate
 def test_boards_list_all_is_uncapped():
     responses.add(responses.GET, f"{BASE}/boards/_paginate", json=[], status=200)
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "boards", "list", "--all"])

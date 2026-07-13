@@ -34,7 +34,7 @@ def resolve_cap(limit: int, max_items: int, *, all_: bool = False) -> int | None
         >>> resolve_cap(10, 500, all_=True) is None
         True
     """
-    return None if all_ else (limit or max_items)
+    return None if all_ else (limit if limit > 0 else max_items)
 
 
 class PaginationStrategy[P, T](ABC):
