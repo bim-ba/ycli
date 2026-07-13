@@ -77,17 +77,27 @@ def test_create_posts_typed_body_with_nested_board():
 
 
 @responses.activate
-def test_edit_patches_only_supplied_fields():
+def test_edit_patches_only_supplied_fields_with_version_query():
     responses.add(
         responses.PATCH, f"{BASE}/sprints/4405", json={"id": 4405, "name": "Updated"}, status=200
     )
-    sprint = _client().edit(4405, SprintUpdate(name="Updated", status="in_progress"))
+    sprint = _client().edit(4405, SprintUpdate(name="Updated", status="in_progress"), version=1)
     assert sprint.name == "Updated"
     assert responses.calls[0].request.method == "PATCH"
+    assert "version=1" in (responses.calls[0].request.url or "")
     assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "name": "Updated",
         "status": "in_progress",
     }
+
+
+@responses.activate
+def test_edit_without_version_omits_query():
+    responses.add(
+        responses.PATCH, f"{BASE}/sprints/4405", json={"id": 4405, "name": "Updated"}, status=200
+    )
+    _client().edit(4405, SprintUpdate(name="Updated"))
+    assert "version" not in (responses.calls[0].request.url or "")
 
 
 @responses.activate
@@ -99,27 +109,27 @@ def test_delete_issues_delete_and_returns_response():
 
 
 @responses.activate
-def test_start_posts_to_start_action():
+def test_start_posts_to_start_action_with_version_query():
     responses.add(
         responses.POST,
         f"{BASE}/sprints/4405/_start",
         json={"id": 4405, "status": "in_progress"},
         status=200,
     )
-    sprint = _client().start(sprint_id=4405)
+    sprint = _client().start(sprint_id=4405, version=1)
     assert sprint.status == "in_progress"
     assert responses.calls[0].request.method == "POST"
-    assert responses.calls[0].request.url == f"{BASE}/sprints/4405/_start"
+    assert responses.calls[0].request.url == f"{BASE}/sprints/4405/_start?version=1"
 
 
 @responses.activate
-def test_archive_posts_to_archive_action():
+def test_archive_posts_to_archive_action_with_version_query():
     responses.add(
         responses.POST,
         f"{BASE}/sprints/4405/_archive",
         json={"id": 4405, "status": "archived", "archived": True},
         status=200,
     )
-    sprint = _client().archive(sprint_id=4405)
+    sprint = _client().archive(sprint_id=4405, version=2)
     assert sprint.status == "archived" and sprint.archived is True
-    assert responses.calls[0].request.url == f"{BASE}/sprints/4405/_archive"
+    assert responses.calls[0].request.url == f"{BASE}/sprints/4405/_archive?version=2"

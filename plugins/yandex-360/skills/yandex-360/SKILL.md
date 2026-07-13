@@ -50,7 +50,7 @@ it for you.
 | Surface | Use when | How |
 |---------|----------|-----|
 | **CLI** | Interactive / shell / scripting | `uv run ycli <domain> <group> <cmd>` (e.g. `uv run ycli tracker issues get KEY`) |
-| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); tools are namespaced `tracker_*`, `wiki_*`, `forms_*` — **reads only** |
+| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); **222 read/write tools** namespaced `tracker_*` (151), `wiki_*` (42), `forms_*` (28), plus `status_get`. `ycli mcp start --read-only` serves the reads-only view |
 | **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient(oauth_token=…, organization_id=…)` |
 
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
@@ -63,16 +63,21 @@ Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 }
 ```
 
-> **Reads vs writes:** the MCP server is **read-only** by design. Writes (create/update
-> issues, create/update wiki pages, form mutations) are available via the CLI and SDK only.
+> **Reads vs writes on MCP:** the server is **read/write** with honest annotations.
+> Reads carry `readOnlyHint=True`; writes carry `readOnlyHint=False` plus an explicit
+> `destructiveHint` (`true` on delete/clear/abort-class tools) and `idempotentHint` on
+> PATCH-style edits. Treat `destructiveHint=true` tools with care — prefer confirming
+> with the user before calling them. For cautious deployments, `ycli mcp start
+> --read-only` hides every write tool. Binary **downloads** (attachments, exports,
+> keyset files) are CLI/SDK-only — MCP excludes raw-bytes output.
 
 ## 4. Route to a domain skill
 
 | Task is about… | Load |
 |----------------|------|
 | Issues, epics, comments, transitions, links, worklog, changelog | **`yandex-360-tracker`** |
-| Wiki pages, page tree, comments, attachments, YFM content | **`yandex-360-wiki`** |
-| Forms, questions/schema, responses/answers, hooks | **`yandex-360-forms`** |
+| Wiki pages, page tree, comments, attachments, YFM authoring | **`yandex-360-wiki`** |
+| Forms, questions/schema, responses, publishing | **`yandex-360-forms`** |
 
 Each domain skill documents its CLI commands, MCP tools, SDK client, and the API quirks
 that matter for that service.
@@ -80,6 +85,11 @@ that matter for that service.
 ## Guardrails
 
 - **Never hardcode the token or org id** — always read them from the environment.
-- **The MCP server is read-only** — don't expect write tools there; use the CLI/SDK.
+- **Respect the MCP annotations** — write tools declare `readOnlyHint=False`; anything
+  with `destructiveHint=true` deletes data, so confirm intent before calling it. If the
+  session must not write at all, run the server with `ycli mcp start --read-only`.
+- **Binary payloads stay on the CLI/SDK** — attachment/export/keyset downloads are not
+  MCP tools; fetch them with `ycli … download` commands.
 - **One token, three services** — the same OAuth token works for Tracker, Wiki, and Forms
-  provided it carries the needed scopes (Forms needs `forms:read` / `forms:write`).
+  provided it carries the needed scopes (Forms needs `forms:read` / `forms:write`; MCP
+  writes need the write scopes too).

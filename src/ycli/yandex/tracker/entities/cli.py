@@ -16,6 +16,7 @@ import typer
 from ycli.cli.binary import write_output
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.entities.models import (
     ChecklistItemInput,
     ChecklistItemsInput,
@@ -192,7 +193,9 @@ def delete(
     """Delete entity ID (DELETE /entities/TYPE/ID)."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.delete(type_.value, entity_id, with_board=with_board or None)
-    print(f"Deleted {type_.value} {entity_id}")
+    Serializer.serialize(
+        Ack(detail=f"deleted {type_.value} {entity_id}"), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
@@ -264,10 +267,19 @@ def set_permissions(
     entity_id: IdArg,
     field: Annotated[
         list[str] | None,
-        typer.Option("--acl", help='ACL entry LEVEL=<json>, e.g. READ={"roles":["OWNER"]}.'),
+        typer.Option(
+            "--acl",
+            help="ACL change ACTION=<json> where ACTION is grant or revoke, e.g. "
+            'grant={"READ":{"users":["8000000000000002"]}} (repeatable).',
+        ),
     ] = None,
 ) -> None:
-    """Set an entity's access settings (PATCH …/extendedPermissions)."""
+    """Set an entity's access settings (PATCH …/extendedPermissions).
+
+    The API accepts only ``grant`` / ``revoke`` actions, each mapping an access level
+    (READ/WRITE/GRANT) to users/groups/roles, e.g.
+    ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
+    """
     body = {"acl": parse_fields(field)}
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
@@ -419,11 +431,11 @@ def comments_edit(
     comment_id: CommentIdArg,
     text: Annotated[str, typer.Option(help="New comment text.")],
 ) -> None:
-    """Edit a comment on an entity (PATCH …/comments; id travels in the body)."""
-    body = CommentUpdate(id=comment_id, text=text).model_dump(by_alias=True, exclude_none=True)
+    """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
+    body = CommentUpdate(text=text).model_dump(by_alias=True, exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
-        app_ctx.tracker.entities.comments_edit(type_.value, entity_id, body=body),
+        app_ctx.tracker.entities.comments_edit(type_.value, entity_id, comment_id, body=body),
         app_ctx.strategy,
         app_ctx.console,
     )
@@ -436,7 +448,11 @@ def comments_delete(
     """Delete a comment from an entity (DELETE …/comments/COMMENT_ID)."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.comments_delete(type_.value, entity_id, comment_id)
-    print(f"Deleted comment {comment_id} on {type_.value} {entity_id}")
+    Serializer.serialize(
+        Ack(detail=f"deleted comment {comment_id} on {type_.value} {entity_id}"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
 
 
 # --------------------------------------------------------------------------------------------
@@ -614,7 +630,11 @@ def links_create(
     body = LinkInput(relationship=relationship, entity=entity).model_dump(by_alias=True)
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.links_create(type_.value, entity_id, body=body)
-    print(f"Linked {type_.value} {entity_id} -> {entity} ({relationship})")
+    Serializer.serialize(
+        Ack(detail=f"linked {type_.value} {entity_id} -> {entity} ({relationship})"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
 
 
 @links_app.command("delete")
@@ -627,7 +647,11 @@ def links_delete(
     """Delete a link (DELETE …/links?right=RIGHT)."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.entities.links_delete(type_.value, entity_id, right)
-    print(f"Unlinked {type_.value} {entity_id} -> {right}")
+    Serializer.serialize(
+        Ack(detail=f"unlinked {type_.value} {entity_id} -> {right}"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
 
 
 # --------------------------------------------------------------------------------------------
@@ -704,10 +728,11 @@ def attachments_attach(
 def attachments_delete(
     ctx: typer.Context, type_: TypeArg, entity_id: IdArg, file_id: FileIdArg
 ) -> None:
-    """Detach a file from an entity (DELETE …/attachments/FILE_ID)."""
+    """Detach a file from an entity (DELETE …/attachments/FILE_ID; empty response body)."""
     app_ctx = AppContext.from_typer_context(ctx)
+    app_ctx.tracker.entities.attachments_delete(type_.value, entity_id, file_id)
     Serializer.serialize(
-        app_ctx.tracker.entities.attachments_delete(type_.value, entity_id, file_id),
+        Ack(detail=f"deleted attachment {file_id} on {type_.value} {entity_id}"),
         app_ctx.strategy,
         app_ctx.console,
     )

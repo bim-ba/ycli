@@ -1,4 +1,4 @@
-"""`forms keysets` commands (reads + writes; writes/download are CLI/SDK only, never MCP)."""
+"""`forms keysets` commands (reads + writes; download is a binary payload — CLI/SDK only)."""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from ycli.yandex.forms.keysets.models import KeysetCreate, KeysetUpdate
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
+from ycli.yandex.models import Ack
 
 app = typer.Typer(name="keysets", help="Forms personal-link key sets.", no_args_is_help=True)
 
@@ -87,7 +88,11 @@ def delete(ctx: typer.Context, survey_id: SurveyIdArg, keyset_id: KeysetIdArg) -
     """Delete key set KEYSET_ID on SURVEY_ID (DELETE /surveys/{id}/keysets/{keyset_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.forms.keysets.delete(survey_id, keyset_id)
-    print(f"deleted keyset {keyset_id} on survey {survey_id}")
+    Serializer.serialize(
+        Ack(detail=f"deleted keyset {keyset_id} on survey {survey_id}"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
 
 
 @app.command()

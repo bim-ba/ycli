@@ -23,6 +23,18 @@ class APIModel(BaseModel):
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
 
+class Ack(APIModel):
+    """Typed acknowledgement for write operations whose API response carries no body.
+
+    MCP tools must expose an output schema (see test_every_mcp_tool_has_description_and
+    _output_schema), and CLI output goes through the Serializer — a bare ``None`` return
+    satisfies neither, so bodyless writes (deletes, clears, aborts) return an ``Ack``.
+    """
+
+    ok: bool = True
+    detail: str = ""
+
+
 def _extract(field: str) -> Callable[[Any], Any]:
     """A ``BeforeValidator`` that pulls ``field`` out of an API wrapper object.
 

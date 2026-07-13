@@ -1,10 +1,18 @@
-"""Tracker /issues FastMCP tools (reads-only) — Depends DI, native error handling."""
+"""Tracker /issues FastMCP tools (reads + writes) — Depends DI, native error handling."""
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    tracker_client,
+)
 from ycli.yandex.tracker.issues.models import Issue, IssueList
 from ycli.yandex.tracker.utils import count_body
 
@@ -72,3 +80,69 @@ def count(
     every issue in the org.
     """
     return client.issues.count(body=count_body(query=query, queue=queue, status=status))
+
+
+@mcp.tool(
+    name="issues_suggest",
+    annotations={**RO, "title": "Suggest Tracker issues by title"},
+    tags=TAGS,
+)
+def suggest(text: str, client: TrackerClient = Depends(tracker_client)) -> IssueList:
+    """Typeahead over visible issues — issues whose summary contains ``text``.
+
+    A lightweight title match; for full TQL search use ``issues_search``.
+    """
+    return client.issues.suggest(text)
+
+
+@mcp.tool(
+    name="issues_create", annotations={**WRITE, "title": "Create Tracker issue"}, tags=WRITE_TAGS
+)
+def create(body: dict, client: TrackerClient = Depends(tracker_client)) -> Issue:
+    """Create a Tracker issue; returns the new issue with its key.
+
+    ``body`` is the raw API payload — required ``{"queue": "<KEY>", "summary": "…"}``; common
+    optional keys: ``description`` (YFM), ``type``, ``priority``, ``assignee``, ``parent``,
+    ``sprint``, ``tags``, ``followers`` and any custom field.
+    """
+    return client.issues.create(body)
+
+
+@mcp.tool(
+    name="issues_update",
+    annotations={**WRITE_IDEMPOTENT, "title": "Update Tracker issue"},
+    tags=WRITE_TAGS,
+)
+def update(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Issue:
+    """Update fields of a Tracker issue; only the keys present in ``body`` are changed.
+
+    ``body`` is the raw API payload, e.g. ``{"summary": "…", "assignee": "login",
+    "priority": "critical"}``; array fields accept ``{"add": […]}`` / ``{"remove": […]}``.
+    Status is NOT changed here — use ``transitions_execute``. Returns the updated issue.
+    """
+    return client.issues.update(key, body)
+
+
+@mcp.tool(name="issues_move", annotations={**WRITE, "title": "Move Tracker issue"}, tags=WRITE_TAGS)
+def move(key: str, queue: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
+    """Move a Tracker issue to another queue (it gets a new key there; the old key redirects).
+
+    ``queue`` is the target queue key. Fields that do not exist in the target queue may be
+    dropped. Returns the moved issue with its new key.
+    """
+    return client.issues.move(key, queue)
+
+
+@mcp.tool(
+    name="issues_scroll_clear",
+    annotations={**WRITE_IDEMPOTENT, "title": "Clear Tracker search scroll"},
+    tags=WRITE_TAGS,
+)
+def scroll_clear(body: dict, client: TrackerClient = Depends(tracker_client)) -> Ack:
+    """Release the server resources of a scrolled issue search (harmless housekeeping).
+
+    ``body`` maps each ``X-Scroll-Id`` to its ``X-Scroll-Token`` from a scrolled
+    ``issues.search`` response. Returns an acknowledgement on success.
+    """
+    client.issues.scroll_clear(body)
+    return Ack(detail="scroll contexts cleared")

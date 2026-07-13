@@ -1,6 +1,7 @@
-"""TDD for WorklogClient."""
+"""TDD for WorklogClient — writes + relative-paginated list draining ``id=<last id>``."""
 
 import json
+from urllib.parse import parse_qs, urlparse
 
 import requests
 import responses
@@ -17,17 +18,61 @@ def _client() -> WorklogClient:
     return WorklogClient(session=s)
 
 
+def _worklog_page_callback(request):
+    """Three-request drain: page 1 (no id) → id=6 page → id=7 empty page terminates."""
+    cursor = parse_qs(urlparse(request.url).query).get("id", [None])[0]
+    if cursor is None:
+        body = [
+            {"id": 5, "createdBy": {"display": "X"}, "duration": "PT2H"},
+            {"id": 6, "duration": "PT1H"},
+        ]
+    elif cursor == "6":
+        body = [{"id": 7, "duration": "PT30M"}]
+    else:  # id=7 → nothing left → RelativeCursorStrategy stops
+        body = []
+    return (200, {}, json.dumps(body))
+
+
 @responses.activate
-def test_list_returns_workloglist():
-    responses.add(
+def test_list_drains_pages_across_relative_cursor():
+    responses.add_callback(
         responses.GET,
         f"{BASE}/issues/DE-1/worklog",
-        json=[{"id": 5, "createdBy": {"display": "X"}, "duration": "PT2H"}],
-        status=200,
+        callback=_worklog_page_callback,
+        content_type="application/json",
     )
     out = _client().list("DE-1")
     assert isinstance(out, WorklogList)
-    assert out.root[0].duration == "PT2H" and out.root[0].created_by == "X"
+    assert [w.duration for w in out.root] == ["PT2H", "PT1H", "PT30M"]  # pages joined in order
+    assert out.root[0].created_by == "X"
+    assert len(responses.calls) == 3  # page1 + id=6 page + id=7 empty page
+    assert "perPage=100" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+    assert "id=6" in responses.calls[1].request.url  # ty: ignore[unsupported-operator]
+    assert "id=7" in responses.calls[2].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_list_respects_limit_within_first_page():
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/DE-1/worklog",
+        json=[{"id": 5, "duration": "PT2H"}, {"id": 6, "duration": "PT1H"}],
+        status=200,
+    )
+    out = _client().list("DE-1", limit=1)
+    assert [w.id for w in out.root] == [5]  # truncated to the limit
+    assert len(responses.calls) == 1  # limit satisfied by page 1 — no second fetch
+
+
+@responses.activate
+def test_list_terminates_when_last_record_has_no_id():
+    """A last record with a null id yields no cursor, so the walk stops after one page."""
+    responses.add(
+        responses.GET, f"{BASE}/issues/DE-1/worklog", json=[{"duration": "PT2H"}], status=200
+    )
+    out = _client().list("DE-1")
+    assert [w.duration for w in out.root] == ["PT2H"]
+    assert len(responses.calls) == 1
 
 
 @responses.activate

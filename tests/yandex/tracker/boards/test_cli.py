@@ -79,6 +79,6 @@ def test_boards_edit():
 @responses.activate
 def test_boards_delete():
     responses.add(responses.DELETE, f"{BASE}/boards/5", status=204)
-    res = runner.invoke(cli.app, ["tracker", "boards", "delete", "5"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "boards", "delete", "5"])
     assert res.exit_code == 0
-    assert "Deleted board 5" in res.stdout
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted board 5"}

@@ -47,19 +47,22 @@ appear in the public `client.list()` signature or in MCP tool return types.
 
 ---
 
-## 3. MCP `RO` / `TAGS` / `<domain>_client` come from the domain `dependencies`
+## 3. MCP annotation sets / tags / `<domain>_client` come from the domain `dependencies`
 
-Every `mcp.py` imports `RO`, `TAGS`, and the domain client provider from the domain's
-`dependencies` module — not from the shared `ycli.yandex.mcp`:
+Every `mcp.py` imports the annotation sets (`RO`, `WRITE`, `WRITE_IDEMPOTENT`,
+`DESTRUCTIVE`), the tag constants (`TAGS`, `WRITE_TAGS`), and the domain client provider
+from the domain's `dependencies` module — not from the shared `ycli.yandex.mcp`:
 
 ```python
 # src/ycli/yandex/tracker/issues/mcp.py
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import DESTRUCTIVE, RO, TAGS, WRITE, WRITE_TAGS, tracker_client
 ```
 
-The `dependencies` module re-exports `RO` (from `ycli.yandex.mcp`) in its `__all__`, so
-import-linter and IDEs resolve the canonical source correctly.  The scaffold
-(`scripts/new_endpoint.py`) generates this single-line import automatically.
+The `dependencies` module re-exports the annotation sets (from `ycli.yandex.mcp`) in its
+`__all__` and defines the domain tags (`TAGS = {"<domain>"}`,
+`WRITE_TAGS = TAGS | {WRITE_TAG}`), so import-linter and IDEs resolve the canonical source
+correctly.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import
+automatically.
 
 ### Why `<domain>_client` is a cached provider
 
@@ -90,11 +93,11 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 
 | Field | Where it lives | Requirement |
 |---|---|---|
-| `name` | `@mcp.tool(name=…)` | `snake_case`, pattern `<resource>_<verb>`, verb in `READ_VERBS` |
+| `name` | `@mcp.tool(name=…)` | `snake_case`, pattern `<resource>_<verb>`; the verb (longest `_`-suffix) **must classify** in the fail-closed READ / WRITE / WRITE_IDEMPOTENT / DESTRUCTIVE maps in `tests/test_architecture.py` — an unknown verb fails the build and is added deliberately |
 | description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
-| output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required** |
-| `annotations` | `@mcp.tool(annotations={**RO, "title": "…"})` | Must include all RO hints + an imperative title |
-| `tags` | `@mcp.tool(tags=TAGS)` | Always the domain `TAGS` constant |
+| output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
+| `annotations` | `@mcp.tool(annotations={**<SET>, "title": "…"})` | `<SET>` matches the verb class exactly: `RO` for reads, `WRITE` for additive creates, `WRITE_IDEMPOTENT` for PATCH-style edits, `DESTRUCTIVE` for delete/clear/abort — plus an imperative title. Explicit because the MCP-spec default for an unannotated tool is `destructiveHint=true` |
+| `tags` | `@mcp.tool(tags=…)` | `TAGS` for reads, `WRITE_TAGS` for writes — the `write` tag is what `ycli mcp start --read-only` disables wholesale |
 
 ### Prohibited
 
@@ -102,7 +105,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 - `output_schema=` kwarg in `@mcp.tool(…)` — set the return annotation instead
 - `meta`, `icons`, `version`, top-level `title=` — omit by default
 
-### Example
+### Read example
 
 ```python
 @mcp.tool(
@@ -114,6 +117,35 @@ def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """A single Tracker issue by key."""          # ← this IS the description
     return client.issues.get(key)                 # return type IS the outputSchema
 ```
+
+### Write example
+
+```python
+@mcp.tool(
+    name="comments_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker issue comment"},
+    tags=WRITE_TAGS,
+)
+def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+    """Permanently delete one comment from a Tracker issue (irreversible)."""
+    client.comments.delete(key, comment_id)
+    return Ack(detail=f"deleted comment {comment_id} on {key}")
+```
+
+### `Ack` for bodyless write responses
+
+MCP tools must expose an output schema and CLI output goes through the Serializer — a bare
+`None` return satisfies neither.  Writes whose API response carries no body (deletes,
+clears, aborts) therefore surface a typed `ycli.yandex.models.Ack`
+(`{ok: bool, detail: str}`): the MCP tool (and CLI command) constructs the `Ack` around the
+bodyless client call, as in the example above.
+
+### Binary payloads stay CLI/SDK-only
+
+Raw-bytes **downloads** (attachments, exports, keyset files) never become MCP tools —
+the matching *list* read does.  Upload endpoints may ship as MCP tools only in base64
+form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
+`wiki_uploadsessions_*` pipeline); raw file-path or multipart inputs stay on the CLI/SDK.
 
 ### Enforcement
 
@@ -154,7 +186,7 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 | `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
 | `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command/tool names) |
 | `dependencies` import path | `scripts/new_endpoint.py` scaffold + code review |
-| Read-only MCP | `tests/test_architecture.py` ARCH-3 |
+| MCP annotation honesty (fail-closed verb classification, exact hints, `write` tag) | `tests/test_architecture.py` ARCH-3 (`test_arch3_mcp_annotation_honesty`) |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
 | Discriminated MCP output unions | code review + regression test (`status_get` me round-trip) |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |

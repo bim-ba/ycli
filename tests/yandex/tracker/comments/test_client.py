@@ -1,6 +1,7 @@
-"""TDD for CommentsClient."""
+"""TDD for CommentsClient — writes + relative-paginated list draining ``id=<last id>``."""
 
 import json
+from urllib.parse import parse_qs, urlparse
 
 import requests
 import responses
@@ -17,17 +18,59 @@ def _client() -> CommentsClient:
     return CommentsClient(session=s)
 
 
+def _comments_page_callback(request):
+    """Three-request drain: page 1 (no id) → id=2 page → id=3 empty page terminates."""
+    cursor = parse_qs(urlparse(request.url).query).get("id", [None])[0]
+    if cursor is None:
+        body = [
+            {"id": 1, "createdBy": {"display": "Сава"}, "text": "first"},
+            {"id": 2, "text": "second"},
+        ]
+    elif cursor == "2":
+        body = [{"id": 3, "text": "third"}]
+    else:  # id=3 → nothing left → RelativeCursorStrategy stops
+        body = []
+    return (200, {}, json.dumps(body))
+
+
 @responses.activate
-def test_list_returns_commentlist():
-    responses.add(
+def test_list_drains_pages_across_relative_cursor():
+    responses.add_callback(
         responses.GET,
         f"{BASE}/issues/DE-1/comments",
-        json=[{"id": 1, "createdBy": {"display": "Сава"}, "text": "hi"}],
-        status=200,
+        callback=_comments_page_callback,
+        content_type="application/json",
     )
     out = _client().list("DE-1")
     assert isinstance(out, CommentList)
-    assert out.root[0].text == "hi" and out.root[0].created_by == "Сава"
+    assert [c.text for c in out.root] == ["first", "second", "third"]  # pages joined in order
+    assert out.root[0].created_by == "Сава"
+    assert len(responses.calls) == 3  # page1 + id=2 page + id=3 empty page
+    assert "perPage=100" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+    assert "id=2" in responses.calls[1].request.url  # ty: ignore[unsupported-operator]
+    assert "id=3" in responses.calls[2].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_list_respects_limit_within_first_page():
+    responses.add(
+        responses.GET,
+        f"{BASE}/issues/DE-1/comments",
+        json=[{"id": 1, "text": "first"}, {"id": 2, "text": "second"}],
+        status=200,
+    )
+    out = _client().list("DE-1", limit=1)
+    assert [c.id for c in out.root] == [1]  # truncated to the limit
+    assert len(responses.calls) == 1  # limit satisfied by page 1 — no second fetch
+
+
+@responses.activate
+def test_list_terminates_when_last_comment_has_no_id():
+    """A last comment with a null id yields no cursor, so the walk stops after one page."""
+    responses.add(responses.GET, f"{BASE}/issues/DE-1/comments", json=[{"text": "hi"}], status=200)
+    out = _client().list("DE-1")
+    assert [c.text for c in out.root] == ["hi"]
+    assert len(responses.calls) == 1
 
 
 @responses.activate

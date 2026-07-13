@@ -10,9 +10,12 @@ invariant, state **PASS/FAIL** with `file:line` evidence:
   `yandex/status/` and the `ycli/mcp/` server package are cross-cutting, not resource dirs.)
 - **ARCH-2 — HTTP confinement.** No `requests` / `uplink` import in `cli.py` / `mcp.py` / `models.py`;
   all HTTP lives in `client.py` / `base.py` / `transport.py`.
-- **ARCH-3 — MCP read-only.** `fastmcp` only in `mcp.py` (and the `ycli.mcp` server package). Every
-  new tool's verb is in the read-verb allow-list, carries `readOnlyHint` (via `RO`), and no `mcp.py`
-  calls a client write method (`.create/.update/.add/.execute/…`).
+- **ARCH-3 — MCP mirrors the SDK with honest annotations.** `fastmcp` only in `mcp.py` (and the
+  `ycli.mcp` server package). Every new tool's verb classifies into the READ / WRITE /
+  WRITE_IDEMPOTENT / DESTRUCTIVE maps (an unknown verb fails the build — add it deliberately);
+  hints match the class exactly (reads `RO`; writes explicit `destructiveHint`/`idempotentHint`
+  plus the `write` tag), and no read-classified tool calls a client write method
+  (`.create/.update/.add/.execute/…` — AST-checked).
 - **ARCH-4 — Serialization confinement.** `model_dump_json` / `yaml.safe_dump` / `json.dumps` appear
   only in `src/ycli/cli/output.py`; CLI command bodies render model output via
   `output.Serializer.serialize` (carve-outs: a scalar `count` `print`, and binary downloads via

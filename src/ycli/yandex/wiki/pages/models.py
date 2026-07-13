@@ -210,8 +210,10 @@ class PageAppendContentAnchor(APIModel):
 class PageAppendContent(APIModel):
     """Typed body for ``POST /pages/{id}/append-content`` — add YFM without a full rewrite.
 
-    ``content`` is the required, non-empty YFM fragment to append; the optional ``body``,
-    ``section`` and ``anchor`` pinpoint where. Contrast with ``PagesClient.update``, which
+    ``content`` is the required, non-empty YFM fragment to append; ``body``, ``section`` and
+    ``anchor`` pinpoint where. The live API requires **exactly one** of the three placement
+    selectors — a bare ``{content}`` (or two selectors at once) is rejected with a 400
+    "mutually exclusive" validation error. Contrast with ``PagesClient.update``, which
     replaces the whole page body.
 
     Example:

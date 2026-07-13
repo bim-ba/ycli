@@ -39,10 +39,54 @@ def _two_page_callback(request):
     return (200, {}, json.dumps(body))
 
 
-def test_get_command_removed():
-    """The single-answer endpoint is not deployed (404 at every path); the command was removed."""
-    res = runner.invoke(cli.app, ["forms", "answers", "get", SID, "99"])
-    assert res.exit_code == 2  # click usage error: no such command
+ANSWER_BODY = {
+    "id": 2469549806,
+    "created": "2026-07-12T10:00:00Z",
+    "survey": {"id": SID, "name": "Feedback"},
+    "data": [{"id": "1", "label": "Q1", "type": "string", "value": "x"}],
+}
+
+
+@responses.activate
+def test_get_by_answer_id_dumps_model():
+    """``answers get --answer-id`` hits the flat ``GET /v1/answers?answer_id=`` route."""
+    responses.add(responses.GET, f"{BASE}/answers", json=ANSWER_BODY, status=200)
+    res = runner.invoke(
+        cli.app, ["--format", "json", "forms", "answers", "get", "--answer-id", "2469549806"]
+    )
+    assert res.exit_code == 0
+    out = json.loads(res.stdout)
+    assert out["id"] == 2469549806 and out["survey"]["name"] == "Feedback"
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert urlparse(url).path == "/v1/answers"
+    assert parse_qs(urlparse(url).query) == {"answer_id": ["2469549806"]}
+
+
+@responses.activate
+def test_get_by_answer_key_dumps_model():
+    responses.add(responses.GET, f"{BASE}/answers", json=ANSWER_BODY, status=200)
+    res = runner.invoke(
+        cli.app, ["--format", "json", "forms", "answers", "get", "--answer-key", "a1b2hash"]
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["id"] == 2469549806
+    url = responses.calls[0].request.url
+    assert url is not None
+    assert parse_qs(urlparse(url).query) == {"answer_key": ["a1b2hash"]}
+
+
+@responses.activate
+def test_get_requires_exactly_one_selector():
+    """Neither or both of --answer-id / --answer-key is a usage error — no request is sent."""
+    res = runner.invoke(cli.app, ["forms", "answers", "get"])
+    assert res.exit_code != 0
+    res = runner.invoke(
+        cli.app,
+        ["forms", "answers", "get", "--answer-id", "1", "--answer-key", "k"],
+    )
+    assert res.exit_code != 0
+    assert len(responses.calls) == 0
 
 
 @responses.activate

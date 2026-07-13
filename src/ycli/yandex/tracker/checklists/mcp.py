@@ -1,8 +1,4 @@
-"""Tracker issue-checklists FastMCP tool (reads-only).
-
-Only the checklist read is exposed here; every checklist mutation (add/edit/delete/clear)
-ships on the CLI/SDK only, per ARCH-3 (the MCP server is read-only).
-"""
+"""Tracker issue-checklists FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -10,9 +6,17 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.tracker.checklists.models import ChecklistItemList
+from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    tracker_client,
+)
 
 mcp = FastMCP("tracker-checklists")
 
@@ -26,11 +30,66 @@ def get(
 ) -> ChecklistItemList:
     """The checklist items on a Tracker issue (text, done flag, assignee, per-item deadline).
 
-    Returns a flat array; an issue with no checklist yields an empty list. Use this to read
-    progress before mutating — item ids from here feed the CLI ``checklists edit/delete``
-    (writes are CLI/SDK only, never MCP).
+    Returns a flat array; an issue with no checklist yields an empty list. Item ids from here
+    feed ``checklists_edit`` / ``checklists_delete``.
 
     Example:
         >>> get(key="QUEUE-123")  # doctest: +SKIP
     """
     return client.checklists.get(key)
+
+
+@mcp.tool(
+    name="checklists_create",
+    annotations={**WRITE, "title": "Add Tracker checklist item"},
+    tags=WRITE_TAGS,
+)
+def create(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+    """Add an item to a Tracker issue's checklist (creates the checklist if absent).
+
+    ``body`` is the raw API payload — at minimum ``{"text": "…"}``; optional keys include
+    ``checked``, ``assignee`` and ``deadline``. Returns the issue with its full checklist.
+    """
+    return client.checklists.create(key, body)
+
+
+@mcp.tool(
+    name="checklists_edit",
+    annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker checklist item"},
+    tags=WRITE_TAGS,
+)
+def edit(
+    key: str, item_id: str, body: dict, client: TrackerClient = Depends(tracker_client)
+) -> Checklist:
+    """Edit one checklist item on a Tracker issue (text, checked state, assignee, deadline).
+
+    Get ``item_id`` from ``checklists_get``. ``body`` carries the fields to change, e.g.
+    ``{"text": "…", "checked": true}``. Returns the issue with its updated checklist.
+    """
+    return client.checklists.edit(key, item_id, body)
+
+
+@mcp.tool(
+    name="checklists_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker checklist item"},
+    tags=WRITE_TAGS,
+)
+def delete(key: str, item_id: str, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+    """Permanently remove one item from a Tracker issue's checklist (irreversible).
+
+    Get ``item_id`` from ``checklists_get``. Returns the issue with its remaining checklist.
+    """
+    return client.checklists.delete(key, item_id)
+
+
+@mcp.tool(
+    name="checklists_clear",
+    annotations={**DESTRUCTIVE, "title": "Clear Tracker issue checklist"},
+    tags=WRITE_TAGS,
+)
+def clear(key: str, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+    """Permanently delete the ENTIRE checklist of a Tracker issue (all items, irreversible).
+
+    Returns the issue without its checklist.
+    """
+    return client.checklists.clear(key)

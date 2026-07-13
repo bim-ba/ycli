@@ -29,23 +29,26 @@ def _session() -> requests.Session:
 
 @responses.activate
 def test_priorities_list():
+    # The live v3 API carries the display name in `name` (`display` stays null).
     responses.add(
         responses.GET,
         f"{BASE}/priorities",
-        json=[{"key": "critical", "display": "Critical"}],
+        json=[{"key": "critical", "name": "Critical"}],
         status=200,
     )
     out = PrioritiesClient(session=_session()).list()
     assert isinstance(out, PriorityList) and out.root[0].key == "critical"
+    assert out.root[0].name == "Critical"
 
 
 @responses.activate
 def test_issuetypes_list():
     responses.add(
-        responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "display": "Task"}], status=200
+        responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "name": "Task"}], status=200
     )
     out = IssueTypesClient(session=_session()).list()
     assert isinstance(out, IssueTypeList) and out.root[0].key == "task"
+    assert out.root[0].name == "Task"
 
 
 @responses.activate
@@ -71,7 +74,7 @@ def test_priorities_create_posts_localized_body():
     out = PrioritiesClient(session=_session()).create(
         PriorityCreate(key="one", name=LocalizedName(ru="Низкий", en="Low"), order=60)
     )
-    assert isinstance(out, Priority) and out.key == "one"
+    assert isinstance(out, Priority) and out.key == "one" and out.name == "Низкий"
     sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {"key": "one", "name": {"ru": "Низкий", "en": "Low"}, "order": 60}
 

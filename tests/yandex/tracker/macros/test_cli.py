@@ -88,5 +88,6 @@ def test_macros_edit():
 @responses.activate
 def test_macros_delete():
     responses.add(responses.DELETE, f"{BASE}/queues/TEST/macros/3", status=204)
-    res = runner.invoke(cli.app, ["tracker", "macros", "delete", "TEST", "3"])
-    assert res.exit_code == 0 and "Deleted macro 3 from queue TEST" in res.stdout
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "macros", "delete", "TEST", "3"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted macro 3 from queue TEST"}

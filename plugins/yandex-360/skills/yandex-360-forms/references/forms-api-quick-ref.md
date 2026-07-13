@@ -14,32 +14,39 @@ and the product docs at <https://yandex.ru/support/forms/>.
 | Scopes | `forms:read` / `forms:write` (separate from Tracker/Wiki) |
 
 The base host differs from Tracker/Wiki (`api.tracker.yandex.net`) — a frequent
-copy-paste trap. Reads are also exposed as `ycli forms …` CLI commands and read-only
-`forms_*` MCP tools; see the skill's Reading section for the CLI/MCP mapping.
+copy-paste trap. Reads **and writes** are exposed as `ycli forms …` CLI commands,
+`forms_*` MCP tools, and `FormsClient` SDK methods; see the skill's Reading/Writing
+sections for the mapping. Raw HTTP is needed only for hooks (see below).
 
-## Endpoint map
+## Endpoint map (as wrapped by ycli)
 
 | Resource | Method + path |
 |----------|---------------|
-| Current user (auth probe) | `GET /me` |
+| Current user (auth probe) | `GET /users/me` |
 | List forms | `GET /surveys` |
 | Form settings | `GET /surveys/{id}` |
 | Create form | `POST /surveys` |
-| Update form settings | `PUT /surveys/{id}` |
-| Publish / unpublish | `POST /surveys/{id}/_publish` · `POST /surveys/{id}/_unpublish` |
+| Update form settings | `PATCH /surveys/{id}` |
+| Delete form | `DELETE /surveys/{id}` |
+| Publish / unpublish | `POST /surveys/{id}/publish` · `POST /surveys/{id}/unpublish` |
 | List questions (schema) | `GET /surveys/{id}/questions` |
 | Get one question | `GET /surveys/{id}/questions/{qid}` |
 | Create question | `POST /surveys/{id}/questions` |
-| Update question | `PUT /surveys/{id}/questions/{qid}` |
+| Update question | `PATCH /surveys/{id}/questions/{qid}` |
 | Delete question | `DELETE /surveys/{id}/questions/{qid}` |
-| Reorder question | `POST /surveys/{id}/questions/{qid}/_move` |
+| Reorder question | `POST /surveys/{id}/questions/{qid}/move` |
+| Fillable form / submit | `GET\|POST /surveys/{id}/form` |
+| Filling suggest | `GET /surveys/{id}/suggest` |
 | List answers (responses) | `GET /surveys/{id}/answers` |
-| Export answers (async) | `POST /surveys/{id}/answers/_export` |
+| Single answer | `GET /answers?answer_id=…` or `?answer_key=…` (flat route, no survey id) |
+| Export answers (async) | `POST /surveys/{id}/answers/export` → `GET …/answers/export-results` |
+| Keysets CRUD + download | `GET\|POST /surveys/{id}/keysets`, `GET\|PATCH\|DELETE …/keysets/{kid}`, `GET …/keysets/{kid}/download` |
+| Files upload / verify / download / delete | `POST /surveys/{id}/files`, `POST …/files/verify`, `GET\|DELETE /files` |
+| Images upload | `POST /surveys/{id}/images` |
 | Poll async operation | `GET /operations/{op_id}` |
 
-Paths are grouped by resource; `_`-prefixed segments (`_publish`, `_move`, `_export`)
-are action endpoints. Question IDs are server-assigned — read them back from the
-create/list response rather than hardcoding.
+Question IDs are server-assigned — read them back from the create/list response
+rather than hardcoding.
 
 ## Question types
 
@@ -56,11 +63,20 @@ Datasource-backed dropdowns (`datasource: tracker_component`, `tracker_user`,
 `dir_user`, `wiki_table_source`, …) are queue-/space-scoped: set the form's `dir_id` /
 target queue before adding them, or the suggest returns nothing.
 
-## Not in the public API
+## Documented but not wrapped by ycli
 
 - **Integration hooks** (create Tracker issue / Wiki page / email / webhook on submit)
-  — UI or the session-cookie gateway only.
+  — hook groups, subscriptions, conditions, template variables, and notification history
+  are documented on `api.forms.yandex.net/v1` but not implemented in ycli (tracked
+  coverage gap). Use the UI or raw OAuth HTTP — see the skill's §4.
+- **Answer integrations view** — `GET /v1/answers/integrations` (which integrations
+  fired for an answer). The single-answer view itself IS wrapped:
+  `ycli forms answers get --answer-id …|--answer-key …` (`GET /v1/answers`, flat
+  query-param route — the path variants 404).
+
+## Not in the public API
+
 - **Appearance / themes, analytics / charts** — UI only.
 
-See the skill's §4/§5 for the UI-and-gateway workflow and the durable guardrails
-(publish state, header casing, scope errors).
+See the skill's §4/§5 for the hooks workflow and the durable guardrails
+(publish state, scope errors, enum-answer list shape).

@@ -1,8 +1,4 @@
-"""Tracker issue remote-links FastMCP tool — read-only, LIST ONLY.
-
-Creating and deleting external links are writes and ship on the CLI/SDK only (ARCH-3); only
-the list of an issue's remote links is exposed here.
-"""
+"""Tracker issue remote-links FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -10,9 +6,17 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
-from ycli.yandex.tracker.remotelinks.models import RemoteLinkList
+from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_TAGS,
+    tracker_client,
+)
+from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkList
 
 mcp = FastMCP("tracker-remotelinks")
 
@@ -30,9 +34,43 @@ def list_(
 
     Each entry carries the link type, direction, and the external object's key plus its owning
     application. This is the *external* link list — for issue-to-issue links use
-    ``links_list``. Creating/deleting remote links is CLI/SDK only (writes, ARCH-3).
+    ``links_list``.
 
     Example:
         >>> remotelinks_list("JUNE-2")  # doctest: +SKIP
     """
     return client.remotelinks.list(issue_key)
+
+
+@mcp.tool(
+    name="remotelinks_create",
+    annotations={**WRITE, "title": "Create Tracker issue remote link"},
+    tags=WRITE_TAGS,
+)
+def create(
+    issue_key: str,
+    body: dict,
+    backlink: str | None = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> RemoteLink:
+    """Link a Tracker issue to an object in an external application; returns the created link.
+
+    ``body`` is the raw API payload ``{"origin": "<app id>", "relationship": "relates",
+    "key": "<external object key>"}`` — get the application id from ``applications_list``.
+    Pass ``backlink="true"`` to also create the mirror link in the external app.
+    """
+    return client.remotelinks.create(issue_key, body, backlink=backlink)
+
+
+@mcp.tool(
+    name="remotelinks_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker issue remote link"},
+    tags=WRITE_TAGS,
+)
+def delete(issue_key: str, link_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+    """Remove a remote (external-application) link from a Tracker issue (irreversible).
+
+    Get ``link_id`` from ``remotelinks_list``. Returns an acknowledgement on success.
+    """
+    client.remotelinks.delete(issue_key, link_id)
+    return Ack(detail=f"deleted remote link {link_id} on {issue_key}")

@@ -11,6 +11,7 @@ from ycli.cli.binary import write_output
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
@@ -70,7 +71,11 @@ def delete(
     """Delete an attachment by id (DELETE /pages/{id}/attachments/{file_id})."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.wiki.attachments.delete(page_id=page_id, file_id=file_id)
-    print(f"Deleted attachment {file_id} from page {page_id}.")
+    Serializer.serialize(
+        Ack(detail=f"deleted attachment {file_id} from page {page_id}"),
+        app_ctx.strategy,
+        app_ctx.console,
+    )
 
 
 @app.command()

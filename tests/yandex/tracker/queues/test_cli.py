@@ -112,8 +112,9 @@ def test_queues_create():
 @responses.activate
 def test_queues_delete():
     responses.add(responses.DELETE, f"{BASE}/queues/TEST", status=204)
-    res = runner.invoke(cli.app, ["tracker", "queues", "delete", "TEST"])
-    assert res.exit_code == 0 and "Deleted queue TEST" in res.stdout
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "queues", "delete", "TEST"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted queue TEST"}
 
 
 @responses.activate
@@ -150,8 +151,14 @@ def test_queues_permissions():
 @responses.activate
 def test_queues_tag_remove():
     responses.add(responses.POST, f"{BASE}/queues/TEST/tags/_remove", status=204)
-    res = runner.invoke(cli.app, ["tracker", "queues", "tag-remove", "TEST", "obsolete"])
-    assert res.exit_code == 0 and "Removed tag 'obsolete'" in res.stdout
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "queues", "tag-remove", "TEST", "obsolete"]
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {
+        "ok": True,
+        "detail": "removed tag 'obsolete' from queue TEST",
+    }
     assert json.loads(responses.calls[0].request.body) == {"tag": "obsolete"}  # ty: ignore[invalid-argument-type]
 
 

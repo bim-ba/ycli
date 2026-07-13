@@ -17,7 +17,10 @@ API endpoints — never logged, never written to disk, never transmitted elsewhe
 In scope:
 
 - Credential handling and accidental token/PII leakage (logs, error output, the demo shims).
-- The read-only MCP boundary — the MCP server must expose **no** write tools.
+- The MCP annotation-honesty boundary — the MCP server is read/write, and every tool's
+  annotations must be honest (reads carry `readOnlyHint`; writes carry explicit
+  `destructiveHint` / `idempotentHint` and the `write` tag). `ycli mcp start --read-only`
+  must expose **no** write tools — a write tool leaking through that flag is in scope.
 - Dependency or supply-chain issues in the published `yandex-cli` distribution.
 
 Out of scope: vulnerabilities in the Yandex 360 services themselves (report those to

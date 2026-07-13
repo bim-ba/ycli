@@ -3,8 +3,10 @@
     python scripts/new_endpoint.py tracker macros
 
 Creates src/ycli/yandex/tracker/macros/{__init__,client,cli,mcp,models}.py wired to the
-domain deps, the render output path, and read-only MCP annotations. Fill the marked spots
-with the real endpoint; the structure already satisfies ARCH-1..4 and import-linter.
+domain deps, the render output path, and honest MCP annotations (ARCH-3). The scaffold
+generates a read tool (`RO` annotations) by default; write tools take the `WRITE` /
+`WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets plus the `write` tag. Fill the marked
+spots with the real endpoint; the structure already satisfies ARCH-1..4 and import-linter.
 """
 
 from __future__ import annotations
@@ -41,7 +43,7 @@ from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
 class {cls}Client({domain_cls}Resource):
-    """Declarative HTTP for /{resource} (read-only to start)."""
+    """Declarative HTTP for /{resource} (scaffolded with one read; add the real ops)."""
 
     @uplink.returns.json()
     @uplink.get("FILL/{resource}/{{item_id}}")  # FILL: real path
@@ -74,7 +76,12 @@ def get(ctx: typer.Context, item_id: str) -> None:
     )
 '''
 
-MCP = '''"""{domain} /{resource} FastMCP tools (read-only)."""
+MCP = '''"""{domain} /{resource} FastMCP tools (honest annotations, ARCH-3).
+
+The scaffolded tool is a read (`RO` annotations). For write tools use the `WRITE` /
+`WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets from ``ycli.yandex.mcp`` plus the
+`write` tag, and pick a verb the ARCH-3 classification maps know.
+"""
 from __future__ import annotations
 
 from fastmcp import FastMCP

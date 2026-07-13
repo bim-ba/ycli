@@ -18,16 +18,51 @@ def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
+def _worklog_page_callback(request):
+    """Two-page drain: page 1 (no id) → id=6 empty page terminates."""
+    if "id=" in request.url:
+        return (200, {}, json.dumps([]))
+    return (200, {}, json.dumps([{"id": 5, "duration": "PT2H"}, {"id": 6, "duration": "PT1H"}]))
+
+
 @responses.activate
-def test_list():
+def test_list_drains_pages():
+    responses.add_callback(
+        responses.GET,
+        f"{BASE}/issues/DE-1/worklog",
+        callback=_worklog_page_callback,
+        content_type="application/json",
+    )
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "worklog", "list", "DE-1"])
+    assert res.exit_code == 0
+    assert [w["duration"] for w in json.loads(res.stdout)] == ["PT2H", "PT1H"]
+    assert len(responses.calls) == 2  # page 1 + the id=6 empty page
+
+
+@responses.activate
+def test_list_with_limit():
     responses.add(
         responses.GET,
         f"{BASE}/issues/DE-1/worklog",
-        json=[{"id": 5, "duration": "PT2H"}],
+        json=[{"id": 5, "duration": "PT2H"}, {"id": 6, "duration": "PT1H"}],
         status=200,
     )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "worklog", "list", "DE-1"])
-    assert res.exit_code == 0 and json.loads(res.stdout)[0]["duration"] == "PT2H"
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "worklog", "list", "DE-1", "--limit", "1"]
+    )
+    assert res.exit_code == 0
+    assert [w["duration"] for w in json.loads(res.stdout)] == ["PT2H"]
+    assert len(responses.calls) == 1  # limit satisfied by page 1 — no second fetch
+
+
+@responses.activate
+def test_list_all_is_uncapped():
+    responses.add(responses.GET, f"{BASE}/issues/DE-1/worklog", json=[], status=200)
+    res = runner.invoke(
+        cli.app, ["--format", "json", "tracker", "worklog", "list", "DE-1", "--all"]
+    )
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == []
 
 
 @responses.activate
@@ -81,9 +116,9 @@ def test_edit():
 @responses.activate
 def test_delete():
     responses.add(responses.DELETE, f"{BASE}/issues/DE-1/worklog/1", status=204)
-    res = runner.invoke(cli.app, ["tracker", "worklog", "delete", "DE-1", "1"])
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "worklog", "delete", "DE-1", "1"])
     assert res.exit_code == 0
-    assert "Deleted worklog 1 on DE-1" in res.stdout
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted worklog 1 on DE-1"}
     assert responses.calls[0].request.method == "DELETE"
 
 

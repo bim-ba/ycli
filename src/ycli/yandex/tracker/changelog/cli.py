@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Annotated
-
 import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -24,10 +24,12 @@ def _group() -> None:
 def list_(
     ctx: typer.Context,
     key: KeyArg,
-    per_page: Annotated[int, typer.Option("--per-page", help="Entries per page.")] = 100,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
 ) -> None:
-    """List changelog entries for issue KEY."""
+    """List all changelog entries for issue KEY (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
     Serializer.serialize(
-        app_ctx.tracker.changelog.list(key, per_page=per_page), app_ctx.strategy, app_ctx.console
+        app_ctx.tracker.changelog.list(key, limit=cap), app_ctx.strategy, app_ctx.console
     )

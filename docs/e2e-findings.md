@@ -1,8 +1,10 @@
 # Live E2E validation — findings & defect log
 
-A record of the first **end-to-end run of `ycli` against a real Yandex 360 organization**
+A record of the **end-to-end runs of `ycli` against a real Yandex 360 organization**
 (not the stubbed test suite): every domain exercised through the CLI, the Python SDK, and the
-read-only MCP tools, with full create→read→update→delete round-trips and cleanup.
+MCP tools, with full create→read→update→delete round-trips and cleanup. Two runs so far: the
+first full pass (2026-07-10, below) and the full-surface re-test after the MCP server went
+**read/write** (2026-07-12, [last section](#2026-07-12--full-surface-live-test-all-230-sdk-methods)).
 
 > **Provenance.** Run **2026-07-10** on branch `feat/full-api-coverage` against a freshly
 > created test org. Fixtures were created, exercised, and deleted; a handful of Tracker
@@ -74,3 +76,41 @@ Deleted everything create-able. Four Tracker dictionary items have **no DELETE e
 remain: a resolution, a status, a priority, and a global field (all `e2e*`-prefixed). The
 `YCLITEST` queue was soft-deleted (async purge). These can only be removed via the Tracker admin
 UI, if at all.
+
+---
+
+## 2026-07-12 — full-surface live test (all 230 SDK methods)
+
+Run on branch `feat/mcp-read-write` (the branch that made the MCP server read/write, 222 tools)
+against the same test org: **every one of the 230 SDK operations** exercised end-to-end via the
+CLI, in five parallel sweeps (Forms; Wiki; Tracker core issue flow; Tracker admin; Tracker
+entities/bulk/import/dashboards), each write verified by reading back the changed state, with
+full sandbox cleanup.
+
+**Verdicts: 237 OK rows · 7 `ycli` bugs · 1 upstream API bug** (the remaining rows were
+expected failures from environment preconditions, e.g. Forms file uploads requiring external
+S3 storage). Both previously "inferred" Forms signatures were re-confirmed against the live API.
+
+### ycli bugs found (fixes landing on this same branch)
+
+| # | Domain | Bug | Live symptom |
+|---|--------|-----|--------------|
+| 1 | Tracker | `sprints edit / start / archive` send no optimistic-locking version | HTTP 428 — the API requires `?version=` or `If-Match`; the CLI/SDK expose no `--version` for sprints (unlike triggers/components/statuses) |
+| 2 | Tracker | `entities comments edit` PATCHes the comments *collection* route | HTTP 405 — the live API wants per-comment `PATCH …/comments/{comment_id}` (raw probe 200); the vendored doc page is stale |
+| 3 | Tracker | `entities attachments delete` crashes on the empty response body | Server delete succeeds, then the CLI raises `JSONDecodeError` (`uplink.returns.json()` on a bodyless DELETE) |
+| 4 | Tracker | `import worklog` parses the array response as a single `Worklog` | Server write succeeds, then pydantic validation error (`input_type=list`) |
+| 5 | Wiki | `pages append` without `--location` sends no placement selector | HTTP 400 `VALIDATION_ERROR` («body/section/anchor mutually exclusive») — fix: default to bottom |
+| 6 | Wiki | `grids columns add` claims per-column `slug` is server-generated | HTTP 400 `value_error.missing` unless every column carries an explicit `"slug"` |
+| 7 | Wiki | `grids update --default-sort` dumps the *read* shape | The API writes a mapping list `[{"<column_slug>": "asc"}]`; the model emits `[{"slug","title","direction"}]` → 400 (and the correct shape gets stripped by pydantic) |
+
+### Upstream (Yandex) API bug
+
+- **Tracker entities checklist whole-replace** — `PATCH /v3/entities/{type}/{id}/checklistItems`
+  returns **500 «Внутренняя ошибка»** even for a doc-conformant raw request; the per-item
+  `edit-item` route works. Server-side, not a ycli defect.
+
+Beyond the defects, the run recorded a set of durable API quirks (queue keys reject digits;
+`queues create` de-facto requires an `--issue-type-config` with a real `*PresetWorkflow` id;
+deleted queues 403-but-stay-listed; Forms enum answers must be lists; `questions move` without
+`--page` is a silent no-op; …) — these now live in the plugin skills
+(`plugins/yandex-360/skills/*/SKILL.md`) as agent-facing guardrails.

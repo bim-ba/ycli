@@ -1,24 +1,43 @@
-"""The recovery subserver is intentionally tool-less (restore is a WRITE — ARCH-3).
+"""Wiki /recovery_tokens FastMCP subserver tests — the ``recovery_restore`` write tool."""
 
-It exists only for four-surface symmetry (ARCH-1); it must instantiate, connect, and expose
-zero tools. Mounting it into a parent server therefore adds nothing (verified here too, so the
-orchestrator can mount it for symmetry without changing the tool inventory).
-"""
-
-from fastmcp import Client, FastMCP
+import pytest
+import responses
+from fastmcp import Client
 
 from ycli.yandex.wiki.recovery import mcp as recovery_mcp
 
+BASE = "https://api.wiki.yandex.net/v1"
 
-async def test_recovery_subserver_registers_no_tools():
+
+@pytest.fixture
+def creds(monkeypatch):
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
+
+
+@responses.activate
+async def test_recovery_restore_tool(creds):
+    responses.add(
+        responses.POST,
+        f"{BASE}/recovery_tokens/tok-1/recover",
+        json={"id": 42, "slug": "data/x"},
+        status=200,
+    )
     async with Client(recovery_mcp.mcp) as client:
-        tools = await client.list_tools()
-    assert tools == []
+        result = await client.call_tool("recovery_restore", {"token": "tok-1"})
+    assert result.data.id == 42
+    assert result.data.slug == "data/x"
+    request = responses.calls[0].request
+    assert request.method == "POST"
+    assert request.url.endswith("/recovery_tokens/tok-1/recover")  # ty: ignore[unresolved-attribute]
+    assert not request.body  # the token in the path is the whole request
 
 
-async def test_recovery_subserver_mounts_cleanly_without_adding_tools():
-    parent = FastMCP("parent")
-    parent.mount(recovery_mcp.mcp)
-    async with Client(parent) as client:
-        tools = await client.list_tools()
-    assert tools == []  # tool-less mount is a no-op — safe to include for symmetry
+async def test_recovery_restore_carries_honest_write_hints():
+    async with Client(recovery_mcp.mcp) as client:
+        tools = {t.name: t for t in await client.list_tools()}
+    annotations = tools["recovery_restore"].annotations
+    assert annotations.readOnlyHint is False
+    assert annotations.destructiveHint is False  # restore re-creates data, never removes it
+    assert annotations.idempotentHint is False
+    assert annotations.title

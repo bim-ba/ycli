@@ -18,12 +18,43 @@ SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
 YANDEX = SRC / "yandex"
 DOMAINS = ("tracker", "wiki", "forms")
 CANONICAL = {"__init__.py", "client.py", "cli.py", "mcp.py", "models.py"}
-# Allow-list (fail-closed): an MCP tool's verb MUST be a known read. A new read
-# operation adds its verb here deliberately; any other verb (modify/patch/post/…)
-# fails, so a write tool can't slip in by naming. Keep in sync with ARCHITECTURE.md.
-READ_VERBS = {"get", "list", "count", "search", "descendants", "meta"}
-# Behavioral backstop: even a read-named tool must not call a client write method.
-_WRITE_CALL_RE = re.compile(r"\.(create|update|add|execute|delete|remove|set)\(")
+# Fail-closed verb classification (ARCH-3 annotation honesty): every MCP tool name's
+# verb — its longest `_`-suffix found below — MUST classify as read, write,
+# idempotent-write, or destructive. An unknown verb fails the build; a new operation
+# adds its verb here deliberately. Keep in sync with ARCHITECTURE.md.
+READ_VERBS = {"get", "list", "count", "search", "descendants", "meta", "suggest", "verify"}
+WRITE_VERBS = {
+    "create", "add", "execute", "submit", "publish", "unpublish", "move", "start",
+    "archive", "restore", "react", "attach", "upload", "upload_part", "clone", "append",
+    "append_content", "finish", "export", "transition", "create_report",
+    "add_rows", "move_rows", "add_columns", "move_columns", "add_cycle_time_widget",
+    "import_task", "import_comment", "import_link", "import_worklog", "import_file",
+}  # fmt: skip
+WRITE_IDEMPOTENT_VERBS = {
+    "update", "edit", "modify", "set", "set_permissions", "permissions_set",
+    "update_cells", "edit_item", "scroll_clear",
+}  # fmt: skip
+DESTRUCTIVE_VERBS = {
+    "delete", "remove", "clear", "abort", "abort_all",
+    "remove_rows", "remove_columns", "delete_item",
+}  # fmt: skip
+
+_VERB_CLASS: dict[str, str] = (
+    dict.fromkeys(READ_VERBS, "read")
+    | dict.fromkeys(WRITE_VERBS, "write")
+    | dict.fromkeys(WRITE_IDEMPOTENT_VERBS, "write_idempotent")
+    | dict.fromkeys(DESTRUCTIVE_VERBS, "destructive")
+)
+
+
+def _classify(name: str) -> str | None:
+    """Classify a tool/method name by its longest known `_`-suffix (fail-closed: None)."""
+    tokens = name.split("_")
+    for start in range(len(tokens)):  # longest suffix first
+        suffix = "_".join(tokens[start:])
+        if suffix in _VERB_CLASS:
+            return _VERB_CLASS[suffix]
+    return None
 
 
 def _resource_dirs():
@@ -51,26 +82,101 @@ def _mcp_tools():
     return asyncio.run(go())
 
 
-def test_arch3_mcp_tools_are_read_only():
+def test_arch3_mcp_annotation_honesty():
+    """Every tool's hints match its verb class exactly (fail-closed on unknown verbs).
+
+    The MCP-spec default for an unannotated tool is destructiveHint=true, so every
+    write tool must declare its hints explicitly (WRITE / WRITE_IDEMPOTENT / DESTRUCTIVE
+    in ycli.yandex.mcp); reads keep RO.
+    """
     tools = _mcp_tools()
     assert tools, "no MCP tools discovered"
     for t in tools:
-        verb = t.name.rsplit("_", 1)[-1]
-        assert verb in READ_VERBS, (
-            f"MCP tool {t.name!r} verb {verb!r} is not a known read verb {sorted(READ_VERBS)} "
-            "— writes ship SDK+CLI only; if this is a new read, add the verb to READ_VERBS"
+        cls = _classify(t.name)
+        assert cls is not None, (
+            f"MCP tool {t.name!r} has no known verb suffix — add its verb to the "
+            "READ/WRITE/WRITE_IDEMPOTENT/DESTRUCTIVE maps deliberately (fail-closed)"
         )
         ann = getattr(t, "annotations", None)
-        assert ann is not None and ann.readOnlyHint is True, f"{t.name!r} lacks readOnlyHint"
+        assert ann is not None, f"{t.name!r} lacks annotations"
+        if cls == "read":
+            assert ann.readOnlyHint is True, f"{t.name!r} is a read but readOnlyHint is not True"
+        else:
+            assert ann.readOnlyHint is False, f"{t.name!r} is a write but readOnlyHint is not False"
+            assert ann.destructiveHint is (cls == "destructive"), (
+                f"{t.name!r} verb class {cls!r} demands destructiveHint="
+                f"{cls == 'destructive'}, got {ann.destructiveHint}"
+            )
+            assert ann.idempotentHint is (cls == "write_idempotent"), (
+                f"{t.name!r} verb class {cls!r} demands idempotentHint="
+                f"{cls == 'write_idempotent'}, got {ann.idempotentHint}"
+            )
 
 
-def test_arch3_mcp_modules_call_no_write_methods():
-    """Even a read-named tool must not invoke a client write method from an mcp.py."""
+def test_arch3_write_tools_carry_write_tag():
+    """`--read-only` hides writes by tag, so every write tool MUST carry the write tag.
+
+    `ycli mcp start --read-only` calls ``mcp.disable(tags={WRITE_TAG})``; if a write tool were
+    registered with the read ``TAGS`` (a copy-paste slip), it would leak through the reads-only
+    view. The hint↔tag correlation is checked here so the safety flag can't fail open — a mis-
+    tagged tool trips this even though its annotations are internally honest.
+    """
+    from ycli.yandex.mcp import WRITE_TAG
+
+    tools = _mcp_tools()
+    assert tools, "no MCP tools discovered"
+    for t in tools:
+        ann = getattr(t, "annotations", None)
+        assert ann is not None, f"{t.name!r} lacks annotations"
+        meta = getattr(t, "meta", None) or {}
+        tags = set(meta.get("fastmcp", {}).get("tags", []) or [])
+        is_write = ann.readOnlyHint is False
+        assert (WRITE_TAG in tags) == is_write, (
+            f"{t.name!r}: readOnlyHint={ann.readOnlyHint} but write-tag "
+            f"{'present' if WRITE_TAG in tags else 'absent'} — a write tool must carry the "
+            f"{WRITE_TAG!r} tag (so --read-only hides it) and a read must not"
+        )
+
+
+def test_arch3_read_tools_call_no_write_methods():
+    """A read-classified tool must not invoke a client write method (AST-checked)."""
+    import ast
+
     offenders = []
     for mcp_py in YANDEX.rglob("mcp.py"):
-        for m in _WRITE_CALL_RE.finditer(mcp_py.read_text(encoding="utf-8")):
-            offenders.append(f"{mcp_py.relative_to(SRC)}: calls .{m.group(1)}(")
-    assert not offenders, f"MCP modules must not call client write methods: {offenders}"
+        tree = ast.parse(mcp_py.read_text(encoding="utf-8"))
+        rel = mcp_py.relative_to(SRC)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            tool_name = None
+            for deco in node.decorator_list:
+                if (
+                    isinstance(deco, ast.Call)
+                    and isinstance(deco.func, ast.Attribute)
+                    and deco.func.attr == "tool"
+                ):
+                    names = [
+                        kw.value.value
+                        for kw in deco.keywords
+                        if kw.arg == "name"
+                        and isinstance(kw.value, ast.Constant)
+                        and isinstance(kw.value.value, str)
+                    ]
+                    if not names:
+                        offenders.append(f"{rel}: {node.name} registers a tool without name=")
+                        continue
+                    tool_name = names[0]
+            if tool_name is None or _classify(tool_name) != "read":
+                continue
+            for call in ast.walk(node):
+                if (
+                    isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and _classify(call.func.attr) in {"write", "write_idempotent", "destructive"}
+                ):
+                    offenders.append(f"{rel}: read tool {tool_name!r} calls .{call.func.attr}(…)")
+    assert not offenders, f"read tools must not call client write methods: {offenders}"
 
 
 def test_arch4_serialization_confined_to_output():

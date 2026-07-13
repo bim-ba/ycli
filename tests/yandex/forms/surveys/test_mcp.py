@@ -1,4 +1,6 @@
-"""TDD for forms surveys MCP subserver — @cache factory, env+responses pattern."""
+"""TDD for forms surveys MCP subserver — reads + writes with honest annotations."""
+
+import json
 
 import pytest
 import responses
@@ -55,8 +57,90 @@ async def test_surveys_get_empty_response_guard(creds):
             await client.call_tool("surveys_get", {"survey_id": SID})
 
 
-async def test_surveys_tools_registered_read_only():
+@responses.activate
+async def test_surveys_create_tool_posts_body(creds):
+    responses.add(
+        responses.POST, f"{BASE}/surveys", json={"id": SID, "name": "Onboarding"}, status=201
+    )
+    async with Client(surveys_mcp.mcp) as client:
+        result = await client.call_tool("surveys_create", {"body": {"name": "Onboarding"}})
+    request = responses.calls[0].request
+    assert request.method == "POST" and request.url == f"{BASE}/surveys"
+    body = request.body
+    assert isinstance(body, bytes)
+    assert json.loads(body) == {"name": "Onboarding"}  # unset fields are dropped
+    assert result.data.id == SID and result.data.name == "Onboarding"
+
+
+@responses.activate
+async def test_surveys_modify_tool_patches_body(creds):
+    responses.add(
+        responses.PATCH, f"{BASE}/surveys/{SID}", json={"id": SID, "name": "Renamed"}, status=200
+    )
+    async with Client(surveys_mcp.mcp) as client:
+        result = await client.call_tool(
+            "surveys_modify", {"survey_id": SID, "body": {"name": "Renamed"}}
+        )
+    request = responses.calls[0].request
+    assert request.method == "PATCH" and request.url == f"{BASE}/surveys/{SID}"
+    body = request.body
+    assert isinstance(body, bytes)
+    assert json.loads(body) == {"name": "Renamed"}
+    assert result.data.name == "Renamed"
+
+
+@responses.activate
+async def test_surveys_delete_tool(creds):
+    responses.add(responses.DELETE, f"{BASE}/surveys/{SID}", status=204)
+    async with Client(surveys_mcp.mcp) as client:
+        result = await client.call_tool("surveys_delete", {"survey_id": SID})
+    request = responses.calls[0].request
+    assert request.method == "DELETE" and request.url == f"{BASE}/surveys/{SID}"
+    assert result.data.ok is True and result.data.action == "delete"
+
+
+@responses.activate
+async def test_surveys_publish_tool(creds):
+    responses.add(responses.POST, f"{BASE}/surveys/{SID}/publish", status=200)
+    async with Client(surveys_mcp.mcp) as client:
+        result = await client.call_tool("surveys_publish", {"survey_id": SID})
+    request = responses.calls[0].request
+    assert request.method == "POST" and request.url == f"{BASE}/surveys/{SID}/publish"
+    assert result.data.ok is True and result.data.action == "publish"
+
+
+@responses.activate
+async def test_surveys_unpublish_tool(creds):
+    responses.add(responses.POST, f"{BASE}/surveys/{SID}/unpublish", status=200)
+    async with Client(surveys_mcp.mcp) as client:
+        result = await client.call_tool("surveys_unpublish", {"survey_id": SID})
+    request = responses.calls[0].request
+    assert request.method == "POST" and request.url == f"{BASE}/surveys/{SID}/unpublish"
+    assert result.data.ok is True and result.data.action == "unpublish"
+
+
+async def test_surveys_tools_registered_with_honest_annotations():
     async with Client(surveys_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert set(tools) == {"surveys_list", "surveys_get"}
-    assert tools["surveys_list"].annotations.readOnlyHint is True
+    assert set(tools) == {
+        "surveys_list",
+        "surveys_get",
+        "surveys_create",
+        "surveys_modify",
+        "surveys_delete",
+        "surveys_publish",
+        "surveys_unpublish",
+    }
+    for name in ("surveys_list", "surveys_get"):
+        assert tools[name].annotations.readOnlyHint is True
+    for name in ("surveys_create", "surveys_publish", "surveys_unpublish"):
+        ann = tools[name].annotations
+        assert ann.readOnlyHint is False
+        assert ann.destructiveHint is False and ann.idempotentHint is False
+    modify = tools["surveys_modify"].annotations
+    assert modify.readOnlyHint is False
+    assert modify.destructiveHint is False and modify.idempotentHint is True
+    delete = tools["surveys_delete"].annotations
+    assert delete.readOnlyHint is False
+    assert delete.destructiveHint is True and delete.idempotentHint is False
+    assert all(t.annotations.title for t in tools.values())

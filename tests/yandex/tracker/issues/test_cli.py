@@ -217,8 +217,9 @@ def test_suggest():
 def test_scroll_clear():
     responses.add(responses.POST, f"{BASE}/system/search/scroll/_clear", status=200)
     res = runner.invoke(
-        cli.app, ["tracker", "issues", "scroll-clear", "--pair", "scrollId=scrollToken"]
+        cli.app,
+        ["--format", "json", "tracker", "issues", "scroll-clear", "--pair", "scrollId=scrollToken"],
     )
     assert res.exit_code == 0
-    assert "Cleared search scroll resources" in res.stdout
+    assert json.loads(res.stdout) == {"ok": True, "detail": "cleared search scroll resources"}
     assert json.loads(responses.calls[0].request.body) == {"scrollId": "scrollToken"}  # ty: ignore[invalid-argument-type]

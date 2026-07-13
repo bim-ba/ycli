@@ -1,4 +1,4 @@
-"""`forms questions` commands (reads + writes; writes are CLI/SDK only, never MCP)."""
+"""`forms questions` commands (reads + writes; writes also ship as MCP tools)."""
 
 from __future__ import annotations
 
@@ -268,7 +268,13 @@ def move(
     ctx: typer.Context,
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
-    page: Annotated[int, typer.Option(help="Target page number, 1-based (0 = unset).")] = 0,
+    page: Annotated[
+        int,
+        typer.Option(
+            help="Target page number, 1-based (0 = unset; defaults to 1 when only "
+            "--position is given — the API silently ignores a bare position)."
+        ),
+    ] = 0,
     page_id: Annotated[int, typer.Option("--page-id", help="Target page id (0 = unset).")] = 0,
     position: Annotated[
         int, typer.Option(help="New position on the page, 1-based (0 = unset).")
@@ -280,7 +286,11 @@ def move(
         str, typer.Option(help="Question id/slug to move into a question series.")
     ] = "",
 ) -> None:
-    """Move a question (POST …/questions/{id}/move) to another page / position."""
+    """Move a question (POST …/questions/{id}/move) to another page / position.
+
+    ``--position`` without a page target would be silently ignored by the API (200, nothing
+    moves), so ``--page`` defaults to 1 in that case.
+    """
     payload = QuestionMove(
         question=question or None,
         page=page or None,

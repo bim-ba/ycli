@@ -6,6 +6,7 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 import requests
 import uplink
 
+from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.worklog.models import Worklog, WorklogList
 
@@ -15,14 +16,35 @@ class WorklogClient(TrackerResource):
 
     @uplink.returns.json()
     @uplink.get("issues/{key}/worklog")
-    def list(self, key: uplink.Path) -> WorklogList:  # ty: ignore[empty-body]
-        """``GET /issues/{key}/worklog`` → worklog listing.
+    def _page(
+        self,
+        key: uplink.Path,
+        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
+        record_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
+    ) -> WorklogList:  # ty: ignore[empty-body]
+        """One raw ``/issues/{key}/worklog`` page (a bare JSON array); callers use ``list``."""
+
+    def list(self, key: str, *, limit: int | None = None) -> WorklogList:
+        """All worklog entries on an issue, draining the ``id=<last record id>`` cursor.
+
+        ``GET /issues/{key}/worklog`` sorts by ascending record id and pages relatively:
+        each next page repeats with ``id=<id of the last record seen>`` until a page comes
+        back empty. Capped at ``limit`` (``None`` = every entry).
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.worklog.list(key="DATAENGINEERING-1").root[0].duration  # doctest: +SKIP
             'PT2H'
         """
+        strategy = RelativeCursorStrategy(
+            extract=lambda page: page.root,
+            id_of=lambda record: str(record.id) if record.id is not None else None,
+        )
+        records = strategy.collect(
+            lambda cursor: self._page(key, per_page=100, record_id=cursor),
+            limit,
+        )
+        return WorklogList(records)
 
     @uplink.returns.json()
     @uplink.json

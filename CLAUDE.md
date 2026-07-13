@@ -41,7 +41,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `session_from_env`; never hardcode credentials. The transport sends one canonical
   `X-Org-Id` org header for every service (HTTP header names are case-insensitive per
   RFC 9110), so there is no per-service casing to track.
-- **MCP server is read-only;** writes are CLI/SDK only.
+- **MCP server is read/write** (ARCH-3 annotation honesty: reads carry `readOnlyHint=True`,
+  writes carry explicit `destructiveHint`/`idempotentHint`); `ycli mcp start --read-only`
+  serves the reads-only view.
 - **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
   (`.env.example` / `.mcp.example.json` hold placeholders).
 
@@ -53,8 +55,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   release. PSR pushes the release commit + tag back to `main` with a short-lived **GitHub App**
   installation token (App ID `4175048`; secrets `RELEASE_APP_CLIENT_ID` /
   `RELEASE_APP_PRIVATE_KEY`, minted in `release.yml`) — the default `GITHUB_TOKEN` cannot bypass
-  the branch-protection ruleset below, so the App token is what lets a release land. After a
-  release, `uv.lock`'s own version lags `pyproject` until you re-lock (see the gate bullet).
+  the branch-protection ruleset below, so the App token is what lets a release land. After the
+  release commit, a gated step in the same run re-locks `uv.lock` and pushes a `build:` commit
+  automatically (see the gate bullet), so the lockfile does not lag `pyproject`.
 - **Never write a skip-ci token.** `[skip ci]` / `[ci skip]` / `[no ci]` / `[skip actions]` /
   `[actions skip]`, or a `skip-checks: true` commit trailer, anywhere in a commit **or
   squash-merge** message makes GitHub silently cancel the workflow run — and with it the
@@ -75,8 +78,11 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   No direct pushes to `main`; only the release GitHub App (ID `4175048`) bypasses, so PSR can
   land the release commit. **Consequence:** any red required check — including a stale `uv.lock`
   after a release, where `uv sync --locked` fails — now *blocks every merge*, not just reds CI.
-  Re-lock (`uv lock`) and ship a `build:` commit immediately after each release. **Emergency
-  rollback:** set the ruleset to `disabled` (GitHub → Settings → Rules), fix, re-enable.
+  The release workflow normally prevents that itself: its gated "Re-lock and commit uv.lock"
+  step (`release.yml`) runs `uv lock` and pushes the `build:` commit in the same run. Only if
+  that step fails, re-lock manually (`uv lock`) and ship the `build:` commit yourself.
+  **Emergency rollback:** set the ruleset to `disabled` (GitHub → Settings → Rules), fix,
+  re-enable.
 - **100% coverage gate.** `uv run pytest` enforces `--cov-fail-under=100`; new code ships
   with tests that keep it green.
 - **New resources via `/new-endpoint`**, respecting the invariants in
@@ -93,8 +99,8 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
 for the eleven invariants (ARCH-1..11). They are verified by `tests/test_architecture.py`,
 import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
-them: HTTP only in `client.py`; CLI output only via `output.Serializer.serialize`; MCP tools read-only;
-new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
+them: HTTP only in `client.py`; CLI output only via `output.Serializer.serialize`; MCP tools honestly
+annotated (ARCH-3); new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
 enforcing check in the **same** PR and flag it.
 
 ## graphify

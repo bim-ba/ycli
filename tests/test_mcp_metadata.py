@@ -26,9 +26,19 @@ def test_every_tool_has_hints_and_title():
     for tool in tools:
         ann = tool.annotations
         assert ann is not None, tool.name
-        assert ann.readOnlyHint is True, tool.name
-        assert ann.idempotentHint is True, tool.name
+        assert isinstance(ann.readOnlyHint, bool), f"{tool.name} must declare readOnlyHint"
         assert ann.openWorldHint is True, tool.name
+        if ann.readOnlyHint:
+            assert ann.idempotentHint is True, tool.name
+        else:
+            # Writes declare their remaining hints explicitly — the MCP-spec default
+            # for an unannotated tool is destructiveHint=true (see ARCH-3).
+            assert isinstance(ann.destructiveHint, bool), (
+                f"{tool.name} write tool must declare destructiveHint"
+            )
+            assert isinstance(ann.idempotentHint, bool), (
+                f"{tool.name} write tool must declare idempotentHint"
+            )
         assert ann.title and ann.title.strip(), f"{tool.name} has no title"
 
 

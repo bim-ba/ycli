@@ -1,8 +1,7 @@
-"""Tracker bulk-change FastMCP tools (reads-only).
+"""Tracker bulk-change FastMCP tools (reads + writes, ARCH-3 honest annotations).
 
-The bulk *triggers* (update/move/transition) are writes and ship on the CLI/SDK only
-(ARCH-3). Here the MCP surface exposes only the two reads an agent needs to *observe* a
-running operation: fetch its status and list the issues it failed on.
+The bulk *triggers* (update/move/transition) start an async operation and return its id;
+the two reads observe it: fetch its status and list the issues it failed on.
 """
 
 from typing import Annotated
@@ -13,7 +12,14 @@ from pydantic import Field
 
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    tracker_client,
+)
 
 mcp = FastMCP("tracker-bulk")
 
@@ -28,7 +34,7 @@ def get(
     """Current status of an async bulk-change operation (update/move/transition).
 
     ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; ``totalIssues`` /
-    ``totalCompletedIssues`` show progress. Poll this after a CLI bulk trigger returns an id;
+    ``totalCompletedIssues`` show progress. Poll this after a bulk trigger returns an id;
     once it reports ``FAILED``, call ``bulk_issues_list`` for the per-issue errors.
 
     Example:
@@ -56,3 +62,44 @@ def issues_list(
         >>> issues_list(bulk_id="1ab23cd4e5678901")  # doctest: +SKIP
     """
     return client.bulk.issues(bulk_id)
+
+
+@mcp.tool(
+    name="bulk_update",
+    annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update Tracker issues"},
+    tags=WRITE_TAGS,
+)
+def update(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+    """Start an async bulk field update over many Tracker issues; returns the operation.
+
+    ``body`` is the raw API payload: ``{"issues": ["KEY-1", …], "values": {"<field>": …}}``.
+    Poll the returned operation id with ``bulk_get`` and inspect failures with
+    ``bulk_issues_list``.
+    """
+    return client.bulk.update(body)
+
+
+@mcp.tool(
+    name="bulk_move", annotations={**WRITE, "title": "Bulk-move Tracker issues"}, tags=WRITE_TAGS
+)
+def move(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+    """Start an async bulk move of many Tracker issues to another queue; returns the operation.
+
+    ``body`` is the raw API payload: ``{"queue": "TARGET", "issues": ["KEY-1", …]}`` (optional
+    ``values`` sets fields on the moved issues). Poll with ``bulk_get``.
+    """
+    return client.bulk.move(body)
+
+
+@mcp.tool(
+    name="bulk_transition",
+    annotations={**WRITE, "title": "Bulk-transition Tracker issues"},
+    tags=WRITE_TAGS,
+)
+def transition(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+    """Start an async bulk status transition over many Tracker issues; returns the operation.
+
+    ``body`` is the raw API payload: ``{"transition": "<id>", "issues": ["KEY-1", …]}``
+    (optional ``values`` sets fields, e.g. a resolution). Poll with ``bulk_get``.
+    """
+    return client.bulk.transition(body)

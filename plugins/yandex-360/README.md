@@ -10,11 +10,11 @@ the [`ycli`](../../README.md) toolchain — its CLI, its MCP server, or its Pyth
 | `yandex-360` | Entry point — install + auth, pick a surface (CLI/MCP/SDK), route to a domain |
 | `yandex-360-tracker` | Issues, epics, comments, transitions, links, worklog, changelog |
 | `yandex-360-wiki` | Wiki pages, page tree, comments, attachments, YFM authoring |
-| `yandex-360-forms` | Forms, questions/schema, responses, hooks |
+| `yandex-360-forms` | Forms, questions/schema, responses, publishing |
 
-The skills cover the read/write commands and — more importantly — the real Yandex API
-quirks (epic-vs-parent, transition discovery, permanent wiki slugs, the `fields=` rules,
-the Forms host/header traps, …).
+The skills cover the read/write commands — on all three surfaces (CLI, MCP, SDK) — and,
+more importantly, the real Yandex API quirks (epic-vs-parent, transition discovery,
+permanent wiki slugs, the `fields=` rules, the Forms host/header traps, …).
 
 ## Install
 
@@ -30,11 +30,13 @@ Or, working inside this repository, it is registered as a local marketplace in
 
 ## MCP server (auto-wired)
 
-This plugin bundles `.mcp.json`, so installing it registers the **read-only** Yandex 360
+This plugin bundles `.mcp.json`, so installing it registers the **read/write** Yandex 360
 MCP server automatically — no hand-copied config. The server launches via
 `uvx --from "yandex-cli[mcp]" ycli mcp start`, so you need [`uv`](https://docs.astral.sh/uv/)
-on `PATH` but no global `ycli` install. Writes stay on the CLI/SDK; the MCP surface is
-read-only.
+on `PATH` but no global `ycli` install. It serves 222 tools (Tracker 151, Wiki 42,
+Forms 28, plus `status_get`) with honest annotations: reads carry `readOnlyHint=True`,
+writes declare an explicit `destructiveHint`/`idempotentHint`. Add `--read-only` to the
+start command to serve only the read tools; binary downloads stay CLI/SDK-only.
 
 ## Requires
 

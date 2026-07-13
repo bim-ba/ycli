@@ -15,7 +15,7 @@ repos:
         pass_filenames: false
         files: ^src/ycli/.*\.py$
       - id: architecture-tests
-        name: architecture invariants (ARCH-1/3/4/5)
+        name: architecture invariants (ARCH-1..11)
         entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov
         language: system
         pass_filenames: false

@@ -41,6 +41,45 @@ class Answer(APIModel):
     data: list[Any] = Field(default_factory=list)
 
 
+class AnswerSurveyRef(APIModel):
+    """The form a single answer belongs to (``GET /answers`` → ``survey``).
+
+    Example:
+        >>> AnswerSurveyRef.model_validate({"id": "686d0a1b", "name": "Feedback"}).name
+        'Feedback'
+    """
+
+    id: str | None = Field(default=None, description="Form id (hex ObjectId).")
+    name: str | None = Field(default=None, description="Form name.")
+
+
+class AnswerDetails(APIModel):
+    """One full form response (``GET /v1/answers?answer_id=…`` / ``?answer_key=…``).
+
+    Unlike the positional ``data`` of the listing's :class:`Answer`, here each ``data``
+    item is a self-describing question record (``{id, label, type, value, …}``) — passed
+    through verbatim, as ``value`` ranges over eight shapes. ``quiz`` (test results) is
+    also passed through verbatim when present.
+
+    Example:
+        >>> AnswerDetails.model_validate(
+        ...     {"id": 9, "created": "2026-01-01", "survey": {"id": "686d", "name": "F"}}
+        ... ).survey.id
+        '686d'
+    """
+
+    id: int | None = Field(default=None, description="Answer id (integer).")
+    created: str | None = Field(default=None, description="ISO-8601 submission timestamp.")
+    survey: AnswerSurveyRef | None = Field(
+        default=None, description="The form this answer belongs to."
+    )
+    quiz: Any = Field(default=None, description="Quiz (test) results, when the form is a quiz.")
+    data: list[Any] = Field(
+        default_factory=list,
+        description="Per-question answer records ({id, label, type, value, …}), verbatim.",
+    )
+
+
 class AnswersResponse(APIModel):
     """Envelope for ``GET …/answers`` — ``{columns, answers, next}``.
 

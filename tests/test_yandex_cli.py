@@ -45,12 +45,21 @@ def test_app_has_forms_surveys_group():
 
 
 def test_mcp_start_launches_server(monkeypatch):
-    """`ycli mcp start` resolves the optional MCP server and runs it."""
-    calls: list[str] = []
-    monkeypatch.setattr("ycli.mcp.main", lambda: calls.append("ran"))
+    """`ycli mcp start` resolves the optional MCP server and runs it read/write."""
+    calls: list[dict[str, bool]] = []
+    monkeypatch.setattr("ycli.mcp.main", lambda **kwargs: calls.append(kwargs))
     res = runner.invoke(cli.app, ["mcp", "start"])
     assert res.exit_code == 0
-    assert calls == ["ran"]
+    assert calls == [{"read_only": False}]
+
+
+def test_mcp_start_read_only_flag(monkeypatch):
+    """`ycli mcp start --read-only` passes read_only=True to the server."""
+    calls: list[dict[str, bool]] = []
+    monkeypatch.setattr("ycli.mcp.main", lambda **kwargs: calls.append(kwargs))
+    res = runner.invoke(cli.app, ["mcp", "start", "--read-only"])
+    assert res.exit_code == 0
+    assert calls == [{"read_only": True}]
 
 
 def test_mcp_sub_app_registered():

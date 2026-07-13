@@ -1,7 +1,6 @@
 """`forms filling` commands (get-settings read + submit write + suggest read).
 
-``submit`` is a write (CLI/SDK only); ``suggest`` is a read but its verb is not an MCP read verb,
-so it too stays off MCP. Only ``get`` also reaches MCP (``filling_get``).
+All three also reach MCP (``filling_get`` / ``filling_submit`` / ``filling_suggest``).
 """
 
 from __future__ import annotations

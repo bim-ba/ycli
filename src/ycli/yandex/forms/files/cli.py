@@ -1,7 +1,7 @@
-"""`forms files` commands (form-filling file storage — all CLI/SDK only, never MCP).
+"""`forms files` commands (form-filling file storage).
 
-upload / download are binary or write; delete is a write; verify is a read done via POST whose
-verb is not an MCP read verb — so this whole resource stays off MCP.
+upload / download move raw bytes (binary payloads), so they are CLI/SDK-only; verify and delete
+also ship as MCP tools (``files_verify`` / ``files_delete``).
 """
 
 from __future__ import annotations

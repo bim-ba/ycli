@@ -8,6 +8,9 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
+from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.yandex.models import Ack
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -26,10 +29,18 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context, key: KeyArg) -> None:
-    """List worklog entries for issue KEY."""
+def list_(
+    ctx: typer.Context,
+    key: KeyArg,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+) -> None:
+    """List all worklog entries for issue KEY (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.worklog.list(key), app_ctx.strategy, app_ctx.console)
+    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
+    Serializer.serialize(
+        app_ctx.tracker.worklog.list(key, limit=cap), app_ctx.strategy, app_ctx.console
+    )
 
 
 @app.command()
@@ -124,4 +135,6 @@ def delete(ctx: typer.Context, key: KeyArg, record_id: RecordIdArg) -> None:
     """Delete worklog RECORD_ID from issue KEY."""
     app_ctx = AppContext.from_typer_context(ctx)
     app_ctx.tracker.worklog.delete(key, record_id)
-    print(f"Deleted worklog {record_id} on {key}")
+    Serializer.serialize(
+        Ack(detail=f"deleted worklog {record_id} on {key}"), app_ctx.strategy, app_ctx.console
+    )

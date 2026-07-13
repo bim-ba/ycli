@@ -13,9 +13,10 @@ you poll through the ``operations`` resource.
 
 from __future__ import annotations
 
+import re
 from typing import Any, Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field, RootModel, model_validator
 
 from ycli.yandex.models import APIModel
 
@@ -100,7 +101,10 @@ class PageIdentity(APIModel):
 
 
 class ColumnSortSchema(APIModel):
-    """One entry of a grid's default sort — a column ``slug`` and a :data:`SortDirection`.
+    """One entry of a grid's default sort as the API *reads* it back (``{slug, title, direction}``).
+
+    Read shape only — a grid update must send :class:`ColumnSortWrite` instead (the API's write
+    shape is a plain ``{"<column_slug>": "asc"|"desc"}`` mapping and 400s on this read shape).
 
     Example:
         >>> ColumnSortSchema(slug="priority", direction="desc").direction
@@ -112,6 +116,22 @@ class ColumnSortSchema(APIModel):
     direction: SortDirection | None = Field(
         default=None, description="Sort direction: ``asc`` or ``desc``."
     )
+
+
+class ColumnSortWrite(RootModel[dict[str, SortDirection]]):
+    """One default-sort entry as the API *writes* it — ``{"<column_slug>": "asc"|"desc"}``.
+
+    The write shape differs from the read shape: reads return ``[{slug, title, direction}]``
+    (:class:`ColumnSortSchema`), but ``POST /grids/{id}`` accepts only a list of single-key
+    ``column_slug → direction`` mappings and rejects the read shape with a 400
+    (``type_error.enum``). Values are validated against :data:`SortDirection`.
+
+    Example:
+        >>> ColumnSortWrite({"priority": "desc"}).model_dump()
+        {'priority': 'desc'}
+    """
+
+    root: dict[str, SortDirection]
 
 
 class ColumnSchema(APIModel):
@@ -352,19 +372,27 @@ class NewColumnSchema(APIModel):
     """Typed body for one new column in a ``columns add`` request.
 
     ``title`` and ``type`` are required; the remaining fields shape a specific column type
-    (``select_options`` for ``select``, ``ticket_field`` for ``ticket_field``, …).
+    (``select_options`` for ``select``, ``ticket_field`` for ``ticket_field``, …). The live API
+    rejects a column without a ``slug`` (400 ``value_error.missing`` — it is no longer
+    server-generated), so when ``slug`` is omitted it is derived from ``title``: lowercased,
+    with every run of characters outside ``a-z0-9`` collapsed to a single ``_`` and edge
+    underscores stripped (``"Owner"`` → ``"owner"``, ``"My Col!"`` → ``"my_col"``). A title
+    with no ASCII alphanumerics (e.g. a fully Cyrillic one) cannot be derived from — pass an
+    explicit ``slug`` then, or validation fails with a clear error.
 
     Example:
         >>> NewColumnSchema(title="Owner", type="staff", multiple=True).model_dump(
         ...     exclude_none=True
         ... )
-        {'title': 'Owner', 'type': 'staff', 'required': False, 'multiple': True}
+        {'title': 'Owner', 'type': 'staff', 'slug': 'owner', 'required': False, 'multiple': True}
     """
 
     title: str = Field(min_length=1, max_length=255, description="Column header (non-empty).")
     type: ColumnType = Field(description="Value type of the new column.")
     slug: str | None = Field(
-        default=None, description="Explicit slug (server-generated if omitted)."
+        default=None,
+        description="Machine slug of the column — required by the API; derived from ``title`` "
+        "when omitted (lowercased, non-``a-z0-9`` runs collapsed to ``_``).",
     )
     required: bool = Field(
         default=False,
@@ -394,6 +422,24 @@ class NewColumnSchema(APIModel):
         default=None, max_length=1024, description="Free-text column description."
     )
 
+    @model_validator(mode="after")
+    def _derive_slug_from_title(self) -> NewColumnSchema:
+        """Default ``slug`` from ``title`` — the live API rejects slug-less columns (400).
+
+        ``\\W+`` is Unicode-aware, so a Cyrillic title (the Wiki's primary audience) derives a
+        Cyrillic slug rather than collapsing to empty; only a title with no word characters at
+        all (pure punctuation) needs an explicit slug.
+        """
+        if self.slug is None:
+            derived = re.sub(r"\W+", "_", self.title.lower()).strip("_")
+            if not derived:
+                raise ValueError(
+                    f"cannot derive a column slug from title {self.title!r} "
+                    "(no word characters); pass an explicit slug"
+                )
+            self.slug = derived
+        return self
+
 
 class GridCreate(APIModel):
     """Typed body for ``POST /grids`` — create a new grid as a resource of a page.
@@ -416,19 +462,24 @@ class GridUpdate(APIModel):
     """Typed body for ``POST /grids/{id}`` — rename or re-sort a grid (POST, not PATCH).
 
     ``revision`` is required (optimistic lock); ``title`` and ``default_sort`` are the editable
-    fields.
+    fields. ``default_sort`` takes the API's *write* shape — a list of single-key
+    ``{"<column_slug>": "asc"|"desc"}`` mappings (:class:`ColumnSortWrite`), **not** the
+    ``{slug, title, direction}`` read shape a grid ``get`` returns.
 
     Example:
         >>> GridUpdate(revision="3", title="New").model_dump(exclude_none=True)
         {'revision': '3', 'title': 'New'}
+        >>> GridUpdate(revision="3", default_sort=[{"col": "asc"}]).model_dump(exclude_none=True)
+        {'revision': '3', 'default_sort': [{'col': 'asc'}]}
     """
 
     revision: str = Field(description="Current grid revision (optimistic lock).")
     title: str | None = Field(
         default=None, min_length=1, max_length=255, description="New grid title."
     )
-    default_sort: list[ColumnSortSchema] | None = Field(
-        default=None, description="New default row sort."
+    default_sort: list[ColumnSortWrite] | None = Field(
+        default=None,
+        description='New default row sort — write shape ``[{"<column_slug>": "asc"|"desc"}]``.',
     )
 
 
@@ -492,8 +543,8 @@ class ColumnsAdd(APIModel):
     Example:
         >>> ColumnsAdd(
         ...     revision="3", columns=[NewColumnSchema(title="C", type="string")]
-        ... ).model_dump(exclude_none=True)
-        {'revision': '3', 'columns': [{'title': 'C', 'type': 'string', 'required': False}]}
+        ... ).model_dump(exclude_none=True)["columns"]
+        [{'title': 'C', 'type': 'string', 'slug': 'c', 'required': False}]
     """
 
     revision: str = Field(description="Current grid revision (optimistic lock).")

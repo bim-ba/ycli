@@ -8,13 +8,39 @@ from urllib.parse import urlsplit
 import requests
 import uplink
 
-from ycli.yandex.forms.answers.models import AnswersResponse, ExportResult
+from ycli.yandex.forms.answers.models import AnswerDetails, AnswersResponse, ExportResult
 from ycli.yandex.forms.base import FormsResource
 from ycli.yandex.pagination import NextUrlStrategy
 
 
 class AnswersClient(FormsResource):
-    """Declarative HTTP for ``/surveys/{id}/answers``."""
+    """Declarative HTTP for ``/surveys/{id}/answers`` plus the flat single-answer ``/answers``."""
+
+    @uplink.returns.json()
+    @uplink.get("answers")
+    def _get(
+        self,
+        answer_id: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+        answer_key: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
+    ) -> AnswerDetails:  # ty: ignore[empty-body]
+        """Raw ``GET /answers?answer_id=|answer_key=`` (internal; callers use :meth:`get`)."""
+
+    def get(self, *, answer_id: int | None = None, answer_key: str | None = None) -> AnswerDetails:
+        """``GET /v1/answers?answer_id=…`` (or ``?answer_key=…``) → one full :class:`AnswerDetails`.
+
+        The single-answer read is a **flat query-param route** — not nested under
+        ``/surveys/{id}`` (the path variants 404). Exactly one selector is required:
+        ``answer_id`` (the numeric id from a listing; needs form-edit access) or
+        ``answer_key`` (the answer's hash — works without form-edit access).
+
+        Example:
+            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.answers.get(answer_id=2469549806).survey.name  # doctest: +SKIP
+            'Feedback'
+        """
+        if (answer_id is None) == (answer_key is None):
+            raise ValueError("pass exactly one of answer_id or answer_key")
+        return self._get(answer_id=answer_id, answer_key=answer_key)
 
     @uplink.returns.json()
     @uplink.get("surveys/{survey_id}/answers")
@@ -66,7 +92,7 @@ class AnswersClient(FormsResource):
     def export(self, survey_id: uplink.Path, body: uplink.Body) -> ExportResult:  # ty: ignore[empty-body]
         """``POST /surveys/{id}/answers/export`` — start an async export → ``202`` ExportResult.
 
-        An *action* (SDK/CLI only, never MCP): it kicks off a background job and returns its
+        An *action*: it kicks off a background job and returns its
         ``{id, status, message}``. Build ``body`` from an
         :class:`~ycli.yandex.forms.answers.models.AnswerExport`; then poll :meth:`export_results`
         (or ``operations.get``) on the returned ``id`` until ready and fetch it with

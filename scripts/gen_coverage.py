@@ -8,9 +8,10 @@ tree from :func:`tests.snapshots._surface.cli_tree` and the MCP tool-name snapsh
 ``COVERAGE:START`` / ``COVERAGE:END`` markers.
 
 Per resource it reports the wrapped SDK operations (public methods on the resource client
-class, in source order) and whether that resource is reachable via the CLI and via a read-only
-MCP tool. Reads ship on SDK + CLI + MCP; writes and binary downloads on SDK + CLI only (the MCP
-server is read-only by design), so write-only resources show ``—`` in the MCP column.
+class, in source order) and whether that resource is reachable via the CLI and via at least
+one MCP tool. MCP mirrors the SDK with honest annotations (ARCH-3): reads carry
+``readOnlyHint``, writes carry explicit destructive/idempotent hints; a resource with no MCP
+tool yet shows ``—`` in the MCP column.
 
 Usage::
 
@@ -248,14 +249,14 @@ def _render(reports: list[DomainReport]) -> str:
         "",
         f"`ycli` wraps the **near-complete public REST API** of Tracker, Wiki, and Forms — "
         f"{operations} operations across {resources} resources, every one reachable from the "
-        f"**Python SDK** and the **CLI**. Reads are additionally exposed as {mcp_tools} "
-        f"read-only **MCP** tools for agents.",
+        f"**Python SDK** and the **CLI**, plus {mcp_tools} **MCP** tools for agents.",
         "",
-        "> **Legend** — reads ship on **SDK + CLI + MCP**; writes and binary downloads on "
-        "**SDK + CLI** (the MCP server is read-only by design). In each table **SDK** and "
-        "**CLI** mean the operation is wrapped on that surface; **MCP** is "
-        f"{YES} when the resource exposes at least one read-only tool. These tables are "
-        "generated from the code by "
+        "> **Legend** — operations ship on **SDK + CLI**, and the **MCP** server mirrors them "
+        "with honest annotations: reads carry `readOnlyHint`, writes carry explicit "
+        "destructive/idempotent hints, and `ycli mcp start --read-only` serves the reads-only "
+        "view. In each table **SDK** and **CLI** mean the operation is wrapped on that "
+        f"surface; **MCP** is {YES} when the resource exposes at least one MCP tool. These "
+        "tables are generated from the code by "
         "[`scripts/gen_coverage.py`](scripts/gen_coverage.py) — do not edit by hand.",
     ]
     for report in reports:

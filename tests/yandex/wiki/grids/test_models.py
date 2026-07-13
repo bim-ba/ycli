@@ -49,12 +49,27 @@ def test_grid_update_dumps_only_set_fields():
     }
 
 
-def test_grid_update_with_default_sort():
+def test_grid_update_default_sort_write_shape():
+    """The API's write shape is ``[{"<column_slug>": "asc"|"desc"}]`` — dumped verbatim."""
     body = GridUpdate(
         revision="3",
-        default_sort=[{"slug": "a", "direction": "asc"}],  # ty: ignore[invalid-argument-type]
+        default_sort=[{"a": "asc"}, {"b": "desc"}],  # ty: ignore[invalid-argument-type]
     ).model_dump(exclude_none=True)
-    assert body["default_sort"][0]["direction"] == "asc"
+    assert body == {"revision": "3", "default_sort": [{"a": "asc"}, {"b": "desc"}]}
+
+
+def test_grid_update_default_sort_rejects_read_shape():
+    """The ``{slug, title, direction}`` READ shape must fail loudly, not get stripped to [{}]."""
+    with pytest.raises(ValidationError):
+        GridUpdate(
+            revision="3",
+            default_sort=[{"slug": "a", "direction": "asc"}],  # ty: ignore[invalid-argument-type]
+        )
+
+
+def test_grid_update_default_sort_rejects_bad_direction():
+    with pytest.raises(ValidationError):
+        GridUpdate(revision="3", default_sort=[{"a": "ascending"}])  # ty: ignore[invalid-argument-type]
 
 
 def test_rows_add_dumps_rows_and_revision():
@@ -86,13 +101,37 @@ def test_columns_add_nested_new_column_dump():
     )
     assert body == {
         "revision": "3",
-        "columns": [{"title": "C", "type": "string", "required": False}],
+        "columns": [{"title": "C", "type": "string", "slug": "c", "required": False}],
     }
 
 
 def test_new_column_rejects_bad_type():
     with pytest.raises(ValidationError):
         NewColumnSchema(title="C", type="bogus")  # ty: ignore[invalid-argument-type]
+
+
+def test_new_column_derives_slug_from_title():
+    """The live API rejects a slug-less column, so ``slug`` defaults from the title —
+    lowercased, non-word runs collapsed to ``_``, edge underscores stripped."""
+    assert NewColumnSchema(title="Count", type="number").slug == "count"
+    assert NewColumnSchema(title="My Col! (v2)", type="string").slug == "my_col_v2"
+
+
+def test_new_column_derives_unicode_slug_from_cyrillic_title():
+    """A Cyrillic title (the Wiki's primary audience) derives a Cyrillic slug, not an error."""
+    assert NewColumnSchema(title="Количество", type="number").slug == "количество"
+    assert NewColumnSchema(title="Дата начала", type="date").slug == "дата_начала"
+
+
+def test_new_column_keeps_explicit_slug():
+    assert NewColumnSchema(title="Count", type="number", slug="cnt").slug == "cnt"
+
+
+def test_new_column_underivable_title_needs_explicit_slug():
+    """A title with no word characters at all cannot yield a slug — clear error, not a 400 later."""
+    with pytest.raises(ValidationError, match="pass an explicit slug"):
+        NewColumnSchema(title="!!! ---", type="number")
+    assert NewColumnSchema(title="!!! ---", type="number", slug="count").slug == "count"
 
 
 def test_columns_add_always_serializes_required():

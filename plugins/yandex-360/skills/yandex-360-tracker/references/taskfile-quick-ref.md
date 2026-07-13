@@ -1,8 +1,10 @@
 # Tracker CLI Quick Reference
 
 All commands run via `uv run ycli tracker …`. Run `uv run ycli tracker --help` to
-list resources. Every read command is also exposed as a read-only MCP tool named
-`tracker_<resource>_<action>` (e.g. `tracker_issues_get`). Writes are CLI-only.
+list resources. Reads **and writes** are also exposed as MCP tools named
+`tracker_<resource>_<action>` (e.g. `tracker_issues_get`, `tracker_issues_create`);
+write tools carry `readOnlyHint=False` and explicit destructive hints, and
+`ycli mcp start --read-only` hides them. Binary downloads are CLI/SDK-only.
 
 Replace placeholders (`MYQUEUE`, `MYQUEUE-123`, `EPIC-1`, `<your-login>`) with your
 own queue keys, issue keys, and logins.

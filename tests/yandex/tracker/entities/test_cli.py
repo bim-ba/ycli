@@ -98,14 +98,16 @@ def test_edit_comment_only_omits_fields():
 def test_delete_with_board():
     responses.add(responses.DELETE, f"{BASE}/entities/project/655f", status=204)
     res = _invoke("delete", "project", "655f", "--with-board")
-    assert res.exit_code == 0 and "Deleted project 655f" in res.stdout
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted project 655f"}
 
 
 @responses.activate
 def test_delete_plain():
     responses.add(responses.DELETE, f"{BASE}/entities/goal/1", status=204)
     res = _invoke("delete", "goal", "1")
-    assert res.exit_code == 0 and "Deleted goal 1" in res.stdout
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted goal 1"}
 
 
 @responses.activate
@@ -163,16 +165,19 @@ def test_permissions():
 
 
 @responses.activate
-def test_set_permissions():
+def test_set_permissions_sends_grant_action():
+    # The live API accepts only grant/revoke actions inside acl (LEVEL=… top-level keys 422).
     responses.add(
         responses.PATCH,
         f"{BASE}/entities/project/655f/extendedPermissions",
-        json={"acl": {"READ": {"roles": ["OWNER"]}}},
+        json={"acl": {"READ": {"users": [{"id": "800"}]}}},
         status=200,
     )
-    res = _invoke("set-permissions", "project", "655f", "--acl", 'READ={"roles":["OWNER"]}')
+    res = _invoke("set-permissions", "project", "655f", "--acl", 'grant={"READ":{"users":["800"]}}')
     assert res.exit_code == 0
-    assert json.loads(responses.calls[0].request.body) == {"acl": {"READ": {"roles": ["OWNER"]}}}  # ty: ignore[invalid-argument-type]
+    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
+        "acl": {"grant": {"READ": {"users": ["800"]}}}
+    }
 
 
 @responses.activate
@@ -300,23 +305,25 @@ def test_comments_create():
 
 
 @responses.activate
-def test_comments_edit():
+def test_comments_edit_patches_per_comment_route():
     responses.add(
         responses.PATCH,
-        f"{BASE}/entities/project/655f/comments",
+        f"{BASE}/entities/project/655f/comments/22",
         json={"id": 22, "text": "fixed"},
         status=200,
     )
     res = _invoke("comments", "edit", "project", "655f", "22", "--text", "fixed")
     assert res.exit_code == 0
-    assert json.loads(responses.calls[0].request.body) == {"id": "22", "text": "fixed"}  # ty: ignore[invalid-argument-type]
+    assert responses.calls[0].request.url == f"{BASE}/entities/project/655f/comments/22"
+    assert json.loads(responses.calls[0].request.body) == {"text": "fixed"}  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate
 def test_comments_delete():
     responses.add(responses.DELETE, f"{BASE}/entities/project/655f/comments/22", status=204)
     res = _invoke("comments", "delete", "project", "655f", "22")
-    assert res.exit_code == 0 and "Deleted comment 22" in res.stdout
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {"ok": True, "detail": "deleted comment 22 on project 655f"}
 
 
 # ---- checklists --------------------------------------------------------------------------
@@ -437,7 +444,11 @@ def test_links_create():
     res = _invoke(
         "links", "create", "project", "655f", "--relationship", "relates", "--entity", "658"
     )
-    assert res.exit_code == 0 and "Linked project 655f -> 658" in res.stdout
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {
+        "ok": True,
+        "detail": "linked project 655f -> 658 (relates)",
+    }
     assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
         "relationship": "relates",
         "entity": "658",
@@ -448,7 +459,8 @@ def test_links_create():
 def test_links_delete():
     responses.add(responses.DELETE, f"{BASE}/entities/project/655f/links", status=200)
     res = _invoke("links", "delete", "project", "655f", "658")
-    assert res.exit_code == 0 and "Unlinked project 655f -> 658" in res.stdout
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {"ok": True, "detail": "unlinked project 655f -> 658"}
 
 
 # ---- attachments -------------------------------------------------------------------------
@@ -513,12 +525,12 @@ def test_attachments_attach():
 
 
 @responses.activate
-def test_attachments_delete():
-    responses.add(
-        responses.DELETE,
-        f"{BASE}/entities/project/655f/attachments/5",
-        json={"id": "655f"},
-        status=200,
-    )
+def test_attachments_delete_serializes_ack_on_empty_body():
+    # The live API answers 200 with an EMPTY body — parsing it as JSON crashed (regression).
+    responses.add(responses.DELETE, f"{BASE}/entities/project/655f/attachments/5", status=200)
     res = _invoke("attachments", "delete", "project", "655f", "5")
-    assert res.exit_code == 0 and json.loads(res.stdout)["id"] == "655f"
+    assert res.exit_code == 0
+    assert json.loads(res.stdout) == {
+        "ok": True,
+        "detail": "deleted attachment 5 on project 655f",
+    }

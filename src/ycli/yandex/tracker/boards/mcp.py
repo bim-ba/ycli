@@ -1,4 +1,4 @@
-"""Tracker boards FastMCP tools (reads-only)."""
+"""Tracker boards FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
 from typing import Annotated
 
@@ -7,10 +7,20 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
-from ycli.yandex.tracker.boards.models import Board, BoardList
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    app_config,
+    tracker_client,
+)
 
 mcp = FastMCP("tracker-boards")
 
@@ -46,3 +56,46 @@ def get(
     >>> boards_get(board_id=1)  # doctest: +SKIP
     """
     return client.boards.get(board_id=board_id)
+
+
+@mcp.tool(
+    name="boards_create", annotations={**WRITE, "title": "Create Tracker board"}, tags=WRITE_TAGS
+)
+def create(body: BoardCreate, client: TrackerClient = Depends(tracker_client)) -> Board:
+    """Create an agile board; returns the new board with its id.
+
+    ``name`` is required; optional fields include ``owner``, the ``private``/``public``
+    permissions template, the ``backlog_available``/``sprints_available`` flags and status-backed
+    ``columns``.
+    """
+    return client.boards.create(body)
+
+
+@mcp.tool(
+    name="boards_edit",
+    annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board"},
+    tags=WRITE_TAGS,
+)
+def edit(
+    board_id: int, body: BoardUpdate, client: TrackerClient = Depends(tracker_client)
+) -> Board:
+    """Edit an agile board; only the fields set in ``body`` are changed.
+
+    Supports renaming, toggling ``backlog_available``/``sprints_available`` and replacing the
+    ``columns`` layout. Returns the updated board.
+    """
+    return client.boards.edit(board_id, body)
+
+
+@mcp.tool(
+    name="boards_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker board"},
+    tags=WRITE_TAGS,
+)
+def delete(board_id: int, client: TrackerClient = Depends(tracker_client)) -> Ack:
+    """Permanently delete an agile board (irreversible; its issues are not affected).
+
+    Returns an acknowledgement on success.
+    """
+    client.boards.delete(board_id=board_id)
+    return Ack(detail=f"deleted board {board_id}")

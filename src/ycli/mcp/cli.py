@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typer
 
-app = typer.Typer(name="mcp", help="Read-only MCP server control.", no_args_is_help=True)
+app = typer.Typer(name="mcp", help="MCP server control (reads + writes).", no_args_is_help=True)
 
 _MISSING = (
     "The MCP server requires the 'mcp' extra. Install it with: "
@@ -18,13 +18,19 @@ def _group() -> None:
 
 
 @app.command()
-def start() -> None:
-    """Run the read-only MCP server over stdio (tools namespaced wiki_*, tracker_*, forms_*)."""
+def start(
+    read_only: bool = typer.Option(
+        False,
+        "--read-only",
+        help="Serve only read tools (hide every write-tagged tool).",
+    ),
+) -> None:
+    """Run the MCP server over stdio (tools namespaced wiki_*, tracker_*, forms_*)."""
     try:
         from ycli.mcp import main as run_server
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
-    run_server()
+    run_server(read_only=read_only)
 
 
 @app.command()

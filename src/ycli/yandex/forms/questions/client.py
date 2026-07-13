@@ -138,8 +138,10 @@ class QuestionsClient(FormsResource):
         """``POST /surveys/{id}/questions/{question_id}/move`` — reposition a question.
 
         ``body`` is a typed :class:`~ycli.yandex.forms.questions.models.QuestionMove` naming the
-        target page (``page`` / ``page_id`` / ``create_page``) and ``position``; display-condition
-        consistency is validated server-side. Returns the moved question's id.
+        target page (``page`` / ``page_id`` / ``create_page``) and ``position``; a bare
+        ``position`` is silently ignored by the API (200, nothing moves), so ``QuestionMove``
+        defaults ``page`` to 1 when no page target is given. Display-condition consistency is
+        validated server-side. Returns the moved question's id.
 
         Example:
             >>> from ycli.yandex.forms.questions.models import QuestionMove

@@ -1,40 +1,41 @@
 ---
 name: yandex-360-forms
 category: workflow
-description: Use when reading or driving Yandex Forms (Yandex 360) — listing forms, inspecting a form's questions/schema, reading or exporting responses, or creating/editing forms and questions and publishing them. Reads go through `ycli forms` CLI / MCP tools or the FormsClient SDK; writes (create form, question CRUD, publish/unpublish, export) go via raw HTTP to api.forms.yandex.net. Use before any form lookup or edit. NOTE the API host differs from Tracker/Wiki (api.forms.yandex.net, not api.tracker.yandex.net) and the org header is X-Org-Id.
+description: Use when reading or driving Yandex Forms (Yandex 360) — listing forms, inspecting a form's questions/schema, reading or exporting responses, creating/editing forms and questions, publishing/unpublishing, submitting answers, or managing keysets. Reads AND writes go through ycli — the `ycli forms` CLI, the `forms_*` MCP tools, or the FormsClient SDK. Raw HTTP is needed only for integration hooks (documented but not wrapped by ycli). NOTE the API host differs from Tracker/Wiki (api.forms.yandex.net, not api.tracker.yandex.net) and the org header is X-Org-Id.
 ---
 
 # Yandex 360 Forms
 
-Drive Yandex Forms via `ycli` (CLI / MCP / SDK) for reads, and raw HTTP for writes.
+Drive Yandex Forms via `ycli` — reads **and writes** — through the CLI, the `forms_*` MCP tools, or the `FormsClient` SDK. Raw HTTP remains only for integration hooks (§4).
 
 ## When to use
 
 - Listing forms you can access, or inspecting one form's schema (questions, options, conditional logic)
 - Reading or exporting form responses (answers)
 - Creating a form, doing question CRUD, reordering questions, publishing/unpublishing
+- Submitting a form programmatically (filling), managing keysets
 - Pre-flight before editing a form in the UI — confirm what's there and what to change
 
 ## When NOT to use
 
 - Reading or editing Tracker issues — use `yandex-360-tracker`
 - Reading or editing Wiki pages — use `yandex-360-wiki`
-- Form appearance / themes, analytics / charts, and integration **hooks** — these are UI-only (see §6); this skill covers programmatic schema/response operations
+- Form appearance / themes, analytics / charts — UI-only
+- Integration **hooks** are the one write surface ycli does not wrap — see §4 for the raw-HTTP route
 
 ## Scope: reads vs. writes
 
-You can **read** any form your token can access. You can **write** to any form you have permission on.
+You can **read** any form your token can access. You can **write** to any form you have permission on. Both ship on all three ycli surfaces:
 
-- **Reads** — `ycli forms` CLI commands, read-only MCP tools, or the `FormsClient` SDK (§3).
-- **Writes** (create form, question CRUD, publish/unpublish, export answers) — **no CLI/MCP/SDK coverage**; use raw HTTP (httpie/curl) against the public API, or edit in the Yandex Forms UI (§5).
+- **CLI** — `uv run ycli forms <group> <cmd>` (full surface, including binary uploads/downloads)
+- **MCP** — 28 `forms_*` tools (13 reads + 15 writes). Write tools carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary payloads (files/images upload, keysets/exports download) are CLI/SDK-only.
+- **SDK** — `from ycli.yandex.forms.client import FormsClient` → `FormsClient(oauth_token=…, organization_id=…)`
 
-If you want to keep your own design notes / specs for forms you maintain, do so however suits your project — this skill does not prescribe a layout.
+The one remaining raw-HTTP case: **hooks** (§4).
 
 ---
 
 ## 1. Auth and hosts
-
-### Authentication
 
 Public API (`api.forms.yandex.net`):
 
@@ -43,58 +44,31 @@ Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN
 X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 ```
 
-The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section of the live API reference at <https://yandex.ru/dev/forms/>). The same token may work for Tracker/Wiki if those scopes were also granted, but Forms scopes are separate — a Tracker-only token will 401/403 here.
+The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section of the live API reference at <https://yandex.ru/dev/forms/>). The same token may work for Tracker/Wiki if those scopes were also granted, but Forms scopes are separate — a Tracker-only token will 401/403 here. The CLI/MCP/SDK set both headers for you from the environment.
 
-### Hosts
-
-| Host | Use | Auth |
-|------|-----|------|
-| `api.forms.yandex.net/v1/` | Public API — forms / questions / answers CRUD | OAuth |
-| `forms.yandex.ru/cloud/admin/gateway/root/form/*` | UI gateway — hooks, macros, internal config not in the public API | Browser session cookies |
-| `forms.yandex.ru/cloud/admin/<form_id>/edit` | UI URL for human editing | Browser session |
-
-The gateway host uses the web UI's session cookies (CSRF + `Cookie`), not OAuth. It is **not headless-friendly** — usable only when a user exports a curl-with-cookies from browser devtools. Avoid it unless there is no alternative.
-
-### Tools
-
-**Reads** are available three ways:
-
-- CLI: `uv run ycli forms <group> <cmd>`
-- MCP (read-only): **10** tools named `forms_<resource>_<action>` — the ones you reach for most are `forms_me_get`, `forms_surveys_list`, `forms_surveys_get`, `forms_questions_list`, `forms_answers_list`
-- SDK: `from ycli.yandex.forms.client import FormsClient` → `FormsClient(oauth_token=…, organization_id=…).me/.surveys/.questions/.answers`
-
-**Writes** use raw `http` (httpie). Load auth from env first:
-
-```bash
-set -a; source .env; set +a
-
-http GET 'https://api.forms.yandex.net/v1/surveys' \
-  "Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN" \
-  "X-Org-Id: $YANDEX_ID_ORGANIZATION_ID"
-```
+**Host trap:** the base host is `api.forms.yandex.net` — NOT `api.tracker.yandex.net`. Only relevant when you drop to raw HTTP (hooks); ycli encodes it.
 
 ---
 
-## 2. Reading workflow
+## 2. Reading
 
-**Trigger:** you need context about a form — its schema, options, responses — or to verify a form's live state.
+| Operation | CLI | MCP tool |
+|-----------|-----|----------|
+| Auth probe (current user) | `uv run ycli forms me get` | `forms_me_get` |
+| List forms | `uv run ycli forms surveys list` | `forms_surveys_list` |
+| Get form settings | `uv run ycli forms surveys get <form_id>` | `forms_surveys_get` |
+| List questions (schema) | `uv run ycli forms questions list <form_id>` | `forms_questions_list` |
+| Get one question | `uv run ycli forms questions get <form_id> <q_id>` | `forms_questions_get` |
+| List answers (responses) | `uv run ycli forms answers list <form_id> [--all]` | `forms_answers_list` |
+| Fillable form view (option ids!) | `uv run ycli forms filling get <form_id>` | `forms_filling_get` |
+| Suggest values for a question | `uv run ycli forms filling suggest <form_id> --question <slug> --text …` | `forms_filling_suggest` |
+| Keysets | `uv run ycli forms keysets list\|get …` | `forms_keysets_list` / `forms_keysets_get` |
+| Verify uploaded file paths | `uv run ycli forms files verify <form_id> --path …` | `forms_files_verify` |
+| Poll async operation | `uv run ycli forms operations get <op_id>` | `forms_operations_get` |
 
-### 2.1. Read endpoints
+**Single-answer read:** `uv run ycli forms answers get --answer-id <id>` (or `--answer-key <hash>`, which works without form-edit access) — pass exactly one of the two. MCP: `forms_answers_get`. The live route is the flat query-param `GET /v1/answers?answer_id=…`; no survey id needed (the path variants 404).
 
-| Operation | Endpoint | CLI / MCP tool |
-|-----------|----------|----------------|
-| Auth probe (current user) | — | `uv run ycli forms me get` (MCP `forms_me_get`) |
-| List forms | `GET /v1/surveys` | `uv run ycli forms surveys list` (MCP `forms_surveys_list`) |
-| Get form settings | `GET /v1/surveys/{id}` | `uv run ycli forms surveys get <form_id>` (MCP `forms_surveys_get`) |
-| List questions | `GET /v1/surveys/{id}/questions` | `uv run ycli forms questions list <form_id>` (MCP `forms_questions_list`) |
-| Get one question | `GET /v1/surveys/{id}/questions/{q_id}` | `uv run ycli forms questions get <form_id> <q_id>` |
-| List answers (responses) | `GET /v1/surveys/{id}/answers` | `uv run ycli forms answers list <form_id>` (MCP `forms_answers_list`) |
-| Export answers | `POST /v1/surveys/{id}/answers/_export` | `uv run ycli forms answers export <form_id>` |
-| Get operation result (async) | `GET /v1/operations/{op_id}` | `uv run ycli forms operations get <op_id>` (MCP `forms_operations_get`) |
-
-Endpoint paths and payloads are summarised in the bundled `references/forms-api-quick-ref.md`; the full live reference is at <https://yandex.ru/dev/forms/>.
-
-### 2.2. SDK example
+### SDK example
 
 ```python
 from ycli.yandex.forms.client import FormsClient
@@ -107,97 +81,92 @@ forms.questions.list("<form_id>")    # schema
 forms.answers.list("<form_id>")      # responses
 ```
 
-### 2.3. Common read scenarios
-
-| Scenario | Steps |
-|----------|-------|
-| «What does form X look like now?» | `uv run ycli forms questions list <form_id>` (live schema) |
-| «Show me last 20 responses» | `uv run ycli forms answers list <form_id>` (or raw `GET /v1/surveys/{id}/answers?per_page=20`) |
-| «Export all responses to file» | `POST /v1/surveys/{id}/answers/_export` → poll `GET /v1/operations/{op_id}` → download |
-
 ---
 
-## 3. Writing workflow
+## 3. Writing
 
-**Trigger:** you create or update a form you have permission on. There is no CLI/MCP/SDK for writes — use raw HTTP, or edit in the UI.
+All writes below are live-verified (2026-07-12) end-to-end via the CLI; each is also an MCP write tool and an SDK method.
 
-### 3.1. Create a form
+### 3.1. Form (survey) lifecycle
 
 ```bash
-http POST 'https://api.forms.yandex.net/v1/surveys' \
-  "Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN" \
-  "X-Org-Id: $YANDEX_ID_ORGANIZATION_ID" \
-  name="My form" language=ru
-# Capture form_id from the response.
+uv run ycli forms surveys create --name "My form"          # → capture the returned id
+uv run ycli forms surveys modify <form_id> --name "New name"
+uv run ycli forms surveys publish <form_id>                # is_published: true
+uv run ycli forms surveys unpublish <form_id>
+uv run ycli forms surveys delete <form_id>                 # destructive
 ```
 
-See the create-form endpoint in the live API reference at <https://yandex.ru/dev/forms/>.
+MCP: `forms_surveys_create` / `forms_surveys_modify` / `forms_surveys_publish` / `forms_surveys_unpublish` / `forms_surveys_delete`.
 
 ### 3.2. Question CRUD
 
 ```bash
-# Create a question
-http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/questions" \
-  "Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN" \
-  "X-Org-Id: $YANDEX_ID_ORGANIZATION_ID" \
-  < question-body.json
-
-# Modify
-http PUT "https://api.forms.yandex.net/v1/surveys/<form_id>/questions/<q_id>" ...
-
-# Delete
-http DELETE "https://api.forms.yandex.net/v1/surveys/<form_id>/questions/<q_id>" ...
-
-# Reorder
-http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/questions/<q_id>/_move" \
-  position=3 ...
+uv run ycli forms questions create <form_id> --type string --label "Your feedback"
+uv run ycli forms questions create <form_id> --body-file question.json   # full-body form (enum options, suggest, …)
+uv run ycli forms questions modify <form_id> <q_id> --type string --label "Your feedback (edited)"
+uv run ycli forms questions move <form_id> <q_id> --page 1 --position 1
+uv run ycli forms questions delete <form_id> <q_id>
 ```
 
-Question types — summarised in the bundled `references/forms-api-quick-ref.md`; full per-type docs at <https://yandex.ru/support/forms/>:
+MCP: `forms_questions_create` / `forms_questions_modify` / `forms_questions_move` / `forms_questions_delete`.
 
-- `short-text` / `long-text` / `number` / `integer` / `date` / `email` / `phone` / `link`
-- `radiobutton` / `dropdown` / `multiple` / `yes-no` / `rating`
-- `file` / `geography` / `tin` (ИНН)
-- `people` / `departments` / `teams` (suggest from directory)
-- `tracker` / `wiki` (suggest from Tracker / Wiki resources)
-- `payment` / `tests` / `series` / `empty`
-
-For datasource-backed dropdowns (e.g. `datasource: tracker_component`, `tracker_user`, `dir_user`, `wiki_table_source`), see the dropdown/tracker question types in `references/forms-api-quick-ref.md` and the live docs at <https://yandex.ru/support/forms/>. These suggests are queue-/space-scoped: ensure the form's `dir_id` / target queue is set before adding such questions.
-
-### 3.3. Publish / unpublish
+### 3.3. Submit a response (filling)
 
 ```bash
-http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/_publish" ...
-http POST "https://api.forms.yandex.net/v1/surveys/<form_id>/_unpublish" ...
+uv run ycli forms filling get <form_id>                                  # exposes the enum option ids
+uv run ycli forms filling submit <form_id> --body-file answer-body.json  # supports a dry-run flag
 ```
 
-See the publish/unpublish endpoints in the live API reference at <https://yandex.ru/dev/forms/>. Unpublished forms reject submit-response calls — check the form settings (`is_published`) before testing submissions.
+MCP: `forms_filling_submit`. The form must be published (`is_published: true`) or the submit is rejected.
 
-### 3.4. Conditional logic
+### 3.4. Keysets
 
-Conditional show/hide is configured via the «Условия» feature in the UI, or via the question update endpoint's `conditions` field. See the conditions docs at <https://yandex.ru/support/forms/>.
+```bash
+uv run ycli forms keysets create <form_id> --name my-keyset --total 3 --enabled
+uv run ycli forms keysets modify <form_id> <keyset_id> --name renamed --total 5 --disabled
+uv run ycli forms keysets download <form_id> <keyset_id> --output keys.xlsx   # binary — CLI/SDK only
+uv run ycli forms keysets delete <form_id> <keyset_id>
+```
+
+MCP: `forms_keysets_create` / `forms_keysets_modify` / `forms_keysets_delete` (download is CLI/SDK-only).
+
+### 3.5. Exports and binary operations
+
+```bash
+uv run ycli forms answers export <form_id> --format csv --wait --output export.csv
+uv run ycli forms files upload <form_id> report.pdf        # form-filling file upload
+uv run ycli forms images upload <form_id> logo.png
+uv run ycli forms files download --path <storage_path> --output file.bin
+uv run ycli forms files delete --path <storage_path>
+```
+
+MCP note: `forms_answers_export` triggers the export and `forms_operations_get` polls it, but the **download** of the produced file — like every raw-bytes operation here (`files upload/download`, `images upload`, `keysets download`) — is CLI/SDK-only; MCP excludes raw binary payloads. `forms_files_delete` (destructive) and `forms_files_verify` are on MCP.
 
 ---
 
-## 4. Integration hooks — UI / gateway only
+## 4. Integration hooks — the one raw-HTTP surface
 
-Integration hooks (create Tracker issue / Wiki page / send email / HTTP webhook on submit) are **not** in the public API. Two options:
+Hooks (create Tracker issue / Wiki page / send email / HTTP webhook on submit) are **documented in the current public api-ref** on `api.forms.yandex.net/v1` — hook groups (`/v1/surveys/{id}/hooks`), subscriptions (actions), conditions, template variables, notification history — but **ycli does not wrap them yet** (a tracked coverage gap, see `docs/api-coverage.md`). Two options:
 
-1. **UI** (recommended): open the form → «Интеграции» tab → add/edit/delete an action group, configure variables and conditions. For the integration-variable reference see <https://yandex.ru/support/forms/>.
-2. **Gateway** (`forms.yandex.ru/cloud/admin/gateway/root/form/getHooks` etc.): internal endpoints used by the web UI, authenticated with browser session cookies + CSRF token. Not headless-friendly; only usable with a curl-with-cookies exported from devtools.
+1. **UI**: open the form → «Интеграции» tab → add/edit/delete an action group, configure variables and conditions.
+2. **Raw HTTP with OAuth** against `api.forms.yandex.net/v1/surveys/{id}/hooks…` per the live reference at <https://yandex.ru/dev/forms/> (endpoints documented; not live-verified by this project — verify responses as you go).
 
 After a hook change, submit a test response and verify the resulting Tracker issue / Wiki page / email has the expected fields.
 
 ---
 
-## 5. Guardrails (Yandex Forms quirks)
+## 5. Guardrails (live-verified quirks, 2026-07-12)
 
-- **Different host than Tracker/Wiki.** `api.forms.yandex.net` — NOT `api.tracker.yandex.net`. Easy to miss when copy-pasting an auth block from a Tracker request.
-- **Org header is `X-Org-Id`** — the same canonical header every Yandex 360 service uses. HTTP header names are case-insensitive (RFC 9110), so casing never matters; a 422 is not a casing problem.
-- **OAuth scopes are separate.** A 401/403 usually means the token lacks `forms:read` / `forms:write`. May require regenerating the token.
-- **Question IDs are server-assigned.** Don't hardcode them before creation; read them back from the create/list response.
-- **Hooks are not in the public API.** Do hook changes in the UI (§4).
-- **Publish state matters.** Unpublished forms reject submit-response calls; check `is_published`.
+- **Enum answers in `filling submit` must be lists.** `{"answer_choices_<id>": ["<option_id>"]}` — a bare string 400s with `error_code: type`. Option ids come from `filling get`.
+- **`questions move` needs `--page` with `--position`.** `--position` alone returns 200 but is a **silent no-op** — order unchanged.
+- **`files upload` requires external storage.** Form-filling uploads 400 (`value_error.storage_error`) unless the org has connected its own S3 storage in the Forms UI settings — not API-toggleable.
+- **`keysets modify` sends the full record.** The PATCH requires every field, not a partial diff — the CLI enforces this.
+- **Publish state matters.** Unpublished forms reject submits; check `is_published` via `surveys get`.
+- **Question IDs are server-assigned.** Read them back from the create/list response; never hardcode.
+- **Suggest questions:** valid `data_source` names are `city` / `country`; suggest text matching is language-sensitive (Cyrillic input matches Russian city names).
+- **OAuth scopes are separate.** A 401/403 usually means the token lacks `forms:read` / `forms:write`.
+- **Org header is `X-Org-Id`** — the same canonical header every Yandex 360 service uses; HTTP header names are case-insensitive (RFC 9110), so a 422 is never a casing problem.
 - **Datasource questions are scoped.** Tracker/Wiki/directory suggests are queue-/space-scoped — set the form's `dir_id` / target queue first.
 
 ---
@@ -207,5 +176,5 @@ After a hook change, submit a test response and verify the resulting Tracker iss
 | Resource | When to use |
 |----------|-------------|
 | `references/forms-api-quick-ref.md` | Bundled cheatsheet — host/auth, endpoint map, question types |
-| <https://yandex.ru/dev/forms/> | Developer portal — full public API reference (auth, surveys, questions, answers, operations) |
+| <https://yandex.ru/dev/forms/> | Developer portal — full public API reference (auth, surveys, questions, answers, hooks, operations) |
 | <https://yandex.ru/support/forms/> | Product docs — concepts, question types, integrations, publishing, conditions |

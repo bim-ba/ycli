@@ -25,11 +25,13 @@ def _session() -> requests.Session:
 
 @responses.activate
 def test_issuetypes_list():
+    # The live v3 API carries the display name in `name` (`display` stays null).
     responses.add(
-        responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "display": "Task"}], status=200
+        responses.GET, f"{BASE}/issuetypes", json=[{"key": "task", "name": "Task"}], status=200
     )
     out = IssueTypesClient(session=_session()).list()
     assert isinstance(out, IssueTypeList) and out.root[0].key == "task"
+    assert out.root[0].name == "Task"
 
 
 @responses.activate
@@ -43,7 +45,7 @@ def test_issuetypes_create_posts_localized_body():
     out = IssueTypesClient(session=_session()).create(
         IssueTypeCreate(key="client", name=LocalizedName(ru="Клиент", en="Customer"))
     )
-    assert isinstance(out, IssueType) and out.key == "client"
+    assert isinstance(out, IssueType) and out.key == "client" and out.name == "Клиент"
     sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {"key": "client", "name": {"ru": "Клиент", "en": "Customer"}}
 

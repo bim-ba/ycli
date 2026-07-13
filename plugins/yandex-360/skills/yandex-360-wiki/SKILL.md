@@ -1,17 +1,17 @@
 ---
 name: yandex-360-wiki
-description: Use when reading from or writing to Yandex Wiki via the ycli tool — fetch page content and metadata, walk the page tree with descendants/cursor pagination, list comments and attachments, or create/update pages with YFM body content through the CLI, MCP, or Python SDK. Covers the Wiki API's real quirks (permanent slugs, the fields= rules, no text-search endpoint, POST-not-PATCH).
+description: Use when reading from or writing to Yandex Wiki via the ycli tool — fetch page content and metadata, walk the page tree with descendants/cursor pagination, create/update/clone/delete pages with YFM body content, manage grids (dynamic tables), comments, and attachments through the CLI, MCP, or Python SDK. Covers the Wiki API's real quirks (permanent slugs, the fields= rules, no text-search endpoint, POST-not-PATCH).
 category: workflow
 ---
 
 # Yandex Wiki
 
-Drive Yandex Wiki (Yandex 360) through `ycli`: read page content, metadata, tree, comments and attachments; create and update pages with YFM. This skill covers the CLI, the read-only MCP tools, the Python SDK, and the API's real-world quirks.
+Drive Yandex Wiki (Yandex 360) through `ycli`: read page content, metadata, tree, comments and attachments; create, update, clone and delete pages with YFM; manage grids (dynamic tables) and attachments. Reads **and writes** ship on all three surfaces — the CLI, the `wiki_*` MCP tools, and the Python SDK — plus the API's real-world quirks.
 
 ## When to use
 
 - An agent needs context from the Wiki: read a page's content or metadata, walk a subtree, list comments or attachments.
-- An agent needs to create or update a page with YFM content (notes, tabs, cuts, layouts, tables, diagrams, includes).
+- An agent needs to create or update a page with YFM content (notes, tabs, cuts, layouts, tables, diagrams, includes), clone a page, comment, attach files, or manage a grid.
 
 ## When NOT to use
 
@@ -37,9 +37,9 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 
 | Surface | What it covers |
 |---------|----------------|
-| **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|descendants`, `comments list`, `attachments list` |
-| **MCP tools** (read-only, 13) | Named `wiki_<resource>_<action>` — the ones you reach for most are `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`. **No write tools** — `pages create` / `pages update` are CLI-only. |
-| **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages` (`get`, `descendants`, `create`, `update`), `.comments` (`list`), `.attachments` (`list`). |
+| **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|append\|clone\|delete\|descendants`, `comments`, `grids`, `attachments` (incl. binary download), `uploadsessions`, `recovery`, `operations` |
+| **MCP tools** (42: 15 reads + 27 writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`, plus write tools for pages create/update/append/clone/delete, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads** stay CLI/SDK-only. |
+| **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages`, `.comments`, `.grids`, `.attachments`, `.uploadsessions`, `.resources`, `.recovery`, `.operations` — full read/write parity with the CLI. |
 
 **Prefer the CLI / MCP tools over raw `http` calls** — they encode the API quirks (header name, `slug=` query form, POST-not-PATCH, `fields=` rules) correctly.
 
@@ -49,7 +49,7 @@ Full Wiki API reference lives online at <https://yandex.ru/dev/wiki/> (developer
 
 ## 2. Reading
 
-Every read is available both as a CLI command and as a read-only MCP tool.
+Every read is available both as a CLI command and as an MCP tool (annotated `readOnlyHint=True`).
 
 | Operation | CLI command | MCP tool |
 |-----------|-------------|----------|
@@ -100,7 +100,7 @@ The Wiki UI has full-text search, but the **public API does not expose one** (se
 
 ## 3. Writing
 
-Writing is `pages create` / `pages update` (CLI-only — no MCP write tools). The simplest flow: author the page body in a local YFM file, then publish it.
+Writes ship on **SDK + CLI + MCP** (write tools carry `readOnlyHint=False` and explicit destructive hints). The core flow is `pages create` / `pages update` (MCP: `wiki_pages_create` / `wiki_pages_update`); §3.1 covers the rest of the write surface. The simplest flow: author the page body in a local YFM file, then publish it.
 
 ### Before you write
 
@@ -136,6 +136,28 @@ uv run ycli wiki pages get team/architecture/overview
 ```
 
 Confirm the published body starts at the `# H1`, not at `---` (which would mean frontmatter leaked through).
+
+### 3.1. The rest of the write surface (all live-verified 2026-07-12)
+
+| Operation | CLI | MCP tool |
+|-----------|-----|----------|
+| Append to a page | `uv run ycli wiki pages append <page_id> --content … --location top\|bottom` | `wiki_pages_append_content` |
+| Clone a page (async) | `uv run ycli wiki pages clone <page_id> --target <new/slug> [--title …]` → poll `operations clone <task>` | `wiki_pages_clone` + `wiki_operations_clone_get` |
+| Delete / restore a page | `uv run ycli wiki pages delete <page_id>` (emits a `recovery_token`) → `uv run ycli wiki recovery restore <token>` | `wiki_pages_delete` / `wiki_recovery_restore` |
+| Comments | `uv run ycli wiki comments create <page_id> --body … [--parent-id N]` / `… delete <page_id> <comment_id>` | `wiki_comments_create` / `wiki_comments_delete` |
+| Grids (dynamic tables) | `uv run ycli wiki grids create\|update\|clone\|delete`, `grids columns add\|move\|remove`, `grids rows add\|move\|remove`, `grids cells update` | `wiki_grids_*` (full CRUD) |
+| Attachments | `uv run ycli wiki attachments upload <page_id> <file>` (single call) or the `uploadsessions create → upload-part → finish → attachments attach` pipeline; `attachments delete` | `wiki_attachments_upload` (base64), `wiki_uploadsessions_*`, `wiki_attachments_attach`, `wiki_attachments_delete` |
+
+Attachment/keyset-style **downloads** (`attachments download`, `download-by-url`) are CLI/SDK-only — MCP excludes raw binary payloads (uploads are the exception: the wiki MCP upload tools take base64 input).
+
+**Grid writes are optimistic-locked:** every grid mutation takes `--revision` (read the current revision from `grids get` first; each write bumps it).
+
+Live-verified gotchas for these writes:
+
+- **`pages append` defaults to `--location bottom`.** The API requires exactly one placement selector (`Fields ('body', 'section', 'anchor') are mutually exclusive`); ycli now always sends one — pass `--location top` to prepend.
+- **`grids columns add` requires an explicit per-column `"slug"`.** `[{"title":"Count","type":"number","slug":"count"}]` works; omitting `slug` 400s (`value_error.missing`) despite older docs claiming it is server-generated.
+- **Grid `default-sort` has a different write shape than its read shape.** The API *writes* a mapping list `[{"<column_slug>": "asc"}]` (read shape is `[{"slug","title","direction"}]`); ycli's `--default-sort` sends the write shape and rejects the read shape loudly.
+- **`attachments list` rows omit the numeric file id** needed for download/delete — capture ids from the upload/attach response.
 
 ---
 

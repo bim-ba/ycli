@@ -2,8 +2,8 @@
 
 NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
 
-A single ``multipart/form-data`` upload (field ``image``). It is a write, so it ships SDK + CLI
-only — never MCP.
+A single ``multipart/form-data`` upload (field ``image``). It moves raw file bytes — a binary
+payload a JSON MCP tool cannot carry — so it ships SDK + CLI only.
 """
 
 import uplink

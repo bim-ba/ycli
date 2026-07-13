@@ -72,10 +72,14 @@ class GridsClient(WikiResource):
     def update(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
         """``POST /grids/{id}`` — rename / re-sort (POST not PATCH). ``body`` carries ``revision``.
 
+        ``body`` is a dumped ``GridUpdate``; its ``default_sort`` must use the *write* shape
+        ``[{"<column_slug>": "asc"|"desc"}]`` — the ``{slug, title, direction}`` read shape
+        returned by :meth:`get` is rejected with a 400.
+
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.grids.update(
-            ...     "g-uuid", {"revision": "3", "title": "New"}
+            ...     "g-uuid", {"revision": "3", "default_sort": [{"col": "asc"}]}
             ... ).revision  # doctest: +SKIP
             '4'
         """
@@ -148,10 +152,15 @@ class GridsClient(WikiResource):
     def add_columns(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
         """``POST /grids/{id}/columns`` — add columns. ``body`` is a dumped ``ColumnsAdd``.
 
+        The API requires a ``slug`` on every column (400 ``value_error.missing`` without one);
+        ``ColumnsAdd`` derives it from the title when omitted, but a raw dict body passed here
+        directly must carry it.
+
         Example:
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.grids.add_columns(
-            ...     "g-uuid", {"revision": "3", "columns": [{"title": "C", "type": "string"}]}
+            ...     "g-uuid",
+            ...     {"revision": "3", "columns": [{"title": "C", "type": "string", "slug": "c"}]},
             ... ).revision  # doctest: +SKIP
             '4'
         """
