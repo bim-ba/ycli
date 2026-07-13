@@ -10,7 +10,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentList
+from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
@@ -51,13 +51,9 @@ def list_(
     annotations={**WRITE, "title": "Add Tracker issue comment"},
     tags=WRITE_TAGS,
 )
-def add(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Comment:
-    """Add a comment to a Tracker issue; returns the created comment.
-
-    ``body`` is the raw API payload — at minimum ``{"text": "…"}`` (YFM markup allowed);
-    optional keys include ``summonees`` (logins to summon) and ``attachmentIds``.
-    """
-    return client.comments.add(key, body)
+def add(key: str, body: CommentCreate, client: TrackerClient = Depends(tracker_client)) -> Comment:
+    """Add a comment to a Tracker issue; returns the created comment."""
+    return client.comments.add(key, body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -66,14 +62,13 @@ def add(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -
     tags=WRITE_TAGS,
 )
 def edit(
-    key: str, comment_id: str, body: dict, client: TrackerClient = Depends(tracker_client)
+    key: str, comment_id: str, body: CommentUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> Comment:
     """Replace the text of an existing comment on a Tracker issue.
 
-    ``body`` is the raw API payload, e.g. ``{"text": "new text"}``. Get ``comment_id`` from
-    ``comments_list``. Returns the updated comment.
+    Get ``comment_id`` from ``comments_list``. Returns the updated comment.
     """
-    return client.comments.edit(key, comment_id, body)
+    return client.comments.edit(key, comment_id, body.model_dump(exclude_none=True))
 
 
 @mcp.tool(

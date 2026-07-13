@@ -13,7 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_TAGS,
     tracker_client,
 )
-from ycli.yandex.tracker.links.models import Link, LinkList
+from ycli.yandex.tracker.links.models import Link, LinkCreate, LinkList
 
 mcp = FastMCP("tracker-links")
 
@@ -25,14 +25,9 @@ def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> LinkList
 
 
 @mcp.tool(name="links_add", annotations={**WRITE, "title": "Link Tracker issues"}, tags=WRITE_TAGS)
-def add(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Link:
-    """Link a Tracker issue to another issue; returns the created link.
-
-    ``body`` is the raw API payload ``{"relationship": "…", "issue": "…"}`` — ``relationship``
-    is a link type from ``linktypes_list`` (e.g. ``relates``, ``depends on``, ``is subtask
-    for``) and ``issue`` is the key of the issue to link to.
-    """
-    return client.links.add(key, body)
+def add(key: str, body: LinkCreate, client: TrackerClient = Depends(tracker_client)) -> Link:
+    """Link a Tracker issue to another issue; returns the created link."""
+    return client.links.add(key, body.model_dump(exclude_none=True))
 
 
 @mcp.tool(

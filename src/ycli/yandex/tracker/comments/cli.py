@@ -12,7 +12,7 @@ from ycli.cli.output import Serializer
 from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
 from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
-from ycli.yandex.tracker.comments.models import CommentUpdate
+from ycli.yandex.tracker.comments.models import CommentCreate, CommentUpdate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -63,9 +63,10 @@ def add(
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
 ) -> None:
     """Add a comment to issue KEY."""
+    body = CommentCreate(text=text).model_dump(by_alias=True, exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
-        app_ctx.tracker.comments.add(key, body={"text": text}), app_ctx.strategy, app_ctx.console
+        app_ctx.tracker.comments.add(key, body=body), app_ctx.strategy, app_ctx.console
     )
 
 

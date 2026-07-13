@@ -33,6 +33,26 @@ class CommentList(RootModel[list[Comment]]):
     """
 
 
+class CommentCreate(APIModel):
+    """Typed request body for ``POST /issues/{key}/comments/`` (add a comment).
+
+    Example:
+        >>> CommentCreate(text="Готово ✅").model_dump(by_alias=True, exclude_none=True)
+        {'text': 'Готово ✅'}
+    """
+
+    text: str = Field(description="Comment text (YFM markdown supported; required).")
+    summonees: list[str] | None = Field(
+        default=None, description="User ids/logins to summon in the comment."
+    )
+    attachment_ids: list[str] | None = Field(
+        default=None, alias="attachmentIds", description="Temp-file ids to attach as files."
+    )
+    maillist_summonees: list[str] | None = Field(
+        default=None, alias="maillistSummonees", description="Mailing lists to summon."
+    )
+
+
 class CommentUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment).
 

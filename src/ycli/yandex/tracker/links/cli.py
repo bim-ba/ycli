@@ -10,6 +10,7 @@ import typer
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.yandex.models import Ack
+from ycli.yandex.tracker.links.models import LinkCreate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
@@ -44,7 +45,7 @@ def add(
     target: Annotated[str, typer.Argument(help="Target issue key, e.g. DATAENGINEERING-2.")],
 ) -> None:
     """Link issue KEY to TARGET with RELATIONSHIP."""
-    body = {"relationship": relationship.value, "issue": target}
+    body = LinkCreate(relationship=relationship.value, issue=target).model_dump(exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
         app_ctx.tracker.links.add(key, body=body), app_ctx.strategy, app_ctx.console
