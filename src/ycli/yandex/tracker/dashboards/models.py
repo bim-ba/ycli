@@ -111,16 +111,16 @@ class CycleTimeWidget(APIModel):
         default=None, description="Parameter filter ``{field: value}`` selecting issues."
     )
     filter_id: int | None = Field(
-        default=None, serialization_alias="filterId", description="Id of a saved filter to use."
+        default=None, alias="filterId", description="Id of a saved filter to use."
     )
     from_statuses: list[dict[str, Any]] | None = Field(
         default=None,
-        serialization_alias="fromStatuses",
+        alias="fromStatuses",
         description="Statuses the work starts from, as ``[{'key': ...}]``.",
     )
     to_statuses: list[dict[str, Any]] | None = Field(
         default=None,
-        serialization_alias="toStatuses",
+        alias="toStatuses",
         description="Statuses the work ends at, as ``[{'key': ...}]``.",
     )
     start: str | None = Field(
@@ -135,6 +135,6 @@ class CycleTimeWidget(APIModel):
     )
     auto_updatable: bool | None = Field(
         default=None,
-        serialization_alias="autoUpdatable",
+        alias="autoUpdatable",
         description="Whether the chart refreshes automatically.",
     )

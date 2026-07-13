@@ -20,7 +20,7 @@ from ycli.yandex.tracker.dependencies import (
     app_config,
     tracker_client,
 )
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogList
+from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogList, WorklogUpdate
 
 mcp = FastMCP("tracker-worklog")
 
@@ -106,13 +106,11 @@ def global_list(
     annotations={**WRITE, "title": "Add Tracker worklog record"},
     tags=WRITE_TAGS,
 )
-def create(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Worklog:
-    """Log spent time on a Tracker issue; returns the created worklog record.
-
-    ``body`` is the raw API payload — required ``{"start": "YYYY-MM-DDThh:mm:ss.sss±hhmm",
-    "duration": "PT2H"}`` (ISO-8601 duration); optional ``comment``.
-    """
-    return client.worklog.create(key, body)
+def create(
+    key: str, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
+) -> Worklog:
+    """Log spent time on a Tracker issue; returns the created worklog record."""
+    return client.worklog.create(key, body.model_dump(exclude_none=True))
 
 
 @mcp.tool(
@@ -121,14 +119,13 @@ def create(key: str, body: dict, client: TrackerClient = Depends(tracker_client)
     tags=WRITE_TAGS,
 )
 def edit(
-    key: str, record_id: str, body: dict, client: TrackerClient = Depends(tracker_client)
+    key: str, record_id: str, body: WorklogUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> Worklog:
     """Edit a worklog record on a Tracker issue (duration and/or comment).
 
-    Get ``record_id`` from ``worklog_list``. ``body`` carries the fields to change, e.g.
-    ``{"duration": "PT1H30M"}``. Returns the updated record.
+    Get ``record_id`` from ``worklog_list``. Returns the updated record.
     """
-    return client.worklog.edit(key, record_id, body)
+    return client.worklog.edit(key, record_id, body.model_dump(exclude_none=True))
 
 
 @mcp.tool(

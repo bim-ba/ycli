@@ -72,8 +72,8 @@ def cycletime(
     body = CycleTimeWidget(
         description=description,
         query=query or None,
-        from_statuses=[{"key": s} for s in from_status] if from_status else None,
-        to_statuses=[{"key": s} for s in to_status] if to_status else None,
+        fromStatuses=[{"key": s} for s in from_status] if from_status else None,
+        toStatuses=[{"key": s} for s in to_status] if to_status else None,
         mode=mode or None,
     ).model_dump(by_alias=True, exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)

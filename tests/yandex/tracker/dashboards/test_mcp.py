@@ -41,14 +41,14 @@ async def test_dashboards_add_cycle_time_widget_tool(creds):
     async with Client(dashboards_mcp.mcp) as client:
         result = await client.call_tool(
             "dashboards_add_cycle_time_widget",
-            {"dashboard_id": "42", "body": {"name": "Cycle time", "queue": "DE"}},
+            {"dashboard_id": "42", "body": {"description": "Cycle time", "query": "Queue: DE"}},
         )
     assert result.data.id == 7
     assert responses.calls[0].request.method == "POST"
     assert responses.calls[0].request.url == f"{BASE}/dashboards/42/widgets/cycleTime"
     assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
-        "name": "Cycle time",
-        "queue": "DE",
+        "description": "Cycle time",
+        "query": "Queue: DE",
     }
 
 

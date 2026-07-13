@@ -6,7 +6,12 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
+from ycli.yandex.tracker.checklists.models import (
+    Checklist,
+    ChecklistItemCreate,
+    ChecklistItemList,
+    ChecklistItemUpdate,
+)
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -44,13 +49,14 @@ def get(
     annotations={**WRITE, "title": "Add Tracker checklist item"},
     tags=WRITE_TAGS,
 )
-def create(key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+def create(
+    key: str, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
+) -> Checklist:
     """Add an item to a Tracker issue's checklist (creates the checklist if absent).
 
-    ``body`` is the raw API payload — at minimum ``{"text": "…"}``; optional keys include
-    ``checked``, ``assignee`` and ``deadline``. Returns the issue with its full checklist.
+    Returns the issue with its full checklist.
     """
-    return client.checklists.create(key, body)
+    return client.checklists.create(key, body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -59,14 +65,16 @@ def create(key: str, body: dict, client: TrackerClient = Depends(tracker_client)
     tags=WRITE_TAGS,
 )
 def edit(
-    key: str, item_id: str, body: dict, client: TrackerClient = Depends(tracker_client)
+    key: str,
+    item_id: str,
+    body: ChecklistItemUpdate,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Checklist:
     """Edit one checklist item on a Tracker issue (text, checked state, assignee, deadline).
 
-    Get ``item_id`` from ``checklists_get``. ``body`` carries the fields to change, e.g.
-    ``{"text": "…", "checked": true}``. Returns the issue with its updated checklist.
+    Get ``item_id`` from ``checklists_get``. Returns the issue with its updated checklist.
     """
-    return client.checklists.edit(key, item_id, body)
+    return client.checklists.edit(key, item_id, body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(

@@ -30,11 +30,11 @@ class ImportTask(APIModel):
     queue: str = Field(description="Key of the queue to import the issue into.")
     summary: str = Field(description="Issue title (max 255 characters).")
     created_at: str = Field(
-        serialization_alias="createdAt",
+        alias="createdAt",
         description="Original creation time (``YYYY-MM-DDThh:mm:ss.sss±hhmm``); not in the future.",
     )
     created_by: str = Field(
-        serialization_alias="createdBy", description="Login or id of the original issue author."
+        alias="createdBy", description="Login or id of the original issue author."
     )
     key: str | None = Field(
         default=None, description="Explicit issue key (must belong to the queue)."
@@ -43,12 +43,12 @@ class ImportTask(APIModel):
     assignee: str | None = Field(default=None, description="Login or id of the assignee.")
     updated_at: str | None = Field(
         default=None,
-        serialization_alias="updatedAt",
+        alias="updatedAt",
         description="Original last-edit time (only together with ``updated_by``).",
     )
     updated_by: str | None = Field(
         default=None,
-        serialization_alias="updatedBy",
+        alias="updatedBy",
         description="Login or id of the last editor (only together with ``updated_at``).",
     )
 
@@ -64,20 +64,16 @@ class ImportComment(APIModel):
     """
 
     text: str = Field(description="Comment text (max 512000 characters).")
-    created_at: str = Field(
-        serialization_alias="createdAt", description="Original comment creation time."
-    )
-    created_by: str = Field(
-        serialization_alias="createdBy", description="Login or id of the comment author."
-    )
+    created_at: str = Field(alias="createdAt", description="Original comment creation time.")
+    created_by: str = Field(alias="createdBy", description="Login or id of the comment author.")
     updated_at: str | None = Field(
         default=None,
-        serialization_alias="updatedAt",
+        alias="updatedAt",
         description="Original last-edit time (only together with ``updated_by``).",
     )
     updated_by: str | None = Field(
         default=None,
-        serialization_alias="updatedBy",
+        alias="updatedBy",
         description="Login or id of the last editor (only together with ``updated_at``).",
     )
 
@@ -100,20 +96,16 @@ class ImportLink(APIModel):
         description="Link type, e.g. ``relates``, ``depends on``, ``subtask``."
     )
     issue: str = Field(description="Key or id of the issue to link to.")
-    created_at: str = Field(
-        serialization_alias="createdAt", description="Original link creation time."
-    )
-    created_by: str = Field(
-        serialization_alias="createdBy", description="Login or id of the link creator."
-    )
+    created_at: str = Field(alias="createdAt", description="Original link creation time.")
+    created_by: str = Field(alias="createdBy", description="Login or id of the link creator.")
     updated_at: str | None = Field(
         default=None,
-        serialization_alias="updatedAt",
+        alias="updatedAt",
         description="Original last-edit time (only together with ``updated_by``).",
     )
     updated_by: str | None = Field(
         default=None,
-        serialization_alias="updatedBy",
+        alias="updatedBy",
         description="Login or id of the last editor (only together with ``updated_at``).",
     )
 
@@ -133,11 +125,7 @@ class ImportWorklog(APIModel):
     """
 
     duration: str = Field(description="Time spent as an ISO-8601 duration, e.g. ``PT1H``.")
-    created_at: str = Field(
-        serialization_alias="createdAt", description="Original record creation time."
-    )
-    created_by: str = Field(
-        serialization_alias="createdBy", description="Login or id of the record author."
-    )
+    created_at: str = Field(alias="createdAt", description="Original record creation time.")
+    created_by: str = Field(alias="createdBy", description="Login or id of the record author.")
     start: str = Field(description="Work start time (``YYYY-MM-DDThh:mm:ss.sss±hhmm``).")
     comment: str | None = Field(default=None, description="Optional note saved in the time report.")

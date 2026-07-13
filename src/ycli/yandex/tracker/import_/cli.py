@@ -49,8 +49,8 @@ def task(
     body = ImportTask(
         queue=queue,
         summary=summary,
-        created_at=created_at,
-        created_by=created_by,
+        createdAt=created_at,
+        createdBy=created_by,
         key=key or None,
         description=description or None,
         assignee=assignee or None,
@@ -68,7 +68,7 @@ def comment(
     created_by: CreatedByOpt,
 ) -> None:
     """Import a comment onto issue KEY (POST /issues/{key}/comments/_import)."""
-    body = ImportComment(text=text, created_at=created_at, created_by=created_by).model_dump(
+    body = ImportComment(text=text, createdAt=created_at, createdBy=created_by).model_dump(
         by_alias=True, exclude_none=True
     )
     app_ctx = AppContext.from_typer_context(ctx)
@@ -88,7 +88,7 @@ def link(
 ) -> None:
     """Import a link on issue KEY (POST /issues/{key}/links/_import)."""
     body = ImportLink(
-        relationship=relationship, issue=issue, created_at=created_at, created_by=created_by
+        relationship=relationship, issue=issue, createdAt=created_at, createdBy=created_by
     ).model_dump(by_alias=True, exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(
@@ -109,8 +109,8 @@ def worklog(
     """Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import)."""
     body = ImportWorklog(
         duration=duration,
-        created_at=created_at,
-        created_by=created_by,
+        createdAt=created_at,
+        createdBy=created_by,
         start=start,
         comment=comment or None,
     ).model_dump(by_alias=True, exclude_none=True)
