@@ -6,21 +6,14 @@ integrator wires ``self.keysets = KeysetsClient(session=transport)`` into ``form
 
 import json
 
-import pytest
 import responses
 from fastmcp import Client
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.keysets import mcp as keysets_mcp
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 KID = 7
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

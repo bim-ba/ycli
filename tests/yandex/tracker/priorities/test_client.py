@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.issuetypes.client import IssueTypesClient
 from ycli.yandex.tracker.issuetypes.models import IssueTypeList
 from ycli.yandex.tracker.linktypes.client import LinkTypesClient
@@ -17,8 +18,6 @@ from ycli.yandex.tracker.priorities.models import (
     PriorityList,
     PriorityUpdate,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _session() -> requests.Session:

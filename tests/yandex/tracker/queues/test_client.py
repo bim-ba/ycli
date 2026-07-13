@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.queues.client import QueuesClient
 from ycli.yandex.tracker.queues.models import (
     Queue,
@@ -20,8 +21,6 @@ from ycli.yandex.tracker.queues.models import (
     QueueVersionInfo,
     QueueVersionInfoList,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> QueuesClient:

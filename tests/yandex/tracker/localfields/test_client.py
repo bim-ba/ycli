@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.localfields.client import LocalFieldsClient
 from ycli.yandex.tracker.localfields.models import (
     LocalField,
@@ -14,8 +15,6 @@ from ycli.yandex.tracker.localfields.models import (
     LocalizedName,
     OptionsProviderInput,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> LocalFieldsClient:

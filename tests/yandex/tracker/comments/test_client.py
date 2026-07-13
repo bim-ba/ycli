@@ -6,10 +6,9 @@ from urllib.parse import parse_qs, urlparse
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.comments.client import CommentsClient
 from ycli.yandex.tracker.comments.models import Comment, CommentList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> CommentsClient:

@@ -5,10 +5,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.links.client import LinksClient
 from ycli.yandex.tracker.links.models import Link, LinkList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> LinksClient:

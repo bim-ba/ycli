@@ -7,22 +7,15 @@ integrator mounts the sub-app on the wiki CLI and wires ``UploadSessionsClient``
 
 import json
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from tests.hosts import WIKI_BASE as BASE
 
-BASE = "https://api.wiki.yandex.net/v1"
 runner = CliRunner()
 
 _SESSION_JSON = {"session_id": "s-1", "file_name": "d.png", "file_size": 4, "status": "not_started"}
-
-
-@pytest.fixture(autouse=True)
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

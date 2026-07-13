@@ -3,10 +3,9 @@
 import requests
 import responses
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.me.client import MeClient
 from ycli.yandex.forms.me.models import User
-
-BASE = "https://api.forms.yandex.net/v1"
 
 
 def _client() -> MeClient:

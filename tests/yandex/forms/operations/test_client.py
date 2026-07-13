@@ -3,10 +3,10 @@
 import requests
 import responses
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.operations.client import OperationsClient
 from ycli.yandex.forms.operations.models import OperationResult
 
-BASE = "https://api.forms.yandex.net/v1"
 OID = "op-4a1b"
 
 

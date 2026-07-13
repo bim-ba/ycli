@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.autoactions.client import AutoactionsClient
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
@@ -13,8 +14,6 @@ from ycli.yandex.tracker.autoactions.models import (
     AutoactionLogList,
     AutoactionRunList,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> AutoactionsClient:

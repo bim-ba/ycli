@@ -5,10 +5,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.filters.client import FiltersClient
 from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _session() -> requests.Session:

@@ -3,14 +3,13 @@
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.polling import poll
 from ycli.yandex.wiki.operations.client import OperationsClient
 from ycli.yandex.wiki.operations.models import (
     CloneOperationStatus,
     GridCloneOperationStatus,
 )
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 
 def _client() -> OperationsClient:

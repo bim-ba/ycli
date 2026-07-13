@@ -1,18 +1,10 @@
 """TDD for the tracker users MCP subserver (fastmcp Client against the resource subserver)."""
 
-import pytest
 import responses
 from fastmcp import Client
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.users import mcp as users_mcp
-
-BASE = "https://api.tracker.yandex.net/v3"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

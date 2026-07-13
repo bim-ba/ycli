@@ -12,16 +12,15 @@ import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from tests.hosts import TRACKER_BASE as BASE
 
-BASE = "https://api.tracker.yandex.net/v3"
 runner = CliRunner()
 
 
 @pytest.fixture(autouse=True)
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-    monkeypatch.setattr(time, "sleep", lambda *_: None)  # no real waiting in the --wait poll
+def _patch_sleep(monkeypatch):
+    """No real waiting in the --wait poll."""
+    monkeypatch.setattr(time, "sleep", lambda *_: None)
 
 
 @responses.activate

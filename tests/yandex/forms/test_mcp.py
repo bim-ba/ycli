@@ -3,20 +3,13 @@
 import json
 from urllib.parse import parse_qs, urlparse
 
-import pytest
 import responses
 from fastmcp import Client
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms import mcp as forms_mcp
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 async def test_all_tools_registered():

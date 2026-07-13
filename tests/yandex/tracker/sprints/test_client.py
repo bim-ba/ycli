@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.sprints.client import SprintsClient
 from ycli.yandex.tracker.sprints.models import (
     Sprint,
@@ -13,8 +14,6 @@ from ycli.yandex.tracker.sprints.models import (
     SprintList,
     SprintUpdate,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> SprintsClient:

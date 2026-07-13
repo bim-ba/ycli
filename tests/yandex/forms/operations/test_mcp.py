@@ -5,16 +5,10 @@ import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.operations import mcp as operations_mcp
 
-BASE = "https://api.forms.yandex.net/v1"
 OID = "op-4a1b"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

@@ -14,12 +14,6 @@ runner = CliRunner()
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-
-
 def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)

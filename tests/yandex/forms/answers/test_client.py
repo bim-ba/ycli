@@ -7,10 +7,10 @@ import pytest
 import requests
 import responses
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.answers.models import AnswerDetails, AnswersResponse, ExportResult
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 
 ANSWER_BODY = {

@@ -5,10 +5,10 @@ import json
 import requests
 import responses
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.keysets.client import KeysetsClient
 from ycli.yandex.forms.keysets.models import Keyset, KeysetList
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 KID = 7
 

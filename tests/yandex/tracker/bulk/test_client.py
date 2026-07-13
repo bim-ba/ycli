@@ -5,11 +5,10 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.polling import poll
 from ycli.yandex.tracker.bulk.client import BulkClient
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> BulkClient:

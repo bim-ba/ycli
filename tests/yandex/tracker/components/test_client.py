@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.components.client import ComponentsClient
 from ycli.yandex.tracker.components.models import (
     Component,
@@ -12,8 +13,6 @@ from ycli.yandex.tracker.components.models import (
     ComponentList,
     ComponentUpdate,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _session() -> requests.Session:

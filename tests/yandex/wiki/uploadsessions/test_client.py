@@ -5,14 +5,13 @@ import json
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 from ycli.yandex.wiki.uploadsessions.models import (
     AbortActiveUploadsResult,
     UploadSession,
     UploadSessionCreate,
 )
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 _SESSION_JSON = {
     "session_id": "s-1",

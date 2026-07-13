@@ -1,6 +1,5 @@
 """status_get MCP tool — aggregates the three /me probes into one read-only report."""
 
-import pytest
 import responses
 from fastmcp import Client
 
@@ -9,12 +8,6 @@ from ycli.yandex.status import mcp as status_mcp
 TRACKER_ME = "https://api.tracker.yandex.net/v3/myself"
 FORMS_ME = "https://api.forms.yandex.net/v1/users/me"
 WIKI_ME = "https://api.wiki.yandex.net/v1/users/me"
-
-
-@pytest.fixture
-def creds(monkeypatch):
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
 @responses.activate

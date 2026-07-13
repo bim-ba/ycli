@@ -5,10 +5,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.issues.client import IssuesClient
 from ycli.yandex.tracker.issues.models import Issue, IssueList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> IssuesClient:

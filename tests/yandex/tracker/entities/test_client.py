@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, urlparse
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.entities.client import EntitiesClient
 from ycli.yandex.tracker.entities.models import (
     Attachment,
@@ -23,8 +24,6 @@ from ycli.yandex.tracker.entities.models import (
     ExtendedPermissions,
     LinkList,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> EntitiesClient:
