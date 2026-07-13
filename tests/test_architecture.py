@@ -75,6 +75,145 @@ def test_arch1_four_surface_symmetry():
     assert checked >= 16, f"expected >=16 resource dirs, found {checked}"
 
 
+def _load_gen_coverage():
+    """Load ``scripts/gen_coverage.py`` as a module and reuse its SDK-operation discovery.
+
+    D2 leverages the same public-method enumeration gen_coverage uses for the README coverage
+    tables, so "what counts as a client operation" has a single definition across the repo.
+    """
+    import importlib.util
+    import sys
+
+    path = SRC.parent.parent / "scripts" / "gen_coverage.py"
+    spec = importlib.util.spec_from_file_location("gen_coverage", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module  # dataclasses need the module registered to resolve fields
+    spec.loader.exec_module(module)
+    return module
+
+
+def _resource_operations():
+    """Yield ``(domain_slug, resource_attr, sdk_ops)`` for every domain resource client."""
+    gen = _load_gen_coverage()
+    clients = {
+        "tracker": gen.TrackerClient(oauth_token="x", organization_id="x"),
+        "wiki": gen.WikiClient(oauth_token="x", organization_id="x"),
+        "forms": gen.FormsClient(oauth_token="x", organization_id="x"),
+    }
+    for slug, client in clients.items():
+        for attr, resource in sorted(vars(client).items()):
+            if isinstance(resource, gen.BaseYandex):
+                yield slug, attr, set(gen._sdk_operations(resource))
+
+
+def _wrapped_ops_in_source(source: str, resource_attr: str) -> set[str]:
+    """Op names invoked as ``….<resource_attr>.<op>(…)`` anywhere in ``source`` (AST).
+
+    Structural, not name-based: the CLI and MCP wrappers reference the client operation
+    directly (``app_ctx.tracker.issues.get(…)`` / ``client.issues.get(…)``), so this sees the
+    real coverage even where the surface command/tool is *named* differently from the op
+    (``checklists.create`` → CLI ``add``; ``pages.get_by_id`` → MCP ``by_id_get``). A same-named
+    method on some other object (``other.get(…)``) or a bare-name call does not count.
+    """
+    wrapped: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and node.func.value.attr == resource_attr
+        ):
+            wrapped.add(node.func.attr)
+    return wrapped
+
+
+def _wrapped_ops(surface_py: Path, resource_attr: str) -> set[str]:
+    """Structural surface coverage for ``resource_attr`` in one cli.py / mcp.py file."""
+    if not surface_py.exists():
+        return set()
+    return _wrapped_ops_in_source(surface_py.read_text(encoding="utf-8"), resource_attr)
+
+
+def _surface_gaps(sdk_ops: set[str], cli_ops: set[str], mcp_ops: set[str]) -> set[str]:
+    """Client ops not wrapped on BOTH the CLI and MCP surfaces (pure set logic)."""
+    return {op for op in sdk_ops if not (op in cli_ops and op in mcp_ops)}
+
+
+# ARCH-1 operation-level parity (D2). Every public client operation is wrapped on BOTH the CLI
+# and the MCP surface, EXCEPT the intentional asymmetries frozen here (id -> reason). The gap
+# set is computed structurally (which client op each surface actually calls), so it survives the
+# surfaces naming a command/tool differently from the op. Regenerate and edit this map in the
+# same PR when a genuine asymmetry is added or resolved.
+ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
+    # Binary download — raw bytes go to a file/stdout via ycli.cli.binary.write_output; bytes
+    # are not a model and can't round-trip an MCP tool result, so these stay CLI-only.
+    "tracker.attachments.download": "binary download — CLI-only (bytes)",
+    "tracker.attachments.download_thumbnail": "binary download — CLI-only (bytes)",
+    "tracker.entities.attachment_download": "binary download — CLI-only (bytes)",
+    "wiki.attachments.download": "binary download — CLI-only (bytes)",
+    "wiki.attachments.download_by_url": "binary download — CLI-only (bytes)",
+    "forms.answers.download_export": "binary download — CLI-only (bytes)",
+    "forms.files.download": "binary download — CLI-only (bytes)",
+    "forms.keysets.download": "binary download — CLI-only (bytes)",
+    # Binary upload — the CLI streams a local file; no MCP tool by design.
+    "forms.files.upload": "binary upload — CLI-only (bytes)",
+    "forms.images.upload": "binary upload — CLI-only (bytes)",
+    # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
+    # exposes the one-shot `export` submit instead of the polling wrapper.
+    "forms.answers.export_results": "CLI-only export poll helper",
+    # SDK-internal single-page primitive, superseded by the pagination-aware `list_all` that BOTH
+    # surfaces wrap; `list` itself is intentionally unwrapped on both.
+    "forms.answers.list": "SDK-internal single-page primitive (surfaces wrap list_all)",
+}
+
+
+def test_arch1_operation_level_parity():
+    """Every client operation is wrapped on both the CLI and MCP surfaces (ARCH-1).
+
+    Strengthens the four-file existence check: a client method with no CLI command *and* no MCP
+    tool — or one wrapped on only one surface — is caught. Coverage is read structurally from
+    each surface's calls into the client, so a command/tool named differently from the op still
+    counts. Intentional asymmetries are frozen in ``ARCH1_SURFACE_ASYMMETRIES``.
+    """
+    gaps: dict[str, tuple[bool, bool]] = {}
+    for slug, attr, sdk_ops in _resource_operations():
+        rdir = YANDEX / slug / attr
+        cli_ops = _wrapped_ops(rdir / "cli.py", attr)
+        mcp_ops = _wrapped_ops(rdir / "mcp.py", attr)
+        for op in _surface_gaps(sdk_ops, cli_ops, mcp_ops):
+            gaps[f"{slug}.{attr}.{op}"] = (op in cli_ops, op in mcp_ops)
+    unexpected = sorted(set(gaps) - set(ARCH1_SURFACE_ASYMMETRIES))
+    resolved = sorted(set(ARCH1_SURFACE_ASYMMETRIES) - set(gaps))
+    assert not unexpected and not resolved, (
+        "operation-level surface parity drifted. Every client op must be wrapped on BOTH the "
+        "CLI and MCP surfaces, or listed in ARCH1_SURFACE_ASYMMETRIES with a reason.\n"
+        f"  newly unwrapped (wrap on both surfaces, or allowlist with a reason): {unexpected}\n"
+        f"  now wrapped (remove from the allowlist): {resolved}"
+    )
+
+
+def test_arch1_parity_check_bites():
+    """Prove-it: the gap detector flags an op missing from either surface, and the structural
+    reader counts a real client call but not a same-named call on another object."""
+    # An op wrapped on neither / only one surface is a gap; one on both is not.
+    assert _surface_gaps({"orphan", "wired"}, {"wired"}, {"wired"}) == {"orphan"}
+    assert _surface_gaps({"cli_only"}, {"cli_only"}, set()) == {"cli_only"}
+    assert _surface_gaps({"mcp_only"}, set(), {"mcp_only"}) == {"mcp_only"}
+    assert _surface_gaps({"wired"}, {"wired"}, {"wired"}) == set()
+    # The structural reader records `….issues.<op>(…)` only — not `.get` on another chain nor a
+    # bare-name call — so it neither misses aliased wrappers nor over-counts.
+    source = (
+        "def cmd(app_ctx):\n"
+        "    app_ctx.tracker.issues.get(key)\n"
+        "    app_ctx.tracker.issues.update(key, body)\n"
+        "    other.get(x)\n"
+        "    plain_get(x)\n"
+    )
+    assert _wrapped_ops_in_source(source, "issues") == {"get", "update"}
+    assert _wrapped_ops_in_source(source, "boards") == set()
+
+
 def _mcp_tools():
     async def go():
         async with Client(root_mcp) as c:

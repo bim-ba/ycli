@@ -37,6 +37,16 @@ Notable shared pieces:
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
+  Beyond file existence, **operation-level parity** holds: every public client operation is
+  wrapped on **both** the CLI and the MCP surface. Coverage is read structurally — which client
+  method each surface's `cli.py` / `mcp.py` actually calls (`….<resource>.<op>(…)`) — so it
+  holds even where the command or tool is *named* differently from the op
+  (`checklists.create` → CLI `add`; `pages.get_by_id` → MCP `by_id_get`). The intentional
+  asymmetries — CLI-only binary download/upload commands (raw `bytes` can't round-trip an MCP
+  result), a CLI-only export-poll helper, and the SDK-internal `answers.list` primitive that
+  `list_all` supersedes on both surfaces — are frozen in `ARCH1_SURFACE_ASYMMETRIES`
+  (`tests/test_architecture.py`); a new unwrapped operation fails the build until it is wrapped
+  on both surfaces or added there with a reason.
   *Carve-out:* `yandex/status/` and the `ycli/mcp/` server package are cross-cutting surfaces,
   not `<domain>/<resource>` dirs — the four-surface rule and the `_resource_dirs()` check
   (which scans only `tracker/wiki/forms`) do not apply to them.
@@ -114,6 +124,11 @@ review cover the rest):
 - **ARCH-2/ARCH-3 catch _direct_ imports** (`allow_indirect_imports=true`, since `cli.py`/`mcp.py`
   legitimately reach HTTP transitively through `client.py`). An HTTP call hidden behind a new
   helper module that `cli.py` imports is not caught by import-linter.
+- **ARCH-1 operation parity reads _direct_ surface→client calls.** A CLI/MCP wrapper that reaches
+  the client through a local alias (`res = app_ctx.tracker.issues; res.get(…)`) instead of the
+  canonical `….<resource>.<op>(…)` chain is not seen as coverage, so it would surface as a
+  (false) asymmetry — flagged deliberately, so the non-standard wrapping has to be made explicit
+  (wired straight, or allowlisted).
 - **ARCH-5 is single-source-of-truth, not secret scanning.** It catches hardcoded `__version__`,
   `YANDEX_ID_*` assignments, and org-header strings — not an arbitrary raw token literal (that is
   the job of the token-leak guard, a separate piece of work).
