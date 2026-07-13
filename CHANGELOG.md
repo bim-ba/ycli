@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.16.1 (2026-07-13)
+
+### Bug Fixes
+
+- Guard cursor drains against a non-advancing cursor (infinite-loop protection)
+  ([#54](https://github.com/bim-ba/ycli/pull/54),
+  [`98b0505`](https://github.com/bim-ba/ycli/commit/98b0505e3ea0ff4b123560351134a817ba73dfbc))
+
+### Build System
+
+- Re-lock uv.lock for 0.16.0
+  ([`7b87bab`](https://github.com/bim-ba/ycli/commit/7b87bab43b45d163d773443826f3f3e23d91c44e))
+
+### Testing
+
+- Backfill @pytest.mark.integration on 97 wiring files + enforcement
+  ([#53](https://github.com/bim-ba/ycli/pull/53),
+  [`14e990f`](https://github.com/bim-ba/ycli/commit/14e990f79dfa4d1e81b0ed8a4a9023e38ce0f967))
+
+- Dedup creds fixture (100->1) and BASE constant (143->3 domain hosts)
+  ([#52](https://github.com/bim-ba/ycli/pull/52),
+  [`8605c67`](https://github.com/bim-ba/ycli/commit/8605c67093e79dbc0d8c01579ae04d77938b98b7))
+
+
 ## v0.16.0 (2026-07-13)
 
 ### Build System
