@@ -9,6 +9,67 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.13.0 (2026-07-13)
+
+### Bug Fixes
+
+- **mcp**: Cyrillic grid-column slugs + enforce write-tag on write tools
+  ([#40](https://github.com/bim-ba/ycli/pull/40),
+  [`7f8e58e`](https://github.com/bim-ba/ycli/commit/7f8e58eee27b070ec916a0495c29671702be1726))
+
+### Build System
+
+- Re-lock uv.lock for 0.12.0
+  ([`10fd277`](https://github.com/bim-ba/ycli/commit/10fd27785384dc548a56ced228fe826a198e0378))
+
+### Chores
+
+- Dedup CI lint, drop dead ruff ignore, fix VHS cache-key drift, graphify hygiene
+  ([#38](https://github.com/bim-ba/ycli/pull/38),
+  [`51ef62a`](https://github.com/bim-ba/ycli/commit/51ef62ae9e35baf31bbe94fae02400fa02ffab6c))
+
+- **drift-log**: MCP write-tool body should be a typed model, not dict
+  ([#40](https://github.com/bim-ba/ycli/pull/40),
+  [`7f8e58e`](https://github.com/bim-ba/ycli/commit/7f8e58eee27b070ec916a0495c29671702be1726))
+
+### Documentation
+
+- Align every surface with read/write MCP + live-test findings
+  ([#40](https://github.com/bim-ba/ycli/pull/40),
+  [`7f8e58e`](https://github.com/bim-ba/ycli/commit/7f8e58eee27b070ec916a0495c29671702be1726))
+
+- Correct graphify refresh guidance (graphify update explodes the graph here)
+  ([#39](https://github.com/bim-ba/ycli/pull/39),
+  [`b197921`](https://github.com/bim-ba/ycli/commit/b1979216cdfc5aba0e47cb8f7d37df7b423314ea))
+
+- Propagate references/ move into docs, fix README layout, refresh demo.gif
+  ([#36](https://github.com/bim-ba/ycli/pull/36),
+  [`687591b`](https://github.com/bim-ba/ycli/commit/687591b4b51a0ae75cf5ee5136e7f79e5ea84c12))
+
+- Unify org header as one canonical X-Org-Id (kill false casing gotcha)
+  ([#35](https://github.com/bim-ba/ycli/pull/35),
+  [`6935370`](https://github.com/bim-ba/ycli/commit/69353705e6ed01d9f37dd9eb4d8387f37aa2c3e6))
+
+### Features
+
+- **mcp**: Mirror the SDK with write tools + fix live-found bugs across domains
+  ([#40](https://github.com/bim-ba/ycli/pull/40),
+  [`7f8e58e`](https://github.com/bim-ba/ycli/commit/7f8e58eee27b070ec916a0495c29671702be1726))
+
+- **mcp**: Read/write MCP server + full-surface live test + tech-debt fixes
+  ([#40](https://github.com/bim-ba/ycli/pull/40),
+  [`7f8e58e`](https://github.com/bim-ba/ycli/commit/7f8e58eee27b070ec916a0495c29671702be1726))
+
+- **mcp**: Replace ARCH-3 read-only with annotation honesty (core)
+  ([#40](https://github.com/bim-ba/ycli/pull/40),
+  [`7f8e58e`](https://github.com/bim-ba/ycli/commit/7f8e58eee27b070ec916a0495c29671702be1726))
+
+### Refactoring
+
+- Remove dead SinglePageStrategy pagination class ([#37](https://github.com/bim-ba/ycli/pull/37),
+  [`ed670eb`](https://github.com/bim-ba/ycli/commit/ed670ebb0303ee6ac83af3cb7d70de031c417543))
+
+
 ## v0.12.0 (2026-07-11)
 
 ### Build System
