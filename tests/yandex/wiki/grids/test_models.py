@@ -112,9 +112,15 @@ def test_new_column_rejects_bad_type():
 
 def test_new_column_derives_slug_from_title():
     """The live API rejects a slug-less column, so ``slug`` defaults from the title —
-    lowercased, non-``a-z0-9`` runs collapsed to ``_``, edge underscores stripped."""
+    lowercased, non-word runs collapsed to ``_``, edge underscores stripped."""
     assert NewColumnSchema(title="Count", type="number").slug == "count"
     assert NewColumnSchema(title="My Col! (v2)", type="string").slug == "my_col_v2"
+
+
+def test_new_column_derives_unicode_slug_from_cyrillic_title():
+    """A Cyrillic title (the Wiki's primary audience) derives a Cyrillic slug, not an error."""
+    assert NewColumnSchema(title="Количество", type="number").slug == "количество"
+    assert NewColumnSchema(title="Дата начала", type="date").slug == "дата_начала"
 
 
 def test_new_column_keeps_explicit_slug():
@@ -122,10 +128,10 @@ def test_new_column_keeps_explicit_slug():
 
 
 def test_new_column_underivable_title_needs_explicit_slug():
-    """A title with no ASCII alphanumerics cannot yield a slug — clear error, not a 400 later."""
+    """A title with no word characters at all cannot yield a slug — clear error, not a 400 later."""
     with pytest.raises(ValidationError, match="pass an explicit slug"):
-        NewColumnSchema(title="Количество", type="number")
-    assert NewColumnSchema(title="Количество", type="number", slug="count").slug == "count"
+        NewColumnSchema(title="!!! ---", type="number")
+    assert NewColumnSchema(title="!!! ---", type="number", slug="count").slug == "count"
 
 
 def test_columns_add_always_serializes_required():

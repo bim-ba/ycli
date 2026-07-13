@@ -424,13 +424,18 @@ class NewColumnSchema(APIModel):
 
     @model_validator(mode="after")
     def _derive_slug_from_title(self) -> NewColumnSchema:
-        """Default ``slug`` from ``title`` — the live API rejects slug-less columns (400)."""
+        """Default ``slug`` from ``title`` — the live API rejects slug-less columns (400).
+
+        ``\\W+`` is Unicode-aware, so a Cyrillic title (the Wiki's primary audience) derives a
+        Cyrillic slug rather than collapsing to empty; only a title with no word characters at
+        all (pure punctuation) needs an explicit slug.
+        """
         if self.slug is None:
-            derived = re.sub(r"[^a-z0-9]+", "_", self.title.lower()).strip("_")
+            derived = re.sub(r"\W+", "_", self.title.lower()).strip("_")
             if not derived:
                 raise ValueError(
                     f"cannot derive a column slug from title {self.title!r} "
-                    "(no ASCII alphanumerics); pass an explicit slug"
+                    "(no word characters); pass an explicit slug"
                 )
             self.slug = derived
         return self

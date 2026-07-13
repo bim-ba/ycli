@@ -102,3 +102,47 @@ Priority order (impact-first):
 - **fastmcp 3.4.2 dict-annotations** confirmed current; MCP-spec default
   `destructiveHint=true` for unannotated tools is why ARCH-3 demands explicit hints.
 - No new runtime dependencies warranted by any audited need.
+
+## 5. Code-review follow-ups (from the MCP-write PR self-review, 2026-07-12)
+
+Fixed in the PR: Cyrillic grid-column slug derivation (was ASCII-only → crashed on Russian
+titles); a new ARCH-3 test asserting the write-annotation ↔ `write`-tag correlation (closes a
+`--read-only` fail-open where a mis-tagged write tool could leak into the reads-only view).
+
+Deferred (non-blocking; ordered by value):
+1. **`body: dict` → typed models in ~25 Tracker MCP write tools.** The tracker agent used
+   raw `body: dict` (bulk/comments/issues/entities/import/…), degrading each tool's MCP input
+   schema to a bare `object`; wiki/forms used typed models. The typed models already exist and
+   the CLI uses them — convert for agent-facing schema quality. Largest single MCP cleanup.
+2. **Centralize `Ack.detail`.** 36 hand-written detail strings, duplicated CLI/MCP per
+   operation, already drifted ("deleted keyset X on survey Y" vs "keyset X deleted from
+   survey Y"). Have the client's bodyless writes return the `Ack`, or build the detail once.
+   Also retire the per-domain `*ActionResult` wrappers in favor of the shared `Ack`.
+3. **Clamp pagination page size to an explicit small `limit`.** The comments/worklog/changelog
+   drains fetch `perPage=100` even when `limit=5`; pass `per_page=min(100, limit)`. Also
+   reconsider the MCP list-tool default (now drains to `max_items=500` = up to 5 round-trips
+   where the old behavior returned one page) — consider defaulting the MCP `limit` to one page.
+4. **Fold the 7 relative-cursor drain copies** into one `TrackerResource._drain_relative`
+   helper; the changelog copy already diverges on the id-guard.
+5. **Extract the ~108 duplicated `creds` fixture / `BASE` constant** into conftest fixtures.
+6. **Strengthen the ARCH-3 AST backstop** to follow module-level helpers a read tool calls
+   (today a read tool calling a module-level `_helper()` that writes is unchecked).
+7. **`QuestionMove` bare-position default.** Defaulting `page=1` inside the model validator can
+   silently move a question off its current page; consider raising instead, or defaulting only
+   visibly at the CLI boundary.
+8. **Naming:** the `cfg` MCP-tool parameter abbreviates `config` (CLAUDE.md forbids
+   abbreviations); rename `cfg`→`config` repo-wide in a dedicated mechanical pass.
+9. **`@pytest.mark.integration`:** the ~40 new `test_mcp.py` wiring files are unmarked — decide
+   the policy (enforce via lint or drop the CLAUDE.md rule) and apply it once.
+
+## 6. Intentional contract changes shipped in this PR (release-note candidates)
+
+- `ycli tracker changelog list` dropped `--per-page`; use `--limit`/`--all` (uniform with other
+  paginated reads). Default now drains up to `YCLI_MAX_ITEMS` instead of one page.
+- Delete/clear CLI commands now emit an `Ack` model through `--format` (JSON `{"ok":true,
+  "detail":…}` when piped) instead of a bare `Deleted …` stdout line — scripts grepping the old
+  text must switch to exit code or `--format json`.
+- `wiki pages append` now always sends a placement selector (default `--location bottom`); the
+  selector-less request shape is no longer emitted.
+- OAuth: the MCP server needs write scopes unless run with `--read-only`.
+

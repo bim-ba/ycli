@@ -113,6 +113,31 @@ def test_arch3_mcp_annotation_honesty():
             )
 
 
+def test_arch3_write_tools_carry_write_tag():
+    """`--read-only` hides writes by tag, so every write tool MUST carry the write tag.
+
+    `ycli mcp start --read-only` calls ``mcp.disable(tags={WRITE_TAG})``; if a write tool were
+    registered with the read ``TAGS`` (a copy-paste slip), it would leak through the reads-only
+    view. The hint↔tag correlation is checked here so the safety flag can't fail open — a mis-
+    tagged tool trips this even though its annotations are internally honest.
+    """
+    from ycli.yandex.mcp import WRITE_TAG
+
+    tools = _mcp_tools()
+    assert tools, "no MCP tools discovered"
+    for t in tools:
+        ann = getattr(t, "annotations", None)
+        assert ann is not None, f"{t.name!r} lacks annotations"
+        meta = getattr(t, "meta", None) or {}
+        tags = set(meta.get("fastmcp", {}).get("tags", []) or [])
+        is_write = ann.readOnlyHint is False
+        assert (WRITE_TAG in tags) == is_write, (
+            f"{t.name!r}: readOnlyHint={ann.readOnlyHint} but write-tag "
+            f"{'present' if WRITE_TAG in tags else 'absent'} — a write tool must carry the "
+            f"{WRITE_TAG!r} tag (so --read-only hides it) and a read must not"
+        )
+
+
 def test_arch3_read_tools_call_no_write_methods():
     """A read-classified tool must not invoke a client write method (AST-checked)."""
     import ast
