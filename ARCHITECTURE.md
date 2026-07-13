@@ -37,6 +37,16 @@ Notable shared pieces:
 
 - **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
   `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
+  Beyond file existence, **operation-level parity** holds: every public client operation is
+  wrapped on **both** the CLI and the MCP surface. Coverage is read structurally — which client
+  method each surface's `cli.py` / `mcp.py` actually calls (`….<resource>.<op>(…)`) — so it
+  holds even where the command or tool is *named* differently from the op
+  (`checklists.create` → CLI `add`; `pages.get_by_id` → MCP `by_id_get`). The intentional
+  asymmetries — CLI-only binary download/upload commands (raw `bytes` can't round-trip an MCP
+  result), a CLI-only export-poll helper, and the SDK-internal `answers.list` primitive that
+  `list_all` supersedes on both surfaces — are frozen in `ARCH1_SURFACE_ASYMMETRIES`
+  (`tests/test_architecture.py`); a new unwrapped operation fails the build until it is wrapped
+  on both surfaces or added there with a reason.
   *Carve-out:* `yandex/status/` and the `ycli/mcp/` server package are cross-cutting surfaces,
   not `<domain>/<resource>` dirs — the four-surface rule and the `_resource_dirs()` check
   (which scans only `tracker/wiki/forms`) do not apply to them.
@@ -53,8 +63,8 @@ Notable shared pieces:
   (the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets in `ycli.yandex.mcp`) — explicit
   because the MCP-spec default for an unannotated tool is `destructiveHint=true`. Every write
   tool carries the `write` tag; `ycli mcp start --read-only` hides the tag wholesale for
-  cautious deployments. A read-classified tool never calls a client write method
-  (AST-checked).
+  cautious deployments. A read-classified tool never calls a client write method — directly
+  or laundered one hop through a module-level helper in the same module (AST-checked).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
   appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the
@@ -63,9 +73,14 @@ Notable shared pieces:
   *Carve-outs:* (a) a bare `print(int)` for a scalar `count` result is fine — it is not model
   output and needs no Serializer wrapping; (b) a **binary download** command writes raw
   `bytes` to a file/stdout via `ycli.cli.binary.write_output` (attachments, exports, keyset
-  files) — bytes are not a model, so they bypass the Serializer too. Neither path touches the
-  three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` / `json.dumps` only
-  in `output.py`; CLI command bodies render model output via `Serializer.serialize`.
+  files) — bytes are not a model, so they bypass the Serializer too; (c) the `wiki pages get`
+  command prints a page's **raw YFM markdown** body (`….content`) with a bare `print(` — the
+  body is already a string (not a model to render) and is pinned this way so a piped/demo
+  render stays verbatim. These three files with an allowed bare print
+  (`tracker/issues/cli.py`, `wiki/pages/cli.py`) are the closed allowlist; no other path
+  touches the three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` /
+  `json.dumps` only in `output.py`; CLI command bodies render model output via
+  `Serializer.serialize`, and no `cli.py` outside the carve-out allowlist uses a bare `print(`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).
@@ -109,6 +124,16 @@ review cover the rest):
 - **ARCH-2/ARCH-3 catch _direct_ imports** (`allow_indirect_imports=true`, since `cli.py`/`mcp.py`
   legitimately reach HTTP transitively through `client.py`). An HTTP call hidden behind a new
   helper module that `cli.py` imports is not caught by import-linter.
+- **ARCH-1 operation parity reads _direct_ surface→client calls.** A CLI/MCP wrapper that reaches
+  the client through a local alias (`res = app_ctx.tracker.issues; res.get(…)`) instead of the
+  canonical `….<resource>.<op>(…)` chain is not seen as coverage, so it would surface as a
+  (false) asymmetry — flagged deliberately, so the non-standard wrapping has to be made explicit
+  (wired straight, or allowlisted). The silent false-*negative* twin: an unrelated same-named
+  `X.<resource>.<op>(…)` chain elsewhere in the surface file could satisfy the structural match
+  and mask a genuinely-missing wrapper. The same receiver-chain heuristic (a call is a client
+  op only when its receiver names a known resource) also backs the ARCH-3 read-tool backstop, so
+  a client write verb (`update`/`add`/`clear`/…) is not confused with the like-named container
+  method on a bare local.
 - **ARCH-5 is single-source-of-truth, not secret scanning.** It catches hardcoded `__version__`,
   `YANDEX_ID_*` assignments, and org-header strings — not an arbitrary raw token literal (that is
   the job of the token-leak guard, a separate piece of work).

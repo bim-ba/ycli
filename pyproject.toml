@@ -71,7 +71,7 @@ explicit = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--cov=ycli --cov-report=term-missing --cov-fail-under=100"
+addopts = "--strict-markers --cov=ycli --cov-report=term-missing --cov-fail-under=100"
 markers = [
     "integration: tests that exercise CLI/MCP wiring end-to-end (no live network)",
 ]
