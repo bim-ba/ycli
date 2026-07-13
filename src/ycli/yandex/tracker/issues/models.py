@@ -65,7 +65,10 @@ class IssueCreate(APIModel):
     )
     parent: str | None = Field(default=None, description="Parent issue key.")
     description: str | None = Field(default=None, description="Issue description (YFM markdown).")
-    tags: list[str] | None = Field(default=None, description="Tags.")
+    tags: list[str] | dict[str, list[str]] | None = Field(
+        default=None,
+        description="Tags — a replace list, or an {'add'|'set'|'remove': [...]} operator edit.",
+    )
 
 
 class IssueUpdate(APIModel):
@@ -92,7 +95,10 @@ class IssueUpdate(APIModel):
     description: str | None = Field(
         default=None, description="New issue description (YFM markdown)."
     )
-    tags: list[str] | None = Field(default=None, description="New tags.")
+    tags: list[str] | dict[str, list[str]] | None = Field(
+        default=None,
+        description="New tags — a replace list, or an {'add'|'set'|'remove': [...]} operator edit.",
+    )
 
 
 class ScrollClear(RootModel[dict[str, str]]):

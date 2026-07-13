@@ -230,6 +230,43 @@ def test_extended_permissions_update():
     assert body == {"acl": {"READ": {"users": ["11"], "roles": ["OWNER"]}}}
 
 
+def test_entity_fields_input_custom_key_survives_round_trip():
+    """A custom (queue-local) fields.* key must not be silently dropped — it must reach the
+    wire unchanged, exactly as the old ``body: dict`` would have sent it."""
+    raw = {"fields": {"summary": "Q4", "6xxxLocalFieldId": "v"}}
+    dumped = EntityCreate.model_validate(raw).model_dump(by_alias=True, exclude_none=True)
+    assert dumped == raw
+
+    raw_update = {"fields": {"6xxxLocalFieldId": "v2"}}
+    dumped_update = EntityUpdate.model_validate(raw_update).model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert dumped_update == raw_update
+
+
+def test_entity_fields_input_operator_form_array_edit_round_trips():
+    """The documented operator-edit form ({'add'|'set'|'remove': [...]}) on array fields must
+    validate and dump byte-identical to what the old ``body: dict`` would have passed through
+    (see references/yandex-360/tracker/ru/api-ref/entities/about-entities.md)."""
+    raw = {
+        "fields": {
+            "tags": {"add": ["x"]},
+            "teamUsers": {"add": ["u1"], "remove": ["u2"]},
+            "followers": {"set": ["f1"]},
+            "clients": {"remove": ["c1"]},
+        }
+    }
+    dumped = EntityUpdate.model_validate(raw).model_dump(by_alias=True, exclude_none=True)
+    assert dumped == raw
+
+    # the plain replace-list form must still work too.
+    raw_plain = {"fields": {"summary": "Q4", "tags": ["a", "b"]}}
+    dumped_plain = EntityCreate.model_validate(raw_plain).model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert dumped_plain == raw_plain
+
+
 def test_bulk_change_update():
     body = BulkChangeUpdate(  # ty: ignore[missing-argument]
         meta_entities=["1", "2"],  # ty: ignore[unknown-argument]

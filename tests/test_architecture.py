@@ -488,15 +488,17 @@ def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
     """``@mcp.tool``-decorated functions in ``source`` with a bare-``dict`` ``body`` parameter.
 
     Detects the ``@mcp.tool`` decorator the same way :func:`_read_tool_write_offenders` does.
-    For each such function, every positional-or-keyword and keyword-only parameter named
-    ``body`` is checked; a bare ``dict``/``dict[...]`` annotation is an offender unless
-    ``{module_label}:{function_name}`` is listed in :data:`ARCH3_BODY_DICT_ALLOWLIST`. Pure over
-    source text so the guard can be exercised on a synthetic module (the prove-it test).
+    Matches both ``def`` and ``async def`` tool functions, so a future async write tool cannot
+    slip a bare-``dict`` ``body`` past the guard. For each such function, every
+    positional-or-keyword and keyword-only parameter named ``body`` is checked; a bare
+    ``dict``/``dict[...]`` annotation is an offender unless ``{module_label}:{function_name}``
+    is listed in :data:`ARCH3_BODY_DICT_ALLOWLIST`. Pure over source text so the guard can be
+    exercised on a synthetic module (the prove-it test).
     """
     tree = ast.parse(source)
     offenders: list[str] = []
     for node in ast.walk(tree):
-        if not isinstance(node, ast.FunctionDef):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
         if not any(
             isinstance(deco, ast.Call)
@@ -546,6 +548,15 @@ def test_arch3_typed_body_guard_bites():
         "    return client.widgets.create(body)\n"
     )
     assert _untyped_body_offenders(bare, "synthetic/mcp.py") == [
+        "synthetic/mcp.py: create(body: dict) — must be a typed pydantic model, not dict"
+    ]
+
+    async_bare = (
+        '@mcp.tool(name="widgets_create")\n'
+        "async def create(body: dict, client=Depends(x)) -> Widget:\n"
+        "    return await client.widgets.create(body)\n"
+    )
+    assert _untyped_body_offenders(async_bare, "synthetic/mcp.py") == [
         "synthetic/mcp.py: create(body: dict) — must be a typed pydantic model, not dict"
     ]
 
