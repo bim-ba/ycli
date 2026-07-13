@@ -13,7 +13,6 @@ DELETE/POST endpoints return the raw ``requests.Response`` (the transport hook r
 import requests
 import uplink
 
-from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.entities.models import (
     Attachment,
@@ -172,13 +171,13 @@ class EntitiesClient(TrackerResource):
             ... ].display  # doctest: +SKIP
             'Issue updated'
         """
-        strategy = RelativeCursorStrategy(
+        events = self._drain_relative(
             extract=lambda page: page.events,
             id_of=lambda event: event.id,
-        )
-        events = strategy.collect(
-            lambda cursor: self._history_page(entity_type, entity_id, from_id=cursor),
-            limit,
+            fetch_page=lambda cursor, per_page: self._history_page(
+                entity_type, entity_id, per_page=per_page, from_id=cursor
+            ),
+            limit=limit,
         )
         return EntityEventList(events)
 
@@ -313,13 +312,13 @@ class EntitiesClient(TrackerResource):
             ... ].id  # doctest: +SKIP
             22
         """
-        strategy = RelativeCursorStrategy(
+        comments = self._drain_relative(
             extract=lambda page: page.comments,
             id_of=lambda comment: comment.long_id,
-        )
-        comments = strategy.collect(
-            lambda cursor: self._comments_relative_page(entity_type, entity_id, from_id=cursor),
-            limit,
+            fetch_page=lambda cursor, per_page: self._comments_relative_page(
+                entity_type, entity_id, per_page=per_page, from_id=cursor
+            ),
+            limit=limit,
         )
         return CommentList(comments)
 

@@ -5,7 +5,6 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 
 import uplink
 
-from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.users.models import User, UserList, UsersRelativeResponse
 
@@ -51,12 +50,12 @@ class UsersClient(TrackerResource):
             >>> client.users.list(limit=50).root[0].login  # doctest: +SKIP
             'username'
         """
-        strategy = RelativeCursorStrategy(
+        users = self._drain_relative(
             extract=lambda page: page.users,
             id_of=lambda user: str(user.uid) if user.uid is not None else None,
-        )
-        users = strategy.collect(
-            lambda cursor: self._relative_page(per_page=100, user_id=cursor, expand=expand),
-            limit,
+            fetch_page=lambda cursor, per_page: self._relative_page(
+                per_page=per_page, user_id=cursor, expand=expand
+            ),
+            limit=limit,
         )
         return UserList(users)

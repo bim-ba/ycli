@@ -6,7 +6,6 @@ NOTE: no ``from __future__ import annotations`` — uplink reads annotations eag
 import requests
 import uplink
 
-from ycli.yandex.pagination import RelativeCursorStrategy
 from ycli.yandex.tracker.base import TrackerResource
 from ycli.yandex.tracker.comments.models import Comment, CommentList
 
@@ -36,13 +35,13 @@ class CommentsClient(TrackerResource):
             >>> client.comments.list(key="DATAENGINEERING-1").root[0].created_by  # doctest: +SKIP
             'Сава Знатнов'
         """
-        strategy = RelativeCursorStrategy(
+        comments = self._drain_relative(
             extract=lambda page: page.root,
             id_of=lambda comment: str(comment.id) if comment.id is not None else None,
-        )
-        comments = strategy.collect(
-            lambda cursor: self._page(key, per_page=100, comment_id=cursor),
-            limit,
+            fetch_page=lambda cursor, per_page: self._page(
+                key, per_page=per_page, comment_id=cursor
+            ),
+            limit=limit,
         )
         return CommentList(comments)
 
