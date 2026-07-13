@@ -5,10 +5,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.checklists.client import ChecklistsClient
 from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> ChecklistsClient:

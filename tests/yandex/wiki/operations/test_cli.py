@@ -10,8 +10,8 @@ import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from tests.hosts import WIKI_BASE as BASE
 
-BASE = "https://api.wiki.yandex.net/v1"
 runner = CliRunner()
 
 

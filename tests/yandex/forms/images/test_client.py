@@ -3,10 +3,10 @@
 import requests
 import responses
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.images.client import ImagesClient
 from ycli.yandex.forms.images.models import Image
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 
 

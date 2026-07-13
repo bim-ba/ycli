@@ -6,8 +6,8 @@ import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from tests.hosts import FORMS_BASE as BASE
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 runner = CliRunner()
 

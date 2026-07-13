@@ -3,10 +3,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.comments.client import CommentsClient
 from ycli.yandex.wiki.comments.models import CommentCreated, CommentDeleteResult, CommentList
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 
 def _client():

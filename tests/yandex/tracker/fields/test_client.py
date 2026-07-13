@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.fields.client import FieldsClient
 from ycli.yandex.tracker.fields.models import (
     CustomField,
@@ -17,8 +18,6 @@ from ycli.yandex.tracker.fields.models import (
     LocalizedName,
     OptionsProviderInput,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _session() -> requests.Session:

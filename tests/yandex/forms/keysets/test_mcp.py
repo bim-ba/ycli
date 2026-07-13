@@ -9,9 +9,9 @@ import json
 import responses
 from fastmcp import Client
 
+from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.keysets import mcp as keysets_mcp
 
-BASE = "https://api.forms.yandex.net/v1"
 SID = "6818ceffe010db4f59d11329"
 KID = 7
 

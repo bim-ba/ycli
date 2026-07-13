@@ -5,14 +5,13 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.import_.client import ImportClient
 from ycli.yandex.tracker.issues.models import Issue
 from ycli.yandex.tracker.links.models import Link
 from ycli.yandex.tracker.worklog.models import WorklogList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> ImportClient:

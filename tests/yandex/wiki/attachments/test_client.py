@@ -3,11 +3,10 @@ import json
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.attachments.client import AttachmentsClient
 from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
 from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 
 def _session():

@@ -7,9 +7,8 @@ import responses
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.queues import mcp as queues_mcp
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 @responses.activate

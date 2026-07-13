@@ -6,10 +6,9 @@ from urllib.parse import parse_qs, urlparse
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.boards.client import BoardsClient
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> BoardsClient:

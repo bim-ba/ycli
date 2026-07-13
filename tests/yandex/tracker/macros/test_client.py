@@ -5,10 +5,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.macros.client import MacrosClient
 from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroList, MacroUpdate
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> MacrosClient:

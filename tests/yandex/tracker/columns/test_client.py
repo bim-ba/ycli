@@ -5,10 +5,9 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.columns.client import ColumnsClient
 from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnList, ColumnUpdate
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> ColumnsClient:

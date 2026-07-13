@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.resolutions.client import ResolutionsClient
 from ycli.yandex.tracker.resolutions.models import (
     LocalizedName,
@@ -13,8 +14,6 @@ from ycli.yandex.tracker.resolutions.models import (
     ResolutionList,
     ResolutionUpdate,
 )
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _session() -> requests.Session:

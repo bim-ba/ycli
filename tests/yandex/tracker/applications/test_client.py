@@ -3,10 +3,9 @@
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.applications.client import ApplicationsClient
 from ycli.yandex.tracker.applications.models import ApplicationList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _session() -> requests.Session:

@@ -7,9 +7,8 @@ import pytest
 import responses
 from fastmcp import Client
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.attachments import mcp as attachments_mcp
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 
 @responses.activate

@@ -5,9 +5,8 @@ import json
 import responses
 from fastmcp import Client
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.comments import mcp as comments_mcp
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _comments_page_callback(request):

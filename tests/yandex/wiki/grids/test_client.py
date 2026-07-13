@@ -5,6 +5,7 @@ import json
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.models import Ack
 from ycli.yandex.wiki.grids.client import GridsClient
 from ycli.yandex.wiki.grids.models import (
@@ -15,7 +16,6 @@ from ycli.yandex.wiki.grids.models import (
     RowsAddResult,
 )
 
-BASE = "https://api.wiki.yandex.net/v1"
 GID = "g-uuid"
 
 

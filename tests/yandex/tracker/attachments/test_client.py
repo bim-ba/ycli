@@ -3,10 +3,9 @@
 import requests
 import responses
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.attachments.client import AttachmentsClient
 from ycli.yandex.tracker.attachments.models import AttachmentList
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 def _client() -> AttachmentsClient:

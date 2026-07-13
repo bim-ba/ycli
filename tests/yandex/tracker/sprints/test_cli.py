@@ -6,8 +6,8 @@ import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from tests.hosts import TRACKER_BASE as BASE
 
-BASE = "https://api.tracker.yandex.net/v3"
 runner = CliRunner()
 
 

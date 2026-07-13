@@ -1,10 +1,9 @@
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.recovery.client import RecoveryClient
 from ycli.yandex.wiki.recovery.models import RecoveredPage
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 
 def _client():

@@ -11,8 +11,8 @@ import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from tests.hosts import WIKI_BASE as BASE
 
-BASE = "https://api.wiki.yandex.net/v1"
 runner = CliRunner()
 
 _SESSION_JSON = {"session_id": "s-1", "file_name": "d.png", "file_size": 4, "status": "not_started"}

@@ -3,9 +3,8 @@
 import responses
 from fastmcp import Client
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.attachments import mcp as attachments_mcp
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 @responses.activate

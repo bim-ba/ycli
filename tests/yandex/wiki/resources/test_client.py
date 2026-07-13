@@ -3,10 +3,9 @@
 import requests
 import responses
 
+from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.resources.client import ResourcesClient
 from ycli.yandex.wiki.resources.models import ResourceItemList
-
-BASE = "https://api.wiki.yandex.net/v1"
 
 
 def _client() -> ResourcesClient:

@@ -5,9 +5,8 @@ import json
 import responses
 from fastmcp import Client
 
+from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.checklists import mcp as checklists_mcp
-
-BASE = "https://api.tracker.yandex.net/v3"
 
 
 async def test_checklists_get_registered_read_only():
