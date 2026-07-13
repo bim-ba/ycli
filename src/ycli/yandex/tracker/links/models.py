@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import RootModel
+from pydantic import Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -55,3 +55,17 @@ class LinkList(RootModel[list[Link]]):
         >>> LinkList.model_validate([{"direction": "outward"}]).root[0].direction
         'outward'
     """
+
+
+class LinkCreate(APIModel):
+    """Typed request body for ``POST /issues/{key}/links`` (link to another issue).
+
+    Example:
+        >>> LinkCreate(relationship="relates", issue="DE-2").model_dump(exclude_none=True)
+        {'relationship': 'relates', 'issue': 'DE-2'}
+    """
+
+    relationship: str = Field(
+        description="Link type from linktypes_list, e.g. relates, depends on, is subtask for."
+    )
+    issue: str = Field(description="Key of the issue to link to.")

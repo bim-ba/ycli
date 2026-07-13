@@ -12,6 +12,7 @@ from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.dependencies import WRITE, WRITE_TAGS, tracker_client
+from ycli.yandex.tracker.import_.models import ImportComment, ImportLink, ImportTask, ImportWorklog
 from ycli.yandex.tracker.issues.models import Issue
 from ycli.yandex.tracker.links.models import Link
 from ycli.yandex.tracker.worklog.models import WorklogList
@@ -22,14 +23,11 @@ mcp = FastMCP("tracker-import")
 @mcp.tool(
     name="import_task", annotations={**WRITE, "title": "Import Tracker issue"}, tags=WRITE_TAGS
 )
-def task(body: dict, client: TrackerClient = Depends(tracker_client)) -> Issue:
-    """Import an issue preserving its original history (admin-only back-fill).
-
-    ``body`` is the raw API payload — required ``queue``, ``summary``, ``createdAt``
-    (``YYYY-MM-DDThh:mm:ss.sss±hhmm``) and ``createdBy``; optional ``key``, ``description``,
-    ``assignee`` etc. Returns the imported issue.
+def task(body: ImportTask, client: TrackerClient = Depends(tracker_client)) -> Issue:
+    """Import an issue preserving its original history (admin-only back-fill). Returns the
+    imported issue.
     """
-    return client.import_.task(body=body)
+    return client.import_.task(body=body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -37,25 +35,25 @@ def task(body: dict, client: TrackerClient = Depends(tracker_client)) -> Issue:
     annotations={**WRITE, "title": "Import Tracker issue comment"},
     tags=WRITE_TAGS,
 )
-def comment(issue_key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Comment:
+def comment(
+    issue_key: str, body: ImportComment, client: TrackerClient = Depends(tracker_client)
+) -> Comment:
     """Import a comment onto an issue preserving its original author and timestamp (admin-only).
 
-    ``body`` is the raw API payload — required ``text``, ``createdAt`` and ``createdBy``.
     Returns the imported comment.
     """
-    return client.import_.comment(issue_key, body=body)
+    return client.import_.comment(issue_key, body=body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
     name="import_link", annotations={**WRITE, "title": "Import Tracker issue link"}, tags=WRITE_TAGS
 )
-def link(issue_key: str, body: dict, client: TrackerClient = Depends(tracker_client)) -> Link:
+def link(issue_key: str, body: ImportLink, client: TrackerClient = Depends(tracker_client)) -> Link:
     """Import an issue link preserving its original creation metadata (admin-only).
 
-    ``body`` is the raw API payload — required ``relationship`` (link type), ``issue`` (the key
-    to link to), ``createdAt`` and ``createdBy``. Returns the imported link.
+    Returns the imported link.
     """
-    return client.import_.link(issue_key, body=body)
+    return client.import_.link(issue_key, body=body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -64,15 +62,13 @@ def link(issue_key: str, body: dict, client: TrackerClient = Depends(tracker_cli
     tags=WRITE_TAGS,
 )
 def worklog(
-    issue_key: str, body: dict, client: TrackerClient = Depends(tracker_client)
+    issue_key: str, body: ImportWorklog, client: TrackerClient = Depends(tracker_client)
 ) -> WorklogList:
     """Import a worklog record preserving its original author and timestamps (admin-only).
 
-    ``body`` is the raw API payload — required ``start``, ``duration`` (ISO-8601, e.g. ``PT1H``),
-    ``createdAt`` and ``createdBy``; optional ``comment``. Returns the imported record(s) — the
-    endpoint answers with a JSON array.
+    Returns the imported record(s) — the endpoint answers with a JSON array.
     """
-    return client.import_.worklog(issue_key, body=body)
+    return client.import_.worklog(issue_key, body=body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(

@@ -16,7 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_TAGS,
     tracker_client,
 )
-from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkList
+from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate, RemoteLinkList
 
 mcp = FastMCP("tracker-remotelinks")
 
@@ -49,17 +49,18 @@ def list_(
 )
 def create(
     issue_key: str,
-    body: dict,
+    body: RemoteLinkCreate,
     backlink: str | None = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> RemoteLink:
     """Link a Tracker issue to an object in an external application; returns the created link.
 
-    ``body`` is the raw API payload ``{"origin": "<app id>", "relationship": "relates",
-    "key": "<external object key>"}`` — get the application id from ``applications_list``.
-    Pass ``backlink="true"`` to also create the mirror link in the external app.
+    Get the application id (``origin``) from ``applications_list``. Pass ``backlink="true"``
+    to also create the mirror link in the external app.
     """
-    return client.remotelinks.create(issue_key, body, backlink=backlink)
+    return client.remotelinks.create(
+        issue_key, body.model_dump(exclude_none=True), backlink=backlink
+    )
 
 
 @mcp.tool(

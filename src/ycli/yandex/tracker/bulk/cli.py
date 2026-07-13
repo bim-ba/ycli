@@ -113,8 +113,8 @@ def move(
         queue=queue,
         issues=_issues(issue, query),
         values=parse_fields(field) or None,
-        move_all_fields=move_all_fields or None,
-        initial_status=initial_status or None,
+        moveAllFields=move_all_fields or None,
+        initialStatus=initial_status or None,
         notify=notify or None,
     ).model_dump(by_alias=True, exclude_none=True)
     app_ctx = AppContext.from_typer_context(ctx)

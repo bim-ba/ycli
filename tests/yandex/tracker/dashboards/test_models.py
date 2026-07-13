@@ -67,10 +67,10 @@ def test_cycle_time_widget_body_uses_camel_case_aliases():
     body = CycleTimeWidget(
         description="My widget",
         query="Queue: TEST",
-        from_statuses=[{"key": "open"}],
-        to_statuses=[{"key": "closed"}],
-        filter_id=1234,
-        auto_updatable=True,
+        from_statuses=[{"key": "open"}],  # ty: ignore[unknown-argument]
+        to_statuses=[{"key": "closed"}],  # ty: ignore[unknown-argument]
+        filter_id=1234,  # ty: ignore[unknown-argument]
+        auto_updatable=True,  # ty: ignore[unknown-argument]
         mode="common-lines",
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {

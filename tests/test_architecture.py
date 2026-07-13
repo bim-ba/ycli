@@ -448,6 +448,151 @@ def test_arch3_container_methods_are_not_writes():
     ]
 
 
+# ARCH-3 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
+# write MCP tool's `body` parameter must be the resource's typed pydantic request model, never a
+# bare `dict`/`dict[...]`. Fail-closed with exactly one documented exception (id -> reason),
+# frozen here in the same `ARCH1_SURFACE_ASYMMETRIES` string-map style. `Annotated[Base64Bytes,
+# …]` (binary uploads) is an `ast.Subscript` whose `.value` is `ast.Name(id="Annotated")`, never
+# `dict`, so it never matches this check — no allowlist entry is needed for it.
+ARCH3_BODY_DICT_ALLOWLIST: dict[str, str] = {
+    # PATCH …/extendedPermissions nests READ/WRITE/GRANT principal sets under grant/revoke verbs
+    # (see references/yandex-360/tracker/ru/api-ref/entities/patch-access.md); the existing
+    # ExtendedPermissionsUpdate/AclInput models describe a different, direct READ/WRITE/GRANT
+    # shape and would misrepresent this endpoint's real wire body if used here. See the NOTE on
+    # `set_permissions` in yandex/tracker/entities/mcp.py.
+    "yandex/tracker/entities/mcp.py:set_permissions": (
+        "wire shape nests READ/WRITE/GRANT under grant/revoke verbs; the existing "
+        "ExtendedPermissionsUpdate/AclInput models describe a different (direct) shape"
+    ),
+}
+
+
+def _bare_dict_annotation(annotation: ast.expr | None) -> bool:
+    """``True`` if ``annotation`` is bare ``dict`` or subscripted ``dict[...]``.
+
+    ``Annotated[Base64Bytes, …]`` is a subscript whose ``.value`` is ``ast.Name(id="Annotated")``
+    — never ``"dict"`` — so it is never flagged.
+    """
+    if annotation is None:
+        return False
+    if isinstance(annotation, ast.Name):
+        return annotation.id == "dict"
+    return (
+        isinstance(annotation, ast.Subscript)
+        and isinstance(annotation.value, ast.Name)
+        and annotation.value.id == "dict"
+    )
+
+
+def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
+    """``@mcp.tool``-decorated functions in ``source`` with a bare-``dict`` ``body`` parameter.
+
+    Detects the ``@mcp.tool`` decorator the same way :func:`_read_tool_write_offenders` does.
+    Matches both ``def`` and ``async def`` tool functions, so a future async write tool cannot
+    slip a bare-``dict`` ``body`` past the guard. For each such function, every
+    positional-or-keyword and keyword-only parameter named ``body`` is checked; a bare
+    ``dict``/``dict[...]`` annotation is an offender unless ``{module_label}:{function_name}``
+    is listed in :data:`ARCH3_BODY_DICT_ALLOWLIST`. Pure over source text so the guard can be
+    exercised on a synthetic module (the prove-it test).
+    """
+    tree = ast.parse(source)
+    offenders: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if not any(
+            isinstance(deco, ast.Call)
+            and isinstance(deco.func, ast.Attribute)
+            and deco.func.attr == "tool"
+            for deco in node.decorator_list
+        ):
+            continue
+        for arg in (*node.args.args, *node.args.kwonlyargs):
+            if arg.arg != "body" or arg.annotation is None:
+                continue
+            if not _bare_dict_annotation(arg.annotation):
+                continue
+            if f"{module_label}:{node.name}" in ARCH3_BODY_DICT_ALLOWLIST:
+                continue
+            offenders.append(
+                f"{module_label}: {node.name}(body: {ast.unparse(arg.annotation)}) "
+                "— must be a typed pydantic model, not dict"
+            )
+    return offenders
+
+
+def test_arch3_mcp_write_tool_bodies_are_typed():
+    """An MCP write tool's ``body`` parameter is a typed pydantic model, never bare ``dict``.
+
+    docs/conventions/resources.md §4: the model becomes the tool's input schema, so an agent
+    sees field names/types/aliases instead of an opaque ``object``, and a malformed payload
+    fails schema validation before the HTTP call. Fail-closed: only the one documented
+    ``ARCH3_BODY_DICT_ALLOWLIST`` entry is exempt.
+    """
+    offenders = []
+    for mcp_py in YANDEX.rglob("mcp.py"):
+        rel = str(mcp_py.relative_to(SRC))
+        offenders += _untyped_body_offenders(mcp_py.read_text(encoding="utf-8"), rel)
+    assert not offenders, (
+        "MCP write-tool `body` parameters must be typed pydantic models, not dict — convert the "
+        f"parameter, or add a documented ARCH3_BODY_DICT_ALLOWLIST entry: {offenders}"
+    )
+
+
+def test_arch3_typed_body_guard_bites():
+    """Prove-it: the guard flags bare/subscripted ``dict`` bodies but not a typed model or
+    ``Annotated[Base64Bytes, …]``, and respects the allowlist."""
+    bare = (
+        '@mcp.tool(name="widgets_create")\n'
+        "def create(body: dict, client=Depends(x)) -> Widget:\n"
+        "    return client.widgets.create(body)\n"
+    )
+    assert _untyped_body_offenders(bare, "synthetic/mcp.py") == [
+        "synthetic/mcp.py: create(body: dict) — must be a typed pydantic model, not dict"
+    ]
+
+    async_bare = (
+        '@mcp.tool(name="widgets_create")\n'
+        "async def create(body: dict, client=Depends(x)) -> Widget:\n"
+        "    return await client.widgets.create(body)\n"
+    )
+    assert _untyped_body_offenders(async_bare, "synthetic/mcp.py") == [
+        "synthetic/mcp.py: create(body: dict) — must be a typed pydantic model, not dict"
+    ]
+
+    subscripted = (
+        '@mcp.tool(name="widgets_create")\n'
+        "def create(body: dict[str, str], client=Depends(x)) -> Widget:\n"
+        "    return client.widgets.create(body)\n"
+    )
+    assert _untyped_body_offenders(subscripted, "synthetic/mcp.py") == [
+        "synthetic/mcp.py: create(body: dict[str, str]) — must be a typed pydantic model, not dict"
+    ]
+
+    typed = (
+        '@mcp.tool(name="widgets_create")\n'
+        "def create(body: WidgetCreate, client=Depends(x)) -> Widget:\n"
+        "    return client.widgets.create(body)\n"
+    )
+    assert _untyped_body_offenders(typed, "synthetic/mcp.py") == []
+
+    binary_upload = (
+        '@mcp.tool(name="files_upload")\n'
+        "def upload(body: Annotated[Base64Bytes, Field(...)], client=Depends(x)) -> Ack:\n"
+        "    return client.files.upload(body)\n"
+    )
+    assert _untyped_body_offenders(binary_upload, "synthetic/mcp.py") == []
+
+    allowlisted_key = next(iter(ARCH3_BODY_DICT_ALLOWLIST))
+    module_label, func_name = allowlisted_key.rsplit(":", 1)
+    allowlisted = (
+        f'@mcp.tool(name="{func_name}")\n'
+        f"def {func_name}(body: dict, client=Depends(x)) -> Permissions:\n"
+        "    return client.entities.set_permissions(body)\n"
+    )
+    assert _untyped_body_offenders(allowlisted, module_label) == []
+
+
 def test_arch4_serialization_confined_to_output():
     """Rendering via Serializer; model_dump_json/yaml.safe_dump/json.dumps only in output.py."""
     offenders = []

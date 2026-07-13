@@ -145,11 +145,16 @@ HTTP call rather than at the live API:
           tags=WRITE_TAGS)
 def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation."""
-    return client.bulk.update(body)
+    return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True))
 ```
 
-The only exception is a binary upload, which takes `Base64Bytes` (see below). (Several early
-Tracker write tools still take `body: dict`; converting them is a tracked follow-up.)
+The client method itself still takes `uplink.Body` (a plain dict) — the MCP tool converts the
+validated model with `.model_dump(by_alias=True, exclude_none=True)`, the same call the CLI
+command already makes, so both surfaces produce byte-identical wire JSON from one model.
+
+The only exceptions are a binary upload, which takes `Base64Bytes` (see below), and exactly one
+documented allowlist entry (`ARCH3_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`) for an
+endpoint whose live wire shape no existing model correctly represents — see Enforcement below.
 
 ### `Ack` for bodyless write responses
 
@@ -167,6 +172,13 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 `wiki_uploadsessions_*` pipeline); raw file-path or multipart inputs stay on the CLI/SDK.
 
 ### Enforcement
+
+`tests/test_architecture.py::test_arch3_mcp_write_tool_bodies_are_typed` AST-walks every
+`mcp.py` for `@mcp.tool`-decorated functions and fails the build on a bare `dict`/`dict[...]`
+`body` parameter — fail-closed, with exactly one documented exception in
+`ARCH3_BODY_DICT_ALLOWLIST` (`entities_set_permissions`: its live wire shape nests
+READ/WRITE/GRANT under `grant`/`revoke` verbs, which the existing
+`ExtendedPermissionsUpdate`/`AclInput` models do not represent).
 
 `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema`
 asserts that every registered tool has a non-empty `description` and a non-`None`

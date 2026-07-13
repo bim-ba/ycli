@@ -80,7 +80,10 @@ def test_bulk_update_accepts_query_string_issues():
 
 def test_bulk_move_body_uses_camel_case_aliases():
     body = BulkMove(
-        queue="CHECK", issues=["TEST-1"], move_all_fields=True, initial_status=True
+        queue="CHECK",
+        issues=["TEST-1"],
+        move_all_fields=True,  # ty: ignore[unknown-argument]
+        initial_status=True,  # ty: ignore[unknown-argument]
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {
         "queue": "CHECK",

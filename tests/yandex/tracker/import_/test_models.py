@@ -9,11 +9,11 @@ from ycli.yandex.tracker.import_.models import (
 
 
 def test_import_task_preserves_created_fields():
-    body = ImportTask(
+    body = ImportTask(  # ty: ignore[missing-argument]
         queue="TEST",
         summary="Test",
-        created_at="2017-08-29T12:34:41.740+0000",
-        created_by="11",
+        created_at="2017-08-29T12:34:41.740+0000",  # ty: ignore[unknown-argument]
+        created_by="11",  # ty: ignore[unknown-argument]
         key="TEST-1",
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {
@@ -26,15 +26,20 @@ def test_import_task_preserves_created_fields():
 
 
 def test_import_task_omits_absent_optionals():
-    body = ImportTask(queue="Q", summary="S", created_at="t", created_by="u").model_dump(
-        by_alias=True, exclude_none=True
-    )
+    body = ImportTask(  # ty: ignore[missing-argument]
+        queue="Q",
+        summary="S",
+        created_at="t",  # ty: ignore[unknown-argument]
+        created_by="u",  # ty: ignore[unknown-argument]
+    ).model_dump(by_alias=True, exclude_none=True)
     assert body == {"queue": "Q", "summary": "S", "createdAt": "t", "createdBy": "u"}
 
 
 def test_import_comment_body():
-    body = ImportComment(
-        text="Test", created_at="2017-08-29T12:34:41.740+0000", created_by="11"
+    body = ImportComment(  # ty: ignore[missing-argument]
+        text="Test",
+        created_at="2017-08-29T12:34:41.740+0000",  # ty: ignore[unknown-argument]
+        created_by="11",  # ty: ignore[unknown-argument]
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {
         "text": "Test",
@@ -44,11 +49,11 @@ def test_import_comment_body():
 
 
 def test_import_link_body():
-    body = ImportLink(
+    body = ImportLink(  # ty: ignore[missing-argument]
         relationship="relates",
         issue="TEST-2",
-        created_at="2017-08-29T12:34:41.740+0000",
-        created_by="11",
+        created_at="2017-08-29T12:34:41.740+0000",  # ty: ignore[unknown-argument]
+        created_by="11",  # ty: ignore[unknown-argument]
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {
         "relationship": "relates",
@@ -59,10 +64,10 @@ def test_import_link_body():
 
 
 def test_import_worklog_body_uses_plural_fields():
-    body = ImportWorklog(
+    body = ImportWorklog(  # ty: ignore[missing-argument]
         duration="PT1H",
-        created_at="2025-02-18T16:35:41.740+0000",
-        created_by="username",
+        created_at="2025-02-18T16:35:41.740+0000",  # ty: ignore[unknown-argument]
+        created_by="username",  # ty: ignore[unknown-argument]
         start="2025-02-18T16:35:41.740+0000",
         comment="my comment",
     ).model_dump(by_alias=True, exclude_none=True)

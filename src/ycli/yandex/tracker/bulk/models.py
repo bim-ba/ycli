@@ -168,12 +168,12 @@ class BulkMove(APIModel):
     )
     move_all_fields: bool | None = Field(
         default=None,
-        serialization_alias="moveAllFields",
+        alias="moveAllFields",
         description="Carry versions/components/projects to the new queue if they exist there.",
     )
     initial_status: bool | None = Field(
         default=None,
-        serialization_alias="initialStatus",
+        alias="initialStatus",
         description="Reset each issue's status to the workflow's initial status (default false).",
     )
     notify: bool | None = Field(

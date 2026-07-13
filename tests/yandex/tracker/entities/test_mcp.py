@@ -335,7 +335,7 @@ async def test_entities_bulk_update_tool(creds):
         json={"id": "656", "status": "CREATED"},
         status=201,
     )
-    body = {"entityIds": ["655f"], "values": {"entityStatus": "in_progress"}}
+    body = {"metaEntities": ["655f"], "values": {"fields": {"entityStatus": "in_progress"}}}
     async with Client(entities_mcp.mcp) as client:
         result = await client.call_tool(
             "entities_bulk_update", {"entity_type": "project", "body": body}
@@ -349,7 +349,17 @@ async def test_entities_bulk_update_tool(creds):
 @responses.activate
 async def test_entities_create_report_tool(creds):
     responses.add(responses.POST, f"{BASE}/entities/report/", json={"id": "r1"}, status=201)
-    body = {"entityType": "project", "grouping": "entityStatus"}
+    body = {
+        "fields": {
+            "summary": "Export",
+            "parameters": {
+                "type": "issueFilterExport",
+                "format": "xlsx",
+                "filter": {"query": "Queue: SUPPORT"},
+                "fields": ["key", "summary"],
+            },
+        }
+    }
     async with Client(entities_mcp.mcp) as client:
         result = await client.call_tool("entities_create_report", {"body": body})
     assert result.data.id == "r1"
@@ -420,11 +430,11 @@ async def test_entities_checklists_create_tool(creds):
     async with Client(entities_mcp.mcp) as client:
         result = await client.call_tool(
             "entities_checklists_create",
-            {"entity_type": "project", "entity_id": "655f", "body": {"text": "step 1"}},
+            {"entity_type": "project", "entity_id": "655f", "body": [{"text": "step 1"}]},
         )
     assert result.data.id == "655f"
     assert responses.calls[0].request.method == "POST"
-    assert json.loads(responses.calls[0].request.body) == {"text": "step 1"}  # ty: ignore[invalid-argument-type]
+    assert json.loads(responses.calls[0].request.body) == [{"text": "step 1"}]  # ty: ignore[invalid-argument-type]
 
 
 @responses.activate
@@ -435,7 +445,7 @@ async def test_entities_checklists_edit_tool(creds):
         json={"id": "655f"},
         status=200,
     )
-    body = {"items": [{"id": "5f", "text": "step 1", "checked": True}]}
+    body = [{"id": "5f", "text": "step 1", "checked": True}]
     async with Client(entities_mcp.mcp) as client:
         result = await client.call_tool(
             "entities_checklists_edit",

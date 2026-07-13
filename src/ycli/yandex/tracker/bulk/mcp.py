@@ -10,7 +10,13 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
+from ycli.yandex.tracker.bulk.models import (
+    BulkChange,
+    BulkIssueResultList,
+    BulkMove,
+    BulkTransition,
+    BulkUpdate,
+)
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -69,26 +75,24 @@ def issues_list(
     annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update Tracker issues"},
     tags=WRITE_TAGS,
 )
-def update(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation.
 
-    ``body`` is the raw API payload: ``{"issues": ["KEY-1", …], "values": {"<field>": …}}``.
     Poll the returned operation id with ``bulk_get`` and inspect failures with
     ``bulk_issues_list``.
     """
-    return client.bulk.update(body)
+    return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
     name="bulk_move", annotations={**WRITE, "title": "Bulk-move Tracker issues"}, tags=WRITE_TAGS
 )
-def move(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def move(body: BulkMove, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk move of many Tracker issues to another queue; returns the operation.
 
-    ``body`` is the raw API payload: ``{"queue": "TARGET", "issues": ["KEY-1", …]}`` (optional
-    ``values`` sets fields on the moved issues). Poll with ``bulk_get``.
+    Poll with ``bulk_get``.
     """
-    return client.bulk.move(body)
+    return client.bulk.move(body.model_dump(by_alias=True, exclude_none=True))
 
 
 @mcp.tool(
@@ -96,10 +100,9 @@ def move(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkCha
     annotations={**WRITE, "title": "Bulk-transition Tracker issues"},
     tags=WRITE_TAGS,
 )
-def transition(body: dict, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def transition(body: BulkTransition, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk status transition over many Tracker issues; returns the operation.
 
-    ``body`` is the raw API payload: ``{"transition": "<id>", "issues": ["KEY-1", …]}``
-    (optional ``values`` sets fields, e.g. a resolution). Poll with ``bulk_get``.
+    Poll with ``bulk_get``.
     """
-    return client.bulk.transition(body)
+    return client.bulk.transition(body.model_dump(by_alias=True, exclude_none=True))

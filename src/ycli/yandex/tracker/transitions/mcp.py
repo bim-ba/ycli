@@ -5,7 +5,7 @@ from fastmcp.dependencies import Depends
 
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, TAGS, WRITE, WRITE_TAGS, tracker_client
-from ycli.yandex.tracker.transitions.models import TransitionList
+from ycli.yandex.tracker.transitions.models import TransitionExecute, TransitionList
 
 mcp = FastMCP("tracker-transitions")
 
@@ -26,12 +26,15 @@ def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> Transiti
     tags=WRITE_TAGS,
 )
 def execute(
-    key: str, transition_id: str, body: dict, client: TrackerClient = Depends(tracker_client)
+    key: str,
+    transition_id: str,
+    body: TransitionExecute,
+    client: TrackerClient = Depends(tracker_client),
 ) -> TransitionList:
     """Move a Tracker issue through a workflow transition (change its status).
 
-    Get ``transition_id`` from ``transitions_list``. ``body`` may be ``{}`` or carry issue
-    fields to set on transition, e.g. ``{"resolution": "fixed", "comment": "done"}``. Returns
-    the transitions available from the new status.
+    Get ``transition_id`` from ``transitions_list``. ``body`` may be empty or carry issue
+    fields to set on transition, e.g. a resolution when closing. Returns the transitions
+    available from the new status.
     """
-    return client.transitions.execute(key, transition_id, body)
+    return client.transitions.execute(key, transition_id, body.model_dump(exclude_none=True))

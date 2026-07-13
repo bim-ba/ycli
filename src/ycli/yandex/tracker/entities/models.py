@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -722,10 +722,20 @@ class EntityFieldsInput(APIModel):
     set. Use ``entityStatus`` to move an entity through its workflow and ``parent_entity`` to
     (re)parent it.
 
+    ``extra="allow"`` lets custom (queue-local) field keys pass through unvalidated, matching
+    the old untyped ``body: dict`` behavior. Array fields additionally accept the operator-edit
+    form (``{"add": [...]}`` / ``{"set": [...]}`` / ``{"remove": [...]}``) documented at
+    ``references/yandex-360/tracker/ru/api-ref/entities/about-entities.md`` (see
+    ``common-format.md#edit-fields``), alongside their plain replace-list form.
+
     Example:
         >>> EntityFieldsInput(summary="Q4 goal").model_dump(by_alias=True, exclude_none=True)
         {'summary': 'Q4 goal'}
+        >>> EntityFieldsInput(tags={"add": ["urgent"]}).model_dump(by_alias=True, exclude_none=True)
+        {'tags': {'add': ['urgent']}}
     """
+
+    model_config = ConfigDict(extra="allow")
 
     summary: str | None = Field(default=None, description="Entity name (required on create).")
     team_access: bool | None = Field(
@@ -737,16 +747,30 @@ class EntityFieldsInput(APIModel):
     )
     author: str | None = Field(default=None, description="Author user id/login.")
     lead: str | None = Field(default=None, description="Responsible user id/login.")
-    team_users: list[str] | None = Field(
-        default=None, alias="teamUsers", description="Participant user ids/logins."
+    team_users: list[str] | dict[str, list[str]] | None = Field(
+        default=None,
+        alias="teamUsers",
+        description="Participant user ids/logins — a replace list, or an "
+        "{'add'|'set'|'remove': [...]} operator edit.",
     )
-    clients: list[str] | None = Field(default=None, description="Client user ids/logins.")
-    followers: list[str] | None = Field(default=None, description="Follower user ids/logins.")
+    clients: list[str] | dict[str, list[str]] | None = Field(
+        default=None,
+        description="Client user ids/logins — a replace list, or an "
+        "{'add'|'set'|'remove': [...]} operator edit.",
+    )
+    followers: list[str] | dict[str, list[str]] | None = Field(
+        default=None,
+        description="Follower user ids/logins — a replace list, or an "
+        "{'add'|'set'|'remove': [...]} operator edit.",
+    )
     start: str | None = Field(default=None, description="Start date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     end: str | None = Field(
         default=None, description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm."
     )
-    tags: list[str] | None = Field(default=None, description="Tags.")
+    tags: list[str] | dict[str, list[str]] | None = Field(
+        default=None,
+        description="Tags — a replace list, or an {'add'|'set'|'remove': [...]} operator edit.",
+    )
     parent_entity: ParentEntityInput | None = Field(
         default=None, alias="parentEntity", description="Parent portfolio(s) / parent goal ids."
     )

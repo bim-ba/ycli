@@ -65,6 +65,11 @@ Notable shared pieces:
   tool carries the `write` tag; `ycli mcp start --read-only` hides the tag wholesale for
   cautious deployments. A read-classified tool never calls a client write method — directly
   or laundered one hop through a module-level helper in the same module (AST-checked).
+  A write tool's `body` parameter is always the resource's typed pydantic request model, never
+  bare `dict`/`dict[...]` (docs/conventions/resources.md §4) — fail-closed and AST-checked
+  (`test_arch3_mcp_write_tool_bodies_are_typed`), with exactly one documented exception
+  (`ARCH3_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`: `entities_set_permissions`,
+  whose live wire shape the existing models don't represent).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
   appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the
