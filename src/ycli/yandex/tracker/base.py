@@ -27,8 +27,9 @@ class TrackerResource(BaseYandex):
     ) -> list[T]:
         """Drain a relative-cursor (``id=<last item's id>``) Tracker listing to a flat list.
 
-        Centralizes the ``RelativeCursorStrategy`` boilerplate shared by every Tracker
-        relative-cursor endpoint (history, comments, changelog, users, boards, worklog) plus
+        Centralizes the ``RelativeCursorStrategy`` boilerplate shared by all seven Tracker
+        relative-cursor drains (entity history & comments, issue changelog, users, boards,
+        worklog, issue comments) plus
         the page-size clamp: a positive ``limit`` narrows the first (and only, since a single
         page then satisfies it) request to ``min(max_page_size, limit)`` rows instead of always
         fetching a full ``max_page_size`` page. ``limit`` of ``None``/``0`` ("fetch everything")
