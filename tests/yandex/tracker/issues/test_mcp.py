@@ -10,6 +10,8 @@ from fastmcp.exceptions import ToolError
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.issues import mcp as issues_mcp
 
+pytestmark = pytest.mark.integration
+
 
 @responses.activate
 async def test_issues_get_tool(creds):
@@ -168,7 +170,6 @@ async def test_issue_write_tools_annotations():
         assert ann.title, name
 
 
-@pytest.mark.integration
 @responses.activate
 async def test_issues_get_404_raises_through_transport_hook(creds):
     """Prove the production not-found path: the @cache factory builds a real client (with the

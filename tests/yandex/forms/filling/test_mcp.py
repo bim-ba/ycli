@@ -11,6 +11,8 @@ from fastmcp.exceptions import ToolError
 from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.filling import mcp as filling_mcp
 
+pytestmark = pytest.mark.integration
+
 SID = "6818ceffe010db4f59d11329"
 
 

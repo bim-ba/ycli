@@ -1,9 +1,12 @@
 """status_get MCP tool — aggregates the three /me probes into one read-only report."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from ycli.yandex.status import mcp as status_mcp
+
+pytestmark = pytest.mark.integration
 
 TRACKER_ME = "https://api.tracker.yandex.net/v3/myself"
 FORMS_ME = "https://api.forms.yandex.net/v1/users/me"

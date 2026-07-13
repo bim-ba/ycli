@@ -7,11 +7,14 @@ test_client.py + test_models.py (+ the read-only MCP registration check).
 
 import json
 
+import pytest
 import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.hosts import TRACKER_BASE as BASE
+
+pytestmark = pytest.mark.integration
 
 runner = CliRunner()
 

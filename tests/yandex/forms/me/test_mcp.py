@@ -8,6 +8,8 @@ from fastmcp.exceptions import ToolError
 from tests.hosts import FORMS_BASE as BASE
 from ycli.yandex.forms.me import mcp as me_mcp
 
+pytestmark = pytest.mark.integration
+
 
 @responses.activate
 async def test_me_get_tool(creds):

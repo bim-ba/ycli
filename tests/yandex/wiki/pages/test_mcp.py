@@ -9,6 +9,8 @@ from fastmcp import Client
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.pages import mcp as pages_mcp
 
+pytestmark = pytest.mark.integration
+
 
 @responses.activate
 async def test_pages_by_id_get_tool(creds):

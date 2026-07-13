@@ -1,10 +1,13 @@
 """Tracker FastMCP domain server — read + write tools, namespaced <resource>_<action>."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker import mcp as tracker_mcp
+
+pytestmark = pytest.mark.integration
 
 
 async def test_all_tools_registered():

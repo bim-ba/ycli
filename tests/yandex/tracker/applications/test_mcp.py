@@ -1,10 +1,13 @@
 """TDD for the Tracker external-applications MCP subserver."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.applications import mcp as applications_mcp
+
+pytestmark = pytest.mark.integration
 
 
 @responses.activate

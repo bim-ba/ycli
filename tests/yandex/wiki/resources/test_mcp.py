@@ -1,10 +1,13 @@
 """Wiki /pages/{id}/resources FastMCP subserver tests (targets the resource subserver)."""
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.resources import mcp as resources_mcp
+
+pytestmark = pytest.mark.integration
 
 
 @responses.activate

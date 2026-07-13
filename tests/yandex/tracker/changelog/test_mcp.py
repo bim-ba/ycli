@@ -2,11 +2,14 @@
 
 import json
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.changelog import mcp as changelog_mcp
+
+pytestmark = pytest.mark.integration
 
 
 def _changelog_page_callback(request):

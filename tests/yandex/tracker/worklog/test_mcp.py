@@ -2,11 +2,14 @@
 
 import json
 
+import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.worklog import mcp as worklog_mcp
+
+pytestmark = pytest.mark.integration
 
 
 def _worklog_page_callback(request):
