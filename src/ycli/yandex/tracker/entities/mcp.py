@@ -106,7 +106,7 @@ def events_list(
     entity_id: IdArg,
     limit: Annotated[int, Field(description="Max events (0 = YCLI_MAX_ITEMS cap).")] = 0,
     client: TrackerClient = Depends(tracker_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> EntityEventList:
     """An entity's event history (created/updated/commented/…), auto-paginated.
 
@@ -116,7 +116,7 @@ def events_list(
     Example:
         >>> entities_events_list("project", "655f", limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.entities.history(entity_type, entity_id, limit=cap)
 
 
@@ -258,14 +258,14 @@ def comments_relative_list(
     entity_id: IdArg,
     limit: Annotated[int, Field(description="Max comments (0 = YCLI_MAX_ITEMS cap).")] = 0,
     client: TrackerClient = Depends(tracker_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> CommentList:
     """An entity's comments via the cursor-paginated ``…/comments/_relative`` endpoint.
 
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
     pages up to ``limit`` (default YCLI_MAX_ITEMS).
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.entities.comments_relative(entity_type, entity_id, limit=cap)
 
 

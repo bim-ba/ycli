@@ -24,7 +24,7 @@ def list_(
         str, Field(description="Comma-separated kinds to include: ``attachment,grid``.")
     ] = "",
     client: WikiClient = Depends(wiki_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> ResourceItemList:
     """A page's resources — attachments AND grids — as ``{type, item}`` envelopes, auto-paginated.
 
@@ -35,5 +35,5 @@ def list_(
     Example:
         >>> list_(page_id=12345, types="attachment")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.resources.list(page_id=page_id, limit=cap, q=q or None, types=types or None)

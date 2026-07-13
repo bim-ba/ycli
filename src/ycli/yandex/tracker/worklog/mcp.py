@@ -33,7 +33,7 @@ def list_(
         Field(description="Max records to return; 0 means the YCLI_MAX_ITEMS cap (default 500)."),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> WorklogList:
     """All time-tracking entries logged against a single Tracker issue, auto-paginated via the
     relative id-cursor. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given.
@@ -44,7 +44,7 @@ def list_(
     Example:
         >>> list_(key="QUEUE-123")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.worklog.list(key, limit=cap)
 
 

@@ -51,11 +51,11 @@ def descendants(
     slug: str,
     limit: int = 0,
     client: WikiClient = Depends(wiki_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> PageRefList:
     """All descendant refs under SLUG, auto-paginated. Capped at YCLI_MAX_ITEMS (default 500)
     unless ``limit`` is given; narrow by SLUG for large trees."""
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.pages.descendants(slug=slug, limit=cap)
 
 
@@ -64,7 +64,7 @@ def grids_list(
     page_id: Annotated[int, Field(description="Numeric page id whose grids to list.")],
     limit: Annotated[int, Field(description="Max grids (0 = YCLI_MAX_ITEMS cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> GridRefList:
     """Dynamic tables (grids) attached to a page id, auto-paginated (drains ``next_cursor``).
 
@@ -75,7 +75,7 @@ def grids_list(
     Example:
         >>> grids_list(page_id=12345, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.pages.grids(page_id=page_id, limit=cap)
 
 
@@ -113,7 +113,7 @@ def by_id_descendants(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
     limit: Annotated[int, Field(description="Max refs (0 = YCLI_MAX_ITEMS cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> PageRefList:
     """All descendant page refs under a numeric page id, auto-paginated.
 
@@ -124,7 +124,7 @@ def by_id_descendants(
     Example:
         >>> by_id_descendants(page_id=12345, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.pages.descendants_by_id(page_id=page_id, limit=cap)
 
 

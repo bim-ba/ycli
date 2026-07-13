@@ -32,7 +32,7 @@ def list_(
         Field(description="Max boards to return; 0 means the YCLI_MAX_ITEMS cap (default 500)."),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> BoardList:
     """All agile boards in the organisation, auto-paginated via the relative id-cursor and sorted
     by ascending board id. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Use
@@ -40,7 +40,7 @@ def list_(
 
     >>> boards_list(limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.boards.list(limit=cap)
 
 

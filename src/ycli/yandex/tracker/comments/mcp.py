@@ -35,14 +35,14 @@ def list_(
         Field(description="Max comments to return; 0 means the YCLI_MAX_ITEMS cap (default 500)."),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
-    cfg: AppConfig = Depends(app_config),
+    config: AppConfig = Depends(app_config),
 ) -> CommentList:
     """All comments on a Tracker issue, auto-paginated via the relative id-cursor.
 
     Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given, so very long threads
     are truncated at the cap rather than fetched forever.
     """
-    cap = resolve_cap(limit, cfg.max_items)
+    cap = resolve_cap(limit, config.max_items)
     return client.comments.list(key, limit=cap)
 
 
