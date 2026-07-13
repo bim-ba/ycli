@@ -132,6 +132,17 @@ async def test_questions_move_tool_posts_target(creds):
     assert result.data.id == 17
 
 
+async def test_questions_move_tool_rejects_bare_position(creds):
+    """A bare ``position`` with no target used to silently re-page to 1; MCP callers now get a
+    clear validation error instead (owner-approved behavior change; the CLI still defaults
+    ``page=1`` visibly before constructing the body — see ``cli.move``)."""
+    async with Client(questions_mcp.mcp) as client:
+        with pytest.raises(ToolError, match="question move needs a target"):
+            await client.call_tool(
+                "questions_move", {"survey_id": SID, "question_id": "17", "body": {"position": 1}}
+            )
+
+
 async def test_questions_tools_registered_with_honest_annotations():
     async with Client(questions_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}

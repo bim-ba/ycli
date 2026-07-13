@@ -271,7 +271,7 @@ def move(
     page: Annotated[
         int,
         typer.Option(
-            help="Target page number, 1-based (0 = unset; defaults to 1 when only "
+            help="Target page number, 1-based (0 = unset; visibly defaults to 1 when only "
             "--position is given — the API silently ignores a bare position)."
         ),
     ] = 0,
@@ -289,14 +289,28 @@ def move(
     """Move a question (POST …/questions/{id}/move) to another page / position.
 
     ``--position`` without a page target would be silently ignored by the API (200, nothing
-    moves), so ``--page`` defaults to 1 in that case.
+    moves) — and ``QuestionMove`` now raises rather than guessing, so ``--page`` explicitly
+    defaults to 1 here when only ``--position`` is given.
     """
+    target_page: int | None = page or None
+    target_page_id = page_id or None
+    target_position = position or None
+    target_question = question or None
+    target_create_page = create_page or None
+    no_target = (
+        target_page is None
+        and target_page_id is None
+        and target_question is None
+        and not target_create_page
+    )
+    if target_position is not None and no_target:
+        target_page = 1  # visible default: a bare --position would otherwise 200-but-no-op live
     payload = QuestionMove(
-        question=question or None,
-        page=page or None,
-        page_id=page_id or None,
-        position=position or None,
-        create_page=create_page or None,
+        question=target_question,
+        page=target_page,
+        page_id=target_page_id,
+        position=target_position,
+        create_page=target_create_page,
     )
     app_ctx = AppContext.from_typer_context(ctx)
     Serializer.serialize(

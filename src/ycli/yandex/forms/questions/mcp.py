@@ -142,9 +142,10 @@ def move(
 ) -> QuestionMoveResult:
     """Reposition a question on the form (target page + position); returns the moved question's id.
 
-    ``body.position`` needs a page target to take effect — the API silently ignores a bare
-    position (200, nothing moves) — so ``page`` defaults to 1 when only ``position`` is given.
-    Display-condition consistency is validated server-side — moving a question above one its
-    conditions depend on is rejected.
+    ``body.position`` needs a page target to take effect — the underlying API silently ignores
+    a bare position (200, nothing moves) — so ``QuestionMove`` raises a validation error if
+    ``position`` is set with no ``page`` / ``page_id`` / ``question`` / ``create_page`` target;
+    pass one explicitly (e.g. ``page=1``). Display-condition consistency is validated
+    server-side — moving a question above one its conditions depend on is rejected.
     """
     return client.questions.move(survey_id, question_id, body)
