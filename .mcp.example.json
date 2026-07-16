@@ -1,29 +1,68 @@
 {
   "mcpServers": {
-    "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
-      }
+    "telegram": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "telegram-download-chat[mcp]",
+        "telegram-download-chat-mcp"
+      ]
     },
     "deepwiki": {
       "type": "http",
       "url": "https://mcp.deepwiki.com/mcp"
     },
-    "brave": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@brave/brave-search-mcp-server", "--transport", "stdio"],
-      "env": {
-        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "${YCLI__CONTEXT7_API_KEY}"
       }
+    },
+    "huggingface": {
+      "type": "http",
+      "url": "https://huggingface.co/mcp?login"
     },
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
-        "Authorization": "Bearer ${GITHUB_PAT}"
+        "Authorization": "Bearer ${YCLI__GITHUB_TOKEN}"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--cdp-endpoint",
+        "http://localhost:9222"
+      ]
+    },
+    "brave": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@brave/brave-search-mcp-server",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "${YCLI__BRAVE_API_KEY}"
+      }
+    },
+    "yandex": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "yandex-cli[mcp]",
+        "ycli",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "YANDEX_ID_OAUTH_TOKEN": "${YCLI__YANDEX_ID_OAUTH_TOKEN}",
+        "YANDEX_ID_ORGANIZATION_ID": "8046610"
       }
     }
   }
