@@ -11,6 +11,10 @@ all fixed on `feat/mcp-read-write`).
 toward S4 (YAML → OpenAPI-ish IR → fan-out). Do NOT adopt runtime metaprogramming (S3)
 or an external toolchain (S2/Fern).**
 
+**Update — the S4 generator is now being built as `refract`** (`github.com/bim-ba/refract`,
+a separate public repo for language-agnostic API-wrapper codegen); ycli is its first consumer.
+The durable generator design lives in that repo, not here.
+
 Evidence base (two independent measurements agree):
 
 | Layer | files | LOC | structural duplication |
@@ -51,6 +55,9 @@ Open owner decisions: bespoke YAML vs OpenAPI-split as the authoring format;
 "fewer authored lines" vs "fewer repo files" as the success metric.
 
 ## 2. API coverage backlog (43 documented, unimplemented endpoints)
+
+**Roadmap priority:** Spec-as-Code (§1, now building as `refract`) is next; this coverage
+backlog follows.
 
 Priority order (impact-first):
 1. **Tracker attachments upload chain** — `POST /v3/attachments/` (temp upload),
