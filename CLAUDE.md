@@ -65,7 +65,11 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `git`/`gh` commit/merge command string (its one blind spot: a message passed via file,
   e.g. `git commit -F`); the `no-skip-ci` pre-commit hook additionally catches `[skip ci]` /
   `[ci skip]` written into staged file *content*; this rule covers what neither can see (a
-  message typed in the GitHub UI).
+  message typed in the GitHub UI). Neither guard sees a token already sitting in an *earlier*
+  squashed commit either: a squash-merge concatenates every squashed commit's body, so one stray
+  token — e.g. from a server-side bot auto-commit like `demo.yml`'s — rides into `main` and
+  cancels the release. Keep bot commits out of the release trigger; re-scan `git log <base>..HEAD`
+  for the token before squash-merging.
 - **Secrets never reach a commit.** gitleaks runs in pre-commit and CI. Credentials come
   from the env (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`); the root `.env` /
   `.mcp.json` are gitignored. The one committed `.mcp.json` (the bundled plugin config)
