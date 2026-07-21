@@ -29,55 +29,6 @@
     ],
     "_comment": "Committed baseline is deliberately conservative: broad reads (Read/Grep/Glob) plus a scoped, mostly-read-only Bash allowlist. Unscoped Write/Edit/Bash are intentionally NOT granted here so they prompt by default in every clone. Broader per-user permissions (git commit/push, gh pr create/merge, unscoped Write/Edit/Bash, etc.) belong in the gitignored .claude/settings.local.json -- never widen this committed file to grant them repo-wide."
   },
-  "enabledPlugins": {
-    "claude-md-management@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "parallel@parallel-agent-skills": true,
-    "context7@context7-marketplace": true,
-    "core@ai": true,
-    "data@ai": true,
-    "yandex-360@ycli": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-plugins-official": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      }
-    },
-    "superpowers": {
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      }
-    },
-    "parallel-agent-skills": {
-      "source": {
-        "source": "github",
-        "repo": "parallel-web/parallel-agent-skills"
-      }
-    },
-    "context7": {
-      "source": {
-        "source": "github",
-        "repo": "upstash/context7"
-      }
-    },
-    "ai": {
-      "source": {
-        "source": "github",
-        "repo": "bim-ba/ai"
-      }
-    },
-    "ycli": {
-      "source": {
-        "source": "directory",
-        "path": "."
-      }
-    }
-  },
   "hooks": {
     "PreToolUse": [
       {
@@ -113,10 +64,65 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '\u26a0\ufe0f architecture guardrails failing \u2014 run: uv run pytest tests/test_architecture.py tests/test_snapshots.py --no-cov && uv run lint-imports'"
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/test_architecture.py tests/test_snapshots.py --no-cov && uv run lint-imports'"
           }
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "parallel@parallel-agent-skills": true,
+    "context7@context7-marketplace": true,
+    "core@ai": true,
+    "data@ai": true,
+    "yandex-360@ycli": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      },
+      "autoUpdate": true
+    },
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      },
+      "autoUpdate": true
+    },
+    "parallel-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "parallel-web/parallel-agent-skills"
+      },
+      "autoUpdate": true
+    },
+    "context7-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "upstash/context7"
+      },
+      "autoUpdate": true
+    },
+    "ai": {
+      "source": {
+        "source": "github",
+        "repo": "bim-ba/ai"
+      },
+      "autoUpdate": true
+    },
+    "ycli": {
+      "source": {
+        "source": "directory",
+        "path": "."
+      },
+      "autoUpdate": true
+    }
   }
 }
