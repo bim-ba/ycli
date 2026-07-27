@@ -75,10 +75,8 @@
     "plugin-dev@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "parallel@parallel-agent-skills": true,
     "context7@context7-marketplace": true,
     "core@ai": true,
-    "data@ai": true,
     "yandex-360@ycli": true
   },
   "extraKnownMarketplaces": {
@@ -93,13 +91,6 @@
       "source": {
         "source": "github",
         "repo": "obra/superpowers-marketplace"
-      },
-      "autoUpdate": true
-    },
-    "parallel-agent-skills": {
-      "source": {
-        "source": "github",
-        "repo": "parallel-web/parallel-agent-skills"
       },
       "autoUpdate": true
     },
