@@ -76,8 +76,8 @@
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "context7@context7-marketplace": true,
-    "core@ai": true,
-    "yandex-360@ycli": true
+    "yandex-360@ycli": true,
+    "core@bim-ba": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -101,17 +101,17 @@
       },
       "autoUpdate": true
     },
-    "ai": {
-      "source": {
-        "source": "github",
-        "repo": "bim-ba-ai/marketplace"
-      },
-      "autoUpdate": true
-    },
     "ycli": {
       "source": {
         "source": "directory",
         "path": "."
+      },
+      "autoUpdate": true
+    },
+    "bim-ba": {
+      "source": {
+        "source": "github",
+        "repo": "bim-ba/ai"
       },
       "autoUpdate": true
     }
