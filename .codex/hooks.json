@@ -1,34 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Read",
-      "Grep",
-      "Glob",
-      "Bash(uv run pytest:*)",
-      "Bash(uv run ruff:*)",
-      "Bash(uv run ty:*)",
-      "Bash(uv run lint-imports:*)",
-      "Bash(uv sync:*)",
-      "Bash(uv build:*)",
-      "Bash(uv add:*)",
-      "Bash(uv lock:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git branch:*)",
-      "Bash(git fetch:*)",
-      "Bash(gh pr view:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh pr diff:*)",
-      "Bash(gh pr checks:*)",
-      "Bash(gh issue view:*)",
-      "Bash(gh issue list:*)",
-      "Bash(rg:*)",
-      "Bash(fd:*)",
-      "Bash(ls:*)"
-    ],
-    "_comment": "Committed baseline is deliberately conservative: broad reads (Read/Grep/Glob) plus a scoped, mostly-read-only Bash allowlist. Unscoped Write/Edit/Bash are intentionally NOT granted here so they prompt by default in every clone. Broader per-user permissions (git commit/push, gh pr create/merge, unscoped Write/Edit/Bash, etc.) belong in the gitignored .claude/settings.local.json -- never widen this committed file to grant them repo-wide."
-  },
+  "description": "Mirrored from .claude/settings.json.",
   "hooks": {
     "PreToolUse": [
       {
@@ -36,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/git_guard.py\""
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.claude/hooks/git_guard.py\""
           }
         ]
       },
@@ -64,56 +35,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$CLAUDE_PROJECT_DIR\" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/test_architecture.py tests/test_snapshots.py --no-cov && uv run lint-imports'"
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/test_architecture.py tests/test_snapshots.py --no-cov && uv run lint-imports'"
           }
         ]
       }
     ]
-  },
-  "enabledPlugins": {
-    "claude-md-management@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "context7@context7-marketplace": true,
-    "core@ai": true,
-    "yandex-360@ycli": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-plugins-official": {
-      "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      },
-      "autoUpdate": true
-    },
-    "superpowers-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      },
-      "autoUpdate": true
-    },
-    "context7-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "upstash/context7"
-      },
-      "autoUpdate": true
-    },
-    "ai": {
-      "source": {
-        "source": "github",
-        "repo": "bim-ba-ai/marketplace"
-      },
-      "autoUpdate": true
-    },
-    "ycli": {
-      "source": {
-        "source": "directory",
-        "path": "."
-      },
-      "autoUpdate": true
-    }
   }
 }

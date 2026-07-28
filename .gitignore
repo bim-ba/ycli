@@ -63,3 +63,18 @@ PROMPT.md
 
 # internal living plan/backlog — not shipped (see README/CONTRIBUTING/git for user-facing)
 /STATE.md
+
+# .codex/config.toml is generated from the MCP config and carries live credentials.
+/.codex/config.toml
+
+# Agent runtime artifacts (moved out of .git/info/exclude, which is per-clone and invisible)
+**/.claude/scheduled_tasks.lock
+**/.claude/scheduled_tasks.json
+**/.claude/routines/.state/
+**/.claude/worktrees/
+**/.claude/checkpoints/
+**/.claude/mailbox/
+**/.claude/agent-registry.json
+**/.claude/agent-memory-local
+**/.claude/first-run
+**/.claude/assistant-daemon-state.json
