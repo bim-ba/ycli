@@ -71,12 +71,16 @@
     ]
   },
   "enabledPlugins": {
+    "browsing@bim-ba": true,
     "claude-md-management@claude-plugins-official": true,
+    "clickhouse@bim-ba": true,
+    "context7@context7-marketplace": true,
+    "core@bim-ba": true,
+    "documenting@bim-ba": true,
+    "drifts@bim-ba": true,
     "plugin-dev@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "context7@context7-marketplace": true,
-    "core@ai": true,
     "yandex-360@ycli": true
   },
   "extraKnownMarketplaces": {
@@ -101,17 +105,17 @@
       },
       "autoUpdate": true
     },
-    "ai": {
-      "source": {
-        "source": "github",
-        "repo": "bim-ba-ai/marketplace"
-      },
-      "autoUpdate": true
-    },
     "ycli": {
       "source": {
         "source": "directory",
         "path": "."
+      },
+      "autoUpdate": true
+    },
+    "bim-ba": {
+      "source": {
+        "source": "github",
+        "repo": "bim-ba/ai"
       },
       "autoUpdate": true
     }
