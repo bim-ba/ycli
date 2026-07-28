@@ -71,13 +71,17 @@
     ]
   },
   "enabledPlugins": {
+    "browsing@bim-ba": true,
     "claude-md-management@claude-plugins-official": true,
+    "clickhouse@bim-ba": true,
+    "context7@context7-marketplace": true,
+    "core@bim-ba": true,
+    "documenting@bim-ba": true,
+    "drifts@bim-ba": true,
     "plugin-dev@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "context7@context7-marketplace": true,
-    "yandex-360@ycli": true,
-    "core@bim-ba": true
+    "yandex-360@ycli": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
