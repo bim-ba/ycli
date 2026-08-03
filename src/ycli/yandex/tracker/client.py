@@ -82,3 +82,4 @@ class TrackerClient(DomainClient):
         self.import_ = ImportClient(session=transport)
         self.dashboards = DashboardsClient(session=transport)
         self.entities = EntitiesClient(session=transport)
+    supports_service_account_iam = True

@@ -1,5 +1,7 @@
 """status_get MCP tool — aggregates the three /me probes into one read-only report."""
 
+from unittest.mock import Mock
+
 import pytest
 import responses
 from fastmcp import Client
@@ -47,3 +49,29 @@ async def test_status_get_is_read_only():
         tools = {t.name: t for t in await client.list_tools()}
     assert "get" in tools
     assert tools["get"].annotations.readOnlyHint is True
+
+
+@responses.activate
+async def test_status_get_service_account_probes_tracker_only(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID", "key")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_ID", "account")
+    monkeypatch.setenv(
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\nkey"
+    )
+    sdk = Mock()
+    sdk.client.return_value = Mock()
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    monkeypatch.setattr(
+        "ycli.yandex.transport._ServiceAccountTokenProvider.get_token",
+        lambda self: "generated",
+    )
+    responses.add(responses.GET, TRACKER_ME, json={"login": "service-account"}, status=200)
+
+    async with Client(status_mcp.mcp) as client:
+        result = await client.call_tool("get", {})
+
+    assert [service["service"] for service in result.data.services] == ["tracker"]

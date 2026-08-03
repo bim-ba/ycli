@@ -15,39 +15,22 @@ from pydantic import ValidationError
 from ycli.yandex.errors import YandexAuthError
 
 _AUTH_HINT = (
-    "\nHint: run `ycli auth login` to (re)authenticate, or check that "
-    "YANDEX_ID_OAUTH_TOKEN and YANDEX_ID_ORGANIZATION_ID are set."
+    "\nHint: run `ycli auth login` to (re)authenticate with OAuth, or check your "
+    "YANDEX_ID_OAUTH_TOKEN / YANDEX_CLOUD_IAM_TOKEN credential variables."
 )
-
-# The credential env vars. pydantic-settings reports a missing field under its validation
-# alias (the env var name), so a ``ValidationError`` loc is already one of these strings.
-_CREDENTIAL_ENV_NAMES = frozenset({"YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"})
-
 
 def format_cli_error(exc: Exception) -> str:
     """A single human-readable message for a fatal CLI error, with a next step where it helps."""
-    missing = _missing_credentials(exc)
-    if missing:
+    if isinstance(exc, ValidationError) and exc.title == "Credentials":
+        details = "; ".join(
+            str(error.get("ctx", {}).get("error", error["msg"])) for error in exc.errors()
+        )
         return (
-            f"Not signed in — {', '.join(missing)} "
-            f"{'are' if len(missing) > 1 else 'is'} not set.\n\n"
-            "Run `ycli auth login` to authenticate interactively, or export those environment "
-            "variables yourself. Check status any time with `ycli auth status`."
+            f"Not signed in — invalid credential configuration: {details}.\n\n"
+            "Run `ycli auth login` to authenticate with OAuth, or configure IAM credentials. "
+            "Check status any time with `ycli auth status`."
         )
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):
         return message + _AUTH_HINT
     return message
-
-
-def _missing_credentials(exc: Exception) -> list[str]:
-    """The credential env vars a pydantic ``ValidationError`` reports as missing (else ``[]``)."""
-    if not isinstance(exc, ValidationError):
-        return []
-    return [
-        name
-        for error in exc.errors()
-        if error.get("type") == "missing"
-        and error["loc"]
-        and (name := str(error["loc"][0])) in _CREDENTIAL_ENV_NAMES
-    ]

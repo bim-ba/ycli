@@ -16,11 +16,14 @@ class ClientFactory:
     """Builds a domain client from credentials + app config — no environment access."""
 
     @staticmethod
-    def build(client_cls: type, credentials: Credentials, config: AppConfig) -> object:
+    def build[T](client_cls: type[T], credentials: Credentials, config: AppConfig) -> T:
         """Construct ``client_cls`` from ``credentials`` + ``config`` — never reads the env."""
         return client_cls(
             oauth_token=credentials.oauth_token,
+            iam_token=credentials.iam_token,
+            service_account=credentials.service_account,
             organization_id=credentials.organization_id,
+            cloud_organization_id=credentials.cloud_organization_id,
             timeout_seconds=int(config.timeout_seconds),
             retries=config.retries,
         )

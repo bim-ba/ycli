@@ -23,8 +23,8 @@ mcp = FastMCP(
         "Tools are namespaced wiki_*, tracker_*, forms_*. Every tool carries honest "
         "annotations: reads have readOnlyHint=true; writes have readOnlyHint=false and "
         "an explicit destructiveHint — treat destructiveHint=true tools (delete/clear/"
-        "abort) with care. Credentials come from the YANDEX_ID_OAUTH_TOKEN and "
-        "YANDEX_ID_ORGANIZATION_ID environment variables."
+        "abort) with care. Credentials come from YANDEX_ID_* OAuth variables or "
+        "YANDEX_CLOUD_* IAM variables."
     ),
 )
 mcp.mount(wiki_mcp, namespace="wiki")

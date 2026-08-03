@@ -16,12 +16,20 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
+import threading
+import time
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Any
 
+import jwt
 import requests
+import yandexcloud
 from requests import PreparedRequest, Response
 from requests.adapters import DEFAULT_POOLBLOCK, DEFAULT_POOLSIZE, DEFAULT_RETRIES, HTTPAdapter
+from requests.auth import AuthBase
 from urllib3.util.retry import Retry
+from yandex.cloud.iam.v1.iam_token_service_pb2 import CreateIamTokenRequest
+from yandex.cloud.iam.v1.iam_token_service_pb2_grpc import IamTokenServiceStub
 
 from ycli.yandex.errors import (
     YandexAuthError,
@@ -30,6 +38,9 @@ from ycli.yandex.errors import (
     YandexRateLimitError,
     YandexServerError,
 )
+
+if TYPE_CHECKING:
+    from ycli.yandex.auth import ServiceAccountCredentials
 
 
 class _TimeoutAdapter(HTTPAdapter):
@@ -76,13 +87,76 @@ class _TimeoutAdapter(HTTPAdapter):
         )
 
 
+class _ServiceAccountTokenProvider:
+    """Thread-safe lazy IAM token cache backed by Yandex Cloud SDK."""
+
+    _REFRESH_SKEW = timedelta(minutes=5)
+    _FALLBACK_LIFETIME = timedelta(minutes=55)
+
+    def __init__(self, credentials: ServiceAccountCredentials) -> None:
+        self._credentials = credentials
+        sdk = yandexcloud.SDK(service_account_key=credentials.to_yandexcloud_dict())
+        self._iam_service = sdk.client(IamTokenServiceStub)
+        self._token: str | None = None
+        self._refresh_at = datetime.min.replace(tzinfo=UTC)
+        self._lock = threading.Lock()
+
+    def get_token(self) -> str:
+        now = datetime.now(UTC)
+        if self._token is not None and now < self._refresh_at:
+            return self._token
+        with self._lock:
+            now = datetime.now(UTC)
+            if self._token is not None and now < self._refresh_at:
+                return self._token
+            return self._refresh(now)
+
+    def _refresh(self, now: datetime) -> str:
+        issued_at = int(time.time())
+        encoded_jwt = jwt.encode(
+            {
+                "aud": "https://iam.api.cloud.yandex.net/iam/v1/tokens",
+                "iss": self._credentials.service_account_id,
+                "iat": issued_at,
+                "exp": issued_at + 3600,
+            },
+            self._credentials.private_key,
+            algorithm="PS256",
+            headers={"kid": self._credentials.key_id},
+        )
+        response = self._iam_service.Create(CreateIamTokenRequest(jwt=encoded_jwt))
+        self._token = response.iam_token
+        expires_at = getattr(response, "expires_at", None)
+        if expires_at is not None and hasattr(expires_at, "ToDatetime"):
+            expiration = expires_at.ToDatetime(tzinfo=UTC)
+            self._refresh_at = max(now, expiration - self._REFRESH_SKEW)
+        else:
+            self._refresh_at = now + self._FALLBACK_LIFETIME
+        return self._token
+
+
+class _ServiceAccountAuth(AuthBase):
+    """Apply a current service-account IAM token when requests prepares a call."""
+
+    def __init__(self, credentials: ServiceAccountCredentials) -> None:
+        self._provider = _ServiceAccountTokenProvider(credentials)
+
+    def __call__(self, r: PreparedRequest) -> PreparedRequest:
+        r.headers["Authorization"] = f"Bearer {self._provider.get_token()}"
+        return r
+
+
 class Transport:
     """Builds an authed ``requests.Session`` — the single, env-free auth boundary."""
 
     @staticmethod
-    def _authorization(oauth_token: str) -> str:
+    def _authorization(oauth_token: str | None = None, iam_token: str | None = None) -> str | None:
         """The Authorization header value — the single point an auth scheme would vary."""
-        return f"OAuth {oauth_token}"
+        if oauth_token:
+            return f"OAuth {oauth_token}"
+        if iam_token:
+            return f"Bearer {iam_token}"
+        return None
 
     @staticmethod
     def _human_detail(response: Response) -> str:
@@ -133,20 +207,42 @@ class Transport:
     def session(
         cls,
         *,
-        oauth_token: str,
-        organization_id: str,
+        oauth_token: str | None = None,
+        iam_token: str | None = None,
+        service_account: ServiceAccountCredentials | None = None,
+        organization_id: str | None = None,
+        cloud_organization_id: str | None = None,
         timeout_seconds: float = 30.0,
         retries: int = 3,
         base: requests.Session | None = None,
     ) -> requests.Session:
-        if not oauth_token:
-            raise ValueError("oauth_token must be a non-empty string")
-        if not organization_id:
-            raise ValueError("organization_id must be a non-empty string")
+        authorization = cls._authorization(oauth_token, iam_token)
+        if authorization is None and service_account is None:
+            raise ValueError("an OAuth token, IAM token, or service account must be provided")
+        if bool(organization_id) == bool(cloud_organization_id):
+            raise ValueError("exactly one of organization_id or cloud_organization_id is required")
+        if (
+            authorization is not None
+            and authorization.startswith("Bearer ")
+            and not cloud_organization_id
+        ):
+            raise ValueError("IAM authentication requires cloud_organization_id")
+        if authorization is None and not cloud_organization_id:
+            raise ValueError("service-account IAM requires cloud_organization_id")
         session = base or requests.Session()
-        session.headers.update(
-            {"Authorization": cls._authorization(oauth_token), "X-Org-Id": organization_id}
-        )
+        for header in ("Authorization", "X-Org-Id", "X-Cloud-Org-Id"):
+            session.headers.pop(header, None)
+        session.auth = None
+        if authorization is not None:
+            session.headers["Authorization"] = authorization
+        else:
+            assert service_account is not None
+            session.auth = _ServiceAccountAuth(service_account)
+        if organization_id:
+            session.headers["X-Org-Id"] = organization_id
+        else:
+            assert cloud_organization_id is not None
+            session.headers["X-Cloud-Org-Id"] = cloud_organization_id
         session.hooks["response"].append(cls._raise_typed)
         retry = Retry(
             total=retries,

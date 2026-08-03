@@ -94,9 +94,11 @@ class OAuthClient:
 
     def fetch_organizations(self, token: str) -> list[Organization]:
         """``GET /directory/v1/org`` — the token's orgs, or ``[]`` if it lacks directory scope."""
+        authorization = Transport._authorization(token)
+        assert authorization is not None
         response = self._session.get(
             f"{self.API360_BASE_URL}/directory/v1/org",
-            headers={"Authorization": Transport._authorization(token)},
+            headers={"Authorization": authorization},
         )
         if response.status_code != _HTTP_OK:
             return []

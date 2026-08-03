@@ -31,7 +31,9 @@ Authorization: OAuth $YANDEX_ID_OAUTH_TOKEN
 X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 ```
 
-> The org id goes in one canonical header, `X-Org-Id`, for every Yandex 360 service — the same header Tracker and Forms use. HTTP header names are case-insensitive (RFC 9110), so casing never matters; the CLI/SDK set it for you.
+For a cloud organization, use `Authorization: Bearer $YANDEX_CLOUD_IAM_TOKEN` and
+`X-Cloud-Org-Id: $YANDEX_CLOUD_ORGANIZATION_ID`. Wiki accepts user/federated IAM tokens but
+explicitly rejects service accounts. The CLI/SDK set headers for you.
 
 **Three ways in:**
 

@@ -1,5 +1,7 @@
 """`ycli auth status` — probes Tracker, Wiki, Forms identity endpoints."""
 
+from unittest.mock import Mock
+
 import pytest
 import responses
 from typer.testing import CliRunner
@@ -108,3 +110,31 @@ def test_wiki_generic_error(creds):
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1
     assert "wiki" in res.stdout
+
+
+@responses.activate
+def test_service_account_status_probes_tracker_only(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID", "key")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_ID", "account")
+    monkeypatch.setenv(
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\nkey"
+    )
+    sdk = Mock()
+    sdk.client.return_value = Mock()
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    monkeypatch.setattr(
+        "ycli.yandex.transport._ServiceAccountTokenProvider.get_token",
+        lambda self: "generated",
+    )
+    responses.add(responses.GET, TRACKER_ME, json={"login": "service-account"}, status=200)
+
+    result = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
+
+    assert result.exit_code == 0
+    assert '"service":"tracker"' in result.stdout
+    assert '"service":"wiki"' not in result.stdout
+    assert '"service":"forms"' not in result.stdout

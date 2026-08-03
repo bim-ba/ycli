@@ -46,6 +46,10 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 
 The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section of the live API reference at <https://yandex.ru/dev/forms/>). The same token may work for Tracker/Wiki if those scopes were also granted, but Forms scopes are separate — a Tracker-only token will 401/403 here. The CLI/MCP/SDK set both headers for you from the environment.
 
+For a cloud organization, use `Authorization: Bearer $YANDEX_CLOUD_IAM_TOKEN` and
+`X-Cloud-Org-Id: $YANDEX_CLOUD_ORGANIZATION_ID`. Forms accepts user/federated IAM tokens but
+explicitly rejects service accounts.
+
 **Host trap:** the base host is `api.forms.yandex.net` — NOT `api.tracker.yandex.net`. Only relevant when you drop to raw HTTP (hooks); ycli encodes it.
 
 ---
@@ -166,7 +170,8 @@ After a hook change, submit a test response and verify the resulting Tracker iss
 - **Question IDs are server-assigned.** Read them back from the create/list response; never hardcode.
 - **Suggest questions:** valid `data_source` names are `city` / `country`; suggest text matching is language-sensitive (Cyrillic input matches Russian city names).
 - **OAuth scopes are separate.** A 401/403 usually means the token lacks `forms:read` / `forms:write`.
-- **Org header is `X-Org-Id`** — the same canonical header every Yandex 360 service uses; HTTP header names are case-insensitive (RFC 9110), so a 422 is never a casing problem.
+- **Org header follows organization type** — `X-Org-Id` for Yandex 360 and
+  `X-Cloud-Org-Id` for cloud organizations; a 422 is not a casing problem.
 - **Datasource questions are scoped.** Tracker/Wiki/directory suggests are queue-/space-scoped — set the form's `dir_id` / target queue first.
 
 ---

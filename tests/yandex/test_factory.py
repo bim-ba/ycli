@@ -14,7 +14,7 @@ def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
     monkeypatch.chdir(tmp_path)  # prevent .env from leaking
-    creds = Credentials()  # ty: ignore[missing-argument]
+    creds = Credentials()
     cfg = AppConfig(timeout_seconds=12.0, retries=5)
     client = ClientFactory.build(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
@@ -27,7 +27,7 @@ def test_build_casts_timeout_to_int(monkeypatch, tmp_path):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     monkeypatch.chdir(tmp_path)
-    creds = Credentials()  # ty: ignore[missing-argument]
+    creds = Credentials()
     cfg = AppConfig(timeout_seconds=7.9, retries=2)
     client = ClientFactory.build(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)

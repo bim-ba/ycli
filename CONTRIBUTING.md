@@ -50,13 +50,13 @@ change the public surface on purpose, regenerate snapshots: `uv run python -m te
   reads-only view.
 - **New endpoints:** ship every operation across SDK + CLI + MCP (writes included, with
   honest annotations). Each surface gets a test (TDD).
-- **Auth:** credentials (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`) are read
+- **Auth:** OAuth or Yandex Cloud IAM credentials are read
   from the environment once, at the composition root — `Credentials()` / `AppConfig()` in
   `AppContext` for the CLI, or each domain's cached `dependencies` factory for MCP — and
-  passed to clients as explicit `oauth_token` / `organization_id` constructor arguments.
+  passed to clients as explicit constructor arguments.
   Clients themselves never read the environment (ARCH-7; there is no `from_env`). Never
-  hardcode credentials. The transport sends one canonical `X-Org-Id` org header for every
-  service (case-insensitive per RFC 9110).
+  hardcode credentials. The transport sends `X-Org-Id` for Yandex 360 organizations or
+  `X-Cloud-Org-Id` for cloud organizations. Dynamic service-account IAM is Tracker-only.
 - **Secrets:** `.env` and `.mcp.json` are gitignored. Keep real tokens out of commits;
   use `.env.example` / `.mcp.example.json` placeholders.
 

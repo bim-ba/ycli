@@ -25,11 +25,13 @@ dependencies = [
     "loguru>=0.7.3",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.2",
+    "pyjwt[crypto]>=2.13.0",
     "pyyaml>=6.0.3",
     "requests>=2.34.2",
     "rich>=15.0.0",
     "typer>=0.26.8",
     "uplink>=0.10.0",
+    "yandexcloud>=0.401.0",
 ]
 
 # The MCP server (`ycli mcp`) is optional — install with `yandex-cli[mcp]`.

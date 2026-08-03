@@ -10,9 +10,10 @@ within 72 hours and a coordinated disclosure once a fix is available.
 
 ## Scope
 
-`ycli` reads `YANDEX_ID_OAUTH_TOKEN` and `YANDEX_ID_ORGANIZATION_ID` from the
-environment (via `Credentials()` at the composition root) and sends them only to the official Yandex 360
-API endpoints — never logged, never written to disk, never transmitted elsewhere.
+`ycli` reads OAuth or Yandex Cloud IAM credentials from the environment via `Credentials()`
+at the composition root. Tokens are sent only to official Yandex 360 API endpoints. Dynamic
+service-account credentials are used only with the official Yandex Cloud IAM API to mint a
+short-lived token. Credentials are never logged or persisted by ycli.
 
 In scope:
 

@@ -28,9 +28,11 @@ def test_app_config_reads_overrides(monkeypatch):
 def test_credentials_read_env(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    creds = Credentials()  # ty: ignore[missing-argument]
+    creds = Credentials()
     assert creds.oauth_token == "tok"
     assert creds.organization_id == "org"
+    assert creds.iam_token is None
+    assert creds.service_account is None
 
 
 def test_credentials_missing_raises(tmp_path, monkeypatch):
@@ -38,7 +40,104 @@ def test_credentials_missing_raises(tmp_path, monkeypatch):
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.chdir(tmp_path)  # ensure no .env file is picked up
     with pytest.raises(ValidationError):
-        Credentials()  # ty: ignore[missing-argument]
+        Credentials()
+
+
+def test_credentials_read_static_iam(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "iam")
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud")
+    credentials = Credentials()
+    assert credentials.iam_token == "iam"
+    assert credentials.cloud_organization_id == "cloud"
+    assert credentials.uses_service_account_iam is False
+
+
+def test_credentials_build_service_account(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID", "key")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_ID", "account")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY", "private")
+    service_account = Credentials().service_account
+    assert service_account is not None
+    assert service_account.to_yandexcloud_dict() == {
+        "id": "key",
+        "service_account_id": "account",
+        "private_key": "private",
+    }
+    assert Credentials().uses_service_account_iam is True
+
+
+@pytest.mark.parametrize(
+    ("updates", "message"),
+    [
+        ({"YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID": "key"}, "must be set together"),
+        (
+            {
+                "YANDEX_ID_OAUTH_TOKEN": "oauth",
+                "YANDEX_ID_ORGANIZATION_ID": "",
+                "YANDEX_CLOUD_ORGANIZATION_ID": "",
+            },
+            "exactly one",
+        ),
+        ({"YANDEX_CLOUD_ORGANIZATION_ID": "cloud"}, "set YANDEX_ID_OAUTH_TOKEN"),
+    ],
+)
+def test_credentials_reject_invalid_combinations(monkeypatch, tmp_path, updates, message):
+    monkeypatch.chdir(tmp_path)
+    for name in (
+        "YANDEX_ID_OAUTH_TOKEN",
+        "YANDEX_ID_ORGANIZATION_ID",
+        "YANDEX_CLOUD_IAM_TOKEN",
+        "YANDEX_CLOUD_ORGANIZATION_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    for name, value in updates.items():
+        monkeypatch.setenv(name, value)
+    with pytest.raises(ValidationError, match=message):
+        Credentials()
+
+
+def test_credentials_reject_two_organization_ids(monkeypatch):
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud")
+    with pytest.raises(ValidationError, match="exactly one"):
+        Credentials()
+
+
+def test_iam_requires_cloud_organization(monkeypatch):
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "iam")
+    with pytest.raises(ValidationError, match="requires YANDEX_CLOUD_ORGANIZATION_ID"):
+        Credentials()
+
+
+def test_empty_optional_values_are_absent(monkeypatch):
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "   ")
+    credentials = Credentials()
+    assert credentials.iam_token is None
+
+
+@pytest.mark.parametrize("token_name", ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_CLOUD_IAM_TOKEN"])
+def test_higher_priority_token_ignores_partial_service_account(monkeypatch, token_name):
+    if token_name == "YANDEX_CLOUD_IAM_TOKEN":
+        monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+        monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+        monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud")
+    monkeypatch.setenv(token_name, "token")
+    monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID", "stale-key")
+
+    credentials = Credentials()
+
+    assert credentials.service_account is None
+    assert credentials.uses_service_account_iam is False
 
 
 def test_settings_read_dotenv(tmp_path, monkeypatch):
