@@ -1,6 +1,6 @@
 # ycli
 
-> Baseline agent behavior is provided by spark/core (injected each session via the SessionStart hook); add only project-specific rules here.
+> Baseline agent behavior is provided by ai/core (injected each session via the SessionStart hook); add only project-specific rules here.
 
 ## Project Overview
 
@@ -20,32 +20,23 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   plugin (skills + instructions) lives in `plugins/yandex-360/`, listed by the repo-root
   `.claude-plugin/marketplace.json`.
 - **Output:** every CLI command honors a global `--format/-o` flag (`auto` · `json` · `yaml`
-  · `pretty`); rendering goes through `output.Serializer.serialize` (`src/ycli/cli/output.py`, ARCH-4). No output surface
-  hardcodes a service UI URL (ARCH-5); a general per-model deeplink mechanism is deferred.
+  · `pretty`); no output surface hardcodes a service UI URL, and a general per-model deeplink
+  mechanism is deferred. Serialization confinement (ARCH-4), single sources of truth (ARCH-5)
+  and MCP read/write annotation honesty with `ycli mcp start --read-only` (ARCH-3) are
+  specified and enforced in [`ARCHITECTURE.md`](ARCHITECTURE.md); read them there.
 - **Typing:** the package ships a PEP 561 `py.typed` marker, so downstream type checkers
-  see ycli's types. The MCP server is the `ycli mcp start` subcommand (optional `[mcp]` extra).
+  see ycli's types.
 
 ## Project-Specific Conventions
 
-- **Dependencies:** add with `uv add <pkg>` (runtime) / `uv add --dev <pkg>` (dev) — never
-  hand-edit `pyproject.toml` dependency lists.
-- **Naming:** spell identifiers and env-var names out in full — never abbreviate
-  (`timeout_seconds` not `timeout_s`, `organization_id` not `org_id`; `YANDEX_ID_OAUTH_TOKEN`
-  is already correct).
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
-- **Auth:** credentials (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`) are read once
-  at the composition root — `Credentials()` / `AppConfig()` in `AppContext` for the CLI, or
-  the `dependencies` cached factory in each domain's MCP module — and passed as raw `oauth_token` /
+- **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` for the CLI
+  and the `dependencies` cached factory in each domain's MCP module; both read
+  `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /
   `organization_id` constructor arguments to each client. There is no `from_env` or
-  `session_from_env`; never hardcode credentials. The transport sends one canonical
-  `X-Org-Id` org header for every service (HTTP header names are case-insensitive per
-  RFC 9110), so there is no per-service casing to track.
-- **MCP server is read/write** (ARCH-3 annotation honesty: reads carry `readOnlyHint=True`,
-  writes carry explicit `destructiveHint`/`idempotentHint`); `ycli mcp start --read-only`
-  serves the reads-only view.
-- **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
-  (`.env.example` / `.mcp.example.json` hold placeholders).
+  `session_from_env`. The transport sends one canonical `X-Org-Id` org header for every service
+  (HTTP header names are case-insensitive per RFC 9110), so there is no per-service casing to track.
 
 ## Release & safety
 
@@ -96,7 +87,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 ## Working notes
 
-- **Drift log:** when a session reveals a convention the codebase doesn't yet enforce, capture it via `core:creating-drift-logs` before ending.
+- **Drift log:** when a session reveals a convention the codebase doesn't yet enforce, capture it via `drifts:creating-drift-logs` before ending.
 
 ## Architecture invariants (enforced)
 
@@ -109,10 +100,6 @@ enforcing check in the **same** PR and flag it.
 
 ## graphify
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+This project has a knowledge graph at `graphify-out/`. The query / path / explain workflow is the generic one and lives in the user-level `graphify` skill, not here.
 
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing (it's git-ignored/local — regenerate for free with `graphify export wiki` if absent).
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - **Do NOT run `graphify update .` here.** It ignores the curated `--exclude` set in `.graphify/rebuild.sh` and re-scans the vendored `references/yandex-cloud/` submodule (~90k files), exploding the graph from ~5.3k to ~560k nodes. Treat the committed graph as a periodically-rebuilt snapshot: refresh it only by re-running `.graphify/rebuild.sh` (a full GLM-5.2 rebuild that costs API credits), and accept minor staleness (e.g. a just-deleted symbol) between rebuilds.
