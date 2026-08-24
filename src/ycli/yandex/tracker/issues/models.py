@@ -29,6 +29,9 @@ class Issue(APIModel):
     queue: KeyStr = None
     assignee: DisplayStr = None
     tags: list[str] = Field(default_factory=list)
+    description: str | None = None
+    created_at: str | None = Field(default=None, alias="createdAt")
+    created_by: DisplayStr = Field(default=None, alias="createdBy")
 
 
 class IssueList(RootModel[list[Issue]]):
