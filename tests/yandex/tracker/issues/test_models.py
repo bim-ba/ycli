@@ -14,6 +14,9 @@ def test_ref_fields_flatten_to_scalars():
             "parent": {"key": "DE-99"},
             "queue": {"key": "DE"},
             "assignee": {"display": "Сава"},
+            "description": "Issue details",
+            "createdAt": "2026-01-01T00:00:00Z",
+            "createdBy": {"display": "Author"},
         }
     )
     assert issue.type == "task"
@@ -23,6 +26,9 @@ def test_ref_fields_flatten_to_scalars():
     assert issue.parent == "DE-99"
     assert issue.queue == "DE"
     assert issue.assignee == "Сава"
+    assert issue.description == "Issue details"
+    assert issue.created_at == "2026-01-01T00:00:00Z"
+    assert issue.created_by == "Author"
 
 
 def test_ref_fields_default_to_none():
