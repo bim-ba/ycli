@@ -9,6 +9,81 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.17.0 (2026-09-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.16.1
+  ([`c9dba07`](https://github.com/bim-ba/ycli/commit/c9dba075c936e08bcd1675ed82d72192ca37398c))
+
+- **deps**: Bump astral-sh/setup-uv ([#64](https://github.com/bim-ba/ycli/pull/64),
+  [`dea50bd`](https://github.com/bim-ba/ycli/commit/dea50bdb2a80f9ffdcf0ff9d0b3d98bbc0952e3d))
+
+- **deps**: Bump the actions group with 2 updates ([#60](https://github.com/bim-ba/ycli/pull/60),
+  [`2019793`](https://github.com/bim-ba/ycli/commit/2019793a03ee02f3070435eee447b8b93db524ff))
+
+### Chores
+
+- Add .mcp.example.json (secrets moved to ~/.secrets/mcp.env)
+  ([`3b3c999`](https://github.com/bim-ba/ycli/commit/3b3c99904035f00de9345cfdeb9255e323838ef5))
+
+- Agent-environment hygiene and the yandex-cloud docs bump
+  ([#61](https://github.com/bim-ba/ycli/pull/61),
+  [`c5981a1`](https://github.com/bim-ba/ycli/commit/c5981a1d2c27757f418f9ce39f13ad853f134385))
+
+- Drop the retired parallel plugin and the dead graphify stub
+  ([#61](https://github.com/bim-ba/ycli/pull/61),
+  [`c5981a1`](https://github.com/bim-ba/ycli/commit/c5981a1d2c27757f418f9ce39f13ad853f134385))
+
+- Move the per-clone ignore rules into the tracked .gitignore
+  ([#61](https://github.com/bim-ba/ycli/pull/61),
+  [`c5981a1`](https://github.com/bim-ba/ycli/commit/c5981a1d2c27757f418f9ce39f13ad853f134385))
+
+- Remove claudelint
+  ([`c8b8688`](https://github.com/bim-ba/ycli/commit/c8b8688c3e1e11409dfb9273806396f2cd7aa774))
+
+- **claude**: AutoUpdate on every marketplace, fix inert declarations
+  ([`bbfaf72`](https://github.com/bim-ba/ycli/commit/bbfaf72095cd91a29d6e484f3fe34ccb429d9aaf))
+
+- **marketplace**: Follow the ai marketplace to bim-ba-ai/marketplace
+  ([#61](https://github.com/bim-ba/ycli/pull/61),
+  [`c5981a1`](https://github.com/bim-ba/ycli/commit/c5981a1d2c27757f418f9ce39f13ad853f134385))
+
+- **plugins**: Enable the five bim-ba plugins after the split
+  ([#62](https://github.com/bim-ba/ycli/pull/62),
+  [`7b04722`](https://github.com/bim-ba/ycli/commit/7b047226e93baa8e48f19e1b5a64e2a0b8c3069b))
+
+- **plugins**: Follow the ai marketplace to bim-ba/ai as core@bim-ba
+  ([#62](https://github.com/bim-ba/ycli/pull/62),
+  [`7b04722`](https://github.com/bim-ba/ycli/commit/7b047226e93baa8e48f19e1b5a64e2a0b8c3069b))
+
+- **refs**: Bump the yandex-cloud docs submodule ([#61](https://github.com/bim-ba/ycli/pull/61),
+  [`c5981a1`](https://github.com/bim-ba/ycli/commit/c5981a1d2c27757f418f9ce39f13ad853f134385))
+
+- **skills**: De-vendor graphify to user-level ~/.claude/skills/graphify
+  ([`5523623`](https://github.com/bim-ba/ycli/commit/552362357025bce23d2bccbd578395080453871c))
+
+- **skills**: Declare type/category frontmatter per skills-authoring-standard
+  ([`a8a8558`](https://github.com/bim-ba/ycli/commit/a8a85585e0ea993fc587d71db26e02c1eab9f34e))
+
+### Documentation
+
+- Re-home ycli facts from agent memory (refract pointer, skip-ci mechanism, verify gate)
+  ([`51e9b12`](https://github.com/bim-ba/ycli/commit/51e9b12adb0f759a3e1ddcf5da92240098ae9b4f))
+
+- Refresh social-preview card (svg + regenerated png)
+  ([#56](https://github.com/bim-ba/ycli/pull/56),
+  [`9f272a4`](https://github.com/bim-ba/ycli/commit/9f272a4a26e41cf9fd47febfc69328df07fa2201))
+
+- **claude**: Drop duplicates of the personal layer ([#65](https://github.com/bim-ba/ycli/pull/65),
+  [`5c434db`](https://github.com/bim-ba/ycli/commit/5c434db6285048704ddb8da417776cd3a6690915))
+
+### Features
+
+- **tracker**: Expose issue response fields ([#66](https://github.com/bim-ba/ycli/pull/66),
+  [`b8d00f4`](https://github.com/bim-ba/ycli/commit/b8d00f452953ea79acafb4a5981a1b272bbe18c1))
+
+
 ## v0.16.1 (2026-07-13)
 
 ### Bug Fixes
