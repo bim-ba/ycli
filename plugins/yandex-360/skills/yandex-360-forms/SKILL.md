@@ -28,7 +28,7 @@ Drive Yandex Forms via `ycli` — reads **and writes** — through the CLI, the 
 You can **read** any form your token can access. You can **write** to any form you have permission on. Both ship on all three ycli surfaces:
 
 - **CLI** — `uv run ycli forms <group> <cmd>` (full surface, including binary uploads/downloads)
-- **MCP** — 28 `forms_*` tools (13 reads + 15 writes). Write tools carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary payloads (files/images upload, keysets/exports download) are CLI/SDK-only.
+- **MCP** — 46 `forms_*` tools (19 reads + 27 writes). Write tools carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary payloads (files/images upload, keysets/exports download) are CLI/SDK-only.
 - **SDK** — `from ycli.yandex.forms.client import FormsClient` → `FormsClient(oauth_token=…, organization_id=…)`
 
 The one remaining raw-HTTP case: **hooks** (§4).
@@ -59,6 +59,7 @@ The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section 
 | Get form settings | `uv run ycli forms surveys get <form_id>` | `forms_surveys_get` |
 | List questions (schema) | `uv run ycli forms questions list <form_id>` | `forms_questions_list` |
 | Get one question | `uv run ycli forms questions get <form_id> <q_id>` | `forms_questions_get` |
+| Show conditions (question/page/submit) | `uv run ycli forms conditions question\|page\|submit list\|get …` | `forms_conditions_question_list` / `forms_conditions_page_get` / … |
 | List answers (responses) | `uv run ycli forms answers list <form_id> [--all]` | `forms_answers_list` |
 | Fillable form view (option ids!) | `uv run ycli forms filling get <form_id>` | `forms_filling_get` |
 | Suggest values for a question | `uv run ycli forms filling suggest <form_id> --question <slug> --text …` | `forms_filling_suggest` |
@@ -143,6 +144,19 @@ uv run ycli forms files delete --path <storage_path>
 
 MCP note: `forms_answers_export` triggers the export and `forms_operations_get` polls it, but the **download** of the produced file — like every raw-bytes operation here (`files upload/download`, `images upload`, `keysets download`) — is CLI/SDK-only; MCP excludes raw binary payloads. `forms_files_delete` (destructive) and `forms_files_verify` are on MCP.
 
+### 3.6. Display (show) conditions
+
+Gate what a respondent sees — show a question, a page, or the Submit button only when clauses match (not to be confused with integration-hook conditions, §4).
+
+```bash
+uv run ycli forms conditions question create <form_id> <q_id> --operator and --item '{"type":"question","condition":"eq","question":"<slug>","value":"yes"}'
+uv run ycli forms conditions question set-operator <form_id> <q_id> --operator or
+uv run ycli forms conditions page modify <form_id> <page_id> <cond_id> --operator and --item '{"type":"question","condition":"eq","question":"<slug>","value":"yes"}'
+uv run ycli forms conditions submit delete <form_id> <cond_id>
+```
+
+MCP: `forms_conditions_{question|page|submit}_{create|modify|delete|set_operator}` (plus the `_list` / `_get` reads, §2).
+
 ---
 
 ## 4. Integration hooks — the one raw-HTTP surface
@@ -168,6 +182,10 @@ After a hook change, submit a test response and verify the resulting Tracker iss
 - **OAuth scopes are separate.** A 401/403 usually means the token lacks `forms:read` / `forms:write`.
 - **Org header is `X-Org-Id`** — the same canonical header every Yandex 360 service uses; HTTP header names are case-insensitive (RFC 9110), so a 422 is never a casing problem.
 - **Datasource questions are scoped.** Tracker/Wiki/directory suggests are queue-/space-scoped — set the form's `dir_id` / target queue first.
+- **A "condition" is a GROUP of clauses** — clauses have no ids; edit by replacing the group (`modify` PATCH requires the full `{operator, items}` body).
+- **`operator` is two-level.** Top-level joins groups (`set-operator`); the in-group operator joins clauses.
+- **Clause `value` is a string capped at 100 chars**, even for `lt`/`gt`.
+- **Question create/modify bodies do NOT carry conditions** — the API silently ignores the key; use `forms conditions …`.
 
 ---
 

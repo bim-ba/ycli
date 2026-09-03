@@ -33,7 +33,7 @@ WRITE_VERBS = {
 }  # fmt: skip
 WRITE_IDEMPOTENT_VERBS = {
     "update", "edit", "modify", "set", "set_permissions", "permissions_set",
-    "update_cells", "edit_item", "scroll_clear",
+    "update_cells", "edit_item", "scroll_clear", "set_operator",
 }  # fmt: skip
 DESTRUCTIVE_VERBS = {
     "delete", "remove", "clear", "abort", "abort_all",

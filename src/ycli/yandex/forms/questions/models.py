@@ -115,7 +115,7 @@ ValidatorType = Literal[
     "single",
 ]
 ConditionOperatorType = Literal["and", "or"]
-ConditionItemKind = Literal["question", "language", "origin"]
+ConditionItemKind = Literal["question", "language", "origin", "quiz"]
 ConditionComparison = Literal["eq", "neq", "lt", "gt"]
 
 
@@ -153,7 +153,7 @@ class ConditionItem(APIModel):
         default=None, description="Boolean operator joining this clause to the next: and / or."
     )
     type: ConditionItemKind | None = Field(
-        default=None, description="Clause subject: question, language or origin."
+        default=None, description="Clause subject: question, language, origin or quiz."
     )
     question: str | None = Field(
         default=None, description="Slug of the question this clause tests (for type=question)."
@@ -291,6 +291,9 @@ class _QuestionBase(APIModel):
 
     Concrete members add a ``Literal`` ``type`` tag (the union discriminator) plus their own
     type-specific fields. Unset (``None``) fields are dropped before the request is sent.
+    Display conditions are NOT part of the write body — the live API silently ignores a
+    ``conditions`` key here; manage them via the ``conditions`` resource
+    (``forms conditions …`` / ``forms_conditions_*``).
     """
 
     id: int | None = Field(
@@ -304,9 +307,6 @@ class _QuestionBase(APIModel):
     )
     hidden: bool | None = Field(
         default=None, description="Hide the question until its display conditions match."
-    )
-    conditions: list[Condition] | None = Field(
-        default=None, description="Display-condition groups gating this question."
     )
     image: QuestionImage | None = Field(
         default=None, description="Image shown alongside the question."
