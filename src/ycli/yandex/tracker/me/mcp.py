@@ -18,5 +18,5 @@ def get(client: TrackerClient = Depends(tracker_client)) -> Me:
     return require_found(
         result,
         sentinel=lambda r: r.login is None,
-        message="auth probe failed — empty user (check YANDEX_ID_OAUTH_TOKEN)",
+        message="auth probe failed — empty user (check configured credentials)",
     )

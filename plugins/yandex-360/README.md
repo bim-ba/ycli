@@ -40,7 +40,7 @@ start command to serve only the read tools; binary downloads stay CLI/SDK-only.
 
 ## Requires
 
-[`uv`](https://docs.astral.sh/uv/) on `PATH` (for the bundled MCP server) and two
-environment variables, read from your shell: `YANDEX_ID_OAUTH_TOKEN`,
-`YANDEX_ID_ORGANIZATION_ID`. The `yandex-360` skill walks through setup. For direct CLI/SDK
+[`uv`](https://docs.astral.sh/uv/) on `PATH` (for the bundled MCP server) and one supported
+OAuth or Yandex Cloud IAM environment configuration. The `yandex-360` skill walks through
+setup, including Tracker-only service-account IAM. For direct CLI/SDK
 use, install the package with `uv add 'yandex-cli[mcp]'`.

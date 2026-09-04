@@ -17,6 +17,14 @@ def creds(monkeypatch):
     conftest.py autouse fixtures execute before module-level ones of the same scope) — which
     correctly overrides this fixture regardless of the values it pre-set.
     """
+    for name in (
+        "YANDEX_CLOUD_IAM_TOKEN",
+        "YANDEX_CLOUD_ORGANIZATION_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY",
+    ):
+        monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 

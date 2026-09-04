@@ -21,6 +21,7 @@ from typing import ClassVar
 import requests
 import uplink
 
+from ycli.yandex.auth import ServiceAccountCredentials
 from ycli.yandex.transport import Transport
 
 
@@ -49,19 +50,34 @@ class DomainClient:
     those defaults, so this signature must stay in sync with ``AppConfig``.
     """
 
+    supports_service_account_iam: ClassVar[bool] = False
+
     def __init__(
         self,
         *,
-        oauth_token: str,
-        organization_id: str,
+        oauth_token: str | None = None,
+        iam_token: str | None = None,
+        service_account: ServiceAccountCredentials | None = None,
+        organization_id: str | None = None,
+        cloud_organization_id: str | None = None,
         timeout_seconds: int = 30,
         retries: int = 3,
         session: requests.Session | None = None,
     ) -> None:
+        if (
+            service_account is not None
+            and not oauth_token
+            and not iam_token
+            and not self.supports_service_account_iam
+        ):
+            raise ValueError("service-account IAM authentication is supported only by Tracker")
         self._wire(
             Transport.session(
                 oauth_token=oauth_token,
+                iam_token=iam_token,
+                service_account=service_account,
                 organization_id=organization_id,
+                cloud_organization_id=cloud_organization_id,
                 timeout_seconds=timeout_seconds,
                 retries=retries,
                 base=session,

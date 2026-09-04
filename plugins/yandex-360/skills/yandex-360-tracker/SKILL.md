@@ -49,6 +49,9 @@ The CLI, MCP tools, and SDK all read credentials from the environment:
 |---------|---------|
 | `YANDEX_ID_OAUTH_TOKEN` | OAuth token → sent as `Authorization: OAuth …` |
 | `YANDEX_ID_ORGANIZATION_ID` | Organization ID → sent as the `X-Org-Id` header |
+| `YANDEX_CLOUD_IAM_TOKEN` | Static IAM token → sent as `Authorization: Bearer …` |
+| `YANDEX_CLOUD_ORGANIZATION_ID` | Cloud organization ID → sent as `X-Cloud-Org-Id` |
+| `YANDEX_CLOUD_SERVICE_ACCOUNT_*` | Authorized key fields for dynamic Tracker IAM; requires Yandex support enablement |
 
 Full Tracker API reference lives online at <https://yandex.ru/dev/tracker/> (developer
 portal) and <https://yandex.ru/support/tracker/> (product docs). For the day-to-day

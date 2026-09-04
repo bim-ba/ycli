@@ -649,9 +649,9 @@ def test_arch4_bare_print_guard_bites():
     assert not _BARE_PRINT_RE.search("    fingerprint(value)")
 
 
-_TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
+_TOKEN_RE = re.compile(r"YANDEX_(?:ID|CLOUD)_\w+\s*=\s*['\"]")
 _VERSION_RE = re.compile(r"__version__\s*=\s*['\"]\d")
-_ORG_HEADER_RE = re.compile(r"X-Org-I[dD]")
+_ORG_HEADER_RE = re.compile(r"X-(?:Cloud-)?Org-I[dD]")
 
 
 def test_arch5_single_sources_of_truth():
@@ -660,7 +660,7 @@ def test_arch5_single_sources_of_truth():
         rel = p.relative_to(SRC)
         text = p.read_text(encoding="utf-8")
         if _TOKEN_RE.search(text):
-            offenders.append(f"{rel}: hardcoded YANDEX_ID token literal")
+            offenders.append(f"{rel}: hardcoded Yandex credential literal")
         if rel != Path("__init__.py") and _VERSION_RE.search(text):
             offenders.append(f"{rel}: hardcoded __version__ literal")
         if p.name != "transport.py" and _ORG_HEADER_RE.search(text):

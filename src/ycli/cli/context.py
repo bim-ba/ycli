@@ -59,7 +59,7 @@ class AppContext:
 
     def _client(self, name: str, client_cls: type) -> object:
         if name not in self._clients:
-            self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]  # raises if env unset
+            self._credentials = self._credentials or Credentials()  # raises if env unset
             self._clients[name] = ClientFactory.build(client_cls, self._credentials, self.config)
         return self._clients[name]
 

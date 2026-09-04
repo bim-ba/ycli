@@ -33,17 +33,19 @@ uvx yandex-cli --help
 
 ## 2. Authenticate (required before any call)
 
-Both variables must be set in the environment:
+Configure one supported auth pair. OAuth for Yandex 360:
 
 ```bash
 export YANDEX_ID_OAUTH_TOKEN=...        # OAuth token — https://oauth.yandex.ru/
 export YANDEX_ID_ORGANIZATION_ID=...    # Yandex 360 organization id (admin panel)
 ```
 
-A missing/empty variable makes every client raise `ValueError` naming the variable.
-Every service takes the org id in one canonical header, `X-Org-Id` (HTTP header names are
-case-insensitive per RFC 9110, so casing never matters — even in raw HTTP). The clients set
-it for you.
+Static IAM for a cloud organization uses `YANDEX_CLOUD_IAM_TOKEN` and
+`YANDEX_CLOUD_ORGANIZATION_ID`. Tracker also supports dynamic service-account IAM through
+`YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID`, `YANDEX_CLOUD_SERVICE_ACCOUNT_ID`, and
+`YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY`; Yandex support must enable that account first.
+Wiki and Forms reject service accounts. Clients send `X-Org-Id` for Yandex 360 or
+`X-Cloud-Org-Id` for cloud organizations.
 
 ## 3. Pick a surface
 
@@ -90,6 +92,6 @@ that matter for that service.
   session must not write at all, run the server with `ycli mcp start --read-only`.
 - **Binary payloads stay on the CLI/SDK** — attachment/export/keyset downloads are not
   MCP tools; fetch them with `ycli … download` commands.
-- **One token, three services** — the same OAuth token works for Tracker, Wiki, and Forms
+- **One user token, three services** — the same OAuth or user/federated IAM token works for Tracker, Wiki, and Forms
   provided it carries the needed scopes (Forms needs `forms:read` / `forms:write`; MCP
   writes need the write scopes too).

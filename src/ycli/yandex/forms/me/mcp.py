@@ -20,5 +20,5 @@ def get(client: FormsClient = Depends(forms_client)) -> User:
     return require_found(
         result,
         sentinel=lambda r: r.id is None,
-        message="auth probe failed — empty user (check YANDEX_ID_OAUTH_TOKEN)",
+        message="auth probe failed — empty user (check configured credentials)",
     )

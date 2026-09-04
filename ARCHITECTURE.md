@@ -86,14 +86,15 @@ Notable shared pieces:
   touches the three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` /
   `json.dumps` only in `output.py`; CLI command bodies render model output via
   `Serializer.serialize`, and no `cli.py` outside the carve-out allowlist uses a bare `print(`.
-- **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
+- **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` /
+  `YANDEX_CLOUD_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).
 - **ARCH-6 — Public-surface stability.** The CLI command tree and MCP tool list change only by
   regenerating the snapshots in `tests/snapshots/` on purpose.
 - **ARCH-7 — Composition-root dependency injection.** Clients receive their dependencies as
   constructor arguments and never read the environment. Credentials enter only as the explicit
-  `oauth_token` / `organization_id` parameters; a client never constructs a settings object or
+  OAuth/IAM/service-account and organization parameters; a client never constructs a settings object or
   reads env. There is no `from_env` on any client. *Check:* grep — no `os.environ`, no
   `from_env`, no `Credentials(` / `AppConfig(` inside `yandex/**/client.py` or `base.py`.
 - **ARCH-8 — Single configuration source.** No direct `os.environ` access and no `BaseSettings`

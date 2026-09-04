@@ -37,6 +37,11 @@ app = typer.Typer(
 _ENV_NAMES = {
     "oauth_token": "YANDEX_ID_OAUTH_TOKEN",
     "organization_id": "YANDEX_ID_ORGANIZATION_ID",
+    "iam_token": "YANDEX_CLOUD_IAM_TOKEN",
+    "cloud_organization_id": "YANDEX_CLOUD_ORGANIZATION_ID",
+    "service_account_key_id": "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID",
+    "service_account_id": "YANDEX_CLOUD_SERVICE_ACCOUNT_ID",
+    "service_account_private_key": "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY",
 }
 
 
@@ -45,24 +50,23 @@ def status(ctx: typer.Context) -> None:
     """Report whether the env credentials are set and actually work, per service."""
     app_ctx = AppContext.from_typer_context(ctx)
     try:
-        credentials = Credentials()  # ty: ignore[missing-argument]
+        credentials = Credentials()
     except ValidationError as exc:
-        missing = ", ".join(
-            _ENV_NAMES.get(str(e["loc"][0]), str(e["loc"][0])) for e in exc.errors()
+        details = "; ".join(
+            str(error.get("ctx", {}).get("error", error["msg"])) for error in exc.errors()
         )
-        typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
+        typer.secho(f"not configured — {details}", fg=typer.colors.RED, err=True)
         Serializer.serialize(
             AuthReport(configured=False, services=[]), app_ctx.strategy, app_ctx.console
         )
         raise typer.Exit(1) from None
 
-    me_clients = {
-        "tracker": app_ctx.tracker.me,
-        "wiki": app_ctx.wiki.me,
-        "forms": app_ctx.forms.me,
-    }
+    me_clients = {"tracker": app_ctx.tracker.me}
+    if not credentials.uses_service_account_iam:
+        me_clients.update({"wiki": app_ctx.wiki.me, "forms": app_ctx.forms.me})
     report = StatusReporter(me_clients).report(
-        configured=True, organization_id=credentials.organization_id
+        configured=True,
+        organization_id=credentials.organization_id or credentials.cloud_organization_id or "",
     )
     Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
     if not all(s.valid for s in report.services):

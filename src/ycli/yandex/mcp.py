@@ -43,6 +43,6 @@ def make_cached_client[T](client_cls: type[T]) -> CachedProvider[T]:
 
     @cache
     def provider() -> T:
-        return ClientFactory.build(client_cls, Credentials(), app_config())  # type: ignore[return-value]  # ty: ignore[missing-argument,invalid-return-type]
+        return ClientFactory.build(client_cls, Credentials(), app_config())
 
-    return provider  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
+    return provider  # ty: ignore[invalid-return-type]

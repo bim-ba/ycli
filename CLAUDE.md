@@ -31,12 +31,17 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
-- **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` for the CLI
-  and the `dependencies` cached factory in each domain's MCP module; both read
-  `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /
-  `organization_id` constructor arguments to each client. There is no `from_env` or
-  `session_from_env`. The transport sends one canonical `X-Org-Id` org header for every service
-  (HTTP header names are case-insensitive per RFC 9110), so there is no per-service casing to track.
+- **Auth:** OAuth, static IAM, or service-account credentials are read once at the composition
+  root — `Credentials()` / `AppConfig()` in `AppContext` for the CLI, or the `dependencies`
+  cached factory in each domain's MCP module — and passed as explicit constructor arguments.
+  There is no `from_env` or `session_from_env`; never hardcode credentials. The transport sends
+  `X-Org-Id` for Yandex 360 organizations and `X-Cloud-Org-Id` for cloud organizations.
+  Service-account IAM is Tracker-only.
+- **MCP server is read/write** (ARCH-3 annotation honesty: reads carry `readOnlyHint=True`,
+  writes carry explicit `destructiveHint`/`idempotentHint`); `ycli mcp start --read-only`
+  serves the reads-only view.
+- **Secrets:** `.env` and `.mcp.json` are gitignored — keep real tokens out of committed files
+  (`.env.example` / `.mcp.example.json` hold placeholders).
 
 ## Release & safety
 

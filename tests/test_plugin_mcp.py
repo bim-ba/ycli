@@ -25,6 +25,14 @@ def test_plugin_mcp_declares_readonly_server():
 def test_plugin_mcp_passes_secrets_by_reference():
     config = json.loads(_MCP.read_text(encoding="utf-8"))
     env = config["mcpServers"]["yandex-360"]["env"]
-    assert set(env) == {"YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"}
+    assert set(env) == {
+        "YANDEX_ID_OAUTH_TOKEN",
+        "YANDEX_ID_ORGANIZATION_ID",
+        "YANDEX_CLOUD_IAM_TOKEN",
+        "YANDEX_CLOUD_ORGANIZATION_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_ID",
+        "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY",
+    }
     for value in env.values():
         assert value.startswith("${") and value.endswith("}")

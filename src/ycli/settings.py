@@ -8,8 +8,10 @@ enforces presence — no hand-written validation.
 
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from ycli.yandex.auth import ServiceAccountCredentials
 
 
 class AppConfig(BaseSettings):
@@ -24,12 +26,90 @@ class AppConfig(BaseSettings):
 
 
 class Credentials(BaseSettings):
-    """Yandex 360 credentials — required; pydantic raises if either env var is absent."""
+    """OAuth, static IAM, or service-account IAM credentials plus one organization ID."""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    oauth_token: str = Field(validation_alias="YANDEX_ID_OAUTH_TOKEN")
-    organization_id: str = Field(validation_alias="YANDEX_ID_ORGANIZATION_ID")
+    oauth_token: str | None = Field(default=None, validation_alias="YANDEX_ID_OAUTH_TOKEN")
+    organization_id: str | None = Field(
+        default=None, validation_alias="YANDEX_ID_ORGANIZATION_ID"
+    )
+    iam_token: str | None = Field(default=None, validation_alias="YANDEX_CLOUD_IAM_TOKEN")
+    cloud_organization_id: str | None = Field(
+        default=None, validation_alias="YANDEX_CLOUD_ORGANIZATION_ID"
+    )
+    service_account_key_id: str | None = Field(
+        default=None, validation_alias="YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID"
+    )
+    service_account_id: str | None = Field(
+        default=None, validation_alias="YANDEX_CLOUD_SERVICE_ACCOUNT_ID"
+    )
+    service_account_private_key: str | None = Field(
+        default=None, validation_alias="YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY"
+    )
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def _empty_is_absent(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
+    @model_validator(mode="after")
+    def _validate_authentication(self) -> Credentials:
+        service_account_values = (
+            self.service_account_key_id,
+            self.service_account_id,
+            self.service_account_private_key,
+        )
+        configured_service_account_values = sum(
+            value is not None for value in service_account_values
+        )
+        if (
+            configured_service_account_values not in (0, 3)
+            and not self.oauth_token
+            and not self.iam_token
+        ):
+            raise ValueError(
+                "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID, YANDEX_CLOUD_SERVICE_ACCOUNT_ID, and "
+                "YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY must be set together"
+            )
+        if not self.oauth_token and not self.iam_token and configured_service_account_values == 0:
+            raise ValueError(
+                "set YANDEX_ID_OAUTH_TOKEN, YANDEX_CLOUD_IAM_TOKEN, or all Yandex Cloud "
+                "service-account credentials"
+            )
+        if bool(self.organization_id) == bool(self.cloud_organization_id):
+            raise ValueError(
+                "set exactly one of YANDEX_ID_ORGANIZATION_ID or "
+                "YANDEX_CLOUD_ORGANIZATION_ID"
+            )
+        if not self.oauth_token and not self.cloud_organization_id:
+            raise ValueError("IAM authentication requires YANDEX_CLOUD_ORGANIZATION_ID")
+        return self
+
+    @property
+    def service_account(self) -> ServiceAccountCredentials | None:
+        if not all(
+            (
+                self.service_account_key_id,
+                self.service_account_id,
+                self.service_account_private_key,
+            )
+        ):
+            return None
+        assert self.service_account_key_id is not None
+        assert self.service_account_id is not None
+        assert self.service_account_private_key is not None
+        return ServiceAccountCredentials(
+            key_id=self.service_account_key_id,
+            service_account_id=self.service_account_id,
+            private_key=self.service_account_private_key,
+        )
+
+    @property
+    def uses_service_account_iam(self) -> bool:
+        return not self.oauth_token and not self.iam_token and self.service_account is not None
 
 
 class OAuthAppConfig(BaseSettings):

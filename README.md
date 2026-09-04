@@ -113,6 +113,25 @@ tracker = TrackerClient(oauth_token="…", organization_id="…")
 issue = tracker.issues.get("TRACKER-1")
 print(issue.summary)
 ```
+
+Cloud organization with static IAM:
+
+```python
+tracker = TrackerClient(iam_token="…", cloud_organization_id="…")
+```
+
+Tracker service-account IAM:
+
+```python
+from ycli.yandex.auth import ServiceAccountCredentials
+
+tracker = TrackerClient(
+    service_account=ServiceAccountCredentials(
+        key_id="…", service_account_id="…", private_key="…"
+    ),
+    cloud_organization_id="…",
+)
+```
 </details>
 
 <details>
@@ -142,15 +161,32 @@ host/header traps, answers pagination).
 
 ## Configure
 
-`ycli` reads two values from the environment (or a `.env` file — `cp .env.example .env`):
+`ycli` supports OAuth, static IAM, and Tracker service-account IAM. OAuth setup:
 
 ```bash
 YANDEX_ID_OAUTH_TOKEN=...        # a Yandex OAuth token with Tracker/Wiki/Forms access
 YANDEX_ID_ORGANIZATION_ID=...    # your Yandex 360 organization id
 ```
 
-ycli sends the org id as `X-Org-Id` for every service (HTTP header names are case-insensitive
-per RFC 9110, so one casing serves all).
+For a Yandex Cloud organization, use static IAM:
+
+```bash
+YANDEX_CLOUD_IAM_TOKEN=...
+YANDEX_CLOUD_ORGANIZATION_ID=...
+```
+
+Tracker can mint IAM tokens dynamically from an authorized service-account key:
+
+```bash
+YANDEX_CLOUD_ORGANIZATION_ID=...
+YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_ID=...
+YANDEX_CLOUD_SERVICE_ACCOUNT_ID=...
+YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n..."
+```
+
+Service-account access to Tracker must first be enabled by Yandex support. Wiki and Forms
+support OAuth or user/federated IAM, but explicitly reject service accounts. ycli sends
+`X-Org-Id` for Yandex 360 organizations and `X-Cloud-Org-Id` for cloud organizations.
 
 ### Get your credentials
 

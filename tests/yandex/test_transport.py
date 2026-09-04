@@ -8,12 +8,16 @@ timeout. Empty args raise. When base is supplied, that session is configured in 
 returned instead of a fresh one.
 """
 
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 import requests
 import responses
 
+from ycli.yandex.auth import ServiceAccountCredentials
 from ycli.yandex.transport import Transport
 
 
@@ -21,6 +25,32 @@ def test_session_sets_auth_and_org_headers():
     s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     assert s.headers["Authorization"] == "OAuth t"
     assert s.headers["X-Org-Id"] == "o"
+
+
+def test_session_sets_static_iam_and_cloud_org_headers():
+    session = Transport.session(iam_token="iam", cloud_organization_id="cloud")
+    assert session.headers["Authorization"] == "Bearer iam"
+    assert session.headers["X-Cloud-Org-Id"] == "cloud"
+    assert "X-Org-Id" not in session.headers
+
+
+def test_oauth_precedes_static_iam():
+    session = Transport.session(
+        oauth_token="oauth", iam_token="iam", cloud_organization_id="cloud"
+    )
+    assert session.headers["Authorization"] == "OAuth oauth"
+
+
+def test_iam_requires_cloud_organization():
+    with pytest.raises(ValueError, match="cloud_organization_id"):
+        Transport.session(iam_token="iam", organization_id="org")
+
+
+def test_two_organization_ids_raise():
+    with pytest.raises(ValueError, match="exactly one"):
+        Transport.session(
+            oauth_token="oauth", organization_id="org", cloud_organization_id="cloud"
+        )
 
 
 def test_session_applies_configured_timeout_and_retries():
@@ -125,6 +155,17 @@ def test_session_configures_a_supplied_bare_base():
     assert isinstance(out.get_adapter("https://example.com"), _TimeoutAdapter)
 
 
+def test_session_clears_stale_headers_on_supplied_base():
+    bare = requests.Session()
+    bare.headers.update(
+        {"Authorization": "stale", "X-Org-Id": "old", "X-Cloud-Org-Id": "old-cloud"}
+    )
+    out = Transport.session(iam_token="iam", cloud_organization_id="cloud", base=bare)
+    assert out.headers["Authorization"] == "Bearer iam"
+    assert out.headers["X-Cloud-Org-Id"] == "cloud"
+    assert "X-Org-Id" not in out.headers
+
+
 def test_response_hook_is_registered():
     s = Transport.session(oauth_token="t", organization_id="o")
     assert Transport._raise_typed in s.hooks["response"]
@@ -132,6 +173,146 @@ def test_response_hook_is_registered():
 
 def test_authorization_header_uses_oauth_scheme():
     assert Transport._authorization("abc") == "OAuth abc"
+    assert Transport._authorization(iam_token="abc") == "Bearer abc"
+    assert Transport._authorization() is None
+
+
+def test_service_account_auth_applies_generated_token(monkeypatch):
+    from ycli.yandex.transport import _ServiceAccountTokenProvider
+
+    sdk = Mock()
+    sdk.client.return_value = Mock()
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    monkeypatch.setattr(_ServiceAccountTokenProvider, "get_token", lambda self: "generated")
+    credentials = ServiceAccountCredentials("key", "account", "private")
+    session = Transport.session(
+        service_account=credentials, cloud_organization_id="cloud"
+    )
+    prepared = session.prepare_request(requests.Request("GET", "https://example.com"))
+    assert prepared.headers["Authorization"] == "Bearer generated"
+
+
+def test_service_account_provider_builds_jwt_and_caches(monkeypatch):
+    from ycli.yandex.transport import _ServiceAccountTokenProvider
+
+    response = SimpleNamespace(
+        iam_token="generated",
+        expires_at=SimpleNamespace(
+            ToDatetime=lambda *, tzinfo: datetime.now(tzinfo) + timedelta(hours=12)
+        ),
+    )
+    iam_service = Mock()
+    iam_service.Create.return_value = response
+    sdk = Mock()
+    sdk.client.return_value = iam_service
+    sdk_factory = Mock(return_value=sdk)
+    encode = Mock(return_value="encoded")
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", sdk_factory)
+    monkeypatch.setattr("ycli.yandex.transport.jwt.encode", encode)
+    monkeypatch.setattr("ycli.yandex.transport.time.time", lambda: 1000)
+
+    credentials = ServiceAccountCredentials("key", "account", "private")
+    provider = _ServiceAccountTokenProvider(credentials)
+    assert provider.get_token() == "generated"
+    assert provider.get_token() == "generated"
+
+    sdk_factory.assert_called_once_with(service_account_key=credentials.to_yandexcloud_dict())
+    sdk.client.assert_called_once()
+    encode.assert_called_once_with(
+        {
+            "aud": "https://iam.api.cloud.yandex.net/iam/v1/tokens",
+            "iss": "account",
+            "iat": 1000,
+            "exp": 4600,
+        },
+        "private",
+        algorithm="PS256",
+        headers={"kid": "key"},
+    )
+    request = iam_service.Create.call_args.args[0]
+    assert request.jwt == "encoded"
+
+
+def test_service_account_provider_refreshes_expired_token(monkeypatch):
+    from ycli.yandex.transport import _ServiceAccountTokenProvider
+
+    iam_service = Mock()
+    iam_service.Create.side_effect = [
+        SimpleNamespace(iam_token="first"),
+        SimpleNamespace(iam_token="second"),
+    ]
+    sdk = Mock()
+    sdk.client.return_value = iam_service
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    monkeypatch.setattr("ycli.yandex.transport.jwt.encode", Mock(return_value="encoded"))
+    provider = _ServiceAccountTokenProvider(
+        ServiceAccountCredentials("key", "account", "private")
+    )
+    assert provider.get_token() == "first"
+    provider._refresh_at = datetime.now(UTC) - timedelta(seconds=1)
+    assert provider.get_token() == "second"
+    assert iam_service.Create.call_count == 2
+
+
+def test_service_account_provider_rechecks_cache_inside_lock(monkeypatch):
+    from ycli.yandex.transport import _ServiceAccountTokenProvider
+
+    sdk = Mock()
+    sdk.client.return_value = Mock()
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    provider = _ServiceAccountTokenProvider(
+        ServiceAccountCredentials("key", "account", "private")
+    )
+
+    class PopulateCache:
+        def __enter__(self):
+            provider._token = "concurrent"
+            provider._refresh_at = datetime.now(UTC) + timedelta(minutes=1)
+
+        def __exit__(self, *args):
+            return None
+
+    provider._lock = PopulateCache()  # ty: ignore[invalid-assignment]
+    assert provider.get_token() == "concurrent"
+
+
+def test_service_account_requires_cloud_organization(monkeypatch):
+    sdk = Mock()
+    sdk.client.return_value = Mock()
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    with pytest.raises(ValueError, match="service-account IAM requires"):
+        Transport.session(
+            service_account=ServiceAccountCredentials("key", "account", "private"),
+            organization_id="org",
+        )
+
+
+def test_service_account_auth_is_tracker_only(monkeypatch):
+    from ycli.yandex.forms.client import FormsClient
+    from ycli.yandex.tracker.client import TrackerClient
+    from ycli.yandex.wiki.client import WikiClient
+
+    sdk = Mock()
+    sdk.client.return_value = Mock()
+    monkeypatch.setattr("ycli.yandex.transport.yandexcloud.SDK", Mock(return_value=sdk))
+    credentials = ServiceAccountCredentials("key", "account", "private")
+
+    tracker = TrackerClient(service_account=credentials, cloud_organization_id="cloud")
+    assert tracker.me._session.auth is not None
+    for client_class in (WikiClient, FormsClient):
+        with pytest.raises(ValueError, match="only by Tracker"):
+            client_class(service_account=credentials, cloud_organization_id="cloud")
+
+
+def test_oauth_precedence_allows_service_account_fallback_on_wiki():
+    from ycli.yandex.wiki.client import WikiClient
+
+    client = WikiClient(
+        oauth_token="oauth",
+        service_account=ServiceAccountCredentials("key", "account", "private"),
+        cloud_organization_id="cloud",
+    )
+    assert client.me._session.headers["Authorization"] == "OAuth oauth"
 
 
 @responses.activate
