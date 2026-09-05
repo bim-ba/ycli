@@ -1,6 +1,6 @@
 ---
 name: yandex-360
-description: Use first for any Yandex 360 task — setting up ycli (install + auth), choosing between the CLI / MCP server / Python SDK, or deciding which domain skill (Tracker, Wiki, Forms) to load. Reach for it whenever a task mentions Yandex Tracker, Wiki, Forms, a Yandex issue key, an org token, or the `ycli` command, and you have not yet configured access.
+description: Use first for any Yandex 360 task — Yandex Tracker, Yandex Wiki, Yandex Forms, a Yandex issue key, or the `ycli` command — to set up auth, pick a surface (CLI / MCP / SDK), and route to the right domain skill.
 category: workflow
 ---
 

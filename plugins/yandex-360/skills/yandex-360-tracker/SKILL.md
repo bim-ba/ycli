@@ -1,6 +1,6 @@
 ---
 name: yandex-360-tracker
-description: Use when reading from or writing to Yandex Tracker via the ycli tool — look up an issue/epic/comment/changelog/worklog, search issues with Tracker Query Language, count matches, or create/update/transition/link/comment on issues, manage queues, boards, sprints, and project entities. Covers the CLI (`uv run ycli tracker …`), the read/write `tracker_*` MCP tools, and the Python SDK. Reach for it whenever a task mentions a Tracker issue key (e.g. MYQUEUE-123), an epic, a queue, or driving Yandex Tracker programmatically. Not for Yandex Wiki (use yandex-360-wiki) or Yandex Forms (use yandex-360-forms).
+description: Use when reading or writing Yandex Tracker through ycli — issues, epics, queues, boards, sprints, or an issue key such as MYQUEUE-123 — via the CLI, the `tracker_*` MCP tools, or the Python SDK.
 category: workflow
 ---
 
