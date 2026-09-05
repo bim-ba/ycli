@@ -73,7 +73,7 @@
   "enabledPlugins": {
     "browsing@bim-ba": true,
     "claude-md-management@claude-plugins-official": true,
-    "clickhouse@bim-ba": true,
+    "clickhouse@bim-ba": false,
     "context7@context7-marketplace": true,
     "core@bim-ba": true,
     "documenting@bim-ba": true,
