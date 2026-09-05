@@ -1,0 +1,24 @@
+# Generated from ../.mcp.example.json by scripts/convert_claude_projects_to_codex.py.
+# Do not hand-edit: the next render overwrites it. Edit the source instead.
+
+[mcp_servers."context7"]
+url = "https://mcp.context7.com/mcp"
+
+[mcp_servers."context7".http_headers]
+"CONTEXT7_API_KEY" = "${CONTEXT7_API_KEY}"
+
+[mcp_servers."deepwiki"]
+url = "https://mcp.deepwiki.com/mcp"
+
+[mcp_servers."brave"]
+command = "npx"
+args = ["-y", "@brave/brave-search-mcp-server", "--transport", "stdio"]
+
+[mcp_servers."brave".env]
+"BRAVE_API_KEY" = "${BRAVE_API_KEY}"
+
+[mcp_servers."github"]
+url = "https://api.githubcopilot.com/mcp/"
+
+[mcp_servers."github".http_headers]
+"Authorization" = "Bearer ${GITHUB_PAT}"
