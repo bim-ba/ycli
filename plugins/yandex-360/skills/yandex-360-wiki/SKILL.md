@@ -1,6 +1,6 @@
 ---
 name: yandex-360-wiki
-description: Use when reading from or writing to Yandex Wiki via the ycli tool — fetch page content and metadata, walk the page tree with descendants/cursor pagination, create/update/clone/delete pages with YFM body content, manage grids (dynamic tables), comments, and attachments through the CLI, MCP, or Python SDK. Covers the Wiki API's real quirks (permanent slugs, the fields= rules, no text-search endpoint, POST-not-PATCH).
+description: Use when reading or writing Yandex Wiki pages through ycli — page content and metadata, the page tree, grids, comments, attachments, YFM authoring — via the CLI, MCP, or Python SDK.
 category: workflow
 ---
 

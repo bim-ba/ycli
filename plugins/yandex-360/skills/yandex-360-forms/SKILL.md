@@ -1,7 +1,7 @@
 ---
 name: yandex-360-forms
 category: workflow
-description: Use when reading or driving Yandex Forms (Yandex 360) — listing forms, inspecting a form's questions/schema, reading or exporting responses, creating/editing forms and questions, publishing/unpublishing, submitting answers, or managing keysets. Reads AND writes go through ycli — the `ycli forms` CLI, the `forms_*` MCP tools, or the FormsClient SDK. Raw HTTP is needed only for integration hooks (documented but not wrapped by ycli). NOTE the API host differs from Tracker/Wiki (api.forms.yandex.net, not api.tracker.yandex.net) and the org header is X-Org-Id.
+description: Use when reading or driving Yandex Forms through ycli — form schemas, responses, question CRUD, publishing, keysets — via the `ycli forms` CLI, the `forms_*` MCP tools, or the FormsClient SDK.
 ---
 
 # Yandex 360 Forms
