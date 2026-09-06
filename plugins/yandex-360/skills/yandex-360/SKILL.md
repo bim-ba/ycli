@@ -50,7 +50,7 @@ it for you.
 | Surface | Use when | How |
 |---------|----------|-----|
 | **CLI** | Interactive / shell / scripting | `uv run ycli <domain> <group> <cmd>` (e.g. `uv run ycli tracker issues get KEY`) |
-| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); **222 read/write tools** namespaced `tracker_*` (151), `wiki_*` (42), `forms_*` (28), plus `status_get`. `ycli mcp start --read-only` serves the reads-only view |
+| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); **240 read/write tools** namespaced `tracker_*` (151), `wiki_*` (42), `forms_*` (46), plus `status_get`. `ycli mcp start --read-only` serves the reads-only view |
 | **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient(oauth_token=…, organization_id=…)` |
 
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):

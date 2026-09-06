@@ -58,7 +58,8 @@ Notable shared pieces:
   extra). MCP tools cover reads **and writes**; honesty is enforced fail-closed: every tool's
   verb (its longest known `_`-suffix) must classify into the READ / WRITE / WRITE_IDEMPOTENT /
   DESTRUCTIVE maps in `tests/test_architecture.py` — an unknown verb fails the build and is
-  added deliberately. Hints must match the class exactly: reads carry `readOnlyHint=True`
+  added deliberately (most recently ``set_operator``, the display-conditions collection
+  PATCH, registered as WRITE_IDEMPOTENT). Hints must match the class exactly: reads carry `readOnlyHint=True`
   (`RO`); writes carry `readOnlyHint=False` plus explicit `destructiveHint`/`idempotentHint`
   (the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets in `ycli.yandex.mcp`) — explicit
   because the MCP-spec default for an unannotated tool is `destructiveHint=true`. Every write

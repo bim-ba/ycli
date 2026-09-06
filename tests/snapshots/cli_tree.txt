@@ -6,6 +6,28 @@ forms answers
 forms answers export
 forms answers get
 forms answers list
+forms conditions
+forms conditions page
+forms conditions page create
+forms conditions page delete
+forms conditions page get
+forms conditions page list
+forms conditions page modify
+forms conditions page set-operator
+forms conditions question
+forms conditions question create
+forms conditions question delete
+forms conditions question get
+forms conditions question list
+forms conditions question modify
+forms conditions question set-operator
+forms conditions submit
+forms conditions submit create
+forms conditions submit delete
+forms conditions submit get
+forms conditions submit list
+forms conditions submit modify
+forms conditions submit set-operator
 forms files
 forms files delete
 forms files download

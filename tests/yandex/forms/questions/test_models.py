@@ -181,7 +181,7 @@ def test_series_question_nests_typed_questions():
     assert isinstance(q.items[1], IntegerQuestion)
 
 
-def test_conditions_and_image_are_shared_across_types():
+def test_image_and_hidden_are_shared_and_conditions_key_is_dropped():
     q = QuestionCreateAdapter.validate_python(
         {
             "type": "string",
@@ -199,7 +199,7 @@ def test_conditions_and_image_are_shared_across_types():
         }
     )
     assert q.hidden is True and q.image.id == 7
-    assert q.conditions[0].items[0].question == "q1"
+    assert "conditions" not in type(q).model_fields
 
 
 def test_dump_by_alias_exclude_none_is_a_clean_request_body():

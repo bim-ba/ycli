@@ -66,15 +66,15 @@ def _has_integration_pytestmark(source: str) -> bool:
     return False
 
 
-def test_wiring_glob_matches_the_expected_97_files():
-    """Lock the scope: exactly 97 files match the wiring glob today.
+def test_wiring_glob_matches_the_expected_99_files():
+    """Lock the scope: exactly 99 files match the wiring glob today.
 
     A count drift (new resource added/removed) is expected over time — if this trips, update
     the count deliberately rather than silently widening or narrowing what's enforced below.
     """
     files = _wiring_files()
-    assert len(files) == 97, (
-        f"expected 97 test_cli.py/test_mcp.py wiring files under tests/yandex/, found "
+    assert len(files) == 99, (
+        f"expected 99 test_cli.py/test_mcp.py wiring files under tests/yandex/, found "
         f"{len(files)}: update this count deliberately if the wiring set changed"
     )
 
@@ -126,7 +126,7 @@ def test_integration_marker_guard_bites():
 
 def test_enforcement_file_itself_is_out_of_scope():
     """This file is neither `test_cli.py` nor `test_mcp.py`, so the glob correctly skips it —
-    it is not, and must not become, one of the 97 files it enforces."""
+    it is not, and must not become, one of the 99 files it enforces."""
     here = Path(__file__).resolve()
     assert here.name not in _WIRING_BASENAMES
     assert here not in _wiring_files()

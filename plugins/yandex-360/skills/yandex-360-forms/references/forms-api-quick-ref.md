@@ -35,6 +35,9 @@ sections for the mapping. Raw HTTP is needed only for hooks (see below).
 | Update question | `PATCH /surveys/{id}/questions/{qid}` |
 | Delete question | `DELETE /surveys/{id}/questions/{qid}` |
 | Reorder question | `POST /surveys/{id}/questions/{qid}/move` |
+| Question show conditions | `GET\|POST\|PATCH /surveys/{id}/questions/{qid}/conditions`, `GET\|PATCH\|DELETE …/conditions/{cid}` |
+| Page show conditions | `GET\|POST\|PATCH /surveys/{id}/pages/{page_id}/conditions`, `GET\|PATCH\|DELETE …/conditions/{cid}` |
+| Submit-button show conditions | `GET\|POST\|PATCH /surveys/{id}/conditions`, `GET\|PATCH\|DELETE …/conditions/{cid}` |
 | Fillable form / submit | `GET\|POST /surveys/{id}/form` |
 | Filling suggest | `GET /surveys/{id}/suggest` |
 | List answers (responses) | `GET /surveys/{id}/answers` |
