@@ -7,6 +7,7 @@ from ycli.settings import AppConfig, Credentials
 from ycli.yandex.factory import ClientFactory
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.mcp import RO
+from ycli.yandex.mcp import credentials as resolve_credentials
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import StatusReporter
 from ycli.yandex.tracker.client import TrackerClient
@@ -18,7 +19,7 @@ TAGS: set[str] = {"status"}
 
 @mcp.tool(name="get", annotations={**RO, "title": "Check Yandex 360 auth status"}, tags=TAGS)
 def get(
-    credentials: Credentials = Depends(Credentials),
+    credentials: Credentials = Depends(resolve_credentials),
     config: AppConfig = Depends(AppConfig),
 ) -> AuthReport:
     """Probe each service's identity endpoint; report which credentials work.

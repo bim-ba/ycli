@@ -5,12 +5,23 @@ Tools are namespaced per domain: ``wiki_*``, ``tracker_*``, ``forms_*``. Reads a
 writes; ``--read-only`` serves the reads-only view.
 """
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastmcp import FastMCP
+from fastmcp.server.server import default_lifespan
 
 from ycli.log import configure
-from ycli.settings import AppConfig
+from ycli.settings import AppConfig, RequestAuthConfig
 from ycli.yandex.forms.mcp import mcp as forms_mcp
-from ycli.yandex.mcp import WRITE_TAG
+from ycli.yandex.mcp import (
+    WRITE_TAG,
+    RequestAuth,
+    YandexBearerVerifier,
+    close_userinfo_client,
+    set_request_auth,
+    start_userinfo_client,
+)
 from ycli.yandex.status.mcp import mcp as status_mcp
 from ycli.yandex.tracker.mcp import mcp as tracker_mcp
 from ycli.yandex.wiki.mcp import mcp as wiki_mcp
@@ -33,20 +44,44 @@ mcp.mount(forms_mcp, namespace="forms")
 mcp.mount(status_mcp, namespace="status")
 
 
-def main(read_only: bool = False) -> None:
-    """Run the root server over stdio (the console-script entry point).
+@asynccontextmanager
+async def http_userinfo_lifespan(server: FastMCP) -> AsyncIterator[dict[str, object]]:
+    """Own the pooled Identity Hub client for exactly one HTTP server lifespan."""
+    await start_userinfo_client()
+    try:
+        yield {}
+    finally:
+        await close_userinfo_client()
 
-    ``read_only=True`` hides every write-tagged tool, restoring the pre-write surface.
 
-    Example:
-        >>> main()  # doctest: +SKIP
-    """
+def configure_http_auth(verifier: YandexBearerVerifier | None = None) -> None:
+    """Resolve fixed HTTP configuration once and protect the MCP endpoint."""
+    config = RequestAuthConfig()  # ty: ignore[missing-argument]
+    mcp.auth = verifier or YandexBearerVerifier()
+    mcp._lifespan = http_userinfo_lifespan
+    set_request_auth(RequestAuth(config.cloud_organization_id))
+
+
+def main(
+    read_only: bool = False,
+    transport: str = "stdio",
+    host: str = "127.0.0.1",
+    port: int = 8000,
+) -> None:
+    """Run the root server over stdio or Streamable HTTP."""
     configure(
         level=AppConfig().log_level
     )  # match the CLI: single stderr sink, stdout stays clean for the protocol
     if read_only:
         mcp.disable(tags={WRITE_TAG})
-    mcp.run()
+    if transport == "streamable-http":
+        configure_http_auth()
+        mcp.run(transport="http", host=host, port=port)
+    else:
+        mcp.auth = None
+        mcp._lifespan = default_lifespan
+        set_request_auth(None)
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":  # pragma: no cover

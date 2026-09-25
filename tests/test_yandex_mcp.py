@@ -76,11 +76,42 @@ def test_main_read_only_disables_write_tag(monkeypatch):
         server.mcp, "disable", lambda **kwargs: recorded.setdefault("disabled", kwargs)
     )
     server.main(read_only=True)
-    assert recorded == {"disabled": {"tags": {WRITE_TAG}}, "ran": True}
+    assert recorded == {
+        "disabled": {"tags": {WRITE_TAG}},
+        "ran": True,
+    }
 
     recorded.clear()
     server.main()
     assert recorded == {"ran": True}
+
+
+def test_main_http_uses_requested_transport_host_and_port(monkeypatch):
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "cloud-org")
+    from ycli.mcp import server
+
+    recorded: dict[str, object] = {}
+    monkeypatch.setattr(server.mcp, "run", lambda *a, **k: recorded.update(k))
+    server.main(transport="streamable-http", host="0.0.0.0", port=9000)
+    assert recorded == {"transport": "http", "host": "0.0.0.0", "port": 9000}
+
+
+def test_main_http_validates_organization_before_run(monkeypatch):
+    from pydantic import ValidationError
+
+    from ycli.mcp import server
+
+    monkeypatch.delenv("YANDEX_CLOUD_ORGANIZATION_ID", raising=False)
+    called = False
+
+    def run(*args, **kwargs):
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(server.mcp, "run", run)
+    with pytest.raises(ValidationError):
+        server.main(transport="streamable-http")
+    assert called is False
 
 
 def test_mcp_main_module_importable():

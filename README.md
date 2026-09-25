@@ -78,6 +78,45 @@ ycli mcp start               # full read/write tool set (honest annotations)
 ycli mcp start --read-only   # reads-only view for cautious deployments
 ```
 
+### Streamable HTTP mode (private upstream service)
+
+HTTP mode is an **internal upstream service for private network deployment behind a trusted
+gateway only**. It must never be exposed to the public internet. The intended topology is a
+private container network whose sole client is an MCP gateway that performs the user-facing OAuth
+flow and injects each user's Yandex Identity Hub access token.
+
+Each MCP request must carry that token as `Authorization: Bearer <token>`. ycli validates it
+against Identity Hub's authoritative userinfo endpoint before MCP dispatch, then **forwards the
+caller's token verbatim to the Yandex 360 APIs by design** — that passthrough is what preserves
+each user's Tracker/Wiki/Forms ACL.
+
+Accepted trade-offs, and why network isolation is mandatory:
+
+- **No audience / issued-for validation.** ycli does not verify which OAuth client a token was
+  issued to, so any valid Identity Hub token reaching this endpoint is accepted.
+- **No organization-membership or subject authorization.** ycli does not check that the caller
+  belongs to the configured organization; the downstream Yandex APIs remain the only ACL
+  authority.
+- **Mitigation:** only a trusted gateway may be allowed to reach this service. Enforce network
+  isolation (private network, container-internal binding, or firewall), and prefer
+  `--read-only` for shared deployments.
+
+Bearer tokens must travel only over TLS. Terminate TLS at a trusted ingress that preserves
+`Authorization`, does not log it, and cannot be bypassed. Prefer binding ycli to loopback behind
+that gateway; bind `0.0.0.0` only inside a secured private network or container boundary.
+
+HTTP mode accepts only Identity Hub OIDC access tokens: static IAM, OAuth env tokens, and
+service-account credentials remain available exclusively in stdio mode, and HTTP requests never
+fall back to process-level credentials.
+
+Each validated token costs at most one userinfo round trip per cache TTL window (60s), so steady
+traffic from one user does not revalidate on every MCP frame.
+
+```bash
+export YANDEX_CLOUD_ORGANIZATION_ID=your-cloud-organization-id
+ycli mcp start --transport streamable-http --host 127.0.0.1 --port 8000
+```
+
 List the exposed tool names without running the server:
 
 ```bash

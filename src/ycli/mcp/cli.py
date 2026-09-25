@@ -2,7 +2,15 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 import typer
+
+
+class Transport(StrEnum):
+    stdio = "stdio"
+    streamable_http = "streamable-http"
+
 
 app = typer.Typer(name="mcp", help="MCP server control (reads + writes).", no_args_is_help=True)
 
@@ -24,13 +32,20 @@ def start(
         "--read-only",
         help="Serve only read tools (hide every write-tagged tool).",
     ),
+    transport: Transport = typer.Option(  # noqa: B008
+        Transport.stdio,
+        "--transport",
+        help="MCP transport: stdio or streamable-http.",
+    ),
+    host: str = typer.Option("127.0.0.1", "--host", help="HTTP bind host."),
+    port: int = typer.Option(8000, "--port", min=1, max=65535, help="HTTP bind port."),
 ) -> None:
-    """Run the MCP server over stdio (tools namespaced wiki_*, tracker_*, forms_*)."""
+    """Run the MCP server (tools namespaced wiki_*, tracker_*, forms_*)."""
     try:
         from ycli.mcp import main as run_server
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
-    run_server(read_only=read_only)
+    run_server(read_only=read_only, transport=transport.value, host=host, port=port)
 
 
 @app.command()

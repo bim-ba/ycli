@@ -8,6 +8,8 @@ enforces presence — no hand-written validation.
 
 from __future__ import annotations
 
+import re
+
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -31,9 +33,7 @@ class Credentials(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     oauth_token: str | None = Field(default=None, validation_alias="YANDEX_ID_OAUTH_TOKEN")
-    organization_id: str | None = Field(
-        default=None, validation_alias="YANDEX_ID_ORGANIZATION_ID"
-    )
+    organization_id: str | None = Field(default=None, validation_alias="YANDEX_ID_ORGANIZATION_ID")
     iam_token: str | None = Field(default=None, validation_alias="YANDEX_CLOUD_IAM_TOKEN")
     cloud_organization_id: str | None = Field(
         default=None, validation_alias="YANDEX_CLOUD_ORGANIZATION_ID"
@@ -47,6 +47,24 @@ class Credentials(BaseSettings):
     service_account_private_key: str | None = Field(
         default=None, validation_alias="YANDEX_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY"
     )
+
+    _SECRET_FIELDS = (
+        "oauth_token",
+        "iam_token",
+        "service_account_private_key",
+    )
+
+    def __repr__(self) -> str:
+        parts = []
+        for name in type(self).model_fields:
+            value = getattr(self, name, None)
+            if name in self._SECRET_FIELDS and value is not None:
+                parts.append(f"{name}=SecretStr('**********')")
+            else:
+                parts.append(f"{name}={value!r}")
+        return f"{type(self).__name__}({', '.join(parts)})"
+
+    __str__ = __repr__
 
     @field_validator("*", mode="before")
     @classmethod
@@ -81,8 +99,7 @@ class Credentials(BaseSettings):
             )
         if bool(self.organization_id) == bool(self.cloud_organization_id):
             raise ValueError(
-                "set exactly one of YANDEX_ID_ORGANIZATION_ID or "
-                "YANDEX_CLOUD_ORGANIZATION_ID"
+                "set exactly one of YANDEX_ID_ORGANIZATION_ID or YANDEX_CLOUD_ORGANIZATION_ID"
             )
         if not self.oauth_token and not self.cloud_organization_id:
             raise ValueError("IAM authentication requires YANDEX_CLOUD_ORGANIZATION_ID")
@@ -110,6 +127,22 @@ class Credentials(BaseSettings):
     @property
     def uses_service_account_iam(self) -> bool:
         return not self.oauth_token and not self.iam_token and self.service_account is not None
+
+
+class RequestAuthConfig(BaseSettings):
+    """Server-side configuration for HTTP request bearer authentication."""
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    cloud_organization_id: str = Field(validation_alias="YANDEX_CLOUD_ORGANIZATION_ID")
+
+    @field_validator("cloud_organization_id")
+    @classmethod
+    def _organization_id_is_valid(cls, value: str) -> str:
+        value = value.strip()
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", value):
+            raise ValueError("YANDEX_CLOUD_ORGANIZATION_ID must be a non-whitespace identifier")
+        return value
 
 
 class OAuthAppConfig(BaseSettings):
