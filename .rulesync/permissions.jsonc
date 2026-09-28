@@ -1,0 +1,94 @@
+{
+  "permission": {
+    "read": {
+      "*": "allow"
+    },
+    "grep": {
+      "*": "allow"
+    },
+    "glob": {
+      "*": "allow"
+    },
+    "bash": {
+      "uv run pytest:*": "allow",
+      "uv run ruff:*": "allow",
+      "uv run ty:*": "allow",
+      "uv run lint-imports:*": "allow",
+      "uv sync:*": "allow",
+      "uv build:*": "allow",
+      "uv add:*": "allow",
+      "uv lock:*": "allow",
+      "git status:*": "allow",
+      "git diff:*": "allow",
+      "git log:*": "allow",
+      "git branch:*": "allow",
+      "git fetch:*": "allow",
+      "gh pr view:*": "allow",
+      "gh pr list:*": "allow",
+      "gh pr diff:*": "allow",
+      "gh pr checks:*": "allow",
+      "gh issue view:*": "allow",
+      "gh issue list:*": "allow",
+      "rg:*": "allow",
+      "fd:*": "allow",
+      "ls:*": "allow"
+    }
+  },
+  "claudecode": {
+    "permissions": {
+      "_comment": "Committed baseline is deliberately conservative: broad reads (Read/Grep/Glob) plus a scoped, mostly-read-only Bash allowlist. Unscoped Write/Edit/Bash are intentionally NOT granted here so they prompt by default in every clone. Broader per-user permissions (git commit/push, gh pr create/merge, unscoped Write/Edit/Bash, etc.) belong in the gitignored .claude/settings.local.json -- never widen this committed file to grant them repo-wide."
+    },
+    "enabledPlugins": {
+      "browsing@bim-ba": true,
+      "clickhouse@bim-ba": false,
+      "context7@context7-marketplace": false,
+      "core@bim-ba": true,
+      "documenting@bim-ba": true,
+      "drifts@bim-ba": true,
+      // The rulesync canon now delivers the yandex-360 skills (from
+      // plugins/yandex-360/skills, via .rulesync/skills symlinks) and the
+      // yandex-360 MCP server (via .rulesync/mcp.jsonc) to this repo's sessions.
+      // The plugin stays in the repo as the distributable artifact and the ycli
+      // marketplace stays registered for /plugin install; enabling it here too
+      // would register a second MCP server under the same name.
+      "yandex-360@ycli": false
+    },
+    "extraKnownMarketplaces": {
+      "claude-plugins-official": {
+        "source": {
+          "source": "github",
+          "repo": "anthropics/claude-plugins-official"
+        },
+        "autoUpdate": true
+      },
+      "superpowers-marketplace": {
+        "source": {
+          "source": "github",
+          "repo": "obra/superpowers-marketplace"
+        },
+        "autoUpdate": true
+      },
+      "context7-marketplace": {
+        "source": {
+          "source": "github",
+          "repo": "upstash/context7"
+        },
+        "autoUpdate": true
+      },
+      "ycli": {
+        "source": {
+          "source": "directory",
+          "path": "."
+        },
+        "autoUpdate": true
+      },
+      "bim-ba": {
+        "source": {
+          "source": "github",
+          "repo": "bim-ba/ai"
+        },
+        "autoUpdate": true
+      }
+    }
+  }
+}

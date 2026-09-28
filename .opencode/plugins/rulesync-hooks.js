@@ -1,0 +1,29 @@
+export const RulesyncHooksPlugin = async ({ $ }) => {
+  return {
+    event: async ({ event }) => {
+      if (event.type === "session.idle") {
+        await $`cd "$(git rev-parse --show-toplevel)" && uv run lint-imports >/dev/null 2>&1 && uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov >/dev/null 2>&1 || echo '⚠️ architecture guardrails failing — run: uv run pytest tests/test_architecture.py tests/test_snapshots.py --no-cov && uv run lint-imports'`;
+      }
+    },
+    "tool.execute.before": async (input) => {
+      {
+        const __re = new RegExp("Bash");
+        if (__re.test(input.tool)) {
+          await $`python3 "$(git rev-parse --show-toplevel)/.claude/hooks/git_guard.py"`;
+        }
+      }
+      {
+        const __re = new RegExp("Bash");
+        if (__re.test(input.tool)) {
+          await $`python3 -c 'import json,sys,os,tempfile; d=json.load(sys.stdin); t=d.get("tool_input",d); cmd=t.get("command","") or ""; toks=("grep","rg ","ripgrep","find ","fd ","ack ","ag "); (not any(k in cmd for k in toks)) and sys.exit(0); os.path.isfile("graphify-out/graph.json") or sys.exit(0); sid=d.get("session_id") or str(os.getppid()); sentinel=os.path.join(tempfile.gettempdir(),"ycli-graphify-tip-bash-"+str(sid)); os.path.exists(sentinel) and sys.exit(0); open(sentinel,"w").close(); msg="Tip: a graphify code-graph exists (graphify-out/graph.json). Consider \`graphify query \\"<question>\\"\` for a scoped subgraph before broad grepping. Plain grep/find stays fine for targeted edits or debugging."; print(json.dumps({"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":msg}}))' 2>/dev/null || true`;
+        }
+      }
+      {
+        const __re = new RegExp("Read|Glob");
+        if (__re.test(input.tool)) {
+          await $`python3 -c 'import json,sys,os,tempfile; d=json.load(sys.stdin); t=d.get("tool_input",d); s=(str(t.get("file_path") or "")+" "+str(t.get("pattern") or "")+" "+str(t.get("path") or "")).lower().replace(chr(92),"/"); exts=(".py",".js",".ts",".tsx",".jsx",".go",".rs",".java",".rb",".c",".h",".cpp",".hpp",".cc",".cs",".kt",".swift",".php",".scala",".lua",".sh",".md",".rst",".txt",".mdx"); hit=("graphify-out/" not in s and any(e in s for e in exts)); hit or sys.exit(0); os.path.isfile("graphify-out/graph.json") or sys.exit(0); sid=d.get("session_id") or str(os.getppid()); sentinel=os.path.join(tempfile.gettempdir(),"ycli-graphify-tip-read-"+str(sid)); os.path.exists(sentinel) and sys.exit(0); open(sentinel,"w").close(); msg="Tip: a graphify code-graph exists (graphify-out/graph.json). Consider graphify before reading source files. Use: \`graphify query \\"<question>\\"\` (scoped subgraph), \`graphify explain \\"<concept>\\"\`, or \`graphify path \\"<A>\\" \\"<B>\\"\`. Reading files directly stays fine for targeted edits or debugging."; print(json.dumps({"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":msg}}))' 2>/dev/null || true`;
+        }
+      }
+    },
+  };
+};

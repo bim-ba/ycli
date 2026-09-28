@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT}"
+      }
+    },
+    "yandex-360": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "yandex-cli[mcp]",
+        "ycli",
+        "mcp",
+        "start"
+      ]
+    }
+  }
+}

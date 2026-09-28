@@ -1,0 +1,22 @@
+default_permissions = "rulesync"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "GITHUB_PAT"
+
+[mcp_servers.yandex-360]
+command = "uvx"
+args = [ "--from", "yandex-cli[mcp]", "ycli", "mcp", "start" ]
+env_vars = [ "YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID" ]
+
+[permissions.rulesync]
+extends = ":workspace"
+
+[permissions.rulesync.filesystem]
+":minimal" = "read"
+glob_scan_max_depth = 8
+
+[permissions.rulesync.filesystem.":workspace_roots"]
+".git/**" = "write"
