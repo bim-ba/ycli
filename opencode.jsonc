@@ -1,13 +1,5 @@
 {
   "mcp": {
-    "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_PAT}"
-      }
-    },
     "yandex-360": {
       "type": "local",
       "command": [
