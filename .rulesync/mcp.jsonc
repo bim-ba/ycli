@@ -2,8 +2,9 @@
   "$schema": "https://github.com/dyoshikawa/rulesync/releases/latest/download/mcp-schema.json",
   "mcpServers": {
     // The Yandex 360 server, lifted from plugins/yandex-360/.mcp.json (formerly the
-    // project .mcp.json's "yandex" entry). envVars keeps Codex expanding the names
-    // from its process environment instead of writing a literal ${VAR} into a stdio env.
+    // project .mcp.json's "yandex" entry). The canon names the credentials through
+    // `envVars`; the gitignored `.rulesync.local/mcp.jsonc` overlay carries the literal
+    // values, so the generated configs need no launch environment.
     "yandex-360": {
       "type": "stdio",
       "command": "uvx",
