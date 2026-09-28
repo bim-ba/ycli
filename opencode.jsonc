@@ -1,0 +1,59 @@
+{
+  "mcp": {
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_PAT}"
+      }
+    },
+    "yandex-360": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "--from",
+        "yandex-cli[mcp]",
+        "ycli",
+        "mcp",
+        "start"
+      ],
+      "enabled": true
+    }
+  },
+  "permission": {
+    "read": {
+      "*": "allow"
+    },
+    "grep": {
+      "*": "allow"
+    },
+    "glob": {
+      "*": "allow"
+    },
+    "bash": {
+      "uv run pytest:*": "allow",
+      "uv run ruff:*": "allow",
+      "uv run ty:*": "allow",
+      "uv run lint-imports:*": "allow",
+      "uv sync:*": "allow",
+      "uv build:*": "allow",
+      "uv add:*": "allow",
+      "uv lock:*": "allow",
+      "git status:*": "allow",
+      "git diff:*": "allow",
+      "git log:*": "allow",
+      "git branch:*": "allow",
+      "git fetch:*": "allow",
+      "gh pr view:*": "allow",
+      "gh pr list:*": "allow",
+      "gh pr diff:*": "allow",
+      "gh pr checks:*": "allow",
+      "gh issue view:*": "allow",
+      "gh issue list:*": "allow",
+      "rg:*": "allow",
+      "fd:*": "allow",
+      "ls:*": "allow"
+    }
+  }
+}

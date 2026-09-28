@@ -1,5 +1,4 @@
 {
-  "description": "Mirrored from .claude/settings.json.",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,12 +7,7 @@
           {
             "type": "command",
             "command": "python3 \"$(git rev-parse --show-toplevel)/.claude/hooks/git_guard.py\""
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
+          },
           {
             "type": "command",
             "command": "python3 -c 'import json,sys,os,tempfile; d=json.load(sys.stdin); t=d.get(\"tool_input\",d); cmd=t.get(\"command\",\"\") or \"\"; toks=(\"grep\",\"rg \",\"ripgrep\",\"find \",\"fd \",\"ack \",\"ag \"); (not any(k in cmd for k in toks)) and sys.exit(0); os.path.isfile(\"graphify-out/graph.json\") or sys.exit(0); sid=d.get(\"session_id\") or str(os.getppid()); sentinel=os.path.join(tempfile.gettempdir(),\"ycli-graphify-tip-bash-\"+str(sid)); os.path.exists(sentinel) and sys.exit(0); open(sentinel,\"w\").close(); msg=\"Tip: a graphify code-graph exists (graphify-out/graph.json). Consider `graphify query \\\"<question>\\\"` for a scoped subgraph before broad grepping. Plain grep/find stays fine for targeted edits or debugging.\"; print(json.dumps({\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":msg}}))' 2>/dev/null || true"

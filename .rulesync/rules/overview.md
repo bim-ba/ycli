@@ -1,3 +1,10 @@
+---
+root: true
+targets:
+  - '*'
+globs:
+  - '**/*'
+---
 # ycli
 
 > Baseline agent behavior is provided by ai/core (injected each session via the SessionStart hook); add only project-specific rules here.
