@@ -9,6 +9,60 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.17.1 (2026-09-28)
+
+### Bug Fixes
+
+- **mcp**: Anchor the generated-config ignore patterns to the repository root
+  ([`04fa561`](https://github.com/bim-ba/ycli/commit/04fa561846786b516a2d16569f9fcde93cec292c))
+
+### Build System
+
+- Re-lock uv.lock for 0.17.0
+  ([`2ba8acd`](https://github.com/bim-ba/ycli/commit/2ba8acdb2390cf038da98ad413b43a6dccf54965))
+
+### Chores
+
+- Drop the obsolete .mcp.example.json (rulesync owns the MCP source)
+  ([`882cfa4`](https://github.com/bim-ba/ycli/commit/882cfa48bd593ead96f842c204ca2dd12d34bd31))
+
+- **ai-config**: Migrate project config to a rulesync canon
+  ([`68e7a7b`](https://github.com/bim-ba/ycli/commit/68e7a7b5ae1242e0a080bed195c7843bdd6722c9))
+
+- **claude**: Drop retired bim-ba marketplace settings
+  ([`e42d298`](https://github.com/bim-ba/ycli/commit/e42d298f5c9c9e1aec85d496259b368767db5444))
+
+- **codex**: Drop the orphaned example config
+  ([`1818f2a`](https://github.com/bim-ba/ycli/commit/1818f2a1db8c21e98adb9fd3b3a2ebfef45f3cb4))
+
+- **codex**: Track the rendered Codex MCP example config
+  ([`697af65`](https://github.com/bim-ba/ycli/commit/697af65cf95945349dfd50eb2961229accd9d21d))
+
+- **mcp**: Drop the github MCP leftovers from the docs
+  ([`1c018c5`](https://github.com/bim-ba/ycli/commit/1c018c592e9b927d79b558b892b5a58ca40777cd))
+
+- **mcp**: Drop the github MCP server
+  ([`af41dfe`](https://github.com/bim-ba/ycli/commit/af41dfe103e0e448875ec2e847714c865aa06f27))
+
+- **mcp**: Resolve Yandex 360 credentials into a gitignored local overlay
+  ([`364d2b0`](https://github.com/bim-ba/ycli/commit/364d2b099596b3cbe816f78da15c0ad74d4f005f))
+
+- **rulesync**: Drop the retired bim-ba plugins from the canon
+  ([`3f9e58b`](https://github.com/bim-ba/ycli/commit/3f9e58b29daee32753d7c0be144c704f7fa318a9))
+
+- **settings**: Disable the clickhouse plugin in this project
+  ([`606b0ea`](https://github.com/bim-ba/ycli/commit/606b0eaa5529b62f87e4842e35083756aea407a7))
+
+- **settings**: Drop stale plugin enablement entries
+  ([`e9c7959`](https://github.com/bim-ba/ycli/commit/e9c7959a94fb951e79333be4655e1e9a7746c900))
+
+- **settings**: Stop re-enabling plugins that are off globally
+  ([`58a0b61`](https://github.com/bim-ba/ycli/commit/58a0b61c6b7a7e81ab69028394d74c67bc7c84b7))
+
+- **skills**: Drop two duplicated skills and thin the Yandex descriptions
+  ([`8bc90ab`](https://github.com/bim-ba/ycli/commit/8bc90ab7afcbe58e0941a2c02879090fccbb37e8))
+
+
 ## v0.17.0 (2026-09-03)
 
 ### Build System
