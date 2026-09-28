@@ -16,9 +16,3 @@ args = ["-y", "@brave/brave-search-mcp-server", "--transport", "stdio"]
 
 [mcp_servers."brave".env]
 "BRAVE_API_KEY" = "${BRAVE_API_KEY}"
-
-[mcp_servers."github"]
-url = "https://api.githubcopilot.com/mcp/"
-
-[mcp_servers."github".http_headers]
-"Authorization" = "Bearer ${GITHUB_PAT}"
