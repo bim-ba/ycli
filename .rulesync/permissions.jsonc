@@ -39,12 +39,7 @@
       "_comment": "Committed baseline is deliberately conservative: broad reads (Read/Grep/Glob) plus a scoped, mostly-read-only Bash allowlist. Unscoped Write/Edit/Bash are intentionally NOT granted here so they prompt by default in every clone. Broader per-user permissions (git commit/push, gh pr create/merge, unscoped Write/Edit/Bash, etc.) belong in the gitignored .claude/settings.local.json -- never widen this committed file to grant them repo-wide."
     },
     "enabledPlugins": {
-      "browsing@bim-ba": true,
-      "clickhouse@bim-ba": false,
       "context7@context7-marketplace": false,
-      "core@bim-ba": true,
-      "documenting@bim-ba": true,
-      "drifts@bim-ba": true,
       // The rulesync canon now delivers the yandex-360 skills (from
       // plugins/yandex-360/skills, via .rulesync/skills symlinks) and the
       // yandex-360 MCP server (via .rulesync/mcp.jsonc) to this repo's sessions.
@@ -79,13 +74,6 @@
         "source": {
           "source": "directory",
           "path": "."
-        },
-        "autoUpdate": true
-      },
-      "bim-ba": {
-        "source": {
-          "source": "github",
-          "repo": "bim-ba/ai"
         },
         "autoUpdate": true
       }
