@@ -1,13 +1,6 @@
 {
   "$schema": "https://github.com/dyoshikawa/rulesync/releases/latest/download/mcp-schema.json",
   "mcpServers": {
-    // GITHUB_PAT is supplied by direnv from the gitignored project .env (see .envrc).
-    // It is a project-scoped token, distinct from the user-scope GITHUB_PAT.
-    "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "headers": { "Authorization": "Bearer ${GITHUB_PAT}" }
-    },
     // The Yandex 360 server, lifted from plugins/yandex-360/.mcp.json (formerly the
     // project .mcp.json's "yandex" entry). envVars keeps Codex expanding the names
     // from its process environment instead of writing a literal ${VAR} into a stdio env.
