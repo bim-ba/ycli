@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.17.2 (2026-10-01)
+
+### Bug Fixes
+
+- **scripts**: Make the /new-endpoint scaffold import against the current package layout
+  ([`6a40659`](https://github.com/bim-ba/ycli/commit/6a40659b1d6e03bba02655bf4d63fc8a7e3f7269))
+
+- **sdk**: Keep fractional request timeouts instead of truncating them to an integer
+  ([`f7bc7f0`](https://github.com/bim-ba/ycli/commit/f7bc7f0757778aff66de93ccce9edc1e32ef7ad5))
+
+### Build System
+
+- Re-lock uv.lock for 0.17.1
+  ([`2dbdbd1`](https://github.com/bim-ba/ycli/commit/2dbdbd1e83d634e6e27d03ff0b739404b6b29277))
+
+- **deps**: Bump the actions group across 1 directory with 2 updates
+  ([`9165419`](https://github.com/bim-ba/ycli/commit/91654192c419589f5b48de2c14ed434eabd4e896))
+
+
 ## v0.17.1 (2026-09-28)
 
 ### Bug Fixes
