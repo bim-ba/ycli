@@ -9,6 +9,36 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.21.0 (2026-10-01)
+
+### Bug Fixes
+
+- **cli**: Defer client building and tighten the stdout guard after review
+  ([#123](https://github.com/bim-ba/ycli/pull/123),
+  [`34aeb78`](https://github.com/bim-ba/ycli/commit/34aeb78d31050f4d23878d474e1de989c129c1c4))
+
+### Build System
+
+- Re-lock uv.lock for 0.20.0
+  ([`8c1e361`](https://github.com/bim-ba/ycli/commit/8c1e361385b9421591d76aebfb91a2f2880d49cd))
+
+### Refactoring
+
+- **cli**: Commands return their results and receive clients by injection
+  ([#123](https://github.com/bim-ba/ycli/pull/123),
+  [`34aeb78`](https://github.com/bim-ba/ycli/commit/34aeb78d31050f4d23878d474e1de989c129c1c4))
+
+### Testing
+
+- **cli**: Assert the usage-error exit code, not the wrapped message
+  ([#123](https://github.com/bim-ba/ycli/pull/123),
+  [`34aeb78`](https://github.com/bim-ba/ycli/commit/34aeb78d31050f4d23878d474e1de989c129c1c4))
+
+### Breaking Changes
+
+- **cli**: `ycli.yandex.tracker.utils` is gone; `parse_fields` lives in `ycli.cli.fields`.
+
+
 ## v0.20.0 (2026-10-01)
 
 ### Build System
