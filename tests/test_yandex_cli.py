@@ -119,3 +119,13 @@ def test_completion_is_enabled():
     params = {p.name for p in get_command(cli.app).params}
     assert "install_completion" in params
     assert "show_completion" in params
+
+
+@pytest.mark.integration
+def test_a_usage_error_wins_over_missing_credentials(monkeypatch, tmp_path):
+    """Clients are built on first use, so a command's own argument check runs first (exit 2)."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
+    res = runner.invoke(cli.app, ["forms", "answers", "get"])
+    assert res.exit_code == 2, res.output
+    assert "exactly one of --answer-id / --answer-key" in res.output

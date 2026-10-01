@@ -9,6 +9,7 @@ import typer
 
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.import_.models import (
     ImportComment,
     ImportLink,
@@ -21,7 +22,6 @@ from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
 from ycli.yandex.tracker.worklog.models import WorklogList
-from ycli.yandex.wiki.comments.models import Comment
 
 app = typer.Typer(name="import", help="Tracker data import (admin).", no_args_is_help=True)
 

@@ -73,11 +73,10 @@ def suggest(
     forms: FormsClient,
 ) -> SuggestionList:
     """Get fill suggestions for a question (GET …/suggest)."""
-    result = forms.filling.suggest(
+    return forms.filling.suggest(
         survey,
         question=question or None,
         text=text or None,
         suggest_id=suggest_id or None,
         parent_id=parent_id or None,
     )
-    return result

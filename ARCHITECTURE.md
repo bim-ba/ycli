@@ -34,8 +34,7 @@ Notable shared pieces:
 - `src/ycli/yandex/registry.py` — `SERVICES`, the one list of services; the CLI root, the MCP
   server and `auth status` iterate it (each domain declares its `SERVICE` in `__init__.py`)
 - `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
-  `utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
-  `--field` JSON coercion)
+  `src/ycli/cli/fields.py` — the shared `--field key=value` JSON coercion
 
 ## Invariants (ARCH-1..11)
 

@@ -30,5 +30,4 @@ def _group() -> None:
 @app.command()
 def upload(survey_id: SurveyIdArg, image_path: ImagePathArg, *, forms: FormsClient) -> Image:
     """Upload an image to add to a form (POST …/images); returns the image id and links."""
-    result = forms.images.upload(survey_id, filename=image_path.name, data=image_path.read_bytes())
-    return result
+    return forms.images.upload(survey_id, filename=image_path.name, data=image_path.read_bytes())

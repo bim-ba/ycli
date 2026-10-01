@@ -186,9 +186,12 @@ def _write_env_file(
 
     Messages go to stderr: stdout carries only the report the command returns.
     """
+    accepted = [status.service for status in report.services if status.valid]
     rejected = [status.service for status in report.services if not status.valid]
-    verdict = f"The token is rejected by: {', '.join(rejected)}. " if rejected else ""
-    prompt = f"{verdict}Save these credentials to .env?"
+    verdict = f"The token works for: {', '.join(accepted) or 'no service'}."
+    if rejected:
+        verdict += f" Rejected by: {', '.join(rejected)}."
+    prompt = f"{verdict} Save these credentials to .env?"
     if not assume_yes and not typer.confirm(prompt, err=True):
         typer.echo("Skipped; nothing written.", err=True)
         return

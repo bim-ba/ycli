@@ -156,7 +156,7 @@ def _surface_gaps(sdk_ops: set[str], cli_ops: set[str], mcp_ops: set[str]) -> se
 # surfaces naming a command/tool differently from the op. Regenerate and edit this map in the
 # same PR when a genuine asymmetry is added or resolved.
 ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
-    # Binary download — raw bytes go to a file/stdout via ycli.cli.binary.write_output; bytes
+    # Binary download — the CLI returns the raw bytes as a BinaryResult (file or stdout); bytes
     # are not a model and can't round-trip an MCP tool result, so these stay CLI-only.
     "tracker.attachments.download": "binary download — CLI-only (bytes)",
     "tracker.attachments.download_thumbnail": "binary download — CLI-only (bytes)",
@@ -608,28 +608,40 @@ def test_arch4_serialization_confined_to_output():
     assert not offenders, f"serialization must live only in output.py; found in {offenders}"
 
 
+def _to_stderr(call: ast.Call) -> bool:
+    """``err=True`` (typer) or ``stderr=True`` (rich ``Console``) among the call's keywords."""
+    return any(
+        k.arg in {"err", "stderr"} and isinstance(k.value, ast.Constant) and k.value.value is True
+        for k in call.keywords
+    )
+
+
 def _stdout_writes(source: str) -> list[str]:
-    """Calls in ``source`` that write to stdout: ``print(``, ``typer.echo``/``secho`` without
-    ``err=True``, and any ``sys.stdout`` access. Messages to stderr (``err=True``) are UI."""
+    """Places in ``source`` that write to stdout: ``print``, ``rich.print``, ``typer.echo`` /
+    ``secho`` and ``Console(...)`` without a stderr flag, ``os.write``, and any use of the name
+    ``stdout``. Messages to stderr are UI, not output."""
     found = []
     for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-            if node.func.id == "print":
-                found.append(f"print (line {node.lineno})")
-        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-            to_stderr = any(
-                k.arg == "err" and isinstance(k.value, ast.Constant) and k.value.value is True
-                for k in node.keywords
+        if isinstance(node, ast.Call):
+            func = node.func
+            name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
+            owner = (
+                func.value.id
+                if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name)
+                else None
             )
-            if node.func.attr in {"echo", "secho"} and not to_stderr:
-                found.append(f"typer.{node.func.attr} (line {node.lineno})")
+            if name == "print" and (isinstance(func, ast.Name) or owner == "rich"):
+                found.append(f"print (line {node.lineno})")
+            elif name in {"echo", "secho", "Console"} and not _to_stderr(node):
+                found.append(f"{name} (line {node.lineno})")
+            elif name == "write" and owner == "os":
+                found.append(f"os.write (line {node.lineno})")
         elif (
-            isinstance(node, ast.Attribute)
-            and node.attr == "stdout"
-            and isinstance(node.value, ast.Name)
-            and node.value.id == "sys"
+            (isinstance(node, ast.Attribute) and node.attr == "stdout")
+            or (isinstance(node, ast.Name) and node.id == "stdout")
+            or (isinstance(node, ast.ImportFrom) and any(a.name == "stdout" for a in node.names))
         ):
-            found.append(f"sys.stdout (line {node.lineno})")
+            found.append(f"stdout (line {node.lineno})")
     return found
 
 
@@ -644,11 +656,20 @@ def test_arch4_commands_return_and_never_print():
 
 
 def test_arch4_stdout_guard_bites():
-    """Prove-it: the guard flags each stdout write and lets stderr messages through."""
-    assert _stdout_writes("print(model)") == ["print (line 1)"]
-    assert _stdout_writes("typer.echo(name)") == ["typer.echo (line 1)"]
-    assert _stdout_writes("sys.stdout.buffer.write(data)") == ["sys.stdout (line 1)"]
+    """Prove-it: the guard flags each way to reach stdout and lets stderr messages through."""
+    flagged = {
+        "print(model)": "print (line 1)",
+        "rich.print(model)": "print (line 1)",
+        "typer.echo(name)": "echo (line 1)",
+        "Console().print(model)": "Console (line 1)",
+        "sys.stdout.buffer.write(data)": "stdout (line 1)",
+        "from sys import stdout": "stdout (line 1)",
+        "os.write(1, data)": "os.write (line 1)",
+    }
+    for source, finding in flagged.items():
+        assert finding in _stdout_writes(source), source
     assert _stdout_writes("typer.echo('note', err=True)") == []
+    assert _stdout_writes("Console(stderr=True).print('Opening')") == []
     assert _stdout_writes("console.print('Opening')\npprint(x)") == []
 
 

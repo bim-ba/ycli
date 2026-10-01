@@ -10,7 +10,8 @@ A command declares what it needs as keyword-only parameters typed with an inject
 :func:`inject_dependencies` rewrites each such command so Typer never sees those parameters
 (they would otherwise become CLI options) and fills them from the invocation's
 :class:`~ycli.cli.context.AppContext` when the command runs. A command stays a plain function,
-so a test can call it with a fake client directly.
+so a test can call it with a fake client directly. Commands run under the ``ycli`` root,
+which applies the injection; a sub-app used on its own needs ``inject_dependencies(app)`` first.
 
 Kill-criterion: delete this module when Typer ships its own dependency injection.
 """
@@ -41,6 +42,24 @@ def inject_dependencies(app: typer.Typer) -> None:
             inject_dependencies(group.typer_instance)
 
 
+class _Deferred:
+    """Stands in for a dependency and builds it on first attribute access.
+
+    Building a client reads the credentials. Deferring it lets a command's own argument checks
+    (``typer.BadParameter``, exit 2) run first, so a usage error is reported as one even when
+    no credentials are set.
+    """
+
+    def __init__(self, build: Callable[[], object]) -> None:
+        self._build = build
+        self._built: object | None = None
+
+    def __getattr__(self, name: str) -> Any:
+        if self._built is None:
+            self._built = self._build()
+        return getattr(self._built, name)
+
+
 def _injecting(command: Callable[..., Any]) -> Callable[..., Any]:
     """``command`` with its injectable parameters hidden from Typer and filled at call time."""
     hints = get_type_hints(command)
@@ -56,7 +75,10 @@ def _injecting(command: Callable[..., Any]) -> Callable[..., Any]:
     @functools.wraps(command)
     def run(*args: Any, **kwargs: Any) -> Any:
         app_context: AppContext = kwargs.pop(_CONTEXT).find_root().obj
-        dependencies = {name: app_context.resolve(kind) for name, kind in injected.items()}
+        dependencies = {
+            name: _Deferred(functools.partial(app_context.resolve, kind))
+            for name, kind in injected.items()
+        }
         return command(*args, **kwargs, **dependencies)
 
     visible = [

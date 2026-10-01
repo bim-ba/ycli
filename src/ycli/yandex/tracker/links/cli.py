@@ -9,8 +9,7 @@ import typer
 
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.entities.models import LinkList
-from ycli.yandex.tracker.links.models import Link, LinkCreate
+from ycli.yandex.tracker.links.models import Link, LinkCreate, LinkList
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )

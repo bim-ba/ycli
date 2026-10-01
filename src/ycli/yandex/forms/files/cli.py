@@ -36,8 +36,7 @@ def _group() -> None:
 @app.command()
 def upload(survey_id: SurveyIdArg, file_path: FilePathArg, *, forms: FormsClient) -> FileOut:
     """Upload a file for form filling (POST …/files) — needs external storage on the form."""
-    result = forms.files.upload(survey_id, filename=file_path.name, data=file_path.read_bytes())
-    return result
+    return forms.files.upload(survey_id, filename=file_path.name, data=file_path.read_bytes())
 
 
 @app.command()

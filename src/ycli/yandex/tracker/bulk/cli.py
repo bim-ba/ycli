@@ -8,7 +8,7 @@ status}`` immediately.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 import typer
 
@@ -22,9 +22,6 @@ from ycli.yandex.tracker.bulk.models import (
     BulkUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
-
-if TYPE_CHECKING:
-    from ycli.yandex.tracker.bulk.models import BulkChange
 
 app = typer.Typer(name="bulk", help="Tracker async bulk changes.", no_args_is_help=True)
 

@@ -240,6 +240,24 @@ def test_confirm_accepted_writes(monkeypatch, tmp_path):
     assert (tmp_path / ".env").exists()
 
 
+@responses.activate
+def test_confirm_prompt_names_the_services_that_reject_the_token(monkeypatch, tmp_path):
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
+    _stub_device_code()
+    _stub_token_success()
+    _stub_single_org()
+    responses.add(responses.GET, TRACKER_ME, json={"login": "alice"}, status=200)
+    responses.add(responses.GET, WIKI_ME, status=403)
+    responses.add(responses.GET, FORMS_ME, json={"email": "alice@x"}, status=200)
+
+    res = runner.invoke(cli.app, ["-o", "json", "auth", "login"], input="n\n")
+
+    assert res.exit_code == 0, res.output
+    assert "The token works for: tracker, forms. Rejected by: wiki." in res.stderr
+    assert '"service":"wiki","valid":false' in res.stdout
+
+
 class _FakeOAuth:
     """A stand-in OAuthClient: yields the given poll results in order after one device code."""
 

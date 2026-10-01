@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 import typer
 
@@ -21,9 +21,6 @@ from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )
 from ycli.yandex.pagination import resolve_cap
-
-if TYPE_CHECKING:
-    from ycli.yandex.forms.answers.models import ExportResult
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
