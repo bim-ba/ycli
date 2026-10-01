@@ -21,9 +21,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cache
 from typing import TYPE_CHECKING, Any, Literal, cast
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 from pydantic import TypeAdapter
+
+from ycli.yandex.errors import YandexClientError
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
@@ -47,13 +49,41 @@ _EFFECT_BY_METHOD: dict[str, Effect] = {
 
 
 def segment(value: object) -> str:
-    """One URL path segment from a caller's value, escaped so it cannot leave its place.
+    """One URL path segment from a caller's value, percent-escaped.
+
+    Escaping alone does not keep a value in its place: Yandex servers decode ``%2F`` before
+    routing, so :func:`check_path` rejects the request that such a value produces.
 
     Example:
-        >>> segment("../queues/DE")
-        '..%2Fqueues%2FDE'
+        >>> segment("TEST 1")
+        'TEST%201'
     """
     return quote(str(value), safe="")
+
+
+def check_path(raw_path: str) -> None:
+    """Refuse a percent-encoded URL path that the server would route to another endpoint.
+
+    The server decodes ``%2F`` and ``%5C`` and then resolves ``.``/``..``, so an issue key such
+    as ``../queues/DE`` turns ``PATCH issues/{key}`` into ``PATCH queues/DE``. No Yandex path
+    needs an escaped separator, an empty segment or a dot segment, so all three are refused.
+
+    Example:
+        >>> check_path("/v3/issues/TEST-1/")
+        >>> check_path("/v3/issues/..%2Fqueues%2FDE")
+        Traceback (most recent call last):
+        ...
+        ycli.yandex.errors.YandexClientError: refusing a path that leaves its endpoint: ...
+    """
+    lowered = raw_path.lower()
+    segments = unquote(raw_path).split("/")
+    if (
+        "%2f" in lowered
+        or "%5c" in lowered
+        or "//" in raw_path
+        or any(part in {".", ".."} for part in segments)
+    ):
+        raise YandexClientError(f"refusing a path that leaves its endpoint: {raw_path}")
 
 
 @cache

@@ -6,6 +6,7 @@ from pydantic import SecretStr
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.core.session import connect
+from ycli.yandex.errors import YandexClientError
 from ycli.yandex.tracker import SERVICE
 from ycli.yandex.tracker.issues.client import IssuesClient
 from ycli.yandex.tracker.issues.models import Issue, IssueList
@@ -125,9 +126,10 @@ def test_search_without_more_pages_does_not_warn(api, caplog):
 
 
 def test_a_key_cannot_reach_another_endpoint(api):
-    api.add("GET", f"{BASE}/issues/..%2Fqueues%2FDE", json={"key": "X"})
-    _client(api).get("../queues/DE")
-    assert api.calls[0].url.raw_path == b"/v3/issues/..%2Fqueues%2FDE"
+    # Escaping is not enough: Tracker decodes %2F, so PATCH issues/..%2Fqueues%2FDE edits queue DE.
+    with pytest.raises(YandexClientError, match="leaves its endpoint"):
+        _client(api).update("../queues/DE", {"description": "x"})
+    assert api.calls == []
 
 
 def test_search_rejects_a_non_positive_limit(api):

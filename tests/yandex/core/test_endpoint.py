@@ -4,7 +4,8 @@ import httpx2
 import pytest
 from pydantic import BaseModel
 
-from ycli.yandex.core.endpoint import EFFECT_EXTENSION, Endpoint, segment
+from ycli.yandex.core.endpoint import EFFECT_EXTENSION, Endpoint, check_path, segment
+from ycli.yandex.errors import YandexClientError
 
 
 class _Item(BaseModel):
@@ -62,7 +63,28 @@ def test_parse_ignores_the_body_without_a_response_type():
     assert Endpoint("DELETE", "items/1").parse(httpx2.Response(204)) is None
 
 
-def test_a_path_segment_cannot_escape_its_place():
+def test_a_path_segment_is_percent_escaped():
     client = httpx2.Client(base_url="https://api.test/v3/")
-    request = Endpoint("PATCH", f"issues/{segment('../queues/DE?x=1')}").request(client)
-    assert request.url.raw_path == b"/v3/issues/..%2Fqueues%2FDE%3Fx%3D1"
+    request = Endpoint("GET", f"issues/{segment('TEST 1?x')}").request(client)
+    assert request.url.raw_path == b"/v3/issues/TEST%201%3Fx"
+
+
+@pytest.mark.parametrize(
+    "raw_path",
+    [
+        "/v3/issues/..%2Fqueues%2FDE",  # the live case: Tracker decodes %2F, then resolves ..
+        "/v3/issues/..%2fqueues",
+        "/v3/issues/a%5Cb",
+        "/v3/issues/../queues/DE",
+        "/v3/issues/./x",
+        "/v3/issues//comments",
+    ],
+)
+def test_check_path_refuses_a_path_that_leaves_its_endpoint(raw_path):
+    with pytest.raises(YandexClientError, match="leaves its endpoint"):
+        check_path(raw_path)
+
+
+@pytest.mark.parametrize("raw_path", ["/v3/issues/", "/v3/issues/TEST-1", "/v1/a%20b/c..d"])
+def test_check_path_accepts_ordinary_paths(raw_path):
+    check_path(raw_path)

@@ -19,6 +19,11 @@ _AUTH_HINT = (
     "\nHint: run `ycli auth login` to (re)authenticate, or check that "
     "YANDEX_ID_OAUTH_TOKEN and YANDEX_ID_ORGANIZATION_ID are set."
 )
+# A 403 comes with a valid token: signing in again does not help, a permission or scope does.
+_PERMISSION_HINT = (
+    "\nHint: the token is valid but lacks access here — ask an administrator for permission "
+    "on this resource, or check that the token's OAuth scopes cover this service."
+)
 
 # The credential env vars. pydantic-settings reports a missing field under its validation
 # alias (the env var name), so a ``ValidationError`` loc is already one of these strings.
@@ -42,7 +47,7 @@ def format_cli_error(exc: Exception) -> str:
         )
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):
-        return message + _AUTH_HINT
+        return message + (_PERMISSION_HINT if exc.status == 403 else _AUTH_HINT)
     return message
 
 
