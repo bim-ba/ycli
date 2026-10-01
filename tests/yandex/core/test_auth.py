@@ -149,3 +149,44 @@ async def test_service_account_async_flow():
     assert (await client.get(API)).json() == {"auth": "Bearer iam-2"}
     assert (await client.get(API)).json() == {"auth": "Bearer iam-2"}
     assert iam.issued == 2
+
+
+def test_concurrent_401s_refresh_the_token_once():
+    import threading
+
+    iam = _IAM()
+    revoked = threading.Event()
+    all_sent = threading.Barrier(5)
+
+    def api(request: httpx2.Request) -> httpx2.Response:
+        if str(request.url) == IAM_TOKEN_URL:
+            return iam(request)
+        if revoked.is_set() and request.headers["Authorization"] == "Bearer iam-1":
+            all_sent.wait(timeout=5)  # every thread has sent with the revoked token
+            return httpx2.Response(401)
+        return _echo(request)
+
+    client = httpx2.Client(auth=_auth(), transport=httpx2.MockTransport(api))
+    client.get(API)  # mints iam-1
+    revoked.set()
+    threads = [threading.Thread(target=client.get, args=(API,)) for _ in range(5)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert iam.issued == 2  # five 401s, one refresh
+
+
+def test_the_async_lock_works_across_event_loops():
+    import asyncio
+
+    iam = _IAM()
+    auth = _auth()
+
+    async def burst() -> list[str]:
+        client = httpx2.AsyncClient(auth=auth, transport=httpx2.MockTransport(iam))
+        responses = await asyncio.gather(*(client.get(API) for _ in range(3)))
+        return [response.json()["auth"] for response in responses]
+
+    assert asyncio.run(burst()) == ["Bearer iam-1"] * 3
+    assert asyncio.run(burst()) == ["Bearer iam-1"] * 3

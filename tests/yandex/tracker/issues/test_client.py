@@ -1,5 +1,6 @@
 """IssuesClient on the httpx2 core — wire shape of each operation, served by MockAPI."""
 
+import pytest
 from pydantic import SecretStr
 
 from tests.hosts import TRACKER_BASE as BASE
@@ -113,7 +114,7 @@ def test_search_stops_at_the_limit_and_warns(api, caplog):
     assert len(out.root) == 30
     assert len(api.calls) == 1
     assert api.calls[0].url.params["perPage"] == "30"  # no bigger page than the cap needs
-    assert "stopped at 30 items; more are available" in caplog.text
+    assert "stopped at 30 items; more may be available" in caplog.text
 
 
 def test_search_without_more_pages_does_not_warn(api, caplog):
@@ -121,3 +122,14 @@ def test_search_without_more_pages_does_not_warn(api, caplog):
     out = _client(api).search({"query": "Queue: DE"}, limit=3)
     assert len(out.root) == 3
     assert "stopped at" not in caplog.text
+
+
+def test_a_key_cannot_reach_another_endpoint(api):
+    api.add("GET", f"{BASE}/issues/..%2Fqueues%2FDE", json={"key": "X"})
+    _client(api).get("../queues/DE")
+    assert api.calls[0].url.raw_path == b"/v3/issues/..%2Fqueues%2FDE"
+
+
+def test_search_rejects_a_non_positive_limit(api):
+    with pytest.raises(ValueError, match="positive"):
+        _client(api).search({"query": "q"}, limit=0)

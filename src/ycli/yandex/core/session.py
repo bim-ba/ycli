@@ -24,6 +24,7 @@ Example:
 from __future__ import annotations
 
 import logging
+import math
 import time
 from typing import TYPE_CHECKING
 
@@ -48,14 +49,25 @@ if TYPE_CHECKING:
 logger = logging.getLogger("ycli.http")
 
 DEFAULT_MAX_PAGES = 1000
+# The longest server-requested pause ycli sits through; a longer Retry-After fails fast instead.
+MAX_RETRY_AFTER_SECONDS = 60.0
+# Query parameters that carry a secret (API keys sent as ``?apikey=``) are masked in logs/errors.
+_SECRET_PARAMS = frozenset({"apikey", "api_key", "access_token", "oauth_token", "token"})
+
+
+def _shown(url: httpx2.URL) -> httpx2.URL:
+    """``url`` with secret query parameters masked, safe to log or put in an error message."""
+    secrets = [name for name in url.params if name.lower() in _SECRET_PARAMS]
+    return url.copy_merge_params(dict.fromkeys(secrets, "***")) if secrets else url
 
 
 def _retry_after(response: httpx2.Response) -> float | None:
-    value = response.headers.get("Retry-After")
+    """``Retry-After`` in seconds; ``None`` for an HTTP-date or a value that is not a delay."""
     try:
-        return float(value) if value is not None else None
-    except ValueError:  # an HTTP-date; let the backoff decide instead
+        seconds = float(response.headers.get("Retry-After", "nan"))
+    except ValueError:
         return None
+    return seconds if math.isfinite(seconds) and seconds >= 0 else None
 
 
 def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Response:
@@ -64,7 +76,7 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
     logger.info(
         "%s %s -> %s (%.0f ms)",
         request.method,
-        request.url,
+        _shown(request.url),
         response.status_code,
         elapsed_seconds * 1000,
     )
@@ -72,11 +84,14 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
         return response
     detail = describe_error_body(response.text)
     message = (
-        f"{response.status_code} {response.reason_phrase} for {request.method} {request.url}: "
-        f"{detail}"
+        f"{response.status_code} {response.reason_phrase} for {request.method} "
+        f"{_shown(request.url)}: {detail}"
     )
     raise error_for_status(
-        response.status_code, message, url=str(request.url), retry_after=_retry_after(response)
+        response.status_code,
+        message,
+        url=str(_shown(request.url)),
+        retry_after=_retry_after(response),
     )
 
 
@@ -85,7 +100,11 @@ def _retry_policy(idempotent: bool) -> Callable[[Exception], bool | float]:
 
     def decide(exception: Exception) -> bool | float:
         if isinstance(exception, YandexRateLimitError):
-            return exception.retry_after if exception.retry_after is not None else True
+            if exception.retry_after is None:
+                return True  # no hint: stamina's exponential backoff
+            if exception.retry_after > MAX_RETRY_AFTER_SECONDS:
+                return False  # fail now rather than hang for minutes
+            return exception.retry_after
         return idempotent and isinstance(exception, YandexServerError | YandexConnectionError)
 
     return decide
@@ -94,7 +113,11 @@ def _retry_policy(idempotent: bool) -> Callable[[Exception], bool | float]:
 def _log_retry(request: httpx2.Request, attempt: int, attempts: int) -> None:
     if attempt > 1:
         logger.info(
-            "retrying %s %s (attempt %d of %d)", request.method, request.url, attempt, attempts
+            "retrying %s %s (attempt %d of %d)",
+            request.method,
+            _shown(request.url),
+            attempt,
+            attempts,
         )
 
 
@@ -110,7 +133,7 @@ def _page_plan[I](
     room = limit - produced
     if len(items) > room or (len(items) == room and has_next):
         logger.warning(
-            "stopped at %d items; more are available (raise the limit, or use --all in the CLI)",
+            "stopped at %d items; more may be available (raise the limit, or use --all in the CLI)",
             limit,
         )
         return items[:room], True
@@ -135,8 +158,9 @@ class SyncSession:
                 try:
                     response = self._client.send(request)
                 except httpx2.TransportError as exc:
-                    message = f"{request.method} {request.url}: {exc!r}"
-                    raise YandexConnectionError(message, url=str(request.url)) from exc
+                    url = _shown(request.url)
+                    message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
+                    raise YandexConnectionError(message, url=str(url)) from exc
                 return _checked(response, time.perf_counter() - started)
         raise AssertionError("stamina returns or raises inside the loop")  # pragma: no cover
 
@@ -185,8 +209,9 @@ class AsyncSession:
                 try:
                     response = await self._client.send(request)
                 except httpx2.TransportError as exc:
-                    message = f"{request.method} {request.url}: {exc!r}"
-                    raise YandexConnectionError(message, url=str(request.url)) from exc
+                    url = _shown(request.url)
+                    message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
+                    raise YandexConnectionError(message, url=str(url)) from exc
                 return _checked(response, time.perf_counter() - started)
         raise AssertionError("stamina returns or raises inside the loop")  # pragma: no cover
 
@@ -218,10 +243,11 @@ class AsyncSession:
         await self._client.aclose()
 
 
-def default_transport() -> httpx2.BaseTransport | None:
-    """The network for :func:`connect` when the caller passes none (``None`` = httpx2's own).
+def default_transport() -> httpx2.MockTransport | None:
+    """The network when the caller passes none: ``None`` means httpx2's own.
 
-    The one seam tests replace to answer core requests with an ``httpx2.MockTransport``.
+    The one seam tests replace to answer core requests with an ``httpx2.MockTransport``, which
+    serves both the sync and the async client.
     """
     return None
 
@@ -244,6 +270,8 @@ def connect(
         headers=profile.headers_for(organization_id),
         auth=auth,
         timeout=http.timeout_seconds,
+        # Tracker answers an old key of a moved issue with a redirect to the new one.
+        follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
     return SyncSession(client, retries=http.retries)
@@ -264,6 +292,8 @@ def connect_async(
         headers=profile.headers_for(organization_id),
         auth=auth,
         timeout=http.timeout_seconds,
-        transport=transport,
+        # Tracker answers an old key of a moved issue with a redirect to the new one.
+        follow_redirects=True,
+        transport=transport if transport is not None else default_transport(),
     )
     return AsyncSession(client, retries=http.retries)

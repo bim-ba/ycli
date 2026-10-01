@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.core.endpoint import Endpoint, Paged
+from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination
 from ycli.yandex.tracker.issues.models import Issue, IssueList
 
@@ -20,7 +20,7 @@ SEARCH_PAGE_SIZE = 100
 
 
 def get_issue(key: str) -> Endpoint[Issue]:
-    return Endpoint("GET", f"issues/{key}", Issue)
+    return Endpoint("GET", f"issues/{segment(key)}", Issue)
 
 
 def search_issues(
@@ -46,11 +46,11 @@ def create_issue(body: dict[str, Any]) -> Endpoint[Issue]:
 
 
 def update_issue(key: str, body: dict[str, Any]) -> Endpoint[Issue]:
-    return Endpoint("PATCH", f"issues/{key}", Issue, json=body)
+    return Endpoint("PATCH", f"issues/{segment(key)}", Issue, json=body)
 
 
 def move_issue(key: str, queue: str) -> Endpoint[Issue]:
-    return Endpoint("POST", f"issues/{key}/_move", Issue, params={"queue": queue})
+    return Endpoint("POST", f"issues/{segment(key)}/_move", Issue, params={"queue": queue})
 
 
 def suggest_issues(text: str) -> Endpoint[IssueList]:

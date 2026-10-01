@@ -41,7 +41,17 @@ def test_page_number_stops_at_total_pages_or_a_short_page():
     assert second is not None
     assert second.url.params["page"] == "2"
     assert pagination.next(second, full, [3, 4]) is None  # page 2 of 2
-    assert pagination.next(first, httpx2.Response(200), [1]) is None  # short page
+    assert pagination.next(first, httpx2.Response(200), [1]) is None  # short page, no header
+
+
+def test_page_number_trusts_the_total_over_a_capped_page():
+    """A server that caps perPage below page_size sends short pages that are not the last."""
+    pagination = PageNumberPagination(page_size=100)
+    first = pagination.first(_request())
+    capped = httpx2.Response(200, headers={"X-Total-Pages": "3"})
+    following = pagination.next(first, capped, list(range(50)))
+    assert following is not None
+    assert following.url.params["page"] == "2"
 
 
 def test_page_number_without_the_total_header():
@@ -103,3 +113,11 @@ def test_relative_id_advances_and_stops_on_repeat():
     assert following is not None
     assert following.url.params["id"] == "9"
     assert pagination.next(following, httpx2.Response(200), [{"id": "9"}]) is None
+
+
+def test_a_next_page_on_another_host_gets_its_own_host_header():
+    pagination = NextURLPagination(url_of=lambda response: response.json()["next"])
+    response = httpx2.Response(200, json={"next": "https://cdn.test/v1/items?page=2"})
+    following = pagination.next(_request(), response, [1])
+    assert following is not None
+    assert following.headers["Host"] == "cdn.test"

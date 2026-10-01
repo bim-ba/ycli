@@ -212,7 +212,7 @@ def test_list_caps_at_limit_and_warns_on_stderr(api):
     )
     assert res.exit_code == 0, res.output
     assert len(json.loads(res.stdout)) == 5
-    assert "stopped at 5 items; more are available" in res.stderr
+    assert "stopped at 5 items; more may be available" in res.stderr
 
 
 def test_search_all_fetches_every_page(api):

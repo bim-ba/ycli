@@ -4,7 +4,7 @@ import httpx2
 import pytest
 from pydantic import BaseModel
 
-from ycli.yandex.core.endpoint import EFFECT_EXTENSION, Endpoint
+from ycli.yandex.core.endpoint import EFFECT_EXTENSION, Endpoint, segment
 
 
 class _Item(BaseModel):
@@ -60,3 +60,9 @@ def test_parse_validates_the_response_type():
 
 def test_parse_ignores_the_body_without_a_response_type():
     assert Endpoint("DELETE", "items/1").parse(httpx2.Response(204)) is None
+
+
+def test_a_path_segment_cannot_escape_its_place():
+    client = httpx2.Client(base_url="https://api.test/v3/")
+    request = Endpoint("PATCH", f"issues/{segment('../queues/DE?x=1')}").request(client)
+    assert request.url.raw_path == b"/v3/issues/..%2Fqueues%2FDE%3Fx%3D1"

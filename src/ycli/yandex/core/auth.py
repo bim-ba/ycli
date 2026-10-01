@@ -27,6 +27,7 @@ import asyncio
 import json
 import threading
 import time
+import weakref
 from datetime import datetime  # noqa: TC003  # pydantic reads the field type at runtime
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -128,7 +129,9 @@ class ServiceAccountAuth(httpx2.Auth):
         self._token: SecretStr | None = None
         self._refresh_at = 0.0
         self._lock = threading.Lock()
-        self._async_lock = asyncio.Lock()
+        self._async_locks: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, asyncio.Lock] = (
+            weakref.WeakKeyDictionary()
+        )
 
     @classmethod
     def from_key_file(cls, path: str | Path) -> ServiceAccountAuth:
@@ -184,24 +187,37 @@ class ServiceAccountAuth(httpx2.Auth):
         with self._lock:
             if self._needs_token():
                 self._store((yield self._token_request()))
+        sent_with = self._token
         self._authorize(request)
         response = yield request
         if response.status_code == httpx2.codes.UNAUTHORIZED:
             with self._lock:
-                self._store((yield self._token_request()))
+                # Refresh once for the whole client: skip it if another call already did.
+                if self._token is sent_with:
+                    self._store((yield self._token_request()))
             self._authorize(request)
             yield request
 
     async def async_auth_flow(
         self, request: httpx2.Request
     ) -> AsyncGenerator[httpx2.Request, httpx2.Response]:
-        async with self._async_lock:
+        lock = self._async_lock()
+        async with lock:
             if self._needs_token():
                 self._store((yield self._token_request()))
+        sent_with = self._token
         self._authorize(request)
         response = yield request
         if response.status_code == httpx2.codes.UNAUTHORIZED:
-            async with self._async_lock:
-                self._store((yield self._token_request()))
+            async with lock:
+                if self._token is sent_with:
+                    self._store((yield self._token_request()))
             self._authorize(request)
             yield request
+
+    def _async_lock(self) -> asyncio.Lock:
+        """One ``asyncio.Lock`` per event loop: a lock is bound to the loop that first awaits it."""
+        loop = asyncio.get_running_loop()
+        if loop not in self._async_locks:
+            self._async_locks[loop] = asyncio.Lock()
+        return self._async_locks[loop]

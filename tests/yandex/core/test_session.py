@@ -197,3 +197,55 @@ async def test_async_lost_connection_is_typed():
 def test_the_default_transport_is_httpx2s_own():
     """Bound at import, before the autouse fixture swaps the seam for an offline one."""
     assert default_transport() is None
+
+
+def test_the_retry_policy_waits_as_long_as_retry_after_says():
+    from ycli.yandex.core.session import _retry_policy
+
+    decide = _retry_policy(idempotent=False)
+    assert decide(YandexRateLimitError("slow down", retry_after=7.0)) == 7.0
+    assert decide(YandexRateLimitError("slow down")) is True
+    assert decide(YandexServerError("boom")) is False
+    assert _retry_policy(idempotent=True)(YandexServerError("boom")) is True
+
+
+def test_a_redirect_is_followed():
+    api = MockAPI()
+    api.add("GET", f"{URL}/OLD-1", status=301, headers={"Location": f"{URL}/NEW-1"})
+    api.add("GET", f"{URL}/NEW-1", json={"key": "NEW-1"})
+    assert _session(api).send(Endpoint("GET", "items/OLD-1", dict)) == {"key": "NEW-1"}
+
+
+def test_a_retry_after_beyond_the_cap_fails_fast():
+    api = MockAPI()
+    api.add("GET", URL, status=429, headers={"Retry-After": "86400"})
+    with pytest.raises(YandexRateLimitError) as caught:
+        _session(api).send(Endpoint("GET", "items"))
+    assert caught.value.retry_after == 86400.0
+    assert len(api.calls) == 1
+
+
+@pytest.mark.parametrize("value", ["-1", "nan", "inf", "Wed, 21 Oct 2026 07:28:00 GMT"])
+def test_a_retry_after_that_is_not_a_delay_is_ignored(value):
+    api = MockAPI()
+    api.add("GET", URL, status=429, headers={"Retry-After": value})
+    api.add("GET", URL, json=[1])
+    assert _session(api).send(Endpoint("GET", "items", list[int])) == [1]
+
+
+def test_secret_query_parameters_are_masked_in_logs_and_errors(caplog):
+    api = MockAPI()
+    api.add("GET", URL, status=404, json={"message": "nope"})
+    caplog.set_level(logging.INFO, logger="ycli.http")
+    endpoint = Endpoint("GET", "items", params={"apikey": "TOPSECRET", "lang": "ru"})
+    with pytest.raises(YandexNotFoundError) as caught:
+        _session(api).send(endpoint)
+    assert "TOPSECRET" not in str(caught.value)
+    assert "TOPSECRET" not in (caught.value.url or "")
+    assert "TOPSECRET" not in caplog.text
+    assert "lang=ru" in caplog.text
+
+
+def test_connect_async_uses_the_transport_seam():
+    session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")))
+    assert isinstance(session._client._transport, httpx2.MockTransport)

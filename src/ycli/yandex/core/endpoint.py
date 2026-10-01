@@ -3,8 +3,8 @@
 An endpoint knows its HTTP method and path, its query and body, the type its response parses
 into, and its *effect*: what calling it does to the server. The effect follows from the
 method (``GET`` reads, ``PATCH``/``PUT`` edit, ``DELETE`` destroys, ``POST`` writes) unless the
-endpoint states otherwise, as a ``POST …/_search`` does. Retries and MCP tool annotations are
-derived from that one value.
+endpoint states otherwise, as a ``POST …/_search`` does. Retries follow that one value, and the
+MCP tool annotations must agree with it.
 
 Nothing here does I/O: :meth:`Endpoint.request` builds a native ``httpx2.Request`` through the
 client (so its base URL and default headers apply) and :meth:`Endpoint.parse` reads a response.
@@ -21,6 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import cache
 from typing import TYPE_CHECKING, Any, Literal, cast
+from urllib.parse import quote
 
 from pydantic import TypeAdapter
 
@@ -43,6 +44,16 @@ _EFFECT_BY_METHOD: dict[str, Effect] = {
     "DELETE": "destructive",
     "POST": "write",
 }
+
+
+def segment(value: object) -> str:
+    """One URL path segment from a caller's value, escaped so it cannot leave its place.
+
+    Example:
+        >>> segment("../queues/DE")
+        '..%2Fqueues%2FDE'
+    """
+    return quote(str(value), safe="")
 
 
 @cache

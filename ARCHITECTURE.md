@@ -109,9 +109,8 @@ Notable shared pieces:
   `os.environ` and `class …(BaseSettings)` appear only in `settings.py`.
 - **ARCH-9 — Typed boundary errors.** Non-2xx responses raise a typed `YandexError` subclass
   (one mapping, `errors.error_for_status`) from the uplink transport hook or the core session;
-  no surface parses an error body into a model. *Check:* the existing
-  status→exception mapping test, plus no `raise_for_status` / status-branching outside
-  `transport.py`.
+  no surface parses an error body into a model. *Check:* the status→exception mapping test,
+  plus no `raise_for_status` outside `transport.py`.
 - **ARCH-10 — No shadowing of configurable values.** A configurable value is never overridden by
   a hardcoded literal that wins over the configured one (the `@uplink.timeout(30)` bug). *Check:*
   grep — no `@uplink.timeout` anywhere. Domain clients take an `HTTPConfig` (default:

@@ -28,11 +28,15 @@ if TYPE_CHECKING:
 
 
 def _with_url(request: httpx2.Request, url: httpx2.URL) -> httpx2.Request:
-    """The same request (method, headers, body, extensions) aimed at ``url``."""
+    """The same request (method, headers, body, extensions) aimed at ``url``.
+
+    ``Host`` is left for httpx2 to derive from ``url``: a next-page link may point elsewhere.
+    """
+    headers = {name: value for name, value in request.headers.items() if name.lower() != "host"}
     return httpx2.Request(
         request.method,
         url,
-        headers=request.headers,
+        headers=headers,
         content=request.content,
         extensions=request.extensions,
     )
@@ -78,7 +82,11 @@ class OffsetLimitPagination(Pagination):
 
 @dataclass(frozen=True)
 class PageNumberPagination(Pagination):
-    """``?page=&perPage=`` (Tracker): stops at ``X-Total-Pages`` or on a short page."""
+    """``?page=&perPage=`` (Tracker): walks to ``X-Total-Pages``, or to a short page without it.
+
+    The header wins when present: a server that caps ``perPage`` below ``page_size`` returns
+    short pages that are not the last one.
+    """
 
     page_size: int
     page_param: str = "page"
@@ -93,9 +101,8 @@ class PageNumberPagination(Pagination):
     ) -> httpx2.Request | None:
         page = int(request.url.params[self.page_param])
         total = response.headers.get(self.total_pages_header) if self.total_pages_header else None
-        if len(items) < self.page_size or (total is not None and page >= int(total)):
-            return None
-        return _with_params(request, {self.page_param: page + 1})
+        last = page >= int(total) if total is not None else len(items) < self.page_size
+        return None if last else _with_params(request, {self.page_param: page + 1})
 
 
 @dataclass(frozen=True)
