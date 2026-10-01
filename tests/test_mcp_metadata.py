@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Any
 
 from fastmcp import Client
 
 from ycli.mcp.server import mcp as root_mcp
+from ycli.yandex.models import APIModel
 from ycli.yandex.registry import SERVICES
 
 
@@ -24,17 +26,17 @@ def test_every_tool_has_hints_and_title():
     for tool in tools:
         ann = tool.annotations
         assert ann is not None, tool.name
-        assert isinstance(ann.readOnlyHint, bool), f"{tool.name} must declare readOnlyHint"
-        assert ann.openWorldHint is True, tool.name
-        if ann.readOnlyHint:
-            assert ann.idempotentHint is True, tool.name
+        assert isinstance(ann.read_only_hint, bool), f"{tool.name} must declare readOnlyHint"
+        assert ann.open_world_hint is True, tool.name
+        if ann.read_only_hint:
+            assert ann.idempotent_hint is True, tool.name
         else:
             # Writes declare their remaining hints explicitly — the MCP-spec default
             # for an unannotated tool is destructiveHint=true (see ARCH-3).
-            assert isinstance(ann.destructiveHint, bool), (
+            assert isinstance(ann.destructive_hint, bool), (
                 f"{tool.name} write tool must declare destructiveHint"
             )
-            assert isinstance(ann.idempotentHint, bool), (
+            assert isinstance(ann.idempotent_hint, bool), (
                 f"{tool.name} write tool must declare idempotentHint"
             )
         assert ann.title and ann.title.strip(), f"{tool.name} has no title"
@@ -43,3 +45,40 @@ def test_every_tool_has_hints_and_title():
 def test_servers_have_instructions():
     for server in (root_mcp, *(service.mcp_server() for service in SERVICES)):
         assert server.instructions and server.instructions.strip()
+
+
+def _subclasses(cls: type[APIModel]) -> list[type[APIModel]]:
+    return [cls, *(sub for direct in cls.__subclasses__() for sub in _subclasses(direct))]
+
+
+def _property_names(schema: Any) -> set[str]:
+    """Every property name anywhere in a JSON schema, nested models included."""
+    if isinstance(schema, list):
+        return {name for item in schema for name in _property_names(item)}
+    if not isinstance(schema, dict):
+        return set()
+    nested = {name for value in schema.values() for name in _property_names(value)}
+    return set(schema.get("properties", {})) | nested
+
+
+def test_tool_output_uses_the_api_field_names():
+    """MCP output keeps the wire names the CLI prints (``checklistItems``, not ``checklist_items``).
+
+    Both surfaces mirror the Yandex API, so a field reads the same in the vendor docs, in
+    ``ycli … -o json`` and in a tool result. fastmcp 4 serializes by attribute name unless the
+    model says otherwise, which ``APIModel`` does with ``serialize_by_alias``. A Python name
+    that is also some API's wire name (Wiki's ``created_at``) cannot be told apart, so it is
+    left out of the check.
+    """
+    fields = [
+        (name, field.alias or name)
+        for model in _subclasses(APIModel)
+        for name, field in model.model_fields.items()
+    ]
+    python_only = {name for name, wire in fields if name != wire} - {wire for _, wire in fields}
+    offenders = {
+        tool.name: sorted(leaked)
+        for tool in _tools()
+        if (leaked := _property_names(tool.output_schema) & python_only)
+    }
+    assert not offenders, offenders

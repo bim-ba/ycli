@@ -34,9 +34,9 @@ async def test_transitions_execute_tool(creds):
 async def test_transition_tools_annotations():
     async with Client(transitions_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["transitions_list"].annotations.readOnlyHint is True
+    assert tools["transitions_list"].annotations.read_only_hint is True
     ann = tools["transitions_execute"].annotations
-    assert ann.readOnlyHint is False
-    assert ann.destructiveHint is False
-    assert ann.idempotentHint is False
+    assert ann.read_only_hint is False
+    assert ann.destructive_hint is False
+    assert ann.idempotent_hint is False
     assert ann.title

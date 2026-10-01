@@ -27,4 +27,4 @@ async def test_resources_list_is_registered_and_read_only():
     async with Client(resources_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert "resources_list" in tools
-    assert tools["resources_list"].annotations.readOnlyHint is True
+    assert tools["resources_list"].annotations.read_only_hint is True

@@ -66,8 +66,8 @@ async def test_localfields_tools_registered():
         "localfields_create",
         "localfields_edit",
     }
-    assert tools["localfields_list"].annotations.readOnlyHint is True
-    assert tools["localfields_get"].annotations.readOnlyHint is True
+    assert tools["localfields_list"].annotations.read_only_hint is True
+    assert tools["localfields_get"].annotations.read_only_hint is True
 
 
 @responses.activate
@@ -113,7 +113,7 @@ async def test_localfield_write_tools_annotations():
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

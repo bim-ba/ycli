@@ -44,4 +44,4 @@ async def test_status_get_is_read_only():
     async with Client(status_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert "get" in tools
-    assert tools["get"].annotations.readOnlyHint is True
+    assert tools["get"].annotations.read_only_hint is True

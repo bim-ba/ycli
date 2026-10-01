@@ -156,13 +156,13 @@ async def test_tools_registered_with_honest_hints():
         "uploadsessions_abort_all",
     } <= set(tools)
     for name in ("pages_grids_list", "comments_thread_list", "pages_get"):
-        assert tools[name].annotations.readOnlyHint is True
+        assert tools[name].annotations.read_only_hint is True
     for name in ("pages_create", "recovery_restore"):
-        assert tools[name].annotations.readOnlyHint is False
-        assert tools[name].annotations.destructiveHint is False
+        assert tools[name].annotations.read_only_hint is False
+        assert tools[name].annotations.destructive_hint is False
     for name in ("pages_delete", "grids_remove_rows"):
-        assert tools[name].annotations.readOnlyHint is False
-        assert tools[name].annotations.destructiveHint is True
+        assert tools[name].annotations.read_only_hint is False
+        assert tools[name].annotations.destructive_hint is True
 
 
 async def test_attachments_expose_no_binary_download_tool():

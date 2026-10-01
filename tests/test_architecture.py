@@ -457,16 +457,18 @@ def test_arch3_mcp_annotation_honesty():
         ann = getattr(t, "annotations", None)
         assert ann is not None, f"{t.name!r} lacks annotations"
         if cls == "read":
-            assert ann.readOnlyHint is True, f"{t.name!r} is a read but readOnlyHint is not True"
+            assert ann.read_only_hint is True, f"{t.name!r} is a read but readOnlyHint is not True"
         else:
-            assert ann.readOnlyHint is False, f"{t.name!r} is a write but readOnlyHint is not False"
-            assert ann.destructiveHint is (cls == "destructive"), (
-                f"{t.name!r} verb class {cls!r} demands destructiveHint="
-                f"{cls == 'destructive'}, got {ann.destructiveHint}"
+            assert ann.read_only_hint is False, (
+                f"{t.name!r} is a write but readOnlyHint is not False"
             )
-            assert ann.idempotentHint is (cls == "write_idempotent"), (
+            assert ann.destructive_hint is (cls == "destructive"), (
+                f"{t.name!r} verb class {cls!r} demands destructiveHint="
+                f"{cls == 'destructive'}, got {ann.destructive_hint}"
+            )
+            assert ann.idempotent_hint is (cls == "write_idempotent"), (
                 f"{t.name!r} verb class {cls!r} demands idempotentHint="
-                f"{cls == 'write_idempotent'}, got {ann.idempotentHint}"
+                f"{cls == 'write_idempotent'}, got {ann.idempotent_hint}"
             )
 
 
@@ -536,7 +538,7 @@ def test_arch3_core_tools_are_annotated_by_their_endpoint_effect(monkeypatch):
     offenders = {}
     for name, tool in tools.items():
         effect = asyncio.run(sent_effect(name))
-        annotations = tool.annotations.model_dump() if tool.annotations else {}
+        annotations = tool.annotations.model_dump(by_alias=True) if tool.annotations else {}
         if wrong := _hints_disagree(annotations, effect):
             offenders[name] = f"effect {effect!r} but {wrong} disagree"
     assert not offenders, offenders
@@ -610,9 +612,9 @@ def test_arch3_write_tools_carry_write_tag():
         assert ann is not None, f"{t.name!r} lacks annotations"
         meta = getattr(t, "meta", None) or {}
         tags = set(meta.get("fastmcp", {}).get("tags", []) or [])
-        is_write = ann.readOnlyHint is False
+        is_write = ann.read_only_hint is False
         assert (WRITE_TAG in tags) == is_write, (
-            f"{t.name!r}: readOnlyHint={ann.readOnlyHint} but write-tag "
+            f"{t.name!r}: readOnlyHint={ann.read_only_hint} but write-tag "
             f"{'present' if WRITE_TAG in tags else 'absent'} — a write tool must carry the "
             f"{WRITE_TAG!r} tag (so --read-only hides it) and a read must not"
         )
@@ -1433,6 +1435,6 @@ def test_every_mcp_tool_has_description_and_output_schema():
     assert tools, "no MCP tools discovered"
     for tool in tools:
         assert tool.description, f"{tool.name!r} is missing a docstring (→ description)"
-        assert tool.outputSchema is not None, (
+        assert tool.output_schema is not None, (
             f"{tool.name!r} is missing a return type annotation (→ outputSchema)"
         )

@@ -48,8 +48,8 @@ async def test_macros_tools_registered():
         "macros_edit",
         "macros_delete",
     }
-    assert tools["macros_list"].annotations.readOnlyHint is True
-    assert tools["macros_get"].annotations.readOnlyHint is True
+    assert tools["macros_list"].annotations.read_only_hint is True
+    assert tools["macros_get"].annotations.read_only_hint is True
 
 
 @responses.activate
@@ -104,7 +104,7 @@ async def test_macro_write_tools_annotations():
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

@@ -55,8 +55,8 @@ async def test_files_tools_registered_with_honest_annotations():
         tools = {t.name: t for t in await client.list_tools()}
     # upload/download are binary payloads and intentionally have no MCP tools.
     assert set(tools) == {"files_verify", "files_delete"}
-    assert tools["files_verify"].annotations.readOnlyHint is True
+    assert tools["files_verify"].annotations.read_only_hint is True
     delete = tools["files_delete"].annotations
-    assert delete.readOnlyHint is False
-    assert delete.destructiveHint is True and delete.idempotentHint is False
+    assert delete.read_only_hint is False
+    assert delete.destructive_hint is True and delete.idempotent_hint is False
     assert all(t.annotations.title for t in tools.values())

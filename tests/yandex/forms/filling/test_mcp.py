@@ -99,9 +99,9 @@ async def test_filling_tools_registered_with_honest_annotations():
     async with Client(filling_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert set(tools) == {"filling_get", "filling_suggest", "filling_submit"}
-    assert tools["filling_get"].annotations.readOnlyHint is True
-    assert tools["filling_suggest"].annotations.readOnlyHint is True
+    assert tools["filling_get"].annotations.read_only_hint is True
+    assert tools["filling_suggest"].annotations.read_only_hint is True
     submit = tools["filling_submit"].annotations
-    assert submit.readOnlyHint is False
-    assert submit.destructiveHint is False and submit.idempotentHint is False
+    assert submit.read_only_hint is False
+    assert submit.destructive_hint is False and submit.idempotent_hint is False
     assert all(t.annotations.title for t in tools.values())

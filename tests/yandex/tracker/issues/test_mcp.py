@@ -33,7 +33,7 @@ async def test_issue_tools_registered_read_only():
     async with Client(issues_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert {"issues_get", "issues_list", "issues_search", "issues_count"} <= set(tools)
-    assert tools["issues_get"].annotations.readOnlyHint is True
+    assert tools["issues_get"].annotations.read_only_hint is True
 
 
 async def test_issues_get_tool_not_found_raises(api, creds):
@@ -132,7 +132,7 @@ async def test_issues_scroll_clear_tool_returns_ack(api, creds):
 async def test_issue_write_tools_annotations():
     async with Client(issues_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["issues_suggest"].annotations.readOnlyHint is True
+    assert tools["issues_suggest"].annotations.read_only_hint is True
     expected = {  # tool -> (destructiveHint, idempotentHint)
         "issues_create": (False, False),
         "issues_update": (False, True),
@@ -141,9 +141,9 @@ async def test_issue_write_tools_annotations():
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name
 
 

@@ -47,14 +47,14 @@ async def test_issuetypes_edit_tool_sends_version(creds):
 async def test_issuetype_tools_annotations():
     async with Client(issuetypes_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["issuetypes_list"].annotations.readOnlyHint is True
+    assert tools["issuetypes_list"].annotations.read_only_hint is True
     expected = {  # tool -> (destructiveHint, idempotentHint)
         "issuetypes_create": (False, False),
         "issuetypes_edit": (False, True),
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

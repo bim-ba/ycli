@@ -15,13 +15,14 @@ All pydantic models — including sub-models and singleton `me` models — inher
 ```python
 from ycli.yandex.models import APIModel
 
-class MyModel(APIModel):
-    ...
+
+class MyModel(APIModel): ...
 ```
 
-`APIModel` sets `extra="ignore"` (unknown API fields are silently dropped) and
+`APIModel` sets `extra="ignore"` (unknown API fields are silently dropped),
 `populate_by_name=True` (a field may be set by its Python name *or* its serialization
-alias).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`.
+alias) and `serialize_by_alias=True` (every dump, CLI and MCP alike, keeps the API's field
+names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`.
 
 ---
 
@@ -34,10 +35,11 @@ alias).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`.
 
 ```python
 # models.py
-class SurveyList(RootModel[list[Survey]]):          # flat — public
+class SurveyList(RootModel[list[Survey]]):  # flat — public
     root: list[Survey] = []
 
-class SurveysResponse(APIModel):                    # envelope — internal
+
+class SurveysResponse(APIModel):  # envelope — internal
     links: dict[str, Any] = Field(default_factory=dict)
     result: list[Survey] = Field(default_factory=list)
 ```
@@ -55,7 +57,14 @@ from the domain's `dependencies` module — not from the shared `ycli.yandex.mcp
 
 ```python
 # src/ycli/yandex/tracker/issues/mcp.py
-from ycli.yandex.tracker.dependencies import DESTRUCTIVE, RO, TAGS, WRITE, WRITE_TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_TAGS,
+    tracker_client,
+)
 ```
 
 The `dependencies` module re-exports the annotation sets (from `ycli.yandex.mcp`) in its
@@ -114,8 +123,8 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
     tags=TAGS,
 )
 def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
-    """A single Tracker issue by key."""          # ← this IS the description
-    return client.issues.get(key)                 # return type IS the outputSchema
+    """A single Tracker issue by key."""  # ← this IS the description
+    return client.issues.get(key)  # return type IS the outputSchema
 ```
 
 ### Write example
@@ -141,8 +150,11 @@ instead of an opaque `object`, and a malformed payload fails schema validation b
 HTTP call rather than at the live API:
 
 ```python
-@mcp.tool(name="bulk_update", annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update issues"},
-          tags=WRITE_TAGS)
+@mcp.tool(
+    name="bulk_update",
+    annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update issues"},
+    tags=WRITE_TAGS,
+)
 def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation."""
     return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True))
@@ -183,8 +195,8 @@ READ/WRITE/GRANT under `grant`/`revoke` verbs, which the existing
 `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema`
 asserts that every registered tool has a non-empty `description` and a non-`None`
 `outputSchema`.  The test uses `fastmcp.Client` to list tools from the mounted root
-server and checks the `tool.description` and `tool.outputSchema` attributes (MCP spec
-field `outputSchema`, exposed as camelCase by fastmcp 3.4.x).
+server and checks the `tool.description` and `tool.output_schema` attributes (MCP spec
+field `outputSchema`; the MCP SDK v2 types under fastmcp 4 spell it in snake_case).
 
 ---
 

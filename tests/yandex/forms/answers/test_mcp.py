@@ -73,9 +73,9 @@ async def test_answers_tools_registered_with_honest_annotations():
         tools = {t.name: t for t in await client.list_tools()}
     assert set(tools) == {"answers_get", "answers_list", "answers_export"}
     # answers_get wraps the flat GET /v1/answers?answer_id=|answer_key= route (live-verified).
-    assert tools["answers_get"].annotations.readOnlyHint is True
-    assert tools["answers_list"].annotations.readOnlyHint is True
+    assert tools["answers_get"].annotations.read_only_hint is True
+    assert tools["answers_list"].annotations.read_only_hint is True
     export = tools["answers_export"].annotations
-    assert export.readOnlyHint is False
-    assert export.destructiveHint is False and export.idempotentHint is False
+    assert export.read_only_hint is False
+    assert export.destructive_hint is False and export.idempotent_hint is False
     assert all(t.annotations.title for t in tools.values())
