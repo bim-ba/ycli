@@ -103,6 +103,13 @@ enforcing check in the **same** PR and flag it.
 
 ## graphify
 
-This project has a knowledge graph at `graphify-out/`. The query / path / explain workflow is the generic one and lives in the user-level `graphify` skill, not here.
+The code graph is not committed: build it locally when you need it (about 5 seconds, no LLM, free):
 
-- **Do NOT run `graphify update .` here.** It ignores the curated `--exclude` set in `.graphify/rebuild.sh` and re-scans the vendored `references/yandex-cloud/` submodule (~90k files), exploding the graph from ~5.3k to ~560k nodes. Treat the committed graph as a periodically-rebuilt snapshot: refresh it only by re-running `.graphify/rebuild.sh` (a full GLM-5.2 rebuild that costs API credits), and accept minor staleness (e.g. a just-deleted symbol) between rebuilds.
+```bash
+uvx --from graphifyy graphify extract . --code-only --exclude references/ --exclude graphify-out/
+```
+
+It writes `graphify-out/graph.json` (gitignored). The query / path / explain workflow is the generic one and lives in the user-level `graphify` skill, not here.
+
+- **Always pass `--exclude references/`.** Without it graphify scans the vendored `references/yandex-cloud/` submodule (~90k files) and the graph explodes from ~4k to ~560k nodes; `graphify update .` has the same problem.
+- **Optional deep graph** (code plus docs, paid LLM pass): `.graphify/rebuild.sh`.
