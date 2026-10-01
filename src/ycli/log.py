@@ -64,3 +64,6 @@ def configure(level: str = "WARNING", log_format: LogFormat = "text") -> None:
     logger.setLevel(level)
     # The process owns this handler; a root handler set up by a dependency must not print twice.
     logger.propagate = False
+    # ycli logs its own retries under ycli.http; stamina's duplicate WARNING would otherwise
+    # reach stderr through logging's last-resort handler.
+    logging.getLogger("stamina").setLevel(logging.ERROR)

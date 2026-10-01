@@ -3,7 +3,6 @@
 import json
 
 import pytest
-import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
@@ -14,10 +13,9 @@ pytestmark = pytest.mark.integration
 runner = CliRunner()
 
 
-@responses.activate
-def test_get_dumps_issue_model():
-    responses.add(
-        responses.GET,
+def test_get_dumps_issue_model(api):
+    api.add(
+        "GET",
         f"{BASE}/issues/DE-1",
         json={"key": "DE-1", "summary": "S", "type": {"key": "task"}},
         status=200,
@@ -29,57 +27,46 @@ def test_get_dumps_issue_model():
     assert out["type"] == "task"
 
 
-@responses.activate
-def test_list_builds_filter_body():
-    responses.add(responses.POST, f"{BASE}/issues/_search", json=[{"key": "DE-1"}], status=200)
+def test_list_builds_filter_body(api):
+    api.add("POST", f"{BASE}/issues/_search", json=[{"key": "DE-1"}], status=200)
     res = runner.invoke(
         cli.app,
         ["--format", "json", "tracker", "issues", "list", "--queue", "DE", "--status", "open"],
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)[0]["key"] == "DE-1"
-    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
-        "filter": {"queue": "DE", "status": "open"}
-    }
+    assert api.body(0) == {"filter": {"queue": "DE", "status": "open"}}
 
 
-@responses.activate
-def test_search_builds_query_body():
-    responses.add(responses.POST, f"{BASE}/issues/_search", json=[{"key": "DE-9"}], status=200)
+def test_search_builds_query_body(api):
+    api.add("POST", f"{BASE}/issues/_search", json=[{"key": "DE-9"}], status=200)
     res = runner.invoke(
         cli.app, ["--format", "json", "tracker", "issues", "search", "Queue: DE AND Status: open"]
     )
     assert res.exit_code == 0
-    assert json.loads(responses.calls[0].request.body) == {"query": "Queue: DE AND Status: open"}  # ty: ignore[invalid-argument-type]
+    assert api.body(0) == {"query": "Queue: DE AND Status: open"}
 
 
-@responses.activate
-def test_count_query():
-    responses.add(responses.POST, f"{BASE}/issues/_count", json=42, status=200)
+def test_count_query(api):
+    api.add("POST", f"{BASE}/issues/_count", json=42, status=200)
     res = runner.invoke(cli.app, ["tracker", "issues", "count", "--query", "Queue: DE"])
     assert res.exit_code == 0
     assert res.stdout.strip() == "42"
-    assert json.loads(responses.calls[0].request.body) == {"query": "Queue: DE"}  # ty: ignore[invalid-argument-type]
+    assert api.body(0) == {"query": "Queue: DE"}
 
 
-@responses.activate
-def test_count_filters():
-    responses.add(responses.POST, f"{BASE}/issues/_count", json=3, status=200)
+def test_count_filters(api):
+    api.add("POST", f"{BASE}/issues/_count", json=3, status=200)
     res = runner.invoke(
         cli.app, ["tracker", "issues", "count", "--queue", "DE", "--status", "open"]
     )
     assert res.exit_code == 0
     assert res.stdout.strip() == "3"
-    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
-        "filter": {"queue": "DE", "status": "open"}
-    }
+    assert api.body(0) == {"filter": {"queue": "DE", "status": "open"}}
 
 
-@responses.activate
-def test_create_assembles_body_with_polymorphic_wrap_and_fields():
-    responses.add(
-        responses.POST, f"{BASE}/issues/", json={"key": "DE-10", "summary": "New"}, status=201
-    )
+def test_create_assembles_body_with_polymorphic_wrap_and_fields(api):
+    api.add("POST", f"{BASE}/issues/", json={"key": "DE-10", "summary": "New"}, status=201)
     res = runner.invoke(
         cli.app,
         [
@@ -110,7 +97,7 @@ def test_create_assembles_body_with_polymorphic_wrap_and_fields():
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout)["key"] == "DE-10"
-    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    sent = api.body(0)
     assert sent == {
         "queue": "DE",
         "summary": "New",
@@ -123,11 +110,8 @@ def test_create_assembles_body_with_polymorphic_wrap_and_fields():
     }
 
 
-@responses.activate
-def test_update_assembles_partial_body():
-    responses.add(
-        responses.PATCH, f"{BASE}/issues/DE-5", json={"key": "DE-5", "summary": "U"}, status=200
-    )
+def test_update_assembles_partial_body(api):
+    api.add("PATCH", f"{BASE}/issues/DE-5", json={"key": "DE-5", "summary": "U"}, status=200)
     res = runner.invoke(
         cli.app,
         [
@@ -144,13 +128,12 @@ def test_update_assembles_partial_body():
         ],
     )
     assert res.exit_code == 0
-    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    sent = api.body(0)
     assert sent == {"summary": "U", "type": {"key": "bug"}}
 
 
-@responses.activate
-def test_update_assembles_full_body():
-    responses.add(responses.PATCH, f"{BASE}/issues/DE-5", json={"key": "DE-5"}, status=200)
+def test_update_assembles_full_body(api):
+    api.add("PATCH", f"{BASE}/issues/DE-5", json={"key": "DE-5"}, status=200)
     res = runner.invoke(
         cli.app,
         [
@@ -179,7 +162,7 @@ def test_update_assembles_full_body():
         ],
     )
     assert res.exit_code == 0
-    sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
+    sent = api.body(0)
     assert sent == {
         "summary": "U",
         "type": {"key": "bug"},
@@ -191,31 +174,53 @@ def test_update_assembles_full_body():
     }
 
 
-@responses.activate
-def test_move_to_queue():
-    responses.add(responses.POST, f"{BASE}/issues/TEST-1/_move", json={"key": "NEW-1"}, status=200)
+def test_move_to_queue(api):
+    api.add("POST", f"{BASE}/issues/TEST-1/_move", json={"key": "NEW-1"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "move", "TEST-1", "NEW"])
     assert res.exit_code == 0
     assert json.loads(res.stdout)["key"] == "NEW-1"
-    assert "queue=NEW" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+    assert "queue=NEW" in str(api.calls[0].url)
 
 
-@responses.activate
-def test_suggest():
-    responses.add(responses.GET, f"{BASE}/issues/_suggest", json=[{"key": "TEST-123"}], status=200)
+def test_suggest(api):
+    api.add("GET", f"{BASE}/issues/_suggest", json=[{"key": "TEST-123"}], status=200)
     res = runner.invoke(cli.app, ["--format", "json", "tracker", "issues", "suggest", "fix bug"])
     assert res.exit_code == 0
     assert json.loads(res.stdout)[0]["key"] == "TEST-123"
-    assert "input=fix" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+    assert "input=fix" in str(api.calls[0].url)
 
 
-@responses.activate
-def test_scroll_clear():
-    responses.add(responses.POST, f"{BASE}/system/search/scroll/_clear", status=200)
+def test_scroll_clear(api):
+    api.add("POST", f"{BASE}/system/search/scroll/_clear", status=200)
     res = runner.invoke(
         cli.app,
         ["--format", "json", "tracker", "issues", "scroll-clear", "--pair", "scrollId=scrollToken"],
     )
     assert res.exit_code == 0
     assert json.loads(res.stdout) == {"ok": True, "detail": "cleared search scroll resources"}
-    assert json.loads(responses.calls[0].request.body) == {"scrollId": "scrollToken"}  # ty: ignore[invalid-argument-type]
+    assert api.body(0) == {"scrollId": "scrollToken"}
+
+
+def _page(start: int, count: int) -> list[dict]:
+    return [{"key": f"DE-{n}"} for n in range(start, start + count)]
+
+
+def test_list_caps_at_limit_and_warns_on_stderr(api):
+    api.add("POST", f"{BASE}/issues/_search", json=_page(1, 100), headers={"X-Total-Pages": "3"})
+    res = runner.invoke(
+        cli.app, ["-o", "json", "tracker", "issues", "list", "--queue", "DE", "--limit", "5"]
+    )
+    assert res.exit_code == 0, res.output
+    assert len(json.loads(res.stdout)) == 5
+    assert "stopped at 5 items; more may be available" in res.stderr
+
+
+def test_search_all_fetches_every_page(api):
+    api.add("POST", f"{BASE}/issues/_search", json=_page(1, 100), headers={"X-Total-Pages": "2"})
+    api.add("POST", f"{BASE}/issues/_search", json=_page(101, 1), headers={"X-Total-Pages": "2"})
+    res = runner.invoke(
+        cli.app, ["-o", "json", "tracker", "issues", "search", "Queue: DE", "--all"]
+    )
+    assert res.exit_code == 0, res.output
+    assert len(json.loads(res.stdout)) == 101
+    assert res.stderr == ""

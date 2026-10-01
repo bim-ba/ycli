@@ -11,11 +11,14 @@ and `tests/test_snapshots.py`. A failing build names the violated invariant.
 src/ycli/
 ├── cli/ · mcp/ · log.py · settings.py  # roots (cli/ = app · context · output)
 └── yandex/
-    ├── base.py · transport.py · pagination.py · mcp.py  # shared (mcp.py = MCP helpers)
+    ├── core/          # httpx2 core: endpoint · pagination · session · auth · profile · resource
+    ├── base.py · transport.py · pagination.py  # the uplink stack, until every resource moved
+    ├── mcp.py · registry.py · service.py       # MCP helpers, the service list
     └── <domain>/                            # tracker · wiki · forms
-        ├── base.py · dependencies.py · typedefs.py · utils.py · client.py · cli.py · mcp.py
+        ├── base.py · dependencies.py · typedefs.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
-            ├── client.py   # uplink SDK — the ONLY place HTTP happens
+            ├── endpoints.py  # core resources: each operation declared once (sans-IO)
+            ├── client.py   # the SDK — sends endpoints (core) or uplink calls; the ONLY HTTP
             ├── cli.py      # Typer — commands return results; output.render prints them
             ├── mcp.py      # FastMCP tools (reads + writes, honest hints)
             ├── models.py   # pydantic (inherit APIModel from ycli.yandex.models)
@@ -27,7 +30,12 @@ Notable shared pieces:
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI); `cli/inject.py`
   fills a command's keyword-only client/config parameters from it
-- `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
+- `src/ycli/yandex/core/` — the httpx2 core: `Endpoint[T]` (an operation declared once with its
+  effect), one `Pagination` class per Yandex paging kind, `SyncSession` / `AsyncSession` (typed
+  errors, retries, logging, page walking), every auth kind as an `httpx2.Auth`, and
+  `ServiceProfile` (base URL + organization header). Tracker `issues` runs on it; the other
+  resources move in E2
+- `src/ycli/yandex/pagination.py` — the uplink resources' pagination strategies (until E2)
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
   tool call, so nothing is cached per process
@@ -55,8 +63,9 @@ Notable shared pieces:
   *Carve-out:* `yandex/status/` and the `ycli/mcp/` server package are cross-cutting surfaces,
   not `<domain>/<resource>` dirs — the four-surface rule and the `_resource_dirs()` check
   (which scans only `tracker/wiki/forms`) do not apply to them.
-- **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests` or
-  `uplink`. All HTTP lives in `client.py` / `base.py` / `transport.py`.
+- **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests`,
+  `uplink` or `httpx2`. All HTTP lives in `client.py` / `base.py` / `transport.py` and the
+  `ycli.yandex.core` package, which itself imports no service and no surface (import-linter).
 - **ARCH-3 — MCP mirrors the SDK with honest annotations.** `fastmcp` is imported only in
   modules named `mcp.py` and in the `ycli.mcp` server package (`src/ycli/mcp/server.py`; its
   `__init__.py` stays fastmcp-free so the base install loads the CLI sub-app without the
@@ -99,17 +108,13 @@ Notable shared pieces:
   by instantiating the settings models (`Credentials()` / `AppConfig()`). *Check:* grep —
   `os.environ` and `class …(BaseSettings)` appear only in `settings.py`.
 - **ARCH-9 — Typed boundary errors.** Non-2xx responses raise a typed `YandexError` subclass
-  from the transport hook; no surface parses an error body into a model. *Check:* the existing
-  status→exception mapping test, plus no `raise_for_status` / status-branching outside
-  `transport.py`.
+  (one mapping, `errors.error_for_status`) from the uplink transport hook or the core session;
+  no surface parses an error body into a model. *Check:* the status→exception mapping test,
+  plus no `raise_for_status` outside `transport.py`.
 - **ARCH-10 — No shadowing of configurable values.** A configurable value is never overridden by
   a hardcoded literal that wins over the configured one (the `@uplink.timeout(30)` bug). *Check:*
-  grep — no `@uplink.timeout` anywhere. **Carve-out:** the public SDK constructor signature
-  defaults (`timeout_seconds: int = 30`, `retries: int = 3`) are parameter defaults, not
-  shadowing — they apply only when the caller passes nothing, and `AppContext` always passes the
-  configured value. These two literals must stay equal to `HTTPConfig`'s defaults; a test asserts
-  `inspect.signature(TrackerClient).parameters` defaults == `HTTPConfig` field defaults so the
-  duplication can't drift.
+  grep — no `@uplink.timeout` anywhere. Domain clients take an `HTTPConfig` (default:
+  `HTTPConfig()`), so the SDK has no second copy of the timeout and retry defaults.
 - **ARCH-11 — Doc-drift guard.** User-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
   `CONTRIBUTING.md`, `SECURITY.md`, `docs/conventions/**/*.md`,
   `plugins/**/*.md`) must not show call-site usage of idioms purged by ARCH-7..10. Concretely,
@@ -161,8 +166,9 @@ Resources are hand-written, starting from the `/new-endpoint` scaffold
 same committed file layout, and ycli's hand-written code is the golden output it must
 reproduce. ycli does not use refract yet. Rejected: generating clients or tools at runtime
 (metaprogramming), and external SDK generators such as Fern, which cover only the SDK and
-impose their own models. The HTTP stack (`uplink` + `requests`) stays until a generator is
-adopted.
+impose their own models. The HTTP stack moves to the httpx2 core independently of refract
+(#85): its `Endpoint[T]` has the same shape as refract's `Request`, so generated resources can
+target it; the uplink stack is removed once the last domain has moved (E2).
 
 ## Changing an invariant
 

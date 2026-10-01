@@ -1,5 +1,6 @@
 """Yandex Tracker domain — per-resource clients (issues, comments, links, …), CLI, and MCP."""
 
+from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.service import Service
 
 SERVICE = Service(
@@ -8,4 +9,5 @@ SERVICE = Service(
     client="ycli.yandex.tracker.client:TrackerClient",
     cli="ycli.yandex.tracker.cli:app",
     mcp="ycli.yandex.tracker.mcp:mcp",
+    profile=ServiceProfile("https://api.tracker.yandex.net/v3"),
 )

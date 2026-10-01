@@ -7,9 +7,12 @@ from typing import Annotated, Any
 import typer
 
 from ycli.cli.fields import parse_fields
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.issues.models import Issue, IssueList, count_body
+from ycli.yandex.tracker.issues.models import Issue, IssueList, count_body, filter_body
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -35,30 +38,29 @@ def list_(
     assignee: Annotated[str, typer.Option(help="Assignee login.")] = "",
     epic: Annotated[str, typer.Option(help="Epic key.")] = "",
     type_: Annotated[str, typer.Option("--type", help="Issue type key.")] = "",
+    limit: LimitOption = 0,
+    all_: AllOption = False,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
 ) -> IssueList:
-    """List issues matching the supplied filters (omitted filters dropped)."""
-    flt = {
-        k: v
-        for k, v in {
-            "queue": queue,
-            "status": status,
-            "assignee": assignee,
-            "epic": epic,
-            "type": type_,
-        }.items()
-        if v
-    }
-    return tracker.issues.search(body={"filter": flt})
+    """List issues matching the supplied filters (auto-paginated; --all for everything)."""
+    body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=type_)
+    return tracker.issues.search(body, limit=resolve_cap(limit, config.http.max_items, all_=all_))
 
 
 @app.command()
 def search(
-    query: Annotated[str, typer.Argument(help="TQL query.")], *, tracker: TrackerClient
+    query: Annotated[str, typer.Argument(help="TQL query.")],
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
 ) -> IssueList:
-    """Search issues by a TQL query string."""
-    return tracker.issues.search(body={"query": query})
+    """Search issues by a TQL query string (auto-paginated; --all for everything)."""
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return tracker.issues.search({"query": query}, limit=cap)
 
 
 @app.command()

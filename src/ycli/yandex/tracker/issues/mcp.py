@@ -1,9 +1,14 @@
 """Tracker /issues FastMCP tools (reads + writes) — Depends DI, native error handling."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, require_found
+from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -11,6 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    app_config,
     tracker_client,
 )
 from ycli.yandex.tracker.issues.models import (
@@ -20,9 +26,12 @@ from ycli.yandex.tracker.issues.models import (
     IssueUpdate,
     ScrollClear,
     count_body,
+    filter_body,
 )
 
 mcp = FastMCP("tracker-issues")
+
+_LIMIT = "Max issues to return; 0 means the configured cap (default 500)."
 
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)
@@ -49,29 +58,34 @@ def list_(
     assignee: str = "",
     epic: str = "",
     type_: str = "",
+    limit: Annotated[int, Field(description=_LIMIT)] = 0,
     client: TrackerClient = Depends(tracker_client),
+    config: AppConfig = Depends(app_config),
 ) -> IssueList:
-    """Issues matching the supplied filters (omitted filters dropped)."""
-    flt = {
-        k: v
-        for k, v in (
-            ("queue", queue),
-            ("status", status),
-            ("assignee", assignee),
-            ("epic", epic),
-            ("type", type_),
-        )
-        if v
-    }
-    return client.issues.search(body={"filter": flt})
+    """Issues matching the supplied filters (omitted filters dropped), auto-paginated.
+
+    Returns at most ``limit`` issues; exactly ``limit`` back means more may match — narrow the
+    filters or raise ``limit``.
+    """
+    body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=type_)
+    return client.issues.search(body, limit=resolve_cap(limit, config.http.max_items))
 
 
 @mcp.tool(
     name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"}, tags=TAGS
 )
-def search(query: str, client: TrackerClient = Depends(tracker_client)) -> IssueList:
-    """Issues matching a TQL query string."""
-    return client.issues.search(body={"query": query})
+def search(
+    query: str,
+    limit: Annotated[int, Field(description=_LIMIT)] = 0,
+    client: TrackerClient = Depends(tracker_client),
+    config: AppConfig = Depends(app_config),
+) -> IssueList:
+    """Issues matching a TQL query string, auto-paginated.
+
+    Returns at most ``limit`` issues; exactly ``limit`` back means more may match — refine the
+    query or raise ``limit``.
+    """
+    return client.issues.search({"query": query}, limit=resolve_cap(limit, config.http.max_items))
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)

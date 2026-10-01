@@ -135,3 +135,16 @@ def count_body(query: str = "", queue: str = "", status: str = "") -> dict[str, 
     if query:
         return {"query": query}
     return {"filter": {k: v for k, v in (("queue", queue), ("status", status)) if v}}
+
+
+def filter_body(
+    *, queue: str = "", status: str = "", assignee: str = "", epic: str = "", type_: str = ""
+) -> dict[str, Any]:
+    """Build the ``POST /issues/_search`` body for field filters, dropping the empty ones.
+
+    Example:
+        >>> filter_body(queue="DE", type_="bug")
+        {'filter': {'queue': 'DE', 'type': 'bug'}}
+    """
+    fields = {"queue": queue, "status": status, "assignee": assignee, "epic": epic, "type": type_}
+    return {"filter": {name: value for name, value in fields.items() if value}}

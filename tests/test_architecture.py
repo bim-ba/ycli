@@ -107,13 +107,12 @@ def _resource_operations():
     """Yield ``(domain_slug, resource_attr, sdk_ops)`` for every domain resource client."""
     gen = _load_gen_coverage()
     clients = {
-        "tracker": gen.TrackerClient(oauth_token="x", organization_id="x"),
-        "wiki": gen.WikiClient(oauth_token="x", organization_id="x"),
-        "forms": gen.FormsClient(oauth_token="x", organization_id="x"),
+        service.name: service.client_class()(oauth_token="x", organization_id="x")
+        for service in SERVICES
     }
     for slug, client in clients.items():
         for attr, resource in sorted(vars(client).items()):
-            if isinstance(resource, gen.BaseYandex):
+            if isinstance(resource, gen.BaseYandex | gen.Resource):
                 yield slug, attr, set(gen._sdk_operations(resource))
 
 
@@ -687,8 +686,8 @@ def test_arch5_single_sources_of_truth():
             offenders.append(f"{rel}: hardcoded YANDEX_ID token literal")
         if rel != Path("__init__.py") and _VERSION_RE.search(text):
             offenders.append(f"{rel}: hardcoded __version__ literal")
-        if p.name != "transport.py" and _ORG_HEADER_RE.search(text):
-            offenders.append(f"{rel}: org header string outside transport.py")
+        if rel != Path("yandex/core/profile.py") and _ORG_HEADER_RE.search(text):
+            offenders.append(f"{rel}: org header string outside yandex/core/profile.py")
     assert not offenders, offenders
 
 
@@ -740,19 +739,6 @@ def test_arch10_no_uplink_timeout_shadow():
         if "@uplink.timeout" in p.read_text(encoding="utf-8")
     ]
     assert not offenders, f"@uplink.timeout shadows YCLI__HTTP__TIMEOUT_SECONDS: {offenders}"
-
-
-def test_arch10_sdk_defaults_match_appconfig():
-    """The SDK constructor defaults (carve-out) stay equal to AppConfig's defaults."""
-    import inspect
-
-    from ycli.settings import HTTPConfig
-    from ycli.yandex.tracker.client import TrackerClient
-
-    params = inspect.signature(TrackerClient).parameters
-    http_defaults = HTTPConfig()
-    assert params["timeout_seconds"].default == http_defaults.timeout_seconds
-    assert params["retries"].default == http_defaults.retries
 
 
 def test_every_mcp_tool_has_description_and_output_schema():

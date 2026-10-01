@@ -45,6 +45,9 @@ uv tool install 'yandex-cli[mcp]'     # …with the MCP server
 
 `pip install yandex-cli` works too. The CLI ships as both `yandex-cli` and the short `ycli`.
 
+The SDK's `ServiceAccountAuth` (IAM tokens minted from a Yandex Cloud service-account key) needs
+the `service-account` extra: `uv add 'yandex-cli[service-account]'`.
+
 ## Quick start
 
 Pick the surface that fits how you work.

@@ -1,125 +1,68 @@
-"""Declarative Tracker /issues client (uplink) — transport ONLY.
+"""Tracker ``/issues`` client on the httpx2 core — the first resource off ``uplink``.
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.issues.endpoints`.
 """
 
-import requests
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
+from typing import Any
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.issues import endpoints
 from ycli.yandex.tracker.issues.models import Issue, IssueList
 
 
-class IssuesClient(TrackerResource):
-    """Declarative HTTP for ``/issues`` (get, search, count, create, update)."""
+class IssuesClient(Resource):
+    """Get, search (paginated), count, create, update, move and suggest Tracker issues."""
 
-    @uplink.returns.json()
-    @uplink.get("issues/{key}")
-    def get(self, key: uplink.Path) -> Issue:  # ty: ignore[empty-body]
-        """``GET /issues/{key}`` → a single ``Issue`` (raises on non-2xx).
+    def get(self, key: str) -> Issue:
+        """``GET /issues/{key}`` → a single ``Issue``.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.get(key="DATAENGINEERING-1").status  # doctest: +SKIP
+            >>> client.issues.get("DATAENGINEERING-1").status  # doctest: +SKIP
             'inProgress'
         """
+        return self._session.send(endpoints.get_issue(key))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/_search")
-    def search(self, body: uplink.Body) -> IssueList:  # ty: ignore[empty-body]
-        """``POST /issues/_search`` → list of issues.
+    def search(self, body: dict[str, Any], *, limit: int | None = None) -> IssueList:
+        """``POST /issues/_search`` → every matching issue, page by page, at most ``limit``.
 
-        ``body`` is ``{"filter": …}`` or ``{"query": …}``.
-
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.search({"query": "Queue: DATAENGINEERING"}).root[
-            ...     0
-            ... ].key  # doctest: +SKIP
-            'DATAENGINEERING-1'
-        """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/_count")
-    def count(self, body: uplink.Body) -> int:  # ty: ignore[empty-body]
-        """``POST /issues/_count`` → a bare integer count.
+        ``body`` is ``{"filter": …}`` or ``{"query": …}``. ``limit=None`` fetches every page (up
+        to Tracker's 10 000 results); when the cap leaves issues behind, a warning is logged to
+        ``ycli.http``.
 
         Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.count({"filter": {"queue": "DATAENGINEERING"}})  # doctest: +SKIP
-            137
+            >>> client.issues.search({"query": "Queue: DE"}, limit=10).root[0].key  # doctest: +SKIP
+            'DE-1'
         """
+        if limit is not None and limit < 1:
+            raise ValueError(f"limit must be a positive number of issues or None, got {limit}")
+        # A small cap needs no 100-issue page.
+        page_size = min(limit, endpoints.SEARCH_PAGE_SIZE) if limit else endpoints.SEARCH_PAGE_SIZE
+        paged = endpoints.search_issues(body, page_size=page_size)
+        return IssueList(list(self._session.iterate(paged, limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/")
-    def create(self, body: uplink.Body) -> Issue:  # ty: ignore[empty-body]
-        """``POST /issues/`` — create from a ready body. Returns the created ``Issue``.
+    def count(self, body: dict[str, Any]) -> int:
+        """``POST /issues/_count`` → the number of matching issues."""
+        return self._session.send(endpoints.count_issues(body))
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.create(
-            ...     {"queue": "DATAENGINEERING", "summary": "New", "type": {"key": "improvement"}}
-            ... ).key  # doctest: +SKIP
-            'DATAENGINEERING-200'
-        """
+    def create(self, body: dict[str, Any]) -> Issue:
+        """``POST /issues/`` — create from a ready body; returns the created ``Issue``."""
+        return self._session.send(endpoints.create_issue(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("issues/{key}")
-    def update(self, key: uplink.Path, body: uplink.Body) -> Issue:  # ty: ignore[empty-body]
-        """``PATCH /issues/{key}`` — update fields. Returns the updated ``Issue``.
+    def update(self, key: str, body: dict[str, Any]) -> Issue:
+        """``PATCH /issues/{key}`` — update fields; returns the updated ``Issue``."""
+        return self._session.send(endpoints.update_issue(key, body))
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.update(
-            ...     key="DATAENGINEERING-1", body={"priority": {"key": "critical"}}
-            ... ).priority  # doctest: +SKIP
-            'critical'
-        """
+    def move(self, key: str, queue: str) -> Issue:
+        """``POST /issues/{key}/_move?queue=<key>`` — returns the moved ``Issue`` (new key)."""
+        return self._session.send(endpoints.move_issue(key, queue))
 
-    @uplink.returns.json()
-    @uplink.post("issues/{key}/_move")
-    def move(self, key: uplink.Path, queue: uplink.Query) -> Issue:  # ty: ignore[empty-body]
-        """``POST /issues/{key}/_move?queue=<key>`` — move an issue to another queue.
+    def suggest(self, text: str) -> IssueList:
+        """``GET /issues/_suggest?input=<text>`` → issues whose summary contains ``text``."""
+        return self._session.send(endpoints.suggest_issues(text))
 
-        Returns the moved ``Issue`` (now bearing a key in the target queue).
-
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.move(key="TEST-1", queue="NEW").key  # doctest: +SKIP
-            'NEW-1'
-        """
-
-    @uplink.returns.json()
-    @uplink.get("issues/_suggest")
-    def suggest(self, text: uplink.Query("input")) -> IssueList:  # ty: ignore[invalid-type-form, empty-body]
-        """``GET /issues/_suggest?input=<text>`` → issues whose summary contains ``text``.
-
-        A typeahead over visible issues (title match); returns an ``IssueList``.
-
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.suggest("fix bug").root[0].key  # doctest: +SKIP
-            'TEST-123'
-        """
-
-    @uplink.json
-    @uplink.post("system/search/scroll/_clear")
-    def _scroll_clear(self, body: uplink.Body) -> requests.Response:  # ty: ignore[empty-body]
-        """``POST /system/search/scroll/_clear`` (200; internal — use :meth:`scroll_clear`)."""
-
-    def scroll_clear(self, body: dict) -> None:
-        """Release a search scroll's server resources (``POST …/scroll/_clear`` → 200). No return.
-
-        ``body`` maps each ``X-Scroll-Id`` to its ``X-Scroll-Token`` from a scrolled
-        ``issues.search``. Raises on non-2xx.
-
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issues.scroll_clear({"scrollId": "scrollToken"})  # doctest: +SKIP
-        """
-        self._scroll_clear(body)
+    def scroll_clear(self, body: dict[str, str]) -> None:
+        """Release a search scroll's server resources (``POST …/scroll/_clear``)."""
+        self._session.send(endpoints.clear_scroll(body))

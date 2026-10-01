@@ -11,13 +11,15 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
     from ycli.yandex.base import DomainClient
+    from ycli.yandex.core.profile import ServiceProfile
 
 
 @dataclass(frozen=True, slots=True)
 class Service:
     """One Yandex service as every surface sees it.
 
-    ``name`` is the CLI group, the MCP tool prefix (``tracker_*``) and the ``auth status`` key.
+    ``name`` is the CLI group, the MCP tool prefix (``tracker_*``) and the ``auth status`` key;
+    ``profile`` is where its API lives and how it names the organization.
     """
 
     name: str
@@ -25,6 +27,7 @@ class Service:
     client: str
     cli: str
     mcp: str
+    profile: ServiceProfile
 
     def client_class(self) -> type[DomainClient]:
         """The SDK client class (``TrackerClient``), imported on first use."""

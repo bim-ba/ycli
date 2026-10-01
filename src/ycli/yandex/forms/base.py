@@ -10,9 +10,10 @@ uplink reads their method annotations eagerly. Keep this module annotation-eager
 from typing import ClassVar
 
 from ycli.yandex.base import BaseYandex
+from ycli.yandex.forms import SERVICE
 
 
 class FormsResource(BaseYandex):
     """Base for every Forms resource client (inherits session DI via constructor)."""
 
-    base_url: ClassVar[str] = "https://api.forms.yandex.net/v1"
+    base_url: ClassVar[str] = SERVICE.profile.base_url

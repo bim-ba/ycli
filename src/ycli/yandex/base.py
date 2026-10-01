@@ -16,12 +16,20 @@ Example:
     >>> client = PagesClient(session=requests.Session())  # doctest: +SKIP
 """
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import requests
 import uplink
+from pydantic import SecretStr
 
+from ycli.settings import HTTPConfig
 from ycli.yandex.transport import Transport
+
+if TYPE_CHECKING:
+    import httpx2
+
+    from ycli.yandex.core.profile import ServiceProfile
+    from ycli.yandex.core.session import SyncSession
 
 
 class BaseYandex(uplink.Consumer):
@@ -36,17 +44,14 @@ class BaseYandex(uplink.Consumer):
 
 
 class DomainClient:
-    """Shared constructor for the three domain composition roots (Tracker / Wiki / Forms).
+    """Shared constructor for the domain composition roots (Tracker / Wiki / Forms).
 
-    Each domain client is a byte-identical container: build one authed ``requests.Session`` from
-    the credentials + config, then wire the per-resource clients over it. This base owns the
-    build; a subclass declares ONLY its resource wiring in :meth:`_wire`. Credentials arrive as
-    explicit constructor arguments (ARCH-7) — the base never reads the environment.
-
-    The ``timeout_seconds`` / ``retries`` defaults intentionally equal ``HTTPConfig``'s defaults
-    (the ARCH-10 carve-out): they apply only when a caller passes nothing, and ``AppContext``
-    always passes the configured value. A test pins ``inspect.signature`` of a domain client to
-    those defaults, so this signature must stay in sync with ``HTTPConfig``.
+    Builds the authed ``requests.Session`` for the resources still on ``uplink`` and, through
+    :meth:`_connect`, an httpx2 :class:`~ycli.yandex.core.session.SyncSession` for resources
+    already on the core; a subclass declares ONLY its resource wiring in :meth:`_wire`.
+    Credentials arrive as explicit constructor arguments (ARCH-7) — the base never reads the
+    environment. ``http`` defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so
+    there is no second copy of them here. ``transport`` replaces the core's network (tests).
     """
 
     def __init__(
@@ -54,18 +59,36 @@ class DomainClient:
         *,
         oauth_token: str,
         organization_id: str,
-        timeout_seconds: float = 30.0,
-        retries: int = 3,
+        http: HTTPConfig | None = None,
         session: requests.Session | None = None,
+        transport: "httpx2.BaseTransport | None" = None,
     ) -> None:
+        self._oauth_token = SecretStr(oauth_token)
+        self._organization_id = organization_id
+        self._http = http or HTTPConfig()
+        self._transport = transport
         self._wire(
             Transport.session(
                 oauth_token=oauth_token,
                 organization_id=organization_id,
-                timeout_seconds=timeout_seconds,
-                retries=retries,
+                timeout_seconds=self._http.timeout_seconds,
+                retries=self._http.retries,
                 base=session,
             )
+        )
+
+    def _connect(self, profile: "ServiceProfile") -> "SyncSession":
+        """A core session to ``profile`` with this client's credentials and HTTP settings."""
+        # Imported here: httpx2 costs ~0.2 s, paid only by a domain with a resource on the core.
+        from ycli.yandex.core.auth import OAuthTokenAuth
+        from ycli.yandex.core.session import connect
+
+        return connect(
+            profile,
+            auth=OAuthTokenAuth(self._oauth_token),
+            organization_id=self._organization_id,
+            http=self._http,
+            transport=self._transport,
         )
 
     def _wire(self, transport: requests.Session) -> None:
