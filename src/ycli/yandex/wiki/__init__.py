@@ -1,5 +1,6 @@
 """Yandex Wiki domain — per-resource clients (pages/comments/attachments), CLI, and MCP."""
 
+from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.service import Service
 
 SERVICE = Service(
@@ -8,4 +9,5 @@ SERVICE = Service(
     client="ycli.yandex.wiki.client:WikiClient",
     cli="ycli.yandex.wiki.cli:app",
     mcp="ycli.yandex.wiki.mcp:mcp",
+    profile=ServiceProfile("https://api.wiki.yandex.net/v1"),
 )

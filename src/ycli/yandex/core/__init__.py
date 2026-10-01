@@ -1,0 +1,11 @@
+"""The HTTP core on ``httpx2``: declare an :class:`~ycli.yandex.core.endpoint.Endpoint`, send it.
+
+- ``endpoint`` — ``Endpoint[T]`` (method, path, body, response type, effect) and ``Paged``.
+- ``pagination`` — one class per kind of Yandex pagination, stateless and I/O-free.
+- ``session`` — ``SyncSession`` / ``AsyncSession`` and ``connect`` / ``connect_async``: typed
+  errors, retries, logging, page walking.
+- ``auth`` — ``httpx2.Auth`` for every Yandex auth kind; ``profile`` — ``ServiceProfile``.
+
+Domains move onto it one by one (Tracker ``issues`` first); the ``uplink`` transport stays until
+the last one has moved.
+"""

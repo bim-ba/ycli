@@ -18,9 +18,9 @@ def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
     cfg = AppConfig(http={"timeout_seconds": 12.0, "retries": 5})  # ty: ignore[invalid-argument-type]
     client = ClientFactory.build(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
-    assert client.issues._session.headers["Authorization"] == "OAuth t"
-    assert client.issues._session.headers["X-Org-Id"] == "o"
-    adapter = client.issues._session.get_adapter("https://")
+    assert client.me._session.headers["Authorization"] == "OAuth t"
+    assert client.me._session.headers["X-Org-Id"] == "o"
+    adapter = client.me._session.get_adapter("https://")
     assert adapter._timeout == 12.0
     assert adapter.max_retries.total == 5
 

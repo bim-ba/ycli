@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     import requests
 
 from ycli.yandex.base import DomainClient
+from ycli.yandex.tracker import SERVICE
 from ycli.yandex.tracker.applications.client import ApplicationsClient
 from ycli.yandex.tracker.attachments.client import AttachmentsClient
 from ycli.yandex.tracker.autoactions.client import AutoactionsClient
@@ -51,7 +52,7 @@ class TrackerClient(DomainClient):
 
     def _wire(self, transport: requests.Session) -> None:
         self.me = MeClient(session=transport)
-        self.issues = IssuesClient(session=transport)
+        self.issues = IssuesClient(session=self._connect(SERVICE.profile))
         self.comments = CommentsClient(session=transport)
         self.links = LinksClient(session=transport)
         self.transitions = TransitionsClient(session=transport)

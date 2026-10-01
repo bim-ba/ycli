@@ -3,7 +3,8 @@
 from typing import ClassVar
 
 from ycli.yandex.base import BaseYandex
+from ycli.yandex.wiki import SERVICE
 
 
 class WikiResource(BaseYandex):
-    base_url: ClassVar[str] = "https://api.wiki.yandex.net/v1"
+    base_url: ClassVar[str] = SERVICE.profile.base_url

@@ -1,11 +1,11 @@
 """Single auth boundary for every Yandex consumer.
 
 ``Transport.session(*, oauth_token, organization_id, timeout_seconds, retries, base)`` returns
-a pure ``requests.Session`` carrying ``Authorization: OAuth`` and a single canonical org header
-(``X-Org-Id``), a ``urllib3.Retry`` adapter (idempotent methods only — GET/HEAD/OPTIONS;
-backoff on 429/5xx) on http/https, and a configured request timeout; non-idempotent POSTs
-are NOT retried here — a caller that needs that mounts its own adapter. Credential
-resolution is the composition root's concern — this function never reads the environment;
+a pure ``requests.Session`` carrying ``Authorization: OAuth`` and the single canonical org
+header (``ORG_HEADER``), a ``urllib3.Retry`` adapter (idempotent methods only —
+GET/HEAD/OPTIONS; backoff on 429/5xx) on http/https, and a configured request timeout;
+non-idempotent POSTs are NOT retried here — a caller that needs that mounts its own adapter.
+Credential resolution is the composition root's concern — this function never reads the environment;
 an empty arg raises rather than firing an unauthenticated call.
 
 Example:
@@ -30,13 +30,8 @@ if TYPE_CHECKING:
     from urllib3 import BaseHTTPResponse
     from urllib3.connectionpool import ConnectionPool
 
-from ycli.yandex.errors import (
-    YandexAuthError,
-    YandexClientError,
-    YandexNotFoundError,
-    YandexRateLimitError,
-    YandexServerError,
-)
+from ycli.yandex.core.profile import ORG_HEADER
+from ycli.yandex.errors import describe_error_body, error_for_status
 
 logger = logging.getLogger("ycli.http")
 
@@ -141,24 +136,6 @@ class Transport:
         return f"OAuth {oauth_token}"
 
     @staticmethod
-    def _human_detail(response: Response) -> str:
-        """The human-readable line from a Yandex error body, or a raw snippet fallback.
-
-        Yandex APIs return ``{"errorMessages": ["…"], …}``; surfacing that message rather
-        than the raw JSON keeps CLI errors readable. Parsing the error body is the
-        transport's job (ARCH-9) — no downstream surface does it.
-        """
-        try:
-            body = response.json()
-        except ValueError:
-            body = None
-        if isinstance(body, dict):
-            messages = body.get("errorMessages")
-            if isinstance(messages, list) and messages:
-                return "; ".join(str(item) for item in messages)
-        return response.text[:300].replace("\n", " ").strip()
-
-    @staticmethod
     def _raise_typed(response: Response, *args: Any, **kwargs: Any) -> Response:
         """requests ``response`` hook: turn a final non-2xx into a typed ``YandexError``.
 
@@ -169,21 +146,9 @@ class Transport:
         code = response.status_code
         if code < 400:
             return response
-        method = response.request.method
-        detail = Transport._human_detail(response)
-        message = f"{code} {response.reason} for {method} {response.url}: {detail}"
-        url = response.url
-        match code:
-            case 401 | 403:
-                raise YandexAuthError(message, status=code, url=url)
-            case 404:
-                raise YandexNotFoundError(message, status=code, url=url)
-            case 429:
-                raise YandexRateLimitError(message, status=code, url=url)
-            case _ if code >= 500:
-                raise YandexServerError(message, status=code, url=url)
-            case _:
-                raise YandexClientError(message, status=code, url=url)
+        detail = describe_error_body(response.text)
+        message = f"{code} {response.reason} for {response.request.method} {response.url}: {detail}"
+        raise error_for_status(code, message, url=response.url)
 
     @classmethod
     def session(
@@ -201,7 +166,7 @@ class Transport:
             raise ValueError("organization_id must be a non-empty string")
         session = base or requests.Session()
         session.headers.update(
-            {"Authorization": cls._authorization(oauth_token), "X-Org-Id": organization_id}
+            {"Authorization": cls._authorization(oauth_token), ORG_HEADER: organization_id}
         )
         session.hooks["response"].extend([log_response, cls._raise_typed])
         adapter = _TimeoutAdapter(max_retries=retry_policy(retries), timeout=timeout_seconds)

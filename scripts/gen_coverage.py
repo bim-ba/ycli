@@ -36,6 +36,7 @@ from pathlib import Path
 import uplink.builder
 
 from ycli.yandex.base import BaseYandex
+from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.wiki.client import WikiClient
@@ -250,7 +251,9 @@ def _report(
 ) -> DomainReport:
     """Build a fully-computed :class:`DomainReport` from a live client + surface + link data."""
     discovered = {
-        name for name, value in vars(spec.client).items() if isinstance(value, BaseYandex)
+        name
+        for name, value in vars(spec.client).items()
+        if isinstance(value, BaseYandex | Resource)
     }
     placed: set[str] = set()
     groups: list[tuple[str, list[ResourceRow]]] = []
@@ -260,7 +263,7 @@ def _report(
         rows: list[ResourceRow] = []
         for attribute in attributes:
             resource = getattr(spec.client, attribute)
-            if not isinstance(resource, BaseYandex):
+            if not isinstance(resource, BaseYandex | Resource):
                 raise SystemExit(f"gen_coverage: {spec.slug}.{attribute} is not a resource client")
             placed.add(attribute)
             display = _display_name(attribute)

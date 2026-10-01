@@ -1,7 +1,8 @@
 """Render real `ycli` CLI output from a committed fixture — the demo's leak-free data source.
 
-Used only by docs/demo/bin/ycli (the vhs shim). Stubs the matching API endpoint with
-`responses`, sets dummy creds, and invokes the real Typer app in-process so the printed
+Used only by docs/demo/bin/ycli (the vhs shim). Stubs the matching API endpoint (with
+`responses` for clients still on uplink, an ``httpx2.MockTransport`` for the httpx2 core),
+sets dummy creds, and invokes the real Typer app in-process so the printed
 output is genuine rendering of committed data — deterministic, offline, no real org data.
 
     python docs/demo/render.py tracker issues get DEMO-42
@@ -20,6 +21,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import responses
 from typer.testing import CliRunner
@@ -57,10 +59,24 @@ def main(argv: list[str]) -> int:
     method, url, fixture, cli_argv = route
     body = json.loads((FIXTURES / fixture).read_text(encoding="utf-8"))
 
+    import httpx2
+
     import ycli.cli.app as cli
+    from ycli.yandex.core import session
+
+    def answer(request: httpx2.Request) -> httpx2.Response:
+        assert str(request.url.copy_with(query=None)) == url, request.url
+        return httpx2.Response(200, json=body)
+
+    def offline() -> httpx2.BaseTransport | None:
+        return httpx2.MockTransport(answer)
 
     runner = CliRunner()
-    with responses.RequestsMock() as rsps:
+    # Resources on the httpx2 core take their network from this seam (see core.session).
+    with (
+        patch.object(session, "default_transport", offline),
+        responses.RequestsMock(assert_all_requests_are_fired=False) as rsps,
+    ):
         rsps.add(method, url, json=body, status=200)
         # Dummy creds satisfy Credentials(); responses intercepts the call (no real network).
         # FORCE_COLOR keeps rich's ANSI colors through CliRunner's pipe; COLUMNS gives the

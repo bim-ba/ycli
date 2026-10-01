@@ -1,5 +1,6 @@
 """Yandex Forms domain — per-resource clients (me/surveys/questions/answers), CLI, and MCP."""
 
+from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.service import Service
 
 SERVICE = Service(
@@ -8,4 +9,5 @@ SERVICE = Service(
     client="ycli.yandex.forms.client:FormsClient",
     cli="ycli.yandex.forms.cli:app",
     mcp="ycli.yandex.forms.mcp:mcp",
+    profile=ServiceProfile("https://api.forms.yandex.net/v1"),
 )

@@ -9,12 +9,13 @@ from typing import ClassVar
 
 from ycli.yandex.base import BaseYandex
 from ycli.yandex.pagination import RelativeCursorStrategy
+from ycli.yandex.tracker import SERVICE
 
 
 class TrackerResource(BaseYandex):
     """Base for every Tracker resource client (inherits session DI via constructor)."""
 
-    base_url: ClassVar[str] = "https://api.tracker.yandex.net/v3"
+    base_url: ClassVar[str] = SERVICE.profile.base_url
 
     def _drain_relative[P, T](
         self,

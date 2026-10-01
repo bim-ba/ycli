@@ -23,11 +23,13 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "httpx2>=2.13.1",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.2",
     "pyyaml>=6.0.3",
     "requests>=2.34.2",
     "rich>=15.0.0",
+    "stamina>=26.1.0",
     "typer>=0.26.8",
     "uplink>=0.10.0",
 ]
@@ -35,6 +37,9 @@ dependencies = [
 # The MCP server (`ycli mcp`) is optional — install with `yandex-cli[mcp]`.
 [project.optional-dependencies]
 mcp = ["fastmcp>=3.4.2"]
+service-account = [
+    "pyjwt[crypto]>=2.15.1",
+]
 
 [project.scripts]
 yandex-cli = "ycli.cli.app:main"
@@ -174,7 +179,7 @@ source_modules = [
     "ycli.yandex.**.mcp",
     "ycli.yandex.**.models",
 ]
-forbidden_modules = ["requests", "uplink"]
+forbidden_modules = ["requests", "uplink", "httpx2"]
 allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
@@ -200,3 +205,20 @@ source_modules = [
     "ycli.yandex.**.dependencies",
 ]
 forbidden_modules = ["ycli.cli", "typer"]
+
+[[tool.importlinter.contracts]]
+name = "ARCH-2: the httpx2 core knows no service and no surface"
+type = "forbidden"
+source_modules = ["ycli.yandex.core"]
+forbidden_modules = [
+    "ycli.yandex.tracker",
+    "ycli.yandex.wiki",
+    "ycli.yandex.forms",
+    "ycli.yandex.status",
+    "ycli.cli",
+    "ycli.mcp",
+    "typer",
+    "fastmcp",
+    "requests",
+    "uplink",
+]
