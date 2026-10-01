@@ -32,6 +32,7 @@ import httpx2
 import stamina
 
 from ycli.settings import HTTPConfig
+from ycli.yandex.core.endpoint import check_path
 from ycli.yandex.errors import (
     YandexConnectionError,
     YandexRateLimitError,
@@ -148,6 +149,7 @@ class SyncSession:
         self._attempts = retries + 1
 
     def _send(self, request: httpx2.Request, idempotent: bool) -> httpx2.Response:
+        check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
             on=_retry_policy(idempotent), attempts=self._attempts, timeout=None
         )
@@ -157,7 +159,7 @@ class SyncSession:
                 started = time.perf_counter()
                 try:
                     response = self._client.send(request)
-                except httpx2.TransportError as exc:
+                except httpx2.RequestError as exc:
                     url = _shown(request.url)
                     message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
                     raise YandexConnectionError(message, url=str(url)) from exc
@@ -199,6 +201,7 @@ class AsyncSession:
         self._attempts = retries + 1
 
     async def _send(self, request: httpx2.Request, idempotent: bool) -> httpx2.Response:
+        check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
             on=_retry_policy(idempotent), attempts=self._attempts, timeout=None
         )
@@ -208,7 +211,7 @@ class AsyncSession:
                 started = time.perf_counter()
                 try:
                     response = await self._client.send(request)
-                except httpx2.TransportError as exc:
+                except httpx2.RequestError as exc:
                     url = _shown(request.url)
                     message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
                     raise YandexConnectionError(message, url=str(url)) from exc

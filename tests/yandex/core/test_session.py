@@ -15,6 +15,7 @@ from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.core.session import connect, connect_async, default_transport
 from ycli.yandex.errors import (
     YandexAuthError,
+    YandexClientError,
     YandexConnectionError,
     YandexNotFoundError,
     YandexRateLimitError,
@@ -107,6 +108,27 @@ def test_a_lost_connection_is_a_typed_error():
         session.send(Endpoint("GET", "items"))
 
 
+def test_a_path_that_leaves_its_endpoint_is_never_sent():
+    api = MockAPI()
+    with pytest.raises(YandexClientError, match="leaves its endpoint"):
+        _session(api).send(Endpoint("PATCH", "items/..%2Fqueues%2FDE", json={}))
+    assert api.calls == []
+
+
+def _redirect_loop(request: httpx2.Request) -> httpx2.Response:
+    return httpx2.Response(302, headers={"Location": str(request.url)})
+
+
+def test_a_redirect_loop_is_a_typed_error():
+    session = connect(
+        PROFILE,
+        auth=OAuthTokenAuth(SecretStr("t")),
+        transport=httpx2.MockTransport(_redirect_loop),
+    )
+    with pytest.raises(YandexConnectionError, match="TooManyRedirects"):
+        session.send(Endpoint("GET", "items"))
+
+
 def test_each_request_is_logged_without_secrets(caplog):
     api = MockAPI()
     api.add("GET", URL, json=[])
@@ -184,6 +206,14 @@ async def test_async_iterate_limits_and_page_cap(caplog):
     assert [item async for item in session.iterate(_listing(), limit=3)] == [1, 2, 1]
     assert [item async for item in session.iterate(_listing(), max_pages=1)] == [1, 2]
     assert "stopped after 1 pages" in caplog.text
+
+
+async def test_async_path_that_leaves_its_endpoint_is_never_sent():
+    api = MockAPI()
+    session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport())
+    with pytest.raises(YandexClientError):
+        await session.send(Endpoint("DELETE", "items/..%2Fqueues%2FDE"))
+    assert api.calls == []
 
 
 async def test_async_lost_connection_is_typed():

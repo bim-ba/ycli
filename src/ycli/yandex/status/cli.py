@@ -176,6 +176,9 @@ def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
         for index, organization in enumerate(organizations, start=1):
             typer.echo(f"  {index}. {organization.name} ({organization.id})", err=True)
         selected = typer.prompt("Choose an organization number", type=int, err=True)
+        while not 1 <= selected <= len(organizations):
+            typer.echo(f"Enter a number from 1 to {len(organizations)}.", err=True)
+            selected = typer.prompt("Choose an organization number", type=int, err=True)
         return str(organizations[selected - 1].id)
     typer.echo("Could not detect an organization (the token lacks directory scope).", err=True)
     typer.echo("Find your organization id at https://tracker.yandex.ru/admin/orgs", err=True)

@@ -186,9 +186,11 @@ def test_multiple_orgs_prompts_for_choice(monkeypatch, tmp_path):
     )
     _stub_valid_me()
 
-    res = runner.invoke(cli.app, ["auth", "login", "--yes"], input="2\n")
+    # 0 and 3 are outside the list of two: each is refused and the prompt repeats.
+    res = runner.invoke(cli.app, ["auth", "login", "--yes"], input="0\n3\n2\n")
 
     assert res.exit_code == 0, res.output
+    assert res.output.count("Enter a number from 1 to 2.") == 2
     env_content = (tmp_path / ".env").read_text(encoding="utf-8")
     assert "YANDEX_ID_ORGANIZATION_ID=43" in env_content
 

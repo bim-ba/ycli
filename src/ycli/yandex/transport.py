@@ -30,8 +30,10 @@ if TYPE_CHECKING:
     from urllib3 import BaseHTTPResponse
     from urllib3.connectionpool import ConnectionPool
 
+from ycli.yandex.core.endpoint import check_path
 from ycli.yandex.core.profile import ORG_HEADER
-from ycli.yandex.errors import describe_error_body, error_for_status
+from ycli.yandex.core.session import MAX_RETRY_AFTER_SECONDS
+from ycli.yandex.errors import YandexConnectionError, describe_error_body, error_for_status
 
 logger = logging.getLogger("ycli.http")
 
@@ -52,6 +54,11 @@ class _LoggedRetry(Retry):
         cause = response.status if response is not None else error
         logger.info("retrying %s %s after %s (%s left)", method, url, cause, retry.total)
         return retry
+
+    def get_retry_after(self, response: BaseHTTPResponse) -> float | None:
+        # urllib3 honours a Retry-After of up to six hours; pause no longer than the core does.
+        seconds = super().get_retry_after(response)
+        return None if seconds is None else min(seconds, MAX_RETRY_AFTER_SECONDS)
 
 
 def retry_policy(retries: int) -> Retry:
@@ -117,14 +124,20 @@ class _TimeoutAdapter(HTTPAdapter):
     ) -> Response:
         if timeout is None:
             timeout = self._timeout
-        return super().send(
-            request,
-            stream=stream,
-            timeout=timeout,
-            verify=verify,
-            cert=cert,
-            proxies=proxies,
-        )
+        check_path(request.path_url.partition("?")[0])
+        try:
+            return super().send(
+                request,
+                stream=stream,
+                timeout=timeout,
+                verify=verify,
+                cert=cert,
+                proxies=proxies,
+            )
+        except requests.RequestException as exc:
+            url = (request.url or "").partition("?")[0]
+            message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
+            raise YandexConnectionError(message, url=url) from exc
 
 
 class Transport:

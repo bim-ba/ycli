@@ -15,6 +15,13 @@ def test_auth_error_appends_login_hint():
     assert "YANDEX_ID_OAUTH_TOKEN" in message
 
 
+def test_permission_error_points_at_access_not_at_signing_in():
+    message = format_cli_error(YandexAuthError("403 Forbidden", status=403))
+    assert message.startswith("Error: 403 Forbidden")
+    assert "lacks access" in message
+    assert "auth login" not in message
+
+
 def test_non_auth_error_has_no_hint():
     message = format_cli_error(YandexNotFoundError("404 Not Found", status=404))
     assert message == "Error: 404 Not Found"

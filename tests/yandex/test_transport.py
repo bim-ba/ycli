@@ -13,8 +13,10 @@ from pathlib import Path
 import pytest
 import requests
 import responses
+from urllib3 import HTTPResponse
 
-from ycli.yandex.transport import Transport
+from ycli.yandex.errors import YandexClientError, YandexConnectionError
+from ycli.yandex.transport import Transport, retry_policy
 
 
 def test_session_sets_auth_and_org_headers():
@@ -159,3 +161,28 @@ def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
     tracker_client().priorities.list()
     assert seen["incoming_timeout"] is None, f"Expected None but got {seen['incoming_timeout']}"
     assert seen["adapter_timeout"] == 99.0, f"Expected 99.0 but got {seen['adapter_timeout']}"
+
+
+@responses.activate
+def test_a_path_that_leaves_its_endpoint_is_never_sent():
+    s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=0)
+    with pytest.raises(YandexClientError, match="leaves its endpoint"):
+        s.get("https://api.test/v3/issues/..%2Fqueues%2FDE/comments")
+    assert len(responses.calls) == 0
+
+
+@responses.activate
+def test_a_lost_connection_is_a_typed_error():
+    responses.add(
+        responses.GET, "https://api.test/v3/myself", body=requests.ConnectionError("down")
+    )
+    s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=0)
+    with pytest.raises(YandexConnectionError, match="ConnectionError: down"):
+        s.get("https://api.test/v3/myself")
+
+
+def test_retry_after_is_capped_like_the_core():
+    policy = retry_policy(3)
+    assert policy.get_retry_after(HTTPResponse(headers={"Retry-After": "86400"})) == 60.0
+    assert policy.get_retry_after(HTTPResponse(headers={"Retry-After": "4"})) == 4.0
+    assert policy.get_retry_after(HTTPResponse()) is None
