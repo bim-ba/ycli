@@ -751,7 +751,6 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # User-facing doc files and globs to scan for purged idioms (ARCH-11).
 # Historical / rule-defining files are intentionally excluded:
-#   docs/superpowers/**  — point-in-time specs and plans
 #   PROMPT.md            — historical transcript
 #   CHANGELOG.md         — historical release notes
 #   ARCHITECTURE.md      — DEFINES the forbidden idioms as rules
@@ -795,7 +794,7 @@ def test_arch11_no_purged_idioms_in_live_docs():
 
     Scanned files: README.md, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, SECURITY.md,
     docs/conventions/**/*.md, plugins/**/*.md.
-    Excluded (historical/rule-defining): docs/superpowers/**, PROMPT.md, CHANGELOG.md,
+    Excluded (historical/rule-defining): PROMPT.md, CHANGELOG.md,
     ARCHITECTURE.md (it defines the forbidden idioms as rules), .venv/**, .git/**.
     Patterns checked: .from_env(  session_from_env(  X-Org-ID
     """

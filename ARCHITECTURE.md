@@ -116,10 +116,9 @@ Notable shared pieces:
   `CONTRIBUTING.md`, `SECURITY.md`, `docs/conventions/**/*.md`,
   `plugins/**/*.md`) must not show call-site usage of idioms purged by ARCH-7..10. Concretely,
   the call patterns `.from_env(` and `session_from_env(` must not appear in any of those files.
-  Historical / rule-defining files are intentionally excluded: `docs/superpowers/**` (specs),
-  `PROMPT.md` (transcript), `CHANGELOG.md` (release history), and `ARCHITECTURE.md` itself
-  (which defines the rules). *Check:* `test_arch11_no_purged_idioms_in_live_docs` in
-  `tests/test_architecture.py`.
+  Historical / rule-defining files are intentionally excluded: `PROMPT.md` (transcript),
+  `CHANGELOG.md` (release history), and `ARCHITECTURE.md` itself (which defines the rules).
+  *Check:* `test_arch11_no_purged_idioms_in_live_docs` in `tests/test_architecture.py`.
 
 ## Scope & limits of enforcement
 
@@ -155,6 +154,17 @@ review cover the rest):
 The conventions that ARCH-1..11 do not capture — `APIModel` inheritance, `XList`/`XResponse`
 naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
+
+## Code generation
+
+Resources are hand-written, starting from the `/new-endpoint` scaffold
+(`scripts/new_endpoint.py`). Generating them from a spec is being built in a separate repo,
+[`refract`](https://github.com/bim-ba/refract): one YAML spec per resource compiles into the
+same committed file layout, and ycli's hand-written code is the golden output it must
+reproduce. ycli does not use refract yet. Rejected: generating clients or tools at runtime
+(metaprogramming), and external SDK generators such as Fern, which cover only the SDK and
+impose their own models. The HTTP stack (`uplink` + `requests`) stays until a generator is
+adopted.
 
 ## Changing an invariant
 

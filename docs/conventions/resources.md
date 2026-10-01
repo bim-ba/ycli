@@ -210,7 +210,45 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 
 ---
 
-## 6. Where these rules are enforced
+## 6. Writing a client and its CLI commands
+
+`/new-endpoint` (`scripts/new_endpoint.py`) generates this shape; `tracker/priorities/` is the
+smallest complete example with reads and writes.
+
+**`client.py`** — HTTP only (ARCH-2):
+
+- Subclass the domain base (`TrackerResource` / `WikiResource` / `FormsResource`); it carries
+  the session and `base_url`.
+- No `from __future__ import annotations`: uplink reads parameter annotations eagerly.
+- One method per endpoint. A JSON read is `@uplink.returns.json()` + `@uplink.get("path/{arg}")`
+  with `uplink.Path` / `uplink.Query` parameters; a write adds `@uplink.json`, the verb, and
+  `body: uplink.Body`.
+- A paginated read drains through a `ycli.yandex.pagination` strategy, and the public `list()`
+  returns the flat `XList` (§2). A binary download drops `@uplink.returns.json()` and exposes a
+  public method that returns `bytes`.
+- Every public method's docstring names its `METHOD /path` and carries a
+  `>>> … # doctest: +SKIP` example.
+
+**`models.py`** — `from __future__ import annotations`; inherit `APIModel` (§1); every field
+carries `Field(description=…)`, which becomes the MCP schema text. Request bodies are typed
+models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
+
+**`cli.py`**:
+
+- `from __future__ import annotations`; `app = typer.Typer(name=…, help=…, no_args_is_help=True)`
+  plus an empty `@app.callback()`, so `--help` works without credentials.
+- A command gets `AppContext.from_typer_context(ctx)` and renders through
+  `Serializer.serialize(result, app_ctx.strategy, app_ctx.console)` (ARCH-4). A scalar count
+  prints; a binary download writes via `ycli.cli.binary.write_output` behind `--output`.
+- Every argument and option is `Annotated[…, typer.Argument(help=…)]` /
+  `Annotated[…, typer.Option(help=…)]`. A write builds the typed request model from the options.
+- An async trigger (export, clone, bulk change) takes `--wait/--no-wait`, default `--wait`, and
+  polls through `ycli.cli.progress.wait_for`; the matching `operations get` read ships on every
+  surface so an agent can poll it too.
+
+---
+
+## 7. Where these rules are enforced
 
 | Rule | Enforced by |
 |---|---|
