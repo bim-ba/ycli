@@ -9,6 +9,54 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.18.0 (2026-10-01)
+
+### Build System
+
+- Re-lock uv.lock for 0.17.2
+  ([`a51f9e6`](https://github.com/bim-ba/ycli/commit/a51f9e617c4b8a474c6fc41f65df95c3c28b0da6))
+
+### Chores
+
+- **graphify**: Stop committing the code graph and build it locally on demand
+  ([#115](https://github.com/bim-ba/ycli/pull/115),
+  [`5856adb`](https://github.com/bim-ba/ycli/commit/5856adb96c20782d38fa70ac3e287287a53279c5))
+
+### Continuous Integration
+
+- Add a stable `tests` gate over the Python matrix
+  ([`eb009db`](https://github.com/bim-ba/ycli/commit/eb009db7a16e2ccb6b2173821fded401e5bbf538))
+
+- Gate PRs on rulesync drift, skill frontmatter and a dist smoke test
+  ([#117](https://github.com/bim-ba/ycli/pull/117),
+  [`286655f`](https://github.com/bim-ba/ycli/commit/286655fc2b02458898f35139319d339ed2f46420))
+
+- Test on Python 3.14 and list the current required checks in the instructions
+  ([`eb009db`](https://github.com/bim-ba/ycli/commit/eb009db7a16e2ccb6b2173821fded401e5bbf538))
+
+### Documentation
+
+- Drop docs/superpowers history and keep its two live decisions
+  ([#116](https://github.com/bim-ba/ycli/pull/116),
+  [`9a7ba2c`](https://github.com/bim-ba/ycli/commit/9a7ba2cb78ae9ec21e48b752e38a1d0f0071a2da))
+
+- **skills**: Teach agents to read Yandex API docs as Markdown
+  ([`37cd8ef`](https://github.com/bim-ba/ycli/commit/37cd8eff4565b442ebeef638eedb92a704242c8b))
+
+### Features
+
+- **settings**: Group settings as YCLI__<GROUP>__<SETTING> and reject invalid values
+  ([#120](https://github.com/bim-ba/ycli/pull/120),
+  [`152441f`](https://github.com/bim-ba/ycli/commit/152441f3eff63742c36ed48e90cc58e5741098aa))
+
+### Breaking Changes
+
+- **settings**: `YCLI_TIMEOUT_SECONDS`, `YCLI_RETRIES`, `YCLI_MAX_ITEMS` and `YCLI_LOG_LEVEL` are
+  renamed to `YCLI__HTTP__TIMEOUT_SECONDS`, `YCLI__HTTP__RETRIES`, `YCLI__HTTP__MAX_ITEMS` and
+  `YCLI__LOGGING__LEVEL`. `Credentials.oauth_token` and `OAuthAppConfig.client_secret` are
+  `SecretStr`.
+
+
 ## v0.17.2 (2026-10-01)
 
 ### Bug Fixes
