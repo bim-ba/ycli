@@ -4,6 +4,8 @@ description: >-
   Use when reading or driving Yandex Forms through ycli — form schemas,
   responses, question CRUD, publishing, keysets — via the `ycli forms` CLI, the
   `forms_*` MCP tools, or the FormsClient SDK.
+metadata:
+  category: workflow
 ---
 # Yandex 360 Forms
 

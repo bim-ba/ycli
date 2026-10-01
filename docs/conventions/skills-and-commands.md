@@ -26,6 +26,10 @@ this; it is the spec the architecture review and any future authoring pass check
 - `SKILL.md` requires YAML frontmatter with `name` and `description`. The `description`
   starts with "Use when …" and names the triggering situation, so the agent can match it
   (e.g. "Use when creating, reading, or transitioning Yandex Tracker issues …").
+- Only the [Agent Skills](https://agentskills.io/specification) keys are allowed: `name`,
+  `description`, `license`, `allowed-tools`, `metadata`, `compatibility`. Anything else (such
+  as `category`) goes under `metadata`. CI runs the reference validator (`skills-ref`) on every
+  skill and fails on any other key.
 - A slash-command `.md` requires a `description:` frontmatter line — one sentence, present
   tense, stating what the command does (see `.claude/commands/arch-review.md`).
 

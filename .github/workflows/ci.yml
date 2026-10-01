@@ -50,6 +50,47 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
+  package:
+    uses: ./.github/workflows/package.yml
+
+  rulesync:
+    runs-on: ubuntu-latest
+    env:
+      RULESYNC_VERSION: 24.0.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+      # Not `generate --check`: it flags the gitignored per-machine MCP files, so diff tracked files.
+      - name: Regenerate agent config
+        run: npx --yes "rulesync@${RULESYNC_VERSION}" generate
+      - name: Fail on drift
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            git diff
+            echo "::error::Generated agent config is stale. Run 'rulesync generate' and commit the result."
+            exit 1
+          fi
+
+  skills:
+    runs-on: ubuntu-latest
+    env:
+      SKILLS_REF_VERSION: 0.1.1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      # .rulesync/skills/ holds rulesync sources (own `targets:` key), not Agent Skills spec files.
+      - name: Validate skill frontmatter
+        run: |
+          status=0
+          for skill in plugins/*/skills/*/ .agents/skills/*/ .claude/skills/*/ .opencode/skills/*/; do
+            uvx --from "skills-ref==${SKILLS_REF_VERSION}" agentskills validate "$skill" || status=1
+          done
+          exit "$status"
+
   gitleaks:
     runs-on: ubuntu-latest
     steps:

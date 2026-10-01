@@ -1,7 +1,8 @@
 ---
 name: yandex-360-wiki
 description: Use when reading or writing Yandex Wiki pages through ycli — page content and metadata, the page tree, grids, comments, attachments, YFM authoring — via the CLI, MCP, or Python SDK.
-category: workflow
+metadata:
+  category: workflow
 ---
 
 # Yandex Wiki

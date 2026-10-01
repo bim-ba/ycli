@@ -1,8 +1,10 @@
 name: release
 
 # Automated releases (python-semantic-release) + PyPI publishing via trusted
-# publishing (OIDC). On push to main, PSR computes the next version from
-# Conventional Commits, stamps pyproject + CHANGELOG, tags `vX.Y.Z`, and creates
+# publishing (OIDC). On push to main, the smoke job (package.yml) first builds and
+# smoke-tests the dist, so a broken package is never tagged; then PSR computes the
+# next version from Conventional Commits, stamps pyproject + the plugin manifest +
+# CHANGELOG, tags `vX.Y.Z`, and creates
 # a GitHub Release; the publish job then builds that tag and uploads to PyPI —
 # all in one run. PyPI upload needs no token (OIDC); the git push uses a
 # short-lived GitHub App installation token (no long-lived PAT) so PSR can write
@@ -26,7 +28,12 @@ permissions:
   contents: read
 
 jobs:
+  smoke:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/package.yml
+
   release:
+    needs: [smoke]
     # Automated versioning only on push to main; manual dispatch skips straight to publish.
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -130,4 +137,17 @@ jobs:
             uv publish --index testpypi
           else
             uv publish
+          fi
+
+      # Non-fatal: a Context7 outage must not fail a release that is already on PyPI.
+      - name: Refresh Context7 docs
+        if: github.event_name == 'push'
+        env:
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+        run: |
+          if ! curl --silent --show-error --fail-with-body -X POST https://context7.com/api/v1/refresh \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${CONTEXT7_API_KEY}" \
+            -d "{\"libraryName\": \"/${GITHUB_REPOSITORY}\"}"; then
+            echo "::warning::Context7 refresh failed; trigger it from the Context7 dashboard."
           fi
