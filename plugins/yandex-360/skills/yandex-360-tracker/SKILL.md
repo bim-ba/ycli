@@ -1,7 +1,8 @@
 ---
 name: yandex-360-tracker
 description: Use when reading or writing Yandex Tracker through ycli — issues, epics, queues, boards, sprints, or an issue key such as MYQUEUE-123 — via the CLI, the `tracker_*` MCP tools, or the Python SDK.
-category: workflow
+metadata:
+  category: workflow
 ---
 
 # Yandex Tracker (via ycli)

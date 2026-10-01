@@ -4,6 +4,8 @@ description: >-
   Use first for any Yandex 360 task — Yandex Tracker, Yandex Wiki, Yandex Forms,
   a Yandex issue key, or the `ycli` command — to set up auth, pick a surface
   (CLI / MCP / SDK), and route to the right domain skill.
+metadata:
+  category: workflow
 ---
 # Yandex 360 (ycli)
 
