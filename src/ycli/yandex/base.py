@@ -54,7 +54,7 @@ class DomainClient:
         *,
         oauth_token: str,
         organization_id: str,
-        timeout_seconds: int = 30,
+        timeout_seconds: float = 30.0,
         retries: int = 3,
         session: requests.Session | None = None,
     ) -> None:

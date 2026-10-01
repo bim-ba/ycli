@@ -22,14 +22,14 @@ def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
     assert client.issues._session.headers["X-Org-Id"] == "o"
 
 
-def test_build_casts_timeout_to_int(monkeypatch, tmp_path):
-    """timeout_seconds float is cast to int before passing to the client constructor."""
+def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
+    """A fractional ``timeout_seconds`` reaches the adapter unrounded: 0.5 must not become 0."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
+    monkeypatch.setenv("YCLI_TIMEOUT_SECONDS", "0.5")
     monkeypatch.chdir(tmp_path)
     creds = Credentials()  # ty: ignore[missing-argument]
-    cfg = AppConfig(timeout_seconds=7.9, retries=2)
+    cfg = AppConfig()
     client = ClientFactory.build(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
-    assert client.me._session.headers["Authorization"] == "OAuth tok"
-    assert client.me._session.headers["X-Org-Id"] == "org"
+    assert client.me._session.get_adapter("https://")._timeout == 0.5

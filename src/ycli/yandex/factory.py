@@ -21,6 +21,6 @@ class ClientFactory:
         return client_cls(
             oauth_token=credentials.oauth_token,
             organization_id=credentials.organization_id,
-            timeout_seconds=int(config.timeout_seconds),
+            timeout_seconds=config.timeout_seconds,
             retries=config.retries,
         )
