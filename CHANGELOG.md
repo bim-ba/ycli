@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.22.1 (2026-10-01)
+
+### Bug Fixes
+
+- **core**: Refuse request paths that reach another endpoint
+  ([#127](https://github.com/bim-ba/ycli/pull/127),
+  [`8311e50`](https://github.com/bim-ba/ycli/commit/8311e502cf256fbdda2ddfd7b092f7e46570e4d8))
+
+### Build System
+
+- Re-lock uv.lock for 0.22.0
+  ([`3b2f947`](https://github.com/bim-ba/ycli/commit/3b2f94748706be641f4fb6566cb20247f629e2a2))
+
+### Refactoring
+
+- **arch**: Eight principle-based invariants, each with its check
+  ([#126](https://github.com/bim-ba/ycli/pull/126),
+  [`92dcd48`](https://github.com/bim-ba/ycli/commit/92dcd48b2bb93c7616aabd70514e16c4e1664385))
+
+### Testing
+
+- **arch**: Close the gaps review found in the eight invariants
+  ([#126](https://github.com/bim-ba/ycli/pull/126),
+  [`92dcd48`](https://github.com/bim-ba/ycli/commit/92dcd48b2bb93c7616aabd70514e16c4e1664385))
+
+
 ## v0.22.0 (2026-10-01)
 
 ### Bug Fixes
