@@ -13,6 +13,7 @@ from importlib import resources
 
 import typer
 import typer.main
+from typer.core import TyperGroup
 
 import ycli
 import ycli.cli.app as cli
@@ -21,11 +22,13 @@ import ycli.cli.app as cli
 # import without pulling in fastmcp. The `ycli mcp` subcommand is listed by the root and
 # loaded on first use; loading it must not require the extra either.
 assert callable(cli.main), "ycli entry point missing"
-root = typer.main.get_command(cli.app)
+root = typer.main.get_group(cli.app)
 context = typer.Context(root)
 for name in ("tracker", "wiki", "forms", "auth", "mcp"):
     assert name in root.list_commands(context), f"{name} subcommand missing"
-assert "start" in root.get_command(context, "mcp").list_commands(context), "mcp start missing"
+mcp_group = root.get_command(context, "mcp")
+assert isinstance(mcp_group, TyperGroup), "mcp is not a command group"
+assert "start" in mcp_group.list_commands(context), "mcp start missing"
 
 # The PEP 561 marker must survive the build into the installed package, or
 # downstream type checkers won't see ycli's types.
