@@ -18,7 +18,7 @@ Example:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import KW_ONLY, dataclass, field
 from functools import cache
 from typing import TYPE_CHECKING, Any, Literal, cast
 from urllib.parse import quote, unquote
@@ -35,9 +35,10 @@ if TYPE_CHECKING:
     from ycli.yandex.core.pagination import Pagination
 
 type Effect = Literal["read", "write", "idempotent_write", "destructive"]
+type Method = Literal["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "DELETE", "POST"]
 
 EFFECT_EXTENSION = "ycli.effect"
-_EFFECT_BY_METHOD: dict[str, Effect] = {
+_EFFECT_BY_METHOD: dict[Method, Effect] = {
     "GET": "read",
     "HEAD": "read",
     "OPTIONS": "read",
@@ -92,48 +93,34 @@ def _adapter(response_type: Any) -> TypeAdapter[Any]:
     return TypeAdapter(response_type)
 
 
-@dataclass(frozen=True, slots=True, init=False)
+@dataclass(frozen=True, slots=True)
 class Endpoint[T]:
     """An API operation: ``method`` + ``path`` (relative to the service's base URL) and its I/O.
 
     ``params`` with a ``None`` value are dropped, so optional query parameters can be passed
     through unconditionally. ``response_type=None`` means the response body is ignored.
+    ``effect`` is what the call does to the server: stated explicitly, or implied by the method
+    when left out. An unknown method fails here, at construction.
     """
 
-    method: str
+    method: Method
     path: str
-    response_type: type[T] | None
-    params: Mapping[str, Any]
-    json: Any
-    content: bytes | None
-    headers: Mapping[str, str]
-    effect_override: Effect | None
+    response_type: type[T] | None = None
+    _: KW_ONLY
+    params: Mapping[str, Any] = field(default_factory=dict)
+    json: Any = None
+    content: bytes | None = None
+    headers: Mapping[str, str] = field(default_factory=dict)
+    effect: Effect | None = None
 
-    def __init__(
-        self,
-        method: str,
-        path: str,
-        response_type: type[T] | None = None,
-        *,
-        params: Mapping[str, Any] | None = None,
-        json: Any = None,
-        content: bytes | None = None,
-        headers: Mapping[str, str] | None = None,
-        effect: Effect | None = None,
-    ) -> None:
-        object.__setattr__(self, "method", method.upper())
-        object.__setattr__(self, "path", path)
-        object.__setattr__(self, "response_type", response_type)
-        object.__setattr__(self, "params", dict(params or {}))
-        object.__setattr__(self, "json", json)
-        object.__setattr__(self, "content", content)
-        object.__setattr__(self, "headers", dict(headers or {}))
-        object.__setattr__(self, "effect_override", effect)
-
-    @property
-    def effect(self) -> Effect:
-        """What the call does to the server: stated explicitly, or implied by the method."""
-        return self.effect_override or _EFFECT_BY_METHOD[self.method]
+    def __post_init__(self) -> None:
+        implied = _EFFECT_BY_METHOD.get(self.method)
+        if implied is None:
+            known = ", ".join(_EFFECT_BY_METHOD)
+            raise ValueError(f"unknown HTTP method {self.method!r}; expected one of {known}")
+        if self.effect is None:
+            # A frozen dataclass can fill a derived field only this way (the documented idiom).
+            object.__setattr__(self, "effect", implied)
 
     @property
     def idempotent(self) -> bool:
