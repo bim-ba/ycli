@@ -10,7 +10,7 @@ import typer.main
 from fastmcp import Client
 
 from ycli.cli.app import app
-from ycli.mcp import mcp
+from ycli.mcp.server import mcp
 
 
 def _walk(command, context: typer.Context, prefix: str) -> list[tuple[str, Any]]:

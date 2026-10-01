@@ -8,7 +8,7 @@ from fastmcp import Client
 from typer.main import get_command
 
 from ycli.cli.app import app
-from ycli.mcp import mcp as root_mcp
+from ycli.mcp.server import mcp as root_mcp
 from ycli.yandex.base import DomainClient
 from ycli.yandex.registry import SERVICES
 

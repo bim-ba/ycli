@@ -15,7 +15,7 @@ from pathlib import Path
 import httpx2
 from fastmcp import Client
 
-from ycli.mcp import mcp as root_mcp
+from ycli.mcp.server import mcp as root_mcp
 from ycli.yandex.core.endpoint import EFFECT_EXTENSION
 from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_IDEMPOTENT
 from ycli.yandex.registry import SERVICES
