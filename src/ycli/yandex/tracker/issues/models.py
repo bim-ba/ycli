@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
@@ -113,3 +115,23 @@ class ScrollClear(RootModel[dict[str, str]]):
         >>> ScrollClear({"3ce1-...": "eyJvZmZzZXQi..."}).model_dump()
         {'3ce1-...': 'eyJvZmZzZXQi...'}
     """
+
+
+def count_body(query: str = "", queue: str = "", status: str = "") -> dict[str, Any]:
+    """Build the request body for ``POST /issues/_count``.
+
+    When ``query`` is provided it takes precedence and the body is ``{"query": …}``.
+    Otherwise a ``{"filter": {…}}`` body is built from the non-empty ``queue``/``status``
+    values (an empty filter counts every issue in the org).
+
+    Example:
+        >>> count_body(query="Queue: DE")
+        {'query': 'Queue: DE'}
+        >>> count_body(queue="DE", status="open")
+        {'filter': {'queue': 'DE', 'status': 'open'}}
+        >>> count_body()
+        {'filter': {}}
+    """
+    if query:
+        return {"query": query}
+    return {"filter": {k: v for k, v in (("queue", queue), ("status", status)) if v}}

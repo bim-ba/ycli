@@ -9,10 +9,11 @@ import typer
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.yandex.models import Ack
+from ycli.yandex.tracker.issues.models import count_body
 from ycli.yandex.tracker.typedefs import (
     KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
 )
-from ycli.yandex.tracker.utils import count_body, parse_fields
+from ycli.yandex.tracker.utils import parse_fields
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 

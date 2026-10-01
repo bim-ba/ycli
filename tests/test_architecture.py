@@ -14,10 +14,11 @@ from pathlib import Path
 from fastmcp import Client
 
 from ycli.mcp import mcp as root_mcp
+from ycli.yandex.registry import SERVICES
 
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
 YANDEX = SRC / "yandex"
-DOMAINS = ("tracker", "wiki", "forms")
+DOMAINS = tuple(service.name for service in SERVICES)
 CANONICAL = {"__init__.py", "client.py", "cli.py", "mcp.py", "models.py"}
 # Fail-closed verb classification (ARCH-3 annotation honesty): every MCP tool name's
 # verb — its longest `_`-suffix found below — MUST classify as read, write,

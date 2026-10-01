@@ -1,11 +1,20 @@
-"""Shared FastMCP tool annotations + the cached per-domain client/config providers."""
+"""Shared FastMCP tool annotations + the per-request client/config providers.
+
+Providers run on every tool call (FastMCP ``Depends``), so a rotated token or an edited
+``.env`` takes effect on the next call without restarting the server, and nothing is cached
+at module level. Building a domain client costs a few milliseconds (TrackerClient ~9 ms),
+negligible next to the HTTP round trip it serves.
+"""
 
 from __future__ import annotations
 
-from functools import cache
+from typing import TYPE_CHECKING, Protocol
 
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.factory import ClientFactory
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 RO: dict[str, bool] = {"readOnlyHint": True, "idempotentHint": True, "openWorldHint": True}
 # Write-tool annotation sets (ARCH-3 annotation honesty). The MCP-spec default for an
@@ -24,25 +33,40 @@ DESTRUCTIVE: dict[str, bool] = {**WRITE, "destructiveHint": True}
 WRITE_TAG = "write"
 
 
-class CachedProvider[T]:
-    """Typed zero-arg provider wrapping ``functools.cache`` — exposes ``cache_clear()``."""
+class AuthSource(Protocol):
+    """Where a tool call's credentials come from.
 
-    def __call__(self) -> T: ...  # ty: ignore[empty-body]
+    Kill-criterion: if MCP over HTTP (#108) ships without a second source (credentials taken
+    from the request), fold this back into a plain ``Credentials()`` call.
+    """
 
-    def cache_clear(self) -> None: ...
+    def resolve(self) -> Credentials: ...
 
 
-@cache
+class EnvAuthSource:
+    """The stdio server's source: the process environment and ``.env``, re-read per call."""
+
+    def resolve(self) -> Credentials:
+        return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+
+
 def app_config() -> AppConfig:
-    """Build (once) the process-wide app config for MCP tools."""
+    """The app config for one tool call (read per call, like the credentials)."""
     return AppConfig()
 
 
-def make_cached_client[T](client_cls: type[T]) -> CachedProvider[T]:
-    """Return a ``@cache``d zero-arg provider building ``client_cls`` from the env."""
+def client_provider[T](
+    client_cls: type[T], auth_source: AuthSource | None = None
+) -> Callable[[], T]:
+    """A zero-argument provider for ``Depends`` that builds ``client_cls`` for each call.
 
-    @cache
-    def provider() -> T:
-        return ClientFactory.build(client_cls, Credentials(), app_config())  # type: ignore[return-value]  # ty: ignore[missing-argument,invalid-return-type]
+    Example:
+        >>> forms_client = client_provider(FormsClient)  # doctest: +SKIP
+        >>> forms_client().surveys.list(limit=1)  # doctest: +SKIP
+    """
+    source = auth_source or EnvAuthSource()
 
-    return provider  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
+    def provide() -> T:
+        return ClientFactory.build(client_cls, source.resolve(), app_config())  # ty: ignore[invalid-return-type]
+
+    return provide

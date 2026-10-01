@@ -39,7 +39,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
 - **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` for the CLI
-  and the `dependencies` cached factory in each domain's MCP module; both read
+  and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /
   `organization_id` constructor arguments to each client. There is no `from_env` or
   `session_from_env`. The transport sends one canonical `X-Org-Id` org header for every service

@@ -19,8 +19,8 @@ from ycli.yandex.tracker.issues.models import (
     IssueList,
     IssueUpdate,
     ScrollClear,
+    count_body,
 )
-from ycli.yandex.tracker.utils import count_body
 
 mcp = FastMCP("tracker-issues")
 

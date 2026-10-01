@@ -1,4 +1,4 @@
-"""Cached wiki MCP client provider (see ycli.yandex.mcp.make_cached_client)."""
+"""Per-request wiki MCP client provider (see ycli.yandex.mcp.client_provider)."""
 
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
@@ -7,13 +7,13 @@ from ycli.yandex.mcp import (
     WRITE_IDEMPOTENT,
     WRITE_TAG,
     app_config,
-    make_cached_client,
+    client_provider,
 )
 from ycli.yandex.wiki.client import WikiClient
 
 TAGS: set[str] = {"wiki"}
 WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
-wiki_client = make_cached_client(WikiClient)
+wiki_client = client_provider(WikiClient)
 
 __all__ = [
     "DESTRUCTIVE",

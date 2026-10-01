@@ -20,14 +20,12 @@ async def test_status_get_reports_all_valid(creds):
     responses.add(responses.GET, FORMS_ME, json={"id": 1, "email": "alice@x"}, status=200)
     async with Client(status_mcp.mcp) as client:
         result = await client.call_tool("get", {})
-    # The `service` discriminator makes the me union loss-free across the fastmcp round-trip:
-    # every member round-trips with its own fields intact (wiki keeps `username`). fastmcp
-    # rebuilds discriminated-union branches as plain dicts, so index them by key.
-    services = {s["service"]: s for s in result.data.services}
-    assert services["tracker"]["valid"] is True
-    assert services["tracker"]["me"]["login"] == "alice"
-    assert services["forms"]["me"]["email"] == "alice@x"
-    assert services["wiki"]["me"]["username"] == "alice"
+    # Every service reports the same Account shape, so the round-trip keeps each field.
+    services = {s.service: s for s in result.data.services}
+    assert services["tracker"].valid is True
+    assert services["tracker"].account.login == "alice"
+    assert services["forms"].account.email == "alice@x"
+    assert services["wiki"].account.login == "alice"
 
 
 @responses.activate
@@ -37,9 +35,9 @@ async def test_status_get_marks_invalid_on_401(creds):
     responses.add(responses.GET, FORMS_ME, json={"id": 1, "email": "alice@x"}, status=200)
     async with Client(status_mcp.mcp) as client:
         result = await client.call_tool("get", {})
-    services = {s["service"]: s for s in result.data.services}
-    assert services["tracker"]["valid"] is False
-    assert services["tracker"]["detail"] == "token invalid or expired"
+    services = {s.service: s for s in result.data.services}
+    assert services["tracker"].valid is False
+    assert services["tracker"].detail == "token invalid or expired"
 
 
 async def test_status_get_is_read_only():

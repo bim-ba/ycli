@@ -1,4 +1,4 @@
-"""TDD for tracker issues MCP subserver — @cache factory, env+responses pattern."""
+"""TDD for tracker issues MCP subserver — per-request provider, env+responses pattern."""
 
 import json
 
@@ -172,7 +172,7 @@ async def test_issue_write_tools_annotations():
 
 @responses.activate
 async def test_issues_get_404_raises_through_transport_hook(creds):
-    """Prove the production not-found path: the @cache factory builds a real client (with the
+    """Prove the production not-found path: the per-request provider builds a real client (with the
     Transport response hook) that raises YandexNotFoundError on a 404, which FastMCP
     surfaces as a ToolError.
     """

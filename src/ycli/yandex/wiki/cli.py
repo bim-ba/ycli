@@ -14,7 +14,8 @@ from ycli.yandex.wiki.recovery.cli import app as recovery_app
 from ycli.yandex.wiki.resources.cli import app as resources_app
 from ycli.yandex.wiki.uploadsessions.cli import app as uploadsessions_app
 
-app = typer.Typer(name="wiki", help="Yandex Wiki API.", no_args_is_help=True)
+# Help text lives in the service registry (ycli.yandex.wiki.SERVICE).
+app = typer.Typer(name="wiki", no_args_is_help=True)
 
 app.add_typer(me_app)
 app.add_typer(pages_app)

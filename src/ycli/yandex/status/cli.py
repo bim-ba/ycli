@@ -16,20 +16,16 @@ from rich.panel import Panel
 from ycli.cli.context import AppContext
 from ycli.cli.output import Serializer
 from ycli.cli.progress import spinner
-from ycli.settings import AppConfig, Credentials, OAuthAppConfig
+from ycli.settings import Credentials, OAuthAppConfig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from rich.console import Console
-from ycli.yandex.factory import ClientFactory
-from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.env_file import EnvFile
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import StatusReporter
-from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(
     name="auth", help="Inspect and obtain Yandex 360 credentials.", no_args_is_help=True
@@ -57,12 +53,7 @@ def status(ctx: typer.Context) -> None:
         )
         raise typer.Exit(1) from None
 
-    me_clients = {
-        "tracker": app_ctx.tracker.me,
-        "wiki": app_ctx.wiki.me,
-        "forms": app_ctx.forms.me,
-    }
-    report = StatusReporter(me_clients).report(
+    report = StatusReporter.for_credentials(credentials, app_ctx.config).report(
         configured=True, organization_id=credentials.organization_id
     )
     Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
@@ -122,7 +113,10 @@ def login(
         token = _device_flow(oauth_client, device_name, app_ctx.stderr_console)
 
     organization_id = _resolve_organization_id(oauth_client, token)
-    report = _build_report(token, organization_id, config)
+    credentials = Credentials(oauth_token=SecretStr(token), organization_id=organization_id)
+    report = StatusReporter.for_credentials(credentials, config).report(
+        configured=True, organization_id=organization_id
+    )
     Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
     _write_env_file(token, organization_id, assume_yes=assume_yes)
 
@@ -192,20 +186,6 @@ def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
     typer.echo("Could not detect an organization (the token lacks directory scope).")
     typer.echo("Find your organization id at https://tracker.yandex.ru/admin/orgs")
     return typer.prompt("Enter your organization id").strip()
-
-
-def _build_report(token: str, organization_id: str, config: AppConfig) -> AuthReport:
-    """Probe Tracker/Wiki/Forms with the new token+org and assemble an AuthReport."""
-    credentials = Credentials(oauth_token=SecretStr(token), organization_id=organization_id)
-    me_clients = {
-        name: ClientFactory.build(client_cls, credentials, config).me  # ty: ignore[unresolved-attribute]
-        for name, client_cls in (
-            ("tracker", TrackerClient),
-            ("wiki", WikiClient),
-            ("forms", FormsClient),
-        )
-    }
-    return StatusReporter(me_clients).report(configured=True, organization_id=organization_id)
 
 
 def _write_env_file(token: str, organization_id: str, *, assume_yes: bool) -> None:

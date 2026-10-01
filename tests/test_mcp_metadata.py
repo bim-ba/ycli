@@ -7,9 +7,7 @@ import asyncio
 from fastmcp import Client
 
 from ycli.mcp import mcp as root_mcp
-from ycli.yandex.forms.mcp import mcp as forms_mcp
-from ycli.yandex.tracker.mcp import mcp as tracker_mcp
-from ycli.yandex.wiki.mcp import mcp as wiki_mcp
+from ycli.yandex.registry import SERVICES
 
 
 def _tools():
@@ -43,5 +41,5 @@ def test_every_tool_has_hints_and_title():
 
 
 def test_servers_have_instructions():
-    for server in (root_mcp, tracker_mcp, wiki_mcp, forms_mcp):
+    for server in (root_mcp, *(service.mcp_server() for service in SERVICES)):
         assert server.instructions and server.instructions.strip()
