@@ -89,7 +89,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   that step fails, re-lock manually (`uv lock`) and ship the `build:` commit yourself.
   **Emergency rollback:** set the ruleset to `disabled` (GitHub → Settings → Rules), fix,
   re-enable.
-- **100% coverage gate.** `uv run pytest` enforces `--cov-fail-under=100`; new code ships
+- **100% coverage gate (lines and branches).** `uv run pytest` enforces `--cov-fail-under=100`; new code ships
   with tests that keep it green.
 - **New resources via `/new-endpoint`**, respecting the invariants in
   [`ARCHITECTURE.md`](ARCHITECTURE.md) and the model/naming/import conventions in

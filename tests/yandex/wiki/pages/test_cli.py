@@ -328,3 +328,18 @@ def test_pages_clone_wait_polls_operations_to_terminal():
     out = json.loads(result.stdout)
     assert out["status"] == "success"
     assert out["result"]["page"]["slug"] == "data/y"
+
+
+@responses.activate
+def test_pages_update_without_title_sends_content_only():
+    responses.add(
+        responses.POST,
+        f"{BASE}/pages/77",
+        json={"id": 77, "slug": "data/x", "title": "T"},
+        status=200,
+    )
+    res = runner.invoke(
+        cli.app, ["--format", "json", "wiki", "pages", "update", "77", "--content", "# U"]
+    )
+    assert res.exit_code == 0, res.output
+    assert json.loads(responses.calls[0].request.body) == {"content": "# U"}  # ty: ignore[invalid-argument-type]

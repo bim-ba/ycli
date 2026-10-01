@@ -173,7 +173,7 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 
 ### Enforcement
 
-`tests/test_architecture.py::test_arch3_mcp_write_tool_bodies_are_typed` AST-walks every
+`tests/test_architecture.py::test_arch8_mcp_write_tool_bodies_are_typed` AST-walks every
 `mcp.py` for `@mcp.tool`-decorated functions and fails the build on a bare `dict`/`dict[...]`
 `body` parameter — fail-closed, with exactly one documented exception in
 `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`: its live wire shape nests
@@ -255,9 +255,9 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 | Rule | Enforced by |
 |---|---|
 | `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
-| `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command/tool names) |
+| `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command and tool signatures) |
 | `dependencies` import path | `scripts/new_endpoint.py` scaffold + code review |
-| MCP annotation honesty (fail-closed verb classification, exact hints, `write` tag) | `tests/test_architecture.py` ARCH-3 (`test_arch3_mcp_annotation_honesty`) |
+| MCP annotation honesty (endpoint effects for core tools, verb classification for uplink tools, `write` tag) | `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
 | Discriminated MCP output unions | code review + regression test (`status_get` me round-trip) |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |

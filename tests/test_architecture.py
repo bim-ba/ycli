@@ -1,4 +1,4 @@
-"""Architecture invariants as tests — see ARCHITECTURE.md (ARCH-1/2/3/4/5/6/7/8/9/10/11).
+"""Architecture invariants as tests — see ARCHITECTURE.md (ARCH-1..8).
 
 A failure means a change drifted from the architecture. Fix the code, or — if the
 change is intentional — update ARCHITECTURE.md and this check together in one PR.
@@ -241,8 +241,13 @@ def _mcp_tools():
 
 def _uplink_tools() -> list:
     """MCP tools of resources still on uplink — the ones the verb maps must classify."""
-    core = _core_tool_prefixes()
-    return [tool for tool in _mcp_tools() if not tool.name.startswith(core)]
+    gen = _load_gen_coverage()
+    uplink = tuple(
+        f"{slug}_{attr.rstrip('_')}_"
+        for slug, attr, _ in _resource_operations()
+        if isinstance(getattr(_clients()[slug], attr), gen.BaseYandex)
+    )
+    return [tool for tool in _mcp_tools() if tool.name.startswith(uplink)]
 
 
 def test_arch3_verb_maps_are_still_needed():
@@ -263,7 +268,8 @@ def test_arch3_mcp_annotation_honesty():
     write tool must declare its hints explicitly (WRITE / WRITE_IDEMPOTENT / DESTRUCTIVE
     in ycli.yandex.mcp); reads keep RO.
     """
-    tools = _uplink_tools()
+    # status_get belongs to no resource; it is a read probe, so it is checked here too.
+    tools = [*_uplink_tools(), *(tool for tool in _mcp_tools() if tool.name == "status_get")]
     assert tools, "no MCP tools discovered"
     for t in tools:
         cls = _classify(t.name)
@@ -359,6 +365,47 @@ def test_arch3_core_tools_are_annotated_by_their_endpoint_effect(monkeypatch):
     assert not offenders, offenders
 
 
+# An endpoint may state an effect other than its method implies only here, with the reason:
+# a wrong label would also make the retry policy re-send a non-idempotent request.
+ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
+    "tracker/issues/endpoints.py:search_issues": "POST _search only reads",
+    "tracker/issues/endpoints.py:count_issues": "POST _count only reads",
+    "tracker/issues/endpoints.py:clear_scroll": "releasing a scroll twice is harmless",
+}
+
+
+def _effect_overrides(source: str, module: str) -> set[str]:
+    """``module:function`` for every endpoint in ``source`` built with an ``effect=`` keyword."""
+    found = set()
+    for function in ast.walk(ast.parse(source)):
+        if isinstance(function, ast.FunctionDef):
+            for call in ast.walk(function):
+                if isinstance(call, ast.Call) and any(k.arg == "effect" for k in call.keywords):
+                    found.add(f"{module}:{function.name}")
+    return found
+
+
+def test_arch3_effect_overrides_are_listed():
+    found = {
+        override
+        for path in YANDEX.rglob("endpoints.py")
+        for override in _effect_overrides(
+            path.read_text(encoding="utf-8"), str(path.relative_to(YANDEX))
+        )
+    }
+    assert found == set(ARCH3_EFFECT_OVERRIDES), (
+        f"unlisted: {sorted(found - set(ARCH3_EFFECT_OVERRIDES))}, "
+        f"stale: {sorted(set(ARCH3_EFFECT_OVERRIDES) - found)}"
+    )
+
+
+def test_arch3_effect_override_guard_bites():
+    source = 'def move_issue(key):\n    return Endpoint("POST", "x", effect="read")\n'
+    assert _effect_overrides(source, "tracker/issues/endpoints.py") == {
+        "tracker/issues/endpoints.py:move_issue"
+    }
+
+
 def test_arch3_effect_guard_bites():
     assert _hints_disagree(RO, "read") == []
     assert _hints_disagree(RO, "destructive") == [
@@ -433,6 +480,21 @@ def _write_method_calls(
     return found
 
 
+def _annotated_read(function: ast.FunctionDef) -> bool:
+    """Whether the tool's decorator spreads the ``RO`` hints (``annotations={**RO, …}``)."""
+    return any(
+        isinstance(keyword.value, ast.Dict)
+        and any(
+            key is None and isinstance(value, ast.Name) and value.id == "RO"
+            for key, value in zip(keyword.value.keys, keyword.value.values, strict=True)
+        )
+        for decorator in function.decorator_list
+        if isinstance(decorator, ast.Call)
+        for keyword in decorator.keywords
+        if keyword.arg == "annotations"
+    )
+
+
 def _read_tool_write_offenders(source: str) -> list[str]:
     """Read-classified MCP tools in ``source`` that reach a client write method.
 
@@ -465,7 +527,7 @@ def _read_tool_write_offenders(source: str) -> list[str]:
                     offenders.append(f"{node.name} registers a tool without name=")
                     continue
                 tool_name = names[0]
-        if tool_name is None or _classify(tool_name) != "read":
+        if tool_name is None or not (_classify(tool_name) == "read" or _annotated_read(node)):
             continue
         for attr in _write_method_calls(node, module_defs, {node.name}):
             offenders.append(f"read tool {tool_name!r} calls .{attr}(…)")
@@ -514,6 +576,15 @@ def test_arch3_read_tool_helper_indirection_is_caught():
         "    return _helper(client)\n"
     )
     assert _read_tool_write_offenders(clean) == []
+
+    # A tool named like a write but annotated read-only is a read: its writes are caught too.
+    mislabelled = (
+        '@mcp.tool(name="issues_move", annotations={**RO, "title": "Move"})\n'
+        "def move(client):\n"
+        "    client.issues.get(key)\n"
+        "    return client.issues.move(key, queue)\n"
+    )
+    assert _read_tool_write_offenders(mislabelled) == ["read tool 'issues_move' calls .move(…)"]
 
 
 def test_arch3_container_methods_are_not_writes():
@@ -807,8 +878,13 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
     if rel not in ARCH5_HOST_HOMES and _YANDEX_HOST_RE.search(text):
         offenders.append(f"{rel}: Yandex host outside a service profile")
     if rel != Path("settings.py"):
-        if "os.environ" in text:
-            offenders.append(f"{rel}: os.environ outside settings.py")
+        if re.search(r"\bos\.(environ|getenv)\b|\bfrom os import (environ|getenv)\b", text):
+            offenders.append(f"{rel}: environment access outside settings.py")
+        if "from_env" in text:
+            offenders.append(f"{rel}: from_env reads the environment outside settings.py")
+        code = "\n".join(line for line in text.splitlines() if ">>>" not in line)  # not doctests
+        if re.search(r"\b(timeout|timeout_seconds|retries|max_items)=\d", code):
+            offenders.append(f"{rel}: a literal default shadows the HTTP settings")
         if re.search(r"class \w+\(BaseSettings\)", text):
             offenders.append(f"{rel}: BaseSettings subclass outside settings.py")
     if "@uplink.timeout" in text:
@@ -834,6 +910,10 @@ def test_arch5_guard_bites():
         'headers = {"X-Org-Id": org}',
         'URL = "https://api.wiki.yandex.net/v1"',
         "token = os.environ['T']",
+        "token = os.getenv('T')",
+        "from os import environ",
+        "client = TrackerClient.from_env()",
+        "session.send(request, timeout=30)",
         "class Local(BaseSettings): ...",
         "@uplink.timeout(30)",
     ):
@@ -852,13 +932,38 @@ _SETTINGS_MODELS = {"AppConfig", "Credentials", "OAuthAppConfig"}
 
 
 def _settings_constructions(source: str) -> list[int]:
-    return [
-        node.lineno
-        for node in ast.walk(ast.parse(source))
-        if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Name)
-        and node.func.id in _SETTINGS_MODELS
-    ]
+    """Lines that build or hand out a settings model outside an annotation.
+
+    Catches ``AppConfig()``, ``settings.AppConfig()``, an alias (``from ycli.settings import
+    AppConfig as C``; ``C()``) and a bare reference such as ``default_factory=AppConfig``.
+    """
+    tree = ast.parse(source)
+    names = set(_SETTINGS_MODELS)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            names |= {a.asname for a in node.names if a.name in _SETTINGS_MODELS and a.asname}
+    annotations: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute):  # ``AppConfig.__name__`` reads the class, builds none
+            annotations.add(id(node.value))
+        hints = []
+        if isinstance(node, ast.arg | ast.AnnAssign) and node.annotation is not None:
+            hints.append(node.annotation)
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.returns is not None:
+            hints.append(node.returns)
+        annotations |= {id(sub) for hint in hints for sub in ast.walk(hint)}
+    return sorted(
+        {
+            node.lineno
+            for node in ast.walk(tree)
+            if id(node) not in annotations
+            and (
+                (isinstance(node, ast.Name) and node.id in names)
+                or (isinstance(node, ast.Attribute) and node.attr in _SETTINGS_MODELS)
+            )
+            and isinstance(node.ctx, ast.Load)
+        }
+    )
 
 
 def test_arch7_settings_are_built_only_at_composition_roots():
@@ -874,20 +979,47 @@ def test_arch7_settings_are_built_only_at_composition_roots():
 
 def test_arch7_guard_bites():
     assert _settings_constructions("config = AppConfig()\ncreds = Credentials()") == [1, 2]
-    assert _settings_constructions("def f(config: AppConfig): return config.http") == []
+    assert _settings_constructions("creds = settings.Credentials()") == [1]
+    assert _settings_constructions("from ycli.settings import AppConfig as C\nC()") == [2]
+    assert _settings_constructions("field(default_factory=AppConfig)") == [1]
+    assert _settings_constructions("def f(config: AppConfig) -> AppConfig: return config") == []
+    assert _settings_constructions("title = AppConfig.__name__") == []
+
+
+# Who may turn a status into a typed error, and why. ``raise_for_status`` (httpx/requests)
+# would bypass the mapping and raise a library error instead of a YandexError.
+ARCH8_ERROR_MAPPERS = {
+    Path("yandex/errors.py"): "defines error_for_status",
+    Path("yandex/transport.py"): "the uplink response hook",
+    Path("yandex/core/session.py"): "the httpx2 core sessions",
+    Path("yandex/core/auth.py"): "the IAM token exchange outside the sessions",
+}
+
+
+def _error_mapping_offenders(rel: Path, source: str) -> list[str]:
+    offenders = []
+    if "raise_for_status" in source:
+        offenders.append(f"{rel}: raise_for_status bypasses errors.error_for_status")
+    if rel not in ARCH8_ERROR_MAPPERS and "error_for_status(" in source:
+        offenders.append(f"{rel}: maps statuses outside ARCH8_ERROR_MAPPERS")
+    return offenders
 
 
 def test_arch8_errors_are_mapped_in_one_place():
     """Non-2xx answers become typed YandexErrors through ``errors.error_for_status`` only."""
-    homes = {Path("yandex/errors.py"), Path("yandex/transport.py"), Path("yandex/core/session.py")}
     offenders = [
-        str(rel)
+        finding
         for p in SRC.rglob("*.py")
-        if (rel := p.relative_to(SRC)) not in homes
-        if re.search(r"raise_for_status|error_for_status\(", p.read_text(encoding="utf-8"))
-        and rel != Path("yandex/core/auth.py")  # the IAM token exchange maps its own failure
+        for finding in _error_mapping_offenders(p.relative_to(SRC), p.read_text(encoding="utf-8"))
     ]
     assert not offenders, offenders
+
+
+def test_arch8_error_mapping_guard_bites():
+    session = Path("yandex/core/session.py")
+    assert _error_mapping_offenders(session, "response.raise_for_status()")
+    assert _error_mapping_offenders(Path("yandex/wiki/pages/client.py"), "error_for_status(404)")
+    assert _error_mapping_offenders(session, "raise error_for_status(code, message)") == []
 
 
 def test_every_mcp_tool_has_description_and_output_schema():

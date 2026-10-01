@@ -9,18 +9,19 @@ repos:
   - repo: local
     hooks:
       - id: lint-imports
-        name: import-linter (ARCH-2/3 boundaries)
+        name: import-linter (ARCH-2 layers)
         entry: uv run lint-imports
         language: system
         pass_filenames: false
         files: ^src/ycli/.*\.py$
       - id: architecture-tests
         name: architecture invariants (ARCH-1..8)
-        entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py -q --no-cov
+        entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py tests/test_docs.py -q --no-cov
         language: system
         pass_filenames: false
-        # The Python surface and the tests that check it.
-        files: '^(src/ycli/|tests/).*\.py$'
+        # The Python surface, plus the live docs tests/test_docs.py scans (keep in sync with
+        # its _LIVE_DOC_GLOBS) and ARCHITECTURE.md, which defines the invariants.
+        files: '^(src/ycli/|tests/).*\.py$|^(README|CLAUDE|AGENTS|CONTRIBUTING|SECURITY|ARCHITECTURE)\.md$|^(docs/conventions|plugins)/.*\.md$'
       - id: no-skip-ci
         name: block skip-ci tokens in tracked files
         # Match the full token set GitHub honors (see CLAUDE.md "Never write a skip-ci token").

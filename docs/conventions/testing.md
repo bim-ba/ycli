@@ -14,8 +14,9 @@ move to the httpx2 core.
 | Unit | logic only: validators, auth flows, paginators, error mapping, settings | by hand, next to the code it covers (`tests/yandex/core/`, `tests/yandex/test_settings.py`) |
 | Special behaviour | `--wait` polling, uploads, unusual error shapes | by hand, only where the generic cases cannot reach |
 
-A new resource adds its endpoint declarations, one effect case per MCP tool, and JSON fixtures
-for its responses; it does not copy four test files.
+A resource on the core adds its endpoint declarations, one effect case per MCP tool, and JSON
+fixtures for its responses. Until the generated wire and smoke tests land (E2), and while
+`/new-endpoint` still scaffolds an uplink resource, it also carries per-surface test files.
 
 ## Mocking HTTP
 
@@ -28,11 +29,12 @@ for its responses; it does not copy four test files.
 
 ## Rules
 
-- **A check is proven by a bite.** Every guard in `tests/test_architecture.py` has a test that
-  feeds it the defect it exists for (`…_bites`).
+- **A check is proven by a bite.** A new or changed guard ships with a test that feeds it the
+  defect it exists for (`…_bites`); older guards in `tests/test_architecture.py` gain one when
+  they are next touched.
 - **Retries never sleep in tests.** `stamina.set_testing` (autouse) keeps the attempt count and
   drops the waits.
-- **Coverage stays at 100% of lines**, enforced by `pytest --cov-fail-under=100`. It proves code
-  ran, not that it is right; the kinds above are what make it meaningful.
+- **Coverage stays at 100% of lines and branches** (`branch = true`, `--cov-fail-under=100`). It
+  proves code ran, not that it is right; the kinds above are what make it meaningful.
 - **Wiring tests are marked** `@pytest.mark.integration`, so `-m "not integration"` runs the
   fast unit layer alone.

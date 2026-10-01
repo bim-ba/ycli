@@ -83,6 +83,8 @@ markers = [
 
 [tool.coverage.run]
 source = ["ycli"]
+# Lines and branches: a guard with an untested side counts as missing coverage.
+branch = true
 # tests/test_new_endpoint.py imports a throwaway scaffold from tmp_path into the ycli namespace
 omit = ["*/scaffold_probe/*"]
 
@@ -186,6 +188,7 @@ allow_indirect_imports = true
 name = "ARCH-2: fastmcp is imported only in mcp modules"
 type = "forbidden"
 source_modules = [
+    "ycli.mcp",
     "ycli.cli",
     "ycli.cli.**",
     "ycli.yandex.**.cli",
@@ -194,6 +197,9 @@ source_modules = [
 ]
 forbidden_modules = ["fastmcp"]
 allow_indirect_imports = true
+# The server, and `ycli mcp methods` (behind a guard). The package __init__ must stay free of
+# fastmcp: the base install loads `ycli mcp` without the extra.
+ignore_imports = ["ycli.mcp.server -> fastmcp", "ycli.mcp.cli -> fastmcp"]
 
 [[tool.importlinter.contracts]]
 name = "ARCH-2: MCP never imports the CLI layer (ycli.cli, typer), even through a helper"

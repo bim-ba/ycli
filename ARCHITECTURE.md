@@ -68,25 +68,30 @@ allowlist entry in code with its reason, never prose here. Tests are in
   framework, surfaces never import each other.
 - **Why:** each layer has one job (single responsibility) and can change without the others.
 - **Check:** import-linter contracts in `pyproject.toml` (`uv run lint-imports`): the httpx2
-  core imports no service, surface, `typer` or `fastmcp`; `cli.py`/`mcp.py`/`models.py` import
-  no HTTP library (`requests`, `uplink`, `httpx2`) — HTTP lives in `client.py`, the uplink
-  `transport.py`/`base.py`, and `ycli.yandex.core`; `fastmcp` only in `mcp.py` modules and the
-  `ycli.mcp` server; MCP modules never import `ycli.cli` or `typer`, even indirectly.
-- **Exceptions:** none. Imports under `if TYPE_CHECKING:` are ignored (they never run).
+  core imports no service, surface, `typer` or `fastmcp`; MCP modules never import `ycli.cli`
+  or `typer`, even indirectly; `cli.py`/`mcp.py`/`models.py` import no HTTP library
+  (`requests`, `uplink`, `httpx2`) directly — HTTP lives in `client.py`, the uplink
+  `transport.py`/`base.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
+  CLI, clients, models or the `ycli.mcp` package `__init__` (the base install loads `ycli mcp`
+  without the extra).
+- **Exceptions:** the MCP server and `ycli mcp methods` import `fastmcp` (`ignore_imports`).
+  Imports under `if TYPE_CHECKING:` are ignored (they never run).
 
 ### ARCH-3 — Honest effects
 - **Rule:** what an operation does to the server (read, write, idempotent write, destructive) is
   declared once, and MCP annotations, the `write` tag and `--read-only` agree with it.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
-- **Check:** for resources on the httpx2 core, `test_arch3_core_tools_are_annotated_by_their_endpoint_effect`
-  runs every tool and compares its hints with the effect of the `Endpoint` it sent
-  (`ARCH3_EFFECT_CASES`, fail-closed both ways). For resources still on uplink, the verb maps in
-  `tests/test_architecture.py` classify each tool by name and an AST check stops a read tool
-  from calling a client write method; both go away with the last uplink resource (E2), and
+- **Check:** for resources on the httpx2 core,
+  `test_arch3_core_tools_are_annotated_by_their_endpoint_effect` runs every tool and compares
+  its hints with the effect of the first `Endpoint` it sends (`ARCH3_EFFECT_CASES`, fail-closed
+  both ways), and `test_arch3_effect_overrides_are_listed` keeps every `effect=` that differs
+  from the method in `ARCH3_EFFECT_OVERRIDES`. An AST check stops any tool that is read-only by
+  name or by its `RO` hints from calling a client write method. For resources still on uplink,
+  the verb maps classify each tool by name; they go away with the last uplink resource (E2), and
   `test_arch3_verb_maps_are_still_needed` fails at that point to say so.
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete.
-- **Exceptions:** none.
+- **Exceptions:** `ARCH3_EFFECT_OVERRIDES` (a read over `POST`, an idempotent `POST`).
 
 ### ARCH-4 — One output path
 - **Rule:** a CLI command returns its result; only `output.render` writes to stdout.
@@ -98,27 +103,30 @@ allowlist entry in code with its reason, never prose here. Tests are in
   are result types (`BinaryResult`, `str`), not exceptions.
 
 ### ARCH-5 — Single sources of truth
-- **Rule:** every value has one home: the version in package metadata, environment access and
-  settings models in `settings.py`, the org header name in `core/profile.py`, API hosts in each
-  service's profile, defaults in the settings models.
+- **Rule:** every value has one home: the version in package metadata, environment access
+  (`os.environ`, `os.getenv`, `from_env`) and settings models in `settings.py`, the org header
+  name in `core/profile.py`, API hosts in each service's profile, timeout/retry/limit defaults
+  in the settings models (no `timeout=30`-style literal elsewhere).
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration (the old
   `@uplink.timeout(30)` bug).
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
 - **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the OAuth login flow.
 
 ### ARCH-6 — The public surface is versioned
-- **Rule:** the CLI tree, MCP tool names and both surfaces' parameters change only on purpose.
+- **Rule:** the CLI tree, MCP tool names and both surfaces' parameters (name, type, default,
+  required) change only on purpose.
 - **Why:** scripts and agents depend on them; a silent rename or new required parameter breaks
   them.
 - **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_tree,mcp_tools,cli_signatures,mcp_signatures}.txt`;
   accept a change with `uv run python -m tests.snapshots --update`.
-- **Exceptions:** none.
+- **Exceptions:** none. Fields nested inside an MCP `body` model are not snapshotted.
 
 ### ARCH-7 — Dependency injection
 - **Rule:** only composition roots build settings from the environment; everything else
   receives configuration and clients as arguments.
 - **Why:** code that reads the environment itself cannot be reused or tested in isolation.
-- **Check:** `test_arch7_settings_are_built_only_at_composition_roots` (AST).
+- **Check:** `test_arch7_settings_are_built_only_at_composition_roots` (AST: calls, attribute
+  calls, import aliases and bare references such as `default_factory=AppConfig`).
 - **Exceptions:** `ARCH7_ROOTS` — the CLI root and its dependency container, the MCP providers
   and entry point, and `auth status`/`login`, which read and write credentials by design.
 
@@ -127,10 +135,11 @@ allowlist entry in code with its reason, never prose here. Tests are in
   models, and a non-2xx answer becomes a typed `YandexError` in one place
   (`errors.error_for_status`).
 - **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
-- **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` (+ its bite test) and
-  `test_arch8_errors_are_mapped_in_one_place`.
+- **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` and
+  `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`
+  nowhere, `error_for_status` only in `ARCH8_ERROR_MAPPERS`.
 - **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`, whose wire shape no
-  model represents yet); the IAM token exchange maps its own failure.
+  model represents yet); `ARCH8_ERROR_MAPPERS` (the two transports and the IAM token exchange).
 
 ## Scope & limits of enforcement
 
@@ -139,10 +148,19 @@ rest. Known blind spots:
 
 - **ARCH-1 parity reads direct surface→client calls.** A wrapper that reaches the client through
   a local alias is reported as a (false) gap; an unrelated same-named `X.<resource>.<op>(…)`
-  call could mask a real one.
+  call could mask a real one. It is an AST scan, not yet the per-endpoint flags planned for
+  when every resource is declared as endpoints (E2).
+- **ARCH-2 catches direct imports only** for the HTTP-library and `fastmcp` contracts
+  (`allow_indirect_imports = true`, since surfaces reach HTTP through `client.py`): an HTTP call
+  hidden in a helper module that `cli.py` imports is not caught.
+- **ARCH-3's effect check sees the first request** a core tool sends; a tool that reads and
+  then writes is caught by the read-tool AST check only if it is read-only by name or hints.
 - **ARCH-3's uplink half guesses from names** until those resources move to the core.
-- **ARCH-5 is not secret scanning** (gitleaks is), and it does not catch a hardcoded pagination
-  cap: a literal `500` is indistinguishable from the HTTP status.
+- **ARCH-5 is not secret scanning** (gitleaks is). Its literal-default check reads keyword
+  arguments (`timeout=30`), not a bare `500` elsewhere, which is indistinguishable from the
+  HTTP status.
+- **ARCH-7 reads names**: a settings model reached through a module alias it cannot resolve
+  (`import ycli.settings as s; s.AppConfig()` is caught, `getattr(s, "AppConfig")()` is not).
 
 ## Resource conventions (models, naming, MCP imports)
 

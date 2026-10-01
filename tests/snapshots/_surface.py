@@ -37,10 +37,13 @@ def cli_tree() -> list[str]:
 
 
 def _cli_param(param: Any) -> str:
-    """``--limit`` / ``KEY``, with ``!`` when required."""
+    """``--limit:INTEGER=0`` / ``KEY:TEXT!`` — name, type, then ``!`` (required) or the default."""
     longest_opt = max(param.opts, key=len)
     label = str(longest_opt) if param.param_type_name == "option" else str(param.name).upper()
-    return f"{label}!" if param.required else label
+    label = f"{label}:{param.type.name.upper()}"
+    if param.required:
+        return f"{label}!"
+    return label if param.default is None else f"{label}={param.default!r}"
 
 
 def cli_signatures() -> list[str]:
@@ -66,10 +69,27 @@ def mcp_tool_names() -> list[str]:
 
 
 def mcp_signatures() -> list[str]:
-    """Each MCP tool with its input parameters, e.g. ``tracker_issues_get(key!)``."""
+    """Each MCP tool with typed parameters, e.g. ``tracker_issues_get(key:string!)``."""
+
+    def describe(name: str, schema: dict, required: bool) -> str:
+        kind = (
+            schema.get("type")
+            or "|".join(
+                str(option.get("type", option.get("$ref", "?")).rsplit("/", 1)[-1])
+                for option in schema.get("anyOf", [])
+            )
+            or str(schema.get("$ref", "?")).rsplit("/", 1)[-1]
+        )
+        if required:
+            return f"{name}:{kind}!"
+        return (
+            f"{name}:{kind}" if "default" not in schema else f"{name}:{kind}={schema['default']!r}"
+        )
+
     lines = []
     for tool in _tools():
         required = set(tool.inputSchema.get("required", []))
-        params = sorted(tool.inputSchema.get("properties", {}))
-        lines.append(f"{tool.name}({', '.join(p + '!' * (p in required) for p in params)})")
+        properties = tool.inputSchema.get("properties", {})
+        params = [describe(n, properties[n], n in required) for n in sorted(properties)]
+        lines.append(f"{tool.name}({', '.join(params)})")
     return sorted(lines)
