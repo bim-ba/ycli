@@ -36,7 +36,7 @@ async def test_boards_list_tool_caps_with_explicit_limit(creds):
 
 @responses.activate
 async def test_boards_list_tool_defaults_to_max_items(creds):
-    # limit omitted (0) → cap falls back to cfg.max_items; empty page returns at once
+    # limit omitted (0) → cap falls back to cfg.http.max_items; empty page returns at once
     responses.add(responses.GET, f"{BASE}/boards/_paginate", json=[], status=200)
     async with Client(boards_mcp.mcp) as client:
         result = await client.call_tool("boards_list", {})

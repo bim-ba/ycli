@@ -43,7 +43,7 @@ def list_(
 ) -> None:
     """List all organisation users (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
+    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.tracker.users.list(limit=cap, expand=expand or None),
         app_ctx.strategy,

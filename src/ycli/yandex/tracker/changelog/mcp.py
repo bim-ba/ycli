@@ -22,13 +22,13 @@ def list_(
     key: str,
     limit: Annotated[
         int,
-        Field(description="Max changes to return; 0 means the YCLI_MAX_ITEMS cap (default 500)."),
+        Field(description="Max changes to return; 0 means the configured cap (default 500)."),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ChangelogList:
     """Full changelog (edit history) for a Tracker issue, auto-paginated via the relative
-    id-cursor. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given.
+    id-cursor. Capped at 500 items by default unless ``limit`` is given.
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.changelog.list(key, limit=cap)

@@ -18,7 +18,7 @@ mcp = FastMCP("wiki-resources")
 @mcp.tool(name="resources_list", annotations={**RO, "title": "List Wiki page resources"}, tags=TAGS)
 def list_(
     page_id: Annotated[int, Field(description="Numeric page id whose resources to list.")],
-    limit: Annotated[int, Field(description="Max resources (0 = YCLI_MAX_ITEMS cap).")] = 0,
+    limit: Annotated[int, Field(description="Max resources (0 = configured cap).")] = 0,
     q: Annotated[str, Field(description="Optional title search filter.")] = "",
     types: Annotated[
         str, Field(description="Comma-separated kinds to include: ``attachment,grid``.")
@@ -29,11 +29,11 @@ def list_(
     """A page's resources — attachments AND grids — as ``{type, item}`` envelopes, auto-paginated.
 
     The unified single-pass listing over what ``attachments_list`` and ``pages_grids_list``
-    expose separately (drains ``next_cursor`` internally). Capped at YCLI_MAX_ITEMS (default
-    500) unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,grid``).
+    expose separately (drains ``next_cursor`` internally). Capped at 500 items by default
+    unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,grid``).
 
     Example:
         >>> list_(page_id=12345, types="attachment")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.resources.list(page_id=page_id, limit=cap, q=q or None, types=types or None)

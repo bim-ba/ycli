@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
 import typer
-from pydantic import ValidationError
+from pydantic import SecretStr, ValidationError
 from rich.panel import Panel
 
 from ycli.cli.context import AppContext
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from rich.console import Console
+from ycli.yandex.factory import ClientFactory
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.env_file import EnvFile
@@ -108,9 +109,11 @@ def login(
     config = app_ctx.config
     oauth_client = OAuthClient(
         client_id=oauth_config.client_id,
-        client_secret=oauth_config.client_secret,
-        timeout_seconds=config.timeout_seconds,
-        retries=config.retries,
+        client_secret=(
+            oauth_config.client_secret.get_secret_value() if oauth_config.client_secret else None
+        ),
+        timeout_seconds=config.http.timeout_seconds,
+        retries=config.http.retries,
     )
 
     if implicit or oauth_config.client_secret is None:
@@ -193,26 +196,15 @@ def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
 
 def _build_report(token: str, organization_id: str, config: AppConfig) -> AuthReport:
     """Probe Tracker/Wiki/Forms with the new token+org and assemble an AuthReport."""
-    timeout_seconds = config.timeout_seconds
-    tracker = TrackerClient(
-        oauth_token=token,
-        organization_id=organization_id,
-        timeout_seconds=timeout_seconds,
-        retries=config.retries,
-    )
-    wiki = WikiClient(
-        oauth_token=token,
-        organization_id=organization_id,
-        timeout_seconds=timeout_seconds,
-        retries=config.retries,
-    )
-    forms = FormsClient(
-        oauth_token=token,
-        organization_id=organization_id,
-        timeout_seconds=timeout_seconds,
-        retries=config.retries,
-    )
-    me_clients = {"tracker": tracker.me, "wiki": wiki.me, "forms": forms.me}
+    credentials = Credentials(oauth_token=SecretStr(token), organization_id=organization_id)
+    me_clients = {
+        name: ClientFactory.build(client_cls, credentials, config).me  # ty: ignore[unresolved-attribute]
+        for name, client_cls in (
+            ("tracker", TrackerClient),
+            ("wiki", WikiClient),
+            ("forms", FormsClient),
+        )
+    }
     return StatusReporter(me_clients).report(configured=True, organization_id=organization_id)
 
 

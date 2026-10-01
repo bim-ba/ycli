@@ -15,18 +15,21 @@ def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
     monkeypatch.chdir(tmp_path)  # prevent .env from leaking
     creds = Credentials()  # ty: ignore[missing-argument]
-    cfg = AppConfig(timeout_seconds=12.0, retries=5)
+    cfg = AppConfig(http={"timeout_seconds": 12.0, "retries": 5})  # ty: ignore[invalid-argument-type]
     client = ClientFactory.build(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
     assert client.issues._session.headers["Authorization"] == "OAuth t"
     assert client.issues._session.headers["X-Org-Id"] == "o"
+    adapter = client.issues._session.get_adapter("https://")
+    assert adapter._timeout == 12.0
+    assert adapter.max_retries.total == 5
 
 
 def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
     """A fractional ``timeout_seconds`` reaches the adapter unrounded: 0.5 must not become 0."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    monkeypatch.setenv("YCLI_TIMEOUT_SECONDS", "0.5")
+    monkeypatch.setenv("YCLI__HTTP__TIMEOUT_SECONDS", "0.5")
     monkeypatch.chdir(tmp_path)
     creds = Credentials()  # ty: ignore[missing-argument]
     cfg = AppConfig()

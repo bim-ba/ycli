@@ -715,19 +715,20 @@ def test_arch10_no_uplink_timeout_shadow():
         for p in SRC.rglob("*.py")
         if "@uplink.timeout" in p.read_text(encoding="utf-8")
     ]
-    assert not offenders, f"@uplink.timeout shadows YCLI_TIMEOUT_SECONDS: {offenders}"
+    assert not offenders, f"@uplink.timeout shadows YCLI__HTTP__TIMEOUT_SECONDS: {offenders}"
 
 
 def test_arch10_sdk_defaults_match_appconfig():
     """The SDK constructor defaults (carve-out) stay equal to AppConfig's defaults."""
     import inspect
 
-    from ycli.settings import AppConfig
+    from ycli.settings import HTTPConfig
     from ycli.yandex.tracker.client import TrackerClient
 
     params = inspect.signature(TrackerClient).parameters
-    assert params["timeout_seconds"].default == AppConfig.model_fields["timeout_seconds"].default
-    assert params["retries"].default == AppConfig.model_fields["retries"].default
+    http_defaults = HTTPConfig()
+    assert params["timeout_seconds"].default == http_defaults.timeout_seconds
+    assert params["retries"].default == http_defaults.retries
 
 
 def test_every_mcp_tool_has_description_and_output_schema():

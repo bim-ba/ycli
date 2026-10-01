@@ -40,7 +40,7 @@ def get(
 def list_(
     limit: Annotated[
         int,
-        Field(description="Max users to return; 0 means the YCLI_MAX_ITEMS cap (default 500)."),
+        Field(description="Max users to return; 0 means the configured cap (default 500)."),
     ] = 0,
     expand: Annotated[
         str | None,
@@ -50,10 +50,10 @@ def list_(
     config: AppConfig = Depends(app_config),
 ) -> UserList:
     """All users registered in the organisation, auto-paginated via the relative id-cursor and
-    sorted by ascending uid. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given; use
+    sorted by ascending uid. Capped at 500 items by default unless ``limit`` is given; use
     ``users_get`` instead when you already know the specific login or uid.
 
     >>> users_list(limit=50, expand="groups")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.users.list(limit=cap, expand=expand)

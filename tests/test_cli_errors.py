@@ -60,3 +60,16 @@ def test_non_credential_validation_error_falls_through_to_generic():
     message = format_cli_error(exc_info.value)
     assert message.startswith("Error:")  # unrelated validation error → generic message
     assert "auth login" not in message
+
+
+def test_invalid_app_config_names_the_environment_variable(monkeypatch):
+    from ycli.settings import AppConfig
+
+    monkeypatch.setenv("YCLI__LOGGING__LEVEL", "bogus")
+    monkeypatch.setenv("YCLI__HTTP__RETRIES", "-1")
+    with pytest.raises(ValidationError) as caught:
+        AppConfig()
+    message = format_cli_error(caught.value)
+    assert message.startswith("Invalid configuration:")
+    assert "YCLI__LOGGING__LEVEL: Input should be" in message
+    assert "YCLI__HTTP__RETRIES: Input should be greater than or equal to 0" in message

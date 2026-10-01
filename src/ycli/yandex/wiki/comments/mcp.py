@@ -37,10 +37,10 @@ def list_(
 ) -> CommentList:
     """Comments on a page id, auto-paginated (drains the ``next_cursor`` internally).
 
-    Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Pair with
+    Capped at 500 items by default unless ``limit`` is given. Pair with
     ``pages_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.comments.list(page_id=page_id, limit=cap)
 
 
@@ -50,7 +50,7 @@ def list_(
 def thread_list(
     page_id: Annotated[int, Field(description="Numeric page id the comment lives on.")],
     comment_id: Annotated[int, Field(description="Root comment id whose reply thread to fetch.")],
-    limit: Annotated[int, Field(description="Max replies (0 = YCLI_MAX_ITEMS cap).")] = 0,
+    limit: Annotated[int, Field(description="Max replies (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> CommentList:
@@ -58,13 +58,13 @@ def thread_list(
 
     The Wiki ``/thread`` endpoint is dead (returns no replies), so this fetches every comment
     on the page and chains ``parent_id`` from the target: the comment comes first, then its
-    descendants in depth-first order. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is
+    descendants in depth-first order. Capped at 500 items by default unless ``limit`` is
     given. Use ``comments_list`` first to discover a root comment id, then this to read its thread.
 
     Example:
         >>> thread_list(page_id=12345, comment_id=678, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
 
 

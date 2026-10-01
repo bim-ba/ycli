@@ -1,35 +1,94 @@
-"""Env-driven configuration — two single-purpose pydantic-settings models.
+"""Env-driven configuration — parsed once into refined, immutable types.
 
 Split deliberately: app config must be constructible WITHOUT credentials (the root CLI
 callback configures logging on every invocation, including ``--help``), while credentials
 are required only when an API call is made. ``Credentials`` has no defaults, so pydantic
 enforces presence — no hand-written validation.
+
+App settings are grouped, one model per concern, and read from ``YCLI__<GROUP>__<SETTING>``
+(``YCLI__HTTP__TIMEOUT_SECONDS``, ``YCLI__LOGGING__LEVEL``). Keyword arguments use the same
+shape: ``AppConfig(http={"timeout_seconds": 5})``. Credentials keep Yandex's own names
+(``YANDEX_ID_OAUTH_TOKEN``) with a ``YCLI__AUTH__*`` fallback.
+
+Example:
+    >>> AppConfig(http={"timeout_seconds": 5}).http.timeout_seconds
+    5.0
 """
 
 from __future__ import annotations
 
-from pydantic import Field
+from typing import Annotated, Literal
+
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    NonNegativeInt,
+    PositiveFloat,
+    PositiveInt,
+    SecretStr,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+type LogLevel = Annotated[
+    Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+    BeforeValidator(lambda value: value.upper() if isinstance(value, str) else value),
+]
+
+
+class HTTPConfig(BaseModel):
+    """How ycli talks to the Yandex APIs (``YCLI__HTTP__*``)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    timeout_seconds: PositiveFloat = 30.0
+    retries: NonNegativeInt = 3
+    max_items: PositiveInt = 500
+
+
+class LoggingConfig(BaseModel):
+    """Diagnostic output on stderr (``YCLI__LOGGING__*``)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    level: LogLevel = "INFO"
 
 
 class AppConfig(BaseSettings):
     """Process-wide app configuration — always constructible, never needs credentials."""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="YCLI__",
+        env_nested_delimiter="__",
+        env_nested_max_split=1,
+        env_file=".env",
+        extra="ignore",
+        frozen=True,
+    )
 
-    timeout_seconds: float = Field(default=30.0, validation_alias="YCLI_TIMEOUT_SECONDS")
-    retries: int = Field(default=3, validation_alias="YCLI_RETRIES")
-    log_level: str = Field(default="INFO", validation_alias="YCLI_LOG_LEVEL")
-    max_items: int = Field(default=500, validation_alias="YCLI_MAX_ITEMS")
+    http: HTTPConfig = HTTPConfig()
+    logging: LoggingConfig = LoggingConfig()
 
 
 class Credentials(BaseSettings):
-    """Yandex 360 credentials — required; pydantic raises if either env var is absent."""
+    """Yandex 360 credentials — required; pydantic raises if either is absent or empty."""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # env_ignore_empty: an exported-but-empty variable reads as "not set", so the CLI routes it
+    # to the same "run `ycli auth login`" hint as a missing one.
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore", validate_by_name=True, frozen=True
+    )
 
-    oauth_token: str = Field(validation_alias="YANDEX_ID_OAUTH_TOKEN")
-    organization_id: str = Field(validation_alias="YANDEX_ID_ORGANIZATION_ID")
+    oauth_token: SecretStr = Field(
+        min_length=1,
+        validation_alias=AliasChoices("YANDEX_ID_OAUTH_TOKEN", "YCLI__AUTH__OAUTH_TOKEN"),
+    )
+    organization_id: str = Field(
+        min_length=1,
+        validation_alias=AliasChoices("YANDEX_ID_ORGANIZATION_ID", "YCLI__AUTH__ORGANIZATION_ID"),
+    )
 
 
 class OAuthAppConfig(BaseSettings):
@@ -40,7 +99,11 @@ class OAuthAppConfig(BaseSettings):
     the caller registers their app at https://oauth.yandex.ru.
     """
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore", validate_by_name=True, frozen=True
+    )
 
     client_id: str | None = Field(default=None, validation_alias="YANDEX_OAUTH_CLIENT_ID")
-    client_secret: str | None = Field(default=None, validation_alias="YANDEX_OAUTH_CLIENT_SECRET")
+    client_secret: SecretStr | None = Field(
+        default=None, validation_alias="YANDEX_OAUTH_CLIENT_SECRET"
+    )

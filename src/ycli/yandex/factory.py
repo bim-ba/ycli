@@ -19,8 +19,8 @@ class ClientFactory:
     def build(client_cls: type, credentials: Credentials, config: AppConfig) -> object:
         """Construct ``client_cls`` from ``credentials`` + ``config`` — never reads the env."""
         return client_cls(
-            oauth_token=credentials.oauth_token,
+            oauth_token=credentials.oauth_token.get_secret_value(),
             organization_id=credentials.organization_id,
-            timeout_seconds=config.timeout_seconds,
-            retries=config.retries,
+            timeout_seconds=config.http.timeout_seconds,
+            retries=config.http.retries,
         )

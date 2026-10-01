@@ -31,7 +31,7 @@ def list_(
 ) -> None:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
+    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
     Serializer.serialize(
         app_ctx.wiki.attachments.list(page_id=page_id, limit=cap), app_ctx.strategy, app_ctx.console
     )

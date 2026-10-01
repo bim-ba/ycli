@@ -139,7 +139,7 @@ def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
     """Timeout from _TimeoutAdapter reaches the request; no per-method override interferes."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    monkeypatch.setenv("YCLI_TIMEOUT_SECONDS", "99")
+    monkeypatch.setenv("YCLI__HTTP__TIMEOUT_SECONDS", "99")
     from ycli.yandex.transport import _TimeoutAdapter
 
     seen: dict = {}

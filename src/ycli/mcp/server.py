@@ -41,9 +41,8 @@ def main(read_only: bool = False) -> None:
     Example:
         >>> main()  # doctest: +SKIP
     """
-    configure(
-        level=AppConfig().log_level
-    )  # match the CLI: single stderr sink, stdout stays clean for the protocol
+    # Match the CLI: a single stderr sink, so stdout stays clean for the protocol.
+    configure(level=AppConfig().logging.level)
     if read_only:
         mcp.disable(tags={WRITE_TAG})
     mcp.run()
