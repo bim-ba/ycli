@@ -31,6 +31,8 @@ Notable shared pieces:
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
   tool call, so nothing is cached per process
+- `src/ycli/cli/lazy.py` — the root group lists every sub-app from its declaration and imports it
+  on first use, so `ycli --version` or one service's command never imports the others
 - `src/ycli/yandex/registry.py` — `SERVICES`, the one list of services; the CLI root, the MCP
   server and `auth status` iterate it (each domain declares its `SERVICE` in `__init__.py`)
 - `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;

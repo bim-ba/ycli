@@ -7,12 +7,20 @@ and an importable Python SDK under ``ycli.yandex``. Distributed on PyPI as ``yan
 from __future__ import annotations
 
 import logging
-from importlib.metadata import version
 
 # A library never configures logging; it only emits. The CLI and MCP entry points attach a real
 # handler (see ``ycli.log``), and a host application may attach its own.
 logging.getLogger("ycli").addHandler(logging.NullHandler())
 
-# Single source of truth: the version declared in pyproject.toml (read from installed
-# metadata under the distribution name `yandex-cli`).
-__version__ = version("yandex-cli")
+
+def __getattr__(name: str) -> str:
+    """``ycli.__version__``, read on first access: ``importlib.metadata`` is slow to import.
+
+    Single source of truth: the version declared in pyproject.toml (installed metadata under
+    the distribution name ``yandex-cli``).
+    """
+    if name == "__version__":
+        from importlib.metadata import version
+
+        return version("yandex-cli")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

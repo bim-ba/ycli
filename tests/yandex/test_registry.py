@@ -3,6 +3,7 @@
 import asyncio
 
 import pytest
+import typer
 from fastmcp import Client
 from typer.main import get_command
 
@@ -26,9 +27,11 @@ def test_service_import_paths_resolve(service):
 
 @pytest.mark.integration
 def test_cli_root_mounts_every_service_with_its_help():
-    groups = get_command(app).commands  # ty: ignore[unresolved-attribute]
+    root = get_command(app)
+    context = typer.Context(root)
     for service in SERVICES:
-        assert groups[service.name].help == service.help
+        group = root.get_command(context, service.name)  # ty: ignore[unresolved-attribute]
+        assert group.help == service.help
 
 
 @pytest.mark.integration

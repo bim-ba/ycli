@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import typer
 
-app = typer.Typer(name="mcp", help="MCP server control (reads + writes).", no_args_is_help=True)
+# Help text lives with the root sub-app list (ycli.cli.app).
+app = typer.Typer(name="mcp", no_args_is_help=True)
 
 _MISSING = (
     "The MCP server requires the 'mcp' extra. Install it with: "

@@ -3,6 +3,7 @@
 from types import SimpleNamespace
 
 import pytest
+import typer
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
@@ -67,8 +68,8 @@ def test_mcp_start_read_only_flag(monkeypatch):
 def test_mcp_sub_app_registered():
     from typer.main import get_command
 
-    names = get_command(cli.app).commands  # ty: ignore[unresolved-attribute]  # click Group.commands maps name -> Command
-    assert "mcp" in names
+    root = get_command(cli.app)
+    assert "mcp" in root.list_commands(typer.Context(root))  # ty: ignore[unresolved-attribute]
 
 
 def test_mcp_methods_lists_tool_names():
