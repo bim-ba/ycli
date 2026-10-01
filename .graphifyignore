@@ -9,8 +9,7 @@
 /.claude/
 /.cursor/
 
-# --- transient / historical docs (not durable concepts) ---
-docs/superpowers/
+# --- demo sources and images (not durable concepts) ---
 docs/demo/
 docs/assets/
 
