@@ -46,6 +46,15 @@ def _main(
             "--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."
         ),
     ] = OutputFormat.auto,
+    verbose: Annotated[
+        int,
+        typer.Option(
+            "--verbose",
+            "-v",
+            count=True,
+            help="Log to stderr: -v shows HTTP requests, -vv adds debug detail.",
+        ),
+    ] = 0,
     version: Annotated[  # consumed by the eager _version_callback, not this body
         bool,
         typer.Option(
@@ -56,8 +65,10 @@ def _main(
         ),
     ] = False,
 ) -> None:
-    """Declare the global ``--format`` option, configure logging, build the AppContext."""
-    configure(level=AppConfig().logging.level)
+    """Declare the global options, configure logging, build the AppContext."""
+    logging_config = AppConfig().logging
+    level = {0: logging_config.level, 1: "INFO"}.get(verbose, "DEBUG")
+    configure(level=level, log_format=logging_config.format)
     ctx.obj = AppContext(output_format=output_format)
 
 

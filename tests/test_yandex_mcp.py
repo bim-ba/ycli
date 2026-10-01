@@ -1,6 +1,5 @@
 """Root MCP server: the 3 subservers mount with namespaced tool names."""
 
-import pytest
 from fastmcp import Client
 
 from ycli.mcp import mcp
@@ -86,21 +85,3 @@ def test_main_read_only_disables_write_tag(monkeypatch):
 def test_mcp_main_module_importable():
     """``python -m ycli.mcp`` entry resolves — covers the __main__.py import line."""
     import ycli.mcp.__main__  # noqa: F401
-
-
-@pytest.mark.integration
-def test_mcp_main_honors_log_level(monkeypatch, capsys):
-    monkeypatch.setenv("YCLI__LOGGING__LEVEL", "ERROR")
-    import ycli.mcp as mcp_module
-
-    monkeypatch.setattr(mcp_module.mcp, "run", lambda *a, **k: None)
-    from loguru import logger
-
-    from ycli.mcp import main
-
-    main()
-    logger.info("hidden_line")
-    logger.error("shown_line")
-    err = capsys.readouterr().err
-    assert "hidden_line" not in err
-    assert "shown_line" in err

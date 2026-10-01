@@ -16,12 +16,19 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
+import logging
+from typing import TYPE_CHECKING, Any, Self
 
 import requests
 from requests import PreparedRequest, Response
 from requests.adapters import DEFAULT_POOLBLOCK, DEFAULT_POOLSIZE, DEFAULT_RETRIES, HTTPAdapter
 from urllib3.util.retry import Retry
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from urllib3 import BaseHTTPResponse
+    from urllib3.connectionpool import ConnectionPool
 
 from ycli.yandex.errors import (
     YandexAuthError,
@@ -30,6 +37,55 @@ from ycli.yandex.errors import (
     YandexRateLimitError,
     YandexServerError,
 )
+
+logger = logging.getLogger("ycli.http")
+
+
+class _LoggedRetry(Retry):
+    """``urllib3.Retry`` that logs each retry it decides to make (urllib3 itself stays quiet)."""
+
+    def increment(
+        self,
+        method: str | None = None,
+        url: str | None = None,
+        response: BaseHTTPResponse | None = None,
+        error: Exception | None = None,
+        _pool: ConnectionPool | None = None,
+        _stacktrace: TracebackType | None = None,
+    ) -> Self:
+        retry = super().increment(method, url, response, error, _pool, _stacktrace)
+        cause = response.status if response is not None else error
+        logger.info("retrying %s %s after %s (%s left)", method, url, cause, retry.total)
+        return retry
+
+
+def retry_policy(retries: int) -> Retry:
+    """Back off and retry idempotent requests (GET/HEAD/OPTIONS) on 429 and 5xx, up to ``retries``.
+
+    Example:
+        >>> retry_policy(3).total
+        3
+    """
+    return _LoggedRetry(
+        total=retries,
+        backoff_factor=0.5,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=frozenset({"GET", "HEAD", "OPTIONS"}),
+        raise_on_status=False,
+    )
+
+
+def log_response(response: Response, *args: Any, **kwargs: Any) -> Response:
+    """requests ``response`` hook: one INFO line per final response — never headers or bodies."""
+    request = response.request
+    logger.info(
+        "%s %s -> %s (%.0f ms)",
+        request.method,
+        request.url,
+        response.status_code,
+        response.elapsed.total_seconds() * 1000,
+    )
+    return response
 
 
 class _TimeoutAdapter(HTTPAdapter):
@@ -147,15 +203,8 @@ class Transport:
         session.headers.update(
             {"Authorization": cls._authorization(oauth_token), "X-Org-Id": organization_id}
         )
-        session.hooks["response"].append(cls._raise_typed)
-        retry = Retry(
-            total=retries,
-            backoff_factor=0.5,
-            status_forcelist=(429, 500, 502, 503, 504),
-            allowed_methods=frozenset({"GET", "HEAD", "OPTIONS"}),
-            raise_on_status=False,
-        )
-        adapter = _TimeoutAdapter(max_retries=retry, timeout=timeout_seconds)
+        session.hooks["response"].extend([log_response, cls._raise_typed])
+        adapter = _TimeoutAdapter(max_retries=retry_policy(retries), timeout=timeout_seconds)
         session.mount("https://", adapter)
         session.mount("http://", adapter)
         return session
