@@ -155,3 +155,11 @@ async def test_worklog_write_tools_annotations():
         assert ann.destructiveHint is destructive, name
         assert ann.idempotentHint is idempotent, name
         assert ann.title, name
+
+
+@responses.activate
+async def test_worklog_search_tool_without_filters(creds):
+    responses.add(responses.POST, f"{BASE}/worklog/_search", json=[], status=200)
+    async with Client(worklog_mcp.mcp) as client:
+        await client.call_tool("worklog_search", {})
+    assert json.loads(responses.calls[0].request.body) == {}  # ty: ignore[invalid-argument-type]

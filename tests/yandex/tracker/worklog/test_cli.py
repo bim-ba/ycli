@@ -170,3 +170,11 @@ def test_global_list():
     assert json.loads(res.stdout)[0]["duration"] == "P3W"
     url = responses.calls[0].request.url
     assert "createdBy=veikus" in url and "createdAt=from" in url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_search_without_filters_sends_an_empty_body():
+    responses.add(responses.POST, f"{BASE}/worklog/_search", json=[], status=200)
+    res = runner.invoke(cli.app, ["--format", "json", "tracker", "worklog", "search"])
+    assert res.exit_code == 0, res.output
+    assert json.loads(responses.calls[0].request.body) == {}  # ty: ignore[invalid-argument-type]

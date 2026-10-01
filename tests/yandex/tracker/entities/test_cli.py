@@ -530,3 +530,21 @@ def test_attachments_delete_serializes_ack_on_empty_body():
         "ok": True,
         "detail": "deleted attachment 5 on project 655f",
     }
+
+
+@responses.activate
+def test_edit_fields_only_omits_comment():
+    responses.add(responses.PATCH, f"{BASE}/entities/project/655f", json={"id": "655f"}, status=200)
+    res = _invoke("edit", "project", "655f", "--summary", "New")
+    assert res.exit_code == 0
+    assert json.loads(responses.calls[0].request.body) == {"fields": {"summary": "New"}}  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_search_without_options_sends_an_empty_body():
+    responses.add(
+        responses.POST, f"{BASE}/entities/project/_search", json={"values": []}, status=200
+    )
+    res = _invoke("search", "project")
+    assert res.exit_code == 0
+    assert json.loads(responses.calls[0].request.body) == {}  # ty: ignore[invalid-argument-type]

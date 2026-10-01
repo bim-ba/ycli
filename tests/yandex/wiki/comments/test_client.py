@@ -252,3 +252,21 @@ def test_delete_returns_comments_count():
     assert out.comments_count == 4
     assert responses.calls[0].request.method == "DELETE"
     assert responses.calls[0].request.url.endswith("/pages/42/comments/7")  # ty: ignore[unresolved-attribute]
+
+
+@responses.activate
+def test_thread_tolerates_comments_without_ids():
+    responses.add(
+        responses.GET,
+        f"{BASE}/pages/42/comments",
+        json={
+            "results": [
+                {"id": 1, "body": "root", "parent_id": None},
+                {"id": None, "body": "anonymous reply", "parent_id": 1},
+                {"id": None, "body": "orphan", "parent_id": None},
+            ]
+        },
+        status=200,
+    )
+    out = _client().thread(page_id=42, comment_id=1)
+    assert [c.content for c in out.root] == ["root", "anonymous reply"]

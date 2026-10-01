@@ -593,3 +593,11 @@ async def test_entities_attachments_delete_tool_returns_ack_on_empty_body(creds)
     assert result.data.ok is True and "5" in result.data.detail
     assert responses.calls[0].request.method == "DELETE"
     assert responses.calls[0].request.url == f"{BASE}/entities/project/655f/attachments/5"
+
+
+@responses.activate
+async def test_entities_search_tool_without_filters(creds):
+    responses.add(responses.POST, f"{BASE}/entities/goal/_search", json={"values": []}, status=200)
+    async with Client(entities_mcp.mcp) as client:
+        await client.call_tool("entities_search", {"entity_type": "goal"})
+    assert json.loads(responses.calls[0].request.body) == {}  # ty: ignore[invalid-argument-type]

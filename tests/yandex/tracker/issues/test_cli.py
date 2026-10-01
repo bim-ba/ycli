@@ -224,3 +224,21 @@ def test_search_all_fetches_every_page(api):
     assert res.exit_code == 0, res.output
     assert len(json.loads(res.stdout)) == 101
     assert res.stderr == ""
+
+
+def test_create_with_only_the_required_options(api):
+    api.add("POST", f"{BASE}/issues/", json={"key": "DE-11"}, status=201)
+    res = runner.invoke(
+        cli.app, ["-o", "json", "tracker", "issues", "create", "--queue", "DE", "--summary", "S"]
+    )
+    assert res.exit_code == 0, res.output
+    assert api.body(0) == {"queue": "DE", "summary": "S"}
+
+
+def test_update_with_only_a_field(api):
+    api.add("PATCH", f"{BASE}/issues/DE-1", json={"key": "DE-1"})
+    res = runner.invoke(
+        cli.app, ["-o", "json", "tracker", "issues", "update", "DE-1", "--field", "sprint=7"]
+    )
+    assert res.exit_code == 0, res.output
+    assert api.body(0) == {"sprint": 7}
