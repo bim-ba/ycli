@@ -1,4 +1,4 @@
-"""Wiki FastMCP subserver tests — @cache factory, env+responses pattern."""
+"""Wiki FastMCP subserver tests — per-request provider, env+responses pattern."""
 
 import pytest
 import responses

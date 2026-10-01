@@ -1,4 +1,4 @@
-"""Cached forms MCP client provider (see ycli.yandex.mcp.make_cached_client)."""
+"""Per-request forms MCP client provider (see ycli.yandex.mcp.client_provider)."""
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.mcp import (
@@ -8,12 +8,12 @@ from ycli.yandex.mcp import (
     WRITE_IDEMPOTENT,
     WRITE_TAG,
     app_config,
-    make_cached_client,
+    client_provider,
 )
 
 TAGS: set[str] = {"forms"}
 WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
-forms_client = make_cached_client(FormsClient)
+forms_client = client_provider(FormsClient)
 
 __all__ = [
     "DESTRUCTIVE",

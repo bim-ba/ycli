@@ -27,8 +27,11 @@ Notable shared pieces:
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
 - `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI)
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
-- `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the `@cache`d client/config
-  providers (`make_cached_client`, `app_config`) that share one client across a mounted domain's tools
+- `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
+  client/config providers (`client_provider`, `app_config`): credentials are resolved on every
+  tool call, so nothing is cached per process
+- `src/ycli/yandex/registry.py` — `SERVICES`, the one list of services; the CLI root, the MCP
+  server and `auth status` iterate it (each domain declares its `SERVICE` in `__init__.py`)
 - `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
   `utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
   `--field` JSON coercion)

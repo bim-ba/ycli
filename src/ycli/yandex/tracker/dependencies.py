@@ -1,4 +1,4 @@
-"""Cached tracker MCP client provider (see ycli.yandex.mcp.make_cached_client)."""
+"""Per-request tracker MCP client provider (see ycli.yandex.mcp.client_provider)."""
 
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
@@ -7,13 +7,13 @@ from ycli.yandex.mcp import (
     WRITE_IDEMPOTENT,
     WRITE_TAG,
     app_config,
-    make_cached_client,
+    client_provider,
 )
 from ycli.yandex.tracker.client import TrackerClient
 
 TAGS: set[str] = {"tracker"}
 WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
-tracker_client = make_cached_client(TrackerClient)
+tracker_client = client_provider(TrackerClient)
 
 __all__ = [
     "DESTRUCTIVE",

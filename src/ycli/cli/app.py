@@ -14,10 +14,8 @@ from ycli.cli.output import OutputFormat
 from ycli.log import configure
 from ycli.mcp.cli import app as mcp_app
 from ycli.settings import AppConfig
-from ycli.yandex.forms.cli import app as forms_app
-from ycli.yandex.status import app as auth_app
-from ycli.yandex.tracker.cli import app as tracker_app
-from ycli.yandex.wiki.cli import app as wiki_app
+from ycli.yandex.registry import SERVICES
+from ycli.yandex.status.cli import app as auth_app
 
 app = typer.Typer(
     name="ycli",
@@ -73,10 +71,8 @@ def _main(
 
 
 app.add_typer(auth_app)
-app.add_typer(wiki_app)
-app.add_typer(tracker_app)
-app.add_typer(forms_app)
-
+for service in SERVICES:
+    app.add_typer(service.cli_app(), help=service.help)
 app.add_typer(mcp_app)
 
 

@@ -160,6 +160,8 @@ unused-ignore-comment = "warn"
 [tool.importlinter]
 root_package = "ycli"
 include_external_packages = true
+# Imports under `if TYPE_CHECKING:` never execute, so they cannot break a layer at runtime.
+exclude_type_checking_imports = true
 
 [[tool.importlinter.contracts]]
 name = "ARCH-2: cli/mcp/models never import HTTP libraries directly"
@@ -184,3 +186,14 @@ source_modules = [
 ]
 forbidden_modules = ["fastmcp"]
 allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "MCP never imports the CLI layer (ycli.cli, typer), directly or through a helper"
+type = "forbidden"
+source_modules = [
+    "ycli.mcp.server",
+    "ycli.yandex.mcp",
+    "ycli.yandex.**.mcp",
+    "ycli.yandex.**.dependencies",
+]
+forbidden_modules = ["ycli.cli", "typer"]

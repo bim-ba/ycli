@@ -37,7 +37,8 @@ from ycli.yandex.tracker.triggers.cli import app as triggers_app
 from ycli.yandex.tracker.users.cli import app as users_app
 from ycli.yandex.tracker.worklog.cli import app as worklog_app
 
-app = typer.Typer(name="tracker", help="Yandex Tracker read/write.", no_args_is_help=True)
+# Help text lives in the service registry (ycli.yandex.tracker.SERVICE).
+app = typer.Typer(name="tracker", no_args_is_help=True)
 
 app.add_typer(me_app)
 app.add_typer(issues_app)

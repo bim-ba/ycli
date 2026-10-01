@@ -1,4 +1,4 @@
-"""TDD for forms me MCP subserver — @cache factory, env+responses pattern."""
+"""TDD for forms me MCP subserver — per-request provider, env+responses pattern."""
 
 import pytest
 import responses

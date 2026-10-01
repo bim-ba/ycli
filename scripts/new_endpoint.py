@@ -14,7 +14,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-DOMAINS = ("tracker", "wiki", "forms")
+from ycli.yandex.registry import SERVICES
+
+DOMAINS = tuple(service.name for service in SERVICES)
 ROOT = Path(__file__).resolve().parent.parent / "src" / "ycli" / "yandex"
 
 INIT = '"""Yandex {domain} /{resource} resource (client · cli · mcp · models)."""\n'

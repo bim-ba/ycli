@@ -64,22 +64,22 @@ The `dependencies` module re-exports the annotation sets (from `ycli.yandex.mcp`
 correctly.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import
 automatically.
 
-### Why `<domain>_client` is a cached provider
+### Why `<domain>_client` is a per-request provider
 
 fastmcp's `mount()` does not propagate lifespan context across server boundaries, so a
 mounted domain server cannot receive a shared client through startup state.  Each `dependencies`
-module therefore builds its provider with `make_cached_client` (in `ycli.yandex.mcp`), which
-wraps a `functools.cache`d zero-arg factory:
+module therefore builds its provider with `client_provider` (in `ycli.yandex.mcp`):
 
 ```python
 # src/ycli/yandex/tracker/dependencies.py
-tracker_client = make_cached_client(TrackerClient)
+tracker_client = client_provider(TrackerClient)
 ```
 
-The provider reads credentials from the env once and returns the same client for every tool
-in the domain; `app_config()` is the matching `@cache`d config provider.  MCP tools consume
-them via `Depends(tracker_client)`.  This is the only approved sharing pattern — fastmcp's
-deprecated `import_server` must not be used.
+The provider resolves credentials (`EnvAuthSource` for the stdio server) and builds the client
+on every tool call, so a rotated token applies without a restart and nothing is cached per
+process; `app_config()` is the matching per-call config provider.  MCP tools consume them via
+`Depends(tracker_client)`.  This is the only approved sharing pattern — fastmcp's deprecated
+`import_server` must not be used.
 
 ---
 
