@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.22.0 (2026-10-01)
+
+### Bug Fixes
+
+- **core**: Harden the httpx2 core after review ([#125](https://github.com/bim-ba/ycli/pull/125),
+  [`818e128`](https://github.com/bim-ba/ycli/commit/818e128b2e12402543918d9aff336a38fd818d4c))
+
+### Build System
+
+- Re-lock uv.lock for 0.21.1
+  ([`1d0416c`](https://github.com/bim-ba/ycli/commit/1d0416c9d2fc07de37ba231be47e951ddfc87c98))
+
+### Features
+
+- **core**: Httpx2 core with pluggable auth; Tracker issues paginate on it
+  ([#125](https://github.com/bim-ba/ycli/pull/125),
+  [`818e128`](https://github.com/bim-ba/ycli/commit/818e128b2e12402543918d9aff336a38fd818d4c))
+
+
 ## v0.21.1 (2026-10-01)
 
 ### Build System
