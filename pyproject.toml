@@ -78,6 +78,8 @@ markers = [
 
 [tool.coverage.run]
 source = ["ycli"]
+# tests/test_new_endpoint.py imports a throwaway scaffold from tmp_path into the ycli namespace
+omit = ["*/scaffold_probe/*"]
 
 [tool.coverage.report]
 show_missing = true
