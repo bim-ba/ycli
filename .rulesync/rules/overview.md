@@ -80,7 +80,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   regenerate, never hand-author (the `demo.svg` incident).
 - **Branch → PR → explicit approval before merge — enforced.** `main` is protected by a
   repository ruleset (`Protect main — require CI`): the checks `test (3.12)` · `test (3.13)` ·
-  `gitleaks` are **required** before any merge, and `main` cannot be force-pushed or deleted.
+  `test (3.14)` · `gitleaks` · `rulesync` · `skills` · `package / smoke` are **required** before any merge, and `main` cannot be force-pushed or deleted.
   No direct pushes to `main`; only the release GitHub App (ID `4175048`) bypasses, so PSR can
   land the release commit. **Consequence:** any red required check — including a stale `uv.lock`
   after a release, where `uv sync --locked` fails — now *blocks every merge*, not just reds CI.
