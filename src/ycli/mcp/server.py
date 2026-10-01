@@ -7,8 +7,6 @@ writes; ``--read-only`` serves the reads-only view.
 
 from fastmcp import FastMCP
 
-from ycli.log import configure
-from ycli.settings import AppConfig
 from ycli.yandex.forms.mcp import mcp as forms_mcp
 from ycli.yandex.mcp import WRITE_TAG
 from ycli.yandex.status.mcp import mcp as status_mcp
@@ -41,8 +39,6 @@ def main(read_only: bool = False) -> None:
     Example:
         >>> main()  # doctest: +SKIP
     """
-    # Match the CLI: a single stderr sink, so stdout stays clean for the protocol.
-    configure(level=AppConfig().logging.level)
     if read_only:
         mcp.disable(tags={WRITE_TAG})
     mcp.run()

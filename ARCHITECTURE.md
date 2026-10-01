@@ -72,7 +72,8 @@ Notable shared pieces:
   whose live wire shape the existing models don't represent).
 - **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
   `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
-  appear only in `src/ycli/cli/output.py`. Models stay plain data (no serialize method); the
+  appear only in `src/ycli/cli/output.py` (and `json.dumps` in `src/ycli/log.py`, which formats
+  diagnostic log records for stderr, not command output). Models stay plain data (no serialize method); the
   strategies live only in `output.py`. Every rendered value is a typed pydantic model — there
   is no raw-dict/`RawMapping` escape hatch.
   *Carve-outs:* (a) a bare `print(int)` for a scalar `count` result is fine — it is not model

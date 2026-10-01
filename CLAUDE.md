@@ -10,7 +10,7 @@ the same SDK four ways: a Typer **CLI** (`ycli` / `yandex-cli`), a FastMCP **ser
 Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex-cli`.
 
 - **Stack:** Python ≥3.12, managed with `uv`. `requests` + `uplink` (HTTP/SDK), `typer`
-  (CLI), `fastmcp` (MCP), `pydantic` (models), `loguru` (logging).
+  (CLI), `fastmcp` (MCP), `pydantic` (models), stdlib `logging` (diagnostics on stderr).
 - **Layout:** root entry-point packages `src/ycli/cli/` (CLI, `app.py`) and `src/ycli/mcp/` (MCP server, `server.py`); per-domain SDK
   under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, `mcp.py`, models). Vendored
   external docs live under `references/` (not `docs/`, which is the repo's own docs):

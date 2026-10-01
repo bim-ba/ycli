@@ -596,8 +596,10 @@ def test_arch3_typed_body_guard_bites():
 def test_arch4_serialization_confined_to_output():
     """Rendering via Serializer; model_dump_json/yaml.safe_dump/json.dumps only in output.py."""
     offenders = []
+    # log.py formats diagnostic log records for stderr (its JSON formatter), not model output.
+    allowed = {SRC / "cli" / "output.py", SRC / "log.py"}
     for p in SRC.rglob("*.py"):
-        if p.name == "output.py":
+        if p in allowed:
             continue
         text = p.read_text(encoding="utf-8")
         if "model_dump_json" in text or "yaml.safe_dump" in text or "json.dumps" in text:

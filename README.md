@@ -160,7 +160,8 @@ at startup and names the variable:
 | `YCLI__HTTP__TIMEOUT_SECONDS` | `30` | Per-request timeout, seconds (> 0) |
 | `YCLI__HTTP__RETRIES` | `3` | Retries for idempotent requests on 429/5xx (≥ 0) |
 | `YCLI__HTTP__MAX_ITEMS` | `500` | Item cap for listings without `--limit`/`--all` (> 0) |
-| `YCLI__LOGGING__LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` |
+| `YCLI__LOGGING__LEVEL` | `WARNING` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`; `-v` means `INFO` (every HTTP request), `-vv` means `DEBUG` |
+| `YCLI__LOGGING__FORMAT` | `text` | `text` or `json` (one object per line); logs always go to stderr |
 
 ### Get your credentials
 
@@ -374,7 +375,7 @@ src/ycli/
 ├── cli/                # root Typer CLI  → `ycli` / `yandex-cli` (app · context · output)
 ├── mcp/                # root FastMCP server → `ycli mcp start` (read/write, `[mcp]` extra)
 ├── settings.py         # AppConfig + Credentials (pydantic-settings)
-├── log.py              # central loguru config
+├── log.py              # stderr logging setup (stdlib)
 └── yandex/
     ├── tracker/        # per-domain SDK …
     ├── wiki/           #   each resource group has:

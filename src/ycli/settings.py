@@ -53,7 +53,8 @@ class LoggingConfig(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    level: LogLevel = "INFO"
+    level: LogLevel = "WARNING"
+    format: Literal["text", "json"] = "text"
 
 
 class AppConfig(BaseSettings):

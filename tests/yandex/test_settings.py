@@ -24,7 +24,8 @@ def test_app_config_defaults():
     assert config.http.timeout_seconds == 30.0
     assert config.http.retries == 3
     assert config.http.max_items == 500
-    assert config.logging.level == "INFO"
+    assert config.logging.level == "WARNING"
+    assert config.logging.format == "text"
 
 
 def test_app_config_reads_grouped_env(monkeypatch):
@@ -137,7 +138,9 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
 
     captured = {}
     monkeypatch.setenv("YCLI__LOGGING__LEVEL", "ERROR")
-    monkeypatch.setattr("ycli.cli.app.configure", lambda level: captured.setdefault("level", level))
+    monkeypatch.setattr(
+        "ycli.cli.app.configure", lambda level, log_format: captured.setdefault("level", level)
+    )
     from typer.testing import CliRunner
 
     # Root --help doesn't trigger the callback in Typer; use a subcommand invocation instead.

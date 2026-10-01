@@ -14,7 +14,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import requests
-from urllib3.util.retry import Retry
 
 from ycli.yandex.status.oauth_models import (
     DeviceCodeResponse,
@@ -22,7 +21,7 @@ from ycli.yandex.status.oauth_models import (
     OrganizationList,
     TokenResponse,
 )
-from ycli.yandex.transport import Transport, _TimeoutAdapter
+from ycli.yandex.transport import Transport, _TimeoutAdapter, log_response, retry_policy
 
 _HTTP_OK = 200
 
@@ -53,14 +52,8 @@ class OAuthClient:
         self._client_id = client_id
         self._client_secret = client_secret
         self._session = requests.Session()
-        retry = Retry(
-            total=retries,
-            backoff_factor=0.5,
-            status_forcelist=(429, 500, 502, 503, 504),
-            allowed_methods=frozenset({"GET", "HEAD", "OPTIONS"}),
-            raise_on_status=False,
-        )
-        adapter = _TimeoutAdapter(max_retries=retry, timeout=timeout_seconds)
+        self._session.hooks["response"].append(log_response)
+        adapter = _TimeoutAdapter(max_retries=retry_policy(retries), timeout=timeout_seconds)
         self._session.mount("https://", adapter)
         self._session.mount("http://", adapter)
 
