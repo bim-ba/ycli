@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.20.0 (2026-10-01)
+
+### Build System
+
+- Re-lock uv.lock for 0.19.0
+  ([`edff598`](https://github.com/bim-ba/ycli/commit/edff59807145600b4aa32b5951609e127d5fdb7d))
+
+### Refactoring
+
+- **core**: One service registry and per-request MCP credentials
+  ([#122](https://github.com/bim-ba/ycli/pull/122),
+  [`208eab5`](https://github.com/bim-ba/ycli/commit/208eab5725bed4def010126faa7ae7b696ff89f8))
+
+### Breaking Changes
+
+- **core**: The `status_get` MCP tool and `ycli auth status` report `account` instead of the
+  service-specific `me` payload. `ycli.yandex.mcp.make_cached_client` is replaced by
+  `client_provider`.
+
+
 ## v0.19.0 (2026-10-01)
 
 ### Build System
