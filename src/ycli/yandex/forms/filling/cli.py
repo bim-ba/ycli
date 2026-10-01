@@ -11,11 +11,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.forms.filling.models import SubmitBody
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, SuggestionList
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    SurveyIdArg,
 )
 
 app = typer.Typer(name="filling", help="Forms form filling.", no_args_is_help=True)
@@ -38,41 +37,29 @@ def _group() -> None:
 
 
 @app.command()
-def get(
-    ctx: typer.Context,
-    survey: SurveyIdArg,
-    key: Annotated[str, _KEY] = "",
-) -> None:
+def get(survey: SurveyIdArg, key: Annotated[str, _KEY] = "", *, forms: FormsClient) -> FillableForm:
     """Print the fillable-form settings for SURVEY (GET …/form) — pages, conditions, values."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.filling.get(survey, key=key or None), app_ctx.strategy, app_ctx.console
-    )
+    return forms.filling.get(survey, key=key or None)
 
 
 @app.command()
 def submit(
-    ctx: typer.Context,
     survey: SurveyIdArg,
     body_file: BodyFileArg,
     dry_run: Annotated[
         bool, typer.Option("--dry-run", help="Validate only — save nothing, fire no integrations.")
     ] = False,
     key: Annotated[str, _KEY] = "",
-) -> None:
+    *,
+    forms: FormsClient,
+) -> SubmitResult:
     """Submit a form response from --body-file (POST …/form); --dry-run validates only."""
     payload = SubmitBody.model_validate(json.loads(body_file.read_text(encoding="utf-8")))
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.filling.submit(survey, payload, dry_run=dry_run, key=key or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return forms.filling.submit(survey, payload, dry_run=dry_run, key=key or None)
 
 
 @app.command()
 def suggest(
-    ctx: typer.Context,
     survey: SurveyIdArg,
     question: Annotated[str, typer.Option(help="Question slug the suggestion is for.")] = "",
     text: Annotated[str, typer.Option(help="Text to search suggestions for.")] = "",
@@ -82,14 +69,15 @@ def suggest(
     parent_id: Annotated[
         str, typer.Option("--parent-id", help="Parent ids for a Master/Detail lookup.")
     ] = "",
-) -> None:
+    *,
+    forms: FormsClient,
+) -> SuggestionList:
     """Get fill suggestions for a question (GET …/suggest)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    result = app_ctx.forms.filling.suggest(
+    result = forms.filling.suggest(
         survey,
         question=question or None,
         text=text or None,
         suggest_id=suggest_id or None,
         parent_id=parent_id or None,
     )
-    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)
+    return result

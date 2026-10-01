@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.me.models import User
 
 app = typer.Typer(name="me", help="Forms authenticated user.", no_args_is_help=True)
 
@@ -16,7 +16,6 @@ def _group() -> None:
 
 
 @app.command()
-def get(ctx: typer.Context) -> None:
+def get(*, forms: FormsClient) -> User:
     """Print the authenticated user (a safe auth probe)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.me.get(), app_ctx.strategy, app_ctx.console)
+    return forms.me.get()

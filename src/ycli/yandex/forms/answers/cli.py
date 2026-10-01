@@ -6,14 +6,19 @@ from typing import TYPE_CHECKING, Annotated
 
 import typer
 
-from ycli.cli.binary import write_output
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.output import BinaryResult
 from ycli.cli.progress import wait_for
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
-from ycli.yandex.forms.answers.models import AnswerExport
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
+from ycli.yandex.forms.answers.models import (
+    AnswerDetails,
+    AnswerExport,
+    AnswersResponse,
+    ExportResult,
+)
+from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    SurveyIdArg,
 )
 from ycli.yandex.pagination import resolve_cap
 
@@ -30,7 +35,6 @@ def _group() -> None:
 
 @app.command()
 def get(
-    ctx: typer.Context,
     answer_id: Annotated[
         int,
         typer.Option("--answer-id", help="Numeric answer id (needs form-edit access; 0 = unset)."),
@@ -39,40 +43,36 @@ def get(
         str,
         typer.Option("--answer-key", help="Answer key hash (works without form-edit access)."),
     ] = "",
-) -> None:
+    *,
+    forms: FormsClient,
+) -> AnswerDetails:
     """Fetch one answer (GET /answers). Pass exactly one of --answer-id / --answer-key.
 
     The single-answer read is a flat query-param route, so no survey id is needed.
     """
     if bool(answer_id) == bool(answer_key):
         raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.answers.get(answer_id=answer_id or None, answer_key=answer_key or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return forms.answers.get(answer_id=answer_id or None, answer_key=answer_key or None)
 
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
-) -> None:
+    *,
+    config: AppConfig,
+    forms: FormsClient,
+) -> AnswersResponse:
     """List a form's responses (auto-paginated; --all for everything)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(
-        app_ctx.forms.answers.list_all(survey_id, limit=cap), app_ctx.strategy, app_ctx.console
-    )
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return forms.answers.list_all(survey_id, limit=cap)
 
 
 def _finish_export(
-    app_ctx: AppContext, survey_id: str, op: ExportResult, wait: bool, output: str | None
-) -> None:
-    """Print the export operation, or (``--wait``) poll it to a terminal state and save the file.
+    forms: FormsClient, survey_id: str, op: ExportResult, wait: bool, output: str | None
+) -> ExportResult | BinaryResult:
+    """The export operation, or (``--wait``) poll it to a terminal state and return the file.
 
     ``--no-wait`` prints the just-started ``{id, status}`` so the caller can poll later with
     ``operations get`` / ``answers export-results``. ``--wait`` polls the export-results status
@@ -81,24 +81,20 @@ def _finish_export(
     failed status.
     """
     if not (wait and op.id):
-        Serializer.serialize(op, app_ctx.strategy, app_ctx.console)
-        return
+        return op
     task_id = op.id  # narrowed to str — the poll re-reads this operation's status
     final = wait_for(
-        lambda: app_ctx.forms.answers.export_results(survey_id, task_id),
+        lambda: forms.answers.export_results(survey_id, task_id),
         lambda result: result.is_terminal,
         message="Waiting for answers export…",
-        console=app_ctx.stderr_console,
     )
     if final.is_ready:
-        write_output(app_ctx.forms.answers.download_export(survey_id, task_id), output)
-    else:
-        Serializer.serialize(final, app_ctx.strategy, app_ctx.console)
+        return BinaryResult(forms.answers.download_export(survey_id, task_id), output)
+    return final
 
 
 @app.command()
 def export(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     export_format: Annotated[
         str, typer.Option("--format", help="Export format: csv or xlsx.")
@@ -135,7 +131,9 @@ def export(
             "--output", help="Write the exported file here; omit / '-' streams to stdout."
         ),
     ] = None,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> ExportResult | BinaryResult:
     """Export a form's answers (POST /answers/export) — async; --wait downloads the file."""
     body = AnswerExport(
         format=export_format,
@@ -147,6 +145,5 @@ def export(
         limit=limit or None,
         upload_files=upload_files,
     ).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    op = app_ctx.forms.answers.export(survey_id, body=body)
-    _finish_export(app_ctx, survey_id, op, wait, output)
+    op = forms.answers.export(survey_id, body=body)
+    return _finish_export(forms, survey_id, op, wait, output)

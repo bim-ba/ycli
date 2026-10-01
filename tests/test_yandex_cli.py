@@ -7,7 +7,9 @@ from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from ycli.cli.context import AppContext
-from ycli.cli.output import OutputFormat, PrettyStrategy
+from ycli.settings import AppConfig
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.me.models import Me
 
 pytestmark = pytest.mark.integration
 
@@ -76,12 +78,34 @@ def test_mcp_methods_lists_tool_names():
     assert "tracker_issues_get" in res.stdout
 
 
-def test_appcontext_strategy_and_retrieval():
-    app = AppContext(output_format=OutputFormat.pretty)
-    assert app.output_format is OutputFormat.pretty
-    assert isinstance(app.strategy, PrettyStrategy)
-    # from_typer_context just returns ctx.obj (set by the root callback)
-    assert AppContext.from_typer_context(SimpleNamespace(obj=app)) is app  # ty: ignore[invalid-argument-type]
+def test_appcontext_resolves_config_and_builds_each_client_once():
+    config = AppConfig(http={"retries": 1})  # ty: ignore[invalid-argument-type]
+    app_context = AppContext(config=config)
+    assert app_context.resolve(AppConfig) is config
+    tracker = app_context.resolve(TrackerClient)
+    assert isinstance(tracker, TrackerClient)
+    assert app_context.resolve(TrackerClient) is tracker
+    assert AppContext.provides(TrackerClient)
+    assert AppContext.provides(AppConfig)
+    assert not AppContext.provides(str)
+    assert not AppContext.provides("TrackerClient")
+
+
+@pytest.mark.integration
+def test_a_caller_supplied_context_is_used(monkeypatch):
+    """The root callback keeps an ``obj`` handed in by the caller — the DI seam for embedding."""
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
+
+    class FakeMe:
+        def get(self) -> Me:
+            return Me(login="injected")
+
+    fake = SimpleNamespace(me=FakeMe())
+    app_context = AppContext()
+    app_context._clients[TrackerClient] = fake  # ty: ignore[invalid-assignment]
+    res = runner.invoke(cli.app, ["-o", "json", "tracker", "me", "get"], obj=app_context)
+    assert res.exit_code == 0, res.output
+    assert '"login":"injected"' in res.stdout
 
 
 def test_completion_is_enabled():

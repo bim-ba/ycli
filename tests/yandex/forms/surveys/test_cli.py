@@ -87,7 +87,7 @@ def test_field_without_equals_is_rejected():
         cli.app,
         ["forms", "surveys", "create", "--name", "New", "-F", "brokenfield"],
     )
-    assert res.exit_code == 2  # typer.BadParameter from _parse_fields (no '=')
+    assert res.exit_code == 2  # typer.BadParameter from parse_fields (no '=')
 
 
 @responses.activate

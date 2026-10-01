@@ -7,9 +7,8 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.tracker.filters.models import FilterCreate, FilterUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
 
 app = typer.Typer(name="filters", help="Tracker saved filters.", no_args_is_help=True)
 
@@ -34,21 +33,18 @@ def _group() -> None:
 
 @app.command()
 def get(
-    ctx: typer.Context,
     filter_id: Annotated[
         str, typer.Argument(metavar="FILTER_ID", help="Identifier of the saved filter.")
     ],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Filter:
     """Get parameters of one saved filter by FILTER_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.filters.get(filter_id=filter_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.filters.get(filter_id=filter_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     name: Annotated[str, typer.Option(help="Display name of the new filter.")],
     query: Annotated[
         str, typer.Option(help="Filtering conditions in Tracker query language.")
@@ -56,16 +52,16 @@ def create(
     filter_: Annotated[
         str, typer.Option("--filter", help="Filtering conditions as a JSON object.")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Filter:
     """Create a saved filter (POST /filters/)."""
     body = FilterCreate(name=name, query=query or None, filter=_parse_filter(filter_))
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.filters.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.filters.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     filter_id: Annotated[
         str, typer.Argument(metavar="FILTER_ID", help="Identifier of the saved filter.")
     ],
@@ -74,10 +70,9 @@ def edit(
     filter_: Annotated[
         str, typer.Option("--filter", help="Replacement filtering conditions as a JSON object.")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Filter:
     """Edit filter FILTER_ID (PATCH /filters/{id}) — no version lock; filter is replaced whole."""
     body = FilterUpdate(name=name or None, query=query or None, filter=_parse_filter(filter_))
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.filters.edit(filter_id, body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.filters.edit(filter_id, body)

@@ -6,8 +6,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.operations.models import OperationResult
 
 app = typer.Typer(name="operations", help="Forms async operations.", no_args_is_help=True)
 
@@ -25,9 +25,6 @@ def _group() -> None:
 
 
 @app.command()
-def get(ctx: typer.Context, operation_id: OperationIdArg) -> None:
+def get(operation_id: OperationIdArg, *, forms: FormsClient) -> OperationResult:
     """Print the status of async operation OPERATION_ID (GET /operations/{id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.operations.get(operation_id), app_ctx.strategy, app_ctx.console
-    )
+    return forms.operations.get(operation_id)

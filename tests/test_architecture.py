@@ -595,7 +595,7 @@ def test_arch3_typed_body_guard_bites():
 
 
 def test_arch4_serialization_confined_to_output():
-    """Rendering via Serializer; model_dump_json/yaml.safe_dump/json.dumps only in output.py."""
+    """Rendering lives in output.py; model_dump_json/yaml.safe_dump/json.dumps nowhere else."""
     offenders = []
     # log.py formats diagnostic log records for stderr (its JSON formatter), not model output.
     allowed = {SRC / "cli" / "output.py", SRC / "log.py"}
@@ -608,48 +608,48 @@ def test_arch4_serialization_confined_to_output():
     assert not offenders, f"serialization must live only in output.py; found in {offenders}"
 
 
-# ARCH-4 carve-out (D1): the only two CLI files allowed a bare ``print(`` — the scalar
-# ``count`` result (carve-out a) and the wiki raw-markdown dump (carve-out c). Any other bare
-# print in a cli.py bypasses ``Serializer.serialize`` and trips the guard below.
-_ARCH4_BARE_PRINT_ALLOWLIST = frozenset(
-    {
-        Path("yandex/tracker/issues/cli.py"),
-        Path("yandex/wiki/pages/cli.py"),
+def _stdout_writes(source: str) -> list[str]:
+    """Calls in ``source`` that write to stdout: ``print(``, ``typer.echo``/``secho`` without
+    ``err=True``, and any ``sys.stdout`` access. Messages to stderr (``err=True``) are UI."""
+    found = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id == "print":
+                found.append(f"print (line {node.lineno})")
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            to_stderr = any(
+                k.arg == "err" and isinstance(k.value, ast.Constant) and k.value.value is True
+                for k in node.keywords
+            )
+            if node.func.attr in {"echo", "secho"} and not to_stderr:
+                found.append(f"typer.{node.func.attr} (line {node.lineno})")
+        elif (
+            isinstance(node, ast.Attribute)
+            and node.attr == "stdout"
+            and isinstance(node.value, ast.Name)
+            and node.value.id == "sys"
+        ):
+            found.append(f"sys.stdout (line {node.lineno})")
+    return found
+
+
+def test_arch4_commands_return_and_never_print():
+    """A CLI command returns its result; only ``output.render`` writes to stdout."""
+    offenders = {
+        str(cli_py.relative_to(SRC)): writes
+        for cli_py in SRC.rglob("cli.py")
+        if (writes := _stdout_writes(cli_py.read_text(encoding="utf-8")))
     }
-)
-# The builtin ``print`` as a call — not an attribute access (``console.print(``, Rich) and not
-# the tail of a longer name (``pprint(``): preceded by neither ``.`` nor a word character.
-_BARE_PRINT_RE = re.compile(r"(?<![.\w])print\s*\(")
+    assert not offenders, f"return the value instead of printing it: {offenders}"
 
 
-def test_arch4_no_bare_print_in_cli():
-    """A CLI command renders model output through the Serializer, never a bare ``print(``.
-
-    ARCH-4 confines rendering to ``Serializer.serialize``; a bare ``print(model)`` slips a
-    surface past it. ``console.print(`` (Rich status text) and ``pprint(`` are not the builtin
-    and are fine. The two intentional bare prints — the scalar ``count`` (carve-out a) and the
-    wiki raw-markdown dump (carve-out c) — are allowlisted.
-    """
-    offenders = []
-    for cli_py in SRC.rglob("cli.py"):
-        rel = cli_py.relative_to(SRC)
-        if rel in _ARCH4_BARE_PRINT_ALLOWLIST:
-            continue
-        if _BARE_PRINT_RE.search(cli_py.read_text(encoding="utf-8")):
-            offenders.append(str(rel))
-    assert not offenders, (
-        f"bare print() bypasses Serializer.serialize in CLI files: {offenders} — render via "
-        "Serializer, or add a documented ARCH-4 carve-out to _ARCH4_BARE_PRINT_ALLOWLIST"
-    )
-
-
-def test_arch4_bare_print_guard_bites():
-    """Prove-it: the guard flags the builtin ``print`` but not ``console.print`` / ``pprint``."""
-    assert _BARE_PRINT_RE.search("    print(model)")
-    assert _BARE_PRINT_RE.search("print(app_ctx.tracker.issues.count(body=body))")
-    assert not _BARE_PRINT_RE.search("    console.print(f'Opening {url}')")
-    assert not _BARE_PRINT_RE.search("    pprint(model)")
-    assert not _BARE_PRINT_RE.search("    fingerprint(value)")
+def test_arch4_stdout_guard_bites():
+    """Prove-it: the guard flags each stdout write and lets stderr messages through."""
+    assert _stdout_writes("print(model)") == ["print (line 1)"]
+    assert _stdout_writes("typer.echo(name)") == ["typer.echo (line 1)"]
+    assert _stdout_writes("sys.stdout.buffer.write(data)") == ["sys.stdout (line 1)"]
+    assert _stdout_writes("typer.echo('note', err=True)") == []
+    assert _stdout_writes("console.print('Opening')\npprint(x)") == []
 
 
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")

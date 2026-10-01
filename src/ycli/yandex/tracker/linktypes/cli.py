@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.linktypes.models import LinkTypeList
 
 app = typer.Typer(name="linktypes", help="Tracker link types.", no_args_is_help=True)
 
@@ -16,7 +16,6 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
+def list_(*, tracker: TrackerClient) -> LinkTypeList:
     """List all link types."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.linktypes.list(), app_ctx.strategy, app_ctx.console)
+    return tracker.linktypes.list()

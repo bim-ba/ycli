@@ -2,8 +2,8 @@
 
 Core verbs live on the top-level app (``get``/``create``/``edit``/``delete``/``search``/
 ``history``/``permissions``/``set-permissions``/``bulk``); comments, checklists, links and
-attachments are nested sub-apps. Reads/writes render through :class:`Serializer`; the one
-binary download (``attachments download``) writes raw bytes via ``ycli.cli.binary``.
+attachments are nested sub-apps. Commands return their results; the one binary download
+(``attachments download``) returns a ``BinaryResult``.
 """
 
 from __future__ import annotations
@@ -13,27 +13,36 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.binary import write_output
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.fields import parse_fields
+from ycli.cli.output import BinaryResult
 from ycli.yandex.models import Ack
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
+    Attachment,
+    AttachmentList,
+    BulkChangeOperation,
     BulkChangeValues,
     ChecklistItemInput,
     ChecklistItemsInput,
     ChecklistMove,
+    Comment,
     CommentCreate,
+    CommentList,
     CommentUpdate,
     DeadlineInput,
+    Entity,
+    EntityEventList,
     EntityFieldsInput,
+    EntityList,
+    ExtendedPermissions,
     LinkInput,
+    LinkList,
     ParentEntityInput,
     ReportCreate,
     ReportFieldsInput,
     ReportFilter,
     ReportParameters,
 )
-from ycli.yandex.tracker.utils import parse_fields
 
 
 class EntityType(enum.StrEnum):
@@ -100,26 +109,21 @@ def _fields_body(
 
 @app.command()
 def get(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     expand: Annotated[str, typer.Option(help="Extra info, e.g. attachments.")] = "",
     fields: Annotated[str, typer.Option(help="Comma-separated extra fields to include.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Print a single entity (project/portfolio/goal) by ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.get(
-            type_.value, entity_id, expand=expand or None, fields=fields or None
-        ),
-        app_ctx.strategy,
-        app_ctx.console,
+    return tracker.entities.get(
+        type_.value, entity_id, expand=expand or None, fields=fields or None
     )
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     type_: TypeArg,
     summary: Annotated[str, typer.Option(help="Entity name (required).")],
     description: Annotated[str, typer.Option(help="Description.")] = "",
@@ -134,21 +138,19 @@ def create(
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Create an entity (POST /entities/TYPE). summary is required; other fields optional."""
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = {"fields": fields_body}
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.create(type_.value, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.entities.create(type_.value, body=body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     summary: Annotated[str, typer.Option(help="New name.")] = "",
@@ -165,7 +167,9 @@ def edit(
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     comment: Annotated[str, typer.Option(help="Comment to add with the change.")] = "",
     field: FieldOpt = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Edit entity ID (PATCH /entities/TYPE/ID) — only supplied fields are sent."""
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
@@ -175,32 +179,26 @@ def edit(
         body["fields"] = fields_body
     if comment:
         body["comment"] = comment
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.edit(type_.value, entity_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.edit(type_.value, entity_id, body=body)
 
 
 @app.command()
 def delete(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     with_board: Annotated[
         bool, typer.Option("--with-board", help="Also delete the entity's board.")
     ] = False,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Ack:
     """Delete entity ID (DELETE /entities/TYPE/ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.entities.delete(type_.value, entity_id, with_board=with_board or None)
-    Serializer.serialize(Ack.deleted(type_.value, entity_id), app_ctx.strategy, app_ctx.console)
+    tracker.entities.delete(type_.value, entity_id, with_board=with_board or None)
+    return Ack.deleted(type_.value, entity_id)
 
 
 @app.command()
 def search(
-    ctx: typer.Context,
     type_: TypeArg,
     input_: Annotated[str, typer.Option("--input", help="Substring in the entity name.")] = "",
     filter_: Annotated[
@@ -213,7 +211,9 @@ def search(
         bool, typer.Option("--root-only", help="Only top-level entities.")
     ] = False,
     fields: Annotated[str, typer.Option(help="Comma-separated extra fields to include.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> EntityList:
     """Search entities of TYPE (POST /entities/TYPE/_search)."""
     body: dict[str, Any] = {}
     if input_:
@@ -225,44 +225,29 @@ def search(
         body["orderAsc"] = order_asc
     if root_only:
         body["rootOnly"] = True
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.search(type_.value, body, fields=fields or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.search(type_.value, body, fields=fields or None)
 
 
 @app.command()
 def history(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     limit: Annotated[int, typer.Option(help="Max events (0 = all).")] = 0,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> EntityEventList:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.history(type_.value, entity_id, limit=limit or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.history(type_.value, entity_id, limit=limit or None)
 
 
 @app.command()
-def permissions(ctx: typer.Context, type_: TypeArg, entity_id: IdArg) -> None:
+def permissions(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> ExtendedPermissions:
     """Print an entity's access settings (GET …/extendedPermissions)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.permissions(type_.value, entity_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.permissions(type_.value, entity_id)
 
 
 @app.command("set-permissions")
 def set_permissions(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     field: Annotated[
@@ -273,7 +258,9 @@ def set_permissions(
             'grant={"READ":{"users":["8000000000000002"]}} (repeatable).',
         ),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> ExtendedPermissions:
     """Set an entity's access settings (PATCH …/extendedPermissions).
 
     The API accepts only ``grant`` / ``revoke`` actions, each mapping an access level
@@ -281,50 +268,38 @@ def set_permissions(
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
     """
     body = {"acl": parse_fields(field)}
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.set_permissions(type_.value, entity_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.set_permissions(type_.value, entity_id, body=body)
 
 
 @app.command()
 def bulk(
-    ctx: typer.Context,
     type_: TypeArg,
     entity: Annotated[list[str], typer.Option("--entity", help="Entity id (repeatable).")],
     comment: Annotated[str, typer.Option(help="Comment to add to every entity.")] = "",
     field: FieldOpt = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BulkChangeOperation:
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
     values = BulkChangeValues(
         fields=parse_fields(field) or None, comment=comment or None
     ).model_dump(by_alias=True, exclude_none=True)
     body = {"metaEntities": entity, "values": values}
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.bulk_update(type_.value, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.bulk_update(type_.value, body=body)
 
 
 @app.command("bulk-status")
 def bulk_status(
-    ctx: typer.Context,
     operation_id: Annotated[str, typer.Argument(metavar="OPERATION_ID", help="Bulk-change id.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BulkChangeOperation:
     """Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.bulk_status(operation_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.entities.bulk_status(operation_id)
 
 
 @app.command("create-report")
 def create_report(
-    ctx: typer.Context,
     summary: Annotated[str, typer.Option(help="Report name (required).")],
     query: Annotated[str, typer.Option(help="Issue filter in Tracker Query Language (required).")],
     format_: Annotated[
@@ -334,7 +309,9 @@ def create_report(
         list[str] | None,
         typer.Option("--field", "-F", help="Issue field key to include as a column (repeatable)."),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Build an issue report (POST /entities/report/) from a TQL query and column fields."""
     body = ReportCreate(
         fields=ReportFieldsInput(
@@ -344,10 +321,7 @@ def create_report(
             ),
         )
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.create_report(body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.entities.create_report(body=body)
 
 
 # --------------------------------------------------------------------------------------------
@@ -367,89 +341,68 @@ def _comments_group() -> None:
 
 @comments_app.command("list")
 def comments_list(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     all_: Annotated[
         bool, typer.Option("--all", help="Drain the paginated (_relative) listing.")
     ] = False,
     limit: Annotated[int, typer.Option(help="Max comments when --all (0 = all).")] = 0,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> CommentList:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    result = (
-        app_ctx.tracker.entities.comments_relative(type_.value, entity_id, limit=limit or None)
-        if all_
-        else app_ctx.tracker.entities.comments_list(type_.value, entity_id)
-    )
-    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)
+    if all_:
+        return tracker.entities.comments_relative(type_.value, entity_id, limit=limit or None)
+    return tracker.entities.comments_list(type_.value, entity_id)
 
 
 @comments_app.command("get")
 def comments_get(
-    ctx: typer.Context, type_: TypeArg, entity_id: IdArg, comment_id: CommentIdArg
-) -> None:
+    type_: TypeArg, entity_id: IdArg, comment_id: CommentIdArg, *, tracker: TrackerClient
+) -> Comment:
     """Get one comment on an entity (GET …/comments/COMMENT_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.comments_get(type_.value, entity_id, comment_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.comments_get(type_.value, entity_id, comment_id)
 
 
 @comments_app.command("create")
 def comments_create(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
     summon: Annotated[
         list[str] | None, typer.Option("--summon", help="User to summon (repeatable).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Comment:
     """Add a comment to an entity (POST …/comments)."""
     body = CommentCreate(text=text, summonees=summon or None).model_dump(
         by_alias=True, exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.comments_create(type_.value, entity_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.comments_create(type_.value, entity_id, body=body)
 
 
 @comments_app.command("edit")
 def comments_edit(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     comment_id: CommentIdArg,
     text: Annotated[str, typer.Option(help="New comment text.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Comment:
     """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
     body = CommentUpdate(text=text).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.comments_edit(type_.value, entity_id, comment_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.comments_edit(type_.value, entity_id, comment_id, body=body)
 
 
 @comments_app.command("delete")
 def comments_delete(
-    ctx: typer.Context, type_: TypeArg, entity_id: IdArg, comment_id: CommentIdArg
-) -> None:
+    type_: TypeArg, entity_id: IdArg, comment_id: CommentIdArg, *, tracker: TrackerClient
+) -> Ack:
     """Delete a comment from an entity (DELETE …/comments/COMMENT_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.entities.comments_delete(type_.value, entity_id, comment_id)
-    Serializer.serialize(
-        Ack.deleted("comment", comment_id, on=f"{type_.value} {entity_id}"),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    tracker.entities.comments_delete(type_.value, entity_id, comment_id)
+    return Ack.deleted("comment", comment_id, on=f"{type_.value} {entity_id}")
 
 
 # --------------------------------------------------------------------------------------------
@@ -482,51 +435,42 @@ def _item_input(
 
 @checklists_app.command("create")
 def checklists_create(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     text: Annotated[
         list[str], typer.Option("--text", help="Item text (repeatable — one per item).")
     ],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Add checklist items to an entity (POST …/checklistItems)."""
     items = ChecklistItemsInput([ChecklistItemInput(text=t) for t in text]).model_dump(
         by_alias=True, exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.checklists_create(type_.value, entity_id, body=items),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.checklists_create(type_.value, entity_id, body=items)
 
 
 @checklists_app.command("edit")
 def checklists_edit(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     item: Annotated[
         list[str],
         typer.Option("--item", help="Item as id=text (repeatable — replaces the whole checklist)."),
     ],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Replace the whole checklist (PATCH …/checklistItems) from repeated --item id=text."""
     parsed = parse_fields(item)
     items = ChecklistItemsInput(
         [ChecklistItemInput(id=item_id, text=str(text)) for item_id, text in parsed.items()]
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.checklists_edit(type_.value, entity_id, body=items),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.checklists_edit(type_.value, entity_id, body=items)
 
 
 @checklists_app.command("edit-item")
 def checklists_edit_item(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     item_id: ItemIdArg,
@@ -536,59 +480,42 @@ def checklists_edit_item(
     deadline: Annotated[
         str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
     body = _item_input(text, checked, assignee, deadline).model_dump(
         by_alias=True, exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.checklists_edit_item(type_.value, entity_id, item_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.checklists_edit_item(type_.value, entity_id, item_id, body=body)
 
 
 @checklists_app.command("delete-item")
 def checklists_delete_item(
-    ctx: typer.Context, type_: TypeArg, entity_id: IdArg, item_id: ItemIdArg
-) -> None:
+    type_: TypeArg, entity_id: IdArg, item_id: ItemIdArg, *, tracker: TrackerClient
+) -> Entity:
     """Remove one checklist item (DELETE …/checklistItems/ITEM_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.checklists_delete_item(type_.value, entity_id, item_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.checklists_delete_item(type_.value, entity_id, item_id)
 
 
 @checklists_app.command("delete")
-def checklists_delete(ctx: typer.Context, type_: TypeArg, entity_id: IdArg) -> None:
+def checklists_delete(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Entity:
     """Clear the whole checklist (DELETE …/checklistItems)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.checklists_delete(type_.value, entity_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.checklists_delete(type_.value, entity_id)
 
 
 @checklists_app.command("move")
 def checklists_move(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     item_id: ItemIdArg,
     before: Annotated[str, typer.Option(help="Item id to insert the moved item before.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
     body = ChecklistMove(before=before or None).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.checklists_move(type_.value, entity_id, item_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.checklists_move(type_.value, entity_id, item_id, body=body)
 
 
 # --------------------------------------------------------------------------------------------
@@ -605,50 +532,37 @@ def _links_group() -> None:
 
 
 @links_app.command("list")
-def links_list(ctx: typer.Context, type_: TypeArg, entity_id: IdArg) -> None:
+def links_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> LinkList:
     """List an entity's links to other entities (GET …/links)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.links_list(type_.value, entity_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.links_list(type_.value, entity_id)
 
 
 @links_app.command("create")
 def links_create(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     relationship: Annotated[str, typer.Option(help="Link type, e.g. relates, depends on.")],
     entity: Annotated[str, typer.Option(help="Id of the entity to link to.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Ack:
     """Create a link between entities (POST …/links)."""
     body = LinkInput(relationship=relationship, entity=entity).model_dump(by_alias=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.entities.links_create(type_.value, entity_id, body=body)
-    Serializer.serialize(
-        Ack.linked(type_.value, entity_id, entity, relationship),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    tracker.entities.links_create(type_.value, entity_id, body=body)
+    return Ack.linked(type_.value, entity_id, entity, relationship)
 
 
 @links_app.command("delete")
 def links_delete(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     right: Annotated[str, typer.Argument(metavar="RIGHT", help="Id of the entity to unlink.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Ack:
     """Delete a link (DELETE …/links?right=RIGHT)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.entities.links_delete(type_.value, entity_id, right)
-    Serializer.serialize(
-        Ack.unlinked(type_.value, entity_id, right),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    tracker.entities.links_delete(type_.value, entity_id, right)
+    return Ack.unlinked(type_.value, entity_id, right)
 
 
 # --------------------------------------------------------------------------------------------
@@ -667,69 +581,50 @@ def _attachments_group() -> None:
 
 
 @attachments_app.command("list")
-def attachments_list(ctx: typer.Context, type_: TypeArg, entity_id: IdArg) -> None:
+def attachments_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> AttachmentList:
     """List files attached to an entity (GET …/attachments)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.attachments_list(type_.value, entity_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.attachments_list(type_.value, entity_id)
 
 
 @attachments_app.command("get")
 def attachments_get(
-    ctx: typer.Context, type_: TypeArg, entity_id: IdArg, file_id: FileIdArg
-) -> None:
+    type_: TypeArg, entity_id: IdArg, file_id: FileIdArg, *, tracker: TrackerClient
+) -> Attachment:
     """Get one attachment's metadata (GET …/attachments/FILE_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.attachments_get(type_.value, entity_id, file_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.attachments_get(type_.value, entity_id, file_id)
 
 
 @attachments_app.command("download")
 def attachments_download(
-    ctx: typer.Context,
     file_id: FileIdArg,
     filename: Annotated[str, typer.Argument(metavar="FILENAME", help="Attachment file name.")],
     output: Annotated[
         str | None,
         typer.Option("--output", "-O", help="Write to this path; omit or '-' for stdout."),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BinaryResult:
     """Download an attachment's raw bytes to --output (or stdout). Binary is CLI/SDK-only."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    write_output(app_ctx.tracker.entities.attachment_download(file_id, filename), output)
+    return BinaryResult(tracker.entities.attachment_download(file_id, filename), output)
 
 
 @attachments_app.command("attach")
 def attachments_attach(
-    ctx: typer.Context,
     type_: TypeArg,
     entity_id: IdArg,
     temp_file_id: Annotated[str, typer.Argument(metavar="TEMP_FILE_ID", help="Temp file id.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Attach a previously uploaded temp file to an entity (POST …/attachments/TEMP_FILE_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.entities.attachments_attach(type_.value, entity_id, temp_file_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.entities.attachments_attach(type_.value, entity_id, temp_file_id)
 
 
 @attachments_app.command("delete")
 def attachments_delete(
-    ctx: typer.Context, type_: TypeArg, entity_id: IdArg, file_id: FileIdArg
-) -> None:
+    type_: TypeArg, entity_id: IdArg, file_id: FileIdArg, *, tracker: TrackerClient
+) -> Ack:
     """Detach a file from an entity (DELETE …/attachments/FILE_ID; empty response body)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.entities.attachments_delete(type_.value, entity_id, file_id)
-    Serializer.serialize(
-        Ack.deleted("attachment", file_id, on=f"{type_.value} {entity_id}"),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    tracker.entities.attachments_delete(type_.value, entity_id, file_id)
+    return Ack.deleted("attachment", file_id, on=f"{type_.value} {entity_id}")

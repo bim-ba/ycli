@@ -1,4 +1,4 @@
-"""Yandex Tracker CLI — mounts the per-resource sub-apps (AppContext DI via ctx.obj)."""
+"""Yandex Tracker CLI — mounts the per-resource sub-apps."""
 
 from __future__ import annotations
 

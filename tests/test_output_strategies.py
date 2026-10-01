@@ -11,7 +11,6 @@ from ycli.cli.output import (
     OutputFormat,
     PrettyStrategy,
     SerializationStrategy,
-    Serializer,
     YamlStrategy,
 )
 
@@ -69,15 +68,6 @@ def test_from_format_maps_each_choice():
     assert isinstance(SerializationStrategy.from_format(OutputFormat.yaml), YamlStrategy)
     assert isinstance(SerializationStrategy.from_format(OutputFormat.pretty), PrettyStrategy)
     assert isinstance(SerializationStrategy.from_format(OutputFormat.auto), AutoStrategy)
-
-
-def test_serializer_dispatches_to_strategy_render():
-    buf = StringIO()
-    console = Console(file=buf, force_terminal=False)
-    Serializer.serialize(
-        _M(key="DE-1"), SerializationStrategy.from_format(OutputFormat.json), console
-    )
-    assert '"key":"DE-1"' in buf.getvalue().replace(" ", "")
 
 
 def test_pretty_strategy_renders_list_of_dicts():

@@ -7,9 +7,13 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.tracker.triggers.models import TriggerCreate, TriggerUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.triggers.models import (
+    Trigger,
+    TriggerCreate,
+    TriggerUpdate,
+    WebhookLogList,
+)
 
 app = typer.Typer(name="triggers", help="Tracker queue triggers.", no_args_is_help=True)
 
@@ -35,17 +39,13 @@ def _group() -> None:
 
 
 @app.command()
-def get(ctx: typer.Context, queue_id: QueueIdArg, trigger_id: TriggerIdArg) -> None:
+def get(queue_id: QueueIdArg, trigger_id: TriggerIdArg, *, tracker: TrackerClient) -> Trigger:
     """Get trigger TRIGGER_ID of QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.triggers.get(queue_id, trigger_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.triggers.get(queue_id, trigger_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     queue_id: QueueIdArg,
     name: Annotated[str, typer.Option(help="Name of the new trigger.")],
     action: ActionOpt = None,
@@ -53,7 +53,9 @@ def create(
     active: Annotated[
         bool | None, typer.Option("--active/--inactive", help="Start active or disabled.")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Trigger:
     """Create a trigger on QUEUE_ID (POST /queues/{queue_id}/triggers).
 
     Pass one or more --action JSON objects (and optional --condition JSON objects), e.g.
@@ -65,15 +67,11 @@ def create(
         conditions=[json.loads(c) for c in condition] if condition else None,
         active=active,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.triggers.create(queue_id, body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.triggers.create(queue_id, body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     queue_id: QueueIdArg,
     trigger_id: TriggerIdArg,
     name: Annotated[str, typer.Option(help="New name of the trigger.")] = "",
@@ -83,7 +81,9 @@ def edit(
         bool | None, typer.Option("--active/--inactive", help="Activate or disable the trigger.")
     ] = None,
     version: Annotated[int, typer.Option(help="Current trigger version (optimistic lock).")] = 0,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Trigger:
     """Edit trigger TRIGGER_ID of QUEUE_ID (PATCH ...?version=) — only supplied fields are sent."""
     body = TriggerUpdate(
         name=name or None,
@@ -91,17 +91,11 @@ def edit(
         conditions=[json.loads(c) for c in condition] if condition else None,
         active=active,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.triggers.edit(queue_id, trigger_id, body, version=version or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.triggers.edit(queue_id, trigger_id, body, version=version or None)
 
 
 @app.command("webhook-log")
 def webhook_log(
-    ctx: typer.Context,
     queue_id: QueueIdArg,
     trigger_id: TriggerIdArg,
     issue_id: Annotated[
@@ -114,18 +108,15 @@ def webhook_log(
     date_to: Annotated[
         str, typer.Option("--to", help="Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> WebhookLogList:
     """List the HTTP-action (Webhook) run logs of trigger TRIGGER_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.triggers.webhook_log(
-            queue_id,
-            trigger_id,
-            issue_id=issue_id or None,
-            limit=limit or None,
-            date_from=date_from or None,
-            date_to=date_to or None,
-        ),
-        app_ctx.strategy,
-        app_ctx.console,
+    return tracker.triggers.webhook_log(
+        queue_id,
+        trigger_id,
+        issue_id=issue_id or None,
+        limit=limit or None,
+        date_from=date_from or None,
+        date_to=date_to or None,
     )

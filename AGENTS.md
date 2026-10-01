@@ -31,7 +31,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
   with `responses` (no live network). Mark CLI/MCP wiring tests with `@pytest.mark.integration`.
-- **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` for the CLI
+- **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` (which injects clients into commands) for the CLI
   and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /
   `organization_id` constructor arguments to each client. There is no `from_env` or
@@ -98,7 +98,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
 for the eleven invariants (ARCH-1..11). They are verified by `tests/test_architecture.py`,
 import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
-them: HTTP only in `client.py`; CLI output only via `output.Serializer.serialize`; MCP tools honestly
+them: HTTP only in `client.py`; CLI commands return results that `output.render` prints; MCP tools honestly
 annotated (ARCH-3); new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
 enforcing check in the **same** PR and flag it.
 

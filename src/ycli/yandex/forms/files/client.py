@@ -83,7 +83,7 @@ class FilesClient(FormsResource):
         ``download=True`` asks the API to add a ``Content-Disposition`` filename header;
         ``file_hash`` (the ``hash`` from an upload response) lets an anonymous caller download a
         file whose access cannot otherwise be verified. Binary output is CLI/SDK-only — never an
-        MCP payload; in the CLI this feeds ``ycli.cli.binary.write_output``.
+        MCP payload; in the CLI it becomes a ``BinaryResult``.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP

@@ -158,8 +158,8 @@ endpoint whose live wire shape no existing model correctly represents — see En
 
 ### `Ack` for bodyless write responses
 
-MCP tools must expose an output schema and CLI output goes through the Serializer — a bare
-`None` return satisfies neither.  Writes whose API response carries no body (deletes,
+MCP tools must expose an output schema and a CLI command's return value is what gets printed —
+a bare `None` return satisfies neither.  Writes whose API response carries no body (deletes,
 clears, aborts) therefore surface a typed `ycli.yandex.models.Ack`
 (`{ok: bool, detail: str}`): the MCP tool (and CLI command) constructs the `Ack` around the
 bodyless client call, as in the example above.
@@ -237,9 +237,11 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 
 - `from __future__ import annotations`; `app = typer.Typer(name=…, help=…, no_args_is_help=True)`
   plus an empty `@app.callback()`, so `--help` works without credentials.
-- A command gets `AppContext.from_typer_context(ctx)` and renders through
-  `Serializer.serialize(result, app_ctx.strategy, app_ctx.console)` (ARCH-4). A scalar count
-  prints; a binary download writes via `ycli.cli.binary.write_output` behind `--output`.
+- A command declares the clients it needs as keyword-only parameters
+  (`*, tracker: TrackerClient`, or `config: AppConfig`); `ycli.cli.inject` fills them and hides
+  them from Typer. It **returns** its result, annotated with the real type, and never prints
+  (ARCH-4): a model renders through `--format`, a count returns `int`, raw text returns `str`, a
+  binary download returns `BinaryResult(data, output)` behind `--output`.
 - Every argument and option is `Annotated[…, typer.Argument(help=…)]` /
   `Annotated[…, typer.Option(help=…)]`. A write builds the typed request model from the options.
 - An async trigger (export, clone, bulk change) takes `--wait/--no-wait`, default `--wait`, and

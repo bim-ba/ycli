@@ -2,22 +2,26 @@
 
 from __future__ import annotations
 
-from pathlib import Path  # noqa: TC003  # used at runtime (read_bytes) + typer arg annotation
+from pathlib import Path
 from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.attachments.models import Attachment
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.import_.models import (
     ImportComment,
     ImportLink,
     ImportTask,
     ImportWorklog,
 )
+from ycli.yandex.tracker.issues.models import Issue
+from ycli.yandex.tracker.links.models import Link
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    KeyArg,
 )
+from ycli.yandex.tracker.worklog.models import WorklogList
+from ycli.yandex.wiki.comments.models import Comment
 
 app = typer.Typer(name="import", help="Tracker data import (admin).", no_args_is_help=True)
 
@@ -36,7 +40,6 @@ def _group() -> None:
 
 @app.command()
 def task(
-    ctx: typer.Context,
     queue: Annotated[str, typer.Option(help="Target queue key.")],
     summary: Annotated[str, typer.Option(help="Issue title.")],
     created_at: CreatedAtOpt,
@@ -44,7 +47,9 @@ def task(
     key: Annotated[str, typer.Option(help="Explicit issue key (must belong to the queue).")] = "",
     description: Annotated[str, typer.Option(help="Issue description (YFM).")] = "",
     assignee: Annotated[str, typer.Option(help="Assignee login or id.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Issue:
     """Import an issue preserving its history (POST /issues/_import)."""
     body = ImportTask(
         queue=queue,
@@ -55,57 +60,53 @@ def task(
         description=description or None,
         assignee=assignee or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.import_.task(body=body), app_ctx.strategy, app_ctx.console)
+    return tracker.import_.task(body=body)
 
 
 @app.command()
 def comment(
-    ctx: typer.Context,
     key: KeyArg,
     text: Annotated[str, typer.Option(help="Comment text.")],
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Comment:
     """Import a comment onto issue KEY (POST /issues/{key}/comments/_import)."""
     body = ImportComment(text=text, createdAt=created_at, createdBy=created_by).model_dump(
         by_alias=True, exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.import_.comment(key, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.import_.comment(key, body=body)
 
 
 @app.command()
 def link(
-    ctx: typer.Context,
     key: KeyArg,
     relationship: Annotated[str, typer.Option(help="Link type, e.g. relates.")],
     issue: Annotated[str, typer.Option(help="Key or id of the issue to link to.")],
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Link:
     """Import a link on issue KEY (POST /issues/{key}/links/_import)."""
     body = ImportLink(
         relationship=relationship, issue=issue, createdAt=created_at, createdBy=created_by
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.import_.link(key, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.import_.link(key, body=body)
 
 
 @app.command()
 def worklog(
-    ctx: typer.Context,
     key: KeyArg,
     duration: Annotated[str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT1H).")],
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
     start: Annotated[str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")],
     comment: Annotated[str, typer.Option(help="Optional note saved in the time report.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> WorklogList:
     """Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import)."""
     body = ImportWorklog(
         duration=duration,
@@ -114,15 +115,11 @@ def worklog(
         start=start,
         comment=comment or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.import_.worklog(key, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.import_.worklog(key, body=body)
 
 
 @app.command()
 def file(
-    ctx: typer.Context,
     key: KeyArg,
     path: Annotated[Path, typer.Argument(help="Local file to attach.")],
     created_at: CreatedAtOpt,
@@ -130,17 +127,14 @@ def file(
     filename: Annotated[
         str, typer.Option(help="Override the attachment name (default: basename).")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Attachment:
     """Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.import_.file(
-            key,
-            filename=filename or path.name,
-            created_at=created_at,
-            created_by=created_by,
-            data=path.read_bytes(),
-        ),
-        app_ctx.strategy,
-        app_ctx.console,
+    return tracker.import_.file(
+        key,
+        filename=filename or path.name,
+        created_at=created_at,
+        created_by=created_by,
+        data=path.read_bytes(),
     )

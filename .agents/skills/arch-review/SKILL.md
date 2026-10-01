@@ -23,10 +23,9 @@ invariant, state **PASS/FAIL** with `file:line` evidence:
   hints match the class exactly (reads `RO`; writes explicit `destructiveHint`/`idempotentHint`
   plus the `write` tag), and no read-classified tool calls a client write method
   (`.create/.update/.add/.execute/…` — AST-checked).
-- **ARCH-4 — Serialization confinement.** `model_dump_json` / `yaml.safe_dump` / `json.dumps` appear
-  only in `src/ycli/cli/output.py`; CLI command bodies render model output via
-  `output.Serializer.serialize` (carve-outs: a scalar `count` `print`, and binary downloads via
-  `ycli.cli.binary.write_output`).
+- **ARCH-4 — One output path.** A CLI command returns its result (a model, a `str`/`int`, a
+  `BinaryResult` or an `ExitWith`) and never prints; `output.render` is the only stdout writer,
+  and `model_dump_json` / `yaml.safe_dump` / `json.dumps` appear only in `src/ycli/cli/output.py`.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version).
 - **ARCH-6 — Public-surface stability.** If the CLI tree or MCP tool list changed, `tests/snapshots/`

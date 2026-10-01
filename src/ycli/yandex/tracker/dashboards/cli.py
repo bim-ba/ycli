@@ -6,12 +6,13 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dashboards.models import (
     CycleTimeWidget,
+    Dashboard,
     DashboardCreate,
     DashboardOwner,
+    Widget,
 )
 
 app = typer.Typer(name="dashboards", help="Tracker dashboards.", no_args_is_help=True)
@@ -35,26 +36,23 @@ def _widget_group() -> None:
 
 @app.command()
 def create(
-    ctx: typer.Context,
     name: Annotated[str, typer.Option(help="Dashboard name.")],
     layout: Annotated[str, typer.Option(help="Layout mode, e.g. two-columns.")] = "",
     owner: Annotated[str, typer.Option(help="Owner login or id (defaults to creator).")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Dashboard:
     """Create a dashboard (POST /dashboards/)."""
     body = DashboardCreate(
         name=name,
         layout=layout or None,
         owner=DashboardOwner(id=owner) if owner else None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.dashboards.create(body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.dashboards.create(body=body)
 
 
 @add_widget_app.command("cycletime")
 def cycletime(
-    ctx: typer.Context,
     dashboard_id: DashboardIdArg,
     description: Annotated[str, typer.Option(help="Widget name.")],
     query: Annotated[str, typer.Option(help="Query-language filter selecting issues.")] = "",
@@ -67,7 +65,9 @@ def cycletime(
         typer.Option("--to-status", help="Status key work ends at (repeatable)."),
     ] = None,
     mode: Annotated[str, typer.Option(help="Display mode, e.g. common-lines.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Widget:
     """Add a cycle-time widget to DASHBOARD_ID (POST /dashboards/{id}/widgets/cycleTime)."""
     body = CycleTimeWidget(
         description=description,
@@ -76,9 +76,4 @@ def cycletime(
         toStatuses=[{"key": s} for s in to_status] if to_status else None,
         mode=mode or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.dashboards.add_cycle_time_widget(dashboard_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.dashboards.add_cycle_time_widget(dashboard_id, body=body)

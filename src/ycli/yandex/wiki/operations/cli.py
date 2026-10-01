@@ -6,8 +6,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.operations.models import CloneOperationStatus, GridCloneOperationStatus
 
 app = typer.Typer(
     name="operations", help="Wiki async operation status (clone polling).", no_args_is_help=True
@@ -19,18 +19,12 @@ TaskIdArg = Annotated[
 
 
 @app.command()
-def clone(ctx: typer.Context, task_id: TaskIdArg) -> None:
+def clone(task_id: TaskIdArg, *, wiki: WikiClient) -> CloneOperationStatus:
     """Print a page-clone operation's status (GET /operations/clone/{task_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.operations.clone_get(task_id), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.operations.clone_get(task_id)
 
 
 @app.command()
-def gridclone(ctx: typer.Context, task_id: TaskIdArg) -> None:
+def gridclone(task_id: TaskIdArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
     """Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.operations.gridclone_get(task_id), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.operations.gridclone_get(task_id)

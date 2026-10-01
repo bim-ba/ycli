@@ -1,9 +1,9 @@
-"""TDD for tracker CLI helpers — parse_fields JSON coercion."""
+"""The shared ``--field key=value`` parser — JSON coercion with a string fallback."""
 
 import pytest
 import typer
 
-from ycli.yandex.tracker.utils import parse_fields
+from ycli.cli.fields import parse_fields
 
 
 def test_parse_fields_coerces_json_with_string_fallback():

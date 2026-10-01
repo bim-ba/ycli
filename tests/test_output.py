@@ -10,7 +10,7 @@ from pydantic import BaseModel, RootModel
 from rich.console import Console
 from rich.table import Table
 
-from ycli.cli.output import OutputFormat, PrettyStrategy, SerializationStrategy, Serializer
+from ycli.cli.output import OutputFormat, PrettyStrategy, SerializationStrategy
 
 
 class Item(BaseModel):
@@ -29,7 +29,7 @@ def _console(*, tty: bool) -> tuple[Console, io.StringIO]:
 
 
 def _render(model: BaseModel, output_format: OutputFormat, console: Console) -> None:
-    Serializer.serialize(model, SerializationStrategy.from_format(output_format), console)
+    SerializationStrategy.from_format(output_format).render(model, console)
 
 
 def test_auto_pipes_raw_json():

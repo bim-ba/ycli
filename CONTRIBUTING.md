@@ -52,7 +52,7 @@ change the public surface on purpose, regenerate snapshots: `uv run python -m te
   honest annotations). Each surface gets a test (TDD).
 - **Auth:** credentials (`YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID`) are read
   from the environment once, at the composition root — `Credentials()` / `AppConfig()` in
-  `AppContext` for the CLI, or each domain's cached `dependencies` factory for MCP — and
+  `AppContext` for the CLI, or each domain's per-request `dependencies` provider for MCP — and
   passed to clients as explicit `oauth_token` / `organization_id` constructor arguments.
   Clients themselves never read the environment (ARCH-7; there is no `from_env`). Never
   hardcode credentials. The transport sends one canonical `X-Org-Id` org header for every

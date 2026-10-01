@@ -6,10 +6,15 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
 from ycli.yandex.models import Ack
-from ycli.yandex.tracker.sprints.models import SprintBoardInput, SprintCreate, SprintUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.sprints.models import (
+    Sprint,
+    SprintBoardInput,
+    SprintCreate,
+    SprintList,
+    SprintUpdate,
+)
 
 app = typer.Typer(name="sprints", help="Tracker board sprints.", no_args_is_help=True)
 
@@ -26,33 +31,29 @@ def _group() -> None:
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     board_id: Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> SprintList:
     """List all sprints on board BOARD_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.sprints.list(board_id=board_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.sprints.list(board_id=board_id)
 
 
 @app.command()
-def get(ctx: typer.Context, sprint_id: SprintIdArg) -> None:
+def get(sprint_id: SprintIdArg, *, tracker: TrackerClient) -> Sprint:
     """Get one sprint by SPRINT_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.sprints.get(sprint_id=sprint_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.sprints.get(sprint_id=sprint_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     board_id: Annotated[str, typer.Option(help="Identifier of the board the sprint belongs to.")],
     name: Annotated[str, typer.Option(help="Name of the new sprint.")],
     start_date: Annotated[str, typer.Option(help="Planned start date (YYYY-MM-DD).")],
     end_date: Annotated[str, typer.Option(help="Planned end date (YYYY-MM-DD).")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Sprint:
     """Create a sprint (POST /sprints)."""
     body = SprintCreate(
         name=name,
@@ -60,13 +61,11 @@ def create(
         start_date=start_date,
         end_date=end_date,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.sprints.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.sprints.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     sprint_id: SprintIdArg,
     name: Annotated[str, typer.Option(help="New sprint name.")] = "",
     start_date: Annotated[str, typer.Option(help="New start date (YYYY-MM-DD).")] = "",
@@ -75,7 +74,9 @@ def edit(
         str, typer.Option(help="New status: draft/in_progress/released/archived.")
     ] = "",
     version: VersionOpt = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Sprint:
     """Edit a sprint SPRINT_ID (PATCH /sprints/{id}?version=) — only supplied fields are sent."""
     body = SprintUpdate(
         name=name or None,
@@ -83,39 +84,25 @@ def edit(
         end_date=end_date or None,
         status=status or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.sprints.edit(sprint_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.sprints.edit(sprint_id, body, version=version)
 
 
 @app.command()
-def delete(ctx: typer.Context, sprint_id: SprintIdArg) -> None:
+def delete(sprint_id: SprintIdArg, *, tracker: TrackerClient) -> Ack:
     """Delete a sprint SPRINT_ID (DELETE /sprints/{sprint_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.sprints.delete(sprint_id=sprint_id)
-    Serializer.serialize(Ack.deleted("sprint", sprint_id), app_ctx.strategy, app_ctx.console)
+    tracker.sprints.delete(sprint_id=sprint_id)
+    return Ack.deleted("sprint", sprint_id)
 
 
 @app.command()
-def start(ctx: typer.Context, sprint_id: SprintIdArg, version: VersionOpt = None) -> None:
+def start(sprint_id: SprintIdArg, version: VersionOpt = None, *, tracker: TrackerClient) -> Sprint:
     """Start a sprint SPRINT_ID (POST /sprints/{id}/_start?version=; status → in_progress)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.sprints.start(sprint_id=sprint_id, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.sprints.start(sprint_id=sprint_id, version=version)
 
 
 @app.command()
-def archive(ctx: typer.Context, sprint_id: SprintIdArg, version: VersionOpt = None) -> None:
+def archive(
+    sprint_id: SprintIdArg, version: VersionOpt = None, *, tracker: TrackerClient
+) -> Sprint:
     """Archive a sprint SPRINT_ID (POST /sprints/{id}/_archive?version=; status → archived)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.sprints.archive(sprint_id=sprint_id, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.sprints.archive(sprint_id=sprint_id, version=version)

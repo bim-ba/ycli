@@ -12,11 +12,16 @@ from typing import TYPE_CHECKING, Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.fields import parse_fields
 from ycli.cli.progress import wait_for
-from ycli.yandex.tracker.bulk.models import BulkMove, BulkTransition, BulkUpdate
-from ycli.yandex.tracker.utils import parse_fields
+from ycli.yandex.tracker.bulk.models import (
+    BulkChange,
+    BulkIssueResultList,
+    BulkMove,
+    BulkTransition,
+    BulkUpdate,
+)
+from ycli.yandex.tracker.client import TrackerClient
 
 if TYPE_CHECKING:
     from ycli.yandex.tracker.bulk.models import BulkChange
@@ -57,8 +62,8 @@ def _issues(issue: list[str] | None, query: str) -> list[str] | str:
     return query if query else (issue or [])
 
 
-def _finish(app_ctx: AppContext, bulk: BulkChange, wait: bool) -> None:
-    """Print ``bulk`` — after polling it to a terminal status first when ``wait`` is set.
+def _finish(tracker: TrackerClient, bulk: BulkChange, wait: bool) -> BulkChange:
+    """``bulk`` — after polling it to a terminal status first when ``wait`` is set.
 
     The wait is default-on and potentially minutes long, so it goes through the shared
     :func:`ycli.cli.progress.wait_for` — a stderr spinner on a terminal, byte-clean
@@ -67,34 +72,32 @@ def _finish(app_ctx: AppContext, bulk: BulkChange, wait: bool) -> None:
     if wait and bulk.id is not None:
         bulk_id = bulk.id  # narrowed to str — the poll re-reads this operation
         bulk = wait_for(
-            lambda: app_ctx.tracker.bulk.get(bulk_id),
+            lambda: tracker.bulk.get(bulk_id),
             lambda change: change.is_terminal,
             message="Waiting for bulk change…",
-            console=app_ctx.stderr_console,
         )
-    Serializer.serialize(bulk, app_ctx.strategy, app_ctx.console)
+    return bulk
 
 
 @app.command()
 def update(
-    ctx: typer.Context,
     issue: IssueOpt = None,
     query: QueryOpt = "",
     field: ValueOpt = None,
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BulkChange:
     """Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value."""
     body = BulkUpdate(
         issues=_issues(issue, query), values=parse_fields(field), notify=notify or None
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    _finish(app_ctx, app_ctx.tracker.bulk.update(body=body), wait)
+    return _finish(tracker, tracker.bulk.update(body=body), wait)
 
 
 @app.command()
 def move(
-    ctx: typer.Context,
     queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. CHECK.")],
     issue: IssueOpt = None,
     query: QueryOpt = "",
@@ -107,7 +110,9 @@ def move(
     ] = False,
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BulkChange:
     """Mass-move issues to another QUEUE (POST /bulkchange/_move)."""
     body = BulkMove(
         queue=queue,
@@ -117,13 +122,11 @@ def move(
         initialStatus=initial_status or None,
         notify=notify or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    _finish(app_ctx, app_ctx.tracker.bulk.move(body=body), wait)
+    return _finish(tracker, tracker.bulk.move(body=body), wait)
 
 
 @app.command()
 def transition(
-    ctx: typer.Context,
     transition: Annotated[
         str, typer.Argument(metavar="TRANSITION", help="Transition id, e.g. close.")
     ],
@@ -132,7 +135,9 @@ def transition(
     field: ValueOpt = None,
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BulkChange:
     """Mass status transition (POST /bulkchange/_transition). -F resolution=fixed for close."""
     body = BulkTransition(
         transition=transition,
@@ -140,19 +145,16 @@ def transition(
         values=parse_fields(field) or None,
         notify=notify or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    _finish(app_ctx, app_ctx.tracker.bulk.transition(body=body), wait)
+    return _finish(tracker, tracker.bulk.transition(body=body), wait)
 
 
 @app.command()
-def get(ctx: typer.Context, bulk_id: BulkIdArg) -> None:
+def get(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkChange:
     """Print the current status of bulk-change BULK_ID (GET /bulkchange/{id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.bulk.get(bulk_id), app_ctx.strategy, app_ctx.console)
+    return tracker.bulk.get(bulk_id)
 
 
 @app.command()
-def issues(ctx: typer.Context, bulk_id: BulkIdArg) -> None:
+def issues(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkIssueResultList:
     """List issues that a bulk change failed on (GET /bulkchange/{id}/issues)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.bulk.issues(bulk_id), app_ctx.strategy, app_ctx.console)
+    return tracker.bulk.issues(bulk_id)
