@@ -107,6 +107,8 @@ dev = [
 [tool.semantic_release]
 commit_parser = "conventional"
 version_toml = ["pyproject.toml:project.version"]
+# The Claude Code plugin is released together with the package, so it carries the same version.
+version_variables = ["plugins/yandex-360/.claude-plugin/plugin.json:version"]
 tag_format = "v{version}"
 allow_zero_version = true
 major_on_zero = false
