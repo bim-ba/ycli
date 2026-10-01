@@ -92,6 +92,11 @@ def test_appcontext_resolves_config_and_builds_each_client_once():
     assert not AppContext.provides("TrackerClient")
 
 
+def test_appcontext_refuses_a_kind_it_does_not_provide():
+    with pytest.raises(TypeError, match="str"):
+        AppContext().resolve(str)
+
+
 @pytest.mark.integration
 def test_a_caller_supplied_context_is_used(monkeypatch):
     """The root callback keeps an ``obj`` handed in by the caller — the DI seam for embedding."""

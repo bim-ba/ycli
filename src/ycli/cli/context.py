@@ -11,7 +11,7 @@ from typing import cast
 
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.base import DomainClient
-from ycli.yandex.factory import ClientFactory
+from ycli.yandex.factory import build_client
 
 
 @dataclass
@@ -31,8 +31,10 @@ class AppContext:
         """The ``kind`` instance for this invocation: the config, or a client built once."""
         if kind is AppConfig:
             return cast("T", self.config)
+        if not issubclass(kind, DomainClient):
+            raise TypeError(f"AppContext provides AppConfig and domain clients, not {kind!r}")
         if kind not in self._clients:
             # Raises a ValidationError naming the missing variables when credentials are unset.
             self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]
-            self._clients[kind] = ClientFactory.build(kind, self._credentials, self.config)  # ty: ignore[invalid-assignment]
+            self._clients[kind] = build_client(kind, self._credentials, self.config)
         return cast("T", self._clients[kind])

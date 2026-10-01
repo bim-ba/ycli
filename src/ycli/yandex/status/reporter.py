@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol
 
 from ycli.yandex.errors import YandexAuthError, YandexError
-from ycli.yandex.factory import ClientFactory
+from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.models import AuthReport, ServiceAuthStatus
 
@@ -39,7 +39,8 @@ class StatusReporter:
         """A reporter over every registered service, each client built from ``credentials``."""
         return cls(
             {
-                service.name: ClientFactory.build(  # ty: ignore[unresolved-attribute]
+                # Every domain client has a `me` probe, but DomainClient does not declare it.
+                service.name: build_client(  # ty: ignore[unresolved-attribute]
                     service.client_class(), credentials, config
                 ).me
                 for service in SERVICES
