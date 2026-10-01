@@ -109,7 +109,7 @@ def login(
     oauth_client = OAuthClient(
         client_id=oauth_config.client_id,
         client_secret=oauth_config.client_secret,
-        timeout_seconds=int(config.timeout_seconds),
+        timeout_seconds=config.timeout_seconds,
         retries=config.retries,
     )
 
@@ -193,7 +193,7 @@ def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
 
 def _build_report(token: str, organization_id: str, config: AppConfig) -> AuthReport:
     """Probe Tracker/Wiki/Forms with the new token+org and assemble an AuthReport."""
-    timeout_seconds = int(config.timeout_seconds)
+    timeout_seconds = config.timeout_seconds
     tracker = TrackerClient(
         oauth_token=token,
         organization_id=organization_id,

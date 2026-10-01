@@ -726,9 +726,7 @@ def test_arch10_sdk_defaults_match_appconfig():
     from ycli.yandex.tracker.client import TrackerClient
 
     params = inspect.signature(TrackerClient).parameters
-    assert params["timeout_seconds"].default == int(
-        AppConfig.model_fields["timeout_seconds"].default
-    )
+    assert params["timeout_seconds"].default == AppConfig.model_fields["timeout_seconds"].default
     assert params["retries"].default == AppConfig.model_fields["retries"].default
 
 
