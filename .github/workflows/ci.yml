@@ -20,6 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Window: the `requires-python` floor up to the latest stable CPython. On each October
+        # release add the new version here; the `tests` job below keeps the required check stable.
         python-version: ["3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,6 +51,18 @@ jobs:
         run: uv run ty check
       - name: Run tests
         run: uv run pytest
+
+  # One stable name for the ruleset to require, so moving the version window never needs a
+  # ruleset edit. `if: always()` is needed: a skipped or failed matrix would otherwise skip this job.
+  tests:
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every matrix leg to pass
+        env:
+          RESULT: ${{ needs.test.result }}
+        run: test "$RESULT" = success
 
   package:
     uses: ./.github/workflows/package.yml
