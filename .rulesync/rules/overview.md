@@ -74,7 +74,8 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `.rulesync.local/mcp.jsonc` overlay carries their literal values, so no harness needs them in
   its launch environment. `.mcp.json`, `.codex/config.toml` and `opencode.jsonc` are therefore
   per-machine output and are **untracked**; never write a literal credential into `.rulesync/`
-  or into a tracked file. Run `rulesync generate --check` as the drift gate.
+  or into a tracked file. Run `rulesync generate --check` as the drift gate; the CI `rulesync`
+  job enforces it on every PR with the rulesync version pinned in `ci.yml`.
 - **Reproducible artifacts.** Generated demos/tables come from a committed source —
   regenerate, never hand-author (the `demo.svg` incident).
 - **Branch → PR → explicit approval before merge — enforced.** `main` is protected by a
