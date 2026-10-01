@@ -97,7 +97,7 @@ def test_verbose_flag_raises_the_level(monkeypatch, flags, level):
 
     monkeypatch.delenv("YCLI__LOGGING__LEVEL", raising=False)
     calls = []
-    monkeypatch.setattr("ycli.cli.app.configure", lambda **kwargs: calls.append(kwargs))
+    monkeypatch.setattr("ycli.log.configure", lambda **kwargs: calls.append(kwargs))
     # Root --help does not run the callback; a sub-app's --help does.
     CliRunner().invoke(app, [*flags, "tracker", "--help"])
     assert calls == [{"level": level, "log_format": "text"}]

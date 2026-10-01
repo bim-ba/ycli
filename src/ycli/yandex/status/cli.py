@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+# PEP 810: on Python 3.15+ these load on first use (only `auth login` needs them);
+# older versions ignore the name.
+__lazy_modules__ = {"webbrowser", "rich.panel"}
+
 import contextlib
 import os
 import time
@@ -25,9 +29,8 @@ from ycli.yandex.status.env_file import EnvFile
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import StatusReporter
 
-app = typer.Typer(
-    name="auth", help="Inspect and obtain Yandex 360 credentials.", no_args_is_help=True
-)
+# Help text lives with the root sub-app list (ycli.cli.app).
+app = typer.Typer(name="auth", no_args_is_help=True)
 
 _ENV_NAMES = {
     "oauth_token": "YANDEX_ID_OAUTH_TOKEN",

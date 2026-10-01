@@ -11,17 +11,24 @@ does not collect it, and it is excluded from the published distribution.
 
 from importlib import resources
 
+import typer
+import typer.main
+from typer.core import TyperGroup
+
 import ycli
 import ycli.cli.app as cli
 
 # Verify the BASE install (no 'mcp' extra): the package and the CLI entry point
-# import without pulling in fastmcp. The `ycli mcp` subcommand is registered here
-# but only imports the server lazily, so this must not require the extra.
+# import without pulling in fastmcp. The `ycli mcp` subcommand is listed by the root and
+# loaded on first use; loading it must not require the extra either.
 assert callable(cli.main), "ycli entry point missing"
-assert any(
-    g.typer_instance is not None and g.typer_instance.info.name == "mcp"
-    for g in cli.app.registered_groups
-), "mcp subcommand missing"
+root = typer.main.get_group(cli.app)
+context = typer.Context(root)
+for name in ("tracker", "wiki", "forms", "auth", "mcp"):
+    assert name in root.list_commands(context), f"{name} subcommand missing"
+mcp_group = root.get_command(context, "mcp")
+assert isinstance(mcp_group, TyperGroup), "mcp is not a command group"
+assert "start" in mcp_group.list_commands(context), "mcp start missing"
 
 # The PEP 561 marker must survive the build into the installed package, or
 # downstream type checkers won't see ycli's types.

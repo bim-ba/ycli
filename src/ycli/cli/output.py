@@ -14,7 +14,10 @@ The MCP server never uses this module.
 
 from __future__ import annotations
 
-import enum
+# PEP 810: on Python 3.15+ these load on first use (only YAML and pretty output need them);
+# older versions ignore the name.
+__lazy_modules__ = {"yaml", "rich.table"}
+
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -27,17 +30,10 @@ from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 
+from ycli.cli.formats import OutputFormat
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
-
-
-class OutputFormat(enum.StrEnum):
-    """CLI ``--format`` choices."""
-
-    auto = "auto"
-    json = "json"
-    yaml = "yaml"
-    pretty = "pretty"
 
 
 class SerializationStrategy(ABC):

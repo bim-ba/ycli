@@ -139,7 +139,7 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
     captured = {}
     monkeypatch.setenv("YCLI__LOGGING__LEVEL", "ERROR")
     monkeypatch.setattr(
-        "ycli.cli.app.configure", lambda level, log_format: captured.setdefault("level", level)
+        "ycli.log.configure", lambda level, log_format: captured.setdefault("level", level)
     )
     from typer.testing import CliRunner
 
