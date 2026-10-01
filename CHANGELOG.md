@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.21.1 (2026-10-01)
+
+### Build System
+
+- Re-lock uv.lock for 0.21.0
+  ([`af2099d`](https://github.com/bim-ba/ycli/commit/af2099d229af6bc27519973fe16dff3d8408a762))
+
+### Performance Improvements
+
+- **cli**: Load each service's commands only when that service runs
+  ([#124](https://github.com/bim-ba/ycli/pull/124),
+  [`5414e5f`](https://github.com/bim-ba/ycli/commit/5414e5f89daa857deb0306d10e886ff980c6b01d))
+
+### Testing
+
+- **package**: Narrow the smoke test's group types for ty
+  ([#124](https://github.com/bim-ba/ycli/pull/124),
+  [`5414e5f`](https://github.com/bim-ba/ycli/commit/5414e5f89daa857deb0306d10e886ff980c6b01d))
+
+- **package**: Smoke-check the lazily listed sub-apps through Click's API
+  ([#124](https://github.com/bim-ba/ycli/pull/124),
+  [`5414e5f`](https://github.com/bim-ba/ycli/commit/5414e5f89daa857deb0306d10e886ff980c6b01d))
+
+
 ## v0.21.0 (2026-10-01)
 
 ### Bug Fixes
