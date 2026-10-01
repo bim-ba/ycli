@@ -7,16 +7,23 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.queues.models import (
+    Queue,
     QueueCreate,
+    QueueFieldList,
+    QueueList,
+    QueuePermissions,
     QueuePermissionsUpdate,
+    QueueTagList,
     QueueTagRemove,
     QueueVersionCreate,
+    QueueVersionInfo,
+    QueueVersionInfoList,
 )
 
 app = typer.Typer(name="queues", help="Tracker queues.", no_args_is_help=True)
@@ -33,59 +40,46 @@ def _group() -> None:
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
-    limit: LimitOption = 0,
-    all_: AllOption = False,
-) -> None:
+    limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
+) -> QueueList:
     """List all queues (auto-paginated over pages; --all for everything)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(app_ctx.tracker.queues.list(limit=cap), app_ctx.strategy, app_ctx.console)
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return tracker.queues.list(limit=cap)
 
 
 @app.command()
 def get(
-    ctx: typer.Context,
     queue_id: Annotated[str, typer.Argument(help="Queue key (case-sensitive) or numeric id.")],
     expand: Annotated[
         str, typer.Option(help="Extra blocks to include, e.g. all or types,team,versions.")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Queue:
     """Print one queue's settings for QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.queues.get(queue_id, expand=expand or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.queues.get(queue_id, expand=expand or None)
 
 
 @app.command()
-def tags(ctx: typer.Context, queue_id: QueueIdArg) -> None:
+def tags(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueTagList:
     """List the tags added to QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.queues.tags(queue_id), app_ctx.strategy, app_ctx.console)
+    return tracker.queues.tags(queue_id)
 
 
 @app.command()
-def versions(ctx: typer.Context, queue_id: QueueIdArg) -> None:
+def versions(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueVersionInfoList:
     """List the versions defined on QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.queues.versions(queue_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.queues.versions(queue_id)
 
 
 @app.command()
-def fields(ctx: typer.Context, queue_id: QueueIdArg) -> None:
+def fields(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueFieldList:
     """List the required/local fields of QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.queues.fields(queue_id), app_ctx.strategy, app_ctx.console)
+    return tracker.queues.fields(queue_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     key: Annotated[str, typer.Option(help="Key of the new queue (case-sensitive, e.g. DESIGN).")],
     name: Annotated[str, typer.Option(help="Human-readable name of the queue.")],
     lead: Annotated[str, typer.Option(help="Login or id of the queue owner (lead).")],
@@ -103,7 +97,9 @@ def create(
             " (repeatable).",
         ),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Queue:
     """Create a queue (POST /queues/)."""
     body = QueueCreate(
         key=key,
@@ -115,30 +111,24 @@ def create(
         if issue_type_config
         else None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.queues.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.queues.create(body)
 
 
 @app.command()
-def delete(ctx: typer.Context, queue_id: QueueIdArg) -> None:
+def delete(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Ack:
     """Delete QUEUE_ID (DELETE /queues/{queue_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.queues.delete(queue_id)
-    Serializer.serialize(Ack.deleted("queue", queue_id), app_ctx.strategy, app_ctx.console)
+    tracker.queues.delete(queue_id)
+    return Ack.deleted("queue", queue_id)
 
 
 @app.command()
-def restore(ctx: typer.Context, queue_id: QueueIdArg) -> None:
+def restore(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Queue:
     """Restore a deleted QUEUE_ID (POST /queues/{queue_id}/_restore; admin only)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.queues.restore(queue_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.queues.restore(queue_id)
 
 
 @app.command()
 def permissions(
-    ctx: typer.Context,
     queue_id: QueueIdArg,
     create: Annotated[
         str, typer.Option(help="Create-issue permission scope as a JSON object.")
@@ -148,7 +138,9 @@ def permissions(
     grant: Annotated[
         str, typer.Option(help="Change-settings permission scope as a JSON object.")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> QueuePermissions:
     """Manage access to QUEUE_ID (PATCH /queues/{queue_id}/permissions).
 
     Each scope is a JSON object of users/groups/roles, e.g.
@@ -160,29 +152,23 @@ def permissions(
         read=json.loads(read) if read else None,
         grant=json.loads(grant) if grant else None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.queues.set_permissions(queue_id, body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.queues.set_permissions(queue_id, body)
 
 
 @app.command("tag-remove")
 def tag_remove(
-    ctx: typer.Context,
     queue_id: QueueIdArg,
     tag: Annotated[str, typer.Argument(help="Name of the tag to remove.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Ack:
     """Remove TAG from QUEUE_ID (POST /queues/{queue_id}/tags/_remove; admin only)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.queues.tag_remove(queue_id, QueueTagRemove(tag=tag))
-    Serializer.serialize(
-        Ack.removed("tag", tag, from_=f"queue {queue_id}"), app_ctx.strategy, app_ctx.console
-    )
+    tracker.queues.tag_remove(queue_id, QueueTagRemove(tag=tag))
+    return Ack.removed("tag", tag, from_=f"queue {queue_id}")
 
 
 @app.command("version-create")
 def version_create(
-    ctx: typer.Context,
     queue: Annotated[str, typer.Option(help="Key of the queue to create the version in.")],
     name: Annotated[str, typer.Option(help="Name of the new version.")],
     description: Annotated[str, typer.Option(help="Description of the version.")] = "",
@@ -192,7 +178,9 @@ def version_create(
     due_date: Annotated[
         str, typer.Option("--due-date", help="Version due date (YYYY-MM-DD).")
     ] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> QueueVersionInfo:
     """Create a queue version (POST /versions/)."""
     body = QueueVersionCreate(
         queue=queue,
@@ -201,7 +189,4 @@ def version_create(
         start_date=start_date or None,
         due_date=due_date or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.queues.version_create(body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.queues.version_create(body)

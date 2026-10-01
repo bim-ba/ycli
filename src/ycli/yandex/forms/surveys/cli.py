@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-import json
-from typing import Annotated, Any
+from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
-from ycli.yandex.forms.surveys.models import SurveyCreate, SurveyUpdate
+from ycli.cli.fields import parse_fields
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyList, SurveyUpdate
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    SurveyIdArg,
 )
+from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 
 app = typer.Typer(name="surveys", help="Forms surveys.", no_args_is_help=True)
@@ -24,52 +25,23 @@ FieldOpt = Annotated[
 ]
 
 
-def _parse_fields(items: list[str] | None) -> dict[str, Any]:
-    """Parse repeated ``--field key=value`` strings into a dict (gh ``-F`` model).
-
-    Each value is JSON-coerced (``123`` → int, ``true`` → bool, ``{"submit":"Go"}`` → object),
-    falling back to the raw string when it is not valid JSON. Raises ``typer.BadParameter`` when
-    an item has no ``=``. These merge onto the typed body for advanced form keys the modelled
-    options do not cover (``styles``, ``quiz``, ``texts``, ``auto_publication``, …).
-
-    Example:
-        >>> _parse_fields(["max_count=10", "language=ru"])
-        {'max_count': 10, 'language': 'ru'}
-    """
-    out: dict[str, Any] = {}
-    for item in items or []:
-        key, sep, raw = item.partition("=")
-        if not sep:
-            raise typer.BadParameter(f"--field must be key=value, got {item!r}")
-        try:
-            out[key] = json.loads(raw)
-        except json.JSONDecodeError:
-            out[key] = raw
-    return out
-
-
 @app.command("list")
 def list_(
-    ctx: typer.Context,
-    limit: LimitOption = 0,
-    all_: AllOption = False,
-) -> None:
+    limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, forms: FormsClient
+) -> SurveyList:
     """List all forms (auto-paginated over offset pages; --all for everything)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(app_ctx.forms.surveys.list(limit=cap), app_ctx.strategy, app_ctx.console)
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return forms.surveys.list(limit=cap)
 
 
 @app.command()
-def get(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
+def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> Survey:
     """Print one form's settings for SURVEY_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.surveys.get(survey_id), app_ctx.strategy, app_ctx.console)
+    return forms.surveys.get(survey_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     name: Annotated[str, typer.Option(help="Form name (title).")],
     language: Annotated[str, typer.Option(help="Interface language, e.g. ru or en.")] = "",
     published: Annotated[
@@ -83,7 +55,9 @@ def create(
     ] = None,
     max_count: Annotated[int, typer.Option(help="Maximum number of responses (0 = unset).")] = 0,
     field: FieldOpt = None,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Survey:
     """Create a form (POST /surveys). Advanced keys via --field; returns the created form."""
     payload = SurveyCreate(
         name=name,
@@ -93,14 +67,12 @@ def create(
         need_auth=need_auth,
         max_count=max_count or None,
     )
-    body = payload.model_dump(exclude_none=True) | _parse_fields(field)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.surveys.create(body=body), app_ctx.strategy, app_ctx.console)
+    body = payload.model_dump(exclude_none=True) | parse_fields(field)
+    return forms.surveys.create(body=body)
 
 
 @app.command()
 def modify(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     name: Annotated[str, typer.Option(help="New form name.")] = "",
     language: Annotated[str, typer.Option(help="New interface language.")] = "",
@@ -115,7 +87,9 @@ def modify(
     ] = None,
     max_count: Annotated[int, typer.Option(help="New response cap (0 = leave unchanged).")] = 0,
     field: FieldOpt = None,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Survey:
     """Modify form SURVEY_ID (PATCH /surveys/{id}) — only supplied fields are sent."""
     payload = SurveyUpdate(
         name=name or None,
@@ -125,33 +99,23 @@ def modify(
         need_auth=need_auth,
         max_count=max_count or None,
     )
-    body = payload.model_dump(exclude_none=True) | _parse_fields(field)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.surveys.modify(survey_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    body = payload.model_dump(exclude_none=True) | parse_fields(field)
+    return forms.surveys.modify(survey_id, body=body)
 
 
 @app.command()
-def delete(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
+def delete(survey_id: SurveyIdArg, *, forms: FormsClient) -> Ack:
     """Delete form SURVEY_ID (DELETE /surveys/{id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.surveys.delete(survey_id), app_ctx.strategy, app_ctx.console)
+    return forms.surveys.delete(survey_id)
 
 
 @app.command()
-def publish(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
+def publish(survey_id: SurveyIdArg, *, forms: FormsClient) -> Ack:
     """Publish form SURVEY_ID (POST /surveys/{id}/publish)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.surveys.publish(survey_id), app_ctx.strategy, app_ctx.console
-    )
+    return forms.surveys.publish(survey_id)
 
 
 @app.command()
-def unpublish(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
+def unpublish(survey_id: SurveyIdArg, *, forms: FormsClient) -> Ack:
     """Unpublish form SURVEY_ID (POST /surveys/{id}/unpublish)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.surveys.unpublish(survey_id), app_ctx.strategy, app_ctx.console
-    )
+    return forms.surveys.unpublish(survey_id)

@@ -6,11 +6,16 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.pagination import resolve_cap
-from ycli.yandex.wiki.comments.models import CommentCreate
+from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.comments.models import (
+    CommentCreate,
+    CommentCreated,
+    CommentDeleteResult,
+    CommentList,
+)
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
 
@@ -19,44 +24,39 @@ PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page 
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     limit: LimitOption = 0,
     all_: AllOption = False,
-) -> None:
+    *,
+    config: AppConfig,
+    wiki: WikiClient,
+) -> CommentList:
     """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(
-        app_ctx.wiki.comments.list(page_id=page_id, limit=cap), app_ctx.strategy, app_ctx.console
-    )
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return wiki.comments.list(page_id=page_id, limit=cap)
 
 
 @app.command()
 def thread(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
     limit: LimitOption = 0,
     all_: AllOption = False,
-) -> None:
+    *,
+    config: AppConfig,
+    wiki: WikiClient,
+) -> CommentList:
     """Print the thread for COMMENT_ID on PAGE_ID: the comment plus its replies.
 
     Reconstructed from the page's comment list (the Wiki /thread endpoint is dead); the
     comment comes first, then its descendants chained by parent_id.
     """
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(
-        app_ctx.wiki.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return wiki.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     page_id: PageIdArg,
     body: Annotated[str, typer.Option(help="Comment text.")],
     inline_text: Annotated[
@@ -68,32 +68,25 @@ def create(
     thread_id: Annotated[
         int, typer.Option("--thread-id", help="File into this existing thread id.")
     ] = 0,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> CommentCreated:
     """Add a comment to a page (POST /pages/{id}/comments)."""
-    app_ctx = AppContext.from_typer_context(ctx)
     payload = CommentCreate(
         body=body,
         inline_text=inline_text or None,
         parent_id=parent_id or None,
         thread_id=thread_id or None,
     )
-    Serializer.serialize(
-        app_ctx.wiki.comments.create(page_id=page_id, body=payload.model_dump(exclude_none=True)),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return wiki.comments.create(page_id=page_id, body=payload.model_dump(exclude_none=True))
 
 
 @app.command()
 def delete(
-    ctx: typer.Context,
     page_id: PageIdArg,
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Comment id to delete.")],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> CommentDeleteResult:
     """Delete a comment (DELETE /pages/{id}/comments/{comment_id}); emits the remaining count."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.comments.delete(page_id=page_id, comment_id=comment_id),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return wiki.comments.delete(page_id=page_id, comment_id=comment_id)

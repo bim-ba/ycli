@@ -6,9 +6,13 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.tracker.components.models import ComponentCreate, ComponentUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.components.models import (
+    Component,
+    ComponentCreate,
+    ComponentList,
+    ComponentUpdate,
+)
 
 app = typer.Typer(name="components", help="Tracker components.", no_args_is_help=True)
 
@@ -19,15 +23,13 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
+def list_(*, tracker: TrackerClient) -> ComponentList:
     """List all components created in the organisation."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.components.list(), app_ctx.strategy, app_ctx.console)
+    return tracker.components.list()
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     name: Annotated[str, typer.Option(help="Display name of the new component.")],
     queue: Annotated[str, typer.Option(help="Key of the queue the component is created in.")],
     description: Annotated[str, typer.Option(help="Text description of the component.")] = "",
@@ -36,7 +38,9 @@ def create(
         bool | None,
         typer.Option("--assign-auto/--no-assign-auto", help="Auto-assign the owner to issues."),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Component:
     """Create a component (POST /components)."""
     body = ComponentCreate(
         name=name,
@@ -45,13 +49,11 @@ def create(
         lead=lead or None,
         assign_auto=assign_auto,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.components.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.components.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     component_id: Annotated[
         int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
     ],
@@ -65,7 +67,9 @@ def edit(
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Component:
     """Edit component COMPONENT_ID (PATCH /components/{id}?version=)."""
     body = ComponentUpdate(
         name=name or None,
@@ -73,9 +77,4 @@ def edit(
         lead=lead or None,
         assign_auto=assign_auto,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.components.edit(component_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.components.edit(component_id, body, version=version)

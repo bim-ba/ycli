@@ -6,10 +6,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.localfields.models import (
+    LocalField,
     LocalFieldCreate,
+    LocalFieldList,
     LocalFieldUpdate,
     LocalizedName,
     OptionsProviderInput,
@@ -40,30 +41,24 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context, queue_id: QueueArg) -> None:
+def list_(queue_id: QueueArg, *, tracker: TrackerClient) -> LocalFieldList:
     """List the local fields of queue QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.localfields.list(queue_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.localfields.list(queue_id)
 
 
 @app.command()
 def get(
-    ctx: typer.Context,
     queue_id: QueueArg,
     field_key: Annotated[str, typer.Argument(help="Local field key (from `localfields list`).")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> LocalField:
     """Print one local field FIELD_KEY of queue QUEUE_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.localfields.get(queue_id, field_key), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.localfields.get(queue_id, field_key)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     queue_id: QueueArg,
     id_: Annotated[str, typer.Option("--id", help="Identifier (key) of the new local field.")],
     type_: Annotated[str, typer.Option("--type", help="Field type FQN, e.g. …StringFieldType.")],
@@ -75,7 +70,9 @@ def create(
     readonly: Annotated[bool, typer.Option(help="Whether the field value is read-only.")] = False,
     option: OptionOpt = None,
     options_type: OptionsTypeOpt = "FixedListOptionsProvider",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> LocalField:
     """Create a local field in queue QUEUE_ID (POST /queues/{id}/localFields)."""
     body = LocalFieldCreate(
         name=LocalizedName(ru=name_ru or None, en=name_en or None),
@@ -87,15 +84,11 @@ def create(
         description=description or None,
         readonly=readonly or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.localfields.create(queue_id, body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.localfields.create(queue_id, body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     queue_id: QueueArg,
     field_key: Annotated[str, typer.Argument(help="Local field key (from `localfields list`).")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New field name in Russian.")] = "",
@@ -114,7 +107,9 @@ def edit(
     ] = None,
     option: OptionOpt = None,
     options_type: OptionsTypeOpt = "FixedListOptionsProvider",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> LocalField:
     """Edit local field FIELD_KEY of queue QUEUE_ID (PATCH …/localFields/{key}; no version lock)."""
     named = bool(name_ru or name_en)
     body = LocalFieldUpdate(
@@ -127,9 +122,4 @@ def edit(
         visible=visible,
         hidden=hidden,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.localfields.edit(queue_id, field_key, body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.localfields.edit(queue_id, field_key, body)

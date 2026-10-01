@@ -6,9 +6,14 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.tracker.statuses.models import LocalizedName, StatusCreate, StatusUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.statuses.models import (
+    LocalizedName,
+    Status,
+    StatusCreate,
+    StatusList,
+    StatusUpdate,
+)
 
 app = typer.Typer(name="statuses", help="Tracker issue statuses.", no_args_is_help=True)
 
@@ -19,35 +24,33 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
+def list_(*, tracker: TrackerClient) -> StatusList:
     """List all issue statuses."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.statuses.list(), app_ctx.strategy, app_ctx.console)
+    return tracker.statuses.list()
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     key: Annotated[str, typer.Option(help="Key of the new status (Latin, lower-case start).")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="Status name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="Status name in English.")] = "",
     type_: Annotated[
         str, typer.Option("--type", help="Status type: new/inProgress/paused/done/cancelled.")
     ] = "new",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Status:
     """Create an issue status (POST /statuses/)."""
     body = StatusCreate(
         key=key,
         name=LocalizedName(ru=name_ru or None, en=name_en or None),
         type=type_,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.statuses.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.statuses.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     status_id: Annotated[str, typer.Argument(metavar="STATUS_ID", help="Status id or key.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New status name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="New status name in English.")] = "",
@@ -57,7 +60,9 @@ def edit(
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Status:
     """Edit issue status STATUS_ID (PATCH /statuses/{id}?version=)."""
     named = bool(name_ru or name_en)
     body = StatusUpdate(
@@ -66,9 +71,4 @@ def edit(
         type=type_ or None,
         order=order,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.statuses.edit(status_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.statuses.edit(status_id, body, version=version)

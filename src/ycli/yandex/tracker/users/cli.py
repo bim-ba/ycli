@@ -6,10 +6,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.pagination import resolve_cap
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.users.models import User, UserList
 
 app = typer.Typer(name="users", help="Tracker organisation users.", no_args_is_help=True)
 
@@ -21,31 +22,27 @@ def _group() -> None:
 
 @app.command()
 def get(
-    ctx: typer.Context,
     login_or_id: Annotated[
         str,
         typer.Argument(metavar="LOGIN_OR_ID", help="User login or uid (login:12345 if numeric)."),
     ],
     expand: Annotated[str, typer.Option(help="Extra data to include, e.g. groups.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> User:
     """Get one user account by LOGIN_OR_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    user = app_ctx.tracker.users.get(login_or_id=login_or_id, expand=expand or None)
-    Serializer.serialize(user, app_ctx.strategy, app_ctx.console)
+    return tracker.users.get(login_or_id=login_or_id, expand=expand or None)
 
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     limit: LimitOption = 0,
     all_: AllOption = False,
     expand: Annotated[str, typer.Option(help="Extra data to include, e.g. groups.")] = "",
-) -> None:
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> UserList:
     """List all organisation users (auto-paginated; --all for everything)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(
-        app_ctx.tracker.users.list(limit=cap, expand=expand or None),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return tracker.users.list(limit=cap, expand=expand or None)

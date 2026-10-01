@@ -27,7 +27,7 @@ class Ack(APIModel):
     """Typed acknowledgement for write operations whose API response carries no body.
 
     MCP tools must expose an output schema (see test_every_mcp_tool_has_description_and
-    _output_schema), and CLI output goes through the Serializer — a bare ``None`` return
+    _output_schema), and the CLI renders what a command returns — a bare ``None`` return
     satisfies neither, so bodyless writes (deletes, clears, aborts) return an ``Ack``.
 
     The factory classmethods below are the single canonical source for every write op's

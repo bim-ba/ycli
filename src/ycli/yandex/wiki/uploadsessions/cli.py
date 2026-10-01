@@ -11,9 +11,12 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
+from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.uploadsessions.models import (
+    AbortActiveUploadsResult,
+    UploadSession,
+    UploadSessionCreate,
+)
 
 app = typer.Typer(
     name="uploadsessions",
@@ -33,30 +36,24 @@ def _group() -> None:
 
 @app.command()
 def create(
-    ctx: typer.Context,
     file_name: Annotated[str, typer.Option(help="Name to give the uploaded file.")],
     file_size: Annotated[int, typer.Option(help="Total file size in bytes (sum of all parts).")],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> UploadSession:
     """Open an upload session (POST /upload_sessions)."""
-    app_ctx = AppContext.from_typer_context(ctx)
     body = UploadSessionCreate(file_name=file_name, file_size=file_size)
-    Serializer.serialize(
-        app_ctx.wiki.uploadsessions.create(body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.uploadsessions.create(body)
 
 
 @app.command()
-def get(ctx: typer.Context, session_id: SessionIdArg) -> None:
+def get(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
     """Get an upload session's current state (GET /upload_sessions/{session_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.uploadsessions.get(session_id=session_id), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.uploadsessions.get(session_id=session_id)
 
 
 @app.command("upload-part")
 def upload_part(
-    ctx: typer.Context,
     session_id: SessionIdArg,
     file_path: Annotated[
         str, typer.Argument(metavar="FILE_PATH", help="Path to the file part's bytes to upload.")
@@ -64,37 +61,27 @@ def upload_part(
     part_number: Annotated[
         int, typer.Option(help="1-based part index (1 for the first part, +1 per next part).")
     ] = 1,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> UploadSession:
     """Upload one octet-stream part from FILE_PATH (PUT .../{session_id}/upload_part)."""
-    app_ctx = AppContext.from_typer_context(ctx)
     data = Path(file_path).read_bytes()
-    Serializer.serialize(
-        app_ctx.wiki.uploadsessions.upload_part(session_id, part_number=part_number, data=data),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return wiki.uploadsessions.upload_part(session_id, part_number=part_number, data=data)
 
 
 @app.command()
-def finish(ctx: typer.Context, session_id: SessionIdArg) -> None:
+def finish(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
     """Finish an upload session (POST /upload_sessions/{session_id}/finish)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.uploadsessions.finish(session_id=session_id), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.uploadsessions.finish(session_id=session_id)
 
 
 @app.command()
-def abort(ctx: typer.Context, session_id: SessionIdArg) -> None:
+def abort(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
     """Abort one upload session (POST /upload_sessions/{session_id}/abort)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.uploadsessions.abort(session_id=session_id), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.uploadsessions.abort(session_id=session_id)
 
 
 @app.command("abort-all")
-def abort_all(ctx: typer.Context) -> None:
+def abort_all(*, wiki: WikiClient) -> AbortActiveUploadsResult:
     """Abort ALL active upload sessions to free quota (POST .../abort_active_uploads)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.wiki.uploadsessions.abort_all(), app_ctx.strategy, app_ctx.console)
+    return wiki.uploadsessions.abort_all()

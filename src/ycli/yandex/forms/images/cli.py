@@ -7,10 +7,10 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.images.models import Image
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    SurveyIdArg,
 )
 
 app = typer.Typer(name="images", help="Forms images.", no_args_is_help=True)
@@ -28,14 +28,6 @@ def _group() -> None:
 
 
 @app.command()
-def upload(
-    ctx: typer.Context,
-    survey_id: SurveyIdArg,
-    image_path: ImagePathArg,
-) -> None:
+def upload(survey_id: SurveyIdArg, image_path: ImagePathArg, *, forms: FormsClient) -> Image:
     """Upload an image to add to a form (POST …/images); returns the image id and links."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    result = app_ctx.forms.images.upload(
-        survey_id, filename=image_path.name, data=image_path.read_bytes()
-    )
-    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)
+    return forms.images.upload(survey_id, filename=image_path.name, data=image_path.read_bytes())

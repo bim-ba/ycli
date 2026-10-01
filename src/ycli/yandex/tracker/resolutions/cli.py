@@ -6,11 +6,12 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.resolutions.models import (
     LocalizedName,
+    Resolution,
     ResolutionCreate,
+    ResolutionList,
     ResolutionUpdate,
 )
 
@@ -23,33 +24,29 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
+def list_(*, tracker: TrackerClient) -> ResolutionList:
     """List all issue resolutions."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.resolutions.list(), app_ctx.strategy, app_ctx.console)
+    return tracker.resolutions.list()
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     key: Annotated[str, typer.Option(help="Key of the new resolution (Latin, lower-case start).")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="Resolution name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="Resolution name in English.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Resolution:
     """Create an issue resolution (POST /resolutions/)."""
     body = ResolutionCreate(
         key=key,
         name=LocalizedName(ru=name_ru or None, en=name_en or None),
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.resolutions.create(body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.resolutions.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     resolution_id: Annotated[
         str, typer.Argument(metavar="RESOLUTION_ID", help="Resolution id or key.")
     ],
@@ -60,7 +57,9 @@ def edit(
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Resolution:
     """Edit issue resolution RESOLUTION_ID (PATCH /resolutions/{id}?version=)."""
     named = bool(name_ru or name_en)
     body = ResolutionUpdate(
@@ -68,9 +67,4 @@ def edit(
         description=description or None,
         order=order,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.resolutions.edit(resolution_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.resolutions.edit(resolution_id, body, version=version)

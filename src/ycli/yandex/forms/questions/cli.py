@@ -8,24 +8,27 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.questions.models import (
     BooleanQuestion,
     DateQuestion,
     EnumQuestion,
     IntegerQuestion,
+    Question,
     QuestionCreate,
     QuestionCreateAdapter,
     QuestionEnumItem,
     QuestionMove,
+    QuestionMoveResult,
+    QuestionsResponse,
     QuestionValidator,
     StringQuestion,
 )
 from ycli.yandex.forms.typedefs import (
-    QuestionIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
-    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    QuestionIdArg,
+    SurveyIdArg,
 )
+from ycli.yandex.models import Ack
 
 app = typer.Typer(name="questions", help="Forms questions.", no_args_is_help=True)
 
@@ -155,24 +158,19 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
+def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> QuestionsResponse:
     """List a form's questions (the {pages} envelope)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.questions.list(survey_id), app_ctx.strategy, app_ctx.console)
+    return forms.questions.list(survey_id)
 
 
 @app.command()
-def get(ctx: typer.Context, survey_id: SurveyIdArg, question_id: QuestionIdArg) -> None:
+def get(survey_id: SurveyIdArg, question_id: QuestionIdArg, *, forms: FormsClient) -> Question:
     """Print one question's settings (SURVEY_ID / QUESTION_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.questions.get(survey_id, question_id), app_ctx.strategy, app_ctx.console
-    )
+    return forms.questions.get(survey_id, question_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     type_: TypeOpt = "",
     label: LabelOpt = "",
@@ -185,7 +183,9 @@ def create(
     widget: WidgetOpt = "",
     option: OptionOpt = None,
     body_file: BodyFileOpt = None,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Question:
     """Create a question (POST …/questions). Use --type + flags, or --body-file for full JSON."""
     payload = _resolve_body(
         type_,
@@ -200,15 +200,11 @@ def create(
         option,
         body_file,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.questions.create(survey_id, payload), app_ctx.strategy, app_ctx.console
-    )
+    return forms.questions.create(survey_id, payload)
 
 
 @app.command()
 def modify(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     type_: TypeOpt = "",
@@ -222,7 +218,9 @@ def modify(
     widget: WidgetOpt = "",
     option: OptionOpt = None,
     body_file: BodyFileOpt = None,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Question:
     """Modify a question (PATCH …/questions/{id}) — --type + flags, or --body-file for full JSON."""
     payload = _resolve_body(
         type_,
@@ -237,35 +235,25 @@ def modify(
         option,
         body_file,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.questions.modify(survey_id, question_id, payload),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return forms.questions.modify(survey_id, question_id, payload)
 
 
 @app.command()
 def delete(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     force: Annotated[
         bool, typer.Option("--force", help="Skip the condition-usage check before deleting.")
     ] = False,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Ack:
     """Delete a question (DELETE …/questions/{id}); --force skips the condition-usage check."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.questions.delete(survey_id, question_id, force=force),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return forms.questions.delete(survey_id, question_id, force=force)
 
 
 @app.command()
 def move(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     page: Annotated[
@@ -285,7 +273,9 @@ def move(
     question: Annotated[
         str, typer.Option(help="Question id/slug to move into a question series.")
     ] = "",
-) -> None:
+    *,
+    forms: FormsClient,
+) -> QuestionMoveResult:
     """Move a question (POST …/questions/{id}/move) to another page / position.
 
     ``--position`` without a page target would be silently ignored by the API (200, nothing
@@ -312,9 +302,4 @@ def move(
         position=target_position,
         create_page=target_create_page,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.questions.move(survey_id, question_id, payload),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return forms.questions.move(survey_id, question_id, payload)

@@ -34,8 +34,8 @@ def start(
 
 
 @app.command()
-def methods() -> None:
-    """List the MCP tool names exposed by the server."""
+def methods() -> str:
+    """List the MCP tool names exposed by the server, one per line."""
     import asyncio
 
     try:
@@ -45,9 +45,8 @@ def methods() -> None:
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
 
-    async def _list() -> None:
+    async def _list() -> list[str]:
         async with Client(mcp) as client:
-            for tool in sorted(t.name for t in await client.list_tools()):
-                typer.echo(tool)
+            return sorted(tool.name for tool in await client.list_tools())
 
-    asyncio.run(_list())
+    return "\n".join(asyncio.run(_list()))

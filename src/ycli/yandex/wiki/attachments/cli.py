@@ -7,12 +7,13 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.binary import write_output
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.cli.output import BinaryResult
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
+from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
+from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
 
@@ -24,91 +25,84 @@ OutputOption = Annotated[
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     limit: LimitOption = 0,
     all_: AllOption = False,
-) -> None:
+    *,
+    config: AppConfig,
+    wiki: WikiClient,
+) -> AttachmentList:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(
-        app_ctx.wiki.attachments.list(page_id=page_id, limit=cap), app_ctx.strategy, app_ctx.console
-    )
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return wiki.attachments.list(page_id=page_id, limit=cap)
 
 
 @app.command()
 def download(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     file_id: Annotated[int, typer.Argument(metavar="FILE_ID", help="Numeric attachment id.")],
     output: OutputOption = None,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> BinaryResult:
     """Download an attachment by id to --output (or stdout) as raw bytes."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    write_output(app_ctx.wiki.attachments.download(page_id=page_id, file_id=file_id), output)
+    return BinaryResult(wiki.attachments.download(page_id=page_id, file_id=file_id), output)
 
 
 @app.command("download-by-url")
 def download_by_url(
-    ctx: typer.Context,
     url: Annotated[
         str, typer.Argument(metavar="URL", help="Page-slug URL: <slug>/.files/<filename>.")
     ],
     output: OutputOption = None,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> BinaryResult:
     """Download an attachment by page-slug URL to --output (or stdout) as raw bytes."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    write_output(app_ctx.wiki.attachments.download_by_url(url=url), output)
+    return BinaryResult(wiki.attachments.download_by_url(url=url), output)
 
 
 @app.command()
 def delete(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     file_id: Annotated[int, typer.Argument(metavar="FILE_ID", help="Numeric attachment id.")],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> Ack:
     """Delete an attachment by id (DELETE /pages/{id}/attachments/{file_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.wiki.attachments.delete(page_id=page_id, file_id=file_id)
-    Serializer.serialize(
-        Ack.deleted("attachment", file_id, from_=f"page {page_id}"),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    wiki.attachments.delete(page_id=page_id, file_id=file_id)
+    return Ack.deleted("attachment", file_id, from_=f"page {page_id}")
 
 
 @app.command()
 def attach(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     session: Annotated[
         list[str],
         typer.Option("--session", help="Finished upload-session id to attach (repeatable)."),
     ],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> AttachedFileList:
     """Attach uploaded file(s) to a page by upload-session id (POST /pages/{id}/attachments)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.attachments.attach(page_id, session), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.attachments.attach(page_id, session)
 
 
 @app.command()
 def upload(
-    ctx: typer.Context,
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     file_path: Annotated[
         str, typer.Argument(metavar="FILE_PATH", help="Path to the local file to upload + attach.")
     ],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> AttachedFileList:
     """Upload a local file and attach it to a page in one step (create→upload→finish→attach)."""
-    app_ctx = AppContext.from_typer_context(ctx)
     path = Path(file_path)
-    result = app_ctx.wiki.attachments.upload(
-        app_ctx.wiki.uploadsessions,
+    result = wiki.attachments.upload(
+        wiki.uploadsessions,
         page_id,
         file_name=path.name,
         data=path.read_bytes(),
     )
-    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)
+    return result

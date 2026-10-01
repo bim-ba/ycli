@@ -1,8 +1,9 @@
 ---
-description: Scaffold a new Yandex resource (client/cli/mcp/models) that satisfies the architecture by construction.
+description: >-
+  Scaffold a new Yandex resource (client/cli/mcp/models) that satisfies the
+  architecture by construction.
 argument-hint: <domain> <resource>
 ---
-
 Run the generator, then finish wiring the new resource:
 
 1. `uv run python scripts/new_endpoint.py $ARGUMENTS`
@@ -19,8 +20,8 @@ Run the generator, then finish wiring the new resource:
    purpose — the new commands/tools change the CLI tree and MCP tool list (ARCH-6):
    `uv run python -m tests.snapshots --update`.
 
-Architecture rules (see `ARCHITECTURE.md`, ARCH-1..11): HTTP only in `client.py`; CLI output only
-via `output.Serializer.serialize`; `fastmcp` only in `mcp.py`, and every new MCP tool carries
+Architecture rules (see `ARCHITECTURE.md`, ARCH-1..11): HTTP only in `client.py`; a CLI command
+returns its result and never prints (`output.render` does); `fastmcp` only in `mcp.py`, and every new MCP tool carries
 honest annotations (reads `RO`; writes the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets plus
 the `write` tag — the tool's verb must classify into the ARCH-3 maps); clients receive credentials
 as constructor arguments and never read the environment (no `from_env`).

@@ -6,26 +6,24 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.fields import parse_fields
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.transitions.models import TransitionList
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    KeyArg,
 )
-from ycli.yandex.tracker.utils import parse_fields
 
 app = typer.Typer(name="transitions", help="Tracker issue transitions.", no_args_is_help=True)
 
 
 @app.command("list")
-def list_(ctx: typer.Context, key: KeyArg) -> None:
+def list_(key: KeyArg, *, tracker: TrackerClient) -> TransitionList:
     """List available transitions for issue KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.transitions.list(key), app_ctx.strategy, app_ctx.console)
+    return tracker.transitions.list(key)
 
 
 @app.command()
 def execute(
-    ctx: typer.Context,
     key: KeyArg,
     transition_id: Annotated[
         str, typer.Argument(metavar="ID", help="Transition id (from `transitions list`).")
@@ -36,8 +34,8 @@ def execute(
             "--field", "-F", help="Transition body field key=value (JSON-coerced; repeatable)."
         ),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> TransitionList:
     """Execute transition ID on issue KEY (optional body via --field)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    result = app_ctx.tracker.transitions.execute(key, transition_id, body=parse_fields(field))
-    Serializer.serialize(result, app_ctx.strategy, app_ctx.console)
+    return tracker.transitions.execute(key, transition_id, body=parse_fields(field))

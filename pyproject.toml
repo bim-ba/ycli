@@ -146,6 +146,9 @@ known-first-party = ["ycli"]
 "tests/**/*.py" = ["N802", "ANN"]
 "scripts/**/*.py" = ["ANN"]
 "src/ycli/yandex/**/client.py" = ["ANN"]
+# Typer reads command annotations at runtime (inspect.signature(eval_str=True)), so their
+# imports must stay real imports, never `if TYPE_CHECKING:` ones.
+"src/ycli/**/cli.py" = ["TC001", "TC002", "TC003"]
 
 [tool.ty.environment]
 python-version = "3.12"

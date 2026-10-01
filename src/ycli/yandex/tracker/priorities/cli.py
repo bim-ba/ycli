@@ -6,9 +6,14 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.tracker.priorities.models import LocalizedName, PriorityCreate, PriorityUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.priorities.models import (
+    LocalizedName,
+    Priority,
+    PriorityCreate,
+    PriorityList,
+    PriorityUpdate,
+)
 
 app = typer.Typer(name="priorities", help="Tracker priorities.", no_args_is_help=True)
 
@@ -19,21 +24,21 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
+def list_(*, tracker: TrackerClient) -> PriorityList:
     """List all priorities."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.priorities.list(), app_ctx.strategy, app_ctx.console)
+    return tracker.priorities.list()
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     key: Annotated[str, typer.Option(help="Key of the new priority.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="Priority name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="Priority name in English.")] = "",
     order: Annotated[int | None, typer.Option(help="Display-order weight of the priority.")] = None,
     description: Annotated[str, typer.Option(help="Description of the priority.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Priority:
     """Create a priority (POST /priorities/)."""
     body = PriorityCreate(
         key=key,
@@ -41,13 +46,11 @@ def create(
         order=order,
         description=description or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.priorities.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.priorities.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     priority_id: Annotated[str, typer.Argument(metavar="PRIORITY_ID", help="Priority id or key.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New priority name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="New priority name in English.")] = "",
@@ -55,16 +58,13 @@ def edit(
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Priority:
     """Edit priority PRIORITY_ID (PATCH /priorities/{id}?version=)."""
     named = bool(name_ru or name_en)
     body = PriorityUpdate(
         name=LocalizedName(ru=name_ru or None, en=name_en or None) if named else None,
         description=description or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.priorities.edit(priority_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.priorities.edit(priority_id, body, version=version)

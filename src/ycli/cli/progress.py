@@ -6,7 +6,7 @@ is an interactive terminal, so piped/redirected **stdout** stays byte-clean (the
 module renders no model). On a non-terminal stderr the helper is a no-op context manager, so a
 caller wraps a blocking call unconditionally::
 
-    with spinner("Waiting for bulk change…", console=app_ctx.stderr_console):
+    with spinner("Waiting for bulk change…"):
         result = poll(...)
 """
 
@@ -16,27 +16,32 @@ import contextlib
 import time
 from typing import TYPE_CHECKING
 
+from rich.console import Console
+
 from ycli.yandex.polling import poll
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from rich.console import Console
     from rich.status import Status
 
 
-def spinner(message: str, *, console: Console) -> Status | contextlib.AbstractContextManager[None]:
+def spinner(
+    message: str, *, console: Console | None = None
+) -> Status | contextlib.AbstractContextManager[None]:
     """A ``with``-able spinner: animate ``message`` on a terminal ``console``, else do nothing.
 
     Args:
         message: The status text shown beside the animated spinner.
-        console: The (stderr) console; the spinner renders only when it ``is_terminal``.
+        console: The console to animate on (default: a fresh stderr console); the spinner
+            renders only when it ``is_terminal``.
 
     Returns:
         A :class:`rich.status.Status` when ``console`` is an interactive terminal (it animates
         and clears itself on exit), otherwise a :func:`contextlib.nullcontext` that produces no
         output at all — keeping a piped stream pristine.
     """
+    console = console or Console(stderr=True)
     if console.is_terminal:
         return console.status(message)
     return contextlib.nullcontext()
@@ -47,7 +52,7 @@ def wait_for[P](
     is_done: Callable[[P], bool],
     *,
     message: str,
-    console: Console,
+    console: Console | None = None,
 ) -> P:
     """Poll ``fetch`` to a terminal state behind one shared stderr spinner — the CLI ``--wait`` UX.
 
@@ -60,7 +65,7 @@ def wait_for[P](
         fetch: Re-reads the operation status (closes over the client + operation id).
         is_done: Returns ``True`` once ``fetch``'s latest result is terminal.
         message: The status text shown beside the spinner while waiting.
-        console: The (stderr) console the spinner renders to when it ``is_terminal``.
+        console: The console the spinner renders to (default: stderr) when it ``is_terminal``.
 
     Returns:
         The first ``fetch`` result for which ``is_done`` returned ``True``.

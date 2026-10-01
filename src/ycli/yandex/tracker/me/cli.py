@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.me.models import Me
 
 app = typer.Typer(name="me", help="Tracker authenticated user.", no_args_is_help=True)
 
@@ -16,7 +16,6 @@ def _group() -> None:
 
 
 @app.command()
-def get(ctx: typer.Context) -> None:
+def get(*, tracker: TrackerClient) -> Me:
     """Print the authenticated user (a safe auth probe)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.me.get(), app_ctx.strategy, app_ctx.console)
+    return tracker.me.get()

@@ -6,9 +6,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.binary import write_output
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.output import BinaryResult
+from ycli.yandex.tracker.attachments.models import AttachmentList
+from ycli.yandex.tracker.client import TrackerClient
 
 app = typer.Typer(name="attachments", help="Tracker issue attachments.", no_args_is_help=True)
 
@@ -23,37 +23,31 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(
-    ctx: typer.Context,
-    issue_key: Annotated[str, _ISSUE],
-) -> None:
+def list_(issue_key: Annotated[str, _ISSUE], *, tracker: TrackerClient) -> AttachmentList:
     """List files attached to an issue (GET /issues/{issue}/attachments)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.attachments.list(issue_key), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.attachments.list(issue_key)
 
 
 @app.command("download")
 def download(
-    ctx: typer.Context,
     issue_key: Annotated[str, _ISSUE],
     file_id: Annotated[str, _FILE_ID],
     filename: Annotated[str, typer.Argument(metavar="FILENAME", help="Attachment file name.")],
     output: Annotated[str | None, _OUTPUT] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BinaryResult:
     """Download an attachment's raw bytes to --output (or stdout). Binary is CLI/SDK-only."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    write_output(app_ctx.tracker.attachments.download(issue_key, file_id, filename), output)
+    return BinaryResult(tracker.attachments.download(issue_key, file_id, filename), output)
 
 
 @app.command("thumbnail")
 def thumbnail(
-    ctx: typer.Context,
     issue_key: Annotated[str, _ISSUE],
     file_id: Annotated[str, _FILE_ID],
     output: Annotated[str | None, _OUTPUT] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> BinaryResult:
     """Download a graphic attachment's preview thumbnail to --output (or stdout)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    write_output(app_ctx.tracker.attachments.download_thumbnail(issue_key, file_id), output)
+    return BinaryResult(tracker.attachments.download_thumbnail(issue_key, file_id), output)

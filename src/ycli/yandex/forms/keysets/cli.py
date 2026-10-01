@@ -6,12 +6,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.binary import write_output
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.yandex.forms.keysets.models import KeysetCreate, KeysetUpdate
+from ycli.cli.output import BinaryResult
+from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetList, KeysetUpdate
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    SurveyIdArg,
 )
 from ycli.yandex.models import Ack
 
@@ -25,24 +24,19 @@ OutputOption = Annotated[
 
 
 @app.command("list")
-def list_(ctx: typer.Context, survey_id: SurveyIdArg) -> None:
+def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> KeysetList:
     """List key sets on form SURVEY_ID (GET /surveys/{id}/keysets)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.forms.keysets.list(survey_id), app_ctx.strategy, app_ctx.console)
+    return forms.keysets.list(survey_id)
 
 
 @app.command()
-def get(ctx: typer.Context, survey_id: SurveyIdArg, keyset_id: KeysetIdArg) -> None:
+def get(survey_id: SurveyIdArg, keyset_id: KeysetIdArg, *, forms: FormsClient) -> Keyset:
     """Print one key set (SURVEY_ID KEYSET_ID)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.keysets.get(survey_id, keyset_id), app_ctx.strategy, app_ctx.console
-    )
+    return forms.keysets.get(survey_id, keyset_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     name: Annotated[str, typer.Option(help="Key set name.")],
     total: Annotated[int, typer.Option(help="Number of keys to generate.")],
@@ -53,55 +47,45 @@ def create(
             help="Create the set active (required — the API rejects a create without it).",
         ),
     ],
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Keyset:
     """Create a key set on form SURVEY_ID (POST /surveys/{id}/keysets) — the API requires
     is_enabled, so --enabled/--disabled is required and always sent in the body."""
     body = KeysetCreate(name=name, total=total, is_enabled=enabled).model_dump()
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.keysets.create(survey_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return forms.keysets.create(survey_id, body=body)
 
 
 @app.command()
 def modify(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     keyset_id: KeysetIdArg,
     name: Annotated[str, typer.Option(help="Key set name (required — replaces the record).")],
     total: Annotated[int, typer.Option(help="Number of keys (required — replaces the record).")],
     enabled: Annotated[bool, typer.Option("--enabled/--disabled", help="Active flag (required).")],
-) -> None:
+    *,
+    forms: FormsClient,
+) -> Keyset:
     """Modify key set KEYSET_ID on SURVEY_ID (PATCH) — the API replaces the whole record, so
     every field (name, total, enabled) is required and sent together."""
     body = KeysetUpdate(name=name, total=total, is_enabled=enabled).model_dump()
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.forms.keysets.modify(survey_id, keyset_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return forms.keysets.modify(survey_id, keyset_id, body=body)
 
 
 @app.command()
-def delete(ctx: typer.Context, survey_id: SurveyIdArg, keyset_id: KeysetIdArg) -> None:
+def delete(survey_id: SurveyIdArg, keyset_id: KeysetIdArg, *, forms: FormsClient) -> Ack:
     """Delete key set KEYSET_ID on SURVEY_ID (DELETE /surveys/{id}/keysets/{keyset_id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.forms.keysets.delete(survey_id, keyset_id)
-    Serializer.serialize(
-        Ack.deleted("keyset", keyset_id, from_=f"survey {survey_id}"),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    forms.keysets.delete(survey_id, keyset_id)
+    return Ack.deleted("keyset", keyset_id, from_=f"survey {survey_id}")
 
 
 @app.command()
 def download(
-    ctx: typer.Context,
     survey_id: SurveyIdArg,
     keyset_id: KeysetIdArg,
     output: OutputOption = None,
-) -> None:
+    *,
+    forms: FormsClient,
+) -> BinaryResult:
     """Download key set KEYSET_ID to --output (or stdout) as raw bytes."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    write_output(app_ctx.forms.keysets.download(survey_id, keyset_id), output)
+    return BinaryResult(forms.keysets.download(survey_id, keyset_id), output)

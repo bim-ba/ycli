@@ -11,17 +11,15 @@ from typing import TYPE_CHECKING, Annotated
 
 import typer
 from pydantic import SecretStr, ValidationError
+from rich.console import Console
 from rich.panel import Panel
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.output import ExitWith
 from ycli.cli.progress import spinner
-from ycli.settings import Credentials, OAuthAppConfig
+from ycli.settings import AppConfig, Credentials, OAuthAppConfig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-
-    from rich.console import Console
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.env_file import EnvFile
 from ycli.yandex.status.models import AuthReport
@@ -38,9 +36,8 @@ _ENV_NAMES = {
 
 
 @app.command()
-def status(ctx: typer.Context) -> None:
+def status(*, config: AppConfig) -> AuthReport | ExitWith:
     """Report whether the env credentials are set and actually work, per service."""
-    app_ctx = AppContext.from_typer_context(ctx)
     try:
         credentials = Credentials()  # ty: ignore[missing-argument]
     except ValidationError as exc:
@@ -48,22 +45,16 @@ def status(ctx: typer.Context) -> None:
             _ENV_NAMES.get(str(e["loc"][0]), str(e["loc"][0])) for e in exc.errors()
         )
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
-        Serializer.serialize(
-            AuthReport(configured=False, services=[]), app_ctx.strategy, app_ctx.console
-        )
-        raise typer.Exit(1) from None
+        return ExitWith(AuthReport(configured=False, services=[]))
 
-    report = StatusReporter.for_credentials(credentials, app_ctx.config).report(
+    report = StatusReporter.for_credentials(credentials, config).report(
         configured=True, organization_id=credentials.organization_id
     )
-    Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
-    if not all(s.valid for s in report.services):
-        raise typer.Exit(1)
+    return report if all(s.valid for s in report.services) else ExitWith(report)
 
 
 @app.command()
 def login(
-    ctx: typer.Context,
     implicit: Annotated[
         bool,
         typer.Option(
@@ -78,14 +69,15 @@ def login(
         str | None,
         typer.Option("--device-name", help="Label shown for this device during OAuth approval."),
     ] = None,
-) -> None:
+    *,
+    config: AppConfig,
+) -> AuthReport:
     """Obtain a Yandex OAuth token + organization id and save them to .env.
 
     Uses your own OAuth app (YANDEX_OAUTH_CLIENT_ID / YANDEX_OAUTH_CLIENT_SECRET): the
     headless device flow when both are set, otherwise the browser paste (implicit) flow.
-    The token is validated against Tracker, Wiki, and Forms before it is written.
+    The token is validated against every service before it is written.
     """
-    app_ctx = AppContext.from_typer_context(ctx)
     oauth_config = OAuthAppConfig()
     if not oauth_config.client_id:
         typer.secho(
@@ -97,7 +89,6 @@ def login(
         )
         raise typer.Exit(1)
 
-    config = app_ctx.config
     oauth_client = OAuthClient(
         client_id=oauth_config.client_id,
         client_secret=(
@@ -108,17 +99,17 @@ def login(
     )
 
     if implicit or oauth_config.client_secret is None:
-        token = _implicit_flow(oauth_client, app_ctx.stderr_console)
+        token = _implicit_flow(oauth_client, Console(stderr=True))
     else:
-        token = _device_flow(oauth_client, device_name, app_ctx.stderr_console)
+        token = _device_flow(oauth_client, device_name, Console(stderr=True))
 
     organization_id = _resolve_organization_id(oauth_client, token)
     credentials = Credentials(oauth_token=SecretStr(token), organization_id=organization_id)
     report = StatusReporter.for_credentials(credentials, config).report(
         configured=True, organization_id=organization_id
     )
-    Serializer.serialize(report, app_ctx.strategy, app_ctx.console)
-    _write_env_file(token, organization_id, assume_yes=assume_yes)
+    _write_env_file(token, organization_id, report, assume_yes=assume_yes)
+    return report
 
 
 @contextlib.contextmanager
@@ -143,7 +134,7 @@ def _implicit_flow(oauth_client: OAuthClient, console: Console) -> str:
     with _suppressed_stderr():
         webbrowser.open(url)
     return typer.prompt(
-        "Paste the token shown on the Yandex verification page", hide_input=True
+        "Paste the token shown on the Yandex verification page", hide_input=True, err=True
     ).strip()
 
 
@@ -175,23 +166,34 @@ def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
     organizations = oauth_client.fetch_organizations(token)
     if len(organizations) == 1:
         organization = organizations[0]
-        typer.echo(f"Using organization {organization.name} ({organization.id}).")
+        typer.echo(f"Using organization {organization.name} ({organization.id}).", err=True)
         return str(organization.id)
     if len(organizations) > 1:
-        typer.echo("Multiple organizations found:")
+        typer.echo("Multiple organizations found:", err=True)
         for index, organization in enumerate(organizations, start=1):
-            typer.echo(f"  {index}. {organization.name} ({organization.id})")
-        selected = typer.prompt("Choose an organization number", type=int)
+            typer.echo(f"  {index}. {organization.name} ({organization.id})", err=True)
+        selected = typer.prompt("Choose an organization number", type=int, err=True)
         return str(organizations[selected - 1].id)
-    typer.echo("Could not detect an organization (the token lacks directory scope).")
-    typer.echo("Find your organization id at https://tracker.yandex.ru/admin/orgs")
-    return typer.prompt("Enter your organization id").strip()
+    typer.echo("Could not detect an organization (the token lacks directory scope).", err=True)
+    typer.echo("Find your organization id at https://tracker.yandex.ru/admin/orgs", err=True)
+    return typer.prompt("Enter your organization id", err=True).strip()
 
 
-def _write_env_file(token: str, organization_id: str, *, assume_yes: bool) -> None:
-    """Confirm (unless ``--yes``), back up any existing .env, and upsert the two keys."""
-    if not assume_yes and not typer.confirm("Save these credentials to .env?"):
-        typer.echo("Skipped; nothing written.")
+def _write_env_file(
+    token: str, organization_id: str, report: AuthReport, *, assume_yes: bool
+) -> None:
+    """Confirm (unless ``--yes``), back up any existing .env, and upsert the two keys.
+
+    Messages go to stderr: stdout carries only the report the command returns.
+    """
+    accepted = [status.service for status in report.services if status.valid]
+    rejected = [status.service for status in report.services if not status.valid]
+    verdict = f"The token works for: {', '.join(accepted) or 'no service'}."
+    if rejected:
+        verdict += f" Rejected by: {', '.join(rejected)}."
+    prompt = f"{verdict} Save these credentials to .env?"
+    if not assume_yes and not typer.confirm(prompt, err=True):
+        typer.echo("Skipped; nothing written.", err=True)
         return
     values = {
         _ENV_NAMES["oauth_token"]: token,
@@ -199,8 +201,10 @@ def _write_env_file(token: str, organization_id: str, *, assume_yes: bool) -> No
     }
     backup = EnvFile.upsert(Path(".env"), values)
     if backup is not None:
-        typer.echo(f"Backed up existing .env to {backup}")
-    typer.secho(f"Saved credentials to .env (token {_mask(token)}).", fg=typer.colors.GREEN)
+        typer.echo(f"Backed up existing .env to {backup}", err=True)
+    typer.secho(
+        f"Saved credentials to .env (token {_mask(token)}).", fg=typer.colors.GREEN, err=True
+    )
 
 
 def _mask(token: str) -> str:

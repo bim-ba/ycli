@@ -16,7 +16,7 @@ src/ycli/
         ├── base.py · dependencies.py · typedefs.py · utils.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
             ├── client.py   # uplink SDK — the ONLY place HTTP happens
-            ├── cli.py      # Typer — output via Serializer.serialize
+            ├── cli.py      # Typer — commands return results; output.render prints them
             ├── mcp.py      # FastMCP tools (reads + writes, honest hints)
             ├── models.py   # pydantic (inherit APIModel from ycli.yandex.models)
             └── __init__.py
@@ -25,7 +25,8 @@ src/ycli/
 Notable shared pieces:
 - `src/ycli/settings.py` — `AppConfig` + `Credentials` pydantic-settings models (app-wide config)
 - `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
-- `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI)
+- `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI); `cli/inject.py`
+  fills a command's keyword-only client/config parameters from it
 - `src/ycli/yandex/pagination.py` — `PaginationStrategy` ABC + concrete strategies
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
@@ -33,8 +34,7 @@ Notable shared pieces:
 - `src/ycli/yandex/registry.py` — `SERVICES`, the one list of services; the CLI root, the MCP
   server and `auth status` iterate it (each domain declares its `SERVICE` in `__init__.py`)
 - `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
-  `utils.py` — shared CLI helpers where a domain needs them (tracker: request-body builders,
-  `--field` JSON coercion)
+  `src/ycli/cli/fields.py` — the shared `--field key=value` JSON coercion
 
 ## Invariants (ARCH-1..11)
 
@@ -73,23 +73,15 @@ Notable shared pieces:
   (`test_arch3_mcp_write_tool_bodies_are_typed`), with exactly one documented exception
   (`ARCH3_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`: `entities_set_permissions`,
   whose live wire shape the existing models don't represent).
-- **ARCH-4 — Serialization confinement.** Model→output rendering happens only through
-  `output.Serializer.serialize(...)`; `model_dump_json`, `yaml.safe_dump`, and `json.dumps`
-  appear only in `src/ycli/cli/output.py` (and `json.dumps` in `src/ycli/log.py`, which formats
-  diagnostic log records for stderr, not command output). Models stay plain data (no serialize method); the
-  strategies live only in `output.py`. Every rendered value is a typed pydantic model — there
-  is no raw-dict/`RawMapping` escape hatch.
-  *Carve-outs:* (a) a bare `print(int)` for a scalar `count` result is fine — it is not model
-  output and needs no Serializer wrapping; (b) a **binary download** command writes raw
-  `bytes` to a file/stdout via `ycli.cli.binary.write_output` (attachments, exports, keyset
-  files) — bytes are not a model, so they bypass the Serializer too; (c) the `wiki pages get`
-  command prints a page's **raw YFM markdown** body (`….content`) with a bare `print(` — the
-  body is already a string (not a model to render) and is pinned this way so a piped/demo
-  render stays verbatim. These three files with an allowed bare print
-  (`tracker/issues/cli.py`, `wiki/pages/cli.py`) are the closed allowlist; no other path
-  touches the three serialization calls. *Check:* `model_dump_json` / `yaml.safe_dump` /
-  `json.dumps` only in `output.py`; CLI command bodies render model output via
-  `Serializer.serialize`, and no `cli.py` outside the carve-out allowlist uses a bare `print(`.
+- **ARCH-4 — One output path.** A CLI command returns its result and never prints: the root
+  `result_callback` hands it to `output.render`, the only stdout writer. A pydantic model renders
+  through the `--format` strategy; a `str` or `int` prints verbatim (raw page markdown, a count);
+  `BinaryResult` writes bytes to a file or stdout; `ExitWith` renders, then exits non-zero.
+  `model_dump_json`, `yaml.safe_dump`, and `json.dumps` appear only in `src/ycli/cli/output.py`
+  (and `json.dumps` in `src/ycli/log.py`, which formats diagnostic log records for stderr, not
+  command output). Models stay plain data. *Check:* `test_arch4_commands_return_and_never_print`
+  (AST: no `print(`, no `typer.echo`/`secho` without `err=True`, no `sys.stdout` in any `cli.py`)
+  plus the serialization-call grep.
 - **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
   org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
   from `importlib.metadata`).

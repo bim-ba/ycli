@@ -6,12 +6,14 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.fields.models import (
+    CustomField,
     FieldCategoryCreate,
+    FieldCategoryRecord,
     FieldCategoryUpdate,
     FieldCreate,
+    FieldList,
     FieldUpdate,
     LocalizedName,
     OptionsProviderInput,
@@ -41,29 +43,25 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context) -> None:
+def list_(*, tracker: TrackerClient) -> FieldList:
     """List all global fields of the organisation."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.fields.list(), app_ctx.strategy, app_ctx.console)
+    return tracker.fields.list()
 
 
 @app.command()
 def get(
-    ctx: typer.Context,
     field_id: Annotated[
         str, typer.Argument(metavar="FIELD_ID", help="Identifier of the issue field.")
     ],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> CustomField:
     """Get parameters of one issue field by FIELD_ID."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.fields.get(field_id=field_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.fields.get(field_id=field_id)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     id_: Annotated[str, typer.Option("--id", help="Identifier (key) of the new field.")],
     type_: Annotated[str, typer.Option("--type", help="Field type FQN, e.g. …StringFieldType.")],
     category: Annotated[str, typer.Option(help="Category id (from `fields` categories).")],
@@ -74,7 +72,9 @@ def create(
     readonly: Annotated[bool, typer.Option(help="Whether the field value is read-only.")] = False,
     option: OptionOpt = None,
     options_type: OptionsTypeOpt = "FixedListOptionsProvider",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> CustomField:
     """Create a global field (POST /fields)."""
     body = FieldCreate(
         name=LocalizedName(ru=name_ru or None, en=name_en or None),
@@ -86,13 +86,11 @@ def create(
         description=description or None,
         readonly=readonly or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.fields.create(body), app_ctx.strategy, app_ctx.console)
+    return tracker.fields.create(body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     field_id: Annotated[str, typer.Argument(metavar="FIELD_ID", help="Identifier of the field.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New field name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="New field name in English.")] = "",
@@ -101,44 +99,38 @@ def edit(
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> CustomField:
     """Edit a global field FIELD_ID — rename and/or change options (PATCH /fields/{id}?version=)."""
     named = bool(name_ru or name_en)
     body = FieldUpdate(
         name=LocalizedName(ru=name_ru or None, en=name_en or None) if named else None,
         options_provider=_options_provider(option, options_type),
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.fields.edit(field_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.fields.edit(field_id, body, version=version)
 
 
 @app.command("category-create")
 def category_create(
-    ctx: typer.Context,
     order: Annotated[int, typer.Option(help="Display-order weight of the category.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="Category name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="Category name in English.")] = "",
     description: Annotated[str, typer.Option(help="Description of the category.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> FieldCategoryRecord:
     """Create a field category (POST /fields/categories)."""
     body = FieldCategoryCreate(
         name=LocalizedName(ru=name_ru or None, en=name_en or None),
         order=order,
         description=description or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.fields.category_create(body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.fields.category_create(body)
 
 
 @app.command("category-edit")
 def category_edit(
-    ctx: typer.Context,
     category_id: Annotated[
         str, typer.Argument(metavar="CATEGORY_ID", help="Identifier of the field category.")
     ],
@@ -149,7 +141,9 @@ def category_edit(
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> FieldCategoryRecord:
     """Edit a field category CATEGORY_ID (PATCH /fields/categories/{id}?version=)."""
     named = bool(name_ru or name_en)
     body = FieldCategoryUpdate(
@@ -157,9 +151,4 @@ def category_edit(
         order=order,
         description=description or None,
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.fields.category_edit(category_id, body, version=version),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.fields.category_edit(category_id, body, version=version)

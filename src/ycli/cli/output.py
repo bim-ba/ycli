@@ -1,25 +1,34 @@
-"""CLI output rendering — one ``--format`` switch over pydantic results.
+"""CLI output rendering — commands return values, :func:`render` prints them in one place.
 
-stdout is data: when output is piped/redirected (not a TTY) the default ``auto``
-stays raw JSON so scripts and agents keep a stable machine format; an interactive
-TTY gets a pretty table. Explicit ``--format json|yaml|pretty`` overrides that.
+The root ``result_callback`` hands every command's return value to :func:`render`:
+- a pydantic model goes through the ``--format`` strategy. stdout is data: when output is
+  piped/redirected (not a TTY) the default ``auto`` stays raw JSON so scripts and agents keep a
+  stable machine format; an interactive TTY gets a pretty table;
+- a ``str`` or ``int`` prints verbatim (raw page markdown, a count);
+- :class:`BinaryResult` writes bytes to a file or stdout;
+- :class:`ExitWith` renders its result, then exits with a non-zero status;
+- ``None`` prints nothing.
+
 The MCP server never uses this module.
 """
 
 from __future__ import annotations
 
 import enum
+import sys
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import typer
 import yaml
+from pydantic import BaseModel
+from rich.console import Console
 from rich.table import Table
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-
-    from pydantic import BaseModel
-    from rich.console import Console
 
 
 class OutputFormat(enum.StrEnum):
@@ -152,9 +161,41 @@ class AutoStrategy(SerializationStrategy):
         (PrettyStrategy() if console.is_terminal else JsonStrategy()).render(result, console)
 
 
-class Serializer:
-    """The single serialization dispatch point — applies a chosen strategy to a model."""
+@dataclass(frozen=True)
+class BinaryResult:
+    """Raw bytes (an attachment, an export) for the file at ``path``, or stdout for ``None``/``-``.
 
-    @staticmethod
-    def serialize(model: BaseModel, strategy: SerializationStrategy, console: Console) -> None:
-        strategy.render(model, console)
+    Bytes are not a model, so they are never JSON/YAML-serialized; stdout lets a shell redirect
+    them (``ycli … > file``).
+    """
+
+    data: bytes
+    path: str | None = None
+
+
+@dataclass(frozen=True)
+class ExitWith:
+    """A result to render before exiting with ``exit_code`` (a report that says a check failed)."""
+
+    result: BaseModel
+    exit_code: int = 1
+
+
+def render(result: object, output_format: OutputFormat) -> None:
+    """Print a command's return value to stdout — the only place CLI output is produced."""
+    match result:
+        case None:
+            return
+        case BaseModel():
+            SerializationStrategy.from_format(output_format).render(result, Console())
+        case str() | int():
+            print(result)
+        case BinaryResult(data=data, path=None | "-"):
+            sys.stdout.buffer.write(data)
+        case BinaryResult(data=data, path=str() as path):
+            Path(path).write_bytes(data)
+        case ExitWith(result=inner, exit_code=code):
+            render(inner, output_format)
+            raise typer.Exit(code)
+        case _:
+            raise TypeError(f"a command returned {type(result).__name__}, which has no rendering")

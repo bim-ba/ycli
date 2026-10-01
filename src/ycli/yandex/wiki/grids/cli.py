@@ -13,22 +13,28 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
 from ycli.cli.progress import wait_for
+from ycli.yandex.models import Ack
+from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.grids.models import (
     CellsUpdate,
+    CellsUpdateResult,
     ColumnsAdd,
     ColumnsMove,
     ColumnsRemove,
+    Grid,
     GridClone,
+    GridCloneOperation,
     GridCreate,
     GridUpdate,
     PageIdentity,
+    RevisionResult,
     RowsAdd,
+    RowsAddResult,
     RowsMove,
     RowsRemove,
 )
+from ycli.yandex.wiki.operations.models import GridCloneOperationStatus
 
 app = typer.Typer(name="grids", help="Wiki dynamic tables (grids).", no_args_is_help=True)
 rows_app = typer.Typer(name="rows", help="Grid rows.", no_args_is_help=True)
@@ -57,7 +63,6 @@ PositionOpt = Annotated[int | None, typer.Option("--position", help="Zero-based 
 
 @app.command()
 def get(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     fields: Annotated[
         str, typer.Option(help="Extra blocks, e.g. attributes,user_permissions.")
@@ -71,45 +76,41 @@ def get(
     only_rows: Annotated[str, typer.Option("--only-rows", help="Only these row ids (CSV).")] = "",
     revision: Annotated[str, typer.Option("--revision", help="Load a historical revision.")] = "",
     sort: Annotated[str, typer.Option(help="Row sort, e.g. slug,-slug2.")] = "",
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> Grid:
     """Fetch a grid by GRID_ID (GET /grids/{id}); read its revision to drive later writes."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.get(
-            grid_id,
-            fields=fields or None,
-            row_filter=filter_ or None,
-            only_cols=only_cols or None,
-            only_rows=only_rows or None,
-            revision=revision or None,
-            sort=sort or None,
-        ),
-        app_ctx.strategy,
-        app_ctx.console,
+    return wiki.grids.get(
+        grid_id,
+        fields=fields or None,
+        row_filter=filter_ or None,
+        only_cols=only_cols or None,
+        only_rows=only_rows or None,
+        revision=revision or None,
+        sort=sort or None,
     )
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     title: Annotated[str, typer.Option(help="Title of the new grid.")],
     page_slug: Annotated[
         str, typer.Option("--page-slug", help="Target page slug, e.g. data/x.")
     ] = "",
     page_id: Annotated[int, typer.Option("--page-id", help="Target page numeric id.")] = 0,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> Grid:
     """Create a grid on a page (POST /grids). Pass one of --page-slug / --page-id."""
     if not page_id and not page_slug:
         raise typer.BadParameter("provide --page-slug or --page-id")
     page = PageIdentity(id=page_id) if page_id else PageIdentity(slug=page_slug)
     body = GridCreate(title=title, page=page).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.wiki.grids.create(body=body), app_ctx.strategy, app_ctx.console)
+    return wiki.grids.create(body=body)
 
 
 @app.command()
 def update(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     title: Annotated[str, typer.Option(help="New grid title.")] = "",
@@ -121,7 +122,9 @@ def update(
             '\'[{"<column_slug>": "asc"|"desc"}]\', e.g. \'[{"priority": "desc"}]\'.',
         ),
     ] = "",
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RevisionResult:
     """Rename / re-sort a grid (POST /grids/{id}; POST not PATCH).
 
     ``--default-sort`` takes the API's write shape (column slug → direction mappings), not the
@@ -132,22 +135,17 @@ def update(
         title=title or None,
         default_sort=json.loads(default_sort) if default_sort else None,
     ).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.update(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.update(grid_id, body=body)
 
 
 @app.command()
-def delete(ctx: typer.Context, grid_id: GridIdArg) -> None:
+def delete(grid_id: GridIdArg, *, wiki: WikiClient) -> Ack:
     """Delete a grid (DELETE /grids/{id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.wiki.grids.delete(grid_id), app_ctx.strategy, app_ctx.console)
+    return wiki.grids.delete(grid_id)
 
 
 @app.command()
 def clone(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     target: Annotated[
         str, typer.Option("--target", help="Destination page slug (created if absent).")
@@ -159,29 +157,27 @@ def clone(
     wait: Annotated[
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> GridCloneOperation | GridCloneOperationStatus:
     """Copy a grid onto another page (POST /grids/{id}/clone; async). --wait polls to completion."""
     body = GridClone(target=target, title=title or None, with_data=with_data).model_dump(
         exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    operation = app_ctx.wiki.grids.clone(grid_id, body=body)
+    operation = wiki.grids.clone(grid_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
         status = wait_for(
-            lambda: app_ctx.wiki.operations.gridclone_get(task_id),
+            lambda: wiki.operations.gridclone_get(task_id),
             lambda state: state.is_terminal,
             message="Waiting for grid clone…",
-            console=app_ctx.stderr_console,
         )
-        Serializer.serialize(status, app_ctx.strategy, app_ctx.console)
-    else:
-        Serializer.serialize(operation, app_ctx.strategy, app_ctx.console)
+        return status
+    return operation
 
 
 @rows_app.command("add")
 def rows_add(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     rows: Annotated[
@@ -191,7 +187,9 @@ def rows_add(
     after_row_id: Annotated[
         str, typer.Option("--after-row-id", help="Insert after this row id.")
     ] = "",
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RowsAddResult:
     """Insert rows into a grid (POST /grids/{id}/rows)."""
     body = RowsAdd(
         revision=revision,
@@ -199,30 +197,24 @@ def rows_add(
         position=position,
         after_row_id=after_row_id or None,
     ).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.add_rows(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.add_rows(grid_id, body=body)
 
 
 @rows_app.command("remove")
 def rows_remove(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     row_id: Annotated[list[str], typer.Option("--row-id", help="Row id to delete (repeatable).")],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RevisionResult:
     """Delete rows from a grid by id (DELETE /grids/{id}/rows)."""
     body = RowsRemove(revision=revision, row_ids=row_id).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.remove_rows(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.remove_rows(grid_id, body=body)
 
 
 @rows_app.command("move")
 def rows_move(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     row_id: Annotated[str, typer.Option("--row-id", help="Id of the first row to move.")] = "",
@@ -233,7 +225,9 @@ def rows_move(
     rows_count: Annotated[
         int | None, typer.Option("--rows-count", help="How many consecutive rows to move.")
     ] = None,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RevisionResult:
     """Reorder rows in a grid (POST /grids/{id}/rows/move)."""
     body = RowsMove(
         revision=revision,
@@ -242,15 +236,11 @@ def rows_move(
         position=position,
         rows_count=rows_count,
     ).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.move_rows(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.move_rows(grid_id, body=body)
 
 
 @columns_app.command("add")
 def columns_add(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     columns: Annotated[
@@ -262,7 +252,9 @@ def columns_add(
         ),
     ],
     position: PositionOpt = None,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RevisionResult:
     """Add columns to a grid (POST /grids/{id}/columns).
 
     The API requires a ``slug`` on every column; a column without one gets a slug derived from
@@ -271,32 +263,26 @@ def columns_add(
     body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position).model_dump(
         exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.add_columns(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.add_columns(grid_id, body=body)
 
 
 @columns_app.command("remove")
 def columns_remove(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     column_slug: Annotated[
         list[str], typer.Option("--column-slug", help="Column slug to delete (repeatable).")
     ],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RevisionResult:
     """Delete columns from a grid by slug (DELETE /grids/{id}/columns)."""
     body = ColumnsRemove(revision=revision, column_slugs=column_slug).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.remove_columns(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.remove_columns(grid_id, body=body)
 
 
 @columns_app.command("move")
 def columns_move(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     column_slug: Annotated[
@@ -306,7 +292,9 @@ def columns_move(
     columns_count: Annotated[
         int | None, typer.Option("--columns-count", help="How many consecutive columns to move.")
     ] = None,
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> RevisionResult:
     """Reorder columns in a grid (POST /grids/{id}/columns/move)."""
     body = ColumnsMove(
         revision=revision,
@@ -314,15 +302,11 @@ def columns_move(
         position=position,
         columns_count=columns_count,
     ).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.move_columns(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.move_columns(grid_id, body=body)
 
 
 @cells_app.command("update")
 def cells_update(
-    ctx: typer.Context,
     grid_id: GridIdArg,
     revision: RevisionOpt,
     cells: Annotated[
@@ -332,10 +316,9 @@ def cells_update(
             help='Cells as JSON, e.g. \'[{"row_id":1,"column_slug":"name","value":"x"}]\'.',
         ),
     ],
-) -> None:
+    *,
+    wiki: WikiClient,
+) -> CellsUpdateResult:
     """Set individual cell values in a grid (POST /grids/{id}/cells)."""
     body = CellsUpdate(revision=revision, cells=json.loads(cells)).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.wiki.grids.update_cells(grid_id, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return wiki.grids.update_cells(grid_id, body=body)

@@ -1,76 +1,38 @@
-"""CLI composition root — reads the env once and hands raw primitives to the clients."""
+"""CLI composition root — reads the environment once per invocation and builds what commands need.
+
+Stored on ``ctx.obj`` by the root callback. Everything is lazy, so ``--help`` and commands that
+make no API call never need credentials.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import cast
 
-from rich.console import Console
-
-if TYPE_CHECKING:
-    import typer
-
-from ycli.cli.output import OutputFormat, SerializationStrategy
 from ycli.settings import AppConfig, Credentials
+from ycli.yandex.base import DomainClient
 from ycli.yandex.factory import ClientFactory
-from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.wiki.client import WikiClient
 
 
 @dataclass
 class AppContext:
-    """Stored on ``ctx.obj`` by the root callback; lazy so ``--help`` needs no credentials."""
+    """Resolves a command's dependencies: the app config and any SDK domain client."""
 
-    output_format: OutputFormat
+    config: AppConfig = field(default_factory=AppConfig)
     _credentials: Credentials | None = None
-    _config: AppConfig | None = None
-    _console: Console | None = None
-    _stderr_console: Console | None = None
-    _clients: dict[str, object] = field(default_factory=dict)
+    _clients: dict[type, DomainClient] = field(default_factory=dict)
 
-    @classmethod
-    def from_typer_context(cls, ctx: typer.Context) -> AppContext:
-        return ctx.obj
+    @staticmethod
+    def provides(kind: object) -> bool:
+        """Whether a parameter annotated ``kind`` is filled by :meth:`resolve`."""
+        return kind is AppConfig or (isinstance(kind, type) and issubclass(kind, DomainClient))
 
-    @property
-    def console(self) -> Console:
-        if self._console is None:
-            self._console = Console()
-        return self._console
-
-    @property
-    def stderr_console(self) -> Console:
-        """The stderr console for progress/guidance UI — data never touches this stream."""
-        if self._stderr_console is None:
-            self._stderr_console = Console(stderr=True)
-        return self._stderr_console
-
-    @property
-    def strategy(self) -> SerializationStrategy:
-        return SerializationStrategy.from_format(self.output_format)
-
-    @property
-    def config(self) -> AppConfig:
-        """Process-wide app config — built once and cached on first access."""
-        if self._config is None:
-            self._config = AppConfig()
-        return self._config
-
-    def _client(self, name: str, client_cls: type) -> object:
-        if name not in self._clients:
-            self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]  # raises if env unset
-            self._clients[name] = ClientFactory.build(client_cls, self._credentials, self.config)
-        return self._clients[name]
-
-    @property
-    def tracker(self) -> TrackerClient:
-        return self._client("tracker", TrackerClient)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
-
-    @property
-    def wiki(self) -> WikiClient:
-        return self._client("wiki", WikiClient)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
-
-    @property
-    def forms(self) -> FormsClient:
-        return self._client("forms", FormsClient)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
+    def resolve[T](self, kind: type[T]) -> T:
+        """The ``kind`` instance for this invocation: the config, or a client built once."""
+        if kind is AppConfig:
+            return cast("T", self.config)
+        if kind not in self._clients:
+            # Raises a ValidationError naming the missing variables when credentials are unset.
+            self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]
+            self._clients[kind] = ClientFactory.build(kind, self._credentials, self.config)  # ty: ignore[invalid-assignment]
+        return cast("T", self._clients[kind])

@@ -7,14 +7,14 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
-from ycli.cli.typedefs import AllOption, LimitOption  # noqa: TC001
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
-from ycli.yandex.tracker.comments.models import CommentCreate, CommentUpdate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    KeyArg,
 )
 
 app = typer.Typer(name="comments", help="Tracker issue comments.", no_args_is_help=True)
@@ -43,71 +43,57 @@ class Reaction(enum.StrEnum):
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     key: KeyArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
-) -> None:
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> CommentList:
     """List all comments on issue KEY (auto-paginated; --all for everything)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
-    Serializer.serialize(
-        app_ctx.tracker.comments.list(key, limit=cap), app_ctx.strategy, app_ctx.console
-    )
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return tracker.comments.list(key, limit=cap)
 
 
 @app.command()
 def add(
-    ctx: typer.Context,
     key: KeyArg,
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Comment:
     """Add a comment to issue KEY."""
     body = CommentCreate(text=text).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.comments.add(key, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.comments.add(key, body=body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     key: KeyArg,
     comment_id: CommentIdArg,
     text: Annotated[str, typer.Option(help="New comment text (YFM markdown supported).")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Comment:
     """Edit comment COMMENT_ID on issue KEY."""
     body = CommentUpdate(text=text).model_dump(exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.comments.edit(key, comment_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.comments.edit(key, comment_id, body=body)
 
 
 @app.command()
-def delete(ctx: typer.Context, key: KeyArg, comment_id: CommentIdArg) -> None:
+def delete(key: KeyArg, comment_id: CommentIdArg, *, tracker: TrackerClient) -> Ack:
     """Delete comment COMMENT_ID from issue KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.comments.delete(key, comment_id)
-    Serializer.serialize(
-        Ack.deleted("comment", comment_id, on=key), app_ctx.strategy, app_ctx.console
-    )
+    tracker.comments.delete(key, comment_id)
+    return Ack.deleted("comment", comment_id, on=key)
 
 
 @app.command()
 def react(
-    ctx: typer.Context,
     key: KeyArg,
     comment_id: CommentIdArg,
     name: Annotated[Reaction, typer.Argument(help="Reaction name, e.g. LIKE, HEART, ROCKET.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Comment:
     """Add reaction NAME to comment COMMENT_ID on issue KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.comments.react(key, comment_id, name.value),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.comments.react(key, comment_id, name.value)

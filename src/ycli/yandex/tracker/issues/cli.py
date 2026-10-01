@@ -6,14 +6,13 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.cli.fields import parse_fields
 from ycli.yandex.models import Ack
-from ycli.yandex.tracker.issues.models import count_body
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.issues.models import Issue, IssueList, count_body
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    KeyArg,
 )
-from ycli.yandex.tracker.utils import parse_fields
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 
@@ -24,21 +23,21 @@ FieldOpt = Annotated[
 
 
 @app.command()
-def get(ctx: typer.Context, key: KeyArg) -> None:
+def get(key: KeyArg, *, tracker: TrackerClient) -> Issue:
     """Print a single issue (full model) for KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.get(key), app_ctx.strategy, app_ctx.console)
+    return tracker.issues.get(key)
 
 
 @app.command("list")
 def list_(
-    ctx: typer.Context,
     queue: Annotated[str, typer.Option(help="Queue key.")] = "",
     status: Annotated[str, typer.Option(help="Status key.")] = "",
     assignee: Annotated[str, typer.Option(help="Assignee login.")] = "",
     epic: Annotated[str, typer.Option(help="Epic key.")] = "",
     type_: Annotated[str, typer.Option("--type", help="Issue type key.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> IssueList:
     """List issues matching the supplied filters (omitted filters dropped)."""
     flt = {
         k: v
@@ -51,40 +50,35 @@ def list_(
         }.items()
         if v
     }
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.issues.search(body={"filter": flt}), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.issues.search(body={"filter": flt})
 
 
 @app.command()
-def search(ctx: typer.Context, query: Annotated[str, typer.Argument(help="TQL query.")]) -> None:
+def search(
+    query: Annotated[str, typer.Argument(help="TQL query.")], *, tracker: TrackerClient
+) -> IssueList:
     """Search issues by a TQL query string."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.issues.search(body={"query": query}), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.issues.search(body={"query": query})
 
 
 @app.command()
 def count(
-    ctx: typer.Context,
     query: Annotated[str, typer.Option(help="TQL query (mutually exclusive with filters).")] = "",
     queue: Annotated[str, typer.Option(help="Queue key.")] = "",
     status: Annotated[str, typer.Option(help="Status key.")] = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> int:
     """Count issues matching a TQL query or filters (bare integer).
 
     With no ``--query`` and no filters this sends an empty filter — the API then counts
     EVERY issue in the org. Pass ``--queue``/``--status`` (or ``--query``) to narrow.
     """
-    app_ctx = AppContext.from_typer_context(ctx)
-    print(app_ctx.tracker.issues.count(body=count_body(query=query, queue=queue, status=status)))
+    return tracker.issues.count(body=count_body(query=query, queue=queue, status=status))
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     queue: Annotated[str, typer.Option(help="Target queue key.")],
     summary: Annotated[str, typer.Option(help="Issue summary (title).")],
     type_: Annotated[str, typer.Option("--type", help="Issue type key, e.g. task.")] = "",
@@ -93,7 +87,9 @@ def create(
     description: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')] = "",
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Issue:
     """Create an issue (POST /issues/). type/priority wrap to {"key": …}; queue/parent stay bare."""
     body: dict[str, Any] = {"queue": queue, "summary": summary}
     if type_:
@@ -107,15 +103,11 @@ def create(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.issues.create(body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.issues.create(body=body)
 
 
 @app.command()
 def update(
-    ctx: typer.Context,
     key: KeyArg,
     summary: Annotated[str, typer.Option(help="New summary.")] = "",
     type_: Annotated[str, typer.Option("--type", help="New issue type key.")] = "",
@@ -126,7 +118,9 @@ def update(
     ] = "",
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Issue:
     """Update issue KEY (PATCH /issues/{key}) — only supplied fields are sent."""
     body: dict[str, Any] = {}
     if summary:
@@ -142,45 +136,42 @@ def update(
     if tag:
         body["tags"] = tag
     body |= parse_fields(field)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.issues.update(key, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.issues.update(key, body=body)
 
 
 @app.command()
 def move(
-    ctx: typer.Context,
     key: KeyArg,
     queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. NEW.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Issue:
     """Move issue KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.move(key, queue), app_ctx.strategy, app_ctx.console)
+    return tracker.issues.move(key, queue)
 
 
 @app.command()
 def suggest(
-    ctx: typer.Context,
     text: Annotated[str, typer.Argument(metavar="INPUT", help="Text fragment to match in titles.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> IssueList:
     """Suggest issues whose summary contains INPUT (GET /issues/_suggest?input=INPUT)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.issues.suggest(text), app_ctx.strategy, app_ctx.console)
+    return tracker.issues.suggest(text)
 
 
 @app.command("scroll-clear")
 def scroll_clear(
-    ctx: typer.Context,
     pair: Annotated[
         list[str] | None,
         typer.Option("--pair", help="scrollId=scrollToken pair to release (repeatable)."),
     ] = None,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Ack:
     """Release search-scroll resources (POST /system/search/scroll/_clear).
 
     Pass each ``--pair scrollId=scrollToken`` from a scrolled ``issues search``.
     """
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.issues.scroll_clear(parse_fields(pair))
-    Serializer.serialize(Ack.cleared("search scroll resources"), app_ctx.strategy, app_ctx.console)
+    tracker.issues.scroll_clear(parse_fields(pair))
+    return Ack.cleared("search scroll resources")

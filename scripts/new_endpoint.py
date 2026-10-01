@@ -53,13 +53,13 @@ class {cls}Client({domain_cls}Resource):
         """GET one {resource} by id."""
 '''
 
-CLI = '''"""{domain} /{resource} Typer commands."""
+CLI = '''"""{domain} /{resource} Typer commands — each returns its result; the root prints it."""
 from __future__ import annotations
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
+from ycli.yandex.{domain}.client import {domain_cls}Client
+from ycli.yandex.{domain}.{resource}.models import {cls}
 
 app = typer.Typer(name="{resource}", help="{domain} /{resource}.", no_args_is_help=True)
 
@@ -70,12 +70,9 @@ def _group() -> None:
 
 
 @app.command()
-def get(ctx: typer.Context, item_id: str) -> None:
+def get(item_id: str, *, {domain}: {domain_cls}Client) -> {cls}:
     """Fetch one {resource} by id."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.{domain}.{resource}.get(item_id), app_ctx.strategy, app_ctx.console
-    )
+    return {domain}.{resource}.get(item_id)
 '''
 
 MCP = '''"""{domain} /{resource} FastMCP tools (honest annotations, ARCH-3).

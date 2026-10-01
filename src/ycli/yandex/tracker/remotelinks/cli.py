@@ -6,12 +6,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
 from ycli.yandex.models import Ack
-from ycli.yandex.tracker.remotelinks.models import RemoteLinkCreate
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate, RemoteLinkList
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    KeyArg,
 )
 
 app = typer.Typer(
@@ -25,15 +24,13 @@ def _group() -> None:
 
 
 @app.command("list")
-def list_(ctx: typer.Context, key: KeyArg) -> None:
+def list_(key: KeyArg, *, tracker: TrackerClient) -> RemoteLinkList:
     """List external links on issue KEY (GET /issues/{key}/remotelinks)."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.remotelinks.list(key), app_ctx.strategy, app_ctx.console)
+    return tracker.remotelinks.list(key)
 
 
 @app.command()
 def create(
-    ctx: typer.Context,
     key: KeyArg,
     object_key: Annotated[
         str, typer.Option("--key", help="Key of the object in the external app.")
@@ -44,30 +41,23 @@ def create(
         bool,
         typer.Option("--backlink/--no-backlink", help="Also create the mirror link in the app."),
     ] = False,
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> RemoteLink:
     """Add an external link to issue KEY (POST /issues/{key}/remotelinks)."""
     body = RemoteLinkCreate(relationship=relationship, key=object_key, origin=origin).model_dump(
         exclude_none=True
     )
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.remotelinks.create(
-            key, body=body, backlink="true" if backlink else "false"
-        ),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.remotelinks.create(key, body=body, backlink="true" if backlink else "false")
 
 
 @app.command()
 def delete(
-    ctx: typer.Context,
     key: KeyArg,
     link_id: Annotated[str, typer.Argument(metavar="LINK_ID", help="Remote-link id to delete.")],
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Ack:
     """Delete external link LINK_ID from issue KEY (DELETE /issues/{key}/remotelinks/{id})."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    app_ctx.tracker.remotelinks.delete(key, link_id)
-    Serializer.serialize(
-        Ack.deleted("remote link", link_id, on=key), app_ctx.strategy, app_ctx.console
-    )
+    tracker.remotelinks.delete(key, link_id)
+    return Ack.deleted("remote link", link_id, on=key)

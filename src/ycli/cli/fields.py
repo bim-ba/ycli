@@ -1,4 +1,4 @@
-"""Tracker CLI helpers — the ``--field key=value`` JSON coercer."""
+"""Shared CLI helper — the ``--field key=value`` JSON coercer (the gh ``-F`` model)."""
 
 from __future__ import annotations
 

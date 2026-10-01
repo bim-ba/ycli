@@ -156,7 +156,7 @@ def _surface_gaps(sdk_ops: set[str], cli_ops: set[str], mcp_ops: set[str]) -> se
 # surfaces naming a command/tool differently from the op. Regenerate and edit this map in the
 # same PR when a genuine asymmetry is added or resolved.
 ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
-    # Binary download — raw bytes go to a file/stdout via ycli.cli.binary.write_output; bytes
+    # Binary download — the CLI returns the raw bytes as a BinaryResult (file or stdout); bytes
     # are not a model and can't round-trip an MCP tool result, so these stay CLI-only.
     "tracker.attachments.download": "binary download — CLI-only (bytes)",
     "tracker.attachments.download_thumbnail": "binary download — CLI-only (bytes)",
@@ -595,7 +595,7 @@ def test_arch3_typed_body_guard_bites():
 
 
 def test_arch4_serialization_confined_to_output():
-    """Rendering via Serializer; model_dump_json/yaml.safe_dump/json.dumps only in output.py."""
+    """Rendering lives in output.py; model_dump_json/yaml.safe_dump/json.dumps nowhere else."""
     offenders = []
     # log.py formats diagnostic log records for stderr (its JSON formatter), not model output.
     allowed = {SRC / "cli" / "output.py", SRC / "log.py"}
@@ -608,48 +608,69 @@ def test_arch4_serialization_confined_to_output():
     assert not offenders, f"serialization must live only in output.py; found in {offenders}"
 
 
-# ARCH-4 carve-out (D1): the only two CLI files allowed a bare ``print(`` — the scalar
-# ``count`` result (carve-out a) and the wiki raw-markdown dump (carve-out c). Any other bare
-# print in a cli.py bypasses ``Serializer.serialize`` and trips the guard below.
-_ARCH4_BARE_PRINT_ALLOWLIST = frozenset(
-    {
-        Path("yandex/tracker/issues/cli.py"),
-        Path("yandex/wiki/pages/cli.py"),
-    }
-)
-# The builtin ``print`` as a call — not an attribute access (``console.print(``, Rich) and not
-# the tail of a longer name (``pprint(``): preceded by neither ``.`` nor a word character.
-_BARE_PRINT_RE = re.compile(r"(?<![.\w])print\s*\(")
-
-
-def test_arch4_no_bare_print_in_cli():
-    """A CLI command renders model output through the Serializer, never a bare ``print(``.
-
-    ARCH-4 confines rendering to ``Serializer.serialize``; a bare ``print(model)`` slips a
-    surface past it. ``console.print(`` (Rich status text) and ``pprint(`` are not the builtin
-    and are fine. The two intentional bare prints — the scalar ``count`` (carve-out a) and the
-    wiki raw-markdown dump (carve-out c) — are allowlisted.
-    """
-    offenders = []
-    for cli_py in SRC.rglob("cli.py"):
-        rel = cli_py.relative_to(SRC)
-        if rel in _ARCH4_BARE_PRINT_ALLOWLIST:
-            continue
-        if _BARE_PRINT_RE.search(cli_py.read_text(encoding="utf-8")):
-            offenders.append(str(rel))
-    assert not offenders, (
-        f"bare print() bypasses Serializer.serialize in CLI files: {offenders} — render via "
-        "Serializer, or add a documented ARCH-4 carve-out to _ARCH4_BARE_PRINT_ALLOWLIST"
+def _to_stderr(call: ast.Call) -> bool:
+    """``err=True`` (typer) or ``stderr=True`` (rich ``Console``) among the call's keywords."""
+    return any(
+        k.arg in {"err", "stderr"} and isinstance(k.value, ast.Constant) and k.value.value is True
+        for k in call.keywords
     )
 
 
-def test_arch4_bare_print_guard_bites():
-    """Prove-it: the guard flags the builtin ``print`` but not ``console.print`` / ``pprint``."""
-    assert _BARE_PRINT_RE.search("    print(model)")
-    assert _BARE_PRINT_RE.search("print(app_ctx.tracker.issues.count(body=body))")
-    assert not _BARE_PRINT_RE.search("    console.print(f'Opening {url}')")
-    assert not _BARE_PRINT_RE.search("    pprint(model)")
-    assert not _BARE_PRINT_RE.search("    fingerprint(value)")
+def _stdout_writes(source: str) -> list[str]:
+    """Places in ``source`` that write to stdout: ``print``, ``rich.print``, ``typer.echo`` /
+    ``secho`` and ``Console(...)`` without a stderr flag, ``os.write``, and any use of the name
+    ``stdout``. Messages to stderr are UI, not output."""
+    found = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Call):
+            func = node.func
+            name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
+            owner = (
+                func.value.id
+                if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name)
+                else None
+            )
+            if name == "print" and (isinstance(func, ast.Name) or owner == "rich"):
+                found.append(f"print (line {node.lineno})")
+            elif name in {"echo", "secho", "Console"} and not _to_stderr(node):
+                found.append(f"{name} (line {node.lineno})")
+            elif name == "write" and owner == "os":
+                found.append(f"os.write (line {node.lineno})")
+        elif (
+            (isinstance(node, ast.Attribute) and node.attr == "stdout")
+            or (isinstance(node, ast.Name) and node.id == "stdout")
+            or (isinstance(node, ast.ImportFrom) and any(a.name == "stdout" for a in node.names))
+        ):
+            found.append(f"stdout (line {node.lineno})")
+    return found
+
+
+def test_arch4_commands_return_and_never_print():
+    """A CLI command returns its result; only ``output.render`` writes to stdout."""
+    offenders = {
+        str(cli_py.relative_to(SRC)): writes
+        for cli_py in SRC.rglob("cli.py")
+        if (writes := _stdout_writes(cli_py.read_text(encoding="utf-8")))
+    }
+    assert not offenders, f"return the value instead of printing it: {offenders}"
+
+
+def test_arch4_stdout_guard_bites():
+    """Prove-it: the guard flags each way to reach stdout and lets stderr messages through."""
+    flagged = {
+        "print(model)": "print (line 1)",
+        "rich.print(model)": "print (line 1)",
+        "typer.echo(name)": "echo (line 1)",
+        "Console().print(model)": "Console (line 1)",
+        "sys.stdout.buffer.write(data)": "stdout (line 1)",
+        "from sys import stdout": "stdout (line 1)",
+        "os.write(1, data)": "os.write (line 1)",
+    }
+    for source, finding in flagged.items():
+        assert finding in _stdout_writes(source), source
+    assert _stdout_writes("typer.echo('note', err=True)") == []
+    assert _stdout_writes("Console(stderr=True).print('Opening')") == []
+    assert _stdout_writes("console.print('Opening')\npprint(x)") == []
 
 
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")

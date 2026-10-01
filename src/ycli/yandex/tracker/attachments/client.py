@@ -43,7 +43,7 @@ class AttachmentsClient(TrackerResource):
         """Download an attachment's raw bytes (raises on non-2xx via the transport hook).
 
         Binary output is CLI/SDK-only — never an MCP payload. In the CLI this feeds
-        ``ycli.cli.binary.write_output`` (a file or stdout); the SDK returns the ``bytes``.
+        a ``BinaryResult`` (a file or stdout); the SDK returns the ``bytes``.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP

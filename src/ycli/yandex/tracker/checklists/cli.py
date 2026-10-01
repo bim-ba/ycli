@@ -6,15 +6,16 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.context import AppContext
-from ycli.cli.output import Serializer
 from ycli.yandex.tracker.checklists.models import (
+    Checklist,
     ChecklistDeadlineInput,
     ChecklistItemCreate,
+    ChecklistItemList,
     ChecklistItemUpdate,
 )
+from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
-    KeyArg,  # noqa: TC001  # typer evaluates Annotated args at runtime via get_type_hints()
+    KeyArg,
 )
 
 app = typer.Typer(name="checklists", help="Tracker issue checklists.", no_args_is_help=True)
@@ -32,21 +33,21 @@ def _group() -> None:
 
 
 @app.command()
-def get(ctx: typer.Context, key: KeyArg) -> None:
+def get(key: KeyArg, *, tracker: TrackerClient) -> ChecklistItemList:
     """List the checklist items on issue KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.checklists.get(key), app_ctx.strategy, app_ctx.console)
+    return tracker.checklists.get(key)
 
 
 @app.command()
 def add(
-    ctx: typer.Context,
     key: KeyArg,
     text: TextOpt,
     checked: CheckedOpt = None,
     assignee: AssigneeOpt = "",
     deadline: DeadlineOpt = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Checklist:
     """Add a checklist item to issue KEY (creates the checklist if absent)."""
     body = ChecklistItemCreate(
         text=text,
@@ -54,22 +55,20 @@ def add(
         assignee=assignee or None,
         deadline=ChecklistDeadlineInput(date=deadline) if deadline else None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.checklists.create(key, body=body), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.checklists.create(key, body=body)
 
 
 @app.command()
 def edit(
-    ctx: typer.Context,
     key: KeyArg,
     item_id: ItemIdArg,
     text: TextOpt = "",
     checked: CheckedOpt = None,
     assignee: AssigneeOpt = "",
     deadline: DeadlineOpt = "",
-) -> None:
+    *,
+    tracker: TrackerClient,
+) -> Checklist:
     """Edit checklist item ITEM_ID on issue KEY — only supplied fields are sent."""
     body = ChecklistItemUpdate(
         text=text or None,
@@ -77,25 +76,16 @@ def edit(
         assignee=assignee or None,
         deadline=ChecklistDeadlineInput(date=deadline) if deadline else None,
     ).model_dump(by_alias=True, exclude_none=True)
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.checklists.edit(key, item_id, body=body),
-        app_ctx.strategy,
-        app_ctx.console,
-    )
+    return tracker.checklists.edit(key, item_id, body=body)
 
 
 @app.command()
-def delete(ctx: typer.Context, key: KeyArg, item_id: ItemIdArg) -> None:
+def delete(key: KeyArg, item_id: ItemIdArg, *, tracker: TrackerClient) -> Checklist:
     """Delete checklist item ITEM_ID from issue KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(
-        app_ctx.tracker.checklists.delete(key, item_id), app_ctx.strategy, app_ctx.console
-    )
+    return tracker.checklists.delete(key, item_id)
 
 
 @app.command()
-def clear(ctx: typer.Context, key: KeyArg) -> None:
+def clear(key: KeyArg, *, tracker: TrackerClient) -> Checklist:
     """Delete the entire checklist from issue KEY."""
-    app_ctx = AppContext.from_typer_context(ctx)
-    Serializer.serialize(app_ctx.tracker.checklists.clear(key), app_ctx.strategy, app_ctx.console)
+    return tracker.checklists.clear(key)
