@@ -53,29 +53,29 @@ def descendants(
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> PageRefList:
-    """All descendant refs under SLUG, auto-paginated. Capped at YCLI_MAX_ITEMS (default 500)
+    """All descendant refs under SLUG, auto-paginated. Capped at 500 items by default
     unless ``limit`` is given; narrow by SLUG for large trees."""
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.pages.descendants(slug=slug, limit=cap)
 
 
 @mcp.tool(name="pages_grids_list", annotations={**RO, "title": "List Wiki page grids"}, tags=TAGS)
 def grids_list(
     page_id: Annotated[int, Field(description="Numeric page id whose grids to list.")],
-    limit: Annotated[int, Field(description="Max grids (0 = YCLI_MAX_ITEMS cap).")] = 0,
+    limit: Annotated[int, Field(description="Max grids (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> GridRefList:
     """Dynamic tables (grids) attached to a page id, auto-paginated (drains ``next_cursor``).
 
-    Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at YCLI_MAX_ITEMS
-    (default 500) unless ``limit`` is given. Reads a page's numeric id — pair with
+    Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at 500 items by default
+    unless ``limit`` is given. Reads a page's numeric id — pair with
     ``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
 
     Example:
         >>> grids_list(page_id=12345, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.pages.grids(page_id=page_id, limit=cap)
 
 
@@ -111,20 +111,20 @@ def by_id_get(
 )
 def by_id_descendants(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
-    limit: Annotated[int, Field(description="Max refs (0 = YCLI_MAX_ITEMS cap).")] = 0,
+    limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> PageRefList:
     """All descendant page refs under a numeric page id, auto-paginated.
 
-    The id-based twin of ``pages_descendants``. Capped at YCLI_MAX_ITEMS (default 500)
+    The id-based twin of ``pages_descendants``. Capped at 500 items by default
     unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
     ``slug``.
 
     Example:
         >>> by_id_descendants(page_id=12345, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.pages.descendants_by_id(page_id=page_id, limit=cap)
 
 

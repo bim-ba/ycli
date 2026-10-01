@@ -114,19 +114,19 @@ def search(
 def events_list(
     entity_type: TypeArg,
     entity_id: IdArg,
-    limit: Annotated[int, Field(description="Max events (0 = YCLI_MAX_ITEMS cap).")] = 0,
+    limit: Annotated[int, Field(description="Max events (0 = configured cap).")] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> EntityEventList:
     """An entity's event history (created/updated/commented/…), auto-paginated.
 
     Each event carries an author, a timestamp, a display title and the individual field changes.
-    Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given.
+    Capped at 500 items by default unless ``limit`` is given.
 
     Example:
         >>> entities_events_list("project", "655f", limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.entities.history(entity_type, entity_id, limit=cap)
 
 
@@ -266,16 +266,16 @@ def bulk_status_get(
 def comments_relative_list(
     entity_type: TypeArg,
     entity_id: IdArg,
-    limit: Annotated[int, Field(description="Max comments (0 = YCLI_MAX_ITEMS cap).")] = 0,
+    limit: Annotated[int, Field(description="Max comments (0 = configured cap).")] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> CommentList:
     """An entity's comments via the cursor-paginated ``…/comments/_relative`` endpoint.
 
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
-    pages up to ``limit`` (default YCLI_MAX_ITEMS).
+    pages up to ``limit`` (500 by default).
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.entities.comments_relative(entity_type, entity_id, limit=cap)
 
 

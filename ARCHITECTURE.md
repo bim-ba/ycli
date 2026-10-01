@@ -109,8 +109,8 @@ Notable shared pieces:
   grep — no `@uplink.timeout` anywhere. **Carve-out:** the public SDK constructor signature
   defaults (`timeout_seconds: int = 30`, `retries: int = 3`) are parameter defaults, not
   shadowing — they apply only when the caller passes nothing, and `AppContext` always passes the
-  configured value. These two literals must stay equal to `AppConfig`'s defaults; a test asserts
-  `inspect.signature(TrackerClient).parameters` defaults == `AppConfig` field defaults so the
+  configured value. These two literals must stay equal to `HTTPConfig`'s defaults; a test asserts
+  `inspect.signature(TrackerClient).parameters` defaults == `HTTPConfig` field defaults so the
   duplication can't drift.
 - **ARCH-11 — Doc-drift guard.** User-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
   `CONTRIBUTING.md`, `SECURITY.md`, `docs/conventions/**/*.md`,
@@ -144,7 +144,7 @@ review cover the rest):
 - **ARCH-10 enforces the timeout/retries case, not `max_items`.** The `@uplink.timeout` grep plus
   the SDK-defaults test cover the historical shadowing bug. A hardcoded pagination cap is NOT
   grep-enforced — a literal `500` collides with the HTTP `500` status code in `transport.py`, so a
-  reliable check isn't worth the false positives; call sites read `AppConfig().max_items`, and the
+  reliable check isn't worth the false positives; call sites read `AppConfig().http.max_items`, and the
   single-config-source rule (ARCH-8) keeps the default in `settings.py`.
 - **ARCH-6 locks names, not signatures.** A tool/command keeping its name while changing its
   parameters, description, or return type does not trip the snapshot.

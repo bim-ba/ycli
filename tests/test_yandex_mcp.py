@@ -90,7 +90,7 @@ def test_mcp_main_module_importable():
 
 @pytest.mark.integration
 def test_mcp_main_honors_log_level(monkeypatch, capsys):
-    monkeypatch.setenv("YCLI_LOG_LEVEL", "ERROR")
+    monkeypatch.setenv("YCLI__LOGGING__LEVEL", "ERROR")
     import ycli.mcp as mcp_module
 
     monkeypatch.setattr(mcp_module.mcp, "run", lambda *a, **k: None)

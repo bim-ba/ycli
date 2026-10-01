@@ -29,18 +29,18 @@ mcp = FastMCP("tracker-boards")
 def list_(
     limit: Annotated[
         int,
-        Field(description="Max boards to return; 0 means the YCLI_MAX_ITEMS cap (default 500)."),
+        Field(description="Max boards to return; 0 means the configured cap (default 500)."),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> BoardList:
     """All agile boards in the organisation, auto-paginated via the relative id-cursor and sorted
-    by ascending board id. Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Use
+    by ascending board id. Capped at 500 items by default unless ``limit`` is given. Use
     ``boards_get`` when you know one board id, and ``sprints_list`` to list a board's sprints.
 
     >>> boards_list(limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.boards.list(limit=cap)
 
 

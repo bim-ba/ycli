@@ -35,10 +35,10 @@ def list_(
 ) -> SurveyList:
     """Every form (survey) the caller can see, auto-paginated over the API's offset pages.
 
-    Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Each item's ``id`` is the
+    Capped at 500 items by default unless ``limit`` is given. Each item's ``id`` is the
     form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.surveys.list(limit=cap)
 
 

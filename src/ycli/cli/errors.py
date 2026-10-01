@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from pydantic import ValidationError
 
+from ycli.settings import AppConfig
 from ycli.yandex.errors import YandexAuthError
 
 _AUTH_HINT = (
@@ -33,6 +34,11 @@ def format_cli_error(exc: Exception) -> str:
             f"{'are' if len(missing) > 1 else 'is'} not set.\n\n"
             "Run `ycli auth login` to authenticate interactively, or export those environment "
             "variables yourself. Check status any time with `ycli auth status`."
+        )
+    if isinstance(exc, ValidationError) and exc.title == AppConfig.__name__:
+        return "Invalid configuration:\n" + "\n".join(
+            f"  YCLI__{'__'.join(str(part) for part in error['loc']).upper()}: {error['msg']}"
+            for error in exc.errors()
         )
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):

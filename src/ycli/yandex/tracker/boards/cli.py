@@ -31,7 +31,7 @@ def list_(
 ) -> None:
     """List all agile boards (auto-paginated; --all for everything)."""
     app_ctx = AppContext.from_typer_context(ctx)
-    cap = resolve_cap(limit, app_ctx.config.max_items, all_=all_)
+    cap = resolve_cap(limit, app_ctx.config.http.max_items, all_=all_)
     Serializer.serialize(app_ctx.tracker.boards.list(limit=cap), app_ctx.strategy, app_ctx.console)
 
 

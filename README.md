@@ -152,6 +152,16 @@ YANDEX_ID_ORGANIZATION_ID=...    # your Yandex 360 organization id
 ycli sends the org id as `X-Org-Id` for every service (HTTP header names are case-insensitive
 per RFC 9110, so one casing serves all).
 
+Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern; ycli rejects an invalid value
+at startup and names the variable:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `YCLI__HTTP__TIMEOUT_SECONDS` | `30` | Per-request timeout, seconds (> 0) |
+| `YCLI__HTTP__RETRIES` | `3` | Retries for idempotent requests on 429/5xx (≥ 0) |
+| `YCLI__HTTP__MAX_ITEMS` | `500` | Item cap for listings without `--limit`/`--all` (> 0) |
+| `YCLI__LOGGING__LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL` |
+
 ### Get your credentials
 
 Yandex issues OAuth tokens only through a **registered application**, so it's a one-time

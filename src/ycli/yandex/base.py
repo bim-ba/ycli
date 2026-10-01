@@ -43,10 +43,10 @@ class DomainClient:
     build; a subclass declares ONLY its resource wiring in :meth:`_wire`. Credentials arrive as
     explicit constructor arguments (ARCH-7) — the base never reads the environment.
 
-    The ``timeout_seconds`` / ``retries`` defaults intentionally equal ``AppConfig``'s defaults
+    The ``timeout_seconds`` / ``retries`` defaults intentionally equal ``HTTPConfig``'s defaults
     (the ARCH-10 carve-out): they apply only when a caller passes nothing, and ``AppContext``
     always passes the configured value. A test pins ``inspect.signature`` of a domain client to
-    those defaults, so this signature must stay in sync with ``AppConfig``.
+    those defaults, so this signature must stay in sync with ``HTTPConfig``.
     """
 
     def __init__(

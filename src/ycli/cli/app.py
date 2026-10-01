@@ -57,7 +57,7 @@ def _main(
     ] = False,
 ) -> None:
     """Declare the global ``--format`` option, configure logging, build the AppContext."""
-    configure(level=AppConfig().log_level)
+    configure(level=AppConfig().logging.level)
     ctx.obj = AppContext(output_format=output_format)
 
 

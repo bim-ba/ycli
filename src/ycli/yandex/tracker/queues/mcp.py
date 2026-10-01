@@ -40,21 +40,22 @@ mcp = FastMCP("tracker-queues")
 @mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"}, tags=TAGS)
 def list_(
     limit: Annotated[
-        int, Field(description="Max queues to return; 0 uses the YCLI_MAX_ITEMS cap (default 500).")
+        int,
+        Field(description="Max queues to return; 0 uses the configured cap (default 500)."),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> QueueList:
     """Every queue the caller can see, auto-paginated over the API's page/perPage pages.
 
-    Capped at YCLI_MAX_ITEMS (default 500) unless ``limit`` is given. Each item's ``key`` is the
+    Capped at 500 items by default unless ``limit`` is given. Each item's ``key`` is the
     queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TEST-123). Use
     ``queues_get`` for a single queue's full configuration (types, workflows, resolutions).
 
     Example:
         >>> queues_list(limit=10)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.max_items)
+    cap = resolve_cap(limit, config.http.max_items)
     return client.queues.list(limit=cap)
 
 
