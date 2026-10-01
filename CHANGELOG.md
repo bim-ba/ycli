@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.19.0 (2026-10-01)
+
+### Build System
+
+- Re-lock uv.lock for 0.18.0
+  ([`aceae84`](https://github.com/bim-ba/ycli/commit/aceae84c0b691b0ce93aa4c8b14a6a905bed572c))
+
+### Features
+
+- **logging**: Replace loguru with stdlib logging and log HTTP traffic
+  ([#121](https://github.com/bim-ba/ycli/pull/121),
+  [`da42c66`](https://github.com/bim-ba/ycli/commit/da42c66d70e81288035f6970f2a163175b2e22df))
+
+### Breaking Changes
+
+- **logging**: The default log level is `WARNING` (was `INFO`), and the `loguru` dependency is gone;
+  configure the stdlib `ycli` logger instead.
+
+
 ## v0.18.0 (2026-10-01)
 
 ### Build System
