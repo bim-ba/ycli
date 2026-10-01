@@ -145,3 +145,28 @@ def test_fields_category_edit_sends_version():
     )
     assert res.exit_code == 0 and json.loads(res.stdout)["version"] == 2
     assert "version=1" in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
+
+
+@responses.activate
+def test_fields_create_no_readonly_sends_false():
+    """--no-readonly is sent as readonly=false instead of being dropped."""
+    responses.add(responses.POST, f"{BASE}/fields", json={"id": "f"}, status=201)
+    res = runner.invoke(
+        cli.app,
+        [
+            "tracker",
+            "fields",
+            "create",
+            "--id",
+            "f",
+            "--type",
+            "StringFieldType",
+            "--category",
+            "1",
+            "--no-readonly",
+        ],
+    )
+    assert res.exit_code == 0, res.output
+    body = responses.calls[0].request.body
+    assert isinstance(body, str | bytes)
+    assert json.loads(body)["readonly"] is False

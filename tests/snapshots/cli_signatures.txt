@@ -19,11 +19,11 @@ forms keysets list: SURVEY_ID:TEXT!
 forms keysets modify: --enabled:BOOLEAN! --name:TEXT! --total:INTEGER! KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
 forms me get
 forms operations get: OPERATION_ID:TEXT!
-forms questions create: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN=False --label:TEXT='' --multiline:BOOLEAN=False --option:TEXT --placeholder:TEXT='' --required:BOOLEAN=False --slug:TEXT='' --type:TEXT='' --widget:TEXT='' SURVEY_ID:TEXT!
+forms questions create: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' SURVEY_ID:TEXT!
 forms questions delete: --force:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions get: QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions list: SURVEY_ID:TEXT!
-forms questions modify: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN=False --label:TEXT='' --multiline:BOOLEAN=False --option:TEXT --placeholder:TEXT='' --required:BOOLEAN=False --slug:TEXT='' --type:TEXT='' --widget:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms questions modify: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions move: --create-page:BOOLEAN=False --page-id:INTEGER=0 --page:INTEGER=0 --position:INTEGER=0 --question:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms surveys create: --field:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT! --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN
 forms surveys delete: SURVEY_ID:TEXT!
@@ -84,7 +84,7 @@ tracker entities checklists create: --text:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities checklists delete: ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities checklists delete-item: ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
 tracker entities checklists edit: --item:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists edit-item: --assignee:TEXT='' --checked:BOOLEAN=False --deadline:TEXT='' --text:TEXT='' ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
+tracker entities checklists edit-item: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --text:TEXT='' ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
 tracker entities checklists move: --before:TEXT='' ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
 tracker entities comments create: --summon:TEXT --text:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities comments delete: COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
@@ -105,7 +105,7 @@ tracker entities search: --fields:TEXT='' --filter:TEXT --input:TEXT='' --order-
 tracker entities set-permissions: --acl:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker fields category-create: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER!
 tracker fields category-edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --version:INTEGER CATEGORY_ID:TEXT!
-tracker fields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN=False --type:TEXT!
+tracker fields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT!
 tracker fields edit: --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --version:INTEGER FIELD_ID:TEXT!
 tracker fields get: FIELD_ID:TEXT!
 tracker fields list
@@ -133,7 +133,7 @@ tracker links add: KEY:TEXT! RELATIONSHIP:CHOICE! TARGET:TEXT!
 tracker links delete: KEY:TEXT! LINK_ID:TEXT!
 tracker links list: KEY:TEXT!
 tracker linktypes list
-tracker localfields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN=False --type:TEXT! QUEUE_ID:TEXT!
+tracker localfields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT! QUEUE_ID:TEXT!
 tracker localfields edit: --category:TEXT='' --description:TEXT='' --hidden:BOOLEAN --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --visible:BOOLEAN FIELD_KEY:TEXT! QUEUE_ID:TEXT!
 tracker localfields get: FIELD_KEY:TEXT! QUEUE_ID:TEXT!
 tracker localfields list: QUEUE_ID:TEXT!
