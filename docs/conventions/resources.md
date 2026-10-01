@@ -1,7 +1,7 @@
 # Resource conventions
 
 These rules fill the gap between the structural invariants in
-[`ARCHITECTURE.md`](../../ARCHITECTURE.md) (ARCH-1..11) and the per-file conventions
+[`ARCHITECTURE.md`](../../ARCHITECTURE.md) (ARCH-1..8) and the per-file conventions
 documented in [`skills-and-commands.md`](skills-and-commands.md).  They apply to every
 `yandex/<domain>/<resource>/` package, including the singleton `me` resources.
 
@@ -153,7 +153,7 @@ validated model with `.model_dump(by_alias=True, exclude_none=True)`, the same c
 command already makes, so both surfaces produce byte-identical wire JSON from one model.
 
 The only exceptions are a binary upload, which takes `Base64Bytes` (see below), and exactly one
-documented allowlist entry (`ARCH3_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`) for an
+documented allowlist entry (`ARCH8_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`) for an
 endpoint whose live wire shape no existing model correctly represents — see Enforcement below.
 
 ### `Ack` for bodyless write responses
@@ -176,7 +176,7 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 `tests/test_architecture.py::test_arch3_mcp_write_tool_bodies_are_typed` AST-walks every
 `mcp.py` for `@mcp.tool`-decorated functions and fails the build on a bare `dict`/`dict[...]`
 `body` parameter — fail-closed, with exactly one documented exception in
-`ARCH3_BODY_DICT_ALLOWLIST` (`entities_set_permissions`: its live wire shape nests
+`ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`: its live wire shape nests
 READ/WRITE/GRANT under `grant`/`revoke` verbs, which the existing
 `ExtendedPermissionsUpdate`/`AclInput` models do not represent).
 

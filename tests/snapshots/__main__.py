@@ -5,10 +5,15 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from tests.snapshots._surface import cli_tree, mcp_tool_names
+from tests.snapshots._surface import cli_signatures, cli_tree, mcp_signatures, mcp_tool_names
 
 HERE = Path(__file__).resolve().parent
-FILES = {HERE / "cli_tree.txt": cli_tree, HERE / "mcp_tools.txt": mcp_tool_names}
+FILES = {
+    HERE / "cli_tree.txt": cli_tree,
+    HERE / "mcp_tools.txt": mcp_tool_names,
+    HERE / "cli_signatures.txt": cli_signatures,
+    HERE / "mcp_signatures.txt": mcp_signatures,
+}
 
 
 def main() -> None:

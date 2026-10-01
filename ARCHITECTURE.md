@@ -46,117 +46,111 @@ Notable shared pieces:
 - `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
   `src/ycli/cli/fields.py` — the shared `--field key=value` JSON coercion
 
-## Invariants (ARCH-1..11)
+## Invariants (ARCH-1..8)
 
-- **ARCH-1 — Four-surface symmetry.** Every `yandex/<domain>/<resource>/` directory contains
-  `__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`. Use `/new-endpoint` to scaffold.
-  Beyond file existence, **operation-level parity** holds: every public client operation is
-  wrapped on **both** the CLI and the MCP surface. Coverage is read structurally — which client
-  method each surface's `cli.py` / `mcp.py` actually calls (`….<resource>.<op>(…)`) — so it
-  holds even where the command or tool is *named* differently from the op
-  (`checklists.create` → CLI `add`; `pages.get_by_id` → MCP `by_id_get`). The intentional
-  asymmetries — CLI-only binary download/upload commands (raw `bytes` can't round-trip an MCP
-  result), a CLI-only export-poll helper, and the SDK-internal `answers.list` primitive that
-  `list_all` supersedes on both surfaces — are frozen in `ARCH1_SURFACE_ASYMMETRIES`
-  (`tests/test_architecture.py`); a new unwrapped operation fails the build until it is wrapped
-  on both surfaces or added there with a reason.
-  *Carve-out:* `yandex/status/` and the `ycli/mcp/` server package are cross-cutting surfaces,
-  not `<domain>/<resource>` dirs — the four-surface rule and the `_resource_dirs()` check
-  (which scans only `tracker/wiki/forms`) do not apply to them.
-- **ARCH-2 — HTTP confinement.** `cli.py`, `mcp.py`, and `models.py` never import `requests`,
-  `uplink` or `httpx2`. All HTTP lives in `client.py` / `base.py` / `transport.py` and the
-  `ycli.yandex.core` package, which itself imports no service and no surface (import-linter).
-- **ARCH-3 — MCP mirrors the SDK with honest annotations.** `fastmcp` is imported only in
-  modules named `mcp.py` and in the `ycli.mcp` server package (`src/ycli/mcp/server.py`; its
-  `__init__.py` stays fastmcp-free so the base install loads the CLI sub-app without the
-  extra). MCP tools cover reads **and writes**; honesty is enforced fail-closed: every tool's
-  verb (its longest known `_`-suffix) must classify into the READ / WRITE / WRITE_IDEMPOTENT /
-  DESTRUCTIVE maps in `tests/test_architecture.py` — an unknown verb fails the build and is
-  added deliberately. Hints must match the class exactly: reads carry `readOnlyHint=True`
-  (`RO`); writes carry `readOnlyHint=False` plus explicit `destructiveHint`/`idempotentHint`
-  (the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets in `ycli.yandex.mcp`) — explicit
-  because the MCP-spec default for an unannotated tool is `destructiveHint=true`. Every write
-  tool carries the `write` tag; `ycli mcp start --read-only` hides the tag wholesale for
-  cautious deployments. A read-classified tool never calls a client write method — directly
-  or laundered one hop through a module-level helper in the same module (AST-checked).
-  A write tool's `body` parameter is always the resource's typed pydantic request model, never
-  bare `dict`/`dict[...]` (docs/conventions/resources.md §4) — fail-closed and AST-checked
-  (`test_arch3_mcp_write_tool_bodies_are_typed`), with exactly one documented exception
-  (`ARCH3_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`: `entities_set_permissions`,
-  whose live wire shape the existing models don't represent).
-- **ARCH-4 — One output path.** A CLI command returns its result and never prints: the root
-  `result_callback` hands it to `output.render`, the only stdout writer. A pydantic model renders
-  through the `--format` strategy; a `str` or `int` prints verbatim (raw page markdown, a count);
-  `BinaryResult` writes bytes to a file or stdout; `ExitWith` renders, then exits non-zero.
-  `model_dump_json`, `yaml.safe_dump`, and `json.dumps` appear only in `src/ycli/cli/output.py`
-  (and `json.dumps` in `src/ycli/log.py`, which formats diagnostic log records for stderr, not
-  command output). Models stay plain data. *Check:* `test_arch4_commands_return_and_never_print`
-  (AST: no `print(`, no `typer.echo`/`secho` without `err=True`, no `sys.stdout` in any `cli.py`)
-  plus the serialization-call grep.
-- **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
-  org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version, read
-  from `importlib.metadata`).
-- **ARCH-6 — Public-surface stability.** The CLI command tree and MCP tool list change only by
-  regenerating the snapshots in `tests/snapshots/` on purpose.
-- **ARCH-7 — Composition-root dependency injection.** Clients receive their dependencies as
-  constructor arguments and never read the environment. Credentials enter only as the explicit
-  `oauth_token` / `organization_id` parameters; a client never constructs a settings object or
-  reads env. There is no `from_env` on any client. *Check:* grep — no `os.environ`, no
-  `from_env`, no `Credentials(` / `AppConfig(` inside `yandex/**/client.py` or `base.py`.
-- **ARCH-8 — Single configuration source.** No direct `os.environ` access and no `BaseSettings`
-  subclass definition outside `src/ycli/settings.py`; other modules obtain configuration
-  by instantiating the settings models (`Credentials()` / `AppConfig()`). *Check:* grep —
-  `os.environ` and `class …(BaseSettings)` appear only in `settings.py`.
-- **ARCH-9 — Typed boundary errors.** Non-2xx responses raise a typed `YandexError` subclass
-  (one mapping, `errors.error_for_status`) from the uplink transport hook or the core session;
-  no surface parses an error body into a model. *Check:* the status→exception mapping test,
-  plus no `raise_for_status` outside `transport.py`.
-- **ARCH-10 — No shadowing of configurable values.** A configurable value is never overridden by
-  a hardcoded literal that wins over the configured one (the `@uplink.timeout(30)` bug). *Check:*
-  grep — no `@uplink.timeout` anywhere. Domain clients take an `HTTPConfig` (default:
-  `HTTPConfig()`), so the SDK has no second copy of the timeout and retry defaults.
-- **ARCH-11 — Doc-drift guard.** User-facing docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
-  `CONTRIBUTING.md`, `SECURITY.md`, `docs/conventions/**/*.md`,
-  `plugins/**/*.md`) must not show call-site usage of idioms purged by ARCH-7..10. Concretely,
-  the call patterns `.from_env(` and `session_from_env(` must not appear in any of those files.
-  Historical / rule-defining files are intentionally excluded: `PROMPT.md` (transcript),
-  `CHANGELOG.md` (release history), and `ARCHITECTURE.md` itself (which defines the rules).
-  *Check:* `test_arch11_no_purged_idioms_in_live_docs` in `tests/test_architecture.py`.
+Each rule states a principle; the mechanics live in its check, and every exception is an
+allowlist entry in code with its reason, never prose here. Tests are in
+`tests/test_architecture.py` unless named otherwise.
+
+### ARCH-1 — Surface parity
+- **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface.
+- **Why:** one operation behaves the same however a person or an agent reaches it.
+- **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `client.py`,
+  `cli.py`, `mcp.py`, `models.py`, `__init__.py`; `/new-endpoint` scaffolds them) and
+  `test_arch1_operation_level_parity`, which reads which client method each surface actually
+  calls, so a command may be named differently from its operation.
+- **Exceptions:** `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is CLI-only (bytes do not
+  round-trip an MCP result), plus a few SDK-internal primitives. `status/` and the `ycli.mcp`
+  server package are cross-cutting surfaces, not resources.
+
+### ARCH-2 — Layers
+- **Rule:** dependencies point one way — the core knows no service, services know no surface's
+  framework, surfaces never import each other.
+- **Why:** each layer has one job (single responsibility) and can change without the others.
+- **Check:** import-linter contracts in `pyproject.toml` (`uv run lint-imports`): the httpx2
+  core imports no service, surface, `typer` or `fastmcp`; `cli.py`/`mcp.py`/`models.py` import
+  no HTTP library (`requests`, `uplink`, `httpx2`) — HTTP lives in `client.py`, the uplink
+  `transport.py`/`base.py`, and `ycli.yandex.core`; `fastmcp` only in `mcp.py` modules and the
+  `ycli.mcp` server; MCP modules never import `ycli.cli` or `typer`, even indirectly.
+- **Exceptions:** none. Imports under `if TYPE_CHECKING:` are ignored (they never run).
+
+### ARCH-3 — Honest effects
+- **Rule:** what an operation does to the server (read, write, idempotent write, destructive) is
+  declared once, and MCP annotations, the `write` tag and `--read-only` agree with it.
+- **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
+  for an unannotated tool is "destructive".
+- **Check:** for resources on the httpx2 core, `test_arch3_core_tools_are_annotated_by_their_endpoint_effect`
+  runs every tool and compares its hints with the effect of the `Endpoint` it sent
+  (`ARCH3_EFFECT_CASES`, fail-closed both ways). For resources still on uplink, the verb maps in
+  `tests/test_architecture.py` classify each tool by name and an AST check stops a read tool
+  from calling a client write method; both go away with the last uplink resource (E2), and
+  `test_arch3_verb_maps_are_still_needed` fails at that point to say so.
+  `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete.
+- **Exceptions:** none.
+
+### ARCH-4 — One output path
+- **Rule:** a CLI command returns its result; only `output.render` writes to stdout.
+- **Why:** one place decides formats, so `--format` and piping behave the same everywhere.
+- **Check:** `test_arch4_commands_return_and_never_print` (AST: no `print`, `rich.print`, stdout
+  `Console`, `typer.echo` without `err=True`, `sys.stdout` or `os.write` in any `cli.py`) and
+  `test_arch4_serialization_confined_to_output`.
+- **Exceptions:** `log.py` formats stderr log records with `json.dumps`. Bytes and raw text
+  are result types (`BinaryResult`, `str`), not exceptions.
+
+### ARCH-5 — Single sources of truth
+- **Rule:** every value has one home: the version in package metadata, environment access and
+  settings models in `settings.py`, the org header name in `core/profile.py`, API hosts in each
+  service's profile, defaults in the settings models.
+- **Why:** a second copy drifts, and a hardcoded literal silently beats configuration (the old
+  `@uplink.timeout(30)` bug).
+- **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
+- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the OAuth login flow.
+
+### ARCH-6 — The public surface is versioned
+- **Rule:** the CLI tree, MCP tool names and both surfaces' parameters change only on purpose.
+- **Why:** scripts and agents depend on them; a silent rename or new required parameter breaks
+  them.
+- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_tree,mcp_tools,cli_signatures,mcp_signatures}.txt`;
+  accept a change with `uv run python -m tests.snapshots --update`.
+- **Exceptions:** none.
+
+### ARCH-7 — Dependency injection
+- **Rule:** only composition roots build settings from the environment; everything else
+  receives configuration and clients as arguments.
+- **Why:** code that reads the environment itself cannot be reused or tested in isolation.
+- **Check:** `test_arch7_settings_are_built_only_at_composition_roots` (AST).
+- **Exceptions:** `ARCH7_ROOTS` — the CLI root and its dependency container, the MCP providers
+  and entry point, and `auth status`/`login`, which read and write credentials by design.
+
+### ARCH-8 — Typed boundaries
+- **Rule:** data crosses a boundary as a parsed model: MCP write bodies are typed request
+  models, and a non-2xx answer becomes a typed `YandexError` in one place
+  (`errors.error_for_status`).
+- **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
+- **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` (+ its bite test) and
+  `test_arch8_errors_are_mapped_in_one_place`.
+- **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`, whose wire shape no
+  model represents yet); the IAM token exchange maps its own failure.
 
 ## Scope & limits of enforcement
 
-The checks are guardrails, not a proof. Known boundaries (the `/arch-review` rubric and human
-review cover the rest):
+The checks are guardrails, not a proof; the `/arch-review` rubric and human review cover the
+rest. Known blind spots:
 
-- **ARCH-2/ARCH-3 catch _direct_ imports** (`allow_indirect_imports=true`, since `cli.py`/`mcp.py`
-  legitimately reach HTTP transitively through `client.py`). An HTTP call hidden behind a new
-  helper module that `cli.py` imports is not caught by import-linter.
-- **ARCH-1 operation parity reads _direct_ surface→client calls.** A CLI/MCP wrapper that reaches
-  the client through a local alias (`res = app_ctx.tracker.issues; res.get(…)`) instead of the
-  canonical `….<resource>.<op>(…)` chain is not seen as coverage, so it would surface as a
-  (false) asymmetry — flagged deliberately, so the non-standard wrapping has to be made explicit
-  (wired straight, or allowlisted). The silent false-*negative* twin: an unrelated same-named
-  `X.<resource>.<op>(…)` chain elsewhere in the surface file could satisfy the structural match
-  and mask a genuinely-missing wrapper. The same receiver-chain heuristic (a call is a client
-  op only when its receiver names a known resource) also backs the ARCH-3 read-tool backstop, so
-  a client write verb (`update`/`add`/`clear`/…) is not confused with the like-named container
-  method on a bare local.
-- **ARCH-5 is single-source-of-truth, not secret scanning.** It catches hardcoded `__version__`,
-  `YANDEX_ID_*` assignments, and org-header strings — not an arbitrary raw token literal (that is
-  the job of the token-leak guard, a separate piece of work).
-- **ARCH-10 enforces the timeout/retries case, not `max_items`.** The `@uplink.timeout` grep plus
-  the SDK-defaults test cover the historical shadowing bug. A hardcoded pagination cap is NOT
-  grep-enforced — a literal `500` collides with the HTTP `500` status code in `transport.py`, so a
-  reliable check isn't worth the false positives; call sites read `AppConfig().http.max_items`, and the
-  single-config-source rule (ARCH-8) keeps the default in `settings.py`.
-- **ARCH-6 locks names, not signatures.** A tool/command keeping its name while changing its
-  parameters, description, or return type does not trip the snapshot.
+- **ARCH-1 parity reads direct surface→client calls.** A wrapper that reaches the client through
+  a local alias is reported as a (false) gap; an unrelated same-named `X.<resource>.<op>(…)`
+  call could mask a real one.
+- **ARCH-3's uplink half guesses from names** until those resources move to the core.
+- **ARCH-5 is not secret scanning** (gitleaks is), and it does not catch a hardcoded pagination
+  cap: a literal `500` is indistinguishable from the HTTP status.
 
 ## Resource conventions (models, naming, MCP imports)
 
-The conventions that ARCH-1..11 do not capture — `APIModel` inheritance, `XList`/`XResponse`
+The conventions that ARCH-1..8 do not capture — `APIModel` inheritance, `XList`/`XResponse`
 naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
+What each resource is tested with, and how, is in
+[`docs/conventions/testing.md`](docs/conventions/testing.md).
 
 ## Code generation
 

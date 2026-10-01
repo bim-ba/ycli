@@ -1,39 +1,27 @@
 ---
 description: Review the current diff against the ARCHITECTURE.md invariants before merge.
 ---
-Review the working diff (`git diff main...HEAD`) strictly against `ARCHITECTURE.md`. For each
+Review the working diff (`git diff main...HEAD`) strictly against `ARCHITECTURE.md`; it holds
+each rule's wording, check and exceptions, so read it rather than this summary. For each
 invariant, state **PASS/FAIL** with `file:line` evidence:
 
-- **ARCH-1 — Four-surface symmetry.** Every new `yandex/<domain>/<resource>/` dir has all five
-  canonical files (`__init__.py`, `client.py`, `cli.py`, `mcp.py`, `models.py`). (Carve-out:
-  `yandex/status/` and the `ycli/mcp/` server package are cross-cutting, not resource dirs.)
-- **ARCH-2 — HTTP confinement.** No `requests` / `uplink` import in `cli.py` / `mcp.py` / `models.py`;
-  all HTTP lives in `client.py` / `base.py` / `transport.py`.
-- **ARCH-3 — MCP mirrors the SDK with honest annotations.** `fastmcp` only in `mcp.py` (and the
-  `ycli.mcp` server package). Every new tool's verb classifies into the READ / WRITE /
-  WRITE_IDEMPOTENT / DESTRUCTIVE maps (an unknown verb fails the build — add it deliberately);
-  hints match the class exactly (reads `RO`; writes explicit `destructiveHint`/`idempotentHint`
-  plus the `write` tag), and no read-classified tool calls a client write method
-  (`.create/.update/.add/.execute/…` — AST-checked).
-- **ARCH-4 — One output path.** A CLI command returns its result (a model, a `str`/`int`, a
-  `BinaryResult` or an `ExitWith`) and never prints; `output.render` is the only stdout writer,
-  and `model_dump_json` / `yaml.safe_dump` / `json.dumps` appear only in `src/ycli/cli/output.py`.
-- **ARCH-5 — Single sources of truth.** No hardcoded version literal, `YANDEX_ID_*` token, or
-  org-header string in `src/` outside `transport.py` (headers) and `__init__.py` (version).
-- **ARCH-6 — Public-surface stability.** If the CLI tree or MCP tool list changed, `tests/snapshots/`
-  was regenerated (`uv run python -m tests.snapshots --update`) AND the change is intentional.
-- **ARCH-7 — Composition-root DI.** Clients take dependencies as constructor args and never read the
-  environment; credentials enter only as `oauth_token` / `organization_id`. No `from_env`.
-- **ARCH-8 — Single configuration source.** No direct `os.environ` access and no `BaseSettings`
-  subclass outside `src/ycli/settings.py`.
-- **ARCH-9 — Typed boundary errors.** Non-2xx raises a typed `YandexError` subclass from the transport
-  hook; no surface parses an error body or branches on status outside `transport.py`.
-- **ARCH-10 — No shadowing of configurable values.** No hardcoded literal overriding a configured
-  value (no `@uplink.timeout`); SDK constructor defaults stay equal to `AppConfig`'s defaults.
-- **ARCH-11 — Doc-drift guard.** No purged idiom (`.from_env(`, `session_from_env(`) appears in the
-  live user-facing docs; any invariant change edits `ARCHITECTURE.md` in the SAME diff.
+- **ARCH-1 — Surface parity.** Every new SDK operation is wrapped on both the CLI and MCP, or
+  added to `ARCH1_SURFACE_ASYMMETRIES` with a reason.
+- **ARCH-2 — Layers.** The core imports no service or surface; no HTTP library in
+  `cli.py`/`mcp.py`/`models.py`; `fastmcp` only in MCP modules; MCP never imports the CLI.
+- **ARCH-3 — Honest effects.** A new core endpoint states its effect when the method misleads
+  (`POST …/_search` reads); every tool's hints match its effect (core: `ARCH3_EFFECT_CASES`
+  entry added; uplink: verb maps); writes carry the `write` tag.
+- **ARCH-4 — One output path.** Commands return results; nothing in a `cli.py` writes stdout.
+- **ARCH-5 — Single sources of truth.** No second copy of the version, env access, org header,
+  an API host or a default.
+- **ARCH-6 — Versioned surface.** Snapshot changes (names and signatures) are intentional.
+- **ARCH-7 — Dependency injection.** Settings are built only in `ARCH7_ROOTS`.
+- **ARCH-8 — Typed boundaries.** MCP write bodies are typed models; errors map through
+  `errors.error_for_status` only.
 
-Also flag **semantic drift** the linters can't see: business logic in `cli.py` that belongs in
-`client.py`; a client method bypassing `transport`; a new ad-hoc output path; an asymmetric resource.
-If any invariant changed, confirm `ARCHITECTURE.md` was edited in the same diff — if not, that is a
-FAIL (silent invariant change). End with: **APPROVE** or **REQUEST CHANGES** + the specific fixes.
+Also flag **semantic drift** the checks can't see: business logic in `cli.py` that belongs in
+the client; a client bypassing the session or transport; a new ad-hoc output path; an asymmetric
+resource. If any invariant changed, confirm `ARCHITECTURE.md` and its check changed in the same
+diff — if not, that is a FAIL (silent invariant change). End with: **APPROVE** or
+**REQUEST CHANGES** + the specific fixes.

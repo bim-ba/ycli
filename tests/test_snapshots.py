@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.snapshots._surface import cli_tree, mcp_tool_names
+from tests.snapshots._surface import cli_signatures, cli_tree, mcp_signatures, mcp_tool_names
 
 HERE = Path(__file__).resolve().parent / "snapshots"
 HINT = "run `uv run python -m tests.snapshots --update` to accept the new surface"
@@ -14,7 +14,12 @@ HINT = "run `uv run python -m tests.snapshots --update` to accept the new surfac
 
 @pytest.mark.parametrize(
     ("filename", "current"),
-    [("cli_tree.txt", cli_tree), ("mcp_tools.txt", mcp_tool_names)],
+    [
+        ("cli_tree.txt", cli_tree),
+        ("mcp_tools.txt", mcp_tool_names),
+        ("cli_signatures.txt", cli_signatures),
+        ("mcp_signatures.txt", mcp_signatures),
+    ],
 )
 def test_public_surface_matches_snapshot(filename, current):
     expected = (HERE / filename).read_text(encoding="utf-8").splitlines()

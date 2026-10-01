@@ -103,7 +103,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 ## Architecture invariants (enforced)
 
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
-for the eleven invariants (ARCH-1..11). They are verified by `tests/test_architecture.py`,
+for the eight invariants (ARCH-1..8). They are verified by `tests/test_architecture.py`,
 import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
 them: HTTP only in `client.py`; CLI commands return results that `output.render` prints; MCP tools honestly
 annotated (ARCH-3); new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its

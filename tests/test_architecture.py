@@ -8,12 +8,16 @@ from __future__ import annotations
 
 import ast
 import asyncio
+import functools
 import re
 from pathlib import Path
 
+import httpx2
 from fastmcp import Client
 
 from ycli.mcp import mcp as root_mcp
+from ycli.yandex.core.endpoint import EFFECT_EXTENSION
+from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_IDEMPOTENT
 from ycli.yandex.registry import SERVICES
 
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
@@ -103,14 +107,18 @@ def _load_gen_coverage():
     return module
 
 
-def _resource_operations():
-    """Yield ``(domain_slug, resource_attr, sdk_ops)`` for every domain resource client."""
-    gen = _load_gen_coverage()
-    clients = {
+@functools.cache
+def _clients() -> dict[str, object]:
+    return {
         service.name: service.client_class()(oauth_token="x", organization_id="x")
         for service in SERVICES
     }
-    for slug, client in clients.items():
+
+
+def _resource_operations():
+    """Yield ``(domain_slug, resource_attr, sdk_ops)`` for every domain resource client."""
+    gen = _load_gen_coverage()
+    for slug, client in _clients().items():
         for attr, resource in sorted(vars(client).items()):
             if isinstance(resource, gen.BaseYandex | gen.Resource):
                 yield slug, attr, set(gen._sdk_operations(resource))
@@ -231,14 +239,31 @@ def _mcp_tools():
     return asyncio.run(go())
 
 
+def _uplink_tools() -> list:
+    """MCP tools of resources still on uplink — the ones the verb maps must classify."""
+    core = _core_tool_prefixes()
+    return [tool for tool in _mcp_tools() if not tool.name.startswith(core)]
+
+
+def test_arch3_verb_maps_are_still_needed():
+    """Kill-criterion: once no resource is left on uplink, delete the verb maps and their tests."""
+    assert _uplink_tools(), (
+        "every resource runs on the httpx2 core: delete the READ/WRITE/… verb maps, "
+        "test_arch3_mcp_annotation_honesty and the read-tool AST backstop (ARCH-3)"
+    )
+
+
 def test_arch3_mcp_annotation_honesty():
-    """Every tool's hints match its verb class exactly (fail-closed on unknown verbs).
+    """Every uplink tool's hints match its verb class exactly (fail-closed on unknown verbs).
+
+    Tools of resources on the httpx2 core are checked against their endpoint's effect instead
+    (``test_arch3_core_tools_are_annotated_by_their_endpoint_effect``).
 
     The MCP-spec default for an unannotated tool is destructiveHint=true, so every
     write tool must declare its hints explicitly (WRITE / WRITE_IDEMPOTENT / DESTRUCTIVE
     in ycli.yandex.mcp); reads keep RO.
     """
-    tools = _mcp_tools()
+    tools = _uplink_tools()
     assert tools, "no MCP tools discovered"
     for t in tools:
         cls = _classify(t.name)
@@ -260,6 +285,88 @@ def test_arch3_mcp_annotation_honesty():
                 f"{t.name!r} verb class {cls!r} demands idempotentHint="
                 f"{cls == 'write_idempotent'}, got {ann.idempotentHint}"
             )
+
+
+# The hints each endpoint effect implies (ARCH-3): the effect is declared once, on the
+# endpoint; the MCP tool must agree with it.
+_EFFECT_HINTS = {
+    "read": RO,
+    "write": WRITE,
+    "idempotent_write": WRITE_IDEMPOTENT,
+    "destructive": DESTRUCTIVE,
+}
+_HINT_KEYS = ("readOnlyHint", "destructiveHint", "idempotentHint")
+# Arguments that make each core-resource tool send its request. Fail-closed both ways: a core
+# tool without a case, or a case without a tool, fails the build.
+ARCH3_EFFECT_CASES: dict[str, dict] = {
+    "tracker_issues_get": {"key": "T-1"},
+    "tracker_issues_list": {"queue": "T"},
+    "tracker_issues_search": {"query": "Queue: T"},
+    "tracker_issues_count": {},
+    "tracker_issues_suggest": {"text": "bug"},
+    "tracker_issues_create": {"body": {"queue": "T", "summary": "s"}},
+    "tracker_issues_update": {"key": "T-1", "body": {"summary": "s"}},
+    "tracker_issues_move": {"key": "T-1", "queue": "Q"},
+    "tracker_issues_scroll_clear": {"body": {"scroll": "token"}},
+}
+
+
+class _SentError(Exception):
+    """Stops a tool right after it sends its first request."""
+
+
+def _core_tool_prefixes() -> tuple[str, ...]:
+    gen = _load_gen_coverage()
+    return tuple(
+        f"{slug}_{attr.rstrip('_')}_"
+        for slug, attr, _ in _resource_operations()
+        if isinstance(getattr(_clients()[slug], attr), gen.Resource)
+    )
+
+
+def _hints_disagree(annotations: dict, effect: str) -> list[str]:
+    expected = _EFFECT_HINTS[effect]
+    return [key for key in _HINT_KEYS if annotations.get(key) != expected.get(key)]
+
+
+def test_arch3_core_tools_are_annotated_by_their_endpoint_effect(monkeypatch):
+    effects: list[str] = []
+
+    def record(request: httpx2.Request) -> httpx2.Response:
+        effects.append(request.extensions[EFFECT_EXTENSION])
+        raise _SentError
+
+    monkeypatch.setattr(
+        "ycli.yandex.core.session.default_transport", lambda: httpx2.MockTransport(record)
+    )
+    prefixes = _core_tool_prefixes()
+    tools = {tool.name: tool for tool in _mcp_tools() if tool.name.startswith(prefixes)}
+    assert set(tools) == set(ARCH3_EFFECT_CASES), "ARCH3_EFFECT_CASES must list every core tool"
+
+    async def sent_effect(name: str) -> str:
+        effects.clear()
+        async with Client(root_mcp) as client:
+            await client.call_tool(name, ARCH3_EFFECT_CASES[name], raise_on_error=False)
+        assert effects, f"{name} sent no request"
+        return effects[0]
+
+    offenders = {}
+    for name, tool in tools.items():
+        effect = asyncio.run(sent_effect(name))
+        annotations = tool.annotations.model_dump() if tool.annotations else {}
+        if wrong := _hints_disagree(annotations, effect):
+            offenders[name] = f"effect {effect!r} but {wrong} disagree"
+    assert not offenders, offenders
+
+
+def test_arch3_effect_guard_bites():
+    assert _hints_disagree(RO, "read") == []
+    assert _hints_disagree(RO, "destructive") == [
+        "readOnlyHint",
+        "destructiveHint",
+        "idempotentHint",
+    ]
+    assert _hints_disagree(WRITE, "idempotent_write") == ["idempotentHint"]
 
 
 def test_arch3_write_tools_carry_write_tag():
@@ -454,7 +561,7 @@ def test_arch3_container_methods_are_not_writes():
 # frozen here in the same `ARCH1_SURFACE_ASYMMETRIES` string-map style. `Annotated[Base64Bytes,
 # …]` (binary uploads) is an `ast.Subscript` whose `.value` is `ast.Name(id="Annotated")`, never
 # `dict`, so it never matches this check — no allowlist entry is needed for it.
-ARCH3_BODY_DICT_ALLOWLIST: dict[str, str] = {
+ARCH8_BODY_DICT_ALLOWLIST: dict[str, str] = {
     # PATCH …/extendedPermissions nests READ/WRITE/GRANT principal sets under grant/revoke verbs
     # (see references/yandex-360/tracker/ru/api-ref/entities/patch-access.md); the existing
     # ExtendedPermissionsUpdate/AclInput models describe a different, direct READ/WRITE/GRANT
@@ -492,7 +599,7 @@ def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
     slip a bare-``dict`` ``body`` past the guard. For each such function, every
     positional-or-keyword and keyword-only parameter named ``body`` is checked; a bare
     ``dict``/``dict[...]`` annotation is an offender unless ``{module_label}:{function_name}``
-    is listed in :data:`ARCH3_BODY_DICT_ALLOWLIST`. Pure over source text so the guard can be
+    is listed in :data:`ARCH8_BODY_DICT_ALLOWLIST`. Pure over source text so the guard can be
     exercised on a synthetic module (the prove-it test).
     """
     tree = ast.parse(source)
@@ -512,7 +619,7 @@ def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
                 continue
             if not _bare_dict_annotation(arg.annotation):
                 continue
-            if f"{module_label}:{node.name}" in ARCH3_BODY_DICT_ALLOWLIST:
+            if f"{module_label}:{node.name}" in ARCH8_BODY_DICT_ALLOWLIST:
                 continue
             offenders.append(
                 f"{module_label}: {node.name}(body: {ast.unparse(arg.annotation)}) "
@@ -521,13 +628,13 @@ def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
     return offenders
 
 
-def test_arch3_mcp_write_tool_bodies_are_typed():
+def test_arch8_mcp_write_tool_bodies_are_typed():
     """An MCP write tool's ``body`` parameter is a typed pydantic model, never bare ``dict``.
 
     docs/conventions/resources.md §4: the model becomes the tool's input schema, so an agent
     sees field names/types/aliases instead of an opaque ``object``, and a malformed payload
     fails schema validation before the HTTP call. Fail-closed: only the one documented
-    ``ARCH3_BODY_DICT_ALLOWLIST`` entry is exempt.
+    ``ARCH8_BODY_DICT_ALLOWLIST`` entry is exempt.
     """
     offenders = []
     for mcp_py in YANDEX.rglob("mcp.py"):
@@ -535,11 +642,11 @@ def test_arch3_mcp_write_tool_bodies_are_typed():
         offenders += _untyped_body_offenders(mcp_py.read_text(encoding="utf-8"), rel)
     assert not offenders, (
         "MCP write-tool `body` parameters must be typed pydantic models, not dict — convert the "
-        f"parameter, or add a documented ARCH3_BODY_DICT_ALLOWLIST entry: {offenders}"
+        f"parameter, or add a documented ARCH8_BODY_DICT_ALLOWLIST entry: {offenders}"
     )
 
 
-def test_arch3_typed_body_guard_bites():
+def test_arch8_typed_body_guard_bites():
     """Prove-it: the guard flags bare/subscripted ``dict`` bodies but not a typed model or
     ``Annotated[Base64Bytes, …]``, and respects the allowlist."""
     bare = (
@@ -583,7 +690,7 @@ def test_arch3_typed_body_guard_bites():
     )
     assert _untyped_body_offenders(binary_upload, "synthetic/mcp.py") == []
 
-    allowlisted_key = next(iter(ARCH3_BODY_DICT_ALLOWLIST))
+    allowlisted_key = next(iter(ARCH8_BODY_DICT_ALLOWLIST))
     module_label, func_name = allowlisted_key.rsplit(":", 1)
     allowlisted = (
         f'@mcp.tool(name="{func_name}")\n'
@@ -675,70 +782,112 @@ def test_arch4_stdout_guard_bites():
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
 _VERSION_RE = re.compile(r"__version__\s*=\s*['\"]\d")
 _ORG_HEADER_RE = re.compile(r"X-Org-I[dD]")
+_YANDEX_HOST_RE = re.compile(
+    r"https://[\w.-]*api[\w.-]*\.yandex\.(?:net|ru)"
+)  # API hosts, not web pages
+# Where a Yandex host may be spelled, and why: each service's profile, the IAM token endpoint,
+# and the OAuth login flow's own endpoints.
+ARCH5_HOST_HOMES = {
+    Path("yandex/tracker/__init__.py"): "Tracker service profile",
+    Path("yandex/wiki/__init__.py"): "Wiki service profile",
+    Path("yandex/forms/__init__.py"): "Forms service profile",
+    Path("yandex/core/auth.py"): "IAM token endpoint for service accounts",
+    Path("yandex/status/client.py"): "OAuth device/implicit flow and api360 org lookup",
+}
+
+
+def _single_source_offenders(rel: Path, text: str) -> list[str]:
+    offenders = []
+    if _TOKEN_RE.search(text):
+        offenders.append(f"{rel}: hardcoded YANDEX_ID token literal")
+    if rel != Path("__init__.py") and _VERSION_RE.search(text):
+        offenders.append(f"{rel}: hardcoded __version__ literal")
+    if rel != Path("yandex/core/profile.py") and _ORG_HEADER_RE.search(text):
+        offenders.append(f"{rel}: org header string outside yandex/core/profile.py")
+    if rel not in ARCH5_HOST_HOMES and _YANDEX_HOST_RE.search(text):
+        offenders.append(f"{rel}: Yandex host outside a service profile")
+    if rel != Path("settings.py"):
+        if "os.environ" in text:
+            offenders.append(f"{rel}: os.environ outside settings.py")
+        if re.search(r"class \w+\(BaseSettings\)", text):
+            offenders.append(f"{rel}: BaseSettings subclass outside settings.py")
+    if "@uplink.timeout" in text:
+        offenders.append(f"{rel}: @uplink.timeout shadows YCLI__HTTP__TIMEOUT_SECONDS")
+    return offenders
 
 
 def test_arch5_single_sources_of_truth():
-    offenders = []
-    for p in SRC.rglob("*.py"):
-        rel = p.relative_to(SRC)
-        text = p.read_text(encoding="utf-8")
-        if _TOKEN_RE.search(text):
-            offenders.append(f"{rel}: hardcoded YANDEX_ID token literal")
-        if rel != Path("__init__.py") and _VERSION_RE.search(text):
-            offenders.append(f"{rel}: hardcoded __version__ literal")
-        if rel != Path("yandex/core/profile.py") and _ORG_HEADER_RE.search(text):
-            offenders.append(f"{rel}: org header string outside yandex/core/profile.py")
-    assert not offenders, offenders
-
-
-def test_arch7_clients_never_resolve_credentials():
-    """No client reads the env or constructs settings — credentials arrive as constructor args."""
-    offenders = []
-    for client in YANDEX.rglob("client.py"):
-        text = client.read_text(encoding="utf-8")
-        for needle in ("os.environ", "from_env", "Credentials(", "AppConfig("):
-            if needle in text:
-                offenders.append(f"{client.relative_to(SRC)}: {needle}")
-    base = (YANDEX / "base.py").read_text(encoding="utf-8")
-    for needle in ("os.environ", "from_env", "Credentials(", "AppConfig("):
-        if needle in base:
-            offenders.append(f"yandex/base.py: {needle}")
-    assert not offenders, offenders
-
-
-def test_arch8_single_config_source():
-    """os.environ access and BaseSettings subclass definitions live only in settings.py."""
-    offenders = []
-    settings = SRC / "settings.py"
-    for p in SRC.rglob("*.py"):
-        if p == settings:
-            continue
-        text = p.read_text(encoding="utf-8")
-        if "os.environ" in text:
-            offenders.append(f"{p.relative_to(SRC)}: os.environ")
-        if re.search(r"class \w+\(BaseSettings\)", text):
-            offenders.append(f"{p.relative_to(SRC)}: BaseSettings subclass")
-    assert not offenders, offenders
-
-
-def test_arch9_no_status_branching_outside_transport():
-    """Non-2xx responses raise typed YandexError subclasses from transport.py only."""
+    """Version, credentials, org header, hosts, env access and timeouts each have one home."""
     offenders = [
-        str(p.relative_to(SRC))
+        finding
         for p in SRC.rglob("*.py")
-        if p.name != "transport.py" and "raise_for_status" in p.read_text(encoding="utf-8")
+        for finding in _single_source_offenders(p.relative_to(SRC), p.read_text(encoding="utf-8"))
     ]
     assert not offenders, offenders
 
 
-def test_arch10_no_uplink_timeout_shadow():
-    """A configurable value is never overridden by a hardcoded literal at a call site."""
-    offenders = [
-        str(p.relative_to(SRC))
-        for p in SRC.rglob("*.py")
-        if "@uplink.timeout" in p.read_text(encoding="utf-8")
+def test_arch5_guard_bites():
+    rel = Path("yandex/wiki/pages/client.py")
+    for source in (
+        'YANDEX_ID_OAUTH_TOKEN = "x"',
+        '__version__ = "1.0"',
+        'headers = {"X-Org-Id": org}',
+        'URL = "https://api.wiki.yandex.net/v1"',
+        "token = os.environ['T']",
+        "class Local(BaseSettings): ...",
+        "@uplink.timeout(30)",
+    ):
+        assert _single_source_offenders(rel, source), source
+
+
+# The composition roots: the only modules that build settings from the environment.
+ARCH7_ROOTS = {
+    Path("cli/app.py"): "CLI root callback (logging config)",
+    Path("cli/context.py"): "CLI dependency container",
+    Path("mcp/__main__.py"): "python -m ycli.mcp entry point",
+    Path("yandex/mcp.py"): "MCP per-request providers",
+    Path("yandex/status/cli.py"): "auth status/login read and write credentials by design",
+}
+_SETTINGS_MODELS = {"AppConfig", "Credentials", "OAuthAppConfig"}
+
+
+def _settings_constructions(source: str) -> list[int]:
+    return [
+        node.lineno
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id in _SETTINGS_MODELS
     ]
-    assert not offenders, f"@uplink.timeout shadows YCLI__HTTP__TIMEOUT_SECONDS: {offenders}"
+
+
+def test_arch7_settings_are_built_only_at_composition_roots():
+    """Everything else receives its configuration as arguments (dependency injection)."""
+    offenders = {
+        str(rel): lines
+        for p in SRC.rglob("*.py")
+        if (rel := p.relative_to(SRC)) not in ARCH7_ROOTS and rel != Path("settings.py")
+        if (lines := _settings_constructions(p.read_text(encoding="utf-8")))
+    }
+    assert not offenders, f"settings built outside a composition root: {offenders}"
+
+
+def test_arch7_guard_bites():
+    assert _settings_constructions("config = AppConfig()\ncreds = Credentials()") == [1, 2]
+    assert _settings_constructions("def f(config: AppConfig): return config.http") == []
+
+
+def test_arch8_errors_are_mapped_in_one_place():
+    """Non-2xx answers become typed YandexErrors through ``errors.error_for_status`` only."""
+    homes = {Path("yandex/errors.py"), Path("yandex/transport.py"), Path("yandex/core/session.py")}
+    offenders = [
+        str(rel)
+        for p in SRC.rglob("*.py")
+        if (rel := p.relative_to(SRC)) not in homes
+        if re.search(r"raise_for_status|error_for_status\(", p.read_text(encoding="utf-8"))
+        and rel != Path("yandex/core/auth.py")  # the IAM token exchange maps its own failure
+    ]
+    assert not offenders, offenders
 
 
 def test_every_mcp_tool_has_description_and_output_schema():
@@ -756,69 +905,3 @@ def test_every_mcp_tool_has_description_and_output_schema():
         assert tool.outputSchema is not None, (
             f"{tool.name!r} is missing a return type annotation (→ outputSchema)"
         )
-
-
-ROOT = Path(__file__).resolve().parent.parent
-
-# User-facing doc files and globs to scan for purged idioms (ARCH-11).
-# Historical / rule-defining files are intentionally excluded:
-#   PROMPT.md            — historical transcript
-#   CHANGELOG.md         — historical release notes
-#   ARCHITECTURE.md      — DEFINES the forbidden idioms as rules
-#   .venv/** / .git/**   — not user-facing docs
-_LIVE_DOC_GLOBS = [
-    "README.md",
-    "CLAUDE.md",
-    "AGENTS.md",
-    "CONTRIBUTING.md",
-    "SECURITY.md",
-    "docs/conventions/**/*.md",
-    "plugins/**/*.md",
-]
-
-# Patterns whose mere presence in a live doc signals a purged idiom — either the CALL/USAGE
-# syntax of a decommissioned API, or a decommissioned literal string.
-# Rationale: `.from_env(` and `session_from_env(` match invocation; prose like "no from_env"
-# does not match because it lacks the trailing `(`. `X-Org-ID` (capital D) is the wrong-cased
-# org header from the old "casing differs per service" gotcha — the transport emits one
-# canonical `X-Org-Id` for every service (case-insensitive per RFC 9110), so the correct
-# `X-Org-Id` must never regress to `X-Org-ID`. The substring differs in the final letter, so
-# the correct casing is not matched.
-_PURGED_CALL_PATTERNS = [
-    ".from_env(",
-    "session_from_env(",
-    "X-Org-ID",
-]
-
-
-def _live_doc_files() -> list[Path]:
-    """Return the list of tracked user-facing doc files to scan (ARCH-11)."""
-    files: list[Path] = []
-    for glob_pattern in _LIVE_DOC_GLOBS:
-        matched = sorted(ROOT.glob(glob_pattern))
-        files.extend(p for p in matched if p.is_file())
-    return files
-
-
-def test_arch11_no_purged_idioms_in_live_docs():
-    """User-facing docs must not show purged call idioms that ARCH-7/ARCH-10 forbid in code.
-
-    Scanned files: README.md, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, SECURITY.md,
-    docs/conventions/**/*.md, plugins/**/*.md.
-    Excluded (historical/rule-defining): PROMPT.md, CHANGELOG.md,
-    ARCHITECTURE.md (it defines the forbidden idioms as rules), .venv/**, .git/**.
-    Patterns checked: .from_env(  session_from_env(  X-Org-ID
-    """
-    doc_files = _live_doc_files()
-    assert doc_files, "expected at least one live doc file to scan; glob list may be broken"
-    offenders: list[str] = []
-    for doc_file in doc_files:
-        text = doc_file.read_text(encoding="utf-8")
-        for pattern in _PURGED_CALL_PATTERNS:
-            if pattern in text:
-                rel = doc_file.relative_to(ROOT)
-                offenders.append(f"{rel}: contains purged call pattern {pattern!r}")
-    assert not offenders, (
-        "Purged idioms found in live docs — remove the call-site example or update the doc. "
-        f"Offenders: {offenders}"
-    )

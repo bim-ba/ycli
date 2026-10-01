@@ -183,7 +183,7 @@ forbidden_modules = ["requests", "uplink", "httpx2"]
 allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
-name = "ARCH-3: fastmcp is imported only in mcp modules"
+name = "ARCH-2: fastmcp is imported only in mcp modules"
 type = "forbidden"
 source_modules = [
     "ycli.cli",
@@ -196,7 +196,7 @@ forbidden_modules = ["fastmcp"]
 allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
-name = "MCP never imports the CLI layer (ycli.cli, typer), directly or through a helper"
+name = "ARCH-2: MCP never imports the CLI layer (ycli.cli, typer), even through a helper"
 type = "forbidden"
 source_modules = [
     "ycli.mcp.server",
