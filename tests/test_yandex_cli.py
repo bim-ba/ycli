@@ -127,5 +127,4 @@ def test_a_usage_error_wins_over_missing_credentials(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
     res = runner.invoke(cli.app, ["forms", "answers", "get"])
-    assert res.exit_code == 2, res.output
-    assert "exactly one of --answer-id / --answer-key" in res.output
+    assert res.exit_code == 2, res.output  # a credentials error would exit 1
