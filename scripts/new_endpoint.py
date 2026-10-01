@@ -47,7 +47,7 @@ class {cls}Client({domain_cls}Resource):
 
     @uplink.returns.json()
     @uplink.get("FILL/{resource}/{{item_id}}")  # FILL: real path
-    def get(self, item_id: uplink.Path) -> {cls}:  # type: ignore[empty-body]
+    def get(self, item_id: uplink.Path) -> {cls}:  # ty: ignore[empty-body]
         """GET one {resource} by id."""
 '''
 
@@ -56,8 +56,8 @@ from __future__ import annotations
 
 import typer
 
-from ycli.context import AppContext
-from ycli.output import Serializer
+from ycli.cli.context import AppContext
+from ycli.cli.output import Serializer
 
 app = typer.Typer(name="{resource}", help="{domain} /{resource}.", no_args_is_help=True)
 
@@ -82,8 +82,6 @@ The scaffolded tool is a read (`RO` annotations). For write tools use the `WRITE
 `WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets from ``ycli.yandex.mcp`` plus the
 `write` tag, and pick a verb the ARCH-3 classification maps know.
 """
-from __future__ import annotations
-
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
@@ -113,23 +111,22 @@ def _cls(name: str) -> str:
     return "".join(part.capitalize() for part in name.replace("-", "_").split("_"))
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Scaffold a new Yandex resource.")
-    parser.add_argument("domain", choices=DOMAINS)
-    parser.add_argument("resource", help="resource name, e.g. macros")
-    args = parser.parse_args()
+def scaffold(domain: str, resource: str, root: Path = ROOT) -> Path:
+    """Write the resource package under ``root/<domain>/<resource>`` and return its path.
 
-    resource = args.resource.replace("-", "_")
-    target = ROOT / args.domain / resource
+    >>> scaffold("tracker", "macros")  # doctest: +SKIP
+    PosixPath('.../src/ycli/yandex/tracker/macros')
+    """
+    target = root / domain / resource
     if target.exists():
         raise SystemExit(f"{target} already exists")
     target.mkdir(parents=True)
 
     ctx = {
-        "domain": args.domain,
+        "domain": domain,
         "resource": resource,
         "cls": _cls(resource),
-        "domain_cls": _cls(args.domain),
+        "domain_cls": _cls(domain),
     }
     for filename, template in (
         ("__init__.py", INIT),
@@ -139,8 +136,19 @@ def main() -> None:
         ("mcp.py", MCP),
     ):
         (target / filename).write_text(template.format(**ctx), encoding="utf-8")
+    return target
 
-    cls = ctx["cls"]
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Scaffold a new Yandex resource.")
+    parser.add_argument("domain", choices=DOMAINS)
+    parser.add_argument("resource", help="resource name, e.g. macros")
+    args = parser.parse_args()
+
+    resource = args.resource.replace("-", "_")
+    target = scaffold(args.domain, resource)
+
+    cls = _cls(resource)
     print(f"scaffolded {target.relative_to(ROOT.parent.parent.parent)}")
     print(
         "next:\n"
