@@ -3,10 +3,12 @@ name: arch-review
 description: >-
   Use when reviewing the current diff against the ARCHITECTURE.md invariants
   before merge; states PASS/FAIL per invariant with file:line evidence.
+metadata:
+  internal: true
 ---
 # Architecture review
 
-Codex has no project-scoped slash commands; this is the skill form of the repo's
+This is the skill form of the repo's
 `/arch-review` command, kept in sync with `.rulesync/commands/arch-review.md`.
 
 Review the working diff (`git diff main...HEAD`) strictly against `ARCHITECTURE.md`; it holds

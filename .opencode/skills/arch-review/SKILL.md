@@ -1,11 +1,11 @@
 ---
 name: arch-review
-description: Use when reviewing the current diff against the ARCHITECTURE.md invariants before merge; states PASS/FAIL per invariant with file:line evidence.
-targets: ["claudecode", "opencode"]
+description: >-
+  Use when reviewing the current diff against the ARCHITECTURE.md invariants
+  before merge; states PASS/FAIL per invariant with file:line evidence.
 metadata:
   internal: true
 ---
-
 # Architecture review
 
 This is the skill form of the repo's

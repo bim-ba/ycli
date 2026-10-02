@@ -17,9 +17,11 @@ this; it is the spec the architecture review and any future authoring pass check
 - **Repo slash-commands** live in `.rulesync/commands/<name>.md` (generated to
   `.claude/commands/` and `.opencode/commands/`). Names are kebab-case `verb-noun` — the
   existing `/new-endpoint` and `/arch-review` are the worked examples. A new command names the
-  action first (`generate-…`, `check-…`, `review-…`). Codex has no project-scoped commands, so
-  a command that must also reach Codex is mirrored as a `.rulesync/skills/<name>/SKILL.md`
-  with `targets: ["codexcli"]` (see the existing `arch-review` / `new-endpoint` skills).
+  action first (`generate-…`, `check-…`, `review-…`). A dev-only skill form of a command
+  (the existing `arch-review` / `new-endpoint`) sets `targets: ["claudecode", "opencode"]` and
+  `metadata: {internal: true}`; never `codexcli` or `agentsskills`: they write `.agents/skills`,
+  which `npx skills add bim-ba/ycli` scans first, and neither keeps `internal` as a boolean, so
+  the dev skill would be offered to users (#119). Codex therefore gets no dev commands.
 
 ## Frontmatter
 
@@ -50,8 +52,8 @@ when relevant, it is a `reference`.
 
 ## Placement
 
-- Repo-only developer tooling (generators, review gates) → `.rulesync/commands/` (mirrored as a
-  `targets: ["codexcli"]` skill where Codex needs it). These are not distributed with the plugin.
+- Repo-only developer tooling (generators, review gates) → `.rulesync/commands/` (optionally mirrored as an
+  `internal` skill, see above). These are not distributed with the plugin.
 - User-facing domain capability (driving Tracker/Wiki/Forms) → `plugins/yandex-360/skills/`,
   surfaced to the canon through `.rulesync/skills/<name>` symlinks.
 

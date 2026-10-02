@@ -1,11 +1,11 @@
 ---
 name: new-endpoint
-description: Use when scaffolding a new Yandex resource (client/cli/mcp/models) that satisfies the architecture by construction; takes a <domain> and <resource>.
-targets: ["claudecode", "opencode"]
+description: >-
+  Use when scaffolding a new Yandex resource (client/cli/mcp/models) that
+  satisfies the architecture by construction; takes a <domain> and <resource>.
 metadata:
   internal: true
 ---
-
 # New endpoint
 
 This is the skill form of the repo's

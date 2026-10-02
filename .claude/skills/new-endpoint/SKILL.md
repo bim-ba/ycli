@@ -3,10 +3,12 @@ name: new-endpoint
 description: >-
   Use when scaffolding a new Yandex resource (client/cli/mcp/models) that
   satisfies the architecture by construction; takes a <domain> and <resource>.
+metadata:
+  internal: true
 ---
 # New endpoint
 
-Codex has no project-scoped slash commands; this is the skill form of the repo's
+This is the skill form of the repo's
 `/new-endpoint <domain> <resource>` command, kept in sync with
 `.rulesync/commands/new-endpoint.md`.
 
