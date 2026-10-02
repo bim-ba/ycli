@@ -15,6 +15,17 @@ from ycli.yandex.tracker.queues.models import (
 FULL_PAGE = [{"id": str(index), "key": f"Q{index}"} for index in range(50)]
 QUEUE = {"id": "3", "key": "DESIGN", "name": "Design"}
 
+
+def _listed(key: str) -> dict:
+    """A queue as listed with only its key, every other field at its default."""
+    unset = (
+        "self", "id", "version", "name", "description", "lead", "assignAuto", "defaultType",
+        "defaultPriority", "denyVoting",
+    )  # fmt: skip
+    empty = {"teamUsers": [], "issueTypes": [], "versions": [], "workflows": {}}
+    return {"key": key, **dict.fromkeys(unset), **empty, "issueTypesConfig": []}
+
+
 CASES = [
     Case(
         "tracker.queues.list",
@@ -40,6 +51,7 @@ CASES = [
                 Reply(json=[{"key": "A"}, {"key": "B"}, {"key": "C"}]),
             )
         ],
+        output=[_listed("A"), _listed("B")],
     ),
     Case(
         "tracker.queues.list",
