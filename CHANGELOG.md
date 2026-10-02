@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.36.1 (2026-10-02)
+
+### Bug Fixes
+
+- Close the gaps the E3 review found across #164-#170
+  ([#171](https://github.com/bim-ba/ycli/pull/171),
+  [`54eea7b`](https://github.com/bim-ba/ycli/commit/54eea7b850f32e251916d8324dbd014849ed01fd))
+
+- Close the gaps the E3 review found across the milestone
+  ([#171](https://github.com/bim-ba/ycli/pull/171),
+  [`54eea7b`](https://github.com/bim-ba/ycli/commit/54eea7b850f32e251916d8324dbd014849ed01fd))
+
+### Build System
+
+- Re-lock uv.lock for 0.36.0
+  ([`834801d`](https://github.com/bim-ba/ycli/commit/834801d7e596d6899587c56e922be0b90e715fd4))
+
+### Documentation
+
+- **drift-log**: A PR's CI can start between a release and its re-lock
+  ([#171](https://github.com/bim-ba/ycli/pull/171),
+  [`54eea7b`](https://github.com/bim-ba/ycli/commit/54eea7b850f32e251916d8324dbd014849ed01fd))
+
+
 ## v0.36.0 (2026-10-02)
 
 ### Build System
