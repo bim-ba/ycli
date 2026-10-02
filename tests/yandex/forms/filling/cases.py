@@ -29,7 +29,7 @@ CASES = [
             SID,
             "--body-file",
             str(ANSWER_FILE),
-            "--dry-run",
+            "--validate-only",
             "--key",
             "k-2",
         ],

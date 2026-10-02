@@ -84,6 +84,12 @@ dependency; it has no build for Windows on ARM).
 `DELETE <url> — this deletes data. Continue?` on stderr when you are at a terminal, and exits 1
 if you decline. In a script, a pipe or CI there is no one to ask, so it fails with exit 2 until
 you pass `--yes` / `-y`: `ycli tracker boards delete 7 --yes`. Reads and ordinary writes never ask.
+
+**Preview a write.** `--dry-run` sends nothing for any write: it prints the request instead
+(method, URL, body; never your token), through the same `-o` / `--jq` output, and exits 0.
+Reads still run, so a command that reads and then writes shows its first write only:
+`ycli tracker boards delete 7 --dry-run`. (The two commands that ask the API itself to validate
+a request, `forms filling submit` and `wiki pages move`, call that `--validate-only`.)
 </details>
 
 <details>

@@ -2,9 +2,13 @@
 
 The core calls it once per endpoint, before the first HTTP attempt, with the endpoint's effect
 and the request about to go out (``ycli.yandex.core.session.BeforeSend``), so no command needs
-its own confirmation code. An operation that destroys data asks first, unless ``--yes`` was
-given: on a terminal it prompts on stderr, and a declined prompt aborts (exit 1); with no
-terminal to ask it fails as a usage error (exit 2) that says to pass ``--yes``.
+its own confirmation or dry-run code:
+
+- with ``--dry-run`` a write is not sent: the guard raises :class:`DryRunPlanned`, which the
+  command wrapper turns into the command's result — the request it would have sent;
+- an operation that destroys data asks first, unless ``--yes`` was given: on a terminal it
+  prompts on stderr, and a declined prompt aborts (exit 1); with no terminal to ask it fails as a
+  usage error (exit 2) that says to pass ``--yes``.
 """
 
 from __future__ import annotations
@@ -16,6 +20,7 @@ from typing import TYPE_CHECKING, Any
 import typer
 from typer._click.exceptions import UsageError
 
+from ycli.cli.planned_request import PlannedRequest
 from ycli.yandex.core.session import shown
 
 if TYPE_CHECKING:
@@ -31,17 +36,29 @@ def attended() -> bool:
     return sys.stdin.isatty() and sys.stdout.isatty()
 
 
+class DryRunPlanned(Exception):  # noqa: N818  # a signal that stops the command, not an error
+    """Stops a command at its first write under ``--dry-run``; ``plan`` is what it would send."""
+
+    def __init__(self, plan: PlannedRequest) -> None:
+        super().__init__(f"{plan.method} {plan.url}")
+        self.plan = plan
+
+
 @dataclass(frozen=True)
 class SendGuard:
     """The ``before_send`` hook of the CLI; ``options`` is the root's parsed global options.
 
-    ``options`` is read at call time, so a ``--yes`` given after the subcommand (written into
-    the root state by the leaf) counts.
+    ``options`` is read at call time, so a ``--yes`` or ``--dry-run`` given after the subcommand
+    (written into the root state by the leaf) counts. Reads pass untouched.
     """
 
     options: Mapping[str, Any]
 
     def __call__(self, effect: Effect, request: httpx2.Request) -> None:
+        if effect == "read":
+            return
+        if self.options.get("dry_run"):
+            raise DryRunPlanned(PlannedRequest.of(request))
         if effect == "destructive" and not self.options.get("yes"):
             self._confirm(f"{request.method} {shown(request.url)} — this deletes data.")
 

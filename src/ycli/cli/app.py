@@ -12,7 +12,7 @@ import typer
 from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
-from ycli.cli.typedefs import FormatOption, JqOption, YesOption
+from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, YesOption
 from ycli.yandex.registry import SERVICES
 
 
@@ -31,6 +31,7 @@ def _render(
     output_format: OutputFormat | None,
     jq: str | None,
     yes: bool,
+    dry_run: bool,
     verbose: int,
     version: bool,
 ) -> None:
@@ -67,6 +68,7 @@ def _main(
     output_format: FormatOption = OutputFormat.auto,
     jq: JqOption = None,
     yes: YesOption = False,
+    dry_run: DryRunOption = False,
     verbose: Annotated[
         int,
         typer.Option(

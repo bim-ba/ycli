@@ -41,16 +41,17 @@ def get(survey: SurveyIdArg, key: Annotated[str, _KEY] = "", *, forms: FormsClie
 def submit(
     survey: SurveyIdArg,
     body_file: BodyFileArg,
-    dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Validate only — save nothing, fire no integrations.")
+    validate_only: Annotated[
+        bool,
+        typer.Option("--validate-only", help="Validate only — save nothing, fire no integrations."),
     ] = False,
     key: Annotated[str, _KEY] = "",
     *,
     forms: FormsClient,
 ) -> SubmitResult:
-    """Submit a form response from --body-file (POST …/form); --dry-run validates only."""
+    """Submit a form response from --body-file (POST …/form); --validate-only validates only."""
     payload = SubmitBody.model_validate(json.loads(body_file.read_text(encoding="utf-8")))
-    return forms.filling.submit(survey, payload, dry_run=dry_run, key=key or None)
+    return forms.filling.submit(survey, payload, dry_run=validate_only, key=key or None)
 
 
 @app.command()

@@ -14,7 +14,8 @@ so a test can call it with a fake client directly. Commands run under the ``ycli
 which applies the injection; a sub-app used on its own needs ``inject_dependencies(app)`` first.
 
 The same rewrite gives each command the global options of :mod:`ycli.cli.global_options`, so
-they are accepted after the subcommand as well as before it.
+they are accepted after the subcommand as well as before it, and ends a ``--dry-run`` command
+at its first write (:class:`~ycli.cli.guard.DryRunPlanned`), returning the planned request.
 
 Kill-criterion: delete this module when Typer ships its own dependency injection.
 """
@@ -29,6 +30,7 @@ import typer
 
 from ycli.cli.context import AppContext
 from ycli.cli.global_options import apply_leaf_values, leaf_parameters
+from ycli.cli.guard import DryRunPlanned
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -89,7 +91,10 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
             name: _Deferred(functools.partial(app_context.resolve, kind))
             for name, kind in injected.items()
         }
-        return command(*args, **kwargs, **dependencies)
+        try:
+            return command(*args, **kwargs, **dependencies)
+        except DryRunPlanned as planned:  # --dry-run: the first write became its plan
+            return planned.plan
 
     context = inspect.Parameter(_CONTEXT, inspect.Parameter.KEYWORD_ONLY, annotation=typer.Context)
     run.__signature__ = signature.replace(  # ty: ignore[unresolved-attribute]
