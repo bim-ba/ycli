@@ -9,6 +9,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
 from ycli.yandex.registry import SERVICES
@@ -35,6 +36,7 @@ app = typer.Typer(
     cls=_Ycli,
     name="ycli",
     help="ycli — Yandex 360 API SDK CLI.",
+    epilog=f"Exit codes: {exit_codes_summary()} (see the README).",
     no_args_is_help=True,
     pretty_exceptions_show_locals=False,
     rich_markup_mode="rich",
@@ -92,16 +94,15 @@ def _main(
     configure(level=level, log_format=logging_config.format)
 
 
-def main() -> None:  # pragma: no cover
-    """Console-script entry point (``ycli`` / ``yandex-cli``)."""
-    import typer
+def main() -> None:
+    """Console-script entry point (``ycli`` / ``yandex-cli``): a failure exits by its kind."""
     from pydantic import ValidationError
 
-    from ycli.cli.errors import format_cli_error
+    from ycli.cli.errors import exit_code_for, format_cli_error
     from ycli.yandex.errors import YandexError
 
     try:
         app()
     except (YandexError, ValidationError) as exc:
         typer.secho(format_cli_error(exc), fg=typer.colors.RED, err=True)
-        raise SystemExit(1) from exc
+        raise SystemExit(exit_code_for(exc)) from exc
