@@ -9,6 +9,39 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.30.0 (2026-10-02)
+
+### Bug Fixes
+
+- Drop the dev-only skill mirrors instead of duplicating the commands
+  ([#164](https://github.com/bim-ba/ycli/pull/164),
+  [`431a9e0`](https://github.com/bim-ba/ycli/commit/431a9e0ecfd9b0021cde9c71ee56a4df0136d382))
+
+- Keep the dev-only skills out of `npx skills add bim-ba/ycli`
+  ([#164](https://github.com/bim-ba/ycli/pull/164),
+  [`431a9e0`](https://github.com/bim-ba/ycli/commit/431a9e0ecfd9b0021cde9c71ee56a4df0136d382))
+
+### Build System
+
+- Re-lock uv.lock for 0.29.0
+  ([`7033ee4`](https://github.com/bim-ba/ycli/commit/7033ee4c34a9063f09f903356b3db643d626fa17))
+
+### Documentation
+
+- The repository ships only the four user skills ([#164](https://github.com/bim-ba/ycli/pull/164),
+  [`431a9e0`](https://github.com/bim-ba/ycli/commit/431a9e0ecfd9b0021cde9c71ee56a4df0136d382))
+
+### Features
+
+- Publish every release to the MCP Registry, GHCR and as a Claude Desktop bundle
+  ([#164](https://github.com/bim-ba/ycli/pull/164),
+  [`431a9e0`](https://github.com/bim-ba/ycli/commit/431a9e0ecfd9b0021cde9c71ee56a4df0136d382))
+
+- Ship every release to the MCP Registry, GHCR and as a .mcpb bundle
+  ([#164](https://github.com/bim-ba/ycli/pull/164),
+  [`431a9e0`](https://github.com/bim-ba/ycli/commit/431a9e0ecfd9b0021cde9c71ee56a4df0136d382))
+
+
 ## v0.29.0 (2026-10-02)
 
 ### Build System
