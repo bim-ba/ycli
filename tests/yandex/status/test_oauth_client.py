@@ -1,7 +1,9 @@
 """OAuthClient — device/implicit OAuth HTTP + api360 org lookup (stubbed with responses)."""
 
+import pytest
 import responses
 
+from ycli.yandex.errors import YandexAuthError, YandexClientError, YandexServerError
 from ycli.yandex.status.client import OAuthClient
 
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
@@ -80,10 +82,41 @@ def test_poll_token_terminal_error():
 
 
 @responses.activate
-def test_poll_token_error_without_field_uses_fallback():
-    responses.add(responses.POST, TOKEN_URL, json={}, status=400)
-    result = _client().poll_token("dev-123")
-    assert result.error == "authorization failed"
+def test_poll_token_invalid_client_as_401_is_a_polling_state():
+    # RFC 6749 §5.2: invalid_client MAY come back as 401 instead of 400.
+    responses.add(responses.POST, TOKEN_URL, json={"error": "invalid_client"}, status=401)
+    assert _client().poll_token("dev-123").error == "invalid_client"
+
+
+@pytest.mark.parametrize(
+    ("status", "body", "error"),
+    [
+        (400, "{}", YandexClientError),  # a 400 without an OAuth error code is no polling state
+        (400, "<html>Bad Request</html>", YandexClientError),
+        (403, '{"error": "forbidden"}', YandexAuthError),  # not an OAuth token-endpoint status
+        (503, "<html>Service Unavailable</html>", YandexServerError),
+    ],
+)
+@responses.activate
+def test_poll_token_maps_other_failures_to_typed_errors(status, body, error):
+    responses.add(responses.POST, TOKEN_URL, body=body, status=status)
+    with pytest.raises(error) as raised:
+        _client().poll_token("dev-123")
+    assert raised.value.status == status
+
+
+@pytest.mark.parametrize(
+    ("status", "body", "error"),
+    [
+        (400, '{"error": "invalid_client"}', YandexClientError),
+        (503, "<html>Service Unavailable</html>", YandexServerError),
+    ],
+)
+@responses.activate
+def test_request_device_code_maps_failures_to_typed_errors(status, body, error):
+    responses.add(responses.POST, DEVICE_CODE_URL, body=body, status=status)
+    with pytest.raises(error, match=f"{status} .* for POST {DEVICE_CODE_URL}"):
+        _client().request_device_code()
 
 
 @responses.activate
@@ -107,3 +140,24 @@ def test_fetch_organizations_empty_on_missing_scope():
         responses.GET, ORG_URL, json={"code": 7, "message": "No required scope"}, status=403
     )
     assert _client().fetch_organizations("tok") == []
+
+
+@responses.activate
+def test_fetch_organizations_empty_on_rejected_token():
+    responses.add(responses.GET, ORG_URL, json={"message": "Unauthorized"}, status=401)
+    assert _client().fetch_organizations("tok") == []
+
+
+@pytest.mark.parametrize(
+    ("status", "body", "error"),
+    [
+        (400, '{"message": "bad request"}', YandexClientError),
+        (503, "<html>Service Unavailable</html>", YandexServerError),
+    ],
+)
+@responses.activate
+def test_fetch_organizations_raises_on_other_failures(status, body, error):
+    """Only 401/403 mean "no directory scope"; any other failure is not an empty org list."""
+    responses.add(responses.GET, ORG_URL, body=body, status=status)
+    with pytest.raises(error):
+        OAuthClient(client_id="id", retries=0).fetch_organizations("tok")

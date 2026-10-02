@@ -239,6 +239,183 @@ def _mcp_tools():
     return asyncio.run(go())
 
 
+def _served_cli_groups() -> set[str]:
+    """``domain.group`` for every resource group the ``ycli`` CLI dispatches to.
+
+    Read from the built Click tree, each lazy service group loaded (``ycli.cli.lazy``), so a
+    sub-app that is never ``add_typer``-ed into its domain is absent.
+    """
+    import typer.main
+
+    from ycli.cli.app import app
+    from ycli.cli.lazy import LazyGroup, RootGroup
+
+    root = typer.main.get_command(app)
+    assert isinstance(root, RootGroup)
+    groups = set()
+    for domain in DOMAINS:
+        service = root.commands[domain]
+        assert isinstance(service, LazyGroup)
+        groups |= {f"{domain}.{group}" for group in service.load().commands}
+    return groups
+
+
+def _surface_names(resource: str) -> tuple[str, str]:
+    """A resource directory's CLI group and MCP tool prefix.
+
+    ``tracker.import_`` -> ``("tracker.import", "tracker_import_")``.
+    """
+    domain, _, name = resource.partition(".")
+    name = name.rstrip("_")
+    return f"{domain}.{name}", f"{domain}_{name}_"
+
+
+def _served_gaps(
+    on_disk: set[str], wired: set[str], cli_groups: set[str], tools: set[str], cli_only: set[str]
+) -> list[str]:
+    """Resources the running surfaces do not serve, and served names with no resource.
+
+    ``on_disk`` and ``wired`` are ``domain.resource`` (the directory and the domain client's
+    attribute, e.g. ``tracker.import_``); ``cli_groups`` are ``domain.group`` and ``tools`` the
+    served MCP tool names. A resource in ``cli_only`` (every operation a listed CLI-only
+    asymmetry) needs no MCP tool.
+    """
+    gaps = []
+    for resource in sorted(on_disk | wired):
+        domain = resource.partition(".")[0]
+        group, prefix = _surface_names(resource)
+        if resource not in on_disk:
+            gaps.append(f"{resource}: wired into {domain}/client.py but has no directory")
+            continue
+        if resource not in wired:
+            gaps.append(f"{resource}: not wired into {domain}/client.py")
+        if group not in cli_groups:
+            gaps.append(f"{resource}: no CLI group — not add_typer-ed in {domain}/cli.py")
+        if resource not in cli_only and not any(tool.startswith(prefix) for tool in tools):
+            gaps.append(f"{resource}: serves no MCP tool — not mounted in {domain}/mcp.py")
+    names = [_surface_names(resource) for resource in on_disk]
+    groups = {group for group, _ in names}
+    prefixes = tuple(prefix for _, prefix in names)
+    gaps += [
+        f"{group}: a CLI group with no resource directory" for group in sorted(cli_groups - groups)
+    ]
+    gaps += [
+        f"{tool}: an MCP tool with no resource directory"
+        for tool in sorted(tools)
+        if not tool.startswith(prefixes)
+    ]
+    return gaps
+
+
+def test_arch1_every_resource_is_served():
+    """Each resource directory is wired into its domain client and served by the running CLI
+    and MCP server, and nothing is served without a directory (ARCH-1).
+
+    The file and operation checks above read source files, so a resource never wired into
+    ``client.py`` or never mounted (``app.add_typer`` / ``mcp.mount``) passes them; this reads
+    what the surfaces actually serve.
+    """
+    on_disk = {f"{d.parent.name}.{d.name}" for d in _resource_dirs()}
+    operations = {f"{slug}.{attr}": ops for slug, attr, ops in _resource_operations()}
+    cli_only = {
+        resource
+        for resource, ops in operations.items()
+        if ops and all(f"{resource}.{op}" in ARCH1_SURFACE_ASYMMETRIES for op in ops)
+    }
+    # status_* belongs to no resource: `status/` is a cross-cutting surface (see ARCHITECTURE.md).
+    tools = {tool.name for tool in _mcp_tools() if not tool.name.startswith("status_")}
+    gaps = _served_gaps(on_disk, set(operations), _served_cli_groups(), tools, cli_only)
+    assert not gaps, gaps
+
+
+def test_arch1_served_check_bites():
+    """Prove-it: a ghost directory, an unmounted CLI group or MCP server, and served names with
+    no directory are each reported; a CLI-only resource needs no MCP tool."""
+    disk = {"forms.keysets", "tracker.import_"}
+    groups = {"forms.keysets", "tracker.import"}
+    tools = {"forms_keysets_get", "tracker_import_task"}
+    assert _served_gaps(disk, disk, groups, tools, set()) == []
+    assert _served_gaps(disk | {"forms.ghost"}, disk, groups, tools, set()) == [
+        "forms.ghost: not wired into forms/client.py",
+        "forms.ghost: no CLI group — not add_typer-ed in forms/cli.py",
+        "forms.ghost: serves no MCP tool — not mounted in forms/mcp.py",
+    ]
+    assert _served_gaps(disk, disk | {"forms.ghost"}, groups, tools, set()) == [
+        "forms.ghost: wired into forms/client.py but has no directory"
+    ]
+    assert _served_gaps(disk, disk, groups, {"tracker_import_task"}, set()) == [
+        "forms.keysets: serves no MCP tool — not mounted in forms/mcp.py"
+    ]
+    assert _served_gaps(disk, disk, groups, {"tracker_import_task"}, {"forms.keysets"}) == []
+    assert _served_gaps(disk, disk, {"forms.keysets"}, tools, set()) == [
+        "tracker.import_: no CLI group — not add_typer-ed in tracker/cli.py"
+    ]
+    assert _served_gaps(
+        disk, disk, groups | {"forms.stray"}, tools | {"wiki_stray_get"}, set()
+    ) == [
+        "forms.stray: a CLI group with no resource directory",
+        "wiki_stray_get: an MCP tool with no resource directory",
+    ]
+
+
+# Resources still on uplink. The set may only shrink: a new resource starts on the httpx2 core
+# (`/new-endpoint` scaffolds it there), and a resource that moves leaves this list; E2 empties it.
+UPLINK_RESOURCES = frozenset(
+    {
+        *(f"tracker.{name}" for name in (
+            "applications", "attachments", "autoactions", "boards", "bulk", "changelog",
+            "checklists", "columns", "comments", "components", "dashboards", "entities",
+            "fields", "filters", "import_", "issuetypes", "links", "linktypes", "localfields",
+            "macros", "me", "priorities", "queues", "remotelinks", "resolutions", "sprints",
+            "statuses", "transitions", "triggers", "users", "worklog",
+        )),
+        *(f"wiki.{name}" for name in (
+            "attachments", "comments", "grids", "me", "operations", "pages", "recovery",
+            "resources", "uploadsessions",
+        )),
+        *(f"forms.{name}" for name in (
+            "answers", "files", "filling", "images", "keysets", "me", "operations", "questions",
+            "surveys",
+        )),
+    }
+)  # fmt: skip
+
+
+def _uplink_drift(on_uplink: set[str], frozen: frozenset[str]) -> list[str]:
+    """New resources on uplink, and listed ones that have moved to the core."""
+    return [
+        f"{resource}: a new resource on uplink — build it on the httpx2 core (/new-endpoint)"
+        for resource in sorted(on_uplink - frozen)
+    ] + [
+        f"{resource}: now on the core — remove it from UPLINK_RESOURCES"
+        for resource in sorted(frozen - on_uplink)
+    ]
+
+
+def test_uplink_resources_only_shrink():
+    """No new resource lands on the uplink stack that E2 deletes; the list tracks the move."""
+    from ycli.yandex.core.resource import Resource
+
+    on_uplink = {
+        f"{slug}.{attr}"
+        for slug, attr, _ in _resource_operations()
+        if not isinstance(getattr(_clients()[slug], attr), Resource)
+    }
+    drift = _uplink_drift(on_uplink, UPLINK_RESOURCES)
+    assert not drift, drift
+
+
+def test_uplink_ratchet_bites():
+    frozen = frozenset({"wiki.pages", "forms.surveys"})
+    assert _uplink_drift({"wiki.pages", "forms.surveys"}, frozen) == []
+    assert _uplink_drift({"wiki.pages", "forms.surveys", "forms.ghost"}, frozen) == [
+        "forms.ghost: a new resource on uplink — build it on the httpx2 core (/new-endpoint)"
+    ]
+    assert _uplink_drift({"forms.surveys"}, frozen) == [
+        "wiki.pages: now on the core — remove it from UPLINK_RESOURCES"
+    ]
+
+
 def _uplink_tools() -> list:
     """MCP tools of resources still on uplink — the ones the verb maps must classify."""
     gen = _load_gen_coverage()
@@ -771,18 +948,90 @@ def test_arch8_typed_body_guard_bites():
     assert _untyped_body_offenders(allowlisted, module_label) == []
 
 
+def _import_aliases(tree: ast.AST) -> dict[str, str]:
+    """Each imported local name -> the dotted name it stands for.
+
+    ``from rich import print as rprint`` gives ``{"rprint": "rich.print"}``; ``import pprint``
+    gives ``{"pprint": "pprint"}``; ``import yaml as y`` gives ``{"y": "yaml"}``.
+    """
+    aliases: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                top = alias.name.partition(".")[0]
+                aliases[alias.asname or top] = alias.name if alias.asname else top
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            for alias in node.names:
+                aliases[alias.asname or alias.name] = f"{node.module}.{alias.name}"
+    return aliases
+
+
+def _dotted(expr: ast.expr, aliases: dict[str, str]) -> str:
+    """The dotted name ``expr`` refers to, imports resolved; ``""`` if it is not a name chain.
+
+    ``rprint`` -> ``rich.print``; ``sys.__stdout__.write`` -> ``sys.__stdout__.write``;
+    ``Console().print`` -> ``""`` (the inner ``Console()`` call is judged on its own).
+    """
+    parts: list[str] = []
+    while isinstance(expr, ast.Attribute):
+        parts.append(expr.attr)
+        expr = expr.value
+    if not isinstance(expr, ast.Name):
+        return ""
+    parts.append(aliases.get(expr.id, expr.id))
+    return ".".join(reversed(parts))
+
+
+# Serializers that turn a result into text. Only output.render may call them (ARCH-4).
+_SERIALIZERS = frozenset(
+    {"json.dump", "json.dumps", "yaml.dump", "yaml.safe_dump", "yaml.dump_all",
+     "yaml.safe_dump_all", "pydantic_core.to_json"}
+)  # fmt: skip
+_SERIALIZER_METHODS = frozenset({"model_dump_json", "dump_json"})  # BaseModel / TypeAdapter
+# Where a result may be serialized, and why.
+ARCH4_SERIALIZATION_HOMES = {
+    Path("cli/output.py"): "output.render, the one output path",
+    Path("log.py"): "the JSON log formatter writes diagnostic records to stderr, not results",
+}
+
+
+def _serializations(source: str) -> list[str]:
+    """Calls in ``source`` that serialize a value: ``json.dumps``, ``yaml.safe_dump``,
+    ``pydantic_core.to_json`` (import aliases resolved) or a ``.model_dump_json()``."""
+    tree = ast.parse(source)
+    aliases = _import_aliases(tree)
+    found = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            name = _dotted(node.func, aliases)
+            method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
+            if name in _SERIALIZERS or method in _SERIALIZER_METHODS:
+                found.append(f"{name or method} (line {node.lineno})")
+    return found
+
+
 def test_arch4_serialization_confined_to_output():
-    """Rendering lives in output.py; model_dump_json/yaml.safe_dump/json.dumps nowhere else."""
-    offenders = []
-    # log.py formats diagnostic log records for stderr (its JSON formatter), not model output.
-    allowed = {SRC / "cli" / "output.py", SRC / "log.py"}
-    for p in SRC.rglob("*.py"):
-        if p in allowed:
-            continue
-        text = p.read_text(encoding="utf-8")
-        if "model_dump_json" in text or "yaml.safe_dump" in text or "json.dumps" in text:
-            offenders.append(str(p.relative_to(SRC)))
+    """Rendering lives in output.py; nothing else serializes a result."""
+    offenders = {
+        str(rel): found
+        for p in SRC.rglob("*.py")
+        if (rel := p.relative_to(SRC)) not in ARCH4_SERIALIZATION_HOMES
+        if (found := _serializations(p.read_text(encoding="utf-8")))
+    }
     assert not offenders, f"serialization must live only in output.py; found in {offenders}"
+
+
+def test_arch4_serialization_guard_bites():
+    for source in (
+        "text = json.dumps(data)",
+        "import json as j\ntext = j.dumps(data)",
+        "from yaml import safe_dump\ntext = safe_dump(data)",
+        "text = result.model_dump_json()",
+        "from pydantic_core import to_json\ndata = to_json(result)",
+        "import pydantic_core\ndata = pydantic_core.to_json(result)",
+    ):
+        assert _serializations(source), source
+    assert _serializations("data = result.model_dump(mode='json')\nvalue = json.loads(text)") == []
 
 
 def _to_stderr(call: ast.Call) -> bool:
@@ -793,42 +1042,72 @@ def _to_stderr(call: ast.Call) -> bool:
     )
 
 
-def _stdout_writes(source: str) -> list[str]:
-    """Places in ``source`` that write to stdout: ``print``, ``rich.print``, ``typer.echo`` /
-    ``secho`` and ``Console(...)`` without a stderr flag, ``os.write``, and any use of the name
-    ``stdout``. Messages to stderr are UI, not output."""
+_PRINTERS = frozenset(
+    {"print", "builtins.print", "rich.print", "rich.print_json", "pprint", "pprint.pprint",
+     "pprint.pp"}
+)  # fmt: skip
+_STDOUT_NAMES = frozenset({"stdout", "__stdout__"})
+# Where stdout may be written, and why: the renderer itself, and one eager option.
+ARCH4_STDOUT_HOMES = {Path("cli/output.py"): "output.render, the one output path"}
+ARCH4_STDOUT_FUNCTIONS = {
+    # Eager: it runs before any command, so there is no result to return. Routing it through
+    # output.render would import yaml/rich/pydantic first (measured 48 -> 110 ms for --version).
+    "cli/app.py:_version_callback": "`ycli --version` prints the version and exits",
+}
+
+
+def _stdout_writes(source: str, exempt_functions: frozenset[str] = frozenset()) -> list[str]:
+    """Places in ``source`` that write to stdout: ``print`` in any spelling (``builtins.print``,
+    ``rich.print``, ``pprint``, an import alias), ``typer.echo`` / ``secho`` and ``Console(...)``
+    without a stderr flag, ``os.write``, and any use of ``stdout`` / ``__stdout__``. Messages to
+    stderr are UI, not output. Top-level functions named in ``exempt_functions`` are skipped."""
+    tree = ast.parse(source)
+    aliases = _import_aliases(tree)
     found = []
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.Call):
-            func = node.func
-            name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
-            owner = (
-                func.value.id
-                if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name)
-                else None
-            )
-            if name == "print" and (isinstance(func, ast.Name) or owner == "rich"):
-                found.append(f"print (line {node.lineno})")
-            elif name in {"echo", "secho", "Console"} and not _to_stderr(node):
-                found.append(f"{name} (line {node.lineno})")
-            elif name == "write" and owner == "os":
-                found.append(f"os.write (line {node.lineno})")
-        elif (
-            (isinstance(node, ast.Attribute) and node.attr == "stdout")
-            or (isinstance(node, ast.Name) and node.id == "stdout")
-            or (isinstance(node, ast.ImportFrom) and any(a.name == "stdout" for a in node.names))
-        ):
-            found.append(f"stdout (line {node.lineno})")
+    for top in tree.body:
+        if isinstance(top, ast.FunctionDef) and top.name in exempt_functions:
+            continue
+        for node in ast.walk(top):
+            if isinstance(node, ast.Call):
+                name = _dotted(node.func, aliases)
+                last = name.rpartition(".")[2] or getattr(node.func, "attr", "")
+                if name in _PRINTERS:
+                    found.append(f"print (line {node.lineno})")
+                elif last in {"echo", "secho", "Console"} and not _to_stderr(node):
+                    found.append(f"{last} (line {node.lineno})")
+                elif name == "os.write":
+                    found.append(f"os.write (line {node.lineno})")
+            elif (
+                (isinstance(node, ast.Attribute) and node.attr in _STDOUT_NAMES)
+                or (
+                    isinstance(node, ast.Name)
+                    and aliases.get(node.id, node.id).rpartition(".")[2] in _STDOUT_NAMES
+                )
+                or (
+                    isinstance(node, ast.ImportFrom)
+                    and any(a.name in _STDOUT_NAMES for a in node.names)
+                )
+            ):
+                found.append(f"stdout (line {node.lineno})")
     return found
 
 
 def test_arch4_commands_return_and_never_print():
-    """A CLI command returns its result; only ``output.render`` writes to stdout."""
-    offenders = {
-        str(cli_py.relative_to(SRC)): writes
-        for cli_py in SRC.rglob("cli.py")
-        if (writes := _stdout_writes(cli_py.read_text(encoding="utf-8")))
-    }
+    """A CLI command returns its result; only ``output.render`` writes to stdout.
+
+    Every module is scanned, not only ``cli.py``: a print moved into a helper next to it is the
+    same write.
+    """
+    offenders = {}
+    for p in SRC.rglob("*.py"):
+        rel = p.relative_to(SRC)
+        if rel in ARCH4_STDOUT_HOMES:
+            continue
+        exempt = frozenset(
+            key.partition(":")[2] for key in ARCH4_STDOUT_FUNCTIONS if key.startswith(f"{rel}:")
+        )
+        if writes := _stdout_writes(p.read_text(encoding="utf-8"), exempt):
+            offenders[str(rel)] = writes
     assert not offenders, f"return the value instead of printing it: {offenders}"
 
 
@@ -837,17 +1116,28 @@ def test_arch4_stdout_guard_bites():
     flagged = {
         "print(model)": "print (line 1)",
         "rich.print(model)": "print (line 1)",
+        "from rich import print as rprint\nrprint(model)": "print (line 2)",
+        "import builtins\nbuiltins.print(model)": "print (line 2)",
+        "pprint(model)": "print (line 1)",
+        "from pprint import pprint\npprint(model)": "print (line 2)",
+        "import pprint\npprint.pp(model)": "print (line 2)",
         "typer.echo(name)": "echo (line 1)",
+        "from typer import echo as say\nsay(name)": "echo (line 2)",
         "Console().print(model)": "Console (line 1)",
         "sys.stdout.buffer.write(data)": "stdout (line 1)",
+        "sys.__stdout__.write(text)": "stdout (line 1)",
         "from sys import stdout": "stdout (line 1)",
+        "from sys import stdout as out\nout.write(text)": "stdout (line 2)",
         "os.write(1, data)": "os.write (line 1)",
     }
     for source, finding in flagged.items():
         assert finding in _stdout_writes(source), source
     assert _stdout_writes("typer.echo('note', err=True)") == []
     assert _stdout_writes("Console(stderr=True).print('Opening')") == []
-    assert _stdout_writes("console.print('Opening')\npprint(x)") == []
+    assert _stdout_writes("console.print('Opening')") == []  # a stderr console made elsewhere
+    version = "def _version_callback(value):\n    typer.echo(value)\n"
+    assert _stdout_writes(version, frozenset({"_version_callback"})) == []
+    assert _stdout_writes(version) == ["echo (line 2)"]
 
 
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
@@ -993,15 +1283,85 @@ ARCH8_ERROR_MAPPERS = {
     Path("yandex/transport.py"): "the uplink response hook",
     Path("yandex/core/session.py"): "the httpx2 core sessions",
     Path("yandex/core/auth.py"): "the IAM token exchange outside the sessions",
+    Path("yandex/status/client.py"): (
+        "the OAuth login flow: a 400/401 with an OAuth error code is a device-flow polling "
+        "state (RFC 6749 §5.2), so it cannot use the transport's raise-on-4xx hook"
+    ),
+}
+# Functions that raise a status-carrying YandexError with no response to map, and why.
+ARCH8_LOCAL_RAISES = {
+    "yandex/core/endpoint.py:check_path": "refuses a path before any request is sent",
+    # An empty 2xx body has no status to map; E2 moves this check into the clients.
+    "yandex/models.py:require_found": "a 2xx whose body parsed into an empty model",
+}
+# YandexError subclasses that carry no HTTP status: raising one maps no status.
+ARCH8_STATUSLESS_ERRORS = {
+    "YandexTimeoutError": "a local polling deadline (polling.poll)",
+    "YandexConnectionError": "no HTTP response at all",
 }
 
 
+@functools.cache
+def _status_errors() -> frozenset[str]:
+    """Every ``YandexError`` class in ``ycli.yandex.errors`` that stands for an HTTP status."""
+    from ycli.yandex import errors
+
+    defined = {
+        name
+        for name, value in vars(errors).items()
+        if isinstance(value, type) and issubclass(value, errors.YandexError)
+    }
+    assert set(ARCH8_STATUSLESS_ERRORS) <= defined, "ARCH8_STATUSLESS_ERRORS names a gone class"
+    return frozenset(defined - set(ARCH8_STATUSLESS_ERRORS))
+
+
 def _error_mapping_offenders(rel: Path, source: str) -> list[str]:
+    """Places in ``source`` that map an HTTP status by hand (import aliases resolved).
+
+    Anywhere: ``raise_for_status``. Outside ``ARCH8_ERROR_MAPPERS``: any use of
+    ``error_for_status``, building a status-carrying ``YandexError`` (``YandexNotFoundError(…)``)
+    and reading a response's ``status_code``. A top-level function listed in
+    ``ARCH8_LOCAL_RAISES`` may build such an error.
+    """
+    tree = ast.parse(source)
+    aliases = _import_aliases(tree)
+    mapper = rel in ARCH8_ERROR_MAPPERS
     offenders = []
-    if "raise_for_status" in source:
-        offenders.append(f"{rel}: raise_for_status bypasses errors.error_for_status")
-    if rel not in ARCH8_ERROR_MAPPERS and "error_for_status(" in source:
-        offenders.append(f"{rel}: maps statuses outside ARCH8_ERROR_MAPPERS")
+    for top in tree.body:
+        local_raise = f"{rel}:{getattr(top, 'name', '')}" in ARCH8_LOCAL_RAISES
+        offenders += _mapping_offenders_in(
+            top, rel, aliases, mapper=mapper, local_raise=local_raise
+        )
+    return offenders
+
+
+def _mapping_offenders_in(
+    top: ast.stmt, rel: Path, aliases: dict[str, str], *, mapper: bool, local_raise: bool
+) -> list[str]:
+    """The :func:`_error_mapping_offenders` findings inside one top-level statement."""
+    offenders = []
+    for node in ast.walk(top):
+        where = f"{rel}:{getattr(node, 'lineno', 0)}"
+        if isinstance(node, ast.Attribute) and node.attr == "raise_for_status":
+            offenders.append(f"{where}: raise_for_status bypasses errors.error_for_status")
+        if mapper:
+            continue
+        if isinstance(node, ast.ImportFrom) and any(
+            alias.name == "error_for_status" for alias in node.names
+        ):
+            offenders.append(f"{where}: imports error_for_status outside ARCH8_ERROR_MAPPERS")
+        elif isinstance(node, ast.Name | ast.Attribute) and (
+            _dotted(node, aliases).rpartition(".")[2] == "error_for_status"
+        ):
+            offenders.append(f"{where}: calls error_for_status outside ARCH8_ERROR_MAPPERS")
+        elif isinstance(node, ast.Attribute) and node.attr == "status_code":
+            offenders.append(f"{where}: reads status_code outside ARCH8_ERROR_MAPPERS")
+        elif (
+            isinstance(node, ast.Call)
+            and not local_raise
+            and (name := _dotted(node.func, aliases).rpartition(".")[2]) in _status_errors()
+        ):
+            offenders.append(f"{where}: raises {name} by hand instead of error_for_status")
     return offenders
 
 
@@ -1017,9 +1377,33 @@ def test_arch8_errors_are_mapped_in_one_place():
 
 def test_arch8_error_mapping_guard_bites():
     session = Path("yandex/core/session.py")
+    resource = Path("yandex/wiki/pages/client.py")
     assert _error_mapping_offenders(session, "response.raise_for_status()")
-    assert _error_mapping_offenders(Path("yandex/wiki/pages/client.py"), "error_for_status(404)")
-    assert _error_mapping_offenders(session, "raise error_for_status(code, message)") == []
+    for source in (
+        "error_for_status(404, 'gone', url=u)",
+        "from ycli.yandex.errors import error_for_status as efs\nraise efs(404, 'gone', url=u)",
+        "from ycli.yandex import errors\nraise errors.error_for_status(404, 'gone', url=u)",
+        "if response.status_code == 404:\n    raise LookupError(key)",
+        "raise YandexNotFoundError('gone', status=404, url=u)",
+        "from ycli.yandex.errors import YandexNotFoundError as Missing\nraise Missing('gone')",
+        "raise errors.YandexError('failed', status=500)",
+    ):
+        assert _error_mapping_offenders(resource, source), source
+    clean = (
+        "raise YandexTimeoutError('late')\n"
+        "try:\n    page = get(key)\nexcept YandexNotFoundError:\n    page = None\n"
+        "hint = isinstance(error, YandexAuthError)\n"
+    )
+    assert _error_mapping_offenders(resource, clean) == []
+    mapped = "raise error_for_status(response.status_code, message, url=u)"
+    assert _error_mapping_offenders(session, mapped) == []
+    # A listed local refusal may raise; the same raise in another function may not.
+    refusal = "def {}(path):\n    raise YandexClientError(path)\n"
+    endpoint = Path("yandex/core/endpoint.py")
+    assert _error_mapping_offenders(endpoint, refusal.format("check_path")) == []
+    assert _error_mapping_offenders(endpoint, refusal.format("build_url")) == [
+        "yandex/core/endpoint.py:2: raises YandexClientError by hand instead of error_for_status"
+    ]
 
 
 def test_every_mcp_tool_has_description_and_output_schema():

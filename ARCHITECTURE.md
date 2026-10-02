@@ -59,9 +59,13 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `cli.py`, `mcp.py`, `models.py`, `__init__.py`; `/new-endpoint` scaffolds them) and
   `test_arch1_operation_level_parity`, which reads which client method each surface actually
   calls, so a command may be named differently from its operation.
+  `test_arch1_every_resource_is_served` reads the running surfaces instead of the source: each
+  resource directory is wired into its domain client, is a group of the built CLI tree and
+  serves MCP tools from the mounted server, and nothing is served without a directory.
 - **Exceptions:** `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is CLI-only (bytes do not
-  round-trip an MCP result), plus a few SDK-internal primitives. `status/` and the `ycli.mcp`
-  server package are cross-cutting surfaces, not resources.
+  round-trip an MCP result), plus a few SDK-internal primitives; a resource whose every operation
+  is listed there serves no MCP tool. `status/` and the `ycli.mcp` server package are
+  cross-cutting surfaces, not resources.
 
 ### ARCH-2 — Layers
 - **Rule:** dependencies point one way — the core knows no service, services know no surface's
@@ -96,10 +100,13 @@ allowlist entry in code with its reason, never prose here. Tests are in
 ### ARCH-4 — One output path
 - **Rule:** a CLI command returns its result; only `output.render` writes to stdout.
 - **Why:** one place decides formats, so `--format` and piping behave the same everywhere.
-- **Check:** `test_arch4_commands_return_and_never_print` (AST: no `print`, `rich.print`, stdout
-  `Console`, `typer.echo` without `err=True`, `sys.stdout` or `os.write` in any `cli.py`) and
-  `test_arch4_serialization_confined_to_output`.
-- **Exceptions:** `log.py` formats stderr log records with `json.dumps`. Bytes and raw text
+- **Check:** `test_arch4_commands_return_and_never_print` (AST over every module, import aliases
+  resolved: no `print` in any spelling — `builtins.print`, `rich.print`, `pprint` — no stdout
+  `Console`, `typer.echo` without `err=True`, `sys.stdout`/`sys.__stdout__` or `os.write`) and
+  `test_arch4_serialization_confined_to_output` (AST: `json.dumps`, `yaml.safe_dump`,
+  `pydantic_core.to_json`, `.model_dump_json()` and their aliases), each with a bite test.
+- **Exceptions:** `ARCH4_SERIALIZATION_HOMES` (`log.py` formats stderr log records with
+  `json.dumps`) and `ARCH4_STDOUT_FUNCTIONS` (the eager `--version` callback). Bytes and raw text
   are result types (`BinaryResult`, `str`), not exceptions.
 
 ### ARCH-5 — Single sources of truth
@@ -137,9 +144,13 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
 - **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` and
   `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`
-  nowhere, `error_for_status` only in `ARCH8_ERROR_MAPPERS`.
+  nowhere; outside `ARCH8_ERROR_MAPPERS`, no `error_for_status`, no `status_code` read and no
+  hand-built status-carrying `YandexError` (AST, import aliases resolved).
 - **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`, whose wire shape no
-  model represents yet); `ARCH8_ERROR_MAPPERS` (the two transports and the IAM token exchange).
+  model represents yet); `ARCH8_ERROR_MAPPERS` (the two transports, the IAM token exchange and
+  the OAuth login flow, whose device-flow polling states arrive as HTTP 400);
+  `ARCH8_LOCAL_RAISES` (a request refused before it is sent, a 2xx whose body is empty); `ARCH8_STATUSLESS_ERRORS` (a
+  timeout or a lost connection has no status to map).
 
 ## Scope & limits of enforcement
 
@@ -149,7 +160,8 @@ rest. Known blind spots:
 - **ARCH-1 parity reads direct surface→client calls.** A wrapper that reaches the client through
   a local alias is reported as a (false) gap; an unrelated same-named `X.<resource>.<op>(…)`
   call could mask a real one. It is an AST scan, not yet the per-endpoint flags planned for
-  when every resource is declared as endpoints (E2).
+  when every resource is declared as endpoints (E2). The served-surface check works per
+  resource: it sees an unmounted resource, not one unregistered tool inside a mounted one.
 - **ARCH-2 catches direct imports only** for the HTTP-library and `fastmcp` contracts
   (`allow_indirect_imports = true`, since surfaces reach HTTP through `client.py`): an HTTP call
   hidden in a helper module that `cli.py` imports is not caught.
@@ -161,6 +173,9 @@ rest. Known blind spots:
   HTTP status.
 - **ARCH-7 reads names**: a settings model reached through a module alias it cannot resolve
   (`import ycli.settings as s; s.AppConfig()` is caught, `getattr(s, "AppConfig")()` is not).
+  ARCH-4 and ARCH-8 read names the same way: `getattr(builtins, "print")`, a write to file
+  descriptor 1 through `open(1, "w")`, or a branch on `response.ok` / `response.is_error` are not
+  caught.
 
 ## Resource conventions (models, naming, MCP imports)
 
@@ -173,7 +188,9 @@ What each resource is tested with, and how, is in
 ## Code generation
 
 Resources are hand-written, starting from the `/new-endpoint` scaffold
-(`scripts/new_endpoint.py`). Generating them from a spec is being built in a separate repo,
+(`scripts/new_endpoint.py`), which generates a resource on the httpx2 core (`endpoints.py` plus
+a `Resource` client). `test_uplink_resources_only_shrink` keeps the resources still on uplink
+to a frozen list that may only shrink, so no new one lands on the stack E2 deletes. Generating them from a spec is being built in a separate repo,
 [`refract`](https://github.com/bim-ba/refract): one YAML spec per resource compiles into the
 same committed file layout, and ycli's hand-written code is the golden output it must
 reproduce. ycli does not use refract yet. Rejected: generating clients or tools at runtime

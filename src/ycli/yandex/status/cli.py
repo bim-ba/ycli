@@ -136,9 +136,17 @@ def _implicit_flow(oauth_client: OAuthClient, console: Console) -> str:
     console.print("If it does not open, paste that URL into a browser, log in, and approve.")
     with _suppressed_stderr():
         webbrowser.open(url)
-    return typer.prompt(
+    token = typer.prompt(
         "Paste the token shown on the Yandex verification page", hide_input=True, err=True
     ).strip()
+    if not token:
+        typer.secho(
+            "No token was pasted. Re-run `ycli auth login` and paste the token from the page.",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(1)
+    return token
 
 
 def _device_flow(oauth_client: OAuthClient, device_name: str | None, console: Console) -> str:

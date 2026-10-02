@@ -2,11 +2,13 @@
 
     python scripts/new_endpoint.py tracker macros
 
-Creates src/ycli/yandex/tracker/macros/{__init__,client,cli,mcp,models}.py wired to the
-domain deps, the render output path, and honest MCP annotations (ARCH-3). The scaffold
-generates a read tool (`RO` annotations) by default; write tools take the `WRITE` /
-`WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets plus the `write` tag. Fill the marked
-spots with the real endpoint; the structure already satisfies ARCH-1..4 and import-linter.
+Creates src/ycli/yandex/tracker/macros/{__init__,endpoints,client,cli,mcp,models}.py on the
+httpx2 core (the pattern of ``tracker/issues/``): each operation declared once in
+``endpoints.py``, a ``Resource`` client that sends it, the render output path, and honest MCP
+annotations (ARCH-3). The scaffold generates one read (`RO` annotations); write tools take the
+`WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets plus the `write` tag and must agree
+with their endpoint's effect. Fill the marked spots with the real endpoint; the structure
+already satisfies ARCH-1..4 and import-linter.
 """
 
 from __future__ import annotations
@@ -19,9 +21,10 @@ from ycli.yandex.registry import SERVICES
 DOMAINS = tuple(service.name for service in SERVICES)
 ROOT = Path(__file__).resolve().parent.parent / "src" / "ycli" / "yandex"
 
-INIT = '"""Yandex {domain} /{resource} resource (client · cli · mcp · models)."""\n'
+INIT = '"""Yandex {domain} /{resource} resource (endpoints · client · cli · mcp · models)."""\n'
 
 MODELS = '''"""Pydantic models for {domain} /{resource}."""
+
 from __future__ import annotations
 
 from ycli.yandex.models import APIModel
@@ -33,27 +36,49 @@ class {cls}(APIModel):
     id: str = ""
 '''
 
-CLIENT = '''"""{domain} /{resource} SDK calls (uplink) — transport ONLY.
+ENDPOINTS = '''"""{domain} ``/{resource}`` operations, each declared once (sans-IO).
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly. Subclasses the domain base for session + base_url DI.
+A listing returns ``Paged(Endpoint(...), <the service's Pagination>, <the items of a page>)``;
+``tracker/issues/endpoints.py`` is the worked example.
 """
-import uplink
 
-from ycli.yandex.{domain}.base import {domain_cls}Resource
+from __future__ import annotations
+
+from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
-class {cls}Client({domain_cls}Resource):
-    """Declarative HTTP for /{resource} (scaffolded with one read; add the real ops)."""
+def get_item(item_id: str) -> Endpoint[{cls}]:
+    return Endpoint("GET", f"FILL/{resource}/{{segment(item_id)}}", {cls})  # FILL: real path
+'''
 
-    @uplink.returns.json()
-    @uplink.get("FILL/{resource}/{{item_id}}")  # FILL: real path
-    def get(self, item_id: uplink.Path) -> {cls}:  # ty: ignore[empty-body]
-        """GET one {resource} by id."""
+CLIENT = '''"""{domain} ``/{resource}`` client on the httpx2 core — sends ``endpoints``."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.{domain}.{resource} import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.{domain}.{resource}.models import {cls}
+
+
+class {cls}Client(Resource):
+    """{domain} /{resource} (scaffolded with one read; add the real operations)."""
+
+    def get(self, item_id: str) -> {cls}:
+        """``GET /FILL/{resource}/{{item_id}}`` → one ``{cls}``.
+
+        Example:
+            >>> client.{resource}.get("1")  # doctest: +SKIP
+        """
+        return self._session.send(endpoints.get_item(item_id))
 '''
 
 CLI = '''"""{domain} /{resource} Typer commands — each returns its result; the root prints it."""
+
 from __future__ import annotations
 
 import typer
@@ -79,13 +104,14 @@ MCP = '''"""{domain} /{resource} FastMCP tools (honest annotations, ARCH-3).
 
 The scaffolded tool is a read (`RO` annotations). For write tools use the `WRITE` /
 `WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets from ``ycli.yandex.mcp`` plus the
-`write` tag, and pick a verb the ARCH-3 classification maps know.
+`write` tag; ARCH-3 checks each tool's hints against the effect of the endpoint it sends.
 """
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.{domain}.dependencies import RO, TAGS, {domain}_client
 from ycli.yandex.{domain}.client import {domain_cls}Client
+from ycli.yandex.{domain}.dependencies import RO, TAGS, {domain}_client
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 mcp = FastMCP("{domain}-{resource}")
@@ -130,6 +156,7 @@ def scaffold(domain: str, resource: str, root: Path = ROOT) -> Path:
     for filename, template in (
         ("__init__.py", INIT),
         ("models.py", MODELS),
+        ("endpoints.py", ENDPOINTS),
         ("client.py", CLIENT),
         ("cli.py", CLI),
         ("mcp.py", MCP),
@@ -151,13 +178,16 @@ def main() -> None:
     print(f"scaffolded {target.relative_to(ROOT.parent.parent.parent)}")
     print(
         "next:\n"
-        "  1. replace the FILL markers in client.py/models.py with the real path + fields\n"
-        f"  2. register the resource on the domain client: in "
-        f"{args.domain}/client.py __init__ add\n"
-        f"     self.{resource} = {cls}Client(session=session)\n"
+        "  1. replace the FILL markers in endpoints.py/client.py/models.py with the real path,\n"
+        "     operations and fields\n"
+        f"  2. register the resource in {args.domain}/client.py `_wire` (import SERVICE from\n"
+        f"     ycli.yandex.{args.domain}):\n"
+        f"     self.{resource} = {cls}Client(session=self._connect(SERVICE.profile))\n"
         f"  3. mount the sub-app into {args.domain}/cli.py (app.add_typer) and the subserver into\n"
         f"     {args.domain}/mcp.py (mcp.mount), mirroring a sibling resource\n"
-        "  4. add tests under tests/yandex/ and run: uv run pytest && "
+        "  4. give each new MCP tool its arguments in ARCH3_EFFECT_CASES "
+        "(tests/test_architecture.py)\n"
+        "  5. add tests under tests/yandex/ and run: uv run pytest && "
         "uv run python -m tests.snapshots --update"
     )
 
