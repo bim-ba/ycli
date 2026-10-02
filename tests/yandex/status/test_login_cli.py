@@ -11,6 +11,7 @@ from rich.console import Console
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from ycli.yandex.errors import YandexServerError
 from ycli.yandex.status.cli import _device_flow, _suppressed_stderr
 from ycli.yandex.status.client import TokenPollResult
 from ycli.yandex.status.oauth_models import TokenResponse
@@ -156,6 +157,31 @@ def test_implicit_flow_when_secret_absent(monkeypatch, tmp_path):
     assert res.exit_code == 0, res.output
     env_content = (tmp_path / ".env").read_text(encoding="utf-8")
     assert f"YANDEX_ID_OAUTH_TOKEN={TOKEN}" in env_content
+
+
+@responses.activate
+def test_implicit_flow_rejects_a_blank_token(monkeypatch, tmp_path):
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
+
+    res = runner.invoke(cli.app, ["auth", "login", "--yes"], input="   \n")
+
+    assert res.exit_code == 1
+    assert res.exception is None or isinstance(res.exception, SystemExit)  # no traceback
+    assert "No token was pasted" in res.output
+    assert not responses.calls  # nothing is sent with an empty credential
+    assert not (tmp_path / ".env").exists()
+
+
+@responses.activate
+def test_device_code_failure_is_a_typed_error(monkeypatch):
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
+    responses.add(responses.POST, DEVICE_CODE_URL, body="<html>down</html>", status=503)
+
+    res = runner.invoke(cli.app, ["auth", "login", "--yes"])
+
+    # ycli.cli.app.main turns a YandexError into one clean line; a JSONDecodeError would not.
+    assert isinstance(res.exception, YandexServerError)
 
 
 @responses.activate
