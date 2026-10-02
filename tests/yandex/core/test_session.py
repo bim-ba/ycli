@@ -279,3 +279,36 @@ def test_secret_query_parameters_are_masked_in_logs_and_errors(caplog):
 def test_connect_async_uses_the_transport_seam():
     session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")))
     assert isinstance(session._client._transport, httpx2.MockTransport)
+
+
+def test_an_endpoint_can_take_a_redirect_instead_of_following_it():
+    api = MockAPI()
+    api.add("GET", URL, status=302, headers={"Location": "https://files.test/export.csv"})
+    endpoint = Endpoint(
+        "GET", "items", parser=lambda response: response.is_redirect, follow_redirects=False
+    )
+    assert _session(api).send(endpoint) is True
+    assert len(api.calls) == 1
+
+
+async def test_async_send_can_take_a_redirect_too():
+    api = MockAPI()
+    api.add("GET", URL, status=302, headers={"Location": "https://files.test/export.csv"})
+    session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport())
+    endpoint = Endpoint(
+        "GET", "items", parser=lambda response: response.status_code, follow_redirects=False
+    )
+    assert await session.send(endpoint) == 302
+    await session.aclose()
+
+
+@pytest.mark.parametrize(
+    ("status", "headers"),
+    [(304, {}), (302, {}), (300, {"Location": "https://files.test/x"})],
+)
+def test_a_3xx_that_is_not_an_unfollowed_redirect_is_an_error(status, headers):
+    api = MockAPI()
+    api.add("DELETE", URL, status=status, headers=headers)
+    api.add("GET", "https://files.test/x", status=300)
+    with pytest.raises(YandexClientError):
+        _session(api, retries=0).send(Endpoint("DELETE", "items"))

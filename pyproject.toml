@@ -81,6 +81,12 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 # Four workers: CI runners have four vCPUs, and more barely helps locally (`-n 0` turns it off).
 addopts = "-n 4 --strict-markers --cov=ycli --cov-report=term-missing --cov-fail-under=100"
+# A new warning fails the run. The one ignored is uplink calling pydantic's deprecated
+# `parse_obj`; drop the ignore together with uplink (E2).
+filterwarnings = [
+    "error",
+    "ignore:The `parse_obj` method is deprecated:pydantic.PydanticDeprecatedSince20:uplink",
+]
 
 [tool.coverage.run]
 source = ["ycli"]

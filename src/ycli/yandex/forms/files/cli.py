@@ -55,7 +55,7 @@ def verify(
     if urls and len(urls) != len(paths):
         raise typer.BadParameter("--url count must match --path count")
     files = [
-        FileIn(path=p or None, url=(urls[index] if index < len(urls) else None))
+        FileIn(path=p or None, url=(urls[index] if index < len(urls) else None) or None)
         for index, p in enumerate(paths or urls)
     ]
     return forms.files.verify(survey_id, files)

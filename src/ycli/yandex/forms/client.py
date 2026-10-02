@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     import requests
 
 from ycli.yandex.base import DomainClient
+from ycli.yandex.forms import SERVICE
 from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.files.client import FilesClient
 from ycli.yandex.forms.filling.client import FillingClient
@@ -20,19 +21,20 @@ from ycli.yandex.forms.surveys.client import SurveysClient
 
 
 class FormsClient(DomainClient):
-    """Holds the per-resource forms clients, all sharing one authed ``requests.Session``.
+    """Holds the per-resource forms clients, all sharing one httpx2 core session.
 
     Example:
         >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
     """
 
     def _wire(self, transport: requests.Session) -> None:
-        self.me = MeClient(session=transport)
-        self.surveys = SurveysClient(session=transport)
-        self.questions = QuestionsClient(session=transport)
-        self.answers = AnswersClient(session=transport)
-        self.keysets = KeysetsClient(session=transport)
-        self.operations = OperationsClient(session=transport)
-        self.files = FilesClient(session=transport)
-        self.images = ImagesClient(session=transport)
-        self.filling = FillingClient(session=transport)
+        session = self._connect(SERVICE.profile)
+        self.me = MeClient(session=session)
+        self.surveys = SurveysClient(session=session)
+        self.questions = QuestionsClient(session=session)
+        self.answers = AnswersClient(session=session)
+        self.keysets = KeysetsClient(session=session)
+        self.operations = OperationsClient(session=session)
+        self.files = FilesClient(session=session)
+        self.images = ImagesClient(session=session)
+        self.filling = FillingClient(session=session)

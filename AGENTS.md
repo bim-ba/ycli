@@ -9,7 +9,7 @@ the same SDK four ways: a Typer **CLI** (`ycli` / `yandex-cli`), a FastMCP **ser
 (`ycli mcp start`, optional `[mcp]` extra), an importable **Python SDK** (`ycli.yandex.*`), and a
 Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex-cli`.
 
-- **Stack:** Python ≥3.12, managed with `uv`. `httpx2` core (`ycli.yandex.core`; Tracker `issues` so far) with `requests` + `uplink` for the rest until E2, `typer`
+- **Stack:** Python ≥3.12, managed with `uv`. `httpx2` core (`ycli.yandex.core`; Forms and Tracker `issues` so far) with `requests` + `uplink` for the rest until E2, `typer`
   (CLI), `fastmcp` (MCP), `pydantic` (models), stdlib `logging` (diagnostics on stderr).
 - **Layout:** root entry-point packages `src/ycli/cli/` (CLI, `app.py`) and `src/ycli/mcp/` (MCP server, `server.py`); per-domain SDK
   under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, `mcp.py`, models). Vendored
@@ -30,7 +30,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 ## Project-Specific Conventions
 
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
-  with `responses` (no live network).
+  with the `api` fixture (`MockAPI`; `responses` for resources still on uplink), no live network.
 - **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` (which injects clients into commands) for the CLI
   and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /

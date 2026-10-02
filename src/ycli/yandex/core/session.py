@@ -81,7 +81,9 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
         response.status_code,
         elapsed_seconds * 1000,
     )
-    if response.is_success:
+    # ``next_request`` is set only on a located redirect an endpoint asked not to follow; any other
+    # 3xx (a 304, a redirect without a Location) is an error like a 4xx.
+    if response.is_success or response.next_request is not None:
         return response
     detail = describe_error_body(response.text)
     message = (
@@ -148,7 +150,9 @@ class SyncSession:
         self._client = client
         self._attempts = retries + 1
 
-    def _send(self, request: httpx2.Request, idempotent: bool) -> httpx2.Response:
+    def _send(
+        self, request: httpx2.Request, idempotent: bool, *, follow_redirects: bool = True
+    ) -> httpx2.Response:
         check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
             on=_retry_policy(idempotent), attempts=self._attempts, timeout=None
@@ -158,7 +162,7 @@ class SyncSession:
                 _log_retry(request, attempt.num, self._attempts)
                 started = time.perf_counter()
                 try:
-                    response = self._client.send(request)
+                    response = self._client.send(request, follow_redirects=follow_redirects)
                 except httpx2.RequestError as exc:
                     url = _shown(request.url)
                     message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
@@ -168,7 +172,11 @@ class SyncSession:
 
     def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
-        response = self._send(endpoint.request(self._client), endpoint.idempotent)
+        response = self._send(
+            endpoint.request(self._client),
+            endpoint.idempotent,
+            follow_redirects=endpoint.follow_redirects,
+        )
         return endpoint.parse(response)
 
     def iterate[P, I](
@@ -178,7 +186,9 @@ class SyncSession:
         request = paged.pagination.first(paged.endpoint.request(self._client))
         produced = 0
         for _ in range(max_pages):
-            response = self._send(request, paged.endpoint.idempotent)
+            response = self._send(
+                request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
+            )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
             following = paged.pagination.next(request, response, items) if items else None
             taken, done = _page_plan(items, produced, limit, following is not None)
@@ -200,7 +210,9 @@ class AsyncSession:
         self._client = client
         self._attempts = retries + 1
 
-    async def _send(self, request: httpx2.Request, idempotent: bool) -> httpx2.Response:
+    async def _send(
+        self, request: httpx2.Request, idempotent: bool, *, follow_redirects: bool = True
+    ) -> httpx2.Response:
         check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
             on=_retry_policy(idempotent), attempts=self._attempts, timeout=None
@@ -210,7 +222,7 @@ class AsyncSession:
                 _log_retry(request, attempt.num, self._attempts)
                 started = time.perf_counter()
                 try:
-                    response = await self._client.send(request)
+                    response = await self._client.send(request, follow_redirects=follow_redirects)
                 except httpx2.RequestError as exc:
                     url = _shown(request.url)
                     message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
@@ -220,7 +232,11 @@ class AsyncSession:
 
     async def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
-        response = await self._send(endpoint.request(self._client), endpoint.idempotent)
+        response = await self._send(
+            endpoint.request(self._client),
+            endpoint.idempotent,
+            follow_redirects=endpoint.follow_redirects,
+        )
         return endpoint.parse(response)
 
     async def iterate[P, I](
@@ -230,7 +246,9 @@ class AsyncSession:
         request = paged.pagination.first(paged.endpoint.request(self._client))
         produced = 0
         for _ in range(max_pages):
-            response = await self._send(request, paged.endpoint.idempotent)
+            response = await self._send(
+                request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
+            )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
             following = paged.pagination.next(request, response, items) if items else None
             taken, done = _page_plan(items, produced, limit, following is not None)

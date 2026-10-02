@@ -1,93 +1,55 @@
-"""Declarative Forms form-filling client (uplink) — transport ONLY.
+"""Forms form-filling client on the httpx2 core: fillable-form settings, submit and suggest."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+from __future__ import annotations
 
-Three endpoints hang off ``/surveys/{survey}``: a read **get** (fillable-form settings), a write
-**submit** (post a response), and a **suggest** read. All three ship on every surface (CLI, MCP,
-SDK).
-"""
+from typing import TYPE_CHECKING
 
-import uplink
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.forms.filling import endpoints
 
-from ycli.yandex.forms.base import FormsResource
-from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, SuggestionList
+if TYPE_CHECKING:
+    from ycli.yandex.forms.filling.models import (
+        FillableForm,
+        SubmitBody,
+        SubmitResult,
+        SuggestionList,
+    )
 
 
-class FillingClient(FormsResource):
-    """Declarative HTTP for the form-filling endpoints (get-settings / submit / suggest)."""
+class FillingClient(Resource):
+    """Fill a form the way a respondent does."""
 
-    @uplink.returns.json()
-    @uplink.get("surveys/{survey}/form")
-    def get(
-        self,
-        survey: uplink.Path,
-        key: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> FillableForm:  # ty: ignore[empty-body]
+    def get(self, survey: str, key: str | None = None) -> FillableForm:
         """``GET /surveys/{survey}/form`` → the :class:`FillableForm` settings for filling.
 
-        ``survey`` is the form id, its slug, or an id+verification-key combination; ``key`` is the
-        personal-link fill key when the form uses one. The request also checks that the form is
-        published and otherwise fillable.
+        ``survey`` is the form id, its slug, or an id+verification-key combination; ``key`` is
+        the personal-link fill key. The call also checks that the form is published and fillable.
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filling.get("686d0a1b2c3d4e5f00000001").name  # doctest: +SKIP
+            >>> client.filling.get("686d0a1b2c3d4e5f").name  # doctest: +SKIP
             'Feedback'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("surveys/{survey}/form")
-    def _submit(
-        self,
-        survey: uplink.Path,
-        body: uplink.Body,
-        dry_run: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        key: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> SubmitResult:  # ty: ignore[empty-body]
-        """Raw ``POST …/form`` from a ready answer map; internal — callers use :meth:`submit`."""
+        return self._session.send(endpoints.get_form(survey, key=key))
 
     def submit(
-        self,
-        survey: str,
-        body: SubmitBody,
-        *,
-        dry_run: bool = False,
-        key: str | None = None,
+        self, survey: str, body: SubmitBody, *, dry_run: bool = False, key: str | None = None
     ) -> SubmitResult:
-        """``POST /surveys/{survey}/form`` — submit a form response → :class:`SubmitResult`.
+        """``POST /surveys/{survey}/form`` — submit a response → :class:`SubmitResult`.
 
-        ``body`` is a typed :class:`~ycli.yandex.forms.filling.models.SubmitBody` mapping each
-        question ``slug`` to its answer (build the slug list from :meth:`get`). ``dry_run=True``
-        runs every validation but saves nothing and fires no integrations; ``key`` is the
-        personal-link fill key when the form uses one.
+        ``body`` maps each question ``slug`` to its answer. ``dry_run=True`` validates
+        everything but saves nothing and fires no integrations.
 
         Example:
-            >>> from ycli.yandex.forms.filling.models import SubmitBody
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.filling.submit(
-            ...     "686d0a1b", SubmitBody.model_validate({"answer_short_text_1": "Ann"})
+            ...     "686d", SubmitBody({"name": "Ann"})
             ... ).answer_id  # doctest: +SKIP
             99
         """
-        return self._submit(
-            survey,
-            body.model_dump(),
-            dry_run="true" if dry_run else None,
-            key=key or None,
+        endpoint = endpoints.submit_form(
+            survey, body.model_dump(), dry_run=dry_run, key=key or None
         )
-
-    @uplink.returns.json()
-    @uplink.get("surveys/{survey}/suggest")
-    def _suggest(
-        self,
-        survey: uplink.Path,
-        question: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        text: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        suggest_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
-        parent_id: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> SuggestionList:  # ty: ignore[empty-body]
-        """Raw ``GET …/suggest``; internal — callers use :meth:`suggest`."""
+        return self._session.send(endpoint)
 
     def suggest(
         self,
@@ -98,23 +60,22 @@ class FillingClient(FormsResource):
         suggest_id: str | None = None,
         parent_id: str | None = None,
     ) -> SuggestionList:
-        """``GET /surveys/{survey}/suggest`` → :class:`SuggestionList` prompts for a fill field.
+        """``GET /surveys/{survey}/suggest`` → prompts for a fill field (read-only).
 
-        ``question`` is the question slug; ``text`` is the search text; ``suggest_id`` (the API's
-        ``id``) is a comma-separated list of suggestion-object ids to resolve; ``parent_id`` scopes
-        a Master/Detail lookup. This is read-only (no mutation).
+        ``question`` is the question slug, ``text`` the search text, ``suggest_id`` (the API's
+        ``id``) a comma-separated list of suggestion ids to resolve, and ``parent_id`` scopes a
+        Master/Detail lookup.
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filling.suggest("686d0a1b", question="city_1", text="Ber").root[
+            >>> client.filling.suggest("686d", question="city", text="Ber").root[
             ...     0
             ... ].text  # doctest: +SKIP
             'Berlin'
         """
-        return self._suggest(
-            survey,
-            question=question or None,
-            text=text or None,
-            suggest_id=suggest_id or None,
-            parent_id=parent_id or None,
-        )
+        params = {
+            "question": question or None,
+            "text": text or None,
+            "id": suggest_id or None,
+            "parent_id": parent_id or None,
+        }
+        return self._session.send(endpoints.suggest(survey, params))

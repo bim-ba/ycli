@@ -98,9 +98,13 @@ class Endpoint[T]:
     """An API operation: ``method`` + ``path`` (relative to the service's base URL) and its I/O.
 
     ``params`` with a ``None`` value are dropped, so optional query parameters can be passed
-    through unconditionally. ``response_type=None`` means the response body is ignored.
-    ``effect`` is what the call does to the server: stated explicitly, or implied by the method
-    when left out. An unknown method fails here, at construction.
+    through unconditionally. ``files`` sends a ``multipart/form-data`` body (field name →
+    ``(filename, bytes)``). ``response_type=None`` means the response body is ignored and
+    ``bytes`` returns it raw; ``parser`` reads a response that is not one JSON type.
+    ``follow_redirects=False`` hands a redirect to ``parser`` instead of following it (a status
+    read that redirects to the finished file). ``effect`` is what the call does to the server:
+    stated explicitly, or implied by the method when left out. An unknown method fails here, at
+    construction.
     """
 
     method: Method
@@ -110,8 +114,11 @@ class Endpoint[T]:
     params: Mapping[str, Any] = field(default_factory=dict)
     json: Any = None
     content: bytes | None = None
+    files: Mapping[str, tuple[str, bytes]] | None = None
     headers: Mapping[str, str] = field(default_factory=dict)
     effect: Effect | None = None
+    parser: Callable[[httpx2.Response], T] | None = None
+    follow_redirects: bool = True
 
     def __post_init__(self) -> None:
         implied = _EFFECT_BY_METHOD.get(self.method)
@@ -136,14 +143,19 @@ class Endpoint[T]:
             params=params or None,
             json=self.json,
             content=self.content,
+            files=self.files,
             headers=dict(self.headers) or None,
             extensions={EFFECT_EXTENSION: self.effect},
         )
 
     def parse(self, response: httpx2.Response) -> T:
         """The response body as ``response_type`` (``None`` when the endpoint ignores it)."""
+        if self.parser is not None:
+            return self.parser(response)
         if self.response_type is None:
             return cast("T", None)
+        if self.response_type is bytes:
+            return cast("T", response.content)
         return _adapter(self.response_type).validate_json(response.content)
 
 
