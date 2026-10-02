@@ -14,6 +14,7 @@ from ycli.yandex.forms.hooks.cli import app as hooks_app
 from ycli.yandex.forms.images.cli import app as images_app
 from ycli.yandex.forms.keysets.cli import app as keysets_app
 from ycli.yandex.forms.me.cli import app as me_app
+from ycli.yandex.forms.notifications.cli import app as notifications_app
 from ycli.yandex.forms.operations.cli import app as operations_app
 from ycli.yandex.forms.questions.cli import app as questions_app
 from ycli.yandex.forms.subscriptions.cli import app as subscriptions_app
@@ -32,6 +33,7 @@ app.add_typer(history_app)
 app.add_typer(answers_app)
 app.add_typer(keysets_app)
 app.add_typer(operations_app)
+app.add_typer(notifications_app)
 app.add_typer(files_app)
 app.add_typer(images_app)
 app.add_typer(filling_app)

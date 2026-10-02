@@ -19,6 +19,7 @@ from ycli.yandex.forms.hooks.client import HooksClient
 from ycli.yandex.forms.images.client import ImagesClient
 from ycli.yandex.forms.keysets.client import KeysetsClient
 from ycli.yandex.forms.me.client import MeClient
+from ycli.yandex.forms.notifications.client import NotificationsClient
 from ycli.yandex.forms.operations.client import OperationsClient
 from ycli.yandex.forms.questions.client import QuestionsClient
 from ycli.yandex.forms.subscriptions.client import SubscriptionsClient
@@ -45,6 +46,7 @@ class FormsClient(DomainClient):
         self.answers = AnswersClient(session=session)
         self.keysets = KeysetsClient(session=session)
         self.operations = OperationsClient(session=session)
+        self.notifications = NotificationsClient(session=session)
         self.files = FilesClient(session=session)
         self.images = ImagesClient(session=session)
         self.filling = FillingClient(session=session)

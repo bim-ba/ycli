@@ -1,6 +1,11 @@
 """TDD for Forms answers models — single-answer details + export body + result flags."""
 
-from ycli.yandex.forms.answers.models import AnswerDetails, AnswerExport, ExportResult
+from ycli.yandex.forms.answers.models import (
+    AnswerDetails,
+    AnswerExport,
+    AnswerIntegrationList,
+    ExportResult,
+)
 
 
 def test_answer_details_parses_full_answer():
@@ -42,3 +47,16 @@ def test_export_result_status_flags():
     assert ExportResult.model_validate({"id": "o", "status": "fail"}).is_ready is False
     assert ExportResult.model_validate({"id": "o", "status": "wait"}).is_terminal is False
     assert ExportResult.model_validate({}).is_ready is False
+
+
+def test_answer_integrations_keep_the_field_of_each_type():
+    runs = AnswerIntegrationList.model_validate(
+        [
+            {"id": 1, "status": "success", "type": "email", "to_address": "ann@example.com"},
+            {"id": 2, "status": "error", "type": "tracker", "issue_key": "DE-7", "message": "no"},
+            {"id": 3, "status": "pending", "type": "function", "function_id": "d4e0abc"},
+        ]
+    ).root
+    assert [run.to_address for run in runs] == ["ann@example.com", None, None]
+    assert runs[1].issue_key == "DE-7" and runs[1].message == "no"
+    assert runs[2].function_id == "d4e0abc" and runs[2].url is None

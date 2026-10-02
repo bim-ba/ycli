@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field
+from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
 
@@ -170,3 +170,43 @@ class ExportResult(APIModel):
     def is_ready(self) -> bool:
         """``True`` when the export finished successfully (``status == "ok"``); the file exists."""
         return self.status == "ok"
+
+
+class AnswerIntegration(APIModel):
+    """One integration run an answer triggered (``GET /answers/integrations`` item).
+
+    Which of the type-specific fields is set depends on ``type``: ``to_address`` (email),
+    ``wiki_page`` and ``link`` (wiki), ``issue_key`` and ``link`` (tracker), ``url`` (http,
+    jsonrpc) or ``function_id`` (function).
+
+    Example:
+        >>> AnswerIntegration.model_validate(
+        ...     {"id": 4, "status": "success", "type": "tracker", "issue_key": "DE-7"}
+        ... ).issue_key
+        'DE-7'
+    """
+
+    id: int | None = Field(default=None, description="Integration id.")
+    status: str | None = Field(
+        default=None, description="Run state: pending, success, error or canceled."
+    )
+    message: str | None = Field(default=None, description="Result message of the run.")
+    type: str | None = Field(
+        default=None,
+        description="Integration type: email, tracker, wiki, jsonrpc, http, post, put or function.",
+    )
+    to_address: str | None = Field(default=None, description="Recipient address (email).")
+    wiki_page: str | None = Field(default=None, description="Wiki page supertag (wiki).")
+    link: str | None = Field(default=None, description="Link to the wiki page or tracker issue.")
+    issue_key: str | None = Field(default=None, description="Tracker issue key (tracker).")
+    url: str | None = Field(default=None, description="URL that was called (http, jsonrpc).")
+    function_id: str | None = Field(default=None, description="Cloud function id (function).")
+
+
+class AnswerIntegrationList(RootModel[list[AnswerIntegration]]):
+    """A bare JSON array of :class:`AnswerIntegration`.
+
+    Example:
+        >>> AnswerIntegrationList.model_validate([{"id": 4}]).root[0].id
+        4
+    """

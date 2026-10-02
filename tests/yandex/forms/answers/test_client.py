@@ -14,6 +14,14 @@ def test_get_needs_exactly_one_selector():
         client.answers.get(answer_id=1, answer_key="k")
 
 
+def test_integrations_list_needs_exactly_one_selector():
+    with FormsClient(oauth_token="t", organization_id="o") as client:
+        with pytest.raises(ValueError):
+            client.answers.integrations_list()
+        with pytest.raises(ValueError):
+            client.answers.integrations_list(answer_id=1, answer_key="k")
+
+
 def test_list_all_carries_the_dead_v3_cursor_onto_v1(api):
     """The next link points at a retired /v3/ route; only its ``id`` cursor is followed."""
     api.add(

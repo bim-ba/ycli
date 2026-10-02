@@ -12,6 +12,7 @@ from ycli.yandex.forms.hooks.mcp import mcp as hooks_mcp
 from ycli.yandex.forms.images.mcp import mcp as images_mcp
 from ycli.yandex.forms.keysets.mcp import mcp as keysets_mcp
 from ycli.yandex.forms.me.mcp import mcp as me_mcp
+from ycli.yandex.forms.notifications.mcp import mcp as notifications_mcp
 from ycli.yandex.forms.operations.mcp import mcp as operations_mcp
 from ycli.yandex.forms.questions.mcp import mcp as questions_mcp
 from ycli.yandex.forms.subscriptions.mcp import mcp as subscriptions_mcp
@@ -37,6 +38,7 @@ mcp.mount(history_mcp)
 mcp.mount(answers_mcp)
 mcp.mount(keysets_mcp)
 mcp.mount(operations_mcp)
+mcp.mount(notifications_mcp)
 mcp.mount(files_mcp)
 mcp.mount(images_mcp)
 mcp.mount(filling_mcp)

@@ -419,6 +419,8 @@ operations.list_all = "answers/events_b2b_v1_views_answers_get_answers_public_vi
 operations.export = "answers/events_b2b_v1_views_answers_export_answers_public_view"
 operations.export_results = "answers/events_b2b_v1_views_answers_export_answers_results_public_view"
 operations.download_export = "answers/events_b2b_v1_views_answers_export_answers_results_public_view"
+operations.integrations_list = "events/events_b2b_v1_views_answers_get_integrations_public_view"
+# delete and restore have no page in the docs yet: they link to the resource page.
 
 [forms.operations]
 resource = "operations/events_v1_views_operations_get_operation_view"
@@ -445,6 +447,15 @@ operations.attach = "hooks/events_b2b_v1_views_hooks_save_subscription_attachmen
 resource = "hooks/events_b2b_v1_views_hooks_get_variables_public_view"
 operations.list = "hooks/events_b2b_v1_views_hooks_get_variables_public_view"
 
+[forms.notifications]
+resource = "events/events_b2b_v1_views_notifications_get_notifications_public_view"
+operations.list = "events/events_b2b_v1_views_notifications_get_notifications_public_view"
+operations.get = "events/events_b2b_v1_views_notifications_get_notification_public_view"
+operations.status_get = "events/events_b2b_v1_views_notifications_get_notification_status_public_view"
+operations.restart = "events/events_b2b_v1_views_notifications_restart_notification_public_view"
+operations.cancel = "events/events_b2b_v1_views_notifications_cancel_notification_public_view"
+operations.errors_list = "events/events_b2b_v1_views_surveys_get_visible_errors_public_view"
+
 [forms.keysets]
 resource = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"
 operations.list = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"
@@ -470,6 +481,7 @@ operations.delete = "files/events_b2b_v1_views_files_delete_file_public_view"
 [forms.images]
 resource = "images/events_b2b_v1_views_surveys_create_image_public_view"
 operations.upload = "images/events_b2b_v1_views_surveys_create_image_public_view"
+# clone has no page in the docs yet: it links to the resource page.
 
 [forms.me]
 resource = "users/events_v1_views_users_get_user_view"

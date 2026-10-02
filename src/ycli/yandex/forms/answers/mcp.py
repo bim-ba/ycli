@@ -15,11 +15,21 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerExport,
+    AnswerIntegrationList,
     AnswersResponse,
     ExportResult,
 )
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, TAGS, WRITE, WRITE_TAGS, app_config, forms_client
+from ycli.yandex.forms.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_TAGS,
+    app_config,
+    forms_client,
+)
+from ycli.yandex.models import Ack
 
 mcp = FastMCP("forms-answers")
 
@@ -73,3 +83,57 @@ def export(
     ``forms answers export --wait`` CLI command (binary payload — not exposed over MCP).
     """
     return client.answers.export(survey_id, body.model_dump(exclude_none=True))
+
+
+@mcp.tool(
+    name="answers_integrations_list",
+    annotations={**RO, "title": "List Forms answer integrations"},
+    tags=TAGS,
+)
+def integrations_list(
+    answer_id: Annotated[
+        int | None,
+        Field(description="Numeric answer id (from ``answers_list``; needs form-edit access)."),
+    ] = None,
+    answer_key: Annotated[
+        str | None,
+        Field(description="Answer key hash — works without form-edit access."),
+    ] = None,
+    client: FormsClient = Depends(forms_client),
+) -> AnswerIntegrationList:
+    """The integration runs one answer triggered, by ``answer_id`` or ``answer_key`` (exactly one).
+
+    Each entry has the run's ``status`` and the field of its ``type`` (``issue_key``, ``link``,
+    ``to_address``, ``url``, ...); ``notifications_get`` has the full run.
+    """
+    return client.answers.integrations_list(answer_id=answer_id, answer_key=answer_key)
+
+
+@mcp.tool(
+    name="answers_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete a Forms answer"},
+    tags=WRITE_TAGS,
+)
+def delete(
+    survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
+    answer_id: Annotated[int, Field(description="Answer id (integer) from answers_list.")],
+    client: FormsClient = Depends(forms_client),
+) -> Ack:
+    """Delete one answer of a form; ``answers_restore`` brings it back."""
+    client.answers.delete(survey_id, answer_id)
+    return Ack.deleted("answer", answer_id, from_=f"survey {survey_id}")
+
+
+@mcp.tool(
+    name="answers_restore",
+    annotations={**WRITE, "title": "Restore a deleted Forms answer"},
+    tags=WRITE_TAGS,
+)
+def restore(
+    survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
+    answer_id: Annotated[int, Field(description="Id of the deleted answer (integer).")],
+    client: FormsClient = Depends(forms_client),
+) -> Ack:
+    """Bring a deleted answer of a form back."""
+    client.answers.restore(survey_id, answer_id)
+    return Ack.restored("answer", answer_id, in_=f"survey {survey_id}")

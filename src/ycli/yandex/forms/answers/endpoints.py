@@ -13,7 +13,13 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import NextURLPagination
-from ycli.yandex.forms.answers.models import Answer, AnswerDetails, AnswersResponse, ExportResult
+from ycli.yandex.forms.answers.models import (
+    Answer,
+    AnswerDetails,
+    AnswerIntegrationList,
+    AnswersResponse,
+    ExportResult,
+)
 
 if TYPE_CHECKING:
     import httpx2
@@ -65,3 +71,20 @@ def export_results(survey_id: str, task_id: str) -> Endpoint[ExportResult]:
 def download_export(survey_id: str, task_id: str) -> Endpoint[bytes]:
     path = f"surveys/{segment(survey_id)}/answers/export-results"
     return Endpoint("GET", path, bytes, params={"task_id": task_id})
+
+
+def list_answer_integrations(
+    *, answer_id: int | None, answer_key: str | None
+) -> Endpoint[AnswerIntegrationList]:
+    """``GET /answers/integrations`` — flat like :func:`get_answer`, keyed by query."""
+    params = {"answer_id": answer_id, "answer_key": answer_key}
+    return Endpoint("GET", "answers/integrations", AnswerIntegrationList, params=params)
+
+
+def delete_answer(survey_id: str, answer_id: int) -> Endpoint[None]:
+    return Endpoint("DELETE", f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}")
+
+
+def restore_answer(survey_id: str, answer_id: int) -> Endpoint[None]:
+    path = f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}/restore"
+    return Endpoint("POST", path)

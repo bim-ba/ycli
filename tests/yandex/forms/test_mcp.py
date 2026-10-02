@@ -57,6 +57,8 @@ async def test_an_empty_answer_is_an_error(api, tool, arguments, url):
     [
         ("forms_answers_get", {}),
         ("forms_answers_get", {"answer_id": 1, "answer_key": "k"}),
+        ("forms_answers_integrations_list", {}),
+        ("forms_answers_integrations_list", {"answer_id": 1, "answer_key": "k"}),
         ("forms_questions_move", {"survey_id": SID, "question_id": "1", "body": {"position": 2}}),
     ],
 )

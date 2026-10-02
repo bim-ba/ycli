@@ -4,9 +4,12 @@ forms access get: SURVEY_ID:TEXT!
 forms access grant: --action:TEXT! --cloud-uid:TEXT='' --group-id:TEXT='' --group-src:TEXT='' --uid:TEXT='' SURVEY_ID:TEXT!
 forms access revoke: --action:TEXT! --cloud-uid:TEXT='' --group-id:TEXT='' --group-src:TEXT='' --uid:TEXT='' SURVEY_ID:TEXT!
 forms access set: --access:TEXT! --action:TEXT! SURVEY_ID:TEXT!
+forms answers delete: ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
 forms answers export: --column:TEXT --finished-at:TEXT='' --format:TEXT='xlsx' --limit:INTEGER=0 --output:TEXT --pk:INTEGER --started-at:TEXT='' --upload-files:BOOLEAN --upload:TEXT='default' --wait:BOOLEAN=True SURVEY_ID:TEXT!
 forms answers get: --answer-id:INTEGER=0 --answer-key:TEXT=''
+forms answers integrations: --answer-id:INTEGER=0 --answer-key:TEXT=''
 forms answers list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 SURVEY_ID:TEXT!
+forms answers restore: ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
 forms conditions hook create: --body-file:PATH --item:TEXT --operator:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms conditions hook delete: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms conditions hook get: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
@@ -44,6 +47,7 @@ forms hooks delete: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms hooks get: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms hooks list: SURVEY_ID:TEXT!
 forms hooks modify: --active:BOOLEAN --name:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms images clone: --image-id:INTEGER=0 --link:TEXT --name:TEXT='' SURVEY_ID:TEXT!
 forms images upload: IMAGE_PATH:PATH! SURVEY_ID:TEXT!
 forms keysets create: --enabled:BOOLEAN! --name:TEXT! --total:INTEGER! SURVEY_ID:TEXT!
 forms keysets delete: KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
@@ -52,6 +56,12 @@ forms keysets get: KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
 forms keysets list: SURVEY_ID:TEXT!
 forms keysets modify: --enabled:BOOLEAN! --name:TEXT! --total:INTEGER! KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
 forms me get
+forms notifications cancel: NOTIFICATION_ID:INTEGER!
+forms notifications errors: SURVEY_ID:TEXT!
+forms notifications get: NOTIFICATION_ID:INTEGER!
+forms notifications list: --all:BOOLEAN=False --answer-id:INTEGER --created-since:TEXT='' --created-until:TEXT='' --finished-since:TEXT='' --finished-until:TEXT='' --hook-id:INTEGER --limit:INTEGER RANGE=0 --ordering:TEXT='' --status:TEXT --subscription-id:INTEGER --survey-id:TEXT='' --type:TEXT='' --visible:BOOLEAN
+forms notifications restart: NOTIFICATION_ID:INTEGER!
+forms notifications status: NOTIFICATION_ID:INTEGER!
 forms operations get: OPERATION_ID:TEXT!
 forms questions create: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' SURVEY_ID:TEXT!
 forms questions delete: --force:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
