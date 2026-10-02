@@ -11,7 +11,10 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Protocol
 
-from ycli.settings import AppConfig, Credentials
+from fastmcp.exceptions import ToolError
+from pydantic import ValidationError
+
+from ycli.settings import AppConfig, Credentials, missing_credentials
 from ycli.yandex.factory import build_client
 
 if TYPE_CHECKING:
@@ -54,7 +57,22 @@ class EnvAuthSource:
     """The stdio server's source: the process environment and ``.env``, re-read per call."""
 
     def resolve(self) -> Credentials:
-        return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+        """The credentials, or a ``ToolError`` naming the variables that are not set.
+
+        FastMCP hides any other exception behind "Failed to resolve dependency 'client'", which
+        tells an agent nothing; a ``ToolError`` reaches it unchanged.
+        """
+        try:
+            return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+        except ValidationError as exc:
+            missing = missing_credentials(exc)
+            if not missing:
+                raise
+            raise ToolError(
+                f"Not signed in — {', '.join(missing)} "
+                f"{'are' if len(missing) > 1 else 'is'} not set. Set them in the environment the "
+                "MCP server runs in (or its .env), or run `ycli auth login` to obtain a token."
+            ) from exc
 
 
 def app_config() -> AppConfig:

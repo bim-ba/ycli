@@ -1,4 +1,4 @@
-"""OAuthClient — device/implicit OAuth HTTP + api360 org lookup (stubbed with MockAPI)."""
+"""OAuthClient — device/implicit OAuth HTTP (stubbed with MockAPI)."""
 
 import httpx2
 import pytest
@@ -13,7 +13,6 @@ from ycli.yandex.status.client import OAuthClient
 
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
 TOKEN_URL = "https://oauth.yandex.ru/token"
-ORG_URL = "https://api360.yandex.net/directory/v1/org"
 
 
 def _client():
@@ -114,44 +113,6 @@ def test_request_device_code_maps_failures_to_typed_errors(api, status, body, er
     api.add("POST", DEVICE_CODE_URL, content=body, status=status)
     with pytest.raises(error, match=f"{status} .* for POST {DEVICE_CODE_URL}"):
         _client().request_device_code()
-
-
-def test_fetch_organizations_returns_list(api):
-    api.add(
-        "GET",
-        ORG_URL,
-        json={"organizations": [{"id": 1, "name": "Acme"}, {"id": 2, "name": "Beta"}]},
-        status=200,
-    )
-    orgs = _client().fetch_organizations("tok")
-    assert [o.id for o in orgs] == [1, 2]
-    assert orgs[0].name == "Acme"
-    # Authorization: OAuth scheme reused from transport
-    assert api.calls[0].headers["Authorization"] == "OAuth tok"
-
-
-def test_fetch_organizations_empty_on_missing_scope(api):
-    api.add("GET", ORG_URL, json={"code": 7, "message": "No required scope"}, status=403)
-    assert _client().fetch_organizations("tok") == []
-
-
-def test_fetch_organizations_empty_on_rejected_token(api):
-    api.add("GET", ORG_URL, json={"message": "Unauthorized"}, status=401)
-    assert _client().fetch_organizations("tok") == []
-
-
-@pytest.mark.parametrize(
-    ("status", "body", "error"),
-    [
-        (400, '{"message": "bad request"}', YandexClientError),
-        (503, "<html>Service Unavailable</html>", YandexServerError),
-    ],
-)
-def test_fetch_organizations_raises_on_other_failures(api, status, body, error):
-    """Only 401/403 mean "no directory scope"; any other failure is not an empty org list."""
-    api.add("GET", ORG_URL, content=body, status=status)
-    with pytest.raises(error):
-        OAuthClient(client_id="id", timeout_seconds=30.0, retries=0).fetch_organizations("tok")
 
 
 def _drop(request):

@@ -1,9 +1,9 @@
 """Settings models — grouped env config parsed into refined types, required credentials."""
 
 import pytest
-from pydantic import SecretStr, ValidationError
+from pydantic import BaseModel, SecretStr, ValidationError
 
-from ycli.settings import AppConfig, Credentials, HTTPConfig, OAuthAppConfig
+from ycli.settings import AppConfig, Credentials, HTTPConfig, OAuthAppConfig, missing_credentials
 
 
 @pytest.fixture(autouse=True)
@@ -154,3 +154,28 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
 )
 def test_the_listing_cap_takes_the_limit_then_the_default_and_all_lifts_it(limit, all_, cap):
     assert HTTPConfig(max_items=500).cap(limit, all_=all_) == cap
+
+
+def test_missing_credentials_names_each_unset_variable(monkeypatch):
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    with pytest.raises(ValidationError) as unset:
+        Credentials()  # ty: ignore[missing-argument]
+    assert missing_credentials(unset.value) == [
+        "YANDEX_ID_OAUTH_TOKEN",
+        "YANDEX_ID_ORGANIZATION_ID",
+    ]
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
+    with pytest.raises(ValidationError) as half:
+        Credentials()  # ty: ignore[missing-argument]
+    assert missing_credentials(half.value) == ["YANDEX_ID_ORGANIZATION_ID"]
+
+
+def test_missing_credentials_ignores_everything_else():
+    class Other(BaseModel):
+        name: str
+
+    with pytest.raises(ValidationError) as other:
+        Other()  # ty: ignore[missing-argument]
+    assert missing_credentials(other.value) == []  # a missing field, but not a credential
+    assert missing_credentials(ValueError("boom")) == []

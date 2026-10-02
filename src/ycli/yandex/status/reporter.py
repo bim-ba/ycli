@@ -1,62 +1,87 @@
-"""Probe each service's identity endpoint and assemble an AuthReport (shared by CLI + MCP)."""
+"""Probe the services and read the token's owner and organization (shared by CLI + MCP)."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+import logging
+from typing import TYPE_CHECKING
 
 from ycli.yandex.errors import YandexAuthError, YandexError
 from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
-from ycli.yandex.status.models import AuthReport, ServiceAuthStatus
+from ycli.yandex.status.models import (
+    AuthReport,
+    Identity,
+    OrganizationStatus,
+    ServiceAuthStatus,
+)
+from ycli.yandex.status.token_client import TokenClient
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from ycli.settings import AppConfig, Credentials
-    from ycli.yandex.account import Account
+    from ycli.yandex.base import DomainClient
+
+logger = logging.getLogger("ycli.status")
+
+ORGANIZATION_SCOPE = "directory:read_organization"
 
 
-class MeModel(Protocol):
-    """A service's ``me`` payload that can say whose token it is."""
+def probe_service(name: str, client: DomainClient) -> ServiceAuthStatus:
+    """Whether ``client``'s token works for its service: its own ``probe()``, as a status.
 
-    def account(self) -> Account: ...
+    A 401 gives ``valid=False, detail="token invalid or expired"``; any other failure keeps its
+    message in ``detail``.
+    """
+    try:
+        client.probe()
+    except YandexAuthError:
+        return ServiceAuthStatus(service=name, detail="token invalid or expired")
+    except YandexError as exc:
+        return ServiceAuthStatus(service=name, detail=str(exc))
+    return ServiceAuthStatus(service=name, valid=True)
 
 
-class MeProbe(Protocol):
-    """A domain ``me`` client: a zero-argument ``get()``."""
+def build_report(credentials: Credentials, config: AppConfig) -> AuthReport:
+    """The full report: owner (Yandex ID), organization (API 360) and one probe per service.
 
-    def get(self) -> MeModel: ...
+    The owner and the organization are context, not a verdict: when either read fails the report
+    still carries every service's probe.
+    """
+    token = credentials.oauth_token.get_secret_value()
+    with TokenClient(oauth_token=token, http=config.http) as token_client:
+        identity = _identity(token_client)
+        organization = _organization(token_client, credentials.organization_id)
+    services = []
+    for service in SERVICES:
+        with build_client(service.client_class(), credentials, config) as client:
+            services.append(probe_service(service.name, client))
+    return AuthReport(
+        configured=True, identity=identity, organization=organization, services=services
+    )
 
 
-class StatusReporter:
-    """Given each service's `me` client, probe identity and build a per-service AuthReport."""
+def _identity(token_client: TokenClient) -> Identity | None:
+    """The token's owner; ``None`` when Yandex ID would not say (the service probes say why)."""
+    try:
+        return token_client.identity()
+    except YandexError as exc:
+        logger.warning("could not read the token's owner from Yandex ID: %s", exc)
+        return None
 
-    def __init__(self, me_clients: Mapping[str, MeProbe]) -> None:
-        self._me_clients = me_clients
 
-    @classmethod
-    def for_credentials(cls, credentials: Credentials, config: AppConfig) -> StatusReporter:
-        """A reporter over every registered service, each client built from ``credentials``."""
-        return cls(
-            {
-                # Every domain client has a `me` probe, but DomainClient does not declare it.
-                service.name: build_client(  # ty: ignore[unresolved-attribute]
-                    service.client_class(), credentials, config
-                ).me
-                for service in SERVICES
-            }
+def _organization(token_client: TokenClient, organization_id: str) -> OrganizationStatus:
+    """The configured organization with its name, or its id alone and a note saying why."""
+    try:
+        organizations = token_client.organizations()
+    except YandexAuthError:
+        return OrganizationStatus(
+            id=organization_id,
+            detail=f"name unknown: the token lacks the {ORGANIZATION_SCOPE} scope",
         )
-
-    def report(self, *, configured: bool, organization_id: str) -> AuthReport:
-        services = [self._probe(name, client) for name, client in self._me_clients.items()]
-        return AuthReport(configured=configured, organization_id=organization_id, services=services)
-
-    @staticmethod
-    def _probe(name: str, me_client: MeProbe) -> ServiceAuthStatus:
-        try:
-            me = me_client.get()
-        except YandexAuthError:
-            return ServiceAuthStatus(service=name, detail="token invalid or expired")
-        except YandexError as exc:
-            return ServiceAuthStatus(service=name, detail=str(exc))
-        return ServiceAuthStatus(service=name, valid=True, account=me.account())
+    except YandexError as exc:
+        return OrganizationStatus(id=organization_id, detail=f"name unknown: {exc}")
+    listed = next((org for org in organizations if str(org.id) == organization_id), None)
+    if listed is None:
+        return OrganizationStatus(
+            id=organization_id, detail="name unknown: the token's organizations do not list it"
+        )
+    return OrganizationStatus(id=organization_id, name=listed.name)

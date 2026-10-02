@@ -13,20 +13,15 @@ import logging
 from dataclasses import dataclass
 
 import httpx2
-from pydantic import SecretStr
 
 from ycli.yandex.core import session as core_session
-from ycli.yandex.core.auth import OAuthTokenAuth
 from ycli.yandex.errors import (
-    YandexAuthError,
     YandexConnectionError,
     describe_error_body,
     error_for_status,
 )
 from ycli.yandex.status.oauth_models import (
     DeviceCodeResponse,
-    Organization,
-    OrganizationList,
     TokenResponse,
 )
 
@@ -81,10 +76,9 @@ class TokenPollResult:
 
 
 class OAuthClient:
-    """HTTP for the Yandex OAuth device/implicit flow and the api360 org lookup."""
+    """HTTP for the Yandex OAuth device/implicit flow."""
 
     OAUTH_BASE_URL = "https://oauth.yandex.ru"
-    API360_BASE_URL = "https://api360.yandex.net"
 
     def __init__(
         self,
@@ -110,12 +104,11 @@ class OAuthClient:
         url: str,
         *,
         data: dict[str, str | None] | None = None,
-        auth: httpx2.Auth | None = None,
     ) -> httpx2.Response:
         # A form field set to None is left out, as the OAuth server expects (no empty secret).
         form = {name: value for name, value in (data or {}).items() if value is not None}
         try:
-            return self._http.request(method, url, data=form or None, auth=auth)
+            return self._http.request(method, url, data=form or None)
         except httpx2.RequestError as exc:
             message = f"{method} {url}: {type(exc).__name__}: {exc}"
             raise YandexConnectionError(message, url=url) from exc
@@ -151,19 +144,3 @@ class OAuthClient:
         if error == "authorization_pending":
             return TokenPollResult(pending=True)
         return TokenPollResult(error=error)
-
-    def fetch_organizations(self, token: str) -> list[Organization]:
-        """``GET /directory/v1/org`` — the token's orgs, or ``[]`` if it lacks directory scope.
-
-        A 401/403 means the token cannot read the directory; any other failure raises.
-        """
-        response = self._send(
-            "GET",
-            f"{self.API360_BASE_URL}/directory/v1/org",
-            auth=OAuthTokenAuth(SecretStr(token)),
-        )
-        try:
-            _raise_for_error(response)
-        except YandexAuthError:
-            return []
-        return OrganizationList.model_validate(response.json()).organizations

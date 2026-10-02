@@ -1,4 +1,4 @@
-"""Models for `ycli auth login` — the OAuth device/implicit flow + api360 org payloads.
+"""Models for `ycli auth login` — the OAuth device/implicit flow + the API 360 organization list.
 
 Inherit ``APIModel`` (lenient parse, ignore extras) like every other Yandex model;
 these are plain data with no serialization logic (that lives in ``output.py``).
@@ -39,7 +39,7 @@ class TokenResponse(APIModel):
 
 
 class Organization(APIModel):
-    """One organization from the api360 directory listing."""
+    """One organization from the API 360 directory listing."""
 
     id: int | None = None
     name: str | None = None

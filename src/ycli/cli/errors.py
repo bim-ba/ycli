@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from pydantic import ValidationError
 
-from ycli.settings import OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV, AppConfig
+from ycli.settings import OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV, AppConfig, missing_credentials
 from ycli.yandex.errors import YandexAuthError
 
 _AUTH_HINT = (
@@ -25,14 +25,10 @@ _PERMISSION_HINT = (
     "on this resource, or check that the token's OAuth scopes cover this service."
 )
 
-# The credential env vars. pydantic-settings reports a missing field under its validation
-# alias (the env var name), so a ``ValidationError`` loc is already one of these strings.
-_CREDENTIAL_ENV_NAMES = frozenset({OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV})
-
 
 def format_cli_error(exc: Exception) -> str:
     """A single human-readable message for a fatal CLI error, with a next step where it helps."""
-    missing = _missing_credentials(exc)
+    missing = missing_credentials(exc)
     if missing:
         return (
             f"Not signed in — {', '.join(missing)} "
@@ -49,16 +45,3 @@ def format_cli_error(exc: Exception) -> str:
     if isinstance(exc, YandexAuthError):
         return message + (_PERMISSION_HINT if exc.status == 403 else _AUTH_HINT)
     return message
-
-
-def _missing_credentials(exc: Exception) -> list[str]:
-    """The credential env vars a pydantic ``ValidationError`` reports as missing (else ``[]``)."""
-    if not isinstance(exc, ValidationError):
-        return []
-    return [
-        name
-        for error in exc.errors()
-        if error.get("type") == "missing"
-        and error["loc"]
-        and (name := str(error["loc"][0])) in _CREDENTIAL_ENV_NAMES
-    ]

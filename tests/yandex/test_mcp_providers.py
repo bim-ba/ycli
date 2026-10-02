@@ -1,7 +1,9 @@
 """MCP client providers resolve credentials on every call — nothing is cached per process."""
 
+import pytest
 from fastmcp import Client
-from pydantic import SecretStr
+from fastmcp.exceptions import ToolError
+from pydantic import BaseModel, SecretStr, ValidationError
 
 from tests.hosts import TRACKER_BASE
 from ycli.settings import Credentials
@@ -71,3 +73,43 @@ async def test_a_tool_call_closes_the_client_it_built(api, monkeypatch):
     assert result.data.key == "DE-1"
     [tracker] = built
     assert tracker.issues._session._client.is_closed
+
+
+@pytest.mark.parametrize(
+    ("unset", "named"),
+    [
+        (
+            ("YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"),
+            "YANDEX_ID_OAUTH_TOKEN, YANDEX_ID_ORGANIZATION_ID are not set",
+        ),
+        (("YANDEX_ID_ORGANIZATION_ID",), "YANDEX_ID_ORGANIZATION_ID is not set"),
+    ],
+)
+async def test_a_tool_call_without_credentials_names_the_missing_variables(
+    monkeypatch, tmp_path, unset, named
+):
+    """Not FastMCP's "Failed to resolve dependency 'client'", which names nothing."""
+    monkeypatch.chdir(tmp_path)  # no repo .env
+    for name in unset:
+        monkeypatch.delenv(name, raising=False)
+    async with Client(issues_mcp.mcp) as client:
+        with pytest.raises(ToolError) as raised:
+            await client.call_tool("issues_get", {"key": "DE-1"})
+    assert named in str(raised.value)
+    assert "ycli auth login" in str(raised.value)
+    assert "resolve dependency" not in str(raised.value)
+
+
+def test_a_validation_error_unrelated_to_credentials_is_not_reworded(monkeypatch):
+    class Other(BaseModel):
+        count: int
+
+    with pytest.raises(ValidationError) as unrelated:
+        Other(count="x")  # ty: ignore[invalid-argument-type]
+
+    def broken() -> Credentials:
+        raise unrelated.value
+
+    monkeypatch.setattr("ycli.yandex.mcp.Credentials", broken)
+    with pytest.raises(ValidationError):
+        EnvAuthSource().resolve()

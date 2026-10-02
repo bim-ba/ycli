@@ -235,6 +235,13 @@ def _surface_names(resource: str) -> tuple[str, str]:
     return f"{domain}.{name}", f"{domain}_{name}_"
 
 
+# CLI groups every service mounts that are not a resource, and why. A group listed here needs no
+# resource directory; one that is not listed and has none is reported.
+ARCH1_NON_RESOURCE_CLI_GROUPS = {
+    "auth": "`ycli <service> auth status`: one generic probe built from the registry's Service",
+}
+
+
 def _served_gaps(
     on_disk: set[str], wired: set[str], cli_groups: set[str], tools: set[str], cli_only: set[str]
 ) -> list[str]:
@@ -289,7 +296,10 @@ def test_arch1_every_resource_is_served():
     }
     # status_* belongs to no resource: `status/` is a cross-cutting surface (see ARCHITECTURE.md).
     tools = {tool.name for tool in _mcp_tools() if not tool.name.startswith("status_")}
-    gaps = _served_gaps(on_disk, set(operations), _served_cli_groups(), tools, cli_only)
+    cli_groups = _served_cli_groups() - {
+        f"{domain}.{group}" for domain in DOMAINS for group in ARCH1_NON_RESOURCE_CLI_GROUPS
+    }
+    gaps = _served_gaps(on_disk, set(operations), cli_groups, tools, cli_only)
     assert not gaps, gaps
 
 
@@ -757,13 +767,13 @@ _YANDEX_HOST_RE = re.compile(
     r"https://[\w.-]*api[\w.-]*\.yandex\.(?:net|ru)"
 )  # API hosts, not web pages
 # Where a Yandex host may be spelled, and why: each service's profile, the IAM token endpoint,
-# and the OAuth login flow's own endpoints.
+# and the Yandex ID and API 360 hosts `auth status` reads.
 ARCH5_HOST_HOMES = {
     Path("yandex/tracker/__init__.py"): "Tracker service profile",
     Path("yandex/wiki/__init__.py"): "Wiki service profile",
     Path("yandex/forms/__init__.py"): "Forms service profile",
     Path("yandex/core/auth.py"): "IAM token endpoint for service accounts",
-    Path("yandex/status/client.py"): "OAuth device/implicit flow and api360 org lookup",
+    Path("yandex/status/token_client.py"): "Yandex ID and API 360 profiles of `auth status`",
 }
 
 

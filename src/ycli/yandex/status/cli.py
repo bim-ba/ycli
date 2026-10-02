@@ -25,14 +25,19 @@ from ycli.settings import (
     AppConfig,
     Credentials,
     OAuthAppConfig,
+    missing_credentials,
 )
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator
+from ycli.yandex.errors import YandexAuthError
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.env_file import EnvFile
 from ycli.yandex.status.models import AuthReport
-from ycli.yandex.status.reporter import StatusReporter
+from ycli.yandex.status.reporter import build_report
+from ycli.yandex.status.token_client import TokenClient
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from ycli.yandex.status.oauth_models import Organization
 
 # Help text lives with the root sub-app list (ycli.cli.app).
 app = typer.Typer(name="auth", no_args_is_help=True)
@@ -45,19 +50,19 @@ _ENV_NAMES = {
 
 @app.command()
 def status(*, config: AppConfig) -> AuthReport | ExitWith:
-    """Report whether the env credentials are set and actually work, per service."""
+    """Report whether the env credentials are set, whose they are, and which services accept them.
+
+    The owner comes from Yandex ID, the organization name from API 360, and each service is
+    probed with its own call. `ycli <service> auth status` probes just one service.
+    """
     try:
         credentials = Credentials()  # ty: ignore[missing-argument]
     except ValidationError as exc:
-        missing = ", ".join(
-            _ENV_NAMES.get(str(e["loc"][0]), str(e["loc"][0])) for e in exc.errors()
-        )
+        missing = ", ".join(missing_credentials(exc))
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
-        return ExitWith(AuthReport(configured=False, services=[]))
+        return ExitWith(AuthReport(configured=False))
 
-    report = StatusReporter.for_credentials(credentials, config).report(
-        configured=True, organization_id=credentials.organization_id
-    )
+    report = build_report(credentials, config)
     return report if all(s.valid for s in report.services) else ExitWith(report)
 
 
@@ -111,11 +116,9 @@ def login(
     else:
         token = _device_flow(oauth_client, device_name, Console(stderr=True))
 
-    organization_id = _resolve_organization_id(oauth_client, token)
+    organization_id = _resolve_organization_id(_visible_organizations(token, config))
     credentials = Credentials(oauth_token=SecretStr(token), organization_id=organization_id)
-    report = StatusReporter.for_credentials(credentials, config).report(
-        configured=True, organization_id=organization_id
-    )
+    report = build_report(credentials, config)
     _write_env_file(token, organization_id, report, assume_yes=assume_yes)
     return report
 
@@ -179,9 +182,17 @@ def _device_flow(oauth_client: OAuthClient, device_name: str | None, console: Co
         raise typer.Exit(1)
 
 
-def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
-    """Auto-detect the org via api360; prompt when it is ambiguous or the scope is missing."""
-    organizations = oauth_client.fetch_organizations(token)
+def _visible_organizations(token: str, config: AppConfig) -> list[Organization]:
+    """The token's organizations from API 360, or ``[]`` when it lacks the directory scope."""
+    with TokenClient(oauth_token=token, http=config.http) as token_client:
+        try:
+            return token_client.organizations()
+        except YandexAuthError:
+            return []
+
+
+def _resolve_organization_id(organizations: list[Organization]) -> str:
+    """Pick the org from API 360's list; prompt when it is ambiguous or the scope is missing."""
     if len(organizations) == 1:
         organization = organizations[0]
         typer.echo(f"Using organization {organization.name} ({organization.id}).", err=True)

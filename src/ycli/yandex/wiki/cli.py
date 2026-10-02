@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import typer
 
+from ycli.yandex.status.service_cli import service_auth_app
+from ycli.yandex.wiki import SERVICE
 from ycli.yandex.wiki.access.cli import app as access_app
 from ycli.yandex.wiki.attachments.cli import app as attachments_app
 from ycli.yandex.wiki.comments.cli import app as comments_app
@@ -19,6 +21,7 @@ from ycli.yandex.wiki.uploadsessions.cli import app as uploadsessions_app
 # Help text lives in the service registry (ycli.yandex.wiki.SERVICE).
 app = typer.Typer(name="wiki", no_args_is_help=True)
 
+app.add_typer(service_auth_app(SERVICE))
 app.add_typer(me_app)
 app.add_typer(pages_app)
 app.add_typer(access_app)
