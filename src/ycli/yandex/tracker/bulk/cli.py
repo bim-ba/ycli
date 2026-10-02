@@ -47,13 +47,6 @@ WaitOpt = Annotated[
 ]
 
 
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
-app.callback()(_group)
-
-
 def _issues(issue: list[str] | None, query: str) -> list[str] | str:
     """The ``issues`` body value: the query string when given, else the collected keys."""
     return query if query else (issue or [])

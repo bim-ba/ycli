@@ -28,11 +28,6 @@ _URL = typer.Option("--url", help="File download URL (from an upload response)."
 FilePathArg = Annotated[Path, typer.Argument(metavar="FILE_PATH", help="Local file to upload.")]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def upload(survey_id: SurveyIdArg, file_path: FilePathArg, *, forms: FormsClient) -> FileOut:
     """Upload a file for form filling (POST …/files) — needs external storage on the form."""

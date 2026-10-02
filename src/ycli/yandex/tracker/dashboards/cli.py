@@ -24,16 +24,6 @@ app.add_typer(add_widget_app)
 DashboardIdArg = Annotated[str, typer.Argument(metavar="DASHBOARD_ID", help="Target dashboard id.")]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
-@add_widget_app.callback()
-def _widget_group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Dashboard name.")],

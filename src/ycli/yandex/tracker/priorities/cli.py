@@ -18,11 +18,6 @@ from ycli.yandex.tracker.priorities.models import (
 app = typer.Typer(name="priorities", help="Tracker priorities.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(*, tracker: TrackerClient) -> PriorityList:
     """List all priorities."""

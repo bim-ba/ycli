@@ -1,4 +1,4 @@
-"""Deterministic enumerators of ycli's public surface (CLI tree + MCP tool names)."""
+"""Deterministic enumerators of ycli's public surface (CLI tree and signatures, MCP signatures)."""
 
 from __future__ import annotations
 
@@ -61,11 +61,6 @@ def _tools() -> list:
             return await client.list_tools()
 
     return asyncio.run(go())
-
-
-def mcp_tool_names() -> list[str]:
-    """Every MCP tool name, sorted (protocol-level, via the in-memory client)."""
-    return sorted(tool.name for tool in _tools())
 
 
 def mcp_signatures() -> list[str]:

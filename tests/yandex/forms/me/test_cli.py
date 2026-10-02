@@ -2,14 +2,11 @@
 
 import json
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.hosts import FORMS_BASE as BASE
-
-pytestmark = pytest.mark.integration
 
 runner = CliRunner()
 

@@ -10,11 +10,6 @@ from ycli.yandex.tracker.client import TrackerClient
 app = typer.Typer(name="applications", help="Tracker external applications.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(*, tracker: TrackerClient) -> ApplicationList:
     """List external applications that issues can be linked to."""

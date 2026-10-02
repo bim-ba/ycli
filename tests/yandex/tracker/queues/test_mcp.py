@@ -10,8 +10,6 @@ from fastmcp.exceptions import ToolError
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.queues import mcp as queues_mcp
 
-pytestmark = pytest.mark.integration
-
 
 @responses.activate
 async def test_queues_list_tool_returns_flat_collection(creds):

@@ -27,7 +27,6 @@ WIKI_ME = "https://api.wiki.yandex.net/v1/users/me"
 TOKEN = "y0_AgAAAABsecret_TOKEN_value_1234"
 
 runner = CliRunner()
-pytestmark = pytest.mark.integration
 
 
 @pytest.fixture(autouse=True)

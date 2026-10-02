@@ -22,11 +22,6 @@ ImagePathArg = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def upload(survey_id: SurveyIdArg, image_path: ImagePathArg, *, forms: FormsClient) -> Image:
     """Upload an image to add to a form (POST …/images); returns the image id and links."""

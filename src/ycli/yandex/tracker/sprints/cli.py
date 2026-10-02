@@ -24,11 +24,6 @@ VersionOpt = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(
     board_id: Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")],

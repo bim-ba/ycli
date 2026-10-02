@@ -18,11 +18,6 @@ app = typer.Typer(name="boards", help="Tracker agile boards.", no_args_is_help=T
 BoardIdArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(
     limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient

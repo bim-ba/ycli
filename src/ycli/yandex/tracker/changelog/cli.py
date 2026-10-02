@@ -16,11 +16,6 @@ from ycli.yandex.tracker.typedefs import (
 app = typer.Typer(name="changelog", help="Tracker issue changelog.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(
     key: KeyArg,

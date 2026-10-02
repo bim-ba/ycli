@@ -10,8 +10,6 @@ from fastmcp import Client
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.attachments import mcp as attachments_mcp
 
-pytestmark = pytest.mark.integration
-
 
 @responses.activate
 async def test_attachments_attach_tool(creds):

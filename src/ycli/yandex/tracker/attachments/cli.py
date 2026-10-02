@@ -17,11 +17,6 @@ _FILE_ID = typer.Argument(metavar="FILE_ID", help="Attachment file id.")
 _OUTPUT = typer.Option("--output", "-O", help="Write to this path; omit or '-' for stdout.")
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(issue_key: Annotated[str, _ISSUE], *, tracker: TrackerClient) -> AttachmentList:
     """List files attached to an issue (GET /issues/{issue}/attachments)."""

@@ -19,11 +19,6 @@ QueueIdArg = Annotated[
 MacroIdArg = Annotated[int, typer.Argument(metavar="MACRO_ID", help="Numeric macro identifier.")]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(queue_id: QueueIdArg, *, tracker: TrackerClient) -> MacroList:
     """List the macros of QUEUE_ID."""

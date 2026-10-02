@@ -7,8 +7,6 @@ from fastmcp.exceptions import ToolError
 from tests.hosts import TRACKER_BASE as BASE
 from ycli.yandex.tracker.issues import mcp as issues_mcp
 
-pytestmark = pytest.mark.integration
-
 
 async def test_issues_get_tool(api, creds):
     api.add("GET", f"{BASE}/issues/DE-1", json={"key": "DE-1", "summary": "S"}, status=200)

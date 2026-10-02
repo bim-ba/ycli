@@ -166,11 +166,6 @@ BodyFileOpt = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> QuestionsResponse:
     """List a form's questions (the {pages} envelope)."""

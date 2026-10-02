@@ -1,13 +1,10 @@
 """TDD for the wiki /operations MCP subserver (read-only clone-status pollers)."""
 
-import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.operations import mcp as operations_mcp
-
-pytestmark = pytest.mark.integration
 
 
 @responses.activate

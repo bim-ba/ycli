@@ -15,11 +15,6 @@ from ycli.yandex.tracker.users.models import User, UserList
 app = typer.Typer(name="users", help="Tracker organisation users.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(
     login_or_id: Annotated[

@@ -25,7 +25,6 @@ def test_service_import_paths_resolve(service):
     assert service.mcp_server().name == service.name
 
 
-@pytest.mark.integration
 def test_cli_root_mounts_every_service_with_its_help():
     root = get_command(app)
     context = typer.Context(root)
@@ -34,7 +33,6 @@ def test_cli_root_mounts_every_service_with_its_help():
         assert group.help == service.help
 
 
-@pytest.mark.integration
 def test_mcp_root_namespaces_every_service():
     async def tool_names():
         async with Client(root_mcp) as client:

@@ -10,8 +10,6 @@ from fastmcp import Client
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki.uploadsessions import mcp as uploadsessions_mcp
 
-pytestmark = pytest.mark.integration
-
 
 @responses.activate
 async def test_uploadsessions_get_tool(creds):

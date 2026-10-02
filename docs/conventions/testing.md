@@ -36,5 +36,3 @@ per-surface test files.
   drops the waits.
 - **Coverage stays at 100% of lines and branches** (`branch = true`, `--cov-fail-under=100`). It
   proves code ran, not that it is right; the kinds above are what make it meaningful.
-- **Wiring tests are marked** `@pytest.mark.integration`, so `-m "not integration"` runs the
-  fast unit layer alone.

@@ -18,11 +18,6 @@ from ycli.yandex.tracker.issuetypes.models import (
 app = typer.Typer(name="issuetypes", help="Tracker issue types.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(*, tracker: TrackerClient) -> IssueTypeList:
     """List all issue types."""

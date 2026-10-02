@@ -37,11 +37,6 @@ def _options_provider(values: list[str] | None, provider_type: str) -> OptionsPr
     return OptionsProviderInput(type=provider_type, values=values)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(*, tracker: TrackerClient) -> FieldList:
     """List all global fields of the organisation."""

@@ -17,11 +17,6 @@ from ycli.yandex.tracker.components.models import (
 app = typer.Typer(name="components", help="Tracker components.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(*, tracker: TrackerClient) -> ComponentList:
     """List all components created in the organisation."""

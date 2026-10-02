@@ -1,13 +1,10 @@
 """Wiki FastMCP subserver tests — per-request provider, env+responses pattern."""
 
-import pytest
 import responses
 from fastmcp import Client
 
 from tests.hosts import WIKI_BASE as BASE
 from ycli.yandex.wiki import mcp as wiki_mcp
-
-pytestmark = pytest.mark.integration
 
 
 @responses.activate

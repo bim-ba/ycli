@@ -31,11 +31,6 @@ BodyFileArg = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(survey: SurveyIdArg, key: Annotated[str, _KEY] = "", *, forms: FormsClient) -> FillableForm:
     """Print the fillable-form settings for SURVEY (GET …/form) — pages, conditions, values."""

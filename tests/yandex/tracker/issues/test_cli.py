@@ -2,13 +2,10 @@
 
 import json
 
-import pytest
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.hosts import TRACKER_BASE as BASE
-
-pytestmark = pytest.mark.integration
 
 runner = CliRunner()
 
