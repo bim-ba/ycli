@@ -9,6 +9,54 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.32.0 (2026-10-02)
+
+### Bug Fixes
+
+- **cli**: Public exit for a refused delete, one context for commands that declare their own
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+### Build System
+
+- Re-lock uv.lock for 0.31.0
+  ([`c9b126f`](https://github.com/bim-ba/ycli/commit/c9b126f3d888f6291a2d18185b220df5308ce95d))
+
+### Features
+
+- **cli**: --dry-run prints the request a write would send
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+- **cli**: --jq filters a command's JSON result ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+- **cli**: Accept the global options after the subcommand
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+- **cli**: Ask before an operation that deletes data; --yes skips it
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+- **cli**: Exit codes by error kind ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+- **cli**: Exit codes by error kind, --jq, delete confirmations and --dry-run
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+### Testing
+
+- Plain help output under GitHub Actions for every test
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+- **cli**: Read the leaf's declared options, not its colour-coded help
+  ([#166](https://github.com/bim-ba/ycli/pull/166),
+  [`ef71747`](https://github.com/bim-ba/ycli/commit/ef71747d10ce99d48092c2c9be608d26ba2cbb98))
+
+
 ## v0.31.0 (2026-10-02)
 
 ### Build System
