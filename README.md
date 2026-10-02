@@ -72,7 +72,13 @@ ycli wiki pages get onboarding
 ycli tracker issues get TRACKER-1            # auto: a pretty table on a TTY…
 ycli tracker issues get TRACKER-1 | jq .     # …and raw JSON when piped (agent/script-safe)
 ycli -o yaml wiki pages get onboarding       # or: -o json | -o yaml | -o pretty
+ycli --jq .summary tracker issues get TRACKER-1   # filter the JSON with jq; a string prints bare
 ```
+
+`--jq EXPR` runs a [jq](https://jqlang.org) program over the command's JSON result and prints
+like `jq -r`: a string comes out raw, anything else as one compact JSON value per line. It
+cannot be combined with `-o yaml` / `-o pretty`, and it needs the `jq` Python package (a
+dependency; it has no build for Windows on ARM).
 </details>
 
 <details>

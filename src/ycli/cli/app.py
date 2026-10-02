@@ -12,6 +12,7 @@ import typer
 from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
+from ycli.cli.typedefs import FormatOption, JqOption
 from ycli.yandex.registry import SERVICES
 
 
@@ -25,11 +26,13 @@ class _Ycli(RootGroup):
     )
 
 
-def _render(result: object, output_format: OutputFormat, verbose: int, version: bool) -> None:
+def _render(
+    result: object, output_format: OutputFormat | None, jq: str | None, verbose: int, version: bool
+) -> None:
     """Print whatever the command returned; Click passes the root options alongside it."""
     from ycli.cli.output import render
 
-    render(result, output_format)
+    render(result, output_format or OutputFormat.auto, jq)
 
 
 app = typer.Typer(
@@ -56,12 +59,8 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def _main(
     ctx: typer.Context,
-    output_format: Annotated[
-        OutputFormat,
-        typer.Option(
-            "--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."
-        ),
-    ] = OutputFormat.auto,
+    output_format: FormatOption = OutputFormat.auto,
+    jq: JqOption = None,
     verbose: Annotated[
         int,
         typer.Option(

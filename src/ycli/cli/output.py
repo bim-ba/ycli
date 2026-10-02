@@ -4,6 +4,7 @@ The root ``result_callback`` hands every command's return value to :func:`render
 - a pydantic model goes through the ``--format`` strategy. stdout is data: when output is
   piped/redirected (not a TTY) the default ``auto`` stays raw JSON so scripts and agents keep a
   stable machine format; an interactive TTY gets a pretty table;
+- ``--jq EXPR`` filters that model's JSON form through jq instead (:func:`render_jq`);
 - a ``str`` or ``int`` prints verbatim (raw page markdown, a count);
 - :class:`BinaryResult` writes bytes to a file or stdout;
 - :class:`ExitWith` renders its result, then exits with a non-zero status;
@@ -18,6 +19,7 @@ from __future__ import annotations
 # older versions ignore the name.
 __lazy_modules__ = {"yaml", "rich.table"}
 
+import json
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -30,10 +32,14 @@ from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 
+from ycli.cli.exit_codes import ExitCode
 from ycli.cli.formats import OutputFormat
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+# ``--jq`` prints JSON, so it cannot share a command line with a format that prints something else.
+_NOT_JSON_FORMATS = frozenset({OutputFormat.yaml, OutputFormat.pretty})
 
 
 class SerializationStrategy(ABC):
@@ -177,13 +183,66 @@ class ExitWith:
     exit_code: int = 1
 
 
-def render(result: object, output_format: OutputFormat) -> None:
-    """Print a command's return value to stdout — the only place CLI output is produced."""
+def check_jq(expression: str, output_format: OutputFormat) -> Any:
+    """The compiled ``--jq`` program, or a usage error (exit 2) before a command has run.
+
+    Fails early on a format that is not JSON, a missing ``jq`` package and an expression that
+    does not compile, so a bad filter never follows a write that already happened.
+    """
+    if output_format in _NOT_JSON_FORMATS:
+        raise typer.BadParameter(
+            f"--jq prints JSON; it cannot be combined with `--format {output_format}`.",
+            param_hint="--jq",
+        )
+    try:
+        import jq  # ty: ignore[unresolved-import]  # compiled, no stubs; lazy: loads only when used
+    except ImportError as exc:
+        raise typer.BadParameter(
+            "the `jq` package is not installed (it has no build for every platform): "
+            "`pip install jq`, or pipe the JSON output to the jq program.",
+            param_hint="--jq",
+        ) from exc
+    try:
+        return jq.compile(expression)
+    except ValueError as exc:
+        raise typer.BadParameter(f"not a valid jq program: {exc}", param_hint="--jq") from exc
+
+
+def render_jq(result: BaseModel, expression: str, output_format: OutputFormat) -> None:
+    """Print ``expression`` applied to the model's JSON form, one result per line, like ``jq -r``.
+
+    A string result prints raw and anything else as compact JSON, so ``--jq .key`` prints a bare
+    value. A runtime jq error (``.a.b`` on a number, ``error("x")``) exits 1 before printing.
+
+    Example: ``.key, .n`` over ``{"key": "DE-1", "n": 3}`` prints ``DE-1`` then ``3``.
+    """
+    program = check_jq(expression, output_format)
+    try:
+        values = program.input_value(result.model_dump(by_alias=True, mode="json")).all()
+    except ValueError as exc:
+        typer.secho(f"Error: jq: {exc}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(ExitCode.FAILURE) from exc
+    for value in values:
+        print(value if isinstance(value, str) else json.dumps(value, ensure_ascii=False))
+
+
+def render(result: object, output_format: OutputFormat, jq: str | None = None) -> None:
+    """Print a command's return value to stdout — the only place CLI output is produced.
+
+    ``jq`` (``--jq``) filters a model's JSON form; a result that is not a model has none.
+    """
     match result:
         case None:
             return
+        case BaseModel() if jq is not None:
+            render_jq(result, jq, output_format)
         case BaseModel():
             SerializationStrategy.from_format(output_format).render(result, Console())
+        case str() | int() | BinaryResult() if jq is not None:
+            raise typer.BadParameter(
+                f"this command returns {type(result).__name__}, which has nothing to filter.",
+                param_hint="--jq",
+            )
         case str() | int():
             print(result)
         case BinaryResult(data=data, path=None | "-"):
@@ -191,7 +250,7 @@ def render(result: object, output_format: OutputFormat) -> None:
         case BinaryResult(data=data, path=str() as path):
             Path(path).write_bytes(data)
         case ExitWith(result=inner, exit_code=code):
-            render(inner, output_format)
+            render(inner, output_format, jq)
             raise typer.Exit(code)
         case _:
             raise TypeError(f"a command returned {type(result).__name__}, which has no rendering")
