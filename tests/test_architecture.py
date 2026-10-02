@@ -357,14 +357,7 @@ def test_arch1_served_check_bites():
 
 # Resources still on uplink. The set may only shrink: a new resource starts on the httpx2 core
 # (`/new-endpoint` scaffolds it there), and a resource that moves leaves this list; E2 empties it.
-UPLINK_RESOURCES = frozenset(
-    {
-        *(f"wiki.{name}" for name in (
-            "attachments", "comments", "grids", "me", "operations", "pages", "recovery",
-            "resources", "uploadsessions",
-        )),
-    }
-)  # fmt: skip
+UPLINK_RESOURCES: frozenset[str] = frozenset()
 
 
 def _uplink_drift(on_uplink: set[str], frozen: frozenset[str]) -> list[str]:
@@ -468,6 +461,11 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "forms/files/endpoints.py:verify_files": "POST verify only reads upload statuses",
     "tracker/entities/endpoints.py:search_entities": "POST _search only reads",
     "tracker/queues/endpoints.py:remove_tag": "POST _remove strips the tag from every issue",
+    "wiki/pages/endpoints.py:update_page": "POST /pages/{id} replaces fields; a resend is a no-op",
+    "wiki/grids/endpoints.py:update_grid": "POST /grids/{id} replaces fields; a resend is a no-op",
+    "wiki/grids/endpoints.py:update_cells": "POST cells sets values; a resend is a no-op",
+    "wiki/uploadsessions/endpoints.py:abort_session": "POST abort discards uploaded parts",
+    "wiki/uploadsessions/endpoints.py:abort_all_sessions": "POST abort discards every upload",
 }
 
 

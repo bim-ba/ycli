@@ -116,7 +116,7 @@ class GridRef(APIModel):
 class GridsResponse(APIModel):
     """Envelope for ``GET /pages/{id}/grids`` — ``{results, next_cursor}``.
 
-    Internal per-page parse type used by ``PagesClient._grids_page``. ``next_cursor`` is
+    Internal per-page parse type used by ``endpoints.list_grids``. ``next_cursor`` is
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 

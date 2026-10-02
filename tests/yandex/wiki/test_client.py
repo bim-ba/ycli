@@ -1,42 +1,21 @@
-"""TDD for WikiClient composition root — sub-clients share one session."""
+"""WikiClient wires every resource to one httpx2 core session."""
 
-import responses
-
-from ycli.yandex.wiki.attachments.client import AttachmentsClient
+from tests.hosts import WIKI_BASE as BASE
+from ycli.yandex.core.resource import Resource
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.comments.client import CommentsClient
-from ycli.yandex.wiki.pages.client import PagesClient
+from ycli.yandex.wiki.dependencies import wiki_client
 
 
-def test_composes_subclients_over_shared_authed_session():
-    client = WikiClient(oauth_token="tok", organization_id="org")
-    assert isinstance(client.pages, PagesClient)
-    assert isinstance(client.comments, CommentsClient)
-    assert isinstance(client.attachments, AttachmentsClient)
-    for sub in (client.pages, client.comments, client.attachments, client.me):
-        assert sub._session.headers["Authorization"] == "OAuth tok"
-        assert sub._session.headers["X-Org-Id"] == "org"
+def test_every_resource_shares_one_core_session():
+    with WikiClient(oauth_token="t", organization_id="o") as client:
+        resources = [value for value in vars(client).values() if isinstance(value, Resource)]
+        assert len(resources) == 9
+        assert len({id(resource._session) for resource in resources}) == 1
 
 
-@responses.activate
-def test_wiki_deps_factory_builds_from_env(monkeypatch):
-    """dependencies.wiki_client() reads env and returns a working WikiClient."""
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    from ycli.yandex.wiki.dependencies import wiki_client
-
-    responses.add(
-        responses.GET,
-        "https://api.wiki.yandex.net/v1/users/me",
-        json={
-            "username": "alice",
-            "home_cluster": "homepage",
-            "identity": {"uid": "1", "cloud_uid": "c1"},
-            "org": {"dir_id": "d1", "collab_id": "11111111-1111-1111-1111-111111111111"},
-        },
-        status=200,
-    )
+def test_the_mcp_provider_builds_a_client_from_the_environment(api):
+    api.add("GET", f"{BASE}/users/me", json={"username": "alice"})
     with wiki_client() as client:
-        assert isinstance(client, WikiClient)
-        result = client.me.get()
-        assert result.username == "alice"
+        assert client.me.get().username == "alice"
+    assert api.calls[0].headers["Authorization"] == "OAuth t"
+    assert api.calls[0].headers["X-Org-Id"] == "o"

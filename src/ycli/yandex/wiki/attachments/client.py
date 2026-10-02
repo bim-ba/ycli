@@ -1,39 +1,22 @@
-"""Declarative Yandex Wiki /pages/{id}/attachments client (uplink) — transport ONLY.
+"""Wiki ``/pages/{id}/attachments`` client on the httpx2 core."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-import requests
-import uplink
-
-from ycli.yandex.pagination import CursorStrategy
-from ycli.yandex.wiki.attachments.models import (
-    AttachedFileList,
-    AttachmentCreate,
-    AttachmentList,
-    AttachmentsResponse,
-    AttachResponse,
-)
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.wiki.attachments import endpoints
+from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentCreate, AttachmentList
 from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-class AttachmentsClient(WikiResource):
-    """Declarative HTTP for ``/pages/{id}/attachments`` (list + attach + binary download)."""
+    from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 
-    @uplink.returns.json()
-    @uplink.get("pages/{page_id}/attachments")
-    def _list_page(
-        self,
-        page_id: uplink.Path,
-        page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
-        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> AttachmentsResponse:  # ty: ignore[empty-body]
-        """One raw page of attachments + ``next_cursor`` (internal; callers use ``list``)."""
+
+class AttachmentsClient(Resource):
+    """``/pages/{id}/attachments``: list, attach, upload, delete and binary download."""
 
     def list(self, page_id: int, *, limit: int | None = None) -> AttachmentList:
         """``GET /pages/{id}/attachments`` → flat :class:`AttachmentList`, draining ``next_cursor``.
@@ -45,19 +28,8 @@ class AttachmentsClient(WikiResource):
             >>> client.attachments.list(12345, limit=50).root[0].name  # doctest: +SKIP
             'diagram.png'
         """
-        return CursorStrategy.collect_wrapped(
-            lambda cursor: self._list_page(page_id, page_size=100, cursor=cursor),
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-            wrap=AttachmentList,
-            limit=limit,
-        )
-
-    @uplink.get("pages/{page_id}/attachments/{file_id}/download")
-    def _download(self, page_id: uplink.Path, file_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw binary response for a file by id (internal; callers use ``download``).
-
-        No ``@uplink.returns.json()`` — this is a byte stream, not JSON."""
+        paged = endpoints.list_attachments(page_id)
+        return AttachmentList(list(self._session.iterate(paged, limit=limit)))
 
     def download(self, page_id: int, file_id: int) -> bytes:
         """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.
@@ -70,15 +42,7 @@ class AttachmentsClient(WikiResource):
             ...     client.attachments.download(12345, 678)
             ... )  # doctest: +SKIP
         """
-        return self._download(page_id, file_id).content
-
-    @uplink.get("pages/attachments/download_by_url")
-    def _download_by_url(
-        self,
-        url: uplink.Query,
-        download: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw binary response for a file by page-slug URL (internal; use ``download_by_url``)."""
+        return self._session.send(endpoints.download_attachment(page_id, file_id))
 
     def download_by_url(self, url: str) -> bytes:
         """``GET /pages/attachments/download_by_url?url=`` → the file's raw bytes.
@@ -91,14 +55,7 @@ class AttachmentsClient(WikiResource):
             >>> client.attachments.download_by_url("data/x/.files/diagram.png")  # doctest: +SKIP
             b'\\x89PNG...'
         """
-        return self._download_by_url(url=url, download="true").content
-
-    @uplink.delete("pages/{page_id}/attachments/{file_id}")
-    def _delete(self, page_id: uplink.Path, file_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw ``204 No Content`` response for a delete (internal; callers use ``delete``).
-
-        No ``@uplink.returns.json()`` — the API returns an empty ``204`` body; the transport's
-        response hook has already raised on any non-2xx before this returns."""
+        return self._session.send(endpoints.download_by_url(url))
 
     def delete(self, page_id: int, file_id: int) -> None:
         """``DELETE /pages/{id}/attachments/{file_id}`` — remove an attachment (``204``, no body).
@@ -109,13 +66,7 @@ class AttachmentsClient(WikiResource):
             >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.attachments.delete(12345, 678)  # doctest: +SKIP
         """
-        self._delete(page_id, file_id)
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("pages/{page_id}/attachments")
-    def _attach(self, page_id: uplink.Path, body: uplink.Body) -> AttachResponse:  # ty: ignore[empty-body]
-        """``POST /pages/{id}/attachments`` — attach from a ready JSON body (see ``attach``)."""
+        self._session.send(endpoints.delete_attachment(page_id, file_id))
 
     def attach(self, page_id: int, session_ids: Sequence[str]) -> AttachedFileList:
         """``POST /pages/{id}/attachments`` — attach file(s) from finished upload sessions.
@@ -129,9 +80,8 @@ class AttachmentsClient(WikiResource):
             'diagram.png'
         """
         body = AttachmentCreate(upload_sessions=list(session_ids))
-        response = self._attach(
-            page_id=page_id, body=body.model_dump(by_alias=True, exclude_none=True)
-        )
+        payload = body.model_dump(by_alias=True, exclude_none=True)
+        response = self._session.send(endpoints.attach_files(page_id, payload))
         return AttachedFileList(response.results)
 
     def upload(

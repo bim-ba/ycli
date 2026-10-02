@@ -1,31 +1,14 @@
-"""Declarative Yandex Wiki /pages/{id}/resources client (uplink) — transport ONLY.
+"""Wiki ``/pages/{id}/resources`` client on the httpx2 core."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
-
-from ycli.yandex.pagination import CursorStrategy
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.resources.models import ResourceItemList, ResourcesResponse
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.wiki.resources import endpoints
+from ycli.yandex.wiki.resources.models import ResourceItemList
 
 
-class ResourcesClient(WikiResource):
-    """Declarative HTTP for ``/pages/{id}/resources`` (unified attachments + grids)."""
-
-    @uplink.returns.json()
-    @uplink.get("pages/{page_id}/resources")
-    def _list_page(
-        self,
-        page_id: uplink.Path,
-        page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
-        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        q: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        types: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        order_by: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> ResourcesResponse:  # ty: ignore[empty-body]
-        """One raw page of resource envelopes + ``next_cursor`` (internal; callers use ``list``)."""
+class ResourcesClient(Resource):
+    """The unified listing of a page's attachments and grids."""
 
     def list(
         self,
@@ -48,12 +31,5 @@ class ResourcesClient(WikiResource):
             >>> client.resources.list(12345, types="attachment").root[0].type  # doctest: +SKIP
             'attachment'
         """
-        return CursorStrategy.collect_wrapped(
-            lambda cursor: self._list_page(
-                page_id, page_size=100, cursor=cursor, q=q, types=types, order_by=order_by
-            ),
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-            wrap=ResourceItemList,
-            limit=limit,
-        )
+        paged = endpoints.list_resources(page_id, q=q, types=types, order_by=order_by)
+        return ResourceItemList(list(self._session.iterate(paged, limit=limit)))

@@ -1,37 +1,22 @@
-"""Declarative Yandex Wiki /pages/{id}/comments client (uplink) — transport ONLY.
+"""Wiki ``/pages/{id}/comments`` client on the httpx2 core; ``thread`` rebuilds client-side."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
-import uplink
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.wiki.comments import endpoints
+from ycli.yandex.wiki.comments.models import CommentList
 
-from ycli.yandex.pagination import CursorStrategy
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.comments.models import (
-    Comment,
-    CommentCreated,
-    CommentDeleteResult,
-    CommentList,
-    CommentsResponse,
-)
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from ycli.yandex.wiki.comments.models import Comment, CommentCreated, CommentDeleteResult
 
 
-class CommentsClient(WikiResource):
-    """HTTP for ``/pages/{id}/comments`` (list, create, delete); ``thread`` rebuilds client-side."""
-
-    @uplink.returns.json()
-    @uplink.get("pages/{page_id}/comments")
-    def _list_page(
-        self,
-        page_id: uplink.Path,
-        page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
-        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> CommentsResponse:  # ty: ignore[empty-body]
-        """One raw page of comments + ``next_cursor`` (internal; callers use ``list``)."""
+class CommentsClient(Resource):
+    """``/pages/{id}/comments``: list, create, delete; ``thread`` rebuilds a thread client-side."""
 
     def list(self, page_id: int, *, limit: int | None = None) -> CommentList:
         """``GET /pages/{id}/comments`` → flat :class:`CommentList`, draining ``next_cursor``.
@@ -43,13 +28,8 @@ class CommentsClient(WikiResource):
             >>> client.comments.list(12345, limit=50).root[0].author  # doctest: +SKIP
             'Сава Знатнов'
         """
-        return CursorStrategy.collect_wrapped(
-            lambda cursor: self._list_page(page_id, page_size=100, cursor=cursor),
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-            wrap=CommentList,
-            limit=limit,
-        )
+        paged = endpoints.list_comments(page_id)
+        return CommentList(list(self._session.iterate(paged, limit=limit)))
 
     def thread(self, page_id: int, comment_id: int, *, limit: int | None = None) -> CommentList:
         """The comment ``comment_id`` followed by its replies, reconstructed from ``comments list``.
@@ -115,10 +95,7 @@ class CommentsClient(WikiResource):
         walk(root)
         return CommentList(thread)
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("pages/{page_id}/comments")
-    def create(self, page_id: uplink.Path, body: uplink.Body) -> CommentCreated:  # ty: ignore[empty-body]
+    def create(self, page_id: int, body: dict[str, Any]) -> CommentCreated:
         """``POST /pages/{id}/comments`` — add a comment; returns a :class:`CommentCreated`.
 
         ``body`` is a dumped :class:`CommentCreate` (``body`` + optional
@@ -129,10 +106,9 @@ class CommentsClient(WikiResource):
             >>> client.comments.create(12345, {"body": "LGTM"}).id  # doctest: +SKIP
             678
         """
+        return self._session.send(endpoints.create_comment(page_id, body))
 
-    @uplink.returns.json()
-    @uplink.delete("pages/{page_id}/comments/{comment_id}")
-    def delete(self, page_id: uplink.Path, comment_id: uplink.Path) -> CommentDeleteResult:  # ty: ignore[empty-body]
+    def delete(self, page_id: int, comment_id: int) -> CommentDeleteResult:
         """``DELETE /pages/{id}/comments/{comment_id}`` → ``{comments_count}`` left on the page.
 
         Example:
@@ -140,3 +116,4 @@ class CommentsClient(WikiResource):
             >>> client.comments.delete(12345, 678).comments_count  # doctest: +SKIP
             4
         """
+        return self._session.send(endpoints.delete_comment(page_id, comment_id))

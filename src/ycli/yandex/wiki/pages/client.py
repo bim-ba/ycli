@@ -1,34 +1,21 @@
-"""Declarative Yandex Wiki /pages client (uplink) — transport ONLY.
+"""Wiki ``/pages`` client on the httpx2 core."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.pagination import CursorStrategy
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.pages.models import (
-    DescendantsResponse,
-    GridRefList,
-    GridsResponse,
-    PageCloneOperation,
-    PageDeleteResult,
-    PageDetails,
-    PageRefList,
-)
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.wiki.pages import endpoints
+from ycli.yandex.wiki.pages.models import GridRefList, PageRefList
+
+if TYPE_CHECKING:
+    from ycli.yandex.wiki.pages.models import PageCloneOperation, PageDeleteResult, PageDetails
 
 
-class PagesClient(WikiResource):
-    """Declarative HTTP for ``/pages`` (get, descendants, grids, create, update, delete, append)."""
+class PagesClient(Resource):
+    """``/pages``: get, descendants, grids, create, update, delete, append, clone."""
 
-    @uplink.returns.json()
-    @uplink.get("pages/{page_id}")
-    def get_by_id(
-        self,
-        page_id: uplink.Path,
-        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> PageDetails:  # ty: ignore[empty-body]
+    def get_by_id(self, page_id: int, fields: str | None = None) -> PageDetails:
         """``GET /pages/{id}?fields=`` → a single page by numeric id (raises on non-2xx).
 
         The slug-addressed sibling is :meth:`get`; use this when you hold the numeric id
@@ -40,14 +27,9 @@ class PagesClient(WikiResource):
             >>> client.pages.get_by_id(12345, fields="content").title  # doctest: +SKIP
             'Архитектура данных'
         """
+        return self._session.send(endpoints.get_page_by_id(page_id, fields=fields))
 
-    @uplink.returns.json()
-    @uplink.get("pages")
-    def get(
-        self,
-        slug: uplink.Query,
-        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> PageDetails:  # ty: ignore[empty-body]
+    def get(self, slug: str, fields: str | None = None) -> PageDetails:
         """``GET /pages?slug=&fields=`` → a single page (raises on non-2xx).
 
         Example:
@@ -55,19 +37,7 @@ class PagesClient(WikiResource):
             >>> client.pages.get(slug="data/architecture", fields="content").title  # doctest: +SKIP
             'Архитектура данных'
         """
-
-    @uplink.returns.json()
-    @uplink.get("pages/descendants")
-    def _descendants_page(
-        self,
-        slug: uplink.Query,
-        page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
-        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        actuality: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> DescendantsResponse:  # ty: ignore[empty-body]
-        """One raw page of ``{id, slug}`` refs + ``next_cursor``.
-
-        Internal; callers use ``descendants``."""
+        return self._session.send(endpoints.get_page(slug, fields=fields))
 
     def descendants(
         self,
@@ -86,28 +56,8 @@ class PagesClient(WikiResource):
             >>> refs.root[0].slug  # doctest: +SKIP
             'data/architecture'
         """
-        return CursorStrategy.collect_wrapped(
-            lambda cursor: self._descendants_page(
-                slug=slug, page_size=100, cursor=cursor, actuality=actuality
-            ),
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-            wrap=PageRefList,
-            limit=limit,
-        )
-
-    @uplink.returns.json()
-    @uplink.get("pages/{page_id}/descendants")
-    def _descendants_by_id_page(
-        self,
-        page_id: uplink.Path,
-        page_size: uplink.Query = 100,  # ty: ignore[invalid-parameter-default]
-        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        actuality: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> DescendantsResponse:  # ty: ignore[empty-body]
-        """One raw page of ``{id, slug}`` refs + ``next_cursor`` (by numeric id).
-
-        Internal; callers use ``descendants_by_id``."""
+        paged = endpoints.list_descendants(slug, actuality=actuality)
+        return PageRefList(list(self._session.iterate(paged, limit=limit)))
 
     def descendants_by_id(
         self,
@@ -126,26 +76,8 @@ class PagesClient(WikiResource):
             >>> refs.root[0].slug  # doctest: +SKIP
             'data/architecture'
         """
-        return CursorStrategy.collect_wrapped(
-            lambda cursor: self._descendants_by_id_page(
-                page_id, page_size=100, cursor=cursor, actuality=actuality
-            ),
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-            wrap=PageRefList,
-            limit=limit,
-        )
-
-    @uplink.returns.json()
-    @uplink.get("pages/{page_id}/grids")
-    def _grids_page(
-        self,
-        page_id: uplink.Path,
-        page_size: uplink.Query = 50,  # ty: ignore[invalid-parameter-default]
-        cursor: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        order_by: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> GridsResponse:  # ty: ignore[empty-body]
-        """One raw page of grid refs + ``next_cursor`` (internal; callers use ``grids``)."""
+        paged = endpoints.list_descendants_by_id(page_id, actuality=actuality)
+        return PageRefList(list(self._session.iterate(paged, limit=limit)))
 
     def grids(
         self,
@@ -164,20 +96,10 @@ class PagesClient(WikiResource):
             >>> client.pages.grids(12345, limit=50).root[0].title  # doctest: +SKIP
             'Roadmap'
         """
-        return CursorStrategy.collect_wrapped(
-            lambda cursor: self._grids_page(
-                page_id, page_size=50, cursor=cursor, order_by=order_by
-            ),
-            extract=lambda page: page.results,
-            next_of=lambda page: page.next_cursor,
-            wrap=GridRefList,
-            limit=limit,
-        )
+        paged = endpoints.list_grids(page_id, order_by=order_by)
+        return GridRefList(list(self._session.iterate(paged, limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("pages")
-    def create(self, body: uplink.Body) -> PageDetails:  # ty: ignore[empty-body]
+    def create(self, body: dict[str, Any]) -> PageDetails:
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
 
         Example:
@@ -187,11 +109,9 @@ class PagesClient(WikiResource):
             ... ).id  # doctest: +SKIP
             12345
         """
+        return self._session.send(endpoints.create_page(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("pages/{page_id}")
-    def update(self, page_id: uplink.Path, body: uplink.Body) -> PageDetails:  # ty: ignore[empty-body]
+    def update(self, page_id: int, body: dict[str, Any]) -> PageDetails:
         """``POST /pages/{id}`` — update (POST not PATCH; PATCH returns 405).
 
         Example:
@@ -199,10 +119,9 @@ class PagesClient(WikiResource):
             >>> client.pages.update(12345, {"content": "# Updated"}).id  # doctest: +SKIP
             12345
         """
+        return self._session.send(endpoints.update_page(page_id, body))
 
-    @uplink.returns.json()
-    @uplink.delete("pages/{page_id}")
-    def delete(self, page_id: uplink.Path) -> PageDeleteResult:  # ty: ignore[empty-body]
+    def delete(self, page_id: int) -> PageDeleteResult:
         """``DELETE /pages/{id}`` → ``{recovery_token}``; keep the token to restore (undo).
 
         The returned :class:`PageDeleteResult` carries the ``recovery_token`` — the only handle
@@ -213,11 +132,9 @@ class PagesClient(WikiResource):
             >>> client.pages.delete(12345).recovery_token  # doctest: +SKIP
             'a1b2c3d4-…'
         """
+        return self._session.send(endpoints.delete_page(page_id))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("pages/{page_id}/append-content")
-    def append_content(self, page_id: uplink.Path, body: uplink.Body) -> PageDetails:  # ty: ignore[empty-body]
+    def append_content(self, page_id: int, body: dict[str, Any]) -> PageDetails:
         """``POST /pages/{id}/append-content`` — append YFM without rewriting the whole body.
 
         ``body`` is a dumped :class:`PageAppendContent` (``{content, body?, section?, anchor?}``).
@@ -231,11 +148,9 @@ class PagesClient(WikiResource):
             ... ).id  # doctest: +SKIP
             12345
         """
+        return self._session.send(endpoints.append_content(page_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("pages/{page_id}/clone")
-    def clone(self, page_id: uplink.Path, body: uplink.Body) -> PageCloneOperation:  # ty: ignore[empty-body]
+    def clone(self, page_id: int, body: dict[str, Any]) -> PageCloneOperation:
         """``POST /pages/{id}/clone`` — copy the page to a new address (async trigger).
 
         Returns a :class:`PageCloneOperation`; poll its ``operation.id`` via
@@ -247,3 +162,4 @@ class PagesClient(WikiResource):
             >>> client.pages.clone(12345, {"target": "data/y"}).operation.id  # doctest: +SKIP
             'task-1'
         """
+        return self._session.send(endpoints.clone_page(page_id, body))

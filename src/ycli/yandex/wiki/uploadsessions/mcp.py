@@ -13,7 +13,15 @@ from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import DESTRUCTIVE, RO, TAGS, WRITE, WRITE_TAGS, wiki_client
+from ycli.yandex.wiki.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    wiki_client,
+)
 from ycli.yandex.wiki.uploadsessions.models import (
     AbortActiveUploadsResult,
     UploadSession,
@@ -71,7 +79,7 @@ def create(
 
 @mcp.tool(
     name="uploadsessions_upload_part",
-    annotations={**WRITE, "title": "Upload Wiki file part"},
+    annotations={**WRITE_IDEMPOTENT, "title": "Upload Wiki file part"},
     tags=WRITE_TAGS,
 )
 def upload_part(

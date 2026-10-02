@@ -1,21 +1,20 @@
-"""Declarative Yandex Wiki /recovery_tokens client (uplink) — transport ONLY.
+"""Wiki ``/recovery_tokens`` client on the httpx2 core."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING
 
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.recovery.models import RecoveredPage
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.wiki.recovery import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.wiki.recovery.models import RecoveredPage
 
 
-class RecoveryClient(WikiResource):
-    """Declarative HTTP for ``/recovery_tokens`` (restore a deleted page by token)."""
+class RecoveryClient(Resource):
+    """Restore a deleted page by its recovery token."""
 
-    @uplink.returns.json()
-    @uplink.post("recovery_tokens/{token}/recover")
-    def restore(self, token: uplink.Path) -> RecoveredPage:  # ty: ignore[empty-body]
+    def restore(self, token: str) -> RecoveredPage:
         """``POST /recovery_tokens/{token}/recover`` → the restored page's ``{id, slug}``.
 
         Redeems a ``recovery_token`` returned by ``PagesClient.delete`` to undo the delete.
@@ -26,3 +25,4 @@ class RecoveryClient(WikiResource):
             >>> client.recovery.restore("a1b2c3d4-…").slug  # doctest: +SKIP
             'data/x'
         """
+        return self._session.send(endpoints.restore_page(token))

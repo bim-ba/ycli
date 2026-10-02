@@ -1,15 +1,19 @@
-"""Declarative Wiki /users/me client (uplink) — transport ONLY."""
+"""Wiki ``/users/me`` client on the httpx2 core."""
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.me.models import Me
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.wiki.me import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.wiki.me.models import Me
 
 
-class MeClient(WikiResource):
-    """Declarative HTTP for ``/users/me``."""
+class MeClient(Resource):
+    """The authenticated Wiki user."""
 
-    @uplink.returns.json()
-    @uplink.get("users/me")
-    def get(self) -> Me:  # ty: ignore[empty-body]
+    def get(self) -> Me:
         """``GET /users/me`` → the authenticated ``Me`` (a safe auth probe)."""
+        return self._session.send(endpoints.get_me())

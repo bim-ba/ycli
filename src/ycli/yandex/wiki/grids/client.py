@@ -1,25 +1,25 @@
-"""Declarative Yandex Wiki /grids client (uplink) — transport ONLY.
+"""Wiki ``/grids`` client on the httpx2 core — dynamic tables."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
-import requests
-import uplink
+from typing import TYPE_CHECKING, Any
 
+from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import Ack
-from ycli.yandex.wiki.base import WikiResource
-from ycli.yandex.wiki.grids.models import (
-    CellsUpdateResult,
-    Grid,
-    GridCloneOperation,
-    RevisionResult,
-    RowsAddResult,
-)
+from ycli.yandex.wiki.grids import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.wiki.grids.models import (
+        CellsUpdateResult,
+        Grid,
+        GridCloneOperation,
+        RevisionResult,
+        RowsAddResult,
+    )
 
 
-class GridsClient(WikiResource):
-    """Declarative HTTP for ``/grids`` — dynamic tables (CRUD + rows/columns/cells + clone).
+class GridsClient(Resource):
+    """``/grids`` — dynamic tables (CRUD + rows/columns/cells + clone).
 
     Reads: :meth:`get`. Writes (SDK/CLI only): :meth:`create`, :meth:`update`, :meth:`delete`,
     the row/column add/remove/move calls, :meth:`update_cells`, and the async :meth:`clone`.
@@ -27,18 +27,16 @@ class GridsClient(WikiResource):
     revision) and ``clone`` (a deferred trigger).
     """
 
-    @uplink.returns.json()
-    @uplink.get("grids/{grid_id}")
     def get(
         self,
-        grid_id: uplink.Path,
-        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        row_filter: uplink.Query("filter") = None,  # ty: ignore[invalid-type-form]
-        only_cols: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        only_rows: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        revision: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        sort: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> Grid:  # ty: ignore[empty-body]
+        grid_id: str,
+        fields: str | None = None,
+        row_filter: str | None = None,
+        only_cols: str | None = None,
+        only_rows: str | None = None,
+        revision: str | None = None,
+        sort: str | None = None,
+    ) -> Grid:
         """``GET /grids/{id}`` → the full :class:`~ycli.yandex.wiki.grids.models.Grid`.
 
         ``fields`` adds optional blocks (``attributes``, ``user_permissions``); ``filter`` /
@@ -51,11 +49,19 @@ class GridsClient(WikiResource):
             >>> client.grids.get("g-uuid").revision  # doctest: +SKIP
             '3'
         """
+        return self._session.send(
+            endpoints.get_grid(
+                grid_id,
+                fields=fields,
+                row_filter=row_filter,
+                only_cols=only_cols,
+                only_rows=only_rows,
+                revision=revision,
+                sort=sort,
+            )
+        )
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids")
-    def create(self, body: uplink.Body) -> Grid:  # ty: ignore[empty-body]
+    def create(self, body: dict[str, Any]) -> Grid:
         """``POST /grids`` — create a grid as a page resource. ``body`` is a dumped ``GridCreate``.
 
         Example:
@@ -65,11 +71,9 @@ class GridsClient(WikiResource):
             ... ).id  # doctest: +SKIP
             'g-uuid'
         """
+        return self._session.send(endpoints.create_grid(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}")
-    def update(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
+    def update(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``POST /grids/{id}`` — rename / re-sort (POST not PATCH). ``body`` carries ``revision``.
 
         ``body`` is a dumped ``GridUpdate``; its ``default_sort`` must use the *write* shape
@@ -83,10 +87,7 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
-
-    @uplink.delete("grids/{grid_id}")
-    def _delete(self, grid_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw ``DELETE /grids/{id}`` (204 No Content); internal — callers use ``delete``."""
+        return self._session.send(endpoints.update_grid(grid_id, body))
 
     def delete(self, grid_id: str) -> Ack:
         """``DELETE /grids/{id}`` → an :class:`Ack` (``204 No Content``).
@@ -99,13 +100,10 @@ class GridsClient(WikiResource):
             >>> client.grids.delete("g-uuid").ok  # doctest: +SKIP
             True
         """
-        self._delete(grid_id)
+        self._session.send(endpoints.delete_grid(grid_id))
         return Ack.deleted("grid", grid_id)
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}/rows")
-    def add_rows(self, grid_id: uplink.Path, body: uplink.Body) -> RowsAddResult:  # ty: ignore[empty-body]
+    def add_rows(self, grid_id: str, body: dict[str, Any]) -> RowsAddResult:
         """``POST /grids/{id}/rows`` — insert rows. ``body`` is a dumped ``RowsAdd`` (+ revision).
 
         Example:
@@ -115,11 +113,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.add_rows(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.delete("grids/{grid_id}/rows")
-    def remove_rows(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
+    def remove_rows(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``DELETE /grids/{id}/rows`` — delete rows by id. ``body`` is a dumped ``RowsRemove``.
 
         A rare DELETE-with-body: ``row_ids`` + ``revision`` travel in the JSON body.
@@ -131,11 +127,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.remove_rows(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}/rows/move")
-    def move_rows(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
+    def move_rows(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``POST /grids/{id}/rows/move`` — reorder rows. ``body`` is a dumped ``RowsMove``.
 
         Example:
@@ -145,11 +139,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.move_rows(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}/columns")
-    def add_columns(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
+    def add_columns(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``POST /grids/{id}/columns`` — add columns. ``body`` is a dumped ``ColumnsAdd``.
 
         The API requires a ``slug`` on every column (400 ``value_error.missing`` without one);
@@ -164,11 +156,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.add_columns(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.delete("grids/{grid_id}/columns")
-    def remove_columns(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
+    def remove_columns(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``DELETE /grids/{id}/columns`` — delete columns by slug. ``body`` is a ``ColumnsRemove``.
 
         A rare DELETE-with-body: ``column_slugs`` + ``revision`` travel in the JSON body.
@@ -180,11 +170,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.remove_columns(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}/columns/move")
-    def move_columns(self, grid_id: uplink.Path, body: uplink.Body) -> RevisionResult:  # ty: ignore[empty-body]
+    def move_columns(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``POST /grids/{id}/columns/move`` — reorder columns. ``body`` is a ``ColumnsMove`` dump.
 
         Example:
@@ -194,11 +182,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.move_columns(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}/cells")
-    def update_cells(self, grid_id: uplink.Path, body: uplink.Body) -> CellsUpdateResult:  # ty: ignore[empty-body]
+    def update_cells(self, grid_id: str, body: dict[str, Any]) -> CellsUpdateResult:
         """``POST /grids/{id}/cells`` — set individual cell values. ``body`` is a ``CellsUpdate``.
 
         Example:
@@ -212,11 +198,9 @@ class GridsClient(WikiResource):
             ... ).revision  # doctest: +SKIP
             '4'
         """
+        return self._session.send(endpoints.update_cells(grid_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("grids/{grid_id}/clone")
-    def clone(self, grid_id: uplink.Path, body: uplink.Body) -> GridCloneOperation:  # ty: ignore[empty-body]
+    def clone(self, grid_id: str, body: dict[str, Any]) -> GridCloneOperation:
         """``POST /grids/{id}/clone`` — copy the grid onto another page (async trigger).
 
         Returns a :class:`~ycli.yandex.wiki.grids.models.GridCloneOperation`; poll its
@@ -228,3 +212,4 @@ class GridsClient(WikiResource):
             >>> client.grids.clone("g-uuid", {"target": "data/y"}).operation.id  # doctest: +SKIP
             'task-1'
         """
+        return self._session.send(endpoints.clone_grid(grid_id, body))
