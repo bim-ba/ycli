@@ -1,54 +1,38 @@
-"""Declarative Tracker worklog client (uplink) — transport ONLY.
+"""Tracker worklog client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import requests
-import uplink
+from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.tracker.base import TrackerResource
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.worklog import endpoints
 from ycli.yandex.tracker.worklog.models import Worklog, WorklogList
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-class WorklogClient(TrackerResource):
-    """Declarative HTTP for ``/issues/{key}/worklog``."""
 
-    @uplink.returns.json()
-    @uplink.get("issues/{key}/worklog")
-    def _page(
-        self,
-        key: uplink.Path,
-        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
-        record_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
-    ) -> WorklogList:  # ty: ignore[empty-body]
-        """One raw ``/issues/{key}/worklog`` page (a bare JSON array); callers use ``list``."""
+class WorklogClient(Resource):
+    """An issue's worklog (relative-paginated) and its writes; org-wide search and listing."""
 
     def list(self, key: str, *, limit: int | None = None) -> WorklogList:
         """All worklog entries on an issue, draining the ``id=<last record id>`` cursor.
 
         ``GET /issues/{key}/worklog`` sorts by ascending record id and pages relatively:
         each next page repeats with ``id=<id of the last record seen>`` until a page comes
-        back empty. Capped at ``limit`` (``None`` = every entry).
+        back empty. Capped at ``limit`` (``None`` = every entry); a small cap narrows the page
+        to ``limit`` rows.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.worklog.list(key="DATAENGINEERING-1").root[0].duration  # doctest: +SKIP
             'PT2H'
         """
-        records = self._drain_relative(
-            extract=lambda page: page.root,
-            id_of=lambda record: str(record.id) if record.id is not None else None,
-            fetch_page=lambda cursor, per_page: self._page(
-                key, per_page=per_page, record_id=cursor
-            ),
-            limit=limit,
-        )
-        return WorklogList(records)
+        page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
+        paged = endpoints.list_worklog(key, page_size=page_size)
+        return WorklogList(list(self._session.iterate(paged, limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("worklog/_search")
-    def search(self, body: uplink.Body) -> WorklogList:  # ty: ignore[empty-body]
+    def search(self, body: dict[str, Any]) -> WorklogList:
         """``POST /worklog/_search`` → org-wide worklog entries matching the body filter.
 
         ``body`` is ``{"createdBy": …, "createdAt": {"from": …, "to": …}}`` (all optional).
@@ -58,14 +42,11 @@ class WorklogClient(TrackerResource):
             >>> client.worklog.search({"createdBy": "veikus"}).root[0].duration  # doctest: +SKIP
             'PT2H'
         """
+        return self._session.send(endpoints.search_worklog(body))
 
-    @uplink.returns.json()
-    @uplink.get("worklog")
     def global_list(
-        self,
-        created_by: uplink.Query("createdBy") = None,  # ty: ignore[invalid-type-form]
-        created_at: uplink.Query("createdAt") = None,  # ty: ignore[invalid-type-form]
-    ) -> WorklogList:  # ty: ignore[empty-body]
+        self, created_by: str | None = None, created_at: Sequence[str] | str | None = None
+    ) -> WorklogList:
         """``GET /worklog?createdBy=…&createdAt=from:…&createdAt=to:…`` → org-wide worklog.
 
         ``created_at`` is a list of ``from:<ts>`` / ``to:<ts>`` strings (repeated ``createdAt``
@@ -78,11 +59,9 @@ class WorklogClient(TrackerResource):
             ... ).root[0].duration  # doctest: +SKIP
             'PT2H'
         """
+        return self._session.send(endpoints.list_global_worklog(created_by, created_at))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{key}/worklog")
-    def create(self, key: uplink.Path, body: uplink.Body) -> Worklog:  # ty: ignore[empty-body]
+    def create(self, key: str, body: dict[str, Any]) -> Worklog:
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.
 
         Example:
@@ -92,11 +71,9 @@ class WorklogClient(TrackerResource):
             ... ).duration  # doctest: +SKIP
             'PT2H'
         """
+        return self._session.send(endpoints.create_worklog(key, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("issues/{key}/worklog/{record_id}")
-    def edit(self, key: uplink.Path, record_id: uplink.Path, body: uplink.Body) -> Worklog:  # ty: ignore[empty-body]
+    def edit(self, key: str, record_id: int | str, body: dict[str, Any]) -> Worklog:
         """``PATCH /issues/{key}/worklog/{record_id}`` — edit an entry. Returns it.
 
         Example:
@@ -106,10 +83,7 @@ class WorklogClient(TrackerResource):
             ... ).duration  # doctest: +SKIP
             'PT30M'
         """
-
-    @uplink.delete("issues/{key}/worklog/{record_id}")
-    def _delete(self, key: uplink.Path, record_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """``DELETE /issues/{key}/worklog/{record_id}`` (204, no body; internal)."""
+        return self._session.send(endpoints.edit_worklog(key, record_id, body))
 
     def delete(self, key: str, record_id: str) -> None:
         """Delete a worklog entry (``DELETE …/worklog/{id}`` → 204). Raises on non-2xx.
@@ -118,4 +92,4 @@ class WorklogClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.worklog.delete("DATAENGINEERING-1", 1)  # doctest: +SKIP
         """
-        self._delete(key, record_id)
+        self._session.send(endpoints.delete_worklog(key, record_id))

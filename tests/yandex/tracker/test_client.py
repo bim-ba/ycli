@@ -10,12 +10,6 @@ def test_composes_subclients_over_shared_authed_session():
     core = client.issues._session._client  # Tracker issues run on the httpx2 core
     assert core.headers["X-Org-Id"] == "org"
     assert str(core.base_url) == "https://api.tracker.yandex.net/v3/"
-    for sub in (
-        client.comments,
-        client.links,
-        client.transitions,
-        client.worklog,
-        client.changelog,
-    ):
-        assert sub._session.headers["Authorization"] == "OAuth tok"
-        assert sub._session.headers["X-Org-Id"] == "org"
+    # Every resource shares the one core session.
+    sessions = {id(value._session) for value in vars(client).values() if hasattr(value, "_session")}
+    assert len(sessions) == 1

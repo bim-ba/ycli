@@ -1,21 +1,20 @@
-"""Declarative Tracker issue-links client (uplink) — transport ONLY.
+"""Tracker issue ``/links`` client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import requests
-import uplink
+from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.links.models import Link, LinkList
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.links import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.links.models import Link, LinkList
 
 
-class LinksClient(TrackerResource):
-    """Declarative HTTP for ``/issues/{key}/links``."""
+class LinksClient(Resource):
+    """List, add and delete the links between issues."""
 
-    @uplink.returns.json()
-    @uplink.get("issues/{key}/links")
-    def list(self, key: uplink.Path) -> LinkList:  # ty: ignore[empty-body]
+    def list(self, key: str) -> LinkList:
         """``GET /issues/{key}/links`` → link listing.
 
         Example:
@@ -23,11 +22,9 @@ class LinksClient(TrackerResource):
             >>> client.links.list(key="DATAENGINEERING-130").root[0].object_key  # doctest: +SKIP
             'DATAENGINEERING-129'
         """
+        return self._session.send(endpoints.list_links(key))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{key}/links")
-    def add(self, key: uplink.Path, body: uplink.Body) -> Link:  # ty: ignore[empty-body]
+    def add(self, key: str, body: dict[str, Any]) -> Link:
         """``POST /issues/{key}/links`` — link two issues. Returns the link.
 
         Example:
@@ -38,10 +35,7 @@ class LinksClient(TrackerResource):
             ... ).object_key  # doctest: +SKIP
             'DATAENGINEERING-129'
         """
-
-    @uplink.delete("issues/{key}/links/{link_id}")
-    def _delete(self, key: uplink.Path, link_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """``DELETE /issues/{key}/links/{link_id}`` (204, no body; internal)."""
+        return self._session.send(endpoints.add_link(key, body))
 
     def delete(self, key: str, link_id: str) -> None:
         """Delete a link (``DELETE …/links/{link_id}`` → 204). Raises on non-2xx.
@@ -50,4 +44,4 @@ class LinksClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.links.delete("DATAENGINEERING-130", 42)  # doctest: +SKIP
         """
-        self._delete(key, link_id)
+        self._session.send(endpoints.delete_link(key, link_id))

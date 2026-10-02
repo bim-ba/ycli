@@ -1,0 +1,240 @@
+"""Contract cases for Tracker worklog (see tests/contract.py)."""
+
+from tests.contract import Case, Reply, Sent
+
+CASES = [
+    # The default cap (500) asks for full 100-row pages and walks id=<last record id>.
+    Case(
+        "tracker.worklog.list",
+        args=("DE-61",),
+        kwargs={"limit": 500},
+        cli=["tracker", "worklog", "list", "DE-61"],
+        mcp=("tracker_worklog_list", {"key": "DE-61"}),
+        exchanges=[
+            (
+                Sent("GET", "issues/DE-61/worklog", {"perPage": "100"}),
+                Reply(json=[{"id": 611, "duration": "PT1H"}, {"id": 612, "duration": "PT2H"}]),
+            ),
+            (
+                Sent("GET", "issues/DE-61/worklog", {"perPage": "100", "id": "612"}),
+                Reply(json=[{"id": 613, "duration": "PT3H"}]),
+            ),
+            (
+                Sent("GET", "issues/DE-61/worklog", {"perPage": "100", "id": "613"}),
+                Reply(json=[]),
+            ),
+        ],
+    ),
+    Case(
+        "tracker.worklog.list",
+        args=("DE-62",),
+        kwargs={"limit": 3},
+        cli=["tracker", "worklog", "list", "DE-62", "--limit", "3"],
+        mcp=("tracker_worklog_list", {"key": "DE-62", "limit": 3}),
+        exchanges=[
+            (
+                Sent("GET", "issues/DE-62/worklog", {"perPage": "3"}),
+                Reply(json=[{"id": 621, "duration": "PT30M"}]),
+            ),
+            (
+                Sent("GET", "issues/DE-62/worklog", {"perPage": "3", "id": "621"}),
+                Reply(json=[]),
+            ),
+        ],
+    ),
+    # `--all` is uncapped; a last record without an id ends the walk.
+    Case(
+        "tracker.worklog.list",
+        args=("DE-63",),
+        cli=["tracker", "worklog", "list", "DE-63", "--all"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "issues/DE-63/worklog", {"perPage": "100"}),
+                Reply(json=[{"duration": "P1D"}]),
+            )
+        ],
+    ),
+    Case(
+        "tracker.worklog.search",
+        args=(
+            {
+                "createdBy": "veikus",
+                "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
+            },
+        ),
+        cli=[
+            "tracker",
+            "worklog",
+            "search",
+            "--created-by",
+            "veikus",
+            "--from",
+            "2018-06-06T00:00:00",
+            "--to",
+            "2018-06-07T00:00:00",
+        ],
+        mcp=(
+            "tracker_worklog_search",
+            {
+                "created_by": "veikus",
+                "created_from": "2018-06-06T00:00:00",
+                "created_to": "2018-06-07T00:00:00",
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "worklog/_search",
+                    json={
+                        "createdBy": "veikus",
+                        "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
+                    },
+                ),
+                Reply(json=[{"id": 641, "duration": "PT2H"}]),
+            )
+        ],
+        effect="read",
+    ),
+    Case(
+        "tracker.worklog.search",
+        args=({},),
+        cli=["tracker", "worklog", "search"],
+        mcp=("tracker_worklog_search", {}),
+        exchanges=[(Sent("POST", "worklog/_search", json={}), Reply(json=[]))],
+        effect="read",
+    ),
+    # The CLI repeats createdAt for each end of the range.
+    Case(
+        "tracker.worklog.global_list",
+        kwargs={"created_by": "alice", "created_at": ["from:2019-01-01", "to:2019-02-01"]},
+        cli=[
+            "tracker",
+            "worklog",
+            "global-list",
+            "--created-by",
+            "alice",
+            "--from",
+            "2019-01-01",
+            "--to",
+            "2019-02-01",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "worklog",
+                    {"createdBy": "alice", "createdAt": ["from:2019-01-01", "to:2019-02-01"]},
+                ),
+                Reply(json=[{"id": 651, "duration": "P3W"}]),
+            )
+        ],
+    ),
+    Case(
+        "tracker.worklog.global_list",
+        kwargs={"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
+        cli=None,
+        mcp=(
+            "tracker_worklog_global_list",
+            {"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
+        ),
+        exchanges=[
+            (
+                Sent("GET", "worklog", {"createdBy": "bob", "createdAt": "2020-03-04T05:06:07"}),
+                Reply(json=[{"id": 652, "duration": "PT1H"}]),
+            )
+        ],
+    ),
+    Case(
+        "tracker.worklog.global_list",
+        cli=["tracker", "worklog", "global-list"],
+        mcp=("tracker_worklog_global_list", {}),
+        exchanges=[(Sent("GET", "worklog"), Reply(json=[]))],
+    ),
+    Case(
+        "tracker.worklog.create",
+        args=(
+            "DE-66",
+            {"duration": "PT2H", "start": "2021-03-04T10:00:00.000+0300", "comment": "pairing"},
+        ),
+        cli=[
+            "tracker",
+            "worklog",
+            "add",
+            "DE-66",
+            "--duration",
+            "PT2H",
+            "--start",
+            "2021-03-04T10:00:00.000+0300",
+            "--comment",
+            "pairing",
+        ],
+        mcp=(
+            "tracker_worklog_create",
+            {
+                "key": "DE-66",
+                "body": {
+                    "duration": "PT2H",
+                    "start": "2021-03-04T10:00:00.000+0300",
+                    "comment": "pairing",
+                },
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "issues/DE-66/worklog",
+                    json={
+                        "duration": "PT2H",
+                        "start": "2021-03-04T10:00:00.000+0300",
+                        "comment": "pairing",
+                    },
+                ),
+                Reply(json={"id": 661, "duration": "PT2H"}, status=201),
+            )
+        ],
+    ),
+    Case(
+        "tracker.worklog.edit",
+        args=("DE-67", "671", {"duration": "PT45M", "comment": "trimmed"}),
+        cli=[
+            "tracker",
+            "worklog",
+            "edit",
+            "DE-67",
+            "671",
+            "--duration",
+            "PT45M",
+            "--comment",
+            "trimmed",
+        ],
+        mcp=(
+            "tracker_worklog_edit",
+            {
+                "key": "DE-67",
+                "record_id": "671",
+                "body": {"duration": "PT45M", "comment": "trimmed"},
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "PATCH",
+                    "issues/DE-67/worklog/671",
+                    json={"duration": "PT45M", "comment": "trimmed"},
+                ),
+                Reply(json={"id": 671, "duration": "PT45M"}),
+            )
+        ],
+    ),
+    Case(
+        "tracker.worklog.delete",
+        args=("DE-68", "681"),
+        cli=["tracker", "worklog", "delete", "DE-68", "681"],
+        mcp=("tracker_worklog_delete", {"key": "DE-68", "record_id": "681"}),
+        exchanges=[(Sent("DELETE", "issues/DE-68/worklog/681"), Reply(status=204))],
+    ),
+]

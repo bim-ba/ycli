@@ -1,45 +1,27 @@
-"""Declarative Tracker changelog client (uplink) — transport ONLY.
+"""Tracker issue ``/changelog`` client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
-
-from ycli.yandex.tracker.base import TrackerResource
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.changelog import endpoints
 from ycli.yandex.tracker.changelog.models import ChangelogList
 
 
-class ChangelogClient(TrackerResource):
-    """Declarative HTTP for ``/issues/{key}/changelog``."""
-
-    @uplink.returns.json()
-    @uplink.get("issues/{key}/changelog")
-    def _page(
-        self,
-        key: uplink.Path,
-        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
-        change_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
-    ) -> ChangelogList:  # ty: ignore[empty-body]
-        """One raw ``/issues/{key}/changelog`` page (a bare JSON array); callers use ``list``."""
+class ChangelogClient(Resource):
+    """The change history of an issue (relative-paginated)."""
 
     def list(self, key: str, *, limit: int | None = None) -> ChangelogList:
         """All changelog events on an issue, draining the ``id=<last change id>`` cursor.
 
-        ``GET /issues/{key}/changelog`` returns one page at a time (50 changes by default);
-        each next page repeats with ``id=<id of the last change seen>`` until a page comes
-        back empty. Capped at ``limit`` (``None`` = the full history).
+        ``GET /issues/{key}/changelog`` returns one page at a time; each next page repeats
+        with ``id=<id of the last change seen>`` until a page comes back empty. Capped at
+        ``limit`` (``None`` = the full history); a small cap narrows the page to ``limit`` rows.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.changelog.list(key="DATAENGINEERING-1").root[0].updated_by  # doctest: +SKIP
             'Сава Знатнов'
         """
-        entries = self._drain_relative(
-            extract=lambda page: page.root,
-            id_of=lambda entry: entry.id,
-            fetch_page=lambda cursor, per_page: self._page(
-                key, per_page=per_page, change_id=cursor
-            ),
-            limit=limit,
-        )
-        return ChangelogList(entries)
+        page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
+        paged = endpoints.list_changelog(key, page_size=page_size)
+        return ChangelogList(list(self._session.iterate(paged, limit=limit)))

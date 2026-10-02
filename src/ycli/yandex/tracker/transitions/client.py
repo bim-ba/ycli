@@ -1,20 +1,20 @@
-"""Declarative Tracker issue-transitions client (uplink) — transport ONLY.
+"""Tracker issue ``/transitions`` client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.transitions.models import TransitionList
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.transitions import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.transitions.models import TransitionList
 
 
-class TransitionsClient(TrackerResource):
-    """Declarative HTTP for ``/issues/{key}/transitions``."""
+class TransitionsClient(Resource):
+    """List an issue's workflow transitions and execute one."""
 
-    @uplink.returns.json()
-    @uplink.get("issues/{key}/transitions")
-    def list(self, key: uplink.Path) -> TransitionList:  # ty: ignore[empty-body]
+    def list(self, key: str) -> TransitionList:
         """``GET /issues/{key}/transitions`` → available transitions.
 
         Example:
@@ -22,13 +22,9 @@ class TransitionsClient(TrackerResource):
             >>> client.transitions.list(key="DATAENGINEERING-1").root[0].id  # doctest: +SKIP
             'start_progress'
         """
+        return self._session.send(endpoints.list_transitions(key))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{key}/transitions/{transition_id}/_execute")
-    def execute(
-        self, key: uplink.Path, transition_id: uplink.Path, body: uplink.Body
-    ) -> TransitionList:  # ty: ignore[empty-body]
+    def execute(self, key: str, transition_id: str, body: dict[str, Any]) -> TransitionList:
         """``POST /issues/{key}/transitions/{id}/_execute`` → available transitions after move.
 
         Returns the transitions available for the issue in its new status,
@@ -40,3 +36,4 @@ class TransitionsClient(TrackerResource):
             >>> result.root[0].id  # doctest: +SKIP
             'stop_progress'
         """
+        return self._session.send(endpoints.execute_transition(key, transition_id, body))
