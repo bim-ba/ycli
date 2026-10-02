@@ -12,7 +12,7 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 [![PyPI](https://img.shields.io/pypi/v/yandex-cli?logo=pypi&logoColor=white&label=pypi)](https://pypi.org/project/yandex-cli/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey?logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/bim-ba/ycli)
+[![DeepWiki](https://img.shields.io/badge/deepwiki-ask%20the%20repo-blue?logo=readthedocs&logoColor=white)](https://deepwiki.com/bim-ba/ycli)
 
 <img src="https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/demo.gif" alt="ycli in action" width="760">
 
@@ -288,6 +288,15 @@ interactive browser session.)
 your organization → copy the identifier.
 </details>
 
+The Yandex documentation behind each step:
+
+| Step | Yandex docs |
+|---|---|
+| Register the OAuth app | [Registering an app](https://yandex.ru/dev/id/doc/en/register-client) (Yandex ID) |
+| Device flow (`ycli auth login` with a secret) | [Entering the code on the authorization page](https://yandex.ru/dev/id/doc/en/codes/screen-code-oauth) |
+| Browser flow (`--implicit`) | [Obtain a token manually](https://yandex.ru/dev/id/doc/en/tokens/debug-token) |
+| Token and organization header per service | [Tracker](https://yandex.ru/support/tracker/en/api/access) · [Wiki](https://yandex.ru/support/wiki/en/api-ref/access) · [Forms](https://yandex.ru/support/forms/en/api-ref/access) API access |
+
 ## Exit codes
 
 A failed `ycli` command exits with a code that says what kind of failure it was, so a script can branch without parsing the message.
@@ -471,22 +480,6 @@ A failed `ycli` command exits with a code that says what kind of failure it was,
 Every resource and operation above deep-links to the Yandex API reference: 318 of 334 operations resolve to their own endpoint page and 15 to their resource's page. No public API reference exists yet for `tracker.linktypes`, `tracker.linktypes.list`, shown as plain text. See `CONTRIBUTING.md` for the intentional exclusions (UI-only endpoints with no public REST API) and per-method notes.
 <!-- COVERAGE:END -->
 
-## Layout
-
-```text
-src/ycli/
-├── cli/                # root Typer CLI  → `ycli` / `yandex-cli` (app · context · output)
-├── mcp/                # root FastMCP server → `ycli mcp start` (read/write, `[mcp]` extra)
-├── settings.py         # AppConfig + Credentials (pydantic-settings)
-├── log.py              # stderr logging setup (stdlib)
-└── yandex/
-    ├── tracker/        # per-domain SDK …
-    ├── wiki/           #   each resource group has:
-    └── forms/          #   client.py · cli.py · mcp.py · models.py
-plugins/yandex-360/     # distributable Claude Code plugin (skills + instructions)
-references/             # vendored Yandex API reference docs (local-only; see references/README.md)
-```
-
 ## Development
 
 ```bash
@@ -494,7 +487,8 @@ uv sync --all-extras   # --all-extras pulls in the `mcp` extra the tests exercis
 uv run pytest          # 100% coverage gate; HTTP stubbed with `MockAPI` (no live network)
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and how to add an endpoint.
+The source layout and the invariants that keep it regular are in [ARCHITECTURE.md](ARCHITECTURE.md);
+see [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and how to add an endpoint.
 Contributions welcome.
 
 ## License
