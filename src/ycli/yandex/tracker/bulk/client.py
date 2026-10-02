@@ -1,25 +1,26 @@
-"""Declarative Tracker bulk-change client (uplink) — transport ONLY.
+"""Tracker bulk-change client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-
-The three trigger calls (update/move/transition) each start an *async* operation and return a
+Every method sends one declaration from :mod:`ycli.yandex.tracker.bulk.endpoints`. The three
+trigger calls (update/move/transition) each start an *async* operation and return a
 :class:`~ycli.yandex.tracker.bulk.models.BulkChange`; the reads (:meth:`get`, :meth:`issues`)
 let a caller poll it to a terminal state.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
+from typing import TYPE_CHECKING, Any
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.bulk import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
 
 
-class BulkClient(TrackerResource):
-    """Declarative HTTP for ``/bulkchange`` (mass update/move/transition + status reads)."""
+class BulkClient(Resource):
+    """``/bulkchange`` (mass update/move/transition + status reads)."""
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("bulkchange/_update")
-    def update(self, body: uplink.Body) -> BulkChange:  # ty: ignore[empty-body]
+    def update(self, body: dict[str, Any]) -> BulkChange:
         """``POST /bulkchange/_update`` — mass-edit issues. Returns the started ``BulkChange``.
 
         Example:
@@ -29,11 +30,9 @@ class BulkClient(TrackerResource):
             ... ).status  # doctest: +SKIP
             'CREATED'
         """
+        return self._session.send(endpoints.update_bulk(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("bulkchange/_move")
-    def move(self, body: uplink.Body) -> BulkChange:  # ty: ignore[empty-body]
+    def move(self, body: dict[str, Any]) -> BulkChange:
         """``POST /bulkchange/_move`` — mass-move issues to another queue. Returns a ``BulkChange``.
 
         Example:
@@ -41,11 +40,9 @@ class BulkClient(TrackerResource):
             >>> client.bulk.move({"queue": "CHECK", "issues": ["TEST-1"]}).id  # doctest: +SKIP
             '1ab23cd4…'
         """
+        return self._session.send(endpoints.move_bulk(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("bulkchange/_transition")
-    def transition(self, body: uplink.Body) -> BulkChange:  # ty: ignore[empty-body]
+    def transition(self, body: dict[str, Any]) -> BulkChange:
         """``POST /bulkchange/_transition`` — mass status transition. Returns a ``BulkChange``.
 
         Example:
@@ -55,10 +52,9 @@ class BulkClient(TrackerResource):
             ... ).status  # doctest: +SKIP
             'CREATED'
         """
+        return self._session.send(endpoints.transition_bulk(body))
 
-    @uplink.returns.json()
-    @uplink.get("bulkchange/{bulk_id}")
-    def get(self, bulk_id: uplink.Path) -> BulkChange:  # ty: ignore[empty-body]
+    def get(self, bulk_id: str) -> BulkChange:
         """``GET /bulkchange/{bulk_id}`` → the operation's current status (poll this to wait).
 
         Example:
@@ -66,10 +62,9 @@ class BulkClient(TrackerResource):
             >>> client.bulk.get("1ab23cd4…").is_terminal  # doctest: +SKIP
             True
         """
+        return self._session.send(endpoints.get_bulk(bulk_id))
 
-    @uplink.returns.json()
-    @uplink.get("bulkchange/{bulk_id}/issues")
-    def issues(self, bulk_id: uplink.Path) -> BulkIssueResultList:  # ty: ignore[empty-body]
+    def issues(self, bulk_id: str) -> BulkIssueResultList:
         """``GET /bulkchange/{bulk_id}/issues`` → issues for which the operation failed.
 
         Example:
@@ -77,3 +72,4 @@ class BulkClient(TrackerResource):
             >>> client.bulk.issues("1ab23cd4…").root[0].issue  # doctest: +SKIP
             'TEST-1'
         """
+        return self._session.send(endpoints.list_bulk_issues(bulk_id))

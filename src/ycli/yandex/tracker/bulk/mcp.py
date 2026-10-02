@@ -22,7 +22,6 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     TAGS,
     WRITE,
-    WRITE_IDEMPOTENT,
     WRITE_TAGS,
     tracker_client,
 )
@@ -72,7 +71,7 @@ def issues_list(
 
 @mcp.tool(
     name="bulk_update",
-    annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update Tracker issues"},
+    annotations={**WRITE, "title": "Bulk-update Tracker issues"},
     tags=WRITE_TAGS,
 )
 def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
