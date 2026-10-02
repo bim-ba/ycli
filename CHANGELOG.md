@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.36.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.35.0
+  ([`015c3c8`](https://github.com/bim-ba/ycli/commit/015c3c8dddc874984c7a78fc2d43bf380f433a22))
+
+### Documentation
+
+- The MCP name rule is ARCH-1's name parity, not a verb map
+  ([#170](https://github.com/bim-ba/ycli/pull/170),
+  [`0365fd0`](https://github.com/bim-ba/ycli/commit/0365fd0fa6be06c99976a1e2f6f4130bdb0fb26c))
+
+### Features
+
+- **cli,mcp**: One verb per action, and one name for a command and its MCP tool
+  ([#170](https://github.com/bim-ba/ycli/pull/170),
+  [`0365fd0`](https://github.com/bim-ba/ycli/commit/0365fd0fa6be06c99976a1e2f6f4130bdb0fb26c))
+
+
 ## v0.35.0 (2026-10-02)
 
 ### Build System
