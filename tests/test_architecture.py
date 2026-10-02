@@ -1140,6 +1140,10 @@ def test_arch4_stdout_guard_bites():
     assert _stdout_writes(version) == ["echo (line 2)"]
 
 
+# `timeout=30` as a keyword argument, or `timeout: float = 30.0` as an annotated default.
+_LITERAL_DEFAULT_RE = re.compile(
+    r"\b(timeout|timeout_seconds|retries|max_items)\s*(:[^=\n]+)?=\s*\d"
+)
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
 _VERSION_RE = re.compile(r"__version__\s*=\s*['\"]\d")
 _ORG_HEADER_RE = re.compile(r"X-Org-I[dD]")
@@ -1173,7 +1177,7 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
         if "from_env" in text:
             offenders.append(f"{rel}: from_env reads the environment outside settings.py")
         code = "\n".join(line for line in text.splitlines() if ">>>" not in line)  # not doctests
-        if re.search(r"\b(timeout|timeout_seconds|retries|max_items)=\d", code):
+        if _LITERAL_DEFAULT_RE.search(code):
             offenders.append(f"{rel}: a literal default shadows the HTTP settings")
         if re.search(r"class \w+\(BaseSettings\)", text):
             offenders.append(f"{rel}: BaseSettings subclass outside settings.py")
@@ -1204,10 +1208,16 @@ def test_arch5_guard_bites():
         "from os import environ",
         "client = TrackerClient.from_env()",
         "session.send(request, timeout=30)",
+        "def session(*, timeout_seconds: float = 30.0) -> None: ...",
+        "def __init__(self, retries: int = 3) -> None: ...",
+        "def items(max_items: int | None = 500) -> None: ...",
         "class Local(BaseSettings): ...",
         "@uplink.timeout(30)",
     ):
         assert _single_source_offenders(rel, source), source
+    # A comparison or a value read from the settings is not a literal default.
+    for source in ("if retries == 0: ...", "timeout_seconds: float = config.timeout_seconds"):
+        assert not _single_source_offenders(rel, source), source
 
 
 # The composition roots: the only modules that build settings from the environment.

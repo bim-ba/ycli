@@ -119,7 +119,9 @@ def test_session_configures_a_supplied_bare_base():
     from ycli.yandex.transport import _TimeoutAdapter
 
     bare = requests.Session()
-    out = Transport.session(oauth_token="t", organization_id="o", base=bare)
+    out = Transport.session(
+        oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3, base=bare
+    )
     assert out is bare  # configured in place, not replaced
     assert out.headers["Authorization"] == "OAuth t"
     assert out.headers["X-Org-Id"] == "o"
@@ -128,7 +130,7 @@ def test_session_configures_a_supplied_bare_base():
 
 
 def test_response_hook_is_registered():
-    s = Transport.session(oauth_token="t", organization_id="o")
+    s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     assert Transport._raise_typed in s.hooks["response"]
 
 

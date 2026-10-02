@@ -169,8 +169,8 @@ rest. Known blind spots:
   then writes is caught by the read-tool AST check only if it is read-only by name or hints.
 - **ARCH-3's uplink half guesses from names** until those resources move to the core.
 - **ARCH-5 is not secret scanning** (gitleaks is). Its literal-default check reads keyword
-  arguments (`timeout=30`), not a bare `500` elsewhere, which is indistinguishable from the
-  HTTP status.
+  arguments and annotated defaults (`timeout=30`, `retries: int = 3`), not a bare `500`
+  elsewhere, which is indistinguishable from the HTTP status.
 - **ARCH-7 reads names**: a settings model reached through a module alias it cannot resolve
   (`import ycli.settings as s; s.AppConfig()` is caught, `getattr(s, "AppConfig")()` is not).
   ARCH-4 and ARCH-8 read names the same way: `getattr(builtins, "print")`, a write to file

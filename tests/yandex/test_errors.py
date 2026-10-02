@@ -61,7 +61,9 @@ def _get_with(status: int, **kwargs):
     url = "https://api.tracker.yandex.net/v3/detail"
     with responses.RequestsMock() as rsps:
         rsps.add(responses.GET, url, status=status, **kwargs)
-        session = Transport.session(oauth_token="t", organization_id="o")
+        session = Transport.session(
+            oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3
+        )
         return session.get(url)
 
 

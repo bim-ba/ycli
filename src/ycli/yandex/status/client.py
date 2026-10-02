@@ -78,8 +78,8 @@ class OAuthClient:
         *,
         client_id: str,
         client_secret: str | None = None,
-        timeout_seconds: float = 30.0,
-        retries: int = 3,
+        timeout_seconds: float,
+        retries: int,
     ) -> None:
         self._client_id = client_id
         self._client_secret = client_secret

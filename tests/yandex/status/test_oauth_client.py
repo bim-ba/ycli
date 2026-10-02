@@ -12,11 +12,11 @@ ORG_URL = "https://api360.yandex.net/directory/v1/org"
 
 
 def _client():
-    return OAuthClient(client_id="id", client_secret="secret")
+    return OAuthClient(client_id="id", client_secret="secret", timeout_seconds=30.0, retries=3)
 
 
 def test_authorize_url_carries_client_id():
-    url = OAuthClient(client_id="my-app").authorize_url()
+    url = OAuthClient(client_id="my-app", timeout_seconds=30.0, retries=3).authorize_url()
     assert url == "https://oauth.yandex.ru/authorize?response_type=token&client_id=my-app"
 
 

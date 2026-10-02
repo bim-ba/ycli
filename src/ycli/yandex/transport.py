@@ -103,7 +103,8 @@ class _TimeoutAdapter(HTTPAdapter):
         pool_maxsize: int = DEFAULT_POOLSIZE,
         max_retries: int | Retry = DEFAULT_RETRIES,
         pool_block: bool = DEFAULT_POOLBLOCK,
-        timeout: float = 30.0,
+        *,
+        timeout: float,
     ) -> None:
         self._timeout = timeout
         super().__init__(
@@ -169,8 +170,8 @@ class Transport:
         *,
         oauth_token: str,
         organization_id: str,
-        timeout_seconds: float = 30.0,
-        retries: int = 3,
+        timeout_seconds: float,
+        retries: int,
         base: requests.Session | None = None,
     ) -> requests.Session:
         if not oauth_token:
