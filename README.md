@@ -66,7 +66,7 @@ ycli tracker issues get TRACKER-1
 ycli wiki pages get onboarding
 ```
 
-**Output formats** — a global `--format` / `-o` picks how results print:
+**Output formats** — a global `--format` / `-o` picks how results print (the global options work before or after the subcommand: `ycli -o json tracker issues get K` = `ycli tracker issues get K -o json`; a command that declares an option of its own, like `forms answers export --format`, keeps it):
 
 ```bash
 ycli tracker issues get TRACKER-1            # auto: a pretty table on a TTY…

@@ -1,338 +1,338 @@
-auth login: --device-name:TEXT --implicit:BOOLEAN=False --yes:BOOLEAN=False
-auth status
-forms access get: SURVEY_ID:TEXT!
-forms access grant: --action:TEXT! --cloud-uid:TEXT='' --group-id:TEXT='' --group-src:TEXT='' --uid:TEXT='' SURVEY_ID:TEXT!
-forms access revoke: --action:TEXT! --cloud-uid:TEXT='' --group-id:TEXT='' --group-src:TEXT='' --uid:TEXT='' SURVEY_ID:TEXT!
-forms access set: --access:TEXT! --action:TEXT! SURVEY_ID:TEXT!
-forms answers delete: ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
-forms answers export: --column:TEXT --finished-at:TEXT='' --format:TEXT='xlsx' --limit:INTEGER=0 --output:TEXT --pk:INTEGER --started-at:TEXT='' --upload-files:BOOLEAN --upload:TEXT='default' --wait:BOOLEAN=True SURVEY_ID:TEXT!
-forms answers get: --answer-id:INTEGER=0 --answer-key:TEXT=''
-forms answers integrations: --answer-id:INTEGER=0 --answer-key:TEXT=''
-forms answers list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 SURVEY_ID:TEXT!
-forms answers restore: ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
-forms auth status
-forms conditions hook create: --body-file:PATH --item:TEXT --operator:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions hook delete: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions hook get: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions hook list: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions hook modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions hook set-operator: --operator:TEXT! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions page create: --body-file:PATH --item:TEXT --operator:TEXT='' PAGE_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions page delete: CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions page get: CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions page list: PAGE_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions page modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions page set-operator: --operator:TEXT! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions question create: --body-file:PATH --item:TEXT --operator:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms conditions question delete: CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms conditions question get: CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms conditions question list: QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms conditions question modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms conditions question set-operator: --operator:TEXT! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms conditions submit create: --body-file:PATH --item:TEXT --operator:TEXT='' SURVEY_ID:TEXT!
-forms conditions submit delete: CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions submit get: CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions submit list: SURVEY_ID:TEXT!
-forms conditions submit modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
-forms conditions submit set-operator: --operator:TEXT! SURVEY_ID:TEXT!
-forms files delete: --path:TEXT='' --url:TEXT=''
-forms files download: --download:BOOLEAN=False --hash:TEXT='' --output:TEXT --path:TEXT!
-forms files upload: FILE_PATH:PATH! SURVEY_ID:TEXT!
-forms files verify: --path:TEXT --url:TEXT SURVEY_ID:TEXT!
-forms filling get: --key:TEXT='' SURVEY:TEXT!
-forms filling submit: --body-file:PATH! --dry-run:BOOLEAN=False --key:TEXT='' SURVEY:TEXT!
-forms filling suggest: --id:TEXT='' --parent-id:TEXT='' --question:TEXT='' --text:TEXT='' SURVEY:TEXT!
-forms history list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --ordering:TEXT='' SURVEY_ID:TEXT!
-forms hooks create: --active:BOOLEAN --name:TEXT='' SURVEY_ID:TEXT!
-forms hooks delete: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms hooks get: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms hooks list: SURVEY_ID:TEXT!
-forms hooks modify: --active:BOOLEAN --name:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms images clone: --image-id:INTEGER=0 --link:TEXT --name:TEXT='' SURVEY_ID:TEXT!
-forms images upload: IMAGE_PATH:PATH! SURVEY_ID:TEXT!
-forms keysets create: --enabled:BOOLEAN! --name:TEXT! --total:INTEGER! SURVEY_ID:TEXT!
-forms keysets delete: KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
-forms keysets download: --output:TEXT KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
-forms keysets get: KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
-forms keysets list: SURVEY_ID:TEXT!
-forms keysets modify: --enabled:BOOLEAN! --name:TEXT! --total:INTEGER! KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
-forms me get
-forms notifications cancel: NOTIFICATION_ID:INTEGER!
-forms notifications errors: SURVEY_ID:TEXT!
-forms notifications get: NOTIFICATION_ID:INTEGER!
-forms notifications list: --all:BOOLEAN=False --answer-id:INTEGER --created-since:TEXT='' --created-until:TEXT='' --finished-since:TEXT='' --finished-until:TEXT='' --hook-id:INTEGER --limit:INTEGER RANGE=0 --ordering:TEXT='' --status:TEXT --subscription-id:INTEGER --survey-id:TEXT='' --type:TEXT='' --visible:BOOLEAN
-forms notifications restart: NOTIFICATION_ID:INTEGER!
-forms notifications status: NOTIFICATION_ID:INTEGER!
-forms operations get: OPERATION_ID:TEXT!
-forms questions create: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' SURVEY_ID:TEXT!
-forms questions delete: --force:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms questions get: QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms questions list: SURVEY_ID:TEXT!
-forms questions modify: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms questions move: --create-page:BOOLEAN=False --page-id:INTEGER=0 --page:INTEGER=0 --position:INTEGER=0 --question:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms subscriptions attach: FILE_PATH:PATH! HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
-forms subscriptions create: --body-file:PATH! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms subscriptions delete: HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
-forms subscriptions get: HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
-forms subscriptions list: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
-forms subscriptions modify: --body-file:PATH! HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
-forms surveys create: --field:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT! --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN
-forms surveys delete: SURVEY_ID:TEXT!
-forms surveys get: SURVEY_ID:TEXT!
-forms surveys list: --all:BOOLEAN=False --limit:INTEGER RANGE=0
-forms surveys modify: --field:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT='' --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN SURVEY_ID:TEXT!
-forms surveys publish: SURVEY_ID:TEXT!
-forms surveys unpublish: SURVEY_ID:TEXT!
-forms variables list: SURVEY_ID:TEXT!
-mcp methods
-mcp start: --read-only:BOOLEAN=False
-tracker applications list
-tracker attachments delete: FILE_ID:TEXT! ISSUE_KEY:TEXT!
-tracker attachments download: --output:TEXT FILENAME:TEXT! FILE_ID:TEXT! ISSUE_KEY:TEXT!
-tracker attachments get: FILE_ID:TEXT! ISSUE_KEY:TEXT!
-tracker attachments list: ISSUE_KEY:TEXT!
-tracker attachments thumbnail: --output:TEXT FILE_ID:TEXT! ISSUE_KEY:TEXT!
-tracker attachments upload: --rename-to:TEXT='' FILE_PATH:PATH! ISSUE_KEY:TEXT!
-tracker attachments upload-temp: --rename-to:TEXT='' FILE_PATH:PATH!
-tracker auth status
-tracker autoactions create: --action:TEXT --active:BOOLEAN --calendar-id:INTEGER=0 --filter:TEXT='' --interval-millis:INTEGER=0 --name:TEXT! --notify:BOOLEAN --query:TEXT='' QUEUE_ID:TEXT!
-tracker autoactions get: ACTION_ID:INTEGER! QUEUE_ID:TEXT!
-tracker autoactions log-detail: ACTION_ID:INTEGER! QUEUE_ID:TEXT! RUN_ID:TEXT!
-tracker autoactions logs: ACTION_ID:INTEGER! QUEUE_ID:TEXT!
-tracker boards create: --backlog:BOOLEAN --name:TEXT! --owner:TEXT='' --permissions:TEXT='' --sprints:BOOLEAN
-tracker boards delete: BOARD_ID:INTEGER!
-tracker boards edit: --backlog:BOOLEAN --name:TEXT='' --sprints:BOOLEAN BOARD_ID:INTEGER!
-tracker boards get: BOARD_ID:INTEGER!
-tracker boards list: --all:BOOLEAN=False --limit:INTEGER RANGE=0
-tracker bulk get: BULK_ID:TEXT!
-tracker bulk issues: BULK_ID:TEXT!
-tracker bulk move: --field:TEXT --initial-status:BOOLEAN=False --issue:TEXT --move-all-fields:BOOLEAN=False --notify:BOOLEAN=False --query:TEXT='' --wait:BOOLEAN=True QUEUE:TEXT!
-tracker bulk transition: --field:TEXT --issue:TEXT --notify:BOOLEAN=False --query:TEXT='' --wait:BOOLEAN=True TRANSITION:TEXT!
-tracker bulk update: --field:TEXT --issue:TEXT --notify:BOOLEAN=False --query:TEXT='' --wait:BOOLEAN=True
-tracker changelog list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 KEY:TEXT!
-tracker checklists add: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --text:TEXT! KEY:TEXT!
-tracker checklists clear: KEY:TEXT!
-tracker checklists delete: ITEM_ID:TEXT! KEY:TEXT!
-tracker checklists edit: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --text:TEXT='' ITEM_ID:TEXT! KEY:TEXT!
-tracker checklists get: KEY:TEXT!
-tracker columns create: --name:TEXT! --status:TEXT! BOARD_ID:INTEGER!
-tracker columns delete: BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
-tracker columns edit: --name:TEXT='' --status:TEXT BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
-tracker columns get: BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
-tracker columns list: BOARD_ID:INTEGER!
-tracker comments add: --text:TEXT! KEY:TEXT!
-tracker comments delete: COMMENT_ID:TEXT! KEY:TEXT!
-tracker comments edit: --text:TEXT! COMMENT_ID:TEXT! KEY:TEXT!
-tracker comments get: --expand:TEXT='' COMMENT_ID:TEXT! KEY:TEXT!
-tracker comments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 KEY:TEXT!
-tracker comments react: COMMENT_ID:TEXT! KEY:TEXT! NAME:CHOICE!
-tracker components create: --assign-auto:BOOLEAN --description:TEXT='' --lead:TEXT='' --name:TEXT! --queue:TEXT!
-tracker components delete: COMPONENT_ID:INTEGER!
-tracker components edit: --assign-auto:BOOLEAN --description:TEXT='' --lead:TEXT='' --name:TEXT='' --version:INTEGER COMPONENT_ID:INTEGER!
-tracker components get: --fields:TEXT='' COMPONENT_ID:INTEGER!
-tracker components group-permissions: COMPONENT_ID:INTEGER! GROUP_ID:INTEGER!
-tracker components list
-tracker components list-for-queue: --fields:TEXT='' QUEUE_ID:TEXT!
-tracker components user-permissions: COMPONENT_ID:INTEGER! USER_ID:TEXT!
-tracker dashboards add-widget cycletime: --description:TEXT! --from-status:TEXT --mode:TEXT='' --query:TEXT='' --to-status:TEXT DASHBOARD_ID:TEXT!
-tracker dashboards create: --layout:TEXT='' --name:TEXT! --owner:TEXT=''
-tracker entities attachments attach: ENTITY_ID:TEXT! TEMP_FILE_ID:TEXT! TYPE_:CHOICE!
-tracker entities attachments delete: ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:CHOICE!
-tracker entities attachments download: --output:TEXT FILENAME:TEXT! FILE_ID:TEXT!
-tracker entities attachments get: ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:CHOICE!
-tracker entities attachments list: ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities bulk: --comment:TEXT='' --entity:TEXT! --field:TEXT TYPE_:CHOICE!
-tracker entities bulk-status: OPERATION_ID:TEXT!
-tracker entities checklists create: --text:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists delete: ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists delete-item: ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists edit: --item:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists edit-item: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --text:TEXT='' ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists move: --before:TEXT='' ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments create: --summon:TEXT --text:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments delete: COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments edit: --text:TEXT! COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments get: COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments list: --all:BOOLEAN=False --limit:INTEGER=0 ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities create: --author:TEXT='' --description:TEXT='' --end:TEXT='' --field:TEXT --lead:TEXT='' --parent:TEXT='' --start:TEXT='' --status:TEXT='' --summary:TEXT! --tag:TEXT --team-user:TEXT TYPE_:CHOICE!
-tracker entities create-report: --field:TEXT --format:TEXT='xlsx' --query:TEXT! --summary:TEXT!
-tracker entities delete: --with-board:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities direct-permissions: ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities edit: --author:TEXT='' --comment:TEXT='' --description:TEXT='' --end:TEXT='' --field:TEXT --lead:TEXT='' --parent:TEXT='' --start:TEXT='' --status:TEXT='' --summary:TEXT='' --tag:TEXT --team-user:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities get: --expand:TEXT='' --fields:TEXT='' ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities history: --limit:INTEGER=0 ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities links create: --entity:TEXT! --relationship:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities links delete: ENTITY_ID:TEXT! RIGHT:TEXT! TYPE_:CHOICE!
-tracker entities links list: ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities permissions: ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities search: --fields:TEXT='' --filter:TEXT --input:TEXT='' --order-asc:BOOLEAN=False --order-by:TEXT='' --root-only:BOOLEAN=False TYPE_:CHOICE!
-tracker entities set-direct-permissions: --grant:TEXT='' --revoke:TEXT='' ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities set-permissions: --acl:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker fields category-create: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER!
-tracker fields category-edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --version:INTEGER CATEGORY_ID:TEXT!
-tracker fields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT!
-tracker fields edit: --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --version:INTEGER FIELD_ID:TEXT!
-tracker fields get: FIELD_ID:TEXT!
-tracker fields list
-tracker filters create: --filter:TEXT='' --name:TEXT! --query:TEXT=''
-tracker filters delete: FILTER_ID:TEXT!
-tracker filters edit: --filter:TEXT='' --name:TEXT='' --query:TEXT='' FILTER_ID:TEXT!
-tracker filters get: FILTER_ID:TEXT!
-tracker gaps create: --from:TEXT='' --full-day:BOOLEAN --gap:TEXT --id:TEXT='' --to:TEXT='' --user:TEXT='' --work-in-absence:BOOLEAN --workflow:CHOICE
-tracker gaps delete: GAP_IDS:TEXT!
-tracker gaps search: --all:BOOLEAN=False --from:TEXT='' --limit:INTEGER RANGE=0 --to:TEXT='' USERS:TEXT!
-tracker import comment: --created-at:TEXT! --created-by:TEXT! --text:TEXT! KEY:TEXT!
-tracker import comment-file: --created-at:TEXT! --created-by:TEXT! --filename:TEXT='' COMMENT_ID:TEXT! KEY:TEXT! PATH:PATH!
-tracker import file: --created-at:TEXT! --created-by:TEXT! --filename:TEXT='' KEY:TEXT! PATH:PATH!
-tracker import link: --created-at:TEXT! --created-by:TEXT! --issue:TEXT! --relationship:TEXT! KEY:TEXT!
-tracker import task: --assignee:TEXT='' --created-at:TEXT! --created-by:TEXT! --description:TEXT='' --key:TEXT='' --queue:TEXT! --summary:TEXT!
-tracker import worklog: --comment:TEXT='' --created-at:TEXT! --created-by:TEXT! --duration:TEXT! --start:TEXT! KEY:TEXT!
-tracker issues count: --query:TEXT='' --queue:TEXT='' --status:TEXT=''
-tracker issues create: --description:TEXT --field:TEXT --parent:TEXT='' --priority:TEXT='' --queue:TEXT! --summary:TEXT! --tag:TEXT --type:TEXT=''
-tracker issues get: KEY:TEXT!
-tracker issues list: --all:BOOLEAN=False --assignee:TEXT='' --epic:TEXT='' --limit:INTEGER RANGE=0 --queue:TEXT='' --status:TEXT='' --type:TEXT=''
-tracker issues move: KEY:TEXT! QUEUE:TEXT!
-tracker issues scroll-clear: --pair:TEXT
-tracker issues search: --all:BOOLEAN=False --limit:INTEGER RANGE=0 QUERY:TEXT!
-tracker issues suggest: TEXT:TEXT!
-tracker issues update: --description:TEXT --field:TEXT --parent:TEXT='' --priority:TEXT='' --summary:TEXT='' --tag:TEXT --type:TEXT='' KEY:TEXT!
-tracker issuetypes create: --key:TEXT! --name-en:TEXT='' --name-ru:TEXT=''
-tracker issuetypes edit: --name-en:TEXT='' --name-ru:TEXT='' --version:INTEGER ISSUE_TYPE_ID:TEXT!
-tracker issuetypes list
-tracker links add: KEY:TEXT! RELATIONSHIP:CHOICE! TARGET:TEXT!
-tracker links delete: KEY:TEXT! LINK_ID:TEXT!
-tracker links list: KEY:TEXT!
-tracker links search: --all:BOOLEAN=False --field:TEXT --limit:INTEGER RANGE=0 --type:TEXT KEY:TEXT!
-tracker linktypes list
-tracker localfields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT! QUEUE_ID:TEXT!
-tracker localfields edit: --category:TEXT='' --description:TEXT='' --hidden:BOOLEAN --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --visible:BOOLEAN FIELD_KEY:TEXT! QUEUE_ID:TEXT!
-tracker localfields get: FIELD_KEY:TEXT! QUEUE_ID:TEXT!
-tracker localfields list: QUEUE_ID:TEXT!
-tracker macros create: --body:TEXT='' --issue-update:TEXT='' --name:TEXT! QUEUE_ID:TEXT!
-tracker macros delete: MACRO_ID:INTEGER! QUEUE_ID:TEXT!
-tracker macros edit: --body:TEXT='' --issue-update:TEXT='' --name:TEXT='' MACRO_ID:INTEGER! QUEUE_ID:TEXT!
-tracker macros get: MACRO_ID:INTEGER! QUEUE_ID:TEXT!
-tracker macros list: QUEUE_ID:TEXT!
-tracker me get
-tracker priorities create: --description:TEXT='' --key:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER
-tracker priorities edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --version:INTEGER PRIORITY_ID:TEXT!
-tracker priorities list
-tracker projects create: --description:TEXT='' --end-date:TEXT='' --lead:TEXT='' --name:TEXT! --queues:TEXT! --start-date:TEXT='' --status:CHOICE
-tracker projects delete: PROJECT_ID:INTEGER!
-tracker projects edit: --description:TEXT='' --end-date:TEXT='' --expand:TEXT='' --lead:TEXT='' --name:TEXT='' --queues:TEXT! --start-date:TEXT='' --status:CHOICE --version:INTEGER! PROJECT_ID:INTEGER!
-tracker projects get: --expand:TEXT='' PROJECT_ID:INTEGER!
-tracker projects list: --expand:TEXT=''
-tracker projects queues: --expand:TEXT='' PROJECT_ID:INTEGER!
-tracker queues create: --default-priority:TEXT! --default-type:TEXT! --issue-type-config:TEXT --key:TEXT! --lead:TEXT! --name:TEXT!
-tracker queues delete: QUEUE_ID:TEXT!
-tracker queues fields: QUEUE_ID:TEXT!
-tracker queues get: --expand:TEXT='' QUEUE_ID:TEXT!
-tracker queues group-permissions: GROUP_ID:INTEGER! QUEUE_ID:TEXT!
-tracker queues list: --all:BOOLEAN=False --limit:INTEGER RANGE=0
-tracker queues permissions: --create:TEXT='' --grant:TEXT='' --read:TEXT='' --write:TEXT='' QUEUE_ID:TEXT!
-tracker queues restore: QUEUE_ID:TEXT!
-tracker queues tag-remove: QUEUE_ID:TEXT! TAG:TEXT!
-tracker queues tags: QUEUE_ID:TEXT!
-tracker queues user-permissions: QUEUE_ID:TEXT! USER_ID:TEXT!
-tracker queues version-create: --description:TEXT='' --due-date:TEXT='' --name:TEXT! --queue:TEXT! --start-date:TEXT=''
-tracker queues version-delete: VERSION_ID:INTEGER!
-tracker queues version-edit: --description:TEXT='' --due-date:TEXT='' --fields:TEXT='' --name:TEXT='' --start-date:TEXT='' VERSION_ID:INTEGER!
-tracker queues version-get: --fields:TEXT='' VERSION_ID:INTEGER!
-tracker queues versions: QUEUE_ID:TEXT!
-tracker remotelinks create: --backlink:BOOLEAN=False --key:TEXT! --origin:TEXT! --relationship:TEXT='RELATES' KEY:TEXT!
-tracker remotelinks delete: KEY:TEXT! LINK_ID:TEXT!
-tracker remotelinks list: KEY:TEXT!
-tracker resolutions create: --key:TEXT! --name-en:TEXT='' --name-ru:TEXT=''
-tracker resolutions edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --version:INTEGER RESOLUTION_ID:TEXT!
-tracker resolutions list
-tracker sprints archive: --version:INTEGER SPRINT_ID:INTEGER!
-tracker sprints create: --board-id:TEXT! --end-date:TEXT! --name:TEXT! --start-date:TEXT!
-tracker sprints delete: SPRINT_ID:INTEGER!
-tracker sprints edit: --end-date:TEXT='' --name:TEXT='' --start-date:TEXT='' --status:TEXT='' --version:INTEGER SPRINT_ID:INTEGER!
-tracker sprints get: SPRINT_ID:INTEGER!
-tracker sprints list: BOARD_ID:INTEGER!
-tracker sprints start: --version:INTEGER SPRINT_ID:INTEGER!
-tracker statuses create: --key:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --type:TEXT='new'
-tracker statuses edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --type:TEXT='' --version:INTEGER STATUS_ID:TEXT!
-tracker statuses list
-tracker transitions execute: --field:TEXT KEY:TEXT! TRANSITION_ID:TEXT!
-tracker transitions list: KEY:TEXT!
-tracker triggers create: --action:TEXT --active:BOOLEAN --condition:TEXT --name:TEXT! QUEUE_ID:TEXT!
-tracker triggers edit: --action:TEXT --active:BOOLEAN --condition:TEXT --name:TEXT='' --version:INTEGER=0 QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
-tracker triggers get: QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
-tracker triggers list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 QUEUE_ID:TEXT!
-tracker triggers webhook-log: --from:TEXT='' --issue-id:TEXT='' --limit:INTEGER=0 --to:TEXT='' QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
-tracker users get: --expand:TEXT='' LOGIN_OR_ID:TEXT!
-tracker users list: --all:BOOLEAN=False --expand:TEXT='' --limit:INTEGER RANGE=0
-tracker workflows create: --id:TEXT='' --initial-action:TEXT! --issue-type-resolution:TEXT --name:TEXT! --queue:TEXT='' --step:TEXT --visual:BOOLEAN=False
-tracker workflows delete: WORKFLOW_ID:TEXT!
-tracker workflows edit: --initial-action:TEXT='' --issue-type-resolution:TEXT --name:TEXT='' --step:TEXT --version:INTEGER! --visual:BOOLEAN=False WORKFLOW_ID:TEXT!
-tracker workflows edit-action: --action:TEXT! --version:INTEGER! ACTION_ID:TEXT! STATUS:TEXT! WORKFLOW_ID:TEXT!
-tracker workflows for-queue: QUEUE_ID:TEXT!
-tracker workflows get: WORKFLOW_ID:TEXT!
-tracker workflows list
-tracker worklog add: --comment:TEXT='' --duration:TEXT! --start:TEXT='' KEY:TEXT!
-tracker worklog delete: KEY:TEXT! RECORD_ID:TEXT!
-tracker worklog edit: --comment:TEXT='' --duration:TEXT='' KEY:TEXT! RECORD_ID:TEXT!
-tracker worklog global-list: --created-by:TEXT='' --from:TEXT='' --to:TEXT=''
-tracker worklog list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 KEY:TEXT!
-tracker worklog search: --created-by:TEXT='' --from:TEXT='' --to:TEXT=''
-wiki access clear: --prevent-selflock:BOOLEAN=False PAGE_ID:INTEGER!
-wiki access create: --group-id:TEXT --group-src:CHOICE --inheritance:CHOICE --role:CHOICE! --user-cloud-uid:TEXT --user-uid:TEXT PAGE_ID:INTEGER!
-wiki access delete: --prevent-selflock:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!
-wiki access update: --inheritance:CHOICE --prevent-selflock:BOOLEAN=False --role:CHOICE ACCESS_ID:TEXT! PAGE_ID:INTEGER!
-wiki attachments attach: --session:TEXT! PAGE_ID:INTEGER!
-wiki attachments delete: FILE_ID:INTEGER! PAGE_ID:INTEGER!
-wiki attachments download: --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
-wiki attachments download-by-url: --output:TEXT URL:TEXT!
-wiki attachments get: FILE_ID:INTEGER! PAGE_ID:INTEGER!
-wiki attachments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
-wiki attachments preview: --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
-wiki attachments upload: FILE_PATH:TEXT! PAGE_ID:INTEGER!
-wiki auth status
-wiki comments create: --body:TEXT! --inline-text:TEXT='' --parent-id:INTEGER=0 --thread-id:INTEGER=0 PAGE_ID:INTEGER!
-wiki comments delete: COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
-wiki comments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
-wiki comments thread: --all:BOOLEAN=False --limit:INTEGER RANGE=0 COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
-wiki comments thread-get: --all:BOOLEAN=False --limit:INTEGER RANGE=0 COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
-wiki grids cells update: --cells:TEXT! --revision:TEXT! GRID_ID:TEXT!
-wiki grids clone: --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True --with-data:BOOLEAN=False GRID_ID:TEXT!
-wiki grids columns add: --columns:TEXT! --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
-wiki grids columns move: --column-slug:TEXT='' --columns-count:INTEGER --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
-wiki grids columns remove: --column-slug:TEXT! --revision:TEXT! GRID_ID:TEXT!
-wiki grids columns suggest: --slug:TEXT='' --title:TEXT='' GRID_ID:TEXT!
-wiki grids columns update: --color:TEXT='' --description:TEXT='' --pinned:TEXT='' --required:BOOLEAN --revision:TEXT='' --select-option:TEXT --title:TEXT='' --width-units:TEXT='' --width:INTEGER COLUMN_SLUG:TEXT! GRID_ID:TEXT!
-wiki grids create: --page-id:INTEGER=0 --page-slug:TEXT='' --title:TEXT!
-wiki grids delete: GRID_ID:TEXT!
-wiki grids get: --fields:TEXT='' --filter:TEXT='' --only-cols:TEXT='' --only-rows:TEXT='' --revision:TEXT='' --sort:TEXT='' GRID_ID:TEXT!
-wiki grids rows add: --after-row-id:TEXT='' --position:INTEGER --revision:TEXT! --rows:TEXT! GRID_ID:TEXT!
-wiki grids rows move: --after-row-id:TEXT='' --position:INTEGER --revision:TEXT! --row-id:TEXT='' --rows-count:INTEGER GRID_ID:TEXT!
-wiki grids rows remove: --revision:TEXT! --row-id:TEXT! GRID_ID:TEXT!
-wiki grids rows update: --color:TEXT='' --pinned:BOOLEAN --revision:TEXT='' GRID_ID:TEXT! ROW_ID:TEXT!
-wiki grids update: --default-sort:TEXT='' --revision:TEXT! --title:TEXT='' GRID_ID:TEXT!
-wiki me get
-wiki operations clone: TASK_ID:TEXT!
-wiki operations gridclone: TASK_ID:TEXT!
-wiki operations move-get: TASK_ID:TEXT!
-wiki pages append: --content:TEXT! --location:TEXT='bottom' PAGE_ID:INTEGER!
-wiki pages backlinks: --all:BOOLEAN=False --for-cluster:BOOLEAN=False --limit:INTEGER RANGE=0 --show-all:BOOLEAN=False PAGE_ID:INTEGER!
-wiki pages clone: --subscribe-me:BOOLEAN=False --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True PAGE_ID:INTEGER!
-wiki pages create: --content:TEXT! --slug:TEXT! --title:TEXT!
-wiki pages delete: PAGE_ID:INTEGER!
-wiki pages descendants: --all:BOOLEAN=False --limit:INTEGER RANGE=0 SLUG:TEXT!
-wiki pages descendants-by-id: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
-wiki pages get: --fields:TEXT='content' SLUG:TEXT!
-wiki pages get-by-id: --fields:TEXT='content' PAGE_ID:INTEGER!
-wiki pages grids: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --order-by:TEXT='' PAGE_ID:INTEGER!
-wiki pages move: --copy-inherited-access:BOOLEAN=False --dry-run:BOOLEAN=False --next-to:TEXT='' --position:TEXT='' --wait:BOOLEAN=True SOURCE:TEXT! TARGET:TEXT!
-wiki pages revisions: --all:BOOLEAN=False --ids:TEXT='' --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
-wiki pages update: --content:TEXT! --title:TEXT='' PAGE_ID:INTEGER!
-wiki recovery restore: TOKEN:TEXT!
-wiki resources list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --order-by:TEXT='' --q:TEXT='' --types:TEXT='' PAGE_ID:INTEGER!
-wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --highlight:BOOLEAN=False --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:CHOICE='relevancy' --show-obsolete:BOOLEAN=False --type:CHOICE TEXT:TEXT!
-wiki uploadsessions abort: SESSION_ID:TEXT!
-wiki uploadsessions abort-all
-wiki uploadsessions create: --file-name:TEXT! --file-size:INTEGER!
-wiki uploadsessions finish: SESSION_ID:TEXT!
-wiki uploadsessions get: SESSION_ID:TEXT!
-wiki uploadsessions upload-part: --part-number:INTEGER=1 FILE_PATH:TEXT! SESSION_ID:TEXT!
+auth login: --device-name:TEXT --format:CHOICE --implicit:BOOLEAN=False --jq:TEXT --yes:BOOLEAN=False
+auth status: --format:CHOICE --jq:TEXT
+forms access get: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms access grant: --action:TEXT! --cloud-uid:TEXT='' --format:CHOICE --group-id:TEXT='' --group-src:TEXT='' --jq:TEXT --uid:TEXT='' SURVEY_ID:TEXT!
+forms access revoke: --action:TEXT! --cloud-uid:TEXT='' --format:CHOICE --group-id:TEXT='' --group-src:TEXT='' --jq:TEXT --uid:TEXT='' SURVEY_ID:TEXT!
+forms access set: --access:TEXT! --action:TEXT! --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms answers delete: --format:CHOICE --jq:TEXT ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
+forms answers export: --column:TEXT --finished-at:TEXT='' --format:TEXT='xlsx' --jq:TEXT --limit:INTEGER=0 --output:TEXT --pk:INTEGER --started-at:TEXT='' --upload-files:BOOLEAN --upload:TEXT='default' --wait:BOOLEAN=True SURVEY_ID:TEXT!
+forms answers get: --answer-id:INTEGER=0 --answer-key:TEXT='' --format:CHOICE --jq:TEXT
+forms answers integrations: --answer-id:INTEGER=0 --answer-key:TEXT='' --format:CHOICE --jq:TEXT
+forms answers list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 SURVEY_ID:TEXT!
+forms answers restore: --format:CHOICE --jq:TEXT ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
+forms auth status: --format:CHOICE --jq:TEXT
+forms conditions hook create: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook delete: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook get: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook list: --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook modify: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook set-operator: --format:CHOICE --jq:TEXT --operator:TEXT! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page create: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page delete: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page get: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page list: --format:CHOICE --jq:TEXT PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page modify: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page set-operator: --format:CHOICE --jq:TEXT --operator:TEXT! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions question create: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question delete: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question get: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question list: --format:CHOICE --jq:TEXT QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question modify: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question set-operator: --format:CHOICE --jq:TEXT --operator:TEXT! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions submit create: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' SURVEY_ID:TEXT!
+forms conditions submit delete: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions submit get: --format:CHOICE --jq:TEXT CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions submit list: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms conditions submit modify: --body-file:PATH --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions submit set-operator: --format:CHOICE --jq:TEXT --operator:TEXT! SURVEY_ID:TEXT!
+forms files delete: --format:CHOICE --jq:TEXT --path:TEXT='' --url:TEXT=''
+forms files download: --download:BOOLEAN=False --format:CHOICE --hash:TEXT='' --jq:TEXT --output:TEXT --path:TEXT!
+forms files upload: --format:CHOICE --jq:TEXT FILE_PATH:PATH! SURVEY_ID:TEXT!
+forms files verify: --format:CHOICE --jq:TEXT --path:TEXT --url:TEXT SURVEY_ID:TEXT!
+forms filling get: --format:CHOICE --jq:TEXT --key:TEXT='' SURVEY:TEXT!
+forms filling submit: --body-file:PATH! --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --key:TEXT='' SURVEY:TEXT!
+forms filling suggest: --format:CHOICE --id:TEXT='' --jq:TEXT --parent-id:TEXT='' --question:TEXT='' --text:TEXT='' SURVEY:TEXT!
+forms history list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --ordering:TEXT='' SURVEY_ID:TEXT!
+forms hooks create: --active:BOOLEAN --format:CHOICE --jq:TEXT --name:TEXT='' SURVEY_ID:TEXT!
+forms hooks delete: --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms hooks get: --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms hooks list: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms hooks modify: --active:BOOLEAN --format:CHOICE --jq:TEXT --name:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms images clone: --format:CHOICE --image-id:INTEGER=0 --jq:TEXT --link:TEXT --name:TEXT='' SURVEY_ID:TEXT!
+forms images upload: --format:CHOICE --jq:TEXT IMAGE_PATH:PATH! SURVEY_ID:TEXT!
+forms keysets create: --enabled:BOOLEAN! --format:CHOICE --jq:TEXT --name:TEXT! --total:INTEGER! SURVEY_ID:TEXT!
+forms keysets delete: --format:CHOICE --jq:TEXT KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
+forms keysets download: --format:CHOICE --jq:TEXT --output:TEXT KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
+forms keysets get: --format:CHOICE --jq:TEXT KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
+forms keysets list: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms keysets modify: --enabled:BOOLEAN! --format:CHOICE --jq:TEXT --name:TEXT! --total:INTEGER! KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
+forms me get: --format:CHOICE --jq:TEXT
+forms notifications cancel: --format:CHOICE --jq:TEXT NOTIFICATION_ID:INTEGER!
+forms notifications errors: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms notifications get: --format:CHOICE --jq:TEXT NOTIFICATION_ID:INTEGER!
+forms notifications list: --all:BOOLEAN=False --answer-id:INTEGER --created-since:TEXT='' --created-until:TEXT='' --finished-since:TEXT='' --finished-until:TEXT='' --format:CHOICE --hook-id:INTEGER --jq:TEXT --limit:INTEGER RANGE=0 --ordering:TEXT='' --status:TEXT --subscription-id:INTEGER --survey-id:TEXT='' --type:TEXT='' --visible:BOOLEAN
+forms notifications restart: --format:CHOICE --jq:TEXT NOTIFICATION_ID:INTEGER!
+forms notifications status: --format:CHOICE --jq:TEXT NOTIFICATION_ID:INTEGER!
+forms operations get: --format:CHOICE --jq:TEXT OPERATION_ID:TEXT!
+forms questions create: --body-file:PATH --comment:TEXT='' --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' SURVEY_ID:TEXT!
+forms questions delete: --force:BOOLEAN=False --format:CHOICE --jq:TEXT QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms questions get: --format:CHOICE --jq:TEXT QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms questions list: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms questions modify: --body-file:PATH --comment:TEXT='' --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms questions move: --create-page:BOOLEAN=False --format:CHOICE --jq:TEXT --page-id:INTEGER=0 --page:INTEGER=0 --position:INTEGER=0 --question:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms subscriptions attach: --format:CHOICE --jq:TEXT FILE_PATH:PATH! HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions create: --body-file:PATH! --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions delete: --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions get: --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions list: --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions modify: --body-file:PATH! --format:CHOICE --jq:TEXT HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms surveys create: --field:TEXT --format:CHOICE --jq:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT! --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN
+forms surveys delete: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms surveys get: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms surveys list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0
+forms surveys modify: --field:TEXT --format:CHOICE --jq:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT='' --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN SURVEY_ID:TEXT!
+forms surveys publish: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms surveys unpublish: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+forms variables list: --format:CHOICE --jq:TEXT SURVEY_ID:TEXT!
+mcp methods: --format:CHOICE --jq:TEXT
+mcp start: --format:CHOICE --jq:TEXT --read-only:BOOLEAN=False
+tracker applications list: --format:CHOICE --jq:TEXT
+tracker attachments delete: --format:CHOICE --jq:TEXT FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments download: --format:CHOICE --jq:TEXT --output:TEXT FILENAME:TEXT! FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments get: --format:CHOICE --jq:TEXT FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments list: --format:CHOICE --jq:TEXT ISSUE_KEY:TEXT!
+tracker attachments thumbnail: --format:CHOICE --jq:TEXT --output:TEXT FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments upload: --format:CHOICE --jq:TEXT --rename-to:TEXT='' FILE_PATH:PATH! ISSUE_KEY:TEXT!
+tracker attachments upload-temp: --format:CHOICE --jq:TEXT --rename-to:TEXT='' FILE_PATH:PATH!
+tracker auth status: --format:CHOICE --jq:TEXT
+tracker autoactions create: --action:TEXT --active:BOOLEAN --calendar-id:INTEGER=0 --filter:TEXT='' --format:CHOICE --interval-millis:INTEGER=0 --jq:TEXT --name:TEXT! --notify:BOOLEAN --query:TEXT='' QUEUE_ID:TEXT!
+tracker autoactions get: --format:CHOICE --jq:TEXT ACTION_ID:INTEGER! QUEUE_ID:TEXT!
+tracker autoactions log-detail: --format:CHOICE --jq:TEXT ACTION_ID:INTEGER! QUEUE_ID:TEXT! RUN_ID:TEXT!
+tracker autoactions logs: --format:CHOICE --jq:TEXT ACTION_ID:INTEGER! QUEUE_ID:TEXT!
+tracker boards create: --backlog:BOOLEAN --format:CHOICE --jq:TEXT --name:TEXT! --owner:TEXT='' --permissions:TEXT='' --sprints:BOOLEAN
+tracker boards delete: --format:CHOICE --jq:TEXT BOARD_ID:INTEGER!
+tracker boards edit: --backlog:BOOLEAN --format:CHOICE --jq:TEXT --name:TEXT='' --sprints:BOOLEAN BOARD_ID:INTEGER!
+tracker boards get: --format:CHOICE --jq:TEXT BOARD_ID:INTEGER!
+tracker boards list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0
+tracker bulk get: --format:CHOICE --jq:TEXT BULK_ID:TEXT!
+tracker bulk issues: --format:CHOICE --jq:TEXT BULK_ID:TEXT!
+tracker bulk move: --field:TEXT --format:CHOICE --initial-status:BOOLEAN=False --issue:TEXT --jq:TEXT --move-all-fields:BOOLEAN=False --notify:BOOLEAN=False --query:TEXT='' --wait:BOOLEAN=True QUEUE:TEXT!
+tracker bulk transition: --field:TEXT --format:CHOICE --issue:TEXT --jq:TEXT --notify:BOOLEAN=False --query:TEXT='' --wait:BOOLEAN=True TRANSITION:TEXT!
+tracker bulk update: --field:TEXT --format:CHOICE --issue:TEXT --jq:TEXT --notify:BOOLEAN=False --query:TEXT='' --wait:BOOLEAN=True
+tracker changelog list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 KEY:TEXT!
+tracker checklists add: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --format:CHOICE --jq:TEXT --text:TEXT! KEY:TEXT!
+tracker checklists clear: --format:CHOICE --jq:TEXT KEY:TEXT!
+tracker checklists delete: --format:CHOICE --jq:TEXT ITEM_ID:TEXT! KEY:TEXT!
+tracker checklists edit: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --format:CHOICE --jq:TEXT --text:TEXT='' ITEM_ID:TEXT! KEY:TEXT!
+tracker checklists get: --format:CHOICE --jq:TEXT KEY:TEXT!
+tracker columns create: --format:CHOICE --jq:TEXT --name:TEXT! --status:TEXT! BOARD_ID:INTEGER!
+tracker columns delete: --format:CHOICE --jq:TEXT BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
+tracker columns edit: --format:CHOICE --jq:TEXT --name:TEXT='' --status:TEXT BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
+tracker columns get: --format:CHOICE --jq:TEXT BOARD_ID:INTEGER! COLUMN_ID:INTEGER!
+tracker columns list: --format:CHOICE --jq:TEXT BOARD_ID:INTEGER!
+tracker comments add: --format:CHOICE --jq:TEXT --text:TEXT! KEY:TEXT!
+tracker comments delete: --format:CHOICE --jq:TEXT COMMENT_ID:TEXT! KEY:TEXT!
+tracker comments edit: --format:CHOICE --jq:TEXT --text:TEXT! COMMENT_ID:TEXT! KEY:TEXT!
+tracker comments get: --expand:TEXT='' --format:CHOICE --jq:TEXT COMMENT_ID:TEXT! KEY:TEXT!
+tracker comments list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 KEY:TEXT!
+tracker comments react: --format:CHOICE --jq:TEXT COMMENT_ID:TEXT! KEY:TEXT! NAME:CHOICE!
+tracker components create: --assign-auto:BOOLEAN --description:TEXT='' --format:CHOICE --jq:TEXT --lead:TEXT='' --name:TEXT! --queue:TEXT!
+tracker components delete: --format:CHOICE --jq:TEXT COMPONENT_ID:INTEGER!
+tracker components edit: --assign-auto:BOOLEAN --description:TEXT='' --format:CHOICE --jq:TEXT --lead:TEXT='' --name:TEXT='' --version:INTEGER COMPONENT_ID:INTEGER!
+tracker components get: --fields:TEXT='' --format:CHOICE --jq:TEXT COMPONENT_ID:INTEGER!
+tracker components group-permissions: --format:CHOICE --jq:TEXT COMPONENT_ID:INTEGER! GROUP_ID:INTEGER!
+tracker components list: --format:CHOICE --jq:TEXT
+tracker components list-for-queue: --fields:TEXT='' --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker components user-permissions: --format:CHOICE --jq:TEXT COMPONENT_ID:INTEGER! USER_ID:TEXT!
+tracker dashboards add-widget cycletime: --description:TEXT! --format:CHOICE --from-status:TEXT --jq:TEXT --mode:TEXT='' --query:TEXT='' --to-status:TEXT DASHBOARD_ID:TEXT!
+tracker dashboards create: --format:CHOICE --jq:TEXT --layout:TEXT='' --name:TEXT! --owner:TEXT=''
+tracker entities attachments attach: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TEMP_FILE_ID:TEXT! TYPE_:CHOICE!
+tracker entities attachments delete: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:CHOICE!
+tracker entities attachments download: --format:CHOICE --jq:TEXT --output:TEXT FILENAME:TEXT! FILE_ID:TEXT!
+tracker entities attachments get: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:CHOICE!
+tracker entities attachments list: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities bulk: --comment:TEXT='' --entity:TEXT! --field:TEXT --format:CHOICE --jq:TEXT TYPE_:CHOICE!
+tracker entities bulk-status: --format:CHOICE --jq:TEXT OPERATION_ID:TEXT!
+tracker entities checklists create: --format:CHOICE --jq:TEXT --text:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities checklists delete: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities checklists delete-item: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
+tracker entities checklists edit: --format:CHOICE --item:TEXT! --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities checklists edit-item: --assignee:TEXT='' --checked:BOOLEAN --deadline:TEXT='' --format:CHOICE --jq:TEXT --text:TEXT='' ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
+tracker entities checklists move: --before:TEXT='' --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
+tracker entities comments create: --format:CHOICE --jq:TEXT --summon:TEXT --text:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities comments delete: --format:CHOICE --jq:TEXT COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities comments edit: --format:CHOICE --jq:TEXT --text:TEXT! COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities comments get: --format:CHOICE --jq:TEXT COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities comments list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER=0 ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities create: --author:TEXT='' --description:TEXT='' --end:TEXT='' --field:TEXT --format:CHOICE --jq:TEXT --lead:TEXT='' --parent:TEXT='' --start:TEXT='' --status:TEXT='' --summary:TEXT! --tag:TEXT --team-user:TEXT TYPE_:CHOICE!
+tracker entities create-report: --field:TEXT --format:TEXT='xlsx' --jq:TEXT --query:TEXT! --summary:TEXT!
+tracker entities delete: --format:CHOICE --jq:TEXT --with-board:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities direct-permissions: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities edit: --author:TEXT='' --comment:TEXT='' --description:TEXT='' --end:TEXT='' --field:TEXT --format:CHOICE --jq:TEXT --lead:TEXT='' --parent:TEXT='' --start:TEXT='' --status:TEXT='' --summary:TEXT='' --tag:TEXT --team-user:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities get: --expand:TEXT='' --fields:TEXT='' --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities history: --format:CHOICE --jq:TEXT --limit:INTEGER=0 ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities links create: --entity:TEXT! --format:CHOICE --jq:TEXT --relationship:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities links delete: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! RIGHT:TEXT! TYPE_:CHOICE!
+tracker entities links list: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities permissions: --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities search: --fields:TEXT='' --filter:TEXT --format:CHOICE --input:TEXT='' --jq:TEXT --order-asc:BOOLEAN=False --order-by:TEXT='' --root-only:BOOLEAN=False TYPE_:CHOICE!
+tracker entities set-direct-permissions: --format:CHOICE --grant:TEXT='' --jq:TEXT --revoke:TEXT='' ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities set-permissions: --acl:TEXT --format:CHOICE --jq:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker fields category-create: --description:TEXT='' --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER!
+tracker fields category-edit: --description:TEXT='' --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --version:INTEGER CATEGORY_ID:TEXT!
+tracker fields create: --category:TEXT! --description:TEXT='' --format:CHOICE --id:TEXT! --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT!
+tracker fields edit: --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --version:INTEGER FIELD_ID:TEXT!
+tracker fields get: --format:CHOICE --jq:TEXT FIELD_ID:TEXT!
+tracker fields list: --format:CHOICE --jq:TEXT
+tracker filters create: --filter:TEXT='' --format:CHOICE --jq:TEXT --name:TEXT! --query:TEXT=''
+tracker filters delete: --format:CHOICE --jq:TEXT FILTER_ID:TEXT!
+tracker filters edit: --filter:TEXT='' --format:CHOICE --jq:TEXT --name:TEXT='' --query:TEXT='' FILTER_ID:TEXT!
+tracker filters get: --format:CHOICE --jq:TEXT FILTER_ID:TEXT!
+tracker gaps create: --format:CHOICE --from:TEXT='' --full-day:BOOLEAN --gap:TEXT --id:TEXT='' --jq:TEXT --to:TEXT='' --user:TEXT='' --work-in-absence:BOOLEAN --workflow:CHOICE
+tracker gaps delete: --format:CHOICE --jq:TEXT GAP_IDS:TEXT!
+tracker gaps search: --all:BOOLEAN=False --format:CHOICE --from:TEXT='' --jq:TEXT --limit:INTEGER RANGE=0 --to:TEXT='' USERS:TEXT!
+tracker import comment: --created-at:TEXT! --created-by:TEXT! --format:CHOICE --jq:TEXT --text:TEXT! KEY:TEXT!
+tracker import comment-file: --created-at:TEXT! --created-by:TEXT! --filename:TEXT='' --format:CHOICE --jq:TEXT COMMENT_ID:TEXT! KEY:TEXT! PATH:PATH!
+tracker import file: --created-at:TEXT! --created-by:TEXT! --filename:TEXT='' --format:CHOICE --jq:TEXT KEY:TEXT! PATH:PATH!
+tracker import link: --created-at:TEXT! --created-by:TEXT! --format:CHOICE --issue:TEXT! --jq:TEXT --relationship:TEXT! KEY:TEXT!
+tracker import task: --assignee:TEXT='' --created-at:TEXT! --created-by:TEXT! --description:TEXT='' --format:CHOICE --jq:TEXT --key:TEXT='' --queue:TEXT! --summary:TEXT!
+tracker import worklog: --comment:TEXT='' --created-at:TEXT! --created-by:TEXT! --duration:TEXT! --format:CHOICE --jq:TEXT --start:TEXT! KEY:TEXT!
+tracker issues count: --format:CHOICE --jq:TEXT --query:TEXT='' --queue:TEXT='' --status:TEXT=''
+tracker issues create: --description:TEXT --field:TEXT --format:CHOICE --jq:TEXT --parent:TEXT='' --priority:TEXT='' --queue:TEXT! --summary:TEXT! --tag:TEXT --type:TEXT=''
+tracker issues get: --format:CHOICE --jq:TEXT KEY:TEXT!
+tracker issues list: --all:BOOLEAN=False --assignee:TEXT='' --epic:TEXT='' --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --queue:TEXT='' --status:TEXT='' --type:TEXT=''
+tracker issues move: --format:CHOICE --jq:TEXT KEY:TEXT! QUEUE:TEXT!
+tracker issues scroll-clear: --format:CHOICE --jq:TEXT --pair:TEXT
+tracker issues search: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 QUERY:TEXT!
+tracker issues suggest: --format:CHOICE --jq:TEXT TEXT:TEXT!
+tracker issues update: --description:TEXT --field:TEXT --format:CHOICE --jq:TEXT --parent:TEXT='' --priority:TEXT='' --summary:TEXT='' --tag:TEXT --type:TEXT='' KEY:TEXT!
+tracker issuetypes create: --format:CHOICE --jq:TEXT --key:TEXT! --name-en:TEXT='' --name-ru:TEXT=''
+tracker issuetypes edit: --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --version:INTEGER ISSUE_TYPE_ID:TEXT!
+tracker issuetypes list: --format:CHOICE --jq:TEXT
+tracker links add: --format:CHOICE --jq:TEXT KEY:TEXT! RELATIONSHIP:CHOICE! TARGET:TEXT!
+tracker links delete: --format:CHOICE --jq:TEXT KEY:TEXT! LINK_ID:TEXT!
+tracker links list: --format:CHOICE --jq:TEXT KEY:TEXT!
+tracker links search: --all:BOOLEAN=False --field:TEXT --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --type:TEXT KEY:TEXT!
+tracker linktypes list: --format:CHOICE --jq:TEXT
+tracker localfields create: --category:TEXT! --description:TEXT='' --format:CHOICE --id:TEXT! --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT! QUEUE_ID:TEXT!
+tracker localfields edit: --category:TEXT='' --description:TEXT='' --format:CHOICE --hidden:BOOLEAN --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --visible:BOOLEAN FIELD_KEY:TEXT! QUEUE_ID:TEXT!
+tracker localfields get: --format:CHOICE --jq:TEXT FIELD_KEY:TEXT! QUEUE_ID:TEXT!
+tracker localfields list: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker macros create: --body:TEXT='' --format:CHOICE --issue-update:TEXT='' --jq:TEXT --name:TEXT! QUEUE_ID:TEXT!
+tracker macros delete: --format:CHOICE --jq:TEXT MACRO_ID:INTEGER! QUEUE_ID:TEXT!
+tracker macros edit: --body:TEXT='' --format:CHOICE --issue-update:TEXT='' --jq:TEXT --name:TEXT='' MACRO_ID:INTEGER! QUEUE_ID:TEXT!
+tracker macros get: --format:CHOICE --jq:TEXT MACRO_ID:INTEGER! QUEUE_ID:TEXT!
+tracker macros list: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker me get: --format:CHOICE --jq:TEXT
+tracker priorities create: --description:TEXT='' --format:CHOICE --jq:TEXT --key:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER
+tracker priorities edit: --description:TEXT='' --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --version:INTEGER PRIORITY_ID:TEXT!
+tracker priorities list: --format:CHOICE --jq:TEXT
+tracker projects create: --description:TEXT='' --end-date:TEXT='' --format:CHOICE --jq:TEXT --lead:TEXT='' --name:TEXT! --queues:TEXT! --start-date:TEXT='' --status:CHOICE
+tracker projects delete: --format:CHOICE --jq:TEXT PROJECT_ID:INTEGER!
+tracker projects edit: --description:TEXT='' --end-date:TEXT='' --expand:TEXT='' --format:CHOICE --jq:TEXT --lead:TEXT='' --name:TEXT='' --queues:TEXT! --start-date:TEXT='' --status:CHOICE --version:INTEGER! PROJECT_ID:INTEGER!
+tracker projects get: --expand:TEXT='' --format:CHOICE --jq:TEXT PROJECT_ID:INTEGER!
+tracker projects list: --expand:TEXT='' --format:CHOICE --jq:TEXT
+tracker projects queues: --expand:TEXT='' --format:CHOICE --jq:TEXT PROJECT_ID:INTEGER!
+tracker queues create: --default-priority:TEXT! --default-type:TEXT! --format:CHOICE --issue-type-config:TEXT --jq:TEXT --key:TEXT! --lead:TEXT! --name:TEXT!
+tracker queues delete: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker queues fields: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker queues get: --expand:TEXT='' --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker queues group-permissions: --format:CHOICE --jq:TEXT GROUP_ID:INTEGER! QUEUE_ID:TEXT!
+tracker queues list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0
+tracker queues permissions: --create:TEXT='' --format:CHOICE --grant:TEXT='' --jq:TEXT --read:TEXT='' --write:TEXT='' QUEUE_ID:TEXT!
+tracker queues restore: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker queues tag-remove: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT! TAG:TEXT!
+tracker queues tags: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker queues user-permissions: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT! USER_ID:TEXT!
+tracker queues version-create: --description:TEXT='' --due-date:TEXT='' --format:CHOICE --jq:TEXT --name:TEXT! --queue:TEXT! --start-date:TEXT=''
+tracker queues version-delete: --format:CHOICE --jq:TEXT VERSION_ID:INTEGER!
+tracker queues version-edit: --description:TEXT='' --due-date:TEXT='' --fields:TEXT='' --format:CHOICE --jq:TEXT --name:TEXT='' --start-date:TEXT='' VERSION_ID:INTEGER!
+tracker queues version-get: --fields:TEXT='' --format:CHOICE --jq:TEXT VERSION_ID:INTEGER!
+tracker queues versions: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker remotelinks create: --backlink:BOOLEAN=False --format:CHOICE --jq:TEXT --key:TEXT! --origin:TEXT! --relationship:TEXT='RELATES' KEY:TEXT!
+tracker remotelinks delete: --format:CHOICE --jq:TEXT KEY:TEXT! LINK_ID:TEXT!
+tracker remotelinks list: --format:CHOICE --jq:TEXT KEY:TEXT!
+tracker resolutions create: --format:CHOICE --jq:TEXT --key:TEXT! --name-en:TEXT='' --name-ru:TEXT=''
+tracker resolutions edit: --description:TEXT='' --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --version:INTEGER RESOLUTION_ID:TEXT!
+tracker resolutions list: --format:CHOICE --jq:TEXT
+tracker sprints archive: --format:CHOICE --jq:TEXT --version:INTEGER SPRINT_ID:INTEGER!
+tracker sprints create: --board-id:TEXT! --end-date:TEXT! --format:CHOICE --jq:TEXT --name:TEXT! --start-date:TEXT!
+tracker sprints delete: --format:CHOICE --jq:TEXT SPRINT_ID:INTEGER!
+tracker sprints edit: --end-date:TEXT='' --format:CHOICE --jq:TEXT --name:TEXT='' --start-date:TEXT='' --status:TEXT='' --version:INTEGER SPRINT_ID:INTEGER!
+tracker sprints get: --format:CHOICE --jq:TEXT SPRINT_ID:INTEGER!
+tracker sprints list: --format:CHOICE --jq:TEXT BOARD_ID:INTEGER!
+tracker sprints start: --format:CHOICE --jq:TEXT --version:INTEGER SPRINT_ID:INTEGER!
+tracker statuses create: --format:CHOICE --jq:TEXT --key:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --type:TEXT='new'
+tracker statuses edit: --description:TEXT='' --format:CHOICE --jq:TEXT --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --type:TEXT='' --version:INTEGER STATUS_ID:TEXT!
+tracker statuses list: --format:CHOICE --jq:TEXT
+tracker transitions execute: --field:TEXT --format:CHOICE --jq:TEXT KEY:TEXT! TRANSITION_ID:TEXT!
+tracker transitions list: --format:CHOICE --jq:TEXT KEY:TEXT!
+tracker triggers create: --action:TEXT --active:BOOLEAN --condition:TEXT --format:CHOICE --jq:TEXT --name:TEXT! QUEUE_ID:TEXT!
+tracker triggers edit: --action:TEXT --active:BOOLEAN --condition:TEXT --format:CHOICE --jq:TEXT --name:TEXT='' --version:INTEGER=0 QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
+tracker triggers get: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
+tracker triggers list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 QUEUE_ID:TEXT!
+tracker triggers webhook-log: --format:CHOICE --from:TEXT='' --issue-id:TEXT='' --jq:TEXT --limit:INTEGER=0 --to:TEXT='' QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
+tracker users get: --expand:TEXT='' --format:CHOICE --jq:TEXT LOGIN_OR_ID:TEXT!
+tracker users list: --all:BOOLEAN=False --expand:TEXT='' --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0
+tracker workflows create: --format:CHOICE --id:TEXT='' --initial-action:TEXT! --issue-type-resolution:TEXT --jq:TEXT --name:TEXT! --queue:TEXT='' --step:TEXT --visual:BOOLEAN=False
+tracker workflows delete: --format:CHOICE --jq:TEXT WORKFLOW_ID:TEXT!
+tracker workflows edit: --format:CHOICE --initial-action:TEXT='' --issue-type-resolution:TEXT --jq:TEXT --name:TEXT='' --step:TEXT --version:INTEGER! --visual:BOOLEAN=False WORKFLOW_ID:TEXT!
+tracker workflows edit-action: --action:TEXT! --format:CHOICE --jq:TEXT --version:INTEGER! ACTION_ID:TEXT! STATUS:TEXT! WORKFLOW_ID:TEXT!
+tracker workflows for-queue: --format:CHOICE --jq:TEXT QUEUE_ID:TEXT!
+tracker workflows get: --format:CHOICE --jq:TEXT WORKFLOW_ID:TEXT!
+tracker workflows list: --format:CHOICE --jq:TEXT
+tracker worklog add: --comment:TEXT='' --duration:TEXT! --format:CHOICE --jq:TEXT --start:TEXT='' KEY:TEXT!
+tracker worklog delete: --format:CHOICE --jq:TEXT KEY:TEXT! RECORD_ID:TEXT!
+tracker worklog edit: --comment:TEXT='' --duration:TEXT='' --format:CHOICE --jq:TEXT KEY:TEXT! RECORD_ID:TEXT!
+tracker worklog global-list: --created-by:TEXT='' --format:CHOICE --from:TEXT='' --jq:TEXT --to:TEXT=''
+tracker worklog list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 KEY:TEXT!
+tracker worklog search: --created-by:TEXT='' --format:CHOICE --from:TEXT='' --jq:TEXT --to:TEXT=''
+wiki access clear: --format:CHOICE --jq:TEXT --prevent-selflock:BOOLEAN=False PAGE_ID:INTEGER!
+wiki access create: --format:CHOICE --group-id:TEXT --group-src:CHOICE --inheritance:CHOICE --jq:TEXT --role:CHOICE! --user-cloud-uid:TEXT --user-uid:TEXT PAGE_ID:INTEGER!
+wiki access delete: --format:CHOICE --jq:TEXT --prevent-selflock:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!
+wiki access update: --format:CHOICE --inheritance:CHOICE --jq:TEXT --prevent-selflock:BOOLEAN=False --role:CHOICE ACCESS_ID:TEXT! PAGE_ID:INTEGER!
+wiki attachments attach: --format:CHOICE --jq:TEXT --session:TEXT! PAGE_ID:INTEGER!
+wiki attachments delete: --format:CHOICE --jq:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
+wiki attachments download: --format:CHOICE --jq:TEXT --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
+wiki attachments download-by-url: --format:CHOICE --jq:TEXT --output:TEXT URL:TEXT!
+wiki attachments get: --format:CHOICE --jq:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
+wiki attachments list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
+wiki attachments preview: --format:CHOICE --jq:TEXT --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
+wiki attachments upload: --format:CHOICE --jq:TEXT FILE_PATH:TEXT! PAGE_ID:INTEGER!
+wiki auth status: --format:CHOICE --jq:TEXT
+wiki comments create: --body:TEXT! --format:CHOICE --inline-text:TEXT='' --jq:TEXT --parent-id:INTEGER=0 --thread-id:INTEGER=0 PAGE_ID:INTEGER!
+wiki comments delete: --format:CHOICE --jq:TEXT COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
+wiki comments list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
+wiki comments thread: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
+wiki comments thread-get: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
+wiki grids cells update: --cells:TEXT! --format:CHOICE --jq:TEXT --revision:TEXT! GRID_ID:TEXT!
+wiki grids clone: --format:CHOICE --jq:TEXT --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True --with-data:BOOLEAN=False GRID_ID:TEXT!
+wiki grids columns add: --columns:TEXT! --format:CHOICE --jq:TEXT --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
+wiki grids columns move: --column-slug:TEXT='' --columns-count:INTEGER --format:CHOICE --jq:TEXT --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
+wiki grids columns remove: --column-slug:TEXT! --format:CHOICE --jq:TEXT --revision:TEXT! GRID_ID:TEXT!
+wiki grids columns suggest: --format:CHOICE --jq:TEXT --slug:TEXT='' --title:TEXT='' GRID_ID:TEXT!
+wiki grids columns update: --color:TEXT='' --description:TEXT='' --format:CHOICE --jq:TEXT --pinned:TEXT='' --required:BOOLEAN --revision:TEXT='' --select-option:TEXT --title:TEXT='' --width-units:TEXT='' --width:INTEGER COLUMN_SLUG:TEXT! GRID_ID:TEXT!
+wiki grids create: --format:CHOICE --jq:TEXT --page-id:INTEGER=0 --page-slug:TEXT='' --title:TEXT!
+wiki grids delete: --format:CHOICE --jq:TEXT GRID_ID:TEXT!
+wiki grids get: --fields:TEXT='' --filter:TEXT='' --format:CHOICE --jq:TEXT --only-cols:TEXT='' --only-rows:TEXT='' --revision:TEXT='' --sort:TEXT='' GRID_ID:TEXT!
+wiki grids rows add: --after-row-id:TEXT='' --format:CHOICE --jq:TEXT --position:INTEGER --revision:TEXT! --rows:TEXT! GRID_ID:TEXT!
+wiki grids rows move: --after-row-id:TEXT='' --format:CHOICE --jq:TEXT --position:INTEGER --revision:TEXT! --row-id:TEXT='' --rows-count:INTEGER GRID_ID:TEXT!
+wiki grids rows remove: --format:CHOICE --jq:TEXT --revision:TEXT! --row-id:TEXT! GRID_ID:TEXT!
+wiki grids rows update: --color:TEXT='' --format:CHOICE --jq:TEXT --pinned:BOOLEAN --revision:TEXT='' GRID_ID:TEXT! ROW_ID:TEXT!
+wiki grids update: --default-sort:TEXT='' --format:CHOICE --jq:TEXT --revision:TEXT! --title:TEXT='' GRID_ID:TEXT!
+wiki me get: --format:CHOICE --jq:TEXT
+wiki operations clone: --format:CHOICE --jq:TEXT TASK_ID:TEXT!
+wiki operations gridclone: --format:CHOICE --jq:TEXT TASK_ID:TEXT!
+wiki operations move-get: --format:CHOICE --jq:TEXT TASK_ID:TEXT!
+wiki pages append: --content:TEXT! --format:CHOICE --jq:TEXT --location:TEXT='bottom' PAGE_ID:INTEGER!
+wiki pages backlinks: --all:BOOLEAN=False --for-cluster:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --show-all:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages clone: --format:CHOICE --jq:TEXT --subscribe-me:BOOLEAN=False --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True PAGE_ID:INTEGER!
+wiki pages create: --content:TEXT! --format:CHOICE --jq:TEXT --slug:TEXT! --title:TEXT!
+wiki pages delete: --format:CHOICE --jq:TEXT PAGE_ID:INTEGER!
+wiki pages descendants: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 SLUG:TEXT!
+wiki pages descendants-by-id: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
+wiki pages get: --fields:TEXT='content' --format:CHOICE --jq:TEXT SLUG:TEXT!
+wiki pages get-by-id: --fields:TEXT='content' --format:CHOICE --jq:TEXT PAGE_ID:INTEGER!
+wiki pages grids: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' PAGE_ID:INTEGER!
+wiki pages move: --copy-inherited-access:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --next-to:TEXT='' --position:TEXT='' --wait:BOOLEAN=True SOURCE:TEXT! TARGET:TEXT!
+wiki pages revisions: --all:BOOLEAN=False --format:CHOICE --ids:TEXT='' --jq:TEXT --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
+wiki pages update: --content:TEXT! --format:CHOICE --jq:TEXT --title:TEXT='' PAGE_ID:INTEGER!
+wiki recovery restore: --format:CHOICE --jq:TEXT TOKEN:TEXT!
+wiki resources list: --all:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --q:TEXT='' --types:TEXT='' PAGE_ID:INTEGER!
+wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --format:CHOICE --highlight:BOOLEAN=False --jq:TEXT --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:CHOICE='relevancy' --show-obsolete:BOOLEAN=False --type:CHOICE TEXT:TEXT!
+wiki uploadsessions abort: --format:CHOICE --jq:TEXT SESSION_ID:TEXT!
+wiki uploadsessions abort-all: --format:CHOICE --jq:TEXT
+wiki uploadsessions create: --file-name:TEXT! --file-size:INTEGER! --format:CHOICE --jq:TEXT
+wiki uploadsessions finish: --format:CHOICE --jq:TEXT SESSION_ID:TEXT!
+wiki uploadsessions get: --format:CHOICE --jq:TEXT SESSION_ID:TEXT!
+wiki uploadsessions upload-part: --format:CHOICE --jq:TEXT --part-number:INTEGER=1 FILE_PATH:TEXT! SESSION_ID:TEXT!
