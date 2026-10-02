@@ -37,7 +37,7 @@ def list_(
 ) -> AttachmentList:
     """Attachments (name, size, mime type) on a page id, auto-paginated (drains ``next_cursor``).
 
-    Capped at 500 items by default unless ``limit`` is given. This is the list surface;
+    Capped at the configured item cap unless ``limit`` is given. This is the list surface;
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
     cap = resolve_cap(limit, config.http.max_items)

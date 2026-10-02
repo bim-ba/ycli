@@ -121,7 +121,7 @@ def events_list(
     """An entity's event history (created/updated/commented/…), auto-paginated.
 
     Each event carries an author, a timestamp, a display title and the individual field changes.
-    Capped at 500 items by default unless ``limit`` is given.
+    Capped at the configured item cap unless ``limit`` is given.
 
     Example:
         >>> entities_events_list("project", "655f", limit=50)  # doctest: +SKIP
@@ -273,7 +273,7 @@ def comments_relative_list(
     """An entity's comments via the cursor-paginated ``…/comments/_relative`` endpoint.
 
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
-    pages up to ``limit`` (500 by default).
+    pages up to ``limit`` (the configured item cap by default).
     """
     cap = resolve_cap(limit, config.http.max_items)
     return client.entities.comments_relative(entity_type, entity_id, limit=cap)

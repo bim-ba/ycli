@@ -11,6 +11,7 @@ from ycli.yandex.models import Ack, require_found
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
@@ -31,7 +32,7 @@ from ycli.yandex.tracker.issues.models import (
 
 mcp = FastMCP("tracker-issues")
 
-_LIMIT = "Max issues to return; 0 means the configured cap (default 500)."
+_LIMIT = f"Max issues to return; {LIMIT_CAP}"
 
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)

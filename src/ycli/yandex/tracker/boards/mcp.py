@@ -13,6 +13,7 @@ from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, Boa
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
@@ -29,13 +30,13 @@ mcp = FastMCP("tracker-boards")
 def list_(
     limit: Annotated[
         int,
-        Field(description="Max boards to return; 0 means the configured cap (default 500)."),
+        Field(description=f"Max boards to return; {LIMIT_CAP}"),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> BoardList:
     """All agile boards in the organisation, auto-paginated via the relative id-cursor and sorted
-    by ascending board id. Capped at 500 items by default unless ``limit`` is given. Use
+    by ascending board id. Capped at the configured item cap unless ``limit`` is given. Use
     ``boards_get`` when you know one board id, and ``sprints_list`` to list a board's sprints.
 
     >>> boards_list(limit=50)  # doctest: +SKIP

@@ -2,6 +2,7 @@
 
 from ycli.yandex.mcp import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
@@ -17,6 +18,7 @@ tracker_client = client_provider(TrackerClient)
 
 __all__ = [
     "DESTRUCTIVE",
+    "LIMIT_CAP",
     "RO",
     "TAGS",
     "WRITE",

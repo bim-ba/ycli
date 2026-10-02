@@ -35,7 +35,7 @@ def list_(
 ) -> SurveyList:
     """Every form (survey) the caller can see, auto-paginated over the API's offset pages.
 
-    Capped at 500 items by default unless ``limit`` is given. Each item's ``id`` is the
+    Capped at the configured item cap unless ``limit`` is given. Each item's ``id`` is the
     form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
     """
     cap = resolve_cap(limit, config.http.max_items)

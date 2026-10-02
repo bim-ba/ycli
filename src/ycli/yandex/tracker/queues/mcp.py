@@ -12,6 +12,7 @@ from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
@@ -41,14 +42,14 @@ mcp = FastMCP("tracker-queues")
 def list_(
     limit: Annotated[
         int,
-        Field(description="Max queues to return; 0 uses the configured cap (default 500)."),
+        Field(description=f"Max queues to return; {LIMIT_CAP}"),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> QueueList:
     """Every queue the caller can see, auto-paginated over the API's page/perPage pages.
 
-    Capped at 500 items by default unless ``limit`` is given. Each item's ``key`` is the
+    Capped at the configured item cap unless ``limit`` is given. Each item's ``key`` is the
     queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TEST-123). Use
     ``queues_get`` for a single queue's full configuration (types, workflows, resolutions).
 

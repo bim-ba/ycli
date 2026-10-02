@@ -29,7 +29,7 @@ def list_(
     """A page's resources — attachments AND grids — as ``{type, item}`` envelopes, auto-paginated.
 
     The unified single-pass listing over what ``attachments_list`` and ``pages_grids_list``
-    expose separately (drains ``next_cursor`` internally). Capped at 500 items by default
+    expose separately (drains ``next_cursor`` internally). Capped at the configured item cap
     unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,grid``).
 
     Example:

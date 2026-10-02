@@ -35,6 +35,9 @@ WRITE_IDEMPOTENT: dict[str, bool] = {**WRITE, "idempotentHint": True}
 DESTRUCTIVE: dict[str, bool] = {**WRITE, "destructiveHint": True}
 # Tag carried by every write tool — `ycli mcp start --read-only` disables it wholesale.
 WRITE_TAG = "write"
+# The tail of every listing tool's `limit` description. It names the setting, not its value,
+# so the text stays true when HTTPConfig.max_items or the environment changes the cap.
+LIMIT_CAP = "0 means the configured cap (YCLI__HTTP__MAX_ITEMS)."
 
 
 class AuthSource(Protocol):

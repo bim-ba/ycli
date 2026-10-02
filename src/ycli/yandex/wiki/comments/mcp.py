@@ -37,7 +37,7 @@ def list_(
 ) -> CommentList:
     """Comments on a page id, auto-paginated (drains the ``next_cursor`` internally).
 
-    Capped at 500 items by default unless ``limit`` is given. Pair with
+    Capped at the configured item cap unless ``limit`` is given. Pair with
     ``pages_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
     cap = resolve_cap(limit, config.http.max_items)
@@ -58,7 +58,7 @@ def thread_list(
 
     The Wiki ``/thread`` endpoint is dead (returns no replies), so this fetches every comment
     on the page and chains ``parent_id`` from the target: the comment comes first, then its
-    descendants in depth-first order. Capped at 500 items by default unless ``limit`` is
+    descendants in depth-first order. Capped at the configured item cap unless ``limit`` is
     given. Use ``comments_list`` first to discover a root comment id, then this to read its thread.
 
     Example:
