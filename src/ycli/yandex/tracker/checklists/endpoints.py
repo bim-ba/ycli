@@ -3,7 +3,7 @@
 The read returns a bare array of items; every write — the deletes included, which the API
 answers with ``200`` and a body — returns the issue with its updated checklist.
 
-Example:
+Examples:
     >>> clear_checklist("DE-1").effect
     'destructive'
     >>> edit_checklist_item("DE-1", "5f", {"checked": True}).path

@@ -16,10 +16,9 @@ mcp = FastMCP("tracker-applications")
     tags=TAGS,
 )
 def list_(client: TrackerClient = Depends(tracker_client)) -> ApplicationList:
-    """External applications that Tracker issues can be linked to via external links. Use this to
-    discover which application ids/types are available before creating an external link; each
-    application's id and type values are identical.
+    """External applications that Tracker issues can be linked to via external links.
 
-    >>> applications_list()  # doctest: +SKIP
+    Use this to discover which application ids/types are available before creating an external
+    link; each application's id and type values are identical.
     """
     return client.applications.list()

@@ -22,7 +22,7 @@ class FileOut(APIModel):
     ``path`` / ``url`` then reference it in a form response. ``check_status`` reports the
     antivirus/upload scan.
 
-    Example:
+    Examples:
         >>> FileOut.model_validate(
         ...     {"name": "cv.pdf", "path": "p", "size": 12, "url": "u", "check_status": "ready"}
         ... ).check_status
@@ -44,7 +44,7 @@ class FileOut(APIModel):
 class FileList(RootModel[list[FileOut]]):
     """Flat list of :class:`FileOut` — the public return of ``FilesClient.verify``.
 
-    Example:
+    Examples:
         >>> FileList.model_validate([{"name": "cv.pdf", "check_status": "ready"}]).root[0].name
         'cv.pdf'
     """
@@ -58,7 +58,7 @@ class FileIn(APIModel):
     Both fields are optional, but at least one must identify the file; ``path`` comes from the
     ``upload`` response.
 
-    Example:
+    Examples:
         >>> FileIn(path="p", url="https://…").path
         'p'
     """

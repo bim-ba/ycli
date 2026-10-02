@@ -1,6 +1,6 @@
 """Tracker ``/workflows`` operations, each declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_action("W21", "inProgress", "close", {"target": "closed"}, version=2).path
     'workflows/W21/steps/inProgress/actions/close'
     >>> delete_workflow("W21").effect

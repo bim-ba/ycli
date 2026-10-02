@@ -1,6 +1,6 @@
 """Tracker ``/applications``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_applications().path
     'applications'
 """

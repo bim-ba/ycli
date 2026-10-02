@@ -1,6 +1,6 @@
 """Forms ``/surveys/{id}/keysets`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> download_keyset("686d", 3).response_type
     <class 'bytes'>
 """

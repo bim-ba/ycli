@@ -17,30 +17,48 @@ class MacrosClient(Resource):
     def list(self, queue_id: str) -> MacroList:
         """``GET /queues/{queue_id}/macros`` → the queue's macros.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.macros.list(queue_id="TEST").root[0].name  # doctest: +SKIP
-            'My macro'
+        Args:
+            queue_id: The queue's key or numeric id.
+
+        Returns:
+            The queue's macros.
+
+        Examples:
+            >>> tracker.macros.list("TEST").root[0].name
+            'Close'
         """
         return self._session.send(endpoints.list_macros(queue_id))
 
     def get(self, queue_id: str, macro_id: int) -> Macro:
         """``GET /queues/{queue_id}/macros/{macro_id}`` → a single macro.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.macros.get(queue_id="TEST", macro_id=3).name  # doctest: +SKIP
-            'My macro'
+        Args:
+            queue_id: The queue's key or numeric id.
+            macro_id: The macro's id.
+
+        Returns:
+            The macro.
+
+        Examples:
+            >>> tracker.macros.get("OPS", 4).name
+            'Escalate'
         """
         return self._session.send(endpoints.get_macro(queue_id, macro_id))
 
     def create(self, queue_id: str, body: MacroCreate) -> Macro:
         """Create a macro from a typed ``MacroCreate`` body. Returns the created ``Macro``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.macros.create("TEST", MacroCreate(name="Test macro")).id  # doctest: +SKIP
-            3
+        Args:
+            queue_id: The queue's key or numeric id.
+            body: The new macro's name, comment text and issue update.
+
+        Returns:
+            The created macro.
+
+        Examples:
+            >>> from ycli.yandex.tracker.macros.models import MacroCreate
+            >>> tracker.macros.create("DEV", MacroCreate(name="Triage", body="Taking a look")).id
+            5
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_macro(queue_id, dumped))
@@ -50,9 +68,17 @@ class MacrosClient(Resource):
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.macros.edit("TEST", 3, MacroUpdate(name="Renamed")).name  # doctest: +SKIP
+        Args:
+            queue_id: The queue's key or numeric id.
+            macro_id: The macro's id.
+            body: The fields to change.
+
+        Returns:
+            The updated macro.
+
+        Examples:
+            >>> from ycli.yandex.tracker.macros.models import MacroUpdate
+            >>> tracker.macros.edit("QA", 6, MacroUpdate(name="Renamed")).name
             'Renamed'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -61,8 +87,11 @@ class MacrosClient(Resource):
     def delete(self, queue_id: str, macro_id: int) -> None:
         """``DELETE /queues/{queue_id}/macros/{macro_id}`` — delete a macro (``204``, empty body).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.macros.delete("TEST", 3)  # doctest: +SKIP
+        Args:
+            queue_id: The queue's key or numeric id.
+            macro_id: The macro's id.
+
+        Examples:
+            >>> tracker.macros.delete("SUP", 7)
         """
         self._session.send(endpoints.delete_macro(queue_id, macro_id))

@@ -37,14 +37,13 @@ def list_(
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> WorklogList:
-    """All time-tracking entries logged against a single Tracker issue, auto-paginated via the
-    relative id-cursor. Capped at the configured item cap unless ``limit`` is given.
+    """All time-tracking entries logged against a single Tracker issue.
+
+    Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
+    is given.
 
     Scoped to one issue by ``key``. To search worklog across the whole org (by author and/or a
     creation-time range) use ``worklog_search`` instead.
-
-    Example:
-        >>> list_(key="QUEUE-123")  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.worklog.list(key, limit=cap)
@@ -68,9 +67,6 @@ def search(
     Unlike ``worklog_list`` (one issue), this searches every issue's worklog. Pass
     ``created_by`` to scope to a user and ``created_from`` / ``created_to`` for a time window;
     all are optional.
-
-    Example:
-        >>> search(created_by="veikus", created_from="2018-06-06T00:00:00")  # doctest: +SKIP
     """
     body: dict[str, object] = {}
     if created_by:

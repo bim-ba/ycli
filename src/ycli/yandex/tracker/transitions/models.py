@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class StatusRef(APIModel):
     """The target status of a transition (the ``to`` object): its key + display name.
 
-    Example:
+    Examples:
         >>> StatusRef.model_validate({"key": "closed", "display": "Closed"}).key
         'closed'
     """
@@ -25,7 +25,7 @@ class Transition(APIModel):
     The GET list endpoint returns a top-level ``display`` field.
     The POST ``/_execute`` endpoint returns a ``to`` object with the target status.
 
-    Example:
+    Examples:
         >>> Transition.model_validate({"id": "close", "display": "Close"}).id
         'close'
         >>> t = Transition.model_validate(
@@ -43,7 +43,7 @@ class Transition(APIModel):
 class TransitionList(RootModel[list[Transition]]):
     """A bare JSON array of transitions.
 
-    Example:
+    Examples:
         >>> TransitionList.model_validate([{"id": "close"}]).root[0].id
         'close'
     """
@@ -56,7 +56,7 @@ class TransitionExecute(APIModel):
     ``extra="allow"`` lets arbitrary field key=value pairs (from the CLI's ``-F``) pass through
     unvalidated while the common fields below still document themselves in the MCP schema.
 
-    Example:
+    Examples:
         >>> TransitionExecute(resolution="fixed").model_dump(exclude_none=True)
         {'resolution': 'fixed'}
     """

@@ -1,6 +1,6 @@
 """Wiki ``/pages/{id}/attachments``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> download_attachment(7, 9).path
     'pages/7/attachments/9/download'
     >>> download_by_url("data/x/.files/d.png").params

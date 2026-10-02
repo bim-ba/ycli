@@ -19,7 +19,7 @@ class ChangeField(APIModel):
     ``from``/``to`` are polymorphic (string, object, array, or null depending on the
     field that changed) — typed ``Any`` and passed through verbatim.
 
-    Example:
+    Examples:
         >>> ChangeField.model_validate({"field": {"id": "status"}, "to": {"key": "open"}}).field
         'status'
     """
@@ -32,7 +32,7 @@ class ChangeField(APIModel):
 class ChangelogEntry(APIModel):
     """A changelog event (``/issues/{key}/changelog`` item).
 
-    Example:
+    Examples:
         >>> ChangelogEntry.model_validate(
         ...     {"id": "1", "updatedBy": {"display": "Сава"}, "fields": []}
         ... ).updated_by
@@ -49,7 +49,7 @@ class ChangelogEntry(APIModel):
 class ChangelogList(RootModel[list[ChangelogEntry]]):
     """A bare JSON array of changelog entries.
 
-    Example:
+    Examples:
         >>> ChangelogList.model_validate([{"id": "1"}]).root[0].id
         '1'
     """

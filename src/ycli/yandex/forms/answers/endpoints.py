@@ -1,6 +1,6 @@
 """Forms answers operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_answer(answer_id=7, answer_key=None).params
     {'answer_id': 7, 'answer_key': None}
     >>> export_answers("686d", {"format": "xlsx"}).effect

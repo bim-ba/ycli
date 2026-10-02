@@ -58,7 +58,7 @@ def poll[P](
     Raises:
         YandexTimeoutError: ``attempts`` fetches elapsed without ``is_done`` becoming true.
 
-    Example:
+    Examples:
         >>> statuses = iter([{"done": False}, {"done": True}])
         >>> poll(
         ...     lambda: next(statuses),

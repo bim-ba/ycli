@@ -32,7 +32,7 @@ class GapWorkflow(enum.StrEnum):
 class GapUser(APIModel):
     """The user an absence belongs to, as a full directory record.
 
-    Example:
+    Examples:
         >>> GapUser.model_validate({"login": "ann", "uid": 1, "sources": ["directory"]}).login
         'ann'
     """
@@ -69,7 +69,7 @@ class GapUser(APIModel):
 class Gap(APIModel):
     """One absence. ``user`` is filled on create replies and absent inside search results.
 
-    Example:
+    Examples:
         >>> Gap.model_validate(
         ...     {"id": "g1", "workflow": "trip", "from": "2026-07-10T00:00:00.000+0000"}
         ... ).date_from
@@ -96,7 +96,7 @@ class Gap(APIModel):
 class GapCreated(APIModel):
     """The reply to ``gaps.create``: the absences actually saved (outdated ones are left out).
 
-    Example:
+    Examples:
         >>> GapCreated.model_validate({"gaps": [{"id": "g1"}]}).gaps[0].id
         'g1'
     """
@@ -107,7 +107,7 @@ class GapCreated(APIModel):
 class UserGaps(APIModel):
     """One requested user with their absences in the window (empty when they have none).
 
-    Example:
+    Examples:
         >>> UserGaps.model_validate({"user": {"login": "ann"}, "gaps": []}).user.login
         'ann'
     """
@@ -119,7 +119,7 @@ class UserGaps(APIModel):
 class UserGapList(RootModel[list[UserGaps]]):
     """The users of a search with their absences, every page joined.
 
-    Example:
+    Examples:
         >>> UserGapList.model_validate([{"gaps": [{"id": "g1"}]}]).root[0].gaps[0].id
         'g1'
     """
@@ -128,7 +128,7 @@ class UserGapList(RootModel[list[UserGaps]]):
 class GapSearchPage(APIModel):
     """One page of ``POST /gaps/_search``: users with absences and the more-pages flag.
 
-    Example:
+    Examples:
         >>> GapSearchPage.model_validate({"userGaps": [], "hasMore": False}).has_more
         False
     """
@@ -146,7 +146,7 @@ class GapSearchPage(APIModel):
 class GapInput(APIModel):
     """One absence to create.
 
-    Example:
+    Examples:
         >>> GapInput(
         ...     user="ann", workflow="trip", date_from="2026-07-10", date_to="2026-07-20"
         ... ).model_dump(by_alias=True, exclude_none=True, mode="json")
@@ -187,7 +187,7 @@ class GapInput(APIModel):
 class GapsCreate(APIModel):
     """Typed request body for ``gaps.create`` (``POST /gaps``): up to 100 absences.
 
-    Example:
+    Examples:
         >>> body = GapsCreate(
         ...     gaps=[
         ...         GapInput(

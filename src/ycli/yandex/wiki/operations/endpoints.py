@@ -1,6 +1,6 @@
 """Wiki ``/operations`` status reads, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_clone_status("task-1").path
     'operations/clone/task-1'
 """

@@ -73,9 +73,6 @@ def get(
     ``pages_grids_list``. Use ``filter``/``only_cols``/``only_rows``/``sort`` to narrow large
     grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. The returned
     ``revision`` is the optimistic-lock token any subsequent write (via the CLI/SDK) must echo.
-
-    Example:
-        >>> grids_get(grid_id="g-uuid", only_cols="name,owner")  # doctest: +SKIP
     """
     return client.grids.get(
         grid_id,
@@ -100,9 +97,6 @@ def create(
     A new grid has no rows or columns — add them afterwards with ``grids_columns_add`` and
     ``grids_rows_add``. Returns the created grid; its ``revision`` seeds the optimistic lock
     every subsequent write must echo.
-
-    Example:
-        >>> create(body={"title": "Roadmap", "page": {"slug": "data/x"}})  # doctest: +SKIP
     """
     return client.grids.create(body=body.model_dump(exclude_none=True))
 
@@ -127,9 +121,6 @@ def update(
 
     ``body.revision`` must match the grid's current revision (read it off ``grids_get``);
     a mismatch fails the write. Returns the grid's new ``revision``.
-
-    Example:
-        >>> update(grid_id="g-uuid", body={"revision": "3", "title": "New"})  # doctest: +SKIP
     """
     return client.grids.update(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -145,9 +136,6 @@ def delete(
 
     Verify the target with ``grids_get`` first. The API answers ``204 No Content``; the
     result is a typed acknowledgement.
-
-    Example:
-        >>> delete(grid_id="g-uuid")  # doctest: +SKIP
     """
     return client.grids.delete(grid_id)
 
@@ -170,11 +158,6 @@ def add_rows(
 
     Column slugs come from ``grids_get``'s structure block. Returns the created rows plus
     the grid's new ``revision``.
-
-    Example:
-        >>> add_rows(
-        ...     grid_id="g-uuid", body={"revision": "3", "rows": [{"name": "x"}]}
-        ... )  # doctest: +SKIP
     """
     return client.grids.add_rows(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -196,11 +179,6 @@ def remove_rows(
 
     A rare DELETE-with-body: ids and revision travel in the JSON body. Find row ids with
     ``grids_get``. Returns the grid's new ``revision``.
-
-    Example:
-        >>> remove_rows(
-        ...     grid_id="g-uuid", body={"revision": "3", "row_ids": ["r1"]}
-        ... )  # doctest: +SKIP
     """
     return client.grids.remove_rows(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -222,11 +200,6 @@ def move_rows(
     """Reorder rows inside a grid (move a run of consecutive rows to a new position).
 
     Returns the grid's new ``revision``.
-
-    Example:
-        >>> move_rows(
-        ...     grid_id="g-uuid", body={"revision": "3", "row_id": "r1", "position": 0}
-        ... )  # doctest: +SKIP
     """
     return client.grids.move_rows(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -252,12 +225,6 @@ def add_columns(
     Each column needs a ``title`` and a ``type`` (``string``, ``number``, ``select``,
     ``staff``, ``date``, ``checkbox``, ``ticket_field``, …); type-specific fields such as
     ``select_options`` shape it further. Returns the grid's new ``revision``.
-
-    Example:
-        >>> add_columns(
-        ...     grid_id="g-uuid",
-        ...     body={"revision": "3", "columns": [{"title": "C", "type": "string"}]},
-        ... )  # doctest: +SKIP
     """
     return client.grids.add_columns(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -279,11 +246,6 @@ def remove_columns(
 
     A rare DELETE-with-body: slugs and revision travel in the JSON body. Returns the grid's
     new ``revision``.
-
-    Example:
-        >>> remove_columns(
-        ...     grid_id="g-uuid", body={"revision": "3", "column_slugs": ["name"]}
-        ... )  # doctest: +SKIP
     """
     return client.grids.remove_columns(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -307,11 +269,6 @@ def move_columns(
     """Reorder columns inside a grid (move a run of consecutive columns to a new position).
 
     Returns the grid's new ``revision``.
-
-    Example:
-        >>> move_columns(
-        ...     grid_id="g-uuid", body={"revision": "3", "column_slug": "name", "position": 0}
-        ... )  # doctest: +SKIP
     """
     return client.grids.move_columns(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -336,15 +293,6 @@ def update_cells(
 
     Repeating the same call sets the same values (idempotent). Returns the updated cells
     plus the grid's new ``revision``.
-
-    Example:
-        >>> update_cells(
-        ...     grid_id="g-uuid",
-        ...     body={
-        ...         "revision": "3",
-        ...         "cells": [{"row_id": 1, "column_slug": "name", "value": "x"}],
-        ...     },
-        ... )  # doctest: +SKIP
     """
     return client.grids.update_cells(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -366,9 +314,6 @@ def clone(
     ``body.with_data=true`` copies the rows as well as the structure. Returns a deferred
     operation reference — poll ``operations_gridclone_get`` with the returned
     ``operation.id`` until it reaches a terminal status.
-
-    Example:
-        >>> clone(grid_id="g-uuid", body={"target": "data/y"})  # doctest: +SKIP
     """
     return client.grids.clone(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -390,9 +335,6 @@ def suggest_column(
 
     The call is a POST but changes nothing. Yandex does not document this operation (it is in
     the live OpenAPI only) and may change it.
-
-    Example:
-        >>> suggest_column(grid_id="g-uuid", body={"title": "Owner"})  # doctest: +SKIP
     """
     return client.grids.suggest_column(grid_id, body=body.model_dump(exclude_none=True))
 
@@ -420,11 +362,6 @@ def update_column(
     enforced, and every call moves the grid's revision on. Returns the grid's new ``revision`` and
     the column as saved. Yandex does not document this operation (it is in the
     live OpenAPI only) and may change it.
-
-    Example:
-        >>> update_column(
-        ...     grid_id="g-uuid", column_slug="owner", body={"revision": "3", "title": "Lead"}
-        ... )  # doctest: +SKIP
     """
     return client.grids.update_column(grid_id, column_slug, body=body.model_dump(exclude_none=True))
 
@@ -449,10 +386,5 @@ def update_row(
     without the new revision (read it with ``grids_get``); ``revision`` is accepted but not
     enforced. Yandex does not document this operation (it is in the live OpenAPI only) and may
     change it.
-
-    Example:
-        >>> update_row(
-        ...     grid_id="g-uuid", row_id="7", body={"revision": "3", "pinned": True}
-        ... )  # doctest: +SKIP
     """
     return client.grids.update_row(grid_id, row_id, body=body.model_dump(exclude_none=True))

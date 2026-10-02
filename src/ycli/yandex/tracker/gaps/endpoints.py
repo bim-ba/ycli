@@ -1,6 +1,6 @@
 """Tracker ``/gaps`` operations (employee absences; admin-only), each declared once (sans-IO).
 
-Example:
+Examples:
     >>> delete_gaps(["g1", "g2"]).params
     {'gapIds': 'g1,g2'}
     >>> search_gaps({"users": ["ann"]}).endpoint.effect

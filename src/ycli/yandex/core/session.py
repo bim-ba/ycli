@@ -16,12 +16,18 @@ and :class:`AsyncSession` differ only in ``await``. Both:
 - walk a paginated listing up to ``limit`` items, warn when items are left behind, and stop on an
   empty page or after ``max_pages`` so a misbehaving cursor cannot loop forever.
 
-Example:
+Examples:
+    >>> from pydantic import SecretStr
+    >>> from ycli.yandex.core.auth import OAuthTokenAuth
+    >>> from ycli.yandex.core.endpoint import Endpoint
+    >>> from ycli.yandex.tracker.client import TrackerClient
+    >>> from ycli.yandex.tracker.me.models import Me
     >>> session = connect(
-    ...     TRACKER, auth=OAuthTokenAuth(token), organization_id="1"
-    ... )  # doctest: +SKIP
-    >>> session.send(Endpoint("GET", "myself", Me)).login  # doctest: +SKIP
+    ...     TrackerClient.profile, auth=OAuthTokenAuth(SecretStr("token")), organization_id="1"
+    ... )
+    >>> session.send(Endpoint("GET", "myself", Me)).login
     'alice'
+    >>> session.close()
 """
 
 from __future__ import annotations
@@ -111,7 +117,7 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
 
 
 def _retry_policy(idempotent: bool) -> Callable[[Exception], bool | float]:
-    """stamina's ``on`` hook: whether (and after how many seconds) to retry ``exception``."""
+    """Stamina's ``on`` hook: whether (and after how many seconds) to retry ``exception``."""
 
     def decide(exception: Exception) -> bool | float:
         if isinstance(exception, YandexRateLimitError):
@@ -220,6 +226,7 @@ class SyncSession:
         logger.warning("stopped after %d pages; the listing did not end", max_pages)
 
     def close(self) -> None:
+        """Close the underlying ``httpx2.Client``."""
         self._client.close()
 
 
@@ -289,6 +296,7 @@ class AsyncSession:
         logger.warning("stopped after %d pages; the listing did not end", max_pages)
 
     async def aclose(self) -> None:
+        """Close the underlying ``httpx2.AsyncClient``."""
         await self._client.aclose()
 
 

@@ -25,9 +25,11 @@ class IssueTypesClient(Resource):
     def list(self) -> IssueTypeList:
         """``GET /issuetypes`` → issue-type listing.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issuetypes.list().root[0].key  # doctest: +SKIP
+        Returns:
+            The issue types.
+
+        Examples:
+            >>> tracker.issuetypes.list().root[0].key
             'bug'
         """
         return self._session.send(endpoints.list_issue_types())
@@ -35,11 +37,17 @@ class IssueTypesClient(Resource):
     def create(self, body: IssueTypeCreate) -> IssueType:
         """Create an issue type from a typed ``IssueTypeCreate`` body. Returns the ``IssueType``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issuetypes.create(
-            ...     IssueTypeCreate(key="client", name=LocalizedName(ru="Клиент"))
-            ... ).key  # doctest: +SKIP
+        Args:
+            body: The new issue type's key and localized name.
+
+        Returns:
+            The created issue type.
+
+        Examples:
+            >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeCreate, LocalizedName
+            >>> tracker.issuetypes.create(
+            ...     IssueTypeCreate(key="client", name=LocalizedName(ru="Клиент", en="Client"))
+            ... ).key
             'client'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -53,11 +61,21 @@ class IssueTypesClient(Resource):
         ``version`` is the current issue-type version; when set it is sent as ``?version=`` for
         optimistic locking (the API rejects a stale version with 409).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.issuetypes.edit(
-            ...     "23", IssueTypeUpdate(name=LocalizedName(ru="Покупатель")), version=1
-            ... ).key  # doctest: +SKIP
+        Args:
+            issue_type_id: The issue type's id.
+            body: The fields to change.
+            version: The current issue-type version, sent as ``?version=``; ``None`` sends none.
+
+        Returns:
+            The updated issue type.
+
+        Examples:
+            >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeUpdate, LocalizedName
+            >>> tracker.issuetypes.edit(
+            ...     "23",
+            ...     IssueTypeUpdate(name=LocalizedName(ru="Покупатель", en="Buyer")),
+            ...     version=2,
+            ... ).key
             'client'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)

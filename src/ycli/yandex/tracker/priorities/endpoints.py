@@ -1,6 +1,6 @@
 """Tracker ``/priorities`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_priority("one", {"description": "x"}, version=1).params
     {'version': 1}
 """

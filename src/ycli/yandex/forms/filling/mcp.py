@@ -41,10 +41,6 @@ def get(
     polymorphic question schema) and their ``id`` values are the slug keys a response is posted
     under. Complements ``surveys_get`` (admin settings) and ``questions_list`` (authoring view).
     Post a response with ``filling_submit``.
-
-    >>> await client.call_tool(
-    ...     "filling_get", {"survey": "686d0a1b2c3d4e5f00000001"}
-    ... )  # doctest: +SKIP
     """
     result = client.filling.get(survey, key=key)
     # A 404 / empty body deserializes into an all-None FillableForm (lenient model) rather than

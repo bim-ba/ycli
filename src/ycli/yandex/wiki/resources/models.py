@@ -17,7 +17,7 @@ class ResourceItem(APIModel):
     listing without loss. This is the unified surface over the separate attachments/grids
     listings — use it to enumerate everything on a page in one pass.
 
-    Example:
+    Examples:
         >>> ResourceItem.model_validate({"type": "attachment", "item": {"name": "d.png"}}).type
         'attachment'
     """
@@ -36,7 +36,7 @@ class ResourcesResponse(APIModel):
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 
-    Example:
+    Examples:
         >>> r = ResourcesResponse.model_validate({"results": [{"type": "grid", "item": {}}]})
         >>> r.results[0].type
         'grid'
@@ -56,7 +56,7 @@ class ResourceItemList(RootModel[list[ResourceItem]]):
 
     Public return type of ``ResourcesClient.list``.
 
-    Example:
+    Examples:
         >>> ResourceItemList([ResourceItem(type="grid", item={})]).root[0].type
         'grid'
     """

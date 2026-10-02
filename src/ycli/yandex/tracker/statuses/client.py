@@ -20,9 +20,11 @@ class StatusesClient(Resource):
     def list(self) -> StatusList:
         """``GET /statuses`` → status listing.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.statuses.list().root[0].key  # doctest: +SKIP
+        Returns:
+            The statuses.
+
+        Examples:
+            >>> tracker.statuses.list().root[0].key
             'open'
         """
         return self._session.send(endpoints.list_statuses())
@@ -30,11 +32,19 @@ class StatusesClient(Resource):
     def create(self, body: StatusCreate) -> Status:
         """Create an issue status from a typed ``StatusCreate`` body. Returns the new ``Status``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.statuses.create(
-            ...     StatusCreate(key="pause", name=LocalizedName(ru="Пауза"), type="paused")
-            ... ).key  # doctest: +SKIP
+        Args:
+            body: The new status's key, localized name and type.
+
+        Returns:
+            The created status.
+
+        Examples:
+            >>> from ycli.yandex.tracker.statuses.models import LocalizedName, StatusCreate
+            >>> tracker.statuses.create(
+            ...     StatusCreate(
+            ...         key="pause", name=LocalizedName(ru="Пауза", en="Paused"), type="paused"
+            ...     )
+            ... ).key
             'pause'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -46,12 +56,20 @@ class StatusesClient(Resource):
         ``version`` is the current status version; when set it is sent as ``?version=`` for
         optimistic locking (the API rejects a stale version with 409).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.statuses.edit(
-            ...     "29", StatusUpdate(description="Issue is paused"), version=1
-            ... ).id  # doctest: +SKIP
-            29
+        Args:
+            status_id: The status's key or id.
+            body: The fields to change.
+            version: The current status version, sent as ``?version=``; ``None`` sends none.
+
+        Returns:
+            The updated status.
+
+        Examples:
+            >>> from ycli.yandex.tracker.statuses.models import StatusUpdate
+            >>> tracker.statuses.edit(
+            ...     "29", StatusUpdate(description="Issue is paused"), version=5
+            ... ).version
+            6
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.edit_status(status_id, dumped, version=version))

@@ -1,6 +1,6 @@
 """Forms ``/surveys/{id}/questions`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> delete_question("686d", "17", force=True).params
     {'force': 'true'}
 """

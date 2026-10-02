@@ -28,10 +28,16 @@ class AttachmentsClient(Resource):
 
         Capped at ``limit`` (``None`` = every attachment).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.list(12345, limit=50).root[0].name  # doctest: +SKIP
-            'diagram.png'
+        Args:
+            page_id: The page's id.
+            limit: The most attachments to return; ``None`` returns every attachment.
+
+        Returns:
+            The page's attachments.
+
+        Examples:
+            >>> [file.name for file in wiki.attachments.list(5601, limit=20).root]
+            ['spec.pdf', 'logo.png']
         """
         paged = endpoints.list_attachments(page_id)
         return AttachmentList(list(self._session.iterate(paged, limit=limit)))
@@ -42,26 +48,37 @@ class AttachmentsClient(Resource):
         Undocumented by Yandex (live OpenAPI only), may change. The same descriptor ``attach``
         returns: name, size, MIME type, download URL, preview flag and virus-check status.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.get(12345, 678).mimetype  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            file_id: The attachment's id.
+
+        Returns:
+            The attachment's metadata.
+
+        Examples:
+            >>> wiki.attachments.get(5607, 5621).mimetype
             'image/png'
         """
         return self._session.send(endpoints.get_attachment(page_id, file_id))
 
     def preview(self, page_id: int, file_id: int) -> bytes:
-        """``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
+        r"""``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
 
         Undocumented by Yandex (live OpenAPI only), may change. The bytes are returned as sent.
         For a file with no preview (``has_preview`` is false: not an image, say) the API sends
         ``200 image/png`` with the *base64 text* of a 1-pixel PNG instead of the PNG itself.
         Binary payload — SDK/CLI only.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> Path("preview.png").write_bytes(
-            ...     client.attachments.preview(12345, 678)
-            ... )  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            file_id: The attachment's id.
+
+        Returns:
+            The preview image's bytes.
+
+        Examples:
+            >>> wiki.attachments.preview(5608, 5622)
+            b'\x89PNG preview bytes'
         """
         return self._session.send(endpoints.preview_attachment(page_id, file_id))
 
@@ -70,11 +87,16 @@ class AttachmentsClient(Resource):
 
         Binary payload — SDK/CLI only (never MCP: base64 blobs are not an agent payload).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> Path("diagram.png").write_bytes(
-            ...     client.attachments.download(12345, 678)
-            ... )  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            file_id: The attachment's id.
+
+        Returns:
+            The file's bytes.
+
+        Examples:
+            >>> wiki.attachments.download(5603, 5613)
+            b'%PDF-1.7 spec'
         """
         return self._session.send(endpoints.download_attachment(page_id, file_id))
 
@@ -84,10 +106,15 @@ class AttachmentsClient(Resource):
         Addresses a file by the ``<page-slug>/.files/<filename>`` URL instead of its numeric
         id; follows page redirects server-side. Binary payload — SDK/CLI only.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.download_by_url("data/x/.files/diagram.png")  # doctest: +SKIP
-            b'\\x89PNG...'
+        Args:
+            url: The file's ``<page-slug>/.files/<filename>`` URL.
+
+        Returns:
+            The file's bytes.
+
+        Examples:
+            >>> wiki.attachments.download_by_url("eng/specs/.files/spec.pdf")
+            b'%PDF-1.7 by url'
         """
         return self._session.send(endpoints.download_by_url(url))
 
@@ -96,9 +123,12 @@ class AttachmentsClient(Resource):
 
         Returns ``None`` on success; raises a typed ``YandexError`` on any non-2xx.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.delete(12345, 678)  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            file_id: The attachment's id.
+
+        Examples:
+            >>> wiki.attachments.delete(5604, 5614)
         """
         self._session.send(endpoints.delete_attachment(page_id, file_id))
 
@@ -108,10 +138,16 @@ class AttachmentsClient(Resource):
         ``session_ids`` are the ``session_id`` of each finished upload session (see
         :class:`UploadSessionsClient`). Returns the flat list of newly-attached files.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.attach(12345, ["1e5c…"]).root[0].name  # doctest: +SKIP
-            'diagram.png'
+        Args:
+            page_id: The page's id.
+            session_ids: The ids of the finished upload sessions to attach.
+
+        Returns:
+            The newly-attached files.
+
+        Examples:
+            >>> wiki.attachments.attach(5605, ["s-5605-a", "s-5605-b"]).root[1].name
+            'b.png'
         """
         body = AttachmentCreate(upload_sessions=list(session_ids))
         payload = body.model_dump(by_alias=True, exclude_none=True)
@@ -134,12 +170,20 @@ class AttachmentsClient(Resource):
         go up as one ``part_number=1`` part (chunk large files with ``upload_part`` directly).
         Returns the flat list of newly-attached files.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.upload(
-            ...     client.uploadsessions, 12345, file_name="d.png", data=b"\\x89PNG…"
-            ... ).root[0].name  # doctest: +SKIP
-            'd.png'
+        Args:
+            sessions: The upload-sessions client that opens, fills and finishes the session.
+            page_id: The page's id.
+            file_name: The name the attachment gets.
+            data: The file's bytes.
+
+        Returns:
+            The newly-attached files.
+
+        Examples:
+            >>> wiki.attachments.upload(
+            ...     wiki.uploadsessions, 5606, file_name="diagram.txt", data=b"hello"
+            ... ).root[0].name
+            'diagram.txt'
         """
         session = sessions.create(UploadSessionCreate(file_name=file_name, file_size=len(data)))
         session_id = session.session_id or ""

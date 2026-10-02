@@ -1,6 +1,6 @@
 """Tracker ``/queues`` and ``/versions`` operations, each declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_queue("TEST", expand="all").params
     {'expand': 'all'}
     >>> remove_tag("TEST", {"tag": "old"}).effect

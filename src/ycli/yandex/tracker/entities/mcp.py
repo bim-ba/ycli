@@ -81,9 +81,6 @@ def get(
     key results, ``checklistItems`` for a project/portfolio checklist, ``metricItems`` for its
     metric widgets, or ``summary,description,entityStatus`` for the basics. Use
     ``entities_search`` to discover ids first.
-
-    Example:
-        >>> entities_get("project", "655f", fields="summary,entityStatus")  # doctest: +SKIP
     """
     return client.entities.get(entity_type, entity_id, expand=expand or None, fields=fields or None)
 
@@ -102,9 +99,6 @@ def search(
     ``order_by`` (e.g. ``entityStatus``) to sort. For richer filtering (by author, status,
     followers, …) use the CLI ``tracker entities search --filter`` which accepts an arbitrary
     filter object.
-
-    Example:
-        >>> entities_search("goal", input_text="Q4", order_by="entityStatus")  # doctest: +SKIP
     """
     body: dict[str, str] = {}
     if input_text:
@@ -130,9 +124,6 @@ def events_list(
 
     Each event carries an author, a timestamp, a display title and the individual field changes.
     Capped at the configured item cap unless ``limit`` is given.
-
-    Example:
-        >>> entities_events_list("project", "655f", limit=50)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.entities.history(entity_type, entity_id, limit=cap)
@@ -151,9 +142,6 @@ def permissions_get(
     ``acl`` lists the users, groups and roles granted each level; ``permissionSources`` names the
     parent entities this one inherits permissions from. Change them with
     ``entities_set_permissions``.
-
-    Example:
-        >>> entities_permissions_get("project", "655f")  # doctest: +SKIP
     """
     return client.entities.permissions(entity_type, entity_id)
 
@@ -170,9 +158,6 @@ def direct_permissions_get(
 
     Unlike ``entities_permissions_get`` this leaves out inheritance (``permissionSources``).
     Change the rights with ``entities_set_direct_permissions``.
-
-    Example:
-        >>> entities_direct_permissions_get("project", "655f")  # doctest: +SKIP
     """
     return client.entities.direct_permissions(entity_type, entity_id)
 
@@ -185,11 +170,7 @@ def direct_permissions_get(
 def comments_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
 ) -> CommentList:
-    """All comments on an entity — author, text, timestamps and summoned users.
-
-    Example:
-        >>> entities_comments_list("project", "655f")  # doctest: +SKIP
-    """
+    """All comments on an entity — author, text, timestamps and summoned users."""
     return client.entities.comments_list(entity_type, entity_id)
 
 
@@ -204,11 +185,7 @@ def comments_get(
     comment_id: Annotated[str, Field(description="Comment id (numeric id or longId).")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
-    """A single comment on an entity by id.
-
-    Example:
-        >>> entities_comments_get("project", "655f", "22")  # doctest: +SKIP
-    """
+    """A single comment on an entity by id."""
     return client.entities.comments_get(entity_type, entity_id, comment_id)
 
 
@@ -218,11 +195,7 @@ def comments_get(
 def links_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
 ) -> LinkList:
-    """An entity's links to other entities — the link type and the linked entity's summary + id.
-
-    Example:
-        >>> entities_links_list("project", "655f")  # doctest: +SKIP
-    """
+    """An entity's links to other entities — the link type and the linked entity's summary + id."""
     return client.entities.links_list(entity_type, entity_id)
 
 
@@ -239,9 +212,6 @@ def attachments_list(
     Returns metadata only. Downloading the raw bytes is CLI/SDK-only — run
     ``ycli tracker entities attachments download <FILE_ID> <FILENAME>`` — because binary blobs
     are not an MCP payload.
-
-    Example:
-        >>> entities_attachments_list("project", "655f")  # doctest: +SKIP
     """
     return client.entities.attachments_list(entity_type, entity_id)
 
@@ -260,9 +230,6 @@ def attachments_get(
     """One attachment's metadata (name, size, MIME type, download URL).
 
     Downloading the raw bytes is CLI/SDK-only (``tracker entities attachments download``).
-
-    Example:
-        >>> entities_attachments_get("project", "655f", "5")  # doctest: +SKIP
     """
     return client.entities.attachments_get(entity_type, entity_id, file_id)
 
@@ -404,11 +371,6 @@ def set_direct_permissions(
     ``grant`` and ``revoke`` each map READ / WRITE / GRANT to ``users`` (logins or ids),
     ``groups`` (ids) and ``roles`` (AUTHOR, OWNER, CLIENT, FOLLOWER, MEMBER). Returns the
     resulting rights. Read them first with ``entities_direct_permissions_get``.
-
-    Example:
-        >>> entities_set_direct_permissions(
-        ...     "project", "655f", {"grant": {"READ": {"users": ["ann"]}}}
-        ... )  # doctest: +SKIP
     """
     return client.entities.set_direct_permissions(entity_type, entity_id, body)
 

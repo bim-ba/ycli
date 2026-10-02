@@ -15,7 +15,7 @@ the workspace.
 A name here must exist in the full server; ``tests/test_mcp_selection.py`` keeps that true and
 keeps the count between 30 and 50.
 
-Example:
+Examples:
     >>> "tracker_issues_get" in CORE_TOOLS and "tracker_queues_delete" not in CORE_TOOLS
     True
 """

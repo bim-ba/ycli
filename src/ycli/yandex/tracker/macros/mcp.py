@@ -35,9 +35,6 @@ def list_(
 
     Each item's ``id`` is what you pass to ``macros_get`` for the full body and issueUpdate
     rows.
-
-    Example:
-        >>> macros_list("TEST")  # doctest: +SKIP
     """
     return client.macros.list(queue_id)
 
@@ -54,9 +51,6 @@ def get(
 
     Sibling ``macros_list`` enumerates every macro in the queue; pass one of its ``id`` values
     here.
-
-    Example:
-        >>> macros_get("TEST", 3)  # doctest: +SKIP
     """
     return client.macros.get(queue_id, macro_id)
 

@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class Group(APIModel):
     """A group a user belongs to (present only when ``expand=groups`` was requested).
 
-    Example:
+    Examples:
         >>> Group.model_validate({"id": "5", "display": "Developers"}).display
         'Developers'
     """
@@ -27,7 +27,7 @@ class Group(APIModel):
 class User(APIModel):
     """An organisation user account (``/users/{login_or_id}`` and ``/users/_relative`` item).
 
-    Example:
+    Examples:
         >>> User.model_validate({"uid": 12, "login": "username", "display": "Ivan Ivanov"}).login
         'username'
     """
@@ -112,7 +112,7 @@ class User(APIModel):
 class UserList(RootModel[list[User]]):
     """A bare JSON array of users — the flat public shape of ``users.list()``.
 
-    Example:
+    Examples:
         >>> UserList.model_validate([{"login": "username"}]).root[0].login
         'username'
     """
@@ -121,7 +121,7 @@ class UserList(RootModel[list[User]]):
 class UsersRelativeResponse(APIModel):
     """Internal envelope of one ``/users/_relative`` page (``{users, hasNext}``).
 
-    Example:
+    Examples:
         >>> UsersRelativeResponse.model_validate({"users": [{"uid": 1}], "hasNext": True}).has_next
         True
     """

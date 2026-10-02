@@ -13,7 +13,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class RemoteLinkType(APIModel):
     """The ``type`` sub-object of a remote link — the link-type and its directional names.
 
-    Example:
+    Examples:
         >>> RemoteLinkType.model_validate({"id": "relates", "outward": "Relates"}).id
         'relates'
     """
@@ -28,7 +28,7 @@ class RemoteLinkType(APIModel):
 class RemoteApplication(APIModel):
     """The ``application`` sub-object — the external app the linked object belongs to.
 
-    Example:
+    Examples:
         >>> RemoteApplication.model_validate({"id": "1", "name": "test-app"}).name
         'test-app'
     """
@@ -41,7 +41,7 @@ class RemoteApplication(APIModel):
 class RemoteObject(APIModel):
     """The ``object`` sub-object — the linked object inside the external application.
 
-    Example:
+    Examples:
         >>> RemoteObject.model_validate({"key": "TEST-17"}).key
         'TEST-17'
     """
@@ -56,7 +56,7 @@ class RemoteObject(APIModel):
 class RemoteLink(APIModel):
     """A link between a Tracker issue and an external-application object (``/remotelinks`` item).
 
-    Example:
+    Examples:
         >>> RemoteLink.model_validate(
         ...     {"id": 51, "type": {"id": "relates"}, "object": {"key": "TEST-17"}}
         ... ).object_key
@@ -98,7 +98,7 @@ class RemoteLink(APIModel):
 class RemoteLinkList(RootModel[list[RemoteLink]]):
     """A bare JSON array of remote links — public return type of ``RemoteLinksClient.list``.
 
-    Example:
+    Examples:
         >>> RemoteLinkList.model_validate([{"direction": "outward"}]).root[0].direction
         'outward'
     """
@@ -107,7 +107,7 @@ class RemoteLinkList(RootModel[list[RemoteLink]]):
 class RemoteLinkCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/remotelinks`` (add an external link).
 
-    Example:
+    Examples:
         >>> RemoteLinkCreate(key="TEST-17", origin="ru.yandex.bitbucket").model_dump(
         ...     exclude_none=True
         ... )

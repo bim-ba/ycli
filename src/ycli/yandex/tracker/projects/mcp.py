@@ -33,11 +33,9 @@ Expand = Annotated[str | None, Field(description="Extra blocks to include, e.g. 
 
 @mcp.tool(name="projects_list", annotations={**RO, "title": "List Tracker projects"}, tags=TAGS)
 def list_(expand: Expand = None, client: TrackerClient = Depends(tracker_client)) -> ProjectList:
-    """Every project of the organization (the legacy Projects API; ``entities_search`` is the
-    newer way to find projects and portfolios).
+    """Every project of the organization (the legacy Projects API).
 
-    Example:
-        >>> projects_list(expand="queues")  # doctest: +SKIP
+    ``entities_search`` is the newer way to find projects and portfolios.
     """
     return client.projects.list(expand=expand)
 
@@ -46,11 +44,7 @@ def list_(expand: Expand = None, client: TrackerClient = Depends(tracker_client)
 def get(
     project_id: ProjectId, expand: Expand = None, client: TrackerClient = Depends(tracker_client)
 ) -> Project:
-    """One project: name, lead, stage, dates and ``version`` (needed to edit it).
-
-    Example:
-        >>> projects_get(1)  # doctest: +SKIP
-    """
+    """One project: name, lead, stage, dates and ``version`` (needed to edit it)."""
     return client.projects.get(project_id, expand=expand)
 
 
@@ -67,11 +61,7 @@ def queues(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueList:
-    """The queues whose issues belong to a project.
-
-    Example:
-        >>> projects_queues(1)  # doctest: +SKIP
-    """
+    """The queues whose issues belong to a project."""
     return client.projects.queues(project_id, expand=expand)
 
 
@@ -81,8 +71,10 @@ def queues(
     tags=WRITE_TAGS,
 )
 def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client)) -> Project:
-    """Create a project (legacy Projects API); ``name`` and ``queues`` (a queue key) are
-    required, ``status`` is DRAFT, IN_PROGRESS, LAUNCHED or POSTPONED. Returns the project.
+    """Create a project (legacy Projects API).
+
+    ``name`` and ``queues`` (a queue key) are required, ``status`` is DRAFT, IN_PROGRESS,
+    LAUNCHED or POSTPONED. Returns the project.
     """
     return client.projects.create(body)
 

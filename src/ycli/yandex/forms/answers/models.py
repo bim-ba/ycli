@@ -12,7 +12,7 @@ from ycli.yandex.models import APIModel
 class Column(APIModel):
     """An answers-table column descriptor (``…/answers`` → ``columns[]``).
 
-    Example:
+    Examples:
         >>> Column.model_validate({"id": 1, "slug": "s", "type": "string", "text": "T"}).text
         'T'
     """
@@ -31,7 +31,7 @@ class Answer(APIModel):
     ``{"value": …}`` dict or ``null``. Passed through verbatim as ``Any``
     (``value`` is a ``str`` or ``list[str]``).
 
-    Example:
+    Examples:
         >>> Answer.model_validate({"id": 9, "created": "2026-01-01", "data": [{"value": "x"}]}).data
         [{'value': 'x'}]
     """
@@ -44,7 +44,7 @@ class Answer(APIModel):
 class AnswerSurveyRef(APIModel):
     """The form a single answer belongs to (``GET /answers`` → ``survey``).
 
-    Example:
+    Examples:
         >>> AnswerSurveyRef.model_validate({"id": "686d0a1b", "name": "Feedback"}).name
         'Feedback'
     """
@@ -61,7 +61,7 @@ class AnswerDetails(APIModel):
     through verbatim, as ``value`` ranges over eight shapes. ``quiz`` (test results) is
     also passed through verbatim when present.
 
-    Example:
+    Examples:
         >>> AnswerDetails.model_validate(
         ...     {"id": 9, "created": "2026-01-01", "survey": {"id": "686d", "name": "F"}}
         ... ).survey.id
@@ -86,7 +86,7 @@ class AnswersResponse(APIModel):
     ``next`` is ``{"next_url": …}`` or ``null`` (a pagination cursor), passed
     through as ``Any``.
 
-    Example:
+    Examples:
         >>> AnswersResponse.model_validate({"columns": [], "answers": [], "next": None}).answers
         []
     """
@@ -107,7 +107,7 @@ class AnswerExport(APIModel):
     ``default``. Unset (``None``) fields are dropped before the request is sent, so a bare
     ``AnswerExport()`` exports every answer of the form in ``xlsx``.
 
-    Example:
+    Examples:
         >>> AnswerExport(format="csv", limit=100).model_dump(exclude_none=True)
         {'format': 'csv', 'limit': 100}
     """
@@ -146,7 +146,7 @@ class ExportResult(APIModel):
     :attr:`is_ready` (``ok``) means the file can be downloaded. The same shape is exposed
     generically by :class:`~ycli.yandex.forms.operations.models.OperationResult`.
 
-    Example:
+    Examples:
         >>> ExportResult.model_validate({"id": "op-1", "status": "ok"}).is_ready
         True
     """
@@ -179,7 +179,7 @@ class AnswerIntegration(APIModel):
     ``wiki_page`` and ``link`` (wiki), ``issue_key`` and ``link`` (tracker), ``url`` (http,
     jsonrpc) or ``function_id`` (function).
 
-    Example:
+    Examples:
         >>> AnswerIntegration.model_validate(
         ...     {"id": 4, "status": "success", "type": "tracker", "issue_key": "DE-7"}
         ... ).issue_key
@@ -206,7 +206,7 @@ class AnswerIntegration(APIModel):
 class AnswerIntegrationList(RootModel[list[AnswerIntegration]]):
     """A bare JSON array of :class:`AnswerIntegration`.
 
-    Example:
+    Examples:
         >>> AnswerIntegrationList.model_validate([{"id": 4}]).root[0].id
         4
     """

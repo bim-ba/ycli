@@ -115,8 +115,9 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 - `description=` kwarg in `@mcp.tool(…)` — set the docstring instead
 - `output_schema=` kwarg in `@mcp.tool(…)` — set the return annotation instead
 - `meta`, `icons`, `version`, top-level `title=` — omit by default
-- doctest examples in a tool docstring are fine: the server strips `Example:` blocks, and the
-  output schema, from `tools/list` (`ycli.mcp.listing`); a call still returns `structuredContent`
+- examples in a tool docstring: it is the tool's description, so it carries none
+  (`test_no_tool_docstring_carries_an_example`); the SDK method it calls has the example. A request
+  model's examples reach the input schema, and the listing strips them (`ycli.mcp.listing`)
 
 ### Read example
 
@@ -239,8 +240,12 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
   (`self._session.send(…)`, or `self._session.iterate(…, limit=…)` for a listing, returning the
   flat `XList` of §2). A bodyless write returns `None` and the surfaces build the `Ack`; a binary
   download declares `response_type=bytes` and returns `bytes`.
-- Every public method's docstring names its `METHOD /path` and carries a
-  `>>> … # doctest: +SKIP` example.
+- Every public method's docstring names its `METHOD /path`, has Google-style `Args:`,
+  `Returns:` and `Raises:` sections that match the signature (ruff `D`, `pydoclint`), and an
+  example that runs: `>>> tracker.boards.get(31).name` with the arguments of the operation's first
+  contract case, whose reply answers it (the repository-root `conftest.py` puts the `tracker`,
+  `wiki` and `forms` clients into every doctest). `+SKIP` only where an example needs a real file
+  or the network.
 
 **`models.py`** — `from __future__ import annotations`; inherit `APIModel` (§1); every field
 carries `Field(description=…)`, which becomes the MCP schema text. Request bodies are typed

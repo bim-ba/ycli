@@ -27,7 +27,14 @@ def deprecated_alias(
 ) -> Callable[[CommandFunctionType], CommandFunctionType]:
     """Register the decorated command under ``name`` as well, hidden and deprecated.
 
-    Example:
+    Args:
+        app: The Typer app the command is registered on.
+        name: The alias the command is also registered under.
+
+    Returns:
+        A decorator that registers the command under ``name``, hidden and deprecated.
+
+    Examples:
         >>> import typer
         >>> app = typer.Typer()
         >>> @deprecated_alias(app, "edit")

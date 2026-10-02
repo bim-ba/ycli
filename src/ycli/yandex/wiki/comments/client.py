@@ -23,10 +23,16 @@ class CommentsClient(Resource):
 
         Capped at ``limit`` (``None`` = every comment).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.list(12345, limit=50).root[0].author  # doctest: +SKIP
-            'Сава Знатнов'
+        Args:
+            page_id: The page's id.
+            limit: The most comments to return; ``None`` returns every comment.
+
+        Returns:
+            The page's comments.
+
+        Examples:
+            >>> [comment.author for comment in wiki.comments.list(5501, limit=45).root]
+            ['Vera', 'Ivan']
         """
         paged = endpoints.list_comments(page_id)
         return CommentList(list(self._session.iterate(paged, limit=limit)))
@@ -43,10 +49,17 @@ class CommentsClient(Resource):
         (each carrying the ``parent_id`` that wires it to its parent) — or an empty list if
         ``comment_id`` is not found. ``limit`` caps the replies collected (``None`` = every reply).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.thread(12345, 678).root[1].content  # doctest: +SKIP
-            'Согласен'
+        Args:
+            page_id: The page's id.
+            comment_id: The id of the thread's first comment.
+            limit: The most replies to collect; ``None`` collects every reply.
+
+        Returns:
+            The comment and its replies.
+
+        Examples:
+            >>> [comment.content for comment in wiki.comments.thread(5503, 5511, limit=15).root]
+            ['Ship it?', 'Agreed']
         """
         comments = self.list(page_id=page_id).root
         return self._collect_thread(comments, comment_id, limit=limit)
@@ -65,6 +78,14 @@ class CommentsClient(Resource):
         descendants in depth-first order. ``limit`` bounds the number of descendants collected;
         returns an empty list if ``comment_id`` is absent. A ``seen`` set guards against
         self/cyclic ``parent_id`` references.
+
+        Args:
+            comments: The page's flat comment list.
+            comment_id: The id of the thread's first comment.
+            limit: The most descendants to collect; ``None`` collects every descendant.
+
+        Returns:
+            The comment followed by its descendants.
         """
         by_parent: dict[int, list[Comment]] = defaultdict(list)
         by_id: dict[int, Comment] = {}
@@ -103,9 +124,16 @@ class CommentsClient(Resource):
         thread. Use :meth:`thread`, which rebuilds the thread from :meth:`list`; this raw call
         stays for the day the server fills it in. Capped at ``limit`` (``None`` = everything).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.thread_get(12345, 678).root  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            comment_id: The comment's id.
+            limit: The most comments to return; ``None`` returns everything.
+
+        Returns:
+            The thread's comments.
+
+        Examples:
+            >>> wiki.comments.thread_get(5508, 5512).root
             []
         """
         paged = endpoints.get_thread(page_id, comment_id)
@@ -117,19 +145,31 @@ class CommentsClient(Resource):
         ``body`` is a dumped :class:`CommentCreate` (``body`` + optional
         ``inline_text`` / ``parent_id`` / ``thread_id``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.create(12345, {"body": "LGTM"}).id  # doctest: +SKIP
-            678
+        Args:
+            page_id: The page's id.
+            body: The comment: ``body`` and optional ``inline_text``, ``parent_id``, ``thread_id``.
+
+        Returns:
+            The created comment.
+
+        Examples:
+            >>> wiki.comments.create(5505, {"body": "Plain note"}).id
+            5515
         """
         return self._session.send(endpoints.create_comment(page_id, body))
 
     def delete(self, page_id: int, comment_id: int) -> CommentDeleteResult:
         """``DELETE /pages/{id}/comments/{comment_id}`` → ``{comments_count}`` left on the page.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.delete(12345, 678).comments_count  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            comment_id: The comment's id.
+
+        Returns:
+            The number of comments left on the page.
+
+        Examples:
+            >>> wiki.comments.delete(5506, 5516).comments_count
             4
         """
         return self._session.send(endpoints.delete_comment(page_id, comment_id))

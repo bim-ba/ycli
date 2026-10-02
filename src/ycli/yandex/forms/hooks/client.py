@@ -17,9 +17,14 @@ class HooksClient(Resource):
     def list(self, survey_id: str) -> HookList:
         """``GET /surveys/{id}/hooks`` → every integration group with its integrations.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.hooks.list("686d0a1b").root[0].name  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            Every integration group, with its integrations.
+
+        Examples:
+            >>> forms.hooks.list("686d0a1b2c3d4e5f000000a0").root[0].name
             'CRM'
         """
         return self._session.send(endpoints.list_hooks(survey_id))
@@ -27,8 +32,15 @@ class HooksClient(Resource):
     def get(self, survey_id: str, hook_id: int) -> Hook:
         """``GET /surveys/{id}/hooks/{hook_id}`` → one :class:`Hook`.
 
-        Example:
-            >>> client.hooks.get("686d0a1b", 11).active  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+
+        Returns:
+            The integration group.
+
+        Examples:
+            >>> forms.hooks.get("686d0a1b2c3d4e5f000000a0", 12).active
             False
         """
         return self._session.send(endpoints.get_hook(survey_id, hook_id))
@@ -36,27 +48,44 @@ class HooksClient(Resource):
     def create(self, survey_id: str, body: dict[str, Any]) -> Hook:
         """``POST /surveys/{id}/hooks`` — create a group from a dumped ``HookCreate``.
 
-        Example:
-            >>> client.hooks.create(
-            ...     "686d0a1b", {"name": "CRM", "active": False}
-            ... ).id  # doctest: +SKIP
-            11
+        Args:
+            survey_id: The form's id.
+            body: The dumped ``HookCreate``: the group's name and whether it is active.
+
+        Returns:
+            The created integration group, with its ``id``.
+
+        Examples:
+            >>> forms.hooks.create("686d0a1b2c3d4e5f000000a0", {"name": "CRM", "active": False}).id
+            13
         """
         return self._session.send(endpoints.create_hook(survey_id, body))
 
     def modify(self, survey_id: str, hook_id: int, body: dict[str, Any]) -> Hook:
         """``PATCH /surveys/{id}/hooks/{hook_id}`` — only the keys in ``body`` change.
 
-        Example:
-            >>> client.hooks.modify("686d0a1b", 11, {"active": True}).active  # doctest: +SKIP
-            True
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+            body: The keys to change.
+
+        Returns:
+            The updated integration group.
+
+        Examples:
+            >>> forms.hooks.modify("686d0a1b2c3d4e5f000000a0", 15, {"name": "CRM"}).name
+            'CRM'
         """
         return self._session.send(endpoints.modify_hook(survey_id, hook_id, body))
 
     def delete(self, survey_id: str, hook_id: int) -> None:
         """``DELETE /surveys/{id}/hooks/{hook_id}`` — the group and its integrations (200).
 
-        Example:
-            >>> client.hooks.delete("686d0a1b", 11)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+
+        Examples:
+            >>> forms.hooks.delete("686d0a1b2c3d4e5f000000a0", 16)
         """
         self._session.send(endpoints.delete_hook(survey_id, hook_id))

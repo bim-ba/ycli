@@ -13,7 +13,7 @@ class IssueType(APIModel):
     The live v3 API carries the display name in ``name`` (``display`` stays null there), so
     both fields are mapped.
 
-    Example:
+    Examples:
         >>> IssueType.model_validate({"key": "task", "name": "Task"}).name
         'Task'
     """
@@ -26,7 +26,7 @@ class IssueType(APIModel):
 class IssueTypeList(RootModel[list[IssueType]]):
     """A bare JSON array of issue types.
 
-    Example:
+    Examples:
         >>> IssueTypeList.model_validate([{"key": "bug"}]).root[0].key
         'bug'
     """
@@ -35,7 +35,7 @@ class IssueTypeList(RootModel[list[IssueType]]):
 class LocalizedName(APIModel):
     """A localized display name (the ``name`` object) — Russian and/or English text.
 
-    Example:
+    Examples:
         >>> LocalizedName(ru="Клиент", en="Customer").model_dump(exclude_none=True)
         {'ru': 'Клиент', 'en': 'Customer'}
     """
@@ -47,7 +47,7 @@ class LocalizedName(APIModel):
 class IssueTypeCreate(APIModel):
     """Typed request body for ``POST /issuetypes/`` (create an issue type).
 
-    Example:
+    Examples:
         >>> IssueTypeCreate(key="client", name=LocalizedName(ru="Клиент")).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -63,7 +63,7 @@ class IssueTypeUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> IssueTypeUpdate(name=LocalizedName(ru="Покупатель")).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )

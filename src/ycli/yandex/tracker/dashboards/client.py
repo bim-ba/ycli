@@ -20,9 +20,14 @@ class DashboardsClient(Resource):
     def create(self, body: dict[str, Any]) -> Dashboard:
         """``POST /dashboards/`` — create a dashboard. Returns the created ``Dashboard``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.dashboards.create({"name": "Team board"}).id  # doctest: +SKIP
+        Args:
+            body: The new dashboard's settings.
+
+        Returns:
+            The created dashboard.
+
+        Examples:
+            >>> tracker.dashboards.create({"name": "Team board", "layout": "two-columns"}).id
             10
         """
         return self._session.send(endpoints.create_dashboard(body))
@@ -32,11 +37,17 @@ class DashboardsClient(Resource):
 
         Returns the created ``Widget``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.dashboards.add_cycle_time_widget(
-            ...     10, {"description": "My widget", "query": "Queue: TEST"}
-            ... ).id  # doctest: +SKIP
+        Args:
+            dashboard_id: The dashboard's id.
+            body: The widget's settings: its description, issue query and statuses.
+
+        Returns:
+            The created widget.
+
+        Examples:
+            >>> tracker.dashboards.add_cycle_time_widget(
+            ...     "11", {"description": "Cycle time", "query": "Queue: DE"}
+            ... ).id
             123456
         """
         return self._session.send(endpoints.add_cycle_time_widget(dashboard_id, body))

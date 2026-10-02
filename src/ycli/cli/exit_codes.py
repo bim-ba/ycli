@@ -24,7 +24,10 @@ class ExitCode(enum.IntEnum):
 def exit_codes_summary() -> str:
     """The table on one line, for ``--help``.
 
-    Example:
+    Returns:
+        One ``<value> <name>`` entry per exit code, joined by `` · ``.
+
+    Examples:
         >>> exit_codes_summary()
         '0 ok · 1 failure · 2 usage · 3 not found · 4 auth · 5 rate limited · 6 transient'
     """

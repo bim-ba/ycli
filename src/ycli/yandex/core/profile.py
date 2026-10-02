@@ -20,7 +20,7 @@ class ServiceProfile:
     ``X-Cloud-Org-Id`` (Yandex Cloud organizations), ``x-dl-org-id`` plus
     ``x-dl-api-version`` (DataLens); some (Maps) take none.
 
-    Example:
+    Examples:
         >>> ServiceProfile("https://api.example.net/v1").headers_for("org-1")
         {'X-Org-Id': 'org-1'}
     """

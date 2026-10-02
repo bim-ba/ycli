@@ -1,6 +1,6 @@
 """Tracker worklog operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> search_worklog({"createdBy": "alice"}).effect
     'read'
     >>> list_global_worklog("alice", ["from:2018-06-06", "to:2018-06-07"]).params["createdAt"]

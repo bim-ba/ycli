@@ -20,7 +20,7 @@ from ycli.yandex.models import APIModel
 class AutoactionQueueRef(APIModel):
     """The queue an autoaction belongs to (``queue`` object).
 
-    Example:
+    Examples:
         >>> AutoactionQueueRef.model_validate({"key": "DESIGN", "display": "Design"}).key
         'DESIGN'
     """
@@ -38,7 +38,7 @@ class AutoactionQueueRef(APIModel):
 class AutoactionCalendar(APIModel):
     """The working-calendar window an autoaction is active in (``calendar`` object).
 
-    Example:
+    Examples:
         >>> AutoactionCalendar(id=2).id
         2
     """
@@ -52,7 +52,7 @@ class AutoactionAction(APIModel):
     ``type`` is one of Transition, Update, Event.comment-create, Webhook, CalculateFormula, … ;
     the type-specific parameters (``status`` …) ride along as extra fields preserved verbatim.
 
-    Example:
+    Examples:
         >>> AutoactionAction.model_validate({"type": "Transition", "status": {"key": "x"}}).type
         'Transition'
     """
@@ -65,7 +65,7 @@ class AutoactionAction(APIModel):
 class Autoaction(APIModel):
     """A queue autoaction (``GET /queues/{id}/autoactions/{action_id}``).
 
-    Example:
+    Examples:
         >>> Autoaction.model_validate({"id": 9, "name": "auto", "active": True}).name
         'auto'
     """
@@ -131,7 +131,7 @@ class AutoactionCreate(APIModel):
 
     Supply at least one of ``filter`` or ``query`` to select the issues to act on.
 
-    Example:
+    Examples:
         >>> AutoactionCreate(
         ...     name="A", actions=[AutoactionAction(type="Transition")], query="Status: Open"
         ... ).name
@@ -165,7 +165,7 @@ class AutoactionCreate(APIModel):
 class AutoactionLogEntry(APIModel):
     """One run-summary record from ``.../autoactions/{id}/logs``.
 
-    Example:
+    Examples:
         >>> AutoactionLogEntry.model_validate({"id": "x", "searchHits": 3}).search_hits
         3
     """
@@ -195,7 +195,7 @@ class AutoactionLogEntry(APIModel):
 class AutoactionLogList(RootModel[list[AutoactionLogEntry]]):
     """A bare JSON array of autoaction run summaries (``.../autoactions/{id}/logs``).
 
-    Example:
+    Examples:
         >>> AutoactionLogList.model_validate([{"id": "x"}]).root[0].id
         'x'
     """
@@ -204,7 +204,7 @@ class AutoactionLogList(RootModel[list[AutoactionLogEntry]]):
 class AutoactionIssueRef(APIModel):
     """The issue an autoaction run touched (``issueReference`` object).
 
-    Example:
+    Examples:
         >>> AutoactionIssueRef.model_validate({"key": "TEST-1"}).key
         'TEST-1'
     """
@@ -223,7 +223,7 @@ class AutoactionIssueRef(APIModel):
 class AutoactionRunStatus(APIModel):
     """The per-issue outcome of an autoaction run (``status`` object).
 
-    Example:
+    Examples:
         >>> AutoactionRunStatus.model_validate({"value": "success"}).value
         'success'
     """
@@ -235,7 +235,7 @@ class AutoactionRunStatus(APIModel):
 class AutoactionRunEntry(APIModel):
     """One per-issue outcome from ``.../autoactions/{id}/logs/{run_id}``.
 
-    Example:
+    Examples:
         >>> AutoactionRunEntry.model_validate(
         ...     {"id": 0, "issueReference": {"key": "TEST-1"}, "status": {"value": "success"}}
         ... ).issue_reference.key
@@ -256,7 +256,7 @@ class AutoactionRunEntry(APIModel):
 class AutoactionRunList(RootModel[list[AutoactionRunEntry]]):
     """A bare JSON array of per-issue run outcomes (``.../autoactions/{id}/logs/{run_id}``).
 
-    Example:
+    Examples:
         >>> AutoactionRunList.model_validate([{"id": 0}]).root[0].id
         0
     """

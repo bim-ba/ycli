@@ -1,6 +1,6 @@
 """Forms image upload and clone, declared once (sans-IO).
 
-Example:
+Examples:
     >>> upload_image("686d", filename="a.png", data=b"x").files
     {'image': ('a.png', b'x')}
 """

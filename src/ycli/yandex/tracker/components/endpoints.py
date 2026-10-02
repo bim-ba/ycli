@@ -1,6 +1,6 @@
 """Tracker ``/components`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_component(111175, {"assignAuto": True}, version=1).path
     'components/111175'
 """

@@ -22,7 +22,7 @@ class Comment(APIModel):
     ``null``). ``CommentsClient.thread`` reads that wiring to reconstruct a single thread — the
     target comment followed by its descendants — from an otherwise flat listing.
 
-    Example:
+    Examples:
         >>> Comment.model_validate({"author": {"display_name": "Сава"}, "body": "ok"}).content
         'ok'
     """
@@ -43,7 +43,7 @@ class CommentsResponse(APIModel):
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 
-    Example:
+    Examples:
         >>> CommentsResponse.model_validate({"results": [{"content": "ok"}]}).results[0].content
         'ok'
     """
@@ -58,7 +58,7 @@ class CommentsResponse(APIModel):
 class CommentList(RootModel[list[Comment]]):
     """Flat collection of :class:`Comment` items — public return type of ``CommentsClient.list``.
 
-    Example:
+    Examples:
         >>> CommentList([Comment.model_validate({"content": "ok"})]).root[0].content
         'ok'
     """
@@ -73,7 +73,7 @@ class CommentCreate(APIModel):
     fragment of the page, ``parent_id`` makes it a reply to another comment, ``thread_id``
     files it into an existing thread.
 
-    Example:
+    Examples:
         >>> CommentCreate(body="LGTM", parent_id=7).model_dump(exclude_none=True)
         {'body': 'LGTM', 'parent_id': 7}
     """
@@ -93,7 +93,7 @@ class CommentCreate(APIModel):
 class CommentCreated(APIModel):
     """The comment returned by ``POST /pages/{id}/comments`` — id + echoed placement fields.
 
-    Example:
+    Examples:
         >>> CommentCreated.model_validate({"id": 5, "body": "LGTM"}).id
         5
     """
@@ -115,7 +115,7 @@ class CommentCreated(APIModel):
 class CommentDeleteResult(APIModel):
     """Result of ``DELETE /pages/{id}/comments/{comment_id}`` — the page's remaining comment count.
 
-    Example:
+    Examples:
         >>> CommentDeleteResult.model_validate({"comments_count": 4}).comments_count
         4
     """

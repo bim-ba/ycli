@@ -4,7 +4,7 @@ The API updates a grid and sets cell values with ``POST`` (not ``PATCH``); the s
 twice leaves the same grid, so those two endpoints declare themselves idempotent writes. Rows and
 columns are removed by a ``DELETE`` whose ids travel in the JSON body.
 
-Example:
+Examples:
     >>> get_grid(
     ...     "g-1",
     ...     fields=None,

@@ -11,10 +11,17 @@ if TYPE_CHECKING:
 class Resource:
     """Holds the session a resource client sends its endpoints through.
 
-    Example:
-        >>> class SurveysClient(Resource):  # doctest: +SKIP
-        ...     def get(self, survey_id: str) -> Survey:
-        ...         return self._session.send(endpoints.get_survey(survey_id))
+    Args:
+        session: The session the resource's endpoints are sent through.
+
+    Examples:
+        >>> from ycli.yandex.core.endpoint import Endpoint
+        >>> from ycli.yandex.tracker.me.models import Me
+        >>> class MeClient(Resource):
+        ...     def get(self) -> Me:
+        ...         return self._session.send(Endpoint("GET", "myself", Me))
+        >>> MeClient(session=tracker.me._session).get().login
+        'alice'
     """
 
     def __init__(self, *, session: SyncSession) -> None:

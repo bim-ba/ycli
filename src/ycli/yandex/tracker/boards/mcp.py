@@ -35,11 +35,11 @@ def list_(
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> BoardList:
-    """All agile boards in the organisation, auto-paginated via the relative id-cursor and sorted
-    by ascending board id. Capped at the configured item cap unless ``limit`` is given. Use
-    ``boards_get`` when you know one board id, and ``sprints_list`` to list a board's sprints.
+    """All agile boards in the organisation, sorted by ascending board id.
 
-    >>> boards_list(limit=50)  # doctest: +SKIP
+    Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
+    is given. Use ``boards_get`` when you know one board id, and ``sprints_list`` to list a
+    board's sprints.
     """
     cap = config.http.cap(limit)
     return client.boards.list(limit=cap)
@@ -50,11 +50,11 @@ def get(
     board_id: Annotated[int, Field(description="Numeric identifier of the agile board.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Board:
-    """Look up a single agile board by its numeric id, including its columns, estimation field and
-    burndown calendar. Use this when you already know the board id; use ``boards_list`` to browse
-    every board, and ``sprints_list`` to enumerate the sprints defined on this board.
+    """Look up a single agile board by its numeric id.
 
-    >>> boards_get(board_id=1)  # doctest: +SKIP
+    The board includes its columns, estimation field and burndown calendar. Use this when you
+    already know the board id; use ``boards_list`` to browse every board, and ``sprints_list`` to
+    enumerate the sprints defined on this board.
     """
     return client.boards.get(board_id=board_id)
 

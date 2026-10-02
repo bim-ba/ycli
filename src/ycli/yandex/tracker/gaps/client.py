@@ -22,21 +22,22 @@ class GapsClient(Resource):
 
         Needs Tracker administrator rights. Returns the absences actually saved.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.gaps.create(
-            ...     GapsCreate(
-            ...         gaps=[
-            ...             GapInput(
-            ...                 user="ann",
-            ...                 workflow="trip",
-            ...                 date_from="2026-07-10",
-            ...                 date_to="2026-07-20",
-            ...             )
-            ...         ]
-            ...     )
-            ... ).gaps[0].id  # doctest: +SKIP
-            '68340a1f2b4c1a3d5e7f9012'
+        Args:
+            body: The absences to create.
+
+        Returns:
+            The absences actually saved.
+
+        Examples:
+            >>> from ycli.yandex.tracker.gaps.models import GapInput, GapsCreate, GapWorkflow
+            >>> gap = GapInput(
+            ...     user="ann",
+            ...     workflow=GapWorkflow.VACATION,
+            ...     date_from="2026-07-01T00:00:00.000Z",
+            ...     date_to="2026-07-15T00:00:00.000Z",
+            ... )
+            >>> tracker.gaps.create(GapsCreate(gaps=[gap])).gaps[0].id
+            '68340a1f2b4c1a3d5e7f9011'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True, mode="json")
         return self._session.send(endpoints.create_gaps(dumped))
@@ -55,10 +56,23 @@ class GapsClient(Resource):
         (ISO 8601; the start defaults to now, the end must be after the start). Pages of
         users are joined; capped at ``limit`` users (``None`` = all). Needs administrator rights.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.gaps.search(["ann"], date_from="2026-07-01").root[0].gaps  # doctest: +SKIP
-            []
+        Args:
+            users: The logins or ids of the users to look up.
+            date_from: Window start (ISO 8601); defaults to now.
+            date_to: Window end (ISO 8601); must be after the start.
+            limit: The most users to return; ``None`` returns all.
+
+        Returns:
+            Each user with the absences that overlap the window.
+
+        Examples:
+            >>> found = tracker.gaps.search(
+            ...     ["ann", "bob"],
+            ...     date_from="2026-07-01T00:00:00.000Z",
+            ...     date_to="2026-08-31T23:59:59.999Z",
+            ... )
+            >>> [(user.user.login, len(user.gaps)) for user in found.root]
+            [('ann', 1), ('bob', 0)]
         """
         window = {"from": date_from, "to": date_to}
         body = {"users": list(users), **{name: value for name, value in window.items() if value}}
@@ -68,8 +82,10 @@ class GapsClient(Resource):
     def delete(self, gap_ids: Sequence[str]) -> None:
         """``DELETE /gaps?gapIds=…`` → delete absences by id (up to 100); unknown ids are ignored.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.gaps.delete(["68340a1f2b4c1a3d5e7f9011"])  # doctest: +SKIP
+        Args:
+            gap_ids: The ids of the absences to delete.
+
+        Examples:
+            >>> tracker.gaps.delete(["68340a1f2b4c1a3d5e7f9011", "68340a1f2b4c1a3d5e7f9012"])
         """
         self._session.send(endpoints.delete_gaps(gap_ids))

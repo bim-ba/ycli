@@ -1,6 +1,6 @@
 """Forms ``/surveys/{id}/hooks`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_hook("686d", 11).path
     'surveys/686d/hooks/11'
 """

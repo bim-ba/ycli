@@ -28,9 +28,11 @@ class FieldsClient(Resource):
     def list(self) -> FieldList:
         """``GET /fields`` → all global fields of the organisation.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.fields.list().root[0].id  # doctest: +SKIP
+        Returns:
+            The global fields.
+
+        Examples:
+            >>> tracker.fields.list().root[0].id
             'ruName'
         """
         return self._session.send(endpoints.list_fields())
@@ -38,22 +40,38 @@ class FieldsClient(Resource):
     def get(self, field_id: str) -> CustomField:
         """``GET /fields/{field_id}`` → parameters of one issue field.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.fields.get(field_id="ruName").id  # doctest: +SKIP
-            'ruName'
+        Args:
+            field_id: The field's id.
+
+        Returns:
+            The field.
+
+        Examples:
+            >>> tracker.fields.get("enName").id
+            'enName'
         """
         return self._session.send(endpoints.get_field(field_id))
 
     def create(self, body: FieldCreate) -> CustomField:
         """Create a global field from a typed ``FieldCreate`` body. Returns the ``CustomField``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.fields.create(
-            ...     FieldCreate(name=LocalizedName(ru="Поле"), id="f", category="1", type="…")
-            ... ).id  # doctest: +SKIP
-            'f'
+        Args:
+            body: The new field's settings.
+
+        Returns:
+            The created field.
+
+        Examples:
+            >>> from ycli.yandex.tracker.fields.models import FieldCreate, LocalizedName
+            >>> tracker.fields.create(
+            ...     FieldCreate(
+            ...         name=LocalizedName(ru="Поле"),
+            ...         id="myField",
+            ...         category="cat-1",
+            ...         type="ru.yandex.startrek.core.fields.StringFieldType",
+            ...     )
+            ... ).id
+            'myField'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_field(dumped))
@@ -64,11 +82,19 @@ class FieldsClient(Resource):
         ``version`` is the current field version; when set it is sent as ``?version=`` for
         optimistic locking (the API rejects a stale version).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.fields.edit(
+        Args:
+            field_id: The field's id.
+            body: The fields to change.
+            version: The field's current version, for optimistic locking.
+
+        Returns:
+            The updated field.
+
+        Examples:
+            >>> from ycli.yandex.tracker.fields.models import FieldUpdate, LocalizedName
+            >>> tracker.fields.edit(
             ...     "ruName", FieldUpdate(name=LocalizedName(ru="Имя")), version=3
-            ... ).id  # doctest: +SKIP
+            ... ).id
             'ruName'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -77,12 +103,18 @@ class FieldsClient(Resource):
     def category_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
         """Create a field category from a typed ``FieldCategoryCreate`` body.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.fields.category_create(
+        Args:
+            body: The new category's settings.
+
+        Returns:
+            The created category.
+
+        Examples:
+            >>> from ycli.yandex.tracker.fields.models import FieldCategoryCreate, LocalizedName
+            >>> tracker.fields.category_create(
             ...     FieldCategoryCreate(name=LocalizedName(ru="Своя"), order=400)
-            ... ).id  # doctest: +SKIP
-            '604f9920d23cd5'
+            ... ).id
+            '604f99'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_category(dumped))
@@ -95,11 +127,19 @@ class FieldsClient(Resource):
         ``version`` is the current category version; when set it is sent as ``?version=`` for
         optimistic locking.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.fields.category_edit(
-            ...     "1", FieldCategoryUpdate(order=400), version=1
-            ... ).version  # doctest: +SKIP
+        Args:
+            category_id: The category's id.
+            body: The fields to change.
+            version: The category's current version, for optimistic locking.
+
+        Returns:
+            The updated category.
+
+        Examples:
+            >>> from ycli.yandex.tracker.fields.models import FieldCategoryUpdate
+            >>> tracker.fields.category_edit(
+            ...     "604f99", FieldCategoryUpdate(order=500), version=1
+            ... ).version
             2
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)

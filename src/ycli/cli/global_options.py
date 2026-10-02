@@ -43,7 +43,15 @@ def option_names(name: str, annotation: Any, default: Any) -> set[str]:
     Inside ``Annotated`` the first argument of ``typer.Option`` is a declaration, outside it the
     default value.
 
-    Example:
+    Args:
+        name: The parameter's name.
+        annotation: The parameter's annotation, ``Annotated`` with Typer infos or not.
+        default: The parameter's default, which may itself be a Typer info.
+
+    Returns:
+        The option names, empty for an argument.
+
+    Examples:
         >>> sorted(option_names("format", FormatOption, None))
         ['--format', '-o']
         >>> option_names("survey_id", str, inspect.Parameter.empty)

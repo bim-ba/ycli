@@ -1,6 +1,6 @@
 """Forms ``/surveys/{id}/history`` operation, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_history("686d", ordering="asc").endpoint.params
     {'ordering': 'asc', 'limit': 100}
 """

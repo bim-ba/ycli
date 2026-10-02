@@ -39,9 +39,6 @@ def get(
 
     Returns a flat array; an issue with no checklist yields an empty list. Item ids from here
     feed ``checklists_update`` / ``checklists_delete``.
-
-    Example:
-        >>> get(key="QUEUE-123")  # doctest: +SKIP
     """
     return client.checklists.get(key)
 

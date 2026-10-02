@@ -3,7 +3,7 @@
 ``prevent_selflock`` asks the API to refuse a change that would lock the caller out of the page;
 it is sent only when set, because ``false`` is the API's default.
 
-Example:
+Examples:
     >>> delete_access(7, "9", prevent_selflock=True).params
     {'prevent_selflock': True}
     >>> update_access(7, "9", {"role": "reader"}, prevent_selflock=False).effect

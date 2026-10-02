@@ -22,9 +22,14 @@ class AttachmentsClient(Resource):
     def list(self, issue_key: str) -> AttachmentList:
         """``GET /issues/{issue_key}/attachments`` → files attached to the issue (and its comments).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.list("JUNE-2").root[0].name  # doctest: +SKIP
+        Args:
+            issue_key: The issue key.
+
+        Returns:
+            The issue's attachments.
+
+        Examples:
+            >>> tracker.attachments.list("JUNE-2").root[0].name
             'picture.jpg'
         """
         return self._session.send(endpoints.list_attachments(issue_key))
@@ -35,24 +40,35 @@ class AttachmentsClient(Resource):
         Binary output is CLI/SDK-only — never an MCP payload. In the CLI this feeds
         a ``BinaryResult`` (a file or stdout); the SDK returns the ``bytes``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.download("JUNE-2", "4159", "attachment.txt")[
-            ...     :4
-            ... ]  # doctest: +SKIP
+        Args:
+            issue_key: The issue key.
+            file_id: The attachment's id.
+            filename: The attachment's file name, as it is in the download path.
+
+        Returns:
+            The attachment's raw bytes.
+
+        Examples:
+            >>> tracker.attachments.download("JUNE-3", "4159", "report.pdf")[:4]
             b'%PDF'
         """
         return self._session.send(endpoints.download_attachment(issue_key, file_id, filename))
 
     def download_thumbnail(self, issue_key: str, file_id: str) -> bytes:
-        """Download a graphic attachment's preview-thumbnail bytes (a non-2xx answer raises).
+        r"""Download a graphic attachment's preview-thumbnail bytes (a non-2xx answer raises).
 
         Only graphic files have a thumbnail; CLI/SDK-only, like :meth:`download`.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.download_thumbnail("JUNE-2", "4159")[:4]  # doctest: +SKIP
-            b'\\x89PNG'
+        Args:
+            issue_key: The issue key.
+            file_id: The attachment's id.
+
+        Returns:
+            The thumbnail's raw bytes.
+
+        Examples:
+            >>> tracker.attachments.download_thumbnail("JUNE-4", "4160")[:4]
+            b'\x89PNG'
         """
         return self._session.send(endpoints.download_thumbnail(issue_key, file_id))
 
@@ -61,9 +77,15 @@ class AttachmentsClient(Resource):
 
         The raw bytes are :meth:`download`; this returns name, size, MIME type and uploader.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.get("JUNE-2", "4159").mimetype  # doctest: +SKIP
+        Args:
+            issue_key: The issue key.
+            file_id: The attachment's id.
+
+        Returns:
+            The attachment's metadata.
+
+        Examples:
+            >>> tracker.attachments.get("JUNE-5", "4161").mimetype
             'text/plain'
         """
         return self._session.send(endpoints.get_attachment(issue_key, file_id))
@@ -71,9 +93,12 @@ class AttachmentsClient(Resource):
     def delete(self, issue_key: str, file_id: str) -> None:
         """``DELETE /issues/{issue_key}/attachments/{file_id}`` → 204; raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.delete("JUNE-2", "4159")  # doctest: +SKIP
+        Args:
+            issue_key: The issue key.
+            file_id: The attachment's id.
+
+        Examples:
+            >>> tracker.attachments.delete("JUNE-6", "4162")
         """
         self._session.send(endpoints.delete_attachment(issue_key, file_id))
 
@@ -85,12 +110,20 @@ class AttachmentsClient(Resource):
         ``filename`` names the part; ``rename_to`` (the ``?filename=`` query) stores the file
         under another name. Returns the created :class:`Attachment`.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.upload(
-            ...     "JUNE-2", filename="a.txt", data=b"hi"
-            ... ).id  # doctest: +SKIP
-            '4159'
+        Args:
+            issue_key: The issue key.
+            filename: The multipart part's file name.
+            data: The file's bytes.
+            rename_to: The name to store the file under; ``None`` keeps ``filename``.
+
+        Returns:
+            The created attachment.
+
+        Examples:
+            >>> tracker.attachments.upload(
+            ...     "JUNE-7", filename="upload.txt", data=b"attachment bytes", rename_to="kept.txt"
+            ... ).id
+            '4161'
         """
         endpoint = endpoints.upload_attachment(
             issue_key, filename=filename, data=data, rename_to=rename_to
@@ -105,10 +138,19 @@ class AttachmentsClient(Resource):
         The returned ``id`` goes into ``attachmentIds`` of an issue or comment body; Tracker
         accepts it for one attachment only.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.attachments.upload_temp(filename="a.txt", data=b"hi").id  # doctest: +SKIP
-            '4160'
+        Args:
+            filename: The multipart part's file name.
+            data: The file's bytes.
+            rename_to: The name to store the file under; ``None`` keeps ``filename``.
+
+        Returns:
+            The temporary attachment, whose ``id`` is the one to attach.
+
+        Examples:
+            >>> tracker.attachments.upload_temp(
+            ...     filename="temp-upload.txt", data=b"temporary bytes", rename_to="scratch.txt"
+            ... ).id
+            '4170'
         """
         endpoint = endpoints.upload_temp_attachment(
             filename=filename, data=data, rename_to=rename_to

@@ -17,10 +17,15 @@ class BoardsClient(Resource):
         ``id=<id of the last board seen>`` until a page comes back empty. Capped at ``limit``
         (``None`` = every board); a small cap narrows the page to ``limit`` rows.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.boards.list(limit=50).root[0].name  # doctest: +SKIP
-            'My board'
+        Args:
+            limit: The most boards to return; ``None`` returns every board.
+
+        Returns:
+            The boards, in ascending id order.
+
+        Examples:
+            >>> [board.name for board in tracker.boards.list(limit=500).root]
+            ['Alpha', 'Beta', 'Gamma']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_boards(page_size=page_size)
@@ -29,10 +34,15 @@ class BoardsClient(Resource):
     def get(self, board_id: int) -> Board:
         """``GET /boards/{board_id}`` → a single agile board.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.boards.get(board_id=1).name  # doctest: +SKIP
-            'My board'
+        Args:
+            board_id: The board's id.
+
+        Returns:
+            The board.
+
+        Examples:
+            >>> tracker.boards.get(31).name
+            'Kanban'
         """
         return self._session.send(endpoints.get_board(board_id))
 
@@ -42,12 +52,15 @@ class BoardsClient(Resource):
         The endpoint path is literally ``/liveBoards/`` — the older ``POST /boards/`` is
         deprecated and silently ignores the request body.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.boards.create(
-            ...     BoardCreate(name="Testing", owner="username")
-            ... ).id  # doctest: +SKIP
-            1
+        Args:
+            body: The new board's settings.
+
+        Returns:
+            The created board.
+
+        Examples:
+            >>> tracker.boards.create(BoardCreate(name="Release train", owner="alice")).id
+            41
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_board(dumped))
@@ -57,10 +70,16 @@ class BoardsClient(Resource):
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.boards.edit(1, BoardUpdate(name="New name")).name  # doctest: +SKIP
-            'New name'
+        Args:
+            board_id: The board's id.
+            body: The fields to change.
+
+        Returns:
+            The updated board.
+
+        Examples:
+            >>> tracker.boards.edit(51, BoardUpdate(name="Renamed board")).name
+            'Renamed board'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.edit_board(board_id, dumped))
@@ -68,8 +87,10 @@ class BoardsClient(Resource):
     def delete(self, board_id: int) -> None:
         """``DELETE /boards/{board_id}`` — delete a board (``204``, empty body).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.boards.delete(board_id=1)  # doctest: +SKIP
+        Args:
+            board_id: The board's id.
+
+        Examples:
+            >>> tracker.boards.delete(61)
         """
         self._session.send(endpoints.delete_board(board_id))

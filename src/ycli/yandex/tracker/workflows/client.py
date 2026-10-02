@@ -24,9 +24,11 @@ class WorkflowsClient(Resource):
     def list(self) -> WorkflowList:
         """``GET /workflows`` → every workflow of the organization except deleted ones.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.list().root[0].name  # doctest: +SKIP
+        Returns:
+            The workflows.
+
+        Examples:
+            >>> tracker.workflows.list().root[0].name
             'Design'
         """
         return self._session.send(endpoints.list_workflows())
@@ -34,9 +36,14 @@ class WorkflowsClient(Resource):
     def get(self, workflow_id: str) -> Workflow:
         """``GET /workflows/{workflow_id}`` → one workflow with its steps and actions.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.get("W21").version  # doctest: +SKIP
+        Args:
+            workflow_id: The workflow's id.
+
+        Returns:
+            The workflow.
+
+        Examples:
+            >>> tracker.workflows.get("W21").version
             1
         """
         return self._session.send(endpoints.get_workflow(workflow_id))
@@ -44,9 +51,14 @@ class WorkflowsClient(Resource):
     def for_queue(self, queue_id: str) -> QueueWorkflows:
         """``GET /queues/{queue_id}/workflows`` → workflow id → the issue types that use it.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.for_queue("TEST").root["dev"][0].key  # doctest: +SKIP
+        Args:
+            queue_id: The queue's key or numeric id.
+
+        Returns:
+            The queue's workflows, each with the issue types that use it.
+
+        Examples:
+            >>> tracker.workflows.for_queue("WFQ").root["dev"][0].key
             'task'
         """
         return self._session.send(endpoints.list_queue_workflows(queue_id))
@@ -54,18 +66,29 @@ class WorkflowsClient(Resource):
     def create(self, body: WorkflowCreate) -> Workflow:
         """``POST /workflows`` → create a workflow from a typed ``WorkflowCreate`` body.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.create(
-            ...     WorkflowCreate(
-            ...         name="Design",
-            ...         initial_action=WorkflowActionInput(
-            ...             name=LocalizedText(en="Open"), target="open"
-            ...         ),
-            ...         steps=[WorkflowStepInput(status="open")],
-            ...     )
-            ... ).id  # doctest: +SKIP
-            'W21'
+        Args:
+            body: The new workflow's name, initial action and steps.
+
+        Returns:
+            The created workflow.
+
+        Examples:
+            >>> from ycli.yandex.tracker.workflows.models import (
+            ...     LocalizedText,
+            ...     WorkflowActionInput,
+            ...     WorkflowCreate,
+            ...     WorkflowStepInput,
+            ... )
+            >>> new_workflow = WorkflowCreate(
+            ...     id="design-flow",
+            ...     name="Design",
+            ...     initial_action=WorkflowActionInput(
+            ...         name=LocalizedText(ru="Открыть", en="Open"), target="open"
+            ...     ),
+            ...     steps=[WorkflowStepInput(status="open")],
+            ... )
+            >>> tracker.workflows.create(new_workflow).id
+            'design-flow'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_workflow(dumped))
@@ -76,11 +99,17 @@ class WorkflowsClient(Resource):
         ``version`` is the workflow's current version (the API answers 412/428 without a
         matching one); the reply carries the incremented version.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.edit(
-            ...     "W21", WorkflowUpdate(name="QA"), version=3
-            ... ).version  # doctest: +SKIP
+        Args:
+            workflow_id: The workflow's id.
+            body: The fields to change.
+            version: The workflow's current version, sent as ``?version=``.
+
+        Returns:
+            The updated workflow.
+
+        Examples:
+            >>> from ycli.yandex.tracker.workflows.models import WorkflowUpdate
+            >>> tracker.workflows.edit("W21", WorkflowUpdate(name="QA process"), version=3).version
             4
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -99,11 +128,24 @@ class WorkflowsClient(Resource):
 
         ``status`` is the key of the step the action leaves. Returns the whole workflow.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.edit_action(
-            ...     "W21", "inProgress", "close", WorkflowActionUpdate(target="closed"), version=2
-            ... ).version  # doctest: +SKIP
+        Args:
+            workflow_id: The workflow's id.
+            status: The key of the step the action leaves.
+            action_id: The action's id.
+            body: The fields to change.
+            version: The workflow's current version, sent as ``?version=``.
+
+        Returns:
+            The whole updated workflow.
+
+        Examples:
+            >>> from ycli.yandex.tracker.workflows.models import LocalizedText, WorkflowActionUpdate
+            >>> action = WorkflowActionUpdate(
+            ...     name=LocalizedText(ru="Завершить", en="Complete"), target="closed"
+            ... )
+            >>> tracker.workflows.edit_action(
+            ...     "W23", "inProgress", "close", action, version=2
+            ... ).version
             3
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -113,8 +155,10 @@ class WorkflowsClient(Resource):
     def delete(self, workflow_id: str) -> None:
         """``DELETE /workflows/{workflow_id}`` → 204; raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.workflows.delete("W21")  # doctest: +SKIP
+        Args:
+            workflow_id: The workflow's id.
+
+        Examples:
+            >>> tracker.workflows.delete("W24")
         """
         self._session.send(endpoints.delete_workflow(workflow_id))

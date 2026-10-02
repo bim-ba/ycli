@@ -43,8 +43,11 @@ def test_ref_fields_default_to_none():
 
 
 def test_issue_create_tags_operator_form_round_trips():
-    """The documented {'add'|'set'|'remove': [...]} operator-edit form on tags must validate
-    and dump byte-identical to what the old ``body: dict`` would have passed through."""
+    """The documented {'add'|'set'|'remove': [...]} operator-edit form on tags passes.
+
+    It must validate and dump byte-identical to what the old ``body: dict`` would have passed
+    through.
+    """
     raw = {"queue": "DE", "summary": "New", "tags": {"add": ["urgent"]}}
     dumped = IssueCreate.model_validate(raw).model_dump(exclude_none=True)
     assert dumped == raw

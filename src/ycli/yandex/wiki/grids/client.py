@@ -52,10 +52,22 @@ class GridsClient(Resource):
         ``revision`` loads a historical version. Read the ``revision`` off the result to drive any
         subsequent write's optimistic lock.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.get("g-uuid").revision  # doctest: +SKIP
-            '3'
+        Args:
+            grid_id: The grid's id.
+            fields: The optional blocks to add: ``attributes``, ``user_permissions``.
+            row_filter: The server-side row filter.
+            only_cols: The columns to return.
+            only_rows: The rows to return.
+            revision: The historical revision to load.
+            sort: The sort order of the rows.
+
+        Returns:
+            The grid.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> wiki.grids.get(grid_id).revision
+            '12'
         """
         return self._session.send(
             endpoints.get_grid(
@@ -72,12 +84,16 @@ class GridsClient(Resource):
     def create(self, body: dict[str, Any]) -> Grid:
         """``POST /grids`` — create a grid as a page resource. ``body`` is a dumped ``GridCreate``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.create(
-            ...     {"title": "Roadmap", "page": {"slug": "data/x"}}
-            ... ).id  # doctest: +SKIP
-            'g-uuid'
+        Args:
+            body: The new grid: its title and the page it goes on.
+
+        Returns:
+            The created grid.
+
+        Examples:
+            >>> body = {"title": "Hiring plan", "page": {"slug": "hr/hiring"}}
+            >>> wiki.grids.create(body).title
+            'Hiring plan'
         """
         return self._session.send(endpoints.create_grid(body))
 
@@ -88,12 +104,22 @@ class GridsClient(Resource):
         ``[{"<column_slug>": "asc"|"desc"}]`` — the ``{slug, title, direction}`` read shape
         returned by :meth:`get` is rejected with a 400.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.update(
-            ...     "g-uuid", {"revision": "3", "default_sort": [{"col": "asc"}]}
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The changes, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> body = {
+            ...     "revision": "12",
+            ...     "title": "Roadmap 2027",
+            ...     "default_sort": [{"due": "desc"}],
+            ... }
+            >>> wiki.grids.update(grid_id, body).revision
+            '13'
         """
         return self._session.send(endpoints.update_grid(grid_id, body))
 
@@ -103,9 +129,14 @@ class GridsClient(Resource):
         The API returns no body, so the result is synthesized; a non-2xx status raises a typed
         ``YandexError`` before this returns.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.delete("g-uuid").ok  # doctest: +SKIP
+        Args:
+            grid_id: The grid's id.
+
+        Returns:
+            The acknowledgement of the delete.
+
+        Examples:
+            >>> wiki.grids.delete("0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a03").ok
             True
         """
         self._session.send(endpoints.delete_grid(grid_id))
@@ -114,12 +145,18 @@ class GridsClient(Resource):
     def add_rows(self, grid_id: str, body: dict[str, Any]) -> RowsAddResult:
         """``POST /grids/{id}/rows`` — insert rows. ``body`` is a dumped ``RowsAdd`` (+ revision).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.add_rows(
-            ...     "g-uuid", {"revision": "3", "rows": [{"name": "x"}]}
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The rows to add, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision and the added rows.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> rows = [{"name": "Launch", "owner": "vera"}]
+            >>> wiki.grids.add_rows(grid_id, {"revision": "13", "rows": rows}).revision
+            '14'
         """
         return self._session.send(endpoints.add_rows(grid_id, body))
 
@@ -128,24 +165,38 @@ class GridsClient(Resource):
 
         A rare DELETE-with-body: ``row_ids`` + ``revision`` travel in the JSON body.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.remove_rows(
-            ...     "g-uuid", {"revision": "3", "row_ids": ["r1"]}
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The ids of the rows to delete, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> wiki.grids.remove_rows(
+            ...     grid_id, {"revision": "14", "row_ids": ["r1", "r2"]}
+            ... ).revision
+            '15'
         """
         return self._session.send(endpoints.remove_rows(grid_id, body))
 
     def move_rows(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``POST /grids/{id}/rows/move`` — reorder rows. ``body`` is a dumped ``RowsMove``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.move_rows(
-            ...     "g-uuid", {"revision": "3", "row_id": "r1", "position": 0}
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The row to move and where, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> wiki.grids.move_rows(
+            ...     grid_id, {"revision": "15", "row_id": "r3", "position": 4}
+            ... ).revision
+            '16'
         """
         return self._session.send(endpoints.move_rows(grid_id, body))
 
@@ -156,13 +207,18 @@ class GridsClient(Resource):
         ``ColumnsAdd`` derives it from the title when omitted, but a raw dict body passed here
         directly must carry it.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.add_columns(
-            ...     "g-uuid",
-            ...     {"revision": "3", "columns": [{"title": "C", "type": "string", "slug": "c"}]},
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The columns to add, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> columns = [{"title": "Due Date", "type": "date", "slug": "due_date"}]
+            >>> wiki.grids.add_columns(grid_id, {"revision": "16", "columns": columns}).revision
+            '17'
         """
         return self._session.send(endpoints.add_columns(grid_id, body))
 
@@ -171,40 +227,54 @@ class GridsClient(Resource):
 
         A rare DELETE-with-body: ``column_slugs`` + ``revision`` travel in the JSON body.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.remove_columns(
-            ...     "g-uuid", {"revision": "3", "column_slugs": ["name"]}
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The slugs of the columns to delete, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> body = {"revision": "17", "column_slugs": ["stage", "due_date"]}
+            >>> wiki.grids.remove_columns(grid_id, body).revision
+            '18'
         """
         return self._session.send(endpoints.remove_columns(grid_id, body))
 
     def move_columns(self, grid_id: str, body: dict[str, Any]) -> RevisionResult:
         """``POST /grids/{id}/columns/move`` — reorder columns. ``body`` is a ``ColumnsMove`` dump.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.move_columns(
-            ...     "g-uuid", {"revision": "3", "column_slug": "name", "position": 0}
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The column to move and where, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> body = {"revision": "18", "column_slug": "owner", "position": 0}
+            >>> wiki.grids.move_columns(grid_id, body).revision
+            '19'
         """
         return self._session.send(endpoints.move_columns(grid_id, body))
 
     def update_cells(self, grid_id: str, body: dict[str, Any]) -> CellsUpdateResult:
         """``POST /grids/{id}/cells`` — set individual cell values. ``body`` is a ``CellsUpdate``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.update_cells(
-            ...     "g-uuid",
-            ...     {
-            ...         "revision": "3",
-            ...         "cells": [{"row_id": 1, "column_slug": "name", "value": "x"}],
-            ...     },
-            ... ).revision  # doctest: +SKIP
-            '4'
+        Args:
+            grid_id: The grid's id.
+            body: The cells to set, with the grid's ``revision``.
+
+        Returns:
+            The grid's new revision and the updated cells.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> cells = [{"row_id": 101, "column_slug": "name", "value": "Launch v2"}]
+            >>> wiki.grids.update_cells(grid_id, {"revision": "19", "cells": cells}).revision
+            '20'
         """
         return self._session.send(endpoints.update_cells(grid_id, body))
 
@@ -215,10 +285,18 @@ class GridsClient(Resource):
         ``operation.id`` via ``OperationsClient.gridclone_get`` until terminal. ``body`` is a
         dumped ``GridClone`` (``{target, title?, with_data}``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.clone("g-uuid", {"target": "data/y"}).operation.id  # doctest: +SKIP
-            'task-1'
+        Args:
+            grid_id: The grid's id.
+            body: The target page, an optional title and whether to copy the data.
+
+        Returns:
+            The clone operation to poll.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> body = {"target": "eng/roadmap-copy", "title": "Roadmap copy", "with_data": True}
+            >>> wiki.grids.clone(grid_id, body).operation.id
+            'task-6201'
         """
         return self._session.send(endpoints.clone_grid(grid_id, body))
 
@@ -229,9 +307,17 @@ class GridsClient(Resource):
         (``{title?, slug?}``); a ``title`` is turned into a slug first. The reply says whether the
         slug is ``occupied`` and lists free alternatives.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.suggest_column("g-uuid", {"title": "Owner"}).occupied  # doctest: +SKIP
+        Args:
+            grid_id: The grid's id.
+            body: The column's ``title`` and/or ``slug``.
+
+        Returns:
+            Whether the slug is occupied, with free alternatives.
+
+        Examples:
+            >>> wiki.grids.suggest_column(
+            ...     "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a02", {"title": "Due date"}
+            ... ).occupied
             False
         """
         return self._session.send(endpoints.suggest_column(grid_id, body))
@@ -246,12 +332,18 @@ class GridsClient(Resource):
         not enforced (a stale or missing one works) and every call moves the grid's revision on.
         Returns the new revision and the column as saved.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.update_column(
-            ...     "g-uuid", "owner", {"revision": "3", "title": "Lead"}
-            ... ).column.title  # doctest: +SKIP
-            'Lead'
+        Args:
+            grid_id: The grid's id.
+            column_slug: The column's slug.
+            body: The fields to change.
+
+        Returns:
+            The grid's new revision and the column as saved.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> wiki.grids.update_column(grid_id, "stage", {"title": "Stage 2"}).column.title
+            'Stage 2'
         """
         return self._session.send(endpoints.update_column(grid_id, column_slug, body))
 
@@ -262,11 +354,17 @@ class GridsClient(Resource):
         bare acknowledgement without the new revision (read it with :meth:`get`); ``revision`` is
         accepted but not enforced, and every call moves the grid's revision on.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.grids.update_row(
-            ...     "g-uuid", "7", {"revision": "3", "pinned": True}
-            ... ).status  # doctest: +SKIP
+        Args:
+            grid_id: The grid's id.
+            row_id: The row's id.
+            body: The row's ``pinned`` and ``color``, and optionally ``revision``.
+
+        Returns:
+            The acknowledgement of the change.
+
+        Examples:
+            >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
+            >>> wiki.grids.update_row(grid_id, "103", {"pinned": True, "color": "orange"}).status
             'ok'
         """
         return self._session.send(endpoints.update_row(grid_id, row_id, body))

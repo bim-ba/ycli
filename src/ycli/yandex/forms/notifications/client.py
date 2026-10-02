@@ -45,12 +45,30 @@ class NotificationsClient(Resource):
         bounds are ISO-8601 times (both ends inclusive); ``ordering`` is ``asc`` (the API
         default) or ``desc``.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.notifications.list(survey_id="686d0a1b", status=["error"]).root[
-            ...     0
-            ... ].id  # doctest: +SKIP
-            744734758
+        Args:
+            survey_id: Only runs of this form.
+            hook_id: Only runs of this integration group.
+            subscription_id: Only runs of this integration.
+            answer_id: Only runs triggered by this answer.
+            status: Only runs in any of these states.
+            created_since: Only runs created at or after this time.
+            created_until: Only runs created at or before this time.
+            finished_since: Only runs finished at or after this time.
+            finished_until: Only runs finished at or before this time.
+            visible: Only visible (``True``) or hidden (``False``) runs.
+            integration_type: Only runs of this integration type.
+            ordering: ``asc`` (the API default) or ``desc``.
+            limit: The most runs to return; ``None`` returns every run.
+
+        Returns:
+            The matching runs.
+
+        Examples:
+            >>> runs = forms.notifications.list(
+            ...     survey_id="686d0a1b2c3d4e5f000000f0", status=["error", "pending"], limit=500
+            ... )
+            >>> [run.id for run in runs.root]
+            [9001, 9002, 9003]
         """
         paged = endpoints.list_notifications(
             survey_id=survey_id,
@@ -71,17 +89,30 @@ class NotificationsClient(Resource):
     def get(self, notification_id: int) -> NotificationDetails:
         """``GET /notifications/{id}`` → the run with its context, response and error.
 
-        Example:
-            >>> client.notifications.get(744734758).error  # doctest: +SKIP
+        Args:
+            notification_id: The run's id.
+
+        Returns:
+            The run, with what the integration was given, answered and failed with.
+
+        Examples:
+            >>> forms.notifications.get(9100).error[0].name
+            'detail'
         """
         return self._session.send(endpoints.get_notification(notification_id))
 
     def status_get(self, notification_id: int) -> NotificationStatus:
         """``GET /notifications/{id}/status`` → just the run's state.
 
-        Example:
-            >>> client.notifications.status_get(744734758).status  # doctest: +SKIP
-            'pending'
+        Args:
+            notification_id: The run's id.
+
+        Returns:
+            The run's state.
+
+        Examples:
+            >>> forms.notifications.status_get(9101).status
+            'success'
         """
         return self._session.send(endpoints.get_notification_status(notification_id))
 
@@ -93,9 +124,15 @@ class NotificationsClient(Resource):
         answered ``operation`` with the ``operation_id`` ``not-supported`` on the test
         organization, so there is nothing to poll: read the run's state with :meth:`status_get`.
 
-        Example:
-            >>> client.notifications.restart(744734758).result.status  # doctest: +SKIP
-            'ok'
+        Args:
+            notification_id: The run's id.
+
+        Returns:
+            How the restart went.
+
+        Examples:
+            >>> forms.notifications.restart(9102).result.status
+            'operation'
         """
         return self._session.send(endpoints.restart_notification(notification_id))
 
@@ -104,9 +141,15 @@ class NotificationsClient(Resource):
 
         A run that is already canceled or finished answers ``result.status`` ``skip``.
 
-        Example:
-            >>> client.notifications.cancel(744734758).result.status  # doctest: +SKIP
-            'ok'
+        Args:
+            notification_id: The run's id.
+
+        Returns:
+            How the cancel went.
+
+        Examples:
+            >>> forms.notifications.cancel(9103).result.status
+            'fail'
         """
         return self._session.send(endpoints.cancel_notification(notification_id))
 
@@ -115,8 +158,14 @@ class NotificationsClient(Resource):
 
         Read each with :meth:`get`.
 
-        Example:
-            >>> client.notifications.errors_list("686d0a1b").root  # doctest: +SKIP
-            [744734758]
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            The ids of the form's failed runs.
+
+        Examples:
+            >>> forms.notifications.errors_list("686d0a1b2c3d4e5f000000f2").root
+            [9001, 9003]
         """
         return self._session.send(endpoints.list_failed_notifications(survey_id))

@@ -60,9 +60,6 @@ def get(
     Name, size, MIME type, download URL, whether a preview exists and the virus-check status.
     Yandex does not document this operation (it is in the live OpenAPI only) and may change it.
     Fetching the bytes (``download``, ``preview``) is CLI/SDK-only.
-
-    Example:
-        >>> get(page_id=12345, file_id=678)  # doctest: +SKIP
     """
     return client.attachments.get(page_id=page_id, file_id=file_id)
 
@@ -86,9 +83,6 @@ def attach(
     send the bytes (``uploadsessions_upload_part``), close it (``uploadsessions_finish``),
     then attach here. For one small file, ``attachments_upload`` runs the whole pipeline in
     a single call. Returns the newly-attached files.
-
-    Example:
-        >>> attach(page_id=12345, session_ids=["1e5c…"])  # doctest: +SKIP
     """
     return client.attachments.attach(page_id, session_ids)
 
@@ -111,9 +105,6 @@ def upload(
     path — for large files drive ``uploadsessions_create`` / ``uploadsessions_upload_part``
     (chunked) / ``uploadsessions_finish`` + ``attachments_attach`` yourself. Returns the
     newly-attached files.
-
-    Example:
-        >>> upload(page_id=12345, file_name="d.txt", data="aGk=")  # doctest: +SKIP
     """
     return client.attachments.upload(client.uploadsessions, page_id, file_name=file_name, data=data)
 
@@ -132,9 +123,6 @@ def delete(
 
     The API answers ``204 No Content``; a typed acknowledgement is returned instead. Find
     ``file_id`` with ``attachments_list`` and double-check it before calling.
-
-    Example:
-        >>> delete(page_id=12345, file_id=678)  # doctest: +SKIP
     """
     client.attachments.delete(page_id=page_id, file_id=file_id)
     return Ack.deleted("attachment", file_id, from_=f"page {page_id}")

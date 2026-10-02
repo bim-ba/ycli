@@ -90,7 +90,7 @@ class PageIdentity(APIModel):
 
     ``id`` takes priority when both are supplied; ``slug`` is used otherwise.
 
-    Example:
+    Examples:
         >>> PageIdentity(slug="data/x").slug
         'data/x'
     """
@@ -107,7 +107,7 @@ class ColumnSortSchema(APIModel):
     Read shape only — a grid update must send :class:`ColumnSortWrite` instead (the API's write
     shape is a plain ``{"<column_slug>": "asc"|"desc"}`` mapping and 400s on this read shape).
 
-    Example:
+    Examples:
         >>> ColumnSortSchema(slug="priority", direction="desc").direction
         'desc'
     """
@@ -127,7 +127,7 @@ class ColumnSortWrite(RootModel[dict[str, SortDirection]]):
     ``column_slug → direction`` mappings and rejects the read shape with a 400
     (``type_error.enum``). Values are validated against :data:`SortDirection`.
 
-    Example:
+    Examples:
         >>> ColumnSortWrite({"priority": "desc"}).model_dump()
         {'priority': 'desc'}
     """
@@ -138,7 +138,7 @@ class ColumnSortWrite(RootModel[dict[str, SortDirection]]):
 class ColumnSchema(APIModel):
     """A column in a grid's structure (``structure.columns[]`` on a read).
 
-    Example:
+    Examples:
         >>> ColumnSchema.model_validate({"slug": "name", "type": "string"}).type
         'string'
     """
@@ -177,7 +177,7 @@ class ColumnSchema(APIModel):
 class GridStructureSchema(APIModel):
     """A grid's structure — its columns and default sort.
 
-    Example:
+    Examples:
         >>> GridStructureSchema(columns=[ColumnSchema(slug="a")]).columns[0].slug
         'a'
     """
@@ -196,7 +196,7 @@ class GridRow(APIModel):
     ``row`` is positional (aligned to ``structure.columns``) and heterogeneous: a cell may be a
     scalar, a string list, a ticket ref, or a user object, so it is typed permissively.
 
-    Example:
+    Examples:
         >>> GridRow.model_validate({"id": "r1", "row": [1, "x"], "pinned": True}).row
         [1, 'x']
     """
@@ -212,7 +212,7 @@ class GridRow(APIModel):
 class GridAttributes(APIModel):
     """Extra grid attributes (``fields=attributes``) — creation / modification timestamps.
 
-    Example:
+    Examples:
         >>> GridAttributes(created_at="2025-01-01T00:00:00Z").created_at
         '2025-01-01T00:00:00Z'
     """
@@ -229,7 +229,7 @@ class Grid(APIModel):
     ``revision`` is the optimistic-lock token: pass it back on the next write. ``attributes`` and
     ``user_permissions`` are only present when requested via ``fields=``.
 
-    Example:
+    Examples:
         >>> Grid.model_validate({"id": "g-uuid", "title": "Roadmap", "revision": "3"}).revision
         '3'
     """
@@ -264,7 +264,7 @@ class RevisionResult(APIModel):
 
     Carries the grid's new optimistic-lock token; feed it to the next write.
 
-    Example:
+    Examples:
         >>> RevisionResult.model_validate({"revision": "4"}).revision
         '4'
     """
@@ -275,7 +275,7 @@ class RevisionResult(APIModel):
 class RowsAddResult(APIModel):
     """Reply of ``POST /grids/{id}/rows`` — the new ``revision`` plus the created rows.
 
-    Example:
+    Examples:
         >>> RowsAddResult.model_validate({"revision": "5", "results": [{"id": "r1"}]}).results[0].id
         'r1'
     """
@@ -287,7 +287,7 @@ class RowsAddResult(APIModel):
 class CellSchema(APIModel):
     """A single updated cell in a ``cells update`` reply (``row_id``, ``column_slug``, ``value``).
 
-    Example:
+    Examples:
         >>> CellSchema.model_validate({"row_id": "r1", "column_slug": "name", "value": 1}).value
         1
     """
@@ -300,7 +300,7 @@ class CellSchema(APIModel):
 class CellsUpdateResult(APIModel):
     """Reply of ``POST /grids/{id}/cells`` — the new ``revision`` plus the updated cells.
 
-    Example:
+    Examples:
         >>> CellsUpdateResult.model_validate({"revision": "6", "cells": []}).revision
         '6'
     """
@@ -316,7 +316,7 @@ class CellsUpdateResult(APIModel):
 class OperationIdentity(APIModel):
     """Reference to a deferred B2B operation (``{type, id}``) returned by a clone trigger.
 
-    Example:
+    Examples:
         >>> OperationIdentity(type="clone_inline_grid", id="task-1").id
         'task-1'
     """
@@ -335,7 +335,7 @@ class GridCloneOperation(APIModel):
     Grid clone is asynchronous: this returns the ``operation`` (``clone_inline_grid``) and a
     ``status_url``; poll ``operations gridclone <operation.id>`` until it reaches a terminal state.
 
-    Example:
+    Examples:
         >>> GridCloneOperation.model_validate(
         ...     {"operation": {"type": "clone_inline_grid", "id": "t1"}}
         ... ).operation.id
@@ -365,7 +365,7 @@ class NewColumnSchema(APIModel):
     title yields a Cyrillic slug (``"Владелец"`` → ``"владелец"``); only a title with no word
     characters at all (pure punctuation) needs an explicit ``slug``.
 
-    Example:
+    Examples:
         >>> NewColumnSchema(title="Owner", type="staff", multiple=True).model_dump(
         ...     exclude_none=True
         ... )
@@ -409,9 +409,9 @@ class NewColumnSchema(APIModel):
 
     @model_validator(mode="after")
     def _derive_slug_from_title(self) -> NewColumnSchema:
-        """Default ``slug`` from ``title`` — the live API rejects slug-less columns (400).
+        r"""Default ``slug`` from ``title`` — the live API rejects slug-less columns (400).
 
-        ``\\W+`` is Unicode-aware, so a Cyrillic title (the Wiki's primary audience) derives a
+        ``\W+`` is Unicode-aware, so a Cyrillic title (the Wiki's primary audience) derives a
         Cyrillic slug rather than collapsing to empty; only a title with no word characters at
         all (pure punctuation) needs an explicit slug.
         """
@@ -432,7 +432,7 @@ class GridCreate(APIModel):
     A new grid has no prior revision, so this body carries none. Columns and rows are added
     afterwards via the ``columns``/``rows`` calls.
 
-    Example:
+    Examples:
         >>> GridCreate(title="Roadmap", page=PageIdentity(slug="data/x")).model_dump(
         ...     exclude_none=True
         ... )
@@ -451,7 +451,7 @@ class GridUpdate(APIModel):
     ``{"<column_slug>": "asc"|"desc"}`` mappings (:class:`ColumnSortWrite`), **not** the
     ``{slug, title, direction}`` read shape a grid ``get`` returns.
 
-    Example:
+    Examples:
         >>> GridUpdate(revision="3", title="New").model_dump(exclude_none=True)
         {'revision': '3', 'title': 'New'}
         >>> GridUpdate(revision="3", default_sort=[{"col": "asc"}]).model_dump(exclude_none=True)
@@ -474,7 +474,7 @@ class RowsAdd(APIModel):
     Each item of ``rows`` maps a column slug to its cell value. ``position`` /
     ``after_row_id`` place the new rows; omit both to append.
 
-    Example:
+    Examples:
         >>> RowsAdd(revision="3", rows=[{"name": "x"}]).model_dump(exclude_none=True)
         {'revision': '3', 'rows': [{'name': 'x'}]}
     """
@@ -492,7 +492,7 @@ class RowsAdd(APIModel):
 class RowsRemove(APIModel):
     """Typed body for ``DELETE /grids/{id}/rows`` — delete rows by id.
 
-    Example:
+    Examples:
         >>> RowsRemove(revision="3", row_ids=["r1"]).model_dump(exclude_none=True)
         {'revision': '3', 'row_ids': ['r1']}
     """
@@ -506,7 +506,7 @@ class RowsRemove(APIModel):
 class RowsMove(APIModel):
     """Typed body for ``POST /grids/{id}/rows/move`` — move a run of rows to a position.
 
-    Example:
+    Examples:
         >>> RowsMove(revision="3", row_id="r1", position=0).model_dump(exclude_none=True)
         {'revision': '3', 'row_id': 'r1', 'position': 0}
     """
@@ -525,7 +525,7 @@ class RowsMove(APIModel):
 class ColumnsAdd(APIModel):
     """Typed body for ``POST /grids/{id}/columns`` — add columns at a position.
 
-    Example:
+    Examples:
         >>> ColumnsAdd(
         ...     revision="3", columns=[NewColumnSchema(title="C", type="string")]
         ... ).model_dump(exclude_none=True)["columns"]
@@ -540,7 +540,7 @@ class ColumnsAdd(APIModel):
 class ColumnsRemove(APIModel):
     """Typed body for ``DELETE /grids/{id}/columns`` — delete columns by slug.
 
-    Example:
+    Examples:
         >>> ColumnsRemove(revision="3", column_slugs=["name"]).model_dump(exclude_none=True)
         {'revision': '3', 'column_slugs': ['name']}
     """
@@ -552,7 +552,7 @@ class ColumnsRemove(APIModel):
 class ColumnsMove(APIModel):
     """Typed body for ``POST /grids/{id}/columns/move`` — move a run of columns to a position.
 
-    Example:
+    Examples:
         >>> ColumnsMove(revision="3", column_slug="name", position=0).model_dump(exclude_none=True)
         {'revision': '3', 'column_slug': 'name', 'position': 0}
     """
@@ -568,7 +568,7 @@ class ColumnsMove(APIModel):
 class UpdateCellSchema(APIModel):
     """Typed body for one cell in a ``cells update`` request (``row_id``, ``column_slug``, value).
 
-    Example:
+    Examples:
         >>> UpdateCellSchema(row_id=1, column_slug="name", value="x").model_dump()
         {'row_id': 1, 'column_slug': 'name', 'value': 'x'}
     """
@@ -581,7 +581,7 @@ class UpdateCellSchema(APIModel):
 class CellsUpdate(APIModel):
     """Typed body for ``POST /grids/{id}/cells`` — set the value of individual cells.
 
-    Example:
+    Examples:
         >>> CellsUpdate(
         ...     revision="3", cells=[UpdateCellSchema(row_id=1, column_slug="name", value="x")]
         ... ).model_dump(exclude_none=True)
@@ -599,7 +599,7 @@ class ColumnSuggest(APIModel):
     exactly one of them (the API answers 400 for neither or both). The call only reads: it changes
     nothing in the grid.
 
-    Example:
+    Examples:
         >>> ColumnSuggest(title="Due date").model_dump(exclude_none=True)
         {'title': 'Due date'}
     """
@@ -623,7 +623,7 @@ class ColumnSuggest(APIModel):
 class ColumnSuggestion(APIModel):
     """Reply of ``POST /grids/{id}/columns/suggest`` — the checked slug and free alternatives.
 
-    Example:
+    Examples:
         >>> ColumnSuggestion.model_validate(
         ...     {"slug": "name", "occupied": True, "suggest": ["name_1"]}
         ... ).suggest
@@ -646,7 +646,7 @@ class ColumnUpdate(APIModel):
     be edited. Unlike the other grid writes this one does not enforce ``revision``: a live check
     accepted a stale revision and none at all. Every call moves the grid's revision on.
 
-    Example:
+    Examples:
         >>> ColumnUpdate(revision="3", title="Owner", width=40, width_units="%").model_dump(
         ...     exclude_none=True
         ... )
@@ -687,7 +687,7 @@ class ColumnUpdate(APIModel):
 class ColumnUpdateResult(APIModel):
     """Reply of ``POST /grids/{id}/column/{slug}`` — the new ``revision`` and the column as saved.
 
-    Example:
+    Examples:
         >>> ColumnUpdateResult.model_validate(
         ...     {"revision": "5", "column": {"slug": "owner", "title": "Owner"}}
         ... ).column.title
@@ -705,7 +705,7 @@ class RowUpdate(APIModel):
     not enforce ``revision`` (a stale or missing one is accepted), and every call moves the grid's
     revision on.
 
-    Example:
+    Examples:
         >>> RowUpdate(revision="3", pinned=True, color="mint").model_dump(exclude_none=True)
         {'revision': '3', 'pinned': True, 'color': 'mint'}
     """
@@ -723,7 +723,7 @@ class RowUpdateResult(APIModel):
     The spec says ``{status: "ok"}``, but a live check got an empty object, so ``status`` stays
     ``None``: the 2xx is the success signal, and the new revision comes from ``grids get``.
 
-    Example:
+    Examples:
         >>> RowUpdateResult.model_validate({"status": "ok"}).status
         'ok'
         >>> RowUpdateResult.model_validate({}).status is None
@@ -741,7 +741,7 @@ class GridClone(APIModel):
     ``target`` is the destination page slug (created if absent); ``with_data`` copies the rows as
     well as the structure. The call is deferred — see :class:`GridCloneOperation`.
 
-    Example:
+    Examples:
         >>> GridClone(target="data/y", with_data=True).model_dump(exclude_none=True)
         {'target': 'data/y', 'with_data': True}
     """
@@ -756,7 +756,7 @@ class GridClone(APIModel):
 class GridList(RootModel[list[Grid]]):
     """A bare list of grids (helper wrapper for uniform CLI/serializer rendering).
 
-    Example:
+    Examples:
         >>> GridList([Grid(id="g1")]).root[0].id
         'g1'
     """

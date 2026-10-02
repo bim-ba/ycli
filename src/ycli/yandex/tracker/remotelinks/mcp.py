@@ -36,9 +36,6 @@ def list_(
     Each entry carries the link type, direction, and the external object's key plus its owning
     application. This is the *external* link list — for issue-to-issue links use
     ``links_list``.
-
-    Example:
-        >>> remotelinks_list("JUNE-2")  # doctest: +SKIP
     """
     return client.remotelinks.list(issue_key)
 

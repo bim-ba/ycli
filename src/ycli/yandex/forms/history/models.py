@@ -11,7 +11,7 @@ from ycli.yandex.models import APIModel
 class HistoryEvent(APIModel):
     """One change made to a form: who did what to which part, and when.
 
-    Example:
+    Examples:
         >>> HistoryEvent.model_validate(
         ...     {"id": 7, "model": "surveyhook", "action": "POST api-v1:get_hooks_public_view"}
         ... ).model
@@ -30,7 +30,7 @@ class HistoryEvent(APIModel):
 class HistoryPage(APIModel):
     """One page of ``GET /surveys/{id}/history`` — the cursor and its events (internal).
 
-    Example:
+    Examples:
         >>> HistoryPage.model_validate({"iteration_key": 5, "limit": 2, "items": []}).limit
         2
     """
@@ -43,7 +43,7 @@ class HistoryPage(APIModel):
 class HistoryEventList(RootModel[list[HistoryEvent]]):
     """A flat list of :class:`HistoryEvent` — the return type of ``HistoryClient.list``.
 
-    Example:
+    Examples:
         >>> HistoryEventList.model_validate([{"id": 7}]).root[0].id
         7
     """

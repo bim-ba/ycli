@@ -31,20 +31,32 @@ class PagesClient(Resource):
         (e.g. from a descendants listing). ``fields`` is the same comma-separated selector
         (``content``, ``attributes``, ``breadcrumbs``, …); omit it for id/slug/title only.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.get_by_id(12345, fields="content").title  # doctest: +SKIP
-            'Архитектура данных'
+        Args:
+            page_id: The page's numeric id.
+            fields: The comma-separated blocks to include.
+
+        Returns:
+            The page.
+
+        Examples:
+            >>> wiki.pages.get_by_id(4101, fields="content,breadcrumbs").content
+            '# Arch'
         """
         return self._session.send(endpoints.get_page_by_id(page_id, fields=fields))
 
     def get(self, slug: str, fields: str | None = None) -> PageDetails:
         """``GET /pages?slug=&fields=`` → a single page (raises on non-2xx).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.get(slug="data/architecture", fields="content").title  # doctest: +SKIP
-            'Архитектура данных'
+        Args:
+            slug: The page's slug.
+            fields: The comma-separated blocks to include.
+
+        Returns:
+            The page.
+
+        Examples:
+            >>> wiki.pages.get("team/handbook", fields="content,attributes").content
+            '# Handbook'
         """
         return self._session.send(endpoints.get_page(slug, fields=fields))
 
@@ -59,11 +71,17 @@ class PagesClient(Resource):
 
         Capped at ``limit``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> refs = client.pages.descendants(slug="data", limit=50)  # doctest: +SKIP
-            >>> refs.root[0].slug  # doctest: +SKIP
-            'data/architecture'
+        Args:
+            slug: The ancestor page's slug.
+            limit: The most refs to return; ``None`` returns every ref.
+            actuality: The page state to list.
+
+        Returns:
+            The descendants' refs.
+
+        Examples:
+            >>> [ref.slug for ref in wiki.pages.descendants("eng", limit=40).root]
+            ['eng/a', 'eng/b']
         """
         paged = endpoints.list_descendants(slug, actuality=actuality)
         return PageRefList(list(self._session.iterate(paged, limit=limit)))
@@ -79,11 +97,17 @@ class PagesClient(Resource):
 
         The numeric-id twin of :meth:`descendants`; capped at ``limit`` (``None`` = every ref).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> refs = client.pages.descendants_by_id(12345, limit=50)  # doctest: +SKIP
-            >>> refs.root[0].slug  # doctest: +SKIP
-            'data/architecture'
+        Args:
+            page_id: The ancestor page's numeric id.
+            limit: The most refs to return; ``None`` returns every ref.
+            actuality: The page state to list.
+
+        Returns:
+            The descendants' refs.
+
+        Examples:
+            >>> [ref.slug for ref in wiki.pages.descendants_by_id(4210, limit=35).root]
+            ['sales/a', 'sales/b']
         """
         paged = endpoints.list_descendants_by_id(page_id, actuality=actuality)
         return PageRefList(list(self._session.iterate(paged, limit=limit)))
@@ -100,10 +124,17 @@ class PagesClient(Resource):
         Dynamic tables (grids) attached to the page. Capped at ``limit`` (``None`` = every
         grid); ``order_by`` sorts the server-side listing (``title`` or ``created_at``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.grids(12345, limit=50).root[0].title  # doctest: +SKIP
-            'Roadmap'
+        Args:
+            page_id: The page's id.
+            limit: The most grids to return; ``None`` returns every grid.
+            order_by: The sort field: ``title`` or ``created_at``.
+
+        Returns:
+            The page's grids.
+
+        Examples:
+            >>> [grid.title for grid in wiki.pages.grids(4301, limit=30).root]
+            ['Roadmap', 'Budget']
         """
         paged = endpoints.list_grids(page_id, order_by=order_by)
         return GridRefList(list(self._session.iterate(paged, limit=limit)))
@@ -111,22 +142,32 @@ class PagesClient(Resource):
     def create(self, body: dict[str, Any]) -> PageDetails:
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.create(
-            ...     {"slug": "data/guides/x", "title": "X", "content": "# X"}
-            ... ).id  # doctest: +SKIP
-            12345
+        Args:
+            body: The new page: ``content``, ``title`` and ``slug``.
+
+        Returns:
+            The created page.
+
+        Examples:
+            >>> body = {"slug": "eng/new", "title": "New page", "content": "# New"}
+            >>> wiki.pages.create(body).id
+            4401
         """
         return self._session.send(endpoints.create_page(body))
 
     def update(self, page_id: int, body: dict[str, Any]) -> PageDetails:
         """``POST /pages/{id}`` — update (POST not PATCH; PATCH returns 405).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.update(12345, {"content": "# Updated"}).id  # doctest: +SKIP
-            12345
+        Args:
+            page_id: The page's id.
+            body: The fields to change.
+
+        Returns:
+            The updated page.
+
+        Examples:
+            >>> wiki.pages.update(4403, {"content": "# Body only"}).id
+            4403
         """
         return self._session.send(endpoints.update_page(page_id, body))
 
@@ -136,10 +177,15 @@ class PagesClient(Resource):
         The returned :class:`PageDeleteResult` carries the ``recovery_token`` — the only handle
         to undo this delete, via ``RecoveryClient.restore`` (POST /recovery_tokens/{token}/recover).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.delete(12345).recovery_token  # doctest: +SKIP
-            'a1b2c3d4-…'
+        Args:
+            page_id: The page's id.
+
+        Returns:
+            The recovery token of the deleted page.
+
+        Examples:
+            >>> wiki.pages.delete(4501).recovery_token
+            'recovery-token-2'
         """
         return self._session.send(endpoints.delete_page(page_id))
 
@@ -150,12 +196,17 @@ class PagesClient(Resource):
         Unlike :meth:`update` (which replaces the body), this adds to it; ``body.location`` /
         ``section`` / ``anchor`` pinpoint where. Returns the updated :class:`PageDetails`.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.append_content(
-            ...     12345, {"content": "## More", "body": {"location": "bottom"}}
-            ... ).id  # doctest: +SKIP
-            12345
+        Args:
+            page_id: The page's id.
+            body: The YFM to append and where to put it.
+
+        Returns:
+            The updated page.
+
+        Examples:
+            >>> body = {"content": "## Footer", "body": {"location": "bottom"}}
+            >>> wiki.pages.append_content(4602, body).slug
+            'eng/footer'
         """
         return self._session.send(endpoints.append_content(page_id, body))
 
@@ -166,10 +217,17 @@ class PagesClient(Resource):
         ``OperationsClient.clone_get`` until terminal. ``body`` is a dumped :class:`PageClone`
         (``{target, title?, subscribe_me}``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.clone(12345, {"target": "data/y"}).operation.id  # doctest: +SKIP
-            'task-1'
+        Args:
+            page_id: The page's id.
+            body: The target address, an optional title and whether to subscribe the caller.
+
+        Returns:
+            The clone operation to poll.
+
+        Examples:
+            >>> body = {"target": "eng/copy", "title": "Copy", "subscribe_me": True}
+            >>> wiki.pages.clone(4701, body).operation.id
+            'task-4701'
         """
         return self._session.send(endpoints.clone_page(page_id, body))
 
@@ -184,12 +242,20 @@ class PagesClient(Resource):
         subtree. ``dry_run=True`` validates the request without applying it, and the task id it
         returns answers 404 when polled.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.move(
-            ...     {"operations": [{"source": "data/x", "target": "archive/x"}]}
-            ... ).operation.id  # doctest: +SKIP
-            'task-1'
+        Args:
+            body: The moves and ``copy_inherited_access``.
+            dry_run: Validate the request without applying it.
+
+        Returns:
+            The move operation to poll.
+
+        Examples:
+            >>> body = {
+            ...     "operations": [{"source": "eng/b", "target": "eng/c"}],
+            ...     "copy_inherited_access": False,
+            ... }
+            >>> wiki.pages.move(body, dry_run=True).operation.id
+            'mv-6101'
         """
         return self._session.send(endpoints.move_pages(body, dry_run=dry_run))
 
@@ -206,10 +272,18 @@ class PagesClient(Resource):
         ``GET /pages`` takes as ``revision_id``. ``ids`` keeps only these revisions (comma
         separated); capped at ``limit`` (``None`` = every revision).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.revisions(12345, limit=10).root[0].author.username  # doctest: +SKIP
-            'ivan'
+        Args:
+            page_id: The page's id.
+            ids: The comma-separated revision ids to keep.
+            limit: The most revisions to return; ``None`` returns every revision.
+
+        Returns:
+            The page's revisions.
+
+        Examples:
+            >>> revisions = wiki.pages.revisions(6201, ids="7002,7003", limit=40)
+            >>> [revision.id for revision in revisions.root]
+            [7003, 7002]
         """
         paged = endpoints.list_revisions(page_id, ids=ids)
         return PageRevisionList(list(self._session.iterate(paged, limit=limit)))
@@ -229,10 +303,19 @@ class PagesClient(Resource):
         a live check). The index lags a few seconds behind an edit. Capped at ``limit``
         (``None`` = every ref).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.pages.backlinks(12345).root[0].slug  # doctest: +SKIP
-            'data/guides/x'
+        Args:
+            page_id: The page's id.
+            for_cluster: Also report links to the page's descendants.
+            show_all: The API's flag of that name.
+            limit: The most refs to return; ``None`` returns every ref.
+
+        Returns:
+            The refs of the pages that link here.
+
+        Examples:
+            >>> refs = wiki.pages.backlinks(6301, for_cluster=True, show_all=True, limit=30)
+            >>> [ref.slug for ref in refs.root]
+            ['eng/linker-a', 'eng/linker-b']
         """
         paged = endpoints.list_backlinks(page_id, for_cluster=for_cluster, show_all=show_all)
         return PageRefList(list(self._session.iterate(paged, limit=limit)))

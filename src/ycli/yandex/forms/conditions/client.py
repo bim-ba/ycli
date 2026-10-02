@@ -33,10 +33,16 @@ class ConditionsClient(Resource):
     def question_list(self, survey_id: str, question_id: str) -> ConditionsResponse:
         """``GET /surveys/{id}/questions/{question_id}/conditions`` → ``{operator, items}``.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.conditions.question_list("686d0a1b", "17").operator  # doctest: +SKIP
-            'and'
+        Args:
+            survey_id: The form's id.
+            question_id: The question's id.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.question_list("686d0a1b2c3d4e5f00000090", "17").operator
+            'or'
         """
         return self._session.send(
             endpoints.list_conditions(endpoints.question_target(survey_id, question_id))
@@ -45,9 +51,17 @@ class ConditionsClient(Resource):
     def question_get(self, survey_id: str, question_id: str, condition_id: int) -> Condition:
         """``GET …/questions/{question_id}/conditions/{condition_id}`` → one group.
 
-        Example:
-            >>> client.conditions.question_get("686d0a1b", "17", 5).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            question_id: The question's id.
+            condition_id: The condition group's id.
+
+        Returns:
+            The condition group.
+
+        Examples:
+            >>> forms.conditions.question_get("686d0a1b2c3d4e5f00000090", "17", 102).id
+            102
         """
         target = endpoints.question_target(survey_id, question_id)
         return self._session.send(endpoints.get_condition(target, condition_id))
@@ -55,14 +69,26 @@ class ConditionsClient(Resource):
     def question_create(self, survey_id: str, question_id: str, body: ConditionCreate) -> Condition:
         """``POST …/questions/{question_id}/conditions`` — add a group → it, with its ``id``.
 
-        Example:
+        Args:
+            survey_id: The form's id.
+            question_id: The question's id.
+            body: The new group: its operator and clauses.
+
+        Returns:
+            The created group, with its ``id``.
+
+        Examples:
             >>> from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionItemWrite
             >>> body = ConditionCreate(
             ...     operator="and",
-            ...     items=[ConditionItemWrite(type="question", condition="eq", question="q1")],
+            ...     items=[
+            ...         ConditionItemWrite(
+            ...             type="question", condition="gt", question="age100", value="18"
+            ...         )
+            ...     ],
             ... )
-            >>> client.conditions.question_create("686d0a1b", "17", body).id  # doctest: +SKIP
-            5
+            >>> forms.conditions.question_create("686d0a1b2c3d4e5f00000090", "17", body).id
+            103
         """
         target = endpoints.question_target(survey_id, question_id)
         return self._session.send(endpoints.create_condition(target, _dumped(body)))
@@ -72,8 +98,23 @@ class ConditionsClient(Resource):
     ) -> Condition:
         """``PATCH …/questions/{question_id}/conditions/{condition_id}`` — replace the group.
 
-        Example:
-            >>> client.conditions.question_modify("686d0a1b", "17", 5, body)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            question_id: The question's id.
+            condition_id: The condition group's id.
+            body: The full replacement group: its operator and clauses.
+
+        Returns:
+            The replaced group.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionItemWrite, ConditionUpdate
+            >>> body = ConditionUpdate(
+            ...     operator="or",
+            ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
+            ... )
+            >>> forms.conditions.question_modify("686d0a1b2c3d4e5f00000090", "17", 104, body).id
+            104
         """
         target = endpoints.question_target(survey_id, question_id)
         return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
@@ -81,8 +122,13 @@ class ConditionsClient(Resource):
     def question_delete(self, survey_id: str, question_id: str, condition_id: int) -> None:
         """``DELETE …/questions/{question_id}/conditions/{condition_id}`` (200, no body).
 
-        Example:
-            >>> client.conditions.question_delete("686d0a1b", "17", 5)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            question_id: The question's id.
+            condition_id: The condition group's id.
+
+        Examples:
+            >>> forms.conditions.question_delete("686d0a1b2c3d4e5f00000090", "17", 106)
         """
         target = endpoints.question_target(survey_id, question_id)
         self._session.send(endpoints.delete_condition(target, condition_id))
@@ -92,8 +138,19 @@ class ConditionsClient(Resource):
     ) -> ConditionsResponse:
         """``PATCH …/questions/{question_id}/conditions`` — the operator BETWEEN groups.
 
-        Example:
-            >>> client.conditions.question_set_operator("686d", "17", "or")  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            question_id: The question's id.
+            operator: The operator joining the groups: ``and`` or ``or``.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.question_set_operator(
+            ...     "686d0a1b2c3d4e5f00000090", "17", "or"
+            ... ).operator
+            'or'
         """
         target = endpoints.question_target(survey_id, question_id)
         return self._session.send(endpoints.set_operator(target, operator))
@@ -103,9 +160,16 @@ class ConditionsClient(Resource):
     def page_list(self, survey_id: str, page_id: int) -> ConditionsResponse:
         """``GET /surveys/{id}/pages/{page_id}/conditions`` → ``{operator, items}``.
 
-        Example:
-            >>> client.conditions.page_list("686d0a1b", 3).operator  # doctest: +SKIP
-            'and'
+        Args:
+            survey_id: The form's id.
+            page_id: The page's id.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.page_list("686d0a1b2c3d4e5f00000090", 3).operator
+            'or'
         """
         return self._session.send(
             endpoints.list_conditions(endpoints.page_target(survey_id, page_id))
@@ -114,9 +178,17 @@ class ConditionsClient(Resource):
     def page_get(self, survey_id: str, page_id: int, condition_id: int) -> Condition:
         """``GET …/pages/{page_id}/conditions/{condition_id}`` → one group.
 
-        Example:
-            >>> client.conditions.page_get("686d0a1b", 3, 5).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            page_id: The page's id.
+            condition_id: The condition group's id.
+
+        Returns:
+            The condition group.
+
+        Examples:
+            >>> forms.conditions.page_get("686d0a1b2c3d4e5f00000090", 3, 202).id
+            202
         """
         target = endpoints.page_target(survey_id, page_id)
         return self._session.send(endpoints.get_condition(target, condition_id))
@@ -124,9 +196,26 @@ class ConditionsClient(Resource):
     def page_create(self, survey_id: str, page_id: int, body: ConditionCreate) -> Condition:
         """``POST …/pages/{page_id}/conditions`` — add a group → it, with its ``id``.
 
-        Example:
-            >>> client.conditions.page_create("686d0a1b", 3, body).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            page_id: The page's id.
+            body: The new group: its operator and clauses.
+
+        Returns:
+            The created group, with its ``id``.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionItemWrite
+            >>> body = ConditionCreate(
+            ...     operator="and",
+            ...     items=[
+            ...         ConditionItemWrite(
+            ...             type="question", condition="gt", question="age200", value="18"
+            ...         )
+            ...     ],
+            ... )
+            >>> forms.conditions.page_create("686d0a1b2c3d4e5f00000090", 3, body).id
+            203
         """
         target = endpoints.page_target(survey_id, page_id)
         return self._session.send(endpoints.create_condition(target, _dumped(body)))
@@ -136,8 +225,23 @@ class ConditionsClient(Resource):
     ) -> Condition:
         """``PATCH …/pages/{page_id}/conditions/{condition_id}`` — replace the group.
 
-        Example:
-            >>> client.conditions.page_modify("686d0a1b", 3, 5, body)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            page_id: The page's id.
+            condition_id: The condition group's id.
+            body: The full replacement group: its operator and clauses.
+
+        Returns:
+            The replaced group.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionItemWrite, ConditionUpdate
+            >>> body = ConditionUpdate(
+            ...     operator="or",
+            ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
+            ... )
+            >>> forms.conditions.page_modify("686d0a1b2c3d4e5f00000090", 3, 204, body).id
+            204
         """
         target = endpoints.page_target(survey_id, page_id)
         return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
@@ -145,8 +249,13 @@ class ConditionsClient(Resource):
     def page_delete(self, survey_id: str, page_id: int, condition_id: int) -> None:
         """``DELETE …/pages/{page_id}/conditions/{condition_id}`` (200, no body).
 
-        Example:
-            >>> client.conditions.page_delete("686d0a1b", 3, 5)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            page_id: The page's id.
+            condition_id: The condition group's id.
+
+        Examples:
+            >>> forms.conditions.page_delete("686d0a1b2c3d4e5f00000090", 3, 206)
         """
         target = endpoints.page_target(survey_id, page_id)
         self._session.send(endpoints.delete_condition(target, condition_id))
@@ -156,8 +265,17 @@ class ConditionsClient(Resource):
     ) -> ConditionsResponse:
         """``PATCH …/pages/{page_id}/conditions`` — the operator BETWEEN groups.
 
-        Example:
-            >>> client.conditions.page_set_operator("686d", 3, "or")  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            page_id: The page's id.
+            operator: The operator joining the groups: ``and`` or ``or``.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.page_set_operator("686d0a1b2c3d4e5f00000090", 3, "or").operator
+            'or'
         """
         target = endpoints.page_target(survey_id, page_id)
         return self._session.send(endpoints.set_operator(target, operator))
@@ -167,18 +285,31 @@ class ConditionsClient(Resource):
     def submit_list(self, survey_id: str) -> ConditionsResponse:
         """``GET /surveys/{id}/conditions`` → ``{operator, items}``.
 
-        Example:
-            >>> client.conditions.submit_list("686d0a1b").operator  # doctest: +SKIP
-            'and'
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.submit_list("686d0a1b2c3d4e5f00000090").operator
+            'or'
         """
         return self._session.send(endpoints.list_conditions(endpoints.submit_target(survey_id)))
 
     def submit_get(self, survey_id: str, condition_id: int) -> Condition:
         """``GET /surveys/{id}/conditions/{condition_id}`` → one group.
 
-        Example:
-            >>> client.conditions.submit_get("686d0a1b", 5).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            condition_id: The condition group's id.
+
+        Returns:
+            The condition group.
+
+        Examples:
+            >>> forms.conditions.submit_get("686d0a1b2c3d4e5f00000090", 302).id
+            302
         """
         target = endpoints.submit_target(survey_id)
         return self._session.send(endpoints.get_condition(target, condition_id))
@@ -186,9 +317,25 @@ class ConditionsClient(Resource):
     def submit_create(self, survey_id: str, body: ConditionCreate) -> Condition:
         """``POST /surveys/{id}/conditions`` — add a group → it, with its ``id``.
 
-        Example:
-            >>> client.conditions.submit_create("686d0a1b", body).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            body: The new group: its operator and clauses.
+
+        Returns:
+            The created group, with its ``id``.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionItemWrite
+            >>> body = ConditionCreate(
+            ...     operator="and",
+            ...     items=[
+            ...         ConditionItemWrite(
+            ...             type="question", condition="gt", question="age300", value="18"
+            ...         )
+            ...     ],
+            ... )
+            >>> forms.conditions.submit_create("686d0a1b2c3d4e5f00000090", body).id
+            303
         """
         target = endpoints.submit_target(survey_id)
         return self._session.send(endpoints.create_condition(target, _dumped(body)))
@@ -196,8 +343,22 @@ class ConditionsClient(Resource):
     def submit_modify(self, survey_id: str, condition_id: int, body: ConditionUpdate) -> Condition:
         """``PATCH /surveys/{id}/conditions/{condition_id}`` — replace the group.
 
-        Example:
-            >>> client.conditions.submit_modify("686d0a1b", 5, body)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            condition_id: The condition group's id.
+            body: The full replacement group: its operator and clauses.
+
+        Returns:
+            The replaced group.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionItemWrite, ConditionUpdate
+            >>> body = ConditionUpdate(
+            ...     operator="or",
+            ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
+            ... )
+            >>> forms.conditions.submit_modify("686d0a1b2c3d4e5f00000090", 304, body).id
+            304
         """
         target = endpoints.submit_target(survey_id)
         return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
@@ -205,8 +366,12 @@ class ConditionsClient(Resource):
     def submit_delete(self, survey_id: str, condition_id: int) -> None:
         """``DELETE /surveys/{id}/conditions/{condition_id}`` (200, no body).
 
-        Example:
-            >>> client.conditions.submit_delete("686d0a1b", 5)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            condition_id: The condition group's id.
+
+        Examples:
+            >>> forms.conditions.submit_delete("686d0a1b2c3d4e5f00000090", 306)
         """
         self._session.send(
             endpoints.delete_condition(endpoints.submit_target(survey_id), condition_id)
@@ -217,8 +382,16 @@ class ConditionsClient(Resource):
     ) -> ConditionsResponse:
         """``PATCH /surveys/{id}/conditions`` — the operator BETWEEN groups.
 
-        Example:
-            >>> client.conditions.submit_set_operator("686d", "or")  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            operator: The operator joining the groups: ``and`` or ``or``.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.submit_set_operator("686d0a1b2c3d4e5f00000090", "or").operator
+            'or'
         """
         return self._session.send(
             endpoints.set_operator(endpoints.submit_target(survey_id), operator)
@@ -229,8 +402,15 @@ class ConditionsClient(Resource):
     def hook_list(self, survey_id: str, hook_id: int) -> ConditionsResponse:
         """``GET /surveys/{id}/hooks/{hook_id}/conditions`` → ``{operator, items}``.
 
-        Example:
-            >>> client.conditions.hook_list("686d0a1b", 11).operator  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.hook_list("686d0a1b2c3d4e5f00000090", 11).operator
             'or'
         """
         return self._session.send(
@@ -240,9 +420,17 @@ class ConditionsClient(Resource):
     def hook_get(self, survey_id: str, hook_id: int, condition_id: int) -> Condition:
         """``GET …/hooks/{hook_id}/conditions/{condition_id}`` → one group.
 
-        Example:
-            >>> client.conditions.hook_get("686d0a1b", 11, 5).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+            condition_id: The condition group's id.
+
+        Returns:
+            The condition group.
+
+        Examples:
+            >>> forms.conditions.hook_get("686d0a1b2c3d4e5f00000090", 11, 402).id
+            402
         """
         target = endpoints.hook_target(survey_id, hook_id)
         return self._session.send(endpoints.get_condition(target, condition_id))
@@ -250,9 +438,26 @@ class ConditionsClient(Resource):
     def hook_create(self, survey_id: str, hook_id: int, body: ConditionCreate) -> Condition:
         """``POST …/hooks/{hook_id}/conditions`` — add a group → it, with its ``id``.
 
-        Example:
-            >>> client.conditions.hook_create("686d0a1b", 11, body).id  # doctest: +SKIP
-            5
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+            body: The new group: its operator and clauses.
+
+        Returns:
+            The created group, with its ``id``.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionItemWrite
+            >>> body = ConditionCreate(
+            ...     operator="and",
+            ...     items=[
+            ...         ConditionItemWrite(
+            ...             type="question", condition="gt", question="age400", value="18"
+            ...         )
+            ...     ],
+            ... )
+            >>> forms.conditions.hook_create("686d0a1b2c3d4e5f00000090", 11, body).id
+            403
         """
         target = endpoints.hook_target(survey_id, hook_id)
         return self._session.send(endpoints.create_condition(target, _dumped(body)))
@@ -262,8 +467,23 @@ class ConditionsClient(Resource):
     ) -> Condition:
         """``PATCH …/hooks/{hook_id}/conditions/{condition_id}`` — replace the group.
 
-        Example:
-            >>> client.conditions.hook_modify("686d0a1b", 11, 5, body)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+            condition_id: The condition group's id.
+            body: The full replacement group: its operator and clauses.
+
+        Returns:
+            The replaced group.
+
+        Examples:
+            >>> from ycli.yandex.forms.conditions.models import ConditionItemWrite, ConditionUpdate
+            >>> body = ConditionUpdate(
+            ...     operator="or",
+            ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
+            ... )
+            >>> forms.conditions.hook_modify("686d0a1b2c3d4e5f00000090", 11, 404, body).id
+            404
         """
         target = endpoints.hook_target(survey_id, hook_id)
         return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
@@ -271,8 +491,13 @@ class ConditionsClient(Resource):
     def hook_delete(self, survey_id: str, hook_id: int, condition_id: int) -> None:
         """``DELETE …/hooks/{hook_id}/conditions/{condition_id}`` (200, no body).
 
-        Example:
-            >>> client.conditions.hook_delete("686d0a1b", 11, 5)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+            condition_id: The condition group's id.
+
+        Examples:
+            >>> forms.conditions.hook_delete("686d0a1b2c3d4e5f00000090", 11, 406)
         """
         target = endpoints.hook_target(survey_id, hook_id)
         self._session.send(endpoints.delete_condition(target, condition_id))
@@ -282,8 +507,17 @@ class ConditionsClient(Resource):
     ) -> ConditionsResponse:
         """``PATCH …/hooks/{hook_id}/conditions`` — the operator BETWEEN groups.
 
-        Example:
-            >>> client.conditions.hook_set_operator("686d", 11, "and")  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            hook_id: The integration group's (hook's) id.
+            operator: The operator joining the groups: ``and`` or ``or``.
+
+        Returns:
+            The target's operator and condition groups.
+
+        Examples:
+            >>> forms.conditions.hook_set_operator("686d0a1b2c3d4e5f00000090", 11, "or").operator
+            'or'
         """
         target = endpoints.hook_target(survey_id, hook_id)
         return self._session.send(endpoints.set_operator(target, operator))

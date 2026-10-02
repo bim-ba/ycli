@@ -60,6 +60,7 @@ def wait_for[P](
     animated ``message`` on an interactive stderr (via :func:`spinner`), byte-clean silence
     when piped. Polling semantics (attempt budget, backoff, timeout) live in
     :func:`ycli.yandex.polling.poll` — this wrapper adds presentation only.
+    The poll raises ``YandexTimeoutError`` when its attempt budget runs out.
 
     Args:
         fetch: Re-reads the operation status (closes over the client + operation id).
@@ -69,9 +70,6 @@ def wait_for[P](
 
     Returns:
         The first ``fetch`` result for which ``is_done`` returned ``True``.
-
-    Raises:
-        YandexTimeoutError: the poll's attempt budget elapsed without a terminal state.
     """
     with spinner(message, console=console):
         # ``time.sleep`` is passed at *call* time (poll's default binds it at import), so a

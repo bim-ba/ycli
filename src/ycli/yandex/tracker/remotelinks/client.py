@@ -17,9 +17,14 @@ class RemoteLinksClient(Resource):
     def list(self, issue_key: str) -> RemoteLinkList:
         """``GET /issues/{issue_key}/remotelinks`` → the issue's external-app links.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.remotelinks.list("JUNE-2").root[0].object_key  # doctest: +SKIP
+        Args:
+            issue_key: The issue's key.
+
+        Returns:
+            The issue's external-app links.
+
+        Examples:
+            >>> tracker.remotelinks.list("JUNE-2").root[0].object_key
             'TEST-17'
         """
         return self._session.send(endpoints.list_remote_links(issue_key))
@@ -31,22 +36,32 @@ class RemoteLinksClient(Resource):
 
         ``backlink="true"`` asks Tracker to also create the mirror link in the external app.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.remotelinks.create(
-            ...     "JUNE-2",
-            ...     {"relationship": "RELATES", "key": "TEST-17", "origin": "ru.yandex.bitbucket"},
+        Args:
+            issue_key: The issue's key.
+            body: The link's ``relationship``, external object ``key`` and ``origin``.
+            backlink: ``"true"`` also creates the mirror link in the external app.
+
+        Returns:
+            The created external link.
+
+        Examples:
+            >>> tracker.remotelinks.create(
+            ...     "JUNE-3",
+            ...     {"relationship": "BLOCKS", "key": "TEST-18", "origin": "ru.yandex.bitbucket"},
             ...     backlink="true",
-            ... ).object_key  # doctest: +SKIP
-            'TEST-17'
+            ... ).object_key
+            'TEST-18'
         """
         return self._session.send(endpoints.create_remote_link(issue_key, body, backlink))
 
     def delete(self, issue_key: str, link_id: str) -> None:
         """Delete an external link (``DELETE …/remotelinks/{link_id}`` → 204). Raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.remotelinks.delete("JUNE-2", "51")  # doctest: +SKIP
+        Args:
+            issue_key: The issue's key.
+            link_id: The external link's id.
+
+        Examples:
+            >>> tracker.remotelinks.delete("JUNE-6", "55")
         """
         self._session.send(endpoints.delete_remote_link(issue_key, link_id))

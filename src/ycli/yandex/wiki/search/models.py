@@ -27,7 +27,7 @@ class SearchDateRange(APIModel):
     The spec calls both ends optional, but the live API answers an open-ended window with
     ``400 SEARCH_BAD_REQUEST``, so a missing end fails here instead.
 
-    Example:
+    Examples:
         >>> SearchDateRange(start="2026-01-01", end="2026-02-01").model_dump(mode="json")
         {'from': '2026-01-01T00:00:00', 'to': '2026-02-01T00:00:00'}
     """
@@ -39,7 +39,7 @@ class SearchDateRange(APIModel):
 class SearchFilters(APIModel):
     """What to narrow a search to; every filter is optional.
 
-    Example:
+    Examples:
         >>> SearchFilters(type="page", cluster="docs").model_dump(exclude_none=True)
         {'type': 'page', 'cluster': 'docs', 'show_obsolete': False}
     """
@@ -68,7 +68,7 @@ class SearchFilters(APIModel):
 class SearchRequest(APIModel):
     """Body of ``POST /search``: the query, filters and one page of the results.
 
-    Example:
+    Examples:
         >>> SearchRequest(query="roadmap", limit=5).model_dump(exclude_none=True)
         {'query': 'roadmap', 'cursor': 1, 'limit': 5, 'order_by': 'relevancy', 'highlight': False}
     """
@@ -86,7 +86,7 @@ class SearchRequest(APIModel):
 class SearchResult(APIModel):
     """One hit of a search.
 
-    Example:
+    Examples:
         >>> SearchResult.model_validate({"slug": "docs/a", "title": "A"}).slug
         'docs/a'
     """
@@ -108,7 +108,7 @@ class SearchPage(APIModel):
     next request's ``cursor``. The API sets it even after a page with no results, so do not
     page until it is ``null``: stop at the first empty page.
 
-    Example:
+    Examples:
         >>> SearchPage.model_validate({"results": [], "next_cursor": "2"}).next_cursor
         '2'
     """

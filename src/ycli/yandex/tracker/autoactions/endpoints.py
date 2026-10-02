@@ -1,6 +1,6 @@
 """Tracker queue ``/autoactions`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_run_log("DESIGN", 9, "abc").path
     'queues/DESIGN/autoactions/9/logs/abc'
 """

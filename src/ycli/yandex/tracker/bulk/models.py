@@ -29,7 +29,7 @@ class BulkChange(APIModel):
     ``status`` starts at ``CREATED`` and progresses to a terminal ``COMPLETE`` / ``FAILED``;
     :attr:`is_terminal` reports whether it has stopped, driving the ``--wait`` poll loop.
 
-    Example:
+    Examples:
         >>> BulkChange.model_validate({"id": "1ab", "status": "COMPLETE"}).is_terminal
         True
     """
@@ -86,7 +86,7 @@ class BulkChange(APIModel):
 class BulkError(APIModel):
     """The ``error`` block on a failed bulk-change issue result.
 
-    Example:
+    Examples:
         >>> BulkError.model_validate({"errors": {"resolution": "bad"}, "errorMessages": []}).errors
         {'resolution': 'bad'}
     """
@@ -104,7 +104,7 @@ class BulkError(APIModel):
 class BulkIssueResult(APIModel):
     """One issue's outcome in ``GET /bulkchange/{id}/issues`` (issues that failed to change).
 
-    Example:
+    Examples:
         >>> BulkIssueResult.model_validate({"issue": {"key": "TEST-1"}, "status": "FAILED"}).issue
         'TEST-1'
     """
@@ -124,7 +124,7 @@ class BulkIssueResult(APIModel):
 class BulkIssueResultList(RootModel[list[BulkIssueResult]]):
     """A bare JSON array of per-issue bulk-change results.
 
-    Example:
+    Examples:
         >>> BulkIssueResultList.model_validate([{"status": "FAILED"}]).root[0].status
         'FAILED'
     """
@@ -133,7 +133,7 @@ class BulkIssueResultList(RootModel[list[BulkIssueResult]]):
 class BulkUpdate(APIModel):
     """Typed request body for ``POST /bulkchange/_update`` (mass-edit issues).
 
-    Example:
+    Examples:
         >>> BulkUpdate(issues=["TEST-1"], values={"priority": {"key": "blocker"}}).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -154,7 +154,7 @@ class BulkUpdate(APIModel):
 class BulkMove(APIModel):
     """Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue).
 
-    Example:
+    Examples:
         >>> BulkMove(queue="CHECK", issues=["TEST-1"]).model_dump(by_alias=True, exclude_none=True)
         {'queue': 'CHECK', 'issues': ['TEST-1']}
     """
@@ -184,7 +184,7 @@ class BulkMove(APIModel):
 class BulkTransition(APIModel):
     """Typed request body for ``POST /bulkchange/_transition`` (mass status transition).
 
-    Example:
+    Examples:
         >>> BulkTransition(transition="close", issues=["TEST-1"]).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )

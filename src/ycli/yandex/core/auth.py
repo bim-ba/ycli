@@ -13,7 +13,7 @@ All but the query-parameter key go into the ``Authorization`` header.
 Secrets are ``SecretStr``, so they never show up in ``repr`` or logs. The organization header
 is not auth: it comes from the :class:`~ycli.yandex.core.profile.ServiceProfile`.
 
-Example:
+Examples:
     >>> import httpx2
     >>> from pydantic import SecretStr
     >>> request = httpx2.Request("GET", "https://api.tracker.yandex.net/v3/myself")
@@ -80,6 +80,7 @@ class APIKeyAuth(httpx2.Auth):
         self._query_param = query_param
 
     def auth_flow(self, request: httpx2.Request) -> Generator[httpx2.Request, httpx2.Response]:
+        """Add the key to ``request`` as a header, or as the query parameter if one is set."""
         key = self._key.get_secret_value()
         if self._query_param is None:
             request.headers["Authorization"] = f"Api-Key {key}"
@@ -106,7 +107,13 @@ class ServiceAccountAuth(httpx2.Auth):
     until five minutes before it expires; a ``401`` forces one refresh. Needs the
     ``service-account`` extra (PyJWT with ``cryptography``).
 
-    Example:
+    Args:
+        service_account_id: The service account's id.
+        key_id: The authorized key's id.
+        private_key: The key's PEM private key.
+        token_url: The IAM endpoint the signed JWT is exchanged at.
+
+    Examples:
         >>> auth = ServiceAccountAuth.from_key_file("authorized_key.json")  # doctest: +SKIP
     """
 
@@ -184,6 +191,7 @@ class ServiceAccountAuth(httpx2.Auth):
         request.headers["Authorization"] = f"Bearer {self._token.get_secret_value()}"
 
     def sync_auth_flow(self, request: httpx2.Request) -> Generator[httpx2.Request, httpx2.Response]:
+        """Send ``request`` with the shared IAM token, refreshed once after a ``401``."""
         with self._lock:
             if self._needs_token():
                 self._store((yield self._token_request()))
@@ -201,6 +209,7 @@ class ServiceAccountAuth(httpx2.Auth):
     async def async_auth_flow(
         self, request: httpx2.Request
     ) -> AsyncGenerator[httpx2.Request, httpx2.Response]:
+        """Send ``request`` with the shared IAM token, refreshed once after a ``401``."""
         lock = self._async_lock()
         async with lock:
             if self._needs_token():

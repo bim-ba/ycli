@@ -14,7 +14,7 @@ from ycli.yandex.models import APIModel
 class FieldSchema(APIModel):
     """Data-type descriptor of a field's value (the ``schema`` object).
 
-    Example:
+    Examples:
         >>> FieldSchema.model_validate({"type": "array", "items": "string"}).type
         'array'
     """
@@ -34,7 +34,7 @@ class FieldSchema(APIModel):
 class FieldProvider(APIModel):
     """A provider descriptor (suggest / options / query provider) attached to a field.
 
-    Example:
+    Examples:
         >>> FieldProvider.model_validate({"type": "FixedListOptionsProvider"}).type
         'FixedListOptionsProvider'
     """
@@ -51,7 +51,7 @@ class FieldProvider(APIModel):
 class FieldCategory(APIModel):
     """The category a global field belongs to (the ``category`` object).
 
-    Example:
+    Examples:
         >>> FieldCategory.model_validate({"id": "1", "display": "System"}).display
         'System'
     """
@@ -70,7 +70,7 @@ class CustomField(APIModel):
 
     Named ``CustomField`` rather than ``Field`` so it never shadows ``pydantic.Field``.
 
-    Example:
+    Examples:
         >>> CustomField.model_validate({"id": "ruName", "key": "ruName", "type": "standard"}).id
         'ruName'
     """
@@ -131,7 +131,7 @@ class CustomField(APIModel):
 class FieldList(RootModel[list[CustomField]]):
     """A bare JSON array of global fields — the flat public shape of ``fields.list()``.
 
-    Example:
+    Examples:
         >>> FieldList.model_validate([{"id": "ruName"}]).root[0].id
         'ruName'
     """
@@ -140,7 +140,7 @@ class FieldList(RootModel[list[CustomField]]):
 class FieldCategoryRecord(APIModel):
     """A field category as returned by ``POST``/``PATCH /fields/categories`` (create/edit).
 
-    Example:
+    Examples:
         >>> FieldCategoryRecord.model_validate({"id": "1", "name": "System", "version": 1}).name
         'System'
     """
@@ -160,7 +160,7 @@ class FieldCategoryRecord(APIModel):
 class LocalizedName(APIModel):
     """A localized display name (the ``name`` object) — Russian and/or English text.
 
-    Example:
+    Examples:
         >>> LocalizedName(ru="Поле", en="Field").model_dump(exclude_none=True)
         {'ru': 'Поле', 'en': 'Field'}
     """
@@ -172,7 +172,7 @@ class LocalizedName(APIModel):
 class OptionsProviderInput(APIModel):
     """Typed ``optionsProvider`` block for a field create/edit body (a fixed drop-down).
 
-    Example:
+    Examples:
         >>> OptionsProviderInput(type="FixedListOptionsProvider", values=["a", "b"]).model_dump()
         {'type': 'FixedListOptionsProvider', 'values': ['a', 'b']}
     """
@@ -187,7 +187,7 @@ class OptionsProviderInput(APIModel):
 class FieldCreate(APIModel):
     """Typed request body for ``POST /fields`` (create a global issue field).
 
-    Example:
+    Examples:
         >>> FieldCreate(
         ...     name=LocalizedName(ru="Поле"), id="myField", category="1", type="StringFieldType"
         ... ).model_dump(by_alias=True, exclude_none=True)
@@ -222,7 +222,7 @@ class FieldUpdate(APIModel):
     Rename and change-options share one PATCH, so this one body covers both ``name`` and
     ``optionsProvider``; only the fields that are set are sent.
 
-    Example:
+    Examples:
         >>> FieldUpdate(name=LocalizedName(ru="Поле")).model_dump(by_alias=True, exclude_none=True)
         {'name': {'ru': 'Поле'}}
     """
@@ -240,7 +240,7 @@ class FieldUpdate(APIModel):
 class FieldCategoryCreate(APIModel):
     """Typed request body for ``POST /fields/categories`` (create a field category).
 
-    Example:
+    Examples:
         >>> FieldCategoryCreate(name=LocalizedName(ru="Своя"), order=400).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -257,7 +257,7 @@ class FieldCategoryUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> FieldCategoryUpdate(order=400).model_dump(by_alias=True, exclude_none=True)
         {'order': 400}
     """

@@ -27,7 +27,7 @@ from ycli.yandex.tracker.queues.models import (  # pydantic resolves field types
 class WorkflowTransition(APIModel):
     """An action of a step (or the initial action): its id, name and the status it leads to.
 
-    Example:
+    Examples:
         >>> WorkflowTransition.model_validate(
         ...     {"id": "close", "target": {"key": "closed"}}
         ... ).target.key
@@ -44,7 +44,7 @@ class WorkflowTransition(APIModel):
 class WorkflowStep(APIModel):
     """A step of a workflow: a status and the actions available from it.
 
-    Example:
+    Examples:
         >>> WorkflowStep.model_validate({"status": {"key": "open"}, "actions": []}).status.key
         'open'
     """
@@ -58,7 +58,7 @@ class WorkflowStep(APIModel):
 class Workflow(APIModel):
     """A Tracker workflow (``GET /workflows/{id}``). Unfilled optional fields are absent.
 
-    Example:
+    Examples:
         >>> Workflow.model_validate({"id": "W21", "name": "Design", "version": 1}).name
         'Design'
     """
@@ -100,7 +100,7 @@ class Workflow(APIModel):
 class WorkflowList(RootModel[list[Workflow]]):
     """A bare JSON array of the organization's workflows (deleted ones excluded).
 
-    Example:
+    Examples:
         >>> WorkflowList.model_validate([{"id": "W21"}]).root[0].id
         'W21'
     """
@@ -109,7 +109,7 @@ class WorkflowList(RootModel[list[Workflow]]):
 class QueueWorkflows(RootModel[dict[str, list[QueueRef]]]):
     """The workflows of a queue: workflow id → the issue types that use it.
 
-    Example:
+    Examples:
         >>> QueueWorkflows.model_validate({"dev": [{"key": "task"}]}).root["dev"][0].key
         'task'
     """
@@ -118,7 +118,7 @@ class QueueWorkflows(RootModel[dict[str, list[QueueRef]]]):
 class RefSelector(APIModel):
     """A status or queue named by an object; give one of ``key``, ``id`` or ``name``.
 
-    Example:
+    Examples:
         >>> RefSelector(key="open").model_dump(exclude_none=True)
         {'key': 'open'}
     """
@@ -131,7 +131,7 @@ class RefSelector(APIModel):
 class LocalizedText(APIModel):
     """A name or description in each language, e.g. ``{"ru": "Закрыть", "en": "Close"}``.
 
-    Example:
+    Examples:
         >>> LocalizedText(ru="Закрыть", en="Close").model_dump(exclude_none=True)
         {'ru': 'Закрыть', 'en': 'Close'}
     """
@@ -143,7 +143,16 @@ class LocalizedText(APIModel):
 def _needs_russian(name: LocalizedText | None) -> LocalizedText | None:
     """Tracker refuses an action name without its Russian text (422 "action.name: required").
 
-    Example:
+    Args:
+        name: The localized name, if any.
+
+    Returns:
+        ``name``, unchanged.
+
+    Raises:
+        ValueError: ``name`` has an English text but no Russian one.
+
+    Examples:
         >>> _needs_russian(LocalizedText(en="Close"))
         Traceback (most recent call last):
         ...
@@ -157,11 +166,11 @@ def _needs_russian(name: LocalizedText | None) -> LocalizedText | None:
 class WorkflowActionInput(APIModel):
     """An action in a request: ``name`` and ``target`` are required.
 
-    Example:
+    Examples:
         >>> WorkflowActionInput(
         ...     id="close", name=LocalizedText(ru="Закрыть", en="Close"), target="closed"
         ... ).model_dump(exclude_none=True)
-        {'id': 'close', 'name': {'en': 'Close'}, 'target': 'closed'}
+        {'id': 'close', 'name': {'ru': 'Закрыть', 'en': 'Close'}, 'target': 'closed'}
     """
 
     id: str | None = Field(default=None, description="Identifier of the action within its step.")
@@ -191,7 +200,7 @@ class WorkflowActionUpdate(APIModel):
     The docs mark every field optional, but Tracker refuses an edit without ``name`` and
     ``target`` (422), so both are required; the other fields change only when set.
 
-    Example:
+    Examples:
         >>> WorkflowActionUpdate(name=LocalizedText(ru="Закрыть"), target="closed").model_dump(
         ...     exclude_none=True
         ... )
@@ -222,7 +231,7 @@ class WorkflowActionUpdate(APIModel):
 class WorkflowStepInput(APIModel):
     """A step in a request: a status and the actions leaving it.
 
-    Example:
+    Examples:
         >>> WorkflowStepInput(status="open").model_dump(by_alias=True, exclude_none=True)
         {'status': 'open'}
     """
@@ -253,7 +262,7 @@ class WorkflowStepInput(APIModel):
 class IssueTypeResolutions(APIModel):
     """The resolutions allowed for one issue type in a workflow.
 
-    Example:
+    Examples:
         >>> IssueTypeResolutions(issue_type="task", resolutions=["fixed"]).model_dump(by_alias=True)
         {'issueType': 'task', 'resolutions': ['fixed']}
     """
@@ -271,7 +280,7 @@ class IssueTypeResolutions(APIModel):
 class WorkflowCreate(APIModel):
     """Typed request body for ``workflows.create`` (``POST /workflows``).
 
-    Example:
+    Examples:
         >>> body = WorkflowCreate(
         ...     name="Design",
         ...     initial_action=WorkflowActionInput(
@@ -315,7 +324,7 @@ class WorkflowUpdate(APIModel):
 
     Only the fields that are set change; a given ``steps`` list replaces the whole step list.
 
-    Example:
+    Examples:
         >>> WorkflowUpdate(name="Renamed").model_dump(by_alias=True, exclude_none=True)
         {'name': 'Renamed'}
     """

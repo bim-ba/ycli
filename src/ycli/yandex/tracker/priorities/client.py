@@ -25,9 +25,11 @@ class PrioritiesClient(Resource):
     def list(self) -> PriorityList:
         """``GET /priorities`` → priority listing.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.priorities.list().root[0].key  # doctest: +SKIP
+        Returns:
+            The priorities.
+
+        Examples:
+            >>> tracker.priorities.list().root[0].key
             'normal'
         """
         return self._session.send(endpoints.list_priorities())
@@ -35,11 +37,17 @@ class PrioritiesClient(Resource):
     def create(self, body: PriorityCreate) -> Priority:
         """Create a priority from a typed ``PriorityCreate`` body. Returns the new ``Priority``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.priorities.create(
-            ...     PriorityCreate(key="one", name=LocalizedName(ru="Низкий"), order=60)
-            ... ).key  # doctest: +SKIP
+        Args:
+            body: The new priority's key, localized name and order.
+
+        Returns:
+            The created priority.
+
+        Examples:
+            >>> from ycli.yandex.tracker.priorities.models import LocalizedName, PriorityCreate
+            >>> tracker.priorities.create(
+            ...     PriorityCreate(key="one", name=LocalizedName(ru="Низкий", en="Low"), order=60)
+            ... ).key
             'one'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -53,12 +61,20 @@ class PrioritiesClient(Resource):
         ``version`` is the current priority version; when set it is sent as ``?version=`` for
         optimistic locking (the API rejects a stale version with 409).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.priorities.edit(
-            ...     "one", PriorityUpdate(name=LocalizedName(ru="Низкий")), version=1
-            ... ).key  # doctest: +SKIP
-            'one'
+        Args:
+            priority_id: The priority's key or id.
+            body: The fields to change.
+            version: The current priority version, sent as ``?version=``; ``None`` sends none.
+
+        Returns:
+            The updated priority.
+
+        Examples:
+            >>> from ycli.yandex.tracker.priorities.models import PriorityUpdate
+            >>> tracker.priorities.edit(
+            ...     "blocker", PriorityUpdate(description="Stops all"), version=7
+            ... ).key
+            'blocker'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.edit_priority(priority_id, dumped, version=version))

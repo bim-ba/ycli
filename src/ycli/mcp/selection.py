@@ -4,7 +4,7 @@ Importable without the ``mcp`` extra (no fastmcp here), so the CLI can parse and
 flags before importing the server. Precedence, strongest first (github-mcp-server's rule):
 ``read_only`` over ``exclude_tools`` over ``tools`` over ``toolsets``.
 
-Example:
+Examples:
     >>> Selection(toolsets=("wiki",), tools=("tracker_issues_get",)).services()
     ('tracker', 'wiki')
 """
@@ -24,7 +24,13 @@ TOOLSET_NAMES: tuple[str, ...] = (*(service.name for service in SERVICES), CORE,
 def split_names(value: str) -> tuple[str, ...]:
     """A comma-separated flag value as names, blanks dropped.
 
-    Example:
+    Args:
+        value: A comma-separated flag value.
+
+    Returns:
+        The names, in order.
+
+    Examples:
         >>> split_names("tracker, wiki,,")
         ('tracker', 'wiki')
     """

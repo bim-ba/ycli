@@ -1,6 +1,6 @@
 """Tracker ``/myself``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_me().path
     'myself'
 """

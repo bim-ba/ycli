@@ -115,6 +115,7 @@ def start(
     *,
     context: typer.Context,
 ) -> None:
+    """Start the MCP server on the chosen transport."""
     refuse_dry_run(context, "mcp start serves tools and sends nothing itself; use --read-only.")
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
     try:

@@ -46,9 +46,6 @@ def list_(
 
     Auto-paginated and capped at the configured item cap unless ``limit`` is given. Use
     ``triggers_get`` for one trigger by id.
-
-    Example:
-        >>> triggers_list("DESIGN")  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.triggers.list(queue_id, limit=cap)
@@ -66,9 +63,6 @@ def get(
 
     Triggers run actions on an issue when their conditions match. The webhook-action run log is
     ``triggers_webhook_log_list``.
-
-    Example:
-        >>> triggers_get("DESIGN", 16)  # doctest: +SKIP
     """
     return client.triggers.get(queue_id, trigger_id)
 
@@ -95,9 +89,6 @@ def webhooklog_list(
 
     Each record holds the outbound request and received response for one run. Only Webhook
     actions produce these; a trigger with no HTTP action returns an empty list.
-
-    Example:
-        >>> triggers_webhook_log_list("DEV", 6, limit=100)  # doctest: +SKIP
     """
     return client.triggers.webhook_log(
         queue_id, trigger_id, issue_id=issue_id or None, limit=limit or None

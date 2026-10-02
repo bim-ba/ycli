@@ -1,6 +1,6 @@
 """Tracker issue ``/changelog`` listing, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_changelog("DE-1", page_size=5).endpoint.path
     'issues/DE-1/changelog'
 """

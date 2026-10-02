@@ -27,7 +27,7 @@ class Question(APIModel):
     (``data_source``, ``items``, ``validators``, ``conditions``, ``image``,
     ``quiz_items``, …) is lenient-ignored — the common fields below cover every type.
 
-    Example:
+    Examples:
         >>> Question.model_validate({"id": 1, "slug": "s", "type": "string", "label": "L"}).slug
         's'
     """
@@ -66,7 +66,7 @@ class Question(APIModel):
 class Page(APIModel):
     """A page grouping questions (``…/questions`` → ``pages[]``).
 
-    Example:
+    Examples:
         >>> Page.model_validate({"id": 7, "items": [{"id": 1}]}).items[0].id
         1
     """
@@ -80,7 +80,7 @@ class Page(APIModel):
 class QuestionsResponse(APIModel):
     """Envelope for ``GET …/questions`` — ``{pages:[Page]}``.
 
-    Example:
+    Examples:
         >>> QuestionsResponse.model_validate({"pages": [{"items": [{"id": 1}]}]}).pages[0].items[
         ...     0
         ... ].id
@@ -127,7 +127,7 @@ class QuestionValidator(APIModel):
     (a ``min``/``max`` date ``YYYY-MM-DD``, a ``regexp`` pattern). Rules like ``required``,
     ``email``, ``url``, ``phone``, ``inn``, ``single`` take no ``value``.
 
-    Example:
+    Examples:
         >>> QuestionValidator(type="min", value=3).value
         3
     """
@@ -141,7 +141,7 @@ class QuestionValidator(APIModel):
 class ConditionItem(APIModel):
     """One clause inside a display-condition group.
 
-    Example:
+    Examples:
         >>> ConditionItem(type="question", condition="eq", question="q1", value="yes").value
         'yes'
     """
@@ -164,7 +164,7 @@ class ConditionItem(APIModel):
 class Condition(APIModel):
     """A display-condition group (the question shows only when the group matches).
 
-    Example:
+    Examples:
         >>> Condition(operator="and", items=[ConditionItem(question="q1")]).operator
         'and'
     """
@@ -179,7 +179,7 @@ class Condition(APIModel):
 class QuestionImage(APIModel):
     """An image attached to a question (or an enum option).
 
-    Example:
+    Examples:
         >>> QuestionImage(id=5, name="cover.png").id
         5
     """
@@ -197,7 +197,7 @@ class QuestionImage(APIModel):
 class DataSourceParam(APIModel):
     """One parameter of a hint- or suggest-data-source descriptor.
 
-    Example:
+    Examples:
         >>> DataSourceParam(type="org", value="42").value
         '42'
     """
@@ -209,7 +209,7 @@ class DataSourceParam(APIModel):
 class QuestionHintSource(APIModel):
     """A named source that supplies a string question's hint/autocomplete.
 
-    Example:
+    Examples:
         >>> QuestionHintSource(name="src", params=[DataSourceParam(value="x")]).name
         'src'
     """
@@ -226,7 +226,7 @@ class QuestionDataSource(APIModel):
     Live-verified source names: ``city`` and ``country`` (the API rejects other names with
     400 "incorrect data source").
 
-    Example:
+    Examples:
         >>> QuestionDataSource(name="city").name
         'city'
     """
@@ -242,7 +242,7 @@ class QuestionDataSource(APIModel):
 class QuestionQuizItem(APIModel):
     """One graded answer option (string/enum quiz mode).
 
-    Example:
+    Examples:
         >>> QuestionQuizItem(label="A", correct=True, scores=1.0).correct
         True
     """
@@ -255,7 +255,7 @@ class QuestionQuizItem(APIModel):
 class QuestionEnumItem(APIModel):
     """One selectable option of an ``enum`` (radio/checkbox/dropdown/stars) question.
 
-    Example:
+    Examples:
         >>> QuestionEnumItem(slug="opt1", label="Option 1").slug
         'opt1'
     """
@@ -276,7 +276,7 @@ class QuestionEnumItem(APIModel):
 class QuestionMatrixRow(APIModel):
     """One row (or column) of a ``matrix`` question's grid.
 
-    Example:
+    Examples:
         >>> QuestionMatrixRow(slug="r1", label="Row 1").label
         'Row 1'
     """
@@ -315,7 +315,7 @@ class _QuestionBase(APIModel):
 class StringQuestion(_QuestionBase):
     """Free-text answer (single- or multi-line). Validators add email/url/phone/inn/… masks.
 
-    Example:
+    Examples:
         >>> StringQuestion(label="Name", multiline=False).type
         'string'
     """
@@ -338,7 +338,7 @@ class StringQuestion(_QuestionBase):
 class BooleanQuestion(_QuestionBase):
     """Yes/no (single checkbox) answer.
 
-    Example:
+    Examples:
         >>> BooleanQuestion(label="Agree", initial=False).type
         'boolean'
     """
@@ -353,7 +353,7 @@ class BooleanQuestion(_QuestionBase):
 class IntegerQuestion(_QuestionBase):
     """Whole-number answer, optionally bounded by min/max validators.
 
-    Example:
+    Examples:
         >>> IntegerQuestion(label="Age", initial=18).type
         'integer'
     """
@@ -368,7 +368,7 @@ class IntegerQuestion(_QuestionBase):
 class FileQuestion(_QuestionBase):
     """File-upload answer, optionally bounded by size/count validators.
 
-    Example:
+    Examples:
         >>> FileQuestion(label="Attach").type
         'file'
     """
@@ -382,7 +382,7 @@ class FileQuestion(_QuestionBase):
 class CommentQuestion(_QuestionBase):
     """A static text / header block (no answer collected).
 
-    Example:
+    Examples:
         >>> CommentQuestion(label="Section A", header=True).header
         True
     """
@@ -396,7 +396,7 @@ class CommentQuestion(_QuestionBase):
 class DateQuestion(_QuestionBase):
     """Single-date answer, optionally bounded by min/max date validators.
 
-    Example:
+    Examples:
         >>> DateQuestion(label="Born").type
         'date'
     """
@@ -410,7 +410,7 @@ class DateQuestion(_QuestionBase):
 class DateRangeQuestion(_QuestionBase):
     """Date-range (from/to) answer, optionally bounded by min/max date validators.
 
-    Example:
+    Examples:
         >>> DateRangeQuestion(label="Period").type
         'daterange'
     """
@@ -424,7 +424,7 @@ class DateRangeQuestion(_QuestionBase):
 class PaymentQuestion(_QuestionBase):
     """A payment field (amount to a wallet), optionally fixed or bounded by min/max.
 
-    Example:
+    Examples:
         >>> PaymentQuestion(label="Donate", account_id="410011", fixed=False).account_id
         '410011'
     """
@@ -443,7 +443,7 @@ class PaymentQuestion(_QuestionBase):
 class EnumQuestion(_QuestionBase):
     """Choice from a fixed option list (radio/checkbox/dropdown/stars/onerow).
 
-    Example:
+    Examples:
         >>> EnumQuestion(label="Pick", widget="radio", items=[QuestionEnumItem(label="A")]).widget
         'radio'
     """
@@ -473,7 +473,7 @@ class EnumQuestion(_QuestionBase):
 class SuggestQuestion(_QuestionBase):
     """Autocomplete/suggest answer backed by an external data source.
 
-    Example:
+    Examples:
         >>> SuggestQuestion(label="Dept", data_source=QuestionDataSource(name="departments")).type
         'suggest'
     """
@@ -491,7 +491,7 @@ class SuggestQuestion(_QuestionBase):
 class MatrixQuestion(_QuestionBase):
     """A grid of rows scored against a shared set of columns.
 
-    Example:
+    Examples:
         >>> MatrixQuestion(label="Grid", rows=[QuestionMatrixRow(label="R")]).type
         'matrix'
     """
@@ -507,7 +507,7 @@ class MatrixQuestion(_QuestionBase):
 class SeriesQuestion(_QuestionBase):
     """A repeatable group nesting other questions (each item is itself a typed question).
 
-    Example:
+    Examples:
         >>> SeriesQuestion(label="People", items=[StringQuestion(label="Name")]).items[0].type
         'string'
     """
@@ -554,7 +554,7 @@ class QuestionMove(APIModel):
     ``page`` to 1 for a bare ``--position`` *visibly*, before constructing this model; an MCP
     caller passing position-only gets this validation error instead of a silent re-page.
 
-    Example:
+    Examples:
         >>> QuestionMove(page=2, position=1).position
         1
         >>> QuestionMove(position=1)  # doctest: +IGNORE_EXCEPTION_DETAIL
@@ -599,7 +599,7 @@ class QuestionMove(APIModel):
 class QuestionMoveResult(APIModel):
     """Result of ``POST …/questions/{id}/move`` — the moved question's id.
 
-    Example:
+    Examples:
         >>> QuestionMoveResult(id=17).id
         17
     """

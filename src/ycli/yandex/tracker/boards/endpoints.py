@@ -1,6 +1,6 @@
 """Tracker ``/boards`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_board(7).path
     'boards/7'
     >>> list_boards(page_size=20).endpoint.params

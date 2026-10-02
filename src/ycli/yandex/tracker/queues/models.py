@@ -18,7 +18,7 @@ from ycli.yandex.models import APIModel
 class QueueUser(APIModel):
     """A user reference inside a queue (the ``lead`` owner or a ``teamUsers`` member).
 
-    Example:
+    Examples:
         >>> QueueUser.model_validate({"id": "42", "display": "Ivan Ivanov"}).display
         'Ivan Ivanov'
     """
@@ -45,7 +45,7 @@ class QueueUser(APIModel):
 class QueueRef(APIModel):
     """A keyed reference to a typed entity (issue type, priority, resolution, …).
 
-    Example:
+    Examples:
         >>> QueueRef.model_validate({"key": "task", "display": "Task"}).key
         'task'
     """
@@ -63,7 +63,7 @@ class QueueRef(APIModel):
 class QueueVersion(APIModel):
     """A version defined on the queue (``versions`` item; has no ``key``).
 
-    Example:
+    Examples:
         >>> QueueVersion.model_validate({"id": "4", "display": "My version"}).display
         'My version'
     """
@@ -80,7 +80,7 @@ class QueueVersion(APIModel):
 class WorkflowRef(APIModel):
     """A workflow (life-cycle) reference used inside ``issueTypesConfig``.
 
-    Example:
+    Examples:
         >>> WorkflowRef.model_validate({"id": "dev", "display": "dev"}).id
         'dev'
     """
@@ -99,7 +99,7 @@ class IssueTypeConfig(APIModel):
 
     Binds an issue type to its workflow and the resolutions available for that type in the queue.
 
-    Example:
+    Examples:
         >>> IssueTypeConfig.model_validate(
         ...     {"issueType": {"key": "task"}, "workflow": {"id": "dev"}}
         ... ).issue_type.key
@@ -124,7 +124,7 @@ class Queue(APIModel):
     The base fields are always present; the ``teamUsers``/``issueTypes``/``versions``/
     ``workflows``/``issueTypesConfig`` blocks are populated only when requested via ``expand``.
 
-    Example:
+    Examples:
         >>> Queue.model_validate({"id": "3", "key": "TEST", "name": "Test"}).key
         'TEST'
     """
@@ -196,7 +196,7 @@ class Queue(APIModel):
 class QueueList(RootModel[list[Queue]]):
     """A bare JSON array of queues — the flat public shape of ``queues.list()``.
 
-    Example:
+    Examples:
         >>> QueueList.model_validate([{"key": "TEST"}]).root[0].key
         'TEST'
     """
@@ -205,7 +205,7 @@ class QueueList(RootModel[list[Queue]]):
 class QueueTagList(RootModel[list[str]]):
     """A bare JSON array of queue tag names (``GET /queues/{id}/tags``).
 
-    Example:
+    Examples:
         >>> QueueTagList.model_validate(["tag1", "tag2"]).root[0]
         'tag1'
     """
@@ -217,7 +217,7 @@ class QueueVersionInfo(APIModel):
     Unlike the lean ``QueueVersion`` inside an ``expand=versions`` block, this carries the full
     version record — release/archive flags, date range and the owning queue reference.
 
-    Example:
+    Examples:
         >>> QueueVersionInfo.model_validate({"id": 1, "name": "v0.1", "released": False}).name
         'v0.1'
     """
@@ -253,7 +253,7 @@ class QueueVersionInfo(APIModel):
 class QueueVersionInfoList(RootModel[list[QueueVersionInfo]]):
     """A bare JSON array of queue versions (``GET /queues/{id}/versions``).
 
-    Example:
+    Examples:
         >>> QueueVersionInfoList.model_validate([{"id": 1, "name": "v0.1"}]).root[0].name
         'v0.1'
     """
@@ -262,7 +262,7 @@ class QueueVersionInfoList(RootModel[list[QueueVersionInfo]]):
 class QueueField(APIModel):
     """A required/local field defined on a queue (``GET /queues/{id}/fields`` item).
 
-    Example:
+    Examples:
         >>> QueueField.model_validate({"id": "myfield", "name": "My field"}).name
         'My field'
     """
@@ -310,7 +310,7 @@ class QueueField(APIModel):
 class QueueFieldList(RootModel[list[QueueField]]):
     """A bare JSON array of queue required fields (``GET /queues/{id}/fields``).
 
-    Example:
+    Examples:
         >>> QueueFieldList.model_validate([{"id": "myfield"}]).root[0].id
         'myfield'
     """
@@ -319,7 +319,7 @@ class QueueFieldList(RootModel[list[QueueField]]):
 class IssueTypeConfigInput(APIModel):
     """One ``issueTypesConfig`` row in a create-queue body — binds a type to its workflow.
 
-    Example:
+    Examples:
         >>> IssueTypeConfigInput(issue_type="task", workflow="oicn").issue_type
         'task'
     """
@@ -337,7 +337,7 @@ class IssueTypeConfigInput(APIModel):
 class QueueCreate(APIModel):
     """Typed request body for ``queues.create`` (``POST /queues/``).
 
-    Example:
+    Examples:
         >>> QueueCreate(
         ...     key="DESIGN",
         ...     name="Design",
@@ -369,7 +369,7 @@ class QueueCreate(APIModel):
 class QueueTagRemove(APIModel):
     """Typed request body for ``queues.tag_remove`` (``POST /queues/{id}/tags/_remove``).
 
-    Example:
+    Examples:
         >>> QueueTagRemove(tag="obsolete").tag
         'obsolete'
     """
@@ -380,7 +380,7 @@ class QueueTagRemove(APIModel):
 class QueueVersionCreate(APIModel):
     """Typed request body for ``queues.version_create`` (``POST /versions/``).
 
-    Example:
+    Examples:
         >>> QueueVersionCreate(queue="TEST", name="v0.1").name
         'v0.1'
     """
@@ -406,7 +406,7 @@ class QueuePermissionSubjects(APIModel):
     Passing a bare array instead overwrites the subject list; this object form incrementally
     adds and/or revokes specific subjects.
 
-    Example:
+    Examples:
         >>> QueuePermissionSubjects(add=["author"]).add
         ['author']
     """
@@ -425,7 +425,7 @@ class QueuePermissionScope(APIModel):
     Each subject list is either a bare array (which overwrites) or a
     :class:`QueuePermissionSubjects` add/remove object (which mutates incrementally).
 
-    Example:
+    Examples:
         >>> QueuePermissionScope(roles=["author"]).roles
         ['author']
     """
@@ -447,7 +447,7 @@ class QueuePermissionsUpdate(APIModel):
 
     Set at least one category. Each names the users/groups/roles the permission applies to.
 
-    Example:
+    Examples:
         >>> QueuePermissionsUpdate(create=QueuePermissionScope(roles=["author"])).create.roles
         ['author']
     """
@@ -469,7 +469,7 @@ class QueuePermissionsUpdate(APIModel):
 class QueuePermissions(APIModel):
     """The permissions object returned by ``PATCH /queues/{id}/permissions``.
 
-    Example:
+    Examples:
         >>> QueuePermissions.model_validate({"version": 11}).version
         11
     """
@@ -493,7 +493,7 @@ class QueueVersionUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> QueueVersionUpdate(name="v1.1").model_dump(by_alias=True, exclude_none=True)
         {'name': 'v1.1'}
     """
@@ -515,7 +515,7 @@ class QueueVersionUpdate(APIModel):
 class AccessRef(APIModel):
     """A group, role or component named in an access answer (``{self, id, display}``).
 
-    Example:
+    Examples:
         >>> AccessRef.model_validate({"id": "queue-lead", "display": "Queue owner"}).id
         'queue-lead'
     """
@@ -530,7 +530,7 @@ class AccessRef(APIModel):
 class AccessHolders(APIModel):
     """Who holds one permission: users, groups and roles (an empty kind is left out by the API).
 
-    Example:
+    Examples:
         >>> AccessHolders.model_validate({"groups": [{"id": "5"}]}).groups[0].id
         '5'
     """
@@ -551,7 +551,7 @@ class AccessPermissions(APIModel):
 
     ``grant`` (queue settings) exists on a queue only; a component has create/read/write/deny.
 
-    Example:
+    Examples:
         >>> AccessPermissions.model_validate(
         ...     {"CREATE": {"roles": [{"id": "author"}]}}
         ... ).create.roles[0].id
@@ -578,7 +578,7 @@ class AccessPermissions(APIModel):
 class QueueUserAccess(APIModel):
     """One user's rights in a queue (``GET /queues/{id}/permissions/users/{userId}``).
 
-    Example:
+    Examples:
         >>> QueueUserAccess.model_validate({"user": {"id": "11"}, "permissions": {}}).user.id
         '11'
     """
@@ -595,7 +595,7 @@ class QueueUserAccess(APIModel):
 class QueueGroupAccess(APIModel):
     """One group's rights in a queue (``GET /queues/{id}/permissions/groups/{groupId}``).
 
-    Example:
+    Examples:
         >>> QueueGroupAccess.model_validate({"group": {"id": "5"}}).group.id
         '5'
     """

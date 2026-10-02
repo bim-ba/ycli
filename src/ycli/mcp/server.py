@@ -41,7 +41,14 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     The server does not check tool names until it lists tools (:func:`main` does so before
     serving): an unknown name in ``tools`` / ``exclude_tools`` raises ``UnknownToolError``.
 
-    Example:
+    Args:
+        selection: Which services and tools to serve, and how.
+        auth: The sign-in provider for HTTP; ``None`` over stdio.
+
+    Returns:
+        The root server with the selected services mounted.
+
+    Examples:
         >>> server = build_server(Selection(toolsets=("wiki",)))
         >>> isinstance(server, FastMCP)
         True
@@ -83,7 +90,10 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
 def main(selection: Selection) -> None:
     """Run the root server for ``selection`` over stdio (the console-script entry point).
 
-    Example:
+    Args:
+        selection: Which services and tools to serve, and how.
+
+    Examples:
         >>> main(Selection())  # doctest: +SKIP
     """
     server = build_server(selection)
@@ -94,7 +104,13 @@ def main(selection: Selection) -> None:
 def _settings_problems(exc: ValidationError) -> str:
     """``exc`` as ``VARIABLE: problem`` pairs, named as the environment spells them.
 
-    Example:
+    Args:
+        exc: The validation error of the HTTP settings.
+
+    Returns:
+        The ``VARIABLE: problem`` pairs joined by ``; ``.
+
+    Examples:
         >>> try:
         ...     MCPHTTPConfig(organization_id="1", base_url="nope")
         ... except ValidationError as exc:
@@ -117,7 +133,15 @@ def serve_http(selection: Selection, host: str | None = None, port: int | None =
     the configured ones. Requests are stateless; the OAuth state lives in ``FASTMCP_HOME``,
     so one process serves (docs/self-host.md).
 
-    Example:
+    Args:
+        selection: Which services and tools to serve, and how.
+        host: Overrides the configured host.
+        port: Overrides the configured port.
+
+    Raises:
+        ValueError: The HTTP settings or the Yandex OAuth app are not configured.
+
+    Examples:
         >>> serve_http(Selection(toolsets=("core",)), port=8080)  # doctest: +SKIP
     """
     from ycli.mcp.http_auth import yandex_oauth

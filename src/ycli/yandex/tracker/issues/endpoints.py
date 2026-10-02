@@ -1,6 +1,6 @@
 """Tracker ``/issues`` operations, each declared once (sans-IO, shared by sync and async).
 
-Example:
+Examples:
     >>> get_issue("TEST-1").path
     'issues/TEST-1'
     >>> search_issues({"query": "Queue: TEST"}).endpoint.effect

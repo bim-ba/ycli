@@ -13,7 +13,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class CommentAttachment(APIModel):
     """A file attached to a comment, as listed under ``expand=attachments``.
 
-    Example:
+    Examples:
         >>> CommentAttachment.model_validate({"id": "1", "display": "Untitled.png"}).display
         'Untitled.png'
     """
@@ -26,7 +26,7 @@ class CommentAttachment(APIModel):
 class Comment(APIModel):
     """A Tracker issue comment (``/issues/{key}/comments`` item).
 
-    Example:
+    Examples:
         >>> Comment.model_validate({"id": 2238, "createdBy": {"display": "X"}, "text": "t"}).id
         2238
     """
@@ -48,7 +48,7 @@ class Comment(APIModel):
 class CommentList(RootModel[list[Comment]]):
     """A bare JSON array of comments.
 
-    Example:
+    Examples:
         >>> CommentList.model_validate([{"text": "hi"}]).root[0].text
         'hi'
     """
@@ -57,7 +57,7 @@ class CommentList(RootModel[list[Comment]]):
 class CommentCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/comments/`` (add a comment).
 
-    Example:
+    Examples:
         >>> CommentCreate(text="Готово ✅").model_dump(by_alias=True, exclude_none=True)
         {'text': 'Готово ✅'}
     """
@@ -77,7 +77,7 @@ class CommentCreate(APIModel):
 class CommentUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment).
 
-    Example:
+    Examples:
         >>> CommentUpdate(text="fixed ✅").model_dump(exclude_none=True)
         {'text': 'fixed ✅'}
     """

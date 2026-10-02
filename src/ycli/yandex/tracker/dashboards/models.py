@@ -15,7 +15,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class Dashboard(APIModel):
     """A Tracker dashboard (``POST /dashboards/`` response).
 
-    Example:
+    Examples:
         >>> Dashboard.model_validate({"id": 10, "name": "New Dashboard"}).name
         'New Dashboard'
     """
@@ -43,7 +43,7 @@ class Dashboard(APIModel):
 class Widget(APIModel):
     """A dashboard widget (``POST /dashboards/{id}/widgets/cycleTime`` response).
 
-    Example:
+    Examples:
         >>> Widget.model_validate({"id": 123, "description": "My widget"}).description
         'My widget'
     """
@@ -68,7 +68,7 @@ class Widget(APIModel):
 class DashboardOwner(APIModel):
     """The ``owner`` sub-object of a dashboard create body — a ``{"id": <login|id>}`` reference.
 
-    Example:
+    Examples:
         >>> DashboardOwner(id="user").model_dump()
         {'id': 'user'}
     """
@@ -79,7 +79,7 @@ class DashboardOwner(APIModel):
 class DashboardCreate(APIModel):
     """Typed request body for ``POST /dashboards/`` (create a dashboard).
 
-    Example:
+    Examples:
         >>> DashboardCreate(name="Team board", layout="two-columns").model_dump(exclude_none=True)
         {'name': 'Team board', 'layout': 'two-columns'}
     """
@@ -98,7 +98,7 @@ class DashboardCreate(APIModel):
 class CycleTimeWidget(APIModel):
     """Typed request body for ``POST /dashboards/{id}/widgets/cycleTime`` (add a cycle-time chart).
 
-    Example:
+    Examples:
         >>> CycleTimeWidget(description="My widget", query="Queue: TEST").model_dump(
         ...     by_alias=True, exclude_none=True
         ... )

@@ -19,9 +19,18 @@ class ImagesClient(Resource):
 
         Reference the returned ``id`` from a question's, option's or form style's ``image``.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.images.upload("686d", filename="logo.png", data=b"…").id  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            filename: The image's file name.
+            data: The image's raw bytes.
+
+        Returns:
+            The uploaded image, with its ``id``.
+
+        Examples:
+            >>> forms.images.upload(
+            ...     "686d0a1b2c3d4e5f00000050", filename="logo.png", data=b"PNGDATA"
+            ... ).id
             7
         """
         return self._session.send(endpoints.upload_image(survey_id, filename=filename, data=data))
@@ -32,8 +41,15 @@ class ImagesClient(Resource):
         Build ``body`` from an ``ImageClone``: the source image's ``id`` (or its ``links``) and
         an optional new ``name``.
 
-        Example:
-            >>> client.images.clone("686d", {"id": 7, "name": "copy.png"}).id  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            body: The dumped ``ImageClone``.
+
+        Returns:
+            The copied image, with its new ``id``.
+
+        Examples:
+            >>> forms.images.clone("686d0a1b2c3d4e5f00000051", {"id": 7, "name": "copy.png"}).id
             8
         """
         return self._session.send(endpoints.clone_image(survey_id, body))

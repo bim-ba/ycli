@@ -21,7 +21,7 @@ AccessLevel = Literal["owner", "restricted", "common", "public"]
 class UserIdentity(APIModel):
     """A user by Yandex ID ``uid`` or Yandex Cloud ``cloud_uid``.
 
-    Example:
+    Examples:
         >>> UserIdentity(uid="101523906").uid
         '101523906'
     """
@@ -33,7 +33,7 @@ class UserIdentity(APIModel):
 class UserRef(APIModel):
     """A user as Forms lists them: identity, login and display name.
 
-    Example:
+    Examples:
         >>> UserRef.model_validate({"identity": {"uid": "1"}, "username": "ivan"}).username
         'ivan'
     """
@@ -46,7 +46,7 @@ class UserRef(APIModel):
 class GroupIdentity(APIModel):
     """A group by source and id.
 
-    Example:
+    Examples:
         >>> GroupIdentity(src="dir", id="5").src
         'dir'
     """
@@ -58,7 +58,7 @@ class GroupIdentity(APIModel):
 class PermissionGroup(APIModel):
     """A group a permission lists.
 
-    Example:
+    Examples:
         >>> PermissionGroup.model_validate({"identity": {"src": "dir", "id": "5"}}).identity.id
         '5'
     """
@@ -71,7 +71,7 @@ class PermissionGroup(APIModel):
 class Permission(APIModel):
     """Who may perform one action on a form.
 
-    Example:
+    Examples:
         >>> Permission.model_validate({"access": "common", "action": "submit"}).access
         'common'
     """
@@ -93,7 +93,7 @@ class Permission(APIModel):
 class PermissionList(RootModel[list[Permission]]):
     """A bare JSON array of :class:`Permission` — one per action.
 
-    Example:
+    Examples:
         >>> PermissionList.model_validate([{"action": "change"}]).root[0].action
         'change'
     """
@@ -102,7 +102,7 @@ class PermissionList(RootModel[list[Permission]]):
 class AccessUpdate(APIModel):
     """Typed body for ``POST /surveys/{id}/access``: set one action's access level.
 
-    Example:
+    Examples:
         >>> AccessUpdate(action="submit", access="common").model_dump()
         {'action': 'submit', 'access': 'common'}
     """
@@ -116,7 +116,7 @@ class AccessGrant(APIModel):
 
     Unset fields are dropped before the request is sent.
 
-    Example:
+    Examples:
         >>> AccessGrant(action="change", user=UserIdentity(uid="7")).model_dump(exclude_none=True)
         {'action': 'change', 'user': {'uid': '7'}}
     """
@@ -129,7 +129,7 @@ class AccessGrant(APIModel):
 class AccessRevoke(AccessGrant):
     """Typed body for ``POST /surveys/{id}/access/revoke``: remove a user or a group.
 
-    Example:
+    Examples:
         >>> AccessRevoke(action="submit", group=GroupIdentity(src="dir", id="5")).group.id
         '5'
     """

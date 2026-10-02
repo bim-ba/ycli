@@ -16,7 +16,7 @@ class Survey(APIModel):
     response count. Settings-only fields (``texts``, ``followers``, …) are
     lenient-ignored.
 
-    Example:
+    Examples:
         >>> Survey.model_validate({"id": "686d", "name": "F", "answers": 444}).answers
         444
     """
@@ -40,7 +40,7 @@ class SurveysResponse(APIModel):
 
     Internal per-page parse type used by ``SurveysClient._list_page``.
 
-    Example:
+    Examples:
         >>> SurveysResponse.model_validate({"result": [{"id": "a"}]}).result[0].id
         'a'
     """
@@ -52,7 +52,7 @@ class SurveysResponse(APIModel):
 class SurveyList(RootModel[list[Survey]]):
     """Flat collection of :class:`Survey` items — the public return type of ``SurveysClient.list``.
 
-    Example:
+    Examples:
         >>> SurveyList([Survey.model_validate({"id": "a"})]).root[0].id
         'a'
     """
@@ -66,7 +66,7 @@ class SurveyTexts(APIModel):
     Every field is optional — only the labels you set are sent; the rest keep the form's
     current values. Passed inside :class:`SurveyCreate` / :class:`SurveyUpdate`.
 
-    Example:
+    Examples:
         >>> SurveyTexts(title="Thanks!", submit="Send").submit
         'Send'
     """
@@ -91,7 +91,7 @@ class SurveyCreate(APIModel):
     repeatable ``--field key=value`` JSON escape and are merged onto this body. Unset
     (``None``) fields are dropped before the request is sent.
 
-    Example:
+    Examples:
         >>> SurveyCreate(name="Onboarding survey", need_auth=True).name
         'Onboarding survey'
     """
@@ -126,7 +126,7 @@ class SurveyUpdate(SurveyCreate):
     Same optional fields as :class:`SurveyCreate`; only the fields you set are sent, so a
     partial patch never disturbs untouched settings.
 
-    Example:
+    Examples:
         >>> SurveyUpdate(is_published=False).is_published
         False
     """

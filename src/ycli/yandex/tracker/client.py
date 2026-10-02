@@ -49,13 +49,15 @@ from ycli.yandex.tracker.worklog.client import WorklogClient
 class TrackerClient(DomainClient):
     """Holds the per-resource tracker clients, all sharing one httpx2 core session.
 
-    Example:
-        >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+    Examples:
+        >>> tracker.me.get().login
+        'alice'
     """
 
     profile = SERVICE.profile
 
     def probe(self) -> None:
+        """One cheap authenticated read: the current user."""
         self.me.get()
 
     def _wire(self, session: SyncSession) -> None:

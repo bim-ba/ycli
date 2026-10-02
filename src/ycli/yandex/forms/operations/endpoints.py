@@ -1,6 +1,6 @@
 """Forms ``/operations``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_operation("op-1").path
     'operations/op-1'
 """

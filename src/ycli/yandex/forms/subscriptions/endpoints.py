@@ -1,6 +1,6 @@
 """Forms ``/surveys/{id}/hooks/{hook_id}/subscriptions`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_subscriptions("686d", 11).path
     'surveys/686d/hooks/11/subscriptions'
     >>> attach_file("686d", 11, 4, filename="a.pdf", data=b"x").files

@@ -15,7 +15,7 @@ from ycli.yandex.tracker.queues.models import (  # pydantic resolves field types
 class ComponentQueue(APIModel):
     """The queue a component belongs to (the ``queue`` object).
 
-    Example:
+    Examples:
         >>> ComponentQueue.model_validate({"key": "ORG", "display": "My queue"}).key
         'ORG'
     """
@@ -33,7 +33,7 @@ class ComponentQueue(APIModel):
 class ComponentLead(APIModel):
     """The owner (lead) of a component (the ``lead`` object).
 
-    Example:
+    Examples:
         >>> ComponentLead.model_validate({"id": "11", "display": "Ivan Ivanov"}).display
         'Ivan Ivanov'
     """
@@ -60,7 +60,7 @@ class ComponentLead(APIModel):
 class Component(APIModel):
     """A queue component (``/components`` item) — a sub-area used to classify issues.
 
-    Example:
+    Examples:
         >>> Component.model_validate({"id": 1, "name": "Test"}).name
         'Test'
     """
@@ -93,7 +93,7 @@ class Component(APIModel):
 class ComponentList(RootModel[list[Component]]):
     """A bare JSON array of components — the flat public shape of ``components.list()``.
 
-    Example:
+    Examples:
         >>> ComponentList.model_validate([{"name": "Test"}]).root[0].name
         'Test'
     """
@@ -102,7 +102,7 @@ class ComponentList(RootModel[list[Component]]):
 class ComponentCreate(APIModel):
     """Typed request body for ``POST /components`` (create a component).
 
-    Example:
+    Examples:
         >>> ComponentCreate(name="UI", queue="TEST").model_dump(by_alias=True, exclude_none=True)
         {'name': 'UI', 'queue': 'TEST'}
     """
@@ -123,7 +123,7 @@ class ComponentUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> ComponentUpdate(assign_auto=True).model_dump(by_alias=True, exclude_none=True)
         {'assignAuto': True}
     """
@@ -143,7 +143,7 @@ class ComponentUpdate(APIModel):
 class ComponentUserAccess(APIModel):
     """One user's rights on a component (``GET /components/{id}/permissions/users/{userId}``).
 
-    Example:
+    Examples:
         >>> ComponentUserAccess.model_validate({"component": {"id": 1}}).component.id
         1
     """
@@ -159,7 +159,7 @@ class ComponentUserAccess(APIModel):
 class ComponentGroupAccess(APIModel):
     """One group's rights on a component (``GET /components/{id}/permissions/groups/{groupId}``).
 
-    Example:
+    Examples:
         >>> ComponentGroupAccess.model_validate({"group": {"id": "5"}}).group.id
         '5'
     """

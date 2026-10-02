@@ -30,13 +30,15 @@ from ycli.yandex.forms.variables.client import VariablesClient
 class FormsClient(DomainClient):
     """Holds the per-resource forms clients, all sharing one httpx2 core session.
 
-    Example:
-        >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+    Examples:
+        >>> forms.me.get().email
+        'ann@example.com'
     """
 
     profile = SERVICE.profile
 
     def probe(self) -> None:
+        """One cheap authenticated read: the current user."""
         self.me.get()
 
     def _wire(self, session: SyncSession) -> None:

@@ -22,27 +22,43 @@ class AutoactionsClient(Resource):
     def get(self, queue_id: str, action_id: int) -> Autoaction:
         """``GET /queues/{queue_id}/autoactions/{action_id}`` → a single autoaction.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.autoactions.get(queue_id="DESIGN", action_id=9).name  # doctest: +SKIP
-            'autoaction_name'
+        Args:
+            queue_id: The queue's key or id.
+            action_id: The autoaction's id.
+
+        Returns:
+            The autoaction.
+
+        Examples:
+            >>> tracker.autoactions.get("DESIGN", 9).name
+            'Nightly'
         """
         return self._session.send(endpoints.get_autoaction(queue_id, action_id))
 
     def create(self, queue_id: str, body: AutoactionCreate) -> Autoaction:
         """Create an autoaction from a typed ``AutoactionCreate`` body. Returns the ``Autoaction``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.autoactions.create(
-            ...     "DESIGN",
+        Args:
+            queue_id: The queue's key or id.
+            body: The new autoaction's settings.
+
+        Returns:
+            The created autoaction.
+
+        Examples:
+            >>> from ycli.yandex.tracker.autoactions.models import (
+            ...     AutoactionAction,
+            ...     AutoactionCreate,
+            ... )
+            >>> tracker.autoactions.create(
+            ...     "OPS",
             ...     AutoactionCreate(
-            ...         name="A",
+            ...         name="Stale sweep",
             ...         query="Status: Open",
             ...         actions=[AutoactionAction(type="Transition")],
             ...     ),
-            ... ).id  # doctest: +SKIP
-            9
+            ... ).id
+            10
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_autoaction(queue_id, dumped))
@@ -50,9 +66,15 @@ class AutoactionsClient(Resource):
     def logs(self, queue_id: str, action_id: int) -> AutoactionLogList:
         """``GET /queues/{queue_id}/autoactions/{action_id}/logs`` → per-run summaries.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.autoactions.logs("DESIGN", 9).root[0].search_hits  # doctest: +SKIP
+        Args:
+            queue_id: The queue's key or id.
+            action_id: The autoaction's id.
+
+        Returns:
+            One summary per run.
+
+        Examples:
+            >>> tracker.autoactions.logs("QA", 11).root[0].search_hits
             3
         """
         return self._session.send(endpoints.list_run_logs(queue_id, action_id))
@@ -60,11 +82,16 @@ class AutoactionsClient(Resource):
     def log_detail(self, queue_id: str, action_id: int, run_id: str) -> AutoactionRunList:
         """``GET .../autoactions/{action_id}/logs/{run_id}`` → per-issue outcomes of one run.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.autoactions.log_detail("DESIGN", 9, "abc").root[
-            ...     0
-            ... ].status.value  # doctest: +SKIP
+        Args:
+            queue_id: The queue's key or id.
+            action_id: The autoaction's id.
+            run_id: The run's id.
+
+        Returns:
+            The outcome for each issue the run touched.
+
+        Examples:
+            >>> tracker.autoactions.log_detail("SUP", 12, "run-2").root[0].status.value
             'success'
         """
         return self._session.send(endpoints.get_run_log(queue_id, action_id, run_id))

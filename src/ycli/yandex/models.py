@@ -27,7 +27,8 @@ class APIModel(BaseModel):
     CLI and the MCP server print the same keys the vendor docs show, while Python code reads
     snake_case attributes. Tracker is camelCase on the wire; Wiki and Forms are snake_case.
 
-    Example:
+    Examples:
+        >>> from pydantic import Field
         >>> class Item(APIModel):
         ...     created_at: str = Field(alias="createdAt")
         >>> Item(created_at="today").model_dump()
@@ -61,7 +62,16 @@ class Ack(APIModel):
         Pass at most one of ``on`` (an "attached to" relationship, e.g. a comment on an
         issue) or ``from_`` (a "member of" relationship, e.g. a macro from a queue).
 
-        Example:
+        Args:
+            kind: What was affected, e.g. ``board``.
+            ident: Its id.
+            on: The thing it was attached to.
+            from_: The thing it was a member of.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.deleted("board", 5).detail
             'deleted board 5'
             >>> Ack.deleted("column", 5, on="board 73").detail
@@ -80,7 +90,15 @@ class Ack(APIModel):
     def restored(cls, kind: str, ident: object, *, in_: object) -> Ack:
         """``restored <kind> <ident> in <in_>``.
 
-        Example:
+        Args:
+            kind: What was affected, e.g. ``board``.
+            ident: Its id.
+            in_: The container it was restored in.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.restored("answer", 7, in_="survey 686d").detail
             'restored answer 7 in survey 686d'
         """
@@ -90,7 +108,14 @@ class Ack(APIModel):
     def published(cls, kind: str, ident: object) -> Ack:
         """``published <kind> <ident>``.
 
-        Example:
+        Args:
+            kind: What was affected, e.g. ``board``.
+            ident: Its id.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.published("survey", "686d").detail
             'published survey 686d'
         """
@@ -100,7 +125,14 @@ class Ack(APIModel):
     def unpublished(cls, kind: str, ident: object) -> Ack:
         """``unpublished <kind> <ident>``.
 
-        Example:
+        Args:
+            kind: What was affected, e.g. ``board``.
+            ident: Its id.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.unpublished("survey", "686d").detail
             'unpublished survey 686d'
         """
@@ -110,7 +142,16 @@ class Ack(APIModel):
     def linked(cls, kind: str, ident: object, target: object, relationship: str) -> Ack:
         """``linked <kind> <ident> -> <target> (<relationship>)``.
 
-        Example:
+        Args:
+            kind: What was affected, e.g. ``board``.
+            ident: Its id.
+            target: What it was linked to.
+            relationship: The link's relationship.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.linked("project", "655f", "658", "relates").detail
             'linked project 655f -> 658 (relates)'
         """
@@ -120,7 +161,15 @@ class Ack(APIModel):
     def unlinked(cls, kind: str, ident: object, target: object) -> Ack:
         """``unlinked <kind> <ident> -> <target>``.
 
-        Example:
+        Args:
+            kind: What was affected, e.g. ``board``.
+            ident: Its id.
+            target: What it was unlinked from.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.unlinked("project", "655f", "658").detail
             'unlinked project 655f -> 658'
         """
@@ -130,7 +179,15 @@ class Ack(APIModel):
     def removed(cls, item: str, value: object, *, from_: object) -> Ack:
         """``removed <item> <value!r> from <from_>``.
 
-        Example:
+        Args:
+            item: What was removed, e.g. ``tag``.
+            value: The removed value.
+            from_: The thing it was removed from.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.removed("tag", "obsolete", from_="queue TEST").detail
             "removed tag 'obsolete' from queue TEST"
         """
@@ -140,7 +197,13 @@ class Ack(APIModel):
     def cleared(cls, what: str) -> Ack:
         """``cleared <what>``.
 
-        Example:
+        Args:
+            what: What was cleared.
+
+        Returns:
+            The acknowledgement.
+
+        Examples:
             >>> Ack.cleared("search scroll resources").detail
             'cleared search scroll resources'
         """
@@ -156,7 +219,18 @@ def require_found[M](result: M, *, sentinel: Callable[[M], bool], message: str) 
     "empty" means for that model (e.g. ``lambda r: r.id is None``); the caller composes
     ``message`` so the wording stays specific to the resource being fetched.
 
-    Example:
+    Args:
+        result: The parsed model.
+        sentinel: Tells whether ``result`` is empty.
+        message: The error message, specific to the resource.
+
+    Returns:
+        ``result``, when it is not empty.
+
+    Raises:
+        YandexNotFoundError: ``sentinel`` says ``result`` is empty.
+
+    Examples:
         >>> class _Result:
         ...     value = None
         >>> require_found(_Result(), sentinel=lambda r: r.value is None, message="not found")

@@ -1,6 +1,6 @@
 """Forms ``/surveys/{id}/variables`` operation, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_variables("686d").path
     'surveys/686d/variables'
 """

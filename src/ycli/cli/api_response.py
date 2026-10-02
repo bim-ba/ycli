@@ -12,7 +12,7 @@ class ApiResponse(RootModel[Any]):
 
     A model, so ``--format`` and ``--jq`` treat it like every other result.
 
-    Example:
+    Examples:
         >>> ApiResponse({"key": "DE-1"}).model_dump()
         {'key': 'DE-1'}
     """

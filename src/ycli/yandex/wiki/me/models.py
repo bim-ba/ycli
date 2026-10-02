@@ -6,11 +6,15 @@ from ycli.yandex.models import APIModel
 
 
 class Identity(APIModel):
+    """The user's identity ids (``uid``, ``cloud_uid``)."""
+
     uid: str | None = None
     cloud_uid: str | None = None
 
 
 class Organization(APIModel):
+    """The organization ids the user belongs to (``dir_id``, ``collab_id``)."""
+
     dir_id: str | None = None
     collab_id: str | None = None
 

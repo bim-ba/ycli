@@ -21,7 +21,7 @@ from ycli.yandex.wiki.operations.models import (
 class PageAttributes(APIModel):
     """Optional page metadata (``fields=attributes``) — timestamps, draft flag.
 
-    Example:
+    Examples:
         >>> PageAttributes.model_validate({"is_draft": True, "comments_count": 3}).comments_count
         3
     """
@@ -38,7 +38,7 @@ class PageDetails(APIModel):
     ``content``, ``attributes``, ``owner``, ``access_policy`` and ``access_lists`` come back only
     when named in ``fields``. ``owner_username`` walks ``owner.user.username`` defensively.
 
-    Example:
+    Examples:
         >>> PageDetails.model_validate(
         ...     {"id": 42, "slug": "data/x", "title": "X", "owner": {"user": {"username": "ivan"}}}
         ... ).owner_username
@@ -62,13 +62,14 @@ class PageDetails(APIModel):
 
     @property
     def owner_username(self) -> str | None:
+        """The owner's username, or ``None`` when the page has no owner."""
         return self.owner.user.username if self.owner and self.owner.user else None
 
 
 class PageRef(APIModel):
     """A lightweight ``{id, slug}`` reference (``/pages/descendants`` item).
 
-    Example:
+    Examples:
         >>> PageRef.model_validate({"id": 1, "slug": "data/a"}).slug
         'data/a'
     """
@@ -84,7 +85,7 @@ class DescendantsResponse(APIModel):
     exhausted; a caller paginating passes the previous response's ``next_cursor`` back
     as the next request's ``cursor``.
 
-    Example:
+    Examples:
         >>> r = DescendantsResponse.model_validate(
         ...     {"results": [{"id": 1, "slug": "data/a"}], "next_cursor": None}
         ... )
@@ -99,7 +100,7 @@ class DescendantsResponse(APIModel):
 class PageRefList(RootModel[list[PageRef]]):
     """A drained, flat list of descendant page refs (no cursor — pagination is internal).
 
-    Example:
+    Examples:
         >>> PageRefList([PageRef(id=1, slug="data/a")]).root[0].slug
         'data/a'
     """
@@ -110,7 +111,7 @@ class GridRef(APIModel):
 
     Grids are identified by a UUID string ``id`` (unlike pages, which use an integer id).
 
-    Example:
+    Examples:
         >>> GridRef.model_validate({"id": "abc-uuid", "title": "Roadmap"}).title
         'Roadmap'
     """
@@ -129,7 +130,7 @@ class GridsResponse(APIModel):
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 
-    Example:
+    Examples:
         >>> GridsResponse.model_validate({"results": [{"id": "g1", "title": "T"}]}).results[0].title
         'T'
     """
@@ -148,7 +149,7 @@ class GridRefList(RootModel[list[GridRef]]):
 
     Public return type of ``PagesClient.grids``.
 
-    Example:
+    Examples:
         >>> GridRefList([GridRef(id="g1", title="T")]).root[0].id
         'g1'
     """
@@ -162,7 +163,7 @@ class PageDeleteResult(APIModel):
     Keep this token: it is the only way to restore the just-deleted page (feed it to
     ``wiki recovery restore`` → ``POST /recovery_tokens/{token}/recover``).
 
-    Example:
+    Examples:
         >>> PageDeleteResult.model_validate({"recovery_token": "abc-uuid4"}).recovery_token
         'abc-uuid4'
     """
@@ -175,7 +176,7 @@ class PageDeleteResult(APIModel):
 class PageAppendContentBody(APIModel):
     """Where in the whole page body to append — ``top`` or ``bottom`` (``append-content`` ``body``).
 
-    Example:
+    Examples:
         >>> PageAppendContentBody(location="bottom").location
         'bottom'
     """
@@ -189,7 +190,7 @@ class PageAppendContentBody(APIModel):
 class PageAppendContentSection(APIModel):
     """Append relative to a numbered section (``append-content`` ``section``).
 
-    Example:
+    Examples:
         >>> PageAppendContentSection(id=3, location="top").id
         3
     """
@@ -204,7 +205,7 @@ class PageAppendContentSection(APIModel):
 class PageAppendContentAnchor(APIModel):
     """Append relative to a named text anchor (``append-content`` ``anchor``).
 
-    Example:
+    Examples:
         >>> PageAppendContentAnchor(name="Roadmap", regex=True).regex
         True
     """
@@ -225,7 +226,7 @@ class PageAppendContent(APIModel):
     "mutually exclusive" validation error. Contrast with ``PagesClient.update``, which
     replaces the whole page body.
 
-    Example:
+    Examples:
         >>> PageAppendContent(
         ...     content="## More", body=PageAppendContentBody(location="bottom")
         ... ).model_dump(exclude_none=True)
@@ -250,7 +251,7 @@ class PageClone(APIModel):
     ``target`` is the destination slug; ``subscribe_me`` subscribes the caller to the copy.
     Clone is deferred — see :class:`PageCloneOperation` and poll via the ``operations`` resource.
 
-    Example:
+    Examples:
         >>> PageClone(target="data/y", subscribe_me=True).model_dump(exclude_none=True)
         {'target': 'data/y', 'subscribe_me': True}
     """
@@ -267,7 +268,7 @@ class PageClone(APIModel):
 class PageCloneOperationIdentity(APIModel):
     """Reference to the deferred operation (``{type, id}``) inside a page clone or move reply.
 
-    Example:
+    Examples:
         >>> PageCloneOperationIdentity(type="clone", id="task-1").id
         'task-1'
     """
@@ -288,7 +289,7 @@ class PageCloneOperation(APIModel):
     Page clone is asynchronous: this returns the ``operation`` and a ``status_url``; poll
     ``operations clone <operation.id>`` until it reaches a terminal state.
 
-    Example:
+    Examples:
         >>> PageCloneOperation.model_validate(
         ...     {"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"}
         ... ).operation.id
@@ -311,7 +312,7 @@ class PageMoveStep(APIModel):
 
     ``next_to_slug`` and ``position`` set where the moved page lands among its new siblings.
 
-    Example:
+    Examples:
         >>> PageMoveStep(source="data/old", target="archive/old").model_dump(exclude_none=True)
         {'source': 'data/old', 'target': 'archive/old'}
     """
@@ -333,7 +334,7 @@ class PageMove(APIModel):
     way to rename or relocate a page (a page update has no ``slug``). The endpoint is undocumented
     by Yandex (live OpenAPI only) and may change.
 
-    Example:
+    Examples:
         >>> PageMove(
         ...     operations=[PageMoveStep(source="data/old", target="archive/old")],
         ...     copy_inherited_access=True,
@@ -359,7 +360,7 @@ class PageMoveOperation(APIModel):
     ``operations move-get <operation.id>`` until it reaches a terminal state. A ``dry_run`` reply
     carries ``dry_run=true``.
 
-    Example:
+    Examples:
         >>> PageMoveOperation.model_validate(
         ...     {"operation": {"type": "move", "id": "task-1"}, "status_url": "u"}
         ... ).operation.id
@@ -380,7 +381,7 @@ class PageMoveOperation(APIModel):
 class RevisionDraft(APIModel):
     """The draft a revision was published from (``revision_draft`` of a revision).
 
-    Example:
+    Examples:
         >>> RevisionDraft.model_validate({"id": 3, "modified_at": "2026-10-03T10:00:00Z"}).id
         3
     """
@@ -393,7 +394,7 @@ class RevisionDraft(APIModel):
 class RevisionPublication(APIModel):
     """Publication state of a revision (``publication`` of a revision).
 
-    Example:
+    Examples:
         >>> RevisionPublication(status="published").status
         'published'
     """
@@ -406,7 +407,7 @@ class RevisionPublication(APIModel):
 class PageRevision(APIModel):
     """One saved revision of a page (``/pages/{id}/revisions`` item).
 
-    Example:
+    Examples:
         >>> PageRevision.model_validate(
         ...     {"id": 7, "author": {"username": "ivan"}, "page_type": "page"}
         ... ).author.username
@@ -432,7 +433,7 @@ class RevisionsResponse(APIModel):
 
     Internal per-page parse type used by ``endpoints.list_revisions``.
 
-    Example:
+    Examples:
         >>> RevisionsResponse.model_validate({"results": [{"id": 7}]}).results[0].id
         7
     """
@@ -449,7 +450,7 @@ class RevisionsResponse(APIModel):
 class PageRevisionList(RootModel[list[PageRevision]]):
     """A drained, flat list of page revisions (no cursor — pagination is internal).
 
-    Example:
+    Examples:
         >>> PageRevisionList([PageRevision(id=7)]).root[0].id
         7
     """
@@ -462,7 +463,7 @@ class BacklinksResponse(APIModel):
 
     Internal per-page parse type used by ``endpoints.list_backlinks``.
 
-    Example:
+    Examples:
         >>> BacklinksResponse.model_validate({"results": [{"id": 1, "slug": "a"}]}).results[0].slug
         'a'
     """

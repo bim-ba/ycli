@@ -1,6 +1,6 @@
 """Forms ``/surveys`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_survey("686d").path
     'surveys/686d'
     >>> publish_survey("686d").effect

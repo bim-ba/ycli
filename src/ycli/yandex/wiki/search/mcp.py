@@ -40,11 +40,6 @@ def query(
     snippet, the ``type`` and ``modified_at``. For the next page pass ``next_cursor`` back as
     ``cursor``; stop at the first page without hits, because ``next_cursor`` stays set after an
     empty page. A new page can take seconds to appear in the index.
-
-    Example:
-        >>> query(
-        ...     text="roadmap", filters={"type": "page", "cluster": "team"}, limit=20
-        ... )  # doctest: +SKIP
     """
     request = SearchRequest(
         query=text,

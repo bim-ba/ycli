@@ -9,7 +9,7 @@ MCP tool annotations must agree with it.
 Nothing here does I/O: :meth:`Endpoint.request` builds a native ``httpx2.Request`` through the
 client (so its base URL and default headers apply) and :meth:`Endpoint.parse` reads a response.
 
-Example:
+Examples:
     >>> Endpoint("GET", "issues/TEST-1").effect
     'read'
     >>> Endpoint("POST", "issues/_search", effect="read").idempotent
@@ -55,7 +55,13 @@ def segment(value: object) -> str:
     Escaping alone does not keep a value in its place: Yandex servers decode ``%2F`` before
     routing, so :func:`check_path` rejects the request that such a value produces.
 
-    Example:
+    Args:
+        value: The caller's value.
+
+    Returns:
+        The percent-escaped segment.
+
+    Examples:
         >>> segment("TEST 1")
         'TEST%201'
     """
@@ -70,7 +76,13 @@ def check_path(raw_path: str) -> None:
     needs a backslash, an escaped separator, an empty segment or a dot segment, so all are
     refused.
 
-    Example:
+    Args:
+        raw_path: The percent-encoded URL path.
+
+    Raises:
+        YandexClientError: The path would be routed to another endpoint.
+
+    Examples:
         >>> check_path("/v3/issues/TEST-1/")
         >>> check_path("/v3/issues/..%2Fqueues%2FDE")
         Traceback (most recent call last):

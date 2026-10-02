@@ -1,6 +1,6 @@
 """Forms ``/notifications`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> restart_notification(7).path
     'notifications/7/restart'
     >>> list_notifications(survey_id="686d", status=["error"]).endpoint.params["status"]

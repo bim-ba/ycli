@@ -1,6 +1,6 @@
 """Tracker issue ``/links`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> delete_link("DE-130", "42").path
     'issues/DE-130/links/42'
 """

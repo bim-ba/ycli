@@ -30,9 +30,6 @@ def list_(
     The unified single-pass listing over what ``attachments_list`` and ``pages_grids_list``
     expose separately (drains ``next_cursor`` internally). Capped at the configured item cap
     unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,grid``).
-
-    Example:
-        >>> list_(page_id=12345, types="attachment")  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.resources.list(page_id=page_id, limit=cap, q=q or None, types=types or None)

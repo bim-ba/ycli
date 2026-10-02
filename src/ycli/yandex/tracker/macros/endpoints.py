@@ -1,6 +1,6 @@
 """Tracker queue ``/macros`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_macro("TEST", 3).path
     'queues/TEST/macros/3'
 """

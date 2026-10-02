@@ -8,7 +8,7 @@ sync and async sessions and concurrent walks; the session drives the loop and ca
 The interface follows dlt's REST client paginators (``dlt.sources.helpers.rest_client``,
 Apache-2.0), rewritten for ``httpx2`` requests instead of mutated ``requests`` objects.
 
-Example:
+Examples:
     >>> import httpx2
     >>> first = OffsetLimitPagination(page_size=2).first(httpx2.Request("GET", "https://x/s"))
     >>> str(first.url)
@@ -69,11 +69,13 @@ class OffsetLimitPagination(Pagination):
     limit_param: str = "limit"
 
     def first(self, request: httpx2.Request) -> httpx2.Request:
+        """The first page: ``offset`` 0 and ``limit`` of ``page_size``."""
         return _with_params(request, {self.offset_param: 0, self.limit_param: self.page_size})
 
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
+        """The next offset, or ``None`` after a page shorter than ``page_size``."""
         if len(items) < self.page_size:
             return None
         offset = int(request.url.params[self.offset_param]) + self.page_size
@@ -94,11 +96,13 @@ class PageNumberPagination(Pagination):
     total_pages_header: str | None = "X-Total-Pages"
 
     def first(self, request: httpx2.Request) -> httpx2.Request:
+        """The first page: page 1 of ``page_size`` items."""
         return _with_params(request, {self.page_param: 1, self.size_param: self.page_size})
 
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
+        """The next page number, or ``None`` after the last page."""
         page = int(request.url.params[self.page_param])
         total = response.headers.get(self.total_pages_header) if self.total_pages_header else None
         last = page >= int(total) if total is not None else len(items) < self.page_size
@@ -115,6 +119,7 @@ class CursorPagination(Pagination):
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
+        """The request with the response's cursor, or ``None`` when absent or not advancing."""
         cursor = self.cursor_of(response)
         # A cursor equal to the one just sent means the API stopped advancing.
         if not cursor or request.url.params.get(self.cursor_param) == cursor:
@@ -148,6 +153,7 @@ class LinkHeaderPagination(Pagination):
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
+        """The request carrying the ``rel`` link's query, or ``None`` without such a link."""
         link = response.links.get(self.rel)
         if not link:
             return None
@@ -170,6 +176,7 @@ class NextURLPagination(Pagination):
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
+        """The request for the body's next-page URL, or ``None`` without one or a repeated one."""
         link = self.url_of(response)
         if not link:
             return None
@@ -189,6 +196,7 @@ class RelativeIdPagination(Pagination):
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
+        """The request after the last item's id, or ``None`` when there is no new id."""
         last = self.id_of(items[-1]) if items else None
         if last is None or request.url.params.get(self.id_param) == last:
             return None

@@ -15,7 +15,7 @@ from ycli.yandex.models import APIModel
 class Keyset(APIModel):
     """A key set for form filling (``/surveys/{id}/keysets`` item and single get).
 
-    Example:
+    Examples:
         >>> Keyset.model_validate({"id": 7, "name": "Q1", "total": 100, "used": 3}).used
         3
     """
@@ -30,7 +30,7 @@ class Keyset(APIModel):
 class KeysetList(RootModel[list[Keyset]]):
     """A bare JSON array of :class:`Keyset` items — the return type of ``KeysetsClient.list``.
 
-    Example:
+    Examples:
         >>> KeysetList.model_validate([{"id": 7, "name": "Q1"}]).root[0].id
         7
     """
@@ -44,7 +44,7 @@ class KeysetCreate(APIModel):
     ``--enabled/--disabled`` required and always sends the flag; fields stay optional here so
     :class:`KeysetUpdate` can reuse the shape.
 
-    Example:
+    Examples:
         >>> KeysetCreate(name="Q1 invites", total=250, is_enabled=True).is_enabled
         True
     """
@@ -63,7 +63,7 @@ class KeysetUpdate(KeysetCreate):
     a full record — ``name``, ``total`` and ``is_enabled`` are all required (a missing field is
     rejected with ``400 value_error.missing``), so set every field.
 
-    Example:
+    Examples:
         >>> KeysetUpdate(name="Q1", total=250, is_enabled=False).is_enabled
         False
     """

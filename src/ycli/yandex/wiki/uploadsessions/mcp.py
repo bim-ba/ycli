@@ -46,9 +46,6 @@ def get(
 
     Poll this to watch a session move ``not_started`` → ``in_progress`` → ``finished`` before the
     file is attached to a page.
-
-    Example:
-        >>> get(session_id="1e5c4b2a-…")  # doctest: +SKIP
     """
     return client.uploadsessions.get(session_id=session_id)
 
@@ -70,9 +67,6 @@ def create(
     The returned ``session_id`` addresses the session for ``uploadsessions_upload_part`` /
     ``uploadsessions_finish``. For a single small file, ``attachments_upload`` runs the whole
     pipeline in one call instead.
-
-    Example:
-        >>> create(body={"file_name": "d.png", "file_size": 2048})  # doctest: +SKIP
     """
     return client.uploadsessions.create(body)
 
@@ -95,9 +89,6 @@ def upload_part(
     The base64 ``data`` is decoded and sent as raw ``application/octet-stream`` bytes.
     Parts may be 5-16 MB except the last; a small file fits in a single ``part_number=1``
     call. Returns the session (poll ``status`` via ``uploadsessions_get``).
-
-    Example:
-        >>> upload_part(session_id="1e5c…", part_number=1, data="aGk=")  # doctest: +SKIP
     """
     return client.uploadsessions.upload_part(session_id, part_number=part_number, data=data)
 
@@ -115,9 +106,6 @@ def finish(
 
     Only a finished session can be attached to a page (``attachments_attach``). Returns the
     session with its final ``status``.
-
-    Example:
-        >>> finish(session_id="1e5c…")  # doctest: +SKIP
     """
     return client.uploadsessions.finish(session_id=session_id)
 
@@ -135,9 +123,6 @@ def abort(
 
     Frees the session's quota; the session cannot be resumed afterwards. Returns the
     session with ``status: aborted``.
-
-    Example:
-        >>> abort(session_id="1e5c…")  # doctest: +SKIP
     """
     return client.uploadsessions.abort(session_id=session_id)
 
@@ -154,8 +139,5 @@ def abort_all(
 
     A quota-freeing sweep — use it when stale sessions block new uploads; prefer
     ``uploadsessions_abort`` to cancel a single known session.
-
-    Example:
-        >>> abort_all()  # doctest: +SKIP
     """
     return client.uploadsessions.abort_all()

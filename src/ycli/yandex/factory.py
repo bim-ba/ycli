@@ -24,8 +24,22 @@ def build_client[C: DomainClient](
 
     ``before_send`` is the client's per-endpoint hook (see :class:`~ycli.yandex.base.DomainClient`).
 
-    Example:
-        >>> build_client(TrackerClient, Credentials(), AppConfig()).issues  # doctest: +SKIP
+    Args:
+        client_cls: The domain client class to build.
+        credentials: The OAuth token and organization id.
+        config: The HTTP settings.
+        before_send: The client's per-endpoint hook.
+
+    Returns:
+        The ready client.
+
+    Examples:
+        >>> from ycli.settings import AppConfig, Credentials
+        >>> from ycli.yandex.tracker.client import TrackerClient
+        >>> credentials = Credentials(oauth_token="token", organization_id="org")
+        >>> with build_client(TrackerClient, credentials, AppConfig()) as client:
+        ...     client.me.get().login
+        'alice'
     """
     return client_cls(
         oauth_token=credentials.oauth_token.get_secret_value(),

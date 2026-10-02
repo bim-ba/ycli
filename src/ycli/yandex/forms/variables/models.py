@@ -17,7 +17,7 @@ from ycli.yandex.models import APIModel
 class VariableCategory(APIModel):
     """The group a variable type belongs to.
 
-    Example:
+    Examples:
         >>> VariableCategory(type="form", name="Форма").type
         'form'
     """
@@ -31,7 +31,7 @@ class VariableCategory(APIModel):
 class VariableRenderer(APIModel):
     """One way a variable's value can render.
 
-    Example:
+    Examples:
         >>> VariableRenderer(type="json", name="JSON").type
         'json'
     """
@@ -45,7 +45,7 @@ class VariableRenderer(APIModel):
 class VariableInfo(APIModel):
     """A variable type an integration of this form can reference.
 
-    Example:
+    Examples:
         >>> VariableInfo.model_validate(
         ...     {"type": "form.question_answer", "arguments": ["question"]}
         ... ).arguments
@@ -73,7 +73,7 @@ class VariableInfo(APIModel):
 class VariableInfoList(RootModel[list[VariableInfo]]):
     """A bare JSON array of :class:`VariableInfo` — the return type of ``VariablesClient.list``.
 
-    Example:
+    Examples:
         >>> VariableInfoList.model_validate([{"type": "form.id"}]).root[0].type
         'form.id'
     """

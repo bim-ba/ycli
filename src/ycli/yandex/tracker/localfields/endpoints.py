@@ -1,6 +1,6 @@
 """Tracker ``/queues/{id}/localFields`` operations (per-queue fields), declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_local_field("ORG", "loc_field_key").path
     'queues/ORG/localFields/loc_field_key'
 """

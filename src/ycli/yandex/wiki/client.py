@@ -25,13 +25,15 @@ from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 class WikiClient(DomainClient):
     """Holds the per-resource wiki clients, all sharing one httpx2 core session.
 
-    Example:
-        >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+    Examples:
+        >>> wiki.me.get().username
+        'vera.petrova'
     """
 
     profile = SERVICE.profile
 
     def probe(self) -> None:
+        """One cheap authenticated read: the current user."""
         self.me.get()
 
     def _wire(self, session: SyncSession) -> None:

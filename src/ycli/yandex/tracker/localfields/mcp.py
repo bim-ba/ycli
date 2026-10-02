@@ -41,9 +41,6 @@ def list_(
     Each item's ``key`` is the field key you pass to ``localfields_get``; ``field_schema``
     describes the value type. Local fields differ from global fields (``fields_list``) in that
     they exist only inside the given queue. Pass a ``key`` from ``queues_list`` as ``queue_id``.
-
-    Example:
-        >>> localfields_list("ORG")  # doctest: +SKIP
     """
     return client.localfields.list(queue_id)
 
@@ -63,9 +60,6 @@ def get(
     Raises if the field is not found. Returns the value schema, allowed-values provider and
     category of the field. Use ``localfields_list`` first to discover the ``field_key`` values
     available in a queue.
-
-    Example:
-        >>> localfields_get("ORG", "loc_field_key")  # doctest: +SKIP
     """
     result = client.localfields.get(queue_id, field_key)
     return require_found(

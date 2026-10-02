@@ -12,7 +12,7 @@ from ycli.yandex.models import APIModel
 class FilterFieldRef(APIModel):
     """A reference to an issue field shown in the filter UI (``fields`` / ``groupBy`` item).
 
-    Example:
+    Examples:
         >>> FilterFieldRef.model_validate({"id": "status", "display": "Status"}).id
         'status'
     """
@@ -29,7 +29,7 @@ class FilterFieldRef(APIModel):
 class FilterUser(APIModel):
     """A user referenced by a filter's owner or permissions.
 
-    Example:
+    Examples:
         >>> FilterUser.model_validate({"id": "1", "display": "Ivan"}).display
         'Ivan'
     """
@@ -56,7 +56,7 @@ class FilterUser(APIModel):
 class FilterGroup(APIModel):
     """A group referenced by a filter's permissions.
 
-    Example:
+    Examples:
         >>> FilterGroup.model_validate({"id": "5", "display": "Everyone"}).display
         'Everyone'
     """
@@ -73,7 +73,7 @@ class FilterGroup(APIModel):
 class FilterPermissionEntry(APIModel):
     """The users, groups and roles granted one permission level (READ or WRITE).
 
-    Example:
+    Examples:
         >>> FilterPermissionEntry.model_validate({"users": [], "groups": [], "roles": []}).roles
         []
     """
@@ -92,7 +92,7 @@ class FilterPermissionEntry(APIModel):
 class FilterPermissions(APIModel):
     """The read/write access rights of a filter (the ``permissions`` object).
 
-    Example:
+    Examples:
         >>> FilterPermissions.model_validate({"READ": {"users": []}}).read.users
         []
     """
@@ -108,7 +108,7 @@ class FilterPermissions(APIModel):
 class Filter(APIModel):
     """A saved issue filter (``/filters/{id}``) — stored filtering conditions and UI settings.
 
-    Example:
+    Examples:
         >>> Filter.model_validate({"id": 12345, "name": "My open issues"}).name
         'My open issues'
     """
@@ -153,7 +153,7 @@ class FilterCreate(APIModel):
     Pass either ``filter`` (a field→condition mapping) or ``query`` (a Tracker query string),
     not both.
 
-    Example:
+    Examples:
         >>> FilterCreate(name="My open", filter={"status": "open"}).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -175,7 +175,7 @@ class FilterUpdate(APIModel):
     Only the fields that are set are sent; note the API replaces ``filter`` wholesale rather
     than merging it, so pass every condition you want to keep.
 
-    Example:
+    Examples:
         >>> FilterUpdate(name="Renamed").model_dump(by_alias=True, exclude_none=True)
         {'name': 'Renamed'}
     """

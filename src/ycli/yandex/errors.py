@@ -80,7 +80,13 @@ def describe_error_body(body: str) -> str:
     "error_code": ...}``, Forms ``{"detail": ...}`` or a bare list of ``{"loc", "error_code",
     "msg"}`` items; anything else is cut to 300 characters.
 
-    Example:
+    Args:
+        body: The response body text.
+
+    Returns:
+        The readable line, or the body cut to 300 characters.
+
+    Examples:
         >>> describe_error_body('{"errorMessages": ["Issue does not exist."]}')
         'Issue does not exist.'
         >>> describe_error_body('{"error_code": "NOT_FOUND", "message": ["No page."]}')
@@ -113,7 +119,16 @@ def error_for_status(
 ) -> YandexError:
     """The typed error for a non-2xx ``status`` — the one status-to-exception mapping.
 
-    Example:
+    Args:
+        status: The non-2xx HTTP status.
+        message: The error message.
+        url: The request URL.
+        retry_after: The server's ``Retry-After`` in seconds, if it sent one.
+
+    Returns:
+        The error ``status`` maps to.
+
+    Examples:
         >>> type(error_for_status(404, "gone", url="https://x")).__name__
         'YandexNotFoundError'
     """

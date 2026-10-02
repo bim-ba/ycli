@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class LinkType(APIModel):
     """A link type descriptor (``/linktypes`` item).
 
-    Example:
+    Examples:
         >>> LinkType.model_validate({"id": "relates", "inward": "x", "outward": "y"}).id
         'relates'
     """
@@ -23,7 +23,7 @@ class LinkType(APIModel):
 class LinkTypeList(RootModel[list[LinkType]]):
     """A bare JSON array of link types.
 
-    Example:
+    Examples:
         >>> LinkTypeList.model_validate([{"id": "relates"}]).root[0].id
         'relates'
     """

@@ -27,12 +27,17 @@ class UploadSessionsClient(Resource):
 
         The returned ``session_id`` addresses the session for ``upload_part`` / ``finish``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.uploadsessions.create(
-            ...     UploadSessionCreate(file_name="d.png", file_size=2048)
-            ... ).session_id  # doctest: +SKIP
-            '1e5c…'
+        Args:
+            body: The file's name and size.
+
+        Returns:
+            The opened session.
+
+        Examples:
+            >>> from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
+            >>> body = UploadSessionCreate(file_name="report.xlsx", file_size=7340032)
+            >>> wiki.uploadsessions.create(body).status
+            'not_started'
         """
         payload = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_session(payload))
@@ -40,9 +45,15 @@ class UploadSessionsClient(Resource):
     def get(self, session_id: str) -> UploadSession:
         """``GET /upload_sessions/{session_id}`` → the session's current state (poll ``status``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.uploadsessions.get("1e5c…").status  # doctest: +SKIP
+        Args:
+            session_id: The session's id.
+
+        Returns:
+            The session.
+
+        Examples:
+            >>> session_id = "9c8b7a6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"
+            >>> wiki.uploadsessions.get(session_id).status
             'in_progress'
         """
         return self._session.send(endpoints.get_session(session_id))
@@ -53,11 +64,17 @@ class UploadSessionsClient(Resource):
         ``part_number`` is 1-based (1 for the first part, +1 for each next). Parts may be
         5-16 MB except the last; a small file fits in a single ``part_number=1`` call.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.uploadsessions.upload_part(
-            ...     "1e5c…", part_number=1, data=b"\\x89PNG…"
-            ... ).status  # doctest: +SKIP
+        Args:
+            session_id: The session's id.
+            part_number: The part's 1-based number.
+            data: The part's bytes.
+
+        Returns:
+            The session.
+
+        Examples:
+            >>> session_id = "9c8b7a6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"
+            >>> wiki.uploadsessions.upload_part(session_id, part_number=1, data=b"part").status
             'in_progress'
         """
         endpoint = endpoints.upload_part(session_id, part_number=part_number, data=data)
@@ -66,9 +83,15 @@ class UploadSessionsClient(Resource):
     def finish(self, session_id: str) -> UploadSession:
         """``POST /upload_sessions/{session_id}/finish`` — close the session so the file can attach.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.uploadsessions.finish("1e5c…").status  # doctest: +SKIP
+        Args:
+            session_id: The session's id.
+
+        Returns:
+            The finished session.
+
+        Examples:
+            >>> session_id = "9c8b7a6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"
+            >>> wiki.uploadsessions.finish(session_id).status
             'finished'
         """
         return self._session.send(endpoints.finish_session(session_id))
@@ -76,9 +99,15 @@ class UploadSessionsClient(Resource):
     def abort(self, session_id: str) -> UploadSession:
         """``POST /upload_sessions/{session_id}/abort`` — cancel one in-progress session.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.uploadsessions.abort("1e5c…").status  # doctest: +SKIP
+        Args:
+            session_id: The session's id.
+
+        Returns:
+            The aborted session.
+
+        Examples:
+            >>> session_id = "9c8b7a6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"
+            >>> wiki.uploadsessions.abort(session_id).status
             'aborted'
         """
         return self._session.send(endpoints.abort_session(session_id))
@@ -86,9 +115,11 @@ class UploadSessionsClient(Resource):
     def abort_all(self) -> AbortActiveUploadsResult:
         """``POST /upload_sessions/abort_active_uploads`` — cancel ALL active sessions (free quota).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.uploadsessions.abort_all().status  # doctest: +SKIP
+        Returns:
+            The result of the abort.
+
+        Examples:
+            >>> wiki.uploadsessions.abort_all().status
             'ok'
         """
         return self._session.send(endpoints.abort_all_sessions())

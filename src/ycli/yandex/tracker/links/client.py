@@ -20,10 +20,15 @@ class LinksClient(Resource):
     def list(self, key: str) -> LinkList:
         """``GET /issues/{key}/links`` → link listing.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.links.list(key="DATAENGINEERING-130").root[0].object_key  # doctest: +SKIP
-            'DATAENGINEERING-129'
+        Args:
+            key: The issue's key.
+
+        Returns:
+            The issue's links.
+
+        Examples:
+            >>> tracker.links.list("DE-41").root[0].object_key
+            'DE-40'
         """
         return self._session.send(endpoints.list_links(key))
 
@@ -42,12 +47,21 @@ class LinksClient(Resource):
         of :meth:`add` (``relates``, ``depends on``, ``is subtask for``, ``has epic``, …) and
         answers 400 to a type id such as ``subtask``. Capped at ``limit`` (``None`` = every link).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.links.search("JUNE-2", link_types=["relates"]).root[
-            ...     0
-            ... ].object_key  # doctest: +SKIP
-            'TREK-9844'
+        Args:
+            key: The issue's key.
+            link_types: Keep only links of these relationships.
+            fields: The fields to return for each link.
+            limit: The most links to return; ``None`` returns every link.
+
+        Returns:
+            The matching links.
+
+        Examples:
+            >>> found = tracker.links.search(
+            ...     "DE-44", link_types=["relates", "subtask"], fields=["id", "type"]
+            ... )
+            >>> [link.id for link in found.root]
+            [441, 442]
         """
         paged = endpoints.search_links(key, link_types=link_types, fields=fields)
         return LinkList(list(self._session.iterate(paged, limit=limit)))
@@ -55,21 +69,29 @@ class LinksClient(Resource):
     def add(self, key: str, body: dict[str, Any]) -> Link:
         """``POST /issues/{key}/links`` — link two issues. Returns the link.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.links.add(
-            ...     "DATAENGINEERING-130",
-            ...     {"relationship": "depends on", "issue": "DATAENGINEERING-129"},
-            ... ).object_key  # doctest: +SKIP
-            'DATAENGINEERING-129'
+        Args:
+            key: The issue's key.
+            body: The link's ``relationship`` and the other ``issue``.
+
+        Returns:
+            The created link.
+
+        Examples:
+            >>> tracker.links.add(
+            ...     "DE-42", {"relationship": "is dependent by", "issue": "OPS-9"}
+            ... ).object_key
+            'OPS-9'
         """
         return self._session.send(endpoints.add_link(key, body))
 
     def delete(self, key: str, link_id: str) -> None:
         """Delete a link (``DELETE …/links/{link_id}`` → 204). Raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.links.delete("DATAENGINEERING-130", 42)  # doctest: +SKIP
+        Args:
+            key: The issue's key.
+            link_id: The link's id.
+
+        Examples:
+            >>> tracker.links.delete("DE-43", "431")
         """
         self._session.send(endpoints.delete_link(key, link_id))

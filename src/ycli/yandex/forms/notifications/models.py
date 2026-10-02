@@ -14,7 +14,7 @@ from ycli.yandex.models import APIModel
 class Notification(APIModel):
     """One run of an integration, as the listing shows it.
 
-    Example:
+    Examples:
         >>> Notification.model_validate({"id": 7, "status": "error", "type": "http"}).status
         'error'
     """
@@ -43,7 +43,7 @@ class Notification(APIModel):
 class NotificationField(APIModel):
     """One named value in a notification's context, response or error.
 
-    Example:
+    Examples:
         >>> NotificationField.model_validate({"name": "url", "value": "x", "type": "url"}).type
         'url'
     """
@@ -58,7 +58,7 @@ class NotificationField(APIModel):
 class NotificationDetails(Notification):
     """A notification with what the integration was given, answered and failed with.
 
-    Example:
+    Examples:
         >>> NotificationDetails.model_validate(
         ...     {"id": 7, "error": [{"name": "detail", "value": "timeout"}]}
         ... ).error[0].value
@@ -79,7 +79,7 @@ class NotificationDetails(Notification):
 class NotificationLinks(APIModel):
     """The paging links of a notification listing (internal).
 
-    Example:
+    Examples:
         >>> NotificationLinks.model_validate({"next": "/v1/notifications/?id=9"}).next
         '/v1/notifications/?id=9'
     """
@@ -90,7 +90,7 @@ class NotificationLinks(APIModel):
 class NotificationPage(APIModel):
     """One page of ``GET /notifications`` (internal).
 
-    Example:
+    Examples:
         >>> NotificationPage.model_validate({"links": {}, "result": [{"id": 7}]}).result[0].id
         7
     """
@@ -104,7 +104,7 @@ class NotificationPage(APIModel):
 class NotificationList(RootModel[list[Notification]]):
     """A flat list of :class:`Notification` — the return type of ``NotificationsClient.list``.
 
-    Example:
+    Examples:
         >>> NotificationList.model_validate([{"id": 7}]).root[0].id
         7
     """
@@ -113,7 +113,7 @@ class NotificationList(RootModel[list[Notification]]):
 class NotificationStatus(APIModel):
     """A notification's id and run state.
 
-    Example:
+    Examples:
         >>> NotificationStatus.model_validate({"id": 7, "status": "pending"}).status
         'pending'
     """
@@ -127,7 +127,7 @@ class NotificationStatus(APIModel):
 class NotificationActionResult(APIModel):
     """How a restart or a cancel went: ``ok``, ``skip``, ``fail`` or ``operation``.
 
-    Example:
+    Examples:
         >>> NotificationActionResult.model_validate({"status": "operation", "operation_id": "a"})
         NotificationActionResult(status='operation', detail=None, operation_id='a')
     """
@@ -146,7 +146,7 @@ class NotificationActionResult(APIModel):
 class NotificationAction(APIModel):
     """The answer to a restart or a cancel of a notification.
 
-    Example:
+    Examples:
         >>> NotificationAction.model_validate(
         ...     {"id": 7, "survey_id": "686d", "result": {"status": "ok"}}
         ... ).result.status
@@ -164,7 +164,7 @@ class NotificationAction(APIModel):
 class NotificationIdList(RootModel[list[int]]):
     """A bare JSON array of notification ids — the failed runs of a form.
 
-    Example:
+    Examples:
         >>> NotificationIdList.model_validate([7, 9]).root
         [7, 9]
     """

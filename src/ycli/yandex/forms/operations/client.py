@@ -20,9 +20,14 @@ class OperationsClient(Resource):
         Poll it on the ``id`` an async trigger returned (``answers export --no-wait``) until
         :attr:`OperationResult.is_terminal`.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.operations.get("op-4a1b").is_terminal  # doctest: +SKIP
+        Args:
+            operation_id: The operation's ``id``.
+
+        Returns:
+            The operation's current state.
+
+        Examples:
+            >>> forms.operations.get("op-4a1b").is_terminal
             True
         """
         return self._session.send(endpoints.get_operation(operation_id))

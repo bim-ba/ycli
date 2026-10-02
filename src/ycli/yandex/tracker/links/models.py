@@ -15,7 +15,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class LinkObject(APIModel):
     """The ``object`` sub-model in a ``Link`` — carries ``key`` and ``display``.
 
-    Example:
+    Examples:
         >>> LinkObject.model_validate({"key": "DE-2", "display": "Other"}).key
         'DE-2'
     """
@@ -27,7 +27,7 @@ class LinkObject(APIModel):
 class Link(APIModel):
     """A linked issue reference (``/issues/{key}/links`` item).
 
-    Example:
+    Examples:
         >>> Link.model_validate(
         ...     {"id": 7, "type": {"id": "relates"}, "object": {"key": "DE-2"}}
         ... ).type
@@ -59,7 +59,7 @@ class Link(APIModel):
 class LinkList(RootModel[list[Link]]):
     """A bare JSON array of links.
 
-    Example:
+    Examples:
         >>> LinkList.model_validate([{"direction": "outward"}]).root[0].direction
         'outward'
     """
@@ -68,7 +68,7 @@ class LinkList(RootModel[list[Link]]):
 class LinkPage(APIModel):
     """One page of ``POST /issues/{key}/links/_list``: the links under a ``links`` key.
 
-    Example:
+    Examples:
         >>> LinkPage.model_validate({"links": [{"id": 1}]}).links[0].id
         1
     """
@@ -79,7 +79,7 @@ class LinkPage(APIModel):
 class LinkCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/links`` (link to another issue).
 
-    Example:
+    Examples:
         >>> LinkCreate(relationship="relates", issue="DE-2").model_dump(exclude_none=True)
         {'relationship': 'relates', 'issue': 'DE-2'}
     """

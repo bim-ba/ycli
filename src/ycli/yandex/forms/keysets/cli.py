@@ -51,8 +51,10 @@ def create(
     *,
     forms: FormsClient,
 ) -> Keyset:
-    """Create a key set on form SURVEY_ID (POST /surveys/{id}/keysets) — the API requires
-    is_enabled, so --enabled/--disabled is required and always sent in the body."""
+    """Create a key set on form SURVEY_ID (POST /surveys/{id}/keysets).
+
+    The API requires is_enabled, so --enabled/--disabled is required and always sent in the body.
+    """
     body = KeysetCreate(name=name, total=total, is_enabled=enabled).model_dump()
     return forms.keysets.create(survey_id, body=body)
 
@@ -68,8 +70,11 @@ def update(
     *,
     forms: FormsClient,
 ) -> Keyset:
-    """Modify key set KEYSET_ID on SURVEY_ID (PATCH) — the API replaces the whole record, so
-    every field (name, total, enabled) is required and sent together."""
+    """Modify key set KEYSET_ID on SURVEY_ID (PATCH).
+
+    The API replaces the whole record, so every field (name, total, enabled) is required and sent
+    together.
+    """
     body = KeysetUpdate(name=name, total=total, is_enabled=enabled).model_dump()
     return forms.keysets.modify(survey_id, keyset_id, body=body)
 

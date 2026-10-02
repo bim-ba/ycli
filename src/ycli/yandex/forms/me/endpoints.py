@@ -1,6 +1,6 @@
 """Forms ``/users/me``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_me().path
     'users/me'
 """

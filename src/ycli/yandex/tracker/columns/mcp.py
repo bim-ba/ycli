@@ -31,11 +31,11 @@ def list_(
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> ColumnList:
-    """Every column defined on the given agile board, each with the issue statuses whose cards land
-    in it. Use this to inspect a board's column layout; use ``columns_get`` when you already know a
-    column id, and ``boards_get`` for the board itself.
+    """Every column defined on the given agile board.
 
-    >>> columns_list(board_id=73)  # doctest: +SKIP
+    Each column carries the issue statuses whose cards land in it. Use this to inspect a board's
+    column layout; use ``columns_get`` when you already know a column id, and ``boards_get`` for
+    the board itself.
     """
     return client.columns.list(board_id=board_id)
 
@@ -46,11 +46,10 @@ def get(
     column_id: Annotated[int, Field(description="Numeric identifier of the column.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Column:
-    """Look up a single board column by its numeric id, including the issue statuses grouped into
-    it. Use this when you already know the board and column ids; use ``columns_list`` to enumerate
-    every column on a board.
+    """Look up a single board column by its numeric id.
 
-    >>> columns_get(board_id=73, column_id=1)  # doctest: +SKIP
+    The column includes the issue statuses grouped into it. Use this when you already know the
+    board and column ids; use ``columns_list`` to enumerate every column on a board.
     """
     return client.columns.get(board_id=board_id, column_id=column_id)
 

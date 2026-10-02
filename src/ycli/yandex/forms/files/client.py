@@ -21,20 +21,40 @@ class FilesClient(Resource):
         Needs external file storage connected in the form's settings; the returned ``path`` /
         ``url`` then reference the file in a ``File``-type answer.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.files.upload("686d", filename="cv.pdf", data=b"%PDF…").path  # doctest: +SKIP
-            'a/b/cv.pdf'
+        Args:
+            survey_id: The form's id.
+            filename: The file's name.
+            data: The file's raw bytes.
+
+        Returns:
+            The stored file, with its ``path`` and ``url``.
+
+        Examples:
+            >>> forms.files.upload(
+            ...     "686d0a1b2c3d4e5f00000040", filename="cv.txt", data=b"resume bytes"
+            ... ).path
+            'a/b/cv.txt'
         """
         return self._session.send(endpoints.upload_file(survey_id, filename=filename, data=data))
 
     def verify(self, survey_id: str, files: list[FileIn]) -> FileList:
         """``POST …/files/verify`` (a read) → the upload status and access of each file.
 
-        Example:
-            >>> client.files.verify("686d", [FileIn(path="a/b/cv.pdf")]).root[
-            ...     0
-            ... ].check_status  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            files: The files to check, each by ``path`` and/or ``url``.
+
+        Returns:
+            The upload status and access of each file.
+
+        Examples:
+            >>> forms.files.verify(
+            ...     "686d0a1b2c3d4e5f00000040",
+            ...     [
+            ...         FileIn(path="a/b/cv.txt", url="https://forms.test/a/b/cv.txt"),
+            ...         FileIn(path="c/d.pdf"),
+            ...     ],
+            ... ).root[0].check_status
             'ready'
         """
         body = [file.model_dump(exclude_none=True) for file in files]
@@ -47,9 +67,17 @@ class FilesClient(Resource):
         ``hash`` from an upload) lets an anonymous caller download a file whose access cannot
         otherwise be verified.
 
-        Example:
-            >>> client.files.download("a/b/cv.pdf")[:4]  # doctest: +SKIP
-            b'%PDF'
+        Args:
+            path: The stored file's path.
+            download: Whether to ask for a ``Content-Disposition`` filename header.
+            file_hash: The ``hash`` from an upload, for an anonymous caller.
+
+        Returns:
+            The file's raw bytes.
+
+        Examples:
+            >>> forms.files.download("a/b/cv.txt", download=True, file_hash="h4sh")
+            b'resume bytes'
         """
         endpoint = endpoints.download_file(path, download=download, file_hash=file_hash or None)
         return self._session.send(endpoint)
@@ -57,8 +85,15 @@ class FilesClient(Resource):
     def delete(self, *, path: str | None = None, url: str | None = None) -> Ack:
         """``DELETE /files`` (body ``{path, url}``) → an :class:`Ack` naming what was given.
 
-        Example:
-            >>> client.files.delete(path="a/b/cv.pdf").ok  # doctest: +SKIP
+        Args:
+            path: The stored file's path.
+            url: The stored file's url.
+
+        Returns:
+            An acknowledgement naming the deleted file.
+
+        Examples:
+            >>> forms.files.delete(path="a/b/cv.txt", url="https://forms.test/a/b/cv.txt").ok
             True
         """
         self._session.send(

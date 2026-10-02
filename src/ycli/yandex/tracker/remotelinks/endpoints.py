@@ -1,6 +1,6 @@
 """Tracker issue ``/remotelinks`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> create_remote_link("JUNE-2", {"key": "TEST-17"}, "true").params
     {'backlink': 'true'}
 """

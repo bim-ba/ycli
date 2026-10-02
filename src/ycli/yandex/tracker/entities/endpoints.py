@@ -2,7 +2,7 @@
 
 ``entity_type`` (project | portfolio | goal) is the first path segment of every entity route.
 
-Example:
+Examples:
     >>> get_entity("project", "655f", expand=None, fields="summary").params
     {'expand': None, 'fields': 'summary'}
     >>> search_entities("goal", {}, fields=None, per_page=None, page=None).effect

@@ -1,6 +1,6 @@
 """Tracker ``/dashboards`` operations, each declared once (sans-IO).
 
-Example:
+Examples:
     >>> add_cycle_time_widget("10", {"description": "Cycle"}).path
     'dashboards/10/widgets/cycleTime'
 """

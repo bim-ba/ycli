@@ -26,7 +26,7 @@ AccessInheritance = Literal["inherited", "not_inherited"]
 class UserIdentity(APIModel):
     """A user by passport ``uid`` or ``cloud_uid`` (what ``wiki me get`` prints as ``identity``).
 
-    Example:
+    Examples:
         >>> UserIdentity(uid="1000").model_dump(exclude_none=True)
         {'uid': '1000'}
     """
@@ -38,7 +38,7 @@ class UserIdentity(APIModel):
 class GroupIdentity(APIModel):
     """A group by the directory it lives in (``src``) and its id there.
 
-    Example:
+    Examples:
         >>> GroupIdentity(src="dir", id="42").model_dump()
         {'src': 'dir', 'id': '42'}
     """
@@ -52,7 +52,7 @@ class GroupIdentity(APIModel):
 class AccessUser(APIModel):
     """A user in an access entry or as a page owner.
 
-    Example:
+    Examples:
         >>> AccessUser.model_validate({"id": 7, "username": "ivan"}).username
         'ivan'
     """
@@ -68,7 +68,7 @@ class AccessUser(APIModel):
 class AccessGroup(APIModel):
     """A group in an access entry.
 
-    Example:
+    Examples:
         >>> AccessGroup.model_validate({"name": "Docs", "type": "group"}).name
         'Docs'
     """
@@ -88,7 +88,7 @@ class AccessGroup(APIModel):
 class PageAccess(APIModel):
     """One personal grant on a page: a user or a group with a role.
 
-    Example:
+    Examples:
         >>> PageAccess.model_validate({"id": "9", "role": "reader"}).role
         'reader'
     """
@@ -108,7 +108,7 @@ class PageAccessCreate(APIModel):
 
     Name exactly one of ``user`` and ``group``.
 
-    Example:
+    Examples:
         >>> PageAccessCreate(user=UserIdentity(uid="1000"), role="editor").model_dump(
         ...     exclude_none=True
         ... )
@@ -132,7 +132,7 @@ class PageAccessCreate(APIModel):
 class PageAccessUpdate(APIModel):
     """Typed body for ``POST /pages/{id}/access/{access_id}`` — change a grant's role or reach.
 
-    Example:
+    Examples:
         >>> PageAccessUpdate(role="reader").model_dump(exclude_none=True)
         {'role': 'reader'}
     """
@@ -152,7 +152,7 @@ class PageAccessUpdate(APIModel):
 class PageAccessPolicy(APIModel):
     """Who may open a page at all (``fields=access_policy``).
 
-    Example:
+    Examples:
         >>> PageAccessPolicy.model_validate({"access_type": "custom"}).access_type
         'custom'
     """
@@ -175,7 +175,7 @@ class PageAccessPolicy(APIModel):
 class PageAccessLists(APIModel):
     """The grants on a page by origin (``fields=access_lists``).
 
-    Example:
+    Examples:
         >>> PageAccessLists.model_validate({"direct": [{"id": "9", "role": "author"}]}).direct[0].id
         '9'
     """
@@ -190,7 +190,7 @@ class PageAccessLists(APIModel):
 class PageOwner(APIModel):
     """The owner of a page (``fields=owner``).
 
-    Example:
+    Examples:
         >>> PageOwner.model_validate({"user": {"username": "ivan"}}).user.username
         'ivan'
     """

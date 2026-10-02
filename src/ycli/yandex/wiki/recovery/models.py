@@ -13,7 +13,7 @@ class RecoveredPage(APIModel):
     Returned when a ``recovery_token`` (from ``pages.delete``) is redeemed; the page reappears
     at ``slug`` under numeric ``id``.
 
-    Example:
+    Examples:
         >>> RecoveredPage.model_validate({"id": 42, "slug": "data/x"}).slug
         'data/x'
     """
