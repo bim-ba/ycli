@@ -13,6 +13,7 @@ move to the httpx2 core.
 | Registry & architecture | parity, layers, effects, one output path, single sources, DI, typed boundaries | `tests/test_architecture.py`, import-linter, signature snapshots — small and hand-written |
 | Unit | logic only: validators, auth flows, paginators, error mapping, settings | by hand, next to the code it covers (`tests/yandex/core/`, `tests/yandex/test_settings.py`) |
 | Special behaviour | `--wait` polling, uploads, unusual error shapes | by hand, only where the generic cases cannot reach |
+| Live e2e | the real API accepts what ycli sends and reaches the expected state | YAML scenarios in `e2e/` run against the test organization, outside the coverage gate; see [`e2e/README.md`](../../e2e/README.md) |
 
 A resource on the core adds its endpoint declarations, one effect case per MCP tool, and JSON
 fixtures for its responses. Until the generated wire and smoke tests land (E2), it also carries

@@ -1,0 +1,36 @@
+name: forms/survey-lifecycle
+steps:
+  - id: create
+    run: forms surveys create --name "${RUN} survey"
+    expect:
+      name: ${RUN} survey
+    save:
+      id: id
+    cleanup: forms surveys delete ${id}
+  - id: add-question
+    run: forms questions create ${id} --type string --label "${RUN} question"
+    expect:
+      label: ${RUN} question
+  - id: publish
+    run: forms surveys publish ${id}
+  - id: published
+    run: forms surveys get ${id}
+    expect:
+      is_published: true
+  - id: unpublish
+    run: forms surveys unpublish ${id}
+  - id: unpublished
+    run: forms surveys get ${id}
+    expect:
+      is_published: false
+  - id: listed
+    run: forms surveys list --all
+    expect:
+      "length([?id == '${id}'])": 1
+  - id: delete
+    run: forms surveys delete ${id}
+    disarms: [create]
+  - id: gone
+    run: forms surveys list --all
+    expect:
+      "length([?id == '${id}'])": 0

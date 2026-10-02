@@ -1,0 +1,44 @@
+# Wiki deletes are soft: delete returns a recovery token, and restore brings the page back.
+name: wiki/page-lifecycle
+steps:
+  - id: create
+    run: wiki pages create --slug ${RUN} --title "${RUN} page" --content "first body ${RUN}"
+    expect:
+      slug: ${RUN}
+      title: ${RUN} page
+    save:
+      id: id
+    cleanup: wiki pages delete ${id}
+  - id: listed
+    run: wiki pages descendants "" --all
+    expect:
+      "length([?slug == '${RUN}'])": 1
+  - id: update
+    run: wiki pages update ${id} --content "second body ${RUN}"
+    expect:
+      "to_string(id)": ${id}
+  - id: read
+    run: wiki pages get ${RUN}
+    output: text
+    expect:
+      "contains(@, 'second body ${RUN}')": true
+  - id: delete
+    run: wiki pages delete ${id}
+    save:
+      token: recovery_token
+  - id: restore
+    run: wiki recovery restore ${token}
+    expect:
+      slug: ${RUN}
+  - id: read-restored
+    run: wiki pages get ${RUN}
+    output: text
+    expect:
+      "contains(@, 'second body ${RUN}')": true
+  - id: delete-again
+    run: wiki pages delete ${id}
+    disarms: [create]
+  - id: gone
+    run: wiki pages descendants "" --all
+    expect:
+      "length([?slug == '${RUN}'])": 0
