@@ -114,7 +114,8 @@ def serve_http(selection: Selection, host: str | None = None, port: int | None =
 
     Reads ``YCLI__MCP__*`` (:class:`~ycli.settings.MCPHTTPConfig`) and the Yandex OAuth app
     (``YANDEX_OAUTH_CLIENT_ID`` / ``YANDEX_OAUTH_CLIENT_SECRET``); ``host`` / ``port`` override
-    the configured ones. Stateless: any replica can answer any request.
+    the configured ones. Requests are stateless; the OAuth state lives in ``FASTMCP_HOME``,
+    so one process serves (docs/self-host.md).
 
     Example:
         >>> serve_http(Selection(toolsets=("core",)), port=8080)  # doctest: +SKIP

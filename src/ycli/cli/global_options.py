@@ -18,6 +18,7 @@ from __future__ import annotations
 import inspect
 from typing import TYPE_CHECKING, Any
 
+import typer
 from typer.models import ArgumentInfo, OptionInfo
 
 from ycli.cli.formats import OutputFormat
@@ -83,6 +84,16 @@ def leaf_parameters(taken: Iterable[inspect.Parameter]) -> list[inspect.Paramete
         for name, (alias, default) in GLOBAL_OPTIONS.items()
         if not option_names(name, alias, default) & declared
     ]
+
+
+def refuse_dry_run(context: typer.Context, why: str) -> None:
+    """A usage error when ``--dry-run`` was given to a command that cannot honour it.
+
+    The guard sees only the requests of clients the CLI builds; a command that serves or signs
+    in on its own would otherwise run for real while ``--dry-run`` promises it does not.
+    """
+    if context.find_root().params.get("dry_run"):
+        raise typer.BadParameter(why, param_hint="--dry-run")
 
 
 def apply_leaf_values(arguments: dict[str, Any], root_params: MutableMapping[str, Any]) -> None:

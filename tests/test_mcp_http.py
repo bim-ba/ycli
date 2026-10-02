@@ -62,6 +62,7 @@ def _result(response: httpx2.Response) -> dict[str, Any]:
 async def test_a_tool_call_over_http_uses_the_callers_token_not_the_environments(api, monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "server-env-token")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org-env")
+    monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
     api.add("GET", f"{TRACKER_BASE}/issues/DE-1", json={"key": "DE-1"})
     server = build_server(Selection(toolsets=("tracker",)), auth=DebugTokenVerifier())
     async with _http(server) as client:
@@ -69,6 +70,19 @@ async def test_a_tool_call_over_http_uses_the_callers_token_not_the_environments
     assert _result(response)["structuredContent"]["key"] == "DE-1"
     assert api.calls[0].headers["Authorization"] == "OAuth caller-token"
     assert api.calls[0].headers["X-Org-Id"] == "org-env"
+
+
+async def test_an_http_call_works_in_the_organization_the_server_checked_at_start(api, monkeypatch):
+    """Configured only as YCLI__MCP__ORGANIZATION_ID, the organization still reaches the call."""
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("YCLI__MCP__ORGANIZATION_ID", "org-mcp")
+    monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
+    api.add("GET", f"{TRACKER_BASE}/issues/DE-1", json={"key": "DE-1"})
+    server = build_server(Selection(toolsets=("tracker",)), auth=DebugTokenVerifier())
+    async with _http(server) as client:
+        response = await _call(client, "tracker_issues_get", "caller-token")
+    assert _result(response)["structuredContent"]["key"] == "DE-1"
+    assert api.calls[0].headers["X-Org-Id"] == "org-mcp"
 
 
 async def test_an_http_call_without_a_signed_in_caller_never_falls_back_to_the_environment(
@@ -206,3 +220,11 @@ def test_mcp_start_over_http_serves(http_env, monkeypatch):
     )
     assert result.exit_code == 0, result.output
     assert served == [("0.0.0.0", 8080)]
+
+
+@pytest.mark.parametrize("args", [["mcp", "start", "--dry-run"], ["--dry-run", "mcp", "start"]])
+def test_mcp_start_refuses_dry_run_it_could_not_honour(args, monkeypatch):
+    monkeypatch.setattr(server_module, "main", lambda selection: pytest.fail("server started"))
+    result = CliRunner().invoke(ycli_app, args)
+    assert result.exit_code == 2
+    assert "--read-only" in result.output

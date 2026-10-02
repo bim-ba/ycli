@@ -1,15 +1,16 @@
 # syntax=docker/dockerfile:1
-# Builds the MCP server image from this source tree: stage one builds the wheel and installs it
-# (with the `mcp` extra) into an isolated tool environment; stage two copies only that environment
-# onto a plain Python runtime. Both stages use the same Python so the venv's interpreter link holds.
+# Builds the MCP server image from this source tree: stage one installs the project (with the
+# `mcp` extra) and its locked dependencies into a virtual environment; stage two copies only that
+# environment onto a plain Python runtime. Both stages use the same Python so the venv's
+# interpreter link holds.
 
 FROM ghcr.io/astral-sh/uv:0.12.22-python3.12-trixie-slim AS build
-ENV UV_TOOL_BIN_DIR=/opt/ycli/bin UV_TOOL_DIR=/opt/ycli/tools UV_COMPILE_BYTECODE=1 UV_PYTHON_DOWNLOADS=never
+# The locked dependency set CI tested, installed (not editable) into /opt/ycli.
+ENV UV_PROJECT_ENVIRONMENT=/opt/ycli UV_COMPILE_BYTECODE=1 UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy
 WORKDIR /src
-COPY pyproject.toml README.md LICENSE CHANGELOG.md ./
+COPY pyproject.toml uv.lock README.md LICENSE CHANGELOG.md ./
 COPY src ./src
-RUN uv build --wheel --out-dir /dist \
-    && uv tool install --no-cache "yandex-cli[mcp] @ $(ls /dist/*.whl)"
+RUN uv sync --locked --no-dev --extra mcp --no-editable --no-cache
 
 FROM python:3.12-slim-trixie
 LABEL org.opencontainers.image.title="ycli" \

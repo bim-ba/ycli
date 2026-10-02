@@ -61,7 +61,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
 ### ARCH-1 — Surface parity
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
   name: the CLI path (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name,
-  verb last, and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
+  and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
   keeps its old name as a hidden, deprecated alias (`ycli.cli.aliases.deprecated_alias`).
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
   learned on one surface works on the other.

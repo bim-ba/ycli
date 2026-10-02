@@ -32,6 +32,16 @@ def test_a_json_body_is_shown_as_json_and_a_secret_parameter_is_masked():
     assert "hunter2" not in plan.model_dump_json()
 
 
+def test_a_body_declared_json_that_is_not_is_described_not_parsed():
+    request = httpx2.Request(
+        "POST",
+        "https://api.test/v1/x",
+        content=b"plain note",
+        headers={"Content-Type": "application/json"},
+    )
+    assert PlannedRequest.of(request).body == "<10 bytes, application/json>"
+
+
 def test_a_request_without_a_body_plans_none():
     assert PlannedRequest.of(httpx2.Request("DELETE", "https://api.test/v1/items/7")).body is None
 

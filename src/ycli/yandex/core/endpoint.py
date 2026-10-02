@@ -67,7 +67,8 @@ def check_path(raw_path: str) -> None:
 
     The server decodes ``%2F`` and ``%5C`` and then resolves ``.``/``..``, so an issue key such
     as ``../queues/DE`` turns ``PATCH issues/{key}`` into ``PATCH queues/DE``. No Yandex path
-    needs an escaped separator, an empty segment or a dot segment, so all three are refused.
+    needs a backslash, an escaped separator, an empty segment or a dot segment, so all are
+    refused.
 
     Example:
         >>> check_path("/v3/issues/TEST-1/")
@@ -81,6 +82,7 @@ def check_path(raw_path: str) -> None:
     if (
         "%2f" in lowered
         or "%5c" in lowered
+        or "\\" in raw_path
         or "//" in raw_path
         or any(part in {".", ".."} for part in segments)
     ):

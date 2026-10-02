@@ -357,3 +357,11 @@ def test_device_code_stays_copyable_while_waiting(api, monkeypatch):
 
     assert _device_flow(client, None, console) == TOKEN
     assert "Waiting for you to confirm" in screen.getvalue()
+
+
+def test_login_refuses_dry_run(monkeypatch):
+    """Signing in cannot be planned: it would talk to Yandex and write .env for real."""
+    monkeypatch.setattr(OAuthClient, "__init__", lambda *args, **kwargs: pytest.fail("signed in"))
+    result = runner.invoke(cli.app, ["auth", "login", "--dry-run"])
+    assert result.exit_code == 2
+    assert "nothing to plan" in result.output

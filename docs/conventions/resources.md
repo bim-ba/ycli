@@ -103,7 +103,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 
 | Field | Where it lives | Requirement |
 |---|---|---|
-| `name` | `@mcp.tool(name=…)` | `snake_case`, `<resource>[_<subresource>]_<verb>`, verb last; `edit`/`modify` are `update`. Prefixed with the service it is the CLI path of the same operation (`tracker_boards_update` = `ycli tracker boards update`, ARCH-1 `test_arch1_cli_path_equals_mcp_name`) |
+| `name` | `@mcp.tool(name=…)` | `snake_case`, `<resource>[_<subresource>]_<verb>`, usually verb last (a few keep the API's own phrase, e.g. `tracker_queues_set_permissions`); `edit`/`modify` are `update`. Prefixed with the service it is the CLI path of the same operation (`tracker_boards_update` = `ycli tracker boards update`, ARCH-1 `test_arch1_cli_path_equals_mcp_name`) |
 | description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
 | parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueId`, `Version`, `SurveyId`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
