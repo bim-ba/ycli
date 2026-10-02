@@ -107,5 +107,9 @@ CASES = [
                 Reply(),
             )
         ],
+        output={
+            "ok": True,
+            "detail": "deleted file path=a/b/cv.txt url=https://forms.test/a/b/cv.txt",
+        },
     ),
 ]
