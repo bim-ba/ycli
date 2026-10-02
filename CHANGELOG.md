@@ -9,6 +9,55 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.24.3 (2026-10-02)
+
+### Bug Fixes
+
+- **tracker**: Start a time report now when no start is given
+  ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+### Build System
+
+- Re-lock uv.lock for 0.24.2
+  ([`f87fc5b`](https://github.com/bim-ba/ycli/commit/f87fc5ba87785346178a1efc0a11876a789f2de2))
+
+### Documentation
+
+- Say Forms and Tracker run on the core ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+### Refactoring
+
+- **tracker**: Move entities, bulk, import, dashboards and attachments to the httpx2 core
+  ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+- **tracker**: Move group C resources to the httpx2 core
+  ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+- **tracker**: Move queues, fields and the reference resources to the httpx2 core
+  ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+- **tracker**: Move Tracker to the httpx2 core with contract tests
+  ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+- **tracker**: Wire resources to one core session ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+### Testing
+
+- State the queues a limit keeps ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+- **contract**: Count a nested CLI command as covered by a case
+  ([#148](https://github.com/bim-ba/ycli/pull/148),
+  [`2b8882c`](https://github.com/bim-ba/ycli/commit/2b8882c8aa68308ca1d3109469c7bce7a449db71))
+
+
 ## v0.24.2 (2026-10-02)
 
 ### Bug Fixes
