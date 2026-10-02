@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import typer
+from typer.core import TyperGroup
 from typer.main import get_command
 from typer.testing import CliRunner
 
@@ -61,3 +62,12 @@ def test_lazy_group_loads_once_and_keeps_the_declared_help():
 def test_unknown_command_is_still_an_error():
     root = get_command(app)
     assert root.get_command(typer.Context(root), "nope") is None  # ty: ignore[unresolved-attribute]
+
+
+def test_a_lazy_command_loads_as_the_command_itself():
+    group = LazyGroup(SubApp("api", "Declared help.", "ycli.cli.api:app", command=True))
+    loaded = group.load()
+    assert not isinstance(loaded, TyperGroup)
+    assert loaded.help != "Declared help."  # the command keeps its own docstring
+    assert group.list_commands(typer.Context(group)) == []
+    assert group.get_command(typer.Context(group), "anything") is None

@@ -61,6 +61,8 @@ it for you.
 | **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); read/write tools namespaced `tracker_*`, `wiki_*`, `forms_*`, plus `status_get` (`ycli mcp methods` lists them). `ycli mcp start --read-only` serves the reads-only view; `--toolsets core` (about 40 everyday tools) or `--toolsets tracker,wiki` narrows the set when a host caps tools per request (VS Code: 128) |
 | **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient(oauth_token=…, organization_id=…)` |
 
+An endpoint no command wraps: `ycli api PATH --service tracker|wiki|forms` (`gh api`-style `-f`/`-F` fields, `--jq`, `--paginate` for Wiki; CLI only).
+
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 
 ```json

@@ -11,6 +11,7 @@ from fastmcp import Client
 
 from tests.full_server import mcp
 from ycli.cli.app import app
+from ycli.cli.lazy import LazyGroup
 
 
 def _walk(command, context: typer.Context, prefix: str) -> list[tuple[str, Any]]:
@@ -20,6 +21,8 @@ def _walk(command, context: typer.Context, prefix: str) -> list[tuple[str, Any]]
         return out
     for name in sorted(command.list_commands(context)):
         sub = command.get_command(context, name)
+        if isinstance(sub, LazyGroup):  # the stand-in lists a sub-app; walk the real one
+            sub = sub.load()
         path = f"{prefix} {name}".strip()
         out.append((path, sub))
         out += _walk(sub, typer.Context(sub, parent=context, info_name=name), path)

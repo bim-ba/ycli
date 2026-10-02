@@ -212,6 +212,7 @@ def _served_cli_groups() -> set[str]:
     sub-app that is never ``add_typer``-ed into its domain is absent.
     """
     import typer.main
+    from typer.core import TyperGroup
 
     from ycli.cli.app import app
     from ycli.cli.lazy import LazyGroup, RootGroup
@@ -222,7 +223,9 @@ def _served_cli_groups() -> set[str]:
     for domain in DOMAINS:
         service = root.commands[domain]
         assert isinstance(service, LazyGroup)
-        groups |= {f"{domain}.{group}" for group in service.load().commands}
+        loaded = service.load()
+        assert isinstance(loaded, TyperGroup)
+        groups |= {f"{domain}.{group}" for group in loaded.commands}
     return groups
 
 

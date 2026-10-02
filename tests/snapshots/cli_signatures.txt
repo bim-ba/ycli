@@ -1,3 +1,4 @@
+api: --all:BOOLEAN=False --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --header:TEXT --input:TEXT --jq:TEXT --limit:INTEGER RANGE=0 --method:TEXT --paginate:BOOLEAN=False --raw-field:TEXT --service:TEXT --yes:BOOLEAN=False PATH:TEXT!
 auth login: --device-name:TEXT --dry-run:BOOLEAN=False --format:CHOICE --implicit:BOOLEAN=False --jq:TEXT --yes:BOOLEAN=False
 auth status: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
 forms access get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!

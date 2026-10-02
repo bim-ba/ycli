@@ -23,31 +23,41 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True, slots=True)
 class SubApp:
-    """A sub-app the root can list without importing it: ``app`` is ``"module:attribute"``."""
+    """A sub-app the root can list without importing it: ``app`` is ``"module:attribute"``.
+
+    ``command`` says the sub-app is one command (``ycli api PATH``), not a group of them.
+    """
 
     name: str
     help: str
     app: str
+    command: bool = False
 
 
 class LazyGroup(TyperGroup):
-    """Stands in for one sub-app: ``--help`` lists it from :class:`SubApp`, use loads it."""
+    """Stands in for one sub-app: ``--help`` lists it from :class:`SubApp`, use loads it.
+
+    The sub-app is a group, or a single command when its :class:`SubApp` says so.
+    """
 
     def __init__(self, sub_app: SubApp) -> None:
         super().__init__(name=sub_app.name, help=sub_app.help)
         self._sub_app = sub_app
-        self._group: TyperGroup | None = None
+        self._loaded: _click.Command | None = None
 
-    def load(self) -> TyperGroup:
-        """The real Click group, built once, with its commands' dependencies injectable."""
-        if self._group is None:
+    def load(self) -> _click.Command:
+        """The real Click group or command, built once, with its dependencies injectable."""
+        if self._loaded is None:
             from ycli.cli.inject import inject_dependencies
 
             app: typer.Typer = resolve_name(self._sub_app.app)
             inject_dependencies(app)
-            self._group = typer.main.get_group(app)
-            self._group.help = self._sub_app.help
-        return self._group
+            if self._sub_app.command:  # a command keeps its docstring as its help
+                self._loaded = typer.main.get_command(app)
+            else:
+                self._loaded = typer.main.get_group(app)
+                self._loaded.help = self._sub_app.help
+        return self._loaded
 
     def make_context(
         self,
@@ -59,10 +69,12 @@ class LazyGroup(TyperGroup):
         return self.load().make_context(info_name, args, parent=parent, **extra)
 
     def list_commands(self, ctx: _click.Context) -> list[str]:
-        return self.load().list_commands(ctx)
+        loaded = self.load()
+        return loaded.list_commands(ctx) if isinstance(loaded, TyperGroup) else []
 
     def get_command(self, ctx: _click.Context, cmd_name: str) -> _click.Command | None:
-        return self.load().get_command(ctx, cmd_name)
+        loaded = self.load()
+        return loaded.get_command(ctx, cmd_name) if isinstance(loaded, TyperGroup) else None
 
 
 class RootGroup(TyperGroup):

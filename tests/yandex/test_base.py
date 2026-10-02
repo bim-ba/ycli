@@ -2,9 +2,12 @@
 
 import pytest
 
+from tests.hosts import WIKI_BASE
+from ycli.yandex.core.endpoint import Endpoint, Paged
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.cursor import WIKI_CURSOR
 
 
 @pytest.mark.parametrize(("token", "organization"), [("", "o"), ("t", "")])
@@ -34,3 +37,17 @@ def test_a_probe_is_one_read_of_the_services_own_me_endpoint(api, client_class, 
     with client_class(oauth_token="t", organization_id="o") as client:
         client.probe()
     assert [str(call.url) for call in api.calls] == [url]
+
+
+def test_a_client_sends_any_endpoint_through_its_session(api):
+    api.add("GET", f"{WIKI_BASE}/x", json={"results": [1]})
+    with WikiClient(oauth_token="t", organization_id="o") as client:
+        assert client.send(Endpoint("GET", "x", dict)) == {"results": [1]}
+
+
+def test_a_client_walks_any_listing_through_its_session(api):
+    api.add("GET", f"{WIKI_BASE}/x", json={"results": [1, 2], "next_cursor": "c"})
+    api.add("GET", f"{WIKI_BASE}/x", json={"results": [3]})
+    paged = Paged(Endpoint("GET", "x", dict), WIKI_CURSOR, lambda page: page["results"])
+    with WikiClient(oauth_token="t", organization_id="o") as client:
+        assert list(client.iterate(paged, limit=3)) == [1, 2, 3]
