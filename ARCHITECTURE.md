@@ -149,7 +149,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`, whose wire shape no
   model represents yet); `ARCH8_ERROR_MAPPERS` (the two transports, the IAM token exchange and
   the OAuth login flow, whose device-flow polling states arrive as HTTP 400);
-  `ARCH8_LOCAL_RAISES` (a request refused before it is sent); `ARCH8_STATUSLESS_ERRORS` (a
+  `ARCH8_LOCAL_RAISES` (a request refused before it is sent, a 2xx whose body is empty); `ARCH8_STATUSLESS_ERRORS` (a
   timeout or a lost connection has no status to map).
 
 ## Scope & limits of enforcement
