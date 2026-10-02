@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.27.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.26.0
+  ([`b7a06ad`](https://github.com/bim-ba/ycli/commit/b7a06ad32115918017b041b595b0857da52edca8))
+
+### Features
+
+- **wiki**: Wrap full-text search, page access and the server comment thread
+  ([#153](https://github.com/bim-ba/ycli/pull/153),
+  [`a519866`](https://github.com/bim-ba/ycli/commit/a51986603a9009732d685364342d18147330fe3a))
+
+### Refactoring
+
+- **wiki**: Cap the server thread with HTTPConfig.cap
+  ([#153](https://github.com/bim-ba/ycli/pull/153),
+  [`a519866`](https://github.com/bim-ba/ycli/commit/a51986603a9009732d685364342d18147330fe3a))
+
+
 ## v0.26.0 (2026-10-02)
 
 ### Build System
