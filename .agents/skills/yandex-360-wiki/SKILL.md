@@ -39,7 +39,7 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 | Surface | What it covers |
 |---------|----------------|
 | **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|append\|clone\|delete\|descendants`, `comments`, `grids`, `attachments` (incl. binary download), `uploadsessions`, `recovery`, `operations` |
-| **MCP tools** (42: 15 reads + 27 writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`, plus write tools for pages create/update/append/clone/delete, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads** stay CLI/SDK-only. |
+| **MCP tools** (reads and writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`, plus write tools for pages create/update/append/clone/delete, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads** stay CLI/SDK-only. |
 | **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages`, `.comments`, `.grids`, `.attachments`, `.uploadsessions`, `.resources`, `.recovery`, `.operations` — full read/write parity with the CLI. |
 
 **Prefer the CLI / MCP tools over raw `http` calls** — they encode the API quirks (header name, `slug=` query form, POST-not-PATCH, `fields=` rules) correctly.
@@ -57,7 +57,7 @@ Every read is available both as a CLI command and as an MCP tool (annotated `rea
 | Full page content | `uv run ycli wiki pages get <slug>` | `wiki_pages_get` |
 | Metadata only (id, title, owner, timestamps) | `uv run ycli wiki pages get <slug> --fields attributes` | `wiki_pages_meta` |
 | Content **and** metadata in one call | `uv run ycli wiki pages get <slug> --fields content,attributes` | — |
-| Descendant slugs (paginated) | `uv run ycli wiki pages descendants <slug> [--cursor C]` | `wiki_pages_descendants` |
+| Descendant slugs (auto-paginated) | `uv run ycli wiki pages descendants <slug> [--limit N \| --all]` | `wiki_pages_descendants` |
 | Comments on a page | **2-step** (see below) | `wiki_comments_list` |
 | Attachments on a page | **2-step** (see below) | `wiki_attachments_list` |
 
@@ -72,13 +72,13 @@ uv run ycli wiki pages get your-space/page --fields attributes
 uv run ycli wiki pages get your-space/page --fields content,attributes
 ```
 
-### Tree navigation with cursor pagination
+### Tree navigation
 
-`pages descendants` returns one page of `{id, slug}` refs plus a `next_cursor`. Pass `next_cursor` back as `--cursor` to fetch the next page; repeat until there is no cursor.
+`pages descendants` follows the cursor itself and returns the `{id, slug}` refs of the whole subtree, up to the configured item cap (`YCLI__HTTP__MAX_ITEMS`). Pass `--limit N` for fewer, or `--all` to ignore the cap.
 
 ```bash
 uv run ycli wiki pages descendants team
-uv run ycli wiki pages descendants team --cursor <next_cursor>   # subsequent pages
+uv run ycli wiki pages descendants team --all   # a subtree larger than the cap
 ```
 
 Use this to build a slug→title map of a subtree, then `pages get <slug> --fields attributes` per slug for titles.

@@ -39,8 +39,8 @@ _LIMIT = f"Max issues to return; {LIMIT_CAP}"
 def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """A single Tracker issue by key (raises if not found).
 
-    In production the Transport response hook raises ``YandexNotFoundError`` on a 404
-    before this guard is reached. This check only fires for a 2xx response that carries
+    In production the core session raises ``YandexNotFoundError`` on a 404 before this
+    guard is reached. This check only fires for a 2xx response that carries
     an empty body (key=None) — an edge case unlikely in practice but defended here for
     safety (e.g. incorrect permissions returning a blank object instead of a 403).
     """

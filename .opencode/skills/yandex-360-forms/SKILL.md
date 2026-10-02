@@ -31,7 +31,7 @@ Drive Yandex Forms via `ycli` — reads **and writes** — through the CLI, the 
 You can **read** any form your token can access. You can **write** to any form you have permission on. Both ship on all three ycli surfaces:
 
 - **CLI** — `uv run ycli forms <group> <cmd>` (full surface, including binary uploads/downloads)
-- **MCP** — 28 `forms_*` tools (13 reads + 15 writes). Write tools carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary payloads (files/images upload, keysets/exports download) are CLI/SDK-only.
+- **MCP** — `forms_*` tools, reads and writes. Write tools carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary payloads (files/images upload, keysets/exports download) are CLI/SDK-only.
 - **SDK** — `from ycli.yandex.forms.client import FormsClient` → `FormsClient(oauth_token=…, organization_id=…)`
 
 The one remaining raw-HTTP case: **hooks** (§4).
