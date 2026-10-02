@@ -186,7 +186,9 @@ class SyncSession:
         request = paged.pagination.first(paged.endpoint.request(self._client))
         produced = 0
         for _ in range(max_pages):
-            response = self._send(request, paged.endpoint.idempotent)
+            response = self._send(
+                request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
+            )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
             following = paged.pagination.next(request, response, items) if items else None
             taken, done = _page_plan(items, produced, limit, following is not None)
@@ -244,7 +246,9 @@ class AsyncSession:
         request = paged.pagination.first(paged.endpoint.request(self._client))
         produced = 0
         for _ in range(max_pages):
-            response = await self._send(request, paged.endpoint.idempotent)
+            response = await self._send(
+                request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
+            )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
             following = paged.pagination.next(request, response, items) if items else None
             taken, done = _page_plan(items, produced, limit, following is not None)

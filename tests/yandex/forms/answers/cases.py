@@ -79,6 +79,36 @@ CASES = [
         },
     ),
     Case(
+        "forms.answers.list_all",
+        args=(SID,),
+        kwargs={"limit": None},
+        cli=["forms", "answers", "list", SID, "--all"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", f"surveys/{SID}/answers"),
+                Reply(json={**PAGE, "answers": [{"id": 7}, {"id": 8}]}),
+            )
+        ],
+        env={"YCLI__HTTP__MAX_ITEMS": "1"},
+        output={
+            "columns": [
+                {
+                    "id": None,
+                    "slug": "answer_short_text_1",
+                    "type": None,
+                    "text": None,
+                    "has_scores": None,
+                }
+            ],
+            "answers": [
+                {"id": 7, "created": None, "data": []},
+                {"id": 8, "created": None, "data": []},
+            ],
+            "next": None,
+        },
+    ),
+    Case(
         "forms.answers.export",
         args=(SID, EXPORT),
         cli=[

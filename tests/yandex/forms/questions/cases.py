@@ -139,6 +139,46 @@ CASES = [
             ("date", DateQuestion, "Birthday"),
         )
     ),
+    # The --no-* flags send false, and --no-required clears every validator.
+    Case(
+        "forms.questions.modify",
+        args=(
+            SID,
+            "22",
+            StringQuestion(label="Nickname", hidden=False, multiline=False, validators=[]),
+        ),
+        cli=[
+            "forms",
+            "questions",
+            "modify",
+            SID,
+            "22",
+            "--type",
+            "string",
+            "--label",
+            "Nickname",
+            "--no-required",
+            "--no-hidden",
+            "--no-multiline",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "PATCH",
+                    f"{QUESTIONS}/22",
+                    json={
+                        "label": "Nickname",
+                        "hidden": False,
+                        "type": "string",
+                        "multiline": False,
+                        "validators": [],
+                    },
+                ),
+                Reply(json=QUESTION),
+            )
+        ],
+    ),
     Case(
         "forms.questions.modify",
         args=(SID, "18", QuestionCreateAdapter.validate_json(MATRIX.read_text())),

@@ -139,4 +139,18 @@ CASES = [
         ],
         output=[_listed("s1"), _listed("s2")],
     ),
+    # --all lifts the configured cap (shrunk to 1 here, so a CLI ignoring --all keeps one).
+    Case(
+        "forms.surveys.list",
+        kwargs={"limit": None},
+        cli=["forms", "surveys", "list", "--all"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "surveys", {"offset": "0", "limit": "100"}),
+                Reply(json={"result": [{"id": "all-1"}, {"id": "all-2"}]}),
+            )
+        ],
+        env={"YCLI__HTTP__MAX_ITEMS": "1"},
+    ),
 ]

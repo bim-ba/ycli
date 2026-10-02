@@ -21,14 +21,14 @@ from pydantic import BaseModel
 from typer.testing import CliRunner
 
 from tests.contract import (
-    NO_BODY,
+    UNSTATED,
     Case,
     Reply,
     Sent,
     effect_sent,
     hints_disagree,
-    lost_values,
     mismatches,
+    output_problems,
 )
 from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
@@ -84,22 +84,6 @@ def _check_sent(case: Case, api: MockAPI, surface: str) -> None:
     if api.calls and effect_sent(api.calls) != case.expected_effect:
         problems.append(f"effect {effect_sent(api.calls)!r} != {case.expected_effect!r}")
     assert not problems, f"{surface}: {problems}"
-
-
-def _check_output(case: Case, output: object) -> None:
-    """The SDK kept what the API answered, and returned the stated ``output`` if there is one.
-
-    Only a one-request case is compared with its reply: a walk over pages, or a flow of several
-    requests, returns something no single reply holds, so such a case states its ``output``.
-    """
-    reply = case.exchanges[-1][1]
-    if isinstance(output, bytes):
-        assert output == reply.content, "the SDK returned other bytes than the API sent"
-    elif reply.json is not None and case.output is NO_BODY and len(case.exchanges) == 1:
-        lost = lost_values(output, reply.json)
-        assert not lost, f"the SDK lost values the API returned: {lost}"
-    if case.output is not NO_BODY:
-        assert output == case.output, f"the SDK returned {output!r}, expected {case.output!r}"
 
 
 def _run_sdk(case: Case) -> object:
@@ -159,13 +143,16 @@ def test_every_surface_sends_the_declared_requests(case: Case, monkeypatch, mcp_
     api = _serve(monkeypatch, case)
     sdk_output = _run_sdk(case)
     _check_sent(case, api, "sdk")
-    _check_output(case, sdk_output)
+    problems = output_problems(case, sdk_output)
+    assert not problems, f"sdk result: {problems}"
     cli_output = None
+    for name, value in case.env.items():
+        monkeypatch.setenv(name, value)
     if case.cli is not None:
         api = _serve(monkeypatch, case)
         cli_output = _run_cli(case)
         _check_sent(case, api, "cli")
-        if case.cli_output is not NO_BODY:
+        if case.cli_output is not UNSTATED:
             assert cli_output == case.cli_output, f"the CLI printed {cli_output!r}"
         # A bodyless write returns None from the SDK; the surfaces print an Ack instead.
         elif sdk_output is not None:
@@ -263,3 +250,72 @@ def test_coverage_gaps_bite():
         "tools without a case": ["forms_me_get"],
         "cases of unknown operations": [],
     }
+
+
+def test_the_contract_module_examples_hold():
+    import doctest
+
+    import tests.contract
+
+    assert doctest.testmod(tests.contract).failed == 0
+
+
+def _one(reply: Reply, output: object = UNSTATED) -> Case:
+    return Case(
+        "forms.me.get",
+        cli=None,
+        mcp=None,
+        exchanges=[(Sent("GET", "users/me"), reply)],
+        output=output,
+    )
+
+
+def test_output_check_bites():
+    survey = {"id": "s1", "name": "Onboarding"}
+    assert output_problems(_one(Reply(json=survey)), {**survey, "extra": None}) == []
+    # A blanked value, a result sharing nothing with the reply, other bytes, a stated result.
+    assert output_problems(_one(Reply(json=survey)), {"id": "s1", "name": None}) == [
+        "name: None != 'Onboarding'"
+    ]
+    assert output_problems(_one(Reply(json=survey)), {"unrelated": 1}) == [
+        "kept no field of the reply; state the case's output"
+    ]
+    assert output_problems(_one(Reply(content=b"abc")), b"") == ["other bytes than the API sent"]
+    assert output_problems(_one(Reply(), output={"ok": True}), {"ok": False}) == [
+        "returned {'ok': False}, stated {'ok': True}"
+    ]
+    # A listing keeps the items of every page; a merged envelope must be stated.
+    pages = Case(
+        "forms.surveys.list",
+        cli=None,
+        mcp=None,
+        exchanges=[
+            (Sent("GET", "surveys"), Reply(json={"result": [{"id": "a"}]})),
+            (Sent("GET", "surveys"), Reply(json={"result": [{"id": "b"}]})),
+        ],
+    )
+    assert output_problems(pages, [{"id": "a"}, {"id": "b"}]) == []
+    assert output_problems(pages, [{"id": "a"}]) == ["items: 1 items != 2"]
+    assert output_problems(pages, {"merged": True}) == [
+        "no reply lines up with this result; state the case's output"
+    ]
+
+
+def test_request_check_bites():
+    import httpx2
+
+    upload = httpx2.Request(
+        "POST", "https://x.test/v1/files?debug=1", files={"file": ("cv.txt", b"resume")}
+    )
+    upload.read()  # MockTransport reads the body before the harness sees it
+    wanted = Sent("POST", "files", files={"file": ("cv.txt", b"resume")})
+    assert mismatches([wanted], [upload], "https://x.test/v1") == [
+        "request 0: params {'debug': '1'} != {}"
+    ]
+    other_part = Sent("POST", "files", {"debug": "1"}, files={"file": ("cv.txt", b"other")})
+    assert mismatches([other_part], [upload], "https://x.test/v1") == [
+        "request 0: no part 'file' with file 'cv.txt' and its bytes"
+    ]
+    assert mismatches([wanted, wanted], [upload], "https://x.test/v1")[0] == (
+        "sent 1 requests, expected 2"
+    )

@@ -51,6 +51,8 @@ HINT_KEYS = ("readOnlyHint", "destructiveHint", "idempotentHint")
 
 # A request without a JSON body; distinct from a body that is JSON ``null``.
 NO_BODY: Any = type("NoBody", (), {"__repr__": lambda self: "NO_BODY"})()
+# A case that does not state what a surface returns; distinct from a stated ``None``.
+UNSTATED: Any = type("Unstated", (), {"__repr__": lambda self: "UNSTATED"})()
 
 
 @dataclass(frozen=True)
@@ -90,6 +92,8 @@ class Case:
     result the client makes up itself (an ``Ack``) or one a limit cuts short, since a parsed reply
     is otherwise checked against the reply. ``cli_output`` is what the CLI prints when the
     command shapes the result instead of printing it whole (the bytes of a page's content).
+    ``env`` is set while the CLI and MCP run (a small ``YCLI__HTTP__MAX_ITEMS`` shows that
+    ``--all`` lifts the cap).
     """
 
     operation: str
@@ -99,8 +103,9 @@ class Case:
     mcp: tuple[str, Mapping[str, Any]] | None = field(kw_only=True)
     exchanges: Sequence[tuple[Sent, Reply]] = field(kw_only=True)
     effect: Effect | None = field(default=None, kw_only=True)
-    output: Any = field(default=NO_BODY, kw_only=True)
-    cli_output: Any = field(default=NO_BODY, kw_only=True)
+    output: Any = field(default=UNSTATED, kw_only=True)
+    cli_output: Any = field(default=UNSTATED, kw_only=True)
+    env: Mapping[str, str] = field(default_factory=dict, kw_only=True)
 
     @property
     def expected_effect(self) -> Effect:
@@ -213,6 +218,61 @@ def lost_values(output: Any, reply: Any, where: str = "") -> list[str]:
     if reply is not None and (output is None or type(output) is type(reply)) and output != reply:
         return [f"{where.rstrip('.')}: {output!r} != {reply!r}"]
     return []
+
+
+def reply_items(reply: Any) -> list[Any] | None:
+    """The items of a listing reply: the reply itself, or the one list in its envelope.
+
+    Example:
+        >>> reply_items({"result": [1, 2], "links": {}}), reply_items({"a": [1], "b": [2]})
+        ([1, 2], None)
+    """
+    if isinstance(reply, list):
+        return reply
+    lists = (
+        [value for value in reply.values() if isinstance(value, list)]
+        if isinstance(reply, dict)
+        else []
+    )
+    return lists[0] if len(lists) == 1 else None
+
+
+def output_problems(case: Case, output: Any) -> list[str]:
+    """How the SDK's ``output`` fails the case (empty: it passes).
+
+    A stated ``output`` must match exactly. Otherwise the output must keep what the API answered:
+    raw bytes equal the reply; a parsed model keeps the reply's values (``lost_values``); a
+    listing keeps the items of every page, in order. A result no reply lines up with must be
+    stated, so nothing passes unchecked.
+
+    Example:
+        >>> case = Case(
+        ...     "forms.me.get",
+        ...     cli=None,
+        ...     mcp=None,
+        ...     exchanges=[(Sent("GET", "users/me"), Reply(json={"id": 4}))],
+        ... )
+        >>> output_problems(case, {"id": 4}), output_problems(case, {"id": None})
+        ([], ['id: None != 4'])
+    """
+    if case.output is not UNSTATED:
+        return [] if output == case.output else [f"returned {output!r}, stated {case.output!r}"]
+    replies = [reply for _, reply in case.exchanges]
+    if output is None:
+        return []
+    if isinstance(output, bytes):
+        return [] if output == replies[-1].content else ["other bytes than the API sent"]
+    if len(replies) == 1 and not isinstance(output, dict | list):
+        return [] if output == replies[0].json else [f"{output!r} != {replies[0].json!r}"]
+    if len(replies) == 1 and isinstance(output, dict) and isinstance(replies[0].json, dict):
+        reply = replies[0].json
+        if reply and not reply.keys() & output.keys():
+            return ["kept no field of the reply; state the case's output"]
+        return lost_values(output, reply)
+    pages = [reply_items(reply.json) for reply in replies]
+    if isinstance(output, list) and all(page is not None for page in pages):
+        return lost_values(output, [item for page in pages for item in page or []])
+    return ["no reply lines up with this result; state the case's output"]
 
 
 def effect_sent(requests: Sequence[httpx2.Request]) -> Effect:
