@@ -130,7 +130,7 @@ class QuestionsClient(Resource):
             body: The target page and position.
 
         Returns:
-            The moved question's id.
+            The result, carrying the moved question's ``id``.
 
         Examples:
             >>> from ycli.yandex.forms.questions.models import QuestionMove

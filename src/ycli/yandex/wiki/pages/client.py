@@ -181,7 +181,7 @@ class PagesClient(Resource):
             page_id: The page's id.
 
         Returns:
-            The recovery token of the deleted page.
+            The result, carrying the deleted page's ``recovery_token``.
 
         Examples:
             >>> wiki.pages.delete(4501).recovery_token

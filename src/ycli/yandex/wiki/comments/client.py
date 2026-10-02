@@ -166,7 +166,7 @@ class CommentsClient(Resource):
             comment_id: The comment's id.
 
         Returns:
-            The number of comments left on the page.
+            The result, whose ``comments_count`` is the number of comments left.
 
         Examples:
             >>> wiki.comments.delete(5506, 5516).comments_count

@@ -47,7 +47,7 @@ class GridsClient(Resource):
     ) -> Grid:
         """``GET /grids/{id}`` → the full :class:`~ycli.yandex.wiki.grids.models.Grid`.
 
-        ``fields`` adds optional blocks (``attributes``, ``user_permissions``); ``filter`` /
+        ``fields`` adds optional blocks (``attributes``, ``user_permissions``); ``row_filter`` /
         ``only_cols`` / ``only_rows`` / ``sort`` narrow the returned rows and columns server-side;
         ``revision`` loads a historical version. Read the ``revision`` off the result to drive any
         subsequent write's optimistic lock.
@@ -364,7 +364,7 @@ class GridsClient(Resource):
 
         Examples:
             >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
-            >>> wiki.grids.update_row(grid_id, "103", {"pinned": True, "color": "orange"}).status
-            'ok'
+            >>> wiki.grids.update_row(grid_id, "103", {"pinned": True, "color": "orange"})
+            RowUpdateResult(...)
         """
         return self._session.send(endpoints.update_row(grid_id, row_id, body))

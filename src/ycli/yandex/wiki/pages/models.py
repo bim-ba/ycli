@@ -62,7 +62,7 @@ class PageDetails(APIModel):
 
     @property
     def owner_username(self) -> str | None:
-        """The owner's username, or ``None`` when the page has no owner."""
+        """The owner's username, or ``None`` when the page has no owner or the owner no user."""
         return self.owner.user.username if self.owner and self.owner.user else None
 
 
