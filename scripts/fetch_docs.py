@@ -50,7 +50,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 
-import requests
+import httpx2
 
 DEFAULT_OUT = Path(__file__).resolve().parent.parent / "references" / "yandex-360"
 USER_AGENT = "ycli-docs-fetcher/1.0 (+https://github.com/bim-ba/ycli)"
@@ -263,20 +263,21 @@ class _HttpClient:
     delay_seconds: float = 0.2
     dry_run: bool = False
     lang: str = "ru"
-    session: requests.Session = field(default_factory=requests.Session)
+    # requests followed redirects by default; the docs hosts answer old URLs with a 301.
+    session: httpx2.Client = field(default_factory=lambda: httpx2.Client(follow_redirects=True))
 
     def __post_init__(self) -> None:
         self.session.headers.update({"User-Agent": USER_AGENT})
         self.encountered_failure = False
 
-    def _get(self, url: str) -> requests.Response | None:
+    def _get(self, url: str) -> httpx2.Response | None:
         """GET with retry/backoff. Returns the response for any completed HTTP status (callers
         inspect ``status_code``); returns None only when the request never completed — a network
         error, or a 5xx / 429 / 403 that persisted across every retry."""
         for attempt in range(1, MAX_ATTEMPTS + 1):
             try:
                 response = self.session.get(url, timeout=REQUEST_TIMEOUT_SECONDS)
-            except requests.RequestException as error:
+            except httpx2.RequestError as error:
                 if attempt == MAX_ATTEMPTS:
                     print(f"  ! {url} — {error}")
                     return None
