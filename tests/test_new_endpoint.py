@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 import ycli.yandex.tracker
+from ycli.yandex.core.endpoint import Endpoint
+from ycli.yandex.core.resource import Resource
 
 SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "new_endpoint.py"
 
@@ -20,19 +22,42 @@ def _load_scaffolder():
     return module
 
 
-@pytest.mark.parametrize("layer", ["models", "client", "cli", "mcp"])
-def test_scaffolded_layer_imports(layer, tmp_path, monkeypatch):
-    """Each generated module imports against the current package layout."""
-    resource = "scaffold_probe"
-    _load_scaffolder().scaffold("tracker", resource, root=tmp_path)
+RESOURCE = "scaffold_probe"
+PACKAGE = f"ycli.yandex.tracker.{RESOURCE}"
+
+
+@pytest.fixture
+def scaffolded(tmp_path, monkeypatch):
+    """Scaffold ``tracker/scaffold_probe`` into tmp_path and make it importable."""
+    _load_scaffolder().scaffold("tracker", RESOURCE, root=tmp_path)
     # Let ``ycli.yandex.tracker.scaffold_probe`` resolve from tmp_path without touching src/.
     monkeypatch.setattr(
         ycli.yandex.tracker, "__path__", [*ycli.yandex.tracker.__path__, str(tmp_path / "tracker")]
     )
-    package = f"ycli.yandex.tracker.{resource}"
-    for name in [n for n in sys.modules if n.startswith(package)]:
+    for name in [n for n in sys.modules if n.startswith(PACKAGE)]:
         monkeypatch.delitem(sys.modules, name)
 
-    module = importlib.import_module(f"{package}.{layer}")
 
-    assert module.__name__ == f"{package}.{layer}"
+@pytest.mark.parametrize("layer", ["models", "endpoints", "client", "cli", "mcp"])
+def test_scaffolded_layer_imports(layer, scaffolded):
+    """Each generated module imports against the current package layout."""
+    module = importlib.import_module(f"{PACKAGE}.{layer}")
+
+    assert module.__name__ == f"{PACKAGE}.{layer}"
+
+
+def test_scaffolded_client_sends_its_endpoint_on_the_core(scaffolded):
+    """A new resource starts on the httpx2 core: its client sends a declared ``Endpoint``."""
+    client_module = importlib.import_module(f"{PACKAGE}.client")
+    sent = []
+
+    class _Session:
+        def send(self, endpoint: Endpoint) -> str:
+            sent.append(endpoint)
+            return "parsed"
+
+    client = client_module.ScaffoldProbeClient(session=_Session())
+
+    assert isinstance(client, Resource)
+    assert client.get("7") == "parsed"
+    assert (sent[0].method, sent[0].path) == ("GET", f"FILL/{RESOURCE}/7")

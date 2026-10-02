@@ -15,8 +15,8 @@ move to the httpx2 core.
 | Special behaviour | `--wait` polling, uploads, unusual error shapes | by hand, only where the generic cases cannot reach |
 
 A resource on the core adds its endpoint declarations, one effect case per MCP tool, and JSON
-fixtures for its responses. Until the generated wire and smoke tests land (E2), and while
-`/new-endpoint` still scaffolds an uplink resource, it also carries per-surface test files.
+fixtures for its responses. Until the generated wire and smoke tests land (E2), it also carries
+per-surface test files.
 
 ## Mocking HTTP
 

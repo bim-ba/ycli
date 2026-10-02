@@ -212,8 +212,11 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 
 ## 6. Writing a client and its CLI commands
 
-`/new-endpoint` (`scripts/new_endpoint.py`) generates this shape; `tracker/priorities/` is the
-smallest complete example with reads and writes.
+`/new-endpoint` (`scripts/new_endpoint.py`) generates a new resource on the httpx2 core:
+`endpoints.py` declares each operation once (`Endpoint`, or `Paged` for a listing) and
+`client.py` is a `Resource` that sends them; `tracker/issues/` is the worked example. The
+bullets below describe the resources still on uplink until they move (E2); `tracker/priorities/`
+is the smallest of those with reads and writes.
 
 **`client.py`** — HTTP only (ARCH-2):
 
