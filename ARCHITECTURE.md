@@ -129,7 +129,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   required) change only on purpose.
 - **Why:** scripts and agents depend on them; a silent rename or new required parameter breaks
   them.
-- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_tree,mcp_tools,cli_signatures,mcp_signatures}.txt`;
+- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures}.txt`;
   accept a change with `uv run python -m tests.snapshots --update`.
 - **Exceptions:** none. Fields nested inside an MCP `body` model are not snapshotted.
 

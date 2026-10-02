@@ -3,9 +3,9 @@
 
 Introspects the three domain clients **offline** (dummy credentials — constructing a client
 builds only a ``requests.Session``, no HTTP) plus the committed public-surface data (the CLI
-tree from :func:`tests.snapshots._surface.cli_tree` and the MCP tool-name snapshot
-``tests/snapshots/mcp_tools.txt``) and emits the Markdown block README embeds between its
-``COVERAGE:START`` / ``COVERAGE:END`` markers.
+tree from :func:`tests.snapshots._surface.cli_tree` and the tool names in the MCP signature
+snapshot ``tests/snapshots/mcp_signatures.txt``) and emits the Markdown block README embeds
+between its ``COVERAGE:START`` / ``COVERAGE:END`` markers.
 
 Per resource it reports the wrapped SDK operations (public methods on the resource client
 class, in source order) and whether that resource is reachable via the CLI and via at least
@@ -43,7 +43,7 @@ from ycli.yandex.wiki.client import WikiClient
 
 ROOT = Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
-MCP_TOOLS = ROOT / "tests" / "snapshots" / "mcp_tools.txt"
+MCP_SIGNATURES = ROOT / "tests" / "snapshots" / "mcp_signatures.txt"
 
 # Committed map of resource/operation → public Yandex API-reference page (relative paths).
 # The vendored api-ref under references/ is git-ignored, so the links live here, not there.
@@ -164,8 +164,9 @@ def _cli_paths() -> list[str]:
 
 
 def _mcp_tool_names() -> list[str]:
-    """Every MCP tool name, from the committed snapshot."""
-    return MCP_TOOLS.read_text(encoding="utf-8").split()
+    """Every MCP tool name, from the committed signature snapshot (``name(params)`` lines)."""
+    lines = MCP_SIGNATURES.read_text(encoding="utf-8").splitlines()
+    return [line.split("(", 1)[0] for line in lines]
 
 
 def _display_name(attribute: str) -> str:
