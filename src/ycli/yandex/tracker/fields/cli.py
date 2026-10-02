@@ -69,7 +69,10 @@ def create(
     name_en: Annotated[str, typer.Option("--name-en", help="Field name in English.")] = "",
     description: Annotated[str, typer.Option(help="Description of the field.")] = "",
     order: Annotated[int | None, typer.Option(help="Position in the org's field list.")] = None,
-    readonly: Annotated[bool, typer.Option(help="Whether the field value is read-only.")] = False,
+    readonly: Annotated[
+        bool | None,
+        typer.Option("--readonly/--no-readonly", help="Whether the field value is read-only."),
+    ] = None,
     option: OptionOpt = None,
     options_type: OptionsTypeOpt = "FixedListOptionsProvider",
     *,
@@ -84,7 +87,7 @@ def create(
         options_provider=_options_provider(option, options_type),
         order=order,
         description=description or None,
-        readonly=readonly or None,
+        readonly=readonly,
     )
     return tracker.fields.create(body)
 

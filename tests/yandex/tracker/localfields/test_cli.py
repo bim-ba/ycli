@@ -122,3 +122,29 @@ def test_localfields_edit_no_version():
     assert "version=" not in responses.calls[0].request.url  # ty: ignore[unsupported-operator]
     sent = json.loads(responses.calls[0].request.body)  # ty: ignore[invalid-argument-type]
     assert sent == {"order": 102, "hidden": True}
+
+
+@responses.activate
+def test_localfields_create_no_readonly_sends_false():
+    """--no-readonly is sent as readonly=false instead of being dropped."""
+    responses.add(responses.POST, f"{BASE}/queues/ORG/localFields", json={"id": "f"}, status=201)
+    res = runner.invoke(
+        cli.app,
+        [
+            "tracker",
+            "localfields",
+            "create",
+            "ORG",
+            "--id",
+            "f",
+            "--type",
+            "StringFieldType",
+            "--category",
+            "1",
+            "--no-readonly",
+        ],
+    )
+    assert res.exit_code == 0, res.output
+    body = responses.calls[0].request.body
+    assert isinstance(body, str | bytes)
+    assert json.loads(body)["readonly"] is False

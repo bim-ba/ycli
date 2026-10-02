@@ -1,13 +1,15 @@
 """Pure ``.env`` upsert helper for `ycli auth login` — no HTTP, no serialization.
 
-Backs up an existing file, replaces the given keys in place, and preserves every other
-line (comments, blanks, unrelated keys). The path is an argument, so it is trivially
-unit-testable.
+Backs up an existing file, then sets the given keys with python-dotenv's ``set_key``, which
+replaces a key in place (``export KEY=`` lines included) and preserves every other line
+(comments, blanks, unrelated keys). The path is an argument, so it is trivially unit-testable.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+from dotenv import set_key
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -25,30 +27,11 @@ class EnvFile:
         replaced in place, keys not present are appended, and every other line is kept.
         """
         backup: Path | None = None
-        existing_lines: list[str] = []
         if path.exists():
-            original = path.read_text(encoding="utf-8")
             backup = path.with_name(path.name + ".bak")
-            backup.write_text(original, encoding="utf-8")
+            backup.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
             backup.chmod(0o600)  # the backup holds a real token — keep it owner-only
-            existing_lines = original.splitlines()
-        remaining = dict(values)
-        output: list[str] = []
-        for line in existing_lines:
-            key = EnvFile._key_of(line)
-            if key in remaining:
-                output.append(f"{key}={remaining.pop(key)}")
-            else:
-                output.append(line)
-        output.extend(f"{key}={value}" for key, value in remaining.items())
-        path.write_text("\n".join(output) + "\n", encoding="utf-8")
+        for key, value in values.items():
+            set_key(path, key, value, quote_mode="never")  # the KEY=value form it always wrote
         path.chmod(0o600)  # holds a real OAuth token — keep it owner-only
         return backup
-
-    @staticmethod
-    def _key_of(line: str) -> str | None:
-        """The dotenv key a line assigns, or ``None`` for a blank/comment/non-assignment."""
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#") or "=" not in stripped:
-            return None
-        return stripped.split("=", 1)[0].strip()

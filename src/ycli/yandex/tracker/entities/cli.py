@@ -215,6 +215,8 @@ def search(
     tracker: TrackerClient,
 ) -> EntityList:
     """Search entities of TYPE (POST /entities/TYPE/_search)."""
+    if order_asc and not order_by:
+        raise typer.BadParameter("needs --order-by", param_hint="--order-asc")
     body: dict[str, Any] = {}
     if input_:
         body["input"] = input_
@@ -421,13 +423,13 @@ def _checklists_group() -> None:
 
 
 def _item_input(
-    text: str, checked: bool, assignee: str, deadline: str, item_id: str = ""
+    text: str, checked: bool | None, assignee: str, deadline: str, item_id: str = ""
 ) -> ChecklistItemInput:
     """Build a typed checklist item from CLI options."""
     return ChecklistItemInput(
         id=item_id or None,
         text=text or None,
-        checked=checked or None,
+        checked=checked,
         assignee=assignee or None,
         deadline=DeadlineInput(date=deadline) if deadline else None,
     )
@@ -461,11 +463,18 @@ def checklists_edit(
     *,
     tracker: TrackerClient,
 ) -> Entity:
-    """Replace the whole checklist (PATCH …/checklistItems) from repeated --item id=text."""
-    parsed = parse_fields(item)
-    items = ChecklistItemsInput(
-        [ChecklistItemInput(id=item_id, text=str(text)) for item_id, text in parsed.items()]
-    ).model_dump(by_alias=True, exclude_none=True)
+    """Replace the whole checklist (PATCH …/checklistItems) from repeated --item id=text.
+
+    The text is sent verbatim — never JSON-coerced — and only the first ``=`` splits:
+    ``--item 5f=true`` sends the text ``true``, ``--item 6a=a=b`` sends ``a=b``.
+    """
+    inputs: list[ChecklistItemInput] = []
+    for raw in item:
+        item_id, separator, text = raw.partition("=")
+        if not separator:
+            raise typer.BadParameter(f"must be id=text, got {raw!r}", param_hint="--item")
+        inputs.append(ChecklistItemInput(id=item_id, text=text))
+    items = ChecklistItemsInput(inputs).model_dump(by_alias=True, exclude_none=True)
     return tracker.entities.checklists_edit(type_.value, entity_id, body=items)
 
 
@@ -475,7 +484,9 @@ def checklists_edit_item(
     entity_id: IdArg,
     item_id: ItemIdArg,
     text: Annotated[str, typer.Option(help="New item text.")] = "",
-    checked: Annotated[bool, typer.Option("--checked", help="Mark the item done.")] = False,
+    checked: Annotated[
+        bool | None, typer.Option("--checked/--no-checked", help="Mark the item done or not done.")
+    ] = None,
     assignee: Annotated[str, typer.Option(help="Assignee user id/login.")] = "",
     deadline: Annotated[
         str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")

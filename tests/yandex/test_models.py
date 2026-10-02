@@ -3,6 +3,7 @@
 import pytest
 from pydantic import BaseModel
 
+from ycli.yandex.errors import YandexNotFoundError
 from ycli.yandex.models import require_found
 
 
@@ -12,9 +13,9 @@ class _LenientResult(BaseModel):
     id: str | None = None
 
 
-def test_require_found_raises_with_message_when_sentinel_is_true():
+def test_require_found_raises_typed_not_found_when_sentinel_is_true():
     empty = _LenientResult()
-    with pytest.raises(ValueError, match="thing 'x' not found"):
+    with pytest.raises(YandexNotFoundError, match="thing 'x' not found"):
         require_found(empty, sentinel=lambda r: r.id is None, message="thing 'x' not found")
 
 

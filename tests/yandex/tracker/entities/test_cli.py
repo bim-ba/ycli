@@ -6,6 +6,7 @@ test_client / test_models / test_mcp only.
 """
 
 import json
+import re
 
 import pytest
 import responses
@@ -21,6 +22,12 @@ runner = CliRunner()
 
 def _invoke(*args):
     return runner.invoke(cli.app, ["--format", "json", "tracker", "entities", *args])
+
+
+def _sent_body() -> object:
+    body = responses.calls[0].request.body
+    assert isinstance(body, str | bytes)
+    return json.loads(body)
 
 
 # ---- core --------------------------------------------------------------------------------
@@ -134,6 +141,16 @@ def test_search_all_options():
         "orderAsc": True,
         "rootOnly": True,
     }
+
+
+@responses.activate  # blocks the network: an unstubbed request fails, never goes out
+def test_search_order_asc_without_order_by_is_a_usage_error():
+    """--order-asc alone used to be dropped silently (body {}); it now fails loudly."""
+    res = _invoke("search", "project", "--order-asc")
+    assert res.exit_code == 2
+    # CI forces colour, and rich splits "--order-by" with ANSI codes: compare the plain text.
+    assert "--order-by" in re.sub(r"\x1b\[[0-9;]*m", "", res.output)
+    assert len(responses.calls) == 0
 
 
 @responses.activate
@@ -349,6 +366,59 @@ def test_checklists_edit():
     res = _invoke("checklists", "edit", "project", "655f", "--item", "5f=renamed")
     assert res.exit_code == 0
     assert json.loads(responses.calls[0].request.body) == [{"id": "5f", "text": "renamed"}]  # ty: ignore[invalid-argument-type]
+
+
+@responses.activate
+def test_checklists_edit_sends_item_text_verbatim():
+    """Item text is never JSON-coerced: true/null/[1, 2] stay text, and only the first = splits."""
+    responses.add(
+        responses.PATCH,
+        f"{BASE}/entities/project/655f/checklistItems",
+        json={"id": "655f"},
+        status=200,
+    )
+    res = _invoke(
+        "checklists",
+        "edit",
+        "project",
+        "655f",
+        "--item",
+        "5f=true",
+        "--item",
+        "6a=null",
+        "--item",
+        "7b=[1, 2]",
+        "--item",
+        "8c=a=b",
+    )
+    assert res.exit_code == 0
+    assert _sent_body() == [
+        {"id": "5f", "text": "true"},
+        {"id": "6a", "text": "null"},
+        {"id": "7b", "text": "[1, 2]"},
+        {"id": "8c", "text": "a=b"},
+    ]
+
+
+@responses.activate  # blocks the network: an unstubbed request fails, never goes out
+def test_checklists_edit_item_without_equals_is_a_usage_error():
+    res = _invoke("checklists", "edit", "project", "655f", "--item", "no-separator")
+    assert res.exit_code == 2
+    assert "id=text" in res.output
+    assert len(responses.calls) == 0
+
+
+@responses.activate
+def test_checklists_edit_item_no_checked_unchecks():
+    responses.add(
+        responses.PATCH,
+        f"{BASE}/entities/project/655f/checklistItems/5f",
+        json={"id": "655f"},
+        status=200,
+    )
+    res = _invoke("checklists", "edit-item", "project", "655f", "5f", "--no-checked")
+    assert res.exit_code == 0
+    assert _sent_body() == {"checked": False}
 
 
 @responses.activate

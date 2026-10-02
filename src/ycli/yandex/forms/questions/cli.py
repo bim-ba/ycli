@@ -40,9 +40,9 @@ def _build_from_flags(
     slug: str,
     comment: str,
     placeholder: str,
-    required: bool,
-    hidden: bool,
-    multiline: bool,
+    required: bool | None,
+    hidden: bool | None,
+    multiline: bool | None,
     widget: str,
     options: list[str] | None,
 ) -> QuestionCreate:
@@ -71,11 +71,15 @@ def _build_from_flags(
         "slug": slug or None,
         "comment": comment or None,
         "placeholder": placeholder or None,
-        "hidden": hidden or None,
+        "hidden": hidden,
     }
-    validators = [QuestionValidator(type="required")] if required else None
+    # The flags carry only the ``required`` rule, so they set the whole validators list:
+    # --required sends [required], --no-required sends [] (clearing every rule), unset sends none.
+    validators: list[QuestionValidator] | None = None
+    if required is not None:
+        validators = [QuestionValidator(type="required")] if required else []
     if type_ == "string":
-        return StringQuestion(**common, multiline=multiline or None, validators=validators)
+        return StringQuestion(**common, multiline=multiline, validators=validators)
     if type_ == "boolean":
         return BooleanQuestion(**common, validators=validators)
     if type_ == "integer":
@@ -101,9 +105,9 @@ def _resolve_body(
     slug: str,
     comment: str,
     placeholder: str,
-    required: bool,
-    hidden: bool,
-    multiline: bool,
+    required: bool | None,
+    hidden: bool | None,
+    multiline: bool | None,
     widget: str,
     options: list[str] | None,
     body_file: Path | None,
@@ -135,9 +139,19 @@ LabelOpt = Annotated[str, typer.Option(help="Question label / title.")]
 SlugOpt = Annotated[str, typer.Option(help="Stable machine slug.")]
 CommentOpt = Annotated[str, typer.Option(help="Question hint / helper text.")]
 PlaceholderOpt = Annotated[str, typer.Option(help="Placeholder text.")]
-RequiredOpt = Annotated[bool, typer.Option("--required", help="Mark the answer as required.")]
-HiddenOpt = Annotated[bool, typer.Option("--hidden", help="Hide until conditions match.")]
-MultilineOpt = Annotated[bool, typer.Option("--multiline", help="Multiline text (string type).")]
+RequiredOpt = Annotated[
+    bool | None,
+    typer.Option(
+        "--required/--no-required",
+        help="Answer required or not (sets the whole validators list: [required] or []).",
+    ),
+]
+HiddenOpt = Annotated[
+    bool | None, typer.Option("--hidden/--no-hidden", help="Hide until conditions match.")
+]
+MultilineOpt = Annotated[
+    bool | None, typer.Option("--multiline/--no-multiline", help="Multiline text (string type).")
+]
 WidgetOpt = Annotated[str, typer.Option(help="Enum widget: radio/checkbox/dropdown/stars/onerow.")]
 OptionOpt = Annotated[
     list[str] | None, typer.Option("--option", help="Enum option label (repeatable).")
@@ -177,9 +191,9 @@ def create(
     slug: SlugOpt = "",
     comment: CommentOpt = "",
     placeholder: PlaceholderOpt = "",
-    required: RequiredOpt = False,
-    hidden: HiddenOpt = False,
-    multiline: MultilineOpt = False,
+    required: RequiredOpt = None,
+    hidden: HiddenOpt = None,
+    multiline: MultilineOpt = None,
     widget: WidgetOpt = "",
     option: OptionOpt = None,
     body_file: BodyFileOpt = None,
@@ -212,9 +226,9 @@ def modify(
     slug: SlugOpt = "",
     comment: CommentOpt = "",
     placeholder: PlaceholderOpt = "",
-    required: RequiredOpt = False,
-    hidden: HiddenOpt = False,
-    multiline: MultilineOpt = False,
+    required: RequiredOpt = None,
+    hidden: HiddenOpt = None,
+    multiline: MultilineOpt = None,
     widget: WidgetOpt = "",
     option: OptionOpt = None,
     body_file: BodyFileOpt = None,

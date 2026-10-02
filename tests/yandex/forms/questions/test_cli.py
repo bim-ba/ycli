@@ -236,6 +236,39 @@ def test_modify_via_flags_patches():
 
 
 @responses.activate
+def test_modify_no_flags_turn_required_hidden_multiline_off():
+    """--no-required/--no-hidden/--no-multiline send the off value instead of dropping it."""
+    responses.add(
+        responses.PATCH,
+        f"{BASE}/surveys/{SID}/questions/17",
+        json={"id": 17, "type": "string"},
+        status=200,
+    )
+    res = runner.invoke(
+        cli.app,
+        [
+            "forms",
+            "questions",
+            "modify",
+            SID,
+            "17",
+            "--type",
+            "string",
+            "--no-required",
+            "--no-hidden",
+            "--no-multiline",
+        ],
+    )
+    assert res.exit_code == 0, res.output
+    assert _sent_body() == {
+        "type": "string",
+        "hidden": False,
+        "multiline": False,
+        "validators": [],
+    }
+
+
+@responses.activate
 def test_modify_via_body_file_suggest(tmp_path):
     responses.add(
         responses.PATCH,
