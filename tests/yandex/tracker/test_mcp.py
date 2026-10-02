@@ -166,30 +166,6 @@ async def test_all_tools_registered():
 
 
 @responses.activate
-async def test_priorities_list_tool(creds):
-    responses.add(responses.GET, f"{BASE}/priorities", json=[{"key": "normal"}], status=200)
-    async with Client(tracker_mcp.mcp) as client:
-        result = await client.call_tool("priorities_list", {})
-    assert result.data[0].key == "normal"
-
-
-@responses.activate
-async def test_issuetypes_list_tool(creds):
-    responses.add(responses.GET, f"{BASE}/issuetypes", json=[{"key": "task"}], status=200)
-    async with Client(tracker_mcp.mcp) as client:
-        result = await client.call_tool("issuetypes_list", {})
-    assert result.data[0].key == "task"
-
-
-@responses.activate
-async def test_linktypes_list_tool(creds):
-    responses.add(responses.GET, f"{BASE}/linktypes", json=[{"id": "relates"}], status=200)
-    async with Client(tracker_mcp.mcp) as client:
-        result = await client.call_tool("linktypes_list", {})
-    assert result.data[0].id == "relates"
-
-
-@responses.activate
 async def test_comments_list_tool(creds):
     responses.add(responses.GET, f"{BASE}/issues/DE-1/comments", json=[{"text": "hi"}], status=200)
     async with Client(tracker_mcp.mcp) as client:

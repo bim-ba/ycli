@@ -24,9 +24,7 @@ def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
 
 @responses.activate
 def test_all_services_valid(api, creds):
-    responses.add(
-        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
-    )
+    api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -36,7 +34,7 @@ def test_all_services_valid(api, creds):
 
 @responses.activate
 def test_one_service_invalid_sets_nonzero_exit(api, creds):
-    responses.add(responses.GET, TRACKER_ME, status=401)
+    api.add("GET", TRACKER_ME, status=401)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -47,7 +45,7 @@ def test_one_service_invalid_sets_nonzero_exit(api, creds):
 @responses.activate
 def test_tracker_generic_error(api, creds):
     """Exercises the generic YandexError branch for the tracker probe (e.g. 422)."""
-    responses.add(responses.GET, TRACKER_ME, json={"errorMessages": ["bad"]}, status=422)
+    api.add("GET", TRACKER_ME, json={"errorMessages": ["bad"]}, status=422)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -59,9 +57,7 @@ def test_tracker_generic_error(api, creds):
 @responses.activate
 def test_forms_auth_error(api, creds):
     """Exercises the YandexAuthError branch for the forms probe (401)."""
-    responses.add(
-        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
-    )
+    api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, status=401)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -72,9 +68,7 @@ def test_forms_auth_error(api, creds):
 @responses.activate
 def test_forms_generic_error(api, creds):
     """Exercises the generic YandexError branch for the forms probe (422)."""
-    responses.add(
-        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
-    )
+    api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"errorMessages": ["bad"]}, status=422)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -85,9 +79,7 @@ def test_forms_generic_error(api, creds):
 @responses.activate
 def test_wiki_auth_error(api, creds):
     """Exercises the YandexAuthError branch for the wiki probe (401)."""
-    responses.add(
-        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
-    )
+    api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, status=401)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
@@ -98,9 +90,7 @@ def test_wiki_auth_error(api, creds):
 @responses.activate
 def test_wiki_generic_error(api, creds):
     """Exercises the generic YandexError branch for the wiki probe (422)."""
-    responses.add(
-        responses.GET, TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200
-    )
+    api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, json={"errorMessages": ["bad"]}, status=422)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])

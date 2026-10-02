@@ -360,11 +360,9 @@ def test_arch1_served_check_bites():
 UPLINK_RESOURCES = frozenset(
     {
         *(f"tracker.{name}" for name in (
-            "applications", "autoactions", "boards", "changelog",
-            "checklists", "columns", "comments", "components",
-            "fields", "filters", "issuetypes", "links", "linktypes", "localfields",
-            "macros", "me", "priorities", "queues", "remotelinks", "resolutions", "sprints",
-            "statuses", "transitions", "triggers", "users", "worklog",
+            "autoactions", "boards", "changelog", "checklists", "columns", "comments",
+            "filters", "links", "macros", "remotelinks", "sprints", "transitions", "triggers",
+            "worklog",
         )),
         *(f"wiki.{name}" for name in (
             "attachments", "comments", "grids", "me", "operations", "pages", "recovery",
@@ -473,6 +471,7 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "tracker/issues/endpoints.py:clear_scroll": "releasing a scroll twice is harmless",
     "forms/files/endpoints.py:verify_files": "POST verify only reads upload statuses",
     "tracker/entities/endpoints.py:search_entities": "POST _search only reads",
+    "tracker/queues/endpoints.py:remove_tag": "POST _remove strips the tag from every issue",
 }
 
 

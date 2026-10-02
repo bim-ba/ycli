@@ -1,11 +1,12 @@
 """TDD for build_client — env-free client construction from instances."""
 
+from tests.hosts import TRACKER_BASE
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.factory import build_client
 from ycli.yandex.tracker.client import TrackerClient
 
 
-def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
+def test_build_passes_raw_args_and_does_not_read_env(api, monkeypatch, tmp_path):
     """build_client takes instances (not env) and wires the sub-clients.
 
     monkeypatch sets the env so Credentials() resolves; build_client must
@@ -18,15 +19,17 @@ def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
     cfg = AppConfig(http={"timeout_seconds": 12.0, "retries": 5})  # ty: ignore[invalid-argument-type]
     client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
-    assert client.me._session.headers["Authorization"] == "OAuth t"
-    assert client.me._session.headers["X-Org-Id"] == "o"
-    adapter = client.me._session.get_adapter("https://")
-    assert adapter._timeout == 12.0
-    assert adapter.max_retries.total == 5
+    api.add("GET", f"{TRACKER_BASE}/myself", json={"login": "alice"})
+    client.me.get()
+    assert api.calls[0].headers["Authorization"] == "OAuth t"
+    assert api.calls[0].headers["X-Org-Id"] == "o"
+    core = client.me._session
+    assert core._client.timeout.read == 12.0
+    assert core._attempts == 6  # the first try and 5 retries
 
 
 def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
-    """A fractional ``timeout_seconds`` reaches the adapter unrounded: 0.5 must not become 0."""
+    """A fractional ``timeout_seconds`` reaches the client unrounded: 0.5 must not become 0."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     monkeypatch.setenv("YCLI__HTTP__TIMEOUT_SECONDS", "0.5")
@@ -35,4 +38,4 @@ def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
     cfg = AppConfig()
     client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
-    assert client.me._session.get_adapter("https://")._timeout == 0.5
+    assert client.me._session._client.timeout.read == 0.5

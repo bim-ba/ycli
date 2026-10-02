@@ -1,0 +1,50 @@
+"""Tracker ``/fields`` operations (global fields and their categories), declared once (sans-IO).
+
+Example:
+    >>> edit_field("ruName", {"name": {"ru": "Имя"}}, version=3).params
+    {'version': 3}
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.tracker.fields.models import CustomField, FieldCategoryRecord, FieldList
+
+
+def list_fields() -> Endpoint[FieldList]:
+    return Endpoint("GET", "fields", FieldList)
+
+
+def get_field(field_id: str) -> Endpoint[CustomField]:
+    return Endpoint("GET", f"fields/{segment(field_id)}", CustomField)
+
+
+def create_field(body: dict[str, Any]) -> Endpoint[CustomField]:
+    return Endpoint("POST", "fields", CustomField, json=body)
+
+
+def edit_field(
+    field_id: str, body: dict[str, Any], *, version: int | None = None
+) -> Endpoint[CustomField]:
+    """``PATCH /fields/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
+    return Endpoint(
+        "PATCH", f"fields/{segment(field_id)}", CustomField, json=body, params={"version": version}
+    )
+
+
+def create_category(body: dict[str, Any]) -> Endpoint[FieldCategoryRecord]:
+    return Endpoint("POST", "fields/categories", FieldCategoryRecord, json=body)
+
+
+def edit_category(
+    category_id: str, body: dict[str, Any], *, version: int | None = None
+) -> Endpoint[FieldCategoryRecord]:
+    return Endpoint(
+        "PATCH",
+        f"fields/categories/{segment(category_id)}",
+        FieldCategoryRecord,
+        json=body,
+        params={"version": version},
+    )

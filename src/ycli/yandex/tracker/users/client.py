@@ -1,24 +1,24 @@
-"""Declarative Tracker users client (uplink) — transport ONLY.
+"""Tracker ``/users`` client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.users.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.users.models import User, UserList, UsersRelativeResponse
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.users import endpoints
+from ycli.yandex.tracker.users.models import UserList
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.users.models import User
 
 
-class UsersClient(TrackerResource):
-    """Declarative HTTP for ``/users`` (get + relative-paginated list)."""
+class UsersClient(Resource):
+    """Get one user; list every user over the relative ``id`` cursor."""
 
-    @uplink.returns.json()
-    @uplink.get("users/{login_or_id}")
-    def get(
-        self,
-        login_or_id: uplink.Path,
-        expand: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> User:  # ty: ignore[empty-body]
+    def get(self, login_or_id: str, expand: str | None = None) -> User:
         """``GET /users/{login_or_id}`` → one user account.
 
         ``expand=groups`` adds the user's groups. For a numeric login use ``login:<digits>``.
@@ -28,16 +28,7 @@ class UsersClient(TrackerResource):
             >>> client.users.get(login_or_id="username").display  # doctest: +SKIP
             'Ivan Ivanov'
         """
-
-    @uplink.returns.json()
-    @uplink.get("users/_relative")
-    def _relative_page(
-        self,
-        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
-        user_id: uplink.Query("id") = None,  # ty: ignore[invalid-type-form]
-        expand: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> UsersRelativeResponse:  # ty: ignore[empty-body]
-        """One raw ``/users/_relative`` page (``{users, hasNext}``); callers use ``list``."""
+        return self._session.send(endpoints.get_user(login_or_id, expand=expand))
 
     def list(self, *, limit: int | None = None, expand: str | None = None) -> UserList:
         """All organisation users, draining the ``id=<last uid>`` relative cursor internally.
@@ -50,12 +41,7 @@ class UsersClient(TrackerResource):
             >>> client.users.list(limit=50).root[0].login  # doctest: +SKIP
             'username'
         """
-        users = self._drain_relative(
-            extract=lambda page: page.users,
-            id_of=lambda user: str(user.uid) if user.uid is not None else None,
-            fetch_page=lambda cursor, per_page: self._relative_page(
-                per_page=per_page, user_id=cursor, expand=expand
-            ),
-            limit=limit,
-        )
-        return UserList(users)
+        # A small cap needs no full page.
+        per_page = min(endpoints.MAX_PAGE_SIZE, limit) if limit else endpoints.MAX_PAGE_SIZE
+        paged = endpoints.list_users(per_page=per_page, expand=expand)
+        return UserList(list(self._session.iterate(paged, limit=limit)))

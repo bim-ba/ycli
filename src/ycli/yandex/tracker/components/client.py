@@ -1,25 +1,28 @@
-"""Declarative Tracker components client (uplink) — transport ONLY.
+"""Tracker ``/components`` client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.components.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.components.models import (
-    Component,
-    ComponentCreate,
-    ComponentList,
-    ComponentUpdate,
-)
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.components import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.components.models import (
+        Component,
+        ComponentCreate,
+        ComponentList,
+        ComponentUpdate,
+    )
 
 
-class ComponentsClient(TrackerResource):
-    """Declarative HTTP for ``/components`` (list + create + edit)."""
+class ComponentsClient(Resource):
+    """List, create and edit queue components."""
 
-    @uplink.returns.json()
-    @uplink.get("components")
-    def list(self) -> ComponentList:  # ty: ignore[empty-body]
+    def list(self) -> ComponentList:
         """``GET /components`` → all components created by the organisation's users.
 
         Example:
@@ -27,12 +30,7 @@ class ComponentsClient(TrackerResource):
             >>> client.components.list().root[0].name  # doctest: +SKIP
             'Test'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("components")
-    def _create(self, body: uplink.Body) -> Component:  # ty: ignore[empty-body]
-        """``POST /components`` — create from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.list_components())
 
     def create(self, body: ComponentCreate) -> Component:
         """Create a component from a typed ``ComponentCreate`` body. Returns the ``Component``.
@@ -44,18 +42,8 @@ class ComponentsClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             111175
         """
-        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("components/{component_id}")
-    def _edit(
-        self,
-        component_id: uplink.Path,
-        body: uplink.Body,
-        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
-    ) -> Component:  # ty: ignore[empty-body]
-        """``PATCH /components/{component_id}?version=`` — edit from a ready body (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_component(dumped))
 
     def edit(
         self, component_id: int, body: ComponentUpdate, *, version: int | None = None
@@ -72,8 +60,5 @@ class ComponentsClient(TrackerResource):
             ... ).assign_auto  # doctest: +SKIP
             True
         """
-        return self._edit(
-            component_id=component_id,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-            version=version,
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_component(component_id, dumped, version=version))

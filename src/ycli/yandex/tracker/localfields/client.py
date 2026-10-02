@@ -1,25 +1,28 @@
-"""Declarative Tracker localFields client (uplink) — transport ONLY.
+"""Tracker ``/queues/{id}/localFields`` client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.localfields.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.localfields.models import (
-    LocalField,
-    LocalFieldCreate,
-    LocalFieldList,
-    LocalFieldUpdate,
-)
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.localfields import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.localfields.models import (
+        LocalField,
+        LocalFieldCreate,
+        LocalFieldList,
+        LocalFieldUpdate,
+    )
 
 
-class LocalFieldsClient(TrackerResource):
-    """Declarative HTTP for ``/queues/{id}/localFields`` (per-queue custom fields)."""
+class LocalFieldsClient(Resource):
+    """List, get, create and edit a queue's local (queue-scoped custom) fields."""
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/localFields")
-    def list(self, queue_id: uplink.Path) -> LocalFieldList:  # ty: ignore[empty-body]
+    def list(self, queue_id: str) -> LocalFieldList:
         """``GET /queues/{queue_id}/localFields`` → the queue's local fields.
 
         ``queue_id`` is the queue key (case-sensitive) or numeric id. Local fields are custom
@@ -30,10 +33,9 @@ class LocalFieldsClient(TrackerResource):
             >>> client.localfields.list(queue_id="ORG").root[0].key  # doctest: +SKIP
             'loc_field_key'
         """
+        return self._session.send(endpoints.list_local_fields(queue_id))
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/localFields/{field_key}")
-    def get(self, queue_id: uplink.Path, field_key: uplink.Path) -> LocalField:  # ty: ignore[empty-body]
+    def get(self, queue_id: str, field_key: str) -> LocalField:
         """``GET /queues/{queue_id}/localFields/{field_key}`` → one local field.
 
         ``field_key`` is the field key returned by :meth:`list`.
@@ -45,12 +47,7 @@ class LocalFieldsClient(TrackerResource):
             ... ).name  # doctest: +SKIP
             'loc_field_name'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("queues/{queue_id}/localFields")
-    def _create(self, queue_id: uplink.Path, body: uplink.Body) -> LocalField:  # ty: ignore[empty-body]
-        """``POST /queues/{queue_id}/localFields`` — create from a ready body (see ``create``)."""
+        return self._session.send(endpoints.get_local_field(queue_id, field_key))
 
     def create(self, queue_id: str, body: LocalFieldCreate) -> LocalField:
         """Create a local field in queue ``queue_id`` from a typed ``LocalFieldCreate`` body.
@@ -65,15 +62,8 @@ class LocalFieldsClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'loc'
         """
-        return self._create(
-            queue_id=queue_id, body=body.model_dump(by_alias=True, exclude_none=True)
-        )
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("queues/{queue_id}/localFields/{field_key}")
-    def _edit(self, queue_id: uplink.Path, field_key: uplink.Path, body: uplink.Body) -> LocalField:  # ty: ignore[empty-body]
-        """``PATCH /queues/{queue_id}/localFields/{field_key}`` — edit (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_local_field(queue_id, dumped))
 
     def edit(self, queue_id: str, field_key: str, body: LocalFieldUpdate) -> LocalField:
         """Edit local field ``field_key`` of queue ``queue_id`` from a typed ``LocalFieldUpdate``.
@@ -88,8 +78,5 @@ class LocalFieldsClient(TrackerResource):
             ... ).order  # doctest: +SKIP
             102
         """
-        return self._edit(
-            queue_id=queue_id,
-            field_key=field_key,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_local_field(queue_id, field_key, dumped))

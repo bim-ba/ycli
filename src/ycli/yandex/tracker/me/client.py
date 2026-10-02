@@ -1,15 +1,19 @@
-"""Declarative Tracker /myself client (uplink) — transport ONLY."""
+"""Tracker ``/myself`` client on the httpx2 core."""
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.me.models import Me
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.me import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.me.models import Me
 
 
-class MeClient(TrackerResource):
-    """Declarative HTTP for ``/myself``."""
+class MeClient(Resource):
+    """The authenticated Tracker user."""
 
-    @uplink.returns.json()
-    @uplink.get("myself")
-    def get(self) -> Me:  # ty: ignore[empty-body]
+    def get(self) -> Me:
         """``GET /myself`` → the authenticated ``Me`` (a safe auth probe)."""
+        return self._session.send(endpoints.get_me())

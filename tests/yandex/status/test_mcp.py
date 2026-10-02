@@ -12,7 +12,7 @@ WIKI_ME = "https://api.wiki.yandex.net/v1/users/me"
 
 @responses.activate
 async def test_status_get_reports_all_valid(api, creds):
-    responses.add(responses.GET, TRACKER_ME, json={"login": "alice"}, status=200)
+    api.add("GET", TRACKER_ME, json={"login": "alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"id": 1, "email": "alice@x"}, status=200)
     async with Client(status_mcp.mcp) as client:
@@ -27,7 +27,7 @@ async def test_status_get_reports_all_valid(api, creds):
 
 @responses.activate
 async def test_status_get_marks_invalid_on_401(api, creds):
-    responses.add(responses.GET, TRACKER_ME, status=401)
+    api.add("GET", TRACKER_ME, status=401)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"id": 1, "email": "alice@x"}, status=200)
     async with Client(status_mcp.mcp) as client:

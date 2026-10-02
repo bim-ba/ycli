@@ -1,20 +1,20 @@
-"""Declarative Tracker link-types client (uplink) — transport ONLY.
+"""Tracker link-types client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.linktypes.models import LinkTypeList
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.linktypes import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.linktypes.models import LinkTypeList
 
 
-class LinkTypesClient(TrackerResource):
-    """Declarative HTTP for ``/linktypes``."""
+class LinkTypesClient(Resource):
+    """List the kinds of links between issues."""
 
-    @uplink.returns.json()
-    @uplink.get("linktypes")
-    def list(self) -> LinkTypeList:  # ty: ignore[empty-body]
+    def list(self) -> LinkTypeList:
         """``GET /linktypes`` → link-type listing.
 
         Example:
@@ -22,3 +22,4 @@ class LinkTypesClient(TrackerResource):
             >>> client.linktypes.list().root[0].id  # doctest: +SKIP
             'relates'
         """
+        return self._session.send(endpoints.list_link_types())

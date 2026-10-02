@@ -11,24 +11,41 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues import mcp as issues_mcp
 
 
-def test_a_rotated_token_applies_to_the_next_call(monkeypatch):
+def test_a_rotated_token_applies_to_the_next_call(api, monkeypatch):
+    api.add("GET", f"{TRACKER_BASE}/myself", json={"login": "alice"})
     provide = client_provider(TrackerClient)
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "first")
     with provide() as first:
-        assert first.me._session.headers["Authorization"] == "OAuth first"
+        first.me.get()
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "second")
     with provide() as second:
-        assert second.me._session.headers["Authorization"] == "OAuth second"
+        second.me.get()
+    assert [call.headers["Authorization"] for call in api.calls] == ["OAuth first", "OAuth second"]
 
 
-def test_an_explicit_auth_source_wins_over_the_environment():
+def test_an_explicit_auth_source_wins_over_the_environment(api):
     class FixedSource:
         def resolve(self) -> Credentials:
             return Credentials(oauth_token=SecretStr("fixed"), organization_id="org-1")
 
+    api.add("GET", f"{TRACKER_BASE}/myself", json={"login": "alice"})
     with client_provider(TrackerClient, FixedSource())() as client:
-        assert client.me._session.headers["Authorization"] == "OAuth fixed"
-        assert client.me._session.headers["X-Org-Id"] == "org-1"
+        client.me.get()
+    assert api.calls[0].headers["Authorization"] == "OAuth fixed"
+    assert api.calls[0].headers["X-Org-Id"] == "org-1"
+
+
+def test_tracker_deps_factory_builds_from_env(api, monkeypatch):
+    """dependencies.tracker_client() reads env and returns a working TrackerClient."""
+    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
+    from ycli.yandex.tracker.dependencies import tracker_client
+
+    api.add("GET", f"{TRACKER_BASE}/priorities", json=[])
+    with tracker_client() as client:
+        assert isinstance(client, TrackerClient)
+        assert client.priorities.list().root == []
+    assert api.calls[0].headers["Authorization"] == "OAuth tok"
 
 
 def test_env_auth_source_and_config_read_the_environment(monkeypatch):
