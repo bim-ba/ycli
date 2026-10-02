@@ -1,7 +1,10 @@
 """Tracker statuses FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -10,6 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Version,
     tracker_client,
 )
 from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
@@ -48,9 +52,9 @@ def create(body: StatusCreate, client: TrackerClient = Depends(tracker_client)) 
     tags=WRITE_TAGS,
 )
 def edit(
-    status_id: str,
+    status_id: Annotated[str, Field(description="Status id or key, from ``statuses_list``.")],
     body: StatusUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Status:
     """Edit an issue status; only the fields set in ``body`` are changed.

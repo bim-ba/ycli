@@ -37,6 +37,10 @@ Notable shared pieces:
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
   tool call, so nothing is cached per process
+- `src/ycli/mcp/` — `server.build_server(Selection)` mounts only the selected services (so
+  `--toolsets wiki` never imports Tracker); `selection.py` / `profiles.py` hold the typed flags
+  and the curated `core` toolset, `listing.py` the transforms that slim `tools/list` and reject
+  unknown tool names
 - `src/ycli/cli/lazy.py` — the root group lists every sub-app from its declaration and imports it
   on first use, so `ycli --version` or one service's command never imports the others
 - `src/ycli/yandex/registry.py` — `SERVICES`, the one list of services; the CLI root, the MCP
@@ -77,7 +81,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   (`requests`, `httpx2`) directly — HTTP lives in `client.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
   CLI, clients, models or the `ycli.mcp` package `__init__` (the base install loads `ycli mcp`
   without the extra).
-- **Exceptions:** the MCP server and `ycli mcp methods` import `fastmcp` (`ignore_imports`).
+- **Exceptions:** the MCP server (`ycli.mcp.server`) and its listing transforms
+  (`ycli.mcp.listing`) import `fastmcp` (`ignore_imports`); `ycli mcp start` / `methods` import
+  the server lazily, behind the extra.
   Imports under `if TYPE_CHECKING:` are ignored (they never run).
 
 ### ARCH-3 — Honest effects

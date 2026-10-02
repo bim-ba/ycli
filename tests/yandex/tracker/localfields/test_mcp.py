@@ -4,8 +4,8 @@ import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
+from tests.full_server import mcp
 from tests.hosts import TRACKER_BASE as BASE
-from ycli.mcp.server import mcp
 
 
 async def test_an_empty_local_field_is_an_error(api):

@@ -4,8 +4,8 @@ import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
+from tests.full_server import mcp
 from tests.hosts import WIKI_BASE as BASE
-from ycli.mcp.server import mcp
 
 
 async def test_an_empty_user_fails_the_auth_probe(api):

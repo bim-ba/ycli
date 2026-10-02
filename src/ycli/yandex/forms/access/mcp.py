@@ -14,12 +14,11 @@ from ycli.yandex.forms.dependencies import (
     TAGS,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    SurveyId,
     forms_client,
 )
 
 mcp = FastMCP("forms-access")
-
-SurveyId = Annotated[str, Field(description="Form id (24-char hex).")]
 
 
 @mcp.tool(name="access_get", annotations={**RO, "title": "Get Forms survey access"}, tags=TAGS)

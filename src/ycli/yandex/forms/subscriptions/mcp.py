@@ -17,6 +17,7 @@ from ycli.yandex.forms.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    SurveyId,
     forms_client,
 )
 from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionList
@@ -24,7 +25,6 @@ from ycli.yandex.models import Ack
 
 mcp = FastMCP("forms-subscriptions")
 
-SurveyId = Annotated[str, Field(description="Form id (24-char hex).")]
 HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]
 SubscriptionId = Annotated[
     int, Field(description="Integration id (integer) from subscriptions_list.")

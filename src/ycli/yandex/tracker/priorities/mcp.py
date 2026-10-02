@@ -1,7 +1,10 @@
 """Tracker priorities FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -10,6 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Version,
     tracker_client,
 )
 from ycli.yandex.tracker.priorities.models import (
@@ -48,9 +52,9 @@ def create(body: PriorityCreate, client: TrackerClient = Depends(tracker_client)
     tags=WRITE_TAGS,
 )
 def edit(
-    priority_id: str,
+    priority_id: Annotated[str, Field(description="Priority id or key, from ``priorities_list``.")],
     body: PriorityUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Priority:
     """Edit an issue priority; only the fields set in ``body`` are changed.

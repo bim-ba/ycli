@@ -56,7 +56,11 @@ def create(body: FilterCreate, client: TrackerClient = Depends(tracker_client)) 
     tags=WRITE_TAGS,
 )
 def edit(
-    filter_id: str, body: FilterUpdate, client: TrackerClient = Depends(tracker_client)
+    filter_id: Annotated[
+        str, Field(description="Identifier of the saved filter, from ``filters_get``.")
+    ],
+    body: FilterUpdate,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Filter:
     """Edit a saved issue filter; only the fields set in ``body`` are changed.
 

@@ -14,6 +14,7 @@ from ycli.yandex.forms.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    SurveyId,
     forms_client,
 )
 from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookList, HookUpdate
@@ -21,7 +22,6 @@ from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-hooks")
 
-SurveyId = Annotated[str, Field(description="Form id (24-char hex).")]
 HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]
 
 

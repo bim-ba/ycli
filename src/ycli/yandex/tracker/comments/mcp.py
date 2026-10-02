@@ -18,6 +18,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    CommentId,
+    IssueKey,
     app_config,
     tracker_client,
 )
@@ -29,7 +31,7 @@ mcp = FastMCP("tracker-comments")
     name="comments_list", annotations={**RO, "title": "List Tracker issue comments"}, tags=TAGS
 )
 def list_(
-    key: str,
+    key: IssueKey,
     limit: Annotated[
         int,
         Field(description=f"Max comments to return; {LIMIT_CAP}"),
@@ -48,7 +50,7 @@ def list_(
 
 @mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"}, tags=TAGS)
 def get(
-    key: str,
+    key: IssueKey,
     comment_id: Annotated[
         str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
     ],
@@ -71,7 +73,9 @@ def get(
     annotations={**WRITE, "title": "Add Tracker issue comment"},
     tags=WRITE_TAGS,
 )
-def add(key: str, body: CommentCreate, client: TrackerClient = Depends(tracker_client)) -> Comment:
+def add(
+    key: IssueKey, body: CommentCreate, client: TrackerClient = Depends(tracker_client)
+) -> Comment:
     """Add a comment to a Tracker issue; returns the created comment."""
     return client.comments.add(key, body.model_dump(by_alias=True, exclude_none=True))
 
@@ -82,7 +86,10 @@ def add(key: str, body: CommentCreate, client: TrackerClient = Depends(tracker_c
     tags=WRITE_TAGS,
 )
 def edit(
-    key: str, comment_id: str, body: CommentUpdate, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey,
+    comment_id: CommentId,
+    body: CommentUpdate,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """Replace the text of an existing comment on a Tracker issue.
 
@@ -96,7 +103,9 @@ def edit(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue comment"},
     tags=WRITE_TAGS,
 )
-def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(
+    key: IssueKey, comment_id: CommentId, client: TrackerClient = Depends(tracker_client)
+) -> Ack:
     """Permanently delete one comment from a Tracker issue (irreversible).
 
     Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success.
@@ -111,7 +120,12 @@ def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_cl
     tags=WRITE_TAGS,
 )
 def react(
-    key: str, comment_id: str, name: str, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey,
+    comment_id: CommentId,
+    name: Annotated[
+        str, Field(description="Reaction name, e.g. ``like``, ``dislike`` or ``fire``.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """Add an emoji reaction to a comment on a Tracker issue.
 

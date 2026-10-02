@@ -366,7 +366,10 @@ def delete(
 def set_permissions(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: dict,
+    body: Annotated[
+        dict,
+        Field(description="Raw API payload: an ``acl`` object with ``grant`` / ``revoke`` verbs."),
+    ],
     client: TrackerClient = Depends(tracker_client),
 ) -> ExtendedPermissions:
     """Change an entity's access rules; returns the resulting permission set.

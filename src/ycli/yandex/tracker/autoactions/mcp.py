@@ -13,7 +13,14 @@ from ycli.yandex.tracker.autoactions.models import (
     AutoactionRunList,
 )
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, WRITE, WRITE_TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_TAGS,
+    QueueId,
+    tracker_client,
+)
 
 mcp = FastMCP("tracker-autoactions")
 
@@ -93,7 +100,7 @@ def logs_get(
     tags=WRITE_TAGS,
 )
 def create(
-    queue_id: str, body: AutoactionCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueId, body: AutoactionCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Autoaction:
     """Create an autoaction on a queue — actions applied on a schedule to matching issues.
 

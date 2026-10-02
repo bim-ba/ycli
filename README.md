@@ -24,7 +24,8 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
   `forms_*` tools, one per SDK/CLI operation, plus a cross-cutting `status` tool (counts in
   [Coverage](#coverage)), with honest annotations (reads are marked read-only; writes
   declare whether they are destructive/idempotent); `ycli mcp start --read-only` serves a
-  reads-only view for cautious deployments.
+  reads-only view for cautious deployments, and `--toolsets core` serves a curated everyday
+  profile when a host limits how many tools it accepts.
 - 🛡️ **Trustworthy** — typed pydantic models, the real Yandex API quirks handled for you,
   and a test suite kept at **100% coverage**.
 - ⚡ **Zero-friction start** — `uv add yandex-cli`, `ycli auth login`, go.
@@ -102,10 +103,25 @@ ycli mcp start               # full read/write tool set (honest annotations)
 ycli mcp start --read-only   # reads-only view for cautious deployments
 ```
 
-List the exposed tool names without running the server:
+Serving all 322 tools costs a large `tools/list` and some hosts cap a request (VS Code allows
+128 tools), so pick what the session needs:
+
+| Flag | Serves |
+|---|---|
+| `--toolsets tracker,wiki` | only those services (`tracker`, `wiki`, `forms`); default `all` |
+| `--toolsets core` | a curated everyday profile of about 40 tools (issues, comments, transitions, worklog, wiki pages and search, form reads) |
+| `--tools a,b` / `--exclude-tools a,b` | add or hide single tools by name (unknown names fail at start) |
+| `--read-only` | no write tools; always wins over the flags above |
+| `--tool-search` | lists a search tool and a call proxy instead of the tools; use it with a large set |
+
+`status_get` is always served. The listing omits output schemas and doctest examples (results
+still carry `structuredContent`), which cuts `tools/list` from about 1.9 MB to about 0.5 MB for
+the full set.
+
+List the tool names a given set of flags exposes without running the server:
 
 ```bash
-ycli mcp methods
+ycli mcp methods --toolsets core --read-only
 ```
 
 Point an MCP client at it — no prior install needed via `uvx` (tools are namespaced

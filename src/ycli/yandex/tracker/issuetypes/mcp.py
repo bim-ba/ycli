@@ -1,7 +1,10 @@
 """Tracker issue-types FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -10,6 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Version,
     tracker_client,
 )
 from ycli.yandex.tracker.issuetypes.models import (
@@ -50,9 +54,11 @@ def create(body: IssueTypeCreate, client: TrackerClient = Depends(tracker_client
     tags=WRITE_TAGS,
 )
 def edit(
-    issue_type_id: str,
+    issue_type_id: Annotated[
+        str, Field(description="Issue type id or key, from ``issuetypes_list``.")
+    ],
     body: IssueTypeUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> IssueType:
     """Edit an org-global issue type; only the fields set in ``body`` are changed.

@@ -24,6 +24,7 @@ from ycli.yandex.forms.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    SurveyId,
     forms_client,
 )
 from ycli.yandex.forms.questions.models import Condition
@@ -31,7 +32,6 @@ from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-conditions")
 
-SurveyId = Annotated[str, Field(description="Form id (24-char hex).")]
 QuestionId = Annotated[str, Field(description="Question id (integer) from questions_list.")]
 PageId = Annotated[int, Field(description="Page id (integer) from questions_list pages.")]
 HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]

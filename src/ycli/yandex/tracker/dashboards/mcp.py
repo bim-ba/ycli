@@ -1,7 +1,10 @@
 """Tracker dashboards FastMCP tools (writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dashboards.models import (
@@ -35,7 +38,9 @@ def create(body: DashboardCreate, client: TrackerClient = Depends(tracker_client
     tags=WRITE_TAGS,
 )
 def add_cycle_time_widget(
-    dashboard_id: str, body: CycleTimeWidget, client: TrackerClient = Depends(tracker_client)
+    dashboard_id: Annotated[str, Field(description="Id of the dashboard to add the widget to.")],
+    body: CycleTimeWidget,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Widget:
     """Add a cycle-time widget to a Tracker dashboard; returns the created widget.
 

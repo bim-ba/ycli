@@ -15,6 +15,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    QueueId,
+    Version,
     app_config,
     tracker_client,
 )
@@ -108,7 +110,11 @@ def webhooklog_list(
     tags=WRITE_TAGS,
 )
 def create(
-    queue_id: str, body: TriggerCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueId,
+    body: Annotated[
+        TriggerCreate, Field(description="Trigger name, actions and optional conditions.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
 ) -> Trigger:
     """Create a trigger on a queue — actions that fire when an issue event matches conditions.
 
@@ -124,10 +130,10 @@ def create(
     tags=WRITE_TAGS,
 )
 def edit(
-    queue_id: str,
-    trigger_id: int,
-    body: TriggerUpdate,
-    version: int | None = None,
+    queue_id: QueueId,
+    trigger_id: Annotated[int, Field(description="Numeric trigger id, from ``triggers_list``.")],
+    body: Annotated[TriggerUpdate, Field(description="Fields to change; unset ones stay.")],
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Trigger:
     """Edit a queue trigger; only the fields set in ``body`` are changed.

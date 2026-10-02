@@ -10,11 +10,13 @@ from ycli.settings import AppConfig
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Slug,
     app_config,
     wiki_client,
 )
@@ -35,13 +37,13 @@ mcp = FastMCP("wiki-pages")
 
 
 @mcp.tool(name="pages_get", annotations={**RO, "title": "Get Wiki page"}, tags=TAGS)
-def get(slug: str, client: WikiClient = Depends(wiki_client)) -> str:
+def get(slug: Slug, client: WikiClient = Depends(wiki_client)) -> str:
     """The page's markdown body for SLUG."""
     return client.pages.get(slug=slug, fields="content").content or ""
 
 
 @mcp.tool(name="pages_meta", annotations={**RO, "title": "Get Wiki page metadata"}, tags=TAGS)
-def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:
+def meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     """Page metadata for SLUG (attributes + owner)."""
     return client.pages.get(slug=slug, fields="attributes,owner")
 
@@ -50,8 +52,8 @@ def meta(slug: str, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"}, tags=TAGS
 )
 def descendants(
-    slug: str,
-    limit: int = 0,
+    slug: Slug,
+    limit: Annotated[int, Field(description=f"Max descendant refs to return; {LIMIT_CAP}")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> PageRefList:

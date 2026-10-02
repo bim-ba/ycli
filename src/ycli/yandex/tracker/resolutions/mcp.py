@@ -1,7 +1,10 @@
 """Tracker resolutions FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -10,6 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Version,
     tracker_client,
 )
 from ycli.yandex.tracker.resolutions.models import (
@@ -55,9 +59,11 @@ def create(body: ResolutionCreate, client: TrackerClient = Depends(tracker_clien
     tags=WRITE_TAGS,
 )
 def edit(
-    resolution_id: str,
+    resolution_id: Annotated[
+        str, Field(description="Resolution id or key, from ``resolutions_list``.")
+    ],
     body: ResolutionUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Resolution:
     """Edit an issue resolution; only the fields set in ``body`` are changed.

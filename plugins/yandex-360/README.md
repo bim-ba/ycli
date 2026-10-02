@@ -38,6 +38,11 @@ tools plus `status_get` (list them with `ycli mcp methods`) with honest annotati
 writes declare an explicit `destructiveHint`/`idempotentHint`. Add `--read-only` to the
 start command to serve only the read tools; binary downloads stay CLI/SDK-only.
 
+The full set is 322 tools. A host that caps a request (VS Code: 128 tools) or a session that
+only needs part of it can narrow the server with `--toolsets core` (a curated everyday
+profile of about 40 tools) or a service subset such as `--toolsets tracker,wiki`; see the
+[main README](../../README.md#quick-start) for every flag.
+
 ## Requires
 
 [`uv`](https://docs.astral.sh/uv/) on `PATH` (for the bundled MCP server) and two

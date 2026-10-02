@@ -20,6 +20,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    ChecklistItemId,
+    IssueKey,
     tracker_client,
 )
 
@@ -50,7 +52,7 @@ def get(
     tags=WRITE_TAGS,
 )
 def create(
-    key: str, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Checklist:
     """Add an item to a Tracker issue's checklist (creates the checklist if absent).
 
@@ -65,8 +67,8 @@ def create(
     tags=WRITE_TAGS,
 )
 def edit(
-    key: str,
-    item_id: str,
+    key: IssueKey,
+    item_id: ChecklistItemId,
     body: ChecklistItemUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Checklist:
@@ -82,7 +84,9 @@ def edit(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker checklist item"},
     tags=WRITE_TAGS,
 )
-def delete(key: str, item_id: str, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+def delete(
+    key: IssueKey, item_id: ChecklistItemId, client: TrackerClient = Depends(tracker_client)
+) -> Checklist:
     """Permanently remove one item from a Tracker issue's checklist (irreversible).
 
     Get ``item_id`` from ``checklists_get``. Returns the issue with its remaining checklist.
@@ -95,7 +99,7 @@ def delete(key: str, item_id: str, client: TrackerClient = Depends(tracker_clien
     annotations={**DESTRUCTIVE, "title": "Clear Tracker issue checklist"},
     tags=WRITE_TAGS,
 )
-def clear(key: str, client: TrackerClient = Depends(tracker_client)) -> Checklist:
+def clear(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Checklist:
     """Permanently delete the ENTIRE checklist of a Tracker issue (all items, irreversible).
 
     Returns the issue without its checklist.

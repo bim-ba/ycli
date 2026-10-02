@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import Annotated, Any
 
 from fastmcp import Client
+from pydantic import Field
 
-from ycli.mcp.server import mcp as root_mcp
+from tests.full_server import mcp as root_mcp
+from tests.full_server import tools_with_output_schemas
 from ycli.yandex.models import APIModel
 from ycli.yandex.registry import SERVICES
 
@@ -40,6 +42,43 @@ def test_every_tool_has_hints_and_title():
                 f"{tool.name} write tool must declare idempotentHint"
             )
         assert ann.title and ann.title.strip(), f"{tool.name} has no title"
+
+
+def _undescribed_parameters(tools) -> list[str]:
+    """``tool.parameter`` for every input property whose description is missing or blank."""
+    return [
+        f"{tool.name}.{name}"
+        for tool in tools
+        for name, schema in tool.input_schema.get("properties", {}).items()
+        if not str(schema.get("description", "")).strip()
+    ]
+
+
+def test_every_tool_parameter_has_a_description():
+    """An agent reads these to fill the call: a bare ``key`` or ``queue_id`` is a guess."""
+    assert _undescribed_parameters(_tools()) == []
+
+
+def test_the_parameter_description_check_bites():
+    from fastmcp import FastMCP
+
+    server = FastMCP("probe")
+
+    @server.tool
+    def probe(
+        bare: str,
+        blank: Annotated[str, Field(description="  ")],
+        ok: Annotated[str, Field(description="Fine.")],
+    ) -> str:
+        """Probe."""
+        return ""
+
+    async def listed():
+        async with Client(server) as client:
+            return await client.list_tools()
+
+    tools = asyncio.run(listed())
+    assert _undescribed_parameters(tools) == ["probe.bare", "probe.blank"]
 
 
 def test_servers_have_instructions():
@@ -78,7 +117,7 @@ def test_tool_output_uses_the_api_field_names():
     python_only = {name for name, wire in fields if name != wire} - {wire for _, wire in fields}
     offenders = {
         tool.name: sorted(leaked)
-        for tool in _tools()
+        for tool in asyncio.run(tools_with_output_schemas())  # the listing carries no schema
         if (leaked := _property_names(tool.output_schema) & python_only)
     }
     assert not offenders, offenders

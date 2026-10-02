@@ -23,6 +23,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Version,
     tracker_client,
 )
 
@@ -60,9 +61,11 @@ def create(body: ComponentCreate, client: TrackerClient = Depends(tracker_client
     tags=WRITE_TAGS,
 )
 def edit(
-    component_id: int,
+    component_id: Annotated[
+        int, Field(description="Numeric id of the component, from ``components_list``.")
+    ],
     body: ComponentUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Component:
     """Edit a component; only the fields set in ``body`` are changed.

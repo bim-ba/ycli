@@ -105,6 +105,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 | `name` | `@mcp.tool(name=…)` | `snake_case`, pattern `<resource>_<verb>`; the verb (longest `_`-suffix) **must classify** in the fail-closed READ / WRITE / WRITE_IDEMPOTENT / DESTRUCTIVE maps in `tests/test_architecture.py` — an unknown verb fails the build and is added deliberately |
 | description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
+| parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueId`, `Version`, `SurveyId`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
 | `annotations` | `@mcp.tool(annotations={**<SET>, "title": "…"})` | `<SET>` matches the verb class exactly: `RO` for reads, `WRITE` for additive creates, `WRITE_IDEMPOTENT` for PATCH-style edits, `DESTRUCTIVE` for delete/clear/abort — plus an imperative title. Explicit because the MCP-spec default for an unannotated tool is `destructiveHint=true` |
 | `tags` | `@mcp.tool(tags=…)` | `TAGS` for reads, `WRITE_TAGS` for writes — the `write` tag is what `ycli mcp start --read-only` disables wholesale |
 
@@ -113,6 +114,8 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 - `description=` kwarg in `@mcp.tool(…)` — set the docstring instead
 - `output_schema=` kwarg in `@mcp.tool(…)` — set the return annotation instead
 - `meta`, `icons`, `version`, top-level `title=` — omit by default
+- doctest examples in a tool docstring are fine: the server strips `Example:` blocks, and the
+  output schema, from `tools/list` (`ycli.mcp.listing`); a call still returns `structuredContent`
 
 ### Read example
 
@@ -122,7 +125,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
     annotations={**RO, "title": "Get Tracker issue"},
     tags=TAGS,
 )
-def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
+def get(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """A single Tracker issue by key."""  # ← this IS the description
     return client.issues.get(key)  # return type IS the outputSchema
 ```

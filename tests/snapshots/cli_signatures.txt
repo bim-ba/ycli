@@ -84,8 +84,8 @@ forms surveys modify: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --jq:
 forms surveys publish: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms surveys unpublish: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms variables list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
-mcp methods: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
-mcp start: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --read-only:BOOLEAN=False --yes:BOOLEAN=False
+mcp methods: --dry-run:BOOLEAN=False --exclude-tools:TEXT='' --format:CHOICE --jq:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT='' --toolsets:TEXT='all' --yes:BOOLEAN=False
+mcp start: --dry-run:BOOLEAN=False --exclude-tools:TEXT='' --format:CHOICE --jq:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT='' --toolsets:TEXT='all' --yes:BOOLEAN=False
 tracker applications list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
 tracker attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments download: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --yes:BOOLEAN=False FILENAME:TEXT! FILE_ID:TEXT! ISSUE_KEY:TEXT!
