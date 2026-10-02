@@ -24,3 +24,16 @@ jobs:
         run: uv run --isolated --no-project --with dist/*.whl smoke_test.py
       - name: Smoke test (sdist)
         run: uv run --isolated --no-project --with dist/*.tar.gz smoke_test.py
+
+  # Not a required check. It also runs inside release.yml's `smoke`, so a broken Dockerfile stops
+  # the release before PSR tags it instead of failing the image job after PyPI already has the version.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build image
+        run: docker build --tag ycli:smoke .
+      - name: Smoke test (version)
+        run: docker run --rm ycli:smoke --version
+      - name: Smoke test (MCP tools)
+        run: test "$(docker run --rm ycli:smoke mcp methods | wc -l)" -gt 0

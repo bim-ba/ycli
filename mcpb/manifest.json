@@ -1,0 +1,43 @@
+{
+  "manifest_version": "0.4",
+  "name": "yandex-360",
+  "display_name": "Yandex 360 (ycli)",
+  "version": "0.29.0",
+  "description": "Yandex 360 Tracker, Wiki and Forms: read and write tools for Claude Desktop.",
+  "author": { "name": "bim-ba", "url": "https://github.com/bim-ba" },
+  "repository": { "type": "git", "url": "https://github.com/bim-ba/ycli.git" },
+  "homepage": "https://github.com/bim-ba/ycli",
+  "license": "MIT",
+  "server": {
+    "type": "uv",
+    "entry_point": "src/server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "--directory", "${__dirname}", "src/server.py"],
+      "env": {
+        "YANDEX_ID_OAUTH_TOKEN": "${user_config.oauth_token}",
+        "YANDEX_ID_ORGANIZATION_ID": "${user_config.organization_id}"
+      }
+    }
+  },
+  "user_config": {
+    "oauth_token": {
+      "type": "string",
+      "title": "Yandex OAuth token",
+      "description": "OAuth token of a Yandex app with Tracker, Wiki and Forms access.",
+      "sensitive": true,
+      "required": true
+    },
+    "organization_id": {
+      "type": "string",
+      "title": "Yandex 360 organization id",
+      "description": "Numeric organization id, sent as X-Org-Id.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "python": ">=3.12" }
+  },
+  "keywords": ["yandex", "tracker", "wiki", "forms"]
+}

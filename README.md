@@ -1,3 +1,4 @@
+<!-- mcp-name: io.github.bim-ba/ycli -->
 <div align="center">
 
 # ycli
@@ -44,6 +45,9 @@ uv tool install 'yandex-cli[mcp]'     # …with the MCP server
 ```
 
 `pip install yandex-cli` works too. The CLI ships as both `yandex-cli` and the short `ycli`.
+
+Using an AI harness (Claude Code, Claude Desktop, Cursor, VS Code, Codex, Gemini CLI, opencode,
+Docker)? See [Install in your harness](docs/install.md).
 
 The SDK's `ServiceAccountAuth` (IAM tokens minted from a Yandex Cloud service-account key) needs
 the `service-account` extra: `uv add 'yandex-cli[service-account]'`.

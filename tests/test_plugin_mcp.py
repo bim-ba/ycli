@@ -8,6 +8,7 @@ reference, never as literal values.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 _MCP = Path(__file__).resolve().parent.parent / "plugins" / "yandex-360" / ".mcp.json"
@@ -19,7 +20,10 @@ def test_plugin_mcp_declares_readonly_server():
     assert "yandex-360" in servers
     server = servers["yandex-360"]
     assert server["command"] == "uvx"
-    assert server["args"] == ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"]
+    # Pinned to the release (PSR stamps it; tests/test_distribution.py checks it equals pyproject).
+    assert server["args"][0] == "--from"
+    assert re.fullmatch(r"yandex-cli\[mcp\]==\d+\.\d+\.\d+", server["args"][1])
+    assert server["args"][2:] == ["ycli", "mcp", "start"]
 
 
 def test_plugin_mcp_passes_secrets_by_reference():
