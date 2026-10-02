@@ -19,10 +19,12 @@ from pydantic import SecretStr
 from ycli.settings import HTTPConfig
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from types import TracebackType
 
     import httpx2
 
+    from ycli.yandex.core.endpoint import Endpoint, Paged
     from ycli.yandex.core.profile import ServiceProfile
     from ycli.yandex.core.session import BeforeSend, SyncSession
 
@@ -70,6 +72,17 @@ class DomainClient:
     def close(self) -> None:
         """Close the core session's connection pool."""
         self._session.close()
+
+    def send[T](self, endpoint: Endpoint[T]) -> T:
+        """Call any ``endpoint`` of this service through its session: auth, retries, errors, logs.
+
+        The door for a request no resource client wraps (``ycli api``).
+        """
+        return self._session.send(endpoint)
+
+    def iterate[P, I](self, paged: Paged[P, I], *, limit: int | None = None) -> Iterator[I]:
+        """Yield the items of any ``paged`` listing of this service, at most ``limit``."""
+        return self._session.iterate(paged, limit=limit)
 
     def probe(self) -> None:
         """One cheap authenticated read: returns when the token works for this service.

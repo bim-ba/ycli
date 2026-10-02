@@ -10,4 +10,5 @@ SERVICE = Service(
     cli="ycli.yandex.wiki.cli:app",
     mcp="ycli.yandex.wiki.mcp:mcp",
     profile=ServiceProfile("https://api.wiki.yandex.net/v1"),
+    pagination="ycli.yandex.wiki.cursor:WIKI_CURSOR",
 )

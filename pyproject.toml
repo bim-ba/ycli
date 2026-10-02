@@ -175,6 +175,7 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel", "ycli.yandex.models.APIM
 # imports must stay real imports, never `if TYPE_CHECKING:` ones.
 "src/ycli/**/cli.py" = ["TC001", "TC002", "TC003"]
 "src/ycli/cli/app.py" = ["TC001"]  # the root callback's option aliases, read by Typer
+"src/ycli/cli/api.py" = ["TC001"]  # the command's option aliases and return types, read by Typer
 
 [tool.ty.environment]
 python-version = "3.12"

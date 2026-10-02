@@ -91,6 +91,24 @@ you pass `--yes` / `-y`: `ycli tracker boards delete 7 --yes`. Reads and ordinar
 Reads still run, so a command that reads and then writes shows its first write only:
 `ycli tracker boards delete 7 --dry-run`. (The two commands that ask the API itself to validate
 a request, `forms filling submit` and `wiki pages move`, call that `--validate-only`.)
+
+**An endpoint ycli has not wrapped.** `ycli api PATH --service tracker|wiki|forms` calls it like
+[`gh api`](https://cli.github.com/manual/gh_api) would, with the same auth, retries, output and exit codes:
+
+```bash
+ycli api issues/TRACKER-1 --service tracker --jq .summary           # GET (the default method)
+ycli api issues/TRACKER-1/comments --service tracker -F text=@note.md   # POST: a field turns it into one
+ycli api pages/descendants --service wiki -f slug=docs --paginate   # every page, as one JSON array
+```
+
+`PATH` is relative to the service's base URL; a full URL of a service needs no `--service`, and
+any other host is refused (your token never goes elsewhere). `-f key=value` is a string, `-F` is
+typed (`true`, `null`, numbers, JSON, `@file` for a file's text, `key[sub]=v` to nest, `key[]=v`
+for an array); fields of a GET or DELETE go to the query string, otherwise to a JSON body (`--input
+FILE` sends a raw body instead). `-H 'Name: value'` adds a header, `-X` sets the method, and
+`--dry-run`, `--yes` and `--jq` behave as everywhere. `--paginate` follows Tracker's `Link: rel="next"`
+and Wiki's `next_cursor`; Forms pages its listings in more than one way, so pass its paging
+parameters with `-f` yourself.
 </details>
 
 <details>
