@@ -102,8 +102,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch4_serialization_confined_to_output` (AST: `json.dumps`, `yaml.safe_dump`,
   `pydantic_core.to_json`, `.model_dump_json()` and their aliases), each with a bite test.
 - **Exceptions:** `ARCH4_SERIALIZATION_HOMES` (`log.py` formats stderr log records with
-  `json.dumps`) and `ARCH4_STDOUT_FUNCTIONS` (the eager `--version` callback). Bytes and raw text
-  are result types (`BinaryResult`, `str`), not exceptions.
+  `json.dumps`) and `ARCH4_STDOUT_FUNCTIONS` (the eager `--version` callback, and
+  `guard.attended`, which only asks whether stdout is a terminal). Bytes and raw text are result
+  types (`BinaryResult`, `str`), not exceptions.
 - **Field names:** CLI and MCP output both keep each API's own field names (Tracker
   `createdAt`, Wiki `created_at`), so a key reads the same in the vendor docs, in `--format json`
   and in a tool result; Python code reads snake_case attributes. `APIModel` sets

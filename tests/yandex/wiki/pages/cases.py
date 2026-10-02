@@ -533,7 +533,7 @@ CASES = [
             "--position",
             "after",
             "--copy-inherited-access",
-            "--dry-run",
+            "--validate-only",
         ],
         mcp=(
             "wiki_pages_move",

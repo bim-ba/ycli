@@ -9,8 +9,10 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
+from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, YesOption
 from ycli.yandex.registry import SERVICES
 
 
@@ -24,17 +26,26 @@ class _Ycli(RootGroup):
     )
 
 
-def _render(result: object, output_format: OutputFormat, verbose: int, version: bool) -> None:
+def _render(
+    result: object,
+    output_format: OutputFormat | None,
+    jq: str | None,
+    yes: bool,
+    dry_run: bool,
+    verbose: int,
+    version: bool,
+) -> None:
     """Print whatever the command returned; Click passes the root options alongside it."""
     from ycli.cli.output import render
 
-    render(result, output_format)
+    render(result, output_format or OutputFormat.auto, jq)
 
 
 app = typer.Typer(
     cls=_Ycli,
     name="ycli",
     help="ycli — Yandex 360 API SDK CLI.",
+    epilog=f"Exit codes: {exit_codes_summary()} (see the README).",
     no_args_is_help=True,
     pretty_exceptions_show_locals=False,
     rich_markup_mode="rich",
@@ -54,12 +65,10 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def _main(
     ctx: typer.Context,
-    output_format: Annotated[
-        OutputFormat,
-        typer.Option(
-            "--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."
-        ),
-    ] = OutputFormat.auto,
+    output_format: FormatOption = OutputFormat.auto,
+    jq: JqOption = None,
+    yes: YesOption = False,
+    dry_run: DryRunOption = False,
     verbose: Annotated[
         int,
         typer.Option(
@@ -87,21 +96,22 @@ def _main(
     # A caller (a test, an embedding app) may hand in its own context; otherwise build one.
     if ctx.obj is None:
         ctx.obj = AppContext(config=AppConfig())
+    # Shared, not copied: a leaf's own ``--yes`` lands in this mapping after this body has run.
+    ctx.obj.options = ctx.params
     logging_config = ctx.obj.config.logging
     level = {0: logging_config.level, 1: "INFO"}.get(verbose, "DEBUG")
     configure(level=level, log_format=logging_config.format)
 
 
-def main() -> None:  # pragma: no cover
-    """Console-script entry point (``ycli`` / ``yandex-cli``)."""
-    import typer
+def main() -> None:
+    """Console-script entry point (``ycli`` / ``yandex-cli``): a failure exits by its kind."""
     from pydantic import ValidationError
 
-    from ycli.cli.errors import format_cli_error
+    from ycli.cli.errors import exit_code_for, format_cli_error
     from ycli.yandex.errors import YandexError
 
     try:
         app()
     except (YandexError, ValidationError) as exc:
         typer.secho(format_cli_error(exc), fg=typer.colors.RED, err=True)
-        raise SystemExit(1) from exc
+        raise SystemExit(exit_code_for(exc)) from exc

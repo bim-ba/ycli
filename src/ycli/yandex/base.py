@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     import httpx2
 
     from ycli.yandex.core.profile import ServiceProfile
-    from ycli.yandex.core.session import SyncSession
+    from ycli.yandex.core.session import BeforeSend, SyncSession
 
 
 class DomainClient:
@@ -32,8 +32,10 @@ class DomainClient:
 
     ``profile`` is the service's :class:`~ycli.yandex.core.profile.ServiceProfile`. ``http``
     defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so there is no second copy of
-    them here; ``transport`` replaces the network (tests). Leaving a ``with`` block, or
-    :meth:`close`, closes the connection pool.
+    them here; ``transport`` replaces the network (tests); ``before_send`` is called once per
+    endpoint, before its first attempt, with its effect and request (a surface's seam to confirm
+    or refuse a write; ``None`` for none, as the SDK and the MCP server leave it). Leaving a
+    ``with`` block, or :meth:`close`, closes the connection pool.
     """
 
     profile: ClassVar[ServiceProfile]
@@ -45,11 +47,12 @@ class DomainClient:
         organization_id: str,
         http: HTTPConfig | None = None,
         transport: httpx2.BaseTransport | None = None,
+        before_send: BeforeSend | None = None,
     ) -> None:
         if not oauth_token or not organization_id:
             raise ValueError("an OAuth token and an organization id are both required")
         self._session = self._connect(
-            SecretStr(oauth_token), organization_id, http or HTTPConfig(), transport
+            SecretStr(oauth_token), organization_id, http or HTTPConfig(), transport, before_send
         )
         self._wire(self._session)
 
@@ -82,6 +85,7 @@ class DomainClient:
         organization_id: str,
         http: HTTPConfig,
         transport: httpx2.BaseTransport | None,
+        before_send: BeforeSend | None,
     ) -> SyncSession:
         # Imported here: httpx2 costs ~0.2 s, paid only once a domain client is built.
         from ycli.yandex.core.auth import OAuthTokenAuth
@@ -93,6 +97,7 @@ class DomainClient:
             organization_id=organization_id,
             http=http,
             transport=transport,
+            before_send=before_send,
         )
 
     def _wire(self, session: SyncSession) -> None:

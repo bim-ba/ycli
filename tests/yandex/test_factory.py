@@ -39,3 +39,18 @@ def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
     client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
     assert client.me._session._client.timeout.read == 0.5
+
+
+def test_build_forwards_before_send_to_the_core_session(api, monkeypatch, tmp_path):
+    """The hook reaches the session: it is called with the effect before the request goes out."""
+    monkeypatch.chdir(tmp_path)
+    seen: list[tuple[str, str]] = []
+    client = build_client(
+        TrackerClient,
+        Credentials(),  # ty: ignore[missing-argument]
+        AppConfig(),
+        before_send=lambda effect, request: seen.append((effect, request.method)),
+    )
+    api.add("GET", f"{TRACKER_BASE}/myself", json={"login": "alice"})
+    client.me.get()
+    assert seen == [("read", "GET")]

@@ -204,10 +204,10 @@ def move(
             help="Copy accesses inherited from the old parent (the API needs an explicit choice).",
         ),
     ] = False,
-    dry_run: Annotated[
+    validate_only: Annotated[
         bool,
         typer.Option(
-            "--dry-run", help="Validate the move without applying it (nothing to wait for)."
+            "--validate-only", help="Validate the move without applying it (nothing to wait for)."
         ),
     ] = False,
     wait: Annotated[
@@ -226,9 +226,9 @@ def move(
     body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access).model_dump(
         exclude_none=True
     )
-    operation = wiki.pages.move(body=body, dry_run=dry_run)
-    # A dry run applies nothing, and the task id it returns answers 404 when polled.
-    polled = wait and not dry_run
+    operation = wiki.pages.move(body=body, dry_run=validate_only)
+    # A validation applies nothing, and the task id it returns answers 404 when polled.
+    polled = wait and not validate_only
     if polled and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
         status = wait_for(

@@ -13,6 +13,10 @@ A command declares what it needs as keyword-only parameters typed with an inject
 so a test can call it with a fake client directly. Commands run under the ``ycli`` root,
 which applies the injection; a sub-app used on its own needs ``inject_dependencies(app)`` first.
 
+The same rewrite gives each command the global options of :mod:`ycli.cli.global_options`, so
+they are accepted after the subcommand as well as before it, and ends a ``--dry-run`` command
+at its first write (:class:`~ycli.cli.guard.DryRunPlanned`), returning the planned request.
+
 Kill-criterion: delete this module when Typer ships its own dependency injection.
 """
 
@@ -25,6 +29,8 @@ from typing import TYPE_CHECKING, Any, get_type_hints
 import typer
 
 from ycli.cli.context import AppContext
+from ycli.cli.global_options import apply_leaf_values, leaf_parameters
+from ycli.cli.guard import DryRunPlanned
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -36,7 +42,7 @@ def inject_dependencies(app: typer.Typer) -> None:
     """Rewrite every command of ``app`` and of its sub-apps, recursively, in place."""
     for command in app.registered_commands:
         if command.callback is not None:
-            command.callback = _injecting(command.callback)
+            command.callback = _rewritten(command.callback)
     for group in app.registered_groups:
         if group.typer_instance is not None:
             inject_dependencies(group.typer_instance)
@@ -60,30 +66,46 @@ class _Deferred:
         return getattr(self._built, name)
 
 
-def _injecting(command: Callable[..., Any]) -> Callable[..., Any]:
-    """``command`` with its injectable parameters hidden from Typer and filled at call time."""
-    hints = get_type_hints(command)
+def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
+    """``command`` with its injectable parameters hidden from Typer and filled at call time,
+    and with the global options added."""
     signature = inspect.signature(command, eval_str=True)
+    if _CONTEXT in signature.parameters:  # already rewritten: an app's commands load once per root
+        return command
+    hints = get_type_hints(command)
     injected = {
         name: hints[name]
         for name in signature.parameters
         if name in hints and AppContext.provides(hints[name])
     }
-    if not injected:
-        return command
+    # Typer fills only one ``typer.Context`` parameter: a command that declares its own gets
+    # the same context the rewrite receives.
+    own_context = next((name for name in hints if hints[name] is typer.Context), None)
+    visible = [
+        parameter
+        for name, parameter in signature.parameters.items()
+        if name not in injected and name != own_context
+    ]
 
     @functools.wraps(command)
     def run(*args: Any, **kwargs: Any) -> Any:
-        app_context: AppContext = kwargs.pop(_CONTEXT).find_root().obj
+        context = kwargs.pop(_CONTEXT)
+        if own_context is not None:
+            kwargs[own_context] = context
+        root = context.find_root()
+        apply_leaf_values(kwargs, root.params)
+        app_context: AppContext = root.obj
         dependencies = {
             name: _Deferred(functools.partial(app_context.resolve, kind))
             for name, kind in injected.items()
         }
-        return command(*args, **kwargs, **dependencies)
+        try:
+            return command(*args, **kwargs, **dependencies)
+        except DryRunPlanned as planned:  # --dry-run: the first write became its plan
+            return planned.plan
 
-    visible = [
-        parameter for name, parameter in signature.parameters.items() if name not in injected
-    ]
     context = inspect.Parameter(_CONTEXT, inspect.Parameter.KEYWORD_ONLY, annotation=typer.Context)
-    run.__signature__ = signature.replace(parameters=[*visible, context])  # ty: ignore[unresolved-attribute]
+    run.__signature__ = signature.replace(  # ty: ignore[unresolved-attribute]
+        parameters=[*visible, *leaf_parameters(visible), context]
+    )
     return run

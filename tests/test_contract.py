@@ -101,7 +101,9 @@ def _run_sdk(case: Case) -> object:
 
 def _run_cli(case: Case) -> object:
     assert case.cli is not None
-    result = CliRunner().invoke(app, ["--format", "json", *case.cli])
+    # A test has no terminal to answer the prompt a destructive operation raises.
+    confirmed = ["--yes"] if case.expected_effect == "destructive" else []
+    result = CliRunner().invoke(app, ["--format", "json", *confirmed, *case.cli])
     assert result.exit_code == 0, result.output
     try:
         return json.loads(result.stdout_bytes)

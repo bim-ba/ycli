@@ -116,7 +116,7 @@ MCP: `forms_questions_create` / `forms_questions_modify` / `forms_questions_move
 
 ```bash
 uv run ycli forms filling get <form_id>                                  # exposes the enum option ids
-uv run ycli forms filling submit <form_id> --body-file answer-body.json  # supports a dry-run flag
+uv run ycli forms filling submit <form_id> --body-file answer-body.json  # --validate-only checks without saving
 ```
 
 MCP: `forms_filling_submit`. The form must be published (`is_published: true`) or the submit is rejected.

@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "httpx2>=2.13.1",
+    "jq>=1.12 ; platform_machine == 'AMD64' or sys_platform != 'win32'",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.2",
     "python-dotenv>=1.2.2",
@@ -173,6 +174,7 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel", "ycli.yandex.models.APIM
 # Typer reads command annotations at runtime (inspect.signature(eval_str=True)), so their
 # imports must stay real imports, never `if TYPE_CHECKING:` ones.
 "src/ycli/**/cli.py" = ["TC001", "TC002", "TC003"]
+"src/ycli/cli/app.py" = ["TC001"]  # the root callback's option aliases, read by Typer
 
 [tool.ty.environment]
 python-version = "3.12"

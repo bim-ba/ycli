@@ -668,6 +668,8 @@ ARCH4_STDOUT_FUNCTIONS = {
     # Eager: it runs before any command, so there is no result to return. Routing it through
     # output.render would import yaml/rich/pydantic first (measured 48 -> 110 ms for --version).
     "cli/app.py:_version_callback": "`ycli --version` prints the version and exits",
+    # Reads whether stdout is a terminal (to know if a person can be asked); it writes nothing.
+    "cli/guard.py:attended": "the confirmation prompt needs a terminal on stdin and stdout",
 }
 
 
