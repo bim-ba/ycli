@@ -18,6 +18,8 @@ from ycli.cli.output import BinaryResult
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
+    Acl,
+    AclInput,
     Attachment,
     AttachmentList,
     BulkChangeOperation,
@@ -30,6 +32,7 @@ from ycli.yandex.tracker.entities.models import (
     CommentList,
     CommentUpdate,
     DeadlineInput,
+    DirectPermissionsUpdate,
     Entity,
     EntityEventList,
     EntityFieldsInput,
@@ -46,11 +49,12 @@ from ycli.yandex.tracker.entities.models import (
 
 
 class EntityType(enum.StrEnum):
-    """The three entity types the Entities API unifies."""
+    """The three entity types the Entities API unifies, plus issue reports (search only)."""
 
     project = "project"
     portfolio = "portfolio"
     goal = "goal"
+    report = "report"  # documented for search only (issue reports)
 
 
 app = typer.Typer(
@@ -58,7 +62,10 @@ app = typer.Typer(
 )
 
 TypeArg = Annotated[
-    EntityType, typer.Argument(metavar="TYPE", help="Entity type: project, portfolio or goal.")
+    EntityType,
+    typer.Argument(
+        metavar="TYPE", help="Entity type: project, portfolio or goal (report: search only)."
+    ),
 ]
 IdArg = Annotated[str, typer.Argument(metavar="ID", help="Entity id (or shortId).")]
 FieldOpt = Annotated[
@@ -266,6 +273,37 @@ def set_permissions(
     """
     body = {"acl": parse_fields(field)}
     return tracker.entities.set_permissions(type_.value, entity_id, body=body)
+
+
+@app.command("direct-permissions")
+def direct_permissions(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Acl:
+    """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
+    return tracker.entities.direct_permissions(type_.value, entity_id)
+
+
+@app.command("set-direct-permissions")
+def set_direct_permissions(
+    type_: TypeArg,
+    entity_id: IdArg,
+    grant: Annotated[
+        str,
+        typer.Option(help='Rights to add as JSON, e.g. \'{"READ":{"users":["ann"]}}\'.'),
+    ] = "",
+    revoke: Annotated[
+        str,
+        typer.Option(help='Rights to remove as JSON, e.g. \'{"GRANT":{"roles":["OWNER"]}}\'.'),
+    ] = "",
+    *,
+    tracker: TrackerClient,
+) -> Acl:
+    """Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke."""
+    if not (grant or revoke):
+        raise typer.BadParameter("pass --grant and/or --revoke")
+    body = DirectPermissionsUpdate(
+        grant=AclInput.model_validate_json(grant) if grant else None,
+        revoke=AclInput.model_validate_json(revoke) if revoke else None,
+    )
+    return tracker.entities.set_direct_permissions(type_.value, entity_id, body)
 
 
 @app.command()

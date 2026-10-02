@@ -137,6 +137,9 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     "forms.files.upload": "binary upload — CLI-only (bytes)",
     "forms.images.upload": "binary upload — CLI-only (bytes)",
     "forms.subscriptions.attach": "binary upload — CLI-only (bytes)",
+    # Multipart import of a comment's file (admin-only back-fill); the MCP `import_file` tool
+    # already takes text for an issue, and a comment file needs raw bytes from disk.
+    "tracker.import_.comment_file": "binary upload — CLI-only (bytes)",
     # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
     # exposes the one-shot `export` submit instead of the polling wrapper.
     "forms.answers.export_results": "CLI-only export poll helper",
@@ -328,6 +331,8 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "tracker/worklog/endpoints.py:search_worklog": "POST _search only reads",
     "forms/files/endpoints.py:verify_files": "POST verify only reads upload statuses",
     "tracker/entities/endpoints.py:search_entities": "POST _search only reads",
+    "tracker/links/endpoints.py:search_links": "POST _list only reads",
+    "tracker/gaps/endpoints.py:search_gaps": "POST _search only reads",
     "tracker/queues/endpoints.py:remove_tag": "POST _remove strips the tag from every issue",
     "wiki/pages/endpoints.py:update_page": "POST /pages/{id} replaces fields; a resend is a no-op",
     "wiki/grids/endpoints.py:update_grid": "POST /grids/{id} replaces fields; a resend is a no-op",

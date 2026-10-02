@@ -81,3 +81,16 @@ def test_webhook_log_entry_aliases():
     )
     assert entry.start_time == "2025" and entry.trigger_id == 123 and entry.action_id == 1
     assert WebhookLogList.model_validate([{"id": "x"}]).root[0].id == "x"
+
+
+def test_trigger_list_is_a_flat_array_in_id_order():
+    from ycli.yandex.tracker.triggers.models import TriggerList
+
+    triggers = TriggerList.model_validate(
+        [
+            {"id": 16, "name": "First", "order": "0.0002", "version": 1, "active": True},
+            {"id": 17, "name": "Second", "actions": [{"type": "Transition"}]},
+        ]
+    )
+    assert [t.id for t in triggers.root] == [16, 17]
+    assert triggers.root[1].actions[0].type == "Transition"

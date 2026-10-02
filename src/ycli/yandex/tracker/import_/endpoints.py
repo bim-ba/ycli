@@ -48,3 +48,16 @@ def import_file(
         params={"filename": filename, "createdAt": created_at, "createdBy": created_by},
         files={"file_data": ("file_data", data)},
     )
+
+
+def import_comment_file(
+    issue_key: str, comment_id: str, *, filename: str, created_at: str, created_by: str, data: bytes
+) -> Endpoint[Attachment]:
+    """Multipart upload onto a comment; the part name is the one :func:`import_file` sends."""
+    return Endpoint(
+        "POST",
+        f"issues/{segment(issue_key)}/comments/{segment(comment_id)}/attachments/_import",
+        Attachment,
+        params={"filename": filename, "createdAt": created_at, "createdBy": created_by},
+        files={"file_data": ("file_data", data)},
+    )

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.triggers import endpoints
+from ycli.yandex.tracker.triggers.models import TriggerList
 
 if TYPE_CHECKING:
     from ycli.yandex.tracker.triggers.models import (
@@ -17,7 +18,22 @@ if TYPE_CHECKING:
 
 
 class TriggersClient(Resource):
-    """Get, create and edit a queue's triggers; read a trigger's webhook log."""
+    """List, get, create and edit a queue's triggers; read a trigger's webhook log."""
+
+    def list(self, queue_id: str, *, limit: int | None = None) -> TriggerList:
+        """``GET /queues/{queue_id}/triggers`` → every trigger of the queue, ascending by id.
+
+        Drains the relative cursor (``id=<last trigger id>``). Capped at ``limit`` (``None`` =
+        every trigger); a small cap narrows the page to ``limit`` rows.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.triggers.list("DESIGN").root[0].name  # doctest: +SKIP
+            'trigger_name'
+        """
+        page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
+        paged = endpoints.list_triggers(queue_id, page_size=page_size)
+        return TriggerList(list(self._session.iterate(paged, limit=limit)))
 
     def get(self, queue_id: str, trigger_id: int) -> Trigger:
         """``GET /queues/{queue_id}/triggers/{trigger_id}`` → a single trigger.

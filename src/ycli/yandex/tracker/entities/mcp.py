@@ -27,6 +27,7 @@ from ycli.yandex.tracker.dependencies import (
     tracker_client,
 )
 from ycli.yandex.tracker.entities.models import (
+    Acl,
     Attachment,
     AttachmentList,
     BulkChangeOperation,
@@ -38,6 +39,7 @@ from ycli.yandex.tracker.entities.models import (
     CommentCreate,
     CommentList,
     CommentUpdate,
+    DirectPermissionsUpdate,
     Entity,
     EntityCreate,
     EntityEventList,
@@ -52,6 +54,13 @@ from ycli.yandex.tracker.entities.models import (
 mcp = FastMCP("tracker-entities")
 
 TypeArg = Annotated[str, Field(description="Entity type: ``project``, ``portfolio`` or ``goal``.")]
+SearchTypeArg = Annotated[
+    str,
+    Field(
+        description="Entity type: ``project``, ``portfolio``, ``goal`` or ``report`` "
+        "(issue reports)."
+    ),
+]
 IdArg = Annotated[str, Field(description="Entity id (or shortId).")]
 
 
@@ -81,7 +90,7 @@ def get(
 
 @mcp.tool(name="entities_search", annotations={**RO, "title": "Search Tracker entities"}, tags=TAGS)
 def search(
-    entity_type: TypeArg,
+    entity_type: SearchTypeArg,
     input_text: Annotated[str, Field(description="Substring to match in the entity name.")] = "",
     order_by: Annotated[str, Field(description="Field key to sort the results by.")] = "",
     fields: Annotated[str, Field(description="Comma-separated extra fields to include.")] = "",
@@ -147,6 +156,25 @@ def permissions_get(
         >>> entities_permissions_get("project", "655f")  # doctest: +SKIP
     """
     return client.entities.permissions(entity_type, entity_id)
+
+
+@mcp.tool(
+    name="entities_direct_permissions_get",
+    annotations={**RO, "title": "Get Tracker entity direct permissions"},
+    tags=TAGS,
+)
+def direct_permissions_get(
+    entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
+) -> Acl:
+    """An entity's direct READ / WRITE / GRANT rights — the users, groups and roles holding each.
+
+    Unlike ``entities_permissions_get`` this leaves out inheritance (``permissionSources``).
+    Change the rights with ``entities_set_direct_permissions``.
+
+    Example:
+        >>> entities_direct_permissions_get("project", "655f")  # doctest: +SKIP
+    """
+    return client.entities.direct_permissions(entity_type, entity_id)
 
 
 @mcp.tool(
@@ -355,6 +383,31 @@ def set_permissions(
     body. Allowlisted in ``tests/test_architecture.py`` pending a correctly shaped model.
     """
     return client.entities.set_permissions(entity_type, entity_id, body)
+
+
+@mcp.tool(
+    name="entities_set_direct_permissions",
+    annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity direct permissions"},
+    tags=WRITE_TAGS,
+)
+def set_direct_permissions(
+    entity_type: TypeArg,
+    entity_id: IdArg,
+    body: DirectPermissionsUpdate,
+    client: TrackerClient = Depends(tracker_client),
+) -> Acl:
+    """Grant and revoke an entity's direct rights; the rest stay as they are.
+
+    ``grant`` and ``revoke`` each map READ / WRITE / GRANT to ``users`` (logins or ids),
+    ``groups`` (ids) and ``roles`` (AUTHOR, OWNER, CLIENT, FOLLOWER, MEMBER). Returns the
+    resulting rights. Read them first with ``entities_direct_permissions_get``.
+
+    Example:
+        >>> entities_set_direct_permissions(
+        ...     "project", "655f", {"grant": {"READ": {"users": ["ann"]}}}
+        ... )  # doctest: +SKIP
+    """
+    return client.entities.set_direct_permissions(entity_type, entity_id, body)
 
 
 @mcp.tool(

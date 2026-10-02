@@ -24,14 +24,17 @@ from ycli.yandex.tracker.queues.models import (
     Queue,
     QueueCreate,
     QueueFieldList,
+    QueueGroupAccess,
     QueueList,
     QueuePermissions,
     QueuePermissionsUpdate,
     QueueTagList,
     QueueTagRemove,
+    QueueUserAccess,
     QueueVersionCreate,
     QueueVersionInfo,
     QueueVersionInfoList,
+    QueueVersionUpdate,
 )
 
 mcp = FastMCP("tracker-queues")
@@ -242,3 +245,106 @@ def version_create(
     ``start_date`` / ``due_date`` (``YYYY-MM-DD``). Returns the new version.
     """
     return client.queues.version_create(body)
+
+
+@mcp.tool(
+    name="queues_version_get", annotations={**RO, "title": "Get Tracker queue version"}, tags=TAGS
+)
+def version_get(
+    version_id: Annotated[
+        int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
+    ],
+    fields: Annotated[
+        str | None,
+        Field(description="Comma-separated fields to return, e.g. ``name,dueDate,released``."),
+    ] = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueVersionInfo:
+    """One queue version: name, description, dates and its released/archived flags.
+
+    Example:
+        >>> queues_version_get(123)  # doctest: +SKIP
+    """
+    return client.queues.version_get(version_id, fields=fields)
+
+
+@mcp.tool(
+    name="queues_version_edit",
+    annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue version"},
+    tags=WRITE_TAGS,
+)
+def version_edit(
+    version_id: Annotated[
+        int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
+    ],
+    body: QueueVersionUpdate,
+    fields: Annotated[
+        str | None, Field(description="Comma-separated fields to return in the reply.")
+    ] = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueVersionInfo:
+    """Edit a queue version; only the fields set in ``body`` change. Returns the version.
+
+    Example:
+        >>> queues_version_edit(123, {"name": "v1.1"})  # doctest: +SKIP
+    """
+    return client.queues.version_edit(version_id, body, fields=fields)
+
+
+@mcp.tool(
+    name="queues_version_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker queue version"},
+    tags=WRITE_TAGS,
+)
+def version_delete(
+    version_id: Annotated[
+        int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> Ack:
+    """Permanently delete a queue version (irreversible). Returns an acknowledgement."""
+    client.queues.version_delete(version_id)
+    return Ack.deleted("version", version_id)
+
+
+@mcp.tool(
+    name="queues_user_permissions_get",
+    annotations={**RO, "title": "Get a user's rights in a Tracker queue"},
+    tags=TAGS,
+)
+def user_permissions_get(
+    queue_id: Annotated[
+        str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
+    ],
+    user_id: Annotated[str, Field(description="Login or numeric uid of the user.")],
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueUserAccess:
+    """What one user may do in a queue (create, read, write, grant, deny) and why.
+
+    Each right lists who grants it: the user personally, a group or a role. To change rights
+    use ``queues_set_permissions``.
+
+    Example:
+        >>> queues_user_permissions_get("TEST", "alice")  # doctest: +SKIP
+    """
+    return client.queues.user_permissions(queue_id, user_id)
+
+
+@mcp.tool(
+    name="queues_group_permissions_get",
+    annotations={**RO, "title": "Get a group's rights in a Tracker queue"},
+    tags=TAGS,
+)
+def group_permissions_get(
+    queue_id: Annotated[
+        str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
+    ],
+    group_id: Annotated[int, Field(description="Numeric id of the group.")],
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueGroupAccess:
+    """What one group may do in a queue (create, read, write, grant, deny).
+
+    Example:
+        >>> queues_group_permissions_get("TEST", 5)  # doctest: +SKIP
+    """
+    return client.queues.group_permissions(queue_id, group_id)

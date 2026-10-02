@@ -1,16 +1,22 @@
 """Tracker issue-links FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
     WRITE_TAGS,
+    app_config,
     tracker_client,
 )
 from ycli.yandex.tracker.links.models import Link, LinkCreate, LinkList
@@ -22,6 +28,34 @@ mcp = FastMCP("tracker-links")
 def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> LinkList:
     """All links on a Tracker issue (linked issues, type, direction)."""
     return client.links.list(key)
+
+
+@mcp.tool(name="links_search", annotations={**RO, "title": "Search Tracker issue links"}, tags=TAGS)
+def search(
+    key: str,
+    link_types: Annotated[
+        list[str] | None,
+        Field(
+            description=(
+                "Keep only links with these relationships, e.g. ``relates`` or "
+                "``is subtask for`` (the phrases of ``links_add``, not linktypes ids)."
+            )
+        ),
+    ] = None,
+    fields: Annotated[
+        list[str] | None, Field(description="Fields to include in each link; all when omitted.")
+    ] = None,
+    limit: Annotated[int, Field(description=f"Max links to return; {LIMIT_CAP}")] = 0,
+    client: TrackerClient = Depends(tracker_client),
+    config: AppConfig = Depends(app_config),
+) -> LinkList:
+    """Links of a Tracker issue filtered by type, paged and capped (a read done via POST).
+
+    Prefer this over ``links_list`` for issues with many links or when only some link types
+    or fields matter; it carries each link's author, dates, assignee and status.
+    """
+    cap = config.http.cap(limit)
+    return client.links.search(key, link_types=link_types, fields=fields, limit=cap)
 
 
 @mcp.tool(name="links_add", annotations={**WRITE, "title": "Link Tracker issues"}, tags=WRITE_TAGS)

@@ -108,4 +108,11 @@ CASES = [
             )
         ],
     ),
+    Case(
+        "tracker.filters.delete",
+        args=("12349",),
+        cli=["tracker", "filters", "delete", "12349"],
+        mcp=("tracker_filters_delete", {"filter_id": "12349"}),
+        exchanges=[(Sent("DELETE", "filters/12349"), Reply(status=204))],
+    ),
 ]

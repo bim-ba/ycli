@@ -7,6 +7,8 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.links.models import Link, LinkCreate, LinkList
@@ -33,6 +35,31 @@ class Relationship(enum.StrEnum):
 def list_(key: KeyArg, *, tracker: TrackerClient) -> LinkList:
     """List links for issue KEY."""
     return tracker.links.list(key)
+
+
+@app.command()
+def search(
+    key: KeyArg,
+    link_type: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--type",
+            help="Keep only links with this relationship, e.g. relates (repeatable).",
+        ),
+    ] = None,
+    field: Annotated[
+        list[str] | None,
+        typer.Option("--field", help="Field to include in each link (repeatable)."),
+    ] = None,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> LinkList:
+    """List links of issue KEY, filtered and paged (POST …/links/_list; --all for everything)."""
+    cap = config.http.cap(limit, all_=all_)
+    return tracker.links.search(key, link_types=link_type, fields=field, limit=cap)
 
 
 @app.command()

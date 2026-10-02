@@ -4,7 +4,7 @@ All commands run via `uv run ycli tracker …`. Run `uv run ycli tracker --help`
 list resources. Reads **and writes** are also exposed as MCP tools named
 `tracker_<resource>_<action>` (e.g. `tracker_issues_get`, `tracker_issues_create`);
 write tools carry `readOnlyHint=False` and explicit destructive hints, and
-`ycli mcp start --read-only` hides them. Binary downloads are CLI/SDK-only.
+`ycli mcp start --read-only` hides them. Binary downloads and `import comment-file` are CLI/SDK-only.
 
 Replace placeholders (`MYQUEUE`, `MYQUEUE-123`, `EPIC-1`, `<your-login>`) with your
 own queue keys, issue keys, and logins.
@@ -40,6 +40,18 @@ uv run ycli tracker linktypes list
 uv run ycli tracker issuetypes list
 uv run ycli tracker transitions list MYQUEUE-123
 
+# Comments, links, attachments, structure
+uv run ycli tracker comments get MYQUEUE-123 <comment-id> --expand all
+uv run ycli tracker links search MYQUEUE-123 --type relates
+uv run ycli tracker attachments get MYQUEUE-123 <file-id>
+uv run ycli tracker components list-for-queue MYQUEUE
+uv run ycli tracker queues user-permissions MYQUEUE <login>
+uv run ycli tracker queues group-permissions MYQUEUE <group-id>
+uv run ycli tracker triggers list MYQUEUE
+uv run ycli tracker workflows list
+uv run ycli tracker workflows for-queue MYQUEUE
+uv run ycli tracker entities direct-permissions project <id>
+
 # ----- WRITE -----
 
 # Create (supply --summary and --description explicitly)
@@ -55,6 +67,19 @@ uv run ycli tracker issues update MYQUEUE-123 --priority critical -F storyPoints
 uv run ycli tracker comments add MYQUEUE-123 --text "$(cat comment.md)"
 uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
 uv run ycli tracker transitions execute MYQUEUE-123 <id> -F 'resolution={"key":"fixed"}'
+
+# Files: attach to an issue, or upload a temp file (id works once, for attachmentIds)
+uv run ycli tracker attachments upload MYQUEUE-123 ./report.pdf
+uv run ycli tracker attachments upload-temp ./report.pdf
+uv run ycli tracker attachments delete MYQUEUE-123 <file-id>
+
+# Org-wide / admin writes — confirm first (workflows and projects need the current --version)
+uv run ycli tracker workflows edit <id> --version 3 --name "New name"
+uv run ycli tracker components delete <id>
+uv run ycli tracker queues version-edit <id> --due-date 2026-12-31
+uv run ycli tracker filters delete <id>
+uv run ycli tracker gaps create --user <login> --workflow vacation --from 2026-07-01T00:00Z --to 2026-07-15T00:00Z
+uv run ycli tracker entities set-direct-permissions project <id> --grant '{"READ":{"users":["<login>"]}}'
 ```
 
 For endpoints the CLI does not cover, consult the live Tracker API reference at

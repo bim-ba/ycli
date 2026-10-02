@@ -16,6 +16,7 @@ from ycli.yandex.tracker.dashboards.mcp import mcp as dashboards_mcp
 from ycli.yandex.tracker.entities.mcp import mcp as entities_mcp
 from ycli.yandex.tracker.fields.mcp import mcp as fields_mcp
 from ycli.yandex.tracker.filters.mcp import mcp as filters_mcp
+from ycli.yandex.tracker.gaps.mcp import mcp as gaps_mcp
 from ycli.yandex.tracker.import_.mcp import mcp as import_mcp
 from ycli.yandex.tracker.issues.mcp import mcp as issues_mcp
 from ycli.yandex.tracker.issuetypes.mcp import mcp as issuetypes_mcp
@@ -25,6 +26,7 @@ from ycli.yandex.tracker.localfields.mcp import mcp as localfields_mcp
 from ycli.yandex.tracker.macros.mcp import mcp as macros_mcp
 from ycli.yandex.tracker.me.mcp import mcp as me_mcp
 from ycli.yandex.tracker.priorities.mcp import mcp as priorities_mcp
+from ycli.yandex.tracker.projects.mcp import mcp as projects_mcp
 from ycli.yandex.tracker.queues.mcp import mcp as queues_mcp
 from ycli.yandex.tracker.remotelinks.mcp import mcp as remotelinks_mcp
 from ycli.yandex.tracker.resolutions.mcp import mcp as resolutions_mcp
@@ -33,6 +35,7 @@ from ycli.yandex.tracker.statuses.mcp import mcp as statuses_mcp
 from ycli.yandex.tracker.transitions.mcp import mcp as transitions_mcp
 from ycli.yandex.tracker.triggers.mcp import mcp as triggers_mcp
 from ycli.yandex.tracker.users.mcp import mcp as users_mcp
+from ycli.yandex.tracker.workflows.mcp import mcp as workflows_mcp
 from ycli.yandex.tracker.worklog.mcp import mcp as worklog_mcp
 
 mcp = FastMCP(
@@ -77,3 +80,6 @@ mcp.mount(remotelinks_mcp)
 mcp.mount(import_mcp)
 mcp.mount(dashboards_mcp)
 mcp.mount(entities_mcp)
+mcp.mount(workflows_mcp)
+mcp.mount(projects_mcp)
+mcp.mount(gaps_mcp)

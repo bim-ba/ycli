@@ -33,6 +33,11 @@ def list_comments(key: str, *, page_size: int = PAGE_SIZE) -> Paged[CommentList,
     )
 
 
+def get_comment(key: str, comment_id: int | str, *, expand: str | None = None) -> Endpoint[Comment]:
+    path = f"issues/{segment(key)}/comments/{segment(comment_id)}"
+    return Endpoint("GET", path, Comment, params={"expand": expand})
+
+
 def add_comment(key: str, body: dict[str, Any]) -> Endpoint[Comment]:
     return Endpoint("POST", f"issues/{segment(key)}/comments/", Comment, json=body)
 

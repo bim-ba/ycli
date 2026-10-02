@@ -7,6 +7,7 @@ from typing import Annotated, Any
 
 import typer
 
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
 
@@ -71,3 +72,16 @@ def edit(
     """Edit filter FILTER_ID (PATCH /filters/{id}) — no version lock; filter is replaced whole."""
     body = FilterUpdate(name=name or None, query=query or None, filter=_parse_filter(filter_))
     return tracker.filters.edit(filter_id, body)
+
+
+@app.command()
+def delete(
+    filter_id: Annotated[
+        str, typer.Argument(metavar="FILTER_ID", help="Identifier of the saved filter.")
+    ],
+    *,
+    tracker: TrackerClient,
+) -> Ack:
+    """Delete saved filter FILTER_ID (DELETE /filters/{id})."""
+    tracker.filters.delete(filter_id)
+    return Ack.deleted("filter", filter_id)

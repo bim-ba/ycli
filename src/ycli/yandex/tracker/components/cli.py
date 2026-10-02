@@ -6,15 +6,25 @@ from typing import Annotated
 
 import typer
 
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.components.models import (
     Component,
     ComponentCreate,
+    ComponentGroupAccess,
     ComponentList,
     ComponentUpdate,
+    ComponentUserAccess,
 )
 
 app = typer.Typer(name="components", help="Tracker components.", no_args_is_help=True)
+
+ComponentIdArg = Annotated[
+    int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
+]
+FieldsOpt = Annotated[
+    str, typer.Option(help="Comma-separated fields to return, e.g. name,description,lead.")
+]
 
 
 @app.command("list")
@@ -73,3 +83,55 @@ def edit(
         assign_auto=assign_auto,
     )
     return tracker.components.edit(component_id, body, version=version)
+
+
+@app.command("list-for-queue")
+def list_for_queue(
+    queue_id: Annotated[
+        str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
+    ],
+    fields: FieldsOpt = "",
+    *,
+    tracker: TrackerClient,
+) -> ComponentList:
+    """List the components of one queue (GET /queues/{id}/components)."""
+    return tracker.components.list_for_queue(queue_id, fields=fields or None)
+
+
+@app.command()
+def get(
+    component_id: ComponentIdArg, fields: FieldsOpt = "", *, tracker: TrackerClient
+) -> Component:
+    """Print component COMPONENT_ID (GET /components/{id})."""
+    return tracker.components.get(component_id, fields=fields or None)
+
+
+@app.command()
+def delete(component_id: ComponentIdArg, *, tracker: TrackerClient) -> Ack:
+    """Delete component COMPONENT_ID (DELETE /components/{id})."""
+    tracker.components.delete(component_id)
+    return Ack.deleted("component", component_id)
+
+
+@app.command("user-permissions")
+def user_permissions(
+    component_id: ComponentIdArg,
+    user_id: Annotated[
+        str, typer.Argument(metavar="USER", help="Login or numeric uid of the user.")
+    ],
+    *,
+    tracker: TrackerClient,
+) -> ComponentUserAccess:
+    """Show what USER may do on a component (GET /components/{id}/permissions/users/{user})."""
+    return tracker.components.user_permissions(component_id, user_id)
+
+
+@app.command("group-permissions")
+def group_permissions(
+    component_id: ComponentIdArg,
+    group_id: Annotated[int, typer.Argument(metavar="GROUP_ID", help="Numeric id of the group.")],
+    *,
+    tracker: TrackerClient,
+) -> ComponentGroupAccess:
+    """Show what GROUP_ID may do on a component (…/permissions/groups/{group})."""
+    return tracker.components.group_permissions(component_id, group_id)

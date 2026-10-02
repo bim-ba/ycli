@@ -6,7 +6,9 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
+    DisplayStr,
     IdStr,
+    KeyStr,
 )
 
 
@@ -36,6 +38,12 @@ class Link(APIModel):
     type: IdStr = None
     direction: str | None = None
     object: LinkObject | None = None
+    created_by: DisplayStr = Field(default=None, alias="createdBy")
+    updated_by: DisplayStr = Field(default=None, alias="updatedBy")
+    created_at: str | None = Field(default=None, alias="createdAt")
+    updated_at: str | None = Field(default=None, alias="updatedAt")
+    assignee: DisplayStr = None
+    status: KeyStr = None
 
     @property
     def object_key(self) -> str | None:
@@ -55,6 +63,17 @@ class LinkList(RootModel[list[Link]]):
         >>> LinkList.model_validate([{"direction": "outward"}]).root[0].direction
         'outward'
     """
+
+
+class LinkPage(APIModel):
+    """One page of ``POST /issues/{key}/links/_list``: the links under a ``links`` key.
+
+    Example:
+        >>> LinkPage.model_validate({"links": [{"id": 1}]}).links[0].id
+        1
+    """
+
+    links: list[Link] = Field(default_factory=list, description="The page's links.")
 
 
 class LinkCreate(APIModel):

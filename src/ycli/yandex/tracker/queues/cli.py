@@ -15,20 +15,29 @@ from ycli.yandex.tracker.queues.models import (
     Queue,
     QueueCreate,
     QueueFieldList,
+    QueueGroupAccess,
     QueueList,
     QueuePermissions,
     QueuePermissionsUpdate,
     QueueTagList,
     QueueTagRemove,
+    QueueUserAccess,
     QueueVersionCreate,
     QueueVersionInfo,
     QueueVersionInfoList,
+    QueueVersionUpdate,
 )
 
 app = typer.Typer(name="queues", help="Tracker queues.", no_args_is_help=True)
 
 QueueIdArg = Annotated[
     str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
+]
+VersionIdArg = Annotated[
+    int, typer.Argument(metavar="VERSION_ID", help="Numeric id of the queue version.")
+]
+FieldsOpt = Annotated[
+    str, typer.Option(help="Comma-separated fields to return, e.g. name,dueDate,released.")
 ]
 
 
@@ -184,3 +193,67 @@ def version_create(
         due_date=due_date or None,
     )
     return tracker.queues.version_create(body)
+
+
+@app.command("version-get")
+def version_get(
+    version_id: VersionIdArg, fields: FieldsOpt = "", *, tracker: TrackerClient
+) -> QueueVersionInfo:
+    """Print queue version VERSION_ID (GET /versions/{id})."""
+    return tracker.queues.version_get(version_id, fields=fields or None)
+
+
+@app.command("version-edit")
+def version_edit(
+    version_id: VersionIdArg,
+    name: Annotated[str, typer.Option(help="New name of the version.")] = "",
+    description: Annotated[str, typer.Option(help="New description of the version.")] = "",
+    start_date: Annotated[
+        str, typer.Option("--start-date", help="New version start date (YYYY-MM-DD).")
+    ] = "",
+    due_date: Annotated[
+        str, typer.Option("--due-date", help="New version due date (YYYY-MM-DD).")
+    ] = "",
+    fields: FieldsOpt = "",
+    *,
+    tracker: TrackerClient,
+) -> QueueVersionInfo:
+    """Edit queue version VERSION_ID (PATCH /versions/{id}); only the given options change."""
+    body = QueueVersionUpdate(
+        name=name or None,
+        description=description or None,
+        start_date=start_date or None,
+        due_date=due_date or None,
+    )
+    return tracker.queues.version_edit(version_id, body, fields=fields or None)
+
+
+@app.command("version-delete")
+def version_delete(version_id: VersionIdArg, *, tracker: TrackerClient) -> Ack:
+    """Delete queue version VERSION_ID (DELETE /versions/{id})."""
+    tracker.queues.version_delete(version_id)
+    return Ack.deleted("version", version_id)
+
+
+@app.command("user-permissions")
+def user_permissions(
+    queue_id: QueueIdArg,
+    user_id: Annotated[
+        str, typer.Argument(metavar="USER", help="Login or numeric uid of the user.")
+    ],
+    *,
+    tracker: TrackerClient,
+) -> QueueUserAccess:
+    """Show what USER may do in QUEUE_ID (GET /queues/{id}/permissions/users/{user})."""
+    return tracker.queues.user_permissions(queue_id, user_id)
+
+
+@app.command("group-permissions")
+def group_permissions(
+    queue_id: QueueIdArg,
+    group_id: Annotated[int, typer.Argument(metavar="GROUP_ID", help="Numeric id of the group.")],
+    *,
+    tracker: TrackerClient,
+) -> QueueGroupAccess:
+    """Show what GROUP_ID may do in QUEUE_ID (GET /queues/{id}/permissions/groups/{group})."""
+    return tracker.queues.group_permissions(queue_id, group_id)

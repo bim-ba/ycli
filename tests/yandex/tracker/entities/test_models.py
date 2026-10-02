@@ -225,7 +225,7 @@ def test_checklist_move():
 
 def test_extended_permissions_update():
     body = ExtendedPermissionsUpdate(
-        acl=AclInput(read=AclPrincipalsInput(roles=["OWNER"], users=["11"]))  # ty: ignore[unknown-argument]
+        acl=AclInput(read=AclPrincipalsInput(roles=["OWNER"], users=["11"]))
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {"acl": {"READ": {"users": ["11"], "roles": ["OWNER"]}}}
 
@@ -276,3 +276,38 @@ def test_bulk_change_update():
         "metaEntities": ["1", "2"],
         "values": {"fields": {"lead": "u1"}, "comment": "done"},
     }
+
+
+def test_direct_permissions_reply_parses_as_the_root_acl():
+    from ycli.yandex.tracker.entities.models import Acl
+
+    acl = Acl.model_validate(
+        {
+            "READ": {"users": [], "groups": [], "roles": []},
+            "GRANT": {"users": [], "groups": [], "roles": ["AUTHOR", "OWNER"]},
+            "WRITE": {
+                "users": [{"id": "11", "display": "Ann", "passportUid": 1100, "cloudUid": "ajep"}],
+                "groups": [{"id": "5", "display": "All users"}],
+                "roles": ["CLIENT", "MEMBER"],
+            },
+        }
+    )
+    assert acl.read is not None and acl.read.roles == []
+    assert acl.grant is not None and acl.grant.roles == ["AUTHOR", "OWNER"]
+    assert acl.write is not None
+    assert acl.write.users[0].display == "Ann" and acl.write.groups[0].id == "5"
+
+
+def test_direct_permissions_update_sends_only_the_given_sides():
+    from ycli.yandex.tracker.entities.models import (
+        AclInput,
+        AclPrincipalsInput,
+        DirectPermissionsUpdate,
+    )
+
+    update = DirectPermissionsUpdate(grant=AclInput(read=AclPrincipalsInput(users=["ann"])))
+    assert update.model_dump(by_alias=True, exclude_none=True) == {
+        "grant": {"READ": {"users": ["ann"]}}
+    }
+    parsed = DirectPermissionsUpdate.model_validate({"revoke": {"GRANT": {"roles": ["OWNER"]}}})
+    assert parsed.grant is None and parsed.revoke is not None

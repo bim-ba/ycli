@@ -486,3 +486,124 @@ class QueuePermissions(APIModel):
     write: Any = Field(default=None, description="Effective edit-issue permissions.")
     read: Any = Field(default=None, description="Effective read-issue permissions.")
     grant: Any = Field(default=None, description="Effective change-settings permissions.")
+
+
+class QueueVersionUpdate(APIModel):
+    """Typed request body for ``queues.version_edit`` (``PATCH /versions/{id}``).
+
+    Only the fields that are set are sent, so omitted fields stay unchanged.
+
+    Example:
+        >>> QueueVersionUpdate(name="v1.1").model_dump(by_alias=True, exclude_none=True)
+        {'name': 'v1.1'}
+    """
+
+    name: str | None = Field(default=None, description="New name of the version.")
+    description: str | None = Field(default=None, description="New description of the version.")
+    start_date: str | None = Field(
+        default=None,
+        serialization_alias="startDate",
+        description="New version start date (YYYY-MM-DD).",
+    )
+    due_date: str | None = Field(
+        default=None,
+        serialization_alias="dueDate",
+        description="New version due date (YYYY-MM-DD).",
+    )
+
+
+class AccessRef(APIModel):
+    """A group, role or component named in an access answer (``{self, id, display}``).
+
+    Example:
+        >>> AccessRef.model_validate({"id": "queue-lead", "display": "Queue owner"}).id
+        'queue-lead'
+    """
+
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the group, role or component."
+    )
+    id: str | None = Field(default=None, description="Identifier of the group, role or component.")
+    display: str | None = Field(default=None, description="Display name.")
+
+
+class AccessHolders(APIModel):
+    """Who holds one permission: users, groups and roles (an empty kind is left out by the API).
+
+    Example:
+        >>> AccessHolders.model_validate({"groups": [{"id": "5"}]}).groups[0].id
+        '5'
+    """
+
+    users: list[QueueUser] = Field(
+        default_factory=list, description="Users holding the permission personally."
+    )
+    groups: list[AccessRef] = Field(
+        default_factory=list, description="Groups holding the permission."
+    )
+    roles: list[AccessRef] = Field(
+        default_factory=list, description="Roles (queue-lead, author, …) holding the permission."
+    )
+
+
+class AccessPermissions(APIModel):
+    """The permissions of one subject, keyed by kind; a kind the subject lacks is absent.
+
+    ``grant`` (queue settings) exists on a queue only; a component has create/read/write/deny.
+
+    Example:
+        >>> AccessPermissions.model_validate(
+        ...     {"CREATE": {"roles": [{"id": "author"}]}}
+        ... ).create.roles[0].id
+        'author'
+    """
+
+    grant: AccessHolders | None = Field(
+        default=None, alias="GRANT", description="Who may change the queue's settings."
+    )
+    create: AccessHolders | None = Field(
+        default=None, alias="CREATE", description="Who may create issues."
+    )
+    read: AccessHolders | None = Field(
+        default=None, alias="READ", description="Who may view issues."
+    )
+    write: AccessHolders | None = Field(
+        default=None, alias="WRITE", description="Who may edit issues."
+    )
+    deny: AccessHolders | None = Field(
+        default=None, alias="DENY", description="Who is denied access."
+    )
+
+
+class QueueUserAccess(APIModel):
+    """One user's rights in a queue (``GET /queues/{id}/permissions/users/{userId}``).
+
+    Example:
+        >>> QueueUserAccess.model_validate({"user": {"id": "11"}, "permissions": {}}).user.id
+        '11'
+    """
+
+    user: QueueUser | None = Field(default=None, description="The user the rights belong to.")
+    permissions: AccessPermissions | None = Field(
+        default=None, description="Rights by kind, with who grants each (personal, group, role)."
+    )
+    components: list[AccessRef] = Field(
+        default_factory=list, description="Components the user has access to."
+    )
+
+
+class QueueGroupAccess(APIModel):
+    """One group's rights in a queue (``GET /queues/{id}/permissions/groups/{groupId}``).
+
+    Example:
+        >>> QueueGroupAccess.model_validate({"group": {"id": "5"}}).group.id
+        '5'
+    """
+
+    group: AccessRef | None = Field(default=None, description="The group the rights belong to.")
+    permissions: AccessPermissions | None = Field(
+        default=None, description="Rights by kind, with who grants each."
+    )
+    components: list[AccessRef] = Field(
+        default_factory=list, description="Components the group has access to."
+    )

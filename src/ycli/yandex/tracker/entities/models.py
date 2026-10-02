@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import AliasChoices, ConfigDict, Field, RootModel
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -926,13 +926,22 @@ class AclInput(APIModel):
     """
 
     read: AclPrincipalsInput | None = Field(
-        default=None, alias="READ", description="Principals to grant READ."
+        default=None,
+        validation_alias=AliasChoices("READ", "read"),
+        serialization_alias="READ",
+        description="Principals to grant READ.",
     )
     write: AclPrincipalsInput | None = Field(
-        default=None, alias="WRITE", description="Principals to grant WRITE."
+        default=None,
+        validation_alias=AliasChoices("WRITE", "write"),
+        serialization_alias="WRITE",
+        description="Principals to grant WRITE.",
     )
     grant: AclPrincipalsInput | None = Field(
-        default=None, alias="GRANT", description="Principals to grant GRANT (admin)."
+        default=None,
+        validation_alias=AliasChoices("GRANT", "grant"),
+        serialization_alias="GRANT",
+        description="Principals to grant GRANT (admin).",
     )
 
 
@@ -947,6 +956,25 @@ class ExtendedPermissionsUpdate(APIModel):
     """
 
     acl: AclInput = Field(description="Access-control lists to set, by level.")
+
+
+class DirectPermissionsUpdate(APIModel):
+    """Typed request body for ``PATCH …/permissions`` (grant and revoke direct rights).
+
+    Each side maps an access level (READ / WRITE / GRANT) to users, groups and roles; the API
+    adds or removes exactly those and keeps the rest. ``permissionSources`` is refused (400).
+
+    Example:
+        >>> DirectPermissionsUpdate(
+        ...     grant=AclInput(read=AclPrincipalsInput(users=["ann"]))
+        ... ).model_dump(by_alias=True, exclude_none=True)
+        {'grant': {'READ': {'users': ['ann']}}}
+    """
+
+    grant: AclInput | None = Field(default=None, description="Rights to add, by access level.")
+    revoke: AclInput | None = Field(
+        default=None, description="Rights to remove, by access level (same shape as ``grant``)."
+    )
 
 
 class BulkChangeValues(APIModel):

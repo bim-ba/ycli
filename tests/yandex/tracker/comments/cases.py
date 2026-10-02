@@ -138,4 +138,47 @@ CASES = [
             )
         ],
     ),
+    Case(
+        "tracker.comments.get",
+        args=("DE-5", 9001),
+        kwargs={"expand": "attachments,html"},
+        cli=["tracker", "comments", "get", "DE-5", "9001", "--expand", "attachments,html"],
+        mcp=(
+            "tracker_comments_get",
+            {"key": "DE-5", "comment_id": "9001", "expand": "attachments,html"},
+        ),
+        exchanges=[
+            (
+                Sent("GET", "issues/DE-5/comments/9001", {"expand": "attachments,html"}),
+                Reply(
+                    json={
+                        "id": 9001,
+                        "longId": "5fa15a24ac894475aa",
+                        "text": "My **first** comment",
+                        "textHtml": "<p>My <strong>first</strong> comment</p>",
+                        "createdBy": {"display": "Ann"},
+                        "updatedBy": {"display": "Bob"},
+                        "createdAt": "2017-06-11T05:11:12.347+0000",
+                        "updatedAt": "2017-06-12T05:11:12.347+0000",
+                        "attachments": [{"id": "1", "display": "Untitled.png"}],
+                        "version": 3,
+                        "type": "standard",
+                        "transport": "internal",
+                    }
+                ),
+            )
+        ],
+    ),
+    Case(
+        "tracker.comments.get",
+        args=("DE-6", "5fa15a24ac894476bb"),
+        cli=["tracker", "comments", "get", "DE-6", "5fa15a24ac894476bb"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "issues/DE-6/comments/5fa15a24ac894476bb"),
+                Reply(json={"id": 9002, "text": "By long id"}),
+            )
+        ],
+    ),
 ]

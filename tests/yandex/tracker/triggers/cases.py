@@ -254,4 +254,45 @@ CASES = [
         mcp=("tracker_triggers_webhooklog_list", {"queue_id": "LAB", "trigger_id": 8}),
         exchanges=[(Sent("GET", "queues/LAB/triggers/8/webhooks/log"), Reply(json=[]))],
     ),
+    # The default cap asks for 50-row pages and walks id=<last trigger id> until a page is empty.
+    Case(
+        "tracker.triggers.list",
+        args=("LISTQ",),
+        kwargs={"limit": 500},
+        cli=["tracker", "triggers", "list", "LISTQ"],
+        mcp=("tracker_triggers_list", {"queue_id": "LISTQ"}),
+        exchanges=[
+            (
+                Sent("GET", "queues/LISTQ/triggers", {"perPage": "50"}),
+                Reply(
+                    json=[
+                        {"id": 21, "name": "First", "version": 1, "active": True},
+                        {"id": 22, "name": "Second", "actions": [TRANSITION], "active": False},
+                    ]
+                ),
+            ),
+            (Sent("GET", "queues/LISTQ/triggers", {"perPage": "50", "id": "22"}), Reply(json=[])),
+        ],
+    ),
+    # A small cap narrows the page to the cap and stops after it.
+    Case(
+        "tracker.triggers.list",
+        args=("CAPQ",),
+        kwargs={"limit": 2},
+        cli=["tracker", "triggers", "list", "CAPQ", "--limit", "2"],
+        mcp=("tracker_triggers_list", {"queue_id": "CAPQ", "limit": 2}),
+        exchanges=[
+            (
+                Sent("GET", "queues/CAPQ/triggers", {"perPage": "2"}),
+                Reply(json=[{"id": 31, "name": "A"}, {"id": 32, "name": "B"}]),
+            )
+        ],
+    ),
+    Case(
+        "tracker.triggers.list",
+        args=("ALLQ",),
+        cli=["tracker", "triggers", "list", "ALLQ", "--all"],
+        mcp=None,
+        exchanges=[(Sent("GET", "queues/ALLQ/triggers", {"perPage": "50"}), Reply(json=[]))],
+    ),
 ]

@@ -12,11 +12,13 @@ from typing import Any
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.entities import endpoints
 from ycli.yandex.tracker.entities.models import (
+    Acl,
     Attachment,
     AttachmentList,
     BulkChangeOperation,
     Comment,
     CommentList,
+    DirectPermissionsUpdate,
     Entity,
     EntityEventList,
     EntityList,
@@ -162,6 +164,35 @@ class EntitiesClient(Resource):
             ['800…2']
         """
         return self._session.send(endpoints.set_permissions(entity_type, entity_id, body))
+
+    def direct_permissions(self, entity_type: str, entity_id: str) -> Acl:
+        """``GET …/permissions`` → the direct READ / WRITE / GRANT rights, without inheritance.
+
+        :meth:`permissions` is the extended view (``acl`` plus where rights are inherited from).
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.entities.direct_permissions("project", "655f").grant.roles  # doctest: +SKIP
+            ['AUTHOR', 'OWNER']
+        """
+        return self._session.send(endpoints.get_direct_permissions(entity_type, entity_id))
+
+    def set_direct_permissions(
+        self, entity_type: str, entity_id: str, body: DirectPermissionsUpdate
+    ) -> Acl:
+        """``PATCH …/permissions`` — grant and revoke direct rights. Returns the resulting rights.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> grant = AclInput(read=AclPrincipalsInput(users=["ann"]))
+            >>> update = DirectPermissionsUpdate(grant=grant)
+            >>> client.entities.set_direct_permissions(
+            ...     "project", "655f", update
+            ... ).read.users  # doctest: +SKIP
+            [UserRef(...)]
+        """
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.set_direct_permissions(entity_type, entity_id, dumped))
 
     def bulk_update(self, entity_type: str, body: dict[str, Any]) -> BulkChangeOperation:
         """``POST …/bulkchange/_update`` — mass-edit entities (async). Returns the operation.

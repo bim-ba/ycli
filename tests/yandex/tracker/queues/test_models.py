@@ -164,3 +164,49 @@ def test_permissions_update_accepts_array_and_add_remove():
     ).model_dump(by_alias=True, exclude_none=True)
     assert body["create"] == {"users": ["user1"]}
     assert body["grant"] == {"users": {"add": ["author"], "remove": [12345]}}
+
+
+def test_user_access_parses_the_doc_sample_with_missing_kinds():
+    from ycli.yandex.tracker.queues.models import QueueUserAccess
+
+    access = QueueUserAccess.model_validate(
+        {
+            "user": {"id": "11", "display": "Ann", "cloudUid": "ajep", "passportUid": 1100},
+            "permissions": {
+                "GRANT": {"roles": [{"id": "queue-lead", "display": "Queue owner"}]},
+                "CREATE": {"groups": [{"id": "5", "display": "All users"}]},
+            },
+            "components": [{"id": "1", "display": "Component 1"}],
+        }
+    )
+    assert access.user is not None and access.user.passport_uid == 1100
+    assert access.permissions is not None
+    assert access.permissions.grant is not None
+    assert access.permissions.grant.roles[0].id == "queue-lead"
+    assert access.permissions.create is not None and access.permissions.create.users == []
+    assert access.permissions.deny is None  # a kind the subject lacks is absent
+    assert access.components[0].display == "Component 1"
+
+
+def test_group_access_parses_without_components():
+    from ycli.yandex.tracker.queues.models import QueueGroupAccess
+
+    access = QueueGroupAccess.model_validate(
+        {
+            "group": {"id": "5", "display": "All users"},
+            "permissions": {"READ": {"groups": [{"id": "5"}]}},
+        }
+    )
+    assert access.group is not None and access.group.display == "All users"
+    assert access.permissions is not None and access.permissions.read is not None
+    assert access.components == []
+
+
+def test_version_update_sends_only_what_is_set_under_the_api_names():
+    from ycli.yandex.tracker.queues.models import QueueVersionUpdate
+
+    body = QueueVersionUpdate(name="v2", due_date="2026-12-31").model_dump(
+        by_alias=True, exclude_none=True
+    )
+    assert body == {"name": "v2", "dueDate": "2026-12-31"}
+    assert all(field.description for field in QueueVersionUpdate.model_fields.values())

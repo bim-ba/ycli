@@ -10,6 +10,19 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 )
 
 
+class CommentAttachment(APIModel):
+    """A file attached to a comment, as listed under ``expand=attachments``.
+
+    Example:
+        >>> CommentAttachment.model_validate({"id": "1", "display": "Untitled.png"}).display
+        'Untitled.png'
+    """
+
+    self_url: str | None = Field(default=None, alias="self")
+    id: str | None = None
+    display: str | None = None
+
+
 class Comment(APIModel):
     """A Tracker issue comment (``/issues/{key}/comments`` item).
 
@@ -19,9 +32,17 @@ class Comment(APIModel):
     """
 
     id: int | str | None = None
+    long_id: str | None = Field(default=None, alias="longId")
     created_at: str | None = Field(default=None, alias="createdAt")
     created_by: DisplayStr = Field(default=None, alias="createdBy")
+    updated_at: str | None = Field(default=None, alias="updatedAt")
+    updated_by: DisplayStr = Field(default=None, alias="updatedBy")
     text: str | None = None
+    text_html: str | None = Field(default=None, alias="textHtml")
+    attachments: list[CommentAttachment] | None = None
+    version: int | None = None
+    type: str | None = None
+    transport: str | None = None
 
 
 class CommentList(RootModel[list[Comment]]):

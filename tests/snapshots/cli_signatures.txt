@@ -86,9 +86,13 @@ forms variables list: SURVEY_ID:TEXT!
 mcp methods
 mcp start: --read-only:BOOLEAN=False
 tracker applications list
+tracker attachments delete: FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments download: --output:TEXT FILENAME:TEXT! FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments get: FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments list: ISSUE_KEY:TEXT!
 tracker attachments thumbnail: --output:TEXT FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments upload: --rename-to:TEXT='' FILE_PATH:PATH! ISSUE_KEY:TEXT!
+tracker attachments upload-temp: --rename-to:TEXT='' FILE_PATH:PATH!
 tracker autoactions create: --action:TEXT --active:BOOLEAN --calendar-id:INTEGER=0 --filter:TEXT='' --interval-millis:INTEGER=0 --name:TEXT! --notify:BOOLEAN --query:TEXT='' QUEUE_ID:TEXT!
 tracker autoactions get: ACTION_ID:INTEGER! QUEUE_ID:TEXT!
 tracker autoactions log-detail: ACTION_ID:INTEGER! QUEUE_ID:TEXT! RUN_ID:TEXT!
@@ -117,11 +121,17 @@ tracker columns list: BOARD_ID:INTEGER!
 tracker comments add: --text:TEXT! KEY:TEXT!
 tracker comments delete: COMMENT_ID:TEXT! KEY:TEXT!
 tracker comments edit: --text:TEXT! COMMENT_ID:TEXT! KEY:TEXT!
+tracker comments get: --expand:TEXT='' COMMENT_ID:TEXT! KEY:TEXT!
 tracker comments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 KEY:TEXT!
 tracker comments react: COMMENT_ID:TEXT! KEY:TEXT! NAME:CHOICE!
 tracker components create: --assign-auto:BOOLEAN --description:TEXT='' --lead:TEXT='' --name:TEXT! --queue:TEXT!
+tracker components delete: COMPONENT_ID:INTEGER!
 tracker components edit: --assign-auto:BOOLEAN --description:TEXT='' --lead:TEXT='' --name:TEXT='' --version:INTEGER COMPONENT_ID:INTEGER!
+tracker components get: --fields:TEXT='' COMPONENT_ID:INTEGER!
+tracker components group-permissions: COMPONENT_ID:INTEGER! GROUP_ID:INTEGER!
 tracker components list
+tracker components list-for-queue: --fields:TEXT='' QUEUE_ID:TEXT!
+tracker components user-permissions: COMPONENT_ID:INTEGER! USER_ID:TEXT!
 tracker dashboards add-widget cycletime: --description:TEXT! --from-status:TEXT --mode:TEXT='' --query:TEXT='' --to-status:TEXT DASHBOARD_ID:TEXT!
 tracker dashboards create: --layout:TEXT='' --name:TEXT! --owner:TEXT=''
 tracker entities attachments attach: ENTITY_ID:TEXT! TEMP_FILE_ID:TEXT! TYPE_:CHOICE!
@@ -145,6 +155,7 @@ tracker entities comments list: --all:BOOLEAN=False --limit:INTEGER=0 ENTITY_ID:
 tracker entities create: --author:TEXT='' --description:TEXT='' --end:TEXT='' --field:TEXT --lead:TEXT='' --parent:TEXT='' --start:TEXT='' --status:TEXT='' --summary:TEXT! --tag:TEXT --team-user:TEXT TYPE_:CHOICE!
 tracker entities create-report: --field:TEXT --format:TEXT='xlsx' --query:TEXT! --summary:TEXT!
 tracker entities delete: --with-board:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities direct-permissions: ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities edit: --author:TEXT='' --comment:TEXT='' --description:TEXT='' --end:TEXT='' --field:TEXT --lead:TEXT='' --parent:TEXT='' --start:TEXT='' --status:TEXT='' --summary:TEXT='' --tag:TEXT --team-user:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities get: --expand:TEXT='' --fields:TEXT='' ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities history: --limit:INTEGER=0 ENTITY_ID:TEXT! TYPE_:CHOICE!
@@ -153,6 +164,7 @@ tracker entities links delete: ENTITY_ID:TEXT! RIGHT:TEXT! TYPE_:CHOICE!
 tracker entities links list: ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities permissions: ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities search: --fields:TEXT='' --filter:TEXT --input:TEXT='' --order-asc:BOOLEAN=False --order-by:TEXT='' --root-only:BOOLEAN=False TYPE_:CHOICE!
+tracker entities set-direct-permissions: --grant:TEXT='' --revoke:TEXT='' ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker entities set-permissions: --acl:TEXT ENTITY_ID:TEXT! TYPE_:CHOICE!
 tracker fields category-create: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER!
 tracker fields category-edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER --version:INTEGER CATEGORY_ID:TEXT!
@@ -161,9 +173,14 @@ tracker fields edit: --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options
 tracker fields get: FIELD_ID:TEXT!
 tracker fields list
 tracker filters create: --filter:TEXT='' --name:TEXT! --query:TEXT=''
+tracker filters delete: FILTER_ID:TEXT!
 tracker filters edit: --filter:TEXT='' --name:TEXT='' --query:TEXT='' FILTER_ID:TEXT!
 tracker filters get: FILTER_ID:TEXT!
+tracker gaps create: --from:TEXT='' --full-day:BOOLEAN --gap:TEXT --id:TEXT='' --to:TEXT='' --user:TEXT='' --work-in-absence:BOOLEAN --workflow:CHOICE
+tracker gaps delete: GAP_IDS:TEXT!
+tracker gaps search: --all:BOOLEAN=False --from:TEXT='' --limit:INTEGER RANGE=0 --to:TEXT='' USERS:TEXT!
 tracker import comment: --created-at:TEXT! --created-by:TEXT! --text:TEXT! KEY:TEXT!
+tracker import comment-file: --created-at:TEXT! --created-by:TEXT! --filename:TEXT='' COMMENT_ID:TEXT! KEY:TEXT! PATH:PATH!
 tracker import file: --created-at:TEXT! --created-by:TEXT! --filename:TEXT='' KEY:TEXT! PATH:PATH!
 tracker import link: --created-at:TEXT! --created-by:TEXT! --issue:TEXT! --relationship:TEXT! KEY:TEXT!
 tracker import task: --assignee:TEXT='' --created-at:TEXT! --created-by:TEXT! --description:TEXT='' --key:TEXT='' --queue:TEXT! --summary:TEXT!
@@ -183,6 +200,7 @@ tracker issuetypes list
 tracker links add: KEY:TEXT! RELATIONSHIP:CHOICE! TARGET:TEXT!
 tracker links delete: KEY:TEXT! LINK_ID:TEXT!
 tracker links list: KEY:TEXT!
+tracker links search: --all:BOOLEAN=False --field:TEXT --limit:INTEGER RANGE=0 --type:TEXT KEY:TEXT!
 tracker linktypes list
 tracker localfields create: --category:TEXT! --description:TEXT='' --id:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --type:TEXT! QUEUE_ID:TEXT!
 tracker localfields edit: --category:TEXT='' --description:TEXT='' --hidden:BOOLEAN --name-en:TEXT='' --name-ru:TEXT='' --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --readonly:BOOLEAN --visible:BOOLEAN FIELD_KEY:TEXT! QUEUE_ID:TEXT!
@@ -197,16 +215,27 @@ tracker me get
 tracker priorities create: --description:TEXT='' --key:TEXT! --name-en:TEXT='' --name-ru:TEXT='' --order:INTEGER
 tracker priorities edit: --description:TEXT='' --name-en:TEXT='' --name-ru:TEXT='' --version:INTEGER PRIORITY_ID:TEXT!
 tracker priorities list
+tracker projects create: --description:TEXT='' --end-date:TEXT='' --lead:TEXT='' --name:TEXT! --queues:TEXT! --start-date:TEXT='' --status:CHOICE
+tracker projects delete: PROJECT_ID:INTEGER!
+tracker projects edit: --description:TEXT='' --end-date:TEXT='' --expand:TEXT='' --lead:TEXT='' --name:TEXT='' --queues:TEXT! --start-date:TEXT='' --status:CHOICE --version:INTEGER! PROJECT_ID:INTEGER!
+tracker projects get: --expand:TEXT='' PROJECT_ID:INTEGER!
+tracker projects list: --expand:TEXT=''
+tracker projects queues: --expand:TEXT='' PROJECT_ID:INTEGER!
 tracker queues create: --default-priority:TEXT! --default-type:TEXT! --issue-type-config:TEXT --key:TEXT! --lead:TEXT! --name:TEXT!
 tracker queues delete: QUEUE_ID:TEXT!
 tracker queues fields: QUEUE_ID:TEXT!
 tracker queues get: --expand:TEXT='' QUEUE_ID:TEXT!
+tracker queues group-permissions: GROUP_ID:INTEGER! QUEUE_ID:TEXT!
 tracker queues list: --all:BOOLEAN=False --limit:INTEGER RANGE=0
 tracker queues permissions: --create:TEXT='' --grant:TEXT='' --read:TEXT='' --write:TEXT='' QUEUE_ID:TEXT!
 tracker queues restore: QUEUE_ID:TEXT!
 tracker queues tag-remove: QUEUE_ID:TEXT! TAG:TEXT!
 tracker queues tags: QUEUE_ID:TEXT!
+tracker queues user-permissions: QUEUE_ID:TEXT! USER_ID:TEXT!
 tracker queues version-create: --description:TEXT='' --due-date:TEXT='' --name:TEXT! --queue:TEXT! --start-date:TEXT=''
+tracker queues version-delete: VERSION_ID:INTEGER!
+tracker queues version-edit: --description:TEXT='' --due-date:TEXT='' --fields:TEXT='' --name:TEXT='' --start-date:TEXT='' VERSION_ID:INTEGER!
+tracker queues version-get: --fields:TEXT='' VERSION_ID:INTEGER!
 tracker queues versions: QUEUE_ID:TEXT!
 tracker remotelinks create: --backlink:BOOLEAN=False --key:TEXT! --origin:TEXT! --relationship:TEXT='RELATES' KEY:TEXT!
 tracker remotelinks delete: KEY:TEXT! LINK_ID:TEXT!
@@ -229,9 +258,17 @@ tracker transitions list: KEY:TEXT!
 tracker triggers create: --action:TEXT --active:BOOLEAN --condition:TEXT --name:TEXT! QUEUE_ID:TEXT!
 tracker triggers edit: --action:TEXT --active:BOOLEAN --condition:TEXT --name:TEXT='' --version:INTEGER=0 QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
 tracker triggers get: QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
+tracker triggers list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 QUEUE_ID:TEXT!
 tracker triggers webhook-log: --from:TEXT='' --issue-id:TEXT='' --limit:INTEGER=0 --to:TEXT='' QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
 tracker users get: --expand:TEXT='' LOGIN_OR_ID:TEXT!
 tracker users list: --all:BOOLEAN=False --expand:TEXT='' --limit:INTEGER RANGE=0
+tracker workflows create: --id:TEXT='' --initial-action:TEXT! --issue-type-resolution:TEXT --name:TEXT! --queue:TEXT='' --step:TEXT --visual:BOOLEAN=False
+tracker workflows delete: WORKFLOW_ID:TEXT!
+tracker workflows edit: --initial-action:TEXT='' --issue-type-resolution:TEXT --name:TEXT='' --step:TEXT --version:INTEGER! --visual:BOOLEAN=False WORKFLOW_ID:TEXT!
+tracker workflows edit-action: --action:TEXT! --version:INTEGER! ACTION_ID:TEXT! STATUS:TEXT! WORKFLOW_ID:TEXT!
+tracker workflows for-queue: QUEUE_ID:TEXT!
+tracker workflows get: WORKFLOW_ID:TEXT!
+tracker workflows list
 tracker worklog add: --comment:TEXT='' --duration:TEXT! --start:TEXT='' KEY:TEXT!
 tracker worklog delete: KEY:TEXT! RECORD_ID:TEXT!
 tracker worklog edit: --comment:TEXT='' --duration:TEXT='' KEY:TEXT! RECORD_ID:TEXT!

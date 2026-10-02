@@ -112,3 +112,36 @@ class ImportClient(Resource):
             data=data,
         )
         return self._session.send(endpoint)
+
+    def comment_file(
+        self,
+        issue_key: str,
+        comment_id: str,
+        *,
+        filename: str,
+        created_at: str,
+        created_by: str,
+        data: bytes,
+    ) -> Attachment:
+        """Import a file onto a comment, preserving its ``createdAt`` / ``createdBy``.
+
+        ``POST /issues/{issue_key}/comments/{comment_id}/attachments/_import`` (multipart); the
+        times must fall after the comment's creation and before its last update. Returns the
+        created ``Attachment``.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.import_.comment_file(
+            ...     "JUNE-2", "2238", filename="pic.png", created_at="…", created_by="11", data=b"…"
+            ... ).name  # doctest: +SKIP
+            'pic.png'
+        """
+        endpoint = endpoints.import_comment_file(
+            issue_key,
+            comment_id,
+            filename=filename,
+            created_at=created_at,
+            created_by=created_by,
+            data=data,
+        )
+        return self._session.send(endpoint)

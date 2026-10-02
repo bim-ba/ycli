@@ -7,10 +7,13 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.settings import AppConfig
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
     TriggerCreate,
+    TriggerList,
     TriggerUpdate,
     WebhookLogList,
 )
@@ -31,6 +34,20 @@ ConditionOpt = Annotated[
     list[str] | None,
     typer.Option("--condition", help="Trigger condition as a JSON object (repeatable)."),
 ]
+
+
+@app.command("list")
+def list_(
+    queue_id: QueueIdArg,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> TriggerList:
+    """List the triggers of QUEUE_ID (auto-paginated; --all for everything)."""
+    cap = config.http.cap(limit, all_=all_)
+    return tracker.triggers.list(queue_id, limit=cap)
 
 
 @app.command()

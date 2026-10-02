@@ -108,6 +108,15 @@ class Trigger(APIModel):
     )
 
 
+class TriggerList(RootModel[list[Trigger]]):
+    """A bare JSON array of triggers (``GET /queues/{id}/triggers``).
+
+    Example:
+        >>> TriggerList.model_validate([{"id": 16, "name": "T"}]).root[0].name
+        'T'
+    """
+
+
 class TriggerCreate(APIModel):
     """Typed request body for ``triggers.create`` (``POST /queues/{id}/triggers``).
 

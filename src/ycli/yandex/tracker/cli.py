@@ -18,6 +18,7 @@ from ycli.yandex.tracker.dashboards.cli import app as dashboards_app
 from ycli.yandex.tracker.entities.cli import app as entities_app
 from ycli.yandex.tracker.fields.cli import app as fields_app
 from ycli.yandex.tracker.filters.cli import app as filters_app
+from ycli.yandex.tracker.gaps.cli import app as gaps_app
 from ycli.yandex.tracker.import_.cli import app as import_app
 from ycli.yandex.tracker.issues.cli import app as issues_app
 from ycli.yandex.tracker.issuetypes.cli import app as issuetypes_app
@@ -27,6 +28,7 @@ from ycli.yandex.tracker.localfields.cli import app as localfields_app
 from ycli.yandex.tracker.macros.cli import app as macros_app
 from ycli.yandex.tracker.me.cli import app as me_app
 from ycli.yandex.tracker.priorities.cli import app as priorities_app
+from ycli.yandex.tracker.projects.cli import app as projects_app
 from ycli.yandex.tracker.queues.cli import app as queues_app
 from ycli.yandex.tracker.remotelinks.cli import app as remotelinks_app
 from ycli.yandex.tracker.resolutions.cli import app as resolutions_app
@@ -35,6 +37,7 @@ from ycli.yandex.tracker.statuses.cli import app as statuses_app
 from ycli.yandex.tracker.transitions.cli import app as transitions_app
 from ycli.yandex.tracker.triggers.cli import app as triggers_app
 from ycli.yandex.tracker.users.cli import app as users_app
+from ycli.yandex.tracker.workflows.cli import app as workflows_app
 from ycli.yandex.tracker.worklog.cli import app as worklog_app
 
 # Help text lives in the service registry (ycli.yandex.tracker.SERVICE).
@@ -72,3 +75,6 @@ app.add_typer(remotelinks_app)
 app.add_typer(import_app)
 app.add_typer(dashboards_app)
 app.add_typer(entities_app)
+app.add_typer(workflows_app)
+app.add_typer(projects_app)
+app.add_typer(gaps_app)

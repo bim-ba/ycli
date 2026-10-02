@@ -356,4 +356,83 @@ CASES = [
             )
         ],
     ),
+    Case(
+        "tracker.import_.comment_file",
+        args=("JUNE-7", "2238"),
+        kwargs={
+            "filename": "scan.png",
+            "created_at": "2024-07-08T09:10:11.000+0000",
+            "created_by": "18",
+            "data": b"PNGDATA",
+        },
+        cli=[
+            "tracker",
+            "import",
+            "comment-file",
+            "JUNE-7",
+            "2238",
+            str(UPLOAD),
+            "--created-at",
+            "2024-07-08T09:10:11.000+0000",
+            "--created-by",
+            "18",
+            "--filename",
+            "scan.png",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "issues/JUNE-7/comments/2238/attachments/_import",
+                    {
+                        "filename": "scan.png",
+                        "createdAt": "2024-07-08T09:10:11.000+0000",
+                        "createdBy": "18",
+                    },
+                    files={"file_data": ("file_data", b"PNGDATA")},
+                ),
+                Reply(json={"id": "125", "name": "scan.png"}),
+            )
+        ],
+    ),
+    # Without --filename the CLI names the attachment after the local file.
+    Case(
+        "tracker.import_.comment_file",
+        args=("JUNE-8", "2239"),
+        kwargs={
+            "filename": "pic.png",
+            "created_at": "2025-08-09T10:11:12.000+0000",
+            "created_by": "19",
+            "data": b"PNGDATA",
+        },
+        cli=[
+            "tracker",
+            "import",
+            "comment-file",
+            "JUNE-8",
+            "2239",
+            str(UPLOAD),
+            "--created-at",
+            "2025-08-09T10:11:12.000+0000",
+            "--created-by",
+            "19",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "issues/JUNE-8/comments/2239/attachments/_import",
+                    {
+                        "filename": "pic.png",
+                        "createdAt": "2025-08-09T10:11:12.000+0000",
+                        "createdBy": "19",
+                    },
+                    files={"file_data": ("file_data", b"PNGDATA")},
+                ),
+                Reply(json={"id": "126", "name": "pic.png"}),
+            )
+        ],
+    ),
 ]

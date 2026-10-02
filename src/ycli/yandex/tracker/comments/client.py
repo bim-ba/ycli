@@ -10,7 +10,7 @@ from ycli.yandex.tracker.comments.models import Comment, CommentList
 
 
 class CommentsClient(Resource):
-    """List (relative-paginated), add, edit, delete and react to an issue's comments."""
+    """List (relative-paginated), get, add, edit, delete and react to an issue's comments."""
 
     def list(self, key: str, *, limit: int | None = None) -> CommentList:
         """All comments on an issue, draining the ``id=<last comment id>`` relative cursor.
@@ -27,6 +27,21 @@ class CommentsClient(Resource):
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_comments(key, page_size=page_size)
         return CommentList(list(self._session.iterate(paged, limit=limit)))
+
+    def get(self, key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:
+        """``GET /issues/{key}/comments/{comment_id}`` — one comment. Returns it.
+
+        ``comment_id`` is the numeric ``id`` or the string ``longId``. ``expand`` adds
+        ``attachments``, ``html`` or ``all`` extra fields.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.comments.get(
+            ...     "DATAENGINEERING-1", 2238, expand="html"
+            ... ).text_html  # doctest: +SKIP
+            '<p>Готово</p>'
+        """
+        return self._session.send(endpoints.get_comment(key, comment_id, expand=expand))
 
     def add(self, key: str, body: dict[str, Any]) -> Comment:
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.

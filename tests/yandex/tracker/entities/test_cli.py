@@ -13,6 +13,7 @@ from tests.hosts import TRACKER_BASE as BASE
     ("argv", "message"),
     [
         (["search", "project", "--order-asc"], "needs --order-by"),
+        (["set-direct-permissions", "project", "655f"], "pass --grant and/or --revoke"),
         (["checklists", "edit", "project", "655f", "--item", "no-separator"], "must be id=text"),
     ],
 )

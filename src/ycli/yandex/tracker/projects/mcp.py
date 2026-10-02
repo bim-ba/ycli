@@ -1,0 +1,119 @@
+"""Tracker ``/projects`` FastMCP tools (legacy Projects API v3; honest ARCH-3 annotations)."""
+
+from typing import Annotated
+
+from fastmcp import FastMCP
+from fastmcp.dependencies import Depends
+from pydantic import Field
+
+from ycli.yandex.models import Ack
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_IDEMPOTENT,
+    WRITE_TAGS,
+    tracker_client,
+)
+from ycli.yandex.tracker.projects.models import (
+    Project,
+    ProjectCreate,
+    ProjectList,
+    ProjectUpdate,
+)
+from ycli.yandex.tracker.queues.models import QueueList
+
+mcp = FastMCP("tracker-projects")
+
+ProjectId = Annotated[int, Field(description="Numeric id of the project, from ``projects_list``.")]
+Expand = Annotated[str | None, Field(description="Extra blocks to include, e.g. ``queues``.")]
+
+
+@mcp.tool(name="projects_list", annotations={**RO, "title": "List Tracker projects"}, tags=TAGS)
+def list_(expand: Expand = None, client: TrackerClient = Depends(tracker_client)) -> ProjectList:
+    """Every project of the organization (the legacy Projects API; ``entities_search`` is the
+    newer way to find projects and portfolios).
+
+    Example:
+        >>> projects_list(expand="queues")  # doctest: +SKIP
+    """
+    return client.projects.list(expand=expand)
+
+
+@mcp.tool(name="projects_get", annotations={**RO, "title": "Get Tracker project"}, tags=TAGS)
+def get(
+    project_id: ProjectId, expand: Expand = None, client: TrackerClient = Depends(tracker_client)
+) -> Project:
+    """One project: name, lead, stage, dates and ``version`` (needed to edit it).
+
+    Example:
+        >>> projects_get(1)  # doctest: +SKIP
+    """
+    return client.projects.get(project_id, expand=expand)
+
+
+@mcp.tool(
+    name="projects_queues",
+    annotations={**RO, "title": "List queues of a Tracker project"},
+    tags=TAGS,
+)
+def queues(
+    project_id: ProjectId,
+    expand: Annotated[
+        str | None,
+        Field(description="Extra queue blocks, e.g. ``all`` or ``components,versions``."),
+    ] = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> QueueList:
+    """The queues whose issues belong to a project.
+
+    Example:
+        >>> projects_queues(1)  # doctest: +SKIP
+    """
+    return client.projects.queues(project_id, expand=expand)
+
+
+@mcp.tool(
+    name="projects_create",
+    annotations={**WRITE, "title": "Create Tracker project"},
+    tags=WRITE_TAGS,
+)
+def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client)) -> Project:
+    """Create a project (legacy Projects API); ``name`` and ``queues`` (a queue key) are
+    required, ``status`` is DRAFT, IN_PROGRESS, LAUNCHED or POSTPONED. Returns the project.
+    """
+    return client.projects.create(body)
+
+
+@mcp.tool(
+    name="projects_edit",
+    annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker project"},
+    tags=WRITE_TAGS,
+)
+def edit(
+    project_id: ProjectId,
+    body: ProjectUpdate,
+    version: Annotated[
+        int, Field(description="Current version of the project, from ``projects_get``.")
+    ],
+    expand: Expand = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> Project:
+    """Edit a project; ``queues`` is required on every edit, other fields change when set.
+
+    Returns the project with its incremented version.
+    """
+    return client.projects.edit(project_id, body, version=version, expand=expand)
+
+
+@mcp.tool(
+    name="projects_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker project"},
+    tags=WRITE_TAGS,
+)
+def delete(project_id: ProjectId, client: TrackerClient = Depends(tracker_client)) -> Ack:
+    """Delete a project (irreversible). Returns an acknowledgement."""
+    client.projects.delete(project_id)
+    return Ack.deleted("project", project_id)

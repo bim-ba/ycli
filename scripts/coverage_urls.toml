@@ -52,12 +52,14 @@ operations.add = "issues/add-comment"
 operations.edit = "issues/edit-comment"
 operations.delete = "issues/delete-comment"
 operations.react = "issues/add-reaction-to-comment"
+operations.get = "issues/get-comment"
 
 [tracker.links]
 resource = "issues/get-links"
 operations.list = "issues/get-links"
 operations.add = "issues/link-issue"
 operations.delete = "issues/delete-link-issue"
+operations.search = "issues/get-links-paginate"
 
 [tracker.transitions]
 resource = "issues/get-transitions"
@@ -88,6 +90,10 @@ operations.clear = "issues/delete-checklist"
 [tracker.attachments]
 resource = "issues/get-attachments-list"
 operations.list = "issues/get-attachments-list"
+operations.get = "issues/get-attachment-info"
+operations.delete = "issues/delete-attachment"
+operations.upload = "issues/post-attachment"
+operations.upload_temp = "issues/temp-attachment"
 operations.download = "issues/get-attachment"
 operations.download_thumbnail = "issues/get-attachment-preview"
 
@@ -170,6 +176,11 @@ resource = "queues/get-components"
 operations.list = "queues/get-components"
 operations.create = "queues/post-component"
 operations.edit = "queues/patch-component"
+operations.get = "queues/get-component"
+operations.delete = "queues/delete-component"
+operations.list_for_queue = "queues/get-queue-components"
+operations.user_permissions = "queues/get-component-user-access"
+operations.group_permissions = "queues/get-component-group-access"
 
 [tracker.queues]
 resource = "queues/get-queues"
@@ -184,6 +195,11 @@ operations.restore = "queues/restore-queue"
 operations.set_permissions = "queues/manage-access"
 operations.tag_remove = "queues/delete-tag"
 operations.version_create = "queues/create-version"
+operations.version_get = "queues/get-version"
+operations.version_edit = "queues/update-version"
+operations.version_delete = "queues/delete-version"
+operations.user_permissions = "queues/get-user-access"
+operations.group_permissions = "queues/get-group-access"
 
 [tracker.macros]
 resource = "get-macroses"
@@ -195,6 +211,7 @@ operations.delete = "delete-macros"
 
 [tracker.triggers]
 resource = "queues/get-trigger"
+operations.list = "queues/get-triggers"
 operations.get = "queues/get-trigger"
 operations.create = "queues/create-trigger"
 operations.edit = "queues/change-trigger"
@@ -227,6 +244,32 @@ operations.comment = "import/import-comments"
 operations.link = "import/import-links"
 operations.worklog = "import/import-worklogs"
 operations.file = "import/import-attachments"
+operations.comment_file = "import/import-attachments"
+
+[tracker.workflows]
+resource = "queues/workflows/get-workflows"
+operations.list = "queues/workflows/get-workflows"
+operations.get = "queues/workflows/get-workflow"
+operations.for_queue = "queues/workflows/get-queue-workflows"
+operations.create = "queues/workflows/post-workflow"
+operations.edit = "queues/workflows/patch-workflow"
+operations.edit_action = "queues/workflows/patch-workflow-action"
+operations.delete = "queues/workflows/delete-workflow"
+
+[tracker.projects]
+resource = "projects/get-projects"
+operations.list = "projects/get-projects"
+operations.get = "projects/get-project"
+operations.queues = "projects/get-project-queues"
+operations.create = "projects/create-project"
+operations.edit = "projects/update-project"
+operations.delete = "projects/delete-project"
+
+[tracker.gaps]
+resource = "gaps/post-gaps"
+operations.create = "gaps/post-gaps"
+operations.search = "gaps/search-gaps"
+operations.delete = "gaps/delete-gaps"
 
 [tracker.entities]
 resource = "entities/about-entities"
@@ -238,6 +281,8 @@ operations.search = "entities/search-entities"
 operations.history = "entities/get-events-relative"
 operations.permissions = "entities/get-access"
 operations.set_permissions = "entities/patch-access"
+operations.direct_permissions = "entities/get-permissions"
+operations.set_direct_permissions = "entities/patch-permissions"
 operations.bulk_update = "entities/bulkchange-entities"
 operations.bulk_status = "entities/bulkchange-entities"
 operations.comments_list = "entities/comments/get-all-comments"
@@ -276,6 +321,7 @@ resource = "filters/get-filter"
 operations.get = "filters/get-filter"
 operations.create = "filters/create-filter"
 operations.edit = "filters/update-filter"
+operations.delete = "filters/delete-filter"
 
 [tracker.me]
 resource = "users/get-user-info"

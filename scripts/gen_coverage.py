@@ -73,9 +73,12 @@ TRACKER_CATEGORIES: list[tuple[str, list[str]]] = [
     ),
     ("Agile boards", ["boards", "sprints", "columns"]),
     ("Dictionaries", ["priorities", "statuses", "resolutions", "issuetypes", "linktypes"]),
-    ("Fields, queues & structure", ["fields", "localfields", "components", "queues"]),
+    (
+        "Fields, queues & structure",
+        ["fields", "localfields", "components", "queues", "workflows", "projects"],
+    ),
     ("Automation & bulk", ["macros", "triggers", "autoactions", "dashboards", "bulk", "import_"]),
-    ("Entities, users & search", ["entities", "users", "applications", "filters", "me"]),
+    ("Entities, users & search", ["entities", "users", "applications", "filters", "gaps", "me"]),
 ]
 WIKI_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Pages", ["pages", "resources", "recovery", "search"]),
