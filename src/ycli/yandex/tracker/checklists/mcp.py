@@ -38,7 +38,7 @@ def get(
     """The checklist items on a Tracker issue (text, done flag, assignee, per-item deadline).
 
     Returns a flat array; an issue with no checklist yields an empty list. Item ids from here
-    feed ``checklists_edit`` / ``checklists_delete``.
+    feed ``checklists_update`` / ``checklists_delete``.
 
     Example:
         >>> get(key="QUEUE-123")  # doctest: +SKIP
@@ -62,7 +62,7 @@ def create(
 
 
 @mcp.tool(
-    name="checklists_edit",
+    name="checklists_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker checklist item"},
     tags=WRITE_TAGS,
 )

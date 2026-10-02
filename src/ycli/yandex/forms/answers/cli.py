@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.output import BinaryResult
 from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
@@ -140,8 +141,9 @@ def export(
     return _finish_export(forms, survey_id, op, wait, output)
 
 
+@deprecated_alias(app, "integrations")
 @app.command()
-def integrations(
+def integrations_list(
     answer_id: Annotated[
         int,
         typer.Option("--answer-id", help="Numeric answer id (needs form-edit access; 0 = unset)."),

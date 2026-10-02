@@ -13,7 +13,7 @@ import ycli.cli.app as cli
     [
         (["create", "--name", "X"], "not-json", "--filter must be valid JSON"),
         (["create", "--name", "X"], "[1, 2]", "--filter must be a JSON object"),
-        (["edit", "12345"], "{broken", "--filter must be valid JSON"),
+        (["update", "12345"], "{broken", "--filter must be valid JSON"),
     ],
 )
 def test_a_bad_filter_fails_before_sending(api, command, raw, message):

@@ -166,7 +166,7 @@ CASES = [
         cli=[
             "tracker",
             "projects",
-            "edit",
+            "update",
             "31",
             "--version",
             "5",
@@ -188,7 +188,7 @@ CASES = [
             "queues",
         ],
         mcp=(
-            "tracker_projects_edit",
+            "tracker_projects_update",
             {
                 "project_id": 31,
                 "version": 5,
@@ -229,7 +229,7 @@ CASES = [
         "tracker.projects.edit",
         args=(32, ProjectUpdate(queues="ONLYQ")),
         kwargs={"version": 2},
-        cli=["tracker", "projects", "edit", "32", "--version", "2", "--queues", "ONLYQ"],
+        cli=["tracker", "projects", "update", "32", "--version", "2", "--queues", "ONLYQ"],
         mcp=None,
         exchanges=[
             (

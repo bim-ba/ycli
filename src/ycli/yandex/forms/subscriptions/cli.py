@@ -11,6 +11,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.files.models import FileOut
 from ycli.yandex.forms.subscriptions.models import (
@@ -71,8 +72,9 @@ def create(
     return forms.subscriptions.create(survey_id, hook_id, _body(body_file))
 
 
+@deprecated_alias(app, "modify")
 @app.command()
-def modify(
+def update(
     survey_id: SurveyIdArg,
     hook_id: HookIdArg,
     subscription_id: SubscriptionIdArg,

@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.statuses.models import (
     LocalizedName,
@@ -44,8 +45,9 @@ def create(
     return tracker.statuses.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     status_id: Annotated[str, typer.Argument(metavar="STATUS_ID", help="Status id or key.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New status name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="New status name in English.")] = "",

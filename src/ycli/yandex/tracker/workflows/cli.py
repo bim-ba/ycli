@@ -11,6 +11,7 @@ from typing import Annotated, Any
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.workflows.models import (
@@ -121,8 +122,9 @@ def create(
     return tracker.workflows.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     workflow_id: WorkflowIdArg,
     version: VersionOpt,
     name: Annotated[str, typer.Option(help="New name of the workflow.")] = "",
@@ -153,8 +155,9 @@ def edit(
     return tracker.workflows.edit(workflow_id, body, version=version)
 
 
-@app.command("edit-action")
-def edit_action(
+@deprecated_alias(app, "edit-action")
+@app.command("update-action")
+def update_action(
     workflow_id: WorkflowIdArg,
     status: Annotated[
         str, typer.Argument(metavar="STATUS", help="Key of the step the action leaves.")

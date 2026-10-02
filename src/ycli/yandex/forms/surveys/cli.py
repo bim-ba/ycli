@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
@@ -70,8 +71,9 @@ def create(
     return forms.surveys.create(body=body)
 
 
+@deprecated_alias(app, "modify")
 @app.command()
-def modify(
+def update(
     survey_id: SurveyIdArg,
     name: Annotated[str, typer.Option(help="New form name.")] = "",
     language: Annotated[str, typer.Option(help="New interface language.")] = "",

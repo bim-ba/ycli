@@ -134,14 +134,14 @@ CASES = [
     Case(
         "tracker.queues.tags",
         args=("TAGQ",),
-        cli=["tracker", "queues", "tags", "TAGQ"],
+        cli=["tracker", "queues", "tags-list", "TAGQ"],
         mcp=("tracker_queues_tags_list", {"queue_id": "TAGQ"}),
         exchanges=[(Sent("GET", "queues/TAGQ/tags"), Reply(json=["tag1", "tag2"]))],
     ),
     Case(
         "tracker.queues.versions",
         args=("VERQ",),
-        cli=["tracker", "queues", "versions", "VERQ"],
+        cli=["tracker", "queues", "versions-list", "VERQ"],
         mcp=("tracker_queues_versions_list", {"queue_id": "VERQ"}),
         exchanges=[
             (
@@ -153,7 +153,7 @@ CASES = [
     Case(
         "tracker.queues.fields",
         args=("FLDQ",),
-        cli=["tracker", "queues", "fields", "FLDQ"],
+        cli=["tracker", "queues", "fields-list", "FLDQ"],
         mcp=("tracker_queues_fields_list", {"queue_id": "FLDQ"}),
         exchanges=[
             (
@@ -307,7 +307,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "permissions",
+            "set-permissions",
             "PERM",
             "--create",
             '{"roles": ["author"]}',
@@ -358,7 +358,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "permissions",
+            "set-permissions",
             "ONE",
             "--grant",
             '{"roles": {"add": ["author"]}}',
@@ -507,7 +507,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "version-edit",
+            "version-update",
             "903",
             "--name",
             "Release 1.1",
@@ -521,7 +521,7 @@ CASES = [
             "name,description",
         ],
         mcp=(
-            "tracker_queues_version_edit",
+            "tracker_queues_version_update",
             {
                 "version_id": 903,
                 "body": {
@@ -554,7 +554,7 @@ CASES = [
     Case(
         "tracker.queues.version_edit",
         args=(904, QueueVersionUpdate(due_date="2027-01-31")),
-        cli=["tracker", "queues", "version-edit", "904", "--due-date", "2027-01-31"],
+        cli=["tracker", "queues", "version-update", "904", "--due-date", "2027-01-31"],
         mcp=None,
         exchanges=[
             (
@@ -573,14 +573,14 @@ CASES = [
     Case(
         "tracker.queues.user_permissions",
         args=("PERMQ", "carol"),
-        cli=["tracker", "queues", "user-permissions", "PERMQ", "carol"],
+        cli=["tracker", "queues", "user-permissions-get", "PERMQ", "carol"],
         mcp=("tracker_queues_user_permissions_get", {"queue_id": "PERMQ", "user_id": "carol"}),
         exchanges=[(Sent("GET", "queues/PERMQ/permissions/users/carol"), Reply(json=USER_ACCESS))],
     ),
     Case(
         "tracker.queues.group_permissions",
         args=("PERMG", 77),
-        cli=["tracker", "queues", "group-permissions", "PERMG", "77"],
+        cli=["tracker", "queues", "group-permissions-get", "PERMG", "77"],
         mcp=("tracker_queues_group_permissions_get", {"queue_id": "PERMG", "group_id": 77}),
         exchanges=[
             (

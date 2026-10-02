@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.checklists.models import (
     Checklist,
     ChecklistDeadlineInput,
@@ -33,8 +34,9 @@ def get(key: KeyArg, *, tracker: TrackerClient) -> ChecklistItemList:
     return tracker.checklists.get(key)
 
 
+@deprecated_alias(app, "add")
 @app.command()
-def add(
+def create(
     key: KeyArg,
     text: TextOpt,
     checked: CheckedOpt = None,
@@ -53,8 +55,9 @@ def add(
     return tracker.checklists.create(key, body=body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     key: KeyArg,
     item_id: ItemIdArg,
     text: TextOpt = "",

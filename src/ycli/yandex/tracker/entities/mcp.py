@@ -317,7 +317,7 @@ def create(
 
 
 @mcp.tool(
-    name="entities_edit",
+    name="entities_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity"},
     tags=WRITE_TAGS,
 )
@@ -461,11 +461,11 @@ def comments_create(
 
 
 @mcp.tool(
-    name="entities_comments_edit",
+    name="entities_comments_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity comment"},
     tags=WRITE_TAGS,
 )
-def comments_edit(
+def comments_update(
     entity_type: TypeArg,
     entity_id: IdArg,
     comment_id: Annotated[str, Field(description="Comment id (from entities_comments_list).")],
@@ -521,11 +521,11 @@ def checklists_create(
 
 
 @mcp.tool(
-    name="entities_checklists_edit",
+    name="entities_checklists_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist"},
     tags=WRITE_TAGS,
 )
-def checklists_edit(
+def checklists_update(
     entity_type: TypeArg,
     entity_id: IdArg,
     body: ChecklistItemsInput,
@@ -534,7 +534,7 @@ def checklists_edit(
     """Replace/update a Tracker entity's checklist items in one call.
 
     ``body`` is a bare array of items, each with ``id``/``text``/``checked``. To edit a single
-    item by id use ``entities_checklists_edit_item``. Returns the entity with its checklist.
+    item by id use ``entities_checklists_update_item``. Returns the entity with its checklist.
     """
     return client.entities.checklists_edit(
         entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
@@ -542,7 +542,7 @@ def checklists_edit(
 
 
 @mcp.tool(
-    name="entities_checklists_edit_item",
+    name="entities_checklists_update_item",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist item"},
     tags=WRITE_TAGS,
 )

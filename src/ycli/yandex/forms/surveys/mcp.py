@@ -72,7 +72,7 @@ def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> S
 
 
 @mcp.tool(
-    name="surveys_modify",
+    name="surveys_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms survey"},
     tags=WRITE_TAGS,
 )

@@ -78,7 +78,7 @@ def create(
 
 
 @mcp.tool(
-    name="subscriptions_modify",
+    name="subscriptions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration"},
     tags=WRITE_TAGS,
 )

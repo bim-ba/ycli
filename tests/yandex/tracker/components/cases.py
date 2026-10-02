@@ -103,7 +103,7 @@ CASES = [
         cli=[
             "tracker",
             "components",
-            "edit",
+            "update",
             "111175",
             "--name",
             "Web UI",
@@ -116,7 +116,7 @@ CASES = [
             "4",
         ],
         mcp=(
-            "tracker_components_edit",
+            "tracker_components_update",
             {
                 "component_id": 111175,
                 "body": {
@@ -148,7 +148,7 @@ CASES = [
     Case(
         "tracker.components.edit",
         args=(222, ComponentUpdate(assign_auto=True)),
-        cli=["tracker", "components", "edit", "222", "--assign-auto"],
+        cli=["tracker", "components", "update", "222", "--assign-auto"],
         mcp=None,
         exchanges=[
             (
@@ -234,7 +234,7 @@ CASES = [
     Case(
         "tracker.components.user_permissions",
         args=(128, "dan"),
-        cli=["tracker", "components", "user-permissions", "128", "dan"],
+        cli=["tracker", "components", "user-permissions-get", "128", "dan"],
         mcp=("tracker_components_user_permissions_get", {"component_id": 128, "user_id": "dan"}),
         exchanges=[
             (
@@ -262,7 +262,7 @@ CASES = [
     Case(
         "tracker.components.group_permissions",
         args=(129, 88),
-        cli=["tracker", "components", "group-permissions", "129", "88"],
+        cli=["tracker", "components", "group-permissions-get", "129", "88"],
         mcp=("tracker_components_group_permissions_get", {"component_id": 129, "group_id": 88}),
         exchanges=[
             (

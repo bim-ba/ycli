@@ -75,7 +75,7 @@ CASES = [
         cli=[
             "forms",
             "surveys",
-            "modify",
+            "update",
             "686d0a1b2c3d4e5f00000002",
             "--name",
             "Renamed",
@@ -84,7 +84,7 @@ CASES = [
             "9",
         ],
         mcp=(
-            "forms_surveys_modify",
+            "forms_surveys_update",
             {
                 "survey_id": "686d0a1b2c3d4e5f00000002",
                 "body": {"name": "Renamed", "is_public": True, "max_count": 9},

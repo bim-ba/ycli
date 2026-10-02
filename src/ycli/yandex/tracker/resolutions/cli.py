@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.resolutions.models import (
     LocalizedName,
@@ -40,8 +41,9 @@ def create(
     return tracker.resolutions.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     resolution_id: Annotated[
         str, typer.Argument(metavar="RESOLUTION_ID", help="Resolution id or key.")
     ],

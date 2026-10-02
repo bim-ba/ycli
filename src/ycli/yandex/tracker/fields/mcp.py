@@ -70,7 +70,7 @@ def create(body: FieldCreate, client: TrackerClient = Depends(tracker_client)) -
 
 
 @mcp.tool(
-    name="fields_edit",
+    name="fields_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field"},
     tags=WRITE_TAGS,
 )
@@ -107,7 +107,7 @@ def category_create(
 
 
 @mcp.tool(
-    name="fields_category_edit",
+    name="fields_category_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field category"},
     tags=WRITE_TAGS,
 )

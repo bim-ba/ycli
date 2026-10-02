@@ -162,7 +162,7 @@ CASES = [
         cli=[
             "tracker",
             "worklog",
-            "add",
+            "create",
             "DE-66",
             "--duration",
             "PT2H",
@@ -203,7 +203,7 @@ CASES = [
         cli=[
             "tracker",
             "worklog",
-            "edit",
+            "update",
             "DE-67",
             "671",
             "--duration",
@@ -212,7 +212,7 @@ CASES = [
             "trimmed",
         ],
         mcp=(
-            "tracker_worklog_edit",
+            "tracker_worklog_update",
             {
                 "key": "DE-67",
                 "record_id": "671",

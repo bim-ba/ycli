@@ -94,7 +94,7 @@ def create(
 
 
 @mcp.tool(
-    name="localfields_edit",
+    name="localfields_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker local field"},
     tags=WRITE_TAGS,
 )

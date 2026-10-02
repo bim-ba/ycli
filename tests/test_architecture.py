@@ -9,13 +9,17 @@ from __future__ import annotations
 import ast
 import asyncio
 import functools
+import importlib
+import inspect
 import re
+import textwrap
 from pathlib import Path
 
 from fastmcp import Client
 
 from tests.full_server import mcp as root_mcp
 from tests.full_server import tools_with_output_schemas
+from tests.snapshots._surface import cli_leaves
 from ycli.yandex.registry import SERVICES
 
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
@@ -335,6 +339,152 @@ def test_arch1_served_check_bites():
         "forms.stray: a CLI group with no resource directory",
         "wiki_stray_get: an MCP tool with no resource directory",
     ]
+
+
+# ARCH-1 name parity (#104). An operation served on both surfaces has one name: the CLI path
+# (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name. An MCP tool may differ
+# from the CLI command that reaches the same operation only here (tool name -> reason).
+ARCH1_NAME_EXCEPTIONS: dict[str, str] = {
+    "wiki_pages_meta": "one CLI command, `wiki pages get --fields`, where MCP serves the body "
+    "(`wiki_pages_get`) and the metadata (`wiki_pages_meta`) as two tools with fixed fields",
+    "tracker_entities_comments_relative_list": "one CLI command, `tracker entities comments "
+    "list --relative`, where MCP serves the relative-id page walk as its own tool",
+}
+
+
+# One verb per action (#104): the synonym on the left is never a command or tool word.
+ARCH1_SYNONYM_VERBS: dict[str, str] = {"edit": "update", "modify": "update"}
+
+
+def _synonym_verbs(names: set[str]) -> list[str]:
+    """Names (``tracker_boards_edit``) with a word that has a preferred verb."""
+    return [
+        f"{name}: say {ARCH1_SYNONYM_VERBS[word]!r}, not {word!r}"
+        for name in sorted(names)
+        for word in name.split("_")
+        if word in ARCH1_SYNONYM_VERBS
+    ]
+
+
+def _function_operations(function: object) -> frozenset[str]:
+    """``domain.resource.op`` for every client operation ``function``'s body calls (AST)."""
+    source = textwrap.dedent(inspect.getsource(inspect.unwrap(function)))  # ty: ignore[invalid-argument-type]
+    return frozenset(
+        f"{slug}.{attr}.{op}"
+        for slug, attr, sdk_ops in _resource_operations()
+        for op in _wrapped_ops_in_source(source, attr) & sdk_ops
+    )
+
+
+def _cli_commands_by_name() -> dict[str, frozenset[str]]:
+    """Visible CLI leaf commands as ``tracker_issues_get``-style names, with the operations they
+    call under their service (``tracker.issues.get``). A hidden alias is not a surface."""
+    out: dict[str, frozenset[str]] = {}
+    for path, command in cli_leaves().items():
+        service = path.split()[0]
+        out[path.replace(" ", "_").replace("-", "_")] = frozenset(
+            op for op in _function_operations(command.callback) if op.startswith(f"{service}.")
+        )
+    return out
+
+
+def _mcp_tools_by_name() -> dict[str, frozenset[str]]:
+    """Served MCP resource tools by name, with the operations they call, read from each
+    resource's own server (the root server holds proxies, with no function to read)."""
+    out: dict[str, frozenset[str]] = {}
+    for directory in _resource_dirs():
+        domain = directory.parent.name
+        server = importlib.import_module(f"ycli.yandex.{domain}.{directory.name}.mcp").mcp
+        for tool in asyncio.run(server.list_tools()):
+            function = asyncio.run(server.get_tool(tool.name)).fn
+            out[f"{domain}_{tool.name}"] = frozenset(
+                op for op in _function_operations(function) if op.startswith(f"{domain}.")
+            )
+    return out
+
+
+def _counterparts(cli: dict[str, frozenset[str]], operations: frozenset[str]) -> set[str]:
+    """CLI commands serving a tool's ``operations``: those calling exactly them, else those
+    calling at least them (a command that polls an async operation also reads its status)."""
+    exact = {name for name, ops in cli.items() if ops == operations}
+    return exact or {name for name, ops in cli.items() if operations <= ops}
+
+
+def _name_mismatches(
+    cli: dict[str, frozenset[str]], tools: dict[str, frozenset[str]], exceptions: set[str]
+) -> list[str]:
+    """MCP tools named differently from the CLI command that serves the same operations.
+
+    No counterpart is not a name problem (``test_arch1_operation_level_parity`` owns that); a
+    tool calling no operation is reported, so a helper cannot hide a wrapper from this check;
+    an exception that no longer applies is reported too.
+    """
+    problems = []
+    for tool, operations in sorted(tools.items()):
+        if not operations:
+            problems.append(f"{tool}: calls no client operation, so its CLI name cannot be checked")
+            continue
+        counterparts = _counterparts(cli, operations)
+        if counterparts and tool not in counterparts and tool not in exceptions:
+            problems.append(f"{tool}: the CLI serves it as {sorted(counterparts)}")
+    problems += [
+        f"{tool}: listed in ARCH1_NAME_EXCEPTIONS but no longer needed"
+        for tool in sorted(exceptions)
+        if tool not in tools or tool in _counterparts(cli, tools[tool])
+    ]
+    return problems
+
+
+def test_arch1_cli_path_equals_mcp_name():
+    """An operation served on both surfaces has the same name on both (ARCH-1, #104).
+
+    The CLI path with spaces and hyphens as ``_`` is the MCP tool name, verb last (``update``,
+    never ``edit`` or ``modify``). The old CLI names keep working as hidden aliases, which are not
+    the surface. The tools read are those of the resource servers; the root server must serve
+    exactly them (plus ``status_get``), so a tool cannot hide from this check.
+    """
+    tools = _mcp_tools_by_name()
+    served = {tool.name for tool in _mcp_tools()} - {"status_get"}
+    assert set(tools) == served, sorted(set(tools) ^ served)
+    cli = _cli_commands_by_name()
+    problems = _name_mismatches(cli, tools, set(ARCH1_NAME_EXCEPTIONS))
+    problems += _synonym_verbs(set(cli) | set(tools))
+    assert not problems, (
+        "a CLI command and an MCP tool serve the same operation under different names; rename "
+        "the CLI command (keep the old name with `deprecated_alias`) or the tool, or list the "
+        "tool in ARCH1_NAME_EXCEPTIONS with a reason:\n  " + "\n  ".join(problems)
+    )
+
+
+def test_arch1_name_parity_check_bites():
+    """Prove-it: a renamed CLI command, a tool with no operation, a stale exception and a synonym
+    verb are each reported; matching names, a polling superset and a listed exception are not."""
+    op = frozenset({"tracker.boards.update"})
+    assert (
+        _name_mismatches({"tracker_boards_update": op}, {"tracker_boards_update": op}, set()) == []
+    )
+    assert _name_mismatches({"tracker_boards_edit": op}, {"tracker_boards_update": op}, set()) == [
+        "tracker_boards_update: the CLI serves it as ['tracker_boards_edit']"
+    ]
+    # One command that also reads a status the tool does not: a superset counterpart still pairs.
+    polling = frozenset({"wiki.pages.clone", "wiki.operations.clone_get"})
+    cli = {
+        "wiki_pages_clone": polling,
+        "wiki_operations_clone_get": frozenset({"wiki.operations.clone_get"}),
+    }
+    tools = {"wiki_operations_clone_get": frozenset({"wiki.operations.clone_get"})}
+    assert _name_mismatches(cli, tools, set()) == []
+    assert _name_mismatches({}, {"tracker_boards_ghost": frozenset()}, set()) == [
+        "tracker_boards_ghost: calls no client operation, so its CLI name cannot be checked"
+    ]
+    assert _synonym_verbs({"tracker_boards_update", "forms_surveys_modify"}) == [
+        "forms_surveys_modify: say 'update', not 'modify'"
+    ]
+    renamed = {"tracker_boards_edit": op}
+    assert _name_mismatches(renamed, {"tracker_boards_update": op}, {"tracker_boards_update"}) == []
+    assert _name_mismatches(
+        {"tracker_boards_update": op}, {"tracker_boards_update": op}, {"tracker_boards_update"}
+    ) == ["tracker_boards_update: listed in ARCH1_NAME_EXCEPTIONS but no longer needed"]
 
 
 # An endpoint may state an effect other than its method implies only here, with the reason:

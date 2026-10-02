@@ -47,7 +47,7 @@ def create(body: PriorityCreate, client: TrackerClient = Depends(tracker_client)
 
 
 @mcp.tool(
-    name="priorities_edit",
+    name="priorities_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker priority"},
     tags=WRITE_TAGS,
 )

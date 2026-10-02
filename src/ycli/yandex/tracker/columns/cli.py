@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnList, ColumnUpdate
@@ -43,8 +44,9 @@ def create(
     return tracker.columns.create(board_id, body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     board_id: BoardIdArg,
     column_id: ColumnIdArg,
     name: Annotated[str, typer.Option(help="New column name.")] = "",

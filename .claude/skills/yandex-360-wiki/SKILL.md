@@ -62,11 +62,11 @@ Every read is available both as a CLI command and as an MCP tool (annotated `rea
 | Content **and** metadata in one call | `uv run ycli wiki pages get <slug> --fields content,attributes` | — |
 | Descendant slugs (auto-paginated) | `uv run ycli wiki pages descendants <slug> [--limit N \| --all]` | `wiki_pages_descendants` |
 | Full-text search (one page of hits) | `uv run ycli wiki search query <text> [--type page\|file] [--cluster <slug>] [--limit N] [--cursor N]` | `wiki_search_query` |
-| A page's saved revisions, newest first ¹ | `uv run ycli wiki pages revisions <page_id> [--ids 1,2] [--limit N \| --all]` | `wiki_pages_revisions_list` |
-| Pages that link to a page ¹ | `uv run ycli wiki pages backlinks <page_id> [--for-cluster] [--limit N \| --all]` | `wiki_pages_backlinks_list` |
+| A page's saved revisions, newest first ¹ | `uv run ycli wiki pages revisions-list <page_id> [--ids 1,2] [--limit N \| --all]` | `wiki_pages_revisions_list` |
+| Pages that link to a page ¹ | `uv run ycli wiki pages backlinks-list <page_id> [--for-cluster] [--limit N \| --all]` | `wiki_pages_backlinks_list` |
 | One attachment's metadata ¹ | `uv run ycli wiki attachments get <page_id> <file_id>` | `wiki_attachments_get` |
-| Is a grid column slug free? ¹ | `uv run ycli wiki grids columns suggest <grid_id> (--title T \| --slug S)` | `wiki_grids_suggest_column` |
-| Who may open a page, and its personal accesses | `uv run ycli wiki pages get-by-id <page_id> --fields access_policy,access_lists,owner` | `wiki_pages_by_id_get` |
+| Is a grid column slug free? ¹ | `uv run ycli wiki grids columns suggest <grid_id> (--title T \| --slug S)` | `wiki_grids_columns_suggest` |
+| Who may open a page, and its personal accesses | `uv run ycli wiki pages get-by-id <page_id> --fields access_policy,access_lists,owner` | `wiki_pages_get_by_id` |
 | Comments on a page | **2-step** (see below) | `wiki_comments_list` |
 | Attachments on a page | **2-step** (see below) | `wiki_attachments_list` |
 
@@ -163,8 +163,8 @@ Confirm the published body starts at the `# H1`, not at `---` (which would mean 
 
 | Operation | CLI | MCP tool |
 |-----------|-----|----------|
-| Append to a page | `uv run ycli wiki pages append <page_id> --content … --location top\|bottom` | `wiki_pages_append_content` |
-| Clone a page (async) | `uv run ycli wiki pages clone <page_id> --target <new/slug> [--title …]` → poll `operations clone <task>` | `wiki_pages_clone` + `wiki_operations_clone_get` |
+| Append to a page | `uv run ycli wiki pages append <page_id> --content … --location top\|bottom` | `wiki_pages_append` |
+| Clone a page (async) | `uv run ycli wiki pages clone <page_id> --target <new/slug> [--title …]` → poll `operations clone-get <task>` | `wiki_pages_clone` + `wiki_operations_clone_get` |
 | Move or rename a page (async) ¹ | `uv run ycli wiki pages move <old/slug> <new/slug> [--validate-only] [--next-to <slug> --position before\|after] [--copy-inherited-access]` (waits by default; `--no-wait` to skip) | `wiki_pages_move` + `wiki_operations_move_get` |
 | Delete / restore a page | `uv run ycli wiki pages delete <page_id>` (emits a `recovery_token`) → `uv run ycli wiki recovery restore <token>` | `wiki_pages_delete` / `wiki_recovery_restore` |
 | Comments | `uv run ycli wiki comments create <page_id> --body … [--parent-id N]` / `… delete <page_id> <comment_id>` | `wiki_comments_create` / `wiki_comments_delete` |
@@ -182,7 +182,7 @@ Live-verified gotchas for these writes:
 - **`grids columns add` requires an explicit per-column `"slug"`.** `[{"title":"Count","type":"number","slug":"count"}]` works; omitting `slug` 400s (`value_error.missing`) despite older docs claiming it is server-generated.
 - **Grid `default-sort` has a different write shape than its read shape.** The API *writes* a mapping list `[{"<column_slug>": "asc"}]` (read shape is `[{"slug","title","direction"}]`); ycli's `--default-sort` sends the write shape and rejects the read shape loudly.
 - **Page access: pass `--prevent-selflock` on update, delete and clear.** The API then refuses a change that would leave you without read access or the right to change accesses. The page owner's own entry can be neither changed nor revoked, `access clear` keeps it, and granting a user who already has a personal access is refused (use `access update`). Read the entries (and their ids) back with `pages get-by-id <page_id> --fields access_policy,access_lists`. Verified live 2026-10-02.
-- **`comments thread-get` returns nothing.** The server's `/thread` endpoint answers an empty list for every real thread, so use `comments thread` (rebuilt from `comments list`).
+- **`comments thread-get` returns nothing.** The server's `/thread` endpoint answers an empty list for every real thread, so use `comments thread-list` (rebuilt from `comments list`).
 - **`attachments list` rows carry the numeric file `id`** that `get`, `download`, `preview` and `delete` take (the upload/attach response has it too).
 
 ### Undocumented operations
@@ -190,8 +190,8 @@ Live-verified gotchas for these writes:
 Yandex's live OpenAPI (<https://api.wiki.yandex.net/v1/openapi.json>) has 9 operations its documentation does not cover. ycli wraps all of them; they are marked ¹ above, say so in their `--help`, and **may change without notice**. What a live check (2026-10-03) found:
 
 - **`pages move` is the only way to rename or relocate a page** (a page update has no `slug`). It moves the page with its whole subtree (`page_count` in the status counts both) and the old address answers 404 afterwards. The API refuses a move that does not say whether to copy inherited access (400 `INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED`), so ycli always sends `--copy-inherited-access` or `--no-copy-inherited-access` (the default). `--validate-only` only validates the request: nothing moves and its task id answers 404 when polled, so `--wait` is skipped. The target's parent must exist (400 `NO_PARENT_PAGE`), and `--next-to` must name a page that already sits where the target will (400 `NEXT_TO_WRONG_CLUSTER`); the API accepts it without `--position`.
-- **`pages revisions` lists newest first.** A revision `id` is what the API's `GET /pages` takes as `revision_id` (`pages get` has no flag for it yet); `--ids` keeps only those. A fresh page has one revision per save.
-- **`pages backlinks` lags a few seconds** behind the page that holds the link. `--for-cluster` also reports links to the page's descendants; plain lists links to the page only.
+- **`pages revisions-list` lists newest first.** A revision `id` is what the API's `GET /pages` takes as `revision_id` (`pages get` has no flag for it yet); `--ids` keeps only those. A fresh page has one revision per save.
+- **`pages backlinks-list` lags a few seconds** behind the page that holds the link. `--for-cluster` also reports links to the page's descendants; plain lists links to the page only.
 - **`attachments preview` returns an image only for an attachment with `has_preview: true`.** For one without (a text file, say) the API answers `200 image/png` whose body is the *base64 text* of a 1-pixel PNG, not the PNG; `attachments get` shows `has_preview`. A fresh upload reports `has_preview: false` for a few seconds.
 - **`grids columns suggest` takes exactly one of `--title` and `--slug`** (400 for neither or both) and changes nothing. The server writes slugs with hyphens (`Due date` → `due-date`), where `grids columns add` derives them with underscores.
 - **`grids columns update` and `grids rows update` do not enforce `--revision`**: a stale or missing one is accepted, and every call, even one that changes nothing, moves the grid's revision on. A column's `type` and `slug` cannot change. `rows update` answers an empty object (printed as `{"status": null}`), not the new revision; read that from `grids get`.

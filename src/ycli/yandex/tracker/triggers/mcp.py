@@ -65,7 +65,7 @@ def get(
     """One queue trigger by id — its actions, firing conditions, order and active flag.
 
     Triggers run actions on an issue when their conditions match. The webhook-action run log is
-    ``triggers_webhooklog_list``.
+    ``triggers_webhook_log_list``.
 
     Example:
         >>> triggers_get("DESIGN", 16)  # doctest: +SKIP
@@ -74,7 +74,7 @@ def get(
 
 
 @mcp.tool(
-    name="triggers_webhooklog_list",
+    name="triggers_webhook_log_list",
     annotations={**RO, "title": "List Tracker trigger webhook logs"},
     tags=TAGS,
 )
@@ -97,7 +97,7 @@ def webhooklog_list(
     actions produce these; a trigger with no HTTP action returns an empty list.
 
     Example:
-        >>> triggers_webhooklog_list("DEV", 6, limit=100)  # doctest: +SKIP
+        >>> triggers_webhook_log_list("DEV", 6, limit=100)  # doctest: +SKIP
     """
     return client.triggers.webhook_log(
         queue_id, trigger_id, issue_id=issue_id or None, limit=limit or None
@@ -125,7 +125,7 @@ def create(
 
 
 @mcp.tool(
-    name="triggers_edit",
+    name="triggers_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue trigger"},
     tags=WRITE_TAGS,
 )

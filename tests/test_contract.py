@@ -20,6 +20,7 @@ from fastmcp import Client
 from pydantic import BaseModel
 from typer.testing import CliRunner
 
+from tests.cli_aliases import CLI_ALIASES
 from tests.contract import (
     UNSTATED,
     Case,
@@ -100,11 +101,11 @@ def _run_sdk(case: Case) -> object:
     )
 
 
-def _run_cli(case: Case) -> object:
+def _run_cli(case: Case, argv: Sequence[str] | None = None) -> object:
     assert case.cli is not None
     # A test has no terminal to answer the prompt a destructive operation raises.
     confirmed = ["--yes"] if case.expected_effect == "destructive" else []
-    result = CliRunner().invoke(app, ["--format", "json", *confirmed, *case.cli])
+    result = CliRunner().invoke(app, ["--format", "json", *confirmed, *(argv or case.cli)])
     assert result.exit_code == 0, result.output
     try:
         return json.loads(result.stdout_bytes)
@@ -199,6 +200,37 @@ def _public_methods(resource: object) -> set[str]:
 def _starts_with(argv: Sequence[str], command: str) -> bool:
     words = command.split()
     return list(argv[: len(words)]) == words
+
+
+def _alias_argv(argv: Sequence[str]) -> tuple[str, list[str]] | None:
+    """The old name ``argv``'s command is still reachable under, with ``argv`` rewritten to it."""
+    for old, new in CLI_ALIASES.items():
+        if _starts_with(argv, new):
+            return old, [*old.split(), *argv[len(new.split()) :]]
+    return None
+
+
+ALIAS_CASES = [
+    (case, *alias)
+    for case in CASES
+    if case.cli is not None and (alias := _alias_argv(case.cli)) is not None
+]
+
+
+@pytest.mark.parametrize(
+    ("case", "old", "argv"), ALIAS_CASES, ids=[" ".join(argv) for _, _, argv in ALIAS_CASES]
+)
+def test_a_deprecated_alias_sends_the_requests_of_its_command(case: Case, old, argv, monkeypatch):
+    """The old name of a renamed command reaches the same requests (ycli.cli.aliases)."""
+    for name, value in case.env.items():
+        monkeypatch.setenv(name, value)
+    api = _serve(monkeypatch, case)
+    _run_cli(case, argv)
+    _check_sent(case, api, "cli alias")
+
+
+def test_every_alias_is_replayed_by_a_case():
+    assert set(CLI_ALIASES) == {old for _, old, _ in ALIAS_CASES}
 
 
 def coverage_gaps(

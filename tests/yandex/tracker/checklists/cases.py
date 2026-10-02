@@ -29,7 +29,7 @@ CASES = [
         cli=[
             "tracker",
             "checklists",
-            "add",
+            "create",
             "DE-32",
             "--text",
             "step 1",
@@ -117,7 +117,7 @@ CASES = [
         cli=[
             "tracker",
             "checklists",
-            "edit",
+            "update",
             "DE-34",
             "5f4",
             "--text",
@@ -129,7 +129,7 @@ CASES = [
             "2022-01-02T00:00:00.000+0300",
         ],
         mcp=(
-            "tracker_checklists_edit",
+            "tracker_checklists_update",
             {
                 "key": "DE-34",
                 "item_id": "5f4",
@@ -164,9 +164,9 @@ CASES = [
     Case(
         "tracker.checklists.edit",
         args=("DE-35", "5f5", {"checked": True}),
-        cli=["tracker", "checklists", "edit", "DE-35", "5f5", "--checked"],
+        cli=["tracker", "checklists", "update", "DE-35", "5f5", "--checked"],
         mcp=(
-            "tracker_checklists_edit",
+            "tracker_checklists_update",
             {"key": "DE-35", "item_id": "5f5", "body": {"checked": True}},
         ),
         exchanges=[

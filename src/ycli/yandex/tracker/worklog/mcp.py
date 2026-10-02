@@ -116,7 +116,7 @@ def create(
 
 
 @mcp.tool(
-    name="worklog_edit",
+    name="worklog_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker worklog record"},
     tags=WRITE_TAGS,
 )

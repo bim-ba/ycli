@@ -77,7 +77,7 @@ def _family(
             args=(SID, *owner_sdk, base + 4, ConditionUpdate.model_validate(replaced)),
             cli=[
                 *cli,
-                "modify",
+                "update",
                 SID,
                 *owner_cli,
                 str(base + 4),
@@ -87,7 +87,7 @@ def _family(
                 '{"type": "language", "condition": "eq", "value": "ru"}',
             ],
             mcp=(
-                f"{tool}modify",
+                f"{tool}update",
                 {"survey_id": SID, **owner_mcp, "condition_id": base + 4, "body": replaced},
             ),
             exchanges=[
@@ -97,7 +97,7 @@ def _family(
         Case(
             f"forms.conditions.{family}_modify",
             args=(SID, *owner_sdk, base + 5, ConditionUpdate.model_validate(FROM_FILE)),
-            cli=[*cli, "modify", SID, *owner_cli, str(base + 5), "--body-file", GROUP_FILE],
+            cli=[*cli, "update", SID, *owner_cli, str(base + 5), "--body-file", GROUP_FILE],
             mcp=None,
             exchanges=[
                 (Sent("PATCH", f"{path}/{base + 5}", json=FROM_FILE), Reply(json=_group(base + 5)))

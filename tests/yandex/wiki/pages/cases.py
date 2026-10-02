@@ -136,7 +136,7 @@ CASES = [
         args=(4101,),
         kwargs={"fields": "content,breadcrumbs"},
         cli=["wiki", "pages", "get-by-id", "4101", "--fields", "content,breadcrumbs"],
-        mcp=("wiki_pages_by_id_get", {"page_id": 4101, "fields": "content,breadcrumbs"}),
+        mcp=("wiki_pages_get_by_id", {"page_id": 4101, "fields": "content,breadcrumbs"}),
         exchanges=[
             (
                 Sent("GET", "pages/4101", {"fields": "content,breadcrumbs"}),
@@ -150,7 +150,7 @@ CASES = [
         kwargs={"fields": "access_policy,access_lists,owner"},
         cli=["wiki", "pages", "get-by-id", "4104", "--fields", "access_policy,access_lists,owner"],
         mcp=(
-            "wiki_pages_by_id_get",
+            "wiki_pages_get_by_id",
             {"page_id": 4104, "fields": "access_policy,access_lists,owner"},
         ),
         exchanges=[
@@ -177,7 +177,7 @@ CASES = [
         "wiki.pages.get_by_id",
         args=(4103,),
         cli=None,
-        mcp=("wiki_pages_by_id_get", {"page_id": 4103}),
+        mcp=("wiki_pages_get_by_id", {"page_id": 4103}),
         exchanges=[(Sent("GET", "pages/4103"), Reply(json=_page(4103, "eng/qa")))],
     ),
     Case(
@@ -235,7 +235,7 @@ CASES = [
         args=(4210,),
         kwargs={"limit": 35},
         cli=["wiki", "pages", "descendants-by-id", "4210", "--limit", "35"],
-        mcp=("wiki_pages_by_id_descendants", {"page_id": 4210, "limit": 35}),
+        mcp=("wiki_pages_descendants_by_id", {"page_id": 4210, "limit": 35}),
         exchanges=[
             (
                 Sent("GET", "pages/4210/descendants", {"page_size": "100"}),
@@ -264,7 +264,7 @@ CASES = [
         "wiki.pages.grids",
         args=(4301,),
         kwargs={"limit": 30},
-        cli=["wiki", "pages", "grids", "4301", "--limit", "30"],
+        cli=["wiki", "pages", "grids-list", "4301", "--limit", "30"],
         mcp=("wiki_pages_grids_list", {"page_id": 4301, "limit": 30}),
         exchanges=[
             (
@@ -283,7 +283,7 @@ CASES = [
         "wiki.pages.grids",
         args=(4310,),
         kwargs={"limit": 12, "order_by": "created_at"},
-        cli=["wiki", "pages", "grids", "4310", "--limit", "12", "--order-by", "created_at"],
+        cli=["wiki", "pages", "grids-list", "4310", "--limit", "12", "--order-by", "created_at"],
         mcp=None,
         exchanges=[
             (
@@ -370,7 +370,7 @@ CASES = [
         args=(4601, {"content": "## Top note", "body": {"location": "top"}}),
         cli=["wiki", "pages", "append", "4601", "--content", "## Top note", "--location", "top"],
         mcp=(
-            "wiki_pages_append_content",
+            "wiki_pages_append",
             {"page_id": 4601, "body": {"content": "## Top note", "body": {"location": "top"}}},
         ),
         exchanges=[
@@ -411,7 +411,7 @@ CASES = [
         ),
         cli=None,
         mcp=(
-            "wiki_pages_append_content",
+            "wiki_pages_append",
             {
                 "page_id": 4603,
                 "body": {
@@ -439,7 +439,7 @@ CASES = [
         args=(4604, {"content": "## In section", "section": {"id": 3, "location": "bottom"}}),
         cli=None,
         mcp=(
-            "wiki_pages_append_content",
+            "wiki_pages_append",
             {
                 "page_id": 4604,
                 "body": {"content": "## In section", "section": {"id": 3, "location": "bottom"}},
@@ -623,7 +623,7 @@ CASES = [
         cli=[
             "wiki",
             "pages",
-            "revisions",
+            "revisions-list",
             "6201",
             "--ids",
             "7001,7002,7003",
@@ -659,7 +659,7 @@ CASES = [
         "wiki.pages.revisions",
         args=(6202,),
         kwargs={"limit": None},
-        cli=["wiki", "pages", "revisions", "6202", "--all"],
+        cli=["wiki", "pages", "revisions-list", "6202", "--all"],
         mcp=None,
         exchanges=[
             (
@@ -684,7 +684,7 @@ CASES = [
         cli=[
             "wiki",
             "pages",
-            "backlinks",
+            "backlinks-list",
             "6301",
             "--for-cluster",
             "--show-all",
@@ -723,7 +723,7 @@ CASES = [
         "wiki.pages.backlinks",
         args=(6302,),
         kwargs={"limit": None},
-        cli=["wiki", "pages", "backlinks", "6302", "--all"],
+        cli=["wiki", "pages", "backlinks-list", "6302", "--all"],
         mcp=None,
         exchanges=[
             (

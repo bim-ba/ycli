@@ -81,7 +81,7 @@ def add(
 
 
 @mcp.tool(
-    name="comments_edit",
+    name="comments_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue comment"},
     tags=WRITE_TAGS,
 )

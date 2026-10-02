@@ -1,9 +1,9 @@
 """`tracker entities` commands — projects / portfolios / goals and their sub-resources.
 
-Core verbs live on the top-level app (``get``/``create``/``edit``/``delete``/``search``/
-``history``/``permissions``/``set-permissions``/``bulk``); comments, checklists, links and
-attachments are nested sub-apps. Commands return their results; the one binary download
-(``attachments download``) returns a ``BinaryResult``.
+Core verbs live on the top-level app (``get``/``create``/``update``/``delete``/``search``/
+``events-list``/``permissions-get``/``set-permissions``/``bulk-update``); comments, checklists,
+links and attachments are nested sub-apps. Commands return their results; the one binary
+download (``attachments download``) returns a ``BinaryResult``.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ from typing import Annotated, Any
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
 from ycli.yandex.models import Ack
@@ -151,8 +152,9 @@ def create(
     return tracker.entities.create(type_.value, body=body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     type_: TypeArg,
     entity_id: IdArg,
     summary: Annotated[str, typer.Option(help="New name.")] = "",
@@ -232,8 +234,9 @@ def search(
     return tracker.entities.search(type_.value, body, fields=fields or None)
 
 
+@deprecated_alias(app, "history")
 @app.command()
-def history(
+def events_list(
     type_: TypeArg,
     entity_id: IdArg,
     limit: Annotated[int, typer.Option(help="Max events (0 = all).")] = 0,
@@ -244,8 +247,11 @@ def history(
     return tracker.entities.history(type_.value, entity_id, limit=limit or None)
 
 
+@deprecated_alias(app, "permissions")
 @app.command()
-def permissions(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> ExtendedPermissions:
+def permissions_get(
+    type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient
+) -> ExtendedPermissions:
     """Print an entity's access settings (GET …/extendedPermissions)."""
     return tracker.entities.permissions(type_.value, entity_id)
 
@@ -275,8 +281,9 @@ def set_permissions(
     return tracker.entities.set_permissions(type_.value, entity_id, body=body)
 
 
-@app.command("direct-permissions")
-def direct_permissions(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Acl:
+@deprecated_alias(app, "direct-permissions")
+@app.command("direct-permissions-get")
+def direct_permissions_get(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Acl:
     """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
     return tracker.entities.direct_permissions(type_.value, entity_id)
 
@@ -306,8 +313,9 @@ def set_direct_permissions(
     return tracker.entities.set_direct_permissions(type_.value, entity_id, body)
 
 
+@deprecated_alias(app, "bulk")
 @app.command()
-def bulk(
+def bulk_update(
     type_: TypeArg,
     entity: Annotated[list[str], typer.Option("--entity", help="Entity id (repeatable).")],
     comment: Annotated[str, typer.Option(help="Comment to add to every entity.")] = "",
@@ -323,8 +331,9 @@ def bulk(
     return tracker.entities.bulk_update(type_.value, body=body)
 
 
-@app.command("bulk-status")
-def bulk_status(
+@deprecated_alias(app, "bulk-status")
+@app.command("bulk-status-get")
+def bulk_status_get(
     operation_id: Annotated[str, typer.Argument(metavar="OPERATION_ID", help="Bulk-change id.")],
     *,
     tracker: TrackerClient,
@@ -412,8 +421,9 @@ def comments_create(
     return tracker.entities.comments_create(type_.value, entity_id, body=body)
 
 
-@comments_app.command("edit")
-def comments_edit(
+@deprecated_alias(comments_app, "edit")
+@comments_app.command("update")
+def comments_update(
     type_: TypeArg,
     entity_id: IdArg,
     comment_id: CommentIdArg,
@@ -475,8 +485,9 @@ def checklists_create(
     return tracker.entities.checklists_create(type_.value, entity_id, body=items)
 
 
-@checklists_app.command("edit")
-def checklists_edit(
+@deprecated_alias(checklists_app, "edit")
+@checklists_app.command("update")
+def checklists_update(
     type_: TypeArg,
     entity_id: IdArg,
     item: Annotated[
@@ -501,8 +512,9 @@ def checklists_edit(
     return tracker.entities.checklists_edit(type_.value, entity_id, body=items)
 
 
-@checklists_app.command("edit-item")
-def checklists_edit_item(
+@deprecated_alias(checklists_app, "edit-item")
+@checklists_app.command("update-item")
+def checklists_update_item(
     type_: TypeArg,
     entity_id: IdArg,
     item_id: ItemIdArg,

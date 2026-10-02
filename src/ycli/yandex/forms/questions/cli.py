@@ -8,6 +8,7 @@ from typing import Annotated, Any
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.questions.models import (
     BooleanQuestion,
@@ -212,8 +213,9 @@ def create(
     return forms.questions.create(survey_id, payload)
 
 
+@deprecated_alias(app, "modify")
 @app.command()
-def modify(
+def update(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     type_: TypeOpt = "",

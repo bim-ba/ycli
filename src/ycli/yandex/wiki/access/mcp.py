@@ -44,7 +44,7 @@ def create(
     """Grant a user or a group a role on a wiki page; returns the new access entry.
 
     A user who already holds a personal access is refused: change it with ``access_update``.
-    Read the current accesses with ``pages_by_id_get`` and
+    Read the current accesses with ``pages_get_by_id`` and
     ``fields="access_policy,access_lists"``.
 
     Example:

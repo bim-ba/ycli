@@ -87,7 +87,7 @@ CASES = [
         cli=[
             "tracker",
             "sprints",
-            "edit",
+            "update",
             "4404",
             "--name",
             "Updated",
@@ -101,7 +101,7 @@ CASES = [
             "5",
         ],
         mcp=(
-            "tracker_sprints_edit",
+            "tracker_sprints_update",
             {
                 "sprint_id": 4404,
                 "body": {
@@ -134,8 +134,8 @@ CASES = [
     Case(
         "tracker.sprints.edit",
         args=(4405, SprintUpdate(name="Unlocked")),
-        cli=["tracker", "sprints", "edit", "4405", "--name", "Unlocked"],
-        mcp=("tracker_sprints_edit", {"sprint_id": 4405, "body": {"name": "Unlocked"}}),
+        cli=["tracker", "sprints", "update", "4405", "--name", "Unlocked"],
+        mcp=("tracker_sprints_update", {"sprint_id": 4405, "body": {"name": "Unlocked"}}),
         exchanges=[
             (
                 Sent("PATCH", "sprints/4405", json={"name": "Unlocked"}),

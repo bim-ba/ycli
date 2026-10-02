@@ -9,6 +9,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.conditions.models import (
     ConditionCreate,
@@ -113,8 +114,9 @@ def question_create(
     return forms.conditions.question_create(survey_id, question_id, body)
 
 
-@question_app.command("modify")
-def question_modify(
+@deprecated_alias(question_app, "modify")
+@question_app.command("update")
+def question_update(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     condition_id: ConditionIdArg,
@@ -186,8 +188,9 @@ def page_create(
     return forms.conditions.page_create(survey_id, page_id, body)
 
 
-@page_app.command("modify")
-def page_modify(
+@deprecated_alias(page_app, "modify")
+@page_app.command("update")
+def page_update(
     survey_id: SurveyIdArg,
     page_id: PageIdArg,
     condition_id: ConditionIdArg,
@@ -250,8 +253,9 @@ def submit_create(
     return forms.conditions.submit_create(survey_id, body)
 
 
-@submit_app.command("modify")
-def submit_modify(
+@deprecated_alias(submit_app, "modify")
+@submit_app.command("update")
+def submit_update(
     survey_id: SurveyIdArg,
     condition_id: ConditionIdArg,
     operator: OperatorOpt = "",
@@ -316,8 +320,9 @@ def hook_create(
     return forms.conditions.hook_create(survey_id, hook_id, body)
 
 
-@hook_app.command("modify")
-def hook_modify(
+@deprecated_alias(hook_app, "modify")
+@hook_app.command("update")
+def hook_update(
     survey_id: SurveyIdArg,
     hook_id: HookIdArg,
     condition_id: ConditionIdArg,

@@ -47,8 +47,7 @@ CASES = [
         cli=[
             "tracker",
             "dashboards",
-            "add-widget",
-            "cycletime",
+            "add-cycle-time-widget",
             "11",
             "--description",
             "Cycle time",
@@ -98,8 +97,7 @@ CASES = [
         cli=[
             "tracker",
             "dashboards",
-            "add-widget",
-            "cycletime",
+            "add-cycle-time-widget",
             "12",
             "--description",
             "Bare widget",

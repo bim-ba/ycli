@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dashboards.models import (
     CycleTimeWidget,
@@ -16,8 +17,12 @@ from ycli.yandex.tracker.dashboards.models import (
 )
 
 app = typer.Typer(name="dashboards", help="Tracker dashboards.", no_args_is_help=True)
+# The old nested path `add-widget cycletime`: a hidden group holding one deprecated alias.
 add_widget_app = typer.Typer(
-    name="add-widget", help="Add a widget to a dashboard.", no_args_is_help=True
+    name="add-widget",
+    help="Add a widget to a dashboard.",
+    no_args_is_help=True,
+    hidden=True,
 )
 app.add_typer(add_widget_app)
 
@@ -41,8 +46,9 @@ def create(
     return tracker.dashboards.create(body=body)
 
 
-@add_widget_app.command("cycletime")
-def cycletime(
+@deprecated_alias(add_widget_app, "cycletime")
+@app.command()
+def add_cycle_time_widget(
     dashboard_id: DashboardIdArg,
     description: Annotated[str, typer.Option(help="Widget name.")],
     query: Annotated[str, typer.Option(help="Query-language filter selecting issues.")] = "",

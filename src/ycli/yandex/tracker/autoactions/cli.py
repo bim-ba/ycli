@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
     AutoactionCalendar,
@@ -78,16 +79,18 @@ def create(
     return tracker.autoactions.create(queue_id, body)
 
 
+@deprecated_alias(app, "logs")
 @app.command()
-def logs(
+def logs_list(
     queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient
 ) -> AutoactionLogList:
     """List the run summaries of autoaction ACTION_ID."""
     return tracker.autoactions.logs(queue_id, action_id)
 
 
-@app.command("log-detail")
-def log_detail(
+@deprecated_alias(app, "log-detail")
+@app.command("logs-get")
+def logs_get(
     queue_id: QueueIdArg,
     action_id: ActionIdArg,
     run_id: Annotated[str, typer.Argument(metavar="RUN_ID", help="Autoaction run identifier.")],

@@ -191,7 +191,7 @@ CASES = [
     Case(
         "forms.answers.integrations_list",
         kwargs={"answer_id": 2542485382},
-        cli=["forms", "answers", "integrations", "--answer-id", "2542485382"],
+        cli=["forms", "answers", "integrations-list", "--answer-id", "2542485382"],
         mcp=("forms_answers_integrations_list", {"answer_id": 2542485382}),
         exchanges=[
             (
@@ -203,7 +203,7 @@ CASES = [
     Case(
         "forms.answers.integrations_list",
         kwargs={"answer_key": "9eb7c89dd54e"},
-        cli=["forms", "answers", "integrations", "--answer-key", "9eb7c89dd54e"],
+        cli=["forms", "answers", "integrations-list", "--answer-key", "9eb7c89dd54e"],
         mcp=("forms_answers_integrations_list", {"answer_key": "9eb7c89dd54e"}),
         exchanges=[
             (Sent("GET", "answers/integrations", {"answer_key": "9eb7c89dd54e"}), Reply(json=[]))

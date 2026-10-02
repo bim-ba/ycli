@@ -67,7 +67,7 @@ def create(body: SprintCreate, client: TrackerClient = Depends(tracker_client)) 
 
 
 @mcp.tool(
-    name="sprints_edit",
+    name="sprints_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker sprint"},
     tags=WRITE_TAGS,
 )

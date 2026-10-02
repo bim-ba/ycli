@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.wiki.client import WikiClient
@@ -35,8 +36,9 @@ def list_(
     return wiki.comments.list(page_id=page_id, limit=cap)
 
 
+@deprecated_alias(app, "thread")
 @app.command()
-def thread(
+def thread_list(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
     limit: LimitOption = 0,
@@ -66,7 +68,7 @@ def thread_get(
 ) -> CommentList:
     """Print what the server returns as the thread of COMMENT_ID (GET .../comments/{id}/thread).
 
-    The server answers an empty list for every real thread (checked 2026-10-02); use `thread`,
+    The server answers an empty list for every real thread (checked 2026-10-02); use `thread-list`,
     which rebuilds it from the comment list.
     """
     cap = config.http.cap(limit, all_=all_)

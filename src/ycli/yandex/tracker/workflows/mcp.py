@@ -94,7 +94,7 @@ def create(body: WorkflowCreate, client: TrackerClient = Depends(tracker_client)
 
 
 @mcp.tool(
-    name="workflows_edit",
+    name="workflows_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow"},
     tags=WRITE_TAGS,
 )
@@ -111,7 +111,7 @@ def edit(
 
 
 @mcp.tool(
-    name="workflows_edit_action",
+    name="workflows_update_action",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow action"},
     tags=WRITE_TAGS,
 )

@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issuetypes.models import (
     IssueType,
@@ -40,8 +41,9 @@ def create(
     return tracker.issuetypes.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     issue_type_id: Annotated[
         str, typer.Argument(metavar="ISSUE_TYPE_ID", help="Issue type id or key.")
     ],

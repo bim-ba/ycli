@@ -72,7 +72,7 @@ CASES = [
         cli=[
             "tracker",
             "macros",
-            "edit",
+            "update",
             "QA",
             "6",
             "--name",
@@ -83,7 +83,7 @@ CASES = [
             '{"priority": "critical"}',
         ],
         mcp=(
-            "tracker_macros_edit",
+            "tracker_macros_update",
             {
                 "queue_id": "QA",
                 "macro_id": 6,

@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.components.models import (
@@ -57,8 +58,9 @@ def create(
     return tracker.components.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     component_id: Annotated[
         int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
     ],
@@ -113,8 +115,9 @@ def delete(component_id: ComponentIdArg, *, tracker: TrackerClient) -> Ack:
     return Ack.deleted("component", component_id)
 
 
-@app.command("user-permissions")
-def user_permissions(
+@deprecated_alias(app, "user-permissions")
+@app.command("user-permissions-get")
+def user_permissions_get(
     component_id: ComponentIdArg,
     user_id: Annotated[
         str, typer.Argument(metavar="USER", help="Login or numeric uid of the user.")
@@ -126,8 +129,9 @@ def user_permissions(
     return tracker.components.user_permissions(component_id, user_id)
 
 
-@app.command("group-permissions")
-def group_permissions(
+@deprecated_alias(app, "group-permissions")
+@app.command("group-permissions-get")
+def group_permissions_get(
     component_id: ComponentIdArg,
     group_id: Annotated[int, typer.Argument(metavar="GROUP_ID", help="Numeric id of the group.")],
     *,

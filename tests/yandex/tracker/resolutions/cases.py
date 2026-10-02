@@ -57,7 +57,7 @@ CASES = [
         cli=[
             "tracker",
             "resolutions",
-            "edit",
+            "update",
             "9",
             "--name-ru",
             "Отложено",
@@ -71,7 +71,7 @@ CASES = [
             "3",
         ],
         mcp=(
-            "tracker_resolutions_edit",
+            "tracker_resolutions_update",
             {
                 "resolution_id": "9",
                 "body": {
@@ -101,7 +101,7 @@ CASES = [
     Case(
         "tracker.resolutions.edit",
         args=("duplicate", ResolutionUpdate(order=15)),
-        cli=["tracker", "resolutions", "edit", "duplicate", "--order", "15"],
+        cli=["tracker", "resolutions", "update", "duplicate", "--order", "15"],
         mcp=None,
         exchanges=[
             (

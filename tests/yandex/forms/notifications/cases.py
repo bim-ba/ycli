@@ -189,7 +189,7 @@ CASES = [
     Case(
         "forms.notifications.status_get",
         args=(9101,),
-        cli=["forms", "notifications", "status", "9101"],
+        cli=["forms", "notifications", "status-get", "9101"],
         mcp=("forms_notifications_status_get", {"notification_id": 9101}),
         exchanges=[
             (
@@ -239,7 +239,7 @@ CASES = [
     Case(
         "forms.notifications.errors_list",
         args=("686d0a1b2c3d4e5f000000f2",),
-        cli=["forms", "notifications", "errors", "686d0a1b2c3d4e5f000000f2"],
+        cli=["forms", "notifications", "errors-list", "686d0a1b2c3d4e5f000000f2"],
         mcp=("forms_notifications_errors_list", {"survey_id": "686d0a1b2c3d4e5f000000f2"}),
         exchanges=[
             (Sent("GET", "surveys/686d0a1b2c3d4e5f000000f2/show-errors"), Reply(json=[9001, 9003]))

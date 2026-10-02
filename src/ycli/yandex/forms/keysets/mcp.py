@@ -83,7 +83,7 @@ def create(
 
 
 @mcp.tool(
-    name="keysets_modify",
+    name="keysets_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms key set"},
     tags=WRITE_TAGS,
 )
