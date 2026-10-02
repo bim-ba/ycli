@@ -1,6 +1,5 @@
 """`ycli auth status` — probes Tracker, Wiki, Forms identity endpoints."""
 
-import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
@@ -22,31 +21,28 @@ def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
     assert "YANDEX_ID_OAUTH_TOKEN" in res.output
 
 
-@responses.activate
 def test_all_services_valid(api, creds):
     api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
-    responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
+    api.add("GET", WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 0
     assert res.stdout.count('"valid":true') == 3
 
 
-@responses.activate
 def test_one_service_invalid_sets_nonzero_exit(api, creds):
     api.add("GET", TRACKER_ME, status=401)
-    responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
+    api.add("GET", WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1
     assert "tracker" in res.stdout
 
 
-@responses.activate
 def test_tracker_generic_error(api, creds):
     """Exercises the generic YandexError branch for the tracker probe (e.g. 422)."""
     api.add("GET", TRACKER_ME, json={"errorMessages": ["bad"]}, status=422)
-    responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
+    api.add("GET", WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1
@@ -54,44 +50,40 @@ def test_tracker_generic_error(api, creds):
     assert '"valid":false' in res.stdout
 
 
-@responses.activate
 def test_forms_auth_error(api, creds):
     """Exercises the YandexAuthError branch for the forms probe (401)."""
     api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
-    responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
+    api.add("GET", WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, status=401)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1
     assert "forms" in res.stdout
 
 
-@responses.activate
 def test_forms_generic_error(api, creds):
     """Exercises the generic YandexError branch for the forms probe (422)."""
     api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
-    responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
+    api.add("GET", WIKI_ME, json={"username": "alice"}, status=200)
     api.add("GET", FORMS_ME, json={"errorMessages": ["bad"]}, status=422)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1
     assert "forms" in res.stdout
 
 
-@responses.activate
 def test_wiki_auth_error(api, creds):
     """Exercises the YandexAuthError branch for the wiki probe (401)."""
     api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
-    responses.add(responses.GET, WIKI_ME, status=401)
+    api.add("GET", WIKI_ME, status=401)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1
     assert "wiki" in res.stdout
 
 
-@responses.activate
 def test_wiki_generic_error(api, creds):
     """Exercises the generic YandexError branch for the wiki probe (422)."""
     api.add("GET", TRACKER_ME, json={"login": "alice", "display": "Alice"}, status=200)
-    responses.add(responses.GET, WIKI_ME, json={"errorMessages": ["bad"]}, status=422)
+    api.add("GET", WIKI_ME, json={"errorMessages": ["bad"]}, status=422)
     api.add("GET", FORMS_ME, json={"email": "alice@x"}, status=200)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
     assert res.exit_code == 1

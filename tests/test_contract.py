@@ -25,6 +25,7 @@ from tests.contract import (
     Case,
     Reply,
     Sent,
+    Sibling,
     effect_sent,
     hints_disagree,
     mismatches,
@@ -91,7 +92,8 @@ def _run_sdk(case: Case) -> object:
     domain, resource, method = case.operation.split(".")
     client_class = SERVICE_BY_NAME[domain].client_class()
     with client_class(oauth_token="t", organization_id="o") as client:
-        result = getattr(getattr(client, resource), method)(*case.args, **case.kwargs)
+        args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
+        result = getattr(getattr(client, resource), method)(*args, **case.kwargs)
     return (
         result.model_dump(by_alias=True, mode="json") if isinstance(result, BaseModel) else result
     )

@@ -2,7 +2,7 @@
 
 Holds the two things every resource repeats: a required-``session`` constructor (DI —
 the client takes a configured ``requests.Session``, never reaches into the env) and a
-``base_url`` ClassVar set by a per-domain base (e.g. ``WikiResource``); resource clients
+``base_url`` ClassVar set by a per-domain base (e.g. ``TrackerResource``); resource clients
 inherit it.
 
 uplink's ``ConsumerMeta`` collects decorated request methods from the leaf subclass, so
@@ -11,9 +11,9 @@ an intermediate base with no decorated methods is fine.
 NOTE: no ``from __future__ import annotations`` — uplink reads method annotations eagerly.
 
 Example:
-    >>> from ycli.yandex.wiki.pages.client import PagesClient
+    >>> from ycli.yandex.tracker.queues.client import QueuesClient  # doctest: +SKIP
     >>> import requests
-    >>> client = PagesClient(session=requests.Session())  # doctest: +SKIP
+    >>> client = QueuesClient(session=requests.Session())  # doctest: +SKIP
 """
 
 from typing import TYPE_CHECKING, ClassVar, Self

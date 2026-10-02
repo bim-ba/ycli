@@ -77,8 +77,8 @@ def _stub_single_org():
     )
 
 
-def _stub_valid_me():
-    responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
+def _stub_valid_me(api):
+    api.add("GET", WIKI_ME, json={"username": "alice"}, status=200)
 
 
 def test_no_client_id_prints_guidance(monkeypatch):
@@ -89,13 +89,13 @@ def test_no_client_id_prints_guidance(monkeypatch):
 
 
 @responses.activate
-def test_device_flow_success_writes_env(monkeypatch, tmp_path):
+def test_device_flow_success_writes_env(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     _stub_token_success()
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["--format", "json", "auth", "login", "--yes"])
 
@@ -108,13 +108,13 @@ def test_device_flow_success_writes_env(monkeypatch, tmp_path):
 
 
 @responses.activate
-def test_device_flow_with_device_name(monkeypatch):
+def test_device_flow_with_device_name(monkeypatch, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     _stub_token_success()
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login", "--yes", "--device-name", "my-laptop"])
 
@@ -123,14 +123,14 @@ def test_device_flow_with_device_name(monkeypatch):
 
 
 @responses.activate
-def test_device_flow_pending_then_success(monkeypatch):
+def test_device_flow_pending_then_success(monkeypatch, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     responses.add(responses.POST, TOKEN_URL, json={"error": "authorization_pending"}, status=400)
     _stub_token_success()  # second poll succeeds
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login", "--yes"])
 
@@ -152,10 +152,10 @@ def test_device_flow_terminal_error(monkeypatch, error):
 
 
 @responses.activate
-def test_implicit_flow_when_secret_absent(monkeypatch, tmp_path):
+def test_implicit_flow_when_secret_absent(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")  # no secret -> implicit
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login", "--yes"], input=f"{TOKEN}\n")
 
@@ -190,13 +190,13 @@ def test_device_code_failure_is_a_typed_error(monkeypatch):
 
 
 @responses.activate
-def test_implicit_flag_overrides_device(monkeypatch, tmp_path):
+def test_implicit_flag_overrides_device(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv(
         "YANDEX_OAUTH_CLIENT_SECRET", "app-secret"
     )  # secret set, but --implicit wins
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login", "--yes", "--implicit"], input=f"{TOKEN}\n")
 
@@ -204,7 +204,7 @@ def test_implicit_flag_overrides_device(monkeypatch, tmp_path):
 
 
 @responses.activate
-def test_multiple_orgs_prompts_for_choice(monkeypatch, tmp_path):
+def test_multiple_orgs_prompts_for_choice(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
@@ -215,7 +215,7 @@ def test_multiple_orgs_prompts_for_choice(monkeypatch, tmp_path):
         json={"organizations": [{"id": 42, "name": "Acme"}, {"id": 43, "name": "Beta"}]},
         status=200,
     )
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     # 0 and 3 are outside the list of two: each is refused and the prompt repeats.
     res = runner.invoke(cli.app, ["auth", "login", "--yes"], input="0\n3\n2\n")
@@ -227,13 +227,13 @@ def test_multiple_orgs_prompts_for_choice(monkeypatch, tmp_path):
 
 
 @responses.activate
-def test_org_fallback_prompt_on_missing_scope(monkeypatch, tmp_path):
+def test_org_fallback_prompt_on_missing_scope(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     _stub_token_success()
     responses.add(responses.GET, ORG_URL, status=403)
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login", "--yes"], input="manual-org-99\n")
 
@@ -245,13 +245,13 @@ def test_org_fallback_prompt_on_missing_scope(monkeypatch, tmp_path):
 
 
 @responses.activate
-def test_confirm_declined_skips_write(monkeypatch, tmp_path):
+def test_confirm_declined_skips_write(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     _stub_token_success()
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login"], input="n\n")
 
@@ -260,13 +260,13 @@ def test_confirm_declined_skips_write(monkeypatch, tmp_path):
 
 
 @responses.activate
-def test_confirm_accepted_writes(monkeypatch, tmp_path):
+def test_confirm_accepted_writes(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     _stub_token_success()
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login"], input="y\n")
 
@@ -275,13 +275,13 @@ def test_confirm_accepted_writes(monkeypatch, tmp_path):
 
 
 @responses.activate
-def test_confirm_prompt_names_the_services_that_reject_the_token(monkeypatch, tmp_path):
+def test_confirm_prompt_names_the_services_that_reject_the_token(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     _stub_device_code()
     _stub_token_success()
     _stub_single_org()
-    responses.add(responses.GET, WIKI_ME, status=403)
+    api.add("GET", WIKI_ME, status=403)
 
     res = runner.invoke(cli.app, ["-o", "json", "auth", "login"], input="n\n")
 
@@ -330,14 +330,14 @@ def test_suppressed_stderr_silences_fd_level_browser_noise(capfd):
 
 
 @responses.activate
-def test_backup_existing_env(monkeypatch, tmp_path):
+def test_backup_existing_env(monkeypatch, tmp_path, api):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     (tmp_path / ".env").write_text("KEEP=me\nYANDEX_ID_OAUTH_TOKEN=old\n", encoding="utf-8")
     _stub_device_code()
     _stub_token_success()
     _stub_single_org()
-    _stub_valid_me()
+    _stub_valid_me(api)
 
     res = runner.invoke(cli.app, ["auth", "login", "--yes"])
 

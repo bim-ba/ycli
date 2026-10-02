@@ -29,7 +29,7 @@ class Attachment(APIModel):
 class AttachmentsResponse(APIModel):
     """Envelope for ``GET /pages/{id}/attachments`` — ``{results, next_cursor}``.
 
-    Internal per-page parse type used by ``AttachmentsClient._list_page``. ``next_cursor`` is
+    Internal per-page parse type used by ``endpoints.list_attachments``. ``next_cursor`` is
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 

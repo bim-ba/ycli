@@ -32,7 +32,7 @@ class ResourceItem(APIModel):
 class ResourcesResponse(APIModel):
     """Envelope for ``GET /pages/{id}/resources`` — ``{results, next_cursor}``.
 
-    Internal per-page parse type used by ``ResourcesClient._list_page``. ``next_cursor`` is
+    Internal per-page parse type used by ``endpoints.list_resources``. ``next_cursor`` is
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 

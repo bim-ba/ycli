@@ -39,7 +39,7 @@ class Comment(APIModel):
 class CommentsResponse(APIModel):
     """Envelope for ``GET /pages/{id}/comments`` — ``{results, next_cursor}``.
 
-    Internal per-page parse type used by ``CommentsClient._list_page``. ``next_cursor`` is
+    Internal per-page parse type used by ``endpoints.list_comments``. ``next_cursor`` is
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 

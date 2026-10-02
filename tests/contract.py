@@ -59,8 +59,9 @@ UNSTATED: Any = type("Unstated", (), {"__repr__": lambda self: "UNSTATED"})()
 class Sent:
     """A request an operation must send: method, path under the service's base URL, query, body.
 
-    ``params`` lists every query parameter (repeated ones as a list); ``json`` is the parsed body
-    and ``files`` the parts of a ``multipart/form-data`` one (field → ``(filename, bytes)``).
+    ``params`` lists every query parameter (repeated ones as a list); ``json`` is the parsed body,
+    ``files`` the parts of a ``multipart/form-data`` one (field → ``(filename, bytes)``) and
+    ``content`` a raw body sent verbatim. ``headers`` must each be present with these values.
     """
 
     method: Method
@@ -68,6 +69,19 @@ class Sent:
     params: Mapping[str, str | list[str]] = field(default_factory=dict)
     json: Any = NO_BODY
     files: Mapping[str, tuple[str, bytes]] | None = None
+    content: bytes | None = None
+    headers: Mapping[str, str] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class Sibling:
+    """An SDK argument that is another resource of the same domain client (``client.<resource>``).
+
+    For an operation that drives a second resource, as ``wiki.attachments.upload`` drives the
+    upload sessions it is handed.
+    """
+
+    resource: str
 
 
 @dataclass(frozen=True)
@@ -149,6 +163,11 @@ def mismatches(
             for name in got.url.params
             if (values := got.url.params.get_list(name))
         }
+        problems += [
+            f"request {index}: header {name} {got.headers.get(name)!r} != {value!r}"
+            for name, value in want.headers.items()
+            if got.headers.get(name) != value
+        ]
         checks = [
             ("method", want.method, got.method),
             ("url", url, actual_url),
@@ -156,6 +175,8 @@ def mismatches(
         ]
         if want.files is not None:
             problems += _multipart_mismatches(index, want.files, got)
+        elif want.content is not None:
+            checks.append(("body", want.content, got.content))
         else:
             body = json.loads(got.content) if got.content else NO_BODY
             checks.append(("body", want.json, body))
