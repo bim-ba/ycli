@@ -22,7 +22,6 @@ from ycli.cli.app import app
 if TYPE_CHECKING:
     from pathlib import Path
 
-pytestmark = pytest.mark.integration
 
 _VARIABLE = re.compile(r"\$\{\w+\}")
 
