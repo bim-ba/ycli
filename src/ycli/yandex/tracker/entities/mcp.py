@@ -360,7 +360,7 @@ def set_permissions(
 
 @mcp.tool(
     name="entities_bulk_update",
-    annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update Tracker entities"},
+    annotations={**WRITE, "title": "Bulk-update Tracker entities"},
     tags=WRITE_TAGS,
 )
 def bulk_update(

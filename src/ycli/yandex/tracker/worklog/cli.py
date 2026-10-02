@@ -82,15 +82,18 @@ def add(
     duration: Annotated[
         str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).")
     ],
-    start: Annotated[str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")] = "",
+    start: Annotated[
+        str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted.")
+    ] = "",
     comment: Annotated[str, typer.Option(help="Optional note saved in the time report.")] = "",
     *,
     tracker: TrackerClient,
 ) -> Worklog:
     """Log time spent on issue KEY (POST /issues/{key}/worklog)."""
-    body = WorklogCreate(
-        duration=duration, start=start or None, comment=comment or None
-    ).model_dump(exclude_none=True)
+    named = {"start": start} if start else {}
+    body = WorklogCreate(duration=duration, comment=comment or None, **named).model_dump(
+        exclude_none=True
+    )
     return tracker.worklog.create(key, body=body)
 
 

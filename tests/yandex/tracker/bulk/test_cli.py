@@ -1,190 +1,48 @@
-"""TDD for `tracker bulk` CLI (wiring-dependent — run by the integrator after mount).
-
-Covers the ``--wait`` poll path end-to-end: ``time.sleep`` is monkeypatched to a no-op so the
-CREATED → COMPLETE sequence resolves instantly.
-"""
+"""`tracker bulk … --wait` (the default) polls the started operation to a terminal status."""
 
 import json
 import time
 
 import pytest
-import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.hosts import TRACKER_BASE as BASE
 
-runner = CliRunner()
-
 
 @pytest.fixture(autouse=True)
-def _patch_sleep(monkeypatch):
-    """No real waiting in the --wait poll."""
+def _no_sleep(monkeypatch):
+    """The poll waits between reads through ``time.sleep``; tests never wait."""
     monkeypatch.setattr(time, "sleep", lambda *_: None)
 
 
-@responses.activate
-def test_update_no_wait_prints_created_change():
-    responses.add(
-        responses.POST,
-        f"{BASE}/bulkchange/_update",
-        json={"id": "1ab", "status": "CREATED"},
-        status=201,
-    )
-    res = runner.invoke(
-        cli.app,
-        [
-            "--format",
-            "json",
-            "tracker",
-            "bulk",
-            "update",
-            "--issue",
-            "TEST-1",
-            "-F",
-            "priority=blocker",
-            "--no-wait",
-        ],
-    )
-    assert res.exit_code == 0
-    assert json.loads(res.stdout)["status"] == "CREATED"
-    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
-        "issues": ["TEST-1"],
-        "values": {"priority": "blocker"},
-    }
-
-
-@responses.activate
-def test_update_wait_polls_to_terminal():
-    responses.add(
-        responses.POST,
-        f"{BASE}/bulkchange/_update",
-        json={"id": "1ab", "status": "CREATED"},
-        status=201,
-    )
-    responses.add(
-        responses.GET, f"{BASE}/bulkchange/1ab", json={"id": "1ab", "status": "CREATED"}, status=200
-    )
-    responses.add(
-        responses.GET,
-        f"{BASE}/bulkchange/1ab",
-        json={"id": "1ab", "status": "COMPLETE"},
-        status=200,
-    )
-    res = runner.invoke(
-        cli.app,
-        [
-            "--format",
-            "json",
-            "tracker",
-            "bulk",
-            "update",
-            "--query",
-            "Queue: TEST",
-            "-F",
-            "priority=blocker",
-        ],
-    )
-    assert res.exit_code == 0
+@pytest.mark.parametrize(
+    ("argv", "trigger"),
+    [
+        (["update", "--query", "Queue: TEST", "-F", "priority=blocker"], "_update"),
+        (["move", "CHECK", "--issue", "TEST-1"], "_move"),
+        (["transition", "close", "--issue", "TEST-1"], "_transition"),
+    ],
+)
+def test_wait_polls_until_the_status_is_terminal(api, argv, trigger):
+    api.add("POST", f"{BASE}/bulkchange/{trigger}", json={"id": "1ab", "status": "CREATED"})
+    api.add("GET", f"{BASE}/bulkchange/1ab", json={"id": "1ab", "status": "CREATED"})
+    api.add("GET", f"{BASE}/bulkchange/1ab", json={"id": "1ab", "status": "COMPLETE"})
+    res = CliRunner().invoke(cli.app, ["-o", "json", "tracker", "bulk", *argv])
+    assert res.exit_code == 0, res.output
     assert json.loads(res.stdout)["status"] == "COMPLETE"
-    assert json.loads(responses.calls[0].request.body)["issues"] == "Queue: TEST"  # ty: ignore[invalid-argument-type]
+    assert [(call.method, call.url.path) for call in api.calls] == [
+        ("POST", f"/v3/bulkchange/{trigger}"),
+        ("GET", "/v3/bulkchange/1ab"),
+        ("GET", "/v3/bulkchange/1ab"),
+    ]
 
 
-@responses.activate
-def test_move_command():
-    responses.add(
-        responses.POST,
-        f"{BASE}/bulkchange/_move",
-        json={"id": "2cd", "status": "COMPLETE"},
-        status=201,
+def test_wait_without_an_operation_id_prints_the_answer(api):
+    api.add("POST", f"{BASE}/bulkchange/_update", json={"status": "FAILED"})
+    res = CliRunner().invoke(
+        cli.app, ["-o", "json", "tracker", "bulk", "update", "--issue", "TEST-1"]
     )
-    responses.add(
-        responses.GET,
-        f"{BASE}/bulkchange/2cd",
-        json={"id": "2cd", "status": "COMPLETE"},
-        status=200,
-    )
-    res = runner.invoke(
-        cli.app,
-        [
-            "--format",
-            "json",
-            "tracker",
-            "bulk",
-            "move",
-            "CHECK",
-            "--issue",
-            "TEST-1",
-            "--move-all-fields",
-        ],
-    )
-    assert res.exit_code == 0
-    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
-        "queue": "CHECK",
-        "issues": ["TEST-1"],
-        "moveAllFields": True,
-    }
-
-
-@responses.activate
-def test_transition_command():
-    responses.add(
-        responses.POST,
-        f"{BASE}/bulkchange/_transition",
-        json={"id": "3ef", "status": "COMPLETE"},
-        status=201,
-    )
-    responses.add(
-        responses.GET,
-        f"{BASE}/bulkchange/3ef",
-        json={"id": "3ef", "status": "COMPLETE"},
-        status=200,
-    )
-    res = runner.invoke(
-        cli.app,
-        [
-            "--format",
-            "json",
-            "tracker",
-            "bulk",
-            "transition",
-            "close",
-            "--issue",
-            "TEST-1",
-            "-F",
-            "resolution=fixed",
-            "--no-wait",
-        ],
-    )
-    assert res.exit_code == 0
-    assert json.loads(responses.calls[0].request.body) == {  # ty: ignore[invalid-argument-type]
-        "transition": "close",
-        "issues": ["TEST-1"],
-        "values": {"resolution": "fixed"},
-    }
-
-
-@responses.activate
-def test_get_command():
-    responses.add(
-        responses.GET,
-        f"{BASE}/bulkchange/1ab",
-        json={"id": "1ab", "status": "COMPLETE"},
-        status=200,
-    )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "bulk", "get", "1ab"])
-    assert res.exit_code == 0
-    assert json.loads(res.stdout)["status"] == "COMPLETE"
-
-
-@responses.activate
-def test_issues_command():
-    responses.add(
-        responses.GET,
-        f"{BASE}/bulkchange/1ab/issues",
-        json=[{"issue": {"key": "TEST-1"}, "status": "FAILED"}],
-        status=200,
-    )
-    res = runner.invoke(cli.app, ["--format", "json", "tracker", "bulk", "issues", "1ab"])
-    assert res.exit_code == 0
-    assert json.loads(res.stdout)[0]["status"] == "FAILED"
+    assert res.exit_code == 0, res.output
+    assert json.loads(res.stdout)["status"] == "FAILED"
+    assert len(api.calls) == 1

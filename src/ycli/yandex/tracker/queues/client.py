@@ -1,69 +1,48 @@
-"""Declarative Tracker /queues client (uplink) — transport ONLY.
+"""Tracker ``/queues`` client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.queues.endpoints`.
 """
 
-import requests
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.pagination import OffsetStrategy
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.queues.models import (
-    Queue,
-    QueueCreate,
-    QueueFieldList,
-    QueueList,
-    QueuePermissions,
-    QueuePermissionsUpdate,
-    QueueTagList,
-    QueueTagRemove,
-    QueueVersionCreate,
-    QueueVersionInfo,
-    QueueVersionInfoList,
-)
+from typing import TYPE_CHECKING
 
-_PAGE_SIZE = 50
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.queues import endpoints
+from ycli.yandex.tracker.queues.models import QueueList
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.queues.models import (
+        Queue,
+        QueueCreate,
+        QueueFieldList,
+        QueuePermissions,
+        QueuePermissionsUpdate,
+        QueueTagList,
+        QueueTagRemove,
+        QueueVersionCreate,
+        QueueVersionInfo,
+        QueueVersionInfoList,
+    )
 
 
-class QueuesClient(TrackerResource):
-    """Declarative HTTP for ``/queues`` (page-paginated list + single get)."""
-
-    @uplink.returns.json()
-    @uplink.get("queues/")
-    def _list_page(
-        self,
-        page: uplink.Query = 1,  # ty: ignore[invalid-parameter-default]
-        per_page: uplink.Query("perPage") = _PAGE_SIZE,  # ty: ignore[invalid-type-form]
-    ) -> QueueList:  # ty: ignore[empty-body]
-        """One raw page of queues (1-based ``page``, size ``perPage``); internal — use ``list``."""
+class QueuesClient(Resource):
+    """List (page-paginated), get, create, delete and restore queues; tags, versions, access."""
 
     def list(self, *, limit: int | None = None) -> QueueList:
         """``GET /queues/`` → flat :class:`QueueList`, draining ``page``/``perPage`` internally.
 
-        Capped at ``limit`` (``None`` = every queue). The API returns 50 queues per page and
-        pages via ``page``/``perPage``; this advances the page number until a short page comes
-        back. Note the trailing slash — ``GET /queues/`` (without it Tracker returns the single
-        queue whose key is empty).
+        Capped at ``limit`` (``None`` = every queue). The API returns 50 queues per page; this
+        advances the page number up to ``X-Total-Pages``, or until a short page comes back.
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.queues.list(limit=10).root[0].key  # doctest: +SKIP
             'TEST'
         """
-        strategy = OffsetStrategy(extract=lambda page: page.root, page_size=_PAGE_SIZE)
-        queues = strategy.collect(
-            lambda offset: self._list_page(page=offset // _PAGE_SIZE + 1, per_page=_PAGE_SIZE),
-            limit,
-        )
-        return QueueList(queues)
+        return QueueList(list(self._session.iterate(endpoints.list_queues(), limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}")
-    def get(
-        self,
-        queue_id: uplink.Path,
-        expand: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> Queue:  # ty: ignore[empty-body]
+    def get(self, queue_id: str, expand: str | None = None) -> Queue:
         """``GET /queues/{queue_id}`` → a single :class:`Queue`.
 
         ``queue_id`` is the queue key (case-sensitive) or numeric id. Pass ``expand`` to include
@@ -75,10 +54,9 @@ class QueuesClient(TrackerResource):
             >>> client.queues.get(queue_id="TEST", expand="all").name  # doctest: +SKIP
             'Test'
         """
+        return self._session.send(endpoints.get_queue(queue_id, expand=expand))
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/tags")
-    def tags(self, queue_id: uplink.Path) -> QueueTagList:  # ty: ignore[empty-body]
+    def tags(self, queue_id: str) -> QueueTagList:
         """``GET /queues/{queue_id}/tags`` → the queue's tag names as a flat string array.
 
         Example:
@@ -86,10 +64,9 @@ class QueuesClient(TrackerResource):
             >>> client.queues.tags(queue_id="TEST").root[0]  # doctest: +SKIP
             'tag1'
         """
+        return self._session.send(endpoints.list_tags(queue_id))
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/versions")
-    def versions(self, queue_id: uplink.Path) -> QueueVersionInfoList:  # ty: ignore[empty-body]
+    def versions(self, queue_id: str) -> QueueVersionInfoList:
         """``GET /queues/{queue_id}/versions`` → the queue's versions.
 
         Example:
@@ -97,10 +74,9 @@ class QueuesClient(TrackerResource):
             >>> client.queues.versions(queue_id="TEST").root[0].name  # doctest: +SKIP
             'v0.1'
         """
+        return self._session.send(endpoints.list_versions(queue_id))
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/fields")
-    def fields(self, queue_id: uplink.Path) -> QueueFieldList:  # ty: ignore[empty-body]
+    def fields(self, queue_id: str) -> QueueFieldList:
         """``GET /queues/{queue_id}/fields`` → the queue's required/local fields.
 
         Example:
@@ -108,12 +84,7 @@ class QueuesClient(TrackerResource):
             >>> client.queues.fields(queue_id="TEST").root[0].id  # doctest: +SKIP
             'myfield'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("queues/")
-    def _create(self, body: uplink.Body) -> Queue:  # ty: ignore[empty-body]
-        """``POST /queues/`` — create a queue from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.list_fields(queue_id))
 
     def create(self, body: QueueCreate) -> Queue:
         """Create a queue from a typed ``QueueCreate`` body. Returns the created ``Queue``.
@@ -131,21 +102,19 @@ class QueuesClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'DESIGN'
         """
-        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_queue(dumped))
 
-    @uplink.delete("queues/{queue_id}")
-    def delete(self, queue_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
+    def delete(self, queue_id: str) -> None:
         """``DELETE /queues/{queue_id}`` — delete a queue (``204``, empty body).
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.queues.delete(queue_id="TEST").status_code  # doctest: +SKIP
-            204
+            >>> client.queues.delete(queue_id="TEST")  # doctest: +SKIP
         """
+        self._session.send(endpoints.delete_queue(queue_id))
 
-    @uplink.returns.json()
-    @uplink.post("queues/{queue_id}/_restore")
-    def restore(self, queue_id: uplink.Path) -> Queue:  # ty: ignore[empty-body]
+    def restore(self, queue_id: str) -> Queue:
         """``POST /queues/{queue_id}/_restore`` — restore a deleted queue (admin only).
 
         Returns the restored ``Queue``.
@@ -155,12 +124,7 @@ class QueuesClient(TrackerResource):
             >>> client.queues.restore(queue_id="TEST").key  # doctest: +SKIP
             'TEST'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("queues/{queue_id}/permissions")
-    def _set_permissions(self, queue_id: uplink.Path, body: uplink.Body) -> QueuePermissions:  # ty: ignore[empty-body]
-        """``PATCH /queues/{queue_id}/permissions`` from a ready body (see ``set_permissions``)."""
+        return self._session.send(endpoints.restore_queue(queue_id))
 
     def set_permissions(self, queue_id: str, body: QueuePermissionsUpdate) -> QueuePermissions:
         """Manage queue access from a typed ``QueuePermissionsUpdate`` body.
@@ -174,33 +138,18 @@ class QueuesClient(TrackerResource):
             ... ).version  # doctest: +SKIP
             11
         """
-        return self._set_permissions(
-            queue_id=queue_id, body=body.model_dump(by_alias=True, exclude_none=True)
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.set_permissions(queue_id, dumped))
 
-    @uplink.json
-    @uplink.post("queues/{queue_id}/tags/_remove")
-    def _tag_remove(self, queue_id: uplink.Path, body: uplink.Body) -> requests.Response:  # ty: ignore[empty-body]
-        """``POST /queues/{queue_id}/tags/_remove`` from a ready body (see ``tag_remove``)."""
-
-    def tag_remove(self, queue_id: str, body: QueueTagRemove) -> requests.Response:
+    def tag_remove(self, queue_id: str, body: QueueTagRemove) -> None:
         """Remove a tag from a queue (admin only; ``204``, empty body).
 
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.queues.tag_remove(
-            ...     "TEST", QueueTagRemove(tag="obsolete")
-            ... ).status_code  # doctest: +SKIP
-            204
+            >>> client.queues.tag_remove("TEST", QueueTagRemove(tag="obsolete"))  # doctest: +SKIP
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._tag_remove(queue_id, dumped)  # ty: ignore[too-many-positional-arguments]
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("versions/")
-    def _version_create(self, body: uplink.Body) -> QueueVersionInfo:  # ty: ignore[empty-body]
-        """``POST /versions/`` — create a queue version from a ready body (see wrapper)."""
+        self._session.send(endpoints.remove_tag(queue_id, dumped))
 
     def version_create(self, body: QueueVersionCreate) -> QueueVersionInfo:
         """Create a queue version from a typed ``QueueVersionCreate`` body.
@@ -214,4 +163,5 @@ class QueuesClient(TrackerResource):
             ... ).name  # doctest: +SKIP
             'v0.1'
         """
-        return self._version_create(body=body.model_dump(by_alias=True, exclude_none=True))
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_version(dumped))

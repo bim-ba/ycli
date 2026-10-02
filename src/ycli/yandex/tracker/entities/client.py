@@ -1,45 +1,41 @@
-"""Declarative Tracker Entities client (uplink) — transport ONLY.
+"""Tracker Entities client on the httpx2 core.
 
 Covers the unified projects / portfolios / goals surface: the entity itself plus its comments,
-checklists, links and attachments. ``entity_type`` (project | portfolio | goal) is the first
-path segment of every route.
-
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter annotations
-eagerly. ``import requests`` is intentional: the binary attachment download and the no-body
-DELETE/POST endpoints return the raw ``requests.Response`` (the transport hook raises a typed
-``YandexError`` on any non-2xx, so callers never touch a failed response).
+checklists, links and attachments. Every method sends one declaration from
+:mod:`ycli.yandex.tracker.entities.endpoints`.
 """
 
-import requests
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
+from typing import Any
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.entities import endpoints
 from ycli.yandex.tracker.entities.models import (
     Attachment,
     AttachmentList,
     BulkChangeOperation,
     Comment,
     CommentList,
-    CommentsRelativeResponse,
     Entity,
     EntityEventList,
-    EntityEventsResponse,
     EntityList,
-    EntitySearchResponse,
     ExtendedPermissions,
     LinkList,
 )
 
 
-class EntitiesClient(TrackerResource):
-    """Declarative HTTP for ``/entities/{entity_type}`` and its sub-resources."""
+def _page_size(limit: int | None) -> int:
+    """A positive ``limit`` narrows the page; ``None``/``0`` asks for full pages."""
+    return min(endpoints.RELATIVE_PAGE_SIZE, limit) if limit else endpoints.RELATIVE_PAGE_SIZE
+
+
+class EntitiesClient(Resource):
+    """``/entities/{entity_type}`` and its sub-resources."""
 
     # ---- core -------------------------------------------------------------------------------
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/{entity_type}")
-    def create(self, entity_type: uplink.Path, body: uplink.Body) -> Entity:  # ty: ignore[empty-body]
+    def create(self, entity_type: str, body: dict[str, Any]) -> Entity:
         """``POST /entities/{entity_type}`` — create an entity from a ``{fields: …}`` body.
 
         Example:
@@ -49,16 +45,15 @@ class EntitiesClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             '655f…'
         """
+        return self._session.send(endpoints.create_entity(entity_type, body))
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}")
     def get(
         self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        expand: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> Entity:  # ty: ignore[empty-body]
+        entity_type: str,
+        entity_id: str,
+        expand: str | None = None,
+        fields: str | None = None,
+    ) -> Entity:
         """``GET /entities/{entity_type}/{entity_id}`` → a single entity (raises on non-2xx).
 
         ``fields`` is a comma-separated selector of extra ``fields`` keys (``summary``,
@@ -72,11 +67,10 @@ class EntitiesClient(TrackerResource):
             ... ).fields.summary  # doctest: +SKIP
             'Q4'
         """
+        endpoint = endpoints.get_entity(entity_type, entity_id, expand=expand, fields=fields)
+        return self._session.send(endpoint)
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("entities/{entity_type}/{entity_id}")
-    def edit(self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body) -> Entity:  # ty: ignore[empty-body]
+    def edit(self, entity_type: str, entity_id: str, body: dict[str, Any]) -> Entity:
         """``PATCH /entities/{entity_type}/{entity_id}`` — edit fields/comment/links. Returns it.
 
         Example:
@@ -86,15 +80,7 @@ class EntitiesClient(TrackerResource):
             ... ).fields.summary  # doctest: +SKIP
             'New'
         """
-
-    @uplink.delete("entities/{entity_type}/{entity_id}")
-    def _delete(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        with_board: uplink.Query("withBoard") = None,  # ty: ignore[invalid-type-form]
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """``DELETE /entities/{entity_type}/{entity_id}`` (internal; use :meth:`delete`)."""
+        return self._session.send(endpoints.edit_entity(entity_type, entity_id, body))
 
     def delete(self, entity_type: str, entity_id: str, *, with_board: bool | None = None) -> None:
         """Delete an entity. Pass ``with_board=True`` to delete its board too. Raises on non-2xx.
@@ -103,20 +89,7 @@ class EntitiesClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.entities.delete("project", "655f", with_board=True)  # doctest: +SKIP
         """
-        self._delete(entity_type, entity_id, with_board=with_board)
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/{entity_type}/_search")
-    def _search(
-        self,
-        entity_type: uplink.Path,
-        body: uplink.Body,
-        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        per_page: uplink.Query("perPage") = None,  # ty: ignore[invalid-type-form]
-        page: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> EntitySearchResponse:  # ty: ignore[empty-body]
-        """One raw ``{hits, pages, values}`` page (internal; callers use :meth:`search`)."""
+        self._session.send(endpoints.delete_entity(entity_type, entity_id, with_board=with_board))
 
     def search(
         self,
@@ -140,21 +113,10 @@ class EntitiesClient(TrackerResource):
             ... ].id  # doctest: +SKIP
             '655f…'
         """
-        response = self._search(
+        endpoint = endpoints.search_entities(
             entity_type, body or {}, fields=fields, per_page=per_page, page=page
         )
-        return EntityList(response.values)
-
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/events/_relative")
-    def _history_page(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
-        from_id: uplink.Query("from") = None,  # ty: ignore[invalid-type-form]
-    ) -> EntityEventsResponse:  # ty: ignore[empty-body]
-        """One raw ``{events, hasNext, hasPrev}`` page (internal; callers use :meth:`history`)."""
+        return EntityList(self._session.send(endpoint).values)
 
     def history(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
@@ -171,19 +133,10 @@ class EntitiesClient(TrackerResource):
             ... ].display  # doctest: +SKIP
             'Issue updated'
         """
-        events = self._drain_relative(
-            extract=lambda page: page.events,
-            id_of=lambda event: event.id,
-            fetch_page=lambda cursor, per_page: self._history_page(
-                entity_type, entity_id, per_page=per_page, from_id=cursor
-            ),
-            limit=limit,
-        )
-        return EntityEventList(events)
+        paged = endpoints.list_events(entity_type, entity_id, per_page=_page_size(limit))
+        return EntityEventList(list(self._session.iterate(paged, limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/extendedPermissions")
-    def permissions(self, entity_type: uplink.Path, entity_id: uplink.Path) -> ExtendedPermissions:  # ty: ignore[empty-body]
+    def permissions(self, entity_type: str, entity_id: str) -> ExtendedPermissions:
         """``GET …/extendedPermissions`` → access settings (acl + permissionSources).
 
         Example:
@@ -191,13 +144,11 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.permissions("project", "655f").acl.read.roles  # doctest: +SKIP
             ['OWNER']
         """
+        return self._session.send(endpoints.get_permissions(entity_type, entity_id))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("entities/{entity_type}/{entity_id}/extendedPermissions")
     def set_permissions(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body
-    ) -> ExtendedPermissions:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, body: dict[str, Any]
+    ) -> ExtendedPermissions:
         """``PATCH …/extendedPermissions`` — set access settings. Returns the new settings.
 
         The ``acl`` object accepts only ``grant`` / ``revoke`` actions, each mapping an access
@@ -210,11 +161,9 @@ class EntitiesClient(TrackerResource):
             ... ).acl.read.users  # doctest: +SKIP
             ['800…2']
         """
+        return self._session.send(endpoints.set_permissions(entity_type, entity_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/{entity_type}/bulkchange/_update")
-    def bulk_update(self, entity_type: uplink.Path, body: uplink.Body) -> BulkChangeOperation:  # ty: ignore[empty-body]
+    def bulk_update(self, entity_type: str, body: dict[str, Any]) -> BulkChangeOperation:
         """``POST …/bulkchange/_update`` — mass-edit entities (async). Returns the operation.
 
         The response is a handle whose ``status`` starts at ``CREATED``; poll
@@ -227,10 +176,9 @@ class EntitiesClient(TrackerResource):
             ... ).status  # doctest: +SKIP
             'CREATED'
         """
+        return self._session.send(endpoints.bulk_update(entity_type, body))
 
-    @uplink.returns.json()
-    @uplink.get("bulkchange/{operation_id}")
-    def bulk_status(self, operation_id: uplink.Path) -> BulkChangeOperation:  # ty: ignore[empty-body]
+    def bulk_status(self, operation_id: str) -> BulkChangeOperation:
         """``GET /bulkchange/{operation_id}`` → the current bulk-change operation status.
 
         Example:
@@ -238,11 +186,9 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.bulk_status("656").status  # doctest: +SKIP
             'COMPLETE'
         """
+        return self._session.send(endpoints.get_bulk_status(operation_id))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/report/")
-    def create_report(self, body: uplink.Body) -> Entity:  # ty: ignore[empty-body]
+    def create_report(self, body: dict[str, Any]) -> Entity:
         """``POST /entities/report/`` — build an issue report from a ``{fields: …}`` body.
 
         The body carries the report name plus export ``parameters`` (type/format, the issue
@@ -265,17 +211,13 @@ class EntitiesClient(TrackerResource):
             ... ).entity_type  # doctest: +SKIP
             'report'
         """
+        return self._session.send(endpoints.create_report(body))
 
     # ---- comments ---------------------------------------------------------------------------
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/comments")
     def comments_list(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        expand: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> CommentList:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, expand: str | None = None
+    ) -> CommentList:
         """``GET …/comments`` → all comments on the entity.
 
         ``expand`` embeds extras (``html``, ``attachments``, ``reactions``, or ``all``).
@@ -285,17 +227,7 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.comments_list("project", "655f").root[0].text  # doctest: +SKIP
             'Готово'
         """
-
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/comments/_relative")
-    def _comments_relative_page(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        per_page: uplink.Query("perPage") = 100,  # ty: ignore[invalid-type-form]
-        from_id: uplink.Query("from") = None,  # ty: ignore[invalid-type-form]
-    ) -> CommentsRelativeResponse:  # ty: ignore[empty-body]
-        """One raw ``{comments, hasNext, hasPrev}`` page (internal; see comments_relative)."""
+        return self._session.send(endpoints.list_comments(entity_type, entity_id, expand=expand))
 
     def comments_relative(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
@@ -312,25 +244,12 @@ class EntitiesClient(TrackerResource):
             ... ].id  # doctest: +SKIP
             22
         """
-        comments = self._drain_relative(
-            extract=lambda page: page.comments,
-            id_of=lambda comment: comment.long_id,
-            fetch_page=lambda cursor, per_page: self._comments_relative_page(
-                entity_type, entity_id, per_page=per_page, from_id=cursor
-            ),
-            limit=limit,
-        )
-        return CommentList(comments)
+        paged = endpoints.list_comments_relative(entity_type, entity_id, per_page=_page_size(limit))
+        return CommentList(list(self._session.iterate(paged, limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/comments/{comment_id}")
     def comments_get(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        comment_id: uplink.Path,
-        expand: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> Comment:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, comment_id: str, expand: str | None = None
+    ) -> Comment:
         """``GET …/comments/{comment_id}`` → a single comment.
 
         Example:
@@ -338,13 +257,10 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.comments_get("project", "655f", "22").text  # doctest: +SKIP
             'Готово'
         """
+        endpoint = endpoints.get_comment(entity_type, entity_id, comment_id, expand=expand)
+        return self._session.send(endpoint)
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/{entity_type}/{entity_id}/comments")
-    def comments_create(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body
-    ) -> Comment:  # ty: ignore[empty-body]
+    def comments_create(self, entity_type: str, entity_id: str, body: dict[str, Any]) -> Comment:
         """``POST …/comments`` — add a comment. Returns the created comment.
 
         Example:
@@ -354,17 +270,11 @@ class EntitiesClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             22
         """
+        return self._session.send(endpoints.create_comment(entity_type, entity_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("entities/{entity_type}/{entity_id}/comments/{comment_id}")
     def comments_edit(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        comment_id: uplink.Path,
-        body: uplink.Body,
-    ) -> Comment:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, comment_id: str, body: dict[str, Any]
+    ) -> Comment:
         """``PATCH …/comments/{comment_id}`` — edit a comment. Returns the updated comment.
 
         The live v3 API only accepts the per-comment route (a PATCH on the ``…/comments``
@@ -377,12 +287,8 @@ class EntitiesClient(TrackerResource):
             ... ).text  # doctest: +SKIP
             'fixed'
         """
-
-    @uplink.delete("entities/{entity_type}/{entity_id}/comments/{comment_id}")
-    def _comments_delete(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, comment_id: uplink.Path
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """``DELETE …/comments/{comment_id}`` (internal; use :meth:`comments_delete`)."""
+        endpoint = endpoints.edit_comment(entity_type, entity_id, comment_id, body)
+        return self._session.send(endpoint)
 
     def comments_delete(self, entity_type: str, entity_id: str, comment_id: str) -> None:
         """Delete a comment from an entity. Raises on non-2xx.
@@ -391,16 +297,13 @@ class EntitiesClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.entities.comments_delete("project", "655f", "22")  # doctest: +SKIP
         """
-        self._comments_delete(entity_type, entity_id, comment_id)
+        self._session.send(endpoints.delete_comment(entity_type, entity_id, comment_id))
 
     # ---- checklists -------------------------------------------------------------------------
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/{entity_type}/{entity_id}/checklistItems")
     def checklists_create(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body
-    ) -> Entity:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, body: list[dict[str, Any]]
+    ) -> Entity:
         """``POST …/checklistItems`` — add items (``body`` is a JSON array). Returns the entity.
 
         Example:
@@ -410,13 +313,11 @@ class EntitiesClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             '655f…'
         """
+        return self._session.send(endpoints.create_checklist_items(entity_type, entity_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("entities/{entity_type}/{entity_id}/checklistItems")
     def checklists_edit(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body
-    ) -> Entity:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, body: list[dict[str, Any]]
+    ) -> Entity:
         """``PATCH …/checklistItems`` — replace items (``body`` is a JSON array of ``{id, …}``).
 
         Example:
@@ -426,17 +327,11 @@ class EntitiesClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             '655f…'
         """
+        return self._session.send(endpoints.edit_checklist(entity_type, entity_id, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("entities/{entity_type}/{entity_id}/checklistItems/{item_id}")
     def checklists_edit_item(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        item_id: uplink.Path,
-        body: uplink.Body,
-    ) -> Entity:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, item_id: str, body: dict[str, Any]
+    ) -> Entity:
         """``PATCH …/checklistItems/{item_id}`` — edit one item. Returns the entity.
 
         Example:
@@ -446,10 +341,10 @@ class EntitiesClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             '655f…'
         """
+        endpoint = endpoints.edit_checklist_item(entity_type, entity_id, item_id, body)
+        return self._session.send(endpoint)
 
-    @uplink.returns.json()
-    @uplink.delete("entities/{entity_type}/{entity_id}/checklistItems")
-    def checklists_delete(self, entity_type: uplink.Path, entity_id: uplink.Path) -> Entity:  # ty: ignore[empty-body]
+    def checklists_delete(self, entity_type: str, entity_id: str) -> Entity:
         """``DELETE …/checklistItems`` — clear the whole checklist. Returns the entity.
 
         Example:
@@ -457,12 +352,9 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.checklists_delete("project", "655f").id  # doctest: +SKIP
             '655f…'
         """
+        return self._session.send(endpoints.delete_checklist(entity_type, entity_id))
 
-    @uplink.returns.json()
-    @uplink.delete("entities/{entity_type}/{entity_id}/checklistItems/{item_id}")
-    def checklists_delete_item(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, item_id: uplink.Path
-    ) -> Entity:  # ty: ignore[empty-body]
+    def checklists_delete_item(self, entity_type: str, entity_id: str, item_id: str) -> Entity:
         """``DELETE …/checklistItems/{item_id}`` — remove one item. Returns the entity.
 
         Example:
@@ -470,17 +362,11 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.checklists_delete_item("project", "655f", "5f").id  # doctest: +SKIP
             '655f…'
         """
+        return self._session.send(endpoints.delete_checklist_item(entity_type, entity_id, item_id))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("entities/{entity_type}/{entity_id}/checklistItems/{item_id}/_move")
     def checklists_move(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        item_id: uplink.Path,
-        body: uplink.Body,
-    ) -> Entity:  # ty: ignore[empty-body]
+        self, entity_type: str, entity_id: str, item_id: str, body: dict[str, Any]
+    ) -> Entity:
         """``POST …/checklistItems/{item_id}/_move`` — reorder an item. Returns the entity.
 
         ``body`` is ``{"before": "<item id>"}``.
@@ -492,17 +378,12 @@ class EntitiesClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             '655f…'
         """
+        endpoint = endpoints.move_checklist_item(entity_type, entity_id, item_id, body)
+        return self._session.send(endpoint)
 
     # ---- links ------------------------------------------------------------------------------
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/links")
-    def links_list(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        fields: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> LinkList:  # ty: ignore[empty-body]
+    def links_list(self, entity_type: str, entity_id: str, fields: str | None = None) -> LinkList:
         """``GET …/links`` → the entity's links to other entities.
 
         Example:
@@ -510,13 +391,7 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.links_list("project", "655f").root[0].type  # doctest: +SKIP
             'relates'
         """
-
-    @uplink.json
-    @uplink.post("entities/{entity_type}/{entity_id}/links")
-    def _links_create(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, body: uplink.Body
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """``POST …/links`` (200 OK, no body; internal; use :meth:`links_create`)."""
+        return self._session.send(endpoints.list_links(entity_type, entity_id, fields=fields))
 
     def links_create(self, entity_type: str, entity_id: str, body: dict) -> None:
         """Create a link (``body`` is ``{relationship, entity}``). Raises on non-2xx.
@@ -527,16 +402,7 @@ class EntitiesClient(TrackerResource):
             ...     "project", "655f", {"relationship": "relates", "entity": "658"}
             ... )  # doctest: +SKIP
         """
-        self._links_create(entity_type, entity_id, body)  # ty: ignore[too-many-positional-arguments]
-
-    @uplink.delete("entities/{entity_type}/{entity_id}/links")
-    def _links_delete(
-        self,
-        entity_type: uplink.Path,
-        entity_id: uplink.Path,
-        right: uplink.Query,
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """``DELETE …/links?right=`` (200 OK, no body; internal; use :meth:`links_delete`)."""
+        self._session.send(endpoints.create_link(entity_type, entity_id, body))
 
     def links_delete(self, entity_type: str, entity_id: str, right: str) -> None:
         """Delete the link to entity ``right``. Raises on non-2xx.
@@ -545,13 +411,11 @@ class EntitiesClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.entities.links_delete("project", "655f", "658")  # doctest: +SKIP
         """
-        self._links_delete(entity_type, entity_id, right=right)
+        self._session.send(endpoints.delete_link(entity_type, entity_id, right))
 
     # ---- attachments ------------------------------------------------------------------------
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/attachments")
-    def attachments_list(self, entity_type: uplink.Path, entity_id: uplink.Path) -> AttachmentList:  # ty: ignore[empty-body]
+    def attachments_list(self, entity_type: str, entity_id: str) -> AttachmentList:
         """``GET …/attachments`` → files attached to the entity (metadata only).
 
         Example:
@@ -559,12 +423,9 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.attachments_list("project", "655f").root[0].name  # doctest: +SKIP
             'Shops.csv'
         """
+        return self._session.send(endpoints.list_attachments(entity_type, entity_id))
 
-    @uplink.returns.json()
-    @uplink.get("entities/{entity_type}/{entity_id}/attachments/{file_id}")
-    def attachments_get(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, file_id: uplink.Path
-    ) -> Attachment:  # ty: ignore[empty-body]
+    def attachments_get(self, entity_type: str, entity_id: str, file_id: str) -> Attachment:
         """``GET …/attachments/{file_id}`` → one attachment's metadata (name, size, download URL).
 
         Example:
@@ -572,15 +433,10 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.attachments_get("project", "655f", "5").name  # doctest: +SKIP
             'flowers.jpg'
         """
-
-    @uplink.get("attachments/{file_id}/{filename}")
-    def _attachment_download(
-        self, file_id: uplink.Path, filename: uplink.Path
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """GET the raw attachment bytes (internal; callers use :meth:`attachment_download`)."""
+        return self._session.send(endpoints.get_attachment(entity_type, entity_id, file_id))
 
     def attachment_download(self, file_id: str, filename: str) -> bytes:
-        """Download an attachment's raw bytes (raises on non-2xx via the transport hook).
+        """Download an attachment's raw bytes (a non-2xx answer raises a typed error).
 
         Binary output is CLI/SDK-only — never an MCP payload. ``file_id`` and ``filename`` come
         from :meth:`attachments_list` / :meth:`attachments_get` (the ``id`` and ``name`` fields).
@@ -590,13 +446,9 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.attachment_download("5", "flowers.jpg")[:4]  # doctest: +SKIP
             b'\\xff\\xd8\\xff\\xe0'
         """
-        return self._attachment_download(file_id, filename).content
+        return self._session.send(endpoints.download_attachment(file_id, filename))
 
-    @uplink.returns.json()
-    @uplink.post("entities/{entity_type}/{entity_id}/attachments/{temp_file_id}")
-    def attachments_attach(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, temp_file_id: uplink.Path
-    ) -> Entity:  # ty: ignore[empty-body]
+    def attachments_attach(self, entity_type: str, entity_id: str, temp_file_id: str) -> Entity:
         """``POST …/attachments/{temp_file_id}`` — attach a previously uploaded temp file.
 
         Returns the updated entity. ``temp_file_id`` is the id of a file uploaded to the temp
@@ -607,12 +459,7 @@ class EntitiesClient(TrackerResource):
             >>> client.entities.attachments_attach("project", "655f", "tmp9").id  # doctest: +SKIP
             '655f…'
         """
-
-    @uplink.delete("entities/{entity_type}/{entity_id}/attachments/{file_id}")
-    def _attachments_delete(
-        self, entity_type: uplink.Path, entity_id: uplink.Path, file_id: uplink.Path
-    ) -> requests.Response:  # ty: ignore[empty-body]
-        """``DELETE …/attachments/{file_id}`` (internal; use :meth:`attachments_delete`)."""
+        return self._session.send(endpoints.attach_file(entity_type, entity_id, temp_file_id))
 
     def attachments_delete(self, entity_type: str, entity_id: str, file_id: str) -> None:
         """Detach a file from an entity (the live API answers with an empty body). Raises on
@@ -622,4 +469,4 @@ class EntitiesClient(TrackerResource):
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.entities.attachments_delete("project", "655f", "5")  # doctest: +SKIP
         """
-        self._attachments_delete(entity_type, entity_id, file_id)
+        self._session.send(endpoints.delete_attachment(entity_type, entity_id, file_id))

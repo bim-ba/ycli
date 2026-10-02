@@ -1,0 +1,34 @@
+"""Tracker ``/issuetypes`` operations, declared once (sans-IO).
+
+Example:
+    >>> edit_issue_type("23", {"description": "x"}, version=1).params
+    {'version': 1}
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeList
+
+
+def list_issue_types() -> Endpoint[IssueTypeList]:
+    return Endpoint("GET", "issuetypes", IssueTypeList)
+
+
+def create_issue_type(body: dict[str, Any]) -> Endpoint[IssueType]:
+    return Endpoint("POST", "issuetypes/", IssueType, json=body)
+
+
+def edit_issue_type(
+    issue_type_id: str, body: dict[str, Any], *, version: int | None = None
+) -> Endpoint[IssueType]:
+    """``PATCH /issuetypes/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
+    return Endpoint(
+        "PATCH",
+        f"issuetypes/{segment(issue_type_id)}",
+        IssueType,
+        json=body,
+        params={"version": version},
+    )

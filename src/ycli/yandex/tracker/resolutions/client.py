@@ -1,25 +1,28 @@
-"""Declarative Tracker resolutions client (uplink) — transport ONLY.
+"""Tracker resolutions client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.resolutions.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.resolutions.models import (
-    Resolution,
-    ResolutionCreate,
-    ResolutionList,
-    ResolutionUpdate,
-)
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.resolutions import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.resolutions.models import (
+        Resolution,
+        ResolutionCreate,
+        ResolutionList,
+        ResolutionUpdate,
+    )
 
 
-class ResolutionsClient(TrackerResource):
-    """Declarative HTTP for ``/resolutions`` (list + create + edit)."""
+class ResolutionsClient(Resource):
+    """List, create and edit issue resolutions."""
 
-    @uplink.returns.json()
-    @uplink.get("resolutions")
-    def list(self) -> ResolutionList:  # ty: ignore[empty-body]
+    def list(self) -> ResolutionList:
         """``GET /resolutions`` → resolution listing.
 
         Example:
@@ -27,12 +30,7 @@ class ResolutionsClient(TrackerResource):
             >>> client.resolutions.list().root[0].key  # doctest: +SKIP
             'fixed'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("resolutions/")
-    def _create(self, body: uplink.Body) -> Resolution:  # ty: ignore[empty-body]
-        """``POST /resolutions/`` — create from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.list_resolutions())
 
     def create(self, body: ResolutionCreate) -> Resolution:
         """Create a resolution from a typed ``ResolutionCreate`` body. Returns the ``Resolution``.
@@ -44,18 +42,8 @@ class ResolutionsClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'wontFix'
         """
-        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("resolutions/{resolution_id}")
-    def _edit(
-        self,
-        resolution_id: uplink.Path,
-        body: uplink.Body,
-        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
-    ) -> Resolution:  # ty: ignore[empty-body]
-        """``PATCH /resolutions/{resolution_id}?version=`` — edit (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_resolution(dumped))
 
     def edit(
         self, resolution_id: str, body: ResolutionUpdate, *, version: int | None = None
@@ -72,8 +60,5 @@ class ResolutionsClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             9
         """
-        return self._edit(
-            resolution_id=resolution_id,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-            version=version,
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_resolution(resolution_id, dumped, version=version))

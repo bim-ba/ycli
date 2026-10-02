@@ -1,32 +1,31 @@
-"""Declarative Tracker data-import client (uplink) — transport ONLY.
+"""Tracker data-import client on the httpx2 core (admin-only writes).
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-
-Every method here is an admin-only WRITE (import preserves the source ``createdAt`` /
-``createdBy``). The four JSON imports return the canonical sibling entity model (the worklog
-import returns the sibling ``WorklogList`` — the live endpoint answers with a JSON array); the
-file import is ``multipart/form-data`` — the file bytes ride in a :class:`uplink.Part`, while
-``filename`` / ``createdAt`` / ``createdBy`` are query parameters (the public :meth:`file`
-wrapper hides the ``uplink.Part`` mechanics).
+Every method sends one declaration from :mod:`ycli.yandex.tracker.import_.endpoints`. Import
+preserves the source ``createdAt`` / ``createdBy``. The four JSON imports return the canonical
+sibling entity model (the worklog import returns ``WorklogList`` — the live endpoint answers with
+a JSON array); the file import is ``multipart/form-data`` with ``filename`` / ``createdAt`` /
+``createdBy`` as query parameters.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.attachments.models import Attachment
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.comments.models import Comment
-from ycli.yandex.tracker.issues.models import Issue
-from ycli.yandex.tracker.links.models import Link
-from ycli.yandex.tracker.worklog.models import WorklogList
+from typing import TYPE_CHECKING, Any
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.import_ import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.attachments.models import Attachment
+    from ycli.yandex.tracker.comments.models import Comment
+    from ycli.yandex.tracker.issues.models import Issue
+    from ycli.yandex.tracker.links.models import Link
+    from ycli.yandex.tracker.worklog.models import WorklogList
 
 
-class ImportClient(TrackerResource):
-    """Declarative HTTP for the Tracker ``/_import`` endpoints (admin-only)."""
+class ImportClient(Resource):
+    """The Tracker ``/_import`` endpoints (admin-only)."""
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/_import")
-    def task(self, body: uplink.Body) -> Issue:  # ty: ignore[empty-body]
+    def task(self, body: dict[str, Any]) -> Issue:
         """``POST /issues/_import`` — import an issue preserving its history. Returns the ``Issue``.
 
         Example:
@@ -36,11 +35,9 @@ class ImportClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'TEST-1'
         """
+        return self._session.send(endpoints.import_task(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{issue_key}/comments/_import")
-    def comment(self, issue_key: uplink.Path, body: uplink.Body) -> Comment:  # ty: ignore[empty-body]
+    def comment(self, issue_key: str, body: dict[str, Any]) -> Comment:
         """``POST /issues/{issue_key}/comments/_import`` — import a comment; returns ``Comment``.
 
         Example:
@@ -50,11 +47,9 @@ class ImportClient(TrackerResource):
             ... ).text  # doctest: +SKIP
             'T'
         """
+        return self._session.send(endpoints.import_comment(issue_key, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{issue_key}/links/_import")
-    def link(self, issue_key: uplink.Path, body: uplink.Body) -> Link:  # ty: ignore[empty-body]
+    def link(self, issue_key: str, body: dict[str, Any]) -> Link:
         """``POST /issues/{issue_key}/links/_import`` — import an issue link. Returns the ``Link``.
 
         Example:
@@ -70,11 +65,9 @@ class ImportClient(TrackerResource):
             ... ).object_key  # doctest: +SKIP
             'TEST-2'
         """
+        return self._session.send(endpoints.import_link(issue_key, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{issue_key}/worklogs/_import")
-    def worklog(self, issue_key: uplink.Path, body: uplink.Body) -> WorklogList:  # ty: ignore[empty-body]
+    def worklog(self, issue_key: str, body: dict[str, Any]) -> WorklogList:
         """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).
 
         Returns a ``WorklogList`` — the live endpoint answers with a JSON **array** of the
@@ -88,19 +81,7 @@ class ImportClient(TrackerResource):
             ... ).root[0].duration  # doctest: +SKIP
             'PT1H'
         """
-
-    @uplink.returns.json()
-    @uplink.multipart
-    @uplink.post("issues/{issue_key}/attachments/_import")
-    def _file(
-        self,
-        issue_key: uplink.Path,
-        filename: uplink.Query,
-        created_at: uplink.Query("createdAt"),  # ty: ignore[invalid-type-form]
-        created_by: uplink.Query("createdBy"),  # ty: ignore[invalid-type-form]
-        file_data: uplink.Part,
-    ) -> Attachment:  # ty: ignore[empty-body]
-        """``POST …/attachments/_import`` (multipart; internal — callers use :meth:`file`)."""
+        return self._session.send(endpoints.import_worklog(issue_key, body))
 
     def file(
         self,
@@ -123,10 +104,11 @@ class ImportClient(TrackerResource):
             ... ).name  # doctest: +SKIP
             'pic.png'
         """
-        return self._file(
+        endpoint = endpoints.import_file(
             issue_key,
             filename=filename,
             created_at=created_at,
             created_by=created_by,
-            file_data=data,
+            data=data,
         )
+        return self._session.send(endpoint)

@@ -33,8 +33,8 @@ Notable shared pieces:
 - `src/ycli/yandex/core/` — the httpx2 core: `Endpoint[T]` (an operation declared once with its
   effect), one `Pagination` class per Yandex paging kind, `SyncSession` / `AsyncSession` (typed
   errors, retries, logging, page walking), every auth kind as an `httpx2.Auth`, and
-  `ServiceProfile` (base URL + organization header). Forms and Tracker `issues` run on it; the
-  other resources move in E2
+  `ServiceProfile` (base URL + organization header). Forms and Tracker run on it; Wiki
+  moves in E2
 - `src/ycli/yandex/pagination.py` — the uplink resources' pagination strategies (until E2)
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every

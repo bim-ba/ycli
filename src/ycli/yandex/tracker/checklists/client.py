@@ -1,6 +1,4 @@
-"""Declarative Tracker issue-checklists client (uplink) — transport ONLY.
-
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+"""Tracker issue ``/checklistItems`` client on the httpx2 core.
 
 The ``get`` read returns a bare array of items (``ChecklistItemList``); every write
 (create/edit/delete-item/clear) returns the issue wrapper with the updated
@@ -8,18 +6,21 @@ The ``get`` read returns a bare array of items (``ChecklistItemList``); every wr
 answers with ``200 OK`` and a body (not ``204``).
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
+from typing import TYPE_CHECKING, Any
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.checklists import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
 
 
-class ChecklistsClient(TrackerResource):
-    """Declarative HTTP for ``/issues/{key}/checklistItems``."""
+class ChecklistsClient(Resource):
+    """Get, add, edit and delete an issue's checklist items, or clear the whole checklist."""
 
-    @uplink.returns.json()
-    @uplink.get("issues/{key}/checklistItems")
-    def get(self, key: uplink.Path) -> ChecklistItemList:  # ty: ignore[empty-body]
+    def get(self, key: str) -> ChecklistItemList:
         """``GET /issues/{key}/checklistItems`` → the issue's checklist items.
 
         Example:
@@ -27,11 +28,9 @@ class ChecklistsClient(TrackerResource):
             >>> client.checklists.get(key="DATAENGINEERING-1").root[0].text  # doctest: +SKIP
             'Review the PR'
         """
+        return self._session.send(endpoints.get_checklist(key))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issues/{key}/checklistItems")
-    def create(self, key: uplink.Path, body: uplink.Body) -> Checklist:  # ty: ignore[empty-body]
+    def create(self, key: str, body: dict[str, Any]) -> Checklist:
         """``POST /issues/{key}/checklistItems`` — add an item. Returns the issue wrapper.
 
         Example:
@@ -41,11 +40,9 @@ class ChecklistsClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'DATAENGINEERING-1'
         """
+        return self._session.send(endpoints.create_checklist_item(key, body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("issues/{key}/checklistItems/{item_id}")
-    def edit(self, key: uplink.Path, item_id: uplink.Path, body: uplink.Body) -> Checklist:  # ty: ignore[empty-body]
+    def edit(self, key: str, item_id: str, body: dict[str, Any]) -> Checklist:
         """``PATCH /issues/{key}/checklistItems/{item_id}`` — edit an item. Returns the wrapper.
 
         Example:
@@ -55,10 +52,9 @@ class ChecklistsClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'DATAENGINEERING-1'
         """
+        return self._session.send(endpoints.edit_checklist_item(key, item_id, body))
 
-    @uplink.returns.json()
-    @uplink.delete("issues/{key}/checklistItems/{item_id}")
-    def delete(self, key: uplink.Path, item_id: uplink.Path) -> Checklist:  # ty: ignore[empty-body]
+    def delete(self, key: str, item_id: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems/{item_id}`` — remove one item (200 + wrapper).
 
         Example:
@@ -68,10 +64,9 @@ class ChecklistsClient(TrackerResource):
             ... ).checklist_total  # doctest: +SKIP
             3
         """
+        return self._session.send(endpoints.delete_checklist_item(key, item_id))
 
-    @uplink.returns.json()
-    @uplink.delete("issues/{key}/checklistItems")
-    def clear(self, key: uplink.Path) -> Checklist:  # ty: ignore[empty-body]
+    def clear(self, key: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems`` — remove the whole checklist (200 + wrapper).
 
         Example:
@@ -79,3 +74,4 @@ class ChecklistsClient(TrackerResource):
             >>> client.checklists.clear("DATAENGINEERING-1").checklist_items  # doctest: +SKIP
             []
         """
+        return self._session.send(endpoints.clear_checklist(key))

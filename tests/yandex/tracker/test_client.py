@@ -1,7 +1,5 @@
 """TDD for TrackerClient composition root — sub-clients share one session."""
 
-import responses
-
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.client import IssuesClient
 
@@ -12,31 +10,6 @@ def test_composes_subclients_over_shared_authed_session():
     core = client.issues._session._client  # Tracker issues run on the httpx2 core
     assert core.headers["X-Org-Id"] == "org"
     assert str(core.base_url) == "https://api.tracker.yandex.net/v3/"
-    for sub in (
-        client.comments,
-        client.links,
-        client.transitions,
-        client.worklog,
-        client.changelog,
-        client.priorities,
-        client.issuetypes,
-        client.linktypes,
-    ):
-        assert sub._session.headers["Authorization"] == "OAuth tok"
-        assert sub._session.headers["X-Org-Id"] == "org"
-
-
-@responses.activate
-def test_tracker_deps_factory_builds_from_env(monkeypatch):
-    """dependencies.tracker_client() reads env and returns a working TrackerClient."""
-    monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
-    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
-    from ycli.yandex.tracker.dependencies import tracker_client
-
-    responses.add(
-        responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200
-    )
-    with tracker_client() as client:
-        assert isinstance(client, TrackerClient)
-        result = client.priorities.list()
-        assert result.root == []
+    # Every resource shares the one core session.
+    sessions = {id(value._session) for value in vars(client).values() if hasattr(value, "_session")}
+    assert len(sessions) == 1

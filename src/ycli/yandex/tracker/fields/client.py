@@ -1,28 +1,31 @@
-"""Declarative Tracker global-fields client (uplink) — transport ONLY.
+"""Tracker global-fields client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.fields.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.fields.models import (
-    CustomField,
-    FieldCategoryCreate,
-    FieldCategoryRecord,
-    FieldCategoryUpdate,
-    FieldCreate,
-    FieldList,
-    FieldUpdate,
-)
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.fields import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.fields.models import (
+        CustomField,
+        FieldCategoryCreate,
+        FieldCategoryRecord,
+        FieldCategoryUpdate,
+        FieldCreate,
+        FieldList,
+        FieldUpdate,
+    )
 
 
-class FieldsClient(TrackerResource):
-    """Declarative HTTP for ``/fields`` (global fields + their categories)."""
+class FieldsClient(Resource):
+    """List, get, create and edit global fields; create and edit their categories."""
 
-    @uplink.returns.json()
-    @uplink.get("fields")
-    def list(self) -> FieldList:  # ty: ignore[empty-body]
+    def list(self) -> FieldList:
         """``GET /fields`` → all global fields of the organisation.
 
         Example:
@@ -30,10 +33,9 @@ class FieldsClient(TrackerResource):
             >>> client.fields.list().root[0].id  # doctest: +SKIP
             'ruName'
         """
+        return self._session.send(endpoints.list_fields())
 
-    @uplink.returns.json()
-    @uplink.get("fields/{field_id}")
-    def get(self, field_id: uplink.Path) -> CustomField:  # ty: ignore[empty-body]
+    def get(self, field_id: str) -> CustomField:
         """``GET /fields/{field_id}`` → parameters of one issue field.
 
         Example:
@@ -41,12 +43,7 @@ class FieldsClient(TrackerResource):
             >>> client.fields.get(field_id="ruName").id  # doctest: +SKIP
             'ruName'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("fields")
-    def _create(self, body: uplink.Body) -> CustomField:  # ty: ignore[empty-body]
-        """``POST /fields`` — create from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.get_field(field_id))
 
     def create(self, body: FieldCreate) -> CustomField:
         """Create a global field from a typed ``FieldCreate`` body. Returns the ``CustomField``.
@@ -58,18 +55,8 @@ class FieldsClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             'f'
         """
-        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("fields/{field_id}")
-    def _edit(
-        self,
-        field_id: uplink.Path,
-        body: uplink.Body,
-        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
-    ) -> CustomField:  # ty: ignore[empty-body]
-        """``PATCH /fields/{field_id}?version=`` — edit from a ready body (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_field(dumped))
 
     def edit(self, field_id: str, body: FieldUpdate, *, version: int | None = None) -> CustomField:
         """Edit field ``field_id`` from a typed ``FieldUpdate`` body (rename and/or options).
@@ -84,17 +71,8 @@ class FieldsClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             'ruName'
         """
-        return self._edit(
-            field_id=field_id,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-            version=version,
-        )
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("fields/categories")
-    def _category_create(self, body: uplink.Body) -> FieldCategoryRecord:  # ty: ignore[empty-body]
-        """``POST /fields/categories`` — create from a ready body (see ``category_create``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_field(field_id, dumped, version=version))
 
     def category_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
         """Create a field category from a typed ``FieldCategoryCreate`` body.
@@ -106,18 +84,8 @@ class FieldsClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             '604f9920d23cd5'
         """
-        return self._category_create(body=body.model_dump(by_alias=True, exclude_none=True))
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("fields/categories/{category_id}")
-    def _category_edit(
-        self,
-        category_id: uplink.Path,
-        body: uplink.Body,
-        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
-    ) -> FieldCategoryRecord:  # ty: ignore[empty-body]
-        """``PATCH /fields/categories/{category_id}?version=`` — edit (see ``category_edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_category(dumped))
 
     def category_edit(
         self, category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
@@ -134,8 +102,5 @@ class FieldsClient(TrackerResource):
             ... ).version  # doctest: +SKIP
             2
         """
-        return self._category_edit(
-            category_id=category_id,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-            version=version,
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_category(category_id, dumped, version=version))

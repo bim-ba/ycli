@@ -1,20 +1,20 @@
-"""Declarative Tracker external-applications client (uplink) — transport ONLY.
+"""Tracker external-applications client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING
 
-from ycli.yandex.tracker.applications.models import ApplicationList
-from ycli.yandex.tracker.base import TrackerResource
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.applications import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.applications.models import ApplicationList
 
 
-class ApplicationsClient(TrackerResource):
-    """Declarative HTTP for ``/applications``."""
+class ApplicationsClient(Resource):
+    """List the external applications issues can be linked to."""
 
-    @uplink.returns.json()
-    @uplink.get("applications")
-    def list(self) -> ApplicationList:  # ty: ignore[empty-body]
+    def list(self) -> ApplicationList:
         """``GET /applications`` → external applications that issues can be linked to.
 
         Example:
@@ -22,3 +22,4 @@ class ApplicationsClient(TrackerResource):
             >>> client.applications.list().root[0].id  # doctest: +SKIP
             'my-application'
         """
+        return self._session.send(endpoints.list_applications())

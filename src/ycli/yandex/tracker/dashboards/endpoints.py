@@ -1,0 +1,22 @@
+"""Tracker ``/dashboards`` operations, each declared once (sans-IO).
+
+Example:
+    >>> add_cycle_time_widget("10", {"description": "Cycle"}).path
+    'dashboards/10/widgets/cycleTime'
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.tracker.dashboards.models import Dashboard, Widget
+
+
+def create_dashboard(body: dict[str, Any]) -> Endpoint[Dashboard]:
+    return Endpoint("POST", "dashboards/", Dashboard, json=body)
+
+
+def add_cycle_time_widget(dashboard_id: str, body: dict[str, Any]) -> Endpoint[Widget]:
+    path = f"dashboards/{segment(dashboard_id)}/widgets/cycleTime"
+    return Endpoint("POST", path, Widget, json=body)

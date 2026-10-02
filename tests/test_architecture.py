@@ -359,13 +359,6 @@ def test_arch1_served_check_bites():
 # (`/new-endpoint` scaffolds it there), and a resource that moves leaves this list; E2 empties it.
 UPLINK_RESOURCES = frozenset(
     {
-        *(f"tracker.{name}" for name in (
-            "applications", "attachments", "autoactions", "boards", "bulk", "changelog",
-            "checklists", "columns", "comments", "components", "dashboards", "entities",
-            "fields", "filters", "import_", "issuetypes", "links", "linktypes", "localfields",
-            "macros", "me", "priorities", "queues", "remotelinks", "resolutions", "sprints",
-            "statuses", "transitions", "triggers", "users", "worklog",
-        )),
         *(f"wiki.{name}" for name in (
             "attachments", "comments", "grids", "me", "operations", "pages", "recovery",
             "resources", "uploadsessions",
@@ -471,7 +464,10 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "tracker/issues/endpoints.py:search_issues": "POST _search only reads",
     "tracker/issues/endpoints.py:count_issues": "POST _count only reads",
     "tracker/issues/endpoints.py:clear_scroll": "releasing a scroll twice is harmless",
+    "tracker/worklog/endpoints.py:search_worklog": "POST _search only reads",
     "forms/files/endpoints.py:verify_files": "POST verify only reads upload statuses",
+    "tracker/entities/endpoints.py:search_entities": "POST _search only reads",
+    "tracker/queues/endpoints.py:remove_tag": "POST _remove strips the tag from every issue",
 }
 
 

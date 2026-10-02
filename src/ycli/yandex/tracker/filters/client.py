@@ -1,20 +1,20 @@
-"""Declarative Tracker filters client (uplink) — transport ONLY.
+"""Tracker saved ``/filters`` client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.filters import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
 
 
-class FiltersClient(TrackerResource):
-    """Declarative HTTP for ``/filters`` (get + create + edit)."""
+class FiltersClient(Resource):
+    """Get, create and edit saved issue filters."""
 
-    @uplink.returns.json()
-    @uplink.get("filters/{filter_id}")
-    def get(self, filter_id: uplink.Path) -> Filter:  # ty: ignore[empty-body]
+    def get(self, filter_id: str) -> Filter:
         """``GET /filters/{filter_id}`` → parameters of one saved filter.
 
         Example:
@@ -22,12 +22,7 @@ class FiltersClient(TrackerResource):
             >>> client.filters.get(filter_id="12345").name  # doctest: +SKIP
             'My open issues'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("filters/")
-    def _create(self, body: uplink.Body) -> Filter:  # ty: ignore[empty-body]
-        """``POST /filters/`` — create from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.get_filter(filter_id))
 
     def create(self, body: FilterCreate) -> Filter:
         """Create a saved filter from a typed ``FilterCreate`` body. Returns the ``Filter``.
@@ -39,13 +34,8 @@ class FiltersClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             12345
         """
-        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("filters/{filter_id}")
-    def _edit(self, filter_id: uplink.Path, body: uplink.Body) -> Filter:  # ty: ignore[empty-body]
-        """``PATCH /filters/{filter_id}`` — edit from a ready JSON body (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_filter(dumped))
 
     def edit(self, filter_id: str, body: FilterUpdate) -> Filter:
         """Edit filter ``filter_id`` from a typed ``FilterUpdate`` body. Returns the ``Filter``.
@@ -58,6 +48,5 @@ class FiltersClient(TrackerResource):
             >>> client.filters.edit("12345", FilterUpdate(name="Renamed")).name  # doctest: +SKIP
             'Renamed'
         """
-        return self._edit(
-            filter_id=filter_id, body=body.model_dump(by_alias=True, exclude_none=True)
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_filter(filter_id, dumped))

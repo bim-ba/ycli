@@ -1,25 +1,28 @@
-"""Declarative Tracker issue-types client (uplink) — transport ONLY.
+"""Tracker issue-types client on the httpx2 core.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.issuetypes.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.issuetypes.models import (
-    IssueType,
-    IssueTypeCreate,
-    IssueTypeList,
-    IssueTypeUpdate,
-)
+from typing import TYPE_CHECKING
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.issuetypes import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.issuetypes.models import (
+        IssueType,
+        IssueTypeCreate,
+        IssueTypeList,
+        IssueTypeUpdate,
+    )
 
 
-class IssueTypesClient(TrackerResource):
-    """Declarative HTTP for ``/issuetypes`` (list + create + edit)."""
+class IssueTypesClient(Resource):
+    """List, create and edit issue types."""
 
-    @uplink.returns.json()
-    @uplink.get("issuetypes")
-    def list(self) -> IssueTypeList:  # ty: ignore[empty-body]
+    def list(self) -> IssueTypeList:
         """``GET /issuetypes`` → issue-type listing.
 
         Example:
@@ -27,12 +30,7 @@ class IssueTypesClient(TrackerResource):
             >>> client.issuetypes.list().root[0].key  # doctest: +SKIP
             'bug'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("issuetypes/")
-    def _create(self, body: uplink.Body) -> IssueType:  # ty: ignore[empty-body]
-        """``POST /issuetypes/`` — create from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.list_issue_types())
 
     def create(self, body: IssueTypeCreate) -> IssueType:
         """Create an issue type from a typed ``IssueTypeCreate`` body. Returns the ``IssueType``.
@@ -44,18 +42,8 @@ class IssueTypesClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'client'
         """
-        return self._create(body=body.model_dump(by_alias=True, exclude_none=True))
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("issuetypes/{issue_type_id}")
-    def _edit(
-        self,
-        issue_type_id: uplink.Path,
-        body: uplink.Body,
-        version: uplink.Query("version") = None,  # ty: ignore[invalid-type-form]
-    ) -> IssueType:  # ty: ignore[empty-body]
-        """``PATCH /issuetypes/{issue_type_id}?version=`` — edit (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_issue_type(dumped))
 
     def edit(
         self, issue_type_id: str, body: IssueTypeUpdate, *, version: int | None = None
@@ -72,8 +60,5 @@ class IssueTypesClient(TrackerResource):
             ... ).key  # doctest: +SKIP
             'client'
         """
-        return self._edit(
-            issue_type_id=issue_type_id,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-            version=version,
-        )
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_issue_type(issue_type_id, dumped, version=version))

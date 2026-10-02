@@ -1,25 +1,25 @@
-"""Declarative Tracker queue triggers client (uplink) — transport ONLY.
+"""Tracker queue ``/triggers`` client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.triggers.models import (
-    Trigger,
-    TriggerCreate,
-    TriggerUpdate,
-    WebhookLogList,
-)
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.triggers import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.triggers.models import (
+        Trigger,
+        TriggerCreate,
+        TriggerUpdate,
+        WebhookLogList,
+    )
 
 
-class TriggersClient(TrackerResource):
-    """Declarative HTTP for a queue's ``/triggers`` (get, create, edit, webhook log)."""
+class TriggersClient(Resource):
+    """Get, create and edit a queue's triggers; read a trigger's webhook log."""
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/triggers/{trigger_id}")
-    def get(self, queue_id: uplink.Path, trigger_id: uplink.Path) -> Trigger:  # ty: ignore[empty-body]
+    def get(self, queue_id: str, trigger_id: int) -> Trigger:
         """``GET /queues/{queue_id}/triggers/{trigger_id}`` → a single trigger.
 
         Example:
@@ -27,12 +27,7 @@ class TriggersClient(TrackerResource):
             >>> client.triggers.get(queue_id="DESIGN", trigger_id=16).name  # doctest: +SKIP
             'trigger_name'
         """
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("queues/{queue_id}/triggers")
-    def _create(self, queue_id: uplink.Path, body: uplink.Body) -> Trigger:  # ty: ignore[empty-body]
-        """``POST /queues/{queue_id}/triggers`` from a ready JSON body (see ``create``)."""
+        return self._session.send(endpoints.get_trigger(queue_id, trigger_id))
 
     def create(self, queue_id: str, body: TriggerCreate) -> Trigger:
         """Create a trigger from a typed ``TriggerCreate`` body. Returns the created ``Trigger``.
@@ -44,21 +39,8 @@ class TriggersClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             16
         """
-        return self._create(
-            queue_id=queue_id, body=body.model_dump(by_alias=True, exclude_none=True)
-        )
-
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("queues/{queue_id}/triggers/{trigger_id}")
-    def _edit(
-        self,
-        queue_id: uplink.Path,
-        trigger_id: uplink.Path,
-        body: uplink.Body,
-        version: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-    ) -> Trigger:  # ty: ignore[empty-body]
-        """``PATCH /queues/{queue_id}/triggers/{trigger_id}?version=`` (see ``edit``)."""
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.create_trigger(queue_id, dumped))
 
     def edit(
         self, queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None = None
@@ -75,24 +57,20 @@ class TriggersClient(TrackerResource):
             ... ).active  # doctest: +SKIP
             False
         """
-        return self._edit(
-            queue_id=queue_id,
-            trigger_id=trigger_id,
-            body=body.model_dump(by_alias=True, exclude_none=True),
-            version=version,
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(
+            endpoints.edit_trigger(queue_id, trigger_id, dumped, version=version)
         )
 
-    @uplink.returns.json()
-    @uplink.get("queues/{queue_id}/triggers/{trigger_id}/webhooks/log")
     def webhook_log(
         self,
-        queue_id: uplink.Path,
-        trigger_id: uplink.Path,
-        issue_id: uplink.Query("issueId") = None,  # ty: ignore[invalid-type-form]
-        limit: uplink.Query = None,  # ty: ignore[invalid-parameter-default]
-        date_from: uplink.Query("from") = None,  # ty: ignore[invalid-type-form]
-        date_to: uplink.Query("to") = None,  # ty: ignore[invalid-type-form]
-    ) -> WebhookLogList:  # ty: ignore[empty-body]
+        queue_id: str,
+        trigger_id: int,
+        issue_id: str | None = None,
+        limit: int | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+    ) -> WebhookLogList:
         """``GET /queues/{queue_id}/triggers/{trigger_id}/webhooks/log`` → HTTP-action run logs.
 
         Returns the trigger's Webhook-action execution records (default 10, ``limit`` up to 100).
@@ -103,3 +81,13 @@ class TriggersClient(TrackerResource):
             >>> client.triggers.webhook_log("DEV", 6, limit=100).root[0].duration  # doctest: +SKIP
             235
         """
+        return self._session.send(
+            endpoints.list_webhook_log(
+                queue_id,
+                trigger_id,
+                issue_id=issue_id,
+                limit=limit,
+                date_from=date_from,
+                date_to=date_to,
+            )
+        )

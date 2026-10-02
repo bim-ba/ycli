@@ -1,21 +1,23 @@
-"""Declarative Tracker dashboards client (uplink) — transport ONLY.
+"""Tracker ``/dashboards`` client on the httpx2 core: create a dashboard, add a cycle-time widget.
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
+Every method sends one declaration from :mod:`ycli.yandex.tracker.dashboards.endpoints`.
 """
 
-import uplink
+from __future__ import annotations
 
-from ycli.yandex.tracker.base import TrackerResource
-from ycli.yandex.tracker.dashboards.models import Dashboard, Widget
+from typing import TYPE_CHECKING, Any
+
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.tracker.dashboards import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.dashboards.models import Dashboard, Widget
 
 
-class DashboardsClient(TrackerResource):
-    """Declarative HTTP for ``/dashboards`` (create a dashboard, add a cycle-time widget)."""
+class DashboardsClient(Resource):
+    """``/dashboards`` (create a dashboard, add a cycle-time widget)."""
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("dashboards/")
-    def create(self, body: uplink.Body) -> Dashboard:  # ty: ignore[empty-body]
+    def create(self, body: dict[str, Any]) -> Dashboard:
         """``POST /dashboards/`` — create a dashboard. Returns the created ``Dashboard``.
 
         Example:
@@ -23,11 +25,9 @@ class DashboardsClient(TrackerResource):
             >>> client.dashboards.create({"name": "Team board"}).id  # doctest: +SKIP
             10
         """
+        return self._session.send(endpoints.create_dashboard(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("dashboards/{dashboard_id}/widgets/cycleTime")
-    def add_cycle_time_widget(self, dashboard_id: uplink.Path, body: uplink.Body) -> Widget:  # ty: ignore[empty-body]
+    def add_cycle_time_widget(self, dashboard_id: str, body: dict[str, Any]) -> Widget:
         """``POST /dashboards/{dashboard_id}/widgets/cycleTime`` — add a cycle-time widget.
 
         Returns the created ``Widget``.
@@ -39,3 +39,4 @@ class DashboardsClient(TrackerResource):
             ... ).id  # doctest: +SKIP
             123456
         """
+        return self._session.send(endpoints.add_cycle_time_widget(dashboard_id, body))
