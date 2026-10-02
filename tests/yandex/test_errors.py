@@ -81,3 +81,24 @@ def test_error_message_falls_back_on_non_json_body():
     with pytest.raises(YandexServerError) as info:
         _get_with(503, content=b"upstream exploded")
     assert "upstream exploded" in str(info.value)
+
+
+@pytest.mark.parametrize(
+    ("body", "line"),
+    [
+        (
+            '[{"loc": [], "error_code": "disabled", "msg": "Функция заблокирована"}]',
+            "disabled: Функция заблокирована",
+        ),
+        (
+            '{"detail": [{"loc": ["body"], "type": "missing", "msg": "Field required"}]}',
+            "missing: Field required",
+        ),
+        ('{"detail": [{"msg": "Bad"}]}', "Bad"),
+    ],
+)
+def test_forms_validation_errors_read_as_text(body, line):
+    """Forms answers a list of ``{loc, error_code, msg}``: the message, not escaped JSON."""
+    from ycli.yandex.errors import describe_error_body
+
+    assert describe_error_body(body) == line

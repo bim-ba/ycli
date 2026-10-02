@@ -13,9 +13,9 @@ snake_case.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import AliasChoices, Field, RootModel
+from pydantic import AfterValidator, AliasChoices, Field, RootModel
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.queues.models import (  # pydantic resolves field types at runtime
@@ -140,18 +140,34 @@ class LocalizedText(APIModel):
     en: str | None = Field(default=None, description="Text in English.")
 
 
+def _needs_russian(name: LocalizedText | None) -> LocalizedText | None:
+    """Tracker refuses an action name without its Russian text (422 "action.name: required").
+
+    Example:
+        >>> _needs_russian(LocalizedText(en="Close"))
+        Traceback (most recent call last):
+        ...
+        ValueError: an action name needs its Russian text (ru): Tracker refuses it otherwise
+    """
+    if name is not None and name.en and not name.ru:
+        raise ValueError("an action name needs its Russian text (ru): Tracker refuses it otherwise")
+    return name
+
+
 class WorkflowActionInput(APIModel):
     """An action in a request: ``name`` and ``target`` are required.
 
     Example:
         >>> WorkflowActionInput(
-        ...     id="close", name=LocalizedText(en="Close"), target="closed"
+        ...     id="close", name=LocalizedText(ru="Закрыть", en="Close"), target="closed"
         ... ).model_dump(exclude_none=True)
         {'id': 'close', 'name': {'en': 'Close'}, 'target': 'closed'}
     """
 
     id: str | None = Field(default=None, description="Identifier of the action within its step.")
-    name: LocalizedText = Field(description="Name of the action in each language.")
+    name: Annotated[LocalizedText, AfterValidator(_needs_russian)] = Field(
+        description="Name of the action in each language; the Russian text is required."
+    )
     description: LocalizedText | None = Field(
         default=None, description="Description of the action in each language."
     )
@@ -170,21 +186,29 @@ class WorkflowActionInput(APIModel):
 
 
 class WorkflowActionUpdate(APIModel):
-    """Typed request body for ``workflows.edit_action``: only the fields that are set change.
+    """Typed request body for ``workflows.edit_action``.
+
+    The docs mark every field optional, but Tracker refuses an edit without ``name`` and
+    ``target`` (422), so both are required; the other fields change only when set.
 
     Example:
-        >>> WorkflowActionUpdate(target="closed").model_dump(exclude_none=True)
-        {'target': 'closed'}
+        >>> WorkflowActionUpdate(name=LocalizedText(ru="Закрыть"), target="closed").model_dump(
+        ...     exclude_none=True
+        ... )
+        {'name': {'ru': 'Закрыть'}, 'target': 'closed'}
     """
 
     id: str | None = Field(default=None, description="New identifier of the action.")
-    name: LocalizedText | None = Field(default=None, description="New name of the action.")
+    name: Annotated[LocalizedText, AfterValidator(_needs_russian)] = Field(
+        description="Name of the action (required by Tracker, with its Russian text)."
+    )
     description: LocalizedText | None = Field(
         default=None, description="New description of the action."
     )
-    target: str | int | RefSelector | None = Field(
-        default=None,
-        description="New target status: a key, a numeric id or a ``{key|id|name}`` object.",
+    target: str | int | RefSelector = Field(
+        description=(
+            "Target status (required by Tracker): a key, a numeric id or a ``{key|id|name}``."
+        ),
     )
     screen: dict[str, Any] | None = Field(default=None, description="New transition screen.")
     conditions: list[dict[str, Any]] | None = Field(
@@ -250,7 +274,9 @@ class WorkflowCreate(APIModel):
     Example:
         >>> body = WorkflowCreate(
         ...     name="Design",
-        ...     initial_action=WorkflowActionInput(name=LocalizedText(en="Open"), target="open"),
+        ...     initial_action=WorkflowActionInput(
+        ...         name=LocalizedText(ru="Открыть", en="Open"), target="open"
+        ...     ),
         ...     steps=[WorkflowStepInput(status="open")],
         ... )
         >>> sorted(body.model_dump(by_alias=True, exclude_none=True))

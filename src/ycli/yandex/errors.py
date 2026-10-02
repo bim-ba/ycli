@@ -65,27 +65,40 @@ class YandexConnectionError(YandexError):
     """No HTTP response at all: DNS, connect or read failure, or a network timeout."""
 
 
+def _error_item(item: object) -> str:
+    """One item of an error list: ``code: msg`` for a validation-style object, else as text."""
+    if not isinstance(item, dict) or "msg" not in item:
+        return str(item)
+    code = item.get("error_code") or item.get("type")
+    return f"{code}: {item.get('msg')}" if code else str(item.get("msg"))
+
+
 def describe_error_body(body: str) -> str:
     """The human-readable line from a Yandex error body, or a raw snippet as a fallback.
 
     Tracker answers ``{"errorMessages": [...]}``, Wiki ``{"message": [...] or "...",
-    "error_code": ...}``, Forms ``{"detail": ...}``; anything else is cut to 300 characters.
+    "error_code": ...}``, Forms ``{"detail": ...}`` or a bare list of ``{"loc", "error_code",
+    "msg"}`` items; anything else is cut to 300 characters.
 
     Example:
         >>> describe_error_body('{"errorMessages": ["Issue does not exist."]}')
         'Issue does not exist.'
         >>> describe_error_body('{"error_code": "NOT_FOUND", "message": ["No page."]}')
         'NOT_FOUND: No page.'
+        >>> describe_error_body('[{"loc": [], "error_code": "disabled", "msg": "Blocked"}]')
+        'disabled: Blocked'
     """
     try:
         data = json.loads(body)
     except ValueError:
         data = None
+    if isinstance(data, list) and data:
+        return "; ".join(_error_item(item) for item in data)
     if isinstance(data, dict):
         for key in ("errorMessages", "message", "detail"):
             value = data.get(key)
             if isinstance(value, list) and value:
-                text = "; ".join(str(item) for item in value)
+                text = "; ".join(_error_item(item) for item in value)
             elif isinstance(value, str) and value:
                 text = value
             else:

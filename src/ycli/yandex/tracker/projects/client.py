@@ -61,6 +61,9 @@ class ProjectsClient(Resource):
     def create(self, body: ProjectCreate) -> Project:
         """``POST /projects`` → create a project from a typed ``ProjectCreate`` body.
 
+        Projects v3 is the legacy API (entities replace it): the test organization accepted
+        ``queues`` but bound no queue, so ``queues`` of the new project came back empty.
+
         Example:
             >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.projects.create(
