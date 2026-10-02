@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.36.2 (2026-10-02)
+
+### Bug Fixes
+
+- **docker**: Build the image with the frozen lock so a release tag builds
+  ([#172](https://github.com/bim-ba/ycli/pull/172),
+  [`c34eae4`](https://github.com/bim-ba/ycli/commit/c34eae4b356d273c2bfd63f8ce1d4564285b33a5))
+
+### Build System
+
+- Re-lock uv.lock for 0.36.1
+  ([`2ec28aa`](https://github.com/bim-ba/ycli/commit/2ec28aa865774337b2ce5dd29eb049b292fc23e1))
+
+
 ## v0.36.1 (2026-10-02)
 
 ### Bug Fixes
