@@ -8,7 +8,6 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
 from ycli.yandex.tracker.dependencies import (
@@ -43,7 +42,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given, so very long threads
     are truncated at the cap rather than fetched forever.
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.comments.list(key, limit=cap)
 
 

@@ -34,4 +34,4 @@ returns its result and never prints (`output.render` does); `fastmcp` only in `m
 honest annotations (reads `RO`; writes the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets plus
 the `write` tag — they must agree with the effect of the endpoint the tool sends); clients receive
 credentials as constructor arguments and never read the environment (no `from_env`). New resources
-go on the httpx2 core: the list of resources still on uplink may only shrink.
+go on the httpx2 core.

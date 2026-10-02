@@ -7,7 +7,6 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import RO, TAGS, app_config, wiki_client
 from ycli.yandex.wiki.resources.models import ResourceItemList
@@ -35,5 +34,5 @@ def list_(
     Example:
         >>> list_(page_id=12345, types="attachment")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.resources.list(page_id=page_id, limit=cap, q=q or None, types=types or None)

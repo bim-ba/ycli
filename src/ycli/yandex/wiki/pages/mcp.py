@@ -7,7 +7,6 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -55,7 +54,7 @@ def descendants(
 ) -> PageRefList:
     """All descendant refs under SLUG, auto-paginated. Capped at the configured item cap
     unless ``limit`` is given; narrow by SLUG for large trees."""
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.pages.descendants(slug=slug, limit=cap)
 
 
@@ -75,7 +74,7 @@ def grids_list(
     Example:
         >>> grids_list(page_id=12345, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.pages.grids(page_id=page_id, limit=cap)
 
 
@@ -124,7 +123,7 @@ def by_id_descendants(
     Example:
         >>> by_id_descendants(page_id=12345, limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.pages.descendants_by_id(page_id=page_id, limit=cap)
 
 

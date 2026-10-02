@@ -1,8 +1,7 @@
 """Render real `ycli` CLI output from a committed fixture — the demo's leak-free data source.
 
-Used only by docs/demo/bin/ycli (the vhs shim). Stubs the matching API endpoint (with
-`responses` for clients still on uplink, an ``httpx2.MockTransport`` for the httpx2 core),
-sets dummy creds, and invokes the real Typer app in-process so the printed
+Used only by docs/demo/bin/ycli (the vhs shim). Stubs the matching API endpoint with an
+``httpx2.MockTransport``, sets dummy creds, and invokes the real Typer app in-process so the printed
 output is genuine rendering of committed data — deterministic, offline, no real org data.
 
     python docs/demo/render.py tracker issues get DEMO-42
@@ -23,7 +22,6 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-import responses
 from typer.testing import CliRunner
 
 HERE = Path(__file__).resolve().parent
@@ -33,17 +31,16 @@ WIKI = "https://api.wiki.yandex.net/v1"
 
 # Map a demo command (argv tuple) to (HTTP method, URL, fixture file, cli_argv).
 # wiki pages get: the client calls GET /pages?slug=onboarding&fields=content.
-# responses matches on URL prefix by default; the query params are matched separately
-# via match_querystring=False (default), so stub URL needs no query string.
+# The mock compares the URL without its query string, so the stub URL carries none.
 ROUTES: dict[tuple[str, ...], tuple[str, str, str, list[str]]] = {
     ("tracker", "issues", "get", "DEMO-42"): (
-        responses.GET,
+        "GET",
         f"{TRACKER}/issues/DEMO-42",
         "tracker-issue.json",
         ["--format", "pretty", "tracker", "issues", "get", "DEMO-42"],
     ),
     ("wiki", "pages", "get", "onboarding"): (
-        responses.GET,
+        "GET",
         f"{WIKI}/pages",
         "wiki-page.json",
         ["wiki", "pages", "get", "onboarding"],
@@ -65,6 +62,7 @@ def main(argv: list[str]) -> int:
     from ycli.yandex.core import session
 
     def answer(request: httpx2.Request) -> httpx2.Response:
+        assert request.method == method, request.method
         assert str(request.url.copy_with(query=None)) == url, request.url
         return httpx2.Response(200, json=body)
 
@@ -73,12 +71,8 @@ def main(argv: list[str]) -> int:
 
     runner = CliRunner()
     # Resources on the httpx2 core take their network from this seam (see core.session).
-    with (
-        patch.object(session, "default_transport", offline),
-        responses.RequestsMock(assert_all_requests_are_fired=False) as rsps,
-    ):
-        rsps.add(method, url, json=body, status=200)
-        # Dummy creds satisfy Credentials(); responses intercepts the call (no real network).
+    with patch.object(session, "default_transport", offline):
+        # Dummy creds satisfy Credentials(); the mock transport answers (no real network).
         # FORCE_COLOR keeps rich's ANSI colors through CliRunner's pipe; COLUMNS gives the
         # pretty table room so it isn't wrapped in the recording.
         env = {

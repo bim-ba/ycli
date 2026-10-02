@@ -3,7 +3,7 @@
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from ycli.settings import AppConfig, Credentials, OAuthAppConfig
+from ycli.settings import AppConfig, Credentials, HTTPConfig, OAuthAppConfig
 
 
 @pytest.fixture(autouse=True)
@@ -146,3 +146,11 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
     # Root --help doesn't trigger the callback in Typer; use a subcommand invocation instead.
     CliRunner().invoke(cli.app, ["tracker", "issues", "--help"])
     assert captured["level"] == "ERROR"
+
+
+@pytest.mark.parametrize(
+    ("limit", "all_", "cap"),
+    [(0, False, 500), (-5, False, 500), (10, False, 10), (10, True, None), (0, True, None)],
+)
+def test_the_listing_cap_takes_the_limit_then_the_default_and_all_lifts_it(limit, all_, cap):
+    assert HTTPConfig(max_items=500).cap(limit, all_=all_) == cap

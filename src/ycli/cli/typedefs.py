@@ -2,7 +2,7 @@
 
 The ``limit`` / ``--all`` pair recurs on every paginated ``list`` command; defining the
 :data:`LimitOption` / :data:`AllOption` ``Annotated`` aliases once keeps the caps consistent
-(pair with :func:`ycli.yandex.pagination.resolve_cap` to turn them into a concrete cap).
+(pair with :meth:`ycli.settings.HTTPConfig.cap` to turn them into a concrete cap).
 """
 
 from __future__ import annotations

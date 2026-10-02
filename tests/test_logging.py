@@ -4,12 +4,9 @@ import json
 import logging
 
 import pytest
-import responses
 from typer.testing import CliRunner
-from urllib3.response import HTTPResponse
 
 from ycli.log import LOGGER_NAME, configure
-from ycli.yandex.transport import Transport, retry_policy
 
 logger = logging.getLogger("ycli.test")
 
@@ -66,26 +63,6 @@ def test_json_format_carries_the_exception(capsys):
         logger.exception("failed")
     entry = json.loads(capsys.readouterr().err)
     assert "ValueError: boom" in entry["exception"]
-
-
-@responses.activate
-def test_http_response_is_logged_without_the_token(capsys):
-    responses.get("https://api.example.test/v2/myself", json={}, status=200)
-    configure("INFO")
-    session = Transport.session(
-        oauth_token="y0_secret-token", organization_id="o", timeout_seconds=30.0, retries=0
-    )
-    session.get("https://api.example.test/v2/myself")
-    err = capsys.readouterr().err
-    assert "INFO ycli.http: GET https://api.example.test/v2/myself -> 200" in err
-    assert "secret-token" not in err
-
-
-def test_retry_is_logged(capsys):
-    configure("INFO")
-    retry = retry_policy(2).increment("GET", "/v2/issues", response=HTTPResponse(status=503))
-    assert retry.total == 1
-    assert "retrying GET /v2/issues after 503 (1 left)" in capsys.readouterr().err
 
 
 @pytest.mark.parametrize(

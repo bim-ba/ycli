@@ -41,7 +41,7 @@ change the public surface on purpose, regenerate snapshots: `uv run python -m te
   imply the other): `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest`,
   `uv run ty check`, `uv run lint-imports`.
 - **Tests:** `uv run pytest`. The suite must stay at **100% line and branch coverage** (`--cov-fail-under=100`).
-  HTTP is stubbed with the `api` fixture (`MockAPI`; `responses` for resources still on uplink) — no live network. Async MCP tests rely on `asyncio_mode = "auto"`.
+  HTTP is stubbed with the `api` fixture (`MockAPI`) — no live network. Async MCP tests rely on `asyncio_mode = "auto"`.
 - **MCP server is read/write with honest annotations** (ARCH-3): reads carry
   `readOnlyHint=True` (the `RO` set); writes carry explicit `destructiveHint` /
   `idempotentHint` (the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets in
@@ -107,7 +107,7 @@ upload it manually under repo **Settings → Social preview**.
 ## Layout
 
 Per-domain SDK lives under `src/ycli/yandex/<domain>/` — each resource group has
-`client.py` (uplink SDK), `cli.py` (Typer), `mcp.py` (FastMCP), `models.py` (pydantic).
+`endpoints.py` (operations, declared once), `client.py` (the SDK), `cli.py` (Typer), `mcp.py` (FastMCP), `models.py` (pydantic).
 The distributable Claude Code plugin is under `plugins/yandex-360/`.
 
 The [README Coverage section](README.md#coverage) is generated from the code and is the

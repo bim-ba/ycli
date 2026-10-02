@@ -1,7 +1,7 @@
 """Typed exceptions for Yandex API failures — pure classes, no HTTP imports.
 
-Kept free of ``requests``/``uplink`` so cli/mcp may import it under ARCH-2. The
-transport (``transport.py``) maps a non-2xx response to one of these and raises it.
+Kept free of any HTTP library so cli/mcp may import it under ARCH-2. The core session
+(``core/session.py``) maps a non-2xx response to one of these and raises it.
 """
 
 from __future__ import annotations

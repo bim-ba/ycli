@@ -1,10 +1,16 @@
-"""Typed SDK errors: the transport raises the right class on each non-2xx status."""
+"""Typed SDK errors: a core session raises the right class on each non-2xx status."""
 
 from __future__ import annotations
 
 import pytest
-import responses
+from pydantic import SecretStr
 
+from tests.mock_api import MockAPI
+from ycli.settings import HTTPConfig
+from ycli.yandex.core.auth import OAuthTokenAuth
+from ycli.yandex.core.endpoint import Endpoint
+from ycli.yandex.core.profile import ServiceProfile
+from ycli.yandex.core.session import connect
 from ycli.yandex.errors import (
     YandexAuthError,
     YandexClientError,
@@ -13,18 +19,26 @@ from ycli.yandex.errors import (
     YandexRateLimitError,
     YandexServerError,
 )
-from ycli.yandex.transport import Transport
+
+BASE = "https://api.tracker.yandex.net/v3"
+
+
+def _get_with(status: int, path: str = "detail", **answer):
+    """Send one GET through a core session at a stubbed URL answering ``status``."""
+    api = MockAPI()
+    api.add("GET", f"{BASE}/{path}", status=status, **answer)
+    session = connect(
+        ServiceProfile(BASE),
+        auth=OAuthTokenAuth(SecretStr("t")),
+        organization_id="o",
+        http=HTTPConfig(retries=0),
+        transport=api.transport(),
+    )
+    return session.send(Endpoint("GET", path, dict))
 
 
 def _get(status: int):
-    """Fire one GET through a transport session at a stubbed URL of the given status."""
-    url = "https://api.tracker.yandex.net/v3/probe"
-    with responses.RequestsMock() as rsps:
-        rsps.add(responses.GET, url, status=status, json={"errorMessages": ["boom"]})
-        session = Transport.session(
-            oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3
-        )
-        return session.get(url)
+    return _get_with(status, "probe", json={"errorMessages": ["boom"]})
 
 
 @pytest.mark.parametrize(
@@ -47,24 +61,7 @@ def test_status_maps_to_typed_error(status, exc):
 
 
 def test_success_does_not_raise():
-    url = "https://api.tracker.yandex.net/v3/ok"
-    with responses.RequestsMock() as rsps:
-        rsps.add(responses.GET, url, status=200, json={"ok": True})
-        session = Transport.session(
-            oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3
-        )
-        assert session.get(url).json() == {"ok": True}
-
-
-def _get_with(status: int, **kwargs):
-    """Fire one GET at a stubbed URL returning a caller-chosen body of the given status."""
-    url = "https://api.tracker.yandex.net/v3/detail"
-    with responses.RequestsMock() as rsps:
-        rsps.add(responses.GET, url, status=status, **kwargs)
-        session = Transport.session(
-            oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3
-        )
-        return session.get(url)
+    assert _get_with(200, "ok", json={"ok": True}) == {"ok": True}
 
 
 def test_error_message_surfaces_yandex_error_messages():
@@ -82,5 +79,5 @@ def test_error_message_falls_back_to_snippet_without_error_messages():
 
 def test_error_message_falls_back_on_non_json_body():
     with pytest.raises(YandexServerError) as info:
-        _get_with(503, body="upstream exploded")
+        _get_with(503, content=b"upstream exploded")
     assert "upstream exploded" in str(info.value)

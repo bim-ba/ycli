@@ -28,11 +28,9 @@ dependencies = [
     "pydantic-settings>=2.14.2",
     "python-dotenv>=1.2.2",
     "pyyaml>=6.0.3",
-    "requests>=2.34.2",
     "rich>=15.0.0",
     "stamina>=26.1.0",
     "typer>=0.26.8",
-    "uplink>=0.10.0",
 ]
 
 # The MCP server (`ycli mcp`) is optional — install with `yandex-cli[mcp]`.
@@ -81,12 +79,8 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 # Four workers: CI runners have four vCPUs, and more barely helps locally (`-n 0` turns it off).
 addopts = "-n 4 --strict-markers --cov=ycli --cov-report=term-missing --cov-fail-under=100"
-# A new warning fails the run. The one ignored is uplink calling pydantic's deprecated
-# `parse_obj`; drop the ignore together with uplink (E2).
-filterwarnings = [
-    "error",
-    "ignore:The `parse_obj` method is deprecated:pydantic.PydanticDeprecatedSince20:uplink",
-]
+# A new warning fails the run.
+filterwarnings = ["error"]
 
 [tool.coverage.run]
 source = ["ycli"]
@@ -113,7 +107,6 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "pytest-xdist>=3.8.0",
-    "responses>=0.26.1",
     "ruff>=0.15.20",
     "ty>=0.0.55",
 ]
@@ -161,7 +154,6 @@ known-first-party = ["ycli"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["N802", "ANN"]
 "scripts/**/*.py" = ["ANN"]
-"src/ycli/yandex/**/client.py" = ["ANN"]
 # Typer reads command annotations at runtime (inspect.signature(eval_str=True)), so their
 # imports must stay real imports, never `if TYPE_CHECKING:` ones.
 "src/ycli/**/cli.py" = ["TC001", "TC002", "TC003"]
@@ -190,7 +182,7 @@ source_modules = [
     "ycli.yandex.**.mcp",
     "ycli.yandex.**.models",
 ]
-forbidden_modules = ["requests", "uplink", "httpx2"]
+forbidden_modules = ["requests", "httpx2"]
 allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
@@ -235,5 +227,4 @@ forbidden_modules = [
     "typer",
     "fastmcp",
     "requests",
-    "uplink",
 ]

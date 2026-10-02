@@ -1,8 +1,6 @@
 import httpx2
 import pytest
 import stamina
-from requests import PreparedRequest, Response
-from requests.adapters import HTTPAdapter
 
 from tests.mock_api import MockAPI
 
@@ -34,24 +32,9 @@ def _offline_core(monkeypatch):
     )
 
 
-def _unmocked_legacy(
-    adapter: HTTPAdapter, request: PreparedRequest, *args: object, **kwargs: object
-) -> Response:
-    raise AssertionError(f"unmocked legacy request: {request.method} {request.url}")
-
-
-@pytest.fixture(autouse=True)
-def _offline_legacy(monkeypatch):
-    """No test reaches the network through requests/uplink either; ``responses`` answers instead.
-
-    ``@responses.activate`` patches the same method inside the test, so it still wins.
-    """
-    monkeypatch.setattr("requests.adapters.HTTPAdapter.send", _unmocked_legacy)
-
-
 @pytest.fixture
 def api(monkeypatch) -> MockAPI:
-    """Canned answers for every request the httpx2 core sends (``responses`` serves uplink)."""
+    """Canned answers for every request the httpx2 core sends."""
     mock = MockAPI()
     monkeypatch.setattr("ycli.yandex.core.session.default_transport", mock.transport)
     return mock

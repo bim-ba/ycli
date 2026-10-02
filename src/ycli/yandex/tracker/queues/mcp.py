@@ -8,7 +8,6 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, require_found
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -56,7 +55,7 @@ def list_(
     Example:
         >>> queues_list(limit=10)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.queues.list(limit=cap)
 
 

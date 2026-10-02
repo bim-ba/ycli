@@ -15,7 +15,6 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -126,7 +125,7 @@ def events_list(
     Example:
         >>> entities_events_list("project", "655f", limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.entities.history(entity_type, entity_id, limit=cap)
 
 
@@ -275,7 +274,7 @@ def comments_relative_list(
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
     pages up to ``limit`` (the configured item cap by default).
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.entities.comments_relative(entity_type, entity_id, limit=cap)
 
 

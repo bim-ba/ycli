@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import requests
+    from ycli.yandex.core.session import SyncSession
 
 from ycli.yandex.base import DomainClient
 from ycli.yandex.tracker import SERVICE
@@ -44,43 +44,44 @@ from ycli.yandex.tracker.worklog.client import WorklogClient
 
 
 class TrackerClient(DomainClient):
-    """Holds the per-resource tracker clients, all sharing one authed ``requests.Session``.
+    """Holds the per-resource tracker clients, all sharing one httpx2 core session.
 
     Example:
         >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
     """
 
-    def _wire(self, transport: requests.Session) -> None:
-        core = self._connect(SERVICE.profile)
-        self.me = MeClient(session=core)
-        self.issues = IssuesClient(session=core)
-        self.comments = CommentsClient(session=core)
-        self.links = LinksClient(session=core)
-        self.transitions = TransitionsClient(session=core)
-        self.worklog = WorklogClient(session=core)
-        self.changelog = ChangelogClient(session=core)
-        self.checklists = ChecklistsClient(session=core)
-        self.columns = ColumnsClient(session=core)
-        self.priorities = PrioritiesClient(session=core)
-        self.issuetypes = IssueTypesClient(session=core)
-        self.linktypes = LinkTypesClient(session=core)
-        self.users = UsersClient(session=core)
-        self.statuses = StatusesClient(session=core)
-        self.resolutions = ResolutionsClient(session=core)
-        self.queues = QueuesClient(session=core)
-        self.localfields = LocalFieldsClient(session=core)
-        self.fields = FieldsClient(session=core)
-        self.components = ComponentsClient(session=core)
-        self.filters = FiltersClient(session=core)
-        self.applications = ApplicationsClient(session=core)
-        self.boards = BoardsClient(session=core)
-        self.sprints = SprintsClient(session=core)
-        self.attachments = AttachmentsClient(session=core)
-        self.macros = MacrosClient(session=core)
-        self.triggers = TriggersClient(session=core)
-        self.autoactions = AutoactionsClient(session=core)
-        self.bulk = BulkClient(session=core)
-        self.remotelinks = RemoteLinksClient(session=core)
-        self.import_ = ImportClient(session=core)
-        self.dashboards = DashboardsClient(session=core)
-        self.entities = EntitiesClient(session=core)
+    profile = SERVICE.profile
+
+    def _wire(self, session: SyncSession) -> None:
+        self.me = MeClient(session=session)
+        self.issues = IssuesClient(session=session)
+        self.comments = CommentsClient(session=session)
+        self.links = LinksClient(session=session)
+        self.transitions = TransitionsClient(session=session)
+        self.worklog = WorklogClient(session=session)
+        self.changelog = ChangelogClient(session=session)
+        self.checklists = ChecklistsClient(session=session)
+        self.columns = ColumnsClient(session=session)
+        self.priorities = PrioritiesClient(session=session)
+        self.issuetypes = IssueTypesClient(session=session)
+        self.linktypes = LinkTypesClient(session=session)
+        self.users = UsersClient(session=session)
+        self.statuses = StatusesClient(session=session)
+        self.resolutions = ResolutionsClient(session=session)
+        self.queues = QueuesClient(session=session)
+        self.localfields = LocalFieldsClient(session=session)
+        self.fields = FieldsClient(session=session)
+        self.components = ComponentsClient(session=session)
+        self.filters = FiltersClient(session=session)
+        self.applications = ApplicationsClient(session=session)
+        self.boards = BoardsClient(session=session)
+        self.sprints = SprintsClient(session=session)
+        self.attachments = AttachmentsClient(session=session)
+        self.macros = MacrosClient(session=session)
+        self.triggers = TriggersClient(session=session)
+        self.autoactions = AutoactionsClient(session=session)
+        self.bulk = BulkClient(session=session)
+        self.remotelinks = RemoteLinksClient(session=session)
+        self.import_ = ImportClient(session=session)
+        self.dashboards = DashboardsClient(session=session)
+        self.entities = EntitiesClient(session=session)

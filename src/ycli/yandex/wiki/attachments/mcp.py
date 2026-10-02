@@ -12,7 +12,6 @@ from pydantic import Base64Bytes, Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
@@ -40,7 +39,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given. This is the list surface;
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.attachments.list(page_id=page_id, limit=cap)
 
 

@@ -80,7 +80,7 @@ def _resource_operations():
     gen = _load_gen_coverage()
     for slug, client in _clients().items():
         for attr, resource in sorted(vars(client).items()):
-            if isinstance(resource, gen.BaseYandex | gen.Resource):
+            if isinstance(resource, gen.Resource):
                 yield slug, attr, set(gen._sdk_operations(resource))
 
 
@@ -774,8 +774,6 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
             offenders.append(f"{rel}: a literal default shadows the HTTP settings")
         if re.search(r"class \w+\(BaseSettings\)", text):
             offenders.append(f"{rel}: BaseSettings subclass outside settings.py")
-    if "@uplink.timeout" in text:
-        offenders.append(f"{rel}: @uplink.timeout shadows YCLI__HTTP__TIMEOUT_SECONDS")
     return offenders
 
 
@@ -805,7 +803,6 @@ def test_arch5_guard_bites():
         "def __init__(self, retries: int = 3) -> None: ...",
         "def items(max_items: int | None = 500) -> None: ...",
         "class Local(BaseSettings): ...",
-        "@uplink.timeout(30)",
         'hint = "check YANDEX_ID_OAUTH_TOKEN"',
         'missing = {"YANDEX_ID_ORGANIZATION_ID"}',
     ):
@@ -885,7 +882,6 @@ def test_arch7_guard_bites():
 # would bypass the mapping and raise a library error instead of a YandexError.
 ARCH8_ERROR_MAPPERS = {
     Path("yandex/errors.py"): "defines error_for_status",
-    Path("yandex/transport.py"): "the uplink response hook",
     Path("yandex/core/session.py"): "the httpx2 core sessions",
     Path("yandex/core/auth.py"): "the IAM token exchange outside the sessions",
     Path("yandex/status/client.py"): (

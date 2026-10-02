@@ -7,7 +7,6 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
 from ycli.yandex.tracker.users.models import User, UserList
@@ -55,5 +54,5 @@ def list_(
 
     >>> users_list(limit=50, expand="groups")  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.users.list(limit=cap, expand=expand)

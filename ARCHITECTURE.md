@@ -12,13 +12,13 @@ src/ycli/
 ├── cli/ · mcp/ · log.py · settings.py  # roots (cli/ = app · context · output)
 └── yandex/
     ├── core/          # httpx2 core: endpoint · pagination · session · auth · profile · resource
-    ├── base.py · transport.py · pagination.py  # the uplink stack, until every resource moved
+    ├── base.py        # DomainClient: one core session per service, its resource clients
     ├── mcp.py · registry.py · service.py       # MCP helpers, the service list
     └── <domain>/                            # tracker · wiki · forms
-        ├── base.py · dependencies.py · typedefs.py · client.py · cli.py · mcp.py
+        ├── dependencies.py · typedefs.py · client.py · cli.py · mcp.py
         └── <resource>/                      # issues · pages · surveys · …
-            ├── endpoints.py  # core resources: each operation declared once (sans-IO)
-            ├── client.py   # the SDK — sends endpoints (core) or uplink calls; the ONLY HTTP
+            ├── endpoints.py  # each operation declared once (sans-IO)
+            ├── client.py   # the SDK — a Resource that sends the endpoints; the ONLY HTTP
             ├── cli.py      # Typer — commands return results; output.render prints them
             ├── mcp.py      # FastMCP tools (reads + writes, honest hints)
             ├── models.py   # pydantic (inherit APIModel from ycli.yandex.models)
@@ -34,7 +34,6 @@ Notable shared pieces:
   effect), one `Pagination` class per Yandex paging kind, `SyncSession` / `AsyncSession` (typed
   errors, retries, logging, page walking), every auth kind as an `httpx2.Auth`, and
   `ServiceProfile` (base URL + organization header). Every resource runs on it
-- `src/ycli/yandex/pagination.py` — the uplink resources' pagination strategies (until E2)
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
   tool call, so nothing is cached per process
@@ -73,8 +72,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Check:** import-linter contracts in `pyproject.toml` (`uv run lint-imports`): the httpx2
   core imports no service, surface, `typer` or `fastmcp`; MCP modules never import `ycli.cli`
   or `typer`, even indirectly; `cli.py`/`mcp.py`/`models.py` import no HTTP library
-  (`requests`, `uplink`, `httpx2`) directly — HTTP lives in `client.py`, the uplink
-  `transport.py`/`base.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
+  (`requests`, `httpx2`) directly — HTTP lives in `client.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
   CLI, clients, models or the `ycli.mcp` package `__init__` (the base install loads `ycli mcp`
   without the extra).
 - **Exceptions:** the MCP server and `ycli mcp methods` import `fastmcp` (`ignore_imports`).
@@ -148,7 +146,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   nowhere; outside `ARCH8_ERROR_MAPPERS`, no `error_for_status`, no `status_code` read and no
   hand-built status-carrying `YandexError` (AST, import aliases resolved).
 - **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`, whose wire shape no
-  model represents yet); `ARCH8_ERROR_MAPPERS` (the two transports, the IAM token exchange and
+  model represents yet); `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange and
   the OAuth login flow, whose device-flow polling states arrive as HTTP 400);
   `ARCH8_LOCAL_RAISES` (a request refused before it is sent, a 2xx whose body is empty); `ARCH8_STATUSLESS_ERRORS` (a
   timeout or a lost connection has no status to map).
@@ -168,7 +166,6 @@ rest. Known blind spots:
   hidden in a helper module that `cli.py` imports is not caught.
 - **ARCH-3's effect check sees the requests a contract case makes**: a branch no case takes is
   not checked.
-- **ARCH-3's uplink half guesses from names** until those resources move to the core.
 - **ARCH-5 is not secret scanning** (gitleaks is). Its literal-default check reads keyword
   arguments and annotated defaults (`timeout=30`, `retries: int = 3`), not a bare `500`
   elsewhere, which is indistinguishable from the HTTP status.
@@ -197,7 +194,7 @@ reproduce. ycli does not use refract yet. Rejected: generating clients or tools 
 (metaprogramming), and external SDK generators such as Fern, which cover only the SDK and
 impose their own models. The HTTP stack moves to the httpx2 core independently of refract
 (#85): its `Endpoint[T]` has the same shape as refract's `Request`, so generated resources can
-target it; the uplink stack is removed once the last domain has moved (E2).
+target it.
 
 ## Changing an invariant
 

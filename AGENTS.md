@@ -30,7 +30,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 ## Project-Specific Conventions
 
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
-  with the `api` fixture (`MockAPI`; `responses` for resources still on uplink), no live network.
+  with the `api` fixture (`MockAPI`), no live network.
 - **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` (which injects clients into commands) for the CLI
   and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /

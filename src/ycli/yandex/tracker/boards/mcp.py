@@ -8,7 +8,6 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -41,7 +40,7 @@ def list_(
 
     >>> boards_list(limit=50)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.boards.list(limit=cap)
 
 

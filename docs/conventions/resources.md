@@ -152,7 +152,7 @@ HTTP call rather than at the live API:
 ```python
 @mcp.tool(
     name="bulk_update",
-    annotations={**WRITE_IDEMPOTENT, "title": "Bulk-update issues"},
+    annotations={**WRITE, "title": "Bulk-update issues"},
     tags=WRITE_TAGS,
 )
 def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
@@ -160,8 +160,7 @@ def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) ->
     return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True))
 ```
 
-The client method itself still takes `uplink.Body` (a plain dict) — the MCP tool converts the
-validated model with `.model_dump(by_alias=True, exclude_none=True)`, the same call the CLI
+The client method itself takes a plain dict — the MCP tool converts the validated model with `.model_dump(by_alias=True, exclude_none=True)`, the same call the CLI
 command already makes, so both surfaces produce byte-identical wire JSON from one model.
 
 The only exceptions are a binary upload, which takes `Base64Bytes` (see below), and exactly one
@@ -223,23 +222,19 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 
 ## 6. Writing a client and its CLI commands
 
-`/new-endpoint` (`scripts/new_endpoint.py`) generates a new resource on the httpx2 core:
-`endpoints.py` declares each operation once (`Endpoint`, or `Paged` for a listing) and
-`client.py` is a `Resource` that sends them; `tracker/issues/` is the worked example. The
-bullets below describe the resources still on uplink until they move (E2); `tracker/priorities/`
-is the smallest of those with reads and writes.
+`/new-endpoint` (`scripts/new_endpoint.py`) generates a new resource on the httpx2 core;
+`tracker/issues/` and the Forms resources are worked examples.
+
+**`endpoints.py`** — sans-IO declarations: one function per operation returning an `Endpoint`
+(or a `Paged` listing with its core `Pagination`); every caller-supplied path part goes through
+`segment()`; `effect=` only where the method misleads, listed in `ARCH3_EFFECT_OVERRIDES`.
 
 **`client.py`** — HTTP only (ARCH-2):
 
-- Subclass the domain base (`TrackerResource` / `WikiResource` / `FormsResource`); it carries
-  the session and `base_url`.
-- No `from __future__ import annotations`: uplink reads parameter annotations eagerly.
-- One method per endpoint. A JSON read is `@uplink.returns.json()` + `@uplink.get("path/{arg}")`
-  with `uplink.Path` / `uplink.Query` parameters; a write adds `@uplink.json`, the verb, and
-  `body: uplink.Body`.
-- A paginated read drains through a `ycli.yandex.pagination` strategy, and the public `list()`
-  returns the flat `XList` (§2). A binary download drops `@uplink.returns.json()` and exposes a
-  public method that returns `bytes`.
+- Subclass `ycli.yandex.core.resource.Resource`; each public method sends one declaration
+  (`self._session.send(…)`, or `self._session.iterate(…, limit=…)` for a listing, returning the
+  flat `XList` of §2). A bodyless write returns `None` and the surfaces build the `Ack`; a binary
+  download declares `response_type=bytes` and returns `bytes`.
 - Every public method's docstring names its `METHOD /path` and carries a
   `>>> … # doctest: +SKIP` example.
 
@@ -271,7 +266,7 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 | `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
 | `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command and tool signatures) |
 | `dependencies` import path | `scripts/new_endpoint.py` scaffold + code review |
-| MCP annotation honesty (endpoint effects for core tools, verb classification for uplink tools, `write` tag) | `tests/test_architecture.py` ARCH-3 |
+| MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
 | Discriminated MCP output unions | code review + regression test (`status_get` me round-trip) |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |

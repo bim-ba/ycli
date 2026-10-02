@@ -6,7 +6,6 @@ import typer
 
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.changelog.models import ChangelogList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
@@ -26,5 +25,5 @@ def list_(
     tracker: TrackerClient,
 ) -> ChangelogList:
     """List all changelog entries for issue KEY (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return tracker.changelog.list(key, limit=cap)

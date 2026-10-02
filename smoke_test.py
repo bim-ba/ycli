@@ -30,11 +30,19 @@ mcp_group = root.get_command(context, "mcp")
 assert isinstance(mcp_group, TyperGroup), "mcp is not a command group"
 assert "start" in mcp_group.list_commands(context), "mcp start missing"
 
+# Building every domain client imports its whole SDK, so a runtime dependency the base install
+# lacks fails here; no request is sent.
+from ycli.yandex.registry import SERVICES  # noqa: E402
+
+for service in SERVICES:
+    with service.client_class()(oauth_token="smoke", organization_id="smoke"):
+        pass
+
 # The PEP 561 marker must survive the build into the installed package, or
 # downstream type checkers won't see ycli's types.
 assert resources.files("ycli").joinpath("py.typed").is_file(), "py.typed not shipped in the dist"
 
 print(
     f"smoke test OK — {ycli.__name__} {ycli.__version__} imports; "
-    "CLI + mcp subcommand + py.typed present"
+    "CLI + mcp subcommand + domain clients + py.typed present"
 )

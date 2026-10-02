@@ -1,9 +1,14 @@
-"""OAuthClient — device/implicit OAuth HTTP + api360 org lookup (stubbed with responses)."""
+"""OAuthClient — device/implicit OAuth HTTP + api360 org lookup (stubbed with MockAPI)."""
 
+import httpx2
 import pytest
-import responses
 
-from ycli.yandex.errors import YandexAuthError, YandexClientError, YandexServerError
+from ycli.yandex.errors import (
+    YandexAuthError,
+    YandexClientError,
+    YandexConnectionError,
+    YandexServerError,
+)
 from ycli.yandex.status.client import OAuthClient
 
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
@@ -20,10 +25,9 @@ def test_authorize_url_carries_client_id():
     assert url == "https://oauth.yandex.ru/authorize?response_type=token&client_id=my-app"
 
 
-@responses.activate
-def test_request_device_code_parses_response():
-    responses.add(
-        responses.POST,
+def test_request_device_code_parses_response(api):
+    api.add(
+        "POST",
         DEVICE_CODE_URL,
         json={
             "device_code": "dev-123",
@@ -41,17 +45,15 @@ def test_request_device_code_parses_response():
     assert device.interval == 5
 
 
-@responses.activate
-def test_request_device_code_sends_device_name():
-    responses.add(responses.POST, DEVICE_CODE_URL, json={"device_code": "d"}, status=200)
+def test_request_device_code_sends_device_name(api):
+    api.add("POST", DEVICE_CODE_URL, json={"device_code": "d"}, status=200)
     _client().request_device_code(device_name="my-laptop")
-    assert "device_name=my-laptop" in str(responses.calls[0].request.body)
+    assert "device_name=my-laptop" in api.calls[0].content.decode()
 
 
-@responses.activate
-def test_poll_token_success():
-    responses.add(
-        responses.POST,
+def test_poll_token_success(api):
+    api.add(
+        "POST",
         TOKEN_URL,
         json={"access_token": "tok-abc", "token_type": "bearer", "expires_in": 3600},
         status=200,
@@ -63,28 +65,25 @@ def test_poll_token_success():
     assert result.token.access_token == "tok-abc"
 
 
-@responses.activate
-def test_poll_token_pending():
-    responses.add(responses.POST, TOKEN_URL, json={"error": "authorization_pending"}, status=400)
+def test_poll_token_pending(api):
+    api.add("POST", TOKEN_URL, json={"error": "authorization_pending"}, status=400)
     result = _client().poll_token("dev-123")
     assert result.token is None
     assert result.pending is True
     assert result.error == ""
 
 
-@responses.activate
-def test_poll_token_terminal_error():
-    responses.add(responses.POST, TOKEN_URL, json={"error": "invalid_client"}, status=400)
+def test_poll_token_terminal_error(api):
+    api.add("POST", TOKEN_URL, json={"error": "invalid_client"}, status=400)
     result = _client().poll_token("dev-123")
     assert result.token is None
     assert result.pending is False
     assert result.error == "invalid_client"
 
 
-@responses.activate
-def test_poll_token_invalid_client_as_401_is_a_polling_state():
+def test_poll_token_invalid_client_as_401_is_a_polling_state(api):
     # RFC 6749 §5.2: invalid_client MAY come back as 401 instead of 400.
-    responses.add(responses.POST, TOKEN_URL, json={"error": "invalid_client"}, status=401)
+    api.add("POST", TOKEN_URL, json={"error": "invalid_client"}, status=401)
     assert _client().poll_token("dev-123").error == "invalid_client"
 
 
@@ -97,9 +96,8 @@ def test_poll_token_invalid_client_as_401_is_a_polling_state():
         (503, "<html>Service Unavailable</html>", YandexServerError),
     ],
 )
-@responses.activate
-def test_poll_token_maps_other_failures_to_typed_errors(status, body, error):
-    responses.add(responses.POST, TOKEN_URL, body=body, status=status)
+def test_poll_token_maps_other_failures_to_typed_errors(api, status, body, error):
+    api.add("POST", TOKEN_URL, content=body, status=status)
     with pytest.raises(error) as raised:
         _client().poll_token("dev-123")
     assert raised.value.status == status
@@ -112,17 +110,15 @@ def test_poll_token_maps_other_failures_to_typed_errors(status, body, error):
         (503, "<html>Service Unavailable</html>", YandexServerError),
     ],
 )
-@responses.activate
-def test_request_device_code_maps_failures_to_typed_errors(status, body, error):
-    responses.add(responses.POST, DEVICE_CODE_URL, body=body, status=status)
+def test_request_device_code_maps_failures_to_typed_errors(api, status, body, error):
+    api.add("POST", DEVICE_CODE_URL, content=body, status=status)
     with pytest.raises(error, match=f"{status} .* for POST {DEVICE_CODE_URL}"):
         _client().request_device_code()
 
 
-@responses.activate
-def test_fetch_organizations_returns_list():
-    responses.add(
-        responses.GET,
+def test_fetch_organizations_returns_list(api):
+    api.add(
+        "GET",
         ORG_URL,
         json={"organizations": [{"id": 1, "name": "Acme"}, {"id": 2, "name": "Beta"}]},
         status=200,
@@ -131,20 +127,16 @@ def test_fetch_organizations_returns_list():
     assert [o.id for o in orgs] == [1, 2]
     assert orgs[0].name == "Acme"
     # Authorization: OAuth scheme reused from transport
-    assert responses.calls[0].request.headers["Authorization"] == "OAuth tok"
+    assert api.calls[0].headers["Authorization"] == "OAuth tok"
 
 
-@responses.activate
-def test_fetch_organizations_empty_on_missing_scope():
-    responses.add(
-        responses.GET, ORG_URL, json={"code": 7, "message": "No required scope"}, status=403
-    )
+def test_fetch_organizations_empty_on_missing_scope(api):
+    api.add("GET", ORG_URL, json={"code": 7, "message": "No required scope"}, status=403)
     assert _client().fetch_organizations("tok") == []
 
 
-@responses.activate
-def test_fetch_organizations_empty_on_rejected_token():
-    responses.add(responses.GET, ORG_URL, json={"message": "Unauthorized"}, status=401)
+def test_fetch_organizations_empty_on_rejected_token(api):
+    api.add("GET", ORG_URL, json={"message": "Unauthorized"}, status=401)
     assert _client().fetch_organizations("tok") == []
 
 
@@ -155,9 +147,20 @@ def test_fetch_organizations_empty_on_rejected_token():
         (503, "<html>Service Unavailable</html>", YandexServerError),
     ],
 )
-@responses.activate
-def test_fetch_organizations_raises_on_other_failures(status, body, error):
+def test_fetch_organizations_raises_on_other_failures(api, status, body, error):
     """Only 401/403 mean "no directory scope"; any other failure is not an empty org list."""
-    responses.add(responses.GET, ORG_URL, body=body, status=status)
+    api.add("GET", ORG_URL, content=body, status=status)
     with pytest.raises(error):
         OAuthClient(client_id="id", timeout_seconds=30.0, retries=0).fetch_organizations("tok")
+
+
+def _drop(request):
+    raise httpx2.ConnectError("connection refused", request=request)
+
+
+def test_a_lost_connection_is_a_typed_error(monkeypatch):
+    monkeypatch.setattr(
+        "ycli.yandex.core.session.default_transport", lambda: httpx2.MockTransport(_drop)
+    )
+    with pytest.raises(YandexConnectionError, match="ConnectError"):
+        _client().request_device_code()

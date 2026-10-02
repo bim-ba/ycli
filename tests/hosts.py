@@ -1,4 +1,4 @@
-"""Shared API-base-URL constants for `responses` mocks — one per Yandex 360 domain.
+"""Shared API-base-URL constants for `MockAPI` stubs — one per Yandex 360 domain.
 
 Each domain test file imports the one it needs, aliased back to the local name `BASE`
 it already uses in ~951 `f"{BASE}/..."` mock-URL call sites (e.g.

@@ -20,7 +20,6 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )
-from ycli.yandex.pagination import resolve_cap
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
@@ -57,7 +56,7 @@ def list_(
     forms: FormsClient,
 ) -> AnswersResponse:
     """List a form's responses (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return forms.answers.list_all(survey_id, limit=cap)
 
 

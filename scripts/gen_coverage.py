@@ -2,7 +2,7 @@
 """Generate README's Coverage section from the live code (a reproducible artifact).
 
 Introspects the three domain clients **offline** (dummy credentials — constructing a client
-builds only a ``requests.Session``, no HTTP) plus the committed public-surface data (the CLI
+opens no connection) plus the committed public-surface data (the CLI
 tree from :func:`tests.snapshots._surface.cli_tree` and the tool names in the MCP signature
 snapshot ``tests/snapshots/mcp_signatures.txt``) and emits the Markdown block README embeds
 between its ``COVERAGE:START`` / ``COVERAGE:END`` markers.
@@ -33,9 +33,6 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-import uplink.builder
-
-from ycli.yandex.base import BaseYandex
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.tracker.client import TrackerClient
@@ -177,14 +174,13 @@ def _display_name(attribute: str) -> str:
 def _sdk_operations(resource: object) -> tuple[str, ...]:
     """Public op names defined on the resource client class itself, in source order.
 
-    Both hand-written methods (plain functions) and uplink-decorated endpoints
-    (``ConsumerMethod`` descriptors) count; dunder and leading-underscore internals do not.
+    Dunder and leading-underscore internals do not count.
     """
     ops: list[str] = []
     for name, member in type(resource).__dict__.items():
         if name.startswith("_"):
             continue
-        if inspect.isfunction(member) or isinstance(member, uplink.builder.ConsumerMethod):
+        if inspect.isfunction(member):
             ops.append(name)
     return tuple(ops)
 
@@ -251,11 +247,7 @@ def _report(
     spec: DomainSpec, paths: list[str], tools: list[str], urls: dict[str, dict]
 ) -> DomainReport:
     """Build a fully-computed :class:`DomainReport` from a live client + surface + link data."""
-    discovered = {
-        name
-        for name, value in vars(spec.client).items()
-        if isinstance(value, BaseYandex | Resource)
-    }
+    discovered = {name for name, value in vars(spec.client).items() if isinstance(value, Resource)}
     placed: set[str] = set()
     groups: list[tuple[str, list[ResourceRow]]] = []
     operation_count = 0
@@ -264,7 +256,7 @@ def _report(
         rows: list[ResourceRow] = []
         for attribute in attributes:
             resource = getattr(spec.client, attribute)
-            if not isinstance(resource, BaseYandex | Resource):
+            if not isinstance(resource, Resource):
                 raise SystemExit(f"gen_coverage: {spec.slug}.{attribute} is not a resource client")
             placed.add(attribute)
             display = _display_name(attribute)

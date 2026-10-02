@@ -1,7 +1,6 @@
 """``MockAPI`` — canned answers for the httpx2 core, served through ``httpx2.MockTransport``.
 
-Shaped like the ``responses`` library the uplink tests use, so moving a test means swapping
-``responses.add`` for ``api.add``: register ``(method, url)`` answers, read ``api.calls`` back.
+Register ``(method, url)`` answers with ``api.add``, read ``api.calls`` back.
 The query string is ignored when matching (assert on ``api.calls[i].url.params`` instead), and
 several answers for one route are served in order, the last one repeating.
 

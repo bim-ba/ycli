@@ -7,7 +7,6 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.changelog.models import ChangelogList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
@@ -30,5 +29,5 @@ def list_(
     """Full changelog (edit history) for a Tracker issue, auto-paginated via the relative
     id-cursor. Capped at the configured item cap unless ``limit`` is given.
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.changelog.list(key, limit=cap)
