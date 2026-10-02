@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.24.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.23.1
+  ([`b258711`](https://github.com/bim-ba/ycli/commit/b25871157f3b2f7b78ef4b2196e6cf0fd01c51fd))
+
+### Features
+
+- **mcp**: Run on fastmcp 4 and keep the API's field names in every dump
+  ([#128](https://github.com/bim-ba/ycli/pull/128),
+  [`58a9600`](https://github.com/bim-ba/ycli/commit/58a9600e6bc7bcd73513445694c7f55f9b24904f))
+
+### Breaking Changes
+
+- **mcp**: The [mcp] extra requires fastmcp>=4.0.10,<5. In the SDK, model_dump() without arguments
+  now returns the API's field names (createdAt) instead of attribute names; pass by_alias=False for
+  the old shape.
+
+
 ## v0.23.1 (2026-10-02)
 
 ### Bug Fixes
