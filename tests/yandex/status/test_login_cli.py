@@ -8,12 +8,13 @@ from types import SimpleNamespace
 import pytest
 import responses
 from rich.console import Console
+from rich.live import Live
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from ycli.yandex.errors import YandexServerError
 from ycli.yandex.status.cli import _device_flow, _suppressed_stderr
-from ycli.yandex.status.client import TokenPollResult
+from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.oauth_models import TokenResponse
 
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
@@ -233,6 +234,7 @@ def test_org_fallback_prompt_on_missing_scope(monkeypatch, tmp_path):
     res = runner.invoke(cli.app, ["auth", "login", "--yes"], input="manual-org-99\n")
 
     assert res.exit_code == 0, res.output
+    assert "directory:read_organization" in res.output
     assert "tracker.yandex.ru/admin/orgs" in res.output
     env_content = (tmp_path / ".env").read_text(encoding="utf-8")
     assert "YANDEX_ID_ORGANIZATION_ID=manual-org-99" in env_content
@@ -345,3 +347,25 @@ def test_backup_existing_env(monkeypatch, tmp_path):
     assert "KEEP=me" in env_content
     assert f"YANDEX_ID_OAUTH_TOKEN={TOKEN}" in env_content
     assert "YANDEX_ID_OAUTH_TOKEN=old" not in env_content
+
+
+@responses.activate
+def test_device_code_stays_copyable_while_waiting(monkeypatch):
+    """No live redraw while the code is on screen: a redraw drops the user's text selection."""
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
+    _stub_device_code()
+    _stub_token_success()
+
+    def no_live_region(self: Live) -> None:
+        raise AssertionError("the device code screen must not redraw the terminal")
+
+    monkeypatch.setattr(Live, "start", no_live_region)
+    screen = StringIO()
+    console = Console(file=screen, force_terminal=True, width=80)
+    client = OAuthClient(
+        client_id="app-id", client_secret="app-secret", timeout_seconds=30.0, retries=0
+    )
+
+    assert _device_flow(client, None, console) == TOKEN
+    assert "Waiting for you to confirm" in screen.getvalue()

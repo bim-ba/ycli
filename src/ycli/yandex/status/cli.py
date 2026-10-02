@@ -19,7 +19,6 @@ from rich.console import Console
 from rich.panel import Panel
 
 from ycli.cli.output import ExitWith
-from ycli.cli.progress import spinner
 from ycli.settings import (
     OAUTH_TOKEN_ENV,
     ORGANIZATION_ID_ENV,
@@ -166,16 +165,18 @@ def _device_flow(oauth_client: OAuthClient, device_name: str | None, console: Co
             expand=False,
         )
     )
-    with spinner("Waiting for authorization…", console=console):
-        while True:
-            result: TokenPollResult = oauth_client.poll_token(device.device_code)
-            if result.token is not None:
-                return result.token.access_token
-            if result.pending:
-                time.sleep(device.interval)
-                continue
-            typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
-            raise typer.Exit(1)
+    # A static line, not a spinner: a live redraw drops the selection while the user copies
+    # the code above.
+    console.print("Waiting for you to confirm in the browser… (Ctrl+C to cancel)")
+    while True:
+        result: TokenPollResult = oauth_client.poll_token(device.device_code)
+        if result.token is not None:
+            return result.token.access_token
+        if result.pending:
+            time.sleep(device.interval)
+            continue
+        typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(1)
 
 
 def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
@@ -194,8 +195,13 @@ def _resolve_organization_id(oauth_client: OAuthClient, token: str) -> str:
             typer.echo(f"Enter a number from 1 to {len(organizations)}.", err=True)
             selected = typer.prompt("Choose an organization number", type=int, err=True)
         return str(organizations[selected - 1].id)
-    typer.echo("Could not detect an organization (the token lacks directory scope).", err=True)
-    typer.echo("Find your organization id at https://tracker.yandex.ru/admin/orgs", err=True)
+    typer.echo(
+        "Could not detect an organization: the token lacks the directory:read_organization "
+        "permission. Add it to your OAuth app at https://oauth.yandex.ru and sign in again to "
+        "skip this step, or copy the id from Tracker → Administration → Organizations "
+        "(https://tracker.yandex.ru/admin/orgs).",
+        err=True,
+    )
     return typer.prompt("Enter your organization id", err=True).strip()
 
 
