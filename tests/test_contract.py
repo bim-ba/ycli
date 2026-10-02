@@ -20,7 +20,16 @@ from fastmcp import Client
 from pydantic import BaseModel
 from typer.testing import CliRunner
 
-from tests.contract import Case, Reply, Sent, effect_sent, hints_disagree, mismatches
+from tests.contract import (
+    NO_BODY,
+    Case,
+    Reply,
+    Sent,
+    effect_sent,
+    hints_disagree,
+    lost_values,
+    mismatches,
+)
 from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
 from tests.test_architecture import ARCH1_SURFACE_ASYMMETRIES
@@ -75,6 +84,18 @@ def _check_sent(case: Case, api: MockAPI, surface: str) -> None:
     if api.calls and effect_sent(api.calls) != case.expected_effect:
         problems.append(f"effect {effect_sent(api.calls)!r} != {case.expected_effect!r}")
     assert not problems, f"{surface}: {problems}"
+
+
+def _check_output(case: Case, output: object) -> None:
+    """The SDK kept what the API answered, and returned the stated ``output`` if there is one."""
+    reply = case.exchanges[-1][1]
+    if isinstance(output, bytes):
+        assert output == reply.content, "the SDK returned other bytes than the API sent"
+    elif reply.json is not None and case.output is NO_BODY:
+        lost = lost_values(output, reply.json)
+        assert not lost, f"the SDK lost values the API returned: {lost}"
+    if case.output is not NO_BODY:
+        assert output == case.output, f"the SDK returned {output!r}, expected {case.output!r}"
 
 
 def _run_sdk(case: Case) -> object:
@@ -134,13 +155,16 @@ def test_every_surface_sends_the_declared_requests(case: Case, monkeypatch, mcp_
     api = _serve(monkeypatch, case)
     sdk_output = _run_sdk(case)
     _check_sent(case, api, "sdk")
+    _check_output(case, sdk_output)
     cli_output = None
     if case.cli is not None:
         api = _serve(monkeypatch, case)
         cli_output = _run_cli(case)
         _check_sent(case, api, "cli")
+        if case.cli_output is not NO_BODY:
+            assert cli_output == case.cli_output, f"the CLI printed {cli_output!r}"
         # A bodyless write returns None from the SDK; the surfaces print an Ack instead.
-        if sdk_output is not None:
+        elif sdk_output is not None:
             assert cli_output == sdk_output, "the CLI printed something other than the SDK result"
     if case.mcp is not None:
         api = _serve(monkeypatch, case)

@@ -161,6 +161,7 @@ CASES = [
         cli=["forms", "questions", "delete", SID, "19", "--force"],
         mcp=("forms_questions_delete", {"survey_id": SID, "question_id": "19", "force": True}),
         exchanges=[(Sent("DELETE", f"{QUESTIONS}/19", {"force": "true"}), Reply(status=204))],
+        output={"ok": True, "detail": f"deleted question 19 on survey {SID}"},
     ),
     Case(
         "forms.questions.move",

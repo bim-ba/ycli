@@ -12,6 +12,16 @@ CREATED = {
     "max_count": 40,
 }
 
+
+def _listed(survey_id: str) -> dict:
+    """A survey as listed with only its id, every other field unset."""
+    unset = (
+        "name", "dir_id", "collab_id", "created", "modified", "language", "is_published",
+        "is_public", "is_banned", "answers", "is_favourite",
+    )  # fmt: skip
+    return {"id": survey_id, **dict.fromkeys(unset)}
+
+
 CASES = [
     Case(
         "forms.surveys.list",
@@ -97,6 +107,7 @@ CASES = [
         cli=["forms", "surveys", "delete", "686d0a1b2c3d4e5f00000003"],
         mcp=("forms_surveys_delete", {"survey_id": "686d0a1b2c3d4e5f00000003"}),
         exchanges=[(Sent("DELETE", "surveys/686d0a1b2c3d4e5f00000003"), Reply(status=204))],
+        output={"ok": True, "detail": "deleted survey 686d0a1b2c3d4e5f00000003"},
     ),
     Case(
         "forms.surveys.publish",
@@ -104,6 +115,7 @@ CASES = [
         cli=["forms", "surveys", "publish", "686d0a1b2c3d4e5f00000004"],
         mcp=("forms_surveys_publish", {"survey_id": "686d0a1b2c3d4e5f00000004"}),
         exchanges=[(Sent("POST", "surveys/686d0a1b2c3d4e5f00000004/publish"), Reply())],
+        output={"ok": True, "detail": "published survey 686d0a1b2c3d4e5f00000004"},
     ),
     Case(
         "forms.surveys.unpublish",
@@ -111,5 +123,20 @@ CASES = [
         cli=["forms", "surveys", "unpublish", "686d0a1b2c3d4e5f00000005"],
         mcp=("forms_surveys_unpublish", {"survey_id": "686d0a1b2c3d4e5f00000005"}),
         exchanges=[(Sent("POST", "surveys/686d0a1b2c3d4e5f00000005/unpublish"), Reply())],
+        output={"ok": True, "detail": "unpublished survey 686d0a1b2c3d4e5f00000005"},
+    ),
+    # A limit below the page keeps only that many surveys, on every surface.
+    Case(
+        "forms.surveys.list",
+        kwargs={"limit": 2},
+        cli=["forms", "surveys", "list", "--limit", "2"],
+        mcp=("forms_surveys_list", {"limit": 2}),
+        exchanges=[
+            (
+                Sent("GET", "surveys", {"offset": "0", "limit": "100"}),
+                Reply(json={"result": [{"id": "s1"}, {"id": "s2"}, {"id": "s3"}]}),
+            )
+        ],
+        output=[_listed("s1"), _listed("s2")],
     ),
 ]

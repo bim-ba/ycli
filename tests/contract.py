@@ -86,7 +86,10 @@ class Case:
     ``ycli`` and ``mcp`` the tool name and arguments; either is ``None`` only for an operation
     listed in ``ARCH1_SURFACE_ASYMMETRIES`` or reached on that surface by another case.
     ``effect`` defaults to the strongest one the requests' methods imply; state it for a ``POST``
-    that only reads.
+    that only reads. ``output`` is what the SDK must return, as the CLI prints it; state it for a
+    result the client makes up itself (an ``Ack``) or one a limit cuts short, since a parsed reply
+    is otherwise checked against the reply. ``cli_output`` is what the CLI prints when the
+    command shapes the result instead of printing it whole (the bytes of a page's content).
     """
 
     operation: str
@@ -96,6 +99,8 @@ class Case:
     mcp: tuple[str, Mapping[str, Any]] | None = field(kw_only=True)
     exchanges: Sequence[tuple[Sent, Reply]] = field(kw_only=True)
     effect: Effect | None = field(default=None, kw_only=True)
+    output: Any = field(default=NO_BODY, kw_only=True)
+    cli_output: Any = field(default=NO_BODY, kw_only=True)
 
     @property
     def expected_effect(self) -> Effect:
@@ -178,6 +183,36 @@ def strongest(effects: Iterable[Effect]) -> Effect:
         'destructive'
     """
     return max(effects, key=list(EFFECT_HINTS).index)
+
+
+def lost_values(output: Any, reply: Any, where: str = "") -> list[str]:
+    """Values of the API ``reply`` the parsed ``output`` lost (empty: it kept them all).
+
+    Only shapes both sides share are compared: a key the model drops, or a reference the model
+    flattens (``{"key": "bug"}`` → ``"bug"``), is not a loss; ``None`` where the reply had a value
+    is.
+
+    Example:
+        >>> lost_values({"id": 1, "name": None}, {"id": 1, "name": "A", "extra": 2})
+        ["name: None != 'A'"]
+    """
+    if isinstance(reply, dict) and isinstance(output, dict):
+        return [
+            problem
+            for key in reply.keys() & output.keys()
+            for problem in lost_values(output[key], reply[key], f"{where}{key}.")
+        ]
+    if isinstance(reply, list) and isinstance(output, list):
+        if len(output) != len(reply):
+            return [f"{where.rstrip('.') or 'items'}: {len(output)} items != {len(reply)}"]
+        return [
+            problem
+            for index, (item, sent) in enumerate(zip(output, reply, strict=True))
+            for problem in lost_values(item, sent, f"{where}{index}.")
+        ]
+    if reply is not None and (output is None or type(output) is type(reply)) and output != reply:
+        return [f"{where.rstrip('.')}: {output!r} != {reply!r}"]
+    return []
 
 
 def effect_sent(requests: Sequence[httpx2.Request]) -> Effect:

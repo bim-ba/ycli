@@ -51,6 +51,33 @@ CASES = [
         mcp=("forms_answers_list", {"survey_id": SID}),
         exchanges=[(Sent("GET", f"surveys/{SID}/answers"), Reply(json=PAGE))],
     ),
+    # A limit below the page keeps only that many answers (MCP always uses the configured cap).
+    Case(
+        "forms.answers.list_all",
+        args=(SID,),
+        kwargs={"limit": 1},
+        cli=["forms", "answers", "list", SID, "--limit", "1"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", f"surveys/{SID}/answers"),
+                Reply(json={**PAGE, "answers": [{"id": 1}, {"id": 2}]}),
+            )
+        ],
+        output={
+            "columns": [
+                {
+                    "id": None,
+                    "slug": "answer_short_text_1",
+                    "type": None,
+                    "text": None,
+                    "has_scores": None,
+                }
+            ],
+            "answers": [{"id": 1, "created": None, "data": []}],
+            "next": None,
+        },
+    ),
     Case(
         "forms.answers.export",
         args=(SID, EXPORT),
