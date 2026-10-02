@@ -216,11 +216,12 @@ source_modules = [
 ]
 forbidden_modules = ["fastmcp"]
 allow_indirect_imports = true
-# The server and its listing transforms. `ycli.mcp.cli` and the package __init__ must stay free
+# The server, its listing transforms and its HTTP sign-in. `ycli.mcp.cli` and the package __init__ must stay free
 # of fastmcp: the base install loads `ycli mcp` without the extra.
 ignore_imports = [
     "ycli.mcp.server -> fastmcp",
     "ycli.mcp.listing -> fastmcp",
+    "ycli.mcp.http_auth -> fastmcp",
 ]
 
 [[tool.importlinter.contracts]]
@@ -229,6 +230,7 @@ type = "forbidden"
 source_modules = [
     "ycli.mcp.server",
     "ycli.mcp.listing",
+    "ycli.mcp.http_auth",
     "ycli.yandex.mcp",
     "ycli.yandex.**.mcp",
     "ycli.yandex.**.dependencies",

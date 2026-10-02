@@ -9,10 +9,11 @@ negligible next to the HTTP round trip it serves.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 from fastmcp.exceptions import ToolError
-from pydantic import ValidationError
+from fastmcp.server.dependencies import get_access_token, get_http_request
+from pydantic import SecretStr, ValidationError
 
 from ycli.settings import AppConfig, Credentials, missing_credentials
 from ycli.yandex.factory import build_client
@@ -43,36 +44,44 @@ WRITE_TAG = "write"
 LIMIT_CAP = "0 means the configured cap (YCLI__HTTP__MAX_ITEMS)."
 
 
-class AuthSource(Protocol):
-    """Where a tool call's credentials come from.
+def caller_credentials() -> Credentials:
+    """The credentials of one tool call: the caller's own Yandex token over HTTP, else the env.
 
-    Kill-criterion: if MCP over HTTP (#108) ships without a second source (credentials taken
-    from the request), fold this back into a plain ``Credentials()`` call.
+    Over HTTP the server's OAuth layer has already signed the caller in through Yandex ID and
+    holds their Yandex token (the MCP client only ever holds the server's own token, so nothing
+    the client sends is passed on). The organization is the server's configured one. An HTTP
+    call without a signed-in caller is refused: it never falls back to the environment's token.
+    Over stdio the process environment and ``.env`` are read, per call.
+
+    FastMCP hides any other exception behind "Failed to resolve dependency 'client'", which
+    tells an agent nothing, so every failure here is a ``ToolError`` naming what is missing.
     """
+    caller = get_access_token()
+    try:
+        if caller is not None:
+            # pydantic-settings fills the organization from the environment.
+            return Credentials(oauth_token=SecretStr(caller.token))  # ty: ignore[missing-argument]
+        if _over_http():
+            raise ToolError("Not signed in: this HTTP request carries no authenticated caller.")
+        return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+    except ValidationError as exc:
+        missing = missing_credentials(exc)
+        if not missing:
+            raise
+        raise ToolError(
+            f"Not signed in — {', '.join(missing)} "
+            f"{'are' if len(missing) > 1 else 'is'} not set. Set them in the environment the "
+            "MCP server runs in (or its .env), or run `ycli auth login` to obtain a token."
+        ) from exc
 
-    def resolve(self) -> Credentials: ...
 
-
-class EnvAuthSource:
-    """The stdio server's source: the process environment and ``.env``, re-read per call."""
-
-    def resolve(self) -> Credentials:
-        """The credentials, or a ``ToolError`` naming the variables that are not set.
-
-        FastMCP hides any other exception behind "Failed to resolve dependency 'client'", which
-        tells an agent nothing; a ``ToolError`` reaches it unchanged.
-        """
-        try:
-            return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
-        except ValidationError as exc:
-            missing = missing_credentials(exc)
-            if not missing:
-                raise
-            raise ToolError(
-                f"Not signed in — {', '.join(missing)} "
-                f"{'are' if len(missing) > 1 else 'is'} not set. Set them in the environment the "
-                "MCP server runs in (or its .env), or run `ycli auth login` to obtain a token."
-            ) from exc
+def _over_http() -> bool:
+    """Whether the current tool call arrived over HTTP (``False`` over stdio)."""
+    try:
+        get_http_request()
+    except RuntimeError:
+        return False
+    return True
 
 
 def app_config() -> AppConfig:
@@ -81,7 +90,7 @@ def app_config() -> AppConfig:
 
 
 def client_provider[C: DomainClient](
-    client_cls: type[C], auth_source: AuthSource | None = None
+    client_cls: type[C],
 ) -> Callable[[], AbstractContextManager[C]]:
     """A zero-argument provider for ``Depends`` that builds ``client_cls`` for each call.
 
@@ -93,11 +102,10 @@ def client_provider[C: DomainClient](
         >>> with forms_client() as client:  # doctest: +SKIP
         ...     client.surveys.list(limit=1)
     """
-    source = auth_source or EnvAuthSource()
 
     @contextmanager
     def provide() -> Iterator[C]:
-        with build_client(client_cls, source.resolve(), app_config()) as client:
+        with build_client(client_cls, caller_credentials(), app_config()) as client:
             yield client
 
     return provide

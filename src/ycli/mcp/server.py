@@ -8,21 +8,35 @@ and writes; the :class:`~ycli.mcp.selection.Selection` narrows what is served.
 from __future__ import annotations
 
 import asyncio
+from typing import TYPE_CHECKING
 
 from fastmcp import FastMCP
 from fastmcp.server.transforms.search import BM25SearchTransform
+from pydantic import ValidationError
 
 from ycli.mcp.listing import KnownTools, LightListing
 from ycli.mcp.profiles import STATUS_TOOL
 from ycli.mcp.selection import Selection
-from ycli.settings import OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV
+from ycli.settings import (
+    OAUTH_TOKEN_ENV,
+    ORGANIZATION_ID_ENV,
+    AppConfig,
+    MCPHTTPConfig,
+    OAuthAppConfig,
+)
 from ycli.yandex.mcp import WRITE_TAG
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.mcp import mcp as status_mcp
 
+if TYPE_CHECKING:
+    from fastmcp.server.auth import AuthProvider
 
-def build_server(selection: Selection) -> FastMCP:
+
+def build_server(selection: Selection, auth: AuthProvider | None = None) -> FastMCP:
     """The root server for ``selection``: only the selected services are imported and mounted.
+
+    ``auth`` signs callers in (HTTP only, see :func:`serve_http`); over stdio there is none and
+    the tools use the environment's credentials.
 
     The server does not check tool names until it lists tools (:func:`main` does so before
     serving): an unknown name in ``tools`` / ``exclude_tools`` raises ``UnknownToolError``.
@@ -42,8 +56,10 @@ def build_server(selection: Selection) -> FastMCP:
             + ". Every tool carries honest annotations: reads have readOnlyHint=true; writes "
             "have readOnlyHint=false and an explicit destructiveHint — treat destructiveHint=true "
             f"tools (delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} "
-            f"and {ORGANIZATION_ID_ENV} environment variables."
+            f"and {ORGANIZATION_ID_ENV} environment variables (over HTTP: the signed-in "
+            "caller's Yandex account)."
         ),
+        auth=auth,
     )
     for service in mounted:
         server.mount(service.mcp_server(), namespace=service.name)
@@ -73,6 +89,54 @@ def main(selection: Selection) -> None:
     server = build_server(selection)
     asyncio.run(server.list_tools())  # fail on an unknown tool name before serving, not later
     server.run()
+
+
+def _settings_problems(exc: ValidationError) -> str:
+    """``exc`` as ``VARIABLE: problem`` pairs, named as the environment spells them.
+
+    Example:
+        >>> try:
+        ...     MCPHTTPConfig(organization_id="1", base_url="nope")
+        ... except ValidationError as exc:
+        ...     _settings_problems(exc)
+        'YCLI__MCP__BASE_URL: Input should be a valid URL, relative URL without a base'
+    """
+    names = {"organization_id": ORGANIZATION_ID_ENV}
+    return "; ".join(
+        f"{names.get(field, f'YCLI__MCP__{field.upper()}')}: {error['msg']}"
+        for error in exc.errors()
+        if (field := str(error["loc"][0]) if error["loc"] else "")
+    )
+
+
+def serve_http(selection: Selection, host: str | None = None, port: int | None = None) -> None:
+    """Serve ``selection`` over Streamable HTTP, every caller signed in through Yandex ID.
+
+    Reads ``YCLI__MCP__*`` (:class:`~ycli.settings.MCPHTTPConfig`) and the Yandex OAuth app
+    (``YANDEX_OAUTH_CLIENT_ID`` / ``YANDEX_OAUTH_CLIENT_SECRET``); ``host`` / ``port`` override
+    the configured ones. Stateless: any replica can answer any request.
+
+    Example:
+        >>> serve_http(Selection(toolsets=("core",)), port=8080)  # doctest: +SKIP
+    """
+    from ycli.mcp.http_auth import yandex_oauth
+
+    try:
+        config = MCPHTTPConfig()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+    except ValidationError as exc:
+        raise ValueError(f"MCP over HTTP is not configured: {_settings_problems(exc)}") from exc
+    app = OAuthAppConfig()
+    if not app.client_id or app.client_secret is None:
+        raise ValueError(
+            "MCP over HTTP signs callers in with your Yandex OAuth app: set "
+            "YANDEX_OAUTH_CLIENT_ID and YANDEX_OAUTH_CLIENT_SECRET"
+        )
+    auth = yandex_oauth(config, app.client_id, app.client_secret, AppConfig().http)
+    server = build_server(selection, auth=auth)
+    asyncio.run(server.list_tools())  # fail on an unknown tool name before serving, not later
+    server.run(
+        transport="http", host=host or config.host, port=port or config.port, stateless_http=True
+    )
 
 
 if __name__ == "__main__":  # pragma: no cover

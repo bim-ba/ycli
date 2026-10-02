@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import enum
 from typing import Annotated
 
 import typer
@@ -58,6 +59,32 @@ _ToolSearch = Annotated[
 ]
 
 
+class Transport(enum.StrEnum):
+    """How MCP clients reach the server."""
+
+    stdio = "stdio"
+    http = "http"
+
+
+_Transport = Annotated[
+    Transport,
+    typer.Option(
+        "--transport",
+        help=(
+            "stdio (default): one local client, credentials from the environment. http: "
+            "Streamable HTTP for many users, each signed in through Yandex ID (needs "
+            "YCLI__MCP__BASE_URL and your Yandex OAuth app; see docs/self-host.md)."
+        ),
+    ),
+]
+_Host = Annotated[
+    str | None, typer.Option("--host", help="HTTP only: listen address (YCLI__MCP__HOST).")
+]
+_Port = Annotated[
+    int | None, typer.Option("--port", help="HTTP only: listen port (YCLI__MCP__PORT).")
+]
+
+
 def _selection(
     toolsets: str, tools: str, exclude_tools: str, read_only: bool, tool_search: bool
 ) -> Selection:
@@ -74,23 +101,32 @@ def _selection(
         raise typer.BadParameter(str(exc)) from exc
 
 
-@app.command(help=f"Run the MCP server over stdio (tools namespaced {_NAMESPACES}, status_*).")
+@app.command(help=f"Run the MCP server (tools namespaced {_NAMESPACES}, status_*).")
 def start(
     toolsets: _Toolsets = ALL,
     tools: _Tools = "",
     exclude_tools: _ExcludeTools = "",
     read_only: _ReadOnly = False,
     tool_search: _ToolSearch = False,
+    transport: _Transport = Transport.stdio,
+    host: _Host = None,
+    port: _Port = None,
 ) -> None:
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
     try:
         from ycli.mcp.listing import UnknownToolError
         from ycli.mcp.server import main as run_server
+        from ycli.mcp.server import serve_http
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
     try:
-        run_server(selection)
+        if transport is Transport.http:
+            serve_http(selection, host=host, port=port)
+        else:
+            run_server(selection)
     except UnknownToolError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    except ValueError as exc:  # the HTTP transport is not configured
         raise typer.BadParameter(str(exc)) from exc
 
 

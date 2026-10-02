@@ -84,7 +84,8 @@ module therefore builds its provider with `client_provider` (in `ycli.yandex.mcp
 tracker_client = client_provider(TrackerClient)
 ```
 
-The provider resolves credentials (`EnvAuthSource` for the stdio server) and builds the client
+The provider resolves credentials (`caller_credentials`: the environment over stdio, the signed-in
+caller's Yandex token over HTTP) and builds the client
 on every tool call, so a rotated token applies without a restart and nothing is cached per
 process; `app_config()` is the matching per-call config provider.  MCP tools consume them via
 `Depends(tracker_client)`.  This is the only approved sharing pattern — fastmcp's deprecated
