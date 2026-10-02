@@ -9,6 +9,44 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.25.0 (2026-10-02)
+
+### Build System
+
+- Fetch vendored docs with httpx2 instead of requests
+  ([#151](https://github.com/bim-ba/ycli/pull/151),
+  [`6958358`](https://github.com/bim-ba/ycli/commit/695835886ad3103472b463dab69d6f1d3f0af0d7))
+
+- Re-lock uv.lock for 0.24.3
+  ([`a8088ce`](https://github.com/bim-ba/ycli/commit/a8088ce668c19b80dd4ff2431bca947c133cb1d5))
+
+### Refactoring
+
+- Drop uplink, requests and the legacy transport ([#151](https://github.com/bim-ba/ycli/pull/151),
+  [`6958358`](https://github.com/bim-ba/ycli/commit/695835886ad3103472b463dab69d6f1d3f0af0d7))
+
+- **arch**: Retire the uplink-era ARCH-3 verb maps and resource ratchet
+  ([#149](https://github.com/bim-ba/ycli/pull/149),
+  [`c7f82d1`](https://github.com/bim-ba/ycli/commit/c7f82d1124d51f83f87326e460cb96a983c0fd4a))
+
+- **auth**: Move the OAuth login client from requests to httpx2
+  ([#151](https://github.com/bim-ba/ycli/pull/151),
+  [`6958358`](https://github.com/bim-ba/ycli/commit/695835886ad3103472b463dab69d6f1d3f0af0d7))
+
+- **wiki**: Move Wiki to the httpx2 core and retire the uplink-era checks
+  ([#149](https://github.com/bim-ba/ycli/pull/149),
+  [`c7f82d1`](https://github.com/bim-ba/ycli/commit/c7f82d1124d51f83f87326e460cb96a983c0fd4a))
+
+- **wiki**: Move Wiki to the httpx2 core with contract tests
+  ([#149](https://github.com/bim-ba/ycli/pull/149),
+  [`c7f82d1`](https://github.com/bim-ba/ycli/commit/c7f82d1124d51f83f87326e460cb96a983c0fd4a))
+
+### Testing
+
+- State the Wiki results no single reply holds ([#149](https://github.com/bim-ba/ycli/pull/149),
+  [`c7f82d1`](https://github.com/bim-ba/ycli/commit/c7f82d1124d51f83f87326e460cb96a983c0fd4a))
+
+
 ## v0.24.3 (2026-10-02)
 
 ### Bug Fixes
