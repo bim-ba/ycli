@@ -9,6 +9,28 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.35.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.34.0
+  ([`4b8ea39`](https://github.com/bim-ba/ycli/commit/4b8ea39b2e8f5ed19af1e3c13c702a066657fe4d))
+
+### Features
+
+- **api**: --paginate follows Tracker's Link rel=next
+  ([#169](https://github.com/bim-ba/ycli/pull/169),
+  [`6ab149e`](https://github.com/bim-ba/ycli/commit/6ab149eb641e82093a84685385c488470ea7b2a6))
+
+- **cli**: Add `ycli api`, a raw passthrough for endpoints ycli has not wrapped
+  ([#169](https://github.com/bim-ba/ycli/pull/169),
+  [`6ab149e`](https://github.com/bim-ba/ycli/commit/6ab149eb641e82093a84685385c488470ea7b2a6))
+
+- **cli**: Ycli api — a raw passthrough for endpoints ycli has not wrapped
+  ([#169](https://github.com/bim-ba/ycli/pull/169),
+  [`6ab149e`](https://github.com/bim-ba/ycli/commit/6ab149eb641e82093a84685385c488470ea7b2a6))
+
+
 ## v0.34.0 (2026-10-02)
 
 ### Build System
