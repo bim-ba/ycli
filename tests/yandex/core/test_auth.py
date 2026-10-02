@@ -115,6 +115,26 @@ def test_service_account_refreshes_once_on_401():
     assert client.get(API).json() == {"auth": "Bearer iam-2"}
 
 
+def test_a_custom_token_url_is_also_the_jwt_audience():
+    """The JWT names the endpoint it is sent to, so a non-default IAM endpoint accepts it."""
+    token_url = "https://iam.example.test/iam/v1/tokens"
+    audiences: list[str] = []
+
+    def iam(request: httpx2.Request) -> httpx2.Response:
+        if str(request.url) != token_url:
+            return _echo(request)
+        assertion = json.loads(request.content)["jwt"]
+        audiences.append(jwt.decode(assertion, options={"verify_signature": False})["aud"])
+        return httpx2.Response(200, json={"iamToken": "iam-1", "expiresAt": "2099-01-01T00:00:00Z"})
+
+    auth = ServiceAccountAuth(
+        service_account_id="sa-1", key_id="key-1", private_key=SecretStr(_PEM), token_url=token_url
+    )
+    client = httpx2.Client(auth=auth, transport=httpx2.MockTransport(iam))
+    assert client.get(API).json() == {"auth": "Bearer iam-1"}
+    assert audiences == [token_url]
+
+
 def test_a_failed_exchange_raises_a_typed_error():
     def deny(request: httpx2.Request) -> httpx2.Response:
         return httpx2.Response(401, json={"message": "bad key"})
