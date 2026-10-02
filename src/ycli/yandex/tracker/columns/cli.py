@@ -16,11 +16,6 @@ BoardIdArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric boa
 ColumnIdArg = Annotated[int, typer.Argument(metavar="COLUMN_ID", help="Numeric column identifier.")]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(board_id: BoardIdArg, *, tracker: TrackerClient) -> ColumnList:
     """List all columns on board BOARD_ID."""

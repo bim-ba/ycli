@@ -33,11 +33,6 @@ QueueIdArg = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(
     limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient

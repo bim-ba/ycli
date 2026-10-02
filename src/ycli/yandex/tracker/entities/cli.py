@@ -67,11 +67,6 @@ FieldOpt = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 def _fields_body(
     summary: str,
     description: str,
@@ -336,11 +331,6 @@ app.add_typer(comments_app)
 CommentIdArg = Annotated[str, typer.Argument(metavar="COMMENT_ID", help="Comment id.")]
 
 
-@comments_app.callback()
-def _comments_group() -> None:
-    """Group anchor for `entities comments`."""
-
-
 @comments_app.command("list")
 def comments_list(
     type_: TypeArg,
@@ -415,11 +405,6 @@ checklists_app = typer.Typer(name="checklists", help="Entity checklists.", no_ar
 app.add_typer(checklists_app)
 
 ItemIdArg = Annotated[str, typer.Argument(metavar="ITEM_ID", help="Checklist item id.")]
-
-
-@checklists_app.callback()
-def _checklists_group() -> None:
-    """Group anchor for `entities checklists`."""
 
 
 def _item_input(
@@ -537,11 +522,6 @@ links_app = typer.Typer(name="links", help="Entity links.", no_args_is_help=True
 app.add_typer(links_app)
 
 
-@links_app.callback()
-def _links_group() -> None:
-    """Group anchor for `entities links`."""
-
-
 @links_app.command("list")
 def links_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> LinkList:
     """List an entity's links to other entities (GET …/links)."""
@@ -584,11 +564,6 @@ attachments_app = typer.Typer(name="attachments", help="Entity attachments.", no
 app.add_typer(attachments_app)
 
 FileIdArg = Annotated[str, typer.Argument(metavar="FILE_ID", help="Attachment file id.")]
-
-
-@attachments_app.callback()
-def _attachments_group() -> None:
-    """Group anchor for `entities attachments`."""
 
 
 @attachments_app.command("list")

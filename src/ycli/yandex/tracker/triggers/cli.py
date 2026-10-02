@@ -33,11 +33,6 @@ ConditionOpt = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(queue_id: QueueIdArg, trigger_id: TriggerIdArg, *, tracker: TrackerClient) -> Trigger:
     """Get trigger TRIGGER_ID of QUEUE_ID."""

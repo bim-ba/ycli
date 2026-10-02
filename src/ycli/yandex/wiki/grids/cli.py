@@ -42,14 +42,6 @@ columns_app = typer.Typer(name="columns", help="Grid columns.", no_args_is_help=
 cells_app = typer.Typer(name="cells", help="Grid cells.", no_args_is_help=True)
 
 
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
-app.callback()(_group)
-rows_app.callback()(_group)
-columns_app.callback()(_group)
-cells_app.callback()(_group)
 app.add_typer(rows_app)
 app.add_typer(columns_app)
 app.add_typer(cells_app)

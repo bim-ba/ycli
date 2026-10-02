@@ -29,11 +29,6 @@ SessionIdArg = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def create(
     file_name: Annotated[str, typer.Option(help="Name to give the uploaded file.")],

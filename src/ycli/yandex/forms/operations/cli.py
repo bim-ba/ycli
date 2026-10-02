@@ -19,11 +19,6 @@ OperationIdArg = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(operation_id: OperationIdArg, *, forms: FormsClient) -> OperationResult:
     """Print the status of async operation OPERATION_ID (GET /operations/{id})."""

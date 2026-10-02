@@ -89,11 +89,6 @@ from ycli.yandex.{domain}.{resource}.models import {cls}
 app = typer.Typer(name="{resource}", help="{domain} /{resource}.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(item_id: str, *, {domain}: {domain_cls}Client) -> {cls}:
     """Fetch one {resource} by id."""

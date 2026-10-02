@@ -27,11 +27,6 @@ AssigneeOpt = Annotated[str, typer.Option(help="Assignee login or id.")]
 DeadlineOpt = Annotated[str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(key: KeyArg, *, tracker: TrackerClient) -> ChecklistItemList:
     """List the checklist items on issue KEY."""

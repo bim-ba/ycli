@@ -26,11 +26,6 @@ ActionIdArg = Annotated[
 ]
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient) -> Autoaction:
     """Get autoaction ACTION_ID of QUEUE_ID."""

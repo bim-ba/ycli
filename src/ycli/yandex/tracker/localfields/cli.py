@@ -35,11 +35,6 @@ def _options_provider(values: list[str] | None, provider_type: str) -> OptionsPr
     return OptionsProviderInput(type=provider_type, values=values)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(queue_id: QueueArg, *, tracker: TrackerClient) -> LocalFieldList:
     """List the local fields of queue QUEUE_ID."""

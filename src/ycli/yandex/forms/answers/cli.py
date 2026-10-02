@@ -25,11 +25,6 @@ from ycli.yandex.pagination import resolve_cap
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(
     answer_id: Annotated[

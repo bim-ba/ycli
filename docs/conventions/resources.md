@@ -249,8 +249,8 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 
 **`cli.py`**:
 
-- `from __future__ import annotations`; `app = typer.Typer(name=…, help=…, no_args_is_help=True)`
-  plus an empty `@app.callback()`, so `--help` works without credentials.
+- `from __future__ import annotations`; `app = typer.Typer(name=…, help=…, no_args_is_help=True)`;
+  `--help` works without credentials because a client is built only when a command runs.
 - A command declares the clients it needs as keyword-only parameters
   (`*, tracker: TrackerClient`, or `config: AppConfig`); `ycli.cli.inject` fills them and hides
   them from Typer. It **returns** its result, annotated with the real type, and never prints

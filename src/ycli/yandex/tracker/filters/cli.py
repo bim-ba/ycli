@@ -26,11 +26,6 @@ def _parse_filter(raw: str) -> dict[str, Any] | None:
     return parsed
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command()
 def get(
     filter_id: Annotated[

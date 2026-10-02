@@ -18,11 +18,6 @@ app = typer.Typer(
 )
 
 
-@app.callback()
-def _group() -> None:
-    """Group anchor — forces subcommand dispatch (no eager DI, so --help stays cred-free)."""
-
-
 @app.command("list")
 def list_(key: KeyArg, *, tracker: TrackerClient) -> RemoteLinkList:
     """List external links on issue KEY (GET /issues/{key}/remotelinks)."""
