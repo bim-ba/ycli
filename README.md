@@ -106,8 +106,9 @@ any other host is refused (your token never goes elsewhere). `-f key=value` is a
 typed (`true`, `null`, numbers, JSON, `@file` for a file's text, `key[sub]=v` to nest, `key[]=v`
 for an array); fields of a GET or DELETE go to the query string, otherwise to a JSON body (`--input
 FILE` sends a raw body instead). `-H 'Name: value'` adds a header, `-X` sets the method, and
-`--dry-run`, `--yes` and `--jq` behave as everywhere. `--paginate` works for Wiki only: Tracker and
-Forms page their listings in more than one way, so pass `-f page=2` and the like yourself.
+`--dry-run`, `--yes` and `--jq` behave as everywhere. `--paginate` follows Tracker's `Link: rel="next"`
+and Wiki's `next_cursor`; Forms pages its listings in more than one way, so pass its paging
+parameters with `-f` yourself.
 </details>
 
 <details>

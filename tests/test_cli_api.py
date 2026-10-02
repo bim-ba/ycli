@@ -456,11 +456,25 @@ def test_paginate_all_ignores_the_configured_cap(api: MockAPI, monkeypatch, extr
     assert result.stdout == count
 
 
+def test_paginate_follows_trackers_next_link(api: MockAPI):
+    queues = f"{TRACKER_BASE}/queues"
+    api.add(
+        "GET",
+        queues,
+        json=[{"key": "A"}, {"key": "B"}],
+        headers={"Link": '<https://api.tracker.yandex.net/v3/queues?page=2&perPage=2>; rel="next"'},
+    )
+    api.add("GET", queues, json=[{"key": "C"}])
+    result = _api("queues", "--service", "tracker", "--paginate", "--jq", 'map(.key)|join(",")')
+    assert result.stdout == "A,B,C\n"
+    assert [call.url.params.get("page") for call in api.calls] == [None, "2"]
+
+
 def test_paginate_refuses_a_service_whose_listings_page_differently(api: MockAPI):
-    result = _api("issues", "--service", "tracker", "--paginate")
+    result = _api("surveys", "--service", "forms", "--paginate")
     assert result.exit_code == 2
     assert "do not share one pagination scheme" in _said(result)
-    assert "works for wiki" in _said(result)
+    assert "works for tracker, wiki" in _said(result)
     assert api.calls == []
 
 
@@ -482,10 +496,9 @@ def test_a_cap_option_needs_paginate(api: MockAPI):
     "answer",
     [
         {"json": {"slug": "a"}},
-        {"json": [1, 2]},
         {"content": b"text", "headers": {"Content-Type": "text/plain"}},
     ],
-    ids=["object-without-results", "bare-array", "text"],
+    ids=["object-without-results", "text"],
 )
 def test_paginate_over_something_that_is_no_listing_is_a_usage_error(api: MockAPI, answer):
     api.add("GET", f"{WIKI_BASE}/pages", **answer)

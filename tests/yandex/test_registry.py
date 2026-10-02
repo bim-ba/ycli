@@ -11,6 +11,7 @@ from tests.full_server import mcp as root_mcp
 from ycli.cli.app import app
 from ycli.yandex.base import DomainClient
 from ycli.yandex.registry import SERVICES
+from ycli.yandex.tracker.pages import LINK_NEXT
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 
 
@@ -47,5 +48,5 @@ def test_mcp_root_namespaces_every_service():
 def test_only_a_service_with_one_pagination_for_every_listing_names_it():
     by_name = {service.name: service.listing_pagination() for service in SERVICES}
     assert by_name["wiki"] is WIKI_CURSOR
-    assert by_name["tracker"] is None
+    assert by_name["tracker"] is LINK_NEXT
     assert by_name["forms"] is None

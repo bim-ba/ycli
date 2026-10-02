@@ -276,10 +276,13 @@ def _decode(response: httpx2.Response) -> ApiResponse | str | BinaryResult | Non
 
 
 def _results(page: object) -> Sequence[object]:
-    """The items of one page of a paginated call: the ``results`` of a Wiki listing."""
+    """The items of one page: a Tracker listing's array, or a Wiki listing's ``results``."""
     root = page.root if isinstance(page, ApiResponse) else None
+    if isinstance(root, list):
+        return root
     if isinstance(root, dict) and isinstance(root.get("results"), list):
         return root["results"]
     raise typer.BadParameter(
-        'this endpoint did not answer with a listing ({"results": [...]}).', param_hint="--paginate"
+        'this endpoint did not answer with a listing ([...] or {"results": [...]}).',
+        param_hint="--paginate",
     )
