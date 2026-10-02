@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.29.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.28.1
+  ([`e8abffb`](https://github.com/bim-ba/ycli/commit/e8abffb46c88a493ad9397bc83d868e3ba8d62f0))
+
+### Features
+
+- **wiki**: Wrap the nine operations the live OpenAPI has and the docs do not (#150)
+  ([#163](https://github.com/bim-ba/ycli/pull/163),
+  [`bed0630`](https://github.com/bim-ba/ycli/commit/bed0630860fd107de4ed8725f24a118bc62c2124))
+
+
 ## v0.28.1 (2026-10-02)
 
 ### Bug Fixes
