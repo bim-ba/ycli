@@ -9,6 +9,65 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.23.1 (2026-10-02)
+
+### Bug Fixes
+
+- **core**: Sign the service-account JWT for the endpoint it is sent to
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **tracker**: Send an empty --description on issues update
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+### Build System
+
+- Re-lock uv.lock for 0.23.0
+  ([`a6dd10d`](https://github.com/bim-ba/ycli/commit/a6dd10dbc54058daeb2915bdbf6d3cab1abb19a4))
+
+### Documentation
+
+- Drop hand-kept tool counts and fix stale claims ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **mcp**: Describe the listing cap by its setting, not a hardcoded 500
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+### Refactoring
+
+- Plain code and single sources after the E1 review
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **core**: Declare Endpoint as a plain frozen dataclass
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **http**: Drop the second copy of the HTTP defaults
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **mcp**: Import the server from ycli.mcp.server directly
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **sdk**: Build clients with a generic function and close them per MCP call
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+- **settings**: Spell the credential variable names once
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+### Testing
+
+- Pass the now-required timeout to OAuthClient in the new failure test
+  ([#132](https://github.com/bim-ba/ycli/pull/132),
+  [`32fe1ef`](https://github.com/bim-ba/ycli/commit/32fe1efd6c9c999ea50a60bb54a2543fce6b7782))
+
+
 ## v0.23.0 (2026-10-02)
 
 ### Bug Fixes
