@@ -14,7 +14,8 @@ from pathlib import Path
 
 from fastmcp import Client
 
-from ycli.mcp.server import mcp as root_mcp
+from tests.full_server import mcp as root_mcp
+from tests.full_server import tools_with_output_schemas
 from ycli.yandex.registry import SERVICES
 
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
@@ -1042,7 +1043,7 @@ def test_every_mcp_tool_has_description_and_output_schema():
     Both are required — omitting either makes the tool invisible or unusable to agents.
     See docs/conventions/resources.md §MCP tool-metadata standard.
     """
-    tools = _mcp_tools()
+    tools = asyncio.run(tools_with_output_schemas())  # the listing itself carries none
     assert tools, "no MCP tools discovered"
     for tool in tools:
         assert tool.description, f"{tool.name!r} is missing a docstring (→ description)"

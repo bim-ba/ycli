@@ -13,6 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Version,
     tracker_client,
 )
 from ycli.yandex.tracker.fields.models import (
@@ -74,9 +75,11 @@ def create(body: FieldCreate, client: TrackerClient = Depends(tracker_client)) -
     tags=WRITE_TAGS,
 )
 def edit(
-    field_id: str,
+    field_id: Annotated[
+        str, Field(description="Identifier of the issue field, from ``fields_list``.")
+    ],
     body: FieldUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> CustomField:
     """Edit an org-global issue field; only the fields set in ``body`` are changed.
@@ -109,9 +112,9 @@ def category_create(
     tags=WRITE_TAGS,
 )
 def category_edit(
-    category_id: str,
+    category_id: Annotated[str, Field(description="Identifier of the field category.")],
     body: FieldCategoryUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> FieldCategoryRecord:
     """Edit a field category; only the fields set in ``body`` are changed.

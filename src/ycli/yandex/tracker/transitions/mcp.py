@@ -1,10 +1,20 @@
 """Tracker issue-transitions FastMCP tools (reads + writes, ARCH-3 honest annotations)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, WRITE, WRITE_TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    RO,
+    TAGS,
+    WRITE,
+    WRITE_TAGS,
+    IssueKey,
+    tracker_client,
+)
 from ycli.yandex.tracker.transitions.models import TransitionExecute, TransitionList
 
 mcp = FastMCP("tracker-transitions")
@@ -15,7 +25,7 @@ mcp = FastMCP("tracker-transitions")
     annotations={**RO, "title": "List Tracker issue transitions"},
     tags=TAGS,
 )
-def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> TransitionList:
+def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> TransitionList:
     """Available workflow transitions for a Tracker issue."""
     return client.transitions.list(key)
 
@@ -26,8 +36,8 @@ def list_(key: str, client: TrackerClient = Depends(tracker_client)) -> Transiti
     tags=WRITE_TAGS,
 )
 def execute(
-    key: str,
-    transition_id: str,
+    key: IssueKey,
+    transition_id: Annotated[str, Field(description="Transition id, from ``transitions_list``.")],
     body: TransitionExecute,
     client: TrackerClient = Depends(tracker_client),
 ) -> TransitionList:

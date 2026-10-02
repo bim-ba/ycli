@@ -16,10 +16,12 @@ from ycli.yandex.wiki.comments.models import (
 )
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
     WRITE_TAGS,
+    PageId,
     app_config,
     wiki_client,
 )
@@ -29,8 +31,8 @@ mcp = FastMCP("wiki-comments")
 
 @mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"}, tags=TAGS)
 def list_(
-    page_id: int,
-    limit: int = 0,
+    page_id: PageId,
+    limit: Annotated[int, Field(description=f"Max comments to return; {LIMIT_CAP}")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> CommentList:

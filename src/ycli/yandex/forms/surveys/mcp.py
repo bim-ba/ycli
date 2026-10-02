@@ -1,17 +1,22 @@
 """Forms /surveys FastMCP tools (reads + writes, honest hints)."""
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    SurveyId,
     app_config,
     forms_client,
 )
@@ -28,7 +33,7 @@ mcp = FastMCP("forms-surveys")
 
 @mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
 def list_(
-    limit: int = 0,
+    limit: Annotated[int, Field(description=f"Max forms to return; {LIMIT_CAP}")] = 0,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> SurveyList:
@@ -42,7 +47,7 @@ def list_(
 
 
 @mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"}, tags=TAGS)
-def get(survey_id: str, client: FormsClient = Depends(forms_client)) -> Survey:
+def get(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Survey:
     """One form's settings by id."""
     result = client.surveys.get(survey_id)
     # A 404 deserializes into an all-None Survey (lenient model) rather than raising;
@@ -72,7 +77,7 @@ def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> S
     tags=WRITE_TAGS,
 )
 def modify(
-    survey_id: str, body: SurveyUpdate, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyId, body: SurveyUpdate, client: FormsClient = Depends(forms_client)
 ) -> Survey:
     """Patch a form's settings — only the fields set in ``body`` change; returns the ``Survey``.
 
@@ -86,7 +91,7 @@ def modify(
     annotations={**DESTRUCTIVE, "title": "Delete Forms survey"},
     tags=WRITE_TAGS,
 )
-def delete(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
+def delete(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
     """Delete a form permanently — IRREVERSIBLE: its questions and collected answers are lost.
 
     The API answers ``204 No Content``; the returned record confirms the accepted action.
@@ -97,7 +102,7 @@ def delete(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
 @mcp.tool(
     name="surveys_publish", annotations={**WRITE, "title": "Publish Forms survey"}, tags=WRITE_TAGS
 )
-def publish(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
+def publish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
     """Publish a form so respondents can fill it; fails if the form is blocked or at its cap.
 
     The API answers a bare ``200 OK``; the returned record confirms the accepted action.
@@ -111,7 +116,7 @@ def publish(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
     annotations={**WRITE, "title": "Unpublish Forms survey"},
     tags=WRITE_TAGS,
 )
-def unpublish(survey_id: str, client: FormsClient = Depends(forms_client)) -> Ack:
+def unpublish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
     """Take a published form offline (respondents can no longer fill it); reversible via publish.
 
     The API answers a bare ``200 OK``; the returned record confirms the accepted action.

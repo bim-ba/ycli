@@ -15,6 +15,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    MacroId,
+    QueueId,
     tracker_client,
 )
 from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroList, MacroUpdate
@@ -65,7 +67,7 @@ def get(
     tags=WRITE_TAGS,
 )
 def create(
-    queue_id: str, body: MacroCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueId, body: MacroCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Macro:
     """Create a macro on a queue (a canned comment plus field updates applied on demand).
 
@@ -81,8 +83,8 @@ def create(
     tags=WRITE_TAGS,
 )
 def edit(
-    queue_id: str,
-    macro_id: int,
+    queue_id: QueueId,
+    macro_id: MacroId,
     body: MacroUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Macro:
@@ -98,7 +100,9 @@ def edit(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue macro"},
     tags=WRITE_TAGS,
 )
-def delete(queue_id: str, macro_id: int, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(
+    queue_id: QueueId, macro_id: MacroId, client: TrackerClient = Depends(tracker_client)
+) -> Ack:
     """Permanently delete a macro from a queue (irreversible).
 
     Returns an acknowledgement on success.

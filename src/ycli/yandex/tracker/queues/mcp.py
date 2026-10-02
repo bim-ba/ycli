@@ -17,6 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    QueueId,
     app_config,
     tracker_client,
 )
@@ -177,7 +178,7 @@ def create(body: QueueCreate, client: TrackerClient = Depends(tracker_client)) -
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue"},
     tags=WRITE_TAGS,
 )
-def delete(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a Tracker queue WITH ALL ITS ISSUES (recoverable via ``queues_restore``).
 
     The queue moves to the recycle bin and can be restored for a limited time. Returns an
@@ -190,7 +191,7 @@ def delete(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Ac
 @mcp.tool(
     name="queues_restore", annotations={**WRITE, "title": "Restore Tracker queue"}, tags=WRITE_TAGS
 )
-def restore(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Queue:
+def restore(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -> Queue:
     """Restore a previously deleted Tracker queue (and its issues) from the recycle bin.
 
     Returns the restored queue.
@@ -204,7 +205,7 @@ def restore(queue_id: str, client: TrackerClient = Depends(tracker_client)) -> Q
     tags=WRITE_TAGS,
 )
 def set_permissions(
-    queue_id: str, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueId, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> QueuePermissions:
     """Replace access rules on a Tracker queue (grant/revoke read/write/create/grant rights).
 
@@ -220,7 +221,7 @@ def set_permissions(
     tags=WRITE_TAGS,
 )
 def tag_remove(
-    queue_id: str, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueId, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Remove a tag from EVERY issue of a queue (irreversible; the tag disappears queue-wide).
 

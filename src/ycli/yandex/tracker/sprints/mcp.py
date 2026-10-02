@@ -15,6 +15,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    SprintId,
+    Version,
     tracker_client,
 )
 from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintList, SprintUpdate
@@ -70,9 +72,9 @@ def create(body: SprintCreate, client: TrackerClient = Depends(tracker_client)) 
     tags=WRITE_TAGS,
 )
 def edit(
-    sprint_id: int,
+    sprint_id: SprintId,
     body: SprintUpdate,
-    version: int | None = None,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Sprint:
     """Edit a sprint; only the fields set in ``body`` (name, dates) are changed.
@@ -89,7 +91,7 @@ def edit(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker sprint"},
     tags=WRITE_TAGS,
 )
-def delete(sprint_id: int, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(sprint_id: SprintId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Permanently delete a sprint (irreversible; its issues are not affected).
 
     Returns an acknowledgement on success.
@@ -102,8 +104,8 @@ def delete(sprint_id: int, client: TrackerClient = Depends(tracker_client)) -> A
     name="sprints_start", annotations={**WRITE, "title": "Start Tracker sprint"}, tags=WRITE_TAGS
 )
 def start(
-    sprint_id: int,
-    version: int | None = None,
+    sprint_id: SprintId,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Sprint:
     """Start a sprint (sets its status to ``inProgress`` and stamps the actual start time).
@@ -120,8 +122,8 @@ def start(
     tags=WRITE_TAGS,
 )
 def archive(
-    sprint_id: int,
-    version: int | None = None,
+    sprint_id: SprintId,
+    version: Version = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Sprint:
     """Archive a finished sprint (hides it from the board's active sprint list).

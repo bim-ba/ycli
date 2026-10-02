@@ -31,11 +31,12 @@ from tests.contract import (
     mismatches,
     output_problems,
 )
+from tests.full_server import mcp as root_mcp
+from tests.full_server import tool_with_output_schema
 from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
 from tests.test_architecture import ARCH1_SURFACE_ASYMMETRIES
 from ycli.cli.app import app
-from ycli.mcp.server import mcp as root_mcp
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.registry import SERVICES
 
@@ -124,8 +125,10 @@ class _MCPSession:
     def call(self, name: str, arguments: Mapping[str, Any]) -> object:
         result = self._runner.run(self._client.call_tool(name, dict(arguments)))
         data = result.structured_content
-        # FastMCP wraps a non-object result (a list, a scalar) as {"result": …}.
-        schema = self.tools[name].output_schema
+        # FastMCP wraps a non-object result (a list, a scalar) as {"result": …}. The listing
+        # carries no output schema (it is dropped to keep tools/list small), so the flag is read
+        # from the tool itself, which still has it.
+        schema = self._runner.run(tool_with_output_schema(name)).output_schema
         return (
             (data or {}).get("result") if schema and schema.get("x-fastmcp-wrap-result") else data
         )

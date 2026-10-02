@@ -26,6 +26,7 @@ from ycli.yandex.forms.dependencies import (
     TAGS,
     WRITE,
     WRITE_TAGS,
+    SurveyId,
     app_config,
     forms_client,
 )
@@ -56,7 +57,7 @@ def get(
 
 @mcp.tool(name="answers_list", annotations={**RO, "title": "List Forms answers"}, tags=TAGS)
 def list_(
-    survey_id: str,
+    survey_id: SurveyId,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> AnswersResponse:
@@ -72,7 +73,7 @@ def list_(
     name="answers_export", annotations={**WRITE, "title": "Export Forms answers"}, tags=WRITE_TAGS
 )
 def export(
-    survey_id: str,
+    survey_id: SurveyId,
     body: AnswerExport,
     client: FormsClient = Depends(forms_client),
 ) -> ExportResult:

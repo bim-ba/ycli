@@ -14,6 +14,7 @@ from ycli.yandex.tracker.dependencies import (
     TAGS,
     WRITE,
     WRITE_TAGS,
+    IssueKey,
     tracker_client,
 )
 from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate, RemoteLinkList
@@ -48,9 +49,12 @@ def list_(
     tags=WRITE_TAGS,
 )
 def create(
-    issue_key: str,
+    issue_key: IssueKey,
     body: RemoteLinkCreate,
-    backlink: str | None = None,
+    backlink: Annotated[
+        str | None,
+        Field(description='``"true"`` to also create the mirror link in the external application.'),
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> RemoteLink:
     """Link a Tracker issue to an object in an external application; returns the created link.
@@ -68,7 +72,11 @@ def create(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue remote link"},
     tags=WRITE_TAGS,
 )
-def delete(issue_key: str, link_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(
+    issue_key: IssueKey,
+    link_id: Annotated[str, Field(description="Remote link id, from ``remotelinks_list``.")],
+    client: TrackerClient = Depends(tracker_client),
+) -> Ack:
     """Remove a remote (external-application) link from a Tracker issue (irreversible).
 
     Get ``link_id`` from ``remotelinks_list``. Returns an acknowledgement on success.

@@ -4,8 +4,8 @@ import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
+from tests.full_server import mcp
 from tests.hosts import FORMS_BASE as BASE
-from ycli.mcp.server import mcp
 
 SID = "686d0a1b2c3d4e5f00000080"
 

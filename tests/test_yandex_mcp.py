@@ -1,8 +1,9 @@
 """Root MCP server: the 3 subservers mount with namespaced tool names."""
 
+import pytest
 from fastmcp import Client
 
-from ycli.mcp.server import mcp
+from tests.full_server import mcp
 
 
 def test_base_install_imports_cli_without_fastmcp():
@@ -64,22 +65,22 @@ async def test_disable_write_tag_hides_mounted_write_tools():
     assert "sub_things_create" not in names
 
 
-def test_main_read_only_disables_write_tag(monkeypatch):
-    """main(read_only=True) hides the write tag before serving; default leaves it visible."""
-    from ycli.mcp import server
-    from ycli.yandex.mcp import WRITE_TAG
+def test_main_validates_then_serves(monkeypatch):
+    """main() lists tools first (so a bad name fails before serving), then runs the server."""
+    from fastmcp import FastMCP
 
-    recorded: dict[str, object] = {}
-    monkeypatch.setattr(server.mcp, "run", lambda *a, **k: recorded.setdefault("ran", True))
-    monkeypatch.setattr(
-        server.mcp, "disable", lambda **kwargs: recorded.setdefault("disabled", kwargs)
-    )
-    server.main(read_only=True)
-    assert recorded == {"disabled": {"tags": {WRITE_TAG}}, "ran": True}
+    from ycli.mcp.listing import UnknownToolError
+    from ycli.mcp.selection import Selection
+    from ycli.mcp.server import main
 
-    recorded.clear()
-    server.main()
-    assert recorded == {"ran": True}
+    ran: list[bool] = []
+    monkeypatch.setattr(FastMCP, "run", lambda self, *args, **kwargs: ran.append(True))
+    main(Selection(toolsets=("wiki",)))
+    assert ran == [True]
+
+    with pytest.raises(UnknownToolError, match="tracker_issues_gett"):
+        main(Selection(tools=("tracker_issues_gett",)))
+    assert ran == [True]  # the bad selection never reached run()
 
 
 def test_mcp_main_module_importable():

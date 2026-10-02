@@ -17,6 +17,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    IssueKey,
+    WorklogRecordId,
     app_config,
     tracker_client,
 )
@@ -27,7 +29,7 @@ mcp = FastMCP("tracker-worklog")
 
 @mcp.tool(name="worklog_list", annotations={**RO, "title": "List Tracker worklog"}, tags=TAGS)
 def list_(
-    key: str,
+    key: IssueKey,
     limit: Annotated[
         int,
         Field(description=f"Max records to return; {LIMIT_CAP}"),
@@ -107,7 +109,7 @@ def global_list(
     tags=WRITE_TAGS,
 )
 def create(
-    key: str, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Worklog:
     """Log spent time on a Tracker issue; returns the created worklog record."""
     return client.worklog.create(key, body.model_dump(exclude_none=True))
@@ -119,7 +121,10 @@ def create(
     tags=WRITE_TAGS,
 )
 def edit(
-    key: str, record_id: str, body: WorklogUpdate, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey,
+    record_id: WorklogRecordId,
+    body: WorklogUpdate,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Worklog:
     """Edit a worklog record on a Tracker issue (duration and/or comment).
 
@@ -133,7 +138,9 @@ def edit(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker worklog record"},
     tags=WRITE_TAGS,
 )
-def delete(key: str, record_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(
+    key: IssueKey, record_id: WorklogRecordId, client: TrackerClient = Depends(tracker_client)
+) -> Ack:
     """Permanently delete a worklog record from a Tracker issue (irreversible).
 
     Get ``record_id`` from ``worklog_list``. Returns an acknowledgement on success.

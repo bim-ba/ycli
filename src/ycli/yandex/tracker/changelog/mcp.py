@@ -9,7 +9,14 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.tracker.changelog.models import ChangelogList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import (
+    LIMIT_CAP,
+    RO,
+    TAGS,
+    IssueKey,
+    app_config,
+    tracker_client,
+)
 
 mcp = FastMCP("tracker-changelog")
 
@@ -18,7 +25,7 @@ mcp = FastMCP("tracker-changelog")
     name="changelog_list", annotations={**RO, "title": "List Tracker issue changelog"}, tags=TAGS
 )
 def list_(
-    key: str,
+    key: IssueKey,
     limit: Annotated[
         int,
         Field(description=f"Max changes to return; {LIMIT_CAP}"),
