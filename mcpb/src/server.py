@@ -1,5 +1,8 @@
-"""MCPB entry point: run the ycli MCP server over stdio."""
+"""MCPB entry point: ``python -m ycli.mcp``, the MCP server over stdio.
 
-from ycli.mcp.server import main
+It names no ycli function, so a change to the server's own entry cannot break the bundle.
+"""
 
-main(read_only=False)
+import runpy
+
+runpy.run_module("ycli.mcp", run_name="__main__", alter_sys=True)
