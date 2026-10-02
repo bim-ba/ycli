@@ -1,4 +1,4 @@
-# The documentation site; `nav` sets the page order and tests/test_docs_site.py checks it.
+# English site; Zensical has one language per project, so Russian is zensical.ru.toml (site/ru/).
 
 [project]
 site_name = "ycli"
@@ -72,6 +72,12 @@ toggle = { icon = "lucide/sun", name = "Switch to dark mode" }
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
 toggle = { icon = "lucide/moon", name = "Switch to light mode" }
+
+[project.extra]
+alternate = [
+  { name = "English", link = "/ycli/", lang = "en" },
+  { name = "Русский", link = "/ycli/ru/", lang = "ru" },
+]
 
 [project.markdown_extensions.admonition]
 [project.markdown_extensions.attr_list]

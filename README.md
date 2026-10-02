@@ -7,6 +7,8 @@
 Drive **Tracker**, **Wiki**, and **Forms** from a CLI, an MCP server, a Python SDK,
 or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 
+**English** · [Русский](README.ru.md)
+
 [![CI](https://img.shields.io/github/actions/workflow/status/bim-ba/ycli/ci.yml?branch=main&logo=githubactions&logoColor=white&label=ci)](https://github.com/bim-ba/ycli/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?logo=pytest&logoColor=white)](https://github.com/bim-ba/ycli)
 [![PyPI](https://img.shields.io/pypi/v/yandex-cli?logo=pypi&logoColor=white&label=pypi)](https://pypi.org/project/yandex-cli/)
