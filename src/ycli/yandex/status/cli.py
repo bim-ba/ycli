@@ -18,6 +18,8 @@ from pydantic import SecretStr, ValidationError
 from rich.console import Console
 from rich.panel import Panel
 
+from ycli.cli.exit_codes import ExitCode
+from ycli.cli.global_options import refuse_dry_run
 from ycli.cli.output import ExitWith
 from ycli.settings import (
     OAUTH_TOKEN_ENV,
@@ -32,6 +34,7 @@ from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.env_file import EnvFile
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import build_report
+from ycli.yandex.status.service_cli import failure_code
 from ycli.yandex.status.token_client import TokenClient
 
 if TYPE_CHECKING:
@@ -60,10 +63,14 @@ def status(*, config: AppConfig) -> AuthReport | ExitWith:
     except ValidationError as exc:
         missing = ", ".join(missing_credentials(exc))
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
-        return ExitWith(AuthReport(configured=False))
+        return ExitWith(AuthReport(configured=False), exit_code=ExitCode.AUTH)
 
     report = build_report(credentials, config)
-    return report if all(s.valid for s in report.services) else ExitWith(report)
+    return (
+        report
+        if all(s.valid for s in report.services)
+        else ExitWith(report, exit_code=failure_code(report.services))
+    )
 
 
 @app.command()
@@ -83,6 +90,7 @@ def login(
         typer.Option("--device-name", help="Label shown for this device during OAuth approval."),
     ] = None,
     *,
+    context: typer.Context,
     config: AppConfig,
 ) -> AuthReport:
     """Obtain a Yandex OAuth token + organization id and save them to .env.
@@ -91,6 +99,7 @@ def login(
     headless device flow when both are set, otherwise the browser paste (implicit) flow.
     The token is validated against every service before it is written.
     """
+    refuse_dry_run(context, "auth login signs in and writes .env; there is nothing to plan.")
     oauth_config = OAuthAppConfig()
     if not oauth_config.client_id:
         typer.secho(

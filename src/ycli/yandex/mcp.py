@@ -15,7 +15,7 @@ from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_access_token, get_http_request
 from pydantic import SecretStr, ValidationError
 
-from ycli.settings import AppConfig, Credentials, missing_credentials
+from ycli.settings import AppConfig, Credentials, MCPHTTPConfig, missing_credentials
 from ycli.yandex.factory import build_client
 
 if TYPE_CHECKING:
@@ -57,12 +57,13 @@ def caller_credentials() -> Credentials:
     tells an agent nothing, so every failure here is a ``ToolError`` naming what is missing.
     """
     caller = get_access_token()
+    if caller is not None:
+        # The organization the server checked at start (MCPHTTPConfig), so both agree.
+        organization_id = MCPHTTPConfig().organization_id  # ty: ignore[missing-argument]
+        return Credentials(oauth_token=SecretStr(caller.token), organization_id=organization_id)
+    if _over_http():
+        raise ToolError("Not signed in: this HTTP request carries no authenticated caller.")
     try:
-        if caller is not None:
-            # pydantic-settings fills the organization from the environment.
-            return Credentials(oauth_token=SecretStr(caller.token))  # ty: ignore[missing-argument]
-        if _over_http():
-            raise ToolError("Not signed in: this HTTP request carries no authenticated caller.")
         return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
     except ValidationError as exc:
         missing = missing_credentials(exc)

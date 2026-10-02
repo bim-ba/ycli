@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.global_options import refuse_dry_run
 from ycli.mcp.selection import ALL, TOOLSET_NAMES, Selection, split_names
 from ycli.yandex.registry import SERVICES
 
@@ -111,7 +112,10 @@ def start(
     transport: _Transport = Transport.stdio,
     host: _Host = None,
     port: _Port = None,
+    *,
+    context: typer.Context,
 ) -> None:
+    refuse_dry_run(context, "mcp start serves tools and sends nothing itself; use --read-only.")
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
     try:
         from ycli.mcp.listing import UnknownToolError

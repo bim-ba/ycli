@@ -89,6 +89,7 @@ def test_a_path_segment_is_percent_escaped():
         "/v3/issues/..%2Fqueues%2FDE",  # the live case: Tracker decodes %2F, then resolves ..
         "/v3/issues/..%2fqueues",
         "/v3/issues/a%5Cb",
+        "/v3/issues\\..\\queues",  # a raw backslash: no Yandex path has one
         "/v3/issues/../queues/DE",
         "/v3/issues/./x",
         "/v3/issues//comments",

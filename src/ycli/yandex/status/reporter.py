@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger("ycli.status")
 
 ORGANIZATION_SCOPE = "directory:read_organization"
+# The detail of a probe whose service rejected the token (401/403), as opposed to any other failure.
+TOKEN_REJECTED = "token invalid or expired"
 
 
 def probe_service(name: str, client: DomainClient) -> ServiceAuthStatus:
@@ -34,7 +36,7 @@ def probe_service(name: str, client: DomainClient) -> ServiceAuthStatus:
     try:
         client.probe()
     except YandexAuthError:
-        return ServiceAuthStatus(service=name, detail="token invalid or expired")
+        return ServiceAuthStatus(service=name, detail=TOKEN_REJECTED)
     except YandexError as exc:
         return ServiceAuthStatus(service=name, detail=str(exc))
     return ServiceAuthStatus(service=name, valid=True)

@@ -41,8 +41,11 @@ class PlannedRequest(BaseModel):
         body: Any
         if not data:
             body = None
-        elif "json" in content_type:
-            body = json.loads(data)
         else:
-            body = f"<{len(data)} bytes, {content_type or 'no content type'}>"
+            try:
+                body = json.loads(data) if "json" in content_type else None
+            except ValueError:  # declared JSON that is not (``ycli api --input`` of any file)
+                body = None
+            if body is None:
+                body = f"<{len(data)} bytes, {content_type or 'no content type'}>"
         return cls(method=request.method, url=str(shown(request.url)), body=body)

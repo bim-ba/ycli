@@ -11,14 +11,28 @@ from typing import TYPE_CHECKING
 
 import typer
 
+from ycli.cli.exit_codes import ExitCode
 from ycli.cli.output import ExitWith
 from ycli.yandex.status.models import (
     ServiceAuthStatus,  # noqa: TC001  # typer reads the return type
 )
-from ycli.yandex.status.reporter import probe_service
+from ycli.yandex.status.reporter import TOKEN_REJECTED, probe_service
 
 if TYPE_CHECKING:
     from ycli.yandex.service import Service
+
+
+def failure_code(statuses: list[ServiceAuthStatus]) -> ExitCode:
+    """The exit status for failed probes: 4 (auth) when a service rejected the token, else 1.
+
+    Example:
+        >>> failure_code([ServiceAuthStatus(service="wiki", detail=TOKEN_REJECTED)])
+        4
+        >>> failure_code([ServiceAuthStatus(service="wiki", detail="503 Service Unavailable")])
+        1
+    """
+    rejected = any(status.detail == TOKEN_REJECTED for status in statuses)
+    return ExitCode.AUTH if rejected else ExitCode.FAILURE
 
 
 def service_auth_app(service: Service) -> typer.Typer:
@@ -31,6 +45,6 @@ def service_auth_app(service: Service) -> typer.Typer:
         # the usual "Not signed in" message.
         client = ctx.find_root().obj.resolve(service.client_class())
         result = probe_service(service.name, client)
-        return result if result.valid else ExitWith(result)
+        return result if result.valid else ExitWith(result, exit_code=failure_code([result]))
 
     return app

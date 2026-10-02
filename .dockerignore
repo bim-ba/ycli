@@ -1,7 +1,8 @@
-# The image build needs only pyproject.toml, README.md, LICENSE, CHANGELOG.md and src/.
+# The image build needs only pyproject.toml, uv.lock, README.md, LICENSE, CHANGELOG.md and src/.
 # Everything below is excluded so the context stays small and no local secret can enter it.
 *
 !pyproject.toml
+!uv.lock
 !README.md
 !LICENSE
 !CHANGELOG.md

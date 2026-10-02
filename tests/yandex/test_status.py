@@ -56,7 +56,7 @@ def _no_credentials(monkeypatch, tmp_path):
 def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
     _no_credentials(monkeypatch, tmp_path)
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
-    assert res.exit_code == 1
+    assert res.exit_code == 4
     assert "YANDEX_ID_OAUTH_TOKEN" in res.stderr  # the variable is named on stderr
     assert json.loads(res.stdout) == {
         "configured": False,
@@ -88,11 +88,12 @@ def test_status_reports_the_owner_the_organization_and_every_service(stubbed):
 
 
 @pytest.mark.parametrize("service", PROBES)
-@pytest.mark.parametrize("status", [401, 422])
-def test_one_service_failing_sets_a_nonzero_exit_and_names_it(stubbed, service, status):
+@pytest.mark.parametrize(("status", "exit_code"), [(401, 4), (422, 1)])
+def test_one_service_failing_sets_a_nonzero_exit_and_names_it(stubbed, service, status, exit_code):
+    """A rejected token is an auth failure (4); any other failed probe is a plain failure (1)."""
     stubbed(failing={PROBES[service]: status})
     res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
-    assert res.exit_code == 1
+    assert res.exit_code == exit_code
     by_name = {s["service"]: s for s in json.loads(res.stdout)["services"]}
     assert by_name[service]["valid"] is False
     assert by_name[service]["detail"]
@@ -122,7 +123,7 @@ def test_a_service_auth_status_probes_only_that_service(stubbed, api, service):
 def test_a_rejected_token_fails_that_services_auth_status(stubbed, service):
     stubbed(failing={PROBES[service]: 401})
     res = runner.invoke(cli.app, ["--format", "json", service, "auth", "status"])
-    assert res.exit_code == 1
+    assert res.exit_code == 4
     assert json.loads(res.stdout) == {
         "service": service,
         "valid": False,
