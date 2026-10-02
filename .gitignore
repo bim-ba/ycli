@@ -73,3 +73,6 @@ PROMPT.md
 **/.claude/agent-memory-local
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
+
+# Zensical build output (site_dir in zensical.toml).
+/site/

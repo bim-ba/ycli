@@ -1,0 +1,55 @@
+name: docs
+
+# Built on every pull request; published only by a release (release.yml, which grants the Pages
+# permissions) or by hand, so the site describes the version on PyPI.
+
+on:
+  pull_request:
+  workflow_call:
+    inputs:
+      deploy:
+        type: boolean
+        default: false
+      ref:
+        type: string
+        default: ""
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: "3.12"
+      # Zensical's cache is still being reworked, so it recommends a clean build and no CI cache.
+      - name: Build
+        run: uv run --locked --isolated --only-group docs zensical build --clean
+      - name: Upload the site
+        if: inputs.deploy || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+  deploy:
+    needs: [site]
+    if: inputs.deploy || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

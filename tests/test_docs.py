@@ -19,6 +19,7 @@ _LIVE_DOC_GLOBS = [
     "CONTRIBUTING.md",
     "SECURITY.md",
     "docs/conventions/**/*.md",
+    "docs/en/**/*.md",
     "plugins/**/*.md",
 ]
 
@@ -49,10 +50,8 @@ def _live_doc_files() -> list[Path]:
 def test_live_docs_show_no_purged_idioms():
     """User-facing docs must not show call idioms the code no longer has (ARCH-5, ARCH-7).
 
-    Kept from the retired ARCH-11 until the docs contract of #102 covers these idioms.
-
     Scanned files: README.md, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, SECURITY.md,
-    docs/conventions/**/*.md, plugins/**/*.md.
+    docs/conventions/**/*.md, the documentation site (docs/en/**/*.md), plugins/**/*.md.
     Excluded (historical/rule-defining): PROMPT.md, CHANGELOG.md,
     ARCHITECTURE.md (it defines the forbidden idioms as rules), .venv/**, .git/**.
     Patterns checked: .from_env(  session_from_env(  X-Org-ID

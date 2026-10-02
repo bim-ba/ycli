@@ -10,9 +10,9 @@ name: release
 # short-lived GitHub App installation token (no long-lived PAT) so PSR can write
 # the release commit + tag to main past the branch-protection ruleset. The
 # manual workflow_dispatch path stays for ad-hoc publishing to TestPyPI/PyPI.
-# After PyPI, three more jobs ship the same release: the GHCR image (`docker`), the MCP Registry
-# entry (`registry`, needs the image) and the Claude Desktop bundle attached to the GitHub Release
-# (`mcpb`). They run only for an automated release, never for a manual dispatch.
+# After PyPI, four more jobs ship the same release: the documentation site (`docs`), the GHCR
+# image (`docker`), the MCP Registry entry (`registry`, needs the image) and the Claude Desktop
+# bundle attached to the GitHub Release (`mcpb`). They run only for an automated release, never for a manual dispatch.
 
 on:
   push:
@@ -155,6 +155,18 @@ jobs:
             -d "{\"libraryName\": \"/${GITHUB_REPOSITORY}\"}"; then
             echo "::warning::Context7 refresh failed; trigger it from the Context7 dashboard."
           fi
+
+  docs:
+    needs: [release, publish]
+    if: github.event_name == 'push' && needs.release.outputs.released == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/docs.yml
+    with:
+      deploy: true
+      ref: ${{ needs.release.outputs.tag }}
 
   docker:
     needs: [release, publish]

@@ -1,3 +1,7 @@
+---
+type: how-to
+---
+
 # Self-host the MCP server over HTTP
 
 Web clients (claude.ai, ChatGPT) and teams need the MCP server at an HTTPS address instead of a
@@ -72,7 +76,8 @@ docker run -d --name ycli-mcp -p 127.0.0.1:8000:8000 \
 ```
 
 Or directly: `uvx --from 'yandex-cli[mcp]' ycli mcp start --transport http`. The toolset flags
-from the README (`--toolsets`, `--read-only`, …) apply as over stdio.
+(`--toolsets`, `--read-only`, …; see [Serve the MCP server](serve-the-mcp-server.md)) apply as
+over stdio.
 
 ## 4. Put HTTPS in front
 

@@ -12,6 +12,7 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 [![PyPI](https://img.shields.io/pypi/v/yandex-cli?logo=pypi&logoColor=white&label=pypi)](https://pypi.org/project/yandex-cli/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey?logo=opensourceinitiative&logoColor=white)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-bim--ba.github.io%2Fycli-blue?logo=materialformkdocs&logoColor=white)](https://bim-ba.github.io/ycli/)
 [![DeepWiki](https://img.shields.io/badge/deepwiki-ask%20the%20repo-blue?logo=readthedocs&logoColor=white)](https://deepwiki.com/bim-ba/ycli)
 
 <img src="https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/demo.gif" alt="ycli in action" width="760">
@@ -29,6 +30,9 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 - 🛡️ **Trustworthy** — typed pydantic models, the real Yandex API quirks handled for you,
   and a test suite kept at **100% coverage**.
 - ⚡ **Zero-friction start** — `uv add yandex-cli`, `ycli auth login`, go.
+
+The full documentation (tutorial, how-to guides, the CLI, MCP and SDK reference) is at
+[bim-ba.github.io/ycli](https://bim-ba.github.io/ycli/).
 
 ## Install
 
@@ -48,7 +52,7 @@ uv tool install 'yandex-cli[mcp]'     # …with the MCP server
 `pip install yandex-cli` works too. The CLI ships as both `yandex-cli` and the short `ycli`.
 
 Using an AI harness (Claude Code, Claude Desktop, Cursor, VS Code, Codex, Gemini CLI, opencode,
-Docker)? See [Install in your harness](docs/install.md).
+Docker)? See [Install in your harness](https://bim-ba.github.io/ycli/how-to/install-in-your-harness/).
 
 The SDK's `ServiceAccountAuth` (IAM tokens minted from a Yandex Cloud service-account key) needs
 the `service-account` extra: `uv add 'yandex-cli[service-account]'`.
@@ -121,7 +125,7 @@ ycli mcp start               # full read/write tool set (honest annotations)
 ycli mcp start --read-only   # reads-only view for cautious deployments
 ```
 
-Serving all 322 tools costs a large `tools/list` and some hosts cap a request (VS Code allows
+Serving every tool costs a large `tools/list` and some hosts cap a request (VS Code allows
 128 tools), so pick what the session needs:
 
 | Flag | Serves |
@@ -138,7 +142,7 @@ the full set.
 
 For several users, serve it over HTTP: each MCP client signs its user in through Yandex ID
 (OAuth), and every tool call runs with that user's own Yandex token. Setup, including the
-Yandex OAuth app and the reverse proxy, is in [Self-host over HTTP](docs/self-host.md).
+Yandex OAuth app and the reverse proxy, is in [Self-host over HTTP](https://bim-ba.github.io/ycli/how-to/self-host-over-http/).
 
 ```bash
 ycli mcp start --transport http --toolsets core   # needs YCLI__MCP__BASE_URL and an OAuth app
