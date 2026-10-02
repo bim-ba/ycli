@@ -31,7 +31,7 @@ async def test_uploadsessions_get_is_registered_and_read_only():
     async with Client(uploadsessions_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert "uploadsessions_get" in tools
-    assert tools["uploadsessions_get"].annotations.readOnlyHint is True
+    assert tools["uploadsessions_get"].annotations.read_only_hint is True
 
 
 @responses.activate
@@ -136,7 +136,7 @@ async def test_uploadsessions_write_tools_carry_honest_hints(tool_name, destruct
     async with Client(uploadsessions_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     annotations = tools[tool_name].annotations
-    assert annotations.readOnlyHint is False
-    assert annotations.destructiveHint is destructive
-    assert annotations.idempotentHint is idempotent
+    assert annotations.read_only_hint is False
+    assert annotations.destructive_hint is destructive
+    assert annotations.idempotent_hint is idempotent
     assert annotations.title

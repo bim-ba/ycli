@@ -131,7 +131,7 @@ async def test_import_tools_annotations():
     }
     for name, tool in tools.items():
         ann = tool.annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is False, name
-        assert ann.idempotentHint is False, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is False, name
+        assert ann.idempotent_hint is False, name
         assert ann.title, name

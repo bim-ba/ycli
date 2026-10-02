@@ -150,9 +150,9 @@ async def test_pages_write_tools_carry_honest_hints(tool_name, destructive, idem
     async with Client(pages_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     annotations = tools[tool_name].annotations
-    assert annotations.readOnlyHint is False
-    assert annotations.destructiveHint is destructive
-    assert annotations.idempotentHint is idempotent
+    assert annotations.read_only_hint is False
+    assert annotations.destructive_hint is destructive
+    assert annotations.idempotent_hint is idempotent
     assert annotations.title
 
 
@@ -160,5 +160,5 @@ async def test_pages_write_tools_carry_honest_hints(tool_name, destructive, idem
 async def test_pages_by_id_tools_are_read_only(tool_name):
     async with Client(pages_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools[tool_name].annotations.readOnlyHint is True
+    assert tools[tool_name].annotations.read_only_hint is True
     assert tools[tool_name].annotations.title

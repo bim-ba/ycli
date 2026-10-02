@@ -65,7 +65,7 @@ async def test_autoactions_tools_registered():
         "autoactions_create",
     }
     read_tools = {"autoactions_get", "autoactions_logs_list", "autoactions_logs_get"}
-    assert all(tools[name].annotations.readOnlyHint is True for name in read_tools)
+    assert all(tools[name].annotations.read_only_hint is True for name in read_tools)
 
 
 @responses.activate
@@ -94,7 +94,7 @@ async def test_autoaction_write_tools_annotations():
     async with Client(autoactions_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     ann = tools["autoactions_create"].annotations
-    assert ann.readOnlyHint is False
-    assert ann.destructiveHint is False
-    assert ann.idempotentHint is False
+    assert ann.read_only_hint is False
+    assert ann.destructive_hint is False
+    assert ann.idempotent_hint is False
     assert ann.title

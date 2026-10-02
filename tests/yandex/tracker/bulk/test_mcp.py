@@ -47,8 +47,8 @@ async def test_all_bulk_tools_exposed():
 async def test_read_tools_are_read_only():
     async with Client(bulk_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["bulk_get"].annotations.readOnlyHint is True
-    assert tools["bulk_issues_list"].annotations.readOnlyHint is True
+    assert tools["bulk_get"].annotations.read_only_hint is True
+    assert tools["bulk_issues_list"].annotations.read_only_hint is True
 
 
 @responses.activate
@@ -112,7 +112,7 @@ async def test_bulk_write_tools_annotations():
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

@@ -27,7 +27,7 @@ src/ycli/
 
 Notable shared pieces:
 - `src/ycli/settings.py` — `AppConfig` + `Credentials` pydantic-settings models (app-wide config)
-- `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config, no serialization logic)
+- `src/ycli/yandex/models.py` — `APIModel` base (lenient parse config; dumps keep the API's field names)
 - `src/ycli/cli/context.py` — `AppContext` (typed composition root for the CLI); `cli/inject.py`
   fills a command's keyword-only client/config parameters from it
 - `src/ycli/yandex/core/` — the httpx2 core: `Endpoint[T]` (an operation declared once with its
@@ -108,6 +108,10 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Exceptions:** `ARCH4_SERIALIZATION_HOMES` (`log.py` formats stderr log records with
   `json.dumps`) and `ARCH4_STDOUT_FUNCTIONS` (the eager `--version` callback). Bytes and raw text
   are result types (`BinaryResult`, `str`), not exceptions.
+- **Field names:** CLI and MCP output both keep each API's own field names (Tracker
+  `createdAt`, Wiki `created_at`), so a key reads the same in the vendor docs, in `--format json`
+  and in a tool result; Python code reads snake_case attributes. `APIModel` sets
+  `serialize_by_alias`, and `test_tool_output_uses_the_api_field_names` keeps the MCP side honest.
 
 ### ARCH-5 — Single sources of truth
 - **Rule:** every value has one home: the version in package metadata, environment access

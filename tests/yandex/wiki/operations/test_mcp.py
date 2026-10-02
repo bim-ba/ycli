@@ -39,5 +39,5 @@ async def test_operations_gridclone_get_tool(creds):
 async def test_operations_tools_are_read_only():
     async with Client(operations_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["operations_clone_get"].annotations.readOnlyHint is True
-    assert tools["operations_gridclone_get"].annotations.readOnlyHint is True
+    assert tools["operations_clone_get"].annotations.read_only_hint is True
+    assert tools["operations_gridclone_get"].annotations.read_only_hint is True

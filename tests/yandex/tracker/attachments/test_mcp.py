@@ -33,4 +33,4 @@ async def test_only_list_tool_exposed_no_binary():
 async def test_list_tool_is_read_only():
     async with Client(attachments_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["attachments_list"].annotations.readOnlyHint is True
+    assert tools["attachments_list"].annotations.read_only_hint is True

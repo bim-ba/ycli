@@ -75,11 +75,11 @@ The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section 
 from ycli.yandex.forms.client import FormsClient
 
 forms = FormsClient(oauth_token="…", organization_id="…")
-forms.me.get()                       # auth probe
-forms.surveys.list()                 # list forms
-forms.surveys.get("<form_id>")       # form settings
-forms.questions.list("<form_id>")    # schema
-forms.answers.list("<form_id>")      # responses
+forms.me.get()  # auth probe
+forms.surveys.list()  # list forms
+forms.surveys.get("<form_id>")  # form settings
+forms.questions.list("<form_id>")  # schema
+forms.answers.list("<form_id>")  # responses
 ```
 
 ---

@@ -46,14 +46,14 @@ async def test_links_delete_tool_returns_ack(creds):
 async def test_link_tools_annotations():
     async with Client(links_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
-    assert tools["links_list"].annotations.readOnlyHint is True
+    assert tools["links_list"].annotations.read_only_hint is True
     expected = {  # tool -> (destructiveHint, idempotentHint)
         "links_add": (False, False),
         "links_delete": (True, False),
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

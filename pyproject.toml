@@ -37,7 +37,9 @@ dependencies = [
 
 # The MCP server (`ycli mcp`) is optional — install with `yandex-cli[mcp]`.
 [project.optional-dependencies]
-mcp = ["fastmcp>=3.4.2"]
+mcp = [
+    "fastmcp>=4.0.10,<5",
+]
 service-account = [
     "pyjwt[crypto]>=2.15.1",
 ]

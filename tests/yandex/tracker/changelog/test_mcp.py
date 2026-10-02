@@ -55,5 +55,5 @@ async def test_changelog_list_tool_registered_read_only():
     async with Client(changelog_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert set(tools) == {"changelog_list"}
-    assert tools["changelog_list"].annotations.readOnlyHint is True
+    assert tools["changelog_list"].annotations.read_only_hint is True
     assert tools["changelog_list"].annotations.title

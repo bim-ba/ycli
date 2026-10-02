@@ -111,15 +111,15 @@ async def test_keysets_tools_registered_with_honest_annotations():
         "keysets_modify",
         "keysets_delete",
     }
-    assert tools["keysets_list"].annotations.readOnlyHint is True
-    assert tools["keysets_get"].annotations.readOnlyHint is True
+    assert tools["keysets_list"].annotations.read_only_hint is True
+    assert tools["keysets_get"].annotations.read_only_hint is True
     create = tools["keysets_create"].annotations
-    assert create.readOnlyHint is False
-    assert create.destructiveHint is False and create.idempotentHint is False
+    assert create.read_only_hint is False
+    assert create.destructive_hint is False and create.idempotent_hint is False
     modify = tools["keysets_modify"].annotations
-    assert modify.readOnlyHint is False
-    assert modify.destructiveHint is False and modify.idempotentHint is True
+    assert modify.read_only_hint is False
+    assert modify.destructive_hint is False and modify.idempotent_hint is True
     delete = tools["keysets_delete"].annotations
-    assert delete.readOnlyHint is False
-    assert delete.destructiveHint is True and delete.idempotentHint is False
+    assert delete.read_only_hint is False
+    assert delete.destructive_hint is True and delete.idempotent_hint is False
     assert all(t.annotations.title for t in tools.values())

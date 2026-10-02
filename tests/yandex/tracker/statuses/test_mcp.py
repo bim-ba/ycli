@@ -29,7 +29,7 @@ async def test_statuses_tool_read_only():
     async with Client(statuses_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert "statuses_list" in tools
-    assert tools["statuses_list"].annotations.readOnlyHint is True
+    assert tools["statuses_list"].annotations.read_only_hint is True
 
 
 @responses.activate
@@ -74,7 +74,7 @@ async def test_status_write_tools_annotations():
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

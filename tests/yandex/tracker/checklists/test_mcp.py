@@ -16,7 +16,7 @@ async def test_checklists_get_registered_read_only():
     async with Client(checklists_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert "checklists_get" in tools
-    assert tools["checklists_get"].annotations.readOnlyHint is True
+    assert tools["checklists_get"].annotations.read_only_hint is True
 
 
 @responses.activate
@@ -110,7 +110,7 @@ async def test_checklist_write_tools_annotations():
     }
     for name, (destructive, idempotent) in expected.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name

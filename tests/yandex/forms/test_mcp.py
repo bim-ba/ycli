@@ -56,7 +56,7 @@ async def test_every_write_tool_carries_the_write_tag():
         tools = await client.list_tools()
     for tool in tools:
         tags = (tool.meta or {}).get("fastmcp", {}).get("tags", [])
-        if tool.annotations.readOnlyHint is True:
+        if tool.annotations.read_only_hint is True:
             assert "write" not in tags, f"{tool.name} is a read but carries the write tag"
         else:
             assert "write" in tags, f"{tool.name} is a write but lacks the write tag"

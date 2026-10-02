@@ -59,7 +59,7 @@ async def test_read_tools_are_read_only():
     async with Client(entities_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     for name in READ_TOOLS:
-        assert tools[name].annotations.readOnlyHint is True, name
+        assert tools[name].annotations.read_only_hint is True, name
 
 
 async def test_write_tools_annotations():
@@ -67,9 +67,9 @@ async def test_write_tools_annotations():
         tools = {t.name: t for t in await client.list_tools()}
     for name, (destructive, idempotent) in WRITE_TOOLS.items():
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False, name
-        assert ann.destructiveHint is destructive, name
-        assert ann.idempotentHint is idempotent, name
+        assert ann.read_only_hint is False, name
+        assert ann.destructive_hint is destructive, name
+        assert ann.idempotent_hint is idempotent, name
         assert ann.title, name
 
 

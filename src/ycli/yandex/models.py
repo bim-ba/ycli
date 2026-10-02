@@ -4,7 +4,8 @@
 ``DisplayNameStr`` normalize the API's single-field wrapper objects (``{"key": "x"}`` /
 ``{"id": "x"}`` / ``{"display": "x"}`` / ``{"display_name": "x"}``) down to a bare string at parse
 time via ``BeforeValidator`` — so models expose plain scalars and need no per-model flattening
-property. Serialization is NOT a model concern — see ``output.py``.
+property. Rendering is NOT a model concern — see ``output.py``; the one thing a model says
+about its output is that it keeps the API's field names.
 """
 
 from __future__ import annotations
@@ -20,9 +21,20 @@ if TYPE_CHECKING:
 
 
 class APIModel(BaseModel):
-    """Base for all Yandex API models: ignore unknown fields, allow name-or-alias population."""
+    """Base for all Yandex API models: ignore unknown fields, allow name-or-alias population.
 
-    model_config = ConfigDict(extra="ignore", populate_by_name=True)
+    ``serialize_by_alias`` keeps the API's field names (``createdAt``) in every dump, so the
+    CLI and the MCP server print the same keys the vendor docs show, while Python code reads
+    snake_case attributes. Tracker is camelCase on the wire; Wiki and Forms are snake_case.
+
+    Example:
+        >>> class Item(APIModel):
+        ...     created_at: str = Field(alias="createdAt")
+        >>> Item(created_at="today").model_dump()
+        {'createdAt': 'today'}
+    """
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True, serialize_by_alias=True)
 
 
 class Ack(APIModel):

@@ -39,4 +39,4 @@ async def test_operations_tool_registered_read_only():
     async with Client(operations_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     assert "operations_get" in tools
-    assert tools["operations_get"].annotations.readOnlyHint is True
+    assert tools["operations_get"].annotations.read_only_hint is True

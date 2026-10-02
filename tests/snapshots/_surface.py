@@ -88,8 +88,8 @@ def mcp_signatures() -> list[str]:
 
     lines = []
     for tool in _tools():
-        required = set(tool.inputSchema.get("required", []))
-        properties = tool.inputSchema.get("properties", {})
+        required = set(tool.input_schema.get("required", []))
+        properties = tool.input_schema.get("properties", {})
         params = [describe(n, properties[n], n in required) for n in sorted(properties)]
         lines.append(f"{tool.name}({', '.join(params)})")
     return sorted(lines)

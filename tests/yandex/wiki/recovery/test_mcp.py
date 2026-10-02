@@ -32,7 +32,7 @@ async def test_recovery_restore_carries_honest_write_hints():
     async with Client(recovery_mcp.mcp) as client:
         tools = {t.name: t for t in await client.list_tools()}
     annotations = tools["recovery_restore"].annotations
-    assert annotations.readOnlyHint is False
-    assert annotations.destructiveHint is False  # restore re-creates data, never removes it
-    assert annotations.idempotentHint is False
+    assert annotations.read_only_hint is False
+    assert annotations.destructive_hint is False  # restore re-creates data, never removes it
+    assert annotations.idempotent_hint is False
     assert annotations.title

@@ -151,15 +151,15 @@ async def test_questions_tools_registered_with_honest_annotations():
         "questions_move",
     }
     for name in ("questions_list", "questions_get"):
-        assert tools[name].annotations.readOnlyHint is True
+        assert tools[name].annotations.read_only_hint is True
     for name in ("questions_create", "questions_move"):
         ann = tools[name].annotations
-        assert ann.readOnlyHint is False
-        assert ann.destructiveHint is False and ann.idempotentHint is False
+        assert ann.read_only_hint is False
+        assert ann.destructive_hint is False and ann.idempotent_hint is False
     modify = tools["questions_modify"].annotations
-    assert modify.readOnlyHint is False
-    assert modify.destructiveHint is False and modify.idempotentHint is True
+    assert modify.read_only_hint is False
+    assert modify.destructive_hint is False and modify.idempotent_hint is True
     delete = tools["questions_delete"].annotations
-    assert delete.readOnlyHint is False
-    assert delete.destructiveHint is True and delete.idempotentHint is False
+    assert delete.read_only_hint is False
+    assert delete.destructive_hint is True and delete.idempotent_hint is False
     assert all(t.annotations.title for t in tools.values())
