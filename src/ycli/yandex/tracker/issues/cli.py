@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Any
+from typing import Annotated
 
 import typer
 
@@ -12,7 +12,14 @@ from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.issues.models import Issue, IssueList, count_body, filter_body
+from ycli.yandex.tracker.issues.models import (
+    Issue,
+    IssueCreate,
+    IssueList,
+    IssueUpdate,
+    count_body,
+    filter_body,
+)
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -23,6 +30,16 @@ FieldOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Extra field key=value (JSON-coerced; repeatable)."),
 ]
+
+
+def _key(value: str) -> dict[str, str] | None:
+    """The ``{"key": …}`` object Tracker takes for a type or priority; ``None`` when not given.
+
+    Example:
+        >>> _key("task"), _key("")
+        ({'key': 'task'}, None)
+    """
+    return {"key": value} if value else None
 
 
 @app.command()
@@ -86,26 +103,25 @@ def create(
     type_: Annotated[str, typer.Option("--type", help="Issue type key, e.g. task.")] = "",
     priority: Annotated[str, typer.Option(help="Priority key, e.g. normal.")] = "",
     parent: Annotated[str, typer.Option(help="Parent issue key.")] = "",
-    description: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')] = "",
+    description: Annotated[
+        str | None, typer.Option(help='Markdown body — pass "$(cat file.md)".')
+    ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
     """Create an issue (POST /issues/). type/priority wrap to {"key": …}; queue/parent stay bare."""
-    body: dict[str, Any] = {"queue": queue, "summary": summary}
-    if type_:
-        body["type"] = {"key": type_}
-    if priority:
-        body["priority"] = {"key": priority}
-    if parent:
-        body["parent"] = parent
-    if description:
-        body["description"] = description
-    if tag:
-        body["tags"] = tag
-    body |= parse_fields(field)
-    return tracker.issues.create(body=body)
+    named = IssueCreate(
+        queue=queue,
+        summary=summary,
+        type=_key(type_),
+        priority=_key(priority),
+        parent=parent or None,
+        description=description,
+        tags=tag or None,
+    )
+    return tracker.issues.create(body=named.model_dump(exclude_none=True) | parse_fields(field))
 
 
 @app.command()
@@ -116,29 +132,26 @@ def update(
     priority: Annotated[str, typer.Option(help="New priority key.")] = "",
     parent: Annotated[str, typer.Option(help="New parent issue key.")] = "",
     description: Annotated[
-        str, typer.Option(help='New markdown body — pass "$(cat file.md)".')
-    ] = "",
+        str | None,
+        typer.Option(help='New markdown body — pass "$(cat file.md)"; "" clears it.'),
+    ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
     """Update issue KEY (PATCH /issues/{key}) — only supplied fields are sent."""
-    body: dict[str, Any] = {}
-    if summary:
-        body["summary"] = summary
-    if type_:
-        body["type"] = {"key": type_}
-    if priority:
-        body["priority"] = {"key": priority}
-    if parent:
-        body["parent"] = parent
-    if description:
-        body["description"] = description
-    if tag:
-        body["tags"] = tag
-    body |= parse_fields(field)
-    return tracker.issues.update(key, body=body)
+    named = IssueUpdate(
+        summary=summary or None,
+        type=_key(type_),
+        priority=_key(priority),
+        parent=parent or None,
+        description=description,
+        tags=tag or None,
+    )
+    return tracker.issues.update(
+        key, body=named.model_dump(exclude_none=True) | parse_fields(field)
+    )
 
 
 @app.command()

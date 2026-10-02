@@ -242,3 +242,27 @@ def test_update_with_only_a_field(api):
     )
     assert res.exit_code == 0, res.output
     assert api.body(0) == {"sprint": 7}
+
+
+def test_update_with_an_empty_description_clears_it(api):
+    """`--description ''` is a value (clear the body), not an omitted option."""
+    api.add("PATCH", f"{BASE}/issues/DE-1", json={"key": "DE-1"})
+    res = runner.invoke(
+        cli.app, ["-o", "json", "tracker", "issues", "update", "DE-1", "--description", ""]
+    )
+    assert res.exit_code == 0, res.output
+    assert api.body(0) == {"description": ""}
+
+
+def test_a_field_overrides_a_named_option(api):
+    """`--field` merges last, as before: it overrides an option, and an explicit null is sent."""
+    api.add("PATCH", f"{BASE}/issues/DE-1", json={"key": "DE-1"})
+    res = runner.invoke(
+        cli.app,
+        [
+            *("-o", "json", "tracker", "issues", "update", "DE-1", "--summary", "A"),
+            *("-F", "summary=B", "-F", "assignee=null"),
+        ],
+    )
+    assert res.exit_code == 0, res.output
+    assert api.body(0) == {"summary": "B", "assignee": None}

@@ -118,14 +118,14 @@ tracker import link: --created-at:TEXT! --created-by:TEXT! --issue:TEXT! --relat
 tracker import task: --assignee:TEXT='' --created-at:TEXT! --created-by:TEXT! --description:TEXT='' --key:TEXT='' --queue:TEXT! --summary:TEXT!
 tracker import worklog: --comment:TEXT='' --created-at:TEXT! --created-by:TEXT! --duration:TEXT! --start:TEXT! KEY:TEXT!
 tracker issues count: --query:TEXT='' --queue:TEXT='' --status:TEXT=''
-tracker issues create: --description:TEXT='' --field:TEXT --parent:TEXT='' --priority:TEXT='' --queue:TEXT! --summary:TEXT! --tag:TEXT --type:TEXT=''
+tracker issues create: --description:TEXT --field:TEXT --parent:TEXT='' --priority:TEXT='' --queue:TEXT! --summary:TEXT! --tag:TEXT --type:TEXT=''
 tracker issues get: KEY:TEXT!
 tracker issues list: --all:BOOLEAN=False --assignee:TEXT='' --epic:TEXT='' --limit:INTEGER RANGE=0 --queue:TEXT='' --status:TEXT='' --type:TEXT=''
 tracker issues move: KEY:TEXT! QUEUE:TEXT!
 tracker issues scroll-clear: --pair:TEXT
 tracker issues search: --all:BOOLEAN=False --limit:INTEGER RANGE=0 QUERY:TEXT!
 tracker issues suggest: TEXT:TEXT!
-tracker issues update: --description:TEXT='' --field:TEXT --parent:TEXT='' --priority:TEXT='' --summary:TEXT='' --tag:TEXT --type:TEXT='' KEY:TEXT!
+tracker issues update: --description:TEXT --field:TEXT --parent:TEXT='' --priority:TEXT='' --summary:TEXT='' --tag:TEXT --type:TEXT='' KEY:TEXT!
 tracker issuetypes create: --key:TEXT! --name-en:TEXT='' --name-ru:TEXT=''
 tracker issuetypes edit: --name-en:TEXT='' --name-ru:TEXT='' --version:INTEGER ISSUE_TYPE_ID:TEXT!
 tracker issuetypes list
