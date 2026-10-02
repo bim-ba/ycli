@@ -49,13 +49,46 @@ def test_generator_check_mode_passes():
 
 
 def test_generated_doc_links_are_well_formed():
-    """Every deep link points at the Yandex api-ref and cannot break a Markdown table cell."""
-    urls = LINK.findall(gen.build_block())
+    """Every table link points at the Yandex API reference and cannot break a table cell."""
+    table_rows = [line for line in gen.build_block().splitlines() if line.startswith("| ")]
+    urls = [url for row in table_rows for url in LINK.findall(row)]
     assert urls, "no documentation links were generated"
     for url in urls:
         assert url.startswith(DOCS_BASE), url
-        assert "/api-ref/" in url and not url.endswith(".md"), url
+        domain = url.removeprefix(DOCS_BASE).split("/")[0]
+        assert f"/{domain}/en/{gen.API_SECTION[domain]}/" in url, url
+        assert not url.endswith(".md"), url
         assert " " not in url and "|" not in url, url
+
+
+def test_committed_svg_matches_generator():
+    committed = gen.COVERAGE_SVG.read_text(encoding="utf-8")
+    assert committed == gen.render_svg(gen._reports()), f"coverage.svg is stale; {HINT}"
+
+
+def test_check_mode_fails_on_a_stale_svg(tmp_path, monkeypatch, capsys):
+    stale = tmp_path / "coverage.svg"
+    stale.write_text("<svg/>", encoding="utf-8")
+    monkeypatch.setattr(gen, "COVERAGE_SVG", stale)
+    assert gen.main(["--check"]) == 1
+    assert "coverage.svg is stale" in capsys.readouterr().err
+
+
+def test_svg_shows_every_service_and_the_totals():
+    svg = gen.render_svg(gen._reports())
+    for report in gen._reports():
+        assert f">{report.title}</text>" in svg
+        assert f">{report.operation_count} operations · {report.mcp_tool_count} MCP tools<" in svg
+    assert gen.COVERAGE_SVG_URL in gen.build_block()
+
+
+def test_every_service_table_is_collapsible():
+    """Each service's tables sit in one <details>, with the blank line GitHub needs after it."""
+    block = gen.build_block()
+    for report in gen._reports():
+        heading = block.index(f"### {report.title}\n\n<details>\n<summary>")
+        assert "</summary>\n\n**" in block[heading:]
+    assert block.count("<details>") == block.count("</details>") == len(gen._reports())
 
 
 def test_link_gaps_are_pinned():

@@ -8,11 +8,12 @@
 # Derivation
 # ----------
 # Each value is a path RELATIVE TO
-#     https://yandex.ru/support/{domain}/en/api-ref/
-# with the trailing ".md" dropped. The vendored source for the same page is
-#     references/yandex-360/{domain}/ru/api-ref/{path}.md
-# whose front-matter `alternate:` lists the canonical en/ru URLs. The English
-# (`/en/`) pages were spot-checked to return 200 for all three domains (2026-07-13).
+#     https://yandex.ru/support/{domain}/en/{section}/
+# with the trailing ".md" dropped, where {section} is `api` for Tracker and `api-ref` for
+# Wiki and Forms (gen_coverage.API_SECTION). The vendored source for the same page is
+#     references/yandex-360/{domain}/ru/{section}/{path}.md
+# whose front-matter `alternate:` lists the canonical en/ru URLs. Every generated link
+# answered 200 on 2026-10-03.
 #
 # Keys
 # ----
