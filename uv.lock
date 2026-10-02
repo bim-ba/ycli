@@ -1860,7 +1860,7 @@ wheels = [
 
 [[package]]
 name = "yandex-cli"
-version = "0.23.1"
+version = "0.24.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx2" },
