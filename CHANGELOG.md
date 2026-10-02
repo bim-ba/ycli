@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.33.0 (2026-10-02)
+
+### Bug Fixes
+
+- **mcpb**: Start the bundle through python -m ycli.mcp
+  ([#167](https://github.com/bim-ba/ycli/pull/167),
+  [`5dfbedf`](https://github.com/bim-ba/ycli/commit/5dfbedf074f121b7d4f85a03e17ba3e5a892f907))
+
+### Build System
+
+- Re-lock uv.lock for 0.32.0
+  ([`f7baded`](https://github.com/bim-ba/ycli/commit/f7baded87b060c1eaf8e1c8e6a8df1f21f911ea6))
+
+### Features
+
+- **mcp**: Toolsets, a curated core profile and a 74% lighter tools/list
+  ([#167](https://github.com/bim-ba/ycli/pull/167),
+  [`5dfbedf`](https://github.com/bim-ba/ycli/commit/5dfbedf074f121b7d4f85a03e17ba3e5a892f907))
+
+- **mcp**: Toolsets, a curated core profile and a lighter tools/list
+  ([#167](https://github.com/bim-ba/ycli/pull/167),
+  [`5dfbedf`](https://github.com/bim-ba/ycli/commit/5dfbedf074f121b7d4f85a03e17ba3e5a892f907))
+
+
 ## v0.32.0 (2026-10-02)
 
 ### Bug Fixes
