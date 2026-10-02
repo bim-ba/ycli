@@ -125,8 +125,9 @@ class ImportClient(Resource):
     ) -> Attachment:
         """Import a file onto a comment, preserving its ``createdAt`` / ``createdBy``.
 
-        ``POST /issues/{issue_key}/comments/{comment_id}/attachments/_import`` (multipart); the
-        times must fall after the comment's creation and before its last update. Returns the
+        ``POST /issues/{issue_key}/comments/{comment_id}/attachments/_import`` (multipart);
+        ``created_at`` must fall between the comment's creation and its last update (for a
+        comment never edited, exactly its ``createdAt``), else Tracker answers 422. Returns the
         created ``Attachment``.
 
         Example:

@@ -103,8 +103,9 @@ def create(
     """Create a workflow (POST /workflows).
 
     --initial-action and each --step are JSON objects as in the API docs, e.g.
-    --initial-action '{"id":"open","name":{"en":"Open"},"target":"open"}'
-    --step '{"status":"open","actions":[{"id":"close","name":{"en":"Close"},"target":"closed"}]}'.
+    --initial-action '{"id":"open","name":{"ru":"Открыть","en":"Open"},"target":"open"}'
+    --step '{"status":"open","actions":[{"id":"close","name":{"ru":"Закрыть"},"target":"closed"}]}'.
+    Every action name needs its Russian text: Tracker refuses one without it.
     """
     body = WorkflowCreate.model_validate(
         {
@@ -164,7 +165,8 @@ def edit_action(
         str,
         typer.Option(
             "--action",
-            help='New action fields as a JSON object, e.g. \'{"target":"closed"}\'.',
+            help="Action fields as a JSON object; Tracker requires name and target, e.g. "
+            '\'{"name":{"ru":"Закрыть"},"target":"closed"}\'.',
         ),
     ],
     *,

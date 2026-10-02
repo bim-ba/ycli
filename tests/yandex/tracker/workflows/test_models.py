@@ -70,12 +70,14 @@ def test_queue_workflows_maps_workflow_ids_to_issue_types():
 def test_request_bodies_use_the_api_names_and_drop_unset_fields():
     body = WorkflowCreate(
         name="Design",
-        initial_action=WorkflowActionInput(name=LocalizedText(en="Open"), target="open"),
+        initial_action=WorkflowActionInput(
+            name=LocalizedText(ru="Открыть", en="Open"), target="open"
+        ),
         steps=[WorkflowStepInput(status="open", status_type="NEW")],
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {
         "name": "Design",
-        "initialAction": {"name": {"en": "Open"}, "target": "open"},
+        "initialAction": {"name": {"ru": "Открыть", "en": "Open"}, "target": "open"},
         "steps": [{"status": "open", "statusType": "NEW"}],
     }
 
@@ -103,3 +105,12 @@ def test_every_request_field_has_a_description():
     ):
         for field_name, field in getattr(models, name).model_fields.items():
             assert field.description, f"{name}.{field_name} is missing Field(description=…)"
+
+
+def test_an_action_name_in_english_only_is_refused_before_sending():
+    """Tracker answers 422 "action.name" for a name without its Russian text."""
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError, match="Russian text"):
+        WorkflowActionInput.model_validate({"name": {"en": "Close"}, "target": "closed"})

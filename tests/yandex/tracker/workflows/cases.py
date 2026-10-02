@@ -52,7 +52,7 @@ STEP_OPEN = {
     "actions": [
         {
             "id": "start",
-            "name": {"en": "Start"},
+            "name": {"ru": "Начать", "en": "Start"},
             "description": {"ru": "Взять в работу"},
             "target": 3,
             "screen": {"fields": ["assignee"]},
@@ -60,7 +60,7 @@ STEP_OPEN = {
             "functions": [{"type": "SetResolution"}],
         }
     ],
-    "metaAction": {"name": {"en": "Auto"}, "target": {"key": "inProgress"}},
+    "metaAction": {"name": {"ru": "Авто", "en": "Auto"}, "target": {"key": "inProgress"}},
     "statusType": "NEW",
 }
 STEP_CLOSED = {"status": {"key": "closed"}, "actions": []}
@@ -117,7 +117,7 @@ CASES = [
                         actions=[
                             WorkflowActionInput(
                                 id="start",
-                                name=LocalizedText(en="Start"),
+                                name=LocalizedText(ru="Начать", en="Start"),
                                 description=LocalizedText(ru="Взять в работу"),
                                 target=3,
                                 screen={"fields": ["assignee"]},
@@ -126,7 +126,8 @@ CASES = [
                             )
                         ],
                         meta_action=WorkflowActionInput(
-                            name=LocalizedText(en="Auto"), target=RefSelector(key="inProgress")
+                            name=LocalizedText(ru="Авто", en="Auto"),
+                            target=RefSelector(key="inProgress"),
                         ),
                         status_type="NEW",
                     ),
@@ -196,7 +197,9 @@ CASES = [
         args=(
             WorkflowCreate(
                 name="Bare",
-                initial_action=WorkflowActionInput(name=LocalizedText(en="Create"), target="new"),
+                initial_action=WorkflowActionInput(
+                    name=LocalizedText(ru="Создать", en="Create"), target="new"
+                ),
                 steps=[WorkflowStepInput(status="new")],
             ),
         ),
@@ -207,7 +210,7 @@ CASES = [
             "--name",
             "Bare",
             "--initial-action",
-            '{"name": {"en": "Create"}, "target": "new"}',
+            '{"name": {"ru": "Создать", "en": "Create"}, "target": "new"}',
             "--step",
             '{"status": "new"}',
         ],
@@ -219,7 +222,10 @@ CASES = [
                     "workflows",
                     json={
                         "name": "Bare",
-                        "initialAction": {"name": {"en": "Create"}, "target": "new"},
+                        "initialAction": {
+                            "name": {"ru": "Создать", "en": "Create"},
+                            "target": "new",
+                        },
                         "steps": [{"status": "new"}],
                     },
                 ),
@@ -235,7 +241,7 @@ CASES = [
                 name="QA process",
                 type="VISUAL",
                 initial_action=WorkflowActionInput(
-                    id="new", name=LocalizedText(en="Create"), target="new"
+                    id="new", name=LocalizedText(ru="Создать", en="Create"), target="new"
                 ),
                 steps=[WorkflowStepInput(status="new", status_type="NEW")],
                 issue_type_resolutions=[
@@ -254,7 +260,7 @@ CASES = [
             "--name",
             "QA process",
             "--initial-action",
-            '{"id": "new", "name": {"en": "Create"}, "target": "new"}',
+            '{"id": "new", "name": {"ru": "Создать", "en": "Create"}, "target": "new"}',
             "--step",
             '{"status": "new", "statusType": "NEW"}',
             "--visual",
@@ -269,7 +275,11 @@ CASES = [
                 "body": {
                     "name": "QA process",
                     "type": "VISUAL",
-                    "initialAction": {"id": "new", "name": {"en": "Create"}, "target": "new"},
+                    "initialAction": {
+                        "id": "new",
+                        "name": {"ru": "Создать", "en": "Create"},
+                        "target": "new",
+                    },
                     "steps": [{"status": "new", "statusType": "NEW"}],
                     "issueTypeResolutions": [RESOLUTIONS],
                 },
@@ -284,7 +294,11 @@ CASES = [
                     {
                         "name": "QA process",
                         "type": "VISUAL",
-                        "initialAction": {"id": "new", "name": {"en": "Create"}, "target": "new"},
+                        "initialAction": {
+                            "id": "new",
+                            "name": {"ru": "Создать", "en": "Create"},
+                            "target": "new",
+                        },
                         "steps": [{"status": "new", "statusType": "NEW"}],
                         "issueTypeResolutions": [RESOLUTIONS],
                     },
