@@ -1,7 +1,11 @@
+---
+type: how-to
+---
+
 # Install in your harness
 
 Every harness gets the same MCP server under the same key, `yandex-360`, with the same two
-variables. Set them once in your shell (see [Configure](../README.md#configure)); no value below
+variables. Set them once in your shell (see [Authenticate](authenticate.md)); no value below
 contains a credential.
 
 ```bash
@@ -25,7 +29,7 @@ export YANDEX_ID_ORGANIZATION_ID=...    # Yandex 360 organization id
 
 Every command below starts the server as `uvx --from 'yandex-cli[mcp]' ycli mcp start`: no prior
 install, always the latest release. Pin it with `yandex-cli[mcp]==<version>` if you want a fixed
-one. For fewer tools or a reads-only view, see the MCP section of the [README](../README.md).
+one. For fewer tools or a reads-only view, see [Serve the MCP server](serve-the-mcp-server.md).
 
 ## Claude Code
 
@@ -168,7 +172,7 @@ startup_timeout_sec = 60   # the first uvx run downloads the package
 | Surface | Works | Why |
 |---|---|---|
 | Codex (CLI, desktop, IDE) | yes | local stdio, see [Codex CLI](#codex-cli) |
-| ChatGPT on the web | with your own server | it connects to remote HTTPS MCP servers only: run `ycli mcp start --transport http` behind HTTPS, see [Self-host over HTTP](self-host.md); there is no public ycli instance |
+| ChatGPT on the web | with your own server | it connects to remote HTTPS MCP servers only: run `ycli mcp start --transport http` behind HTTPS, see [Self-host over HTTP](self-host-over-http.md); there is no public ycli instance |
 
 ## Docker
 

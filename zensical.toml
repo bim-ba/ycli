@@ -1,0 +1,104 @@
+# The documentation site; `nav` sets the page order and tests/test_docs_site.py checks it.
+
+[project]
+site_name = "ycli"
+site_description = "Yandex 360 (Tracker, Wiki, Forms) from a CLI, an MCP server and a Python SDK."
+site_url = "https://bim-ba.github.io/ycli/"
+repo_url = "https://github.com/bim-ba/ycli"
+repo_name = "bim-ba/ycli"
+edit_uri = "edit/main/docs/en/"
+docs_dir = "docs/en"
+site_dir = "site"
+strict = true
+nav = [
+  { "Home" = "index.md" },
+  { "Tutorials" = [
+    "tutorials/first-steps.md",
+  ] },
+  { "How-to guides" = [
+    "how-to/authenticate.md",
+    "how-to/install-in-your-harness.md",
+    "how-to/serve-the-mcp-server.md",
+    "how-to/self-host-over-http.md",
+    "how-to/script-the-cli.md",
+    "how-to/call-an-unwrapped-endpoint.md",
+  ] },
+  { "Reference" = [
+    "reference/configuration.md",
+    { "CLI" = [
+      "reference/cli/index.md",
+      "reference/cli/tracker.md",
+      "reference/cli/wiki.md",
+      "reference/cli/forms.md",
+      "reference/cli/auth.md",
+      "reference/cli/mcp.md",
+      "reference/cli/api.md",
+    ] },
+    { "MCP tools" = [
+      "reference/mcp/tracker.md",
+      "reference/mcp/wiki.md",
+      "reference/mcp/forms.md",
+      "reference/mcp/other.md",
+    ] },
+    { "Python SDK" = [
+      "reference/sdk/tracker.md",
+      "reference/sdk/wiki.md",
+      "reference/sdk/forms.md",
+    ] },
+  ] },
+  { "Explanation" = [
+    "explanation/design.md",
+  ] },
+]
+
+[project.theme]
+language = "en"
+features = [
+  "content.code.copy",
+  "navigation.indexes",
+  "navigation.sections",
+  "navigation.tabs",
+  "navigation.top",
+  "search.highlight",
+  "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle = { icon = "lucide/sun", name = "Switch to dark mode" }
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle = { icon = "lucide/moon", name = "Switch to light mode" }
+
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.tables]
+[project.markdown_extensions.toc]
+permalink = true
+[project.markdown_extensions.pymdownx.details]
+[project.markdown_extensions.pymdownx.highlight]
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+docstring_section_style = "table"
+heading_level = 3
+members_order = "source"
+merge_init_into_class = true
+separate_signature = true
+show_root_heading = true
+show_root_full_path = false
+show_signature_annotations = true
+show_source = false
+signature_crossrefs = true
+filters = ["!^_"]

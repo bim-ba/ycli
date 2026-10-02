@@ -1,0 +1,49 @@
+---
+type: reference
+---
+
+# Configuration
+
+ycli reads its settings from the environment, or from a `.env` file in the working directory.
+An invalid value fails at startup, naming the variable (exit code 2).
+
+## Credentials
+
+| Variable | Meaning |
+|---|---|
+| `YANDEX_ID_OAUTH_TOKEN` | a Yandex OAuth token with Tracker, Wiki and Forms access (fallback name `YCLI__AUTH__OAUTH_TOKEN`) |
+| `YANDEX_ID_ORGANIZATION_ID` | the Yandex 360 organization id, sent as `X-Org-Id` (fallback name `YCLI__AUTH__ORGANIZATION_ID`) |
+| `YANDEX_OAUTH_CLIENT_ID` | your OAuth app's id, for `ycli auth login` |
+| `YANDEX_OAUTH_CLIENT_SECRET` | your OAuth app's secret: enables the device flow of `ycli auth login` |
+
+An exported but empty variable counts as unset. See [Authenticate](../how-to/authenticate.md).
+
+## Settings
+
+Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `YCLI__HTTP__TIMEOUT_SECONDS` | `30` | per-request timeout, seconds (> 0) |
+| `YCLI__HTTP__RETRIES` | `3` | retries of an idempotent request after a 429 or a 5xx (≥ 0) |
+| `YCLI__HTTP__MAX_ITEMS` | `500` | item cap of a listing without `--limit` or `--all` (> 0) |
+| `YCLI__LOGGING__LEVEL` | `WARNING` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`; `-v` means `INFO` (every HTTP request), `-vv` means `DEBUG` |
+| `YCLI__LOGGING__FORMAT` | `text` | `text` or `json` (one object per line); logs always go to stderr |
+
+The settings of the HTTP transport (`YCLI__MCP__*`) are in
+[Self-host over HTTP](../how-to/self-host-over-http.md).
+
+## Exit codes
+
+A failed command exits with a code that says what kind of failure it was, so a script can branch
+without parsing the message.
+
+| Code | Meaning | When |
+|---|---|---|
+| 0 | ok | the command succeeded |
+| 1 | failure | any other failure: a 4xx the API rejected, an unmapped error, a declined confirmation |
+| 2 | usage | a bad command line or an invalid `YCLI__…` setting |
+| 3 | not found | the API answered 404, or the token cannot see the object |
+| 4 | auth | 401 or 403, or no credentials |
+| 5 | rate limited | the API answered 429 and the retries ran out (the hint shows `Retry-After`) |
+| 6 | transient | a 5xx, a timeout or a lost connection: worth retrying later |

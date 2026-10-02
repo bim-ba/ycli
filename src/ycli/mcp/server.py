@@ -131,7 +131,7 @@ def serve_http(selection: Selection, host: str | None = None, port: int | None =
     Reads ``YCLI__MCP__*`` (:class:`~ycli.settings.MCPHTTPConfig`) and the Yandex OAuth app
     (``YANDEX_OAUTH_CLIENT_ID`` / ``YANDEX_OAUTH_CLIENT_SECRET``); ``host`` / ``port`` override
     the configured ones. Requests are stateless; the OAuth state lives in ``FASTMCP_HOME``,
-    so one process serves (docs/self-host.md).
+    so one process serves (docs/en/how-to/self-host-over-http.md).
 
     Args:
         selection: Which services and tools to serve, and how.
