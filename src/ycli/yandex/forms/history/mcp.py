@@ -10,7 +10,6 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, app_config, forms_client
 from ycli.yandex.forms.history.models import HistoryEventList
-from ycli.yandex.pagination import resolve_cap
 
 mcp = FastMCP("forms-history")
 
@@ -30,5 +29,5 @@ def list_(
 
     Capped at the configured item cap unless ``limit`` is given.
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.history.list(survey_id, ordering=ordering, limit=cap)

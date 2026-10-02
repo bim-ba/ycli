@@ -11,7 +11,6 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.history.models import HistoryEventList
 from ycli.yandex.forms.typedefs import SurveyIdArg
-from ycli.yandex.pagination import resolve_cap
 
 app = typer.Typer(name="history", help="Forms change log.", no_args_is_help=True)
 
@@ -29,5 +28,5 @@ def list_(
     forms: FormsClient,
 ) -> HistoryEventList:
     """List the changes made to form SURVEY_ID (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return forms.history.list(survey_id, ordering=ordering or None, limit=cap)

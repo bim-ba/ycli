@@ -16,7 +16,6 @@ from ycli.yandex.forms.notifications.models import (
     NotificationList,
     NotificationStatus,
 )
-from ycli.yandex.pagination import resolve_cap
 
 mcp = FastMCP("forms-notifications")
 
@@ -69,7 +68,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given. Read one run's context,
     response and error with ``notifications_get``.
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.notifications.list(
         survey_id=survey_id,
         hook_id=hook_id,

@@ -17,7 +17,6 @@ from ycli.yandex.forms.notifications.models import (
     NotificationStatus,
 )
 from ycli.yandex.forms.typedefs import NotificationIdArg, SurveyIdArg
-from ycli.yandex.pagination import resolve_cap
 
 app = typer.Typer(
     name="notifications", help="Forms integration runs (notifications).", no_args_is_help=True
@@ -57,7 +56,7 @@ def list_(
     forms: FormsClient,
 ) -> NotificationList:
     """List integration runs, filtered (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return forms.notifications.list(
         survey_id=survey_id or None,
         hook_id=hook_id,
