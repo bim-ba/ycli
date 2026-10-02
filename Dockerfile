@@ -5,12 +5,14 @@
 # interpreter link holds.
 
 FROM ghcr.io/astral-sh/uv:0.12.22-python3.12-trixie-slim AS build
-# The locked dependency set CI tested, installed (not editable) into /opt/ycli.
+# The locked dependency set CI tested, installed (not editable) into /opt/ycli. --frozen, not
+# --locked: the release builds from its tag, where pyproject already has the new version and the
+# re-lock commit that follows the tag has not touched uv.lock yet; the dependencies are the same.
 ENV UV_PROJECT_ENVIRONMENT=/opt/ycli UV_COMPILE_BYTECODE=1 UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy
 WORKDIR /src
 COPY pyproject.toml uv.lock README.md LICENSE CHANGELOG.md ./
 COPY src ./src
-RUN uv sync --locked --no-dev --extra mcp --no-editable --no-cache
+RUN uv sync --frozen --no-dev --extra mcp --no-editable --no-cache
 
 FROM python:3.12-slim-trixie
 LABEL org.opencontainers.image.title="ycli" \
