@@ -247,17 +247,33 @@ def test_coverage_gaps_bite():
         mcp=None,
         exchanges=[(Sent("GET", "users/me"), Reply())],
     )
+    nested = Case(
+        "forms.conditions.page_list",
+        cli=["forms", "conditions", "page", "list", "686d", "3"],
+        mcp=None,
+        exchanges=[(Sent("GET", "surveys/686d/pages/3/conditions"), Reply())],
+    )
     gaps = coverage_gaps(
-        [case],
-        {"forms.me.get", "forms.me.list"},
-        {"forms me get", "forms me list"},
+        [case, nested],
+        {"forms.me.get", "forms.me.list", "forms.conditions.page_list"},
+        {
+            "forms me get",
+            "forms me list",
+            "forms conditions page",
+            "forms conditions page list",
+            "forms conditions page get",
+        },
         {"forms_me_get"},
     )
     assert gaps == {
         "operations without a case": ["forms.me.list"],
         "operations no CLI case reaches": ["forms.me.list"],
-        "operations no MCP case reaches": ["forms.me.get", "forms.me.list"],
-        "commands without a case": ["forms me list"],
+        "operations no MCP case reaches": [
+            "forms.conditions.page_list",
+            "forms.me.get",
+            "forms.me.list",
+        ],
+        "commands without a case": ["forms conditions page get", "forms me list"],
         "tools without a case": ["forms_me_get"],
         "cases of unknown operations": [],
     }

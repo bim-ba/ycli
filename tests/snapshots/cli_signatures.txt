@@ -3,6 +3,30 @@ auth status
 forms answers export: --column:TEXT --finished-at:TEXT='' --format:TEXT='xlsx' --limit:INTEGER=0 --output:TEXT --pk:INTEGER --started-at:TEXT='' --upload-files:BOOLEAN --upload:TEXT='default' --wait:BOOLEAN=True SURVEY_ID:TEXT!
 forms answers get: --answer-id:INTEGER=0 --answer-key:TEXT=''
 forms answers list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 SURVEY_ID:TEXT!
+forms conditions hook create: --body-file:PATH --item:TEXT --operator:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook delete: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook get: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook list: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions hook set-operator: --operator:TEXT! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page create: --body-file:PATH --item:TEXT --operator:TEXT='' PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page delete: CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page get: CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page list: PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions page set-operator: --operator:TEXT! PAGE_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions question create: --body-file:PATH --item:TEXT --operator:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question delete: CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question get: CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question list: QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions question set-operator: --operator:TEXT! QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms conditions submit create: --body-file:PATH --item:TEXT --operator:TEXT='' SURVEY_ID:TEXT!
+forms conditions submit delete: CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions submit get: CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions submit list: SURVEY_ID:TEXT!
+forms conditions submit modify: --body-file:PATH --item:TEXT --operator:TEXT='' CONDITION_ID:INTEGER! SURVEY_ID:TEXT!
+forms conditions submit set-operator: --operator:TEXT! SURVEY_ID:TEXT!
 forms files delete: --path:TEXT='' --url:TEXT=''
 forms files download: --download:BOOLEAN=False --hash:TEXT='' --output:TEXT --path:TEXT!
 forms files upload: FILE_PATH:PATH! SURVEY_ID:TEXT!

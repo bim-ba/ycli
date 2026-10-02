@@ -3,6 +3,7 @@
 from fastmcp import FastMCP
 
 from ycli.yandex.forms.answers.mcp import mcp as answers_mcp
+from ycli.yandex.forms.conditions.mcp import mcp as conditions_mcp
 from ycli.yandex.forms.files.mcp import mcp as files_mcp
 from ycli.yandex.forms.filling.mcp import mcp as filling_mcp
 from ycli.yandex.forms.images.mcp import mcp as images_mcp
@@ -25,6 +26,7 @@ mcp = FastMCP(
 mcp.mount(me_mcp)
 mcp.mount(surveys_mcp)
 mcp.mount(questions_mcp)
+mcp.mount(conditions_mcp)
 mcp.mount(answers_mcp)
 mcp.mount(keysets_mcp)
 mcp.mount(operations_mcp)

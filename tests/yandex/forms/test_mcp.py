@@ -22,6 +22,26 @@ SID = "686d0a1b2c3d4e5f00000080"
         ),
         ("forms_operations_get", {"operation_id": "op-1"}, "operations/op-1"),
         ("forms_filling_get", {"survey": SID}, f"surveys/{SID}/form"),
+        (
+            "forms_conditions_question_get",
+            {"survey_id": SID, "question_id": "17", "condition_id": 5},
+            f"surveys/{SID}/questions/17/conditions/5",
+        ),
+        (
+            "forms_conditions_page_get",
+            {"survey_id": SID, "page_id": 3, "condition_id": 6},
+            f"surveys/{SID}/pages/3/conditions/6",
+        ),
+        (
+            "forms_conditions_submit_get",
+            {"survey_id": SID, "condition_id": 7},
+            f"surveys/{SID}/conditions/7",
+        ),
+        (
+            "forms_conditions_hook_get",
+            {"survey_id": SID, "hook_id": 11, "condition_id": 8},
+            f"surveys/{SID}/hooks/11/conditions/8",
+        ),
     ],
 )
 async def test_an_empty_answer_is_an_error(api, tool, arguments, url):

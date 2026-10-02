@@ -1,0 +1,1 @@
+{"operator": "or", "items": [{"type": "origin", "condition": "neq", "value": "partner-site"}]}

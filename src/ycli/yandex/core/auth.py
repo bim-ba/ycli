@@ -28,7 +28,7 @@ import json
 import threading
 import time
 import weakref
-from datetime import datetime  # noqa: TC003  # pydantic reads the field type at runtime
+from datetime import datetime  # pydantic reads the field type at runtime
 from pathlib import Path
 from typing import TYPE_CHECKING
 

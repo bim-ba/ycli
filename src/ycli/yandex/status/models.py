@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.account import Account  # noqa: TC001  # pydantic resolves field types at runtime
+from ycli.yandex.account import Account  # pydantic resolves field types at runtime
 from ycli.yandex.models import APIModel
 
 
