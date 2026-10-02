@@ -11,20 +11,28 @@ from ycli.yandex.wiki.grids import endpoints
 if TYPE_CHECKING:
     from ycli.yandex.wiki.grids.models import (
         CellsUpdateResult,
+        ColumnSuggestion,
+        ColumnUpdateResult,
         Grid,
         GridCloneOperation,
         RevisionResult,
         RowsAddResult,
+        RowUpdateResult,
     )
 
 
 class GridsClient(Resource):
     """``/grids`` — dynamic tables (CRUD + rows/columns/cells + clone).
 
-    Reads: :meth:`get`. Writes (SDK/CLI only): :meth:`create`, :meth:`update`, :meth:`delete`,
-    the row/column add/remove/move calls, :meth:`update_cells`, and the async :meth:`clone`.
+    Reads: :meth:`get`, :meth:`suggest_column`. Writes: :meth:`create`, :meth:`update`,
+    :meth:`delete`, the row/column add/remove/move calls, :meth:`update_cells`, the async
+    :meth:`clone`, :meth:`update_column` and :meth:`update_row`.
     Every mutating body carries a ``revision`` for optimistic locking except ``create`` (no prior
-    revision) and ``clone`` (a deferred trigger).
+    revision) and ``clone`` (a deferred trigger); ``update_column`` and ``update_row`` take one but
+    the API does not enforce it there.
+
+    ``suggest_column``, ``update_column`` and ``update_row`` call operations Yandex does not
+    document (they are in the live OpenAPI only), so their contract may change without notice.
     """
 
     def get(
@@ -213,3 +221,52 @@ class GridsClient(Resource):
             'task-1'
         """
         return self._session.send(endpoints.clone_grid(grid_id, body))
+
+    def suggest_column(self, grid_id: str, body: dict[str, Any]) -> ColumnSuggestion:
+        """``POST /grids/{id}/columns/suggest`` — is a column slug free? (undocumented, may change).
+
+        A read despite the POST: it changes nothing. ``body`` is a dumped :class:`ColumnSuggest`
+        (``{title?, slug?}``); a ``title`` is turned into a slug first. The reply says whether the
+        slug is ``occupied`` and lists free alternatives.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.grids.suggest_column("g-uuid", {"title": "Owner"}).occupied  # doctest: +SKIP
+            False
+        """
+        return self._session.send(endpoints.suggest_column(grid_id, body))
+
+    def update_column(
+        self, grid_id: str, column_slug: str, body: dict[str, Any]
+    ) -> ColumnUpdateResult:
+        """``POST /grids/{id}/column/{slug}`` — edit a column in place (undocumented, may change).
+
+        The only way to change a column after creating it; its ``type`` and ``slug`` stay. ``body``
+        is a dumped :class:`ColumnUpdate`: only the fields sent change. ``revision`` is accepted but
+        not enforced (a stale or missing one works) and every call moves the grid's revision on.
+        Returns the new revision and the column as saved.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.grids.update_column(
+            ...     "g-uuid", "owner", {"revision": "3", "title": "Lead"}
+            ... ).column.title  # doctest: +SKIP
+            'Lead'
+        """
+        return self._session.send(endpoints.update_column(grid_id, column_slug, body))
+
+    def update_row(self, grid_id: str, row_id: str, body: dict[str, Any]) -> RowUpdateResult:
+        """``POST /grids/{id}/rows/{row_id}`` — pin or colour one row (undocumented, may change).
+
+        ``body`` is a dumped :class:`RowUpdate` (``{revision?, pinned?, color?}``). The reply is a
+        bare acknowledgement without the new revision (read it with :meth:`get`); ``revision`` is
+        accepted but not enforced, and every call moves the grid's revision on.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.grids.update_row(
+            ...     "g-uuid", "7", {"revision": "3", "pinned": True}
+            ... ).status  # doctest: +SKIP
+            'ok'
+        """
+        return self._session.send(endpoints.update_row(grid_id, row_id, body))

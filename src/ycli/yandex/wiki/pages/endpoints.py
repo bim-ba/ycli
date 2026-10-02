@@ -17,13 +17,17 @@ from typing import Any
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.pages.models import (
+    BacklinksResponse,
     DescendantsResponse,
     GridRef,
     GridsResponse,
     PageCloneOperation,
     PageDeleteResult,
     PageDetails,
+    PageMoveOperation,
     PageRef,
+    PageRevision,
+    RevisionsResponse,
 )
 
 
@@ -84,3 +88,35 @@ def append_content(page_id: int, body: dict[str, Any]) -> Endpoint[PageDetails]:
 
 def clone_page(page_id: int, body: dict[str, Any]) -> Endpoint[PageCloneOperation]:
     return Endpoint("POST", f"pages/{segment(page_id)}/clone", PageCloneOperation, json=body)
+
+
+def move_pages(body: dict[str, Any], *, dry_run: bool) -> Endpoint[PageMoveOperation]:
+    """``POST /pages/move`` (undocumented): a new address for pages; ``dry_run`` only validates."""
+    params = {"dry_run": "true" if dry_run else None}
+    return Endpoint("POST", "pages/move", PageMoveOperation, params=params, json=body)
+
+
+def list_revisions(page_id: int, *, ids: str | None) -> Paged[RevisionsResponse, PageRevision]:
+    """``GET /pages/{id}/revisions`` (undocumented): newest-first revisions, 50 a page at most."""
+    params = {"page_size": 50, "ids": ids}
+    return Paged(
+        Endpoint("GET", f"pages/{segment(page_id)}/revisions", RevisionsResponse, params=params),
+        WIKI_CURSOR,
+        lambda page: page.results,
+    )
+
+
+def list_backlinks(
+    page_id: int, *, for_cluster: bool, show_all: bool
+) -> Paged[BacklinksResponse, PageRef]:
+    """``GET /pages/{id}/backlinks`` (undocumented): the pages that link to this one."""
+    params = {
+        "page_size": 100,
+        "for_cluster": "true" if for_cluster else None,
+        "show_all": "true" if show_all else None,
+    }
+    return Paged(
+        Endpoint("GET", f"pages/{segment(page_id)}/backlinks", BacklinksResponse, params=params),
+        WIKI_CURSOR,
+        lambda page: page.results,
+    )

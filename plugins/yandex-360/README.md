@@ -9,7 +9,7 @@ the [`ycli`](../../README.md) toolchain — its CLI, its MCP server, or its Pyth
 |-------|---------|
 | `yandex-360` | Entry point — install + auth, pick a surface (CLI/MCP/SDK), route to a domain |
 | `yandex-360-tracker` | Issues, epics, comments, transitions, links, worklog, changelog |
-| `yandex-360-wiki` | Wiki pages, full-text search, page tree, comments, attachments, page access, YFM authoring |
+| `yandex-360-wiki` | Wiki pages, full-text search, page tree, page moves, revisions, backlinks, comments, attachments, page access, YFM authoring |
 | `yandex-360-forms` | Forms, questions/schema, responses, publishing |
 
 The skills cover the read/write commands — on all three surfaces (CLI, MCP, SDK) — and,

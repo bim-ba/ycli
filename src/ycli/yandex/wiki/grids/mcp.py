@@ -27,6 +27,10 @@ from ycli.yandex.wiki.grids.models import (
     ColumnsAdd,
     ColumnsMove,
     ColumnsRemove,
+    ColumnSuggest,
+    ColumnSuggestion,
+    ColumnUpdate,
+    ColumnUpdateResult,
     Grid,
     GridClone,
     GridCloneOperation,
@@ -37,6 +41,8 @@ from ycli.yandex.wiki.grids.models import (
     RowsAddResult,
     RowsMove,
     RowsRemove,
+    RowUpdate,
+    RowUpdateResult,
 )
 
 mcp = FastMCP("wiki-grids")
@@ -365,3 +371,88 @@ def clone(
         >>> clone(grid_id="g-uuid", body={"target": "data/y"})  # doctest: +SKIP
     """
     return client.grids.clone(grid_id, body=body.model_dump(exclude_none=True))
+
+
+@mcp.tool(
+    name="grids_suggest_column",
+    annotations={**RO, "title": "Suggest Wiki grid column slug"},
+    tags=TAGS,
+)
+def suggest_column(
+    grid_id: GridIdParam,
+    body: Annotated[
+        ColumnSuggest,
+        Field(description="``slug`` to check, or a ``title`` to turn into a slug and check."),
+    ],
+    client: WikiClient = Depends(wiki_client),
+) -> ColumnSuggestion:
+    """Check whether a column slug is free in a grid and get free alternatives (read-only).
+
+    The call is a POST but changes nothing. Yandex does not document this operation (it is in
+    the live OpenAPI only) and may change it.
+
+    Example:
+        >>> suggest_column(grid_id="g-uuid", body={"title": "Owner"})  # doctest: +SKIP
+    """
+    return client.grids.suggest_column(grid_id, body=body.model_dump(exclude_none=True))
+
+
+@mcp.tool(
+    name="grids_update_column",
+    annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid column"},
+    tags=WRITE_TAGS,
+)
+def update_column(
+    grid_id: GridIdParam,
+    column_slug: Annotated[str, Field(description="Slug of the column to edit.")],
+    body: Annotated[
+        ColumnUpdate,
+        Field(
+            description="The fields to change (``title``, ``description``, ``required``, "
+            "``width``, ``color``, ``pinned``, ``select_options``, …); ``revision`` is optional."
+        ),
+    ],
+    client: WikiClient = Depends(wiki_client),
+) -> ColumnUpdateResult:
+    """Edit a grid column in place: only the fields sent change; its type and slug stay.
+
+    Repeating the same call leaves the same column (idempotent). ``revision`` is accepted but not
+    enforced, and every call moves the grid's revision on. Returns the grid's new ``revision`` and
+    the column as saved. Yandex does not document this operation (it is in the
+    live OpenAPI only) and may change it.
+
+    Example:
+        >>> update_column(
+        ...     grid_id="g-uuid", column_slug="owner", body={"revision": "3", "title": "Lead"}
+        ... )  # doctest: +SKIP
+    """
+    return client.grids.update_column(grid_id, column_slug, body=body.model_dump(exclude_none=True))
+
+
+@mcp.tool(
+    name="grids_update_row",
+    annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid row"},
+    tags=WRITE_TAGS,
+)
+def update_row(
+    grid_id: GridIdParam,
+    row_id: Annotated[str, Field(description="Id of the row to pin or colour.")],
+    body: Annotated[
+        RowUpdate,
+        Field(description="``pinned`` and/or ``color`` to set; ``revision`` is optional."),
+    ],
+    client: WikiClient = Depends(wiki_client),
+) -> RowUpdateResult:
+    """Pin or colour one grid row (cell values are set by ``grids_update_cells``).
+
+    Repeating the same call leaves the same row (idempotent). The reply is a bare acknowledgement
+    without the new revision (read it with ``grids_get``); ``revision`` is accepted but not
+    enforced. Yandex does not document this operation (it is in the live OpenAPI only) and may
+    change it.
+
+    Example:
+        >>> update_row(
+        ...     grid_id="g-uuid", row_id="7", body={"revision": "3", "pinned": True}
+        ... )  # doctest: +SKIP
+    """
+    return client.grids.update_row(grid_id, row_id, body=body.model_dump(exclude_none=True))

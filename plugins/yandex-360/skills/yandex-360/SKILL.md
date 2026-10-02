@@ -80,7 +80,7 @@ Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 | Task is about… | Load |
 |----------------|------|
 | Issues, epics, comments, transitions, links, worklog, changelog | **`yandex-360-tracker`** |
-| Wiki pages, full-text search, page tree, comments, attachments, page access, YFM authoring | **`yandex-360-wiki`** |
+| Wiki pages, full-text search, page tree, page moves, revisions, backlinks, comments, attachments, page access, YFM authoring | **`yandex-360-wiki`** |
 | Forms, questions/schema, responses, publishing | **`yandex-360-forms`** |
 
 Each domain skill documents its CLI commands, MCP tools, SDK client, and the API quirks

@@ -12,11 +12,16 @@ from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ycli.yandex.wiki.attachments.models import AttachedFile
     from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 
 
 class AttachmentsClient(Resource):
-    """``/pages/{id}/attachments``: list, attach, upload, delete and binary download."""
+    """``/pages/{id}/attachments``: list, get, attach, upload, delete, download and preview.
+
+    ``get`` and ``preview`` call operations Yandex does not document (they are in the live OpenAPI
+    only), so their contract may change without notice.
+    """
 
     def list(self, page_id: int, *, limit: int | None = None) -> AttachmentList:
         """``GET /pages/{id}/attachments`` → flat :class:`AttachmentList`, draining ``next_cursor``.
@@ -30,6 +35,35 @@ class AttachmentsClient(Resource):
         """
         paged = endpoints.list_attachments(page_id)
         return AttachmentList(list(self._session.iterate(paged, limit=limit)))
+
+    def get(self, page_id: int, file_id: int) -> AttachedFile:
+        """``GET /pages/{id}/attachments/{file_id}`` → one attachment's metadata.
+
+        Undocumented by Yandex (live OpenAPI only), may change. The same descriptor ``attach``
+        returns: name, size, MIME type, download URL, preview flag and virus-check status.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.attachments.get(12345, 678).mimetype  # doctest: +SKIP
+            'image/png'
+        """
+        return self._session.send(endpoints.get_attachment(page_id, file_id))
+
+    def preview(self, page_id: int, file_id: int) -> bytes:
+        """``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
+
+        Undocumented by Yandex (live OpenAPI only), may change. The bytes are returned as sent.
+        For a file with no preview (``has_preview`` is false: not an image, say) the API sends
+        ``200 image/png`` with the *base64 text* of a 1-pixel PNG instead of the PNG itself.
+        Binary payload — SDK/CLI only.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> Path("preview.png").write_bytes(
+            ...     client.attachments.preview(12345, 678)
+            ... )  # doctest: +SKIP
+        """
+        return self._session.send(endpoints.preview_attachment(page_id, file_id))
 
     def download(self, page_id: int, file_id: int) -> bytes:
         """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.

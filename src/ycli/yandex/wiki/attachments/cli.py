@@ -11,7 +11,7 @@ from ycli.cli.output import BinaryResult
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
+from ycli.yandex.wiki.attachments.models import AttachedFile, AttachedFileList, AttachmentList
 from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
@@ -34,6 +34,33 @@ def list_(
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.attachments.list(page_id=page_id, limit=cap)
+
+
+@app.command()
+def get(
+    page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    file_id: Annotated[int, typer.Argument(metavar="FILE_ID", help="Numeric attachment id.")],
+    *,
+    wiki: WikiClient,
+) -> AttachedFile:
+    """Show one attachment's metadata (GET /pages/{id}/attachments/{file_id}); undocumented API."""
+    return wiki.attachments.get(page_id=page_id, file_id=file_id)
+
+
+@app.command()
+def preview(
+    page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    file_id: Annotated[int, typer.Argument(metavar="FILE_ID", help="Numeric attachment id.")],
+    output: OutputOption = None,
+    *,
+    wiki: WikiClient,
+) -> BinaryResult:
+    """Save an attachment's preview image to --output (or stdout); undocumented API.
+
+    A file with no preview (``attachments get`` says ``has_preview: false``) comes back as the
+    base64 text of a 1-pixel PNG, not an image.
+    """
+    return BinaryResult(wiki.attachments.preview(page_id=page_id, file_id=file_id), output)
 
 
 @app.command()

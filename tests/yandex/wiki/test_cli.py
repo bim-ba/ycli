@@ -91,6 +91,51 @@ def test_clone_waits_for_the_operation_by_default(api, argv, trigger, status_pat
     assert [request.method for request in api.calls] == ["POST", "GET"]
 
 
+def test_move_waits_for_the_operation_by_default(api):
+    api.add("POST", f"{BASE}/pages/move", json={"operation": {"type": "move", "id": "task-9"}})
+    api.add(
+        "GET",
+        f"{BASE}/operations/move/task-9",
+        json={"status": "success", "result": {"page_count": 3}},
+    )
+    res = CliRunner().invoke(cli.app, ["--format", "json", "wiki", "pages", "move", "a/x", "b/x"])
+    assert res.exit_code == 0, res.output
+    printed = json.loads(res.stdout)
+    assert printed["status"] == "success"
+    assert printed["result"] == {"page_count": 3}
+    assert [request.method for request in api.calls] == ["POST", "GET"]
+
+
+def test_move_without_an_operation_id_prints_the_trigger_reply(api):
+    api.add("POST", f"{BASE}/pages/move", json={"status_url": "u"})
+    res = CliRunner().invoke(cli.app, ["--format", "json", "wiki", "pages", "move", "a/x", "b/x"])
+    assert res.exit_code == 0, res.output
+    assert json.loads(res.stdout)["status_url"] == "u"
+    assert len(api.calls) == 1
+
+
+@pytest.mark.parametrize(
+    ("argv", "refused"),
+    [
+        (
+            ["pages", "move", "a", "b", "--next-to", "c", "--position", "inside"],
+            ("position", "literal_error"),
+        ),
+        (["grids", "rows", "update", GID, "1", "--color", "teal"], ("color", "literal_error")),
+        (["grids", "columns", "update", GID, "c", "--pinned", "top"], ("pinned", "literal_error")),
+        (
+            ["grids", "columns", "update", GID, "c", "--width-units", "em"],
+            ("width_units", "literal_error"),
+        ),
+        (["grids", "columns", "suggest", GID], ("", "value_error")),
+        (["grids", "columns", "suggest", GID, "--title", "A", "--slug", "a"], ("", "value_error")),
+    ],
+)
+def test_undocumented_writes_refuse_what_the_api_would_before_sending(api, argv, refused):
+    assert _refused(argv) == [refused]
+    assert api.calls == []
+
+
 def test_clone_without_an_operation_id_prints_the_trigger_reply(api):
     api.add("POST", f"{BASE}/pages/42/clone", json={"status_url": "u"})
     res = CliRunner().invoke(

@@ -16,11 +16,14 @@ class Attachment(APIModel):
 
     Example:
         >>> Attachment.model_validate(
-        ...     {"name": "d.png", "size": "0.00", "mimetype": "image/png"}
-        ... ).mimetype
-        'image/png'
+        ...     {"id": 7, "name": "d.png", "size": "0.00", "mimetype": "image/png"}
+        ... ).id
+        7
     """
 
+    id: int | None = Field(
+        default=None, description="Numeric id of the attachment (the ``file_id`` other calls take)."
+    )
     name: str | None = None
     size: str | None = None
     mimetype: str | None = None

@@ -57,6 +57,18 @@ _ACCESS_FIELDS = {
     "owner": {"user": _PERSON, "group": None},
 }
 
+
+def _revision(revision_id: int, created_at: str, status: str | None) -> dict[str, object]:
+    return {
+        "id": revision_id,
+        "author": _PERSON,
+        "created_at": created_at,
+        "page_type": "wysiwyg",
+        "revision_draft": None,
+        "publication": {"status": status} if status else None,
+    }
+
+
 CASES = [
     Case(
         "wiki.pages.get",
@@ -492,5 +504,233 @@ CASES = [
                 Reply(json={"operation": {"type": "clone", "id": "task-4702"}}),
             )
         ],
+    ),
+    # POST /pages/move (undocumented): a dry run is never polled, so the default --wait is safe.
+    Case(
+        "wiki.pages.move",
+        args=(
+            {
+                "operations": [
+                    {
+                        "source": "eng/old-plan",
+                        "target": "archive/plan",
+                        "next_to_slug": "archive/first",
+                        "position": "after",
+                    }
+                ],
+                "copy_inherited_access": True,
+            },
+        ),
+        kwargs={"dry_run": True},
+        cli=[
+            "wiki",
+            "pages",
+            "move",
+            "eng/old-plan",
+            "archive/plan",
+            "--next-to",
+            "archive/first",
+            "--position",
+            "after",
+            "--copy-inherited-access",
+            "--dry-run",
+        ],
+        mcp=(
+            "wiki_pages_move",
+            {
+                "body": {
+                    "operations": [
+                        {
+                            "source": "eng/old-plan",
+                            "target": "archive/plan",
+                            "next_to_slug": "archive/first",
+                            "position": "after",
+                        }
+                    ],
+                    "copy_inherited_access": True,
+                },
+                "dry_run": True,
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "pages/move",
+                    {"dry_run": "true"},
+                    json={
+                        "operations": [
+                            {
+                                "source": "eng/old-plan",
+                                "target": "archive/plan",
+                                "next_to_slug": "archive/first",
+                                "position": "after",
+                            }
+                        ],
+                        "copy_inherited_access": True,
+                    },
+                ),
+                Reply(
+                    json={
+                        "operation": {"type": "move", "id": "mv-6101"},
+                        "status_url": "/v1/operations/move/mv-6101",
+                        "dry_run": True,
+                    }
+                ),
+            )
+        ],
+    ),
+    # The API refuses a move that does not say whether to copy inherited access, so the default
+    # is an explicit false on every surface.
+    Case(
+        "wiki.pages.move",
+        args=(
+            {
+                "operations": [{"source": "eng/b", "target": "eng/c"}],
+                "copy_inherited_access": False,
+            },
+        ),
+        cli=["wiki", "pages", "move", "eng/b", "eng/c", "--no-wait"],
+        mcp=(
+            "wiki_pages_move",
+            {"body": {"operations": [{"source": "eng/b", "target": "eng/c"}]}},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "pages/move",
+                    json={
+                        "operations": [{"source": "eng/b", "target": "eng/c"}],
+                        "copy_inherited_access": False,
+                    },
+                ),
+                Reply(
+                    json={
+                        "operation": {"type": "move", "id": "mv-6102"},
+                        "status_url": "/v1/operations/move/mv-6102",
+                        "dry_run": False,
+                    }
+                ),
+            )
+        ],
+    ),
+    # GET /pages/{id}/revisions (undocumented): ids filter, cursor paging, a limit.
+    Case(
+        "wiki.pages.revisions",
+        args=(6201,),
+        kwargs={"ids": "7001,7002,7003", "limit": 40},
+        cli=[
+            "wiki",
+            "pages",
+            "revisions",
+            "6201",
+            "--ids",
+            "7001,7002,7003",
+            "--limit",
+            "40",
+        ],
+        mcp=(
+            "wiki_pages_revisions_list",
+            {"page_id": 6201, "ids": "7001,7002,7003", "limit": 40},
+        ),
+        exchanges=[
+            (
+                Sent("GET", "pages/6201/revisions", {"page_size": "50", "ids": "7001,7002,7003"}),
+                Reply(
+                    json={
+                        "results": [_revision(7003, "2026-10-02T10:03:00Z", "published")],
+                        "next_cursor": "rev-2",
+                    }
+                ),
+            ),
+            (
+                Sent(
+                    "GET",
+                    "pages/6201/revisions",
+                    {"page_size": "50", "ids": "7001,7002,7003", "cursor": "rev-2"},
+                ),
+                Reply(json={"results": [_revision(7002, "2026-10-02T10:02:00Z", None)]}),
+            ),
+        ],
+    ),
+    # --all lifts the configured cap (shrunk to 1 here, so a CLI ignoring --all keeps one).
+    Case(
+        "wiki.pages.revisions",
+        args=(6202,),
+        kwargs={"limit": None},
+        cli=["wiki", "pages", "revisions", "6202", "--all"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "pages/6202/revisions", {"page_size": "50"}),
+                Reply(
+                    json={
+                        "results": [
+                            _revision(7011, "2026-10-02T11:01:00Z", "published"),
+                            _revision(7012, "2026-10-02T11:02:00Z", "pending_publication"),
+                        ]
+                    }
+                ),
+            )
+        ],
+        env={"YCLI__HTTP__MAX_ITEMS": "1"},
+    ),
+    # GET /pages/{id}/backlinks (undocumented): both flags, cursor paging, a limit.
+    Case(
+        "wiki.pages.backlinks",
+        args=(6301,),
+        kwargs={"for_cluster": True, "show_all": True, "limit": 30},
+        cli=[
+            "wiki",
+            "pages",
+            "backlinks",
+            "6301",
+            "--for-cluster",
+            "--show-all",
+            "--limit",
+            "30",
+        ],
+        mcp=(
+            "wiki_pages_backlinks_list",
+            {"page_id": 6301, "for_cluster": True, "show_all": True, "limit": 30},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/6301/backlinks",
+                    {"page_size": "100", "for_cluster": "true", "show_all": "true"},
+                ),
+                Reply(json=_refs((6311, "eng/linker-a"), cursor="bl-2")),
+            ),
+            (
+                Sent(
+                    "GET",
+                    "pages/6301/backlinks",
+                    {
+                        "page_size": "100",
+                        "for_cluster": "true",
+                        "show_all": "true",
+                        "cursor": "bl-2",
+                    },
+                ),
+                Reply(json=_refs((6312, "eng/linker-b"))),
+            ),
+        ],
+    ),
+    Case(
+        "wiki.pages.backlinks",
+        args=(6302,),
+        kwargs={"limit": None},
+        cli=["wiki", "pages", "backlinks", "6302", "--all"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "pages/6302/backlinks", {"page_size": "100"}),
+                Reply(json=_refs((6321, "ops/linker-c"), (6322, "ops/linker-d"))),
+            )
+        ],
+        env={"YCLI__HTTP__MAX_ITEMS": "1"},
     ),
 ]

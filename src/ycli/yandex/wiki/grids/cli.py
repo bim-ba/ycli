@@ -22,6 +22,10 @@ from ycli.yandex.wiki.grids.models import (
     ColumnsAdd,
     ColumnsMove,
     ColumnsRemove,
+    ColumnSuggest,
+    ColumnSuggestion,
+    ColumnUpdate,
+    ColumnUpdateResult,
     Grid,
     GridClone,
     GridCloneOperation,
@@ -33,6 +37,8 @@ from ycli.yandex.wiki.grids.models import (
     RowsAddResult,
     RowsMove,
     RowsRemove,
+    RowUpdate,
+    RowUpdateResult,
 )
 from ycli.yandex.wiki.operations.models import GridCloneOperationStatus
 
@@ -49,6 +55,9 @@ app.add_typer(cells_app)
 GridIdArg = Annotated[str, typer.Argument(metavar="GRID_ID", help="Grid UUID.")]
 RevisionOpt = Annotated[
     str, typer.Option("--revision", help="Current grid revision (optimistic lock).")
+]
+OptionalRevisionOpt = Annotated[
+    str, typer.Option("--revision", help="Grid revision (this endpoint does not enforce it).")
 ]
 PositionOpt = Annotated[int | None, typer.Option("--position", help="Zero-based target index.")]
 
@@ -314,3 +323,80 @@ def cells_update(
     """Set individual cell values in a grid (POST /grids/{id}/cells)."""
     body = CellsUpdate(revision=revision, cells=json.loads(cells)).model_dump(exclude_none=True)
     return wiki.grids.update_cells(grid_id, body=body)
+
+
+@rows_app.command("update")
+def rows_update(
+    grid_id: GridIdArg,
+    row_id: Annotated[str, typer.Argument(metavar="ROW_ID", help="Id of the row to update.")],
+    revision: OptionalRevisionOpt = "",
+    pinned: Annotated[
+        bool | None, typer.Option("--pinned/--no-pinned", help="Pin or unpin the row.")
+    ] = None,
+    color: Annotated[str, typer.Option("--color", help="Row background colour, e.g. mint.")] = "",
+    *,
+    wiki: WikiClient,
+) -> RowUpdateResult:
+    """Pin or colour a row (POST /grids/{id}/rows/{row_id}; undocumented by Yandex)."""
+    body = RowUpdate(
+        revision=revision or None,
+        pinned=pinned,
+        color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
+    ).model_dump(exclude_none=True)
+    return wiki.grids.update_row(grid_id, row_id, body=body)
+
+
+@columns_app.command("suggest")
+def columns_suggest(
+    grid_id: GridIdArg,
+    title: Annotated[
+        str, typer.Option("--title", help="Title to turn into a slug and check.")
+    ] = "",
+    slug: Annotated[str, typer.Option("--slug", help="Slug to check.")] = "",
+    *,
+    wiki: WikiClient,
+) -> ColumnSuggestion:
+    """Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API)."""
+    body = ColumnSuggest(title=title or None, slug=slug or None).model_dump(exclude_none=True)
+    return wiki.grids.suggest_column(grid_id, body=body)
+
+
+@columns_app.command("update")
+def columns_update(
+    grid_id: GridIdArg,
+    column_slug: Annotated[
+        str, typer.Argument(metavar="COLUMN_SLUG", help="Slug of the column to edit.")
+    ],
+    revision: OptionalRevisionOpt = "",
+    title: Annotated[str, typer.Option("--title", help="New column header.")] = "",
+    description: Annotated[str, typer.Option("--description", help="New description.")] = "",
+    required: Annotated[
+        bool | None, typer.Option("--required/--no-required", help="Whether a value is mandatory.")
+    ] = None,
+    width: Annotated[int | None, typer.Option("--width", help="Column width.")] = None,
+    width_units: Annotated[str, typer.Option("--width-units", help="% or px.")] = "",
+    pinned: Annotated[str, typer.Option("--pinned", help="left or right.")] = "",
+    color: Annotated[str, typer.Option("--color", help="Column background colour.")] = "",
+    select_options: Annotated[
+        list[str] | None,
+        typer.Option("--select-option", help="Allowed choice of a select column (repeatable)."),
+    ] = None,
+    *,
+    wiki: WikiClient,
+) -> ColumnUpdateResult:
+    """Edit a column in place (POST /grids/{id}/column/{slug}; undocumented by Yandex).
+
+    Only the options given change; the column type and slug cannot be edited.
+    """
+    body = ColumnUpdate(
+        revision=revision or None,
+        title=title or None,
+        description=description or None,
+        required=required,
+        width=width,
+        width_units=width_units or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the unit literal
+        pinned=pinned or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the edge literal
+        color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
+        select_options=select_options,
+    ).model_dump(exclude_none=True)
+    return wiki.grids.update_column(grid_id, column_slug, body=body)

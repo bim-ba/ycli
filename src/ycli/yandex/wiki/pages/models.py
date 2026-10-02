@@ -8,6 +8,7 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.access.models import (  # pydantic resolves field types at runtime
+    AccessUser,
     PageAccessLists,
     PageAccessPolicy,
     PageOwner,
@@ -264,7 +265,7 @@ class PageClone(APIModel):
 
 
 class PageCloneOperationIdentity(APIModel):
-    """Reference to the deferred clone operation (``{type, id}``) inside a clone reply.
+    """Reference to the deferred operation (``{type, id}``) inside a page clone or move reply.
 
     Example:
         >>> PageCloneOperationIdentity(type="clone", id="task-1").id
@@ -272,10 +273,12 @@ class PageCloneOperationIdentity(APIModel):
     """
 
     type: OperationType | None = Field(
-        default=None, description="Operation kind — ``clone`` for a page clone."
+        default=None,
+        description="Operation kind — ``clone`` for a page clone, ``move`` for a move.",
     )
     id: str | None = Field(
-        default=None, description="Task id to poll via ``operations clone <id>``."
+        default=None,
+        description="Task id to poll via ``operations clone`` or ``operations move-get``.",
     )
 
 
@@ -300,4 +303,174 @@ class PageCloneOperation(APIModel):
     )
     dry_run: bool | None = Field(
         default=None, description="Whether this was a validation-only dry run."
+    )
+
+
+class PageMoveStep(APIModel):
+    """One step of a page move: take the page at ``source`` and give it the address ``target``.
+
+    ``next_to_slug`` and ``position`` set where the moved page lands among its new siblings.
+
+    Example:
+        >>> PageMoveStep(source="data/old", target="archive/old").model_dump(exclude_none=True)
+        {'source': 'data/old', 'target': 'archive/old'}
+    """
+
+    source: str = Field(description="Slug of the page before the move.")
+    target: str = Field(description="Slug of the page after the move.")
+    next_to_slug: str | None = Field(
+        default=None, description="Sibling page to place the moved page next to."
+    )
+    position: Literal["before", "after"] | None = Field(
+        default=None, description="Put the moved page ``before`` or ``after`` ``next_to_slug``."
+    )
+
+
+class PageMove(APIModel):
+    """Typed body for ``POST /pages/move`` — give pages new addresses (async, undocumented).
+
+    The API runs the steps in order. It moves a page together with its subtree, which is the only
+    way to rename or relocate a page (a page update has no ``slug``). The endpoint is undocumented
+    by Yandex (live OpenAPI only) and may change.
+
+    Example:
+        >>> PageMove(
+        ...     operations=[PageMoveStep(source="data/old", target="archive/old")],
+        ...     copy_inherited_access=True,
+        ... ).model_dump(exclude_none=True)["copy_inherited_access"]
+        True
+    """
+
+    operations: list[PageMoveStep] = Field(
+        min_length=1, description="Moves to run, in order (at least one)."
+    )
+    copy_inherited_access: bool = Field(
+        default=False,
+        description="Copy the accesses a page inherited from its old parent when it moves. The "
+        "API refuses a move that leaves this unset (400 INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED), "
+        "so it is always sent, ``false`` by default.",
+    )
+
+
+class PageMoveOperation(APIModel):
+    """Reply of ``POST /pages/move`` — a deferred operation reference to poll.
+
+    Page move is asynchronous: this returns the ``operation`` and a ``status_url``; poll
+    ``operations move-get <operation.id>`` until it reaches a terminal state. A ``dry_run`` reply
+    carries ``dry_run=true``.
+
+    Example:
+        >>> PageMoveOperation.model_validate(
+        ...     {"operation": {"type": "move", "id": "task-1"}, "status_url": "u"}
+        ... ).operation.id
+        'task-1'
+    """
+
+    operation: PageCloneOperationIdentity | None = Field(
+        default=None, description="The started operation (``id`` is the task to poll)."
+    )
+    status_url: str | None = Field(
+        default=None, description="URL that reports the operation's progress."
+    )
+    dry_run: bool | None = Field(
+        default=None, description="Whether this was a validation-only dry run."
+    )
+
+
+class RevisionDraft(APIModel):
+    """The draft a revision was published from (``revision_draft`` of a revision).
+
+    Example:
+        >>> RevisionDraft.model_validate({"id": 3, "modified_at": "2026-10-03T10:00:00Z"}).id
+        3
+    """
+
+    id: int | None = Field(default=None, description="Draft id.")
+    created_at: str | None = Field(default=None, description="ISO-8601 time the draft was made.")
+    modified_at: str | None = Field(default=None, description="ISO-8601 time of its last edit.")
+
+
+class RevisionPublication(APIModel):
+    """Publication state of a revision (``publication`` of a revision).
+
+    Example:
+        >>> RevisionPublication(status="published").status
+        'published'
+    """
+
+    status: Literal["pending_publication", "published"] | None = Field(
+        default=None, description="``pending_publication`` or ``published``."
+    )
+
+
+class PageRevision(APIModel):
+    """One saved revision of a page (``/pages/{id}/revisions`` item).
+
+    Example:
+        >>> PageRevision.model_validate(
+        ...     {"id": 7, "author": {"username": "ivan"}, "page_type": "page"}
+        ... ).author.username
+        'ivan'
+    """
+
+    id: int = Field(description="Revision id (the ``revision_id`` of ``GET /pages``).")
+    author: AccessUser | None = Field(default=None, description="Who saved the revision.")
+    created_at: str | None = Field(default=None, description="ISO-8601 time it was saved.")
+    page_type: str | None = Field(
+        default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
+    )
+    revision_draft: RevisionDraft | None = Field(
+        default=None, description="Draft the revision was published from, if any."
+    )
+    publication: RevisionPublication | None = Field(
+        default=None, description="Whether the revision is published yet."
+    )
+
+
+class RevisionsResponse(APIModel):
+    """Envelope for ``GET /pages/{id}/revisions`` — ``{results, next_cursor}``.
+
+    Internal per-page parse type used by ``endpoints.list_revisions``.
+
+    Example:
+        >>> RevisionsResponse.model_validate({"results": [{"id": 7}]}).results[0].id
+        7
+    """
+
+    results: list[PageRevision] = Field(
+        default_factory=list, description="Revisions on this page of the listing."
+    )
+    next_cursor: str | None = Field(
+        default=None,
+        description="Cursor for the next page; ``null`` when the listing is exhausted.",
+    )
+
+
+class PageRevisionList(RootModel[list[PageRevision]]):
+    """A drained, flat list of page revisions (no cursor — pagination is internal).
+
+    Example:
+        >>> PageRevisionList([PageRevision(id=7)]).root[0].id
+        7
+    """
+
+    root: list[PageRevision] = Field(default_factory=list)
+
+
+class BacklinksResponse(APIModel):
+    """Envelope for ``GET /pages/{id}/backlinks`` — ``{results, next_cursor}`` of page refs.
+
+    Internal per-page parse type used by ``endpoints.list_backlinks``.
+
+    Example:
+        >>> BacklinksResponse.model_validate({"results": [{"id": 1, "slug": "a"}]}).results[0].slug
+        'a'
+    """
+
+    results: list[PageRef] = Field(
+        default_factory=list, description="Pages that link here, on this page of the listing."
+    )
+    next_cursor: str | None = Field(
+        default=None,
+        description="Cursor for the next page; ``null`` when the listing is exhausted.",
     )

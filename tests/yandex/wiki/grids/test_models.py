@@ -8,6 +8,10 @@ from ycli.yandex.wiki.grids.models import (
     ColumnsAdd,
     ColumnsMove,
     ColumnsRemove,
+    ColumnSuggest,
+    ColumnSuggestion,
+    ColumnUpdate,
+    ColumnUpdateResult,
     Grid,
     GridClone,
     GridCloneOperation,
@@ -20,6 +24,8 @@ from ycli.yandex.wiki.grids.models import (
     RowsAdd,
     RowsMove,
     RowsRemove,
+    RowUpdate,
+    RowUpdateResult,
     UpdateCellSchema,
 )
 
@@ -204,3 +210,77 @@ def test_grid_operation_identity_accepts_a_move():
 
 def test_grid_list_wraps_flat_root():
     assert GridList([Grid(id="g1")]).root[0].id == "g1"
+
+
+def test_column_suggest_dumps_only_what_was_given():
+    assert ColumnSuggest(title="Due date").model_dump(exclude_none=True) == {"title": "Due date"}
+    assert ColumnSuggest(slug="due").model_dump(exclude_none=True) == {"slug": "due"}
+
+
+def test_column_suggest_refuses_an_empty_title():
+    with pytest.raises(ValidationError):
+        ColumnSuggest(title="")
+
+
+@pytest.mark.parametrize("fields", [{}, {"title": "Due", "slug": "due"}])
+def test_column_suggest_needs_exactly_one_of_title_and_slug(fields):
+    """The API answers 400 for neither and for both, so the model refuses before sending."""
+    with pytest.raises(ValidationError, match="exactly one"):
+        ColumnSuggest.model_validate(fields)
+
+
+def test_column_suggestion_parses_a_taken_slug():
+    """Shape taken from a live ``POST /grids/{id}/columns/suggest`` reply (2026-10-02)."""
+    reply = ColumnSuggestion.model_validate(
+        {"slug": "name", "occupied": True, "suggest": ["name-210", "name-2"]}
+    )
+    assert reply.occupied is True and reply.suggest == ["name-210", "name-2"]
+
+
+def test_column_update_dumps_only_the_fields_that_change():
+    body = ColumnUpdate(revision="3", title="Lead", width=30, width_units="%", pinned="left")
+    assert body.model_dump(exclude_none=True) == {
+        "revision": "3",
+        "title": "Lead",
+        "width": 30,
+        "width_units": "%",
+        "pinned": "left",
+    }
+
+
+def test_column_update_needs_no_revision():
+    assert ColumnUpdate(title="Lead").model_dump(exclude_none=True) == {"title": "Lead"}
+
+
+@pytest.mark.parametrize(
+    "field", [{"width_units": "em"}, {"pinned": "top"}, {"color": "teal"}, {"title": ""}]
+)
+def test_column_update_refuses_values_the_api_would_not(field):
+    with pytest.raises(ValidationError):
+        ColumnUpdate.model_validate(field)
+
+
+def test_column_update_result_carries_the_saved_column():
+    reply = ColumnUpdateResult.model_validate(
+        {"revision": "5", "column": {"slug": "stage", "title": "Stage 2", "type": "select"}}
+    )
+    assert reply.revision == "5"
+    assert reply.column is not None and reply.column.title == "Stage 2"
+
+
+def test_row_update_dumps_pinned_and_colour():
+    body = RowUpdate(revision="3", pinned=False, color="mint").model_dump(exclude_none=True)
+    assert body == {"revision": "3", "pinned": False, "color": "mint"}
+
+
+def test_row_update_refuses_an_unknown_colour():
+    with pytest.raises(ValidationError):
+        RowUpdate.model_validate({"color": "teal"})
+
+
+def test_row_update_result_is_a_bare_status():
+    assert RowUpdateResult.model_validate({"status": "ok"}).status == "ok"
+
+
+def test_row_update_result_accepts_the_empty_reply_the_live_api_sends():
+    assert RowUpdateResult.model_validate({}).status is None

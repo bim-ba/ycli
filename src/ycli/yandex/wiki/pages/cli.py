@@ -10,7 +10,7 @@ from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.operations.models import CloneOperationStatus
+from ycli.yandex.wiki.operations.models import CloneOperationStatus, MoveOperationStatus
 from ycli.yandex.wiki.pages.models import (
     GridRefList,
     PageAppendContent,
@@ -19,7 +19,11 @@ from ycli.yandex.wiki.pages.models import (
     PageCloneOperation,
     PageDeleteResult,
     PageDetails,
+    PageMove,
+    PageMoveOperation,
+    PageMoveStep,
     PageRefList,
+    PageRevisionList,
 )
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
@@ -183,3 +187,93 @@ def clone(
         )
         return status
     return operation
+
+
+@app.command()
+def move(
+    source: Annotated[str, typer.Argument(metavar="SOURCE", help="Slug of the page to move.")],
+    target: Annotated[str, typer.Argument(metavar="TARGET", help="New slug for the page.")],
+    next_to: Annotated[
+        str, typer.Option("--next-to", help="Sibling slug to place the page next to.")
+    ] = "",
+    position: Annotated[str, typer.Option("--position", help="before or after --next-to.")] = "",
+    copy_inherited_access: Annotated[
+        bool,
+        typer.Option(
+            "--copy-inherited-access/--no-copy-inherited-access",
+            help="Copy accesses inherited from the old parent (the API needs an explicit choice).",
+        ),
+    ] = False,
+    dry_run: Annotated[
+        bool,
+        typer.Option(
+            "--dry-run", help="Validate the move without applying it (nothing to wait for)."
+        ),
+    ] = False,
+    wait: Annotated[
+        bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
+    ] = True,
+    *,
+    wiki: WikiClient,
+) -> PageMoveOperation | MoveOperationStatus:
+    """Move or rename a page (POST /pages/move; async, undocumented by Yandex). --wait polls."""
+    step = PageMoveStep(
+        source=source,
+        target=target,
+        next_to_slug=next_to or None,
+        position=position or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the before|after literal
+    )
+    body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access).model_dump(
+        exclude_none=True
+    )
+    operation = wiki.pages.move(body=body, dry_run=dry_run)
+    # A dry run applies nothing, and the task id it returns answers 404 when polled.
+    polled = wait and not dry_run
+    if polled and operation.operation is not None and operation.operation.id is not None:
+        task_id = operation.operation.id
+        status = wait_for(
+            lambda: wiki.operations.move_get(task_id),
+            lambda state: state.is_terminal,
+            message="Waiting for page move…",
+        )
+        return status
+    return operation
+
+
+@app.command()
+def revisions(
+    page_id: PageIdArg,
+    ids: Annotated[
+        str, typer.Option("--ids", help="Only these revision ids (comma separated).")
+    ] = "",
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    *,
+    config: AppConfig,
+    wiki: WikiClient,
+) -> PageRevisionList:
+    """List a page's saved revisions (GET /pages/{id}/revisions; undocumented by Yandex)."""
+    cap = config.http.cap(limit, all_=all_)
+    return wiki.pages.revisions(page_id=page_id, ids=ids or None, limit=cap)
+
+
+@app.command()
+def backlinks(
+    page_id: PageIdArg,
+    for_cluster: Annotated[
+        bool, typer.Option("--for-cluster", help="Links to the page's whole subtree.")
+    ] = False,
+    show_all: Annotated[
+        bool, typer.Option("--show-all", help="The API's show_all flag (no effect seen live).")
+    ] = False,
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    *,
+    config: AppConfig,
+    wiki: WikiClient,
+) -> PageRefList:
+    """List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by Yandex)."""
+    cap = config.http.cap(limit, all_=all_)
+    return wiki.pages.backlinks(
+        page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
+    )

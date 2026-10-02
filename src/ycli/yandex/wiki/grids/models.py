@@ -592,6 +592,149 @@ class CellsUpdate(APIModel):
     cells: list[UpdateCellSchema] = Field(description="The cells to update.")
 
 
+class ColumnSuggest(APIModel):
+    """Typed body for ``POST /grids/{id}/columns/suggest`` — check a column slug (undocumented).
+
+    Give a ``slug`` to see whether it is taken, or a ``title`` to have it turned into a slug first:
+    exactly one of them (the API answers 400 for neither or both). The call only reads: it changes
+    nothing in the grid.
+
+    Example:
+        >>> ColumnSuggest(title="Due date").model_dump(exclude_none=True)
+        {'title': 'Due date'}
+    """
+
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+        description="Column title to turn into a slug and check.",
+    )
+    slug: str | None = Field(default=None, description="Column slug to check.")
+
+    @model_validator(mode="after")
+    def _exactly_one_of_title_and_slug(self) -> ColumnSuggest:
+        """The API answers 400 unless exactly one of ``title`` and ``slug`` is given."""
+        if (self.title is None) == (self.slug is None):
+            raise ValueError("give exactly one of title and slug")
+        return self
+
+
+class ColumnSuggestion(APIModel):
+    """Reply of ``POST /grids/{id}/columns/suggest`` — the checked slug and free alternatives.
+
+    Example:
+        >>> ColumnSuggestion.model_validate(
+        ...     {"slug": "name", "occupied": True, "suggest": ["name_1"]}
+        ... ).suggest
+        ['name_1']
+    """
+
+    slug: str | None = Field(default=None, description="The slug that was checked.")
+    occupied: bool | None = Field(
+        default=None, description="Whether a column already has that slug."
+    )
+    suggest: list[str] = Field(
+        default_factory=list, description="Free slugs to use instead when it is occupied."
+    )
+
+
+class ColumnUpdate(APIModel):
+    """Typed body for ``POST /grids/{id}/column/{slug}`` — edit a column in place (undocumented).
+
+    Every field is optional and only the ones sent change. The column ``type`` and ``slug`` cannot
+    be edited. Unlike the other grid writes this one does not enforce ``revision``: a live check
+    accepted a stale revision and none at all. Every call moves the grid's revision on.
+
+    Example:
+        >>> ColumnUpdate(revision="3", title="Owner", width=40, width_units="%").model_dump(
+        ...     exclude_none=True
+        ... )
+        {'revision': '3', 'title': 'Owner', 'width': 40, 'width_units': '%'}
+    """
+
+    revision: str | None = Field(
+        default=None, description="Grid revision; this endpoint accepts a stale or missing one."
+    )
+    title: str | None = Field(
+        default=None, min_length=1, max_length=255, description="New column header."
+    )
+    description: str | None = Field(
+        default=None, max_length=1024, description="New free-text column description."
+    )
+    required: bool | None = Field(default=None, description="Whether a value is mandatory.")
+    width: int | None = Field(default=None, description="Column width in ``width_units``.")
+    width_units: WidthUnits | None = Field(default=None, description="Unit of ``width``.")
+    format: TextFormat | None = Field(
+        default=None, description="For text columns: rich-text format."
+    )
+    pinned: ColumnPinType | None = Field(default=None, description="Edge to pin the column to.")
+    color: BGColor | None = Field(default=None, description="Background colour of the column.")
+    multiple: bool | None = Field(
+        default=None, description="For ``select``/``staff``: allow multiple values."
+    )
+    ticket_field: TicketField | None = Field(
+        default=None, description="For ``ticket_field`` columns: the mirrored Tracker field."
+    )
+    select_options: list[str] | None = Field(
+        default=None, description="For ``select`` columns: the allowed choices."
+    )
+    mark_rows: bool | None = Field(
+        default=None, description="For ``checkbox`` columns: mark the row done when ticked."
+    )
+
+
+class ColumnUpdateResult(APIModel):
+    """Reply of ``POST /grids/{id}/column/{slug}`` — the new ``revision`` and the column as saved.
+
+    Example:
+        >>> ColumnUpdateResult.model_validate(
+        ...     {"revision": "5", "column": {"slug": "owner", "title": "Owner"}}
+        ... ).column.title
+        'Owner'
+    """
+
+    revision: str | None = Field(default=None, description="The grid's revision after the edit.")
+    column: ColumnSchema | None = Field(default=None, description="The column after the edit.")
+
+
+class RowUpdate(APIModel):
+    """Typed body for ``POST /grids/{id}/rows/{row_id}`` — pin or colour a row (undocumented).
+
+    Cell values are not part of it; set those with ``cells update``. Like ``ColumnUpdate`` it does
+    not enforce ``revision`` (a stale or missing one is accepted), and every call moves the grid's
+    revision on.
+
+    Example:
+        >>> RowUpdate(revision="3", pinned=True, color="mint").model_dump(exclude_none=True)
+        {'revision': '3', 'pinned': True, 'color': 'mint'}
+    """
+
+    revision: str | None = Field(
+        default=None, description="Grid revision; this endpoint accepts a stale or missing one."
+    )
+    pinned: bool | None = Field(default=None, description="Pin the row to the top of the grid.")
+    color: BGColor | None = Field(default=None, description="Background colour of the row.")
+
+
+class RowUpdateResult(APIModel):
+    """Reply of ``POST /grids/{id}/rows/{row_id}`` — carries no revision.
+
+    The spec says ``{status: "ok"}``, but a live check got an empty object, so ``status`` stays
+    ``None``: the 2xx is the success signal, and the new revision comes from ``grids get``.
+
+    Example:
+        >>> RowUpdateResult.model_validate({"status": "ok"}).status
+        'ok'
+        >>> RowUpdateResult.model_validate({}).status is None
+        True
+    """
+
+    status: str | None = Field(
+        default=None, description="``ok`` when the API says so; the live API sends nothing."
+    )
+
+
 class GridClone(APIModel):
     """Typed body for ``POST /grids/{id}/clone`` — copy a grid onto another page (async).
 

@@ -7,14 +7,20 @@ from typing import Annotated
 import typer
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.operations.models import CloneOperationStatus, GridCloneOperationStatus
+from ycli.yandex.wiki.operations.models import (
+    CloneOperationStatus,
+    GridCloneOperationStatus,
+    MoveOperationStatus,
+)
 
 app = typer.Typer(
-    name="operations", help="Wiki async operation status (clone polling).", no_args_is_help=True
+    name="operations",
+    help="Wiki async operation status (clone and move polling).",
+    no_args_is_help=True,
 )
 
 TaskIdArg = Annotated[
-    str, typer.Argument(metavar="TASK_ID", help="Operation task id (from a clone trigger).")
+    str, typer.Argument(metavar="TASK_ID", help="Operation task id (from a clone or move trigger).")
 ]
 
 
@@ -28,3 +34,9 @@ def clone(task_id: TaskIdArg, *, wiki: WikiClient) -> CloneOperationStatus:
 def gridclone(task_id: TaskIdArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
     """Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id})."""
     return wiki.operations.gridclone_get(task_id)
+
+
+@app.command("move-get")
+def move_get(task_id: TaskIdArg, *, wiki: WikiClient) -> MoveOperationStatus:
+    """Print a page-move operation's status (GET /operations/move/{task_id}); undocumented API."""
+    return wiki.operations.move_get(task_id)

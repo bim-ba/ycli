@@ -26,10 +26,13 @@ from typing import Any
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.wiki.grids.models import (
     CellsUpdateResult,
+    ColumnSuggestion,
+    ColumnUpdateResult,
     Grid,
     GridCloneOperation,
     RevisionResult,
     RowsAddResult,
+    RowUpdateResult,
 )
 
 
@@ -101,3 +104,23 @@ def update_cells(grid_id: str, body: dict[str, Any]) -> Endpoint[CellsUpdateResu
 
 def clone_grid(grid_id: str, body: dict[str, Any]) -> Endpoint[GridCloneOperation]:
     return Endpoint("POST", _grid(grid_id, "/clone"), GridCloneOperation, json=body)
+
+
+def suggest_column(grid_id: str, body: dict[str, Any]) -> Endpoint[ColumnSuggestion]:
+    """``POST /grids/{id}/columns/suggest`` (undocumented): checks a slug, changes nothing."""
+    path = _grid(grid_id, "/columns/suggest")
+    return Endpoint("POST", path, ColumnSuggestion, json=body, effect="read")
+
+
+def update_column(
+    grid_id: str, column_slug: str, body: dict[str, Any]
+) -> Endpoint[ColumnUpdateResult]:
+    """``POST /grids/{id}/column/{slug}`` (undocumented; the path says ``column``, singular)."""
+    path = _grid(grid_id, f"/column/{segment(column_slug)}")
+    return Endpoint("POST", path, ColumnUpdateResult, json=body, effect="idempotent_write")
+
+
+def update_row(grid_id: str, row_id: str, body: dict[str, Any]) -> Endpoint[RowUpdateResult]:
+    """``POST /grids/{id}/rows/{row_id}`` (undocumented): pin or colour one row."""
+    path = _grid(grid_id, f"/rows/{segment(row_id)}")
+    return Endpoint("POST", path, RowUpdateResult, json=body, effect="idempotent_write")
