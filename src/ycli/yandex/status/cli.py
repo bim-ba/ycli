@@ -20,7 +20,13 @@ from rich.panel import Panel
 
 from ycli.cli.output import ExitWith
 from ycli.cli.progress import spinner
-from ycli.settings import AppConfig, Credentials, OAuthAppConfig
+from ycli.settings import (
+    OAUTH_TOKEN_ENV,
+    ORGANIZATION_ID_ENV,
+    AppConfig,
+    Credentials,
+    OAuthAppConfig,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -33,8 +39,8 @@ from ycli.yandex.status.reporter import StatusReporter
 app = typer.Typer(name="auth", no_args_is_help=True)
 
 _ENV_NAMES = {
-    "oauth_token": "YANDEX_ID_OAUTH_TOKEN",
-    "organization_id": "YANDEX_ID_ORGANIZATION_ID",
+    "oauth_token": OAUTH_TOKEN_ENV,
+    "organization_id": ORGANIZATION_ID_ENV,
 }
 
 

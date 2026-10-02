@@ -36,7 +36,7 @@ def test_tracker_deps_factory_builds_from_env(monkeypatch):
     responses.add(
         responses.GET, "https://api.tracker.yandex.net/v3/priorities", json=[], status=200
     )
-    client = tracker_client()
-    assert isinstance(client, TrackerClient)
-    result = client.priorities.list()
-    assert result.root == []
+    with tracker_client() as client:
+        assert isinstance(client, TrackerClient)
+        result = client.priorities.list()
+        assert result.root == []

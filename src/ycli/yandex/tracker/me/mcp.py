@@ -3,6 +3,7 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.settings import OAUTH_TOKEN_ENV
 from ycli.yandex.models import require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
@@ -18,5 +19,5 @@ def get(client: TrackerClient = Depends(tracker_client)) -> Me:
     return require_found(
         result,
         sentinel=lambda r: r.login is None,
-        message="auth probe failed — empty user (check YANDEX_ID_OAUTH_TOKEN)",
+        message=f"auth probe failed — empty user (check {OAUTH_TOKEN_ENV})",
     )

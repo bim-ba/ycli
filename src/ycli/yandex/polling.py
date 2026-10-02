@@ -36,7 +36,6 @@ def poll[P](
     attempts: int = 30,
     backoff: Callable[[int], float] = default_backoff,
     sleep: Callable[[float], None] = time.sleep,
-    on_attempt: Callable[[int], None] | None = None,
 ) -> P:
     """Re-invoke ``fetch`` until ``is_done`` accepts its result, then return that result.
 
@@ -52,9 +51,6 @@ def poll[P](
         attempts: Maximum number of ``fetch`` calls before giving up.
         backoff: Maps a 0-indexed attempt to the seconds to sleep before the next fetch.
         sleep: The blocking sleep (default :func:`time.sleep`; pass a recorder in tests).
-        on_attempt: Optional progress hook, called with the 0-indexed attempt *before* each
-            ``fetch`` — the CLI wires it to a spinner so a long ``--wait`` shows feedback. It
-            cannot change the loop's semantics or its return value.
 
     Returns:
         The first ``fetch`` result for which ``is_done`` returned ``True``.
@@ -72,8 +68,6 @@ def poll[P](
         {'done': True}
     """
     for attempt in range(attempts):
-        if on_attempt is not None:
-            on_attempt(attempt)
         status = fetch()
         if is_done(status):
             return status

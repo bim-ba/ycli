@@ -2,7 +2,7 @@
 
 from fastmcp import Client
 
-from ycli.mcp import mcp
+from ycli.mcp.server import mcp
 
 
 def test_base_install_imports_cli_without_fastmcp():
@@ -28,7 +28,7 @@ async def test_root_mounts_all_domains_with_namespaces():
 
 
 def test_main_is_callable():
-    from ycli.mcp import main
+    from ycli.mcp.server import main
 
     assert callable(main)
 

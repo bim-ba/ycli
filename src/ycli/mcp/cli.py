@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import typer
 
+from ycli.yandex.registry import SERVICES
+
 # Help text lives with the root sub-app list (ycli.cli.app).
 app = typer.Typer(name="mcp", no_args_is_help=True)
 
@@ -18,7 +20,10 @@ def _group() -> None:
     """Group anchor — forces subcommand dispatch (no eager import, --help stays extra-free)."""
 
 
-@app.command()
+_NAMESPACES = ", ".join(f"{service.name}_*" for service in SERVICES)
+
+
+@app.command(help=f"Run the MCP server over stdio (tools namespaced {_NAMESPACES}, status_*).")
 def start(
     read_only: bool = typer.Option(
         False,
@@ -26,9 +31,8 @@ def start(
         help="Serve only read tools (hide every write-tagged tool).",
     ),
 ) -> None:
-    """Run the MCP server over stdio (tools namespaced wiki_*, tracker_*, forms_*)."""
     try:
-        from ycli.mcp import main as run_server
+        from ycli.mcp.server import main as run_server
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
     run_server(read_only=read_only)
@@ -42,7 +46,7 @@ def methods() -> str:
     try:
         from fastmcp import Client
 
-        from ycli.mcp import mcp
+        from ycli.mcp.server import mcp
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
 

@@ -10,7 +10,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.changelog.models import ChangelogList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
 
 mcp = FastMCP("tracker-changelog")
 
@@ -22,13 +22,13 @@ def list_(
     key: str,
     limit: Annotated[
         int,
-        Field(description="Max changes to return; 0 means the configured cap (default 500)."),
+        Field(description=f"Max changes to return; {LIMIT_CAP}"),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ChangelogList:
     """Full changelog (edit history) for a Tracker issue, auto-paginated via the relative
-    id-cursor. Capped at 500 items by default unless ``limit`` is given.
+    id-cursor. Capped at the configured item cap unless ``limit`` is given.
     """
     cap = resolve_cap(limit, config.http.max_items)
     return client.changelog.list(key, limit=cap)

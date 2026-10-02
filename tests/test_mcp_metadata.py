@@ -6,7 +6,7 @@ import asyncio
 
 from fastmcp import Client
 
-from ycli.mcp import mcp as root_mcp
+from ycli.mcp.server import mcp as root_mcp
 from ycli.yandex.registry import SERVICES
 
 

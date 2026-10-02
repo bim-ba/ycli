@@ -14,7 +14,7 @@ update, transition, link and comment on issues.
 Three interfaces, same underlying API:
 
 - **CLI** — `uv run ycli tracker <group> <cmd>`. Full read **and** write surface.
-- **MCP tools** — 151 tools named `tracker_<resource>_<action>` (61 reads + 90 writes).
+- **MCP tools** — reads and writes named `tracker_<resource>_<action>`.
   Writes carry honest annotations: `readOnlyHint=False` plus an explicit
   `destructiveHint` (`true` on delete/clear-class tools) and `idempotentHint` on
   PATCH-style edits. `ycli mcp start --read-only` serves the reads-only view.
@@ -74,7 +74,7 @@ MCP tool (annotated `readOnlyHint=True`).
 | `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
 | `uv run ycli tracker transitions list KEY` | `tracker_transitions_list` | Available transitions (a read — used before a write) |
 
-There are **151** Tracker MCP tools, all following the `tracker_<resource>_<action>`
+Every Tracker MCP tool follows the `tracker_<resource>_<action>`
 naming (the rows above cover the reads you reach for most; every write below is a tool
 too — `tracker_issues_create`, `tracker_comments_add`, `tracker_transitions_execute`, …).
 To see the exact list for your build, start the server (`ycli mcp start`) and enumerate

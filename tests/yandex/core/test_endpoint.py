@@ -1,5 +1,8 @@
 """Endpoint: the effect follows the method unless stated; requests carry client defaults."""
 
+import dataclasses
+from typing import Any
+
 import httpx2
 import pytest
 from pydantic import BaseModel
@@ -15,7 +18,7 @@ class _Item(BaseModel):
 @pytest.mark.parametrize(
     ("method", "effect", "idempotent"),
     [
-        ("get", "read", True),
+        ("GET", "read", True),
         ("HEAD", "read", True),
         ("PUT", "idempotent_write", True),
         ("PATCH", "idempotent_write", True),
@@ -25,13 +28,24 @@ class _Item(BaseModel):
 )
 def test_effect_follows_the_method(method, effect, idempotent):
     endpoint = Endpoint(method, "x")
-    assert endpoint.method == method.upper()
     assert endpoint.effect == effect
     assert endpoint.idempotent is idempotent
 
 
 def test_a_stated_effect_wins():
     assert Endpoint("POST", "issues/_search", effect="read").effect == "read"
+
+
+def test_an_unknown_method_fails_at_construction():
+    typo: Any = "GTE"  # typed Any: the type checker would reject the literal, the runtime must too
+    with pytest.raises(ValueError, match="GTE"):
+        Endpoint(typo, "x", effect="read")
+
+
+def test_replace_builds_a_changed_copy():
+    endpoint = Endpoint("POST", "issues/_search", effect="read", params={"page": 1})
+    moved = dataclasses.replace(endpoint, path="entities/_search", params={"page": 2})
+    assert (moved.path, moved.params, moved.effect) == ("entities/_search", {"page": 2}, "read")
 
 
 def test_request_uses_the_client_base_url_headers_and_drops_none_params():

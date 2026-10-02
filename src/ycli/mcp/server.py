@@ -7,6 +7,7 @@ and writes; ``--read-only`` serves the reads-only view.
 
 from fastmcp import FastMCP
 
+from ycli.settings import OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV
 from ycli.yandex.mcp import WRITE_TAG
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.mcp import mcp as status_mcp
@@ -18,8 +19,8 @@ mcp = FastMCP(
         + "; ".join(f"{service.name}_* — {service.help}" for service in SERVICES)
         + ". Every tool carries honest annotations: reads have readOnlyHint=true; writes have "
         "readOnlyHint=false and an explicit destructiveHint — treat destructiveHint=true tools "
-        "(delete/clear/abort) with care. Credentials come from the YANDEX_ID_OAUTH_TOKEN and "
-        "YANDEX_ID_ORGANIZATION_ID environment variables."
+        f"(delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} and "
+        f"{ORGANIZATION_ID_ENV} environment variables."
     ),
 )
 for service in SERVICES:

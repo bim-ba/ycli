@@ -16,7 +16,7 @@ Example:
     >>> client = PagesClient(session=requests.Session())  # doctest: +SKIP
 """
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Self
 
 import requests
 import uplink
@@ -26,6 +26,8 @@ from ycli.settings import HTTPConfig
 from ycli.yandex.transport import Transport
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     import httpx2
 
     from ycli.yandex.core.profile import ServiceProfile
@@ -52,6 +54,7 @@ class DomainClient:
     Credentials arrive as explicit constructor arguments (ARCH-7) — the base never reads the
     environment. ``http`` defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so
     there is no second copy of them here. ``transport`` replaces the core's network (tests).
+    :meth:`close` (or leaving a ``with`` block) closes both connection pools.
     """
 
     def __init__(
@@ -67,15 +70,32 @@ class DomainClient:
         self._organization_id = organization_id
         self._http = http or HTTPConfig()
         self._transport = transport
-        self._wire(
-            Transport.session(
-                oauth_token=oauth_token,
-                organization_id=organization_id,
-                timeout_seconds=self._http.timeout_seconds,
-                retries=self._http.retries,
-                base=session,
-            )
+        self._core_sessions: list[SyncSession] = []
+        self._session = Transport.session(
+            oauth_token=oauth_token,
+            organization_id=organization_id,
+            timeout_seconds=self._http.timeout_seconds,
+            retries=self._http.retries,
+            base=session,
         )
+        self._wire(self._session)
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: "TracebackType | None",
+    ) -> None:
+        self.close()
+
+    def close(self) -> None:
+        """Close the requests session and every core session this client opened."""
+        for core_session in self._core_sessions:
+            core_session.close()
+        self._session.close()
 
     def _connect(self, profile: "ServiceProfile") -> "SyncSession":
         """A core session to ``profile`` with this client's credentials and HTTP settings."""
@@ -83,13 +103,15 @@ class DomainClient:
         from ycli.yandex.core.auth import OAuthTokenAuth
         from ycli.yandex.core.session import connect
 
-        return connect(
+        core_session = connect(
             profile,
             auth=OAuthTokenAuth(self._oauth_token),
             organization_id=self._organization_id,
             http=self._http,
             transport=self._transport,
         )
+        self._core_sessions.append(core_session)
+        return core_session
 
     def _wire(self, transport: requests.Session) -> None:
         """Attach the per-resource clients over the shared ``transport`` (per-domain)."""

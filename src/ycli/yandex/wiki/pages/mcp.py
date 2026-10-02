@@ -53,7 +53,7 @@ def descendants(
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> PageRefList:
-    """All descendant refs under SLUG, auto-paginated. Capped at 500 items by default
+    """All descendant refs under SLUG, auto-paginated. Capped at the configured item cap
     unless ``limit`` is given; narrow by SLUG for large trees."""
     cap = resolve_cap(limit, config.http.max_items)
     return client.pages.descendants(slug=slug, limit=cap)
@@ -68,7 +68,7 @@ def grids_list(
 ) -> GridRefList:
     """Dynamic tables (grids) attached to a page id, auto-paginated (drains ``next_cursor``).
 
-    Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at 500 items by default
+    Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at the configured item cap
     unless ``limit`` is given. Reads a page's numeric id — pair with
     ``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
 
@@ -117,7 +117,7 @@ def by_id_descendants(
 ) -> PageRefList:
     """All descendant page refs under a numeric page id, auto-paginated.
 
-    The id-based twin of ``pages_descendants``. Capped at 500 items by default
+    The id-based twin of ``pages_descendants``. Capped at the configured item cap
     unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
     ``slug``.
 

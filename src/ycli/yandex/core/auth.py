@@ -158,7 +158,7 @@ class ServiceAccountAuth(httpx2.Auth):
         assertion = jwt.encode(
             {
                 "iss": self._service_account_id,
-                "aud": IAM_TOKEN_URL,
+                "aud": self._token_url,
                 "iat": now,
                 "exp": now + self.jwt_lifetime_seconds,
             },

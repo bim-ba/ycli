@@ -41,7 +41,10 @@ export YANDEX_ID_OAUTH_TOKEN=...        # OAuth token — https://oauth.yandex.r
 export YANDEX_ID_ORGANIZATION_ID=...    # Yandex 360 organization id (admin panel)
 ```
 
-A missing/empty variable makes every client raise `ValueError` naming the variable.
+A missing or empty variable stops the CLI with a message naming it and pointing at
+`ycli auth login`; an MCP tool call fails with "Failed to resolve dependency 'client'"
+(`ycli auth status` names what is missing). The SDK clients never read the environment: they
+take the values as constructor arguments and raise `ValueError` on an empty one.
 Every service takes the org id in one canonical header, `X-Org-Id` (HTTP header names are
 case-insensitive per RFC 9110, so casing never matters — even in raw HTTP). The clients set
 it for you.
@@ -51,7 +54,7 @@ it for you.
 | Surface | Use when | How |
 |---------|----------|-----|
 | **CLI** | Interactive / shell / scripting | `uv run ycli <domain> <group> <cmd>` (e.g. `uv run ycli tracker issues get KEY`) |
-| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); **222 read/write tools** namespaced `tracker_*` (151), `wiki_*` (42), `forms_*` (28), plus `status_get`. `ycli mcp start --read-only` serves the reads-only view |
+| **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); read/write tools namespaced `tracker_*`, `wiki_*`, `forms_*`, plus `status_get` (`ycli mcp methods` lists them). `ycli mcp start --read-only` serves the reads-only view |
 | **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient(oauth_token=…, organization_id=…)` |
 
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):

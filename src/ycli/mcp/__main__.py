@@ -1,4 +1,4 @@
-"""``python -m ycli.mcp`` — run the read-only MCP server over stdio."""
+"""``python -m ycli.mcp`` — run the MCP server (reads and writes) over stdio."""
 
 from ycli.log import configure
 from ycli.mcp.server import main

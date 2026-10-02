@@ -119,7 +119,9 @@ def test_session_configures_a_supplied_bare_base():
     from ycli.yandex.transport import _TimeoutAdapter
 
     bare = requests.Session()
-    out = Transport.session(oauth_token="t", organization_id="o", base=bare)
+    out = Transport.session(
+        oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3, base=bare
+    )
     assert out is bare  # configured in place, not replaced
     assert out.headers["Authorization"] == "OAuth t"
     assert out.headers["X-Org-Id"] == "o"
@@ -128,7 +130,7 @@ def test_session_configures_a_supplied_bare_base():
 
 
 def test_response_hook_is_registered():
-    s = Transport.session(oauth_token="t", organization_id="o")
+    s = Transport.session(oauth_token="t", organization_id="o", timeout_seconds=30.0, retries=3)
     assert Transport._raise_typed in s.hooks["response"]
 
 
@@ -158,7 +160,8 @@ def test_client_honors_configured_timeout_not_hardcoded(monkeypatch):
     )
     from ycli.yandex.tracker.dependencies import tracker_client
 
-    tracker_client().priorities.list()
+    with tracker_client() as client:
+        client.priorities.list()
     assert seen["incoming_timeout"] is None, f"Expected None but got {seen['incoming_timeout']}"
     assert seen["adapter_timeout"] == 99.0, f"Expected 99.0 but got {seen['adapter_timeout']}"
 

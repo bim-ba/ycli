@@ -12,6 +12,7 @@ from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
@@ -30,13 +31,13 @@ def list_(
     key: str,
     limit: Annotated[
         int,
-        Field(description="Max records to return; 0 means the configured cap (default 500)."),
+        Field(description=f"Max records to return; {LIMIT_CAP}"),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> WorklogList:
     """All time-tracking entries logged against a single Tracker issue, auto-paginated via the
-    relative id-cursor. Capped at 500 items by default unless ``limit`` is given.
+    relative id-cursor. Capped at the configured item cap unless ``limit`` is given.
 
     Scoped to one issue by ``key``. To search worklog across the whole org (by author and/or a
     creation-time range) use ``worklog_search`` instead.

@@ -36,7 +36,7 @@ def test_wiki_deps_factory_builds_from_env(monkeypatch):
         },
         status=200,
     )
-    client = wiki_client()
-    assert isinstance(client, WikiClient)
-    result = client.me.get()
-    assert result.username == "alice"
+    with wiki_client() as client:
+        assert isinstance(client, WikiClient)
+        result = client.me.get()
+        assert result.username == "alice"

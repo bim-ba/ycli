@@ -111,9 +111,10 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-5 — Single sources of truth
 - **Rule:** every value has one home: the version in package metadata, environment access
-  (`os.environ`, `os.getenv`, `from_env`) and settings models in `settings.py`, the org header
-  name in `core/profile.py`, API hosts in each service's profile, timeout/retry/limit defaults
-  in the settings models (no `timeout=30`-style literal elsewhere).
+  (`os.environ`, `os.getenv`, `from_env`), settings models and the credential variable names
+  in `settings.py`, the org header name in `core/profile.py`, API hosts in each service's
+  profile, timeout/retry/limit defaults in the settings models (no `timeout=30`-style literal
+  elsewhere).
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration (the old
   `@uplink.timeout(30)` bug).
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
@@ -169,8 +170,8 @@ rest. Known blind spots:
   then writes is caught by the read-tool AST check only if it is read-only by name or hints.
 - **ARCH-3's uplink half guesses from names** until those resources move to the core.
 - **ARCH-5 is not secret scanning** (gitleaks is). Its literal-default check reads keyword
-  arguments (`timeout=30`), not a bare `500` elsewhere, which is indistinguishable from the
-  HTTP status.
+  arguments and annotated defaults (`timeout=30`, `retries: int = 3`), not a bare `500`
+  elsewhere, which is indistinguishable from the HTTP status.
 - **ARCH-7 reads names**: a settings model reached through a module alias it cannot resolve
   (`import ycli.settings as s; s.AppConfig()` is caught, `getattr(s, "AppConfig")()` is not).
   ARCH-4 and ARCH-8 read names the same way: `getattr(builtins, "print")`, a write to file

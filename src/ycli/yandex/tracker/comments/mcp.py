@@ -13,6 +13,7 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
@@ -32,14 +33,14 @@ def list_(
     key: str,
     limit: Annotated[
         int,
-        Field(description="Max comments to return; 0 means the configured cap (default 500)."),
+        Field(description=f"Max comments to return; {LIMIT_CAP}"),
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> CommentList:
     """All comments on a Tracker issue, auto-paginated via the relative id-cursor.
 
-    Capped at 500 items by default unless ``limit`` is given, so very long threads
+    Capped at the configured item cap unless ``limit`` is given, so very long threads
     are truncated at the cap rather than fetched forever.
     """
     cap = resolve_cap(limit, config.http.max_items)

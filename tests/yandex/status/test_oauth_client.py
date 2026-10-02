@@ -12,11 +12,11 @@ ORG_URL = "https://api360.yandex.net/directory/v1/org"
 
 
 def _client():
-    return OAuthClient(client_id="id", client_secret="secret")
+    return OAuthClient(client_id="id", client_secret="secret", timeout_seconds=30.0, retries=3)
 
 
 def test_authorize_url_carries_client_id():
-    url = OAuthClient(client_id="my-app").authorize_url()
+    url = OAuthClient(client_id="my-app", timeout_seconds=30.0, retries=3).authorize_url()
     assert url == "https://oauth.yandex.ru/authorize?response_type=token&client_id=my-app"
 
 
@@ -160,4 +160,4 @@ def test_fetch_organizations_raises_on_other_failures(status, body, error):
     """Only 401/403 mean "no directory scope"; any other failure is not an empty org list."""
     responses.add(responses.GET, ORG_URL, body=body, status=status)
     with pytest.raises(error):
-        OAuthClient(client_id="id", retries=0).fetch_organizations("tok")
+        OAuthClient(client_id="id", timeout_seconds=30.0, retries=0).fetch_organizations("tok")

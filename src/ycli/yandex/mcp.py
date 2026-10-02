@@ -8,13 +8,17 @@ negligible next to the HTTP round trip it serves.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Protocol
 
 from ycli.settings import AppConfig, Credentials
-from ycli.yandex.factory import ClientFactory
+from ycli.yandex.factory import build_client
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
+    from contextlib import AbstractContextManager
+
+    from ycli.yandex.base import DomainClient
 
 RO: dict[str, bool] = {"readOnlyHint": True, "idempotentHint": True, "openWorldHint": True}
 # Write-tool annotation sets (ARCH-3 annotation honesty). The MCP-spec default for an
@@ -31,6 +35,9 @@ WRITE_IDEMPOTENT: dict[str, bool] = {**WRITE, "idempotentHint": True}
 DESTRUCTIVE: dict[str, bool] = {**WRITE, "destructiveHint": True}
 # Tag carried by every write tool — `ycli mcp start --read-only` disables it wholesale.
 WRITE_TAG = "write"
+# The tail of every listing tool's `limit` description. It names the setting, not its value,
+# so the text stays true when HTTPConfig.max_items or the environment changes the cap.
+LIMIT_CAP = "0 means the configured cap (YCLI__HTTP__MAX_ITEMS)."
 
 
 class AuthSource(Protocol):
@@ -55,18 +62,24 @@ def app_config() -> AppConfig:
     return AppConfig()
 
 
-def client_provider[T](
-    client_cls: type[T], auth_source: AuthSource | None = None
-) -> Callable[[], T]:
+def client_provider[C: DomainClient](
+    client_cls: type[C], auth_source: AuthSource | None = None
+) -> Callable[[], AbstractContextManager[C]]:
     """A zero-argument provider for ``Depends`` that builds ``client_cls`` for each call.
+
+    ``Depends`` enters the context manager before the tool runs and exits it after, so the
+    client's connection pools close when the call ends.
 
     Example:
         >>> forms_client = client_provider(FormsClient)  # doctest: +SKIP
-        >>> forms_client().surveys.list(limit=1)  # doctest: +SKIP
+        >>> with forms_client() as client:  # doctest: +SKIP
+        ...     client.surveys.list(limit=1)
     """
     source = auth_source or EnvAuthSource()
 
-    def provide() -> T:
-        return ClientFactory.build(client_cls, source.resolve(), app_config())  # ty: ignore[invalid-return-type]
+    @contextmanager
+    def provide() -> Iterator[C]:
+        with build_client(client_cls, source.resolve(), app_config()) as client:
+            yield client
 
     return provide

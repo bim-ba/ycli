@@ -1,14 +1,14 @@
-"""TDD for ClientFactory — env-free client construction from instances."""
+"""TDD for build_client — env-free client construction from instances."""
 
 from ycli.settings import AppConfig, Credentials
-from ycli.yandex.factory import ClientFactory
+from ycli.yandex.factory import build_client
 from ycli.yandex.tracker.client import TrackerClient
 
 
 def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
-    """ClientFactory.build takes instances (not env) and wires the sub-clients.
+    """build_client takes instances (not env) and wires the sub-clients.
 
-    monkeypatch sets the env so Credentials() resolves; ClientFactory.build must
+    monkeypatch sets the env so Credentials() resolves; build_client must
     forward exactly those values (not silently re-read the env itself).
     """
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
@@ -16,7 +16,7 @@ def test_build_passes_raw_args_and_does_not_read_env(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)  # prevent .env from leaking
     creds = Credentials()  # ty: ignore[missing-argument]
     cfg = AppConfig(http={"timeout_seconds": 12.0, "retries": 5})  # ty: ignore[invalid-argument-type]
-    client = ClientFactory.build(TrackerClient, creds, cfg)
+    client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
     assert client.me._session.headers["Authorization"] == "OAuth t"
     assert client.me._session.headers["X-Org-Id"] == "o"
@@ -33,6 +33,6 @@ def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     creds = Credentials()  # ty: ignore[missing-argument]
     cfg = AppConfig()
-    client = ClientFactory.build(TrackerClient, creds, cfg)
+    client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
     assert client.me._session.get_adapter("https://")._timeout == 0.5

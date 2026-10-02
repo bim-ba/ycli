@@ -10,16 +10,19 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ycli.settings import AppConfig, Credentials
+    from ycli.yandex.base import DomainClient
 
 
-class ClientFactory:
-    """Builds a domain client from credentials + app config — no environment access."""
+def build_client[C: DomainClient](
+    client_cls: type[C], credentials: Credentials, config: AppConfig
+) -> C:
+    """Construct ``client_cls`` from ``credentials`` + ``config`` — never reads the env.
 
-    @staticmethod
-    def build(client_cls: type, credentials: Credentials, config: AppConfig) -> object:
-        """Construct ``client_cls`` from ``credentials`` + ``config`` — never reads the env."""
-        return client_cls(
-            oauth_token=credentials.oauth_token.get_secret_value(),
-            organization_id=credentials.organization_id,
-            http=config.http,
-        )
+    Example:
+        >>> build_client(TrackerClient, Credentials(), AppConfig()).issues  # doctest: +SKIP
+    """
+    return client_cls(
+        oauth_token=credentials.oauth_token.get_secret_value(),
+        organization_id=credentials.organization_id,
+        http=config.http,
+    )

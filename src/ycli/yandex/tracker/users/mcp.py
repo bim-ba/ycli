@@ -9,7 +9,7 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
 from ycli.yandex.tracker.users.models import User, UserList
 
 mcp = FastMCP("tracker-users")
@@ -40,7 +40,7 @@ def get(
 def list_(
     limit: Annotated[
         int,
-        Field(description="Max users to return; 0 means the configured cap (default 500)."),
+        Field(description=f"Max users to return; {LIMIT_CAP}"),
     ] = 0,
     expand: Annotated[
         str | None,
@@ -50,7 +50,7 @@ def list_(
     config: AppConfig = Depends(app_config),
 ) -> UserList:
     """All users registered in the organisation, auto-paginated via the relative id-cursor and
-    sorted by ascending uid. Capped at 500 items by default unless ``limit`` is given; use
+    sorted by ascending uid. Capped at the configured item cap unless ``limit`` is given; use
     ``users_get`` instead when you already know the specific login or uid.
 
     >>> users_list(limit=50, expand="groups")  # doctest: +SKIP

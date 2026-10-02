@@ -193,15 +193,14 @@ field `outputSchema`, exposed as camelCase by fastmcp 3.4.x).
 fastmcp rebuilds `result.data` from the tool's output JSON schema and, for an undiscriminated
 `anyOf`, picks the *first* branch that validates — silently reshaping one member into another
 and dropping fields.  Any union a tool returns must carry a `Literal` discriminator tag via
-`Field(discriminator=…)`:
+`Field(discriminator=…)`, the way the Forms question union (`forms/questions/models.py`) does:
 
 ```python
-class TrackerAuthStatus(_ServiceAuthStatus):
-    service: Literal["tracker"] = "tracker"
-    me: TrackerMe | None = None
-# … WikiAuthStatus, FormsAuthStatus …
-ServiceAuthStatus = Annotated[
-    TrackerAuthStatus | WikiAuthStatus | FormsAuthStatus, Field(discriminator="service")
+class StringQuestion(_QuestionBase):
+    type: Literal["string"] = Field(default="string", description="Discriminator: string.")
+# … BooleanQuestion, IntegerQuestion, … one member per question type …
+QuestionCreate = Annotated[
+    StringQuestion | BooleanQuestion | IntegerQuestion | ..., Field(discriminator="type")
 ]
 ```
 

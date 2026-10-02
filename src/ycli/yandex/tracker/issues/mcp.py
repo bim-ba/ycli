@@ -11,6 +11,7 @@ from ycli.yandex.models import Ack, require_found
 from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
+    LIMIT_CAP,
     RO,
     TAGS,
     WRITE,
@@ -31,15 +32,15 @@ from ycli.yandex.tracker.issues.models import (
 
 mcp = FastMCP("tracker-issues")
 
-_LIMIT = "Max issues to return; 0 means the configured cap (default 500)."
+_LIMIT = f"Max issues to return; {LIMIT_CAP}"
 
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)
 def get(key: str, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """A single Tracker issue by key (raises if not found).
 
-    In production the Transport response hook raises ``YandexNotFoundError`` on a 404
-    before this guard is reached. This check only fires for a 2xx response that carries
+    In production the core session raises ``YandexNotFoundError`` on a 404 before this
+    guard is reached. This check only fires for a 2xx response that carries
     an empty body (key=None) — an edge case unlikely in practice but defended here for
     safety (e.g. incorrect permissions returning a blank object instead of a 403).
     """
