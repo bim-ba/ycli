@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.bim-ba/ycli",
+  "title": "Yandex 360 (ycli)",
+  "description": "Yandex 360 Tracker, Wiki and Forms: read and write tools with honest read-only annotations.",
+  "version": "0.29.0",
+  "websiteUrl": "https://github.com/bim-ba/ycli",
+  "repository": {
+    "url": "https://github.com/bim-ba/ycli",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "yandex-cli",
+      "version": "0.29.0",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        { "type": "named", "name": "--with", "value": "yandex-cli[mcp]==0.29.0" }
+      ],
+      "packageArguments": [
+        { "type": "positional", "value": "mcp" },
+        { "type": "positional", "value": "start" }
+      ],
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "YANDEX_ID_OAUTH_TOKEN", "description": "Yandex OAuth token with Tracker, Wiki and Forms access.", "isRequired": true, "isSecret": true },
+        { "name": "YANDEX_ID_ORGANIZATION_ID", "description": "Yandex 360 organization id (sent as X-Org-Id).", "isRequired": true }
+      ]
+    },
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/bim-ba/ycli:0.29.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        { "name": "YANDEX_ID_OAUTH_TOKEN", "description": "Yandex OAuth token with Tracker, Wiki and Forms access.", "isRequired": true, "isSecret": true },
+        { "name": "YANDEX_ID_ORGANIZATION_ID", "description": "Yandex 360 organization id (sent as X-Org-Id).", "isRequired": true }
+      ]
+    }
+  ]
+}

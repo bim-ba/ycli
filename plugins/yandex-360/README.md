@@ -32,7 +32,7 @@ Or, working inside this repository, it is registered as a local marketplace in
 
 This plugin bundles `.mcp.json`, so installing it registers the **read/write** Yandex 360
 MCP server automatically — no hand-copied config. The server launches via
-`uvx --from "yandex-cli[mcp]" ycli mcp start`, so you need [`uv`](https://docs.astral.sh/uv/)
+`uvx --from "yandex-cli[mcp]==<plugin version>" ycli mcp start` (pinned to the release, so a plugin update is what moves the server), so you need [`uv`](https://docs.astral.sh/uv/)
 on `PATH` but no global `ycli` install. It serves the `tracker_*`, `wiki_*` and `forms_*`
 tools plus `status_get` (list them with `ycli mcp methods`) with honest annotations: reads carry `readOnlyHint=True`,
 writes declare an explicit `destructiveHint`/`idempotentHint`. Add `--read-only` to the

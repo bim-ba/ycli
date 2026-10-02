@@ -116,8 +116,20 @@ dev = [
 [tool.semantic_release]
 commit_parser = "conventional"
 version_toml = ["pyproject.toml:project.version"]
-# The Claude Code plugin is released together with the package, so it carries the same version.
-version_variables = ["plugins/yandex-360/.claude-plugin/plugin.json:version"]
+# Everything released together with the package carries its version: the Claude Code plugin
+# (manifest + the pinned MCP server), the MCP Registry manifest (server.json: its own version,
+# the PyPI package, the `--with` pin and the OCI tag) and the Claude Desktop bundle (mcpb/).
+# tests/test_distribution.py fails when any of them drifts.
+version_variables = [
+    "plugins/yandex-360/.claude-plugin/plugin.json:version",
+    "plugins/yandex-360/.mcp.json:yandex-cli[mcp]",
+    "server.json:version",
+    "server.json:yandex-cli[mcp]",
+    "server.json:ghcr.io/bim-ba/ycli",
+    "mcpb/manifest.json:version",
+    "mcpb/pyproject.toml:version",
+    "mcpb/pyproject.toml:yandex-cli[mcp]",
+]
 tag_format = "v{version}"
 allow_zero_version = true
 major_on_zero = false

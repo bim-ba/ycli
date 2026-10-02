@@ -10,6 +10,9 @@ name: release
 # short-lived GitHub App installation token (no long-lived PAT) so PSR can write
 # the release commit + tag to main past the branch-protection ruleset. The
 # manual workflow_dispatch path stays for ad-hoc publishing to TestPyPI/PyPI.
+# After PyPI, three more jobs ship the same release: the GHCR image (`docker`), the MCP Registry
+# entry (`registry`, needs the image) and the Claude Desktop bundle attached to the GitHub Release
+# (`mcpb`). They run only for an automated release, never for a manual dispatch.
 
 on:
   push:
@@ -45,6 +48,7 @@ jobs:
     outputs:
       released: ${{ steps.psr.outputs.released }}
       tag: ${{ steps.psr.outputs.tag }}
+      version: ${{ steps.psr.outputs.version }}
     steps:
       # Mint a short-lived GitHub App installation token so PSR can push the
       # release commit + tag to main past branch protection. The default
@@ -151,3 +155,91 @@ jobs:
             -d "{\"libraryName\": \"/${GITHUB_REPOSITORY}\"}"; then
             echo "::warning::Context7 refresh failed; trigger it from the Context7 dashboard."
           fi
+
+  docker:
+    needs: [release, publish]
+    if: github.event_name == 'push' && needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # push to ghcr.io/bim-ba/ycli
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Image tags and labels
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ghcr.io/bim-ba/ycli
+          tags: |
+            type=raw,value=${{ needs.release.outputs.version }}
+            type=raw,value=latest
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # The registry checks the PyPI package (README ownership marker) and the OCI image (public, with
+  # the `io.modelcontextprotocol.server.name` label), so it runs after both are live.
+  registry:
+    needs: [release, publish, docker]
+    if: github.event_name == 'push' && needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # `mcp-publisher login github-oidc` grants io.github.bim-ba/*
+    env:
+      MCP_PUBLISHER_VERSION: 1.8.1
+      # sha256 of mcp-publisher_linux_amd64.tar.gz, also listed in registry_1.8.1_checksums.txt of that release
+      MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+      - name: Install mcp-publisher
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail --location --output mcp-publisher.tar.gz \
+            "https://github.com/modelcontextprotocol/registry/releases/download/v${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz"
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher.tar.gz" | sha256sum --check
+          tar --extract --gzip --file mcp-publisher.tar.gz mcp-publisher
+      - name: Log in to the MCP Registry
+        run: ./mcp-publisher login github-oidc
+      - name: Publish server.json
+        run: ./mcp-publisher publish
+
+  mcpb:
+    needs: [release, publish]
+    if: github.event_name == 'push' && needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # attach the bundle to the GitHub Release PSR created
+    env:
+      MCPB_VERSION: 2.1.2
+      RELEASE_TAG: ${{ needs.release.outputs.tag }}
+      RELEASE_VERSION: ${{ needs.release.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+      - name: Pack the bundle
+        run: npx --yes "@anthropic-ai/mcpb@${MCPB_VERSION}" pack mcpb "yandex-360-${RELEASE_VERSION}.mcpb"
+      - name: Attach to the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${RELEASE_TAG}" "yandex-360-${RELEASE_VERSION}.mcpb" --clobber
