@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.31.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.30.0
+  ([`e1f657e`](https://github.com/bim-ba/ycli/commit/e1f657e5e46e7175284ae966e1b0edaf604cb292))
+
+### Features
+
+- **auth**: Identity from Yandex ID, organization from API 360, probes from the registry (#145)
+  ([#165](https://github.com/bim-ba/ycli/pull/165),
+  [`0bb7e7e`](https://github.com/bim-ba/ycli/commit/0bb7e7e7089d7dc324bfcb3c9fb35c0e22f0f9cf))
+
+### Breaking Changes
+
+- **auth**: The `auth status` / `status_get` report changes shape: the per-service `account` and the
+  top-level `organization_id` are gone; the report is now {configured, identity, organization {id,
+  name, detail}, services [{service, valid, detail}]}.
+
+
 ## v0.30.0 (2026-10-02)
 
 ### Bug Fixes
