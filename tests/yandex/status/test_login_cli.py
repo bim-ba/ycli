@@ -60,6 +60,12 @@ def _stub_device_code():
     )
 
 
+@pytest.fixture(autouse=True)
+def _forms_me(api):
+    """Forms runs on the httpx2 core, so ``api`` answers its probe in every login."""
+    api.add("GET", FORMS_ME, json={"email": "alice@x"})
+
+
 def _stub_token_success():
     responses.add(responses.POST, TOKEN_URL, json={"access_token": TOKEN}, status=200)
 
@@ -73,7 +79,6 @@ def _stub_single_org():
 def _stub_valid_me():
     responses.add(responses.GET, TRACKER_ME, json={"login": "alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, json={"username": "alice"}, status=200)
-    responses.add(responses.GET, FORMS_ME, json={"email": "alice@x"}, status=200)
 
 
 def test_no_client_id_prints_guidance(monkeypatch):
@@ -278,7 +283,6 @@ def test_confirm_prompt_names_the_services_that_reject_the_token(monkeypatch, tm
     _stub_single_org()
     responses.add(responses.GET, TRACKER_ME, json={"login": "alice"}, status=200)
     responses.add(responses.GET, WIKI_ME, status=403)
-    responses.add(responses.GET, FORMS_ME, json={"email": "alice@x"}, status=200)
 
     res = runner.invoke(cli.app, ["-o", "json", "auth", "login"], input="n\n")
 

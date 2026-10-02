@@ -1,110 +1,46 @@
-"""Forms FastMCP domain server — read + write tools, named <resource>_<action>."""
+"""Forms MCP tools refusing what the API would answer badly or not at all."""
 
-import json
-from urllib.parse import parse_qs, urlparse
-
-import responses
+import pytest
 from fastmcp import Client
+from fastmcp.exceptions import ToolError
 
 from tests.hosts import FORMS_BASE as BASE
-from ycli.yandex.forms import mcp as forms_mcp
+from ycli.mcp.server import mcp
 
-SID = "6818ceffe010db4f59d11329"
-
-
-async def test_all_tools_registered():
-    async with Client(forms_mcp.mcp) as client:
-        names = {t.name for t in await client.list_tools()}
-    assert names == {
-        "me_get",
-        "surveys_list",
-        "surveys_get",
-        "surveys_create",
-        "surveys_modify",
-        "surveys_delete",
-        "surveys_publish",
-        "surveys_unpublish",
-        "questions_list",
-        "questions_get",
-        "questions_create",
-        "questions_modify",
-        "questions_delete",
-        "questions_move",
-        "answers_list",
-        "answers_get",
-        "answers_export",
-        "keysets_list",
-        "keysets_get",
-        "keysets_create",
-        "keysets_modify",
-        "keysets_delete",
-        "operations_get",
-        "filling_get",
-        "filling_suggest",
-        "filling_submit",
-        "files_verify",
-        "files_delete",
-    }
+SID = "686d0a1b2c3d4e5f00000080"
 
 
-async def test_every_write_tool_carries_the_write_tag():
-    """Write tools are taggable off wholesale (`ycli mcp start --read-only`); reads are not."""
-    async with Client(forms_mcp.mcp) as client:
-        tools = await client.list_tools()
-    for tool in tools:
-        tags = (tool.meta or {}).get("fastmcp", {}).get("tags", [])
-        if tool.annotations.read_only_hint is True:
-            assert "write" not in tags, f"{tool.name} is a read but carries the write tag"
-        else:
-            assert "write" in tags, f"{tool.name} is a write but lacks the write tag"
+@pytest.mark.parametrize(
+    ("tool", "arguments", "url"),
+    [
+        ("forms_me_get", {}, "users/me"),
+        ("forms_surveys_get", {"survey_id": SID}, f"surveys/{SID}"),
+        (
+            "forms_questions_get",
+            {"survey_id": SID, "question_id": "1"},
+            f"surveys/{SID}/questions/1",
+        ),
+        ("forms_operations_get", {"operation_id": "op-1"}, "operations/op-1"),
+        ("forms_filling_get", {"survey": SID}, f"surveys/{SID}/form"),
+    ],
+)
+async def test_an_empty_answer_is_an_error(api, tool, arguments, url):
+    api.add("GET", f"{BASE}/{url}", json={})
+    async with Client(mcp) as client:
+        with pytest.raises(ToolError, match="empty"):
+            await client.call_tool(tool, arguments)
 
 
-@responses.activate
-async def test_answers_list_tool(creds):
-    responses.add(
-        responses.GET,
-        f"{BASE}/surveys/{SID}/answers",
-        json={
-            "columns": [],
-            "answers": [{"id": 99, "created": "2026-01-01", "data": []}],
-            "next": None,
-        },
-        status=200,
-    )
-    async with Client(forms_mcp.mcp) as client:
-        result = await client.call_tool("answers_list", {"survey_id": SID})
-    assert result.data.answers[0].id == 99
-
-
-@responses.activate
-async def test_answers_list_tool_drains_all_pages(creds):
-    def cb(request):
-        if "id" not in parse_qs(urlparse(request.url).query):
-            body = {
-                "columns": [],
-                "answers": [{"id": 1, "created": "x", "data": []}],
-                "next": {"next_url": f"{BASE}/surveys/{SID}/answers?id=100"},
-            }
-        else:
-            body = {"columns": [], "answers": [{"id": 2, "created": "x", "data": []}], "next": None}
-        return (200, {}, json.dumps(body))
-
-    responses.add_callback(
-        responses.GET, f"{BASE}/surveys/{SID}/answers", callback=cb, content_type="application/json"
-    )
-    async with Client(forms_mcp.mcp) as client:
-        result = await client.call_tool("answers_list", {"survey_id": SID})
-    assert [a.id for a in result.data.answers] == [1, 2]
-
-
-@responses.activate
-async def test_questions_list_tool(creds):
-    responses.add(
-        responses.GET,
-        f"{BASE}/surveys/{SID}/questions",
-        json={"pages": [{"id": 7, "items": [{"id": 1, "slug": "s"}]}]},
-        status=200,
-    )
-    async with Client(forms_mcp.mcp) as client:
-        result = await client.call_tool("questions_list", {"survey_id": SID})
-    assert result.data.pages[0].items[0].slug == "s"
+@pytest.mark.parametrize(
+    ("tool", "arguments"),
+    [
+        ("forms_answers_get", {}),
+        ("forms_answers_get", {"answer_id": 1, "answer_key": "k"}),
+        ("forms_questions_move", {"survey_id": SID, "question_id": "1", "body": {"position": 2}}),
+    ],
+)
+async def test_invalid_arguments_send_nothing(api, tool, arguments):
+    async with Client(mcp) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool(tool, arguments)
+    assert api.calls == []

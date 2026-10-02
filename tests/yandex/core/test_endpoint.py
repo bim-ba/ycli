@@ -102,3 +102,17 @@ def test_check_path_refuses_a_path_that_leaves_its_endpoint(raw_path):
 @pytest.mark.parametrize("raw_path", ["/v3/issues/", "/v3/issues/TEST-1", "/v1/a%20b/c..d"])
 def test_check_path_accepts_ordinary_paths(raw_path):
     check_path(raw_path)
+
+
+def test_files_send_a_multipart_body():
+    request = Endpoint("POST", "files", files={"file": ("cv.txt", b"resume")}).request(
+        httpx2.Client(base_url="https://api.test/v1/")
+    )
+    assert request.headers["Content-Type"].startswith("multipart/form-data")
+    assert b'name="file"; filename="cv.txt"' in request.read()
+
+
+def test_bytes_and_a_parser_read_a_non_json_body():
+    response = httpx2.Response(200, content=b"\x89PNG")
+    assert Endpoint("GET", "x", bytes).parse(response) == b"\x89PNG"
+    assert Endpoint("GET", "x", parser=lambda r: len(r.content)).parse(response) == 4

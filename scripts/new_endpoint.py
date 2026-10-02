@@ -180,9 +180,9 @@ def main() -> None:
         f"     self.{resource} = {cls}Client(session=self._connect(SERVICE.profile))\n"
         f"  3. mount the sub-app into {args.domain}/cli.py (app.add_typer) and the subserver into\n"
         f"     {args.domain}/mcp.py (mcp.mount), mirroring a sibling resource\n"
-        "  4. give each new MCP tool its arguments in ARCH3_EFFECT_CASES "
-        "(tests/test_architecture.py)\n"
-        "  5. add tests under tests/yandex/ and run: uv run pytest && "
+        "  4. add contract cases in tests/yandex/<domain>/<resource>/cases.py "
+        "(docs/conventions/testing.md)\n"
+        "  5. run: uv run pytest && "
         "uv run python -m tests.snapshots --update"
     )
 

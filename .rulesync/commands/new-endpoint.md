@@ -17,12 +17,14 @@ Run the generator, then finish wiring the new resource:
    `references/yandex-360/<domain>/` (they are git-ignored/local-only — regenerate with
    `uv run python scripts/fetch_docs.py <domain>` if the tree is empty).
 3. Register the resource in the domain client's `_wire`
-   (`self.<resource> = <Resource>Client(session=self._connect(SERVICE.profile))`), then mount the
+   (`self.<resource> = <Resource>Client(session=session)`, the domain's one core session from
+   `self._connect(SERVICE.profile)`), then mount the
    new sub-app into the domain `cli.py` (`app.add_typer(...)`) and the new subserver into the
    domain `mcp.py` (`mcp.mount(...)`), mirroring a sibling resource.
-4. Give each new MCP tool its arguments in `ARCH3_EFFECT_CASES` (`tests/test_architecture.py`),
-   and add tests under `tests/yandex/<domain>/<resource>/` — every operation ships across SDK +
-   CLI + MCP (writes included, honestly annotated); keep the 100% coverage gate green.
+4. Add `tests/yandex/<domain>/<resource>/cases.py`: one contract `Case` per way of reaching
+   each operation through the SDK, CLI and MCP, with distinct literal values
+   (`docs/conventions/testing.md`). Hand-write tests only for what a case cannot reach (errors,
+   multi-step flows, guards); keep the 100% coverage gate green.
 5. Run `uv run pytest` and `uv run lint-imports`, then regenerate the public-surface snapshots on
    purpose — the new commands/tools change the CLI tree and MCP tool list (ARCH-6):
    `uv run python -m tests.snapshots --update`.

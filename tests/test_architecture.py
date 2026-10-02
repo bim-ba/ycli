@@ -12,12 +12,9 @@ import functools
 import re
 from pathlib import Path
 
-import httpx2
 from fastmcp import Client
 
 from ycli.mcp.server import mcp as root_mcp
-from ycli.yandex.core.endpoint import EFFECT_EXTENSION
-from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_IDEMPOTENT
 from ycli.yandex.registry import SERVICES
 
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
@@ -373,10 +370,6 @@ UPLINK_RESOURCES = frozenset(
             "attachments", "comments", "grids", "me", "operations", "pages", "recovery",
             "resources", "uploadsessions",
         )),
-        *(f"forms.{name}" for name in (
-            "answers", "files", "filling", "images", "keysets", "me", "operations", "questions",
-            "surveys",
-        )),
     }
 )  # fmt: skip
 
@@ -472,84 +465,13 @@ def test_arch3_mcp_annotation_honesty():
             )
 
 
-# The hints each endpoint effect implies (ARCH-3): the effect is declared once, on the
-# endpoint; the MCP tool must agree with it.
-_EFFECT_HINTS = {
-    "read": RO,
-    "write": WRITE,
-    "idempotent_write": WRITE_IDEMPOTENT,
-    "destructive": DESTRUCTIVE,
-}
-_HINT_KEYS = ("readOnlyHint", "destructiveHint", "idempotentHint")
-# Arguments that make each core-resource tool send its request. Fail-closed both ways: a core
-# tool without a case, or a case without a tool, fails the build.
-ARCH3_EFFECT_CASES: dict[str, dict] = {
-    "tracker_issues_get": {"key": "T-1"},
-    "tracker_issues_list": {"queue": "T"},
-    "tracker_issues_search": {"query": "Queue: T"},
-    "tracker_issues_count": {},
-    "tracker_issues_suggest": {"text": "bug"},
-    "tracker_issues_create": {"body": {"queue": "T", "summary": "s"}},
-    "tracker_issues_update": {"key": "T-1", "body": {"summary": "s"}},
-    "tracker_issues_move": {"key": "T-1", "queue": "Q"},
-    "tracker_issues_scroll_clear": {"body": {"scroll": "token"}},
-}
-
-
-class _SentError(Exception):
-    """Stops a tool right after it sends its first request."""
-
-
-def _core_tool_prefixes() -> tuple[str, ...]:
-    gen = _load_gen_coverage()
-    return tuple(
-        f"{slug}_{attr.rstrip('_')}_"
-        for slug, attr, _ in _resource_operations()
-        if isinstance(getattr(_clients()[slug], attr), gen.Resource)
-    )
-
-
-def _hints_disagree(annotations: dict, effect: str) -> list[str]:
-    expected = _EFFECT_HINTS[effect]
-    return [key for key in _HINT_KEYS if annotations.get(key) != expected.get(key)]
-
-
-def test_arch3_core_tools_are_annotated_by_their_endpoint_effect(monkeypatch):
-    effects: list[str] = []
-
-    def record(request: httpx2.Request) -> httpx2.Response:
-        effects.append(request.extensions[EFFECT_EXTENSION])
-        raise _SentError
-
-    monkeypatch.setattr(
-        "ycli.yandex.core.session.default_transport", lambda: httpx2.MockTransport(record)
-    )
-    prefixes = _core_tool_prefixes()
-    tools = {tool.name: tool for tool in _mcp_tools() if tool.name.startswith(prefixes)}
-    assert set(tools) == set(ARCH3_EFFECT_CASES), "ARCH3_EFFECT_CASES must list every core tool"
-
-    async def sent_effect(name: str) -> str:
-        effects.clear()
-        async with Client(root_mcp) as client:
-            await client.call_tool(name, ARCH3_EFFECT_CASES[name], raise_on_error=False)
-        assert effects, f"{name} sent no request"
-        return effects[0]
-
-    offenders = {}
-    for name, tool in tools.items():
-        effect = asyncio.run(sent_effect(name))
-        annotations = tool.annotations.model_dump(by_alias=True) if tool.annotations else {}
-        if wrong := _hints_disagree(annotations, effect):
-            offenders[name] = f"effect {effect!r} but {wrong} disagree"
-    assert not offenders, offenders
-
-
 # An endpoint may state an effect other than its method implies only here, with the reason:
 # a wrong label would also make the retry policy re-send a non-idempotent request.
 ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "tracker/issues/endpoints.py:search_issues": "POST _search only reads",
     "tracker/issues/endpoints.py:count_issues": "POST _count only reads",
     "tracker/issues/endpoints.py:clear_scroll": "releasing a scroll twice is harmless",
+    "forms/files/endpoints.py:verify_files": "POST verify only reads upload statuses",
 }
 
 
@@ -583,16 +505,6 @@ def test_arch3_effect_override_guard_bites():
     assert _effect_overrides(source, "tracker/issues/endpoints.py") == {
         "tracker/issues/endpoints.py:move_issue"
     }
-
-
-def test_arch3_effect_guard_bites():
-    assert _hints_disagree(RO, "read") == []
-    assert _hints_disagree(RO, "destructive") == [
-        "readOnlyHint",
-        "destructiveHint",
-        "idempotentHint",
-    ]
-    assert _hints_disagree(WRITE, "idempotent_write") == ["idempotentHint"]
 
 
 def test_arch3_write_tools_carry_write_tag():

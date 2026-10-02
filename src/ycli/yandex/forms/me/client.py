@@ -1,21 +1,20 @@
-"""Declarative Forms /users/me client (uplink) — transport ONLY.
+"""Forms ``/users/me`` client on the httpx2 core."""
 
-NOTE: do NOT add ``from __future__ import annotations`` — uplink reads parameter
-annotations eagerly.
-"""
+from __future__ import annotations
 
-import uplink
+from typing import TYPE_CHECKING
 
-from ycli.yandex.forms.base import FormsResource
-from ycli.yandex.forms.me.models import User
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.forms.me import endpoints
+
+if TYPE_CHECKING:
+    from ycli.yandex.forms.me.models import User
 
 
-class MeClient(FormsResource):
-    """Declarative HTTP for ``/users/me``."""
+class MeClient(Resource):
+    """The authenticated Forms user."""
 
-    @uplink.returns.json()
-    @uplink.get("users/me")
-    def get(self) -> User:  # ty: ignore[empty-body]
+    def get(self) -> User:
         """``GET /users/me`` → the authenticated ``User`` (a safe auth probe).
 
         Example:
@@ -23,3 +22,4 @@ class MeClient(FormsResource):
             >>> client.me.get().email  # doctest: +SKIP
             'znatnov.s@example.com'
         """
+        return self._session.send(endpoints.get_me())

@@ -1,30 +1,46 @@
 # Testing conventions
 
 What a resource ships with, which test catches what, and how the suite stays honest. Agreed in
-[#94](https://github.com/bim-ba/ycli/issues/94); the parts marked *E2* arrive as the domains
-move to the httpx2 core.
+[the test decision on #95](https://github.com/bim-ba/ycli/issues/95#issuecomment-5938982896);
+the parts marked *E2* apply to the resources still on uplink until they move to the httpx2 core.
 
 ## Kinds of tests
 
 | Kind | What it proves | How it is written |
 |---|---|---|
-| Wire | method, path, query, body and response parsing of each operation; two pages for a listing | per resource, against `MockAPI` (`tests/mock_api.py`); *E2*: generated from the endpoint declarations |
-| CLI / MCP smoke | the command or tool sends the same request; MCP hints match the endpoint's effect | `ARCH3_EFFECT_CASES` today (one row per core tool); *E2*: one `Case` per operation drives both |
+| Contract | the SDK, CLI and MCP reach each operation with the same requests (method, path, query, body), carrying the credentials; MCP hints match the strongest effect sent; the CLI and MCP return the same data | one `Case` per way of reaching an operation in `tests/yandex/<domain>/<resource>/cases.py`, all driven by `tests/test_contract.py` |
 | Registry & architecture | parity, layers, effects, one output path, single sources, DI, typed boundaries | `tests/test_architecture.py`, import-linter, signature snapshots — small and hand-written |
+| Models | fixtures parse into the models; field descriptions | `test_models.py` per resource |
 | Unit | logic only: validators, auth flows, paginators, error mapping, settings | by hand, next to the code it covers (`tests/yandex/core/`, `tests/yandex/test_settings.py`) |
-| Special behaviour | `--wait` polling, uploads, unusual error shapes | by hand, only where the generic cases cannot reach |
+| Special behaviour | errors, multi-step flows (`--wait` polling), guards that refuse a request, paging quirks of one API | by hand, only where a contract case cannot reach |
 | Live e2e | the real API accepts what ycli sends and reaches the expected state | YAML scenarios in `e2e/` run against the test organization, outside the coverage gate; see [`e2e/README.md`](../../e2e/README.md) |
 
-A resource on the core adds its endpoint declarations, one effect case per MCP tool, and JSON
-fixtures for its responses. Until the generated wire and smoke tests land (E2), it also carries
-per-surface test files.
+A resource on the core ships its endpoint declarations, its contract cases and its models. It
+has no per-surface `test_client.py` / `test_cli.py` / `test_mcp.py` repeating the same request
+three times: a resource stops carrying those as soon as its cases exist. Each pagination kind is
+tested once, in `tests/yandex/core/`, not per resource.
+
+## Writing contract cases
+
+- **Fail-closed coverage.** Every operation, CLI command and MCP tool of a resource on the core
+  needs a case, and every operation must be reached by at least one CLI and one MCP case unless
+  `ARCH1_SURFACE_ASYMMETRIES` lists it. A case of an operation that does not exist fails too.
+- **Distinct values.** Give every case its own ids and fully populated bodies, with every option
+  set to a non-default value. A value shared by two parameters, or an option left at its
+  default, lets a surface that swaps or drops it pass.
+- **Literal expectations.** Write the expected method, path, query and body as literals, never
+  computed from the endpoint declarations or the models they test.
+- **Several requests.** A case lists every exchange in order; a tool that reads and then writes is
+  checked against the strongest effect of all its requests.
+- **One surface only.** A case may set `cli=None` or `mcp=None` when another case of the same
+  operation covers that surface (a CLI-only default, say).
 
 ## Mocking HTTP
 
 - Resources on the httpx2 core: the `api` fixture (`tests/conftest.py`) answers through
   `httpx2.MockTransport` via the one seam `ycli.yandex.core.session.default_transport`. An autouse
   fixture keeps every other core request offline, so a missing stub fails loudly.
-- Resources still on uplink: `responses`, until they move (E2).
+- *E2*: resources still on uplink use `responses` until they move.
 - `MockAPI` mirrors the `responses` API (`api.add(method, url, json=…)`, `api.calls`,
   `api.body(i)`), so moving a test is a mechanical swap.
 

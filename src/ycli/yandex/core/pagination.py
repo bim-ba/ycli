@@ -157,17 +157,26 @@ class LinkHeaderPagination(Pagination):
 
 @dataclass(frozen=True)
 class NextURLPagination(Pagination):
-    """A full next-page URL in the body (Forms answers ``next.next_url``)."""
+    """A next-page URL in the body (Forms answers ``next.next_url``).
+
+    ``query_only`` carries just the link's query over onto the current request, for an API
+    whose links point at a path that does not answer: Forms prints answers links under a
+    retired ``/v3/`` route.
+    """
 
     url_of: Callable[[httpx2.Response], str | None]
+    query_only: bool = False
 
     def next(
         self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
     ) -> httpx2.Request | None:
-        url = self.url_of(response)
-        if not url or request.url == request.url.join(url):
+        link = self.url_of(response)
+        if not link:
             return None
-        return _with_url(request, request.url.join(url))
+        url = request.url.join(link)
+        if self.query_only:
+            url = request.url.copy_with(params=url.params)
+        return None if url == request.url else _with_url(request, url)
 
 
 @dataclass(frozen=True)

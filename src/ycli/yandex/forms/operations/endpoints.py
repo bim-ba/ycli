@@ -1,0 +1,15 @@
+"""Forms ``/operations``, declared once (sans-IO).
+
+Example:
+    >>> get_operation("op-1").path
+    'operations/op-1'
+"""
+
+from __future__ import annotations
+
+from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.forms.operations.models import OperationResult
+
+
+def get_operation(operation_id: str) -> Endpoint[OperationResult]:
+    return Endpoint("GET", f"operations/{segment(operation_id)}", OperationResult)

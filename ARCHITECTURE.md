@@ -33,8 +33,8 @@ Notable shared pieces:
 - `src/ycli/yandex/core/` — the httpx2 core: `Endpoint[T]` (an operation declared once with its
   effect), one `Pagination` class per Yandex paging kind, `SyncSession` / `AsyncSession` (typed
   errors, retries, logging, page walking), every auth kind as an `httpx2.Auth`, and
-  `ServiceProfile` (base URL + organization header). Tracker `issues` runs on it; the other
-  resources move in E2
+  `ServiceProfile` (base URL + organization header). Forms and Tracker `issues` run on it; the
+  other resources move in E2
 - `src/ycli/yandex/pagination.py` — the uplink resources' pagination strategies (until E2)
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
@@ -86,11 +86,11 @@ allowlist entry in code with its reason, never prose here. Tests are in
   declared once, and MCP annotations, the `write` tag and `--read-only` agree with it.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
-- **Check:** for resources on the httpx2 core,
-  `test_arch3_core_tools_are_annotated_by_their_endpoint_effect` runs every tool and compares
-  its hints with the effect of the first `Endpoint` it sends (`ARCH3_EFFECT_CASES`, fail-closed
-  both ways), and `test_arch3_effect_overrides_are_listed` keeps every `effect=` that differs
-  from the method in `ARCH3_EFFECT_OVERRIDES`. An AST check stops any tool that is read-only by
+- **Check:** for resources on the httpx2 core, the contract test (`tests/test_contract.py`,
+  one case per way of reaching an operation, fail-closed both ways) runs every tool and
+  compares its hints with the strongest effect of the endpoints it sends, and
+  `test_arch3_effect_overrides_are_listed` keeps every `effect=` that differs from the method in
+  `ARCH3_EFFECT_OVERRIDES`. An AST check stops any tool that is read-only by
   name or by its `RO` hints from calling a client write method. For resources still on uplink,
   the verb maps classify each tool by name; they go away with the last uplink resource (E2), and
   `test_arch3_verb_maps_are_still_needed` fails at that point to say so.
@@ -170,8 +170,8 @@ rest. Known blind spots:
 - **ARCH-2 catches direct imports only** for the HTTP-library and `fastmcp` contracts
   (`allow_indirect_imports = true`, since surfaces reach HTTP through `client.py`): an HTTP call
   hidden in a helper module that `cli.py` imports is not caught.
-- **ARCH-3's effect check sees the first request** a core tool sends; a tool that reads and
-  then writes is caught by the read-tool AST check only if it is read-only by name or hints.
+- **ARCH-3's effect check sees the requests a contract case makes**: a branch no case takes is
+  not checked.
 - **ARCH-3's uplink half guesses from names** until those resources move to the core.
 - **ARCH-5 is not secret scanning** (gitleaks is). Its literal-default check reads keyword
   arguments and annotated defaults (`timeout=30`, `retries: int = 3`), not a bare `500`

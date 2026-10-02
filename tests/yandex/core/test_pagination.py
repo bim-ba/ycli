@@ -101,6 +101,18 @@ def test_next_url_follows_the_body_link_and_stops_on_repeat():
     assert pagination.next(following, httpx2.Response(200, json={}), [1]) is None
 
 
+def test_next_url_can_carry_only_the_query_of_a_dead_link():
+    """Forms prints answers links under a retired /v3/ route: keep the path, take the cursor."""
+    pagination = NextURLPagination(
+        url_of=lambda response: response.json().get("next"), query_only=True
+    )
+    response = httpx2.Response(200, json={"next": "/v3/surveys/S1/answers/?id=100"})
+    following = pagination.next(_request(), response, [1])
+    assert following is not None
+    assert str(following.url) == f"{BASE}?id=100"
+    assert pagination.next(following, response, [1]) is None
+
+
 @pytest.mark.parametrize("items", [[], [{"id": None}]])
 def test_relative_id_stops_without_a_last_id(items):
     pagination = RelativeIdPagination(id_of=lambda item: item["id"])

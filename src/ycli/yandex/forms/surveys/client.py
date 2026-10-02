@@ -1,151 +1,86 @@
-"""Declarative Forms /surveys client (uplink) — transport ONLY.
+"""Forms ``/surveys`` client on the httpx2 core."""
 
-NOTE: no ``from __future__ import annotations`` — uplink reads annotations eagerly.
-"""
+from __future__ import annotations
 
-import requests
-import uplink
+from typing import Any
 
-from ycli.yandex.forms.base import FormsResource
-from ycli.yandex.forms.surveys.models import (
-    Survey,
-    SurveyList,
-    SurveysResponse,
-)
+from ycli.yandex.core.resource import Resource
+from ycli.yandex.forms.surveys import endpoints
+from ycli.yandex.forms.surveys.models import Survey, SurveyList
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import OffsetStrategy
-
-_PAGE_SIZE = 100
 
 
-class SurveysClient(FormsResource):
-    """Declarative HTTP for ``/surveys`` (offset-paged list envelope + single get)."""
-
-    @uplink.returns.json()
-    @uplink.get("surveys")
-    def _list_page(
-        self,
-        offset: uplink.Query = 0,  # ty: ignore[invalid-parameter-default]
-        limit: uplink.Query = _PAGE_SIZE,  # ty: ignore[invalid-parameter-default]
-    ) -> SurveysResponse:  # ty: ignore[empty-body]
-        """One raw page of surveys at ``offset`` (page size ``limit``); internal — use ``list``."""
+class SurveysClient(Resource):
+    """List, get, create, modify, delete, publish and unpublish forms."""
 
     def list(self, *, limit: int | None = None) -> SurveyList:
-        """``GET /surveys`` → flat :class:`SurveyList`, draining offset pages internally.
-
-        Capped at ``limit`` (``None`` = every form). The API pages by ``offset``/``limit``; this
-        advances the offset until a short page comes back.
+        """``GET /surveys`` → every form, page by page, at most ``limit`` (``None`` = all).
 
         Example:
             >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.list(limit=50).root[0].name  # doctest: +SKIP
             'Новая задача'
         """
-        strategy = OffsetStrategy(extract=lambda page: page.result, page_size=_PAGE_SIZE)
-        surveys = strategy.collect(
-            lambda offset: self._list_page(offset=offset, limit=_PAGE_SIZE),
-            limit,
-        )
-        return SurveyList(surveys)
+        return SurveyList(list(self._session.iterate(endpoints.list_surveys(), limit=limit)))
 
-    @uplink.returns.json()
-    @uplink.get("surveys/{survey_id}")
-    def get(self, survey_id: uplink.Path) -> Survey:  # ty: ignore[empty-body]
+    def get(self, survey_id: str) -> Survey:
         """``GET /surveys/{id}`` → a single ``Survey`` (settings).
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.surveys.get(survey_id="686d0a1b2c3d4e5f").is_published  # doctest: +SKIP
+            >>> client.surveys.get("686d0a1b2c3d4e5f").is_published  # doctest: +SKIP
             True
         """
+        return self._session.send(endpoints.get_survey(survey_id))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.post("surveys")
-    def create(self, body: uplink.Body) -> Survey:  # ty: ignore[empty-body]
-        """``POST /surveys`` — create a form from a ready body. Returns the created ``Survey``.
-
-        Method/path inferred: the vendored ``03-forms/create.md`` shows only the request Body
-        (the request line was truncated); ``03-forms/index.md`` lists it as "Create form", so
-        ``POST /surveys`` per REST convention. Build ``body`` from a
-        :class:`~ycli.yandex.forms.surveys.models.SurveyCreate`.
+    def create(self, body: dict[str, Any]) -> Survey:
+        """``POST /surveys`` — create a form from a ready body (a dumped ``SurveyCreate``).
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.create({"name": "Onboarding"}).id  # doctest: +SKIP
             '686d0a1b2c3d4e5f00000001'
         """
+        return self._session.send(endpoints.create_survey(body))
 
-    @uplink.returns.json()
-    @uplink.json
-    @uplink.patch("surveys/{survey_id}")
-    def modify(self, survey_id: uplink.Path, body: uplink.Body) -> Survey:  # ty: ignore[empty-body]
-        """``PATCH /surveys/{id}`` — patch form settings. Returns the updated ``Survey``.
-
-        Method/path inferred: the vendored ``03-forms/modify.md`` shows only the request Body
-        (the request line was truncated); ``03-forms/index.md`` lists it as "Modify form", so
-        ``PATCH /surveys/{id}`` per REST convention. Only the keys present in ``body`` change —
-        build it from a :class:`~ycli.yandex.forms.surveys.models.SurveyUpdate`.
+    def modify(self, survey_id: str, body: dict[str, Any]) -> Survey:
+        """``PATCH /surveys/{id}`` — only the keys present in ``body`` change (a ``SurveyUpdate``).
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.modify(
             ...     "686d0a1b2c3d4e5f", {"name": "Renamed"}
             ... ).name  # doctest: +SKIP
             'Renamed'
         """
-
-    @uplink.delete("surveys/{survey_id}")
-    def _delete(self, survey_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw ``DELETE /surveys/{id}`` (204 No Content); internal — callers use ``delete``."""
+        return self._session.send(endpoints.modify_survey(survey_id, body))
 
     def delete(self, survey_id: str) -> Ack:
-        """``DELETE /surveys/{id}`` → an :class:`Ack` (``204 No Content``).
-
-        The API returns no body, so the result is synthesized; a non-2xx status raises a
-        typed ``YandexError`` before this returns.
+        """``DELETE /surveys/{id}`` (``204 No Content``) → an :class:`Ack`.
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.delete("686d0a1b2c3d4e5f").ok  # doctest: +SKIP
             True
         """
-        self._delete(survey_id)
+        self._session.send(endpoints.delete_survey(survey_id))
         return Ack.deleted("survey", survey_id)
 
-    @uplink.post("surveys/{survey_id}/publish")
-    def _publish(self, survey_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw bodyless ``POST /surveys/{id}/publish`` (200 OK); internal — use ``publish``."""
-
     def publish(self, survey_id: str) -> Ack:
-        """``POST /surveys/{id}/publish`` (no body) → an :class:`Ack`.
+        """``POST /surveys/{id}/publish`` → an :class:`Ack`.
 
-        Publishes the form. The API answers ``200 OK`` with no JSON body, so the result is
-        synthesized. Fails (typed ``YandexError``) if the form is blocked, has hit its response
-        cap, or is inside an unexpired response-period window.
+        Fails (typed ``YandexError``) if the form is blocked, has hit its response cap, or is
+        inside an unexpired response-period window.
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.publish("686d0a1b2c3d4e5f").detail  # doctest: +SKIP
             'published survey 686d0a1b2c3d4e5f'
         """
-        self._publish(survey_id)
+        self._session.send(endpoints.publish_survey(survey_id))
         return Ack.published("survey", survey_id)
 
-    @uplink.post("surveys/{survey_id}/unpublish")
-    def _unpublish(self, survey_id: uplink.Path) -> requests.Response:  # ty: ignore[empty-body]
-        """Raw bodyless ``POST /surveys/{id}/unpublish`` (200 OK); internal — use ``unpublish``."""
-
     def unpublish(self, survey_id: str) -> Ack:
-        """``POST /surveys/{id}/unpublish`` (no body) → an :class:`Ack`.
-
-        Unpublishes the form (any published form, including auto-publication forms before their
-        close time). The API answers ``200 OK`` with no JSON body, so the result is synthesized.
+        """``POST /surveys/{id}/unpublish`` → an :class:`Ack` (auto-publication forms included).
 
         Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
             >>> client.surveys.unpublish("686d0a1b2c3d4e5f").detail  # doctest: +SKIP
             'unpublished survey 686d0a1b2c3d4e5f'
         """
-        self._unpublish(survey_id)
+        self._session.send(endpoints.unpublish_survey(survey_id))
         return Ack.unpublished("survey", survey_id)

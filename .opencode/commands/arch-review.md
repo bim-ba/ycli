@@ -10,8 +10,8 @@ invariant, state **PASS/FAIL** with `file:line` evidence:
 - **ARCH-2 — Layers.** The core imports no service or surface; no HTTP library in
   `cli.py`/`mcp.py`/`models.py`; `fastmcp` only in MCP modules; MCP never imports the CLI.
 - **ARCH-3 — Honest effects.** A new core endpoint states its effect when the method misleads
-  (`POST …/_search` reads); every tool's hints match its effect (core: `ARCH3_EFFECT_CASES`
-  entry added; uplink: verb maps); writes carry the `write` tag.
+  (`POST …/_search` reads); every tool's hints match its effect (core: a contract case in
+  the resource's `cases.py`; uplink: verb maps); writes carry the `write` tag.
 - **ARCH-4 — One output path.** Commands return results; nothing in a `cli.py` writes stdout.
 - **ARCH-5 — Single sources of truth.** No second copy of the version, env access, org header,
   an API host or a default.
