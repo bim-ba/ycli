@@ -1,6 +1,5 @@
 """`ycli auth status` — probes Tracker, Wiki, Forms identity endpoints."""
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
@@ -11,7 +10,6 @@ FORMS_ME = "https://api.forms.yandex.net/v1/users/me"
 WIKI_ME = "https://api.wiki.yandex.net/v1/users/me"
 
 runner = CliRunner()
-pytestmark = pytest.mark.integration
 
 
 def test_missing_env_reports_not_configured(monkeypatch, tmp_path):

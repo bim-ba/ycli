@@ -8,14 +8,11 @@ test_client / test_models / test_mcp only.
 import json
 import re
 
-import pytest
 import responses
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.hosts import TRACKER_BASE as BASE
-
-pytestmark = pytest.mark.integration
 
 runner = CliRunner()
 

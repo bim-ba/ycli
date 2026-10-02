@@ -88,7 +88,6 @@ def test_retry_is_logged(capsys):
     assert "retrying GET /v2/issues after 503 (1 left)" in capsys.readouterr().err
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     ("flags", "level"), [([], "WARNING"), (["-v"], "INFO"), (["--verbose", "-v"], "DEBUG")]
 )

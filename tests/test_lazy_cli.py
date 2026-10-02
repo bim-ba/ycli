@@ -3,15 +3,12 @@
 import subprocess
 import sys
 
-import pytest
 import typer
 from typer.main import get_command
 from typer.testing import CliRunner
 
 from ycli.cli.app import app
 from ycli.cli.lazy import LazyGroup, SubApp
-
-pytestmark = pytest.mark.integration
 
 
 def _imported_after(argv: list[str]) -> set[str]:

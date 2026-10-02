@@ -12,8 +12,6 @@ from ycli.settings import AppConfig
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.me.models import Me
 
-pytestmark = pytest.mark.integration
-
 runner = CliRunner()
 
 
@@ -97,7 +95,6 @@ def test_appcontext_refuses_a_kind_it_does_not_provide():
         AppContext().resolve(str)
 
 
-@pytest.mark.integration
 def test_a_caller_supplied_context_is_used(monkeypatch):
     """The root callback keeps an ``obj`` handed in by the caller — the DI seam for embedding."""
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
@@ -127,7 +124,6 @@ def test_completion_is_enabled():
     assert "show_completion" in params
 
 
-@pytest.mark.integration
 def test_a_usage_error_wins_over_missing_credentials(monkeypatch, tmp_path):
     """Clients are built on first use, so a command's own argument check runs first (exit 2)."""
     monkeypatch.chdir(tmp_path)

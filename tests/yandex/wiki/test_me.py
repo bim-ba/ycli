@@ -31,7 +31,6 @@ def test_client_get_parses_me(creds):
 
 
 @responses.activate
-@pytest.mark.integration
 def test_cli_wiki_me_get(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
     res = CliRunner().invoke(cli.app, ["--format", "json", "wiki", "me", "get"])
@@ -40,7 +39,6 @@ def test_cli_wiki_me_get(creds):
 
 
 @responses.activate
-@pytest.mark.integration
 def test_mcp_wiki_me_get(creds):
     responses.add(responses.GET, ME_URL, json=ME_BODY, status=200)
     from ycli.yandex.wiki.me.mcp import get
@@ -50,7 +48,6 @@ def test_mcp_wiki_me_get(creds):
 
 
 @responses.activate
-@pytest.mark.integration
 async def test_mcp_wiki_me_auth_guard(creds):
     responses.add(responses.GET, ME_URL, json={}, status=200)
     async with Client(me_mcp_module.mcp) as client:
