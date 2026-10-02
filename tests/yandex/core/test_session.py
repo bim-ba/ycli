@@ -312,3 +312,107 @@ def test_a_3xx_that_is_not_an_unfollowed_redirect_is_an_error(status, headers):
     api.add("GET", "https://files.test/x", status=300)
     with pytest.raises(YandexClientError):
         _session(api, retries=0).send(Endpoint("DELETE", "items"))
+
+
+# --- before_send: one call per endpoint, ahead of the first attempt -------------------------------
+
+
+class _Hook:
+    """Records each call and what the API had been sent by then."""
+
+    def __init__(self, api: MockAPI, *, refuse: bool = False) -> None:
+        self.api = api
+        self.refuse = refuse
+        self.calls: list[tuple[str, httpx2.Request, int]] = []
+
+    def __call__(self, effect: str, request: httpx2.Request) -> None:
+        self.calls.append((effect, request, len(self.api.calls)))
+        if self.refuse:
+            raise RuntimeError("refused by the hook")
+
+
+def _hooked(api: MockAPI, hook: _Hook, retries: int = 2):
+    return connect(
+        PROFILE,
+        auth=OAuthTokenAuth(SecretStr("t")),
+        http=HTTPConfig(retries=retries),
+        transport=api.transport(),
+        before_send=hook,
+    )
+
+
+def test_the_hook_sees_the_effect_and_the_request_before_anything_is_sent():
+    api = MockAPI()
+    api.add("DELETE", f"{URL}/7", status=204)
+    hook = _Hook(api)
+    _hooked(api, hook).send(Endpoint("DELETE", "items/7"))
+    [(effect, request, sent_before)] = hook.calls
+    assert (effect, request.method, str(request.url), sent_before) == (
+        "destructive",
+        "DELETE",
+        f"{URL}/7",
+        0,
+    )
+
+
+def test_a_hook_that_raises_stops_the_request():
+    api = MockAPI()
+    hook = _Hook(api, refuse=True)
+    with pytest.raises(RuntimeError, match="refused"):
+        _hooked(api, hook).send(Endpoint("POST", "items"))
+    assert api.calls == []
+
+
+def test_the_hook_runs_once_however_many_attempts_follow():
+    api = MockAPI()
+    api.add("GET", URL, status=503)
+    api.add("GET", URL, json=[1])
+    hook = _Hook(api)
+    assert _hooked(api, hook).send(Endpoint("GET", "items", list[int])) == [1]
+    assert len(api.calls) == 2
+    assert len(hook.calls) == 1
+
+
+def test_the_hook_runs_once_for_a_listing_not_per_page():
+    api = MockAPI()
+    api.add("GET", URL, json=[1, 2])
+    api.add("GET", URL, json=[3])
+    hook = _Hook(api)
+    assert list(_hooked(api, hook).iterate(_listing())) == [1, 2, 3]
+    assert len(api.calls) == 2
+    assert [(effect, sent) for effect, _, sent in hook.calls] == [("read", 0)]
+
+
+async def test_the_async_session_calls_the_hook_the_same_way():
+    api = MockAPI()
+    api.add("DELETE", f"{URL}/7", status=204)
+    api.add("GET", URL, json=[1, 2])
+    api.add("GET", URL, json=[3])
+    hook = _Hook(api)
+    session = connect_async(
+        PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport(), before_send=hook
+    )
+    await session.send(Endpoint("DELETE", "items/7"))
+    assert [item async for item in session.iterate(_listing())] == [1, 2, 3]
+    assert [(effect, sent) for effect, _, sent in hook.calls] == [("destructive", 0), ("read", 1)]
+    await session.aclose()
+
+
+async def test_an_async_hook_that_raises_stops_the_request():
+    api = MockAPI()
+    session = connect_async(
+        PROFILE,
+        auth=OAuthTokenAuth(SecretStr("t")),
+        transport=api.transport(),
+        before_send=_Hook(api, refuse=True),
+    )
+    with pytest.raises(RuntimeError, match="refused"):
+        await session.send(Endpoint("POST", "items"))
+    assert api.calls == []
+
+
+def test_shown_masks_a_secret_query_parameter():
+    from ycli.yandex.core.session import shown
+
+    url = httpx2.URL("https://api.test/v1/items?apikey=hunter2&q=1")
+    assert str(shown(url)) == "https://api.test/v1/items?apikey=%2A%2A%2A&q=1"

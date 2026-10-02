@@ -7,8 +7,9 @@ make no API call never need credentials.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import cast
+from typing import Any, cast
 
+from ycli.cli.guard import SendGuard
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.base import DomainClient
 from ycli.yandex.factory import build_client
@@ -19,6 +20,8 @@ class AppContext:
     """Resolves a command's dependencies: the app config and any SDK domain client."""
 
     config: AppConfig = field(default_factory=AppConfig)
+    # The root command's parsed global options (``--yes``…), the live mapping the guard reads.
+    options: dict[str, Any] = field(default_factory=dict)
     _credentials: Credentials | None = None
     _clients: dict[type, DomainClient] = field(default_factory=dict)
 
@@ -36,5 +39,7 @@ class AppContext:
         if kind not in self._clients:
             # Raises a ValidationError naming the missing variables when credentials are unset.
             self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]
-            self._clients[kind] = build_client(kind, self._credentials, self.config)
+            self._clients[kind] = build_client(
+                kind, self._credentials, self.config, before_send=SendGuard(self.options)
+            )
         return cast("T", self._clients[kind])

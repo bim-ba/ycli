@@ -10,6 +10,9 @@ and :class:`AsyncSession` differ only in ``await``. Both:
   lost connection only for idempotent endpoints, never for a create;
 - log one line per request (method, URL, status, duration) and one per retry to ``ycli.http``,
   never headers or bodies;
+- call an optional ``before_send`` hook once per endpoint, with its effect and the built request,
+  before the first HTTP attempt (not per retry or page) — the seam a surface uses to confirm or
+  refuse a write; the hook decides by returning or by raising, and the core knows nothing else;
 - walk a paginated listing up to ``limit`` items, warn when items are left behind, and stop on an
   empty page or after ``max_pages`` so a misbehaving cursor cannot loop forever.
 
@@ -26,7 +29,7 @@ from __future__ import annotations
 import logging
 import math
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import httpx2
 import stamina
@@ -44,8 +47,11 @@ from ycli.yandex.errors import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, Iterator, Sequence
 
-    from ycli.yandex.core.endpoint import Endpoint, Paged
+    from ycli.yandex.core.endpoint import Effect, Endpoint, Paged
     from ycli.yandex.core.profile import ServiceProfile
+
+# Called once per endpoint with what it does to the server and the request about to be sent.
+type BeforeSend = Callable[[Effect, httpx2.Request], None]
 
 logger = logging.getLogger("ycli.http")
 
@@ -56,10 +62,16 @@ MAX_RETRY_AFTER_SECONDS = 60.0
 _SECRET_PARAMS = frozenset({"apikey", "api_key", "access_token", "oauth_token", "token"})
 
 
-def _shown(url: httpx2.URL) -> httpx2.URL:
+def shown(url: httpx2.URL) -> httpx2.URL:
     """``url`` with secret query parameters masked, safe to log or put in an error message."""
     secrets = [name for name in url.params if name.lower() in _SECRET_PARAMS]
     return url.copy_merge_params(dict.fromkeys(secrets, "***")) if secrets else url
+
+
+def _announce(before_send: BeforeSend | None, endpoint: Endpoint, request: httpx2.Request) -> None:
+    """Tell the ``before_send`` hook, if there is one, what ``endpoint`` is about to do."""
+    if before_send is not None:
+        before_send(cast("Effect", endpoint.effect), request)  # set at construction
 
 
 def _retry_after(response: httpx2.Response) -> float | None:
@@ -77,7 +89,7 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
     logger.info(
         "%s %s -> %s (%.0f ms)",
         request.method,
-        _shown(request.url),
+        shown(request.url),
         response.status_code,
         elapsed_seconds * 1000,
     )
@@ -88,12 +100,12 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
     detail = describe_error_body(response.text)
     message = (
         f"{response.status_code} {response.reason_phrase} for {request.method} "
-        f"{_shown(request.url)}: {detail}"
+        f"{shown(request.url)}: {detail}"
     )
     raise error_for_status(
         response.status_code,
         message,
-        url=str(_shown(request.url)),
+        url=str(shown(request.url)),
         retry_after=_retry_after(response),
     )
 
@@ -118,7 +130,7 @@ def _log_retry(request: httpx2.Request, attempt: int, attempts: int) -> None:
         logger.info(
             "retrying %s %s (attempt %d of %d)",
             request.method,
-            _shown(request.url),
+            shown(request.url),
             attempt,
             attempts,
         )
@@ -146,9 +158,16 @@ def _page_plan[I](
 class SyncSession:
     """Sends endpoints through an ``httpx2.Client`` — the blocking flavour."""
 
-    def __init__(self, client: httpx2.Client, *, retries: int = HTTPConfig().retries) -> None:
+    def __init__(
+        self,
+        client: httpx2.Client,
+        *,
+        retries: int = HTTPConfig().retries,
+        before_send: BeforeSend | None = None,
+    ) -> None:
         self._client = client
         self._attempts = retries + 1
+        self._before_send = before_send
 
     def _send(
         self, request: httpx2.Request, idempotent: bool, *, follow_redirects: bool = True
@@ -164,7 +183,7 @@ class SyncSession:
                 try:
                     response = self._client.send(request, follow_redirects=follow_redirects)
                 except httpx2.RequestError as exc:
-                    url = _shown(request.url)
+                    url = shown(request.url)
                     message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
                     raise YandexConnectionError(message, url=str(url)) from exc
                 return _checked(response, time.perf_counter() - started)
@@ -172,10 +191,10 @@ class SyncSession:
 
     def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
+        request = endpoint.request(self._client)
+        _announce(self._before_send, endpoint, request)
         response = self._send(
-            endpoint.request(self._client),
-            endpoint.idempotent,
-            follow_redirects=endpoint.follow_redirects,
+            request, endpoint.idempotent, follow_redirects=endpoint.follow_redirects
         )
         return endpoint.parse(response)
 
@@ -184,6 +203,7 @@ class SyncSession:
     ) -> Iterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
         request = paged.pagination.first(paged.endpoint.request(self._client))
+        _announce(self._before_send, paged.endpoint, request)
         produced = 0
         for _ in range(max_pages):
             response = self._send(
@@ -206,9 +226,16 @@ class SyncSession:
 class AsyncSession:
     """Sends endpoints through an ``httpx2.AsyncClient`` — the same contract, awaited."""
 
-    def __init__(self, client: httpx2.AsyncClient, *, retries: int = HTTPConfig().retries) -> None:
+    def __init__(
+        self,
+        client: httpx2.AsyncClient,
+        *,
+        retries: int = HTTPConfig().retries,
+        before_send: BeforeSend | None = None,
+    ) -> None:
         self._client = client
         self._attempts = retries + 1
+        self._before_send = before_send
 
     async def _send(
         self, request: httpx2.Request, idempotent: bool, *, follow_redirects: bool = True
@@ -224,7 +251,7 @@ class AsyncSession:
                 try:
                     response = await self._client.send(request, follow_redirects=follow_redirects)
                 except httpx2.RequestError as exc:
-                    url = _shown(request.url)
+                    url = shown(request.url)
                     message = f"{request.method} {url}: {type(exc).__name__}: {exc}"
                     raise YandexConnectionError(message, url=str(url)) from exc
                 return _checked(response, time.perf_counter() - started)
@@ -232,10 +259,10 @@ class AsyncSession:
 
     async def send[T](self, endpoint: Endpoint[T]) -> T:
         """Call ``endpoint`` once and return its parsed response."""
+        request = endpoint.request(self._client)
+        _announce(self._before_send, endpoint, request)
         response = await self._send(
-            endpoint.request(self._client),
-            endpoint.idempotent,
-            follow_redirects=endpoint.follow_redirects,
+            request, endpoint.idempotent, follow_redirects=endpoint.follow_redirects
         )
         return endpoint.parse(response)
 
@@ -244,6 +271,7 @@ class AsyncSession:
     ) -> AsyncIterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
         request = paged.pagination.first(paged.endpoint.request(self._client))
+        _announce(self._before_send, paged.endpoint, request)
         produced = 0
         for _ in range(max_pages):
             response = await self._send(
@@ -280,10 +308,12 @@ def connect(
     organization_id: str | None = None,
     http: HTTPConfig | None = None,
     transport: httpx2.BaseTransport | None = None,
+    before_send: BeforeSend | None = None,
 ) -> SyncSession:
     """A :class:`SyncSession` for one service: base URL, org header, auth, timeout, retries.
 
-    ``transport`` replaces the network (``httpx2.MockTransport`` in tests).
+    ``transport`` replaces the network (``httpx2.MockTransport`` in tests); ``before_send`` is
+    called once per endpoint, before its first attempt (see the module docstring).
     """
     http = http or HTTPConfig()
     client = httpx2.Client(
@@ -295,7 +325,7 @@ def connect(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return SyncSession(client, retries=http.retries)
+    return SyncSession(client, retries=http.retries, before_send=before_send)
 
 
 def connect_async(
@@ -305,6 +335,7 @@ def connect_async(
     organization_id: str | None = None,
     http: HTTPConfig | None = None,
     transport: httpx2.AsyncBaseTransport | None = None,
+    before_send: BeforeSend | None = None,
 ) -> AsyncSession:
     """The :class:`AsyncSession` twin of :func:`connect`."""
     http = http or HTTPConfig()
@@ -317,4 +348,4 @@ def connect_async(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return AsyncSession(client, retries=http.retries)
+    return AsyncSession(client, retries=http.retries, before_send=before_send)

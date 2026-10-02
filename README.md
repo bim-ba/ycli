@@ -79,6 +79,11 @@ ycli --jq .summary tracker issues get TRACKER-1   # filter the JSON with jq; a s
 like `jq -r`: a string comes out raw, anything else as one compact JSON value per line. It
 cannot be combined with `-o yaml` / `-o pretty`, and it needs the `jq` Python package (a
 dependency; it has no build for Windows on ARM).
+
+**Deleting asks first.** A command that destroys data (every `delete`, `clear`, `abort`…) asks
+`DELETE <url> — this deletes data. Continue?` on stderr when you are at a terminal, and exits 1
+if you decline. In a script, a pipe or CI there is no one to ask, so it fails with exit 2 until
+you pass `--yes` / `-y`: `ycli tracker boards delete 7 --yes`. Reads and ordinary writes never ask.
 </details>
 
 <details>

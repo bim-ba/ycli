@@ -12,7 +12,7 @@ import typer
 from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
-from ycli.cli.typedefs import FormatOption, JqOption
+from ycli.cli.typedefs import FormatOption, JqOption, YesOption
 from ycli.yandex.registry import SERVICES
 
 
@@ -27,7 +27,12 @@ class _Ycli(RootGroup):
 
 
 def _render(
-    result: object, output_format: OutputFormat | None, jq: str | None, verbose: int, version: bool
+    result: object,
+    output_format: OutputFormat | None,
+    jq: str | None,
+    yes: bool,
+    verbose: int,
+    version: bool,
 ) -> None:
     """Print whatever the command returned; Click passes the root options alongside it."""
     from ycli.cli.output import render
@@ -61,6 +66,7 @@ def _main(
     ctx: typer.Context,
     output_format: FormatOption = OutputFormat.auto,
     jq: JqOption = None,
+    yes: YesOption = False,
     verbose: Annotated[
         int,
         typer.Option(
@@ -88,6 +94,8 @@ def _main(
     # A caller (a test, an embedding app) may hand in its own context; otherwise build one.
     if ctx.obj is None:
         ctx.obj = AppContext(config=AppConfig())
+    # Shared, not copied: a leaf's own ``--yes`` lands in this mapping after this body has run.
+    ctx.obj.options = ctx.params
     logging_config = ctx.obj.config.logging
     level = {0: logging_config.level, 1: "INFO"}.get(verbose, "DEBUG")
     configure(level=level, log_format=logging_config.format)
