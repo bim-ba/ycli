@@ -9,6 +9,46 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.26.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.25.0
+  ([`27ccced`](https://github.com/bim-ba/ycli/commit/27cccedd5a14e904e647d496d136480f3ae80687))
+
+### Documentation
+
+- **forms**: Teach the forms skill the integrations, conditions, access, history and notification
+  commands ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+### Features
+
+- **forms**: Cover every documented Forms endpoint ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+- **forms**: Display conditions of questions, pages, the submit button and hooks
+  ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+- **forms**: Integration groups, their integrations and the variable catalogue
+  ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+- **forms**: Integration runs (notifications), answer integrations, answer delete and restore, image
+  clone ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+- **forms**: Survey access and the change log ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+### Refactoring
+
+- **forms**: Cap the new listings with HTTPConfig.cap
+  ([#152](https://github.com/bim-ba/ycli/pull/152),
+  [`6c91611`](https://github.com/bim-ba/ycli/commit/6c916110c64c8592250ed85506dec52e362c9338))
+
+
 ## v0.25.0 (2026-10-02)
 
 ### Build System
