@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.24.1 (2026-10-02)
+
+### Bug Fixes
+
+- **auth**: Keep the device code copyable and name the missing org permission
+  ([#139](https://github.com/bim-ba/ycli/pull/139),
+  [`e299e86`](https://github.com/bim-ba/ycli/commit/e299e86a73ea3a66621b2acf7fac39fd13874ac3))
+
+### Build System
+
+- Re-lock uv.lock for 0.24.0
+  ([`f24f3eb`](https://github.com/bim-ba/ycli/commit/f24f3eb72fa44533102bbd2ed611375a92b0cef2))
+
+
 ## v0.24.0 (2026-10-02)
 
 ### Build System
