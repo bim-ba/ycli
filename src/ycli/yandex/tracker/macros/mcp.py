@@ -78,7 +78,7 @@ def create(
 
 
 @mcp.tool(
-    name="macros_edit",
+    name="macros_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue macro"},
     tags=WRITE_TAGS,
 )

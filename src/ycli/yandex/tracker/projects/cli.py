@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.projects.models import (
@@ -81,8 +82,9 @@ def create(
     return tracker.projects.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     project_id: ProjectIdArg,
     version: Annotated[int, typer.Option(help="Current version of the project (required).")],
     queues: QueuesOpt,

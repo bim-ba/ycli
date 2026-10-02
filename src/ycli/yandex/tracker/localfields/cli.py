@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.localfields.models import (
     LocalField,
@@ -85,8 +86,9 @@ def create(
     return tracker.localfields.create(queue_id, body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     queue_id: QueueArg,
     field_key: Annotated[str, typer.Argument(help="Local field key (from `localfields list`).")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New field name in Russian.")] = "",

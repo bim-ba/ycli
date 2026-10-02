@@ -69,7 +69,7 @@ def create(
 
 
 @mcp.tool(
-    name="hooks_modify",
+    name="hooks_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration group"},
     tags=WRITE_TAGS,
 )

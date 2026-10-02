@@ -268,7 +268,7 @@ CASES = [
             "r9",
         ],
         mcp=(
-            "wiki_grids_add_rows",
+            "wiki_grids_rows_add",
             {
                 "grid_id": G1,
                 "body": {"revision": "13", "rows": ROWS, "position": 2, "after_row_id": "r9"},
@@ -316,7 +316,7 @@ CASES = [
             "r2",
         ],
         mcp=(
-            "wiki_grids_remove_rows",
+            "wiki_grids_rows_remove",
             {"grid_id": G1, "body": {"revision": "14", "row_ids": ["r1", "r2"]}},
         ),
         exchanges=[
@@ -358,7 +358,7 @@ CASES = [
             "2",
         ],
         mcp=(
-            "wiki_grids_move_rows",
+            "wiki_grids_rows_move",
             {
                 "grid_id": G1,
                 "body": {
@@ -411,7 +411,7 @@ CASES = [
             "1",
         ],
         mcp=(
-            "wiki_grids_add_columns",
+            "wiki_grids_columns_add",
             {"grid_id": G1, "body": {"revision": "16", "columns": COLUMNS, "position": 1}},
         ),
         exchanges=[
@@ -442,7 +442,7 @@ CASES = [
             "due_date",
         ],
         mcp=(
-            "wiki_grids_remove_columns",
+            "wiki_grids_columns_remove",
             {"grid_id": G1, "body": {"revision": "17", "column_slugs": ["stage", "due_date"]}},
         ),
         exchanges=[
@@ -475,7 +475,7 @@ CASES = [
             "3",
         ],
         mcp=(
-            "wiki_grids_move_columns",
+            "wiki_grids_columns_move",
             {
                 "grid_id": G1,
                 "body": {
@@ -526,7 +526,7 @@ CASES = [
             json.dumps(CELLS),
         ],
         mcp=(
-            "wiki_grids_update_cells",
+            "wiki_grids_cells_update",
             {"grid_id": G1, "body": {"revision": "19", "cells": CELLS}},
         ),
         exchanges=[
@@ -596,7 +596,7 @@ CASES = [
         "wiki.grids.suggest_column",
         args=(G2, {"title": "Due date"}),
         cli=["wiki", "grids", "columns", "suggest", G2, "--title", "Due date"],
-        mcp=("wiki_grids_suggest_column", {"grid_id": G2, "body": {"title": "Due date"}}),
+        mcp=("wiki_grids_columns_suggest", {"grid_id": G2, "body": {"title": "Due date"}}),
         effect="read",
         exchanges=[
             (
@@ -653,7 +653,7 @@ CASES = [
             "done",
         ],
         mcp=(
-            "wiki_grids_update_column",
+            "wiki_grids_columns_update",
             {"grid_id": G1, "column_slug": "stage", "body": COLUMN_UPDATE},
         ),
         exchanges=[
@@ -719,7 +719,7 @@ CASES = [
         args=(G3, "assignee", COLUMN_UPDATE_EXTRA),
         cli=None,
         mcp=(
-            "wiki_grids_update_column",
+            "wiki_grids_columns_update",
             {"grid_id": G3, "column_slug": "assignee", "body": COLUMN_UPDATE_EXTRA},
         ),
         exchanges=[
@@ -761,7 +761,7 @@ CASES = [
             "orange",
         ],
         mcp=(
-            "wiki_grids_update_row",
+            "wiki_grids_rows_update",
             {
                 "grid_id": G1,
                 "row_id": "103",

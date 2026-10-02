@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
@@ -63,20 +64,23 @@ def get(
     return tracker.queues.get(queue_id, expand=expand or None)
 
 
+@deprecated_alias(app, "tags")
 @app.command()
-def tags(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueTagList:
+def tags_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueTagList:
     """List the tags added to QUEUE_ID."""
     return tracker.queues.tags(queue_id)
 
 
+@deprecated_alias(app, "versions")
 @app.command()
-def versions(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueVersionInfoList:
+def versions_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueVersionInfoList:
     """List the versions defined on QUEUE_ID."""
     return tracker.queues.versions(queue_id)
 
 
+@deprecated_alias(app, "fields")
 @app.command()
-def fields(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueFieldList:
+def fields_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueFieldList:
     """List the required/local fields of QUEUE_ID."""
     return tracker.queues.fields(queue_id)
 
@@ -130,8 +134,9 @@ def restore(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Queue:
     return tracker.queues.restore(queue_id)
 
 
+@deprecated_alias(app, "permissions")
 @app.command()
-def permissions(
+def set_permissions(
     queue_id: QueueIdArg,
     create: Annotated[
         str, typer.Option(help="Create-issue permission scope as a JSON object.")
@@ -203,8 +208,9 @@ def version_get(
     return tracker.queues.version_get(version_id, fields=fields or None)
 
 
-@app.command("version-edit")
-def version_edit(
+@deprecated_alias(app, "version-edit")
+@app.command("version-update")
+def version_update(
     version_id: VersionIdArg,
     name: Annotated[str, typer.Option(help="New name of the version.")] = "",
     description: Annotated[str, typer.Option(help="New description of the version.")] = "",
@@ -235,8 +241,9 @@ def version_delete(version_id: VersionIdArg, *, tracker: TrackerClient) -> Ack:
     return Ack.deleted("version", version_id)
 
 
-@app.command("user-permissions")
-def user_permissions(
+@deprecated_alias(app, "user-permissions")
+@app.command("user-permissions-get")
+def user_permissions_get(
     queue_id: QueueIdArg,
     user_id: Annotated[
         str, typer.Argument(metavar="USER", help="Login or numeric uid of the user.")
@@ -248,8 +255,9 @@ def user_permissions(
     return tracker.queues.user_permissions(queue_id, user_id)
 
 
-@app.command("group-permissions")
-def group_permissions(
+@deprecated_alias(app, "group-permissions")
+@app.command("group-permissions-get")
+def group_permissions_get(
     queue_id: QueueIdArg,
     group_id: Annotated[int, typer.Argument(metavar="GROUP_ID", help="Numeric id of the group.")],
     *,

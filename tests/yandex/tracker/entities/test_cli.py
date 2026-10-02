@@ -14,7 +14,7 @@ from tests.hosts import TRACKER_BASE as BASE
     [
         (["search", "project", "--order-asc"], "needs --order-by"),
         (["set-direct-permissions", "project", "655f"], "pass --grant and/or --revoke"),
-        (["checklists", "edit", "project", "655f", "--item", "no-separator"], "must be id=text"),
+        (["checklists", "update", "project", "655f", "--item", "no-separator"], "must be id=text"),
     ],
 )
 def test_bad_arguments_fail_before_sending(argv, message):

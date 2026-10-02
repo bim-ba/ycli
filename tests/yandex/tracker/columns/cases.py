@@ -59,7 +59,7 @@ CASES = [
         cli=[
             "tracker",
             "columns",
-            "edit",
+            "update",
             "76",
             "6",
             "--name",
@@ -70,7 +70,7 @@ CASES = [
             "blocked",
         ],
         mcp=(
-            "tracker_columns_edit",
+            "tracker_columns_update",
             {
                 "board_id": 76,
                 "column_id": 6,
@@ -92,8 +92,11 @@ CASES = [
     Case(
         "tracker.columns.edit",
         args=(77, 7, ColumnUpdate(name="Waiting")),
-        cli=["tracker", "columns", "edit", "77", "7", "--name", "Waiting"],
-        mcp=("tracker_columns_edit", {"board_id": 77, "column_id": 7, "body": {"name": "Waiting"}}),
+        cli=["tracker", "columns", "update", "77", "7", "--name", "Waiting"],
+        mcp=(
+            "tracker_columns_update",
+            {"board_id": 77, "column_id": 7, "body": {"name": "Waiting"}},
+        ),
         exchanges=[
             (
                 Sent("PATCH", "boards/77/columns/7", json={"name": "Waiting"}),

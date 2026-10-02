@@ -270,7 +270,7 @@ def version_get(
 
 
 @mcp.tool(
-    name="queues_version_edit",
+    name="queues_version_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue version"},
     tags=WRITE_TAGS,
 )
@@ -287,7 +287,7 @@ def version_edit(
     """Edit a queue version; only the fields set in ``body`` change. Returns the version.
 
     Example:
-        >>> queues_version_edit(123, {"name": "v1.1"})  # doctest: +SKIP
+        >>> queues_version_update(123, {"name": "v1.1"})  # doctest: +SKIP
     """
     return client.queues.version_edit(version_id, body, fields=fields)
 

@@ -101,7 +101,7 @@ CASES = [
         cli=[
             "tracker",
             "triggers",
-            "edit",
+            "update",
             "BIZ",
             "18",
             "--name",
@@ -115,7 +115,7 @@ CASES = [
             "3",
         ],
         mcp=(
-            "tracker_triggers_edit",
+            "tracker_triggers_update",
             {
                 "queue_id": "BIZ",
                 "trigger_id": 18,
@@ -149,9 +149,9 @@ CASES = [
     Case(
         "tracker.triggers.edit",
         args=("CRM", 19, TriggerUpdate(active=False)),
-        cli=["tracker", "triggers", "edit", "CRM", "19", "--inactive"],
+        cli=["tracker", "triggers", "update", "CRM", "19", "--inactive"],
         mcp=(
-            "tracker_triggers_edit",
+            "tracker_triggers_update",
             {"queue_id": "CRM", "trigger_id": 19, "body": {"active": False}},
         ),
         exchanges=[
@@ -168,7 +168,7 @@ CASES = [
         kwargs={"version": 9},
         cli=None,
         mcp=(
-            "tracker_triggers_edit",
+            "tracker_triggers_update",
             {"queue_id": "HR", "trigger_id": 20, "body": {"before": 12}, "version": 9},
         ),
         exchanges=[
@@ -190,7 +190,7 @@ CASES = [
         cli=[
             "tracker",
             "triggers",
-            "webhook-log",
+            "webhook-log-list",
             "DEV",
             "6",
             "--issue-id",
@@ -226,7 +226,7 @@ CASES = [
         cli=[
             "tracker",
             "triggers",
-            "webhook-log",
+            "webhook-log-list",
             "MKT",
             "7",
             "--issue-id",
@@ -235,7 +235,7 @@ CASES = [
             "25",
         ],
         mcp=(
-            "tracker_triggers_webhooklog_list",
+            "tracker_triggers_webhook_log_list",
             {"queue_id": "MKT", "trigger_id": 7, "issue_id": "MKT-8", "limit": 25},
         ),
         exchanges=[
@@ -250,8 +250,8 @@ CASES = [
     Case(
         "tracker.triggers.webhook_log",
         args=("LAB", 8),
-        cli=["tracker", "triggers", "webhook-log", "LAB", "8"],
-        mcp=("tracker_triggers_webhooklog_list", {"queue_id": "LAB", "trigger_id": 8}),
+        cli=["tracker", "triggers", "webhook-log-list", "LAB", "8"],
+        mcp=("tracker_triggers_webhook_log_list", {"queue_id": "LAB", "trigger_id": 8}),
         exchanges=[(Sent("GET", "queues/LAB/triggers/8/webhooks/log"), Reply(json=[]))],
     ),
     # The default cap asks for 50-row pages and walks id=<last trigger id> until a page is empty.

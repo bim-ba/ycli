@@ -49,7 +49,7 @@ def create(body: IssueTypeCreate, client: TrackerClient = Depends(tracker_client
 
 
 @mcp.tool(
-    name="issuetypes_edit",
+    name="issuetypes_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue type"},
     tags=WRITE_TAGS,
 )

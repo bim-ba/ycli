@@ -12,6 +12,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.progress import wait_for
 from ycli.yandex.tracker.bulk.models import (
@@ -144,7 +145,8 @@ def get(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkChange:
     return tracker.bulk.get(bulk_id)
 
 
+@deprecated_alias(app, "issues")
 @app.command()
-def issues(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkIssueResultList:
+def issues_list(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkIssueResultList:
     """List issues that a bulk change failed on (GET /bulkchange/{id}/issues)."""
     return tracker.bulk.issues(bulk_id)

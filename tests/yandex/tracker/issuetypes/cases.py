@@ -46,7 +46,7 @@ CASES = [
         cli=[
             "tracker",
             "issuetypes",
-            "edit",
+            "update",
             "23",
             "--name-ru",
             "Покупатель",
@@ -56,7 +56,7 @@ CASES = [
             "2",
         ],
         mcp=(
-            "tracker_issuetypes_edit",
+            "tracker_issuetypes_update",
             {
                 "issue_type_id": "23",
                 "body": {"name": {"ru": "Покупатель", "en": "Buyer"}},
@@ -78,7 +78,7 @@ CASES = [
     Case(
         "tracker.issuetypes.edit",
         args=("epic", IssueTypeUpdate(name=LocalizedName(en="Saga"))),
-        cli=["tracker", "issuetypes", "edit", "epic", "--name-en", "Saga"],
+        cli=["tracker", "issuetypes", "update", "epic", "--name-en", "Saga"],
         mcp=None,
         exchanges=[
             (

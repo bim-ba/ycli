@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.tracker.client import TrackerClient
@@ -82,8 +83,9 @@ def create(
     return tracker.triggers.create(queue_id, body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     queue_id: QueueIdArg,
     trigger_id: TriggerIdArg,
     name: Annotated[str, typer.Option(help="New name of the trigger.")] = "",
@@ -106,8 +108,9 @@ def edit(
     return tracker.triggers.edit(queue_id, trigger_id, body, version=version or None)
 
 
-@app.command("webhook-log")
-def webhook_log(
+@deprecated_alias(app, "webhook-log")
+@app.command("webhook-log-list")
+def webhook_log_list(
     queue_id: QueueIdArg,
     trigger_id: TriggerIdArg,
     issue_id: Annotated[

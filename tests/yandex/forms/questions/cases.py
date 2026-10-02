@@ -150,7 +150,7 @@ CASES = [
         cli=[
             "forms",
             "questions",
-            "modify",
+            "update",
             SID,
             "22",
             "--type",
@@ -182,9 +182,9 @@ CASES = [
     Case(
         "forms.questions.modify",
         args=(SID, "18", QuestionCreateAdapter.validate_json(MATRIX.read_text())),
-        cli=["forms", "questions", "modify", SID, "18", "--body-file", str(MATRIX)],
+        cli=["forms", "questions", "update", SID, "18", "--body-file", str(MATRIX)],
         mcp=(
-            "forms_questions_modify",
+            "forms_questions_update",
             {"survey_id": SID, "question_id": "18", "body": json.loads(MATRIX.read_text())},
         ),
         exchanges=[

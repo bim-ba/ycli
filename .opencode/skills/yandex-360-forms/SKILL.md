@@ -67,7 +67,7 @@ The OAuth token needs `forms:read` / `forms:write` scopes (see the auth section 
 | Keysets | `uv run ycli forms keysets list\|get …` | `forms_keysets_list` / `forms_keysets_get` |
 | Verify uploaded file paths | `uv run ycli forms files verify <form_id> --path …` | `forms_files_verify` |
 | Poll async operation | `uv run ycli forms operations get <op_id>` | `forms_operations_get` |
-| Integrations run by one answer | `uv run ycli forms answers integrations --answer-id <id>` (or `--answer-key`) | `forms_answers_integrations_list` |
+| Integrations run by one answer | `uv run ycli forms answers integrations-list --answer-id <id>` (or `--answer-key`) | `forms_answers_integrations_list` |
 
 **Single-answer read:** `uv run ycli forms answers get --answer-id <id>` (or `--answer-key <hash>`, which works without form-edit access) — pass exactly one of the two. MCP: `forms_answers_get`. The live route is the flat query-param `GET /v1/answers?answer_id=…`; no survey id needed (the path variants 404).
 
@@ -94,25 +94,25 @@ All writes below are live-verified (2026-07-12) end-to-end via the CLI; each is 
 
 ```bash
 uv run ycli forms surveys create --name "My form"          # → capture the returned id
-uv run ycli forms surveys modify <form_id> --name "New name"
+uv run ycli forms surveys update <form_id> --name "New name"
 uv run ycli forms surveys publish <form_id>                # is_published: true
 uv run ycli forms surveys unpublish <form_id>
 uv run ycli forms surveys delete <form_id>                 # destructive
 ```
 
-MCP: `forms_surveys_create` / `forms_surveys_modify` / `forms_surveys_publish` / `forms_surveys_unpublish` / `forms_surveys_delete`.
+MCP: `forms_surveys_create` / `forms_surveys_update` / `forms_surveys_publish` / `forms_surveys_unpublish` / `forms_surveys_delete`.
 
 ### 3.2. Question CRUD
 
 ```bash
 uv run ycli forms questions create <form_id> --type string --label "Your feedback"
 uv run ycli forms questions create <form_id> --body-file question.json   # full-body form (enum options, suggest, …)
-uv run ycli forms questions modify <form_id> <q_id> --type string --label "Your feedback (edited)"
+uv run ycli forms questions update <form_id> <q_id> --type string --label "Your feedback (edited)"
 uv run ycli forms questions move <form_id> <q_id> --page 1 --position 1
 uv run ycli forms questions delete <form_id> <q_id>
 ```
 
-MCP: `forms_questions_create` / `forms_questions_modify` / `forms_questions_move` / `forms_questions_delete`.
+MCP: `forms_questions_create` / `forms_questions_update` / `forms_questions_move` / `forms_questions_delete`.
 
 ### 3.3. Submit a response (filling)
 
@@ -127,12 +127,12 @@ MCP: `forms_filling_submit`. The form must be published (`is_published: true`) o
 
 ```bash
 uv run ycli forms keysets create <form_id> --name my-keyset --total 3 --enabled
-uv run ycli forms keysets modify <form_id> <keyset_id> --name renamed --total 5 --disabled
+uv run ycli forms keysets update <form_id> <keyset_id> --name renamed --total 5 --disabled
 uv run ycli forms keysets download <form_id> <keyset_id> --output keys.xlsx   # binary — CLI/SDK only
 uv run ycli forms keysets delete <form_id> <keyset_id>
 ```
 
-MCP: `forms_keysets_create` / `forms_keysets_modify` / `forms_keysets_delete` (download is CLI/SDK-only).
+MCP: `forms_keysets_create` / `forms_keysets_update` / `forms_keysets_delete` (download is CLI/SDK-only).
 
 ### 3.5. Exports and binary operations
 
@@ -162,18 +162,18 @@ All of this ships on the CLI, MCP and SDK; `--help` on any group lists its comma
 
 | Task | CLI | MCP tool |
 |------|-----|----------|
-| Integration groups (hooks) | `forms hooks list\|get\|create\|modify\|delete <form_id> …` | `forms_hooks_*` |
-| Actions of a group (Tracker issue, Wiki page, email, HTTP, JSON-RPC, cloud function) | `forms subscriptions list\|get\|create\|modify\|delete <form_id> <hook_id> …` (`create`/`modify` take `--body-file`; `type` picks the action) | `forms_subscriptions_*` |
+| Integration groups (hooks) | `forms hooks list\|get\|create\|update\|delete <form_id> …` | `forms_hooks_*` |
+| Actions of a group (Tracker issue, Wiki page, email, HTTP, JSON-RPC, cloud function) | `forms subscriptions list\|get\|create\|update\|delete <form_id> <hook_id> …` (`create`/`update` take `--body-file`; `type` picks the action) | `forms_subscriptions_*` |
 | Upload a fixed attachment for an action | `forms subscriptions attach …` | CLI/SDK only (binary) |
 | Variables an action can reference | `forms variables list <form_id>` | `forms_variables_list` |
-| Show conditions of a question, page, submit button | `forms conditions question\|page\|submit list\|get\|create\|modify\|delete\|set-operator …` | `forms_conditions_question_*`, `_page_*`, `_submit_*` |
-| Conditions gating an integration group | `forms conditions hook list\|get\|create\|modify\|delete\|set-operator <form_id> <hook_id> …` | `forms_conditions_hook_*` |
+| Show conditions of a question, page, submit button | `forms conditions question\|page\|submit list\|get\|create\|update\|delete\|set-operator …` | `forms_conditions_question_*`, `_page_*`, `_submit_*` |
+| Conditions gating an integration group | `forms conditions hook list\|get\|create\|update\|delete\|set-operator <form_id> <hook_id> …` | `forms_conditions_hook_*` |
 | Who may edit (`change`) or fill (`submit`) | `forms access get\|set\|grant\|revoke <form_id> …` | `forms_access_*` |
 | A form's change log | `forms history list <form_id> [--ordering asc\|desc] [--all]` | `forms_history_list` |
 | Integration runs (filter by form, group, action, answer, status, time) | `forms notifications list [--survey-id …] [--status error]` | `forms_notifications_list` |
-| One run in full / its state | `forms notifications get\|status <notification_id>` | `forms_notifications_get` / `_status_get` |
+| One run in full / its state | `forms notifications get\|status-get <notification_id>` | `forms_notifications_get` / `_status_get` |
 | Retry or stop a run | `forms notifications restart\|cancel <notification_id>` | `forms_notifications_restart` / `_cancel` |
-| Ids of a form's failed runs | `forms notifications errors <form_id>` | `forms_notifications_errors_list` |
+| Ids of a form's failed runs | `forms notifications errors-list <form_id>` | `forms_notifications_errors_list` |
 
 ```bash
 uv run ycli forms hooks create <form_id> --name CRM --active          # → hook id
@@ -191,7 +191,7 @@ After an integration change, submit a test response, then check `forms notificat
 - **Enum answers in `filling submit` must be lists.** `{"answer_choices_<id>": ["<option_id>"]}` — a bare string 400s with `error_code: type`. Option ids come from `filling get`.
 - **`questions move` needs `--page` with `--position`.** `--position` alone returns 200 but is a **silent no-op** — order unchanged.
 - **`files upload` requires external storage.** Form-filling uploads 400 (`value_error.storage_error`) unless the org has connected its own S3 storage in the Forms UI settings — not API-toggleable.
-- **`keysets modify` sends the full record.** The PATCH requires every field, not a partial diff — the CLI enforces this.
+- **`keysets update` sends the full record.** The PATCH requires every field, not a partial diff — the CLI enforces this.
 - **Publish state matters.** Unpublished forms reject submits; check `is_published` via `surveys get`.
 - **Question IDs are server-assigned.** Read them back from the create/list response; never hardcode.
 - **Suggest questions:** valid `data_source` names are `city` / `country`; suggest text matching is language-sensitive (Cyrillic input matches Russian city names).

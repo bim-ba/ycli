@@ -47,7 +47,7 @@ def create(body: StatusCreate, client: TrackerClient = Depends(tracker_client)) 
 
 
 @mcp.tool(
-    name="statuses_edit",
+    name="statuses_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker status"},
     tags=WRITE_TAGS,
 )

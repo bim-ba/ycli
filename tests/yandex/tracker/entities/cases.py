@@ -205,7 +205,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "edit",
+            "update",
             "project",
             "655f04",
             "--summary",
@@ -236,7 +236,7 @@ CASES = [
             'followers=["follower-4"]',
         ],
         mcp=(
-            "tracker_entities_edit",
+            "tracker_entities_update",
             {
                 "entity_type": "project",
                 "entity_id": "655f04",
@@ -288,7 +288,7 @@ CASES = [
     Case(
         "tracker.entities.edit",
         args=("goal", "g5", {"comment": "Just a note"}),
-        cli=["tracker", "entities", "edit", "goal", "g5", "--comment", "Just a note"],
+        cli=["tracker", "entities", "update", "goal", "g5", "--comment", "Just a note"],
         mcp=None,
         exchanges=[
             (
@@ -300,7 +300,7 @@ CASES = [
     Case(
         "tracker.entities.edit",
         args=("portfolio", "pf6", {"fields": {"summary": "Only a name"}}),
-        cli=["tracker", "entities", "edit", "portfolio", "pf6", "--summary", "Only a name"],
+        cli=["tracker", "entities", "update", "portfolio", "pf6", "--summary", "Only a name"],
         mcp=None,
         exchanges=[
             (
@@ -469,7 +469,7 @@ CASES = [
     Case(
         "tracker.entities.history",
         args=("project", "655f13"),
-        cli=["tracker", "entities", "history", "project", "655f13"],
+        cli=["tracker", "entities", "events-list", "project", "655f13"],
         mcp=("tracker_entities_events_list", {"entity_type": "project", "entity_id": "655f13"}),
         exchanges=[
             (
@@ -491,7 +491,7 @@ CASES = [
         "tracker.entities.history",
         args=("goal", "g14"),
         kwargs={"limit": 2},
-        cli=["tracker", "entities", "history", "goal", "g14", "--limit", "2"],
+        cli=["tracker", "entities", "events-list", "goal", "g14", "--limit", "2"],
         mcp=(
             "tracker_entities_events_list",
             {"entity_type": "goal", "entity_id": "g14", "limit": 2},
@@ -506,7 +506,7 @@ CASES = [
     Case(
         "tracker.entities.permissions",
         args=("project", "655f15"),
-        cli=["tracker", "entities", "permissions", "project", "655f15"],
+        cli=["tracker", "entities", "permissions-get", "project", "655f15"],
         mcp=(
             "tracker_entities_permissions_get",
             {"entity_type": "project", "entity_id": "655f15"},
@@ -587,7 +587,7 @@ CASES = [
         cli=[
             "tracker",
             "entities",
-            "bulk",
+            "bulk-update",
             "project",
             "--entity",
             "655f17",
@@ -625,7 +625,7 @@ CASES = [
     Case(
         "tracker.entities.bulk_update",
         args=("goal", {"metaEntities": ["g19"], "values": {}}),
-        cli=["tracker", "entities", "bulk", "goal", "--entity", "g19"],
+        cli=["tracker", "entities", "bulk-update", "goal", "--entity", "g19"],
         mcp=None,
         exchanges=[
             (
@@ -641,7 +641,7 @@ CASES = [
     Case(
         "tracker.entities.bulk_status",
         args=("658",),
-        cli=["tracker", "entities", "bulk-status", "658"],
+        cli=["tracker", "entities", "bulk-status-get", "658"],
         mcp=("tracker_entities_bulk_status_get", {"operation_id": "658"}),
         exchanges=[
             (Sent("GET", "bulkchange/658"), Reply(json={"id": "658", "status": "COMPLETE"})),
@@ -891,7 +891,7 @@ CASES = [
             "tracker",
             "entities",
             "comments",
-            "edit",
+            "update",
             "goal",
             "g27",
             "27",
@@ -899,7 +899,7 @@ CASES = [
             "Fixed typo",
         ],
         mcp=(
-            "tracker_entities_comments_edit",
+            "tracker_entities_comments_update",
             {
                 "entity_type": "goal",
                 "entity_id": "g27",
@@ -966,7 +966,7 @@ CASES = [
             "tracker",
             "entities",
             "checklists",
-            "edit",
+            "update",
             "goal",
             "g30",
             "--item",
@@ -975,7 +975,7 @@ CASES = [
             "6a=Second",
         ],
         mcp=(
-            "tracker_entities_checklists_edit",
+            "tracker_entities_checklists_update",
             {
                 "entity_type": "goal",
                 "entity_id": "g30",
@@ -1010,7 +1010,7 @@ CASES = [
             "tracker",
             "entities",
             "checklists",
-            "edit",
+            "update",
             "project",
             "655f31",
             "--item",
@@ -1056,7 +1056,7 @@ CASES = [
             "tracker",
             "entities",
             "checklists",
-            "edit-item",
+            "update-item",
             "portfolio",
             "pf32",
             "1f",
@@ -1069,7 +1069,7 @@ CASES = [
             "2025-12-01T00:00:00.000+0000",
         ],
         mcp=(
-            "tracker_entities_checklists_edit_item",
+            "tracker_entities_checklists_update_item",
             {
                 "entity_type": "portfolio",
                 "entity_id": "pf32",
@@ -1108,7 +1108,7 @@ CASES = [
             "tracker",
             "entities",
             "checklists",
-            "edit-item",
+            "update-item",
             "goal",
             "g33",
             "2f",
@@ -1398,7 +1398,7 @@ CASES = [
     Case(
         "tracker.entities.direct_permissions",
         args=("project", "655f17"),
-        cli=["tracker", "entities", "direct-permissions", "project", "655f17"],
+        cli=["tracker", "entities", "direct-permissions-get", "project", "655f17"],
         mcp=(
             "tracker_entities_direct_permissions_get",
             {"entity_type": "project", "entity_id": "655f17"},

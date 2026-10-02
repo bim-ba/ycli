@@ -85,7 +85,7 @@ def create(
 
 
 @mcp.tool(
-    name="questions_modify",
+    name="questions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question"},
     tags=WRITE_TAGS,
 )

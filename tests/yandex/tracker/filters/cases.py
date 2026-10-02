@@ -68,7 +68,7 @@ CASES = [
         cli=[
             "tracker",
             "filters",
-            "edit",
+            "update",
             "12347",
             "--name",
             "Renamed",
@@ -78,7 +78,7 @@ CASES = [
             '{"queue": "OPS"}',
         ],
         mcp=(
-            "tracker_filters_edit",
+            "tracker_filters_update",
             {
                 "filter_id": "12347",
                 "body": {"name": "Renamed", "query": "Queue: OPS", "filter": {"queue": "OPS"}},
@@ -99,8 +99,8 @@ CASES = [
     Case(
         "tracker.filters.edit",
         args=("12348", FilterUpdate(name="Only the name")),
-        cli=["tracker", "filters", "edit", "12348", "--name", "Only the name"],
-        mcp=("tracker_filters_edit", {"filter_id": "12348", "body": {"name": "Only the name"}}),
+        cli=["tracker", "filters", "update", "12348", "--name", "Only the name"],
+        mcp=("tracker_filters_update", {"filter_id": "12348", "body": {"name": "Only the name"}}),
         exchanges=[
             (
                 Sent("PATCH", "filters/12348", json={"name": "Only the name"}),

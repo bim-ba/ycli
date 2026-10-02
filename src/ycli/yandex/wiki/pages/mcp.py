@@ -83,7 +83,7 @@ def grids_list(
     return client.pages.grids(page_id=page_id, limit=cap)
 
 
-@mcp.tool(name="pages_by_id_get", annotations={**RO, "title": "Get Wiki page by id"}, tags=TAGS)
+@mcp.tool(name="pages_get_by_id", annotations={**RO, "title": "Get Wiki page by id"}, tags=TAGS)
 def by_id_get(
     page_id: Annotated[int, Field(description="Numeric page id to fetch.")],
     fields: Annotated[
@@ -109,7 +109,7 @@ def by_id_get(
 
 
 @mcp.tool(
-    name="pages_by_id_descendants",
+    name="pages_descendants_by_id",
     annotations={**RO, "title": "List Wiki page descendants by id"},
     tags=TAGS,
 )
@@ -169,7 +169,7 @@ def update(
 ) -> PageDetails:
     """Replace a wiki page's body (and optionally its title) by numeric id.
 
-    This REPLACES the whole body — to add to an existing page use ``pages_append_content``
+    This REPLACES the whole body — to add to an existing page use ``pages_append``
     instead. The Wiki API updates via POST, not PATCH (PATCH returns 405); the SDK already
     handles that quirk. Repeating the same call yields the same page state (idempotent).
 
@@ -193,7 +193,7 @@ def delete(
 
     KEEP the returned ``recovery_token`` — it is the only handle to undo the delete
     (redeem it with ``recovery_restore``). Deleting removes the page's descendants'
-    anchor too, so double-check the id (``pages_by_id_get``) before calling.
+    anchor too, so double-check the id (``pages_get_by_id``) before calling.
 
     Example:
         >>> delete(page_id=12345)  # doctest: +SKIP
@@ -202,7 +202,7 @@ def delete(
 
 
 @mcp.tool(
-    name="pages_append_content",
+    name="pages_append",
     annotations={**WRITE, "title": "Append content to Wiki page"},
     tags=WRITE_TAGS,
 )

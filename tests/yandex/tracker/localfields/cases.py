@@ -178,7 +178,7 @@ CASES = [
         cli=[
             "tracker",
             "localfields",
-            "edit",
+            "update",
             "SUP",
             "loc_edit",
             "--name-ru",
@@ -200,7 +200,7 @@ CASES = [
             "CustomListProvider",
         ],
         mcp=(
-            "tracker_localfields_edit",
+            "tracker_localfields_update",
             {
                 "queue_id": "SUP",
                 "field_key": "loc_edit",
@@ -240,7 +240,7 @@ CASES = [
     Case(
         "tracker.localfields.edit",
         args=("HR", "loc_order", LocalFieldUpdate(order=5, visible=True)),
-        cli=["tracker", "localfields", "edit", "HR", "loc_order", "--order", "5", "--visible"],
+        cli=["tracker", "localfields", "update", "HR", "loc_order", "--order", "5", "--visible"],
         mcp=None,
         exchanges=[
             (

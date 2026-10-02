@@ -156,7 +156,7 @@ CASES = [
         cli=[
             "tracker",
             "boards",
-            "edit",
+            "update",
             "51",
             "--name",
             "Renamed board",
@@ -164,7 +164,7 @@ CASES = [
             "--sprints",
         ],
         mcp=(
-            "tracker_boards_edit",
+            "tracker_boards_update",
             {
                 "board_id": 51,
                 "body": {
@@ -194,7 +194,7 @@ CASES = [
         args=(52, BoardUpdate(columns=[BoardColumnInput(name="Done", statuses=["closed"])])),
         cli=None,
         mcp=(
-            "tracker_boards_edit",
+            "tracker_boards_update",
             {"board_id": 52, "body": {"columns": [{"name": "Done", "statuses": ["closed"]}]}},
         ),
         exchanges=[

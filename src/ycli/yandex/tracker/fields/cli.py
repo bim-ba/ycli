@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.fields.models import (
     CustomField,
@@ -87,8 +88,9 @@ def create(
     return tracker.fields.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     field_id: Annotated[str, typer.Argument(metavar="FIELD_ID", help="Identifier of the field.")],
     name_ru: Annotated[str, typer.Option("--name-ru", help="New field name in Russian.")] = "",
     name_en: Annotated[str, typer.Option("--name-en", help="New field name in English.")] = "",
@@ -127,8 +129,9 @@ def category_create(
     return tracker.fields.category_create(body)
 
 
-@app.command("category-edit")
-def category_edit(
+@deprecated_alias(app, "category-edit")
+@app.command("category-update")
+def category_update(
     category_id: Annotated[
         str, typer.Argument(metavar="CATEGORY_ID", help="Identifier of the field category.")
     ],

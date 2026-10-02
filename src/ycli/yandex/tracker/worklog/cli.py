@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
@@ -75,8 +76,9 @@ def global_list(
     return tracker.worklog.global_list(created_by=created_by or None, created_at=created_at or None)
 
 
+@deprecated_alias(app, "add")
 @app.command()
-def add(
+def create(
     key: KeyArg,
     duration: Annotated[
         str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).")
@@ -96,8 +98,9 @@ def add(
     return tracker.worklog.create(key, body=body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     key: KeyArg,
     record_id: RecordIdArg,
     duration: Annotated[str, typer.Option(help="New time spent, ISO-8601 duration.")] = "",

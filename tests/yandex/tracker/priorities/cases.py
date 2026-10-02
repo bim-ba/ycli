@@ -74,7 +74,7 @@ CASES = [
         cli=[
             "tracker",
             "priorities",
-            "edit",
+            "update",
             "blocker",
             "--name-ru",
             "Блокер",
@@ -86,7 +86,7 @@ CASES = [
             "7",
         ],
         mcp=(
-            "tracker_priorities_edit",
+            "tracker_priorities_update",
             {
                 "priority_id": "blocker",
                 "body": {"name": {"ru": "Блокер", "en": "Blocker"}, "description": "Stops all"},
@@ -109,7 +109,7 @@ CASES = [
     Case(
         "tracker.priorities.edit",
         args=("minor", PriorityUpdate(description="Small")),
-        cli=["tracker", "priorities", "edit", "minor", "--description", "Small"],
+        cli=["tracker", "priorities", "update", "minor", "--description", "Small"],
         mcp=None,
         exchanges=[
             (

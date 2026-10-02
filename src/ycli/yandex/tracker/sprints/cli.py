@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.sprints.models import (
@@ -59,8 +60,9 @@ def create(
     return tracker.sprints.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     sprint_id: SprintIdArg,
     name: Annotated[str, typer.Option(help="New sprint name.")] = "",
     start_date: Annotated[str, typer.Option(help="New start date (YYYY-MM-DD).")] = "",

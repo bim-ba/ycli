@@ -6,7 +6,7 @@ CASES = [
     Case(
         "wiki.operations.clone_get",
         args=("task-5201",),
-        cli=["wiki", "operations", "clone", "task-5201"],
+        cli=["wiki", "operations", "clone-get", "task-5201"],
         mcp=("wiki_operations_clone_get", {"task_id": "task-5201"}),
         exchanges=[
             (
@@ -18,7 +18,7 @@ CASES = [
     Case(
         "wiki.operations.gridclone_get",
         args=("task-5301",),
-        cli=["wiki", "operations", "gridclone", "task-5301"],
+        cli=["wiki", "operations", "gridclone-get", "task-5301"],
         mcp=("wiki_operations_gridclone_get", {"task_id": "task-5301"}),
         exchanges=[
             (

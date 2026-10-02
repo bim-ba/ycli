@@ -54,7 +54,7 @@ def create(body: ResolutionCreate, client: TrackerClient = Depends(tracker_clien
 
 
 @mcp.tool(
-    name="resolutions_edit",
+    name="resolutions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker resolution"},
     tags=WRITE_TAGS,
 )

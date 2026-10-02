@@ -54,7 +54,7 @@ CASES = [
         cli=[
             "forms",
             "keysets",
-            "modify",
+            "update",
             SID,
             "4",
             "--name",
@@ -64,7 +64,7 @@ CASES = [
             "--disabled",
         ],
         mcp=(
-            "forms_keysets_modify",
+            "forms_keysets_update",
             {
                 "survey_id": SID,
                 "keyset_id": 4,

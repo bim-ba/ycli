@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
@@ -86,8 +87,9 @@ def descendants_by_id(
     return wiki.pages.descendants_by_id(page_id=page_id, limit=cap)
 
 
+@deprecated_alias(app, "grids")
 @app.command()
-def grids(
+def grids_list(
     page_id: PageIdArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
@@ -240,8 +242,9 @@ def move(
     return operation
 
 
+@deprecated_alias(app, "revisions")
 @app.command()
-def revisions(
+def revisions_list(
     page_id: PageIdArg,
     ids: Annotated[
         str, typer.Option("--ids", help="Only these revision ids (comma separated).")
@@ -257,8 +260,9 @@ def revisions(
     return wiki.pages.revisions(page_id=page_id, ids=ids or None, limit=cap)
 
 
+@deprecated_alias(app, "backlinks")
 @app.command()
-def backlinks(
+def backlinks_list(
     page_id: PageIdArg,
     for_cluster: Annotated[
         bool, typer.Option("--for-cluster", help="Links to the page's whole subtree.")

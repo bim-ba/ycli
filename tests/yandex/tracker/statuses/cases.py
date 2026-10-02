@@ -79,7 +79,7 @@ CASES = [
         cli=[
             "tracker",
             "statuses",
-            "edit",
+            "update",
             "29",
             "--name-ru",
             "Ожидание",
@@ -95,7 +95,7 @@ CASES = [
             "5",
         ],
         mcp=(
-            "tracker_statuses_edit",
+            "tracker_statuses_update",
             {
                 "status_id": "29",
                 "body": {
@@ -127,7 +127,7 @@ CASES = [
     Case(
         "tracker.statuses.edit",
         args=("closed", StatusUpdate(order=900)),
-        cli=["tracker", "statuses", "edit", "closed", "--order", "900"],
+        cli=["tracker", "statuses", "update", "closed", "--order", "900"],
         mcp=None,
         exchanges=[
             (

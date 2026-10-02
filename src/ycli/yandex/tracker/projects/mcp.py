@@ -88,7 +88,7 @@ def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client))
 
 
 @mcp.tool(
-    name="projects_edit",
+    name="projects_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker project"},
     tags=WRITE_TAGS,
 )

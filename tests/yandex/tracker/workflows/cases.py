@@ -253,7 +253,7 @@ CASES = [
         cli=[
             "tracker",
             "workflows",
-            "edit",
+            "update",
             "W21",
             "--version",
             "3",
@@ -268,7 +268,7 @@ CASES = [
             json.dumps(RESOLUTIONS),
         ],
         mcp=(
-            "tracker_workflows_edit",
+            "tracker_workflows_update",
             {
                 "workflow_id": "W21",
                 "version": 3,
@@ -312,7 +312,7 @@ CASES = [
         "tracker.workflows.edit",
         args=("W22", WorkflowUpdate(name="Renamed")),
         kwargs={"version": 7},
-        cli=["tracker", "workflows", "edit", "W22", "--version", "7", "--name", "Renamed"],
+        cli=["tracker", "workflows", "update", "W22", "--version", "7", "--name", "Renamed"],
         mcp=None,
         exchanges=[
             (
@@ -341,7 +341,7 @@ CASES = [
         cli=[
             "tracker",
             "workflows",
-            "edit-action",
+            "update-action",
             "W23",
             "inProgress",
             "close",
@@ -361,7 +361,7 @@ CASES = [
             ),
         ],
         mcp=(
-            "tracker_workflows_edit_action",
+            "tracker_workflows_update_action",
             {
                 "workflow_id": "W23",
                 "status": "inProgress",

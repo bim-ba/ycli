@@ -56,7 +56,7 @@ def create(body: ComponentCreate, client: TrackerClient = Depends(tracker_client
 
 
 @mcp.tool(
-    name="components_edit",
+    name="components_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker component"},
     tags=WRITE_TAGS,
 )

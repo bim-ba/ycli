@@ -107,9 +107,9 @@ CASES = [
     Case(
         "tracker.comments.edit",
         args=("DE-16", "161", {"text": "fixed typo"}),
-        cli=["tracker", "comments", "edit", "DE-16", "161", "--text", "fixed typo"],
+        cli=["tracker", "comments", "update", "DE-16", "161", "--text", "fixed typo"],
         mcp=(
-            "tracker_comments_edit",
+            "tracker_comments_update",
             {"key": "DE-16", "comment_id": "161", "body": {"text": "fixed typo"}},
         ),
         exchanges=[

@@ -179,7 +179,7 @@ CASES = [
         cli=[
             "tracker",
             "fields",
-            "edit",
+            "update",
             "ruName",
             "--name-ru",
             "Имя",
@@ -193,7 +193,7 @@ CASES = [
             "3",
         ],
         mcp=(
-            "tracker_fields_edit",
+            "tracker_fields_update",
             {
                 "field_id": "ruName",
                 "body": {
@@ -227,7 +227,7 @@ CASES = [
                 options_provider=OptionsProviderInput(type="FixedListOptionsProvider", values=["y"])
             ),
         ),
-        cli=["tracker", "fields", "edit", "tags", "--option", "y"],
+        cli=["tracker", "fields", "update", "tags", "--option", "y"],
         mcp=None,
         exchanges=[
             (
@@ -245,7 +245,7 @@ CASES = [
         "tracker.fields.edit",
         args=("summary", FieldUpdate(name=LocalizedName(ru="Заголовок"))),
         kwargs={"version": 9},
-        cli=["tracker", "fields", "edit", "summary", "--name-ru", "Заголовок", "--version", "9"],
+        cli=["tracker", "fields", "update", "summary", "--name-ru", "Заголовок", "--version", "9"],
         mcp=None,
         exchanges=[
             (
@@ -311,7 +311,7 @@ CASES = [
         cli=[
             "tracker",
             "fields",
-            "category-edit",
+            "category-update",
             "604f99",
             "--name-en",
             "Renamed",
@@ -323,7 +323,7 @@ CASES = [
             "1",
         ],
         mcp=(
-            "tracker_fields_category_edit",
+            "tracker_fields_category_update",
             {
                 "category_id": "604f99",
                 "body": {
@@ -349,7 +349,7 @@ CASES = [
     Case(
         "tracker.fields.category_edit",
         args=("cat-9", FieldCategoryUpdate(order=600)),
-        cli=["tracker", "fields", "category-edit", "cat-9", "--order", "600"],
+        cli=["tracker", "fields", "category-update", "cat-9", "--order", "600"],
         mcp=None,
         exchanges=[
             (

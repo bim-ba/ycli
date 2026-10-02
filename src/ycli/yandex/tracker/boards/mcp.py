@@ -73,7 +73,7 @@ def create(body: BoardCreate, client: TrackerClient = Depends(tracker_client)) -
 
 
 @mcp.tool(
-    name="boards_edit",
+    name="boards_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board"},
     tags=WRITE_TAGS,
 )

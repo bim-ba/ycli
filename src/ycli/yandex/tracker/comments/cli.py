@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
@@ -80,8 +81,9 @@ def add(
     return tracker.comments.add(key, body=body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     key: KeyArg,
     comment_id: CommentIdArg,
     text: Annotated[str, typer.Option(help="New comment text (YFM markdown supported).")],

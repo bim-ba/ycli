@@ -59,8 +59,12 @@ allowlist entry in code with its reason, never prose here. Tests are in
 `tests/test_architecture.py` unless named otherwise.
 
 ### ARCH-1 — Surface parity
-- **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface.
-- **Why:** one operation behaves the same however a person or an agent reaches it.
+- **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
+  name: the CLI path (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name,
+  verb last, and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
+  keeps its old name as a hidden, deprecated alias (`ycli.cli.aliases.deprecated_alias`).
+- **Why:** one operation behaves the same however a person or an agent reaches it, and a name
+  learned on one surface works on the other.
 - **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `client.py`,
   `cli.py`, `mcp.py`, `models.py`, `__init__.py`; `/new-endpoint` scaffolds them) and
   `test_arch1_operation_level_parity`, which reads which client method each surface actually
@@ -68,9 +72,14 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch1_every_resource_is_served` reads the running surfaces instead of the source: each
   resource directory is wired into its domain client, is a group of the built CLI tree and
   serves MCP tools from the mounted server, and nothing is served without a directory.
-- **Exceptions:** `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is CLI-only (bytes do not
-  round-trip an MCP result), plus a few SDK-internal primitives; a resource whose every operation
-  is listed there serves no MCP tool. `status/` and the `ycli.mcp` server package are
+  `test_arch1_cli_path_equals_mcp_name` pairs each MCP tool with the CLI command that calls the
+  same client operations and fails when their names differ or either uses a synonym verb;
+  `tests/test_cli_aliases.py` and `tests/cli_aliases.py` keep every hidden alias listed and
+  working.
+- **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
+  one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is
+  CLI-only (bytes do not round-trip an MCP result), plus a few SDK-internal primitives; a
+  resource whose every operation is listed there serves no MCP tool. `status/` and the `ycli.mcp` server package are
   cross-cutting surfaces, not resources; `ARCH1_NON_RESOURCE_CLI_GROUPS` lists the CLI group every
   service mounts that is no resource (`<service> auth`, built once from the registry).
 

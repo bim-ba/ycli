@@ -51,7 +51,7 @@ def create(body: FilterCreate, client: TrackerClient = Depends(tracker_client)) 
 
 
 @mcp.tool(
-    name="filters_edit",
+    name="filters_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker filter"},
     tags=WRITE_TAGS,
 )

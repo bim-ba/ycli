@@ -71,9 +71,9 @@ CASES = [
     Case(
         "forms.hooks.modify",
         args=(SID, 15, {"name": "Helpdesk", "active": True}),
-        cli=["forms", "hooks", "modify", SID, "15", "--name", "Helpdesk", "--active"],
+        cli=["forms", "hooks", "update", SID, "15", "--name", "Helpdesk", "--active"],
         mcp=(
-            "forms_hooks_modify",
+            "forms_hooks_update",
             {"survey_id": SID, "hook_id": 15, "body": {"name": "Helpdesk", "active": True}},
         ),
         exchanges=[

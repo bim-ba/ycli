@@ -97,8 +97,8 @@ def create(
 ) -> Grid:
     """Create an empty dynamic table (grid) as a resource of a page.
 
-    A new grid has no rows or columns — add them afterwards with ``grids_add_columns`` and
-    ``grids_add_rows``. Returns the created grid; its ``revision`` seeds the optimistic lock
+    A new grid has no rows or columns — add them afterwards with ``grids_columns_add`` and
+    ``grids_rows_add``. Returns the created grid; its ``revision`` seeds the optimistic lock
     every subsequent write must echo.
 
     Example:
@@ -153,7 +153,7 @@ def delete(
 
 
 @mcp.tool(
-    name="grids_add_rows", annotations={**WRITE, "title": "Add Wiki grid rows"}, tags=WRITE_TAGS
+    name="grids_rows_add", annotations={**WRITE, "title": "Add Wiki grid rows"}, tags=WRITE_TAGS
 )
 def add_rows(
     grid_id: GridIdParam,
@@ -180,7 +180,7 @@ def add_rows(
 
 
 @mcp.tool(
-    name="grids_remove_rows",
+    name="grids_rows_remove",
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid rows"},
     tags=WRITE_TAGS,
 )
@@ -206,7 +206,7 @@ def remove_rows(
 
 
 @mcp.tool(
-    name="grids_move_rows", annotations={**WRITE, "title": "Move Wiki grid rows"}, tags=WRITE_TAGS
+    name="grids_rows_move", annotations={**WRITE, "title": "Move Wiki grid rows"}, tags=WRITE_TAGS
 )
 def move_rows(
     grid_id: GridIdParam,
@@ -232,7 +232,7 @@ def move_rows(
 
 
 @mcp.tool(
-    name="grids_add_columns",
+    name="grids_columns_add",
     annotations={**WRITE, "title": "Add Wiki grid columns"},
     tags=WRITE_TAGS,
 )
@@ -263,7 +263,7 @@ def add_columns(
 
 
 @mcp.tool(
-    name="grids_remove_columns",
+    name="grids_columns_remove",
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid columns"},
     tags=WRITE_TAGS,
 )
@@ -289,7 +289,7 @@ def remove_columns(
 
 
 @mcp.tool(
-    name="grids_move_columns",
+    name="grids_columns_move",
     annotations={**WRITE, "title": "Move Wiki grid columns"},
     tags=WRITE_TAGS,
 )
@@ -317,7 +317,7 @@ def move_columns(
 
 
 @mcp.tool(
-    name="grids_update_cells",
+    name="grids_cells_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid cells"},
     tags=WRITE_TAGS,
 )
@@ -374,7 +374,7 @@ def clone(
 
 
 @mcp.tool(
-    name="grids_suggest_column",
+    name="grids_columns_suggest",
     annotations={**RO, "title": "Suggest Wiki grid column slug"},
     tags=TAGS,
 )
@@ -398,7 +398,7 @@ def suggest_column(
 
 
 @mcp.tool(
-    name="grids_update_column",
+    name="grids_columns_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid column"},
     tags=WRITE_TAGS,
 )
@@ -430,7 +430,7 @@ def update_column(
 
 
 @mcp.tool(
-    name="grids_update_row",
+    name="grids_rows_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid row"},
     tags=WRITE_TAGS,
 )
@@ -443,7 +443,7 @@ def update_row(
     ],
     client: WikiClient = Depends(wiki_client),
 ) -> RowUpdateResult:
-    """Pin or colour one grid row (cell values are set by ``grids_update_cells``).
+    """Pin or colour one grid row (cell values are set by ``grids_cells_update``).
 
     Repeating the same call leaves the same row (idempotent). The reply is a bare acknowledgement
     without the new revision (read it with ``grids_get``); ``revision`` is accepted but not

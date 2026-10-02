@@ -57,7 +57,7 @@ CASES = [
         ],
         args=(5503, 5511),
         kwargs={"limit": 15},
-        cli=["wiki", "comments", "thread", "5503", "5511", "--limit", "15"],
+        cli=["wiki", "comments", "thread-list", "5503", "5511", "--limit", "15"],
         mcp=("wiki_comments_thread_list", {"page_id": 5503, "comment_id": 5511, "limit": 15}),
         exchanges=[
             (

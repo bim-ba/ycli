@@ -92,7 +92,7 @@ def question_get(
     """One condition group of a question by id — its ``operator`` and clause ``items``.
 
     Clauses have no ids of their own: edit one by replacing the whole group via
-    ``conditions_question_modify``.
+    ``conditions_question_update``.
     """
     result = client.conditions.question_get(survey_id, question_id, condition_id)
     return _found(result, condition_id, f"question {question_id!r} in survey {survey_id!r}")
@@ -118,7 +118,7 @@ def question_create(
 
 
 @mcp.tool(
-    name="conditions_question_modify",
+    name="conditions_question_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question show condition"},
     tags=WRITE_TAGS,
 )
@@ -166,7 +166,7 @@ def question_set_operator(
 ) -> ConditionsResponse:
     """Set the boolean operator BETWEEN a question's condition groups; returns the envelope.
 
-    Group-internal operators are untouched — change those via ``conditions_question_modify``.
+    Group-internal operators are untouched — change those via ``conditions_question_update``.
     """
     return client.conditions.question_set_operator(survey_id, question_id, operator)
 
@@ -226,7 +226,7 @@ def page_create(
 
 
 @mcp.tool(
-    name="conditions_page_modify",
+    name="conditions_page_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms page show condition"},
     tags=WRITE_TAGS,
 )
@@ -316,7 +316,7 @@ def submit_create(
 
 
 @mcp.tool(
-    name="conditions_submit_modify",
+    name="conditions_submit_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms submit-button show condition"},
     tags=WRITE_TAGS,
 )
@@ -405,7 +405,7 @@ def hook_create(
 
 
 @mcp.tool(
-    name="conditions_hook_modify",
+    name="conditions_hook_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration-group condition"},
     tags=WRITE_TAGS,
 )

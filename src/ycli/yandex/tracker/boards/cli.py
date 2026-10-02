@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
@@ -57,8 +58,9 @@ def create(
     return tracker.boards.create(body)
 
 
+@deprecated_alias(app, "edit")
 @app.command()
-def edit(
+def update(
     board_id: BoardIdArg,
     name: Annotated[str, typer.Option(help="New board name.")] = "",
     backlog: Annotated[

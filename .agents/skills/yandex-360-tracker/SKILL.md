@@ -39,7 +39,7 @@ permission.
 
 - Reading or editing Yandex Wiki pages → use the `yandex-360-wiki` skill.
 - Yandex Forms → use the `yandex-360-forms` skill.
-- Redesigning a workflow casually: `workflows create|edit|edit-action|delete` can change the
+- Redesigning a workflow casually: `workflows create|update|update-action|delete` can change the
   status graph of every queue that uses it. Read it first (`workflows get`), pass the current
   `--version`, and confirm with the user before writing — the Tracker admin UI is the safer place
   for exploratory changes.
@@ -233,13 +233,13 @@ below is irreversible or changes shared configuration, so confirm with the user.
 
 | Area | Reads | Writes |
 |------|-------|--------|
-| Workflows | `workflows list` / `get ID` / `for-queue QUEUE` (`tracker_workflows_*`) | `workflows create` / `edit` / `edit-action` (need `--version`) / `delete`; steps and actions are JSON as in the API docs |
-| Components | `components list-for-queue QUEUE` / `get ID`, `user-permissions ID USER`, `group-permissions ID GROUP` | `components delete ID` |
-| Queue versions and access | `queues version-get ID`, `user-permissions QUEUE USER`, `group-permissions QUEUE GROUP` | `queues version-edit ID`, `version-delete ID` |
+| Workflows | `workflows list` / `get ID` / `for-queue QUEUE` (`tracker_workflows_*`) | `workflows create` / `update` / `update-action` (need `--version`) / `delete`; steps and actions are JSON as in the API docs |
+| Components | `components list-for-queue QUEUE` / `get ID`, `user-permissions-get ID USER`, `group-permissions-get ID GROUP` | `components delete ID` |
+| Queue versions and access | `queues version-get ID`, `user-permissions-get QUEUE USER`, `group-permissions-get QUEUE GROUP` | `queues version-update ID`, `version-delete ID` |
 | Triggers | `triggers list QUEUE` | — |
-| Projects (legacy API) | `projects list` / `get ID` / `queues ID` | `projects create` / `edit` (needs `--version` and `--queues`) / `delete` |
+| Projects (legacy API) | `projects list` / `get ID` / `queues ID` | `projects create` / `update` (needs `--version` and `--queues`) / `delete` |
 | Gaps (absences, admin) | `gaps search USER… [--from … --to …]` | `gaps create` (flags or `--gap` JSON) / `delete GAP_ID…` |
-| Entity rights | `entities direct-permissions TYPE ID` (no inheritance), `entities search report` | `entities set-direct-permissions TYPE ID --grant … --revoke …` |
+| Entity rights | `entities direct-permissions-get TYPE ID` (no inheritance), `entities search report` | `entities set-direct-permissions TYPE ID --grant … --revoke …` |
 | Filters | `filters get ID` | `filters delete ID` |
 
 ---
@@ -283,7 +283,7 @@ below is irreversible or changes shared configuration, so confirm with the user.
 - **`filters delete` uses the `/v3/` route** although the docs print `/v2/`.
 - **Workflow ids of the presets look like `quickStartV2PresetWorkflow`**; `workflows for-queue`
   shows which one each issue type of a queue uses.
-- **`entities direct-permissions` leaves out a level nobody holds** (no `READ` key), where the
+- **`entities direct-permissions-get` leaves out a level nobody holds** (no `READ` key), where the
   docs show empty lists.
 
 ### Admin-surface quirks (live-verified 2026-07-12)
@@ -294,8 +294,8 @@ below is irreversible or changes shared configuration, so confirm with the user.
   (`issueTypesConfig: Требуется параметр.`), and the workflow id must exist in your org —
   the classic `oicn` from docs does not; valid ids are the `*PresetWorkflow` set (e.g.
   `quickStartV2PresetWorkflow`), discoverable via `queues get <existing-queue> --expand all`.
-- **Sprint edit/start/archive need optimistic locking.** The API demands `?version=` or
-  `If-Match` (HTTP 428 otherwise) on `sprints edit|start|archive` — pass `--version` (read
+- **Sprint update/start/archive need optimistic locking.** The API demands `?version=` or
+  `If-Match` (HTTP 428 otherwise) on `sprints update|start|archive` — pass `--version` (read
   the current version from `sprints get`).
 - **`entities set-permissions` takes `grant=` / `revoke=` syntax.** e.g.
   `--acl 'grant={"READ":{"users":["<uid>"]}}'` then `--acl 'revoke=…'` — a bare

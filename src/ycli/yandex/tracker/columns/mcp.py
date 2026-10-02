@@ -72,7 +72,7 @@ def create(
 
 
 @mcp.tool(
-    name="columns_edit",
+    name="columns_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board column"},
     tags=WRITE_TAGS,
 )
