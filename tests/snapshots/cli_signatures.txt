@@ -34,6 +34,11 @@ forms files verify: --path:TEXT --url:TEXT SURVEY_ID:TEXT!
 forms filling get: --key:TEXT='' SURVEY:TEXT!
 forms filling submit: --body-file:PATH! --dry-run:BOOLEAN=False --key:TEXT='' SURVEY:TEXT!
 forms filling suggest: --id:TEXT='' --parent-id:TEXT='' --question:TEXT='' --text:TEXT='' SURVEY:TEXT!
+forms hooks create: --active:BOOLEAN --name:TEXT='' SURVEY_ID:TEXT!
+forms hooks delete: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms hooks get: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms hooks list: SURVEY_ID:TEXT!
+forms hooks modify: --active:BOOLEAN --name:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms images upload: IMAGE_PATH:PATH! SURVEY_ID:TEXT!
 forms keysets create: --enabled:BOOLEAN! --name:TEXT! --total:INTEGER! SURVEY_ID:TEXT!
 forms keysets delete: KEYSET_ID:INTEGER! SURVEY_ID:TEXT!
@@ -49,6 +54,12 @@ forms questions get: QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions list: SURVEY_ID:TEXT!
 forms questions modify: --body-file:PATH --comment:TEXT='' --hidden:BOOLEAN --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions move: --create-page:BOOLEAN=False --page-id:INTEGER=0 --page:INTEGER=0 --position:INTEGER=0 --question:TEXT='' QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms subscriptions attach: FILE_PATH:PATH! HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions create: --body-file:PATH! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions delete: HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions get: HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions list: HOOK_ID:INTEGER! SURVEY_ID:TEXT!
+forms subscriptions modify: --body-file:PATH! HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
 forms surveys create: --field:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT! --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN
 forms surveys delete: SURVEY_ID:TEXT!
 forms surveys get: SURVEY_ID:TEXT!
@@ -56,6 +67,7 @@ forms surveys list: --all:BOOLEAN=False --limit:INTEGER RANGE=0
 forms surveys modify: --field:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT='' --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN SURVEY_ID:TEXT!
 forms surveys publish: SURVEY_ID:TEXT!
 forms surveys unpublish: SURVEY_ID:TEXT!
+forms variables list: SURVEY_ID:TEXT!
 mcp methods
 mcp start: --read-only:BOOLEAN=False
 tracker applications list

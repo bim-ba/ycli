@@ -413,6 +413,27 @@ operations.download_export = "answers/events_b2b_v1_views_answers_export_answers
 resource = "operations/events_v1_views_operations_get_operation_view"
 operations.get = "operations/events_v1_views_operations_get_operation_view"
 
+[forms.hooks]
+resource = "groups/events_b2b_v1_views_hooks_get_hooks_public_view"
+operations.list = "groups/events_b2b_v1_views_hooks_get_hooks_public_view"
+operations.get = "groups/events_b2b_v1_views_hooks_get_hook_public_view"
+operations.create = "groups/events_b2b_v1_views_hooks_create_hook_public_view"
+operations.modify = "groups/events_b2b_v1_views_hooks_modify_hook_public_view"
+operations.delete = "groups/events_b2b_v1_views_hooks_delete_hook_public_view"
+
+[forms.subscriptions]
+resource = "hooks/events_b2b_v1_views_hooks_get_subscriptions_public_view"
+operations.list = "hooks/events_b2b_v1_views_hooks_get_subscriptions_public_view"
+operations.get = "hooks/events_b2b_v1_views_hooks_get_subscription_public_view"
+operations.create = "hooks/events_b2b_v1_views_hooks_create_subscription_public_view"
+operations.modify = "hooks/events_b2b_v1_views_hooks_modify_subscription_public_view"
+operations.delete = "hooks/events_b2b_v1_views_hooks_delete_subscription_public_view"
+operations.attach = "hooks/events_b2b_v1_views_hooks_save_subscription_attachment_public_view"
+
+[forms.variables]
+resource = "hooks/events_b2b_v1_views_hooks_get_variables_public_view"
+operations.list = "hooks/events_b2b_v1_views_hooks_get_variables_public_view"
+
 [forms.keysets]
 resource = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"
 operations.list = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"

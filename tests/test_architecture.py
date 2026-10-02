@@ -136,6 +136,7 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     # Binary upload — the CLI streams a local file; no MCP tool by design.
     "forms.files.upload": "binary upload — CLI-only (bytes)",
     "forms.images.upload": "binary upload — CLI-only (bytes)",
+    "forms.subscriptions.attach": "binary upload — CLI-only (bytes)",
     # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
     # exposes the one-shot `export` submit instead of the polling wrapper.
     "forms.answers.export_results": "CLI-only export poll helper",

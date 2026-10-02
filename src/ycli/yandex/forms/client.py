@@ -13,12 +13,15 @@ from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.conditions.client import ConditionsClient
 from ycli.yandex.forms.files.client import FilesClient
 from ycli.yandex.forms.filling.client import FillingClient
+from ycli.yandex.forms.hooks.client import HooksClient
 from ycli.yandex.forms.images.client import ImagesClient
 from ycli.yandex.forms.keysets.client import KeysetsClient
 from ycli.yandex.forms.me.client import MeClient
 from ycli.yandex.forms.operations.client import OperationsClient
 from ycli.yandex.forms.questions.client import QuestionsClient
+from ycli.yandex.forms.subscriptions.client import SubscriptionsClient
 from ycli.yandex.forms.surveys.client import SurveysClient
+from ycli.yandex.forms.variables.client import VariablesClient
 
 
 class FormsClient(DomainClient):
@@ -41,3 +44,6 @@ class FormsClient(DomainClient):
         self.files = FilesClient(session=session)
         self.images = ImagesClient(session=session)
         self.filling = FillingClient(session=session)
+        self.hooks = HooksClient(session=session)
+        self.subscriptions = SubscriptionsClient(session=session)
+        self.variables = VariablesClient(session=session)

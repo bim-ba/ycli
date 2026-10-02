@@ -22,6 +22,7 @@ SID = "686d0a1b2c3d4e5f00000080"
         ),
         ("forms_operations_get", {"operation_id": "op-1"}, "operations/op-1"),
         ("forms_filling_get", {"survey": SID}, f"surveys/{SID}/form"),
+        ("forms_hooks_get", {"survey_id": SID, "hook_id": 11}, f"surveys/{SID}/hooks/11"),
         (
             "forms_conditions_question_get",
             {"survey_id": SID, "question_id": "17", "condition_id": 5},
