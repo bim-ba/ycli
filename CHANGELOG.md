@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.28.1 (2026-10-02)
+
+### Bug Fixes
+
+- Read Forms validation errors as text, and refuse workflow edits Tracker rejects
+  ([#158](https://github.com/bim-ba/ycli/pull/158),
+  [`fa8762c`](https://github.com/bim-ba/ycli/commit/fa8762c12d8a31f18781a9bbe70712df15b79a6a))
+
+### Build System
+
+- Re-lock uv.lock for 0.28.0
+  ([`e43fcf8`](https://github.com/bim-ba/ycli/commit/e43fcf863338bade75c6881be40b613ef36ed617))
+
+
 ## v0.28.0 (2026-10-02)
 
 ### Build System
