@@ -307,8 +307,20 @@ operations.restore = "recovery_tokens/recovery_tokens__recover_page_by_token"
 resource = "comments/pagescomments__comments"
 operations.list = "comments/pagescomments__comments"
 operations.thread = "comments/pagescomments__thread_comments"
+operations.thread_get = "comments/pagescomments__thread_comments"
 operations.create = "comments/pagescomments__create_comment"
 operations.delete = "comments/pagescomments__delete_comment"
+
+[wiki.access]
+resource = "pages_access/pagesaccess__create_page_access"
+operations.create = "pages_access/pagesaccess__create_page_access"
+operations.update = "pages_access/pagesaccess__update_page_access"
+operations.delete = "pages_access/pagesaccess__delete_page_access"
+operations.clear = "pages_access/pagesaccess__delete_page_accesses"
+
+[wiki.search]
+resource = "search/search__search"
+operations.query = "search/search__search"
 
 [wiki.attachments]
 resource = "attachments/pagesattachments__attachments"

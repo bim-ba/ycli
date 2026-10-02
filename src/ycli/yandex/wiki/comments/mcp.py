@@ -55,16 +55,42 @@ def thread_list(
 ) -> CommentList:
     """A comment and its replies, reconstructed from the page's comment list.
 
-    The Wiki ``/thread`` endpoint is dead (returns no replies), so this fetches every comment
-    on the page and chains ``parent_id`` from the target: the comment comes first, then its
-    descendants in depth-first order. Capped at the configured item cap unless ``limit`` is
-    given. Use ``comments_list`` first to discover a root comment id, then this to read its thread.
+    The Wiki ``/thread`` endpoint (``comments_thread_get``) is dead (returns no replies), so this
+    fetches every comment on the page and chains ``parent_id`` from the target: the comment comes
+    first, then its descendants in depth-first order. Capped at the configured item cap unless
+    ``limit`` is given. Use ``comments_list`` first to discover a root comment id, then this to
+    read its thread.
 
     Example:
         >>> thread_list(page_id=12345, comment_id=678, limit=50)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
+
+
+@mcp.tool(
+    name="comments_thread_get",
+    annotations={**RO, "title": "Get Wiki comment thread from the server"},
+    tags=TAGS,
+)
+def thread_get(
+    page_id: Annotated[int, Field(description="Numeric page id the comment lives on.")],
+    comment_id: Annotated[int, Field(description="Comment id whose server-side thread to fetch.")],
+    limit: Annotated[int, Field(description="Max comments (0 = configured cap).")] = 0,
+    client: WikiClient = Depends(wiki_client),
+    config: AppConfig = Depends(app_config),
+) -> CommentList:
+    """The thread of a comment as the Wiki server returns it — an empty list for every real thread.
+
+    Checked live on 2026-10-02: the server's ``/thread`` endpoint has no replies to give, for a
+    root comment or a reply, plain or inline. Use ``comments_thread_list``, which rebuilds the
+    thread from the page's comment list.
+
+    Example:
+        >>> thread_get(page_id=12345, comment_id=678)  # doctest: +SKIP
+    """
+    cap = resolve_cap(limit, config.http.max_items)
+    return client.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
 @mcp.tool(

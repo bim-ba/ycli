@@ -47,11 +47,30 @@ def thread(
 ) -> CommentList:
     """Print the thread for COMMENT_ID on PAGE_ID: the comment plus its replies.
 
-    Reconstructed from the page's comment list (the Wiki /thread endpoint is dead); the
-    comment comes first, then its descendants chained by parent_id.
+    Reconstructed from the page's comment list (the Wiki /thread endpoint, see `thread-get`, is
+    dead); the comment comes first, then its descendants chained by parent_id.
     """
     cap = config.http.cap(limit, all_=all_)
     return wiki.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
+
+
+@app.command("thread-get")
+def thread_get(
+    page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
+    comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    *,
+    config: AppConfig,
+    wiki: WikiClient,
+) -> CommentList:
+    """Print what the server returns as the thread of COMMENT_ID (GET .../comments/{id}/thread).
+
+    The server answers an empty list for every real thread (checked 2026-10-02); use `thread`,
+    which rebuilds it from the comment list.
+    """
+    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    return wiki.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
 @app.command()

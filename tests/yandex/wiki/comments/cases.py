@@ -67,6 +67,39 @@ CASES = [
         ],
     ),
     Case(
+        "wiki.comments.thread_get",
+        args=(5507, 5511),
+        kwargs={"limit": 35},
+        cli=["wiki", "comments", "thread-get", "5507", "5511", "--limit", "35"],
+        mcp=("wiki_comments_thread_get", {"page_id": 5507, "comment_id": 5511, "limit": 35}),
+        exchanges=[
+            (
+                Sent("GET", "pages/5507/comments/5511/thread", {"page_size": "100"}),
+                Reply(json={"results": [ROOT], "next_cursor": "tt-2"}),
+            ),
+            (
+                Sent(
+                    "GET",
+                    "pages/5507/comments/5511/thread",
+                    {"page_size": "100", "cursor": "tt-2"},
+                ),
+                Reply(json={"results": [REPLY], "next_cursor": None}),
+            ),
+        ],
+    ),
+    Case(
+        "wiki.comments.thread_get",
+        args=(5508, 5512),
+        cli=["wiki", "comments", "thread-get", "5508", "5512", "--all"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "pages/5508/comments/5512/thread", {"page_size": "100"}),
+                Reply(json={"results": [], "next_cursor": None}),
+            )
+        ],
+    ),
+    Case(
         "wiki.comments.create",
         args=(5504, CREATE_BODY),
         cli=[

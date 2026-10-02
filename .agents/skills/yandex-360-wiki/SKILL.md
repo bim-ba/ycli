@@ -2,12 +2,12 @@
 name: yandex-360-wiki
 description: >-
   Use when reading or writing Yandex Wiki pages through ycli — page content and
-  metadata, the page tree, grids, comments, attachments, YFM authoring — via the
-  CLI, MCP, or Python SDK.
+  metadata, full-text search, the page tree, grids, comments, attachments, page
+  access, YFM authoring — via the CLI, MCP, or Python SDK.
 ---
 # Yandex Wiki
 
-Drive Yandex Wiki (Yandex 360) through `ycli`: read page content, metadata, tree, comments and attachments; create, update, clone and delete pages with YFM; manage grids (dynamic tables) and attachments. Reads **and writes** ship on all three surfaces — the CLI, the `wiki_*` MCP tools, and the Python SDK — plus the API's real-world quirks.
+Drive Yandex Wiki (Yandex 360) through `ycli`: search pages by text; read page content, metadata, tree, comments and attachments; create, update, clone and delete pages with YFM; manage grids (dynamic tables), attachments and page access. Reads **and writes** ship on all three surfaces — the CLI, the `wiki_*` MCP tools, and the Python SDK — plus the API's real-world quirks.
 
 ## When to use
 
@@ -38,9 +38,9 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 
 | Surface | What it covers |
 |---------|----------------|
-| **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|append\|clone\|delete\|descendants`, `comments`, `grids`, `attachments` (incl. binary download), `uploadsessions`, `recovery`, `operations` |
-| **MCP tools** (reads and writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_comments_list`, `wiki_attachments_list`, plus write tools for pages create/update/append/clone/delete, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads** stay CLI/SDK-only. |
-| **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages`, `.comments`, `.grids`, `.attachments`, `.uploadsessions`, `.resources`, `.recovery`, `.operations` — full read/write parity with the CLI. |
+| **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|append\|clone\|delete\|descendants`, `search`, `access`, `comments`, `grids`, `attachments` (incl. binary download), `uploadsessions`, `recovery`, `operations` |
+| **MCP tools** (reads and writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_search_query`, `wiki_comments_list`, `wiki_attachments_list`, plus write tools for pages create/update/append/clone/delete, page access, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads** stay CLI/SDK-only. |
+| **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages`, `.search`, `.access`, `.comments`, `.grids`, `.attachments`, `.uploadsessions`, `.resources`, `.recovery`, `.operations` — full read/write parity with the CLI. |
 
 **Prefer the CLI / MCP tools over raw `http` calls** — they encode the API quirks (header name, `slug=` query form, POST-not-PATCH, `fields=` rules) correctly.
 
@@ -58,6 +58,8 @@ Every read is available both as a CLI command and as an MCP tool (annotated `rea
 | Metadata only (id, title, owner, timestamps) | `uv run ycli wiki pages get <slug> --fields attributes` | `wiki_pages_meta` |
 | Content **and** metadata in one call | `uv run ycli wiki pages get <slug> --fields content,attributes` | — |
 | Descendant slugs (auto-paginated) | `uv run ycli wiki pages descendants <slug> [--limit N \| --all]` | `wiki_pages_descendants` |
+| Full-text search (one page of hits) | `uv run ycli wiki search query <text> [--type page\|file] [--cluster <slug>] [--limit N] [--cursor N]` | `wiki_search_query` |
+| Who may open a page, and its personal accesses | `uv run ycli wiki pages get-by-id <page_id> --fields access_policy,access_lists,owner` | `wiki_pages_by_id_get` |
 | Comments on a page | **2-step** (see below) | `wiki_comments_list` |
 | Attachments on a page | **2-step** (see below) | `wiki_attachments_list` |
 
@@ -93,9 +95,19 @@ uv run ycli wiki comments list <page_id>
 uv run ycli wiki attachments list <page_id>
 ```
 
-### There is no API text-search endpoint
+### Search
 
-The Wiki UI has full-text search, but the **public API does not expose one** (search is UI-only). To find a page programmatically, navigate the tree (`pages descendants` + `pages get`) from a known root, or use the Wiki UI search to locate the slug first, then fetch it via the CLI.
+`wiki search query` runs the Wiki's full-text search and prints one page of hits (`slug`, `title`, `content` snippet, `type`, `modified_at`). Read a hit with `pages get <slug>`.
+
+```bash
+uv run ycli wiki search query "quarterly roadmap" --type page --cluster team --limit 20
+uv run ycli wiki search query roadmap --cursor 2          # the next page: pass next_cursor back as --cursor
+```
+
+- **Paging is by hand.** `next_cursor` is the next page's number (`"2"`). The API also sets it after an empty page and repeats hits for a page past the last one, so stop at the first page with no hits instead of waiting for `null`. At most 500 pages and 50 hits per page.
+- **A date window needs both ends** (`--created-from` with `--created-to`, `--modified-from` with `--modified-to`): the API answers an open-ended window with 400.
+- `--highlight` wraps the matches in `<em>`; `--order-by relevancy|creation_date|modified_date`; `--author-uid` / `--author-cloud-uid` filter by author.
+- A page you just created can take a few seconds to show up in the index.
 
 ---
 
@@ -146,6 +158,7 @@ Confirm the published body starts at the `# H1`, not at `---` (which would mean 
 | Clone a page (async) | `uv run ycli wiki pages clone <page_id> --target <new/slug> [--title …]` → poll `operations clone <task>` | `wiki_pages_clone` + `wiki_operations_clone_get` |
 | Delete / restore a page | `uv run ycli wiki pages delete <page_id>` (emits a `recovery_token`) → `uv run ycli wiki recovery restore <token>` | `wiki_pages_delete` / `wiki_recovery_restore` |
 | Comments | `uv run ycli wiki comments create <page_id> --body … [--parent-id N]` / `… delete <page_id> <comment_id>` | `wiki_comments_create` / `wiki_comments_delete` |
+| Page access | `uv run ycli wiki access create <page_id> --role reader\|editor\|extra_editor\|author (--user-uid U \| --group-src dir --group-id G) [--inheritance …]` / `access update <page_id> <access_id> --role …` / `access delete <page_id> <access_id>` / `access clear <page_id>` | `wiki_access_create` / `wiki_access_update` / `wiki_access_delete` / `wiki_access_clear` |
 | Grids (dynamic tables) | `uv run ycli wiki grids create\|update\|clone\|delete`, `grids columns add\|move\|remove`, `grids rows add\|move\|remove`, `grids cells update` | `wiki_grids_*` (full CRUD) |
 | Attachments | `uv run ycli wiki attachments upload <page_id> <file>` (single call) or the `uploadsessions create → upload-part → finish → attachments attach` pipeline; `attachments delete` | `wiki_attachments_upload` (base64), `wiki_uploadsessions_*`, `wiki_attachments_attach`, `wiki_attachments_delete` |
 
@@ -158,6 +171,8 @@ Live-verified gotchas for these writes:
 - **`pages append` defaults to `--location bottom`.** The API requires exactly one placement selector (`Fields ('body', 'section', 'anchor') are mutually exclusive`); ycli now always sends one — pass `--location top` to prepend.
 - **`grids columns add` requires an explicit per-column `"slug"`.** `[{"title":"Count","type":"number","slug":"count"}]` works; omitting `slug` 400s (`value_error.missing`) despite older docs claiming it is server-generated.
 - **Grid `default-sort` has a different write shape than its read shape.** The API *writes* a mapping list `[{"<column_slug>": "asc"}]` (read shape is `[{"slug","title","direction"}]`); ycli's `--default-sort` sends the write shape and rejects the read shape loudly.
+- **Page access: pass `--prevent-selflock` on update, delete and clear.** The API then refuses a change that would leave you without read access or the right to change accesses. The page owner's own entry can be neither changed nor revoked, `access clear` keeps it, and granting a user who already has a personal access is refused (use `access update`). Read the entries (and their ids) back with `pages get-by-id <page_id> --fields access_policy,access_lists`. Verified live 2026-10-02.
+- **`comments thread-get` returns nothing.** The server's `/thread` endpoint answers an empty list for every real thread, so use `comments thread` (rebuilt from `comments list`).
 - **`attachments list` rows omit the numeric file id** needed for download/delete — capture ids from the upload/attach response.
 
 ---
@@ -168,7 +183,7 @@ Live-verified gotchas for these writes:
 - **`--fields` REPLACES the default (`content`)**, it does not add to it. `--fields attributes` returns metadata only (no body); use `--fields content,attributes` to get both.
 - **Content is not returned unless requested.** Without `fields=content` (the CLI default for `pages get`), the body is absent. When passing explicit `--fields`, include `content` if you need the body.
 - **Valid `fields=` values are only:** `redirect, breadcrumbs, attributes, content, access_policy, access_lists, owner`. Passing `id`, `title`, or `slug` returns **400 BAD_REQUEST** (those are always-present default fields).
-- **No API text-search endpoint** — navigate the tree or use the UI search (see §2).
+- **Search paging has no reliable end** — `next_cursor` is set even after an empty page; see §2 *Search*.
 - **`GET /v1/pages/get-by-slug` returns 404** — the working form is `GET /v1/pages?slug={slug}` (what the CLI does).
 - **`PATCH` returns 405** — always `POST` for updates (the CLI does this).
 - **Strip YAML frontmatter before `--content`** — the CLI does not auto-strip it, nor auto-lift `title:`.

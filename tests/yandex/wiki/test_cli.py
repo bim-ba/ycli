@@ -4,6 +4,7 @@ import json
 import re
 
 import pytest
+from pydantic import ValidationError
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
@@ -15,6 +16,36 @@ GID = "7d1c2b3a-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
 def _plain(output: str) -> str:
     # CI forces colour: drop the escape codes and the panel border before matching the words.
     return " ".join(re.sub(r"[│╭╮╰╯─]", " ", re.sub(r"\x1b\[[0-9;]*m", "", output)).split())
+
+
+def _refused(argv: list[str]) -> list[tuple[str, str]]:
+    """The pydantic errors a command raises before sending (the root prints them)."""
+    result = CliRunner().invoke(cli.app, ["wiki", *argv])
+    assert isinstance(result.exception, ValidationError), result.output
+    return [
+        (str(error["loc"][0] if error["loc"] else ""), error["type"])
+        for error in result.exception.errors()
+    ]
+
+
+@pytest.mark.parametrize(
+    ("flags", "missing"),
+    [(["--created-from", "2026-01-01"], "to"), (["--modified-to", "2026-02-01"], "from")],
+)
+def test_an_open_ended_search_window_names_the_missing_end(api, flags, missing):
+    assert _refused(["search", "query", "plan", *flags]) == [(missing, "missing")]
+    assert api.calls == []
+
+
+def test_a_group_grant_needs_both_its_directory_and_its_id(api):
+    argv = ["access", "create", "1", "--role", "reader", "--group-id", "7"]
+    assert _refused(argv) == [("src", "missing")]
+    assert api.calls == []
+
+
+def test_a_grant_names_a_user_or_a_group(api):
+    assert _refused(["access", "create", "1", "--role", "reader"]) == [("", "value_error")]
+    assert api.calls == []
 
 
 def test_grids_create_needs_a_page(api):

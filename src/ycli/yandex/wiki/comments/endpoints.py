@@ -28,6 +28,15 @@ def list_comments(page_id: int) -> Paged[CommentsResponse, Comment]:
     )
 
 
+def get_thread(page_id: int, comment_id: int) -> Paged[CommentsResponse, Comment]:
+    path = f"pages/{segment(page_id)}/comments/{segment(comment_id)}/thread"
+    return Paged(
+        Endpoint("GET", path, CommentsResponse, params={"page_size": 100}),
+        WIKI_CURSOR,
+        lambda page: page.results,
+    )
+
+
 def create_comment(page_id: int, body: dict[str, Any]) -> Endpoint[CommentCreated]:
     return Endpoint("POST", f"pages/{segment(page_id)}/comments", CommentCreated, json=body)
 

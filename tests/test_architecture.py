@@ -332,6 +332,8 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "wiki/pages/endpoints.py:update_page": "POST /pages/{id} replaces fields; a resend is a no-op",
     "wiki/grids/endpoints.py:update_grid": "POST /grids/{id} replaces fields; a resend is a no-op",
     "wiki/grids/endpoints.py:update_cells": "POST cells sets values; a resend is a no-op",
+    "wiki/search/endpoints.py:search_pages": "POST /search only reads",
+    "wiki/access/endpoints.py:update_access": "POST access sets role; a resend is a no-op",
     "wiki/uploadsessions/endpoints.py:abort_session": "POST abort discards uploaded parts",
     "wiki/uploadsessions/endpoints.py:abort_all_sessions": "POST abort discards every upload",
     "forms/access/endpoints.py:set_access": "POST sets an access level: sending twice converges",

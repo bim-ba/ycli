@@ -78,8 +78,8 @@ TRACKER_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Entities, users & search", ["entities", "users", "applications", "filters", "me"]),
 ]
 WIKI_CATEGORIES: list[tuple[str, list[str]]] = [
-    ("Pages", ["pages", "resources", "recovery"]),
-    ("Collaboration", ["comments", "attachments"]),
+    ("Pages", ["pages", "resources", "recovery", "search"]),
+    ("Collaboration", ["comments", "attachments", "access"]),
     ("Grids (dynamic tables)", ["grids"]),
     ("Async & uploads", ["operations", "uploadsessions"]),
     ("Identity", ["me"]),

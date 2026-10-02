@@ -93,3 +93,34 @@ def test_page_clone_operation_parses_identity():
     )
     assert op.operation is not None and op.operation.id == "task-1"
     assert op.status_url == "u"
+
+
+def test_page_details_keeps_the_access_fields_a_page_returns():
+    page = PageDetails.model_validate(
+        {
+            "id": 42,
+            "slug": "data/x",
+            "title": "X",
+            "owner": {"user": {"id": 1, "username": "ivan", "display_name": "Ivan"}, "group": None},
+            "access_policy": {"access_type": "custom", "all_staff_role": "reader"},
+            "access_lists": {
+                "direct": [{"id": "9", "role": "author", "inheritance": "inherited"}],
+                "by_link": [],
+                "inherited": [],
+            },
+        }
+    )
+    assert page.owner_username == "ivan"
+    assert page.access_policy is not None and page.access_policy.access_type == "custom"
+    assert page.access_lists is not None and page.access_lists.direct[0].id == "9"
+
+
+def test_a_page_without_access_fields_leaves_them_unset():
+    page = PageDetails.model_validate({"id": 42, "slug": "data/x", "title": "X"})
+    assert page.access_policy is None and page.access_lists is None
+
+
+def test_clone_operation_identity_accepts_every_operation_kind():
+    for kind in ("move", "clone", "clone_inline_grid"):
+        reply = PageCloneOperation.model_validate({"operation": {"type": kind, "id": "t"}})
+        assert reply.operation is not None and reply.operation.type == kind
