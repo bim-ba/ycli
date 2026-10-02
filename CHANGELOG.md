@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.34.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.33.0
+  ([`08f8d4c`](https://github.com/bim-ba/ycli/commit/08f8d4c0d0f03d66c0f8d77f3c94116f3b0deaa9))
+
+### Features
+
+- **mcp**: Serve MCP over HTTP, signing every caller in through Yandex ID (#108)
+  ([#168](https://github.com/bim-ba/ycli/pull/168),
+  [`1c1b1ab`](https://github.com/bim-ba/ycli/commit/1c1b1ab9af7fbc69faf40b03174f242fb42ad2ad))
+
+
 ## v0.33.0 (2026-10-02)
 
 ### Bug Fixes
