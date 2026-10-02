@@ -1,6 +1,7 @@
 import httpx2
 import pytest
 import stamina
+import typer.rich_utils
 
 from tests.mock_api import MockAPI
 
@@ -38,6 +39,17 @@ def api(monkeypatch) -> MockAPI:
     mock = MockAPI()
     monkeypatch.setattr("ycli.yandex.core.session.default_transport", mock.transport)
     return mock
+
+
+@pytest.fixture(autouse=True)
+def _plain_help(monkeypatch):
+    """Help and usage errors in plain text, as on a developer's machine.
+
+    Typer forces a rich terminal when ``GITHUB_ACTIONS`` is set (read once, at import), so in
+    CI the captured output carries style codes that split option names; ``None`` lets rich
+    detect the captured stream, which is not a terminal.
+    """
+    monkeypatch.setattr(typer.rich_utils, "FORCE_TERMINAL", None)
 
 
 @pytest.fixture(autouse=True)
