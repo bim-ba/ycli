@@ -6,6 +6,7 @@ test_client / test_models / test_mcp only.
 """
 
 import json
+import re
 
 import pytest
 import responses
@@ -147,7 +148,8 @@ def test_search_order_asc_without_order_by_is_a_usage_error():
     """--order-asc alone used to be dropped silently (body {}); it now fails loudly."""
     res = _invoke("search", "project", "--order-asc")
     assert res.exit_code == 2
-    assert "--order-by" in res.output
+    # CI forces colour, and rich splits "--order-by" with ANSI codes: compare the plain text.
+    assert "--order-by" in re.sub(r"\x1b\[[0-9;]*m", "", res.output)
     assert len(responses.calls) == 0
 
 
