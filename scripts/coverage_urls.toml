@@ -328,6 +328,10 @@ resource = "users/get-user-info"
 operations.get = "users/get-user-info"
 
 # ───────────────────────────────── Wiki ─────────────────────────────────
+# `pages.move`, `pages.revisions`, `pages.backlinks`, `attachments.get`, `attachments.preview`,
+# `grids.suggest_column`, `grids.update_column`, `grids.update_row` and `operations.move_get` are
+# in the live OpenAPI but not in Yandex's documentation (#150), so they have no page of their own
+# and link to their resource's page.
 [wiki.pages]
 resource = "pages/pages__get_page_details"
 operations.get_by_id = "pages/pages__get_page_details_by_id"

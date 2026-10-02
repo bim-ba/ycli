@@ -25,7 +25,10 @@ from ycli.yandex.wiki.pages.models import (
     PageCloneOperation,
     PageDeleteResult,
     PageDetails,
+    PageMove,
+    PageMoveOperation,
     PageRefList,
+    PageRevisionList,
 )
 
 mcp = FastMCP("wiki-pages")
@@ -130,7 +133,10 @@ def by_id_descendants(
 @mcp.tool(name="pages_create", annotations={**WRITE, "title": "Create Wiki page"}, tags=WRITE_TAGS)
 def create(
     slug: Annotated[
-        str, Field(description="Target slug, e.g. ``data/x``. Slugs are PERMANENT once created.")
+        str,
+        Field(
+            description="Target slug, e.g. ``data/x``. Treat it as permanent (a move breaks links)."
+        ),
     ],
     title: Annotated[str, Field(description="Page title.")],
     content: Annotated[str, Field(description="Page body in YFM markdown.")],
@@ -138,9 +144,9 @@ def create(
 ) -> PageDetails:
     """Create a wiki page at ``slug`` (``POST /pages``).
 
-    Slugs are permanent — a page cannot be renamed to another address later (only cloned),
-    so pick the slug carefully. Returns the created page (its numeric ``id`` drives the
-    id-based tools and every subsequent write).
+    Treat the slug as permanent: ``pages_move`` can rename the page later, but the old address
+    then answers 404 and links to it break, so pick the slug carefully. Returns the created page
+    (its numeric ``id`` drives the id-based tools and every subsequent write).
 
     Example:
         >>> create(slug="data/x", title="X", content="# X")  # doctest: +SKIP
@@ -237,11 +243,99 @@ def clone(
 ) -> PageCloneOperation:
     """Copy a page to a new address (``POST /pages/{id}/clone`` — asynchronous).
 
-    Cloning is the only way to give content a new slug (slugs are permanent). The call
-    returns a deferred operation reference — poll ``operations_clone_get`` with the
-    returned ``operation.id`` until it reaches a terminal status.
+    Cloning leaves the original where it is; to give the page itself a new slug use
+    ``pages_move``. The call returns a deferred operation reference — poll
+    ``operations_clone_get`` with the returned ``operation.id`` until it reaches a terminal status.
 
     Example:
         >>> clone(page_id=12345, body={"target": "data/y"})  # doctest: +SKIP
     """
     return client.pages.clone(page_id=page_id, body=body.model_dump(exclude_none=True))
+
+
+@mcp.tool(name="pages_move", annotations={**WRITE, "title": "Move Wiki page"}, tags=WRITE_TAGS)
+def move(
+    body: Annotated[
+        PageMove,
+        Field(
+            description="Move spec: ``operations`` (each ``source`` slug and new ``target`` slug, "
+            "optionally ``next_to_slug`` with ``position`` before/after) and optional "
+            "``copy_inherited_access``."
+        ),
+    ],
+    dry_run: Annotated[bool, Field(description="Validate the move without applying it.")] = False,
+    client: WikiClient = Depends(wiki_client),
+) -> PageMoveOperation:
+    """Move or rename pages (``POST /pages/move`` — asynchronous; undocumented by Yandex).
+
+    The only way to give a page a new slug. The call returns a deferred operation reference —
+    poll ``operations_move_get`` with the returned ``operation.id`` until it reaches a terminal
+    status. A page moves with its subtree and links to the old address may stop working, so try
+    ``dry_run=true`` first: it validates the request, applies nothing, and its operation id
+    cannot be polled. Yandex does not document this operation (it is in the live OpenAPI only)
+    and may change it.
+
+    Example:
+        >>> move(
+        ...     body={"operations": [{"source": "data/x", "target": "archive/x"}]}
+        ... )  # doctest: +SKIP
+    """
+    return client.pages.move(body=body.model_dump(exclude_none=True), dry_run=dry_run)
+
+
+@mcp.tool(
+    name="pages_revisions_list",
+    annotations={**RO, "title": "List Wiki page revisions"},
+    tags=TAGS,
+)
+def revisions_list(
+    page_id: Annotated[int, Field(description="Numeric page id whose revisions to list.")],
+    ids: Annotated[
+        str | None, Field(description="Only these revision ids (comma separated).")
+    ] = None,
+    limit: Annotated[int, Field(description="Max revisions (0 = configured cap).")] = 0,
+    client: WikiClient = Depends(wiki_client),
+    config: AppConfig = Depends(app_config),
+) -> PageRevisionList:
+    """Saved revisions of a page, auto-paginated (``GET /pages/{id}/revisions``).
+
+    Each revision has an ``id`` (what ``GET /pages`` takes as ``revision_id``), its ``author``,
+    ``created_at``, ``page_type`` and publication state. Yandex does not document this operation
+    (it is in the live OpenAPI only) and may change it.
+
+    Example:
+        >>> revisions_list(page_id=12345, limit=10)  # doctest: +SKIP
+    """
+    cap = config.http.cap(limit)
+    return client.pages.revisions(page_id=page_id, ids=ids, limit=cap)
+
+
+@mcp.tool(
+    name="pages_backlinks_list",
+    annotations={**RO, "title": "List Wiki page backlinks"},
+    tags=TAGS,
+)
+def backlinks_list(
+    page_id: Annotated[int, Field(description="Numeric id of the page that is linked to.")],
+    for_cluster: Annotated[
+        bool, Field(description="Links to the page's whole subtree, not just the page.")
+    ] = False,
+    show_all: Annotated[
+        bool, Field(description="The API's ``show_all`` flag (undocumented; no effect seen live).")
+    ] = False,
+    limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
+    client: WikiClient = Depends(wiki_client),
+    config: AppConfig = Depends(app_config),
+) -> PageRefList:
+    """Refs (``id`` and ``slug``) of the pages that link to a page (``GET /pages/{id}/backlinks``).
+
+    Auto-paginated. Yandex does not document this operation (it is in the live OpenAPI only) and
+    may change it.
+
+    Example:
+        >>> backlinks_list(page_id=12345)  # doctest: +SKIP
+    """
+    cap = config.http.cap(limit)
+    return client.pages.backlinks(
+        page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
+    )

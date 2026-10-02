@@ -1,10 +1,10 @@
 """Pydantic v2 models for Yandex Wiki async operation status (``/operations``).
 
-A page or grid *clone* is a deferred operation: the trigger (``pages clone`` / ``grids clone``)
-returns an operation reference, and you re-read a status endpoint here until ``status`` reaches a
-terminal value. :attr:`CloneOperationStatus.is_terminal` /
-:attr:`GridCloneOperationStatus.is_terminal` are the stop predicates for
-:func:`ycli.yandex.polling.poll` on the ``--wait`` CLI path.
+A page or grid *clone* and a page *move* are deferred operations: the trigger (``pages clone`` /
+``grids clone`` / ``pages move``) returns an operation reference, and you re-read a status
+endpoint here until ``status`` reaches a terminal value. :attr:`CloneOperationStatus.is_terminal`,
+:attr:`GridCloneOperationStatus.is_terminal` and :attr:`MoveOperationStatus.is_terminal` are the
+stop predicates for the ``--wait`` CLI path.
 
 ``extra='ignore'`` via :class:`~ycli.yandex.models.APIModel`.
 """
@@ -19,9 +19,9 @@ from ycli.yandex.models import APIModel
 
 #: Kind of deferred Wiki operation: the ``type`` of the reference a trigger returns.
 OperationType = Literal["move", "clone", "clone_inline_grid"]
-#: Lifecycle status of a clone operation.
+#: Lifecycle status of an async operation.
 OperationStatus = Literal["scheduled", "in_progress", "success", "failed"]
-#: Statuses at which a clone operation has stopped running (poll terminates here).
+#: Statuses at which an async operation has stopped running (poll terminates here).
 TERMINAL_STATUSES = frozenset({"success", "failed"})
 
 
@@ -130,6 +130,49 @@ class GridCloneOperationStatus(APIModel):
         default=None, description="Progress of the running operation."
     )
     result: GridCloneResult | None = Field(
+        default=None, description="Result payload (present once ``status`` is ``success``)."
+    )
+
+    @property
+    def is_terminal(self) -> bool:
+        """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
+        return self.status in TERMINAL_STATUSES
+
+
+class PageMoveResult(APIModel):
+    """Result payload of a finished page-move operation — how many pages changed address.
+
+    Example:
+        >>> PageMoveResult.model_validate({"page_count": 3}).page_count
+        3
+    """
+
+    page_count: int | None = Field(
+        default=None, description="Number of pages moved (the page and its descendants)."
+    )
+
+
+class MoveOperationStatus(APIModel):
+    """Status of a page-move operation (``GET /operations/move/{task_id}``).
+
+    Undocumented by Yandex (it is in the live OpenAPI only) and may change. Poll this until
+    :attr:`is_terminal`; on ``success`` the ``result.page_count`` says how many pages moved.
+
+    Example:
+        >>> MoveOperationStatus.model_validate(
+        ...     {"status": "success", "result": {"page_count": 2}}
+        ... ).result.page_count
+        2
+    """
+
+    status: OperationStatus | None = Field(
+        default=None,
+        description="Lifecycle status (``scheduled``/``in_progress``/``success``/``failed``).",
+    )
+    progress: OperationProgress | None = Field(
+        default=None, description="Progress of the running operation."
+    )
+    result: PageMoveResult | None = Field(
         default=None, description="Result payload (present once ``status`` is ``success``)."
     )
 

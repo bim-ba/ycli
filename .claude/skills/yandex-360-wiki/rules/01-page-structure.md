@@ -10,7 +10,7 @@ type: rule
 
 - Format: `kebab-case`, hierarchy expressed through `/` (e.g. `team/guides/how-to-use-api`, `team/incidents/2026-05-db-outage`).
 - Do **not** use: spaces, underscores, or Cyrillic characters in slugs.
-- A slug is a **permanent URL** — never change it after publication. Changing a slug breaks every inbound link and Tracker magic-link reference.
+- A slug is a **permanent URL** — avoid changing it after publication. `wiki pages move` can rename a page, but the old address then answers 404, so every inbound link and Tracker magic-link reference breaks.
 - Decide the full slug (including parent path) before publishing the page.
 
 ## Page Title and H1

@@ -2,8 +2,9 @@
 name: yandex-360-wiki
 description: >-
   Use when reading or writing Yandex Wiki pages through ycli — page content and
-  metadata, full-text search, the page tree, grids, comments, attachments, page
-  access, YFM authoring — via the CLI, MCP, or Python SDK.
+  metadata, full-text search, the page tree, moving or renaming pages, revision
+  history, backlinks, grids, comments, attachments, page access, YFM authoring —
+  via the CLI, MCP, or Python SDK.
 ---
 # Yandex Wiki
 
@@ -38,8 +39,8 @@ X-Org-Id: $YANDEX_ID_ORGANIZATION_ID
 
 | Surface | What it covers |
 |---------|----------------|
-| **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|append\|clone\|delete\|descendants`, `search`, `access`, `comments`, `grids`, `attachments` (incl. binary download), `uploadsessions`, `recovery`, `operations` |
-| **MCP tools** (reads and writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_search_query`, `wiki_comments_list`, `wiki_attachments_list`, plus write tools for pages create/update/append/clone/delete, page access, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads** stay CLI/SDK-only. |
+| **CLI** — `uv run ycli wiki <group> <cmd>` | Everything: `pages get\|create\|update\|append\|clone\|move\|delete\|descendants\|revisions\|backlinks`, `search`, `access`, `comments`, `grids`, `attachments` (incl. binary download and preview), `uploadsessions`, `recovery`, `operations` |
+| **MCP tools** (reads and writes) | Named `wiki_<resource>_<action>` — reads like `wiki_pages_get`, `wiki_pages_meta`, `wiki_pages_descendants`, `wiki_search_query`, `wiki_comments_list`, `wiki_attachments_list`, `wiki_pages_revisions_list`, `wiki_pages_backlinks_list`, plus write tools for pages create/update/append/clone/move/delete, page access, comments, grids CRUD, attachment upload (base64) and delete. Writes carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them. Binary **downloads and previews** stay CLI/SDK-only. |
 | **Python SDK** | `from ycli.yandex.wiki.client import WikiClient` → `WikiClient(oauth_token=…, organization_id=…)` exposes `.pages`, `.search`, `.access`, `.comments`, `.grids`, `.attachments`, `.uploadsessions`, `.resources`, `.recovery`, `.operations` — full read/write parity with the CLI. |
 
 **Prefer the CLI / MCP tools over raw `http` calls** — they encode the API quirks (header name, `slug=` query form, POST-not-PATCH, `fields=` rules) correctly.
@@ -59,6 +60,10 @@ Every read is available both as a CLI command and as an MCP tool (annotated `rea
 | Content **and** metadata in one call | `uv run ycli wiki pages get <slug> --fields content,attributes` | — |
 | Descendant slugs (auto-paginated) | `uv run ycli wiki pages descendants <slug> [--limit N \| --all]` | `wiki_pages_descendants` |
 | Full-text search (one page of hits) | `uv run ycli wiki search query <text> [--type page\|file] [--cluster <slug>] [--limit N] [--cursor N]` | `wiki_search_query` |
+| A page's saved revisions, newest first ¹ | `uv run ycli wiki pages revisions <page_id> [--ids 1,2] [--limit N \| --all]` | `wiki_pages_revisions_list` |
+| Pages that link to a page ¹ | `uv run ycli wiki pages backlinks <page_id> [--for-cluster] [--limit N \| --all]` | `wiki_pages_backlinks_list` |
+| One attachment's metadata ¹ | `uv run ycli wiki attachments get <page_id> <file_id>` | `wiki_attachments_get` |
+| Is a grid column slug free? ¹ | `uv run ycli wiki grids columns suggest <grid_id> (--title T \| --slug S)` | `wiki_grids_suggest_column` |
 | Who may open a page, and its personal accesses | `uv run ycli wiki pages get-by-id <page_id> --fields access_policy,access_lists,owner` | `wiki_pages_by_id_get` |
 | Comments on a page | **2-step** (see below) | `wiki_comments_list` |
 | Attachments on a page | **2-step** (see below) | `wiki_attachments_list` |
@@ -84,6 +89,8 @@ uv run ycli wiki pages descendants team --all   # a subtree larger than the cap
 ```
 
 Use this to build a slug→title map of a subtree, then `pages get <slug> --fields attributes` per slug for titles.
+
+¹ **Undocumented by Yandex** (see [Undocumented operations](#undocumented-operations)).
 
 ### Comments and attachments — the 2-step get-id-then-list pattern
 
@@ -117,7 +124,7 @@ Writes ship on **SDK + CLI + MCP** (write tools carry `readOnlyHint=False` and e
 
 ### Before you write
 
-- **Decide the slug first.** Slugs are **permanent after creation** — they cannot be changed, and changing them would break every inbound link and magic-link reference. Format: `parent/child`, kebab-case, no spaces, no underscores, no Cyrillic.
+- **Decide the slug first.** Treat slugs as **permanent**: `pages move` can rename a page, but the old address then answers 404, so every inbound link and magic-link reference breaks. Format: `parent/child`, kebab-case, no spaces, no underscores, no Cyrillic.
 - **If creating a child page, verify the parent exists**: `uv run ycli wiki pages get parent/path --fields attributes`.
 - **Strip YAML frontmatter from the body yourself.** If your local file has `---` frontmatter, the CLI does **not** strip it and does **not** lift `title:` out of it — pass only the body (starting at the `# H1`) to `--content`, and pass the title separately via `--title`.
 
@@ -156,13 +163,14 @@ Confirm the published body starts at the `# H1`, not at `---` (which would mean 
 |-----------|-----|----------|
 | Append to a page | `uv run ycli wiki pages append <page_id> --content … --location top\|bottom` | `wiki_pages_append_content` |
 | Clone a page (async) | `uv run ycli wiki pages clone <page_id> --target <new/slug> [--title …]` → poll `operations clone <task>` | `wiki_pages_clone` + `wiki_operations_clone_get` |
+| Move or rename a page (async) ¹ | `uv run ycli wiki pages move <old/slug> <new/slug> [--dry-run] [--next-to <slug> --position before\|after] [--copy-inherited-access]` (waits by default; `--no-wait` to skip) | `wiki_pages_move` + `wiki_operations_move_get` |
 | Delete / restore a page | `uv run ycli wiki pages delete <page_id>` (emits a `recovery_token`) → `uv run ycli wiki recovery restore <token>` | `wiki_pages_delete` / `wiki_recovery_restore` |
 | Comments | `uv run ycli wiki comments create <page_id> --body … [--parent-id N]` / `… delete <page_id> <comment_id>` | `wiki_comments_create` / `wiki_comments_delete` |
 | Page access | `uv run ycli wiki access create <page_id> --role reader\|editor\|extra_editor\|author (--user-uid U \| --group-src dir --group-id G) [--inheritance …]` / `access update <page_id> <access_id> --role …` / `access delete <page_id> <access_id>` / `access clear <page_id>` | `wiki_access_create` / `wiki_access_update` / `wiki_access_delete` / `wiki_access_clear` |
-| Grids (dynamic tables) | `uv run ycli wiki grids create\|update\|clone\|delete`, `grids columns add\|move\|remove`, `grids rows add\|move\|remove`, `grids cells update` | `wiki_grids_*` (full CRUD) |
+| Grids (dynamic tables) | `uv run ycli wiki grids create\|update\|clone\|delete`, `grids columns add\|move\|remove\|update ¹`, `grids rows add\|move\|remove\|update ¹`, `grids cells update` | `wiki_grids_*` (full CRUD) |
 | Attachments | `uv run ycli wiki attachments upload <page_id> <file>` (single call) or the `uploadsessions create → upload-part → finish → attachments attach` pipeline; `attachments delete` | `wiki_attachments_upload` (base64), `wiki_uploadsessions_*`, `wiki_attachments_attach`, `wiki_attachments_delete` |
 
-Attachment/keyset-style **downloads** (`attachments download`, `download-by-url`) are CLI/SDK-only — MCP excludes raw binary payloads (uploads are the exception: the wiki MCP upload tools take base64 input).
+Attachment/keyset-style **downloads** (`attachments download`, `download-by-url`, `preview ¹`) are CLI/SDK-only — MCP excludes raw binary payloads (uploads are the exception: the wiki MCP upload tools take base64 input).
 
 **Grid writes are optimistic-locked:** every grid mutation takes `--revision` (read the current revision from `grids get` first; each write bumps it).
 
@@ -173,13 +181,24 @@ Live-verified gotchas for these writes:
 - **Grid `default-sort` has a different write shape than its read shape.** The API *writes* a mapping list `[{"<column_slug>": "asc"}]` (read shape is `[{"slug","title","direction"}]`); ycli's `--default-sort` sends the write shape and rejects the read shape loudly.
 - **Page access: pass `--prevent-selflock` on update, delete and clear.** The API then refuses a change that would leave you without read access or the right to change accesses. The page owner's own entry can be neither changed nor revoked, `access clear` keeps it, and granting a user who already has a personal access is refused (use `access update`). Read the entries (and their ids) back with `pages get-by-id <page_id> --fields access_policy,access_lists`. Verified live 2026-10-02.
 - **`comments thread-get` returns nothing.** The server's `/thread` endpoint answers an empty list for every real thread, so use `comments thread` (rebuilt from `comments list`).
-- **`attachments list` rows omit the numeric file id** needed for download/delete — capture ids from the upload/attach response.
+- **`attachments list` rows carry the numeric file `id`** that `get`, `download`, `preview` and `delete` take (the upload/attach response has it too).
+
+### Undocumented operations
+
+Yandex's live OpenAPI (<https://api.wiki.yandex.net/v1/openapi.json>) has 9 operations its documentation does not cover. ycli wraps all of them; they are marked ¹ above, say so in their `--help`, and **may change without notice**. What a live check (2026-10-03) found:
+
+- **`pages move` is the only way to rename or relocate a page** (a page update has no `slug`). It moves the page with its whole subtree (`page_count` in the status counts both) and the old address answers 404 afterwards. The API refuses a move that does not say whether to copy inherited access (400 `INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED`), so ycli always sends `--copy-inherited-access` or `--no-copy-inherited-access` (the default). `--dry-run` only validates the request: nothing moves and its task id answers 404 when polled, so `--wait` is skipped. The target's parent must exist (400 `NO_PARENT_PAGE`), and `--next-to` must name a page that already sits where the target will (400 `NEXT_TO_WRONG_CLUSTER`); the API accepts it without `--position`.
+- **`pages revisions` lists newest first.** A revision `id` is what the API's `GET /pages` takes as `revision_id` (`pages get` has no flag for it yet); `--ids` keeps only those. A fresh page has one revision per save.
+- **`pages backlinks` lags a few seconds** behind the page that holds the link. `--for-cluster` also reports links to the page's descendants; plain lists links to the page only.
+- **`attachments preview` returns an image only for an attachment with `has_preview: true`.** For one without (a text file, say) the API answers `200 image/png` whose body is the *base64 text* of a 1-pixel PNG, not the PNG; `attachments get` shows `has_preview`. A fresh upload reports `has_preview: false` for a few seconds.
+- **`grids columns suggest` takes exactly one of `--title` and `--slug`** (400 for neither or both) and changes nothing. The server writes slugs with hyphens (`Due date` → `due-date`), where `grids columns add` derives them with underscores.
+- **`grids columns update` and `grids rows update` do not enforce `--revision`**: a stale or missing one is accepted, and every call, even one that changes nothing, moves the grid's revision on. A column's `type` and `slug` cannot change. `rows update` answers an empty object (printed as `{"status": null}`), not the new revision; read that from `grids get`.
 
 ---
 
 ## 4. API quirks (all real — keep these in mind)
 
-- **Slugs are permanent.** Never change a slug after creation — it breaks links and magic-links.
+- **Slugs are permanent in practice.** `pages move` can change one, but the old address answers 404 and links and magic-links to it break.
 - **`--fields` REPLACES the default (`content`)**, it does not add to it. `--fields attributes` returns metadata only (no body); use `--fields content,attributes` to get both.
 - **Content is not returned unless requested.** Without `fields=content` (the CLI default for `pages get`), the body is absent. When passing explicit `--fields`, include `content` if you need the body.
 - **Valid `fields=` values are only:** `redirect, breadcrumbs, attributes, content, access_policy, access_lists, owner`. Passing `id`, `title`, or `slug` returns **400 BAD_REQUEST** (those are always-present default fields).

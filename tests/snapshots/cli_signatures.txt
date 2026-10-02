@@ -283,7 +283,9 @@ wiki attachments attach: --session:TEXT! PAGE_ID:INTEGER!
 wiki attachments delete: FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments download: --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments download-by-url: --output:TEXT URL:TEXT!
+wiki attachments get: FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
+wiki attachments preview: --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments upload: FILE_PATH:TEXT! PAGE_ID:INTEGER!
 wiki comments create: --body:TEXT! --inline-text:TEXT='' --parent-id:INTEGER=0 --thread-id:INTEGER=0 PAGE_ID:INTEGER!
 wiki comments delete: COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
@@ -295,17 +297,22 @@ wiki grids clone: --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True --with-data
 wiki grids columns add: --columns:TEXT! --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
 wiki grids columns move: --column-slug:TEXT='' --columns-count:INTEGER --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
 wiki grids columns remove: --column-slug:TEXT! --revision:TEXT! GRID_ID:TEXT!
+wiki grids columns suggest: --slug:TEXT='' --title:TEXT='' GRID_ID:TEXT!
+wiki grids columns update: --color:TEXT='' --description:TEXT='' --pinned:TEXT='' --required:BOOLEAN --revision:TEXT='' --select-option:TEXT --title:TEXT='' --width-units:TEXT='' --width:INTEGER COLUMN_SLUG:TEXT! GRID_ID:TEXT!
 wiki grids create: --page-id:INTEGER=0 --page-slug:TEXT='' --title:TEXT!
 wiki grids delete: GRID_ID:TEXT!
 wiki grids get: --fields:TEXT='' --filter:TEXT='' --only-cols:TEXT='' --only-rows:TEXT='' --revision:TEXT='' --sort:TEXT='' GRID_ID:TEXT!
 wiki grids rows add: --after-row-id:TEXT='' --position:INTEGER --revision:TEXT! --rows:TEXT! GRID_ID:TEXT!
 wiki grids rows move: --after-row-id:TEXT='' --position:INTEGER --revision:TEXT! --row-id:TEXT='' --rows-count:INTEGER GRID_ID:TEXT!
 wiki grids rows remove: --revision:TEXT! --row-id:TEXT! GRID_ID:TEXT!
+wiki grids rows update: --color:TEXT='' --pinned:BOOLEAN --revision:TEXT='' GRID_ID:TEXT! ROW_ID:TEXT!
 wiki grids update: --default-sort:TEXT='' --revision:TEXT! --title:TEXT='' GRID_ID:TEXT!
 wiki me get
 wiki operations clone: TASK_ID:TEXT!
 wiki operations gridclone: TASK_ID:TEXT!
+wiki operations move-get: TASK_ID:TEXT!
 wiki pages append: --content:TEXT! --location:TEXT='bottom' PAGE_ID:INTEGER!
+wiki pages backlinks: --all:BOOLEAN=False --for-cluster:BOOLEAN=False --limit:INTEGER RANGE=0 --show-all:BOOLEAN=False PAGE_ID:INTEGER!
 wiki pages clone: --subscribe-me:BOOLEAN=False --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True PAGE_ID:INTEGER!
 wiki pages create: --content:TEXT! --slug:TEXT! --title:TEXT!
 wiki pages delete: PAGE_ID:INTEGER!
@@ -314,6 +321,8 @@ wiki pages descendants-by-id: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_I
 wiki pages get: --fields:TEXT='content' SLUG:TEXT!
 wiki pages get-by-id: --fields:TEXT='content' PAGE_ID:INTEGER!
 wiki pages grids: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --order-by:TEXT='' PAGE_ID:INTEGER!
+wiki pages move: --copy-inherited-access:BOOLEAN=False --dry-run:BOOLEAN=False --next-to:TEXT='' --position:TEXT='' --wait:BOOLEAN=True SOURCE:TEXT! TARGET:TEXT!
+wiki pages revisions: --all:BOOLEAN=False --ids:TEXT='' --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
 wiki pages update: --content:TEXT! --title:TEXT='' PAGE_ID:INTEGER!
 wiki recovery restore: TOKEN:TEXT!
 wiki resources list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --order-by:TEXT='' --q:TEXT='' --types:TEXT='' PAGE_ID:INTEGER!

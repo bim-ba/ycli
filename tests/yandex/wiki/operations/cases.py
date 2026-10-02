@@ -27,4 +27,17 @@ CASES = [
             )
         ],
     ),
+    # GET /operations/move/{task_id} (undocumented).
+    Case(
+        "wiki.operations.move_get",
+        args=("task-5401",),
+        cli=["wiki", "operations", "move-get", "task-5401"],
+        mcp=("wiki_operations_move_get", {"task_id": "task-5401"}),
+        exchanges=[
+            (
+                Sent("GET", "operations/move/task-5401"),
+                Reply(json={"status": "success", "result": {"page_count": 4}}),
+            )
+        ],
+    ),
 ]

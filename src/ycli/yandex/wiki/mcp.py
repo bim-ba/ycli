@@ -21,8 +21,9 @@ mcp = FastMCP(
         "pages_get fetches content, pages_meta the metadata, pages_descendants the child "
         "tree, search_query finds pages by text; writes (pages_create/pages_update/…, grids_*, "
         "comments_*, access_*, attachments_*) "
-        "carry honest readOnly/destructive/idempotent hints and the 'write' tag. Slugs are "
-        "permanent — only pages_clone gives content a new address; pages_delete returns the "
+        "carry honest readOnly/destructive/idempotent hints and the 'write' tag. Treat slugs as "
+        "permanent: pages_move can rename a page but the old address then answers 404, and "
+        "pages_clone copies content to a new one; pages_delete returns the "
         "recovery_token that recovery_restore redeems."
     ),
 )

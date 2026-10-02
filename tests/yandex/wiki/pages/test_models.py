@@ -14,6 +14,12 @@ from ycli.yandex.wiki.pages.models import (
     PageCloneOperation,
     PageDeleteResult,
     PageDetails,
+    PageMove,
+    PageMoveOperation,
+    PageMoveStep,
+    PageRevision,
+    PageRevisionList,
+    RevisionsResponse,
 )
 
 
@@ -124,3 +130,75 @@ def test_clone_operation_identity_accepts_every_operation_kind():
     for kind in ("move", "clone", "clone_inline_grid"):
         reply = PageCloneOperation.model_validate({"operation": {"type": kind, "id": "t"}})
         assert reply.operation is not None and reply.operation.type == kind
+
+
+def test_a_move_always_states_whether_to_copy_inherited_access():
+    """The API answers 400 INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED for a missing value."""
+    step = PageMoveStep(source="eng/a", target="eng/b")
+    assert PageMove(operations=[step]).model_dump(exclude_none=True) == {
+        "operations": [{"source": "eng/a", "target": "eng/b"}],
+        "copy_inherited_access": False,
+    }
+
+
+def test_a_move_needs_at_least_one_step():
+    with pytest.raises(ValidationError):
+        PageMove(operations=[])
+
+
+def test_a_move_step_refuses_an_unknown_position():
+    with pytest.raises(ValidationError):
+        PageMoveStep.model_validate({"source": "a", "target": "b", "position": "inside"})
+
+
+def test_a_move_reply_names_the_task_to_poll():
+    reply = PageMoveOperation.model_validate(
+        {
+            "operation": {"type": "move", "id": "0807ca4b"},
+            "status_url": "/v1/operations/move/0807ca4b",
+            "dry_run": True,
+        }
+    )
+    assert reply.operation is not None and reply.operation.id == "0807ca4b"
+    assert reply.dry_run is True
+
+
+def test_a_revision_parses_as_the_api_sends_it():
+    """Shape taken from a live ``GET /pages/{id}/revisions`` reply (2026-10-02)."""
+    reply = RevisionsResponse.model_validate(
+        {
+            "results": [
+                {
+                    "id": 76188809,
+                    "author": {
+                        "id": 80496450,
+                        "identity": {"uid": "101523906", "cloud_uid": "ajen8nffceu4rqs0i39r"},
+                        "username": "znatnov-sava",
+                        "display_name": "Sava",
+                        "is_dismissed": False,
+                        "affiliation": "",
+                    },
+                    "created_at": "2026-10-02T18:30:32.721Z",
+                    "page_type": "wysiwyg",
+                    "revision_draft": {
+                        "id": 5,
+                        "created_at": "2026-10-02T18:30:00Z",
+                        "modified_at": "2026-10-02T18:30:30Z",
+                    },
+                    "publication": {"status": "pending_publication"},
+                }
+            ],
+            "next_cursor": None,
+        }
+    )
+    revision = reply.results[0]
+    assert revision.author is not None and revision.author.username == "znatnov-sava"
+    assert revision.revision_draft is not None and revision.revision_draft.id == 5
+    assert revision.publication is not None
+    assert revision.publication.status == "pending_publication"
+    assert PageRevisionList([revision]).root[0].id == 76188809
+
+
+def test_a_revision_without_draft_or_publication_parses():
+    revision = PageRevision.model_validate({"id": 7, "revision_draft": None, "publication": None})
+    assert revision.revision_draft is None and revision.publication is None

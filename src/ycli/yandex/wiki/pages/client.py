@@ -6,14 +6,23 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.wiki.pages import endpoints
-from ycli.yandex.wiki.pages.models import GridRefList, PageRefList
+from ycli.yandex.wiki.pages.models import GridRefList, PageRefList, PageRevisionList
 
 if TYPE_CHECKING:
-    from ycli.yandex.wiki.pages.models import PageCloneOperation, PageDeleteResult, PageDetails
+    from ycli.yandex.wiki.pages.models import (
+        PageCloneOperation,
+        PageDeleteResult,
+        PageDetails,
+        PageMoveOperation,
+    )
 
 
 class PagesClient(Resource):
-    """``/pages``: get, descendants, grids, create, update, delete, append, clone."""
+    """``/pages``: get, descendants, grids, create, update, delete, append, clone, move.
+
+    ``move``, ``revisions`` and ``backlinks`` call operations Yandex does not document (they are
+    in the live OpenAPI only), so their contract may change without notice.
+    """
 
     def get_by_id(self, page_id: int, fields: str | None = None) -> PageDetails:
         """``GET /pages/{id}?fields=`` → a single page by numeric id (raises on non-2xx).
@@ -163,3 +172,67 @@ class PagesClient(Resource):
             'task-1'
         """
         return self._session.send(endpoints.clone_page(page_id, body))
+
+    def move(self, body: dict[str, Any], *, dry_run: bool = False) -> PageMoveOperation:
+        """``POST /pages/move`` — give pages new addresses (async; undocumented, may change).
+
+        The only way to rename or relocate a page: a page update has no ``slug``. Returns a
+        :class:`PageMoveOperation`; poll its ``operation.id`` via ``OperationsClient.move_get``
+        until terminal. ``body`` is a dumped :class:`PageMove`
+        (``{operations: [{source, target, next_to_slug?, position?}], copy_inherited_access}``;
+        the API answers 400 unless ``copy_inherited_access`` is a boolean). A page moves with its
+        subtree. ``dry_run=True`` validates the request without applying it, and the task id it
+        returns answers 404 when polled.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.move(
+            ...     {"operations": [{"source": "data/x", "target": "archive/x"}]}
+            ... ).operation.id  # doctest: +SKIP
+            'task-1'
+        """
+        return self._session.send(endpoints.move_pages(body, dry_run=dry_run))
+
+    def revisions(
+        self,
+        page_id: int,
+        *,
+        ids: str | None = None,
+        limit: int | None = None,
+    ) -> PageRevisionList:
+        """``GET /pages/{id}/revisions`` → flat :class:`PageRevisionList`, draining ``next_cursor``.
+
+        Undocumented by Yandex (live OpenAPI only), may change. A revision ``id`` is what
+        ``GET /pages`` takes as ``revision_id``. ``ids`` keeps only these revisions (comma
+        separated); capped at ``limit`` (``None`` = every revision).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.revisions(12345, limit=10).root[0].author.username  # doctest: +SKIP
+            'ivan'
+        """
+        paged = endpoints.list_revisions(page_id, ids=ids)
+        return PageRevisionList(list(self._session.iterate(paged, limit=limit)))
+
+    def backlinks(
+        self,
+        page_id: int,
+        *,
+        for_cluster: bool = False,
+        show_all: bool = False,
+        limit: int | None = None,
+    ) -> PageRefList:
+        """``GET /pages/{id}/backlinks`` → refs of the pages that link here, draining the cursor.
+
+        Undocumented by Yandex (live OpenAPI only), may change. ``for_cluster`` also reports links
+        to the page's descendants. ``show_all`` is the API's flag of that name (no effect showed in
+        a live check). The index lags a few seconds behind an edit. Capped at ``limit``
+        (``None`` = every ref).
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.pages.backlinks(12345).root[0].slug  # doctest: +SKIP
+            'data/guides/x'
+        """
+        paged = endpoints.list_backlinks(page_id, for_cluster=for_cluster, show_all=show_all)
+        return PageRefList(list(self._session.iterate(paged, limit=limit)))

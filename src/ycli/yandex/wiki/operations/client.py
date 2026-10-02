@@ -11,14 +11,16 @@ if TYPE_CHECKING:
     from ycli.yandex.wiki.operations.models import (
         CloneOperationStatus,
         GridCloneOperationStatus,
+        MoveOperationStatus,
     )
 
 
 class OperationsClient(Resource):
-    """Status reads for async page/grid clones.
+    """Status reads for async page/grid clones and page moves.
 
-    Both endpoints are normal reads (they surface on MCP): re-read one until its ``status`` is
-    terminal to wait for a clone triggered by ``pages clone`` / ``grids clone``.
+    Every endpoint is a normal read (they surface on MCP): re-read one until its ``status`` is
+    terminal to wait for the operation triggered by ``pages clone`` / ``grids clone`` /
+    ``pages move``.
     """
 
     def clone_get(self, task_id: str) -> CloneOperationStatus:
@@ -46,3 +48,17 @@ class OperationsClient(Resource):
             True
         """
         return self._session.send(endpoints.get_grid_clone_status(task_id))
+
+    def move_get(self, task_id: str) -> MoveOperationStatus:
+        """``GET /operations/move/{task_id}`` → a page-move's status (poll this to wait).
+
+        Undocumented by Yandex (present in the live OpenAPI only) and may change. The ``task_id``
+        is the ``operation.id`` returned by ``PagesClient.move``. Poll until ``is_terminal``; on
+        ``success`` the ``result.page_count`` says how many pages moved.
+
+        Example:
+            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.operations.move_get("task-1").is_terminal  # doctest: +SKIP
+            True
+        """
+        return self._session.send(endpoints.get_move_status(task_id))

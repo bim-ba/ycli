@@ -1,7 +1,7 @@
-"""Wiki /pages/{id}/attachments FastMCP tools (list + attach/upload/delete writes).
+"""Wiki /pages/{id}/attachments FastMCP tools (list/get reads + attach/upload/delete writes).
 
-Binary *downloads* stay CLI/SDK-only (base64 blobs are not an agent payload); the upload
-direction is exposed — an agent supplies small file bytes as base64 in the request.
+Binary *downloads and previews* stay CLI/SDK-only (base64 blobs are not an agent payload); the
+upload direction is exposed — an agent supplies small file bytes as base64 in the request.
 """
 
 from typing import Annotated
@@ -12,7 +12,7 @@ from pydantic import Base64Bytes, Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
+from ycli.yandex.wiki.attachments.models import AttachedFile, AttachedFileList, AttachmentList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -41,6 +41,28 @@ def list_(
     """
     cap = config.http.cap(limit)
     return client.attachments.list(page_id=page_id, limit=cap)
+
+
+@mcp.tool(
+    name="attachments_get",
+    annotations={**RO, "title": "Get Wiki attachment"},
+    tags=TAGS,
+)
+def get(
+    page_id: Annotated[int, Field(description="Numeric id of the page the file is attached to.")],
+    file_id: Annotated[int, Field(description="Numeric id of the attachment.")],
+    client: WikiClient = Depends(wiki_client),
+) -> AttachedFile:
+    """Metadata of one attachment (``GET /pages/{id}/attachments/{file_id}``).
+
+    Name, size, MIME type, download URL, whether a preview exists and the virus-check status.
+    Yandex does not document this operation (it is in the live OpenAPI only) and may change it.
+    Fetching the bytes (``download``, ``preview``) is CLI/SDK-only.
+
+    Example:
+        >>> get(page_id=12345, file_id=678)  # doctest: +SKIP
+    """
+    return client.attachments.get(page_id=page_id, file_id=file_id)
 
 
 @mcp.tool(

@@ -10,6 +10,20 @@ DATA = FILE.read_bytes()
 ATTACHMENT = {"id": 5611, "name": "spec.pdf", "size": "2048", "mimetype": "application/pdf"}
 SESSION = "3f2b1a0c-5d4e-4f6a-8b9c-0d1e2f3a4b5c"
 
+DETAILS = {
+    "id": 5621,
+    "name": "photo.png",
+    "is_downloadable": True,
+    "download_url": "/eng/specs/.files/photo.png",
+    "size": "1.50",
+    "description": "team photo",
+    "user": {"id": 8104, "username": "vera", "display_name": "Vera"},
+    "created_at": "2026-10-02T18:34:14.606Z",
+    "mimetype": "image/png",
+    "has_preview": True,
+    "check_status": "ready",
+}
+
 CASES = [
     Case(
         "wiki.attachments.list",
@@ -37,6 +51,26 @@ CASES = [
             (
                 Sent("GET", "pages/5602/attachments", {"page_size": "100"}),
                 Reply(json={"results": [ATTACHMENT]}),
+            )
+        ],
+    ),
+    # GET …/attachments/{file_id} and …/preview (undocumented).
+    Case(
+        "wiki.attachments.get",
+        args=(5607, 5621),
+        cli=["wiki", "attachments", "get", "5607", "5621"],
+        mcp=("wiki_attachments_get", {"page_id": 5607, "file_id": 5621}),
+        exchanges=[(Sent("GET", "pages/5607/attachments/5621"), Reply(json=DETAILS))],
+    ),
+    Case(
+        "wiki.attachments.preview",
+        args=(5608, 5622),
+        cli=["wiki", "attachments", "preview", "5608", "5622"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("GET", "pages/5608/attachments/5622/preview"),
+                Reply(content=b"\x89PNG preview bytes"),
             )
         ],
     ),

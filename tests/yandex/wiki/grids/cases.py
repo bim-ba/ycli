@@ -30,6 +30,25 @@ CELLS = [
     {"row_id": 102, "column_slug": "owner", "value": ["vera", "ivan"]},
 ]
 
+COLUMN_UPDATE = {
+    "revision": "19",
+    "title": "Stage 2",
+    "description": "workflow stage",
+    "required": True,
+    "width": 30,
+    "width_units": "%",
+    "pinned": "left",
+    "color": "mint",
+    "select_options": ["todo", "doing", "done"],
+}
+COLUMN_UPDATE_EXTRA = {
+    "revision": "30",
+    "format": "yfm",
+    "multiple": True,
+    "ticket_field": "assignee",
+    "mark_rows": False,
+}
+
 CASES = [
     Case(
         "wiki.grids.get",
@@ -569,6 +588,207 @@ CASES = [
                     json={"target": "eng/shape-only", "with_data": False},
                 ),
                 Reply(json={"operation": {"type": "clone_inline_grid", "id": "task-6202"}}),
+            )
+        ],
+    ),
+    # POST /grids/{id}/columns/suggest (undocumented) only reads, whatever its method says.
+    Case(
+        "wiki.grids.suggest_column",
+        args=(G2, {"title": "Due date"}),
+        cli=["wiki", "grids", "columns", "suggest", G2, "--title", "Due date"],
+        mcp=("wiki_grids_suggest_column", {"grid_id": G2, "body": {"title": "Due date"}}),
+        effect="read",
+        exchanges=[
+            (
+                Sent("POST", f"grids/{G2}/columns/suggest", json={"title": "Due date"}),
+                Reply(json={"slug": "due-date", "occupied": False, "suggest": []}),
+            )
+        ],
+    ),
+    Case(
+        "wiki.grids.suggest_column",
+        args=(G3, {"slug": "stage"}),
+        cli=["wiki", "grids", "columns", "suggest", G3, "--slug", "stage"],
+        mcp=None,
+        effect="read",
+        exchanges=[
+            (
+                Sent("POST", f"grids/{G3}/columns/suggest", json={"slug": "stage"}),
+                Reply(json={"slug": "stage", "occupied": True, "suggest": ["stage-2", "stage-1"]}),
+            )
+        ],
+    ),
+    # POST /grids/{id}/column/{slug} (undocumented; the path says "column", singular).
+    Case(
+        "wiki.grids.update_column",
+        effect="idempotent_write",
+        args=(G1, "stage", COLUMN_UPDATE),
+        cli=[
+            "wiki",
+            "grids",
+            "columns",
+            "update",
+            G1,
+            "stage",
+            "--revision",
+            "19",
+            "--title",
+            "Stage 2",
+            "--description",
+            "workflow stage",
+            "--required",
+            "--width",
+            "30",
+            "--width-units",
+            "%",
+            "--pinned",
+            "left",
+            "--color",
+            "mint",
+            "--select-option",
+            "todo",
+            "--select-option",
+            "doing",
+            "--select-option",
+            "done",
+        ],
+        mcp=(
+            "wiki_grids_update_column",
+            {"grid_id": G1, "column_slug": "stage", "body": COLUMN_UPDATE},
+        ),
+        exchanges=[
+            (
+                Sent("POST", f"grids/{G1}/column/stage", json=COLUMN_UPDATE),
+                Reply(
+                    json={
+                        "revision": "20",
+                        "column": {
+                            "id": "2",
+                            "slug": "stage",
+                            "title": "Stage 2",
+                            "type": "select",
+                            "required": True,
+                            "width": 30,
+                            "width_units": "%",
+                            "pinned": "left",
+                            "color": "mint",
+                            "select_options": ["todo", "doing", "done"],
+                            "description": "workflow stage",
+                        },
+                    }
+                ),
+            )
+        ],
+    ),
+    Case(
+        "wiki.grids.update_column",
+        effect="idempotent_write",
+        args=(G2, "note", {"title": "Remarks", "required": False}),
+        cli=[
+            "wiki",
+            "grids",
+            "columns",
+            "update",
+            G2,
+            "note",
+            "--title",
+            "Remarks",
+            "--no-required",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    f"grids/{G2}/column/note",
+                    json={"title": "Remarks", "required": False},
+                ),
+                Reply(
+                    json={
+                        "revision": "4",
+                        "column": {"slug": "note", "title": "Remarks", "required": False},
+                    }
+                ),
+            )
+        ],
+    ),
+    # The fields the CLI has no flag for: SDK and MCP only.
+    Case(
+        "wiki.grids.update_column",
+        effect="idempotent_write",
+        args=(G3, "assignee", COLUMN_UPDATE_EXTRA),
+        cli=None,
+        mcp=(
+            "wiki_grids_update_column",
+            {"grid_id": G3, "column_slug": "assignee", "body": COLUMN_UPDATE_EXTRA},
+        ),
+        exchanges=[
+            (
+                Sent("POST", f"grids/{G3}/column/assignee", json=COLUMN_UPDATE_EXTRA),
+                Reply(
+                    json={
+                        "revision": "31",
+                        "column": {
+                            "slug": "assignee",
+                            "title": "Assignee",
+                            "type": "ticket_field",
+                            "format": "yfm",
+                            "multiple": True,
+                            "ticket_field": "assignee",
+                            "mark_rows": False,
+                        },
+                    }
+                ),
+            )
+        ],
+    ),
+    # POST /grids/{id}/rows/{row_id} (undocumented): pin or colour a row.
+    Case(
+        "wiki.grids.update_row",
+        effect="idempotent_write",
+        args=(G1, "103", {"revision": "22", "pinned": True, "color": "orange"}),
+        cli=[
+            "wiki",
+            "grids",
+            "rows",
+            "update",
+            G1,
+            "103",
+            "--revision",
+            "22",
+            "--pinned",
+            "--color",
+            "orange",
+        ],
+        mcp=(
+            "wiki_grids_update_row",
+            {
+                "grid_id": G1,
+                "row_id": "103",
+                "body": {"revision": "22", "pinned": True, "color": "orange"},
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    f"grids/{G1}/rows/103",
+                    json={"revision": "22", "pinned": True, "color": "orange"},
+                ),
+                Reply(json={"status": "ok"}),
+            )
+        ],
+    ),
+    Case(
+        "wiki.grids.update_row",
+        effect="idempotent_write",
+        args=(G2, "207", {"pinned": False}),
+        cli=["wiki", "grids", "rows", "update", G2, "207", "--no-pinned"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("POST", f"grids/{G2}/rows/207", json={"pinned": False}),
+                Reply(json={}),  # what the live API sends, whatever its spec says
             )
         ],
     ),
