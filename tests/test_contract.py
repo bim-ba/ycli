@@ -39,7 +39,7 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping
+    from collections.abc import Iterator, Mapping, Sequence
 
 TESTS = Path(__file__).parent
 SERVICE_BY_NAME = {service.name: service for service in SERVICES}
@@ -189,6 +189,11 @@ def _public_methods(resource: object) -> set[str]:
     }
 
 
+def _starts_with(argv: Sequence[str], command: str) -> bool:
+    words = command.split()
+    return list(argv[: len(words)]) == words
+
+
 def coverage_gaps(
     cases: list[Case], operations: set[str], commands: set[str], tools: set[str]
 ) -> dict[str, list[str]]:
@@ -203,8 +208,12 @@ def coverage_gaps(
         "operations no MCP case reaches": sorted(
             operations - exempt - {case.operation for case in cases if case.mcp}
         ),
+        # A command is reached by a case whose argv starts with it (a nested group's command
+        # runs four words deep: `tracker entities comments list`).
         "commands without a case": sorted(
-            commands - {" ".join(case.cli[:3]) for case in cases if case.cli}
+            command
+            for command in commands
+            if not any(case.cli and _starts_with(case.cli, command) for case in cases)
         ),
         "tools without a case": sorted(tools - {case.mcp[0] for case in cases if case.mcp}),
         "cases of unknown operations": sorted(named - operations),
@@ -319,3 +328,16 @@ def test_request_check_bites():
     assert mismatches([wanted, wanted], [upload], "https://x.test/v1")[0] == (
         "sent 1 requests, expected 2"
     )
+
+
+def test_nested_command_coverage_bites():
+    case = Case(
+        "tracker.entities.comments_list",
+        cli=["tracker", "entities", "comments", "list", "project", "1"],
+        mcp=None,
+        exchanges=[(Sent("GET", "entities/project/1/comments"), Reply())],
+    )
+    commands = {"tracker entities comments", "tracker entities comments list"}
+    nested = "tracker entities comments delete"
+    gaps = coverage_gaps([case], set(), commands | {nested}, set())
+    assert gaps["commands without a case"] == [nested]
