@@ -89,7 +89,7 @@ def thread_get(
     Example:
         >>> thread_get(page_id=12345, comment_id=678)  # doctest: +SKIP
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
 
 

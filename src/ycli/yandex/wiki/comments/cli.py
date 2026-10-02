@@ -69,7 +69,7 @@ def thread_get(
     The server answers an empty list for every real thread (checked 2026-10-02); use `thread`,
     which rebuilds it from the comment list.
     """
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
 
 

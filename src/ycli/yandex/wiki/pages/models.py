@@ -7,13 +7,13 @@ from typing import Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.access.models import (  # noqa: TC001  # pydantic resolves field types at runtime
+from ycli.yandex.wiki.access.models import (  # pydantic resolves field types at runtime
     PageAccessLists,
     PageAccessPolicy,
     PageOwner,
 )
 from ycli.yandex.wiki.operations.models import (
-    OperationType,  # noqa: TC001  # pydantic resolves field types at runtime
+    OperationType,  # pydantic resolves field types at runtime
 )
 
 

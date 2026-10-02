@@ -20,7 +20,7 @@ from pydantic import Field, RootModel, model_validator
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.operations.models import (
-    OperationType,  # noqa: TC001  # pydantic resolves field types at runtime
+    OperationType,  # pydantic resolves field types at runtime
 )
 
 #: Sort order of a column in the grid's default sort.

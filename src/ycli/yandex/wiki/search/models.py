@@ -5,14 +5,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime  # noqa: TC003  # pydantic reads the field type at runtime
+from datetime import datetime  # pydantic reads the field type at runtime
 from typing import Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.access.models import (
-    UserIdentity,  # noqa: TC001  # pydantic resolves field types at runtime
+    UserIdentity,  # pydantic resolves field types at runtime
 )
 
 #: What a search hit is.
