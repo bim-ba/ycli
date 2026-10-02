@@ -1144,6 +1144,7 @@ def test_arch4_stdout_guard_bites():
 _LITERAL_DEFAULT_RE = re.compile(
     r"\b(timeout|timeout_seconds|retries|max_items)\s*(:[^=\n]+)?=\s*\d"
 )
+_CREDENTIAL_ENV_RE = re.compile(r"YANDEX_ID_(OAUTH_TOKEN|ORGANIZATION_ID)\b")
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
 _VERSION_RE = re.compile(r"__version__\s*=\s*['\"]\d")
 _ORG_HEADER_RE = re.compile(r"X-Org-I[dD]")
@@ -1172,6 +1173,8 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
     if rel not in ARCH5_HOST_HOMES and _YANDEX_HOST_RE.search(text):
         offenders.append(f"{rel}: Yandex host outside a service profile")
     if rel != Path("settings.py"):
+        if _CREDENTIAL_ENV_RE.search(text):
+            offenders.append(f"{rel}: credential variable name spelled outside settings.py")
         if re.search(r"\bos\.(environ|getenv)\b|\bfrom os import (environ|getenv)\b", text):
             offenders.append(f"{rel}: environment access outside settings.py")
         if "from_env" in text:
@@ -1213,6 +1216,8 @@ def test_arch5_guard_bites():
         "def items(max_items: int | None = 500) -> None: ...",
         "class Local(BaseSettings): ...",
         "@uplink.timeout(30)",
+        'hint = "check YANDEX_ID_OAUTH_TOKEN"',
+        'missing = {"YANDEX_ID_ORGANIZATION_ID"}',
     ):
         assert _single_source_offenders(rel, source), source
     # A comparison or a value read from the settings is not a literal default.

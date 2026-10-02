@@ -32,6 +32,10 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Yandex's own names for the credential variables; everything that names them imports these.
+OAUTH_TOKEN_ENV = "YANDEX_ID_OAUTH_TOKEN"
+ORGANIZATION_ID_ENV = "YANDEX_ID_ORGANIZATION_ID"
+
 type LogLevel = Annotated[
     Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
     BeforeValidator(lambda value: value.upper() if isinstance(value, str) else value),
@@ -84,11 +88,11 @@ class Credentials(BaseSettings):
 
     oauth_token: SecretStr = Field(
         min_length=1,
-        validation_alias=AliasChoices("YANDEX_ID_OAUTH_TOKEN", "YCLI__AUTH__OAUTH_TOKEN"),
+        validation_alias=AliasChoices(OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
     )
     organization_id: str = Field(
         min_length=1,
-        validation_alias=AliasChoices("YANDEX_ID_ORGANIZATION_ID", "YCLI__AUTH__ORGANIZATION_ID"),
+        validation_alias=AliasChoices(ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
     )
 
 

@@ -3,6 +3,7 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
+from ycli.settings import OAUTH_TOKEN_ENV
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
 from ycli.yandex.forms.me.models import User
@@ -20,5 +21,5 @@ def get(client: FormsClient = Depends(forms_client)) -> User:
     return require_found(
         result,
         sentinel=lambda r: r.id is None,
-        message="auth probe failed — empty user (check YANDEX_ID_OAUTH_TOKEN)",
+        message=f"auth probe failed — empty user (check {OAUTH_TOKEN_ENV})",
     )

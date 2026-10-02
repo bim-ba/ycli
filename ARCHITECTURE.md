@@ -111,9 +111,10 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-5 — Single sources of truth
 - **Rule:** every value has one home: the version in package metadata, environment access
-  (`os.environ`, `os.getenv`, `from_env`) and settings models in `settings.py`, the org header
-  name in `core/profile.py`, API hosts in each service's profile, timeout/retry/limit defaults
-  in the settings models (no `timeout=30`-style literal elsewhere).
+  (`os.environ`, `os.getenv`, `from_env`), settings models and the credential variable names
+  in `settings.py`, the org header name in `core/profile.py`, API hosts in each service's
+  profile, timeout/retry/limit defaults in the settings models (no `timeout=30`-style literal
+  elsewhere).
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration (the old
   `@uplink.timeout(30)` bug).
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
