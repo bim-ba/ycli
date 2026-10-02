@@ -39,6 +39,22 @@ CASES = [
     ),
     Case(
         "wiki.comments.thread",
+        output=[
+            {
+                "id": 5511,
+                "parent_id": None,
+                "created_at": None,
+                "author": "Vera",
+                "content": "Ship it?",
+            },
+            {
+                "id": 5512,
+                "parent_id": 5511,
+                "created_at": None,
+                "author": "Ivan",
+                "content": "Agreed",
+            },
+        ],
         args=(5503, 5511),
         kwargs={"limit": 15},
         cli=["wiki", "comments", "thread", "5503", "5511", "--limit", "15"],

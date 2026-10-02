@@ -105,6 +105,19 @@ CASES = [
     ),
     Case(
         "wiki.attachments.upload",
+        output=[
+            {
+                "id": 5616,
+                "name": "diagram.txt",
+                "download_url": None,
+                "size": None,
+                "description": None,
+                "mimetype": None,
+                "has_preview": None,
+                "check_status": None,
+                "created_at": None,
+            }
+        ],
         args=(Sibling("uploadsessions"), 5606),
         kwargs={"file_name": "diagram.txt", "data": DATA},
         cli=["wiki", "attachments", "upload", "5606", str(FILE)],

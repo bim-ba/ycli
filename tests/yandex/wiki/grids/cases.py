@@ -224,6 +224,7 @@ CASES = [
     ),
     Case(
         "wiki.grids.delete",
+        output={"ok": True, "detail": f"deleted grid {G3}"},
         args=(G3,),
         cli=["wiki", "grids", "delete", G3],
         mcp=("wiki_grids_delete", {"grid_id": G3}),
