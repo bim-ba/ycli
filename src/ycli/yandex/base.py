@@ -68,6 +68,14 @@ class DomainClient:
         """Close the core session's connection pool."""
         self._session.close()
 
+    def probe(self) -> None:
+        """One cheap authenticated read: returns when the token works for this service.
+
+        A rejected token raises :class:`~ycli.yandex.errors.YandexAuthError`; ``ycli auth
+        status`` calls this for every service in the registry.
+        """
+        raise NotImplementedError
+
     def _connect(
         self,
         oauth_token: SecretStr,

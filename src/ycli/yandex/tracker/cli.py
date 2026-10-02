@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import typer
 
+from ycli.yandex.status.service_cli import service_auth_app
+from ycli.yandex.tracker import SERVICE
 from ycli.yandex.tracker.applications.cli import app as applications_app
 from ycli.yandex.tracker.attachments.cli import app as attachments_app
 from ycli.yandex.tracker.autoactions.cli import app as autoactions_app
@@ -43,6 +45,7 @@ from ycli.yandex.tracker.worklog.cli import app as worklog_app
 # Help text lives in the service registry (ycli.yandex.tracker.SERVICE).
 app = typer.Typer(name="tracker", no_args_is_help=True)
 
+app.add_typer(service_auth_app(SERVICE))
 app.add_typer(me_app)
 app.add_typer(issues_app)
 app.add_typer(comments_app)

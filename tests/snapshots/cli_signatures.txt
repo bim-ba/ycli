@@ -10,6 +10,7 @@ forms answers get: --answer-id:INTEGER=0 --answer-key:TEXT=''
 forms answers integrations: --answer-id:INTEGER=0 --answer-key:TEXT=''
 forms answers list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 SURVEY_ID:TEXT!
 forms answers restore: ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
+forms auth status
 forms conditions hook create: --body-file:PATH --item:TEXT --operator:TEXT='' HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms conditions hook delete: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms conditions hook get: CONDITION_ID:INTEGER! HOOK_ID:INTEGER! SURVEY_ID:TEXT!
@@ -93,6 +94,7 @@ tracker attachments list: ISSUE_KEY:TEXT!
 tracker attachments thumbnail: --output:TEXT FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments upload: --rename-to:TEXT='' FILE_PATH:PATH! ISSUE_KEY:TEXT!
 tracker attachments upload-temp: --rename-to:TEXT='' FILE_PATH:PATH!
+tracker auth status
 tracker autoactions create: --action:TEXT --active:BOOLEAN --calendar-id:INTEGER=0 --filter:TEXT='' --interval-millis:INTEGER=0 --name:TEXT! --notify:BOOLEAN --query:TEXT='' QUEUE_ID:TEXT!
 tracker autoactions get: ACTION_ID:INTEGER! QUEUE_ID:TEXT!
 tracker autoactions log-detail: ACTION_ID:INTEGER! QUEUE_ID:TEXT! RUN_ID:TEXT!
@@ -287,6 +289,7 @@ wiki attachments get: FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
 wiki attachments preview: --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments upload: FILE_PATH:TEXT! PAGE_ID:INTEGER!
+wiki auth status
 wiki comments create: --body:TEXT! --inline-text:TEXT='' --parent-id:INTEGER=0 --thread-id:INTEGER=0 PAGE_ID:INTEGER!
 wiki comments delete: COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
 wiki comments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!

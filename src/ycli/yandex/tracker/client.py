@@ -55,6 +55,9 @@ class TrackerClient(DomainClient):
 
     profile = SERVICE.profile
 
+    def probe(self) -> None:
+        self.me.get()
+
     def _wire(self, session: SyncSession) -> None:
         self.me = MeClient(session=session)
         self.issues = IssuesClient(session=session)

@@ -40,7 +40,8 @@ Notable shared pieces:
 - `src/ycli/cli/lazy.py` — the root group lists every sub-app from its declaration and imports it
   on first use, so `ycli --version` or one service's command never imports the others
 - `src/ycli/yandex/registry.py` — `SERVICES`, the one list of services; the CLI root, the MCP
-  server and `auth status` iterate it (each domain declares its `SERVICE` in `__init__.py`)
+  server and `auth status` iterate it (each domain declares its `SERVICE` in `__init__.py`, and
+  its client a `probe()` — the one cheap read `auth status` calls)
 - `src/ycli/yandex/<domain>/typedefs.py` — deduplicated CLI argument/option type aliases;
   `src/ycli/cli/fields.py` — the shared `--field key=value` JSON coercion
 
@@ -63,7 +64,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Exceptions:** `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is CLI-only (bytes do not
   round-trip an MCP result), plus a few SDK-internal primitives; a resource whose every operation
   is listed there serves no MCP tool. `status/` and the `ycli.mcp` server package are
-  cross-cutting surfaces, not resources.
+  cross-cutting surfaces, not resources; `ARCH1_NON_RESOURCE_CLI_GROUPS` lists the CLI group every
+  service mounts that is no resource (`<service> auth`, built once from the registry).
 
 ### ARCH-2 — Layers
 - **Rule:** dependencies point one way — the core knows no service, services know no surface's
@@ -116,7 +118,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration (the old
   `@uplink.timeout(30)` bug).
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
-- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the OAuth login flow.
+- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the Yandex ID / API 360 hosts
+  `auth status` reads.
 
 ### ARCH-6 — The public surface is versioned
 - **Rule:** the CLI tree, MCP tool names and both surfaces' parameters (name, type, default,

@@ -41,9 +41,11 @@ export YANDEX_ID_OAUTH_TOKEN=...        # OAuth token — https://oauth.yandex.r
 export YANDEX_ID_ORGANIZATION_ID=...    # Yandex 360 organization id (admin panel)
 ```
 
-A missing or empty variable stops the CLI with a message naming it and pointing at
-`ycli auth login`; an MCP tool call fails with "Failed to resolve dependency 'client'"
-(`ycli auth status` names what is missing). The SDK clients never read the environment: they
+A missing or empty variable stops the CLI, and fails an MCP tool call, with a message naming
+it and pointing at `ycli auth login`. `ycli auth status` (the `status_get` MCP tool) reports
+whose token it is (Yandex ID), the organization (its id, and its name when the token has the
+`directory:read_organization` scope) and whether each service accepts the token;
+`ycli <service> auth status` probes just one. The SDK clients never read the environment: they
 take the values as constructor arguments and raise `ValueError` on an empty one.
 Every service takes the org id in one canonical header, `X-Org-Id` (HTTP header names are
 case-insensitive per RFC 9110, so casing never matters — even in raw HTTP). The clients set

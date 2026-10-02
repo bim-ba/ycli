@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from ycli.yandex.account import Account
 from ycli.yandex.models import APIModel
 
 
@@ -23,8 +22,3 @@ class Me(APIModel):
     home_cluster: str | None = None
     identity: Identity | None = None
     org: Organization | None = None
-
-    def account(self) -> Account:
-        """This user as an :class:`Account` (for ``auth status``)."""
-        uid = self.identity.uid if self.identity else None
-        return Account(uid=uid, login=self.username)

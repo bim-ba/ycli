@@ -19,6 +19,7 @@ from ycli.yandex.status.oauth_models import TokenResponse
 DEVICE_CODE_URL = "https://oauth.yandex.ru/device/code"
 TOKEN_URL = "https://oauth.yandex.ru/token"
 ORG_URL = "https://api360.yandex.net/directory/v1/org"
+ID_URL = "https://login.yandex.ru/info"
 TRACKER_ME = "https://api.tracker.yandex.net/v3/myself"
 FORMS_ME = "https://api.forms.yandex.net/v1/users/me"
 WIKI_ME = "https://api.wiki.yandex.net/v1/users/me"
@@ -61,7 +62,8 @@ def _stub_device_code(api):
 
 @pytest.fixture(autouse=True)
 def _core_probes(api):
-    """Forms and Tracker run on the httpx2 core, so ``api`` answers their probes in every login."""
+    """Everything but Wiki runs on the httpx2 core, so ``api`` answers it in every login."""
+    api.add("GET", ID_URL, json={"id": "7", "login": "alice"})
     api.add("GET", FORMS_ME, json={"email": "alice@x"})
     api.add("GET", TRACKER_ME, json={"login": "alice"})
 
@@ -96,6 +98,8 @@ def test_device_flow_success_writes_env(monkeypatch, tmp_path, api):
     res = runner.invoke(cli.app, ["--format", "json", "auth", "login", "--yes"])
 
     assert res.exit_code == 0, res.output
+    assert '"login":"alice"' in res.stdout  # the owner, from Yandex ID
+    assert '"name":"Acme"' in res.stdout  # the organization, from API 360
     assert TOKEN not in res.output  # never echo the full token
     assert "...1234" in res.output  # masked fingerprint
     env_content = (tmp_path / ".env").read_text(encoding="utf-8")

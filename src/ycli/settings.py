@@ -29,12 +29,17 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     SecretStr,
+    ValidationError,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Yandex's own names for the credential variables; everything that names them imports these.
 OAUTH_TOKEN_ENV = "YANDEX_ID_OAUTH_TOKEN"
 ORGANIZATION_ID_ENV = "YANDEX_ID_ORGANIZATION_ID"
+
+# pydantic-settings reports a missing field under its validation alias (the env var name), so a
+# ``ValidationError`` loc is already one of these strings.
+_CREDENTIAL_ENV_NAMES = frozenset({OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV})
 
 type LogLevel = Annotated[
     Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
@@ -128,3 +133,20 @@ class OAuthAppConfig(BaseSettings):
     client_secret: SecretStr | None = Field(
         default=None, validation_alias="YANDEX_OAUTH_CLIENT_SECRET"
     )
+
+
+def missing_credentials(exc: Exception) -> list[str]:
+    """The credential variables a ``ValidationError`` from :class:`Credentials` reports missing.
+
+    Both unset gives ``["YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"]``; any other
+    exception, or an error about another field, gives ``[]``.
+    """
+    if not isinstance(exc, ValidationError):
+        return []
+    return [
+        name
+        for error in exc.errors()
+        if error.get("type") == "missing"
+        and error["loc"]
+        and (name := str(error["loc"][0])) in _CREDENTIAL_ENV_NAMES
+    ]

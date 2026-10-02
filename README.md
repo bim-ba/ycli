@@ -199,6 +199,12 @@ ycli auth login
 - **only the client id** (or `--implicit`) → the **browser flow**: ycli opens the Yandex
   authorize page; approve, then copy the token it displays and paste it back.
 
+Check it any time with `ycli auth status`: it shows whose token it is (from Yandex ID), your
+organization (its name needs the optional `directory:read_organization` scope; without it you
+get the id and a note) and whether each service accepts the token. `ycli tracker auth status`
+(or `wiki`, `forms`) probes just that one service. Both exit non-zero when a service rejects
+the token.
+
 <details>
 <summary><b>Prefer to do it by hand?</b></summary>
 
