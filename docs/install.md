@@ -210,5 +210,4 @@ Without the MCP server, the four user skills install into any agent that support
 npx skills add bim-ba/ycli/plugins/yandex-360
 ```
 
-The path form lists exactly the four `yandex-360*` skills; the repo's own developer skills
-(`arch-review`, `new-endpoint`) are marked `internal` and stay hidden.
+`npx skills add bim-ba/ycli` installs the same four skills: the repository has no other skills.
