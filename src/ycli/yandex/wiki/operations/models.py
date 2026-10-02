@@ -17,6 +17,8 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
+#: Kind of deferred Wiki operation: the ``type`` of the reference a trigger returns.
+OperationType = Literal["move", "clone", "clone_inline_grid"]
 #: Lifecycle status of a clone operation.
 OperationStatus = Literal["scheduled", "in_progress", "success", "failed"]
 #: Statuses at which a clone operation has stopped running (poll terminates here).

@@ -116,7 +116,6 @@ deliberately not wrapped — please don't try to add them:
 
 - **Tracker** — `DELETE /issues/{key}`, `GET /issues` (bulk list), `PATCH /queues/{id}`
   (phantom paths that appear only in the navigation-only doc tree, not the API reference).
-- **Wiki** — full-text search and page history/versions listing (UI-only).
 - **Forms** — appearance/themes and analytics/charts (UI-only).
 
 Everything else that the api-ref documents is fair game — add it with `/new-endpoint`.

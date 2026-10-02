@@ -197,5 +197,10 @@ def test_grid_clone_operation_parses_identity():
     assert op.operation is not None and op.operation.id == "task-1"
 
 
+def test_grid_operation_identity_accepts_a_move():
+    op = GridCloneOperation.model_validate({"operation": {"type": "move", "id": "task-2"}})
+    assert op.operation is not None and op.operation.type == "move"
+
+
 def test_grid_list_wraps_flat_root():
     assert GridList([Grid(id="g1")]).root[0].id == "g1"

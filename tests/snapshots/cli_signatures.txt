@@ -238,6 +238,10 @@ tracker worklog edit: --comment:TEXT='' --duration:TEXT='' KEY:TEXT! RECORD_ID:T
 tracker worklog global-list: --created-by:TEXT='' --from:TEXT='' --to:TEXT=''
 tracker worklog list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 KEY:TEXT!
 tracker worklog search: --created-by:TEXT='' --from:TEXT='' --to:TEXT=''
+wiki access clear: --prevent-selflock:BOOLEAN=False PAGE_ID:INTEGER!
+wiki access create: --group-id:TEXT --group-src:CHOICE --inheritance:CHOICE --role:CHOICE! --user-cloud-uid:TEXT --user-uid:TEXT PAGE_ID:INTEGER!
+wiki access delete: --prevent-selflock:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!
+wiki access update: --inheritance:CHOICE --prevent-selflock:BOOLEAN=False --role:CHOICE ACCESS_ID:TEXT! PAGE_ID:INTEGER!
 wiki attachments attach: --session:TEXT! PAGE_ID:INTEGER!
 wiki attachments delete: FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments download: --output:TEXT FILE_ID:INTEGER! PAGE_ID:INTEGER!
@@ -248,6 +252,7 @@ wiki comments create: --body:TEXT! --inline-text:TEXT='' --parent-id:INTEGER=0 -
 wiki comments delete: COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
 wiki comments list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 PAGE_ID:INTEGER!
 wiki comments thread: --all:BOOLEAN=False --limit:INTEGER RANGE=0 COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
+wiki comments thread-get: --all:BOOLEAN=False --limit:INTEGER RANGE=0 COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
 wiki grids cells update: --cells:TEXT! --revision:TEXT! GRID_ID:TEXT!
 wiki grids clone: --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True --with-data:BOOLEAN=False GRID_ID:TEXT!
 wiki grids columns add: --columns:TEXT! --position:INTEGER --revision:TEXT! GRID_ID:TEXT!
@@ -275,6 +280,7 @@ wiki pages grids: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --order-by:TEXT=''
 wiki pages update: --content:TEXT! --title:TEXT='' PAGE_ID:INTEGER!
 wiki recovery restore: TOKEN:TEXT!
 wiki resources list: --all:BOOLEAN=False --limit:INTEGER RANGE=0 --order-by:TEXT='' --q:TEXT='' --types:TEXT='' PAGE_ID:INTEGER!
+wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --highlight:BOOLEAN=False --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:CHOICE='relevancy' --show-obsolete:BOOLEAN=False --type:CHOICE TEXT:TEXT!
 wiki uploadsessions abort: SESSION_ID:TEXT!
 wiki uploadsessions abort-all
 wiki uploadsessions create: --file-name:TEXT! --file-size:INTEGER!

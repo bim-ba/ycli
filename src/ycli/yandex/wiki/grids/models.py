@@ -19,6 +19,9 @@ from typing import Any, Literal
 from pydantic import Field, RootModel, model_validator
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.wiki.operations.models import (
+    OperationType,  # pydantic resolves field types at runtime
+)
 
 #: Sort order of a column in the grid's default sort.
 SortDirection = Literal["asc", "desc"]
@@ -80,8 +83,6 @@ TicketField = Literal[
     "updated_at",
     "votes",
 ]
-#: Kind of deferred B2B operation returned by a clone trigger.
-B2BOperationType = Literal["clone", "clone_inline_grid"]
 
 
 class PageIdentity(APIModel):
@@ -320,8 +321,8 @@ class OperationIdentity(APIModel):
         'task-1'
     """
 
-    type: B2BOperationType | None = Field(
-        default=None, description="Operation kind (``clone`` / ``clone_inline_grid``)."
+    type: OperationType | None = Field(
+        default=None, description="Operation kind (``move`` / ``clone`` / ``clone_inline_grid``)."
     )
     id: str | None = Field(
         default=None, description="Task id to poll on the ``operations`` resource."

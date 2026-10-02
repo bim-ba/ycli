@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import typer
 
+from ycli.yandex.wiki.access.cli import app as access_app
 from ycli.yandex.wiki.attachments.cli import app as attachments_app
 from ycli.yandex.wiki.comments.cli import app as comments_app
 from ycli.yandex.wiki.grids.cli import app as grids_app
@@ -12,6 +13,7 @@ from ycli.yandex.wiki.operations.cli import app as operations_app
 from ycli.yandex.wiki.pages.cli import app as pages_app
 from ycli.yandex.wiki.recovery.cli import app as recovery_app
 from ycli.yandex.wiki.resources.cli import app as resources_app
+from ycli.yandex.wiki.search.cli import app as search_app
 from ycli.yandex.wiki.uploadsessions.cli import app as uploadsessions_app
 
 # Help text lives in the service registry (ycli.yandex.wiki.SERVICE).
@@ -19,10 +21,12 @@ app = typer.Typer(name="wiki", no_args_is_help=True)
 
 app.add_typer(me_app)
 app.add_typer(pages_app)
+app.add_typer(access_app)
 app.add_typer(comments_app)
 app.add_typer(attachments_app)
 app.add_typer(resources_app)
 app.add_typer(recovery_app)
+app.add_typer(search_app)
 app.add_typer(grids_app)
 app.add_typer(operations_app)
 app.add_typer(uploadsessions_app)

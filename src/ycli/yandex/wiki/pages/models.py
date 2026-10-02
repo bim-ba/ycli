@@ -7,6 +7,14 @@ from typing import Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.wiki.access.models import (  # pydantic resolves field types at runtime
+    PageAccessLists,
+    PageAccessPolicy,
+    PageOwner,
+)
+from ycli.yandex.wiki.operations.models import (
+    OperationType,  # pydantic resolves field types at runtime
+)
 
 
 class PageAttributes(APIModel):
@@ -23,18 +31,11 @@ class PageAttributes(APIModel):
     is_draft: bool | None = None
 
 
-class _OwnerUser(APIModel):
-    username: str | None = None
-
-
-class _Owner(APIModel):
-    user: _OwnerUser | None = None
-
-
 class PageDetails(APIModel):
     """A single wiki page (``GET /pages?slug=``) — id, slug, title, optional content.
 
-    ``owner_username`` walks ``owner.user.username`` defensively.
+    ``content``, ``attributes``, ``owner``, ``access_policy`` and ``access_lists`` come back only
+    when named in ``fields``. ``owner_username`` walks ``owner.user.username`` defensively.
 
     Example:
         >>> PageDetails.model_validate(
@@ -48,8 +49,15 @@ class PageDetails(APIModel):
     title: str
     page_type: str | None = None
     content: str | None = None
-    owner: _Owner | None = None
+    owner: PageOwner | None = Field(default=None, description="Owner (``fields=owner``).")
     attributes: PageAttributes | None = None
+    access_policy: PageAccessPolicy | None = Field(
+        default=None, description="Who may open the page (``fields=access_policy``)."
+    )
+    access_lists: PageAccessLists | None = Field(
+        default=None,
+        description="Personal accesses: direct, by link, inherited (``fields=access_lists``).",
+    )
 
     @property
     def owner_username(self) -> str | None:
@@ -263,7 +271,7 @@ class PageCloneOperationIdentity(APIModel):
         'task-1'
     """
 
-    type: Literal["clone", "clone_inline_grid"] | None = Field(
+    type: OperationType | None = Field(
         default=None, description="Operation kind — ``clone`` for a page clone."
     )
     id: str | None = Field(

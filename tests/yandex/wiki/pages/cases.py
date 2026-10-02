@@ -11,6 +11,52 @@ def _refs(*pairs: tuple[int, str], cursor: str | None = None) -> dict[str, objec
     return {"results": [{"id": i, "slug": s} for i, s in pairs], "next_cursor": cursor}
 
 
+_PERSON = {
+    "id": 8104,
+    "identity": {"uid": "9104", "cloud_uid": "cloud-9104"},
+    "username": "vera",
+    "display_name": "Vera",
+    "is_dismissed": False,
+    "affiliation": "",
+}
+_ACCESS_FIELDS = {
+    "access_policy": {
+        "access_type": "custom",
+        "inherited_access_type": "all_staff",
+        "all_staff_role": "editor",
+        "has_external": False,
+        "invite": {"status": "none"},
+    },
+    "access_lists": {
+        "direct": [
+            {
+                "id": "5104",
+                "created_at": "2026-10-02T17:10:49.322Z",
+                "user": _PERSON,
+                "group": None,
+                "role": "author",
+                "inheritance": "inherited",
+            }
+        ],
+        "by_link": [],
+        "inherited": [
+            {
+                "id": "5105",
+                "group": {
+                    "id": "7104",
+                    "identity": {"src": "staff", "id": "7104"},
+                    "name": "Staff",
+                    "type": "department",
+                    "members_count": 40,
+                },
+                "role": "reader",
+                "inheritance": "inherited",
+            }
+        ],
+    },
+    "owner": {"user": _PERSON, "group": None},
+}
+
 CASES = [
     Case(
         "wiki.pages.get",
@@ -83,6 +129,22 @@ CASES = [
             (
                 Sent("GET", "pages/4101", {"fields": "content,breadcrumbs"}),
                 Reply(json=_page(4101, "eng/arch", content="# Arch")),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.get_by_id",
+        args=(4104,),
+        kwargs={"fields": "access_policy,access_lists,owner"},
+        cli=["wiki", "pages", "get-by-id", "4104", "--fields", "access_policy,access_lists,owner"],
+        mcp=(
+            "wiki_pages_by_id_get",
+            {"page_id": 4104, "fields": "access_policy,access_lists,owner"},
+        ),
+        exchanges=[
+            (
+                Sent("GET", "pages/4104", {"fields": "access_policy,access_lists,owner"}),
+                Reply(json=_page(4104, "eng/secure", **_ACCESS_FIELDS)),
             )
         ],
     ),
