@@ -51,8 +51,9 @@ class TrackerClient(DomainClient):
     """
 
     def _wire(self, transport: requests.Session) -> None:
+        core = self._connect(SERVICE.profile)
         self.me = MeClient(session=transport)
-        self.issues = IssuesClient(session=self._connect(SERVICE.profile))
+        self.issues = IssuesClient(session=core)
         self.comments = CommentsClient(session=transport)
         self.links = LinksClient(session=transport)
         self.transitions = TransitionsClient(session=transport)
