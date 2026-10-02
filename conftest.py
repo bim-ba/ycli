@@ -13,10 +13,10 @@ tree, and ``src/`` must not ship one.
 
 from __future__ import annotations
 
+from functools import cache
 from typing import TYPE_CHECKING
 
 import pytest
-from tests.contract import load_cases
 from tests.mock_api import MockAPI
 
 from ycli.yandex.registry import SERVICES
@@ -25,7 +25,12 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
+@cache
 def _contract_api() -> MockAPI:
+    # Imported on the first doctest only: the cases import the MCP layer, which the live e2e
+    # run (pytest e2e, no `mcp` extra) must not need.
+    from tests.contract import load_cases
+
     api = MockAPI()
     base_urls = {service.name: service.profile.base_url.rstrip("/") for service in SERVICES}
     for case in load_cases():
@@ -41,9 +46,6 @@ def _contract_api() -> MockAPI:
     return api
 
 
-CONTRACT_API = _contract_api()
-
-
 @pytest.fixture(autouse=True)
 def _doctest_clients(
     request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
@@ -52,7 +54,9 @@ def _doctest_clients(
     if not isinstance(request.node, pytest.DoctestItem):
         yield
         return
-    monkeypatch.setattr("ycli.yandex.core.session.default_transport", CONTRACT_API.copy().transport)
+    monkeypatch.setattr(
+        "ycli.yandex.core.session.default_transport", _contract_api().copy().transport
+    )
     clients = {
         service.name: service.client_class()(oauth_token="token", organization_id="org")
         for service in SERVICES
