@@ -3,12 +3,12 @@
 import httpx2
 import pytest
 import typer
-from typer._click.exceptions import UsageError
 from typer.testing import CliRunner
 
 from tests.hosts import TRACKER_BASE
 from ycli.cli import guard
 from ycli.cli.app import app
+from ycli.cli.exit_codes import ExitCode
 from ycli.cli.guard import SendGuard
 
 runner = CliRunner()
@@ -58,10 +58,12 @@ def test_yes_skips_the_question(asked, monkeypatch):
     assert asked == []
 
 
-def test_without_a_terminal_it_is_a_usage_error_that_says_to_pass_yes(asked, monkeypatch):
+def test_without_a_terminal_it_is_a_usage_error_that_says_to_pass_yes(asked, monkeypatch, capsys):
     _attended(monkeypatch, False)
-    with pytest.raises(UsageError, match="Pass --yes"):
+    with pytest.raises(typer.Exit) as stopped:
         SendGuard({})("destructive", REQUEST)
+    assert stopped.value.exit_code == ExitCode.USAGE
+    assert "Pass --yes" in capsys.readouterr().err
     assert asked == []
 
 

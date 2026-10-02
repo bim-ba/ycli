@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import typer
-from typer._click.exceptions import UsageError
 
+from ycli.cli.exit_codes import ExitCode
 from ycli.cli.planned_request import PlannedRequest
 from ycli.yandex.core.session import shown
 
@@ -64,5 +64,10 @@ class SendGuard:
 
     def _confirm(self, what: str) -> None:
         if not attended():
-            raise UsageError(f"{what} Pass --yes to confirm; there is no terminal to ask on.")
+            typer.secho(
+                f"{what} Pass --yes to confirm; there is no terminal to ask on.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(ExitCode.USAGE)
         typer.confirm(f"{what} Continue?", abort=True, err=True)

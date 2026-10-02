@@ -78,13 +78,21 @@ def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
         for name in signature.parameters
         if name in hints and AppContext.provides(hints[name])
     }
+    # Typer fills only one ``typer.Context`` parameter: a command that declares its own gets
+    # the same context the rewrite receives.
+    own_context = next((name for name in hints if hints[name] is typer.Context), None)
     visible = [
-        parameter for name, parameter in signature.parameters.items() if name not in injected
+        parameter
+        for name, parameter in signature.parameters.items()
+        if name not in injected and name != own_context
     ]
 
     @functools.wraps(command)
     def run(*args: Any, **kwargs: Any) -> Any:
-        root = kwargs.pop(_CONTEXT).find_root()
+        context = kwargs.pop(_CONTEXT)
+        if own_context is not None:
+            kwargs[own_context] = context
+        root = context.find_root()
         apply_leaf_values(kwargs, root.params)
         app_context: AppContext = root.obj
         dependencies = {
