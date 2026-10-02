@@ -11,12 +11,12 @@ Use credentials of the test organization only: the scenarios create, change and 
 ```bash
 set -a; . ./.env; set +a          # YANDEX_ID_OAUTH_TOKEN, YANDEX_ID_ORGANIZATION_ID
 export YCLI_E2E=1                  # without it every live test is skipped
-uv run pytest e2e --no-cov -m "live and smoke"   # the pull-request subset
-uv run pytest e2e --no-cov -m live               # everything (the nightly run)
-uv run pytest e2e --no-cov -m live -k wiki       # one scenario
+uv run pytest e2e --no-cov -n 0 -m "live and smoke"   # the pull-request subset
+uv run pytest e2e --no-cov -n 0 -m live               # everything (the nightly run)
+uv run pytest e2e --no-cov -n 0 -m live -k wiki       # one scenario
 ```
 
-`--no-cov` is required: the repository's pytest options enforce coverage of `ycli`, which runs in a subprocess here. `YCLI_E2E_QUEUE` overrides the Tracker sandbox queue (default `YCLIPAGE`).
+`--no-cov` is required: the repository's pytest options enforce coverage of `ycli`, which runs in a subprocess here. `-n 0` keeps the live scenarios serial instead of the four parallel workers the unit suite uses. `YCLI_E2E_QUEUE` overrides the Tracker sandbox queue (default `YCLIPAGE`).
 
 ## Scenario files
 

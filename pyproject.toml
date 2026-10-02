@@ -79,7 +79,8 @@ explicit = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--strict-markers --cov=ycli --cov-report=term-missing --cov-fail-under=100"
+# Four workers: CI runners have four vCPUs, and more barely helps locally (`-n 0` turns it off).
+addopts = "-n 4 --strict-markers --cov=ycli --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
 source = ["ycli"]
@@ -105,6 +106,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
     "responses>=0.26.1",
     "ruff>=0.15.20",
     "ty>=0.0.55",

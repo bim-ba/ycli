@@ -65,7 +65,7 @@ jobs:
           # Pull requests run the smoke subset; nightly and manual runs run everything.
           MARKERS: ${{ github.event_name == 'pull_request' && 'live and smoke' || 'live' }}
           SELECT: ${{ inputs.select }}
-        run: uv run pytest e2e --no-cov -p no:cacheprovider -m "$MARKERS" ${SELECT:+-k "$SELECT"}
+        run: uv run pytest e2e --no-cov -n 0 -p no:cacheprovider -m "$MARKERS" ${SELECT:+-k "$SELECT"}
       # The concurrency group holds every other CI run back, so this run's leftovers can go now.
       - name: Janitor (leftovers of this run)
         if: always()
