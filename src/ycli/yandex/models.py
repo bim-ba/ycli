@@ -77,6 +77,16 @@ class Ack(APIModel):
         return cls(detail=detail)
 
     @classmethod
+    def restored(cls, kind: str, ident: object, *, in_: object) -> Ack:
+        """``restored <kind> <ident> in <in_>``.
+
+        Example:
+            >>> Ack.restored("answer", 7, in_="survey 686d").detail
+            'restored answer 7 in survey 686d'
+        """
+        return cls(detail=f"restored {kind} {ident} in {in_}")
+
+    @classmethod
     def published(cls, kind: str, ident: object) -> Ack:
         """``published <kind> <ident>``.
 

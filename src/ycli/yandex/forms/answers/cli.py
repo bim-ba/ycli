@@ -1,4 +1,4 @@
-"""`forms answers` commands (reads + the async export action; export is CLI/SDK only)."""
+"""`forms answers` commands (reads, delete and restore, and the async export action)."""
 
 from __future__ import annotations
 
@@ -13,13 +13,13 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerExport,
+    AnswerIntegrationList,
     AnswersResponse,
     ExportResult,
 )
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,
-)
+from ycli.yandex.forms.typedefs import AnswerIdArg, SurveyIdArg
+from ycli.yandex.models import Ack
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
@@ -138,3 +138,38 @@ def export(
     ).model_dump(exclude_none=True)
     op = forms.answers.export(survey_id, body=body)
     return _finish_export(forms, survey_id, op, wait, output)
+
+
+@app.command()
+def integrations(
+    answer_id: Annotated[
+        int,
+        typer.Option("--answer-id", help="Numeric answer id (needs form-edit access; 0 = unset)."),
+    ] = 0,
+    answer_key: Annotated[
+        str,
+        typer.Option("--answer-key", help="Answer key hash (works without form-edit access)."),
+    ] = "",
+    *,
+    forms: FormsClient,
+) -> AnswerIntegrationList:
+    """List the integration runs an answer triggered (exactly one of --answer-id / --answer-key)."""
+    if bool(answer_id) == bool(answer_key):
+        raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")
+    return forms.answers.integrations_list(
+        answer_id=answer_id or None, answer_key=answer_key or None
+    )
+
+
+@app.command()
+def delete(survey_id: SurveyIdArg, answer_id: AnswerIdArg, *, forms: FormsClient) -> Ack:
+    """Delete an answer (DELETE /surveys/{id}/answers/{answer_id}); `answers restore` undoes it."""
+    forms.answers.delete(survey_id, answer_id)
+    return Ack.deleted("answer", answer_id, from_=f"survey {survey_id}")
+
+
+@app.command()
+def restore(survey_id: SurveyIdArg, answer_id: AnswerIdArg, *, forms: FormsClient) -> Ack:
+    """Bring a deleted answer back (POST /surveys/{id}/answers/{answer_id}/restore)."""
+    forms.answers.restore(survey_id, answer_id)
+    return Ack.restored("answer", answer_id, in_=f"survey {survey_id}")

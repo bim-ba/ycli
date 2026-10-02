@@ -15,6 +15,8 @@ SID = "686d0a1b2c3d4e5f00000070"
     [
         (["answers", "get"], "exactly one of --answer-id / --answer-key"),
         (["answers", "get", "--answer-id", "1", "--answer-key", "k"], "exactly one"),
+        (["answers", "integrations"], "exactly one of --answer-id / --answer-key"),
+        (["answers", "integrations", "--answer-id", "1", "--answer-key", "k"], "exactly one"),
         (["files", "verify", SID], "at least one --path"),
         (["files", "verify", SID, "--path", "a", "--url", "u", "--url", "v"], "count must match"),
         (["files", "delete"], "--path and/or --url"),
@@ -22,6 +24,8 @@ SID = "686d0a1b2c3d4e5f00000070"
         (["questions", "create", SID], "--type (with flags) or --body-file"),
         (["surveys", "create", "--name", "x", "--field", "no-equals"], "key=value"),
         (["keysets", "create", SID, "--name", "x", "--total", "1"], "--enabled"),
+        (["conditions", "submit", "create", SID], "--operator and at least one --item"),
+        (["conditions", "hook", "set-operator", SID, "11", "--operator", "xor"], "'and' or 'or'"),
     ],
 )
 def test_bad_arguments_fail_before_sending(argv, message):

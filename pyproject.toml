@@ -151,6 +151,10 @@ extend-immutable-calls = ["fastmcp.dependencies.Depends"]
 [tool.ruff.lint.isort]
 known-first-party = ["ycli"]
 
+# Pydantic resolves field annotations at runtime, so a model's imports stay real imports.
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "ycli.yandex.models.APIModel"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["N802", "ANN"]
 "scripts/**/*.py" = ["ANN"]

@@ -16,7 +16,7 @@ and the product docs at <https://yandex.ru/support/forms/>.
 The base host differs from Tracker/Wiki (`api.tracker.yandex.net`) — a frequent
 copy-paste trap. Reads **and writes** are exposed as `ycli forms …` CLI commands,
 `forms_*` MCP tools, and `FormsClient` SDK methods; see the skill's Reading/Writing
-sections for the mapping. Raw HTTP is needed only for hooks (see below).
+sections for the mapping. Every documented endpoint is wrapped; raw HTTP is never needed.
 
 ## Endpoint map (as wrapped by ycli)
 
@@ -42,7 +42,16 @@ sections for the mapping. Raw HTTP is needed only for hooks (see below).
 | Export answers (async) | `POST /surveys/{id}/answers/export` → `GET …/answers/export-results` |
 | Keysets CRUD + download | `GET\|POST /surveys/{id}/keysets`, `GET\|PATCH\|DELETE …/keysets/{kid}`, `GET …/keysets/{kid}/download` |
 | Files upload / verify / download / delete | `POST /surveys/{id}/files`, `POST …/files/verify`, `GET\|DELETE /files` |
-| Images upload | `POST /surveys/{id}/images` |
+| Images upload / clone | `POST /surveys/{id}/images` · `POST …/images/clone` |
+| Delete / restore an answer | `DELETE /surveys/{id}/answers/{aid}` · `POST …/answers/{aid}/restore` |
+| Integrations an answer ran | `GET /answers/integrations?answer_id=…` or `?answer_key=…` |
+| Integration groups (hooks) | `GET\|POST /surveys/{id}/hooks`, `GET\|PATCH\|DELETE …/hooks/{hid}` |
+| Actions of a group | `GET\|POST …/hooks/{hid}/subscriptions`, `GET\|PATCH\|DELETE …/subscriptions/{sid}`, `POST …/subscriptions/{sid}/attachment` |
+| Variables | `GET /surveys/{id}/variables` |
+| Show conditions | `…/questions/{qid}/conditions`, `…/pages/{pid}/conditions`, `/surveys/{id}/conditions` (submit button), `…/hooks/{hid}/conditions` — each `GET\|POST`, `PATCH` (operator), and `GET\|PATCH\|DELETE …/{cid}` |
+| Survey access | `GET\|POST /surveys/{id}/access`, `POST …/access/grant`, `POST …/access/revoke` |
+| Change log | `GET /surveys/{id}/history` (cursor `iteration_key`) |
+| Integration runs | `GET /notifications` (next link `links.next`), `GET /notifications/{nid}`, `…/status`, `POST …/restart`, `POST …/cancel`, `GET /surveys/{id}/show-errors` |
 | Poll async operation | `GET /operations/{op_id}` |
 
 Question IDs are server-assigned — read them back from the create/list response
@@ -63,20 +72,9 @@ Datasource-backed dropdowns (`datasource: tracker_component`, `tracker_user`,
 `dir_user`, `wiki_table_source`, …) are queue-/space-scoped: set the form's `dir_id` /
 target queue before adding them, or the suggest returns nothing.
 
-## Documented but not wrapped by ycli
-
-- **Integration hooks** (create Tracker issue / Wiki page / email / webhook on submit)
-  — hook groups, subscriptions, conditions, template variables, and notification history
-  are documented on `api.forms.yandex.net/v1` but not implemented in ycli (tracked
-  coverage gap). Use the UI or raw OAuth HTTP — see the skill's §4.
-- **Answer integrations view** — `GET /v1/answers/integrations` (which integrations
-  fired for an answer). The single-answer view itself IS wrapped:
-  `ycli forms answers get --answer-id …|--answer-key …` (`GET /v1/answers`, flat
-  query-param route — the path variants 404).
-
 ## Not in the public API
 
 - **Appearance / themes, analytics / charts** — UI only.
 
-See the skill's §4/§5 for the hooks workflow and the durable guardrails
+See the skill's §4/§5 for the integrations workflow and the durable guardrails
 (publish state, scope errors, enum-answer list shape).

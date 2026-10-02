@@ -136,6 +136,7 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     # Binary upload — the CLI streams a local file; no MCP tool by design.
     "forms.files.upload": "binary upload — CLI-only (bytes)",
     "forms.images.upload": "binary upload — CLI-only (bytes)",
+    "forms.subscriptions.attach": "binary upload — CLI-only (bytes)",
     # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
     # exposes the one-shot `export` submit instead of the polling wrapper.
     "forms.answers.export_results": "CLI-only export poll helper",
@@ -333,6 +334,9 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "wiki/grids/endpoints.py:update_cells": "POST cells sets values; a resend is a no-op",
     "wiki/uploadsessions/endpoints.py:abort_session": "POST abort discards uploaded parts",
     "wiki/uploadsessions/endpoints.py:abort_all_sessions": "POST abort discards every upload",
+    "forms/access/endpoints.py:set_access": "POST sets an access level: sending twice converges",
+    "forms/access/endpoints.py:grant_access": "POST grants access: granting twice converges",
+    "forms/access/endpoints.py:revoke_access": "POST revokes access: it removes a permission",
 }
 
 

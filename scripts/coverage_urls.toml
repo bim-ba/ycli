@@ -373,6 +373,44 @@ operations.modify = "questions/events_b2b_v1_views_questions_modify_question_pub
 operations.delete = "questions/events_b2b_v1_views_questions_delete_question_public_view"
 operations.move = "questions/events_b2b_v1_views_questions_move_question_public_view"
 
+[forms.conditions]
+resource = "display-conditions/events_b2b_v1_views_conditions_get_question_conditions_public_view"
+operations.question_list = "display-conditions/events_b2b_v1_views_conditions_get_question_conditions_public_view"
+operations.question_get = "display-conditions/events_b2b_v1_views_conditions_get_question_condition_public_view"
+operations.question_create = "display-conditions/events_b2b_v1_views_conditions_create_question_condition_public_view"
+operations.question_modify = "display-conditions/events_b2b_v1_views_conditions_modify_question_condition_public_view"
+operations.question_delete = "display-conditions/events_b2b_v1_views_conditions_delete_question_condition_public_view"
+operations.question_set_operator = "display-conditions/events_b2b_v1_views_conditions_patch_question_conditions_operator_public_view"
+operations.page_list = "display-conditions/events_b2b_v1_views_conditions_get_page_conditions_public_view"
+operations.page_get = "display-conditions/events_b2b_v1_views_conditions_get_page_condition_public_view"
+operations.page_create = "display-conditions/events_b2b_v1_views_conditions_create_page_condition_public_view"
+operations.page_modify = "display-conditions/events_b2b_v1_views_conditions_modify_page_condition_public_view"
+operations.page_delete = "display-conditions/events_b2b_v1_views_conditions_delete_page_condition_public_view"
+operations.page_set_operator = "display-conditions/events_b2b_v1_views_conditions_patch_page_conditions_operator_public_view"
+operations.submit_list = "display-conditions/events_b2b_v1_views_conditions_get_submit_conditions_public_view"
+operations.submit_get = "display-conditions/events_b2b_v1_views_conditions_get_submit_condition_public_view"
+operations.submit_create = "display-conditions/events_b2b_v1_views_conditions_create_submit_condition_public_view"
+operations.submit_modify = "display-conditions/events_b2b_v1_views_conditions_modify_submit_condition_public_view"
+operations.submit_delete = "display-conditions/events_b2b_v1_views_conditions_delete_submit_condition_public_view"
+operations.submit_set_operator = "display-conditions/events_b2b_v1_views_conditions_patch_submit_conditions_operator_public_view"
+operations.hook_list = "conditions/events_b2b_v1_views_conditions_get_hook_conditions_public_view"
+operations.hook_get = "conditions/events_b2b_v1_views_conditions_get_hook_condition_public_view"
+operations.hook_create = "conditions/events_b2b_v1_views_conditions_create_hook_condition_public_view"
+operations.hook_modify = "conditions/events_b2b_v1_views_conditions_modify_hook_condition_public_view"
+operations.hook_delete = "conditions/events_b2b_v1_views_conditions_delete_hook_condition_public_view"
+operations.hook_set_operator = "conditions/events_b2b_v1_views_conditions_patch_hook_conditions_operator_public_view"
+
+[forms.access]
+resource = "surveys/events_b2b_v1_views_permissions_get_access_public_view"
+operations.get = "surveys/events_b2b_v1_views_permissions_get_access_public_view"
+operations.set = "surveys/events_b2b_v1_views_permissions_update_access_public_view"
+operations.grant = "surveys/events_b2b_v1_views_permissions_grant_access_public_view"
+operations.revoke = "surveys/events_b2b_v1_views_permissions_revoke_access_public_view"
+
+[forms.history]
+resource = "surveys/events_b2b_v1_views_surveys_get_survey_history_public_view"
+operations.list = "surveys/events_b2b_v1_views_surveys_get_survey_history_public_view"
+
 [forms.answers]
 resource = "answers/events_b2b_v1_views_answers_get_answers_public_view"
 operations.get = "answers/events_b2b_v1_views_answers_get_answer_public_view"
@@ -381,10 +419,42 @@ operations.list_all = "answers/events_b2b_v1_views_answers_get_answers_public_vi
 operations.export = "answers/events_b2b_v1_views_answers_export_answers_public_view"
 operations.export_results = "answers/events_b2b_v1_views_answers_export_answers_results_public_view"
 operations.download_export = "answers/events_b2b_v1_views_answers_export_answers_results_public_view"
+operations.integrations_list = "events/events_b2b_v1_views_answers_get_integrations_public_view"
+# delete and restore have no page in the docs yet: they link to the resource page.
 
 [forms.operations]
 resource = "operations/events_v1_views_operations_get_operation_view"
 operations.get = "operations/events_v1_views_operations_get_operation_view"
+
+[forms.hooks]
+resource = "groups/events_b2b_v1_views_hooks_get_hooks_public_view"
+operations.list = "groups/events_b2b_v1_views_hooks_get_hooks_public_view"
+operations.get = "groups/events_b2b_v1_views_hooks_get_hook_public_view"
+operations.create = "groups/events_b2b_v1_views_hooks_create_hook_public_view"
+operations.modify = "groups/events_b2b_v1_views_hooks_modify_hook_public_view"
+operations.delete = "groups/events_b2b_v1_views_hooks_delete_hook_public_view"
+
+[forms.subscriptions]
+resource = "hooks/events_b2b_v1_views_hooks_get_subscriptions_public_view"
+operations.list = "hooks/events_b2b_v1_views_hooks_get_subscriptions_public_view"
+operations.get = "hooks/events_b2b_v1_views_hooks_get_subscription_public_view"
+operations.create = "hooks/events_b2b_v1_views_hooks_create_subscription_public_view"
+operations.modify = "hooks/events_b2b_v1_views_hooks_modify_subscription_public_view"
+operations.delete = "hooks/events_b2b_v1_views_hooks_delete_subscription_public_view"
+operations.attach = "hooks/events_b2b_v1_views_hooks_save_subscription_attachment_public_view"
+
+[forms.variables]
+resource = "hooks/events_b2b_v1_views_hooks_get_variables_public_view"
+operations.list = "hooks/events_b2b_v1_views_hooks_get_variables_public_view"
+
+[forms.notifications]
+resource = "events/events_b2b_v1_views_notifications_get_notifications_public_view"
+operations.list = "events/events_b2b_v1_views_notifications_get_notifications_public_view"
+operations.get = "events/events_b2b_v1_views_notifications_get_notification_public_view"
+operations.status_get = "events/events_b2b_v1_views_notifications_get_notification_status_public_view"
+operations.restart = "events/events_b2b_v1_views_notifications_restart_notification_public_view"
+operations.cancel = "events/events_b2b_v1_views_notifications_cancel_notification_public_view"
+operations.errors_list = "events/events_b2b_v1_views_surveys_get_visible_errors_public_view"
 
 [forms.keysets]
 resource = "keysets/events_b2b_v1_views_keysets_get_keysets_public_view"
@@ -411,6 +481,7 @@ operations.delete = "files/events_b2b_v1_views_files_delete_file_public_view"
 [forms.images]
 resource = "images/events_b2b_v1_views_surveys_create_image_public_view"
 operations.upload = "images/events_b2b_v1_views_surveys_create_image_public_view"
+# clone has no page in the docs yet: it links to the resource page.
 
 [forms.me]
 resource = "users/events_v1_views_users_get_user_view"

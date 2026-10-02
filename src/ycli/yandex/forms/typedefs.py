@@ -13,3 +13,22 @@ SurveyIdArg = Annotated[
 QuestionIdArg = Annotated[
     str, typer.Argument(metavar="QUESTION_ID", help="Question id (integer), e.g. 17.")
 ]
+
+PageIdArg = Annotated[
+    int, typer.Argument(metavar="PAGE_ID", help="Page id (integer), from `questions list`.")
+]
+
+HookIdArg = Annotated[
+    int, typer.Argument(metavar="HOOK_ID", help="Integration group (hook) id (integer).")
+]
+
+NotificationIdArg = Annotated[
+    int,
+    typer.Argument(
+        metavar="NOTIFICATION_ID", help="Notification id (integer), from `notifications list`."
+    ),
+]
+
+AnswerIdArg = Annotated[
+    int, typer.Argument(metavar="ANSWER_ID", help="Answer id (integer), from `answers get`.")
+]

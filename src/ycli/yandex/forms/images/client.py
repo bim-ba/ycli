@@ -1,8 +1,8 @@
-"""Forms image upload client on the httpx2 core (raw bytes: SDK and CLI only)."""
+"""Forms images client on the httpx2 core (upload takes raw bytes: SDK and CLI only)."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.images import endpoints
@@ -25,3 +25,15 @@ class ImagesClient(Resource):
             7
         """
         return self._session.send(endpoints.upload_image(survey_id, filename=filename, data=data))
+
+    def clone(self, survey_id: str, body: dict[str, Any]) -> Image:
+        """``POST /surveys/{id}/images/clone`` — copy an existing image into the form.
+
+        Build ``body`` from an ``ImageClone``: the source image's ``id`` (or its ``links``) and
+        an optional new ``name``.
+
+        Example:
+            >>> client.images.clone("686d", {"id": 7, "name": "copy.png"}).id  # doctest: +SKIP
+            8
+        """
+        return self._session.send(endpoints.clone_image(survey_id, body))

@@ -20,6 +20,27 @@ EXPORT = {
     "upload_files": True,
 }
 OPERATION = {"id": "op-77", "status": "running"}
+# One of each shape GET /answers/integrations documents (2026-10-02 spec).
+INTEGRATIONS = [
+    {"id": 1, "status": "success", "type": "email", "to_address": "ann@example.com"},
+    {
+        "id": 2,
+        "status": "success",
+        "type": "wiki",
+        "wiki_page": "team/notes",
+        "link": "https://wiki.test/team/notes",
+    },
+    {
+        "id": 3,
+        "status": "error",
+        "type": "tracker",
+        "issue_key": "DE-7",
+        "link": "https://tracker.test/DE-7",
+        "message": "queue closed",
+    },
+    {"id": 4, "status": "pending", "type": "http", "url": "https://example.com/hook"},
+    {"id": 5, "status": "canceled", "type": "function", "function_id": "d4e0abc"},
+]
 
 CASES = [
     Case(
@@ -165,6 +186,54 @@ CASES = [
                 Sent("GET", f"surveys/{SID}/answers/export-results", {"task_id": "op-77"}),
                 Reply(content=b"id,name\n1,Ann\n"),
             )
+        ],
+    ),
+    Case(
+        "forms.answers.integrations_list",
+        kwargs={"answer_id": 2542485382},
+        cli=["forms", "answers", "integrations", "--answer-id", "2542485382"],
+        mcp=("forms_answers_integrations_list", {"answer_id": 2542485382}),
+        exchanges=[
+            (
+                Sent("GET", "answers/integrations", {"answer_id": "2542485382"}),
+                Reply(json=INTEGRATIONS),
+            )
+        ],
+    ),
+    Case(
+        "forms.answers.integrations_list",
+        kwargs={"answer_key": "9eb7c89dd54e"},
+        cli=["forms", "answers", "integrations", "--answer-key", "9eb7c89dd54e"],
+        mcp=("forms_answers_integrations_list", {"answer_key": "9eb7c89dd54e"}),
+        exchanges=[
+            (Sent("GET", "answers/integrations", {"answer_key": "9eb7c89dd54e"}), Reply(json=[]))
+        ],
+    ),
+    Case(
+        "forms.answers.delete",
+        args=("686d0a1b2c3d4e5f00000031", 2542485431),
+        cli=["forms", "answers", "delete", "686d0a1b2c3d4e5f00000031", "2542485431"],
+        mcp=(
+            "forms_answers_delete",
+            {"survey_id": "686d0a1b2c3d4e5f00000031", "answer_id": 2542485431},
+        ),
+        exchanges=[
+            (
+                Sent("DELETE", "surveys/686d0a1b2c3d4e5f00000031/answers/2542485431"),
+                Reply(status=204),
+            )
+        ],
+    ),
+    Case(
+        "forms.answers.restore",
+        args=("686d0a1b2c3d4e5f00000032", 2542485498),
+        cli=["forms", "answers", "restore", "686d0a1b2c3d4e5f00000032", "2542485498"],
+        mcp=(
+            "forms_answers_restore",
+            {"survey_id": "686d0a1b2c3d4e5f00000032", "answer_id": 2542485498},
+        ),
+        exchanges=[
+            (Sent("POST", "surveys/686d0a1b2c3d4e5f00000032/answers/2542485498/restore"), Reply())
         ],
     ),
 ]

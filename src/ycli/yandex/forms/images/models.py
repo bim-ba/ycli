@@ -1,4 +1,4 @@
-"""Pydantic models for Forms images (the result of uploading a form image)."""
+"""Pydantic models for Forms images (an uploaded or cloned image, and the clone request)."""
 
 from __future__ import annotations
 
@@ -34,3 +34,23 @@ class Image(APIModel):
         default=None,
         description="Virus/upload scan status — one of: check, ready, infected, error, deleted.",
     )
+    check_mode: str | None = Field(
+        default=None, description="Scan mode: strict or loose (reported on clone)."
+    )
+
+
+class ImageClone(APIModel):
+    """Typed body for ``POST /surveys/{id}/images/clone``: the image to copy and its new name.
+
+    Unset fields are dropped before the request is sent.
+
+    Example:
+        >>> ImageClone(id=7, name="copy.png").model_dump(exclude_none=True)
+        {'id': 7, 'name': 'copy.png'}
+    """
+
+    id: int | None = Field(default=None, description="Id of the image to clone.")
+    links: dict[str, str] | None = Field(
+        default=None, description="Map of image size → URL of the image to clone."
+    )
+    name: str | None = Field(default=None, description="File name for the clone.")

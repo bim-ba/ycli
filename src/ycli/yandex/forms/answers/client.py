@@ -10,6 +10,7 @@ from ycli.yandex.forms.answers import endpoints
 from ycli.yandex.forms.answers.models import (
     Answer,
     AnswerDetails,
+    AnswerIntegrationList,
     AnswersResponse,
     Column,
     ExportResult,
@@ -101,3 +102,38 @@ class AnswersClient(Resource):
             ... )  # doctest: +SKIP
         """
         return self._session.send(endpoints.download_export(survey_id, task_id))
+
+    def integrations_list(
+        self, *, answer_id: int | None = None, answer_key: str | None = None
+    ) -> AnswerIntegrationList:
+        """``GET /answers/integrations`` → the integration runs one answer triggered.
+
+        Exactly one selector, as for :meth:`get`.
+
+        Example:
+            >>> client.answers.integrations_list(answer_id=2469549806).root[
+            ...     0
+            ... ].status  # doctest: +SKIP
+            'success'
+        """
+        if (answer_id is None) == (answer_key is None):
+            raise ValueError("pass exactly one of answer_id or answer_key")
+        return self._session.send(
+            endpoints.list_answer_integrations(answer_id=answer_id, answer_key=answer_key)
+        )
+
+    def delete(self, survey_id: str, answer_id: int) -> None:
+        """``DELETE /surveys/{id}/answers/{answer_id}`` — delete an answer; see :meth:`restore`.
+
+        Example:
+            >>> client.answers.delete("686d0a1b2c3d4e5f", 2469549806)  # doctest: +SKIP
+        """
+        self._session.send(endpoints.delete_answer(survey_id, answer_id))
+
+    def restore(self, survey_id: str, answer_id: int) -> None:
+        """``POST /surveys/{id}/answers/{answer_id}/restore`` — bring a deleted answer back.
+
+        Example:
+            >>> client.answers.restore("686d0a1b2c3d4e5f", 2469549806)  # doctest: +SKIP
+        """
+        self._session.send(endpoints.restore_answer(survey_id, answer_id))
