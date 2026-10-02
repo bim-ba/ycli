@@ -9,6 +9,72 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.24.2 (2026-10-02)
+
+### Bug Fixes
+
+- **core**: Accept only an unfollowed redirect as success, and check SDK results in the contract
+  ([#147](https://github.com/bim-ba/ycli/pull/147),
+  [`8440de2`](https://github.com/bim-ba/ycli/commit/8440de28b2e7046ebe7b0b432cf4a62ca557ae86))
+
+### Build System
+
+- Re-lock uv.lock for 0.24.1
+  ([`4a0ee8f`](https://github.com/bim-ba/ycli/commit/4a0ee8fe5ff285dbea144207d141005006d50c28))
+
+### Refactoring
+
+- Drop redundant snapshots, the unused integration marker and no-op CLI anchors
+  ([#138](https://github.com/bim-ba/ycli/pull/138),
+  [`9e1297d`](https://github.com/bim-ba/ycli/commit/9e1297d470661dc7e8e1e39463dc72cb668fffa4))
+
+- **cli**: Drop the no-op _group callback anchors ([#138](https://github.com/bim-ba/ycli/pull/138),
+  [`9e1297d`](https://github.com/bim-ba/ycli/commit/9e1297d470661dc7e8e1e39463dc72cb668fffa4))
+
+- **forms**: Move Forms to the httpx2 core with contract tests
+  ([#147](https://github.com/bim-ba/ycli/pull/147),
+  [`8440de2`](https://github.com/bim-ba/ycli/commit/8440de28b2e7046ebe7b0b432cf4a62ca557ae86))
+
+### Testing
+
+- Check that the SDK keeps what the API returned, and state made-up results
+  ([#147](https://github.com/bim-ba/ycli/pull/147),
+  [`8440de2`](https://github.com/bim-ba/ycli/commit/8440de28b2e7046ebe7b0b432cf4a62ca557ae86))
+
+- Compare only one-request contract cases with their reply
+  ([#147](https://github.com/bim-ba/ycli/pull/147),
+  [`8440de2`](https://github.com/bim-ba/ycli/commit/8440de28b2e7046ebe7b0b432cf4a62ca557ae86))
+
+- Drop snapshot copies that carry no information of their own
+  ([#138](https://github.com/bim-ba/ycli/pull/138),
+  [`9e1297d`](https://github.com/bim-ba/ycli/commit/9e1297d470661dc7e8e1e39463dc72cb668fffa4))
+
+- Drop the unused integration marker and its enforcer
+  ([#138](https://github.com/bim-ba/ycli/pull/138),
+  [`9e1297d`](https://github.com/bim-ba/ycli/commit/9e1297d470661dc7e8e1e39463dc72cb668fffa4))
+
+- Live e2e scenarios against the test organization ([#133](https://github.com/bim-ba/ycli/pull/133),
+  [`0109ef5`](https://github.com/bim-ba/ycli/commit/0109ef5511782edb882b06acb576ae55b65ca063))
+
+- Make every contract result checked or stated, and prove the harness checks bite
+  ([#147](https://github.com/bim-ba/ycli/pull/147),
+  [`8440de2`](https://github.com/bim-ba/ycli/commit/8440de28b2e7046ebe7b0b432cf4a62ca557ae86))
+
+- Run the suite on four pytest-xdist workers ([#146](https://github.com/bim-ba/ycli/pull/146),
+  [`f8cf658`](https://github.com/bim-ba/ycli/commit/f8cf658a4b6da939c8d9be559975db344e0ccdcf))
+
+- State the Ack of a Forms file delete ([#147](https://github.com/bim-ba/ycli/pull/147),
+  [`8440de2`](https://github.com/bim-ba/ycli/commit/8440de28b2e7046ebe7b0b432cf4a62ca557ae86))
+
+- **e2e**: Drop the integration marker removed in #138
+  ([#133](https://github.com/bim-ba/ycli/pull/133),
+  [`0109ef5`](https://github.com/bim-ba/ycli/commit/0109ef5511782edb882b06acb576ae55b65ca063))
+
+- **e2e**: Live scenarios against the test organization
+  ([#133](https://github.com/bim-ba/ycli/pull/133),
+  [`0109ef5`](https://github.com/bim-ba/ycli/commit/0109ef5511782edb882b06acb576ae55b65ca063))
+
+
 ## v0.24.1 (2026-10-02)
 
 ### Bug Fixes
