@@ -33,8 +33,7 @@ Notable shared pieces:
 - `src/ycli/yandex/core/` — the httpx2 core: `Endpoint[T]` (an operation declared once with its
   effect), one `Pagination` class per Yandex paging kind, `SyncSession` / `AsyncSession` (typed
   errors, retries, logging, page walking), every auth kind as an `httpx2.Auth`, and
-  `ServiceProfile` (base URL + organization header). Forms and Tracker run on it; Wiki
-  moves in E2
+  `ServiceProfile` (base URL + organization header). Every resource runs on it
 - `src/ycli/yandex/pagination.py` — the uplink resources' pagination strategies (until E2)
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
@@ -86,15 +85,12 @@ allowlist entry in code with its reason, never prose here. Tests are in
   declared once, and MCP annotations, the `write` tag and `--read-only` agree with it.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
-- **Check:** for resources on the httpx2 core, the contract test (`tests/test_contract.py`,
-  one case per way of reaching an operation, fail-closed both ways) runs every tool and
-  compares its hints with the strongest effect of the endpoints it sends, and
-  `test_arch3_effect_overrides_are_listed` keeps every `effect=` that differs from the method in
-  `ARCH3_EFFECT_OVERRIDES`. An AST check stops any tool that is read-only by
-  name or by its `RO` hints from calling a client write method. For resources still on uplink,
-  the verb maps classify each tool by name; they go away with the last uplink resource (E2), and
-  `test_arch3_verb_maps_are_still_needed` fails at that point to say so.
-  `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete.
+- **Check:** the contract test (`tests/test_contract.py`, one case per way of reaching an
+  operation, fail-closed both ways) runs every tool and compares its hints with the strongest
+  effect of the endpoints it sends; `test_arch3_effect_overrides_are_listed` keeps every
+  `effect=` that differs from the method in `ARCH3_EFFECT_OVERRIDES`;
+  `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete. `status_get`, the one
+  tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
 - **Exceptions:** `ARCH3_EFFECT_OVERRIDES` (a read over `POST`, an idempotent `POST`).
 
 ### ARCH-4 — One output path
@@ -194,8 +190,7 @@ What each resource is tested with, and how, is in
 
 Resources are hand-written, starting from the `/new-endpoint` scaffold
 (`scripts/new_endpoint.py`), which generates a resource on the httpx2 core (`endpoints.py` plus
-a `Resource` client). `test_uplink_resources_only_shrink` keeps the resources still on uplink
-to a frozen list that may only shrink, so no new one lands on the stack E2 deletes. Generating them from a spec is being built in a separate repo,
+a `Resource` client). Generating them from a spec is being built in a separate repo,
 [`refract`](https://github.com/bim-ba/refract): one YAML spec per resource compiles into the
 same committed file layout, and ycli's hand-written code is the golden output it must
 reproduce. ycli does not use refract yet. Rejected: generating clients or tools at runtime

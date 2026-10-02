@@ -39,3 +39,13 @@ async def test_status_get_is_read_only():
         tools = {t.name: t for t in await client.list_tools()}
     assert "get" in tools
     assert tools["get"].annotations.read_only_hint is True
+
+
+async def test_status_get_is_annotated_as_a_read():
+    """status_get is the one tool outside a resource, so the contract test does not see it."""
+    from ycli.yandex.mcp import RO
+
+    async with Client(status_mcp.mcp) as client:
+        tool = next(tool for tool in await client.list_tools() if tool.name == "get")
+    hints = tool.annotations.model_dump(by_alias=True) if tool.annotations else {}
+    assert {key: hints.get(key) for key in RO} == RO

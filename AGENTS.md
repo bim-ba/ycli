@@ -9,7 +9,7 @@ the same SDK four ways: a Typer **CLI** (`ycli` / `yandex-cli`), a FastMCP **ser
 (`ycli mcp start`, optional `[mcp]` extra), an importable **Python SDK** (`ycli.yandex.*`), and a
 Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex-cli`.
 
-- **Stack:** Python ≥3.12, managed with `uv`. `httpx2` core (`ycli.yandex.core`; Forms and Tracker so far) with `requests` + `uplink` for Wiki until E2, `typer`
+- **Stack:** Python ≥3.12, managed with `uv`. `httpx2` core (`ycli.yandex.core`, every resource), `typer`
   (CLI), `fastmcp` (MCP), `pydantic` (models), stdlib `logging` (diagnostics on stderr).
 - **Layout:** root entry-point packages `src/ycli/cli/` (CLI, `app.py`) and `src/ycli/mcp/` (MCP server, `server.py`); per-domain SDK
   under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, `mcp.py`, models). Vendored
