@@ -9,6 +9,36 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.23.0 (2026-10-02)
+
+### Bug Fixes
+
+- **auth**: Type OAuth login failures and make the ARCH-1/4/8 checks bite
+  ([#131](https://github.com/bim-ba/ycli/pull/131),
+  [`5d0be08`](https://github.com/bim-ba/ycli/commit/5d0be08d8384f4ef58b7a78c993789bf85ea0b61))
+
+- **auth**: Type OAuth login failures and make the architecture checks bite
+  ([#131](https://github.com/bim-ba/ycli/pull/131),
+  [`5d0be08`](https://github.com/bim-ba/ycli/commit/5d0be08d8384f4ef58b7a78c993789bf85ea0b61))
+
+### Build System
+
+- Re-lock uv.lock for 0.22.2
+  ([`38f586e`](https://github.com/bim-ba/ycli/commit/38f586ef872cca68f342912ef492c0f5feca756f))
+
+### Features
+
+- **scaffold**: Generate new resources on the httpx2 core
+  ([#131](https://github.com/bim-ba/ycli/pull/131),
+  [`5d0be08`](https://github.com/bim-ba/ycli/commit/5d0be08d8384f4ef58b7a78c993789bf85ea0b61))
+
+### Testing
+
+- **arch**: Let require_found raise its not-found error locally
+  ([#131](https://github.com/bim-ba/ycli/pull/131),
+  [`5d0be08`](https://github.com/bim-ba/ycli/commit/5d0be08d8384f4ef58b7a78c993789bf85ea0b61))
+
+
 ## v0.22.2 (2026-10-02)
 
 ### Bug Fixes
