@@ -87,11 +87,15 @@ def _check_sent(case: Case, api: MockAPI, surface: str) -> None:
 
 
 def _check_output(case: Case, output: object) -> None:
-    """The SDK kept what the API answered, and returned the stated ``output`` if there is one."""
+    """The SDK kept what the API answered, and returned the stated ``output`` if there is one.
+
+    Only a one-request case is compared with its reply: a walk over pages, or a flow of several
+    requests, returns something no single reply holds, so such a case states its ``output``.
+    """
     reply = case.exchanges[-1][1]
     if isinstance(output, bytes):
         assert output == reply.content, "the SDK returned other bytes than the API sent"
-    elif reply.json is not None and case.output is NO_BODY:
+    elif reply.json is not None and case.output is NO_BODY and len(case.exchanges) == 1:
         lost = lost_values(output, reply.json)
         assert not lost, f"the SDK lost values the API returned: {lost}"
     if case.output is not NO_BODY:
