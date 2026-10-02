@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.28.0 (2026-10-02)
+
+### Build System
+
+- Re-lock uv.lock for 0.27.0
+  ([`405dbda`](https://github.com/bim-ba/ycli/commit/405dbda385cf363dfc7280a942e03e03fadaa7b4))
+
+### Features
+
+- **tracker**: Cover every documented Tracker endpoint
+  ([#154](https://github.com/bim-ba/ycli/pull/154),
+  [`f8fa7f6`](https://github.com/bim-ba/ycli/commit/f8fa7f69ae690e76dc0e350c690472273ea1bd90))
+
+
 ## v0.27.0 (2026-10-02)
 
 ### Build System
