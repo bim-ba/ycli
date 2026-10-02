@@ -1,0 +1,75 @@
+name: e2e
+
+# Live scenarios (e2e/) against the Yandex 360 test organization. Not a required check.
+# Logs are public: the runner prints step ids, expectations and short scrubbed excerpts only.
+on:
+  pull_request:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      select:
+        description: "pytest -k expression (empty: every scenario)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+# One shared organization: runs queue behind each other and are never cancelled midway,
+# so no run's cleanup is cut off.
+concurrency:
+  group: yandex-e2e
+  cancel-in-progress: false
+
+jobs:
+  live:
+    # Pull requests from forks get no secrets, so they skip instead of failing.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: yandex-e2e
+    env:
+      YCLI_E2E: "1"
+      YCLI_E2E_QUEUE: ${{ vars.YCLI_E2E_QUEUE || 'YCLIPAGE' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked --dev
+      # The token is not refreshed in CI; when this fails, reissue it and update the secret.
+      - name: Preflight (credentials valid)
+        env:
+          YANDEX_ID_OAUTH_TOKEN: ${{ secrets.YANDEX_ID_OAUTH_TOKEN }}
+          YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
+        run: |
+          status=0
+          uv run ycli -o json auth status > "$RUNNER_TEMP/auth.json" || status=$?
+          jq -c '[.services[] | {service, valid}]' "$RUNNER_TEMP/auth.json"
+          exit "$status"
+      - name: Janitor (leftovers of earlier runs)
+        env:
+          YANDEX_ID_OAUTH_TOKEN: ${{ secrets.YANDEX_ID_OAUTH_TOKEN }}
+          YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
+        run: uv run python -m e2e.janitor --older-than 6h --max 200
+      - name: Scenarios
+        env:
+          YANDEX_ID_OAUTH_TOKEN: ${{ secrets.YANDEX_ID_OAUTH_TOKEN }}
+          YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
+          # Pull requests run the smoke subset; nightly and manual runs run everything.
+          MARKERS: ${{ github.event_name == 'pull_request' && 'live and smoke' || 'live' }}
+          SELECT: ${{ inputs.select }}
+        run: uv run pytest e2e --no-cov -p no:cacheprovider -m "$MARKERS" ${SELECT:+-k "$SELECT"}
+      # The concurrency group holds every other CI run back, so this run's leftovers can go now.
+      - name: Janitor (leftovers of this run)
+        if: always()
+        env:
+          YANDEX_ID_OAUTH_TOKEN: ${{ secrets.YANDEX_ID_OAUTH_TOKEN }}
+          YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
+        run: uv run python -m e2e.janitor --older-than 0s --max 200

@@ -1,0 +1,45 @@
+# The issue is never deleted (Tracker has no issue delete): it ends closed in the sandbox queue.
+name: tracker/issue-lifecycle
+smoke: true
+steps:
+  - id: create
+    run: tracker issues create --queue ${QUEUE} --summary "${RUN} lifecycle" --description "created by ${RUN}"
+    expect:
+      summary: ${RUN} lifecycle
+      queue: ${QUEUE}
+      status: open
+    save:
+      key: key
+    cleanup: tracker transitions execute ${key} close --field resolution=fixed
+  - id: update
+    run: tracker issues update ${key} --summary "${RUN} lifecycle edited" --tag e2e
+    expect:
+      summary: ${RUN} lifecycle edited
+      "contains(tags, 'e2e')": true
+  - id: comment
+    run: tracker comments add ${key} --text "comment from ${RUN}"
+    expect:
+      text: comment from ${RUN}
+  - id: comment-is-listed
+    run: tracker comments list ${key}
+    expect:
+      "length(@)": 1
+      "[0].text": comment from ${RUN}
+  - id: start-progress
+    run: tracker transitions execute ${key} start_progress
+  - id: in-progress
+    run: tracker issues get ${key}
+    expect:
+      status: inProgress
+  - id: close
+    run: tracker transitions execute ${key} close --field resolution=fixed
+    disarms: [create]
+  - id: resolved-fixed
+    run: 'tracker issues count --query "Key: ${key} AND Resolution: fixed"'
+    expect:
+      "@": 1
+  - id: closed
+    run: tracker issues get ${key}
+    expect:
+      status: closed
+      summary: ${RUN} lifecycle edited

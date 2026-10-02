@@ -100,6 +100,7 @@ exclude_also = [
 [dependency-groups]
 dev = [
     "import-linter>=2.12",
+    "jmespath>=1.1.0",
     "pre-commit>=4.6.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
@@ -130,7 +131,7 @@ changelog_file = "CHANGELOG.md"
 [tool.ruff]
 target-version = "py312"
 line-length = 100
-src = ["src", "tests", "scripts"]
+src = ["src", "tests", "scripts", "e2e"]
 
 [tool.ruff.format]
 quote-style = "double"

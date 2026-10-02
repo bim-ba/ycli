@@ -1,0 +1,10 @@
+# Read-only: the sandbox queue holds more issues than one page, so --all must walk pages.
+name: tracker/pagination
+smoke: true
+steps:
+  - id: list-all
+    run: tracker issues list --queue ${QUEUE} --all
+    expect:
+      "length(@) >= `130`": true
+      "length(unique([].key)) == length(@)": true
+      "[?queue != '${QUEUE}'] | length(@)": 0
