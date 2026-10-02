@@ -400,6 +400,17 @@ operations.hook_modify = "conditions/events_b2b_v1_views_conditions_modify_hook_
 operations.hook_delete = "conditions/events_b2b_v1_views_conditions_delete_hook_condition_public_view"
 operations.hook_set_operator = "conditions/events_b2b_v1_views_conditions_patch_hook_conditions_operator_public_view"
 
+[forms.access]
+resource = "surveys/events_b2b_v1_views_permissions_get_access_public_view"
+operations.get = "surveys/events_b2b_v1_views_permissions_get_access_public_view"
+operations.set = "surveys/events_b2b_v1_views_permissions_update_access_public_view"
+operations.grant = "surveys/events_b2b_v1_views_permissions_grant_access_public_view"
+operations.revoke = "surveys/events_b2b_v1_views_permissions_revoke_access_public_view"
+
+[forms.history]
+resource = "surveys/events_b2b_v1_views_surveys_get_survey_history_public_view"
+operations.list = "surveys/events_b2b_v1_views_surveys_get_survey_history_public_view"
+
 [forms.answers]
 resource = "answers/events_b2b_v1_views_answers_get_answers_public_view"
 operations.get = "answers/events_b2b_v1_views_answers_get_answer_public_view"

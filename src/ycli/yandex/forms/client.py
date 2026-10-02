@@ -9,10 +9,12 @@ if TYPE_CHECKING:
 
 from ycli.yandex.base import DomainClient
 from ycli.yandex.forms import SERVICE
+from ycli.yandex.forms.access.client import AccessClient
 from ycli.yandex.forms.answers.client import AnswersClient
 from ycli.yandex.forms.conditions.client import ConditionsClient
 from ycli.yandex.forms.files.client import FilesClient
 from ycli.yandex.forms.filling.client import FillingClient
+from ycli.yandex.forms.history.client import HistoryClient
 from ycli.yandex.forms.hooks.client import HooksClient
 from ycli.yandex.forms.images.client import ImagesClient
 from ycli.yandex.forms.keysets.client import KeysetsClient
@@ -38,6 +40,8 @@ class FormsClient(DomainClient):
         self.surveys = SurveysClient(session=session)
         self.questions = QuestionsClient(session=session)
         self.conditions = ConditionsClient(session=session)
+        self.access = AccessClient(session=session)
+        self.history = HistoryClient(session=session)
         self.answers = AnswersClient(session=session)
         self.keysets = KeysetsClient(session=session)
         self.operations = OperationsClient(session=session)

@@ -85,7 +85,7 @@ WIKI_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Identity", ["me"]),
 ]
 FORMS_CATEGORIES: list[tuple[str, list[str]]] = [
-    ("Surveys & questions", ["surveys", "questions", "conditions"]),
+    ("Surveys & questions", ["surveys", "questions", "conditions", "access", "history"]),
     ("Responses & export", ["answers", "operations"]),
     ("Integrations", ["hooks", "subscriptions", "variables"]),
     ("Distribution", ["keysets", "filling"]),

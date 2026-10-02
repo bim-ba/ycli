@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import typer
 
+from ycli.yandex.forms.access.cli import app as access_app
 from ycli.yandex.forms.answers.cli import app as answers_app
 from ycli.yandex.forms.conditions.cli import app as conditions_app
 from ycli.yandex.forms.files.cli import app as files_app
 from ycli.yandex.forms.filling.cli import app as filling_app
+from ycli.yandex.forms.history.cli import app as history_app
 from ycli.yandex.forms.hooks.cli import app as hooks_app
 from ycli.yandex.forms.images.cli import app as images_app
 from ycli.yandex.forms.keysets.cli import app as keysets_app
@@ -25,6 +27,8 @@ app.add_typer(me_app)
 app.add_typer(surveys_app)
 app.add_typer(questions_app)
 app.add_typer(conditions_app)
+app.add_typer(access_app)
+app.add_typer(history_app)
 app.add_typer(answers_app)
 app.add_typer(keysets_app)
 app.add_typer(operations_app)
