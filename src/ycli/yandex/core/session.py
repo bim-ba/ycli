@@ -81,8 +81,9 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
         response.status_code,
         elapsed_seconds * 1000,
     )
-    # A redirect reaches here only from an endpoint that asked not to follow it.
-    if response.is_success or response.is_redirect:
+    # ``next_request`` is set only on a located redirect an endpoint asked not to follow; any other
+    # 3xx (a 304, a redirect without a Location) is an error like a 4xx.
+    if response.is_success or response.next_request is not None:
         return response
     detail = describe_error_body(response.text)
     message = (

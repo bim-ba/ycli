@@ -300,3 +300,15 @@ async def test_async_send_can_take_a_redirect_too():
     )
     assert await session.send(endpoint) == 302
     await session.aclose()
+
+
+@pytest.mark.parametrize(
+    ("status", "headers"),
+    [(304, {}), (302, {}), (300, {"Location": "https://files.test/x"})],
+)
+def test_a_3xx_that_is_not_an_unfollowed_redirect_is_an_error(status, headers):
+    api = MockAPI()
+    api.add("DELETE", URL, status=status, headers=headers)
+    api.add("GET", "https://files.test/x", status=300)
+    with pytest.raises(YandexClientError):
+        _session(api, retries=0).send(Endpoint("DELETE", "items"))

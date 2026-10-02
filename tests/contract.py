@@ -4,7 +4,7 @@ A case names an SDK operation with its arguments, the CLI argv and the MCP tool 
 should reach it, and the exchanges the operation has with the API: each request it must send
 and the canned reply. ``tests/test_contract.py`` runs every case through the SDK, the CLI and
 the MCP server, and checks that each surface sent exactly these requests and that the MCP
-tool's hints agree with the effect of the first one.
+tool's hints agree with the strongest effect among them.
 
 A resource's cases live next to its other tests, in ``tests/yandex/<domain>/<resource>/cases.py``
 as a module-level ``CASES`` list. Give every case distinct values (ids, fully populated
@@ -85,8 +85,8 @@ class Case:
     ``operation`` is ``<domain>.<resource>.<method>`` on the SDK client. ``cli`` is the argv after
     ``ycli`` and ``mcp`` the tool name and arguments; either is ``None`` only for an operation
     listed in ``ARCH1_SURFACE_ASYMMETRIES`` or reached on that surface by another case.
-    ``effect`` defaults to what the first request's
-    method implies; state it for a ``POST`` that only reads.
+    ``effect`` defaults to the strongest one the requests' methods imply; state it for a ``POST``
+    that only reads.
     """
 
     operation: str
@@ -139,18 +139,21 @@ def mismatches(
             for name in got.url.params
             if (values := got.url.params.get_list(name))
         }
-        if want.files is not None:
-            problems += _multipart_mismatches(index, want.files, got)
-            continue
-        body = json.loads(got.content) if got.content else NO_BODY
-        for label, wanted, actual in (
+        checks = [
             ("method", want.method, got.method),
             ("url", url, actual_url),
             ("params", dict(want.params), params),
-            ("body", want.json, body),
-        ):
-            if wanted != actual:
-                problems.append(f"request {index}: {label} {actual!r} != {wanted!r}")
+        ]
+        if want.files is not None:
+            problems += _multipart_mismatches(index, want.files, got)
+        else:
+            body = json.loads(got.content) if got.content else NO_BODY
+            checks.append(("body", want.json, body))
+        problems += [
+            f"request {index}: {label} {actual!r} != {wanted!r}"
+            for label, wanted, actual in checks
+            if wanted != actual
+        ]
     return problems
 
 

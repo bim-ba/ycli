@@ -65,8 +65,7 @@ class CursorStrategy[P, T](PaginationStrategy[P, T]):
                 return items[:limit]
             cursor = self._next_of(page)
             # Terminal on ``None`` or on a cursor already seen — a repeated cursor means the
-            # API stopped advancing, so following it again would loop forever (mirrors the
-            # ``seen`` self-loop guard in :class:`NextUrlStrategy`).
+            # API stopped advancing, so following it again would loop forever.
             if cursor is None or cursor in seen:
                 return items
             seen.add(cursor)
@@ -83,35 +82,6 @@ class CursorStrategy[P, T](PaginationStrategy[P, T]):
     ) -> R:
         """Cursor envelope -> bounded, wrapped flat collection (the wiki cursor list shape)."""
         return wrap(cls(extract=extract, next_of=next_of).collect(page_fn, limit))
-
-
-class NextUrlStrategy[P, T](PaginationStrategy[P, T]):
-    """HATEOAS: the first page comes from ``fetch_page``; subsequent ones from ``fetch_url``."""
-
-    def __init__(
-        self,
-        *,
-        extract: Callable[[P], list[T]],
-        next_url_of: Callable[[P], str | None],
-        fetch_url: Callable[[str], P],
-    ) -> None:
-        self._extract = extract
-        self._next_url_of = next_url_of
-        self._fetch_url = fetch_url
-
-    def collect(self, fetch_page: Callable[[str | None], P], limit: int | None) -> list[T]:
-        page = fetch_page(None)
-        items: list[T] = list(self._extract(page))
-        seen: set[str] = set()
-        url = self._next_url_of(page)
-        while url is not None and url not in seen:
-            if limit is not None and len(items) >= limit:
-                break
-            seen.add(url)
-            page = self._fetch_url(url)
-            items.extend(self._extract(page))
-            url = self._next_url_of(page)
-        return items if limit is None else items[:limit]
 
 
 class OffsetStrategy[P, T](PaginationStrategy[P, T]):
@@ -174,8 +144,7 @@ class RelativeCursorStrategy[P, T](PaginationStrategy[P, T]):
                 return items[:limit]
             cursor = self._id_of(page_items[-1])
             # Terminal on a missing id or on an id already seen — a repeated last-item id
-            # means the walk stopped advancing, so re-fetching would loop forever (mirrors
-            # the ``seen`` self-loop guard in :class:`NextUrlStrategy`).
+            # means the walk stopped advancing, so re-fetching would loop forever.
             if cursor is None or cursor in seen:
                 return items
             seen.add(cursor)

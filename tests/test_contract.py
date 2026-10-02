@@ -1,9 +1,10 @@
 """Every contract case, driven through the SDK, the CLI and the MCP server (see tests/contract.py).
 
 Each surface must send exactly the case's requests, carrying the credentials; the MCP tool's
-hints must agree with the effect of the first request, and the CLI and MCP must return the
-same data. Coverage is fail-closed: every operation, CLI command and MCP tool of a resource on
-the httpx2 core needs a case, and every case must name something that exists.
+hints must agree with the strongest effect among them, and the CLI must print what the SDK
+returned and the MCP tool return the same data. Coverage is fail-closed: every operation, CLI
+command and MCP tool of a resource on the httpx2 core needs a case, and every case must name
+something that exists.
 """
 
 from __future__ import annotations
@@ -16,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 from fastmcp import Client
+from pydantic import BaseModel
 from typer.testing import CliRunner
 
 from tests.contract import Case, Reply, Sent, effect_sent, hints_disagree, mismatches
@@ -75,11 +77,15 @@ def _check_sent(case: Case, api: MockAPI, surface: str) -> None:
     assert not problems, f"{surface}: {problems}"
 
 
-def _run_sdk(case: Case) -> None:
+def _run_sdk(case: Case) -> object:
+    """What the SDK returned, as the CLI would print it (``None`` when it returned nothing)."""
     domain, resource, method = case.operation.split(".")
     client_class = SERVICE_BY_NAME[domain].client_class()
     with client_class(oauth_token="t", organization_id="o") as client:
-        getattr(getattr(client, resource), method)(*case.args, **case.kwargs)
+        result = getattr(getattr(client, resource), method)(*case.args, **case.kwargs)
+    return (
+        result.model_dump(by_alias=True, mode="json") if isinstance(result, BaseModel) else result
+    )
 
 
 def _run_cli(case: Case) -> object:
@@ -126,13 +132,16 @@ def mcp_session() -> Iterator[_MCPSession]:
 @pytest.mark.parametrize("case", CASES, ids=[case.id for case in CASES])
 def test_every_surface_sends_the_declared_requests(case: Case, monkeypatch, mcp_session):
     api = _serve(monkeypatch, case)
-    _run_sdk(case)
+    sdk_output = _run_sdk(case)
     _check_sent(case, api, "sdk")
     cli_output = None
     if case.cli is not None:
         api = _serve(monkeypatch, case)
         cli_output = _run_cli(case)
         _check_sent(case, api, "cli")
+        # A bodyless write returns None from the SDK; the surfaces print an Ack instead.
+        if sdk_output is not None:
+            assert cli_output == sdk_output, "the CLI printed something other than the SDK result"
     if case.mcp is not None:
         api = _serve(monkeypatch, case)
         name, arguments = case.mcp

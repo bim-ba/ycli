@@ -1,6 +1,5 @@
 from ycli.yandex.pagination import (
     CursorStrategy,
-    NextUrlStrategy,
     OffsetStrategy,
     RelativeCursorStrategy,
     resolve_cap,
@@ -75,19 +74,6 @@ def test_cursor_strategy_stops_on_non_advancing_cursor():
     assert out == [1, 2]  # stops after re-seeing "c1"; does not loop forever
 
 
-def test_next_url_strategy_drains_and_dedupes_self_loops():
-    pages = {
-        "start": {"answers": [1], "next": {"next_url": "p2"}},
-        "p2": {"answers": [2], "next": {"next_url": "p2"}},  # self-loop guard
-    }
-    out = NextUrlStrategy(
-        extract=lambda p: p["answers"],
-        next_url_of=lambda p: (p["next"] or {}).get("next_url"),
-        fetch_url=lambda url: pages[url],
-    ).collect(lambda cursor: pages["start"], limit=None)
-    assert out == [1, 2]
-
-
 def test_cursor_collect_wrapped_extracts_wraps_next_and_bounds():
     pages = {
         None: {"results": [1, 2], "next_cursor": "c1"},
@@ -101,20 +87,6 @@ def test_cursor_collect_wrapped_extracts_wraps_next_and_bounds():
         limit=3,
     )
     assert out == [1, 2, 3]
-
-
-def test_next_url_strategy_respects_limit():
-    pages = {
-        "start": {"answers": [1, 2], "next": {"next_url": "p2"}},
-        "p2": {"answers": [3, 4], "next": {"next_url": "p3"}},
-        "p3": {"answers": [5], "next": None},
-    }
-    out = NextUrlStrategy(
-        extract=lambda p: p["answers"],
-        next_url_of=lambda p: (p["next"] or {}).get("next_url"),
-        fetch_url=lambda url: pages[url],
-    ).collect(lambda cursor: pages["start"], limit=2)
-    assert out == [1, 2]  # stops before fetching p2
 
 
 # --- OffsetStrategy ---------------------------------------------------------------------
