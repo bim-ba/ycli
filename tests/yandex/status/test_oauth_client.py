@@ -160,4 +160,4 @@ def test_fetch_organizations_raises_on_other_failures(status, body, error):
     """Only 401/403 mean "no directory scope"; any other failure is not an empty org list."""
     responses.add(responses.GET, ORG_URL, body=body, status=status)
     with pytest.raises(error):
-        OAuthClient(client_id="id", retries=0).fetch_organizations("tok")
+        OAuthClient(client_id="id", timeout_seconds=30.0, retries=0).fetch_organizations("tok")
