@@ -15,7 +15,7 @@ from ycli.yandex.models import APIModel
 class UploadSessionUserIdentity(APIModel):
     """External identity of the user that owns an upload session (``user.identity``).
 
-    Example:
+    Examples:
         >>> UploadSessionUserIdentity.model_validate({"uid": "42"}).uid
         '42'
     """
@@ -27,7 +27,7 @@ class UploadSessionUserIdentity(APIModel):
 class UploadSessionUser(APIModel):
     """The user that created an upload session (the ``user`` object on a session).
 
-    Example:
+    Examples:
         >>> UploadSessionUser.model_validate({"id": 1, "username": "j"}).username
         'j'
     """
@@ -53,7 +53,7 @@ class UploadSession(APIModel):
     ``not_started`` → ``in_progress`` → ``finished`` (or ``aborted`` / ``used`` / ``cleanup``).
     Once ``finished`` the file can be attached to a page (see ``AttachmentsClient.attach``).
 
-    Example:
+    Examples:
         >>> UploadSession.model_validate({"session_id": "s1", "status": "not_started"}).session_id
         's1'
     """
@@ -88,7 +88,7 @@ class UploadSession(APIModel):
 class UploadSessionCreate(APIModel):
     """Typed request body for ``uploadsessions.create`` (``POST /upload_sessions``).
 
-    Example:
+    Examples:
         >>> UploadSessionCreate(file_name="diagram.png", file_size=2048).file_size
         2048
     """
@@ -100,7 +100,7 @@ class UploadSessionCreate(APIModel):
 class AbortActiveUploadsResult(APIModel):
     """Result of ``uploadsessions.abort_all`` (``POST /upload_sessions/abort_active_uploads``).
 
-    Example:
+    Examples:
         >>> AbortActiveUploadsResult.model_validate({"status": "ok"}).status
         'ok'
     """

@@ -32,11 +32,11 @@ mcp = FastMCP("tracker-components")
 
 @mcp.tool(name="components_list", annotations={**RO, "title": "List Tracker components"}, tags=TAGS)
 def list_(client: TrackerClient = Depends(tracker_client)) -> ComponentList:
-    """All components created by the organisation's users, each with its queue, owner and
-    description. Components are sub-areas used to classify issues within a queue; use this to
-    discover valid component names/ids before filtering or creating issues.
+    """All components created by the organisation's users.
 
-    >>> components_list()  # doctest: +SKIP
+    Each component carries its queue, owner and description. Components are sub-areas used to
+    classify issues within a queue; use this to discover valid component names/ids before
+    filtering or creating issues.
     """
     return client.components.list()
 
@@ -91,11 +91,7 @@ def list_for_queue(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ComponentList:
-    """The components of one queue, so you need not filter ``components_list`` by queue.
-
-    Example:
-        >>> components_list_for_queue("TEST")  # doctest: +SKIP
-    """
+    """The components of one queue, so you need not filter ``components_list`` by queue."""
     return client.components.list_for_queue(queue_id, fields=fields)
 
 
@@ -110,11 +106,7 @@ def get(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Component:
-    """One component with its queue, owner, description and auto-assign flag.
-
-    Example:
-        >>> components_get(111175)  # doctest: +SKIP
-    """
+    """One component with its queue, owner, description and auto-assign flag."""
     return client.components.get(component_id, fields=fields)
 
 
@@ -144,11 +136,7 @@ def user_permissions_get(
     user_id: Annotated[str, Field(description="Login or numeric uid of the user.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> ComponentUserAccess:
-    """What one user may do on a component (create, read, write, deny) and who grants it.
-
-    Example:
-        >>> components_user_permissions_get(1, "alice")  # doctest: +SKIP
-    """
+    """What one user may do on a component (create, read, write, deny) and who grants it."""
     return client.components.user_permissions(component_id, user_id)
 
 
@@ -162,9 +150,5 @@ def group_permissions_get(
     group_id: Annotated[int, Field(description="Numeric id of the group.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> ComponentGroupAccess:
-    """What one group may do on a component (create, read, write, deny).
-
-    Example:
-        >>> components_group_permissions_get(1, 5)  # doctest: +SKIP
-    """
+    """What one group may do on a component (create, read, write, deny)."""
     return client.components.group_permissions(component_id, group_id)

@@ -41,9 +41,6 @@ def get(
     ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; ``totalIssues`` /
     ``totalCompletedIssues`` show progress. Poll this after a bulk trigger returns an id;
     once it reports ``FAILED``, call ``bulk_issues_list`` for the per-issue errors.
-
-    Example:
-        >>> get(bulk_id="1ab23cd4e5678901")  # doctest: +SKIP
     """
     return client.bulk.get(bulk_id)
 
@@ -62,9 +59,6 @@ def issues_list(
     Use after ``bulk_get`` reports a non-zero failure count to see *why* specific issues were
     rejected (e.g. an invalid resolution for the target queue/type). Successful issues are not
     listed here.
-
-    Example:
-        >>> issues_list(bulk_id="1ab23cd4e5678901")  # doctest: +SKIP
     """
     return client.bulk.issues(bulk_id)
 

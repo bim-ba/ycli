@@ -231,8 +231,10 @@ def test_extended_permissions_update():
 
 
 def test_entity_fields_input_custom_key_survives_round_trip():
-    """A custom (queue-local) fields.* key must not be silently dropped — it must reach the
-    wire unchanged, exactly as the old ``body: dict`` would have sent it."""
+    """A custom (queue-local) fields.* key must not be silently dropped.
+
+    It must reach the wire unchanged, exactly as the old ``body: dict`` would have sent it.
+    """
     raw = {"fields": {"summary": "Q4", "6xxxLocalFieldId": "v"}}
     dumped = EntityCreate.model_validate(raw).model_dump(by_alias=True, exclude_none=True)
     assert dumped == raw
@@ -245,9 +247,11 @@ def test_entity_fields_input_custom_key_survives_round_trip():
 
 
 def test_entity_fields_input_operator_form_array_edit_round_trips():
-    """The documented operator-edit form ({'add'|'set'|'remove': [...]}) on array fields must
-    validate and dump byte-identical to what the old ``body: dict`` would have passed through
-    (see references/yandex-360/tracker/ru/api-ref/entities/about-entities.md)."""
+    """The documented operator-edit form ({'add'|'set'|'remove': [...]}) on array fields passes.
+
+    It must validate and dump byte-identical to what the old ``body: dict`` would have passed
+    through (see references/yandex-360/tracker/ru/api-ref/entities/about-entities.md).
+    """
     raw = {
         "fields": {
             "tags": {"add": ["x"]},

@@ -60,11 +60,7 @@ def get(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
-    """One comment of a Tracker issue: text, author, edit history and, on request, attachments.
-
-    Example:
-        >>> comments_get("DATAENGINEERING-1", "2238", expand="all")  # doctest: +SKIP
-    """
+    """One comment of a Tracker issue: text, author, edit history and, on request, attachments."""
     return client.comments.get(key, comment_id, expand=expand)
 
 

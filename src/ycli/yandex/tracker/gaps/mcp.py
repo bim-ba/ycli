@@ -45,9 +45,6 @@ def search(
 
     A read done via POST; needs Tracker administrator rights. Every requested user appears,
     with an empty ``gaps`` list when they are not absent.
-
-    Example:
-        >>> gaps_search(["ann"], date_from="2026-07-01T00:00:00.000Z")  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.gaps.search(users, date_from=date_from, date_to=date_to, limit=cap)

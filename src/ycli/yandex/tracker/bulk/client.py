@@ -23,11 +23,16 @@ class BulkClient(Resource):
     def update(self, body: dict[str, Any]) -> BulkChange:
         """``POST /bulkchange/_update`` — mass-edit issues. Returns the started ``BulkChange``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.bulk.update(
-            ...     {"issues": ["TEST-1"], "values": {"priority": {"key": "blocker"}}}
-            ... ).status  # doctest: +SKIP
+        Args:
+            body: The request body: the issues to change and the field values to set.
+
+        Returns:
+            The started bulk change.
+
+        Examples:
+            >>> tracker.bulk.update(
+            ...     {"issues": ["DE-1", "DE-2"], "values": {"priority": "minor"}}
+            ... ).status
             'CREATED'
         """
         return self._session.send(endpoints.update_bulk(body))
@@ -35,21 +40,29 @@ class BulkClient(Resource):
     def move(self, body: dict[str, Any]) -> BulkChange:
         """``POST /bulkchange/_move`` — mass-move issues to another queue. Returns a ``BulkChange``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.bulk.move({"queue": "CHECK", "issues": ["TEST-1"]}).id  # doctest: +SKIP
-            '1ab23cd4…'
+        Args:
+            body: The request body: the target queue and the issues to move.
+
+        Returns:
+            The started bulk change.
+
+        Examples:
+            >>> tracker.bulk.move({"queue": "CHECK", "issues": ["DE-3"]}).id
+            '2cd'
         """
         return self._session.send(endpoints.move_bulk(body))
 
     def transition(self, body: dict[str, Any]) -> BulkChange:
         """``POST /bulkchange/_transition`` — mass status transition. Returns a ``BulkChange``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.bulk.transition(
-            ...     {"transition": "close", "issues": ["TEST-1"]}
-            ... ).status  # doctest: +SKIP
+        Args:
+            body: The request body: the transition to run and the issues to run it on.
+
+        Returns:
+            The started bulk change.
+
+        Examples:
+            >>> tracker.bulk.transition({"transition": "close", "issues": ["DE-4"]}).status
             'CREATED'
         """
         return self._session.send(endpoints.transition_bulk(body))
@@ -57,9 +70,14 @@ class BulkClient(Resource):
     def get(self, bulk_id: str) -> BulkChange:
         """``GET /bulkchange/{bulk_id}`` → the operation's current status (poll this to wait).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.bulk.get("1ab23cd4…").is_terminal  # doctest: +SKIP
+        Args:
+            bulk_id: The bulk change's id.
+
+        Returns:
+            The bulk change with its current status.
+
+        Examples:
+            >>> tracker.bulk.get("4gh").is_terminal
             True
         """
         return self._session.send(endpoints.get_bulk(bulk_id))
@@ -67,9 +85,14 @@ class BulkClient(Resource):
     def issues(self, bulk_id: str) -> BulkIssueResultList:
         """``GET /bulkchange/{bulk_id}/issues`` → issues for which the operation failed.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.bulk.issues("1ab23cd4…").root[0].issue  # doctest: +SKIP
-            'TEST-1'
+        Args:
+            bulk_id: The bulk change's id.
+
+        Returns:
+            The per-issue results.
+
+        Examples:
+            >>> tracker.bulk.issues("5ij").root[0].issue
+            'DE-9'
         """
         return self._session.send(endpoints.list_bulk_issues(bulk_id))

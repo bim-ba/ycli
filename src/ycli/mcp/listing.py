@@ -23,13 +23,19 @@ _DOCTEST_PROMPT = re.compile(r"\s*>>>")
 
 
 def strip_examples(description: str) -> str:
-    """``description`` without its ``Example:`` blocks and bare doctests.
+    r"""``description`` without its ``Example:`` blocks and bare doctests.
 
     A block is the header line plus every indented or blank line after it; a bare doctest is a
     ``>>>`` line with the output lines that follow, up to the next blank line.
 
-    Example:
-        >>> strip_examples("Get an issue.\\n\\nExample:\\n    >>> get('A-1')\\n    'A-1'")
+    Args:
+        description: A tool or schema field description.
+
+    Returns:
+        The description without its examples.
+
+    Examples:
+        >>> strip_examples("Get an issue.\n\nExample:\n    >>> get('A-1')\n    'A-1'")
         'Get an issue.'
     """
     kept: list[str] = []
@@ -52,13 +58,19 @@ def strip_examples(description: str) -> str:
 
 
 def strip_schema_examples(schema: Any) -> Any:
-    """``schema`` with every ``description`` string passed through :func:`strip_examples`.
+    r"""``schema`` with every ``description`` string passed through :func:`strip_examples`.
 
     Request models put their docstring, doctest included, into the input schema.
 
-    Example:
+    Args:
+        schema: A JSON schema, or any part of one.
+
+    Returns:
+        ``schema`` with every description stripped of its examples.
+
+    Examples:
         >>> strip_schema_examples(
-        ...     {"properties": {"body": {"description": "A body.\\n\\nExample:\\n    x"}}}
+        ...     {"properties": {"body": {"description": "A body.\n\nExample:\n    x"}}}
         ... )
         {'properties': {'body': {'description': 'A body.'}}}
     """
@@ -82,6 +94,7 @@ class LightListing(Transform):
     """
 
     async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The tools with ``outputSchema`` dropped and doctest blocks stripped from their texts."""
         return [
             tool.model_copy(
                 update={
@@ -109,6 +122,7 @@ class KnownTools(Transform):
         self._requested = requested
 
     async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The tools, failing with :class:`UnknownToolError` when a requested name matches none."""
         unknown = sorted(self._requested - {tool.name for tool in tools})
         if unknown:
             raise UnknownToolError(f"unknown tool name(s): {', '.join(unknown)}")

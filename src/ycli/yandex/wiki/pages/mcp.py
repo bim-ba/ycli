@@ -57,8 +57,10 @@ def descendants(
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> PageRefList:
-    """All descendant refs under SLUG, auto-paginated. Capped at the configured item cap
-    unless ``limit`` is given; narrow by SLUG for large trees."""
+    """All descendant refs under SLUG, auto-paginated.
+
+    Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for large trees.
+    """
     cap = config.http.cap(limit)
     return client.pages.descendants(slug=slug, limit=cap)
 
@@ -75,9 +77,6 @@ def grids_list(
     Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at the configured item cap
     unless ``limit`` is given. Reads a page's numeric id — pair with
     ``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
-
-    Example:
-        >>> grids_list(page_id=12345, limit=50)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.pages.grids(page_id=page_id, limit=cap)
@@ -101,9 +100,6 @@ def by_id_get(
     response) instead of the slug. ``fields`` follows the standard Wiki selector rules:
     without it the response carries id/slug/title only; ask for ``content`` or
     ``attributes`` explicitly.
-
-    Example:
-        >>> by_id_get(page_id=12345, fields="content")  # doctest: +SKIP
     """
     return client.pages.get_by_id(page_id=page_id, fields=fields)
 
@@ -124,9 +120,6 @@ def by_id_descendants(
     The id-based twin of ``pages_descendants``. Capped at the configured item cap
     unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
     ``slug``.
-
-    Example:
-        >>> by_id_descendants(page_id=12345, limit=50)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.pages.descendants_by_id(page_id=page_id, limit=cap)
@@ -149,9 +142,6 @@ def create(
     Treat the slug as permanent: ``pages_move`` can rename the page later, but the old address
     then answers 404 and links to it break, so pick the slug carefully. Returns the created page
     (its numeric ``id`` drives the id-based tools and every subsequent write).
-
-    Example:
-        >>> create(slug="data/x", title="X", content="# X")  # doctest: +SKIP
     """
     return client.pages.create(body={"slug": slug, "title": title, "content": content})
 
@@ -172,9 +162,6 @@ def update(
     This REPLACES the whole body — to add to an existing page use ``pages_append``
     instead. The Wiki API updates via POST, not PATCH (PATCH returns 405); the SDK already
     handles that quirk. Repeating the same call yields the same page state (idempotent).
-
-    Example:
-        >>> update(page_id=12345, content="# Updated")  # doctest: +SKIP
     """
     body: dict[str, str] = {"content": content}
     if title is not None:
@@ -194,9 +181,6 @@ def delete(
     KEEP the returned ``recovery_token`` — it is the only handle to undo the delete
     (redeem it with ``recovery_restore``). Deleting removes the page's descendants'
     anchor too, so double-check the id (``pages_get_by_id``) before calling.
-
-    Example:
-        >>> delete(page_id=12345)  # doctest: +SKIP
     """
     return client.pages.delete(page_id=page_id)
 
@@ -222,11 +206,6 @@ def append_content(
     Unlike ``pages_update`` (full replace), this adds ``body.content`` at the chosen spot:
     ``body.body.location`` (top/bottom of the page), a numbered ``body.section``, or a named
     text ``body.anchor``. Returns the updated page.
-
-    Example:
-        >>> append_content(
-        ...     page_id=12345, body={"content": "## More", "body": {"location": "bottom"}}
-        ... )  # doctest: +SKIP
     """
     return client.pages.append_content(page_id=page_id, body=body.model_dump(exclude_none=True))
 
@@ -248,9 +227,6 @@ def clone(
     Cloning leaves the original where it is; to give the page itself a new slug use
     ``pages_move``. The call returns a deferred operation reference — poll
     ``operations_clone_get`` with the returned ``operation.id`` until it reaches a terminal status.
-
-    Example:
-        >>> clone(page_id=12345, body={"target": "data/y"})  # doctest: +SKIP
     """
     return client.pages.clone(page_id=page_id, body=body.model_dump(exclude_none=True))
 
@@ -276,11 +252,6 @@ def move(
     ``dry_run=true`` first: it validates the request, applies nothing, and its operation id
     cannot be polled. Yandex does not document this operation (it is in the live OpenAPI only)
     and may change it.
-
-    Example:
-        >>> move(
-        ...     body={"operations": [{"source": "data/x", "target": "archive/x"}]}
-        ... )  # doctest: +SKIP
     """
     return client.pages.move(body=body.model_dump(exclude_none=True), dry_run=dry_run)
 
@@ -304,9 +275,6 @@ def revisions_list(
     Each revision has an ``id`` (what ``GET /pages`` takes as ``revision_id``), its ``author``,
     ``created_at``, ``page_type`` and publication state. Yandex does not document this operation
     (it is in the live OpenAPI only) and may change it.
-
-    Example:
-        >>> revisions_list(page_id=12345, limit=10)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.pages.revisions(page_id=page_id, ids=ids, limit=cap)
@@ -333,9 +301,6 @@ def backlinks_list(
 
     Auto-paginated. Yandex does not document this operation (it is in the live OpenAPI only) and
     may change it.
-
-    Example:
-        >>> backlinks_list(page_id=12345)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.pages.backlinks(

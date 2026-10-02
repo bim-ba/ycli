@@ -5,7 +5,7 @@ one entry in :data:`SERVICES`. A service names its CLI app, MCP server and clien
 path (``"module:attribute"``, resolved with :func:`pkgutil.resolve_name`), so reading the
 registry imports none of them: a command loads only the service it runs.
 
-Example:
+Examples:
     >>> [service.name for service in SERVICES]
     ['tracker', 'wiki', 'forms']
 """

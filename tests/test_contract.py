@@ -10,9 +10,7 @@ something that exists.
 from __future__ import annotations
 
 import asyncio
-import importlib
 import json
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -29,6 +27,7 @@ from tests.contract import (
     Sibling,
     effect_sent,
     hints_disagree,
+    load_cases,
     mismatches,
     output_problems,
 )
@@ -44,19 +43,10 @@ from ycli.yandex.registry import SERVICES
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
 
-TESTS = Path(__file__).parent
 SERVICE_BY_NAME = {service.name: service for service in SERVICES}
 
 
-def _load_cases() -> list[Case]:
-    cases = []
-    for path in sorted(TESTS.glob("yandex/*/*/cases.py")):
-        module = ".".join(path.relative_to(TESTS.parent).with_suffix("").parts)
-        cases += importlib.import_module(module).CASES
-    return cases
-
-
-CASES = _load_cases()
+CASES = load_cases()
 
 
 def _serve(monkeypatch: pytest.MonkeyPatch, case: Case) -> MockAPI:
@@ -114,8 +104,11 @@ def _run_cli(case: Case, argv: Sequence[str] | None = None) -> object:
 
 
 class _MCPSession:
-    """One MCP client session for the whole module: FastMCP lists every tool on a session's
-    first call (0.15 s), and later calls on the same session skip it."""
+    """One MCP client session for the whole module.
+
+    FastMCP lists every tool on a session's first call (0.15 s), and later calls on the same
+    session skip it.
+    """
 
     def __init__(self) -> None:
         self._runner = asyncio.Runner()
@@ -314,14 +307,6 @@ def test_coverage_gaps_bite():
         "tools without a case": ["forms_me_get"],
         "cases of unknown operations": [],
     }
-
-
-def test_the_contract_module_examples_hold():
-    import doctest
-
-    import tests.contract
-
-    assert doctest.testmod(tests.contract).failed == 0
 
 
 def _one(reply: Reply, output: object = UNSTATED) -> Case:

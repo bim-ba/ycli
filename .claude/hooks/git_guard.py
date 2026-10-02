@@ -34,9 +34,11 @@ _WHITESPACE_RE = re.compile(r"\s+")
 
 
 def _normalize_whitespace(text: str) -> str:
-    """Collapse any run of whitespace to a single space, so a bracket token or the
-    ``skip-checks:`` trailer written with extra internal spacing (e.g. a doubled space)
-    still matches its single-space form in ``SKIP_CI_TOKENS``."""
+    """Collapse any run of whitespace to a single space.
+
+    A bracket token or the ``skip-checks:`` trailer written with extra internal spacing (e.g. a
+    doubled space) then still matches its single-space form in ``SKIP_CI_TOKENS``.
+    """
     return _WHITESPACE_RE.sub(" ", text).strip()
 
 

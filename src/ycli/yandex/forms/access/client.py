@@ -17,9 +17,14 @@ class AccessClient(Resource):
     def get(self, survey_id: str) -> PermissionList:
         """``GET /surveys/{id}/access`` → one permission per action (change, submit).
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.access.get("686d0a1b").root[0].access  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            One permission per action.
+
+        Examples:
+            >>> forms.access.get("686d0a1b2c3d4e5f000000d0").root[0].access
             'restricted'
         """
         return self._session.send(endpoints.get_access(survey_id))
@@ -27,29 +32,55 @@ class AccessClient(Resource):
     def set(self, survey_id: str, body: dict[str, Any]) -> PermissionList:
         """``POST /surveys/{id}/access`` — set one action's level from a dumped ``AccessUpdate``.
 
-        Example:
-            >>> client.access.set(
-            ...     "686d0a1b", {"action": "submit", "access": "common"}
-            ... )  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            body: The dumped ``AccessUpdate``: the action and its new access level.
+
+        Returns:
+            The permissions after the change.
+
+        Examples:
+            >>> forms.access.set(
+            ...     "686d0a1b2c3d4e5f000000d0", {"action": "submit", "access": "common"}
+            ... ).root[1].access
+            'common'
         """
         return self._session.send(endpoints.set_access(survey_id, body))
 
     def grant(self, survey_id: str, body: dict[str, Any]) -> PermissionList:
         """``POST /surveys/{id}/access/grant`` — add a user or group (a dumped ``AccessGrant``).
 
-        Example:
-            >>> client.access.grant(
-            ...     "686d0a1b", {"action": "change", "user": {"uid": "7"}}
-            ... )  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            body: The dumped ``AccessGrant``: the action and the user or group to add.
+
+        Returns:
+            The permissions after the change.
+
+        Examples:
+            >>> forms.access.grant(
+            ...     "686d0a1b2c3d4e5f000000d0",
+            ...     {"action": "change", "user": {"uid": "7001", "cloud_uid": "cloud-7001"}},
+            ... ).root[0].action
+            'change'
         """
         return self._session.send(endpoints.grant_access(survey_id, body))
 
     def revoke(self, survey_id: str, body: dict[str, Any]) -> PermissionList:
         """``POST /surveys/{id}/access/revoke`` — remove a user or group (``AccessRevoke``).
 
-        Example:
-            >>> client.access.revoke(
-            ...     "686d0a1b", {"action": "change", "user": {"uid": "7"}}
-            ... )  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            body: The dumped ``AccessRevoke``: the action and the user or group to remove.
+
+        Returns:
+            The permissions after the change.
+
+        Examples:
+            >>> forms.access.revoke(
+            ...     "686d0a1b2c3d4e5f000000d0",
+            ...     {"action": "submit", "group": {"src": "staff", "id": "42"}},
+            ... ).root[1].action
+            'submit'
         """
         return self._session.send(endpoints.revoke_access(survey_id, body))

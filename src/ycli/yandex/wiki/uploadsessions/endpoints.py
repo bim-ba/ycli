@@ -4,7 +4,7 @@ Create a session, PUT the file bytes as one or more ``application/octet-stream``
 the session, then attach the file to a page. Aborting is a ``POST`` that discards uploaded parts,
 so both aborts declare themselves destructive.
 
-Example:
+Examples:
     >>> upload_part("s-1", part_number=2, data=b"x").params
     {'part_number': 2}
     >>> abort_session("s-1").effect

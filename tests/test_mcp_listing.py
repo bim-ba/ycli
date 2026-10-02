@@ -29,10 +29,10 @@ def test_strip_examples(description, expected):
     assert strip_examples(description) == expected
 
 
-async def test_the_source_descriptions_do_carry_doctests():
-    """Bite: without the transform the same tool lists its doctest, so the strip is real."""
+async def test_the_source_schemas_do_carry_doctests():
+    """Bite: without the transform request models list their doctests, so the strip is real."""
     raw = {tool.name: tool for tool in await tracker_mcp.list_tools()}
-    assert any(">>>" in (tool.description or "") for tool in raw.values())
+    assert any(">>>" in json.dumps(tool.parameters) for tool in raw.values())
     assert all(tool.output_schema for tool in raw.values())
 
 

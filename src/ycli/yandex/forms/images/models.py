@@ -16,7 +16,7 @@ class Image(APIModel):
     ``ready`` (or an error state); ``links`` maps each rendered size to its URL. Reference the
     returned ``id`` from a question's / option's / style's ``image`` field.
 
-    Example:
+    Examples:
         >>> Image.model_validate(
         ...     {"id": 7, "links": {}, "name": "logo.png", "check_status": "check"}
         ... ).id
@@ -44,7 +44,7 @@ class ImageClone(APIModel):
 
     Unset fields are dropped before the request is sent.
 
-    Example:
+    Examples:
         >>> ImageClone(id=7, name="copy.png").model_dump(exclude_none=True)
         {'id': 7, 'name': 'copy.png'}
     """

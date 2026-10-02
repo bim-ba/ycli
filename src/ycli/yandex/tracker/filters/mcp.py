@@ -29,11 +29,11 @@ def get(
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> Filter:
-    """Parameters of a single saved issue filter: its stored conditions, query-language string,
-    owner, favourite flag and access permissions. Use this to inspect a filter a user references
-    by id; the resulting conditions can then feed an ``issues_search`` query.
+    """Parameters of a single saved issue filter.
 
-    >>> filters_get(filter_id="12345")  # doctest: +SKIP
+    They include its stored conditions, query-language string, owner, favourite flag and access
+    permissions. Use this to inspect a filter a user references by id; the resulting conditions
+    can then feed an ``issues_search`` query.
     """
     return client.filters.get(filter_id=filter_id)
 

@@ -181,8 +181,10 @@ def test_arch1_operation_level_parity():
 
 
 def test_arch1_parity_check_bites():
-    """Prove-it: the gap detector flags an op missing from either surface, and the structural
-    reader counts a real client call but not a same-named call on another object."""
+    """Prove-it: the gap detector flags an op missing from a surface; the reader counts real calls.
+
+    The structural reader counts a real client call but not a same-named call on another object.
+    """
     # An op wrapped on neither / only one surface is a gap; one on both is not.
     assert _surface_gaps({"orphan", "wired"}, {"wired"}, {"wired"}) == {"orphan"}
     assert _surface_gaps({"cli_only"}, {"cli_only"}, set()) == {"cli_only"}
@@ -288,8 +290,9 @@ def _served_gaps(
 
 
 def test_arch1_every_resource_is_served():
-    """Each resource directory is wired into its domain client and served by the running CLI
-    and MCP server, and nothing is served without a directory (ARCH-1).
+    """Each resource directory is wired and served by the CLI and MCP server, and nothing else is.
+
+    A directory is wired into its domain client, and nothing is served without one (ARCH-1).
 
     The file and operation checks above read source files, so a resource never wired into
     ``client.py`` or never mounted (``app.add_typer`` / ``mcp.mount``) passes them; this reads
@@ -312,8 +315,10 @@ def test_arch1_every_resource_is_served():
 
 
 def test_arch1_served_check_bites():
-    """Prove-it: a ghost directory, an unmounted CLI group or MCP server, and served names with
-    no directory are each reported; a CLI-only resource needs no MCP tool."""
+    """Prove-it: a ghost directory, an unmounted group or server and orphan names are reported.
+
+    A served name with no directory is reported too; a CLI-only resource needs no MCP tool.
+    """
     disk = {"forms.keysets", "tracker.import_"}
     groups = {"forms.keysets", "tracker.import"}
     tools = {"forms_keysets_get", "tracker_import_task"}
@@ -377,8 +382,11 @@ def _function_operations(function: object) -> frozenset[str]:
 
 
 def _cli_commands_by_name() -> dict[str, frozenset[str]]:
-    """Visible CLI leaf commands as ``tracker_issues_get``-style names, with the operations they
-    call under their service (``tracker.issues.get``). A hidden alias is not a surface."""
+    """Visible CLI leaf commands as ``tracker_issues_get``-style names, with their operations.
+
+    The operations are named under their service (``tracker.issues.get``). A hidden alias is not
+    a surface.
+    """
     out: dict[str, frozenset[str]] = {}
     for path, command in cli_leaves().items():
         service = path.split()[0]
@@ -389,8 +397,11 @@ def _cli_commands_by_name() -> dict[str, frozenset[str]]:
 
 
 def _mcp_tools_by_name() -> dict[str, frozenset[str]]:
-    """Served MCP resource tools by name, with the operations they call, read from each
-    resource's own server (the root server holds proxies, with no function to read)."""
+    """Served MCP resource tools by name, with the operations they call.
+
+    Read from each resource's own server (the root server holds proxies, with no function to
+    read).
+    """
     out: dict[str, frozenset[str]] = {}
     for directory in _resource_dirs():
         domain = directory.parent.name
@@ -404,8 +415,11 @@ def _mcp_tools_by_name() -> dict[str, frozenset[str]]:
 
 
 def _counterparts(cli: dict[str, frozenset[str]], operations: frozenset[str]) -> set[str]:
-    """CLI commands serving a tool's ``operations``: those calling exactly them, else those
-    calling at least them (a command that polls an async operation also reads its status)."""
+    """CLI commands serving a tool's ``operations``.
+
+    Those calling exactly them, else those calling at least them (a command that polls an async
+    operation also reads its status).
+    """
     exact = {name for name, ops in cli.items() if ops == operations}
     return exact or {name for name, ops in cli.items() if operations <= ops}
 
@@ -457,8 +471,10 @@ def test_arch1_cli_path_equals_mcp_name():
 
 
 def test_arch1_name_parity_check_bites():
-    """Prove-it: a renamed CLI command, a tool with no operation, a stale exception and a synonym
-    verb are each reported; matching names, a polling superset and a listed exception are not."""
+    """Prove-it: a renamed command, an operation-less tool, a stale exception and a synonym verb.
+
+    Each is reported; matching names, a polling superset and a listed exception are not.
+    """
     op = frozenset({"tracker.boards.update"})
     assert (
         _name_mismatches({"tracker_boards_update": op}, {"tracker_boards_update": op}, set()) == []
@@ -664,8 +680,10 @@ def test_arch8_mcp_write_tool_bodies_are_typed():
 
 
 def test_arch8_typed_body_guard_bites():
-    """Prove-it: the guard flags bare/subscripted ``dict`` bodies but not a typed model or
-    ``Annotated[Base64Bytes, …]``, and respects the allowlist."""
+    """Prove-it: the guard flags bare/subscripted ``dict`` bodies and respects the allowlist.
+
+    A typed model or ``Annotated[Base64Bytes, …]`` is not flagged.
+    """
     bare = (
         '@mcp.tool(name="widgets_create")\n'
         "def create(body: dict, client=Depends(x)) -> Widget:\n"
@@ -765,8 +783,11 @@ ARCH4_SERIALIZATION_HOMES = {
 
 
 def _serializations(source: str) -> list[str]:
-    """Calls in ``source`` that serialize a value: ``json.dumps``, ``yaml.safe_dump``,
-    ``pydantic_core.to_json`` (import aliases resolved) or a ``.model_dump_json()``."""
+    """Calls in ``source`` that serialize a value.
+
+    They are ``json.dumps``, ``yaml.safe_dump``, ``pydantic_core.to_json`` (import aliases
+    resolved) or a ``.model_dump_json()``.
+    """
     tree = ast.parse(source)
     aliases = _import_aliases(tree)
     found = []
@@ -828,10 +849,13 @@ ARCH4_STDOUT_FUNCTIONS = {
 
 
 def _stdout_writes(source: str, exempt_functions: frozenset[str] = frozenset()) -> list[str]:
-    """Places in ``source`` that write to stdout: ``print`` in any spelling (``builtins.print``,
-    ``rich.print``, ``pprint``, an import alias), ``typer.echo`` / ``secho`` and ``Console(...)``
-    without a stderr flag, ``os.write``, and any use of ``stdout`` / ``__stdout__``. Messages to
-    stderr are UI, not output. Top-level functions named in ``exempt_functions`` are skipped."""
+    """Places in ``source`` that write to stdout.
+
+    They are ``print`` in any spelling (``builtins.print``, ``rich.print``, ``pprint``, an import
+    alias), ``typer.echo`` / ``secho`` and ``Console(...)`` without a stderr flag, ``os.write``,
+    and any use of ``stdout`` / ``__stdout__``. Messages to stderr are UI, not output. Top-level
+    functions named in ``exempt_functions`` are skipped.
+    """
     tree = ast.parse(source)
     aliases = _import_aliases(tree)
     found = []

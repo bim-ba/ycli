@@ -3,7 +3,7 @@
 All three writes are ``POST``s that do not add anything new: setting a level and granting a
 user converge (sending twice changes nothing more), and revoking removes access.
 
-Example:
+Examples:
     >>> set_access("686d", {"action": "submit", "access": "common"}).effect
     'idempotent_write'
     >>> revoke_access("686d", {"action": "change"}).effect

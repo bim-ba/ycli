@@ -4,8 +4,12 @@ Both are ordinary authenticated GETs on the httpx2 core. Each host takes no orga
 header, so each has a :class:`~ycli.yandex.core.profile.ServiceProfile` with ``org_header=None``
 (ARCH-5). Credentials arrive as constructor arguments (ARCH-7).
 
-Example:
-    >>> with TokenClient(oauth_token="…") as client:  # doctest: +SKIP
+Examples:
+    >>> import httpx2
+    >>> transport = httpx2.MockTransport(
+    ...     lambda request: httpx2.Response(200, json={"id": "1000034426", "login": "ivan"})
+    ... )
+    >>> with TokenClient(oauth_token="token", transport=transport) as client:
     ...     client.identity().login
     'ivan'
 """

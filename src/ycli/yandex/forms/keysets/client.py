@@ -17,9 +17,14 @@ class KeysetsClient(Resource):
     def list(self, survey_id: str) -> KeysetList:
         """``GET /surveys/{id}/keysets`` → every key set (a bare, unpaged array).
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.keysets.list("686d0a1b2c3d4e5f").root[0].name  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            Every key set of the form.
+
+        Examples:
+            >>> forms.keysets.list("686d0a1b2c3d4e5f00000020").root[0].name
             'Q1 invites'
         """
         return self._session.send(endpoints.list_keysets(survey_id))
@@ -27,8 +32,15 @@ class KeysetsClient(Resource):
     def get(self, survey_id: str, keyset_id: int) -> Keyset:
         """``GET /surveys/{id}/keysets/{keyset_id}`` → a single :class:`Keyset`.
 
-        Example:
-            >>> client.keysets.get("686d0a1b2c3d4e5f", 3).id  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            keyset_id: The key set's id.
+
+        Returns:
+            The key set.
+
+        Examples:
+            >>> forms.keysets.get("686d0a1b2c3d4e5f00000020", 3).id
             3
         """
         return self._session.send(endpoints.get_keyset(survey_id, keyset_id))
@@ -38,11 +50,19 @@ class KeysetsClient(Resource):
 
         The API requires ``is_enabled`` on create, alongside ``name`` and ``total``.
 
-        Example:
-            >>> client.keysets.create(
-            ...     "686d0a1b2c3d4e5f", {"name": "Q1", "total": 100, "is_enabled": True}
-            ... ).id  # doctest: +SKIP
-            7
+        Args:
+            survey_id: The form's id.
+            body: The dumped ``KeysetCreate``.
+
+        Returns:
+            The created key set, with its ``id``.
+
+        Examples:
+            >>> forms.keysets.create(
+            ...     "686d0a1b2c3d4e5f00000020",
+            ...     {"name": "Q1 invites", "total": 100, "is_enabled": True},
+            ... ).id
+            3
         """
         return self._session.send(endpoints.create_keyset(survey_id, body))
 
@@ -52,19 +72,33 @@ class KeysetsClient(Resource):
         Despite the method, the API validates a full record: ``name``, ``total`` and
         ``is_enabled`` are all required (a ``KeysetUpdate`` with every field set).
 
-        Example:
-            >>> client.keysets.modify(
-            ...     "686d0a1b2c3d4e5f", 3, {"name": "Q1", "total": 100, "is_enabled": False}
-            ... ).is_enabled  # doctest: +SKIP
-            False
+        Args:
+            survey_id: The form's id.
+            keyset_id: The key set's id.
+            body: The dumped ``KeysetUpdate`` with every field set.
+
+        Returns:
+            The replaced key set.
+
+        Examples:
+            >>> forms.keysets.modify(
+            ...     "686d0a1b2c3d4e5f00000020",
+            ...     4,
+            ...     {"name": "Q1 invites", "total": 100, "is_enabled": True},
+            ... ).name
+            'Q1 invites'
         """
         return self._session.send(endpoints.modify_keyset(survey_id, keyset_id, body))
 
     def delete(self, survey_id: str, keyset_id: int) -> None:
         """``DELETE /surveys/{id}/keysets/{keyset_id}`` — delete a key set (no body comes back).
 
-        Example:
-            >>> client.keysets.delete("686d0a1b2c3d4e5f", 3)  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+            keyset_id: The key set's id.
+
+        Examples:
+            >>> forms.keysets.delete("686d0a1b2c3d4e5f00000020", 5)
         """
         self._session.send(endpoints.delete_keyset(survey_id, keyset_id))
 
@@ -73,8 +107,15 @@ class KeysetsClient(Resource):
 
         Binary payload — SDK and CLI only, never an MCP result.
 
-        Example:
-            >>> client.keysets.download("686d0a1b2c3d4e5f", 3)[:2]  # doctest: +SKIP
-            b'PK'
+        Args:
+            survey_id: The form's id.
+            keyset_id: The key set's id.
+
+        Returns:
+            The key set's raw bytes.
+
+        Examples:
+            >>> forms.keysets.download("686d0a1b2c3d4e5f00000020", 6)[:5]
+            b'key-1'
         """
         return self._session.send(endpoints.download_keyset(survey_id, keyset_id))

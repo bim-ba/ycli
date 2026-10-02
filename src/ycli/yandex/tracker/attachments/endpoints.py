@@ -1,6 +1,6 @@
 """Tracker issue ``/attachments`` operations, each declared once (sans-IO).
 
-Example:
+Examples:
     >>> download_thumbnail("JUNE-2", "4159").path
     'issues/JUNE-2/thumbnails/4159'
     >>> upload_temp_attachment(filename="a.txt", data=b"", rename_to="b.txt").params

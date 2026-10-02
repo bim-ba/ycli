@@ -34,7 +34,7 @@ FieldOpt = Annotated[
 def _key(value: str) -> dict[str, str] | None:
     """The ``{"key": …}`` object Tracker takes for a type or priority; ``None`` when not given.
 
-    Example:
+    Examples:
         >>> _key("task"), _key("")
         ({'key': 'task'}, None)
     """

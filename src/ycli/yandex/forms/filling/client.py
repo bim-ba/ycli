@@ -25,9 +25,15 @@ class FillingClient(Resource):
         ``survey`` is the form id, its slug, or an id+verification-key combination; ``key`` is
         the personal-link fill key. The call also checks that the form is published and fillable.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filling.get("686d0a1b2c3d4e5f").name  # doctest: +SKIP
+        Args:
+            survey: The form's id, slug, or id+verification-key combination.
+            key: The personal-link fill key.
+
+        Returns:
+            The form's settings for filling.
+
+        Examples:
+            >>> forms.filling.get("686d0a1b2c3d4e5f00000060", key="k-1").name
             'Feedback'
         """
         return self._session.send(endpoints.get_form(survey, key=key))
@@ -40,10 +46,19 @@ class FillingClient(Resource):
         ``body`` maps each question ``slug`` to its answer. ``dry_run=True`` validates
         everything but saves nothing and fires no integrations.
 
-        Example:
-            >>> client.filling.submit(
-            ...     "686d", SubmitBody({"name": "Ann"})
-            ... ).answer_id  # doctest: +SKIP
+        Args:
+            survey: The form's id, slug, or id+verification-key combination.
+            body: The answers, keyed by question ``slug``.
+            dry_run: Whether to validate only, saving nothing.
+            key: The personal-link fill key.
+
+        Returns:
+            The submission result, with the new answer's id.
+
+        Examples:
+            >>> from ycli.yandex.forms.filling.models import SubmitBody
+            >>> body = SubmitBody.model_validate({"name": "Ann", "rating": 5})
+            >>> forms.filling.submit("686d0a1b2c3d4e5f00000060", body, key="k-2").answer_id
             99
         """
         endpoint = endpoints.submit_form(
@@ -66,10 +81,20 @@ class FillingClient(Resource):
         ``id``) a comma-separated list of suggestion ids to resolve, and ``parent_id`` scopes a
         Master/Detail lookup.
 
-        Example:
-            >>> client.filling.suggest("686d", question="city", text="Ber").root[
+        Args:
+            survey: The form's id, slug, or id+verification-key combination.
+            question: The question's slug.
+            text: The search text.
+            suggest_id: A comma-separated list of suggestion ids to resolve.
+            parent_id: The parent id scoping a Master/Detail lookup.
+
+        Returns:
+            The suggestions for the field.
+
+        Examples:
+            >>> forms.filling.suggest("686d0a1b2c3d4e5f00000060", question="city", text="Ber").root[
             ...     0
-            ... ].text  # doctest: +SKIP
+            ... ].text
             'Berlin'
         """
         params = {

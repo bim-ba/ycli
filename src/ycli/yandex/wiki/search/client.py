@@ -23,10 +23,17 @@ class SearchClient(Resource):
         hits for a page past the last one, so there is no reliable end to drain to. Stop at the
         first page with no results or when ``next_cursor`` is ``None``.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> page = client.search.query({"query": "roadmap", "limit": 20})  # doctest: +SKIP
-            >>> page.results[0].slug, page.next_cursor  # doctest: +SKIP
-            ('team/roadmap', '2')
+        Args:
+            body: The search request: ``query`` and optional ``filters``, ``cursor``, ``limit``,
+                ``order_by``, ``highlight``.
+
+        Returns:
+            The page of hits.
+
+        Examples:
+            >>> body = {"query": "quarterly roadmap", "cursor": 3, "limit": 25}
+            >>> page = wiki.search.query(body)
+            >>> page.results[0].slug, page.next_cursor
+            ('team/roadmap', '4')
         """
         return self._session.send(endpoints.search_pages(body))

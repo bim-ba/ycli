@@ -1,6 +1,6 @@
 """Tracker ``/issuetypes`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_issue_type("23", {"description": "x"}, version=1).params
     {'version': 1}
 """

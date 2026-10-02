@@ -15,5 +15,13 @@ class MeClient(Resource):
     """The authenticated Wiki user."""
 
     def get(self) -> Me:
-        """``GET /users/me`` → the authenticated ``Me`` (a safe auth probe)."""
+        """``GET /users/me`` → the authenticated ``Me`` (a safe auth probe).
+
+        Returns:
+            The authenticated user.
+
+        Examples:
+            >>> wiki.me.get().username
+            'vera.petrova'
+        """
         return self._session.send(endpoints.get_me())

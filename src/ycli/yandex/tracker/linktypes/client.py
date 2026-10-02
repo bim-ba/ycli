@@ -17,9 +17,11 @@ class LinkTypesClient(Resource):
     def list(self) -> LinkTypeList:
         """``GET /linktypes`` → link-type listing.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.linktypes.list().root[0].id  # doctest: +SKIP
+        Returns:
+            The link types.
+
+        Examples:
+            >>> tracker.linktypes.list().root[0].id
             'relates'
         """
         return self._session.send(endpoints.list_link_types())

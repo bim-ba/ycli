@@ -48,6 +48,7 @@ class YandexTokenVerifier(TokenVerifier):
         self._cache = TokenCache(ttl_seconds=cache_seconds)
 
     async def verify_token(self, token: str) -> AccessToken | None:
+        """The access token when Yandex ID issued ``token`` to this app, else ``None``."""
         cached, access = self._cache.get(token)
         if cached:
             return access

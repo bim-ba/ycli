@@ -1,6 +1,6 @@
 """How every Wiki listing pages: ``next_cursor`` in the body, sent back as ``?cursor=``.
 
-Example:
+Examples:
     >>> import httpx2
     >>> next_cursor(httpx2.Response(200, json={"results": [], "next_cursor": "c2"}))
     'c2'

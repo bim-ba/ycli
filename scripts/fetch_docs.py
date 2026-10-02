@@ -248,8 +248,11 @@ def _tidy(text: str) -> str:
 
 
 class _NoSource:
-    """Sentinel: a page URL has no YFM `.md` sibling (a section root / non-page) — an expected
-    absence, kept distinct from a fetch failure so it is skipped without counting as one."""
+    """Sentinel: a page URL has no YFM `.md` sibling (a section root / non-page).
+
+    An expected absence, kept distinct from a fetch failure so it is skipped without counting as
+    one.
+    """
 
 
 _NO_SOURCE = _NoSource()
@@ -271,9 +274,12 @@ class _HttpClient:
         self.encountered_failure = False
 
     def _get(self, url: str) -> httpx2.Response | None:
-        """GET with retry/backoff. Returns the response for any completed HTTP status (callers
-        inspect ``status_code``); returns None only when the request never completed — a network
-        error, or a 5xx / 429 / 403 that persisted across every retry."""
+        """GET with retry/backoff.
+
+        Returns the response for any completed HTTP status (callers inspect ``status_code``);
+        returns None only when the request never completed — a network error, or a 5xx / 429 /
+        403 that persisted across every retry.
+        """
         for attempt in range(1, MAX_ATTEMPTS + 1):
             try:
                 response = self.session.get(url, timeout=REQUEST_TIMEOUT_SECONDS)
@@ -347,9 +353,12 @@ class DocsFetcher(_HttpClient):
 
     # -- enumeration -------------------------------------------------------------------
     def _enumerate(self, sitemaps: tuple[str, ...]) -> list[str] | None:
-        """Fetchable page URLs from the sitemap(s). Returns None when a sitemap can't be fetched
-        or parsed — kept distinct from an empty list (a valid, genuinely empty map) so the caller
-        never mistakes a network / anti-bot failure for "this service has no pages"."""
+        """Fetchable page URLs from the sitemap(s).
+
+        Returns None when a sitemap can't be fetched or parsed — kept distinct from an empty list
+        (a valid, genuinely empty map) so the caller never mistakes a network / anti-bot failure
+        for "this service has no pages".
+        """
         locs: list[str] = []
         seen: set[str] = set()
         for sitemap_url in sitemaps:
@@ -387,9 +396,12 @@ class DocsFetcher(_HttpClient):
 
     # -- single page -------------------------------------------------------------------
     def _fetch_page(self, loc: str, config: ServiceConfig) -> tuple[Path, str] | _NoSource | None:
-        """Fetch one page's YFM source. Returns (path, text) on success, ``_NO_SOURCE`` when the
-        URL has no `.md` sibling (404 or non-markdown — expected for section roots), or None on a
-        genuine fetch failure (network / 5xx / rate-limit)."""
+        """Fetch one page's YFM source.
+
+        Returns (path, text) on success, ``_NO_SOURCE`` when the URL has no `.md` sibling (404 or
+        non-markdown — expected for section roots), or None on a genuine fetch failure (network /
+        5xx / rate-limit).
+        """
         response = self._get(f"{loc}.md")
         if response is None:
             return None
@@ -524,8 +536,11 @@ class CloudFetcher(_HttpClient):
         return {e["name"]: e["sha"] for e in entries if e.get("type") == "dir"}
 
     def _service_files(self, tree_sha: str) -> list[str] | None:
-        """Markdown paths (relative to the service dir) via one recursive subtree call. Returns
-        None when the API call fails (rate-limit / error) — distinct from a service with 0 files."""
+        """Markdown paths (relative to the service dir) via one recursive subtree call.
+
+        Returns None when the API call fails (rate-limit / error) — distinct from a service with 0
+        files.
+        """
         url = f"{GITHUB_API_BASE}/repos/{CLOUD_OWNER}/{CLOUD_REPO}/git/trees/{tree_sha}?recursive=1"
         data = self._get_json(url)
         if not isinstance(data, dict):

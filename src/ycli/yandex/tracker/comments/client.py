@@ -19,10 +19,16 @@ class CommentsClient(Resource):
         ``id=<id of the last comment seen>`` until a page comes back empty. Capped at ``limit``
         (``None`` = every comment); a small cap narrows the page to ``limit`` rows.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.list(key="DATAENGINEERING-1").root[0].created_by  # doctest: +SKIP
-            'Сава Знатнов'
+        Args:
+            key: The issue key.
+            limit: The most comments to return; ``None`` returns every comment.
+
+        Returns:
+            The issue's comments.
+
+        Examples:
+            >>> [comment.text for comment in tracker.comments.list("DE-11", limit=500).root]
+            ['first', 'second', 'third']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_comments(key, page_size=page_size)
@@ -34,43 +40,62 @@ class CommentsClient(Resource):
         ``comment_id`` is the numeric ``id`` or the string ``longId``. ``expand`` adds
         ``attachments``, ``html`` or ``all`` extra fields.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.get(
-            ...     "DATAENGINEERING-1", 2238, expand="html"
-            ... ).text_html  # doctest: +SKIP
-            '<p>Готово</p>'
+        Args:
+            key: The issue key.
+            comment_id: The comment's numeric ``id`` or string ``longId``.
+            expand: The extra fields to include (``attachments``, ``html`` or ``all``).
+
+        Returns:
+            The comment.
+
+        Examples:
+            >>> tracker.comments.get("DE-5", 9001, expand="attachments,html").text_html
+            '<p>My <strong>first</strong> comment</p>'
         """
         return self._session.send(endpoints.get_comment(key, comment_id, expand=expand))
 
     def add(self, key: str, body: dict[str, Any]) -> Comment:
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.add("DATAENGINEERING-1", {"text": "Готово ✅"}).id  # doctest: +SKIP
-            2238
+        Args:
+            key: The issue key.
+            body: The new comment: its text and optional summonees and attachment ids.
+
+        Returns:
+            The created comment.
+
+        Examples:
+            >>> tracker.comments.add("DE-14", {"text": "Готово ✅"}).id
+            141
         """
         return self._session.send(endpoints.add_comment(key, body))
 
     def edit(self, key: str, comment_id: int | str, body: dict[str, Any]) -> Comment:
         """``PATCH /issues/{key}/comments/{comment_id}`` — edit a comment. Returns it.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.edit(
-            ...     "DATAENGINEERING-1", 2238, {"text": "fixed"}
-            ... ).text  # doctest: +SKIP
-            'fixed'
+        Args:
+            key: The issue key.
+            comment_id: The comment's numeric ``id`` or string ``longId``.
+            body: The comment fields to change.
+
+        Returns:
+            The updated comment.
+
+        Examples:
+            >>> tracker.comments.edit("DE-16", "161", {"text": "fixed typo"}).text
+            'fixed typo'
         """
         return self._session.send(endpoints.edit_comment(key, comment_id, body))
 
     def delete(self, key: str, comment_id: str) -> None:
         """Delete a comment (``DELETE …/comments/{id}`` → 204). Raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.delete("DATAENGINEERING-1", 2238)  # doctest: +SKIP
+        Args:
+            key: The issue key.
+            comment_id: The comment's id.
+
+        Examples:
+            >>> tracker.comments.delete("DE-17", "171")
         """
         self._session.send(endpoints.delete_comment(key, comment_id))
 
@@ -79,9 +104,16 @@ class CommentsClient(Resource):
 
         ``name`` is an uppercase reaction key (LIKE, DISLIKE, HEART, ROCKET, FIRE, …).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.comments.react("DATAENGINEERING-1", 2238, "LIKE").id  # doctest: +SKIP
-            2238
+        Args:
+            key: The issue key.
+            comment_id: The comment's numeric ``id`` or string ``longId``.
+            name: The reaction key.
+
+        Returns:
+            The comment the reaction was added to.
+
+        Examples:
+            >>> tracker.comments.react("DE-18", "181", "HEART").id
+            181
         """
         return self._session.send(endpoints.react_to_comment(key, comment_id, name))

@@ -1,6 +1,6 @@
 """Wiki ``/pages/{id}/comments``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> delete_comment(7, 9).path
     'pages/7/comments/9'
 """

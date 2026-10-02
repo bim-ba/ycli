@@ -237,9 +237,11 @@ def test_question_move_body_is_typed():
 
 
 def test_question_move_bare_position_raises():
-    """A position with no page target is a silent no-op live (200, nothing moves) — the model
-    now raises instead of silently defaulting ``page`` to 1 (owner decision; see the CLI ``move``
-    command, which sets the visible default before constructing this model)."""
+    """A position with no page target is a silent no-op live (200, nothing moves).
+
+    The model now raises instead of silently defaulting ``page`` to 1 (owner decision; see the CLI
+    ``move`` command, which sets the visible default before constructing this model).
+    """
     with pytest.raises(ValidationError, match="question move needs a target"):
         QuestionMove(position=1)
 

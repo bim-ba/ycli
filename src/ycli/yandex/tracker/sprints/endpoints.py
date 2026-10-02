@@ -2,7 +2,7 @@
 
 Writes on an existing sprint carry its current ``version`` as ``?version=`` (optimistic lock).
 
-Example:
+Examples:
     >>> start_sprint(4405, version=3).params
     {'version': 3}
     >>> list_sprints(3).path

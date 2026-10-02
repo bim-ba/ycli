@@ -43,8 +43,11 @@ _NOT_JSON_FORMATS = frozenset({OutputFormat.yaml, OutputFormat.pretty})
 
 
 class SerializationStrategy(ABC):
+    """Prints a command result to a console; one subclass per ``--format`` choice."""
+
     @abstractmethod
-    def render(self, result: BaseModel, console: Console) -> None: ...
+    def render(self, result: BaseModel, console: Console) -> None:
+        """Print ``result`` to ``console``."""
 
     @classmethod
     def from_format(cls, output_format: OutputFormat) -> SerializationStrategy:
@@ -58,7 +61,10 @@ class SerializationStrategy(ABC):
 
 
 class JsonStrategy(SerializationStrategy):
+    """``--format json``: highlighted on a terminal, one pristine line on a pipe."""
+
     def render(self, result: BaseModel, console: Console) -> None:
+        """Print ``result`` as JSON."""
         text = result.model_dump_json(by_alias=True)
         if console.is_terminal:
             console.print_json(text)
@@ -67,7 +73,10 @@ class JsonStrategy(SerializationStrategy):
 
 
 class YamlStrategy(SerializationStrategy):
+    """``--format yaml``: the model as block YAML."""
+
     def render(self, result: BaseModel, console: Console) -> None:
+        """Print ``result`` as YAML."""
         data = result.model_dump(by_alias=True, mode="json")
         console.file.write(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
 
@@ -87,6 +96,7 @@ class PrettyStrategy(SerializationStrategy):
     """
 
     def render(self, result: BaseModel, console: Console) -> None:
+        """Print ``result`` as a table, or ``No results.`` when nothing is left to show."""
         rendered = self._render(result.model_dump(by_alias=True, mode="json"))
         console.print("[dim]No results.[/dim]" if rendered is None else rendered)
 
@@ -159,7 +169,10 @@ class PrettyStrategy(SerializationStrategy):
 
 
 class AutoStrategy(SerializationStrategy):
+    """``--format auto``: ``pretty`` on a terminal, ``json`` on a pipe."""
+
     def render(self, result: BaseModel, console: Console) -> None:
+        """Print ``result`` with the strategy that fits ``console``."""
         (PrettyStrategy() if console.is_terminal else JsonStrategy()).render(result, console)
 
 

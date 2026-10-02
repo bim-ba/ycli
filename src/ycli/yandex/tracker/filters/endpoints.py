@@ -1,6 +1,6 @@
 """Tracker saved ``/filters`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_filter("12345", {"name": "Renamed"}).method
     'PATCH'
 """

@@ -1,6 +1,6 @@
 """Tracker issue ``/transitions`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> execute_transition("DE-1", "close", {}).path
     'issues/DE-1/transitions/close/_execute'
 """

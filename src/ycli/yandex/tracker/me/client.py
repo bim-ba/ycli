@@ -15,5 +15,13 @@ class MeClient(Resource):
     """The authenticated Tracker user."""
 
     def get(self) -> Me:
-        """``GET /myself`` → the authenticated ``Me`` (a safe auth probe)."""
+        """``GET /myself`` → the authenticated ``Me`` (a safe auth probe).
+
+        Returns:
+            The authenticated user.
+
+        Examples:
+            >>> tracker.me.get().login
+            'alice'
+        """
         return self._session.send(endpoints.get_me())

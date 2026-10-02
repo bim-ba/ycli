@@ -27,11 +27,17 @@ class AccessClient(Resource):
         ``inheritance``). Granting a user who already holds a personal access is refused; use
         :meth:`update` instead.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> body = {"user": {"uid": "1000"}, "role": "reader"}
-            >>> client.access.create(12345, body).id  # doctest: +SKIP
-            '48723431'
+        Args:
+            page_id: The page's id.
+            body: The grant: ``user`` or ``group``, ``role`` and optional ``inheritance``.
+
+        Returns:
+            The created grant.
+
+        Examples:
+            >>> body = {"user": {"uid": "9001"}, "role": "editor"}
+            >>> wiki.access.create(6001, body).id
+            '5001'
         """
         return self._session.send(endpoints.create_access(page_id, body))
 
@@ -42,12 +48,20 @@ class AccessClient(Resource):
 
         ``body`` is a dumped :class:`PageAccessUpdate` (``role`` and/or ``inheritance``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.access.update(
-            ...     12345, "48723431", {"role": "editor"}, prevent_selflock=True
-            ... ).role  # doctest: +SKIP
-            'editor'
+        Args:
+            page_id: The page's id.
+            access_id: The grant's id.
+            body: The fields to change: ``role`` and/or ``inheritance``.
+            prevent_selflock: Refuse a change that would lock the caller out of the page.
+
+        Returns:
+            The updated grant.
+
+        Examples:
+            >>> wiki.access.update(
+            ...     6003, "5003", {"role": "extra_editor"}, prevent_selflock=True
+            ... ).role
+            'extra_editor'
         """
         endpoint = endpoints.update_access(
             page_id, access_id, body, prevent_selflock=prevent_selflock
@@ -57,9 +71,13 @@ class AccessClient(Resource):
     def delete(self, page_id: int, access_id: str, *, prevent_selflock: bool = False) -> None:
         """``DELETE /pages/{id}/access/{access_id}`` — revoke one personal access (``204``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.access.delete(12345, "48723431", prevent_selflock=True)  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            access_id: The grant's id.
+            prevent_selflock: Refuse a change that would lock the caller out of the page.
+
+        Examples:
+            >>> wiki.access.delete(6005, "5005", prevent_selflock=True)
         """
         self._session.send(
             endpoints.delete_access(page_id, access_id, prevent_selflock=prevent_selflock)
@@ -68,8 +86,11 @@ class AccessClient(Resource):
     def clear(self, page_id: int, *, prevent_selflock: bool = False) -> None:
         """``DELETE /pages/{id}/access`` — revoke every personal access but the owner's (``204``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.access.clear(12345, prevent_selflock=True)  # doctest: +SKIP
+        Args:
+            page_id: The page's id.
+            prevent_selflock: Refuse a change that would lock the caller out of the page.
+
+        Examples:
+            >>> wiki.access.clear(6007, prevent_selflock=True)
         """
         self._session.send(endpoints.clear_access(page_id, prevent_selflock=prevent_selflock))

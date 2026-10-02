@@ -10,7 +10,7 @@ App settings are grouped, one model per concern, and read from ``YCLI__<GROUP>__
 shape: ``AppConfig(http={"timeout_seconds": 5})``. Credentials keep Yandex's own names
 (``YANDEX_ID_OAUTH_TOKEN``) with a ``YCLI__AUTH__*`` fallback.
 
-Example:
+Examples:
     >>> AppConfig(http={"timeout_seconds": 5}).http.timeout_seconds
     5.0
 """
@@ -63,7 +63,14 @@ class HTTPConfig(BaseModel):
         ``--all`` uncaps (``None``); a positive ``limit`` wins; otherwise ``max_items``. The MCP
         surface has no ``--all``, so it is always capped.
 
-        Example:
+        Args:
+            limit: The ``--limit`` option; zero or less means not given.
+            all_: The CLI's ``--all`` flag.
+
+        Returns:
+            The most items to fetch, or ``None`` for no cap.
+
+        Examples:
             >>> (
             ...     HTTPConfig(max_items=500).cap(0),
             ...     HTTPConfig().cap(10),
@@ -146,7 +153,7 @@ class MCPHTTPConfig(BaseSettings):
     unset); a verified Yandex token is trusted for ``token_cache_seconds`` before Yandex ID is
     asked again, so a revoked token keeps working at most that long.
 
-    Example:
+    Examples:
         >>> MCPHTTPConfig(base_url="https://mcp.example.com", organization_id="1").port
         8000
     """

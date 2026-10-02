@@ -6,7 +6,7 @@ silent inside a host application until that application configures logging. The 
 MCP server call :func:`configure`, which installs exactly one stderr handler: stdout stays
 clean for command output and for the MCP stdio protocol.
 
-Example:
+Examples:
     >>> configure("INFO", "json")  # doctest: +SKIP
 """
 
@@ -26,13 +26,14 @@ _HANDLER_NAME = "ycli.stderr"
 class JSONFormatter(logging.Formatter):
     """One JSON object per line: ``{"time", "level", "logger", "message"}``.
 
-    Example:
+    Examples:
         >>> record = logging.LogRecord("ycli.http", logging.INFO, "", 0, "GET /x", None, None)
         >>> json.loads(JSONFormatter().format(record))["message"]
         'GET /x'
     """
 
     def format(self, record: logging.LogRecord) -> str:
+        """The record as one JSON line."""
         entry = {
             "time": self.formatTime(record),
             "level": record.levelname,

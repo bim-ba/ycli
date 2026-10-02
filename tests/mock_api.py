@@ -51,6 +51,13 @@ class MockAPI:
         answer = answers.pop(0) if len(answers) > 1 else answers[0]
         return httpx2.Response(answer.status_code, headers=answer.headers, content=answer.content)
 
+    def copy(self) -> MockAPI:
+        """A fresh ``MockAPI`` with the same answers still to serve and no calls."""
+        clone = MockAPI()
+        for route, answers in self._routes.items():
+            clone._routes[route] = list(answers)
+        return clone
+
     def transport(self) -> httpx2.MockTransport:
         return httpx2.MockTransport(self.handle)
 

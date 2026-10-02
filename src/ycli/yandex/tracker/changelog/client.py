@@ -17,10 +17,16 @@ class ChangelogClient(Resource):
         with ``id=<id of the last change seen>`` until a page comes back empty. Capped at
         ``limit`` (``None`` = the full history); a small cap narrows the page to ``limit`` rows.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.changelog.list(key="DATAENGINEERING-1").root[0].updated_by  # doctest: +SKIP
-            'Сава Знатнов'
+        Args:
+            key: The issue key.
+            limit: The most events to return; ``None`` returns the full history.
+
+        Returns:
+            The changelog events.
+
+        Examples:
+            >>> [change.id for change in tracker.changelog.list("DE-21", limit=500).root]
+            ['ch1', 'ch2', 'ch3']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_changelog(key, page_size=page_size)

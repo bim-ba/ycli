@@ -16,7 +16,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class Issue(APIModel):
     """A Yandex Tracker issue (``/issues/{key}`` response).
 
-    Example:
+    Examples:
         >>> Issue.model_validate({"key": "DE-1", "type": {"key": "task"}}).type
         'task'
     """
@@ -39,7 +39,7 @@ class Issue(APIModel):
 class IssueList(RootModel[list[Issue]]):
     """A bare JSON array of issues (``POST /issues/_search`` response).
 
-    Example:
+    Examples:
         >>> IssueList.model_validate([{"key": "DE-1"}]).root[0].key
         'DE-1'
     """
@@ -53,7 +53,7 @@ class IssueCreate(APIModel):
     ``type``/``priority`` accept either a bare key string or a ``{"key": ...}`` object (both are
     valid per the Tracker API); the CLI sends the object form.
 
-    Example:
+    Examples:
         >>> IssueCreate(queue="TEST", summary="Do it").model_dump(exclude_none=True)
         {'queue': 'TEST', 'summary': 'Do it'}
     """
@@ -82,7 +82,7 @@ class IssueUpdate(APIModel):
     ``extra="allow"`` lets any custom field key=value pair pass through, matching the CLI's
     ``-F key=value`` escape hatch. Status is NOT changed here — use ``transitions_execute``.
 
-    Example:
+    Examples:
         >>> IssueUpdate(summary="New title").model_dump(exclude_none=True)
         {'summary': 'New title'}
     """
@@ -111,7 +111,7 @@ class ScrollClear(RootModel[dict[str, str]]):
 
     Each entry releases the server resources of one scrolled ``issues.search`` response.
 
-    Example:
+    Examples:
         >>> ScrollClear({"3ce1-...": "eyJvZmZzZXQi..."}).model_dump()
         {'3ce1-...': 'eyJvZmZzZXQi...'}
     """
@@ -124,7 +124,15 @@ def count_body(query: str = "", queue: str = "", status: str = "") -> dict[str, 
     Otherwise a ``{"filter": {…}}`` body is built from the non-empty ``queue``/``status``
     values (an empty filter counts every issue in the org).
 
-    Example:
+    Args:
+        query: A query-language string; takes precedence over the filter.
+        queue: A queue key to filter by.
+        status: A status key to filter by.
+
+    Returns:
+        The request body.
+
+    Examples:
         >>> count_body(query="Queue: DE")
         {'query': 'Queue: DE'}
         >>> count_body(queue="DE", status="open")
@@ -142,7 +150,17 @@ def filter_body(
 ) -> dict[str, Any]:
     """Build the ``POST /issues/_search`` body for field filters, dropping the empty ones.
 
-    Example:
+    Args:
+        queue: A queue key.
+        status: A status key.
+        assignee: An assignee login.
+        epic: An epic key.
+        type_: An issue type key.
+
+    Returns:
+        The request body.
+
+    Examples:
         >>> filter_body(queue="DE", type_="bug")
         {'filter': {'queue': 'DE', 'type': 'bug'}}
     """

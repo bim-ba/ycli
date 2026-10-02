@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class Application(APIModel):
     """An external application that issues can be linked to (``/applications`` item).
 
-    Example:
+    Examples:
         >>> Application.model_validate({"id": "my-app", "name": "My app"}).id
         'my-app'
     """
@@ -30,7 +30,7 @@ class Application(APIModel):
 class ApplicationList(RootModel[list[Application]]):
     """A bare JSON array of external applications — flat public shape of ``applications.list()``.
 
-    Example:
+    Examples:
         >>> ApplicationList.model_validate([{"id": "my-app"}]).root[0].id
         'my-app'
     """

@@ -98,10 +98,16 @@ def client_provider[C: DomainClient](
     ``Depends`` enters the context manager before the tool runs and exits it after, so the
     client's connection pools close when the call ends.
 
-    Example:
-        >>> forms_client = client_provider(FormsClient)  # doctest: +SKIP
-        >>> with forms_client() as client:  # doctest: +SKIP
-        ...     client.surveys.list(limit=1)
+    Examples:
+        >>> from unittest.mock import patch
+        >>> from ycli.settings import Credentials
+        >>> from ycli.yandex.forms.client import FormsClient
+        >>> forms_client = client_provider(FormsClient)
+        >>> credentials = Credentials(oauth_token="token", organization_id="org")
+        >>> with patch("ycli.yandex.mcp.caller_credentials", return_value=credentials):
+        ...     with forms_client() as client:
+        ...         [survey.id for survey in client.surveys.list(limit=500).root]
+        ['686d0a1b2c3d4e5f00000001']
     """
 
     @contextmanager

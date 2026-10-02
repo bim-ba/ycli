@@ -52,7 +52,7 @@ def _build_from_flags(
     Raises ``typer.BadParameter`` for the richer types (matrix/series/suggest/payment/…), which
     are reachable only via ``--body-file``.
 
-    Example:
+    Examples:
         >>> _build_from_flags(
         ...     "string",
         ...     label="Name",

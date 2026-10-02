@@ -31,9 +31,6 @@ def clone_get(
     ``pages clone`` (a CLI/SDK write) returns an ``operation.id``; pass it here and re-read until
     ``status`` is ``success`` or ``failed``. On ``success`` the ``result.page`` names the clone.
     The sibling ``operations_gridclone_get`` polls inline-grid clones instead.
-
-    Example:
-        >>> operations_clone_get(task_id="task-1")  # doctest: +SKIP
     """
     return client.operations.clone_get(task_id)
 
@@ -52,9 +49,6 @@ def gridclone_get(
     ``grids clone`` (a CLI/SDK write) returns an ``operation.id``; pass it here and re-read until
     ``status`` is ``success`` or ``failed``. On ``success`` the ``result.grid_id`` names the copy.
     The sibling ``operations_clone_get`` polls page clones instead.
-
-    Example:
-        >>> operations_gridclone_get(task_id="task-1")  # doctest: +SKIP
     """
     return client.operations.gridclone_get(task_id)
 
@@ -73,8 +67,5 @@ def move_get(
     ``pages_move`` returns an ``operation.id``; pass it here and re-read until ``status`` is
     ``success`` or ``failed``. On ``success`` the ``result.page_count`` says how many pages moved.
     This operation is undocumented by Yandex (it is in the live OpenAPI only) and may change.
-
-    Example:
-        >>> operations_move_get(task_id="task-1")  # doctest: +SKIP
     """
     return client.operations.move_get(task_id)

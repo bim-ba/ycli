@@ -19,7 +19,7 @@ from ycli.yandex.models import APIModel
 class SubscriptionHeader(APIModel):
     """A name/value pair: an e-mail or HTTP header, a JSON-RPC or function parameter.
 
-    Example:
+    Examples:
         >>> SubscriptionHeader(name="X-Source", value="forms").name
         'X-Source'
     """
@@ -36,7 +36,7 @@ class SubscriptionHeader(APIModel):
 class VariableQuestions(APIModel):
     """Which questions a variable covers (``all``, or the listed slugs).
 
-    Example:
+    Examples:
         >>> VariableQuestions(all=False, items=["q1"]).items
         ['q1']
     """
@@ -48,7 +48,7 @@ class VariableQuestions(APIModel):
 class SubscriptionVariable(APIModel):
     """A variable configured on a subscription and referenced from its texts by ``id``.
 
-    Example:
+    Examples:
         >>> SubscriptionVariable(id="v1", type="form.name").type
         'form.name'
     """
@@ -83,7 +83,7 @@ class SubscriptionVariable(APIModel):
 class AttachmentQuestions(APIModel):
     """File questions whose uploads a subscription attaches.
 
-    Example:
+    Examples:
         >>> AttachmentQuestions(all=True).all
         True
     """
@@ -95,7 +95,7 @@ class AttachmentQuestions(APIModel):
 class StaticAttachment(APIModel):
     """A fixed file attached to every run (sent by ``path``; read back with ``id`` and links).
 
-    Example:
+    Examples:
         >>> StaticAttachment(path="/forms/1/a.pdf").path
         '/forms/1/a.pdf'
     """
@@ -114,7 +114,7 @@ class StaticAttachment(APIModel):
 class SubscriptionAttachments(APIModel):
     """What a subscription attaches: answer files and fixed files.
 
-    Example:
+    Examples:
         >>> SubscriptionAttachments(question=AttachmentQuestions(all=True)).question.all
         True
     """
@@ -130,7 +130,7 @@ class SubscriptionAttachments(APIModel):
 class TrackerFieldKey(APIModel):
     """A Tracker issue field addressed by slug.
 
-    Example:
+    Examples:
         >>> TrackerFieldKey(slug="tags").slug
         'tags'
     """
@@ -143,7 +143,7 @@ class TrackerFieldKey(APIModel):
 class TrackerField(APIModel):
     """One Tracker issue field a tracker subscription fills.
 
-    Example:
+    Examples:
         >>> TrackerField(key="tags", value="forms").value
         'forms'
     """
@@ -160,7 +160,7 @@ class TrackerField(APIModel):
 class WikiFieldKey(APIModel):
     """A Wiki grid column addressed by slug and type.
 
-    Example:
+    Examples:
         >>> WikiFieldKey(slug="name", type="string").type
         'string'
     """
@@ -172,7 +172,7 @@ class WikiFieldKey(APIModel):
 class WikiField(APIModel):
     """One Wiki grid cell a wiki subscription fills.
 
-    Example:
+    Examples:
         >>> WikiField(key=WikiFieldKey(slug="name", type="string"), value="{form.name}").value
         '{form.name}'
     """
@@ -184,7 +184,7 @@ class WikiField(APIModel):
 class WikiGrid(APIModel):
     """A Wiki grid a wiki subscription appends rows to.
 
-    Example:
+    Examples:
         >>> WikiGrid(grid_id="g1", cols=[]).grid_id
         'g1'
     """
@@ -210,7 +210,7 @@ class _SubscriptionBase(APIModel):
 class EmailSubscription(_SubscriptionBase):
     """Send an e-mail.
 
-    Example:
+    Examples:
         >>> EmailSubscription(email_to_address="team@example.com").type
         'email'
     """
@@ -231,7 +231,7 @@ class EmailSubscription(_SubscriptionBase):
 class TrackerSubscription(_SubscriptionBase):
     """Create a Tracker issue.
 
-    Example:
+    Examples:
         >>> TrackerSubscription(queue="SUPPORT").type
         'tracker'
     """
@@ -254,7 +254,7 @@ class TrackerSubscription(_SubscriptionBase):
 class TrackerCommentSubscription(_SubscriptionBase):
     """Comment on a Tracker issue.
 
-    Example:
+    Examples:
         >>> TrackerCommentSubscription(issue="SUPPORT-1").type
         'tracker_comment'
     """
@@ -273,7 +273,7 @@ class TrackerCommentSubscription(_SubscriptionBase):
 class WikiSubscription(_SubscriptionBase):
     """Write to a Wiki page (text, or a row of a grid).
 
-    Example:
+    Examples:
         >>> WikiSubscription(supertag="team/answers").type
         'wiki'
     """
@@ -292,7 +292,7 @@ class WikiSubscription(_SubscriptionBase):
 class JsonRpcSubscription(_SubscriptionBase):
     """Call a JSON-RPC method.
 
-    Example:
+    Examples:
         >>> JsonRpcSubscription(method="answers.add").type
         'jsonrpc'
     """
@@ -307,7 +307,7 @@ class JsonRpcSubscription(_SubscriptionBase):
 class HttpSubscription(_SubscriptionBase):
     """Send an HTTP request.
 
-    Example:
+    Examples:
         >>> HttpSubscription(url="https://example.com/hook", method="post").method
         'post'
     """
@@ -324,7 +324,7 @@ class HttpSubscription(_SubscriptionBase):
 class FunctionSubscription(_SubscriptionBase):
     """Call a Yandex Cloud function.
 
-    Example:
+    Examples:
         >>> FunctionSubscription(function_id="d4e1").type
         'function'
     """
@@ -352,7 +352,7 @@ SubscriptionAdapter: TypeAdapter[Subscription] = TypeAdapter(Subscription)
 class SubscriptionList(RootModel[list[Subscription]]):
     """A bare JSON array of subscriptions — the return type of ``SubscriptionsClient.list``.
 
-    Example:
+    Examples:
         >>> SubscriptionList.model_validate([{"type": "http", "id": 4}]).root[0].id
         4
     """

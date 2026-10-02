@@ -27,21 +27,27 @@ class ComponentsClient(Resource):
     def list(self) -> ComponentList:
         """``GET /components`` → all components created by the organisation's users.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.list().root[0].name  # doctest: +SKIP
-            'Test'
+        Returns:
+            The components.
+
+        Examples:
+            >>> tracker.components.list().root[0].name
+            'Backend'
         """
         return self._session.send(endpoints.list_components())
 
     def create(self, body: ComponentCreate) -> Component:
         """Create a component from a typed ``ComponentCreate`` body. Returns the ``Component``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.create(
-            ...     ComponentCreate(name="UI", queue="TEST")
-            ... ).id  # doctest: +SKIP
+        Args:
+            body: The new component's settings.
+
+        Returns:
+            The created component.
+
+        Examples:
+            >>> from ycli.yandex.tracker.components.models import ComponentCreate
+            >>> tracker.components.create(ComponentCreate(name="UI", queue="WEB")).id
             111175
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -55,12 +61,18 @@ class ComponentsClient(Resource):
         ``version`` is the current component version; when set it is sent as ``?version=`` for
         optimistic locking (the API rejects a stale version with 409).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.edit(
-            ...     111175, ComponentUpdate(assign_auto=True), version=1
-            ... ).assign_auto  # doctest: +SKIP
-            True
+        Args:
+            component_id: The component's id.
+            body: The fields to change.
+            version: The component's current version, for optimistic locking.
+
+        Returns:
+            The updated component.
+
+        Examples:
+            >>> from ycli.yandex.tracker.components.models import ComponentUpdate
+            >>> tracker.components.edit(111175, ComponentUpdate(name="Web UI"), version=4).version
+            5
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.edit_component(component_id, dumped, version=version))
@@ -71,29 +83,45 @@ class ComponentsClient(Resource):
         ``fields`` is a comma list of extra fields (``version,description,lead,assignAuto``);
         ``self``, ``id``, ``name`` and ``queue`` always come back.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.list_for_queue("TEST").root[0].name  # doctest: +SKIP
-            'UI'
+        Args:
+            queue_id: The queue's key or id.
+            fields: The extra fields to include, comma-separated.
+
+        Returns:
+            The queue's components.
+
+        Examples:
+            >>> tracker.components.list_for_queue("COMPQ", fields="version,description").root[
+            ...     0
+            ... ].name
+            'Frontend'
         """
         return self._session.send(endpoints.list_queue_components(queue_id, fields=fields))
 
     def get(self, component_id: int, *, fields: str | None = None) -> Component:
         """``GET /components/{component_id}`` → one component.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.get(111175, fields="name,lead").name  # doctest: +SKIP
-            'UI'
+        Args:
+            component_id: The component's id.
+            fields: The extra fields to include, comma-separated.
+
+        Returns:
+            The component.
+
+        Examples:
+            >>> tracker.components.get(125, fields="name,lead,assignAuto").name
+            'Backend'
         """
         return self._session.send(endpoints.get_component(component_id, fields=fields))
 
     def delete(self, component_id: int) -> None:
         """``DELETE /components/{component_id}`` → 204; raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.delete(111175)  # doctest: +SKIP
+        Args:
+            component_id: The component's id.
+
+        Examples:
+            >>> tracker.components.delete(127)
         """
         self._session.send(endpoints.delete_component(component_id))
 
@@ -102,17 +130,31 @@ class ComponentsClient(Resource):
 
         ``user_id`` is a login or a numeric uid.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.user_permissions(1, "alice").permissions.read  # doctest: +SKIP
+        Args:
+            component_id: The component's id.
+            user_id: The user's login or numeric uid.
+
+        Returns:
+            The user's rights on the component.
+
+        Examples:
+            >>> tracker.components.user_permissions(128, "dan").user.display
+            'Dan'
         """
         return self._session.send(endpoints.get_user_access(component_id, user_id))
 
     def group_permissions(self, component_id: int, group_id: int) -> ComponentGroupAccess:
         """``GET /components/{id}/permissions/groups/{group_id}`` → a group's rights on it.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.components.group_permissions(1, 5).permissions.read  # doctest: +SKIP
+        Args:
+            component_id: The component's id.
+            group_id: The group's id.
+
+        Returns:
+            The group's rights on the component.
+
+        Examples:
+            >>> tracker.components.group_permissions(129, 88).group.display
+            'Reviewers'
         """
         return self._session.send(endpoints.get_group_access(component_id, group_id))

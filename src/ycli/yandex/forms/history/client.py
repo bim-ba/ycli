@@ -17,10 +17,18 @@ class HistoryClient(Resource):
 
         ``ordering`` is ``desc`` (newest first, the API default) or ``asc``.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.history.list("686d0a1b", limit=5).root[0].model  # doctest: +SKIP
-            'surveyhook'
+        Args:
+            survey_id: The form's id.
+            ordering: ``desc`` (newest first) or ``asc``.
+            limit: The most events to return; ``None`` returns every event.
+
+        Returns:
+            The form's change events.
+
+        Examples:
+            >>> events = forms.history.list("686d0a1b2c3d4e5f000000e1", ordering="asc", limit=500)
+            >>> [event.model for event in events.root]
+            ['servicesurveyhooksubscription', 'surveyhook']
         """
         paged = endpoints.list_history(survey_id, ordering=ordering)
         return HistoryEventList(list(self._session.iterate(paged, limit=limit)))

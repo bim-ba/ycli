@@ -18,7 +18,7 @@ from ycli.yandex.models import APIModel
 class MacroQueueRef(APIModel):
     """The queue a macro belongs to (``queue`` object).
 
-    Example:
+    Examples:
         >>> MacroQueueRef.model_validate({"key": "TEST", "display": "My queue"}).key
         'TEST'
     """
@@ -36,7 +36,7 @@ class MacroQueueRef(APIModel):
 class MacroField(APIModel):
     """A task-field reference inside a macro's ``issueUpdate`` row.
 
-    Example:
+    Examples:
         >>> MacroField.model_validate({"id": "tags", "display": "Tags"}).id
         'tags'
     """
@@ -53,7 +53,7 @@ class MacroField(APIModel):
 class MacroFieldUpdate(APIModel):
     """One field-update row in a macro's ``issueUpdate`` list.
 
-    Example:
+    Examples:
         >>> MacroFieldUpdate.model_validate(
         ...     {"field": {"id": "tags"}, "update": {"add": ["tag 1"]}}
         ... ).field.id
@@ -71,7 +71,7 @@ class MacroFieldUpdate(APIModel):
 class Macro(APIModel):
     """A queue macro (``GET /queues/{id}/macros`` item and ``.../macros/{macro_id}``).
 
-    Example:
+    Examples:
         >>> Macro.model_validate({"id": 3, "name": "My macro"}).name
         'My macro'
     """
@@ -99,7 +99,7 @@ class Macro(APIModel):
 class MacroList(RootModel[list[Macro]]):
     """A bare JSON array of macros — the flat public shape of ``macros.list()``.
 
-    Example:
+    Examples:
         >>> MacroList.model_validate([{"id": 3, "name": "My macro"}]).root[0].name
         'My macro'
     """
@@ -111,7 +111,7 @@ class MacroCreate(APIModel):
     ``issue_update`` here is a field→value *object* (not the list the read side returns),
     e.g. ``{"tags": {"add": "Новый тег"}, "resolution": None}``.
 
-    Example:
+    Examples:
         >>> MacroCreate(name="Test macro", body="Hi {{issue.author}}").name
         'Test macro'
     """
@@ -130,7 +130,7 @@ class MacroUpdate(APIModel):
 
     Every field is optional; only the fields you set are sent.
 
-    Example:
+    Examples:
         >>> MacroUpdate(name="Renamed").name
         'Renamed'
     """

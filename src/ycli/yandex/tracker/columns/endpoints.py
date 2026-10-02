@@ -1,6 +1,6 @@
 """Tracker board ``/columns`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_column(73, 5).path
     'boards/73/columns/5'
     >>> delete_column(73, 5).effect

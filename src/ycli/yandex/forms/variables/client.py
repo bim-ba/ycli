@@ -17,9 +17,14 @@ class VariablesClient(Resource):
     def list(self, survey_id: str) -> VariableInfoList:
         """``GET /surveys/{id}/variables`` → every variable type available to the form.
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.variables.list("686d0a1b").root[0].type  # doctest: +SKIP
-            'tracker.issue_key'
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            Every variable type available to the form.
+
+        Examples:
+            >>> forms.variables.list("686d0a1b2c3d4e5f000000c0").root[0].type
+            'form.answer_url'
         """
         return self._session.send(endpoints.list_variables(survey_id))

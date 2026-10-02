@@ -71,8 +71,14 @@ class {cls}Client(Resource):
     def get(self, item_id: str) -> {cls}:
         """``GET /FILL/{resource}/{{item_id}}`` → one ``{cls}``.
 
-        Example:
-            >>> client.{resource}.get("1")  # doctest: +SKIP
+        Args:
+            item_id: The {resource} id.
+
+        Returns:
+            The {resource}.
+
+        Examples:
+            >>> {domain}.{resource}.get("1")
         """
         return self._session.send(endpoints.get_item(item_id))
 '''

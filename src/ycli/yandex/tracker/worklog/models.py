@@ -15,7 +15,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class Worklog(APIModel):
     """A worklog entry (``/issues/{key}/worklog`` item).
 
-    Example:
+    Examples:
         >>> Worklog.model_validate(
         ...     {"id": 5, "createdBy": {"display": "X"}, "duration": "PT2H"}
         ... ).created_by
@@ -33,7 +33,7 @@ class Worklog(APIModel):
 class WorklogList(RootModel[list[Worklog]]):
     """A bare JSON array of worklog entries.
 
-    Example:
+    Examples:
         >>> WorklogList.model_validate([{"duration": "PT1H"}]).root[0].duration
         'PT1H'
     """
@@ -42,7 +42,10 @@ class WorklogList(RootModel[list[Worklog]]):
 def _now() -> str:
     """The current local time in Tracker's format.
 
-    Example:
+    Returns:
+        The timestamp.
+
+    Examples:
         >>> len(_now()) == len("2026-10-02T10:00:00.000+0700")
         True
     """
@@ -53,7 +56,7 @@ def _now() -> str:
 class WorklogCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/worklog`` (log time spent).
 
-    Example:
+    Examples:
         >>> WorklogCreate(duration="PT2H", start="2026-10-02T10:00:00.000+0700").model_dump(
         ...     exclude_none=True
         ... )
@@ -76,7 +79,7 @@ class WorklogCreate(APIModel):
 class WorklogUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}/worklog/{record_id}`` (edit an entry).
 
-    Example:
+    Examples:
         >>> WorklogUpdate(duration="PT30M").model_dump(exclude_none=True)
         {'duration': 'PT30M'}
     """

@@ -15,7 +15,7 @@ class AttachmentMetadata(APIModel):
 
     Present for graphic files, where it carries the image's pixel dimensions.
 
-    Example:
+    Examples:
         >>> AttachmentMetadata.model_validate({"size": "550x175"}).size
         '550x175'
     """
@@ -29,7 +29,7 @@ class AttachmentMetadata(APIModel):
 class Attachment(APIModel):
     """A file attached to a Tracker issue (``/issues/{key}/attachments`` item).
 
-    Example:
+    Examples:
         >>> Attachment.model_validate(
         ...     {"id": "123", "name": "picture.jpg", "createdBy": {"display": "Full Name"}}
         ... ).created_by
@@ -75,7 +75,7 @@ class Attachment(APIModel):
 class AttachmentList(RootModel[list[Attachment]]):
     """A bare JSON array of issue attachments — public return type of ``AttachmentsClient.list``.
 
-    Example:
+    Examples:
         >>> AttachmentList.model_validate([{"name": "picture.jpg"}]).root[0].name
         'picture.jpg'
     """

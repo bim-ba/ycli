@@ -19,7 +19,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class ChecklistDeadline(APIModel):
     """The ``deadline`` block on a checklist item (response shape).
 
-    Example:
+    Examples:
         >>> ChecklistDeadline.model_validate(
         ...     {"date": "2021-05-09T00:00:00.000+0000", "deadlineType": "date"}
         ... ).deadline_type
@@ -40,7 +40,7 @@ class ChecklistDeadline(APIModel):
 class ChecklistItem(APIModel):
     """A single checklist item (``GET /issues/{key}/checklistItems`` element).
 
-    Example:
+    Examples:
         >>> ChecklistItem.model_validate({"id": "5f", "text": "do it", "checked": False}).text
         'do it'
     """
@@ -65,7 +65,7 @@ class ChecklistItem(APIModel):
 class ChecklistItemList(RootModel[list[ChecklistItem]]):
     """A bare JSON array of checklist items (``GET …/checklistItems`` response).
 
-    Example:
+    Examples:
         >>> ChecklistItemList.model_validate([{"text": "step 1"}]).root[0].text
         'step 1'
     """
@@ -77,7 +77,7 @@ class Checklist(APIModel):
     Carries the issue ``key`` plus the current ``checklistItems`` and the done/total counts.
     ``checklist_items`` is empty when the whole checklist was cleared.
 
-    Example:
+    Examples:
         >>> Checklist.model_validate(
         ...     {"key": "ORG-3", "checklistItems": [{"text": "a"}], "checklistTotal": 1}
         ... ).checklist_items[0].text
@@ -101,7 +101,7 @@ class Checklist(APIModel):
 class ChecklistDeadlineInput(APIModel):
     """Typed ``deadline`` block for a checklist write body.
 
-    Example:
+    Examples:
         >>> ChecklistDeadlineInput(date="2021-05-09T00:00:00.000+0000").model_dump(by_alias=True)
         {'date': '2021-05-09T00:00:00.000+0000', 'deadlineType': 'date'}
     """
@@ -115,7 +115,7 @@ class ChecklistDeadlineInput(APIModel):
 class ChecklistItemCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/checklistItems`` (add an item).
 
-    Example:
+    Examples:
         >>> ChecklistItemCreate(text="do it").model_dump(by_alias=True, exclude_none=True)
         {'text': 'do it'}
     """
@@ -129,7 +129,7 @@ class ChecklistItemCreate(APIModel):
 class ChecklistItemUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}/checklistItems/{item_id}`` (edit an item).
 
-    Example:
+    Examples:
         >>> ChecklistItemUpdate(checked=True).model_dump(by_alias=True, exclude_none=True)
         {'checked': True}
     """

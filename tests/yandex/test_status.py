@@ -1,5 +1,7 @@
-"""`ycli auth status` and `ycli <service> auth status` — what the token owner, the organization
-and each service's own probe say."""
+"""`ycli auth status` and `ycli <service> auth status`.
+
+They say what the token owner, the organization and each service's own probe report.
+"""
 
 import json
 

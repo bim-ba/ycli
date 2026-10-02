@@ -1,6 +1,6 @@
 """Wiki ``/pages/{id}/resources``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_resources(7, q=None, types="grid", order_by=None).endpoint.params["page_size"]
     100
 """

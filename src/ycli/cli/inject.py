@@ -67,8 +67,10 @@ class _Deferred:
 
 
 def _rewritten(command: Callable[..., Any]) -> Callable[..., Any]:
-    """``command`` with its injectable parameters hidden from Typer and filled at call time,
-    and with the global options added."""
+    """``command`` with injectable parameters hidden from Typer and the global options added.
+
+    The injectable parameters are filled at call time.
+    """
     signature = inspect.signature(command, eval_str=True)
     if _CONTEXT in signature.parameters:  # already rewritten: an app's commands load once per root
         return command

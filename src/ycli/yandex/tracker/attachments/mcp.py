@@ -40,9 +40,6 @@ def list_(
     Downloading the file's or thumbnail's raw bytes is CLI/SDK-only — run
     ``ycli tracker attachments download <ISSUE> <FILE_ID> <FILENAME>`` — because binary blobs
     are not an MCP payload.
-
-    Example:
-        >>> attachments_list("JUNE-2")  # doctest: +SKIP
     """
     return client.attachments.list(issue_key)
 
@@ -60,9 +57,6 @@ def get(
     """One attachment's metadata (name, size, MIME type, uploader, download URL).
 
     Downloading the bytes is CLI/SDK-only: ``ycli tracker attachments download``.
-
-    Example:
-        >>> attachments_get("JUNE-2", "4159")  # doctest: +SKIP
     """
     return client.attachments.get(issue_key, file_id)
 
@@ -103,9 +97,6 @@ def upload(
 
     The file travels as base64 in the request, so keep it small; for a large file run
     ``ycli tracker attachments upload`` instead.
-
-    Example:
-        >>> attachments_upload("JUNE-2", "a.txt", "aGk=")  # doctest: +SKIP
     """
     return client.attachments.upload(issue_key, filename=file_name, data=data, rename_to=rename_to)
 
@@ -127,8 +118,5 @@ def upload_temp(
 
     The returned ``id`` goes into ``attachmentIds`` of the issue or comment body, and works
     once. The file travels as base64 in the request, so keep it small.
-
-    Example:
-        >>> attachments_upload_temp("a.txt", "aGk=")  # doctest: +SKIP
     """
     return client.attachments.upload_temp(filename=file_name, data=data, rename_to=rename_to)

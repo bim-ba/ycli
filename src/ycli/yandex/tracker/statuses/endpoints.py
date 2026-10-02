@@ -1,6 +1,6 @@
 """Tracker ``/statuses`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_status("29", {"description": "x"}, version=1).params
     {'version': 1}
 """

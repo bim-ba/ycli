@@ -17,9 +17,14 @@ class FiltersClient(Resource):
     def get(self, filter_id: str) -> Filter:
         """``GET /filters/{filter_id}`` → parameters of one saved filter.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filters.get(filter_id="12345").name  # doctest: +SKIP
+        Args:
+            filter_id: The filter's id.
+
+        Returns:
+            The saved filter.
+
+        Examples:
+            >>> tracker.filters.get("12345").name
             'My open issues'
         """
         return self._session.send(endpoints.get_filter(filter_id))
@@ -27,12 +32,16 @@ class FiltersClient(Resource):
     def create(self, body: FilterCreate) -> Filter:
         """Create a saved filter from a typed ``FilterCreate`` body. Returns the ``Filter``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filters.create(
-            ...     FilterCreate(name="My open", filter={"status": "open"})
-            ... ).id  # doctest: +SKIP
-            12345
+        Args:
+            body: The new filter's name, query and filter object.
+
+        Returns:
+            The created filter.
+
+        Examples:
+            >>> from ycli.yandex.tracker.filters.models import FilterCreate
+            >>> tracker.filters.create(FilterCreate(name="My open", filter={"status": "open"})).id
+            12346
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_filter(dumped))
@@ -43,9 +52,16 @@ class FiltersClient(Resource):
         This endpoint has no ``?version=`` optimistic lock; the ``filter`` object is replaced
         wholesale rather than merged.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filters.edit("12345", FilterUpdate(name="Renamed")).name  # doctest: +SKIP
+        Args:
+            filter_id: The filter's id.
+            body: The fields to change.
+
+        Returns:
+            The updated filter.
+
+        Examples:
+            >>> from ycli.yandex.tracker.filters.models import FilterUpdate
+            >>> tracker.filters.edit("12347", FilterUpdate(name="Renamed")).name
             'Renamed'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -57,8 +73,10 @@ class FiltersClient(Resource):
         The docs name the ``/v2/filters/{id}`` route; the ``/v3/`` one used by every other
         filter call deletes it too.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.filters.delete("12345")  # doctest: +SKIP
+        Args:
+            filter_id: The filter's id.
+
+        Examples:
+            >>> tracker.filters.delete("12349")
         """
         self._session.send(endpoints.delete_filter(filter_id))

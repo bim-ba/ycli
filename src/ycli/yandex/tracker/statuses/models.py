@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class Status(APIModel):
     """An issue status (``/statuses`` item) — the workflow stage an issue is in.
 
-    Example:
+    Examples:
         >>> Status.model_validate({"id": 1, "key": "open", "name": "Открыт"}).key
         'open'
     """
@@ -39,7 +39,7 @@ class Status(APIModel):
 class StatusList(RootModel[list[Status]]):
     """A bare JSON array of statuses.
 
-    Example:
+    Examples:
         >>> StatusList.model_validate([{"key": "open"}]).root[0].key
         'open'
     """
@@ -48,7 +48,7 @@ class StatusList(RootModel[list[Status]]):
 class LocalizedName(APIModel):
     """A localized display name (the ``name`` object) — Russian and/or English text.
 
-    Example:
+    Examples:
         >>> LocalizedName(ru="Открыт", en="Open").model_dump(exclude_none=True)
         {'ru': 'Открыт', 'en': 'Open'}
     """
@@ -60,7 +60,7 @@ class LocalizedName(APIModel):
 class StatusCreate(APIModel):
     """Typed request body for ``POST /statuses/`` (create an issue status).
 
-    Example:
+    Examples:
         >>> StatusCreate(key="myStatus", name=LocalizedName(ru="Мой"), type="paused").model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -79,7 +79,7 @@ class StatusUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> StatusUpdate(order=350).model_dump(by_alias=True, exclude_none=True)
         {'order': 350}
     """

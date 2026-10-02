@@ -14,6 +14,11 @@ repos:
         language: system
         pass_filenames: false
         files: ^src/ycli/.*\.py$
+      - id: pydoclint
+        name: pydoclint (Args/Returns/Raises match the signature)
+        entry: uv run pydoclint
+        language: system
+        files: ^src/ycli/.*\.py$
       - id: architecture-tests
         name: architecture invariants (ARCH-1..8)
         entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py tests/test_docs.py -q --no-cov

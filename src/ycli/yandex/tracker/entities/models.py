@@ -28,7 +28,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class UserRef(APIModel):
     """A user reference block (``author`` / ``lead`` / ``createdBy`` / an assignee).
 
-    Example:
+    Examples:
         >>> UserRef.model_validate({"id": "11", "display": "Имя Фамилия"}).display
         'Имя Фамилия'
     """
@@ -49,7 +49,7 @@ class UserRef(APIModel):
 class EntityRef(APIModel):
     """A lightweight reference to another entity (``primary`` / ``secondary`` / a source).
 
-    Example:
+    Examples:
         >>> EntityRef.model_validate({"id": "67f", "display": "My portfolio"}).display
         'My portfolio'
     """
@@ -64,7 +64,7 @@ class EntityRef(APIModel):
 class IssueQueueRef(APIModel):
     """A queue whose issues belong to the entity (read-only ``issueQueues`` element).
 
-    Example:
+    Examples:
         >>> IssueQueueRef.model_validate({"key": "DE", "display": "Data"}).key
         'DE'
     """
@@ -80,7 +80,7 @@ class IssueQueueRef(APIModel):
 class ParentEntity(APIModel):
     """The ``parentEntity`` block — the portfolio(s) / parent goal an entity belongs to.
 
-    Example:
+    Examples:
         >>> ParentEntity.model_validate({"primary": {"id": "67f"}, "secondary": []}).primary.id
         '67f'
     """
@@ -98,7 +98,7 @@ class ParentEntity(APIModel):
 class Deadline(APIModel):
     """A deadline block on a checklist item or key result.
 
-    Example:
+    Examples:
         >>> Deadline.model_validate({"date": "2025-12-01", "deadlineType": "date"}).deadline_type
         'date'
     """
@@ -117,7 +117,7 @@ class Deadline(APIModel):
 class KeyResultProgress(APIModel):
     """Quantitative progress of a 'by value' key result.
 
-    Example:
+    Examples:
         >>> KeyResultProgress.model_validate({"start": 0, "end": 100, "current": 40}).current
         40.0
     """
@@ -130,7 +130,7 @@ class KeyResultProgress(APIModel):
 class KeyResultItem(APIModel):
     """A key result of a goal (``fields.keyResultItems`` element).
 
-    Example:
+    Examples:
         >>> KeyResultItem.model_validate({"id": "1", "text": "Ship", "type": "binary"}).type
         'binary'
     """
@@ -153,7 +153,7 @@ class KeyResultItem(APIModel):
 class ChecklistItem(APIModel):
     """A checklist item of a project/portfolio (``fields.checklistItems`` element).
 
-    Example:
+    Examples:
         >>> ChecklistItem.model_validate({"id": "5f", "text": "step", "checked": False}).text
         'step'
     """
@@ -174,7 +174,7 @@ class ChecklistItem(APIModel):
 class MetricItem(APIModel):
     """A metric widget pulled onto the entity (``fields.metricItems`` element).
 
-    Example:
+    Examples:
         >>> MetricItem.model_validate({"id": "1", "text": "Revenue", "url": "u"}).text
         'Revenue'
     """
@@ -187,7 +187,7 @@ class MetricItem(APIModel):
 class AttachmentMetadata(APIModel):
     """The ``metadata`` sub-object of an attachment (image dimensions for graphic files).
 
-    Example:
+    Examples:
         >>> AttachmentMetadata.model_validate({"size": "236x295"}).size
         '236x295'
     """
@@ -200,7 +200,7 @@ class AttachmentMetadata(APIModel):
 class Attachment(APIModel):
     """A file attached to an entity (``…/attachments`` element and ``attachments get``).
 
-    Example:
+    Examples:
         >>> Attachment.model_validate({"id": "3", "name": "Shops.csv", "size": 559}).name
         'Shops.csv'
     """
@@ -230,7 +230,7 @@ class Attachment(APIModel):
 class AttachmentList(RootModel[list[Attachment]]):
     """A bare JSON array of entity attachments (``…/attachments`` response).
 
-    Example:
+    Examples:
         >>> AttachmentList.model_validate([{"name": "Shops.csv"}]).root[0].name
         'Shops.csv'
     """
@@ -248,7 +248,7 @@ class EntityFields(APIModel):
     all are optional. Goals carry ``keyResultItems``/``progressPercentage``; projects/portfolios
     carry ``checklistItems``/``start``/``quarter``; ``issueQueues`` is project-only and read-only.
 
-    Example:
+    Examples:
         >>> EntityFields.model_validate({"summary": "Q4", "entityStatus": "in_progress"}).summary
         'Q4'
     """
@@ -316,7 +316,7 @@ class EntityFields(APIModel):
 class Entity(APIModel):
     """A Tracker entity — a project, portfolio or goal (get/create/edit/checklist response).
 
-    Example:
+    Examples:
         >>> Entity.model_validate(
         ...     {"id": "655f", "entityType": "project", "fields": {"summary": "Q4"}}
         ... ).fields.summary
@@ -356,7 +356,7 @@ class Entity(APIModel):
 class EntityList(RootModel[list[Entity]]):
     """A flat list of entities — public return of :meth:`EntitiesClient.search`.
 
-    Example:
+    Examples:
         >>> EntityList.model_validate([{"id": "1", "entityType": "goal"}]).root[0].entity_type
         'goal'
     """
@@ -365,7 +365,7 @@ class EntityList(RootModel[list[Entity]]):
 class EntitySearchResponse(APIModel):
     """The ``POST …/_search`` envelope — ``{hits, pages, values}`` (internal to the client).
 
-    Example:
+    Examples:
         >>> EntitySearchResponse.model_validate({"hits": 1, "values": [{"id": "1"}]}).values[0].id
         '1'
     """
@@ -386,7 +386,7 @@ class EntitySearchResponse(APIModel):
 class Comment(APIModel):
     """A comment on an entity (``…/comments`` element and ``comments get``).
 
-    Example:
+    Examples:
         >>> Comment.model_validate({"id": 22, "text": "Готово"}).text
         'Готово'
     """
@@ -422,7 +422,7 @@ class Comment(APIModel):
 class CommentList(RootModel[list[Comment]]):
     """A flat list of comments — public return of the comment list endpoints.
 
-    Example:
+    Examples:
         >>> CommentList.model_validate([{"id": 22, "text": "hi"}]).root[0].text
         'hi'
     """
@@ -431,7 +431,7 @@ class CommentList(RootModel[list[Comment]]):
 class CommentsRelativeResponse(APIModel):
     """The ``…/comments/_relative`` envelope — ``{comments, hasNext, hasPrev}`` (internal).
 
-    Example:
+    Examples:
         >>> CommentsRelativeResponse.model_validate(
         ...     {"comments": [{"id": 22}], "hasNext": False}
         ... ).comments[0].id
@@ -455,7 +455,7 @@ class CommentsRelativeResponse(APIModel):
 class LinkFieldValues(APIModel):
     """The ``linkFieldValues`` block of an entity link (the linked entity's summary + id).
 
-    Example:
+    Examples:
         >>> LinkFieldValues.model_validate({"summary": "First", "id": "658"}).summary
         'First'
     """
@@ -467,7 +467,7 @@ class LinkFieldValues(APIModel):
 class Link(APIModel):
     """A link between two entities (``…/links`` element).
 
-    Example:
+    Examples:
         >>> Link.model_validate({"type": "relates", "linkFieldValues": {"id": "1"}}).type
         'relates'
     """
@@ -483,7 +483,7 @@ class Link(APIModel):
 class LinkList(RootModel[list[Link]]):
     """A flat list of entity links — public return of :meth:`EntitiesClient.links_list`.
 
-    Example:
+    Examples:
         >>> LinkList.model_validate([{"type": "relates"}]).root[0].type
         'relates'
     """
@@ -497,7 +497,7 @@ class LinkList(RootModel[list[Link]]):
 class EventField(APIModel):
     """The changed ``field`` block inside an event change.
 
-    Example:
+    Examples:
         >>> EventField.model_validate({"id": "teamUsers", "display": "Participants"}).id
         'teamUsers'
     """
@@ -509,7 +509,7 @@ class EventField(APIModel):
 class EventChange(APIModel):
     """One change entry inside an event (``changes`` element).
 
-    Example:
+    Examples:
         >>> EventChange.model_validate({"diff": "<added>x</added>"}).diff
         '<added>x</added>'
     """
@@ -524,7 +524,7 @@ class EventChange(APIModel):
 class EntityEvent(APIModel):
     """A single history event of an entity (``…/events/_relative`` element).
 
-    Example:
+    Examples:
         >>> EntityEvent.model_validate({"id": "65a", "display": "Issue updated"}).display
         'Issue updated'
     """
@@ -542,7 +542,7 @@ class EntityEvent(APIModel):
 class EntityEventList(RootModel[list[EntityEvent]]):
     """A flat list of history events — public return of :meth:`EntitiesClient.history`.
 
-    Example:
+    Examples:
         >>> EntityEventList.model_validate([{"id": "65a"}]).root[0].id
         '65a'
     """
@@ -551,7 +551,7 @@ class EntityEventList(RootModel[list[EntityEvent]]):
 class EntityEventsResponse(APIModel):
     """The ``…/events/_relative`` envelope — ``{events, hasNext, hasPrev}`` (internal).
 
-    Example:
+    Examples:
         >>> EntityEventsResponse.model_validate(
         ...     {"events": [{"id": "65a"}], "hasNext": True}
         ... ).events[0].id
@@ -575,7 +575,7 @@ class EntityEventsResponse(APIModel):
 class AclGroup(APIModel):
     """A group principal in an ACL grant.
 
-    Example:
+    Examples:
         >>> AclGroup.model_validate({"id": "1", "display": "Группа 1"}).display
         'Группа 1'
     """
@@ -590,7 +590,7 @@ class AclGroup(APIModel):
 class AclPrincipals(APIModel):
     """The users/groups/roles granted one access level (READ / WRITE / GRANT).
 
-    Example:
+    Examples:
         >>> AclPrincipals.model_validate({"roles": ["OWNER"]}).roles
         ['OWNER']
     """
@@ -603,7 +603,7 @@ class AclPrincipals(APIModel):
 class Acl(APIModel):
     """The ``acl`` block — READ / WRITE / GRANT principal sets.
 
-    Example:
+    Examples:
         >>> Acl.model_validate({"READ": {"roles": ["OWNER"]}}).read.roles
         ['OWNER']
     """
@@ -622,7 +622,7 @@ class Acl(APIModel):
 class ExtendedPermissions(APIModel):
     """An entity's access settings (``…/extendedPermissions`` response).
 
-    Example:
+    Examples:
         >>> ExtendedPermissions.model_validate(
         ...     {"acl": {"READ": {"roles": ["OWNER"]}}}
         ... ).acl.read.roles
@@ -650,7 +650,7 @@ class BulkChangeOperation(APIModel):
 
     Poll :meth:`EntitiesClient.bulk_status` with ``id`` until ``status`` is terminal.
 
-    Example:
+    Examples:
         >>> BulkChangeOperation.model_validate({"id": "656", "status": "CREATED"}).status
         'CREATED'
     """
@@ -687,7 +687,7 @@ class BulkChangeOperation(APIModel):
 class DeadlineInput(APIModel):
     """Typed ``deadline`` block for a checklist write body.
 
-    Example:
+    Examples:
         >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000").model_dump(by_alias=True)
         {'date': '2025-12-01T00:00:00.000+0000', 'deadlineType': 'date'}
     """
@@ -701,7 +701,7 @@ class DeadlineInput(APIModel):
 class ParentEntityInput(APIModel):
     """Typed ``parentEntity`` block for a create/edit body (ids, not objects).
 
-    Example:
+    Examples:
         >>> ParentEntityInput(primary="67f").model_dump(by_alias=True, exclude_none=True)
         {'primary': '67f'}
     """
@@ -728,7 +728,7 @@ class EntityFieldsInput(APIModel):
     ``references/yandex-360/tracker/ru/api-ref/entities/about-entities.md`` (see
     ``common-format.md#edit-fields``), alongside their plain replace-list form.
 
-    Example:
+    Examples:
         >>> EntityFieldsInput(summary="Q4 goal").model_dump(by_alias=True, exclude_none=True)
         {'summary': 'Q4 goal'}
         >>> EntityFieldsInput(tags={"add": ["urgent"]}).model_dump(by_alias=True, exclude_none=True)
@@ -782,7 +782,7 @@ class EntityFieldsInput(APIModel):
 class LinkInput(APIModel):
     """A link spec used by create-link and the bulk ``values.links`` array.
 
-    Example:
+    Examples:
         >>> LinkInput(relationship="relates", entity="658").model_dump(by_alias=True)
         {'relationship': 'relates', 'entity': '658'}
     """
@@ -796,7 +796,7 @@ class LinkInput(APIModel):
 class EntityCreate(APIModel):
     """Typed request body for ``POST /entities/{type}`` — a ``{fields: {...}}`` envelope.
 
-    Example:
+    Examples:
         >>> EntityCreate(fields=EntityFieldsInput(summary="Q4")).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -809,7 +809,7 @@ class EntityCreate(APIModel):
 class EntityUpdate(APIModel):
     """Typed request body for ``PATCH /entities/{type}/{id}`` (edit fields, comment, links).
 
-    Example:
+    Examples:
         >>> EntityUpdate(fields=EntityFieldsInput(summary="New")).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -824,7 +824,7 @@ class EntityUpdate(APIModel):
 class CommentCreate(APIModel):
     """Typed request body for ``POST …/comments`` (add a comment).
 
-    Example:
+    Examples:
         >>> CommentCreate(text="Готово").model_dump(by_alias=True, exclude_none=True)
         {'text': 'Готово'}
     """
@@ -844,7 +844,7 @@ class CommentCreate(APIModel):
 class CommentUpdate(APIModel):
     """Typed request body for ``PATCH …/comments/{comment_id}`` (the id travels in the path).
 
-    Example:
+    Examples:
         >>> CommentUpdate(text="fixed").model_dump(by_alias=True, exclude_none=True)
         {'text': 'fixed'}
     """
@@ -864,7 +864,7 @@ class CommentUpdate(APIModel):
 class ChecklistItemInput(APIModel):
     """A checklist item in a create (``[{text}]``) or edit-all (``[{id, text}]``) body.
 
-    Example:
+    Examples:
         >>> ChecklistItemInput(text="step").model_dump(by_alias=True, exclude_none=True)
         {'text': 'step'}
     """
@@ -881,7 +881,7 @@ class ChecklistItemInput(APIModel):
 class ChecklistItemsInput(RootModel[list[ChecklistItemInput]]):
     """A bare array body for checklist create / edit-all.
 
-    Example:
+    Examples:
         >>> ChecklistItemsInput([ChecklistItemInput(text="a")]).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -892,7 +892,7 @@ class ChecklistItemsInput(RootModel[list[ChecklistItemInput]]):
 class ChecklistMove(APIModel):
     """Typed request body for ``POST …/checklistItems/{id}/_move`` (reorder an item).
 
-    Example:
+    Examples:
         >>> ChecklistMove(before="65f").model_dump(by_alias=True, exclude_none=True)
         {'before': '65f'}
     """
@@ -905,7 +905,7 @@ class ChecklistMove(APIModel):
 class AclPrincipalsInput(APIModel):
     """The users/groups/roles for one access level in a permissions-set body.
 
-    Example:
+    Examples:
         >>> AclPrincipalsInput(roles=["OWNER"]).model_dump(by_alias=True, exclude_none=True)
         {'roles': ['OWNER']}
     """
@@ -918,7 +918,7 @@ class AclPrincipalsInput(APIModel):
 class AclInput(APIModel):
     """The ``acl`` block for a permissions-set body (READ / WRITE / GRANT principal sets).
 
-    Example:
+    Examples:
         >>> AclInput(read=AclPrincipalsInput(roles=["OWNER"])).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -948,7 +948,7 @@ class AclInput(APIModel):
 class ExtendedPermissionsUpdate(APIModel):
     """Typed request body for ``PATCH …/extendedPermissions`` (set access settings).
 
-    Example:
+    Examples:
         >>> ExtendedPermissionsUpdate(
         ...     acl=AclInput(read=AclPrincipalsInput(roles=["OWNER"]))
         ... ).model_dump(by_alias=True, exclude_none=True)
@@ -964,7 +964,7 @@ class DirectPermissionsUpdate(APIModel):
     Each side maps an access level (READ / WRITE / GRANT) to users, groups and roles; the API
     adds or removes exactly those and keeps the rest. ``permissionSources`` is refused (400).
 
-    Example:
+    Examples:
         >>> DirectPermissionsUpdate(
         ...     grant=AclInput(read=AclPrincipalsInput(users=["ann"]))
         ... ).model_dump(by_alias=True, exclude_none=True)
@@ -980,7 +980,7 @@ class DirectPermissionsUpdate(APIModel):
 class BulkChangeValues(APIModel):
     """The ``values`` object of a bulk-change body (fields + comment + links).
 
-    Example:
+    Examples:
         >>> BulkChangeValues(comment="done").model_dump(by_alias=True, exclude_none=True)
         {'comment': 'done'}
     """
@@ -995,7 +995,7 @@ class BulkChangeValues(APIModel):
 class BulkChangeUpdate(APIModel):
     """Typed request body for ``POST …/bulkchange/_update`` (mass-edit entities).
 
-    Example:
+    Examples:
         >>> BulkChangeUpdate(
         ...     meta_entities=["1", "2"], values=BulkChangeValues(comment="done")
         ... ).model_dump(by_alias=True, exclude_none=True)
@@ -1016,7 +1016,7 @@ class BulkChangeUpdate(APIModel):
 class ReportSort(APIModel):
     """A sort clause for a report filter (``parameters.filter.sorts`` element).
 
-    Example:
+    Examples:
         >>> ReportSort(order_by="updated", order_asc=False).model_dump(by_alias=True)
         {'orderBy': 'updated', 'orderAsc': False}
     """
@@ -1032,7 +1032,7 @@ class ReportSort(APIModel):
 class ReportFilter(APIModel):
     """The ``filter`` block of a report — a Tracker Query Language ``query`` plus optional sorts.
 
-    Example:
+    Examples:
         >>> ReportFilter(query="Queue: SUPPORT").model_dump(by_alias=True, exclude_none=True)
         {'query': 'Queue: SUPPORT'}
     """
@@ -1046,7 +1046,7 @@ class ReportFilter(APIModel):
 class ReportParameters(APIModel):
     """The ``parameters`` block of a report — export settings plus the issue filter.
 
-    Example:
+    Examples:
         >>> ReportParameters(filter=ReportFilter(query="Q"), fields=["key"]).format
         'xlsx'
     """
@@ -1062,7 +1062,7 @@ class ReportParameters(APIModel):
 class ReportFieldsInput(APIModel):
     """The ``fields`` object of a report create body — the report name plus export ``parameters``.
 
-    Example:
+    Examples:
         >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
         >>> ReportFieldsInput(summary="Export", parameters=params).summary
         'Export'
@@ -1075,7 +1075,7 @@ class ReportFieldsInput(APIModel):
 class ReportCreate(APIModel):
     """Typed request body for ``POST /entities/report/`` — a ``{fields: {...}}`` envelope.
 
-    Example:
+    Examples:
         >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
         >>> body = ReportFieldsInput(summary="Export", parameters=params)
         >>> list(ReportCreate(fields=body).model_dump(by_alias=True))

@@ -16,27 +16,44 @@ class SurveysClient(Resource):
     def list(self, *, limit: int | None = None) -> SurveyList:
         """``GET /surveys`` → every form, page by page, at most ``limit`` (``None`` = all).
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.surveys.list(limit=50).root[0].name  # doctest: +SKIP
-            'Новая задача'
+        Args:
+            limit: The most forms to return; ``None`` returns every form.
+
+        Returns:
+            The forms.
+
+        Examples:
+            >>> forms.surveys.list(limit=500).root[0].name
+            'Onboarding'
         """
         return SurveyList(list(self._session.iterate(endpoints.list_surveys(), limit=limit)))
 
     def get(self, survey_id: str) -> Survey:
         """``GET /surveys/{id}`` → a single ``Survey`` (settings).
 
-        Example:
-            >>> client.surveys.get("686d0a1b2c3d4e5f").is_published  # doctest: +SKIP
-            True
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            The form's settings.
+
+        Examples:
+            >>> forms.surveys.get("686d0a1b2c3d4e5f00000001").name
+            'Onboarding'
         """
         return self._session.send(endpoints.get_survey(survey_id))
 
     def create(self, body: dict[str, Any]) -> Survey:
         """``POST /surveys`` — create a form from a ready body (a dumped ``SurveyCreate``).
 
-        Example:
-            >>> client.surveys.create({"name": "Onboarding"}).id  # doctest: +SKIP
+        Args:
+            body: The dumped ``SurveyCreate``.
+
+        Returns:
+            The created form, with its ``id``.
+
+        Examples:
+            >>> forms.surveys.create({"name": "Onboarding", "language": "en"}).id
             '686d0a1b2c3d4e5f00000001'
         """
         return self._session.send(endpoints.create_survey(body))
@@ -44,19 +61,30 @@ class SurveysClient(Resource):
     def modify(self, survey_id: str, body: dict[str, Any]) -> Survey:
         """``PATCH /surveys/{id}`` — only the keys present in ``body`` change (a ``SurveyUpdate``).
 
-        Example:
-            >>> client.surveys.modify(
-            ...     "686d0a1b2c3d4e5f", {"name": "Renamed"}
-            ... ).name  # doctest: +SKIP
-            'Renamed'
+        Args:
+            survey_id: The form's id.
+            body: The keys to change.
+
+        Returns:
+            The updated form.
+
+        Examples:
+            >>> forms.surveys.modify("686d0a1b2c3d4e5f00000002", {"name": "Onboarding"}).name
+            'Onboarding'
         """
         return self._session.send(endpoints.modify_survey(survey_id, body))
 
     def delete(self, survey_id: str) -> Ack:
         """``DELETE /surveys/{id}`` (``204 No Content``) → an :class:`Ack`.
 
-        Example:
-            >>> client.surveys.delete("686d0a1b2c3d4e5f").ok  # doctest: +SKIP
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            An acknowledgement naming the deleted form.
+
+        Examples:
+            >>> forms.surveys.delete("686d0a1b2c3d4e5f00000003").ok
             True
         """
         self._session.send(endpoints.delete_survey(survey_id))
@@ -68,9 +96,15 @@ class SurveysClient(Resource):
         Fails (typed ``YandexError``) if the form is blocked, has hit its response cap, or is
         inside an unexpired response-period window.
 
-        Example:
-            >>> client.surveys.publish("686d0a1b2c3d4e5f").detail  # doctest: +SKIP
-            'published survey 686d0a1b2c3d4e5f'
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            An acknowledgement naming the published form.
+
+        Examples:
+            >>> forms.surveys.publish("686d0a1b2c3d4e5f00000004").detail
+            'published survey 686d0a1b2c3d4e5f00000004'
         """
         self._session.send(endpoints.publish_survey(survey_id))
         return Ack.published("survey", survey_id)
@@ -78,9 +112,15 @@ class SurveysClient(Resource):
     def unpublish(self, survey_id: str) -> Ack:
         """``POST /surveys/{id}/unpublish`` → an :class:`Ack` (auto-publication forms included).
 
-        Example:
-            >>> client.surveys.unpublish("686d0a1b2c3d4e5f").detail  # doctest: +SKIP
-            'unpublished survey 686d0a1b2c3d4e5f'
+        Args:
+            survey_id: The form's id.
+
+        Returns:
+            An acknowledgement naming the unpublished form.
+
+        Examples:
+            >>> forms.surveys.unpublish("686d0a1b2c3d4e5f00000005").detail
+            'unpublished survey 686d0a1b2c3d4e5f00000005'
         """
         self._session.send(endpoints.unpublish_survey(survey_id))
         return Ack.unpublished("survey", survey_id)

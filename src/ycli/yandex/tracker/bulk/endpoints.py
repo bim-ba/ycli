@@ -3,7 +3,7 @@
 Every trigger starts a new async operation, so even ``_update`` is a plain (non-idempotent)
 write; the two reads poll it.
 
-Example:
+Examples:
     >>> update_bulk({"issues": ["TEST-1"]}).effect
     'write'
     >>> get_bulk("1ab2").path

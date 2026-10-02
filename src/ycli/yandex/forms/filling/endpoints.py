@@ -1,6 +1,6 @@
 """Forms form-filling operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> submit_form("686d", {"name": "Ann"}, dry_run=True, key=None).params
     {'dry_run': 'true', 'key': None}
 """

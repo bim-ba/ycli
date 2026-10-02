@@ -17,9 +17,14 @@ class ColumnsClient(Resource):
     def list(self, board_id: int) -> ColumnList:
         """``GET /boards/{board_id}/columns`` → the board's column listing.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.columns.list(board_id=73).root[0].name  # doctest: +SKIP
+        Args:
+            board_id: The board's id.
+
+        Returns:
+            The board's columns.
+
+        Examples:
+            >>> tracker.columns.list(73).root[0].name
             'Open'
         """
         return self._session.send(endpoints.list_columns(board_id))
@@ -27,21 +32,34 @@ class ColumnsClient(Resource):
     def get(self, board_id: int, column_id: int) -> Column:
         """``GET /boards/{board_id}/columns/{column_id}`` → a single board column.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.columns.get(board_id=73, column_id=1).name  # doctest: +SKIP
-            'Open'
+        Args:
+            board_id: The board's id.
+            column_id: The column's id.
+
+        Returns:
+            The column.
+
+        Examples:
+            >>> tracker.columns.get(74, 2).name
+            'Review'
         """
         return self._session.send(endpoints.get_column(board_id, column_id))
 
     def create(self, board_id: int, body: ColumnCreate) -> Column:
         """Create a board column from a typed ``ColumnCreate`` body. Returns the new ``Column``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.columns.create(
-            ...     73, ColumnCreate(name="Approve", statuses=["needInfo"])
-            ... ).id  # doctest: +SKIP
+        Args:
+            board_id: The board's id.
+            body: The new column's settings.
+
+        Returns:
+            The created column.
+
+        Examples:
+            >>> from ycli.yandex.tracker.columns.models import ColumnCreate
+            >>> tracker.columns.create(
+            ...     75, ColumnCreate(name="Approve", statuses=["needInfo", "adjustment"])
+            ... ).id
             5
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -52,9 +70,17 @@ class ColumnsClient(Resource):
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.columns.edit(73, 5, ColumnUpdate(name="Pause")).name  # doctest: +SKIP
+        Args:
+            board_id: The board's id.
+            column_id: The column's id.
+            body: The fields to change.
+
+        Returns:
+            The updated column.
+
+        Examples:
+            >>> from ycli.yandex.tracker.columns.models import ColumnUpdate
+            >>> tracker.columns.edit(76, 6, ColumnUpdate(name="Pause")).name
             'Pause'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -63,8 +89,11 @@ class ColumnsClient(Resource):
     def delete(self, board_id: int, column_id: int) -> None:
         """``DELETE /boards/{board_id}/columns/{column_id}`` — delete a column (``204``, no body).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.columns.delete(board_id=73, column_id=5)  # doctest: +SKIP
+        Args:
+            board_id: The board's id.
+            column_id: The column's id.
+
+        Examples:
+            >>> tracker.columns.delete(78, 8)
         """
         self._session.send(endpoints.delete_column(board_id, column_id))

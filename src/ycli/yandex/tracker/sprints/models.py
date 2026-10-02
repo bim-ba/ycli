@@ -13,7 +13,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class SprintBoardRef(APIModel):
     """The board a sprint belongs to (``board`` object) — id + display name.
 
-    Example:
+    Examples:
         >>> SprintBoardRef.model_validate({"id": "3", "display": "My board"}).display
         'My board'
     """
@@ -33,7 +33,7 @@ class Sprint(APIModel):
     A sprint is a fixed time-box of work on an agile board; ``createdBy`` is flattened
     to its display string, ``board`` is kept as a reference object.
 
-    Example:
+    Examples:
         >>> Sprint.model_validate({"id": 4405, "name": "Sprint 1", "status": "in_progress"}).status
         'in_progress'
     """
@@ -95,7 +95,7 @@ class Sprint(APIModel):
 class SprintList(RootModel[list[Sprint]]):
     """A bare JSON array of sprints — the flat public shape of ``sprints.list()``.
 
-    Example:
+    Examples:
         >>> SprintList.model_validate([{"id": 4405, "name": "Sprint 1"}]).root[0].name
         'Sprint 1'
     """
@@ -104,7 +104,7 @@ class SprintList(RootModel[list[Sprint]]):
 class SprintBoardInput(APIModel):
     """The ``board`` object in a create-sprint body — a board identifier wrapper.
 
-    Example:
+    Examples:
         >>> SprintBoardInput(id="1").id
         '1'
     """
@@ -115,7 +115,7 @@ class SprintBoardInput(APIModel):
 class SprintCreate(APIModel):
     """Typed request body for ``sprints.create`` (``POST /sprints``).
 
-    Example:
+    Examples:
         >>> SprintCreate(
         ...     name="New Sprint",
         ...     board=SprintBoardInput(id="1"),
@@ -140,7 +140,7 @@ class SprintUpdate(APIModel):
 
     Every field is optional; only the fields you set are sent.
 
-    Example:
+    Examples:
         >>> SprintUpdate(name="Updated Sprint Name").name
         'Updated Sprint Name'
     """

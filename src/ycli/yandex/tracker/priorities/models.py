@@ -13,7 +13,7 @@ class Priority(APIModel):
     The live v3 API carries the display name in ``name`` (``display`` stays null there), so
     both fields are mapped.
 
-    Example:
+    Examples:
         >>> Priority.model_validate({"key": "normal", "name": "Normal"}).name
         'Normal'
     """
@@ -26,7 +26,7 @@ class Priority(APIModel):
 class PriorityList(RootModel[list[Priority]]):
     """A bare JSON array of priorities.
 
-    Example:
+    Examples:
         >>> PriorityList.model_validate([{"key": "normal"}]).root[0].key
         'normal'
     """
@@ -35,7 +35,7 @@ class PriorityList(RootModel[list[Priority]]):
 class LocalizedName(APIModel):
     """A localized display name (the ``name`` object) — Russian and/or English text.
 
-    Example:
+    Examples:
         >>> LocalizedName(ru="Низкий", en="Low").model_dump(exclude_none=True)
         {'ru': 'Низкий', 'en': 'Low'}
     """
@@ -47,7 +47,7 @@ class LocalizedName(APIModel):
 class PriorityCreate(APIModel):
     """Typed request body for ``POST /priorities/`` (create a priority).
 
-    Example:
+    Examples:
         >>> PriorityCreate(key="one", name=LocalizedName(ru="Низкий"), order=60).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -68,7 +68,7 @@ class PriorityUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> PriorityUpdate(description="Описание").model_dump(by_alias=True, exclude_none=True)
         {'description': 'Описание'}
     """

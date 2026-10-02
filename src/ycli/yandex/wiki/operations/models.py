@@ -28,7 +28,7 @@ TERMINAL_STATUSES = frozenset({"success", "failed"})
 class OperationProgress(APIModel):
     """Progress of a running clone operation — a fraction plus an optional detail string.
 
-    Example:
+    Examples:
         >>> OperationProgress(percentage=0.5).percentage
         0.5
     """
@@ -42,7 +42,7 @@ class OperationProgress(APIModel):
 class PageSchema(APIModel):
     """A cloned page reference (``{id, slug}``) in a clone operation's result.
 
-    Example:
+    Examples:
         >>> PageSchema(id=42, slug="data/y").slug
         'data/y'
     """
@@ -54,7 +54,7 @@ class PageSchema(APIModel):
 class PageCloneResult(APIModel):
     """Result payload of a finished page-clone operation — the cloned ``page``.
 
-    Example:
+    Examples:
         >>> PageCloneResult.model_validate({"page": {"id": 42, "slug": "data/y"}}).page.slug
         'data/y'
     """
@@ -67,7 +67,7 @@ class GridCloneResult(APIModel):
 
     ``page`` is the page the grid landed on; ``grid`` is a transitional legacy-table schema.
 
-    Example:
+    Examples:
         >>> GridCloneResult.model_validate({"grid_id": "g2"}).grid_id
         'g2'
     """
@@ -88,7 +88,7 @@ class CloneOperationStatus(APIModel):
 
     Poll this until :attr:`is_terminal`; on ``success`` the ``result.page`` names the clone.
 
-    Example:
+    Examples:
         >>> CloneOperationStatus.model_validate({"status": "success"}).is_terminal
         True
     """
@@ -115,7 +115,7 @@ class GridCloneOperationStatus(APIModel):
 
     Poll this until :attr:`is_terminal`; on ``success`` the ``result.grid_id`` names the copy.
 
-    Example:
+    Examples:
         >>> GridCloneOperationStatus.model_validate(
         ...     {"status": "success", "result": {"grid_id": "g2"}}
         ... ).result.grid_id
@@ -142,7 +142,7 @@ class GridCloneOperationStatus(APIModel):
 class PageMoveResult(APIModel):
     """Result payload of a finished page-move operation — how many pages changed address.
 
-    Example:
+    Examples:
         >>> PageMoveResult.model_validate({"page_count": 3}).page_count
         3
     """
@@ -158,7 +158,7 @@ class MoveOperationStatus(APIModel):
     Undocumented by Yandex (it is in the live OpenAPI only) and may change. Poll this until
     :attr:`is_terminal`; on ``success`` the ``result.page_count`` says how many pages moved.
 
-    Example:
+    Examples:
         >>> MoveOperationStatus.model_validate(
         ...     {"status": "success", "result": {"page_count": 2}}
         ... ).result.page_count

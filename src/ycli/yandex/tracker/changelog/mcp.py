@@ -33,8 +33,10 @@ def list_(
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ChangelogList:
-    """Full changelog (edit history) for a Tracker issue, auto-paginated via the relative
-    id-cursor. Capped at the configured item cap unless ``limit`` is given.
+    """Full changelog (edit history) for a Tracker issue.
+
+    Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
+    is given.
     """
     cap = config.http.cap(limit)
     return client.changelog.list(key, limit=cap)

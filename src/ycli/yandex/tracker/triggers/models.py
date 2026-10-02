@@ -19,7 +19,7 @@ from ycli.yandex.models import APIModel
 class TriggerQueueRef(APIModel):
     """The queue a trigger belongs to (``queue`` object).
 
-    Example:
+    Examples:
         >>> TriggerQueueRef.model_validate({"key": "DESIGN", "display": "Design"}).key
         'DESIGN'
     """
@@ -41,7 +41,7 @@ class TriggerAction(APIModel):
     CalculateFormula, CreateIssue, … ; the type-specific parameters (``status``, ``queue``,
     ``text``, ``endpoint`` …) ride along as extra fields preserved verbatim.
 
-    Example:
+    Examples:
         >>> TriggerAction.model_validate({"type": "Transition", "status": {"key": "open"}}).type
         'Transition'
     """
@@ -58,7 +58,7 @@ class TriggerCondition(APIModel):
     FieldEquals) and the rule's parameters ride along as extra fields. For a group, ``type`` is
     ``Or``/``And`` and ``conditions`` holds the nested sub-conditions.
 
-    Example:
+    Examples:
         >>> TriggerCondition.model_validate(
         ...     {"type": "Or", "conditions": [{"type": "Event.comment-create"}]}
         ... ).conditions[0].type
@@ -76,7 +76,7 @@ class TriggerCondition(APIModel):
 class Trigger(APIModel):
     """A queue trigger (``GET /queues/{id}/triggers/{trigger_id}``).
 
-    Example:
+    Examples:
         >>> Trigger.model_validate({"id": 16, "name": "trigger", "active": True}).name
         'trigger'
     """
@@ -111,7 +111,7 @@ class Trigger(APIModel):
 class TriggerList(RootModel[list[Trigger]]):
     """A bare JSON array of triggers (``GET /queues/{id}/triggers``).
 
-    Example:
+    Examples:
         >>> TriggerList.model_validate([{"id": 16, "name": "T"}]).root[0].name
         'T'
     """
@@ -120,7 +120,7 @@ class TriggerList(RootModel[list[Trigger]]):
 class TriggerCreate(APIModel):
     """Typed request body for ``triggers.create`` (``POST /queues/{id}/triggers``).
 
-    Example:
+    Examples:
         >>> TriggerCreate(name="TriggerName", actions=[TriggerAction(type="Transition")]).name
         'TriggerName'
     """
@@ -140,7 +140,7 @@ class TriggerUpdate(APIModel):
 
     Every field is optional; only the fields you set are sent.
 
-    Example:
+    Examples:
         >>> TriggerUpdate(active=False).active
         False
     """
@@ -163,7 +163,7 @@ class TriggerUpdate(APIModel):
 class WebhookLogEntry(APIModel):
     """One webhook-execution log record of a trigger's HTTP-request action.
 
-    Example:
+    Examples:
         >>> WebhookLogEntry.model_validate({"id": "x", "duration": 235}).duration
         235
     """
@@ -202,7 +202,7 @@ class WebhookLogEntry(APIModel):
 class WebhookLogList(RootModel[list[WebhookLogEntry]]):
     """A bare JSON array of webhook log records (``.../triggers/{id}/webhooks/log``).
 
-    Example:
+    Examples:
         >>> WebhookLogList.model_validate([{"id": "x", "duration": 1}]).root[0].duration
         1
     """

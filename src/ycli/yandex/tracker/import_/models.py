@@ -16,7 +16,7 @@ from ycli.yandex.models import APIModel  # pydantic resolves field types at runt
 class ImportTask(APIModel):
     """Typed body for ``POST /issues/_import`` — import one issue, preserving its history.
 
-    Example:
+    Examples:
         >>> ImportTask(
         ...     queue="TEST",
         ...     summary="Test",
@@ -56,7 +56,7 @@ class ImportTask(APIModel):
 class ImportComment(APIModel):
     """Typed body for ``POST /issues/{key}/comments/_import`` — import one comment with history.
 
-    Example:
+    Examples:
         >>> ImportComment(
         ...     text="Test", created_at="2017-08-29T12:34:41.740+0000", created_by="11"
         ... ).model_dump(by_alias=True, exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
@@ -81,7 +81,7 @@ class ImportComment(APIModel):
 class ImportLink(APIModel):
     """Typed body for ``POST /issues/{key}/links/_import`` — import one issue link with history.
 
-    Example:
+    Examples:
         >>> ImportLink(
         ...     relationship="relates",
         ...     issue="TEST-2",
@@ -113,7 +113,7 @@ class ImportLink(APIModel):
 class ImportWorklog(APIModel):
     """Typed body for ``POST /issues/{key}/worklogs/_import`` — import one worklog with history.
 
-    Example:
+    Examples:
         >>> ImportWorklog(
         ...     duration="PT1H",
         ...     created_at="2025-02-18T16:35:41.740+0000",

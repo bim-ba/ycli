@@ -76,10 +76,12 @@ publish-url = "https://test.pypi.org/legacy/"
 explicit = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+# `src` too: its docstring examples run as doctests, answered by the contract cases (conftest.py).
+testpaths = ["tests", "src"]
 asyncio_mode = "auto"
 # Four workers: CI runners have four vCPUs, and more barely helps locally (`-n 0` turns it off).
-addopts = "-n 4 --strict-markers --cov=ycli --cov-report=term-missing --cov-fail-under=100"
+addopts = "-n 4 --strict-markers --doctest-modules --cov=ycli --cov-report=term-missing --cov-fail-under=100"
+doctest_optionflags = ["ELLIPSIS", "NORMALIZE_WHITESPACE"]
 # A new warning fails the run.
 filterwarnings = ["error"]
 
@@ -104,6 +106,7 @@ dev = [
     "import-linter>=2.12",
     "jmespath>=1.1.0",
     "pre-commit>=4.6.0",
+    "pydoclint>=0.11.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
@@ -155,8 +158,12 @@ skip-magic-trailing-comma = false
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF", "ANN", "TC"]
-ignore = ["ANN401"]
+select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF", "ANN", "TC", "D"]
+# D105/D107: a magic method and `__init__` are described by their class docstring (Google style).
+ignore = ["ANN401", "D105", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastmcp.dependencies.Depends"]
@@ -169,13 +176,29 @@ known-first-party = ["ycli"]
 runtime-evaluated-base-classes = ["pydantic.BaseModel", "ycli.yandex.models.APIModel"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["N802", "ANN"]
-"scripts/**/*.py" = ["ANN"]
+# Only the shipped package must document every public name; the rest keeps the format rules.
+"tests/**/*.py" = ["N802", "ANN", "D1"]
+"scripts/**/*.py" = ["ANN", "D1"]
+"{e2e,tools,docs,.claude}/**/*.py" = ["D1"]
+"conftest.py" = ["D1"]
+# Sans-IO builders named after their operation; the resource client documents the operation.
+"src/ycli/yandex/**/endpoints.py" = ["D103"]
 # Typer reads command annotations at runtime (inspect.signature(eval_str=True)), so their
 # imports must stay real imports, never `if TYPE_CHECKING:` ones.
 "src/ycli/**/cli.py" = ["TC001", "TC002", "TC003"]
 "src/ycli/cli/app.py" = ["TC001"]  # the root callback's option aliases, read by Typer
 "src/ycli/cli/api.py" = ["TC001"]  # the command's option aliases and return types, read by Typer
+
+# Args, Returns and Raises match the signature. cli.py and mcp.py are left out: their parameters
+# are documented once, in the Typer option help and the `Field(description=...)` an agent reads.
+[tool.pydoclint]
+style = "google"
+exclude = '/cli\.py$|/mcp\.py$|/endpoints\.py$'
+arg-type-hints-in-docstring = false
+check-return-types = false
+check-class-attributes = false
+allow-init-docstring = true
+quiet = true
 
 [tool.ty.environment]
 python-version = "3.12"

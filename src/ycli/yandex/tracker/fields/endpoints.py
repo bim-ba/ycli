@@ -1,6 +1,6 @@
 """Tracker ``/fields`` operations (global fields and their categories), declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_field("ruName", {"name": {"ru": "Имя"}}, version=3).params
     {'version': 3}
 """

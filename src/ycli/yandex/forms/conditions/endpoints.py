@@ -4,7 +4,7 @@ The four condition targets share one shape: a target path (a question, a page, t
 button, an integration group) under which the same six operations live. A ``*_target``
 function builds the target path; the six operation functions take it.
 
-Example:
+Examples:
     >>> list_conditions(question_target("686d", "17")).path
     'surveys/686d/questions/17/conditions'
     >>> set_operator(submit_target("686d"), "or").json

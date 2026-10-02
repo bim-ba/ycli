@@ -26,11 +26,11 @@ def get(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> User:
-    """Look up a single organisation user account by login or uid, including name, email and
-    licence/dismissal status. Use this when you already know one user; use ``users_list`` to
-    browse or enumerate the whole directory. Pass ``expand="groups"`` to include the user's groups.
+    """Look up a single organisation user account by login or uid.
 
-    >>> users_get(login_or_id="username", expand="groups")  # doctest: +SKIP
+    The account includes name, email and licence/dismissal status. Use this when you already know
+    one user; use ``users_list`` to browse or enumerate the whole directory. Pass
+    ``expand="groups"`` to include the user's groups.
     """
     return client.users.get(login_or_id=login_or_id, expand=expand)
 
@@ -48,11 +48,10 @@ def list_(
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> UserList:
-    """All users registered in the organisation, auto-paginated via the relative id-cursor and
-    sorted by ascending uid. Capped at the configured item cap unless ``limit`` is given; use
-    ``users_get`` instead when you already know the specific login or uid.
+    """All users registered in the organisation, sorted by ascending uid.
 
-    >>> users_list(limit=50, expand="groups")  # doctest: +SKIP
+    Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
+    is given; use ``users_get`` instead when you already know the specific login or uid.
     """
     cap = config.http.cap(limit)
     return client.users.list(limit=cap, expand=expand)

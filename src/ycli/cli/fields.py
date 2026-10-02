@@ -26,7 +26,15 @@ def parse_fields(
     (``@-`` for stdin) is the file's text. Raises ``typer.BadParameter`` for an item without
     ``=``, a malformed key, a missing file or a key that clashes with an earlier one.
 
-    Example:
+    Args:
+        items: Typed ``key=value`` strings.
+        raw: Always-string ``key=value`` strings, applied first.
+        structured: Whether ``key[sub]``, ``key[]`` and ``@file`` values are understood.
+
+    Returns:
+        The parsed fields.
+
+    Examples:
         >>> parse_fields(["sprint=123", "name=hi"])
         {'sprint': 123, 'name': 'hi'}
         >>> parse_fields(["a[b]=true", "t[]=1", "t[]=2"], raw=["id=7"], structured=True)

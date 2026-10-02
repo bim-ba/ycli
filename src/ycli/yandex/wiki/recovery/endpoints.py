@@ -1,6 +1,6 @@
 """Wiki ``/recovery_tokens``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> restore_page("a1b2").path
     'recovery_tokens/a1b2/recover'
 """

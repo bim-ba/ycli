@@ -66,13 +66,16 @@ class LazyGroup(TyperGroup):
         parent: _click.Context | None = None,
         **extra: Any,
     ) -> _click.Context:
+        """Build the context from the loaded group or command."""
         return self.load().make_context(info_name, args, parent=parent, **extra)
 
     def list_commands(self, ctx: _click.Context) -> list[str]:
+        """The loaded group's command names; a single command has none."""
         loaded = self.load()
         return loaded.list_commands(ctx) if isinstance(loaded, TyperGroup) else []
 
     def get_command(self, ctx: _click.Context, cmd_name: str) -> _click.Command | None:
+        """The named command of the loaded group; a single command has none."""
         loaded = self.load()
         return loaded.get_command(ctx, cmd_name) if isinstance(loaded, TyperGroup) else None
 

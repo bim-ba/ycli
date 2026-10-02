@@ -1,6 +1,6 @@
 """Tracker ``/linktypes``, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_link_types().path
     'linktypes'
 """

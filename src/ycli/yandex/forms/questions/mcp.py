@@ -46,10 +46,6 @@ def get(
     Where ``questions_list`` returns every question grouped into pages, this fetches a single
     question keyed by ``question_id`` (take it from an item's ``id`` in ``questions_list``).
     Type-specific detail (validators, options, conditions) is lenient-ignored.
-
-    >>> await client.call_tool(
-    ...     "questions_get", {"survey_id": "686d0a1b", "question_id": "17"}
-    ... )  # doctest: +SKIP
     """
     result = client.questions.get(survey_id, question_id)
     # A 404 / empty body deserializes into an all-None Question (lenient model) rather than

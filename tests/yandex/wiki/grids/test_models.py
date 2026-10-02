@@ -116,8 +116,11 @@ def test_new_column_rejects_bad_type():
 
 
 def test_new_column_derives_slug_from_title():
-    """The live API rejects a slug-less column, so ``slug`` defaults from the title —
-    lowercased, non-word runs collapsed to ``_``, edge underscores stripped."""
+    """The live API rejects a slug-less column, so ``slug`` defaults from the title.
+
+    The default is lowercased, with non-word runs collapsed to ``_`` and edge underscores
+    stripped.
+    """
     assert NewColumnSchema(title="Count", type="number").slug == "count"
     assert NewColumnSchema(title="My Col! (v2)", type="string").slug == "my_col_v2"
 

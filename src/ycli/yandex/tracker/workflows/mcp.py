@@ -41,20 +41,15 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> WorkflowList:
 
     A workflow is the status graph an issue type follows. Use ``workflows_get`` for one by id
     and ``workflows_for_queue`` to see which workflow each issue type of a queue uses.
-
-    Example:
-        >>> workflows_list()  # doctest: +SKIP
     """
     return client.workflows.list()
 
 
 @mcp.tool(name="workflows_get", annotations={**RO, "title": "Get Tracker workflow"}, tags=TAGS)
 def get(workflow_id: WorkflowId, client: TrackerClient = Depends(tracker_client)) -> Workflow:
-    """One workflow: its steps (statuses with the transitions leaving them), initial action,
-    queue binding and ``version`` (needed to edit it).
+    """One workflow with its steps, initial action, queue binding and ``version``.
 
-    Example:
-        >>> workflows_get("W21")  # doctest: +SKIP
+    A step is a status with the transitions leaving it; ``version`` is needed to edit the workflow.
     """
     return client.workflows.get(workflow_id)
 
@@ -70,11 +65,7 @@ def for_queue(
     ],
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueWorkflows:
-    """The workflows a queue uses: a map from workflow id to the issue types that follow it.
-
-    Example:
-        >>> workflows_for_queue("TEST")  # doctest: +SKIP
-    """
+    """The workflows a queue uses: a map from workflow id to the issue types that follow it."""
     return client.workflows.for_queue(queue_id)
 
 
@@ -104,8 +95,10 @@ def edit(
     version: Version,
     client: TrackerClient = Depends(tracker_client),
 ) -> Workflow:
-    """Edit a workflow; only the fields set in ``body`` change, and a given ``steps`` list
-    replaces the whole step list. Returns the workflow with its incremented version.
+    """Edit a workflow.
+
+    Only the fields set in ``body`` change, and a given ``steps`` list replaces the whole step
+    list. Returns the workflow with its incremented version.
     """
     return client.workflows.edit(workflow_id, body, version=version)
 

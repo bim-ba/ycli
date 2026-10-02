@@ -1,6 +1,6 @@
 """Tracker queue ``/triggers`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> edit_trigger("DESIGN", 16, {"active": False}, version=2).params
     {'version': 2}
     >>> list_webhook_log("DEV", 6, limit=100).path

@@ -134,8 +134,11 @@ def login(
 
 @contextlib.contextmanager
 def _suppressed_stderr() -> Iterator[None]:
-    """Silence fd-level stderr for the duration — the OS browser launcher (``xdg-open`` and
-    friends) prints chatter straight to fd 2 that would otherwise smear the login prompt."""
+    """Silence fd-level stderr for the duration of the block.
+
+    The OS browser launcher (``xdg-open`` and friends) prints chatter straight to fd 2 that would
+    otherwise smear the login prompt.
+    """
     saved_stderr_fd = os.dup(2)
     with Path(os.devnull).open("w", encoding="utf-8") as devnull:
         os.dup2(devnull.fileno(), 2)

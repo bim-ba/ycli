@@ -161,7 +161,19 @@ def _resolve_target(path: str, service_name: str | None) -> tuple[Service, str]:
     A full URL must be a registered service's own origin and live under its base URL, so the
     token never goes to another host; ``service_name`` is needed only for a relative path.
 
-    Example:
+    Args:
+        path: A relative path, or a full URL of a registered service.
+        service_name: The service a relative path belongs to; optional for a full URL, where it
+            must name the URL's own service.
+
+    Returns:
+        The service and the path under its base URL.
+
+    Raises:
+        typer.BadParameter: ``service_name`` is unknown, missing for a relative path or names
+            another service than the URL's, or the URL is not under a registered service.
+
+    Examples:
         >>> wiki = next(s for s in SERVICES if s.name == "wiki")
         >>> service, relative = _resolve_target(f"{wiki.profile.base_url}/pages?slug=a", None)
         >>> service.name, relative
@@ -249,7 +261,13 @@ def _headers(items: Sequence[str] | None) -> dict[str, str]:
 def _query(fields: Mapping[str, Any]) -> dict[str, Any]:
     """Fields as query parameters; a nested object becomes bracketed keys.
 
-    Example:
+    Args:
+        fields: The request fields; a nested object is allowed.
+
+    Returns:
+        The query parameters, with a nested object as bracketed keys.
+
+    Examples:
         >>> _query({"a": {"b": 1}, "t": [1, 2], "q": "x"})
         {'a[b]': 1, 't': [1, 2], 'q': 'x'}
     """

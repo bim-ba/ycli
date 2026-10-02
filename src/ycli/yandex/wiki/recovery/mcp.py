@@ -29,8 +29,5 @@ def restore(
     ``pages_delete`` returns the token — it is the only handle to the deleted page. Returns
     the restored page's numeric ``id`` and permanent ``slug``. No request body; the token in
     the path is the whole request.
-
-    Example:
-        >>> restore(token="a1b2c3d4-…")  # doctest: +SKIP
     """
     return client.recovery.restore(token)

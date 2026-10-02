@@ -2,7 +2,7 @@
 
 The search is a ``POST`` that only reads, so it declares itself a read.
 
-Example:
+Examples:
     >>> search_pages({"query": "roadmap"}).effect
     'read'
 """

@@ -17,10 +17,15 @@ class TransitionsClient(Resource):
     def list(self, key: str) -> TransitionList:
         """``GET /issues/{key}/transitions`` → available transitions.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.transitions.list(key="DATAENGINEERING-1").root[0].id  # doctest: +SKIP
-            'start_progress'
+        Args:
+            key: The issue's key.
+
+        Returns:
+            The transitions available for the issue.
+
+        Examples:
+            >>> tracker.transitions.list("DE-51").root[0].id
+            'close'
         """
         return self._session.send(endpoints.list_transitions(key))
 
@@ -30,10 +35,19 @@ class TransitionsClient(Resource):
         Returns the transitions available for the issue in its new status,
         parsed as a ``TransitionList``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> result = client.transitions.execute("DE-1", "start_progress", {})  # doctest: +SKIP
-            >>> result.root[0].id  # doctest: +SKIP
-            'stop_progress'
+        Args:
+            key: The issue's key.
+            transition_id: The id of the transition to execute.
+            body: The transition's fields, such as ``comment`` or ``resolution``.
+
+        Returns:
+            The transitions available after the move.
+
+        Examples:
+            >>> result = tracker.transitions.execute(
+            ...     "DE-52", "close", {"comment": "done", "resolution": "fixed"}
+            ... )
+            >>> result.root[0].id
+            'reopen'
         """
         return self._session.send(endpoints.execute_transition(key, transition_id, body))

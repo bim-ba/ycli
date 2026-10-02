@@ -15,7 +15,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
 class BoardColumn(APIModel):
     """One column of an agile board (``columns[]`` item) — a status bucket for cards.
 
-    Example:
+    Examples:
         >>> BoardColumn.model_validate({"id": "1", "display": "Open"}).display
         'Open'
     """
@@ -32,7 +32,7 @@ class BoardColumn(APIModel):
 class Calendar(APIModel):
     """The board's calendar reference — its working-days data feeds the burndown chart.
 
-    Example:
+    Examples:
         >>> Calendar.model_validate({"id": 6}).id
         6
     """
@@ -48,7 +48,7 @@ class Board(APIModel):
     A board visualises issues as cards grouped into columns by status. Reference objects
     (``createdBy``/``estimateBy``/``country``) are flattened to their display string.
 
-    Example:
+    Examples:
         >>> Board.model_validate(
         ...     {"id": 1, "name": "My board", "estimateBy": {"display": "Story Points"}}
         ... ).estimate_by
@@ -110,7 +110,7 @@ class Board(APIModel):
 class BoardList(RootModel[list[Board]]):
     """A bare JSON array of boards — the flat public shape of ``boards.list()``.
 
-    Example:
+    Examples:
         >>> BoardList.model_validate([{"id": 1, "name": "My board"}]).root[0].name
         'My board'
     """
@@ -119,7 +119,7 @@ class BoardList(RootModel[list[Board]]):
 class BoardColumnInput(APIModel):
     """One column in a create/edit board request body (``columns[]`` item).
 
-    Example:
+    Examples:
         >>> BoardColumnInput(name="To Do", statuses=["new", "open"]).name
         'To Do'
     """
@@ -140,7 +140,7 @@ class BoardCreate(APIModel):
     ``name`` is the only required field; every other field is omitted from the JSON
     body when left as ``None`` (see ``model_dump(by_alias=True, exclude_none=True)``).
 
-    Example:
+    Examples:
         >>> BoardCreate(name="Testing", owner="username").name
         'Testing'
     """
@@ -175,7 +175,7 @@ class BoardUpdate(APIModel):
     Every field is optional; only the fields you set are sent, so an omitted field
     is left unchanged on the board.
 
-    Example:
+    Examples:
         >>> BoardUpdate(name="New name").name
         'New name'
     """

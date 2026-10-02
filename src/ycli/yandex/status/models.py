@@ -14,7 +14,7 @@ class Identity(APIModel):
     the rest needs the ``login:*`` scopes (``login:info`` for the names, ``login:email`` for the
     address).
 
-    Example:
+    Examples:
         >>> Identity.model_validate({"id": "1000034426", "login": "ivan", "psuid": "x"}).login
         'ivan'
     """

@@ -1,6 +1,6 @@
 """Tracker ``/projects`` operations (legacy Projects API v3), each declared once (sans-IO).
 
-Example:
+Examples:
     >>> get_project(1, expand="queues").params
     {'expand': 'queues'}
     >>> edit_project(1, {"queues": "TEST"}, version=2).method

@@ -26,10 +26,20 @@ class ResourcesClient(Resource):
         with ``q`` (title search), ``types`` (comma-separated ``attachment,grid``), and
         ``order_by`` (``name_title`` or ``created_at``).
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.resources.list(12345, types="attachment").root[0].type  # doctest: +SKIP
-            'attachment'
+        Args:
+            page_id: The page's id.
+            limit: The most resources to return; ``None`` returns every resource.
+            q: The title search.
+            types: The comma-separated kinds to list: ``attachment``, ``grid``.
+            order_by: The sort field: ``name_title`` or ``created_at``.
+
+        Returns:
+            The page's attachments and grids.
+
+        Examples:
+            >>> found = wiki.resources.list(5401, limit=25, q="plan", types="attachment,grid")
+            >>> [resource.type for resource in found.root]
+            ['attachment', 'grid']
         """
         paged = endpoints.list_resources(page_id, q=q, types=types, order_by=order_by)
         return ResourceItemList(list(self._session.iterate(paged, limit=limit)))

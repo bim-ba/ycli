@@ -83,16 +83,20 @@ _TRAILER_TWO_SPACES = "skip-checks:" + "  true"
     ],
 )
 def test_whitespace_variants_are_denied(command):
-    """GitHub still honors internal-whitespace variants of the bracket/trailer tokens
-    (double space, tabs, ...); the hook must normalize whitespace before matching."""
+    """GitHub still honors internal-whitespace variants of the bracket/trailer tokens.
+
+    A double space or tabs still match; the hook must normalize whitespace before matching.
+    """
     decision = git_guard.decide(command)
     assert decision is not None
     assert decision["hookSpecificOutput"]["permissionDecision"] == "deny"
 
 
 def test_token_outside_message_args_is_not_flagged():
-    """Scoping the match to message-bearing args (-m/-b/...) means a token that only
-    appears in an unrelated arg -- e.g. a pathspec after `--` -- is not a false positive."""
+    """Scoping the match to message-bearing args (-m/-b/...) avoids a false positive.
+
+    A token that only appears in an unrelated arg -- e.g. a pathspec after `--` -- is not a hit.
+    """
     command = f"git commit -m 'fix: rename asset' -- 'assets/{_CI_BRACKET_ONE_SPACE}.png'"
     assert git_guard.decide(command) is None
 

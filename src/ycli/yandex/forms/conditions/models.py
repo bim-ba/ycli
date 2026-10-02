@@ -28,7 +28,7 @@ class ConditionsResponse(APIModel):
     envelopes that the resource conventions flatten, ``operator`` here is data (the boolean
     operator BETWEEN the groups), so the envelope itself is the public return type.
 
-    Example:
+    Examples:
         >>> ConditionsResponse.model_validate(
         ...     {"operator": "and", "items": [{"id": 1, "operator": "or", "items": []}]}
         ... ).items[0].id
@@ -50,7 +50,7 @@ class ConditionItemWrite(APIModel):
     ``type`` and ``condition`` are required, ``value`` is capped at 100 characters (a string
     even for ``lt``/``gt``), and there is no per-clause ``operator``.
 
-    Example:
+    Examples:
         >>> ConditionItemWrite(type="question", condition="eq", question="q1", value="y").value
         'y'
     """
@@ -77,7 +77,7 @@ class ConditionCreate(APIModel):
     ``items`` must hold at least one clause. Unset optional clause fields are dropped before
     the request is sent.
 
-    Example:
+    Examples:
         >>> ConditionCreate(
         ...     operator="and", items=[ConditionItemWrite(type="language", condition="eq")]
         ... ).operator
@@ -99,7 +99,7 @@ class ConditionUpdate(ConditionCreate):
     as a complete group (``operator`` and at least one clause are both required); there is no
     partial update, and the group ``id`` is never sent.
 
-    Example:
+    Examples:
         >>> ConditionUpdate(
         ...     operator="or", items=[ConditionItemWrite(type="origin", condition="neq")]
         ... ).operator

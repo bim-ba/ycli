@@ -38,9 +38,6 @@ def list_(
     A key set is a batch of single-use keys that become personal form-filling links; each item's
     integer ``id`` is what you pass to ``keysets_get``. Use ``surveys_list`` to find the
     ``survey_id`` first. Downloading the actual keys is a binary payload — CLI/SDK-only.
-
-    Example:
-        >>> keysets_list(survey_id="6818ceffe010db4f59d11329")  # doctest: +SKIP
     """
     return client.keysets.list(survey_id)
 
@@ -55,9 +52,6 @@ def get(
 
     Look up ``keyset_id`` via ``keysets_list``. To download the actual keys use the
     ``forms keysets download`` CLI command (binary payload — not exposed over MCP).
-
-    Example:
-        >>> keysets_get(survey_id="6818ceffe010db4f59d11329", keyset_id=7)  # doctest: +SKIP
     """
     return client.keysets.get(survey_id, keyset_id)
 

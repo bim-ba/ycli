@@ -29,20 +29,31 @@ class ProjectsClient(Resource):
 
         ``expand="queues"`` adds each project's queues.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.projects.list().root[0].name  # doctest: +SKIP
-            'Launch'
+        Args:
+            expand: Extra blocks to include; ``"queues"`` adds each project's queues.
+
+        Returns:
+            Every project.
+
+        Examples:
+            >>> tracker.projects.list(expand="queues").root[0].name
+            'Project'
         """
         return self._session.send(endpoints.list_projects(expand=expand))
 
     def get(self, project_id: int, *, expand: str | None = None) -> Project:
         """``GET /projects/{project_id}`` → one project.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.projects.get(1).version  # doctest: +SKIP
-            2
+        Args:
+            project_id: The project's id.
+            expand: Extra blocks to include, as in :meth:`list`.
+
+        Returns:
+            The project.
+
+        Examples:
+            >>> tracker.projects.get(21, expand="queues").version
+            1
         """
         return self._session.send(endpoints.get_project(project_id, expand=expand))
 
@@ -51,10 +62,16 @@ class ProjectsClient(Resource):
 
         ``expand`` takes the same blocks as :meth:`QueuesClient.get` (``all``, ``components``, …).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.projects.queues(1).root[0].key  # doctest: +SKIP
-            'TEST'
+        Args:
+            project_id: The project's id.
+            expand: Extra queue blocks to include.
+
+        Returns:
+            The project's queues.
+
+        Examples:
+            >>> tracker.projects.queues(23, expand="components,versions").root[0].key
+            'ORG'
         """
         return self._session.send(endpoints.list_project_queues(project_id, expand=expand))
 
@@ -64,11 +81,15 @@ class ProjectsClient(Resource):
         Projects v3 is the legacy API (entities replace it): the test organization accepted
         ``queues`` but bound no queue, so ``queues`` of the new project came back empty.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.projects.create(
-            ...     ProjectCreate(name="Launch", queues="TEST")
-            ... ).id  # doctest: +SKIP
+        Args:
+            body: The new project's name, queues and optional fields.
+
+        Returns:
+            The created project.
+
+        Examples:
+            >>> from ycli.yandex.tracker.projects.models import ProjectCreate
+            >>> tracker.projects.create(ProjectCreate(name="Launch", queues="LAUNCH")).id
             '9'
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
@@ -81,11 +102,20 @@ class ProjectsClient(Resource):
 
         ``version`` is the project's current version; ``body.queues`` is required.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> body = ProjectUpdate(queues="TEST", name="Renamed")
-            >>> client.projects.edit(9, body, version=1).version  # doctest: +SKIP
-            2
+        Args:
+            project_id: The project's id.
+            body: The fields to change; ``queues`` is required.
+            version: The project's current version.
+            expand: Extra blocks to include, as in :meth:`list`.
+
+        Returns:
+            The updated project.
+
+        Examples:
+            >>> from ycli.yandex.tracker.projects.models import ProjectUpdate
+            >>> body = ProjectUpdate(queues="EDITQ", name="Renamed")
+            >>> tracker.projects.edit(31, body, version=5, expand="queues").version
+            6
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(
@@ -95,8 +125,10 @@ class ProjectsClient(Resource):
     def delete(self, project_id: int) -> None:
         """``DELETE /projects/{project_id}`` → 204; raises on non-2xx.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.projects.delete(9)  # doctest: +SKIP
+        Args:
+            project_id: The project's id.
+
+        Examples:
+            >>> tracker.projects.delete(33)
         """
         self._session.send(endpoints.delete_project(project_id))

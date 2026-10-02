@@ -1,6 +1,6 @@
 """Tracker issue ``/comments`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> react_to_comment("DE-1", 2238, "LIKE").path
     'issues/DE-1/comments/2238/reactions/LIKE'
     >>> list_comments("DE-1", page_size=10).endpoint.params

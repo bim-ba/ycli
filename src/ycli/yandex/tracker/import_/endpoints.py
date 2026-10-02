@@ -1,6 +1,6 @@
 """Tracker ``/_import`` operations (admin-only back-fill), each declared once (sans-IO).
 
-Example:
+Examples:
     >>> import_worklog("TEST-1", {"duration": "PT1H"}).path
     'issues/TEST-1/worklogs/_import'
     >>> import_file("JUNE-2", filename="a.png", created_at="t", created_by="11", data=b"").params

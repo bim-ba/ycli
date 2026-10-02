@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class ColumnStatus(APIModel):
     """One issue status shown in a board column (``statuses[]`` item).
 
-    Example:
+    Examples:
         >>> ColumnStatus.model_validate({"id": "1", "key": "open", "display": "Open"}).key
         'open'
     """
@@ -31,7 +31,7 @@ class Column(APIModel):
     A column groups issue cards by their status; ``statuses`` lists the issue statuses
     whose cards land in this column.
 
-    Example:
+    Examples:
         >>> Column.model_validate({"id": 1, "name": "Open"}).name
         'Open'
     """
@@ -52,7 +52,7 @@ class Column(APIModel):
 class ColumnList(RootModel[list[Column]]):
     """A bare JSON array of columns — the flat public shape of ``columns.list()``.
 
-    Example:
+    Examples:
         >>> ColumnList.model_validate([{"id": 1, "name": "Open"}]).root[0].name
         'Open'
     """
@@ -61,7 +61,7 @@ class ColumnList(RootModel[list[Column]]):
 class ColumnCreate(APIModel):
     """Typed request body for ``columns.create`` (``POST /boards/{board_id}/columns/``).
 
-    Example:
+    Examples:
         >>> ColumnCreate(name="Approve", statuses=["needInfo", "adjustment"]).name
         'Approve'
     """
@@ -77,7 +77,7 @@ class ColumnUpdate(APIModel):
 
     Every field is optional; only the fields you set are sent.
 
-    Example:
+    Examples:
         >>> ColumnUpdate(name="Pause").name
         'Pause'
     """

@@ -28,42 +28,70 @@ class ImportClient(Resource):
     def task(self, body: dict[str, Any]) -> Issue:
         """``POST /issues/_import`` — import an issue preserving its history. Returns the ``Issue``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.import_.task(
-            ...     {"queue": "TEST", "summary": "T", "createdAt": "…", "createdBy": "11"}
-            ... ).key  # doctest: +SKIP
-            'TEST-1'
+        Args:
+            body: The issue fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The imported issue.
+
+        Examples:
+            >>> tracker.import_.task(
+            ...     {
+            ...         "queue": "TEST",
+            ...         "summary": "Old task",
+            ...         "createdAt": "2017-08-29T12:34:41.740+0000",
+            ...         "createdBy": "11",
+            ...         "key": "TEST-41",
+            ...     }
+            ... ).key
+            'TEST-41'
         """
         return self._session.send(endpoints.import_task(body))
 
     def comment(self, issue_key: str, body: dict[str, Any]) -> Comment:
         """``POST /issues/{issue_key}/comments/_import`` — import a comment; returns ``Comment``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.import_.comment(
-            ...     "TEST-1", {"text": "T", "createdAt": "…", "createdBy": "11"}
-            ... ).text  # doctest: +SKIP
-            'T'
+        Args:
+            issue_key: The issue's key.
+            body: The comment fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The imported comment.
+
+        Examples:
+            >>> tracker.import_.comment(
+            ...     "TEST-2",
+            ...     {
+            ...         "text": "Old comment",
+            ...         "createdAt": "2019-02-03T04:05:06.000+0000",
+            ...         "createdBy": "13",
+            ...     },
+            ... ).text
+            'Old comment'
         """
         return self._session.send(endpoints.import_comment(issue_key, body))
 
     def link(self, issue_key: str, body: dict[str, Any]) -> Link:
         """``POST /issues/{issue_key}/links/_import`` — import an issue link. Returns the ``Link``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.import_.link(
-            ...     "TEST-1",
+        Args:
+            issue_key: The issue's key.
+            body: The link fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The imported link.
+
+        Examples:
+            >>> tracker.import_.link(
+            ...     "TEST-3",
             ...     {
-            ...         "relationship": "relates",
-            ...         "issue": "TEST-2",
-            ...         "createdAt": "…",
-            ...         "createdBy": "11",
+            ...         "relationship": "depends on",
+            ...         "issue": "TEST-4",
+            ...         "createdAt": "2020-03-04T05:06:07.000+0000",
+            ...         "createdBy": "14",
             ...     },
-            ... ).object_key  # doctest: +SKIP
-            'TEST-2'
+            ... ).object.key
+            'TEST-4'
         """
         return self._session.send(endpoints.import_link(issue_key, body))
 
@@ -73,13 +101,24 @@ class ImportClient(Resource):
         Returns a ``WorklogList`` — the live endpoint answers with a JSON **array** of the
         created worklog record(s), not a single object.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.import_.worklog(
-            ...     "TEST-1",
-            ...     {"duration": "PT1H", "createdAt": "…", "createdBy": "u", "start": "…"},
-            ... ).root[0].duration  # doctest: +SKIP
-            'PT1H'
+        Args:
+            issue_key: The issue's key.
+            body: The worklog fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The created worklog record(s).
+
+        Examples:
+            >>> tracker.import_.worklog(
+            ...     "TEST-5",
+            ...     {
+            ...         "duration": "PT2H",
+            ...         "createdAt": "2021-04-05T06:07:08.000+0000",
+            ...         "createdBy": "15",
+            ...         "start": "2021-04-05T09:00:00.000+0000",
+            ...     },
+            ... ).root[0].duration
+            'PT2H'
         """
         return self._session.send(endpoints.import_worklog(issue_key, body))
 
@@ -97,12 +136,25 @@ class ImportClient(Resource):
         ``data`` are the raw file bytes; ``filename`` / ``created_at`` / ``created_by`` become
         query parameters. Returns the created ``Attachment``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.import_.file(
-            ...     "JUNE-2", filename="pic.png", created_at="…", created_by="11", data=b"…"
-            ... ).name  # doctest: +SKIP
-            'pic.png'
+        Args:
+            issue_key: The issue's key.
+            filename: The attachment's file name.
+            created_at: The source creation time.
+            created_by: The source author.
+            data: The raw file bytes.
+
+        Returns:
+            The created attachment.
+
+        Examples:
+            >>> tracker.import_.file(
+            ...     "JUNE-5",
+            ...     filename="renamed.png",
+            ...     created_at="2022-05-06T07:08:09.000+0000",
+            ...     created_by="16",
+            ...     data=b"PNGDATA",
+            ... ).name
+            'renamed.png'
         """
         endpoint = endpoints.import_file(
             issue_key,
@@ -130,12 +182,27 @@ class ImportClient(Resource):
         comment never edited, exactly its ``createdAt``), else Tracker answers 422. Returns the
         created ``Attachment``.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.import_.comment_file(
-            ...     "JUNE-2", "2238", filename="pic.png", created_at="…", created_by="11", data=b"…"
-            ... ).name  # doctest: +SKIP
-            'pic.png'
+        Args:
+            issue_key: The issue's key.
+            comment_id: The comment's id.
+            filename: The attachment's file name.
+            created_at: The source creation time.
+            created_by: The source author.
+            data: The raw file bytes.
+
+        Returns:
+            The created attachment.
+
+        Examples:
+            >>> tracker.import_.comment_file(
+            ...     "JUNE-7",
+            ...     "2238",
+            ...     filename="scan.png",
+            ...     created_at="2024-07-08T09:10:11.000+0000",
+            ...     created_by="18",
+            ...     data=b"PNGDATA",
+            ... ).name
+            'scan.png'
         """
         endpoint = endpoints.import_comment_file(
             issue_key,

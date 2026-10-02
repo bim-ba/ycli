@@ -19,7 +19,7 @@ class OperationResult(APIModel):
     ``not_running``. This is the generic sibling of
     :class:`~ycli.yandex.forms.answers.models.ExportResult`.
 
-    Example:
+    Examples:
         >>> OperationResult.model_validate({"id": "op-1", "status": "ok"}).is_ready
         True
     """

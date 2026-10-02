@@ -27,7 +27,13 @@ class PlannedRequest(BaseModel):
         A JSON body is shown as the JSON it is; any other body (a file upload) only by its size
         and type, since its bytes are not something to print.
 
-        Example:
+        Args:
+            request: The request about to be sent.
+
+        Returns:
+            The plan for ``request``.
+
+        Examples:
             >>> import httpx2
             >>> request = httpx2.Request(
             ...     "PATCH", "https://api.test/v1/issues/DE-1?token=x", json={"summary": "New"}

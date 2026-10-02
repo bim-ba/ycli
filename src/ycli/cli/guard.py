@@ -55,6 +55,7 @@ class SendGuard:
     options: Mapping[str, Any]
 
     def __call__(self, effect: Effect, request: httpx2.Request) -> None:
+        """Let a read pass, stop a write under ``--dry-run``, confirm a delete without ``--yes``."""
         if effect == "read":
             return
         if self.options.get("dry_run"):

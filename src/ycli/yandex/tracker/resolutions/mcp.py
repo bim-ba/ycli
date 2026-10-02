@@ -30,11 +30,11 @@ mcp = FastMCP("tracker-resolutions")
     name="resolutions_list", annotations={**RO, "title": "List Tracker resolutions"}, tags=TAGS
 )
 def list_(client: TrackerClient = Depends(tracker_client)) -> ResolutionList:
-    """Every issue resolution configured in the organisation (the close-out result such as
-    fixed/duplicate/won't-fix). Use this to resolve or validate a resolution key when reading a
-    closed issue or filtering; see ``statuses_list`` for workflow stages, not close-out reasons.
+    """Every issue resolution configured in the organisation.
 
-    >>> resolutions_list()  # doctest: +SKIP
+    A resolution is the close-out result such as fixed/duplicate/won't-fix. Use this to resolve
+    or validate a resolution key when reading a closed issue or filtering; see ``statuses_list``
+    for workflow stages, not close-out reasons.
     """
     return client.resolutions.list()
 

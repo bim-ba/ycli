@@ -15,7 +15,7 @@ from ycli.yandex.models import APIModel
 class LocalFieldSchema(APIModel):
     """Value-type descriptor of a local field (the ``schema`` block).
 
-    Example:
+    Examples:
         >>> LocalFieldSchema.model_validate({"type": "string", "required": False}).type
         'string'
     """
@@ -35,7 +35,7 @@ class LocalFieldSchema(APIModel):
 class OptionsProvider(APIModel):
     """Allowed-values descriptor of a local field (the ``optionsProvider`` block).
 
-    Example:
+    Examples:
         >>> OptionsProvider.model_validate(
         ...     {"type": "FixedListOptionsProvider", "values": ["a", "b"]}
         ... ).values
@@ -56,7 +56,7 @@ class OptionsProvider(APIModel):
 class QueryProvider(APIModel):
     """Query-language class of a local field (the ``queryProvider`` block; read-only via API).
 
-    Example:
+    Examples:
         >>> QueryProvider.model_validate({"type": "StringOptionalQueryProvider"}).type
         'StringOptionalQueryProvider'
     """
@@ -67,7 +67,7 @@ class QueryProvider(APIModel):
 class FieldCategory(APIModel):
     """Category a local field belongs to (the ``category`` block).
 
-    Example:
+    Examples:
         >>> FieldCategory.model_validate({"id": "1", "display": "System"}).display
         'System'
     """
@@ -84,7 +84,7 @@ class FieldCategory(APIModel):
 class FieldQueueRef(APIModel):
     """Reference to the queue a local field is attached to (the ``queue`` block).
 
-    Example:
+    Examples:
         >>> FieldQueueRef.model_validate({"key": "ORG", "display": "My queue"}).key
         'ORG'
     """
@@ -106,7 +106,7 @@ class LocalField(APIModel):
     ``field_schema``) describes the value type. Optional blocks (``optionsProvider``,
     ``category``, …) are lenient so partial responses stay valid.
 
-    Example:
+    Examples:
         >>> LocalField.model_validate(
         ...     {"key": "loc_field_key", "name": "Loc field", "schema": {"type": "string"}}
         ... ).field_schema.type
@@ -161,7 +161,7 @@ class LocalField(APIModel):
 class LocalFieldList(RootModel[list[LocalField]]):
     """A bare JSON array of local fields — the flat public shape of ``localfields.list()``.
 
-    Example:
+    Examples:
         >>> LocalFieldList.model_validate([{"key": "loc_field_key"}]).root[0].key
         'loc_field_key'
     """
@@ -170,7 +170,7 @@ class LocalFieldList(RootModel[list[LocalField]]):
 class LocalizedName(APIModel):
     """A localized display name (the ``name`` object) — Russian and/or English text.
 
-    Example:
+    Examples:
         >>> LocalizedName(ru="Поле", en="Field").model_dump(exclude_none=True)
         {'ru': 'Поле', 'en': 'Field'}
     """
@@ -182,7 +182,7 @@ class LocalizedName(APIModel):
 class OptionsProviderInput(APIModel):
     """Typed ``optionsProvider`` block for a local-field create/edit body (a fixed drop-down).
 
-    Example:
+    Examples:
         >>> OptionsProviderInput(type="FixedListOptionsProvider", values=["a"]).model_dump()
         {'type': 'FixedListOptionsProvider', 'values': ['a']}
     """
@@ -197,7 +197,7 @@ class OptionsProviderInput(APIModel):
 class LocalFieldCreate(APIModel):
     """Typed request body for ``POST /queues/{id}/localFields`` (create a local field).
 
-    Example:
+    Examples:
         >>> LocalFieldCreate(
         ...     name=LocalizedName(ru="Поле"), id="loc", category="1", type="StringFieldType"
         ... ).model_dump(by_alias=True, exclude_none=True)
@@ -231,7 +231,7 @@ class LocalFieldUpdate(APIModel):
 
     This endpoint has no ``?version=`` optimistic lock; only the fields that are set are sent.
 
-    Example:
+    Examples:
         >>> LocalFieldUpdate(order=102).model_dump(by_alias=True, exclude_none=True)
         {'order': 102}
     """

@@ -1,5 +1,7 @@
-"""`forms conditions` commands: display conditions of a question, a page, the submit button
-and an integration group (hook), reads and writes."""
+"""`forms conditions` commands: reads and writes of display conditions.
+
+The conditions belong to a question, a page, the submit button or an integration group (hook).
+"""
 
 from __future__ import annotations
 
@@ -52,7 +54,7 @@ BodyFileOpt = Annotated[
 def _validated_operator(operator: str) -> ConditionOperatorType:
     """Reject anything but the two API operators with a clean usage error.
 
-    Example:
+    Examples:
         >>> _validated_operator("or")
         'or'
     """

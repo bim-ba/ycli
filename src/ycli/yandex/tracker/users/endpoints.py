@@ -1,6 +1,6 @@
 """Tracker ``/users`` operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> list_users(per_page=10).endpoint.params
     {'perPage': 10, 'expand': None}
 """
@@ -26,8 +26,10 @@ def _uid(user: User) -> str | None:
 def list_users(
     *, per_page: int = MAX_PAGE_SIZE, expand: str | None = None
 ) -> Paged[UsersRelativeResponse, User]:
-    """``GET /users/_relative`` — users by ascending ``uid``; the next page repeats with
-    ``id=<uid of the last user seen>``."""
+    """``GET /users/_relative``: users by ascending ``uid``.
+
+    The next page repeats with ``id=<uid of the last user seen>``.
+    """
     return Paged(
         Endpoint(
             "GET",

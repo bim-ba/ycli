@@ -25,11 +25,17 @@ if TYPE_CHECKING:
 def failure_code(statuses: list[ServiceAuthStatus]) -> ExitCode:
     """The exit status for failed probes: 4 (auth) when a service rejected the token, else 1.
 
-    Example:
+    Args:
+        statuses: The probe results of the failed services.
+
+    Returns:
+        The exit status.
+
+    Examples:
         >>> failure_code([ServiceAuthStatus(service="wiki", detail=TOKEN_REJECTED)])
-        4
+        <ExitCode.AUTH: 4>
         >>> failure_code([ServiceAuthStatus(service="wiki", detail="503 Service Unavailable")])
-        1
+        <ExitCode.FAILURE: 1>
     """
     rejected = any(status.detail == TOKEN_REJECTED for status in statuses)
     return ExitCode.AUTH if rejected else ExitCode.FAILURE

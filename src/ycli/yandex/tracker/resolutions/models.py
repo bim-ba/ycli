@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel
 class Resolution(APIModel):
     """An issue resolution (``/resolutions`` item) — the outcome recorded when an issue closes.
 
-    Example:
+    Examples:
         >>> Resolution.model_validate({"id": 1, "key": "fixed", "name": "Решен"}).key
         'fixed'
     """
@@ -36,7 +36,7 @@ class Resolution(APIModel):
 class ResolutionList(RootModel[list[Resolution]]):
     """A bare JSON array of resolutions.
 
-    Example:
+    Examples:
         >>> ResolutionList.model_validate([{"key": "fixed"}]).root[0].key
         'fixed'
     """
@@ -45,7 +45,7 @@ class ResolutionList(RootModel[list[Resolution]]):
 class LocalizedName(APIModel):
     """A localized display name (the ``name`` object) — Russian and/or English text.
 
-    Example:
+    Examples:
         >>> LocalizedName(ru="Решен", en="Fixed").model_dump(exclude_none=True)
         {'ru': 'Решен', 'en': 'Fixed'}
     """
@@ -57,7 +57,7 @@ class LocalizedName(APIModel):
 class ResolutionCreate(APIModel):
     """Typed request body for ``POST /resolutions/`` (create a resolution).
 
-    Example:
+    Examples:
         >>> ResolutionCreate(key="wontFix", name=LocalizedName(ru="Отклонено")).model_dump(
         ...     by_alias=True, exclude_none=True
         ... )
@@ -75,7 +75,7 @@ class ResolutionUpdate(APIModel):
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
-    Example:
+    Examples:
         >>> ResolutionUpdate(order=90).model_dump(by_alias=True, exclude_none=True)
         {'order': 90}
     """

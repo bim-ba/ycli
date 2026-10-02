@@ -32,8 +32,9 @@ mcp = FastMCP("tracker-import")
     name="import_task", annotations={**WRITE, "title": "Import Tracker issue"}, tags=WRITE_TAGS
 )
 def task(body: ImportTask, client: TrackerClient = Depends(tracker_client)) -> Issue:
-    """Import an issue preserving its original history (admin-only back-fill). Returns the
-    imported issue.
+    """Import an issue preserving its original history (admin-only back-fill).
+
+    Returns the imported issue.
     """
     return client.import_.task(body=body.model_dump(by_alias=True, exclude_none=True))
 

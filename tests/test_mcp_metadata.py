@@ -54,6 +54,23 @@ def _undescribed_parameters(tools) -> list[str]:
     ]
 
 
+def test_no_tool_docstring_carries_an_example():
+    """A tool's docstring is its description; an example there never ran and only costs tokens.
+
+    Read from the mounted server before ``LightListing``, which would hide one.
+    """
+
+    async def go():
+        tools = []
+        for service in SERVICES:
+            tools += await service.mcp_server().list_tools()
+        return tools
+
+    tools = asyncio.run(go())
+    assert tools
+    assert [tool.name for tool in tools if ">>>" in (tool.description or "")] == []
+
+
 def test_every_tool_parameter_has_a_description():
     """An agent reads these to fill the call: a bare ``key`` or ``queue_id`` is a guess."""
     assert _undescribed_parameters(_tools()) == []

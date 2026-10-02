@@ -69,7 +69,13 @@ def format_cli_error(exc: Exception) -> str:
 def exit_code_for(exc: Exception) -> ExitCode:
     """The process exit status for a fatal error — the one mapping, documented in the README.
 
-    Example:
+    Args:
+        exc: The fatal error.
+
+    Returns:
+        The exit status for ``exc``.
+
+    Examples:
         >>> exit_code_for(YandexNotFoundError("gone", status=404))
         <ExitCode.NOT_FOUND: 3>
         >>> exit_code_for(RuntimeError("boom"))

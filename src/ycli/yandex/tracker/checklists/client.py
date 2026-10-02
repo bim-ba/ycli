@@ -23,9 +23,14 @@ class ChecklistsClient(Resource):
     def get(self, key: str) -> ChecklistItemList:
         """``GET /issues/{key}/checklistItems`` → the issue's checklist items.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.checklists.get(key="DATAENGINEERING-1").root[0].text  # doctest: +SKIP
+        Args:
+            key: The issue key.
+
+        Returns:
+            The issue's checklist items.
+
+        Examples:
+            >>> tracker.checklists.get("DE-31").root[0].text
             'Review the PR'
         """
         return self._session.send(endpoints.get_checklist(key))
@@ -33,45 +38,63 @@ class ChecklistsClient(Resource):
     def create(self, key: str, body: dict[str, Any]) -> Checklist:
         """``POST /issues/{key}/checklistItems`` — add an item. Returns the issue wrapper.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.checklists.create(
-            ...     "DATAENGINEERING-1", {"text": "step 1"}
-            ... ).key  # doctest: +SKIP
-            'DATAENGINEERING-1'
+        Args:
+            key: The issue key.
+            body: The new item: its text and optional checked flag, assignee and deadline.
+
+        Returns:
+            The issue wrapper with the updated checklist.
+
+        Examples:
+            >>> tracker.checklists.create("DE-32", {"text": "step 1"}).key
+            'DE-32'
         """
         return self._session.send(endpoints.create_checklist_item(key, body))
 
     def edit(self, key: str, item_id: str, body: dict[str, Any]) -> Checklist:
         """``PATCH /issues/{key}/checklistItems/{item_id}`` — edit an item. Returns the wrapper.
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.checklists.edit(
-            ...     "DATAENGINEERING-1", "5f", {"checked": True}
-            ... ).key  # doctest: +SKIP
-            'DATAENGINEERING-1'
+        Args:
+            key: The issue key.
+            item_id: The checklist item's id.
+            body: The item fields to change.
+
+        Returns:
+            The issue wrapper with the updated checklist.
+
+        Examples:
+            >>> tracker.checklists.edit("DE-34", "5f4", {"text": "step 2"}).key
+            'DE-34'
         """
         return self._session.send(endpoints.edit_checklist_item(key, item_id, body))
 
     def delete(self, key: str, item_id: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems/{item_id}`` — remove one item (200 + wrapper).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.checklists.delete(
-            ...     "DATAENGINEERING-1", "5f"
-            ... ).checklist_total  # doctest: +SKIP
-            3
+        Args:
+            key: The issue key.
+            item_id: The checklist item's id.
+
+        Returns:
+            The issue wrapper with the remaining checklist.
+
+        Examples:
+            >>> tracker.checklists.delete("DE-36", "5f6").checklist_items[0].text
+            'left'
         """
         return self._session.send(endpoints.delete_checklist_item(key, item_id))
 
     def clear(self, key: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems`` — remove the whole checklist (200 + wrapper).
 
-        Example:
-            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.checklists.clear("DATAENGINEERING-1").checklist_items  # doctest: +SKIP
+        Args:
+            key: The issue key.
+
+        Returns:
+            The issue wrapper with an empty checklist.
+
+        Examples:
+            >>> tracker.checklists.clear("DE-37").checklist_items
             []
         """
         return self._session.send(endpoints.clear_checklist(key))

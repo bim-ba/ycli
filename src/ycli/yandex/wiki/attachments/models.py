@@ -14,7 +14,7 @@ class Attachment(APIModel):
     MIME type ``mimetype`` — matching the sibling :class:`AttachedFile` and the ``resources``
     listing.
 
-    Example:
+    Examples:
         >>> Attachment.model_validate(
         ...     {"id": 7, "name": "d.png", "size": "0.00", "mimetype": "image/png"}
         ... ).id
@@ -36,7 +36,7 @@ class AttachmentsResponse(APIModel):
     ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
     feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
 
-    Example:
+    Examples:
         >>> AttachmentsResponse.model_validate({"results": [{"name": "d.png"}]}).results[0].name
         'd.png'
     """
@@ -53,7 +53,7 @@ class AttachmentList(RootModel[list[Attachment]]):
 
     Public return type of ``AttachmentsClient.list``.
 
-    Example:
+    Examples:
         >>> AttachmentList([Attachment.model_validate({"name": "d.png"})]).root[0].name
         'd.png'
     """
@@ -67,7 +67,7 @@ class AttachmentCreate(APIModel):
     Attaches file(s) already uploaded via the upload-session pipeline; each entry is a
     finished session's ``session_id``.
 
-    Example:
+    Examples:
         >>> AttachmentCreate(upload_sessions=["1e5c…"]).upload_sessions
         ['1e5c…']
     """
@@ -83,7 +83,7 @@ class AttachedFile(APIModel):
     Richer than the list-surface :class:`Attachment`: carries the new ``id``, ``download_url``
     and virus-``check_status`` the attach response returns.
 
-    Example:
+    Examples:
         >>> AttachedFile.model_validate({"id": 7, "name": "d.png"}).id
         7
     """
@@ -114,7 +114,7 @@ class AttachResponse(APIModel):
     Internal parse type used by ``AttachmentsClient._attach``; callers get the flat
     :class:`AttachedFileList`.
 
-    Example:
+    Examples:
         >>> AttachResponse.model_validate({"results": [{"id": 7}]}).results[0].id
         7
     """
@@ -125,7 +125,7 @@ class AttachResponse(APIModel):
 class AttachedFileList(RootModel[list[AttachedFile]]):
     """Flat collection of :class:`AttachedFile` items — public return of ``attach`` / ``upload``.
 
-    Example:
+    Examples:
         >>> AttachedFileList([AttachedFile.model_validate({"id": 7})]).root[0].id
         7
     """

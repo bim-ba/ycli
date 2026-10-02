@@ -5,9 +5,10 @@ client in :meth:`DomainClient._wire`. Credentials arrive as explicit constructor
 (ARCH-7): the base never reads the environment, and refuses an empty credential rather than
 send an unauthenticated request.
 
-Example:
-    >>> with TrackerClient(oauth_token="…", organization_id="…") as client:  # doctest: +SKIP
-    ...     client.issues.get("DE-1")
+Examples:
+    >>> with tracker as client:
+    ...     client.issues.get("DE-7").key
+    'DE-7'
 """
 
 from __future__ import annotations

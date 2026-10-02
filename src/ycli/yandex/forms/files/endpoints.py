@@ -1,6 +1,6 @@
 """Forms file-storage operations, declared once (sans-IO).
 
-Example:
+Examples:
     >>> verify_files("686d", [{"path": "a/b.pdf"}]).effect
     'read'
 """

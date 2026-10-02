@@ -17,9 +17,11 @@ class MeClient(Resource):
     def get(self) -> User:
         """``GET /users/me`` → the authenticated ``User`` (a safe auth probe).
 
-        Example:
-            >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.me.get().email  # doctest: +SKIP
-            'znatnov.s@example.com'
+        Returns:
+            The authenticated user.
+
+        Examples:
+            >>> forms.me.get().email
+            'ann@example.com'
         """
         return self._session.send(endpoints.get_me())

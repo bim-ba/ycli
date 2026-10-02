@@ -16,7 +16,7 @@ from ycli.yandex.models import APIModel
 class Hook(APIModel):
     """An integration group with its conditions and integrations.
 
-    Example:
+    Examples:
         >>> Hook.model_validate(
         ...     {
         ...         "id": 11,
@@ -42,7 +42,7 @@ class Hook(APIModel):
 class HookList(RootModel[list[Hook]]):
     """A bare JSON array of :class:`Hook` — the return type of ``HooksClient.list``.
 
-    Example:
+    Examples:
         >>> HookList.model_validate([{"id": 11}]).root[0].id
         11
     """
@@ -51,7 +51,7 @@ class HookList(RootModel[list[Hook]]):
 class HookCreate(APIModel):
     """Typed body for ``POST /surveys/{id}/hooks``; unset fields are dropped before sending.
 
-    Example:
+    Examples:
         >>> HookCreate(name="CRM", active=False).model_dump(exclude_none=True)
         {'name': 'CRM', 'active': False}
     """
@@ -63,7 +63,7 @@ class HookCreate(APIModel):
 class HookUpdate(HookCreate):
     """Typed body for ``PATCH /surveys/{id}/hooks/{hook_id}``: only the fields set change.
 
-    Example:
+    Examples:
         >>> HookUpdate(active=True).model_dump(exclude_none=True)
         {'active': True}
     """

@@ -150,6 +150,8 @@ def errors_list(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
     client: FormsClient = Depends(forms_client),
 ) -> NotificationIdList:
-    """Ids of a form's failed integration runs that are still shown; read each with
-    ``notifications_get``."""
+    """Ids of a form's failed integration runs that are still shown.
+
+    Read each with ``notifications_get``.
+    """
     return client.notifications.errors_list(survey_id)

@@ -25,8 +25,10 @@ Example:
 
 from __future__ import annotations
 
+import importlib
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import _EFFECT_BY_METHOD, EFFECT_EXTENSION
@@ -38,6 +40,8 @@ if TYPE_CHECKING:
     import httpx2
 
     from ycli.yandex.core.endpoint import Effect, Method
+
+TESTS = Path(__file__).parent
 
 # The MCP hints each effect implies (ARCH-3), and the order of effects from mildest to strongest:
 # a tool that reads and then deletes is as destructive as its delete.
@@ -312,3 +316,12 @@ def hints_disagree(annotations: Mapping[str, Any], effect: Effect) -> list[str]:
     """
     expected = EFFECT_HINTS[effect]
     return [key for key in HINT_KEYS if annotations.get(key) != expected.get(key)]
+
+
+def load_cases() -> list[Case]:
+    """Every resource's ``CASES``, from ``tests/yandex/<domain>/<resource>/cases.py``."""
+    cases: list[Case] = []
+    for path in sorted(TESTS.glob("yandex/*/*/cases.py")):
+        module = ".".join(path.relative_to(TESTS.parent).with_suffix("").parts)
+        cases += importlib.import_module(module).CASES
+    return cases

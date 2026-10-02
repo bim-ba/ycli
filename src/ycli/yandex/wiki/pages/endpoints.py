@@ -3,7 +3,7 @@
 The API updates a page with ``POST /pages/{id}`` (``PATCH`` answers 405); sending the same body
 twice leaves the same page, so that endpoint declares itself an idempotent write.
 
-Example:
+Examples:
     >>> get_page("data/x", fields=None).params
     {'slug': 'data/x', 'fields': None}
     >>> update_page(7, {"content": "# X"}).effect

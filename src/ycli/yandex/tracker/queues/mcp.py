@@ -55,9 +55,6 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given. Each item's ``key`` is the
     queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TEST-123). Use
     ``queues_get`` for a single queue's full configuration (types, workflows, resolutions).
-
-    Example:
-        >>> queues_list(limit=10)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.queues.list(limit=cap)
@@ -84,9 +81,6 @@ def get(
     Returns the queue's owner, default type/priority, and — when ``expand`` is set — its issue
     types, versions, team, workflows and per-type resolution config. Sibling ``queues_list``
     enumerates every queue; pass one of its ``key`` values here.
-
-    Example:
-        >>> queues_get("TEST", expand="all")  # doctest: +SKIP
     """
     result = client.queues.get(queue_id, expand=expand or None)
     return require_found(
@@ -109,9 +103,6 @@ def tags_list(
 
     These are the tags selectable on the queue's issues (the ``tags`` field). Remove one
     everywhere with ``queues_tag_remove``.
-
-    Example:
-        >>> queues_tags_list("TEST")  # doctest: +SKIP
     """
     return client.queues.tags(queue_id)
 
@@ -131,9 +122,6 @@ def versions_list(
 
     Each item carries the version's name, date range and released/archived flags. Create one
     with ``queues_version_create``.
-
-    Example:
-        >>> queues_versions_list("TEST")  # doctest: +SKIP
     """
     return client.queues.versions(queue_id)
 
@@ -153,9 +141,6 @@ def fields_list(
 
     Use this to learn which fields an issue in the queue expects (and whether each is required)
     before creating or updating issues there.
-
-    Example:
-        >>> queues_fields_list("TEST")  # doctest: +SKIP
     """
     return client.queues.fields(queue_id)
 
@@ -261,11 +246,7 @@ def version_get(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueVersionInfo:
-    """One queue version: name, description, dates and its released/archived flags.
-
-    Example:
-        >>> queues_version_get(123)  # doctest: +SKIP
-    """
+    """One queue version: name, description, dates and its released/archived flags."""
     return client.queues.version_get(version_id, fields=fields)
 
 
@@ -284,11 +265,7 @@ def version_edit(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueVersionInfo:
-    """Edit a queue version; only the fields set in ``body`` change. Returns the version.
-
-    Example:
-        >>> queues_version_update(123, {"name": "v1.1"})  # doctest: +SKIP
-    """
+    """Edit a queue version; only the fields set in ``body`` change. Returns the version."""
     return client.queues.version_edit(version_id, body, fields=fields)
 
 
@@ -324,9 +301,6 @@ def user_permissions_get(
 
     Each right lists who grants it: the user personally, a group or a role. To change rights
     use ``queues_set_permissions``.
-
-    Example:
-        >>> queues_user_permissions_get("TEST", "alice")  # doctest: +SKIP
     """
     return client.queues.user_permissions(queue_id, user_id)
 
@@ -343,9 +317,5 @@ def group_permissions_get(
     group_id: Annotated[int, Field(description="Numeric id of the group.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueGroupAccess:
-    """What one group may do in a queue (create, read, write, grant, deny).
-
-    Example:
-        >>> queues_group_permissions_get("TEST", 5)  # doctest: +SKIP
-    """
+    """What one group may do in a queue (create, read, write, grant, deny)."""
     return client.queues.group_permissions(queue_id, group_id)

@@ -62,9 +62,6 @@ def thread_list(
     first, then its descendants in depth-first order. Capped at the configured item cap unless
     ``limit`` is given. Use ``comments_list`` first to discover a root comment id, then this to
     read its thread.
-
-    Example:
-        >>> thread_list(page_id=12345, comment_id=678, limit=50)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
@@ -87,9 +84,6 @@ def thread_get(
     Checked live on 2026-10-02: the server's ``/thread`` endpoint has no replies to give, for a
     root comment or a reply, plain or inline. Use ``comments_thread_list``, which rebuilds the
     thread from the page's comment list.
-
-    Example:
-        >>> thread_get(page_id=12345, comment_id=678)  # doctest: +SKIP
     """
     cap = config.http.cap(limit)
     return client.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
@@ -113,9 +107,6 @@ def create(
 
     Pass ``body.parent_id`` to reply to an existing comment — find ids with
     ``comments_list``. Returns the created comment with its numeric ``id``.
-
-    Example:
-        >>> create(page_id=12345, body={"body": "LGTM", "parent_id": 7})  # doctest: +SKIP
     """
     return client.comments.create(page_id=page_id, body=body.model_dump(exclude_none=True))
 
@@ -135,8 +126,5 @@ def delete(
     Returns the page's remaining ``comments_count``. Verify the target with
     ``comments_list`` / ``comments_thread_list`` first: deleting a parent orphans its
     replies' threading.
-
-    Example:
-        >>> delete(page_id=12345, comment_id=678)  # doctest: +SKIP
     """
     return client.comments.delete(page_id=page_id, comment_id=comment_id)

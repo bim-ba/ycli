@@ -46,11 +46,6 @@ def create(
     A user who already holds a personal access is refused: change it with ``access_update``.
     Read the current accesses with ``pages_get_by_id`` and
     ``fields="access_policy,access_lists"``.
-
-    Example:
-        >>> create(
-        ...     page_id=12345, body={"user": {"uid": "1000"}, "role": "reader"}
-        ... )  # doctest: +SKIP
     """
     return client.access.create(page_id=page_id, body=body.model_dump(exclude_none=True))
 
@@ -73,11 +68,6 @@ def update(
     """Change the role or reach of one access entry on a wiki page.
 
     The page owner's own entry cannot be changed.
-
-    Example:
-        >>> update(
-        ...     page_id=12345, access_id="48723431", body={"role": "editor"}, prevent_selflock=True
-        ... )  # doctest: +SKIP
     """
     return client.access.update(
         page_id=page_id,
@@ -101,9 +91,6 @@ def delete(
     """Revoke one access entry on a wiki page — the holder loses that grant at once.
 
     The page owner's own entry cannot be revoked.
-
-    Example:
-        >>> delete(page_id=12345, access_id="48723431", prevent_selflock=True)  # doctest: +SKIP
     """
     client.access.delete(page_id=page_id, access_id=access_id, prevent_selflock=prevent_selflock)
     return Ack.deleted("access", access_id, from_=f"page {page_id}")
@@ -123,9 +110,6 @@ def clear(
 
     Everyone but the owner falls back to the page's access policy. Irreversible: the revoked
     entries are not kept.
-
-    Example:
-        >>> clear(page_id=12345, prevent_selflock=True)  # doctest: +SKIP
     """
     client.access.clear(page_id=page_id, prevent_selflock=prevent_selflock)
     return Ack.cleared(f"personal accesses on page {page_id}")

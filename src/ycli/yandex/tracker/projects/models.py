@@ -29,7 +29,7 @@ class ProjectStatus(enum.StrEnum):
 class Project(APIModel):
     """A Tracker project (``GET /projects/{id}``).
 
-    Example:
+    Examples:
         >>> Project.model_validate({"id": "1", "name": "Launch", "status": "draft"}).status
         'draft'
     """
@@ -64,7 +64,7 @@ class Project(APIModel):
 class ProjectList(RootModel[list[Project]]):
     """A bare JSON array of the organization's projects.
 
-    Example:
+    Examples:
         >>> ProjectList.model_validate([{"id": "1"}]).root[0].id
         '1'
     """
@@ -73,7 +73,7 @@ class ProjectList(RootModel[list[Project]]):
 class ProjectCreate(APIModel):
     """Typed request body for ``projects.create`` (``POST /projects``).
 
-    Example:
+    Examples:
         >>> ProjectCreate(name="Launch", queues="TEST").model_dump(by_alias=True, exclude_none=True)
         {'name': 'Launch', 'queues': 'TEST'}
     """
@@ -96,7 +96,7 @@ class ProjectUpdate(APIModel):
 
     ``queues`` is required by the API on every edit; the rest change when set.
 
-    Example:
+    Examples:
         >>> ProjectUpdate(queues="TEST", name="Renamed").model_dump(exclude_none=True)
         {'queues': 'TEST', 'name': 'Renamed'}
     """

@@ -29,9 +29,14 @@ class OperationsClient(Resource):
         The ``task_id`` is the ``operation.id`` returned by ``PagesClient.clone``. Poll until
         ``is_terminal``; on ``success`` the ``result.page`` names the clone.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.operations.clone_get("task-1").is_terminal  # doctest: +SKIP
+        Args:
+            task_id: The operation's id.
+
+        Returns:
+            The clone's status.
+
+        Examples:
+            >>> wiki.operations.clone_get("task-5201").is_terminal
             True
         """
         return self._session.send(endpoints.get_clone_status(task_id))
@@ -42,10 +47,15 @@ class OperationsClient(Resource):
         The ``task_id`` is the ``operation.id`` returned by ``GridsClient.clone``. Poll until
         ``is_terminal``; on ``success`` the ``result.grid_id`` names the copy.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.operations.gridclone_get("task-1").is_terminal  # doctest: +SKIP
-            True
+        Args:
+            task_id: The operation's id.
+
+        Returns:
+            The grid clone's status.
+
+        Examples:
+            >>> wiki.operations.gridclone_get("task-5301").is_terminal
+            False
         """
         return self._session.send(endpoints.get_grid_clone_status(task_id))
 
@@ -56,9 +66,14 @@ class OperationsClient(Resource):
         is the ``operation.id`` returned by ``PagesClient.move``. Poll until ``is_terminal``; on
         ``success`` the ``result.page_count`` says how many pages moved.
 
-        Example:
-            >>> client = WikiClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
-            >>> client.operations.move_get("task-1").is_terminal  # doctest: +SKIP
-            True
+        Args:
+            task_id: The operation's id.
+
+        Returns:
+            The move's status.
+
+        Examples:
+            >>> wiki.operations.move_get("task-5401").result.page_count
+            4
         """
         return self._session.send(endpoints.get_move_status(task_id))

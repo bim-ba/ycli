@@ -24,7 +24,7 @@ from ycli.yandex.models import APIModel
 class FrontendTexts(APIModel):
     """Button captions shown while filling the form (``texts``).
 
-    Example:
+    Examples:
         >>> FrontendTexts(submit="Send", back="Back", next="Next").submit
         'Send'
     """
@@ -37,7 +37,7 @@ class FrontendTexts(APIModel):
 class FrontendMetric(APIModel):
     """Yandex Metrica counter ids attached to the form (``metric``).
 
-    Example:
+    Examples:
         >>> FrontendMetric(form=1, group=2).group
         2
     """
@@ -49,7 +49,7 @@ class FrontendMetric(APIModel):
 class FrontendOrganization(APIModel):
     """The organization that owns the form (``org``).
 
-    Example:
+    Examples:
         >>> FrontendOrganization(dir_id="1", collab_id="2").dir_id
         '1'
     """
@@ -67,7 +67,7 @@ class FillableForm(APIModel):
     keys you post back in :class:`SubmitBody`. The deeply polymorphic ``pages`` / ``conditions`` /
     ``styles`` are passed through verbatim.
 
-    Example:
+    Examples:
         >>> FillableForm.model_validate(
         ...     {"id": "686d", "name": "Feedback", "pages": [{"items": []}]}
         ... ).name
@@ -112,7 +112,7 @@ class SubmitBody(APIModel):
     ``{name, path}`` files, or matrix ``{row, column}`` items. Whatever keys you set are sent
     verbatim.
 
-    Example:
+    Examples:
         >>> SubmitBody.model_validate({"answer_short_text_1": "Ann"}).model_dump()
         {'answer_short_text_1': 'Ann'}
     """
@@ -128,7 +128,7 @@ class SubmitResult(APIModel):
     polymorphic blocks (``redirect``, ``image``, ``payment``, ``styles``, ``integrations``) are
     passed through verbatim.
 
-    Example:
+    Examples:
         >>> SubmitResult.model_validate({"id": "686d", "answer_id": 99}).answer_id
         99
     """
@@ -172,7 +172,7 @@ class Suggestion(APIModel):
     share ``layer`` / ``id`` / ``text`` and add layer-specific keys; ``extra="allow"`` preserves
     those extras (``country_id``, ``population``, ``login``, ``email``, ``queue``, …).
 
-    Example:
+    Examples:
         >>> Suggestion.model_validate({"layer": "city", "id": "1", "text": "Berlin"}).text
         'Berlin'
     """
@@ -188,7 +188,7 @@ class Suggestion(APIModel):
 class SuggestionList(RootModel[list[Suggestion]]):
     """Flat list of :class:`Suggestion` — the public return of ``FillingClient.suggest``.
 
-    Example:
+    Examples:
         >>> SuggestionList.model_validate([{"layer": "gender", "id": "m", "text": "Male"}]).root[
         ...     0
         ... ].text
