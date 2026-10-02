@@ -18,7 +18,10 @@ LABEL org.opencontainers.image.title="ycli" \
       org.opencontainers.image.licenses="MIT" \
       io.modelcontextprotocol.server.name="io.github.bim-ba/ycli"
 COPY --from=build /opt/ycli /opt/ycli
-ENV PATH=/opt/ycli/bin:$PATH
+# `mcp start --transport http` keeps OAuth client registrations under FASTMCP_HOME: mount a
+# volume on /data to keep users signed in across restarts.
+RUN install -d -o nobody /data
+ENV PATH=/opt/ycli/bin:$PATH FASTMCP_HOME=/data
 USER nobody
 ENTRYPOINT ["ycli"]
 CMD ["mcp", "start"]

@@ -845,10 +845,11 @@ ARCH7_ROOTS = {
     Path("cli/app.py"): "CLI root callback (logging config)",
     Path("cli/context.py"): "CLI dependency container",
     Path("mcp/__main__.py"): "python -m ycli.mcp entry point",
+    Path("mcp/server.py"): "MCP over HTTP reads its address and the OAuth app at start",
     Path("yandex/mcp.py"): "MCP per-request providers",
     Path("yandex/status/cli.py"): "auth status/login read and write credentials by design",
 }
-_SETTINGS_MODELS = {"AppConfig", "Credentials", "OAuthAppConfig"}
+_SETTINGS_MODELS = {"AppConfig", "Credentials", "MCPHTTPConfig", "OAuthAppConfig"}
 
 
 def _settings_constructions(source: str) -> list[int]:

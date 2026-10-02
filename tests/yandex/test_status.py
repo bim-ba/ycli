@@ -74,6 +74,7 @@ def test_status_reports_the_owner_the_organization_and_every_service(stubbed):
     assert report["identity"] == {
         "id": "7",
         "login": "alice",
+        "client_id": None,
         "display_name": None,
         "real_name": None,
         "default_email": None,

@@ -4,7 +4,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
 from ycli.settings import AppConfig
-from ycli.yandex.mcp import RO, EnvAuthSource, app_config
+from ycli.yandex.mcp import RO, app_config, caller_credentials
 from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import build_report
 
@@ -20,4 +20,4 @@ def get(config: AppConfig = Depends(app_config)) -> AuthReport:
     the token has the ``directory:read_organization`` scope (API 360), its name. ``services`` has
     one probe each, with ``valid`` and, on failure, ``detail``.
     """
-    return build_report(EnvAuthSource().resolve(), config)
+    return build_report(caller_credentials(), config)

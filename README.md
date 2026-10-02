@@ -118,6 +118,14 @@ Serving all 322 tools costs a large `tools/list` and some hosts cap a request (V
 still carry `structuredContent`), which cuts `tools/list` from about 1.9 MB to about 0.5 MB for
 the full set.
 
+For several users, serve it over HTTP: each MCP client signs its user in through Yandex ID
+(OAuth), and every tool call runs with that user's own Yandex token. Setup, including the
+Yandex OAuth app and the reverse proxy, is in [Self-host over HTTP](docs/self-host.md).
+
+```bash
+ycli mcp start --transport http --toolsets core   # needs YCLI__MCP__BASE_URL and an OAuth app
+```
+
 List the tool names a given set of flags exposes without running the server:
 
 ```bash

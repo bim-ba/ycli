@@ -3,12 +3,12 @@
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
-from pydantic import BaseModel, SecretStr, ValidationError
+from pydantic import BaseModel, ValidationError
 
 from tests.hosts import TRACKER_BASE
 from ycli.settings import Credentials
 from ycli.yandex.core.session import SyncSession
-from ycli.yandex.mcp import EnvAuthSource, app_config, client_provider
+from ycli.yandex.mcp import app_config, caller_credentials, client_provider
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues import mcp as issues_mcp
 
@@ -25,18 +25,6 @@ def test_a_rotated_token_applies_to_the_next_call(api, monkeypatch):
     assert [call.headers["Authorization"] for call in api.calls] == ["OAuth first", "OAuth second"]
 
 
-def test_an_explicit_auth_source_wins_over_the_environment(api):
-    class FixedSource:
-        def resolve(self) -> Credentials:
-            return Credentials(oauth_token=SecretStr("fixed"), organization_id="org-1")
-
-    api.add("GET", f"{TRACKER_BASE}/myself", json={"login": "alice"})
-    with client_provider(TrackerClient, FixedSource())() as client:
-        client.me.get()
-    assert api.calls[0].headers["Authorization"] == "OAuth fixed"
-    assert api.calls[0].headers["X-Org-Id"] == "org-1"
-
-
 def test_tracker_deps_factory_builds_from_env(api, monkeypatch):
     """dependencies.tracker_client() reads env and returns a working TrackerClient."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
@@ -50,10 +38,10 @@ def test_tracker_deps_factory_builds_from_env(api, monkeypatch):
     assert api.calls[0].headers["Authorization"] == "OAuth tok"
 
 
-def test_env_auth_source_and_config_read_the_environment(monkeypatch):
+def test_stdio_credentials_and_config_read_the_environment(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org-env")
     monkeypatch.setenv("YCLI__HTTP__RETRIES", "1")
-    assert EnvAuthSource().resolve().organization_id == "org-env"
+    assert caller_credentials().organization_id == "org-env"
     assert app_config().http.retries == 1
 
 
@@ -112,4 +100,4 @@ def test_a_validation_error_unrelated_to_credentials_is_not_reworded(monkeypatch
 
     monkeypatch.setattr("ycli.yandex.mcp.Credentials", broken)
     with pytest.raises(ValidationError):
-        EnvAuthSource().resolve()
+        caller_credentials()

@@ -18,7 +18,7 @@ export YANDEX_ID_ORGANIZATION_ID=...    # Yandex 360 organization id
 | [Codex CLI](#codex-cli) | `~/.codex/config.toml` | `uv` |
 | [Gemini CLI](#gemini-cli) | `settings.json` | `uv` |
 | [opencode](#opencode) | `opencode.jsonc` | `uv` |
-| [ChatGPT](#chatgpt) | local: through Codex; web: not yet | |
+| [ChatGPT](#chatgpt) | local: through Codex; web: a self-hosted HTTP server | |
 | [Docker](#docker) | `ghcr.io/bim-ba/ycli` | Docker |
 | [MCP Registry](#mcp-registry) | `io.github.bim-ba/ycli` | |
 | [Skills only](#skills-only) | `npx skills add` | `npx` |
@@ -168,7 +168,7 @@ startup_timeout_sec = 60   # the first uvx run downloads the package
 | Surface | Works | Why |
 |---|---|---|
 | Codex (CLI, desktop, IDE) | yes | local stdio, see [Codex CLI](#codex-cli) |
-| ChatGPT on the web | not yet | it connects to remote HTTPS MCP servers only; ycli serves stdio today, tracked in [#108](https://github.com/bim-ba/ycli/issues/108) |
+| ChatGPT on the web | with your own server | it connects to remote HTTPS MCP servers only: run `ycli mcp start --transport http` behind HTTPS, see [Self-host over HTTP](self-host.md); there is no public ycli instance |
 
 ## Docker
 

@@ -21,6 +21,7 @@ from typing import Annotated, Literal
 
 from pydantic import (
     AliasChoices,
+    AnyHttpUrl,
     BaseModel,
     BeforeValidator,
     ConfigDict,
@@ -133,6 +134,43 @@ class OAuthAppConfig(BaseSettings):
     client_secret: SecretStr | None = Field(
         default=None, validation_alias="YANDEX_OAUTH_CLIENT_SECRET"
     )
+
+
+class MCPHTTPConfig(BaseSettings):
+    """``ycli mcp start --transport http`` (``YCLI__MCP__*``): the server's address and signing key.
+
+    ``base_url`` is the public HTTPS address MCP clients reach (the Yandex OAuth app's redirect
+    URI is ``<base_url>/auth/callback``); ``host``/``port`` are where the process listens,
+    behind the TLS proxy. ``organization_id`` is the one organization every caller works in.
+    ``jwt_signing_key`` signs the server's own tokens (derived from the OAuth app's secret when
+    unset); a verified Yandex token is trusted for ``token_cache_seconds`` before Yandex ID is
+    asked again, so a revoked token keeps working at most that long.
+
+    Example:
+        >>> MCPHTTPConfig(base_url="https://mcp.example.com", organization_id="1").port
+        8000
+    """
+
+    model_config = SettingsConfigDict(
+        env_prefix="YCLI__MCP__",
+        env_file=".env",
+        env_ignore_empty=True,
+        extra="ignore",
+        validate_by_name=True,
+        frozen=True,
+    )
+
+    base_url: AnyHttpUrl
+    organization_id: str = Field(
+        min_length=1,
+        validation_alias=AliasChoices(
+            "organization_id", ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"
+        ),
+    )
+    host: str = "127.0.0.1"
+    port: PositiveInt = 8000
+    jwt_signing_key: SecretStr | None = None
+    token_cache_seconds: NonNegativeInt = 300
 
 
 def missing_credentials(exc: Exception) -> list[str]:

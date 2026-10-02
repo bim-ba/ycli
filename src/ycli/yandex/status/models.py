@@ -10,8 +10,9 @@ from ycli.yandex.models import APIModel
 class Identity(APIModel):
     """Who owns the token — Yandex ID's ``GET https://login.yandex.ru/info`` answer.
 
-    Any valid token returns ``id`` and ``login``; the rest needs the ``login:*`` scopes
-    (``login:info`` for the names, ``login:email`` for the address).
+    Any valid token returns ``id``, ``login`` and ``client_id`` (the OAuth app it was issued to);
+    the rest needs the ``login:*`` scopes (``login:info`` for the names, ``login:email`` for the
+    address).
 
     Example:
         >>> Identity.model_validate({"id": "1000034426", "login": "ivan", "psuid": "x"}).login
@@ -20,6 +21,7 @@ class Identity(APIModel):
 
     id: str
     login: str
+    client_id: str | None = None
     display_name: str | None = None
     real_name: str | None = None
     default_email: str | None = None
