@@ -9,10 +9,56 @@ from ycli.yandex.tracker.queues.models import (
     QueuePermissionsUpdate,
     QueueTagRemove,
     QueueVersionCreate,
+    QueueVersionUpdate,
 )
 
 # A full first page (Tracker's 50) forces a second request; the short second page ends the walk.
 FULL_PAGE = [{"id": str(index), "key": f"Q{index}"} for index in range(50)]
+USER_ACCESS = {
+    "user": {
+        "self": "https://api.tracker.yandex.net/v3/users/11",
+        "id": "11",
+        "display": "Carol",
+        "cloudUid": "ajeppa7dgp53",
+        "passportUid": 1100,
+    },
+    "permissions": {
+        "GRANT": {
+            "roles": [
+                {
+                    "self": "https://api.tracker.yandex.net/v3/roles/queue-lead",
+                    "id": "queue-lead",
+                    "display": "Queue owner",
+                }
+            ]
+        },
+        "CREATE": {
+            "users": [
+                {
+                    "self": "https://api.tracker.yandex.net/v3/users/11",
+                    "id": "11",
+                    "display": "Carol",
+                    "passportUid": 1100,
+                }
+            ],
+            "groups": [
+                {
+                    "self": "https://api.tracker.yandex.net/v3/groups/5",
+                    "id": "5",
+                    "display": "All users",
+                }
+            ],
+        },
+        "DENY": {"users": [{"id": "12", "display": "Dan"}]},
+    },
+    "components": [
+        {
+            "self": "https://api.tracker.yandex.net/v3/components/1",
+            "id": "1",
+            "display": "Component 1",
+        }
+    ],
+}
 QUEUE = {"id": "3", "key": "DESIGN", "name": "Design"}
 
 
@@ -407,6 +453,152 @@ CASES = [
             (
                 Sent("POST", "versions/", json={"queue": "BARE", "name": "v0.1"}),
                 Reply(json={"id": 6, "name": "v0.1"}, status=201),
+            )
+        ],
+    ),
+    Case(
+        "tracker.queues.version_get",
+        args=(901,),
+        kwargs={"fields": "name,dueDate,released"},
+        cli=["tracker", "queues", "version-get", "901", "--fields", "name,dueDate,released"],
+        mcp=(
+            "tracker_queues_version_get",
+            {"version_id": 901, "fields": "name,dueDate,released"},
+        ),
+        exchanges=[
+            (
+                Sent("GET", "versions/901", {"fields": "name,dueDate,released"}),
+                Reply(
+                    json={
+                        "self": "https://api.tracker.yandex.net/v3/versions/901",
+                        "id": 901,
+                        "version": 1,
+                        "queue": {"id": "1", "key": "TEST", "display": "Test queue"},
+                        "name": "Release 1.0",
+                        "description": "First release",
+                        "startDate": "2026-08-26",
+                        "dueDate": "2026-08-27",
+                        "released": False,
+                        "archived": False,
+                    }
+                ),
+            )
+        ],
+    ),
+    Case(
+        "tracker.queues.version_get",
+        args=(902,),
+        cli=["tracker", "queues", "version-get", "902"],
+        mcp=None,
+        exchanges=[(Sent("GET", "versions/902"), Reply(json={"id": 902, "name": "Plain"}))],
+    ),
+    Case(
+        "tracker.queues.version_edit",
+        args=(
+            903,
+            QueueVersionUpdate(
+                name="Release 1.1",
+                description="Renamed",
+                start_date="2026-09-01",
+                due_date="2026-09-30",
+            ),
+        ),
+        kwargs={"fields": "name,description"},
+        cli=[
+            "tracker",
+            "queues",
+            "version-edit",
+            "903",
+            "--name",
+            "Release 1.1",
+            "--description",
+            "Renamed",
+            "--start-date",
+            "2026-09-01",
+            "--due-date",
+            "2026-09-30",
+            "--fields",
+            "name,description",
+        ],
+        mcp=(
+            "tracker_queues_version_edit",
+            {
+                "version_id": 903,
+                "body": {
+                    "name": "Release 1.1",
+                    "description": "Renamed",
+                    "start_date": "2026-09-01",
+                    "due_date": "2026-09-30",
+                },
+                "fields": "name,description",
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "PATCH",
+                    "versions/903",
+                    {"fields": "name,description"},
+                    {
+                        "name": "Release 1.1",
+                        "description": "Renamed",
+                        "startDate": "2026-09-01",
+                        "dueDate": "2026-09-30",
+                    },
+                ),
+                Reply(json={"id": 903, "version": 2, "name": "Release 1.1"}),
+            )
+        ],
+    ),
+    # Only the supplied fields are sent, and no ?version= lock goes with a version edit.
+    Case(
+        "tracker.queues.version_edit",
+        args=(904, QueueVersionUpdate(due_date="2027-01-31")),
+        cli=["tracker", "queues", "version-edit", "904", "--due-date", "2027-01-31"],
+        mcp=None,
+        exchanges=[
+            (
+                Sent("PATCH", "versions/904", json={"dueDate": "2027-01-31"}),
+                Reply(json={"id": 904, "dueDate": "2027-01-31"}),
+            )
+        ],
+    ),
+    Case(
+        "tracker.queues.version_delete",
+        args=(905,),
+        cli=["tracker", "queues", "version-delete", "905"],
+        mcp=("tracker_queues_version_delete", {"version_id": 905}),
+        exchanges=[(Sent("DELETE", "versions/905"), Reply(status=204))],
+    ),
+    Case(
+        "tracker.queues.user_permissions",
+        args=("PERMQ", "carol"),
+        cli=["tracker", "queues", "user-permissions", "PERMQ", "carol"],
+        mcp=("tracker_queues_user_permissions_get", {"queue_id": "PERMQ", "user_id": "carol"}),
+        exchanges=[(Sent("GET", "queues/PERMQ/permissions/users/carol"), Reply(json=USER_ACCESS))],
+    ),
+    Case(
+        "tracker.queues.group_permissions",
+        args=("PERMG", 77),
+        cli=["tracker", "queues", "group-permissions", "PERMG", "77"],
+        mcp=("tracker_queues_group_permissions_get", {"queue_id": "PERMG", "group_id": 77}),
+        exchanges=[
+            (
+                Sent("GET", "queues/PERMG/permissions/groups/77"),
+                Reply(
+                    json={
+                        "group": {
+                            "self": "https://api.tracker.yandex.net/v3/groups/77",
+                            "id": "77",
+                            "display": "Editors",
+                        },
+                        "permissions": {
+                            "CREATE": {"groups": [{"id": "77", "display": "Editors"}]},
+                            "READ": {"groups": [{"id": "77", "display": "Editors"}]},
+                        },
+                        "components": [{"id": "9", "display": "Component 9"}],
+                    }
+                ),
             )
         ],
     ),

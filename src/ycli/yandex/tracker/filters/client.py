@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class FiltersClient(Resource):
-    """Get, create and edit saved issue filters."""
+    """Get, create, edit and delete saved issue filters."""
 
     def get(self, filter_id: str) -> Filter:
         """``GET /filters/{filter_id}`` → parameters of one saved filter.
@@ -50,3 +50,15 @@ class FiltersClient(Resource):
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.edit_filter(filter_id, dumped))
+
+    def delete(self, filter_id: str) -> None:
+        """``DELETE /filters/{filter_id}`` → 204; raises on non-2xx.
+
+        The docs name the ``/v2/filters/{id}`` route; the ``/v3/`` one used by every other
+        filter call deletes it too.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.filters.delete("12345")  # doctest: +SKIP
+        """
+        self._session.send(endpoints.delete_filter(filter_id))

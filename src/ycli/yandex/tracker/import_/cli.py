@@ -133,3 +133,27 @@ def file(
         created_by=created_by,
         data=path.read_bytes(),
     )
+
+
+@app.command("comment-file")
+def comment_file(
+    key: KeyArg,
+    comment_id: Annotated[str, typer.Argument(metavar="COMMENT_ID", help="Id of the comment.")],
+    path: Annotated[Path, typer.Argument(help="Local file to attach.")],
+    created_at: CreatedAtOpt,
+    created_by: CreatedByOpt,
+    filename: Annotated[
+        str, typer.Option(help="Override the attachment name (default: basename).")
+    ] = "",
+    *,
+    tracker: TrackerClient,
+) -> Attachment:
+    """Import a file onto comment COMMENT_ID of issue KEY (…/comments/{id}/attachments/_import)."""
+    return tracker.import_.comment_file(
+        key,
+        comment_id,
+        filename=filename or path.name,
+        created_at=created_at,
+        created_by=created_by,
+        data=path.read_bytes(),
+    )

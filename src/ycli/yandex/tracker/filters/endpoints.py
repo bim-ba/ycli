@@ -24,3 +24,8 @@ def create_filter(body: dict[str, Any]) -> Endpoint[Filter]:
 def edit_filter(filter_id: str, body: dict[str, Any]) -> Endpoint[Filter]:
     """``PATCH /filters/{id}``: no ``?version=`` lock; ``filter`` is replaced, not merged."""
     return Endpoint("PATCH", f"filters/{segment(filter_id)}", Filter, json=body)
+
+
+def delete_filter(filter_id: str) -> Endpoint[None]:
+    """``DELETE /filters/{id}``: the docs print ``/v2/``; the v3 route deletes it (checked live)."""
+    return Endpoint("DELETE", f"filters/{segment(filter_id)}")

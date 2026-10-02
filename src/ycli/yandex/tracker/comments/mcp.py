@@ -46,6 +46,26 @@ def list_(
     return client.comments.list(key, limit=cap)
 
 
+@mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"}, tags=TAGS)
+def get(
+    key: str,
+    comment_id: Annotated[
+        str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
+    ],
+    expand: Annotated[
+        str | None,
+        Field(description="Extra fields: ``attachments``, ``html`` or ``all`` (comma-separated)."),
+    ] = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> Comment:
+    """One comment of a Tracker issue: text, author, edit history and, on request, attachments.
+
+    Example:
+        >>> comments_get("DATAENGINEERING-1", "2238", expand="all")  # doctest: +SKIP
+    """
+    return client.comments.get(key, comment_id, expand=expand)
+
+
 @mcp.tool(
     name="comments_add",
     annotations={**WRITE, "title": "Add Tracker issue comment"},

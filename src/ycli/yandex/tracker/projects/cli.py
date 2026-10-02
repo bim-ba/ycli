@@ -1,0 +1,116 @@
+"""`tracker projects` commands (legacy Projects API v3; see `tracker entities` for the new one)."""
+
+from __future__ import annotations
+
+from typing import Annotated
+
+import typer
+
+from ycli.yandex.models import Ack
+from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.projects.models import (
+    Project,
+    ProjectCreate,
+    ProjectList,
+    ProjectStatus,
+    ProjectUpdate,
+)
+from ycli.yandex.tracker.queues.models import QueueList
+
+app = typer.Typer(name="projects", help="Tracker projects (legacy API).", no_args_is_help=True)
+
+ProjectIdArg = Annotated[
+    int, typer.Argument(metavar="PROJECT_ID", help="Numeric id of the project.")
+]
+ExpandOpt = Annotated[str, typer.Option(help="Extra blocks to include, e.g. queues.")]
+StatusOpt = Annotated[ProjectStatus | None, typer.Option(help="Stage of the project.")]
+DescriptionOpt = Annotated[str, typer.Option(help="Description of the project.")]
+LeadOpt = Annotated[str, typer.Option(help="Login or id of the project's lead.")]
+StartDateOpt = Annotated[str, typer.Option("--start-date", help="Start date (YYYY-MM-DD).")]
+EndDateOpt = Annotated[str, typer.Option("--end-date", help="End date (YYYY-MM-DD).")]
+QueuesOpt = Annotated[str, typer.Option(help="Key of the queue whose issues go into the project.")]
+
+
+@app.command("list")
+def list_(expand: ExpandOpt = "", *, tracker: TrackerClient) -> ProjectList:
+    """List the organization's projects (GET /projects)."""
+    return tracker.projects.list(expand=expand or None)
+
+
+@app.command()
+def get(project_id: ProjectIdArg, expand: ExpandOpt = "", *, tracker: TrackerClient) -> Project:
+    """Print project PROJECT_ID (GET /projects/{id})."""
+    return tracker.projects.get(project_id, expand=expand or None)
+
+
+@app.command()
+def queues(
+    project_id: ProjectIdArg,
+    expand: Annotated[
+        str, typer.Option(help="Extra queue blocks, e.g. all or components,versions.")
+    ] = "",
+    *,
+    tracker: TrackerClient,
+) -> QueueList:
+    """List the queues of project PROJECT_ID (GET /projects/{id}/queues)."""
+    return tracker.projects.queues(project_id, expand=expand or None)
+
+
+@app.command()
+def create(
+    name: Annotated[str, typer.Option(help="Name of the project.")],
+    queues: QueuesOpt,
+    description: DescriptionOpt = "",
+    lead: LeadOpt = "",
+    status: StatusOpt = None,
+    start_date: StartDateOpt = "",
+    end_date: EndDateOpt = "",
+    *,
+    tracker: TrackerClient,
+) -> Project:
+    """Create a project (POST /projects)."""
+    body = ProjectCreate(
+        name=name,
+        queues=queues,
+        description=description or None,
+        lead=lead or None,
+        status=status,
+        start_date=start_date or None,
+        end_date=end_date or None,
+    )
+    return tracker.projects.create(body)
+
+
+@app.command()
+def edit(
+    project_id: ProjectIdArg,
+    version: Annotated[int, typer.Option(help="Current version of the project (required).")],
+    queues: QueuesOpt,
+    name: Annotated[str, typer.Option(help="New name of the project.")] = "",
+    description: DescriptionOpt = "",
+    lead: LeadOpt = "",
+    status: StatusOpt = None,
+    start_date: StartDateOpt = "",
+    end_date: EndDateOpt = "",
+    expand: ExpandOpt = "",
+    *,
+    tracker: TrackerClient,
+) -> Project:
+    """Edit project PROJECT_ID (PUT /projects/{id}?version=); only the given options change."""
+    body = ProjectUpdate(
+        queues=queues,
+        name=name or None,
+        description=description or None,
+        lead=lead or None,
+        status=status,
+        start_date=start_date or None,
+        end_date=end_date or None,
+    )
+    return tracker.projects.edit(project_id, body, version=version, expand=expand or None)
+
+
+@app.command()
+def delete(project_id: ProjectIdArg, *, tracker: TrackerClient) -> Ack:
+    """Delete project PROJECT_ID (DELETE /projects/{id})."""
+    tracker.projects.delete(project_id)
+    return Ack.deleted("project", project_id)

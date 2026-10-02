@@ -11,12 +11,33 @@ from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.triggers.models import Trigger, WebhookLogList
+from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.tracker.triggers.models import Trigger, TriggerList, WebhookLogList
+
+PAGE_SIZE = 50
+
+
+def _trigger_id(trigger: Trigger) -> str | None:
+    return str(trigger.id) if trigger.id is not None else None
 
 
 def _trigger_path(queue_id: str, trigger_id: int) -> str:
     return f"queues/{segment(queue_id)}/triggers/{segment(trigger_id)}"
+
+
+def list_triggers(queue_id: str, *, page_size: int = PAGE_SIZE) -> Paged[TriggerList, Trigger]:
+    """``GET /queues/{id}/triggers``, ascending by id, each next page from ``id=<last id>``."""
+    return Paged(
+        Endpoint(
+            "GET",
+            f"queues/{segment(queue_id)}/triggers",
+            TriggerList,
+            params={"perPage": page_size},
+        ),
+        RelativeIdPagination(id_of=_trigger_id),
+        lambda page: page.root,
+    )
 
 
 def get_trigger(queue_id: str, trigger_id: int) -> Endpoint[Trigger]:

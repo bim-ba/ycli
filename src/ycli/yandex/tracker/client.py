@@ -23,6 +23,7 @@ from ycli.yandex.tracker.dashboards.client import DashboardsClient
 from ycli.yandex.tracker.entities.client import EntitiesClient
 from ycli.yandex.tracker.fields.client import FieldsClient
 from ycli.yandex.tracker.filters.client import FiltersClient
+from ycli.yandex.tracker.gaps.client import GapsClient
 from ycli.yandex.tracker.import_.client import ImportClient
 from ycli.yandex.tracker.issues.client import IssuesClient
 from ycli.yandex.tracker.issuetypes.client import IssueTypesClient
@@ -32,6 +33,7 @@ from ycli.yandex.tracker.localfields.client import LocalFieldsClient
 from ycli.yandex.tracker.macros.client import MacrosClient
 from ycli.yandex.tracker.me.client import MeClient
 from ycli.yandex.tracker.priorities.client import PrioritiesClient
+from ycli.yandex.tracker.projects.client import ProjectsClient
 from ycli.yandex.tracker.queues.client import QueuesClient
 from ycli.yandex.tracker.remotelinks.client import RemoteLinksClient
 from ycli.yandex.tracker.resolutions.client import ResolutionsClient
@@ -40,6 +42,7 @@ from ycli.yandex.tracker.statuses.client import StatusesClient
 from ycli.yandex.tracker.transitions.client import TransitionsClient
 from ycli.yandex.tracker.triggers.client import TriggersClient
 from ycli.yandex.tracker.users.client import UsersClient
+from ycli.yandex.tracker.workflows.client import WorkflowsClient
 from ycli.yandex.tracker.worklog.client import WorklogClient
 
 
@@ -85,3 +88,6 @@ class TrackerClient(DomainClient):
         self.import_ = ImportClient(session=session)
         self.dashboards = DashboardsClient(session=session)
         self.entities = EntitiesClient(session=session)
+        self.workflows = WorkflowsClient(session=session)
+        self.projects = ProjectsClient(session=session)
+        self.gaps = GapsClient(session=session)

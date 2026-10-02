@@ -48,3 +48,35 @@ def test_every_write_body_field_has_description():
     for model in (ComponentCreate, ComponentUpdate):
         for name, field in model.model_fields.items():
             assert field.description, f"{model.__name__}.{name} is missing Field(description=…)"
+
+
+def test_component_user_access_parses_the_doc_sample():
+    from ycli.yandex.tracker.components.models import ComponentUserAccess
+
+    access = ComponentUserAccess.model_validate(
+        {
+            "user": {"id": "11", "display": "Ann", "passportUid": 11},
+            "component": {
+                "id": 1,
+                "version": 2,
+                "name": "Component 1",
+                "queue": {"key": "TEST"},
+                "assignAuto": False,
+            },
+            "permissions": {"CREATE": {"groups": [{"id": "5", "display": "All users"}]}},
+        }
+    )
+    assert access.component is not None and access.component.name == "Component 1"
+    assert access.permissions is not None and access.permissions.create is not None
+    assert access.permissions.create.groups[0].display == "All users"
+    assert access.permissions.grant is None  # components have no GRANT kind
+
+
+def test_component_group_access_parses_the_doc_sample():
+    from ycli.yandex.tracker.components.models import ComponentGroupAccess
+
+    access = ComponentGroupAccess.model_validate(
+        {"group": {"id": "5", "display": "All users"}, "component": {"id": 1}, "permissions": {}}
+    )
+    assert access.group is not None and access.group.id == "5"
+    assert access.component is not None and access.component.id == 1

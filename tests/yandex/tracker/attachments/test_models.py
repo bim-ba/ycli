@@ -36,3 +36,12 @@ def test_attachment_list_parses_array():
     assert isinstance(out, AttachmentList)
     assert [a.name for a in out.root] == ["picture.jpg", "notes.txt"]
     assert out.root[1].metadata is None  # absent metadata stays None
+
+
+def test_temp_upload_reply_may_lack_the_asynchronous_thumbnail():
+    # POST /attachments: the thumbnail is generated after the upload and can be absent.
+    reply = {k: v for k, v in SAMPLE.items() if k not in {"thumbnail", "metadata"}}
+    attachment = Attachment.model_validate(reply)
+    assert attachment.id == "123"
+    assert attachment.thumbnail is None
+    assert attachment.metadata is None

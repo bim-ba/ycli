@@ -6,8 +6,10 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
+    DESTRUCTIVE,
     RO,
     TAGS,
     WRITE,
@@ -43,7 +45,7 @@ def create(body: FilterCreate, client: TrackerClient = Depends(tracker_client)) 
     """Create a saved issue filter owned by the calling user.
 
     ``name`` is required; set ``query`` (a TQL string) or ``filter`` (a conditions object) for
-    the stored search. NOTE: filters have no delete endpoint — the filter stays on the account.
+    the stored search. Remove it later with ``filters_delete``.
     """
     return client.filters.create(body)
 
@@ -61,3 +63,22 @@ def edit(
     Get ``filter_id`` from ``filters_get`` / the Tracker UI. Returns the updated filter.
     """
     return client.filters.edit(filter_id, body)
+
+
+@mcp.tool(
+    name="filters_delete",
+    annotations={**DESTRUCTIVE, "title": "Delete Tracker filter"},
+    tags=WRITE_TAGS,
+)
+def delete(
+    filter_id: Annotated[
+        str, Field(description="Numeric identifier of the saved filter, e.g. 12345.")
+    ],
+    client: TrackerClient = Depends(tracker_client),
+) -> Ack:
+    """Permanently delete a saved issue filter (irreversible).
+
+    Returns an acknowledgement on success.
+    """
+    client.filters.delete(filter_id)
+    return Ack.deleted("filter", filter_id)

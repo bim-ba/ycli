@@ -39,8 +39,10 @@ permission.
 
 - Reading or editing Yandex Wiki pages → use the `yandex-360-wiki` skill.
 - Yandex Forms → use the `yandex-360-forms` skill.
-- Changing Tracker workflow structure (statuses, transitions, required fields) — this
-  is done in the Tracker admin UI only; the API cannot modify workflow structure.
+- Redesigning a workflow casually: `workflows create|edit|edit-action|delete` can change the
+  status graph of every queue that uses it. Read it first (`workflows get`), pass the current
+  `--version`, and confirm with the user before writing — the Tracker admin UI is the safer place
+  for exploratory changes.
 
 ## Authentication
 
@@ -69,7 +71,10 @@ MCP tool (annotated `readOnlyHint=True`).
 | `uv run ycli tracker issues search '...'` | `tracker_issues_search` | Full-text search via Tracker Query Language |
 | `uv run ycli tracker issues count [--query '...'] [--queue X] [--status Y]` | `tracker_issues_count` | Count without listing — sanity-check a filter first. `--query` is mutually exclusive with `--queue`/`--status` |
 | `uv run ycli tracker comments list KEY` | `tracker_comments_list` | List comments |
+| `uv run ycli tracker comments get KEY ID [--expand all]` | `tracker_comments_get` | One comment (by `id` or `longId`), optionally with HTML and attachments |
 | `uv run ycli tracker links list KEY` | `tracker_links_list` | List links between issues |
+| `uv run ycli tracker links search KEY [--type 'is subtask for'] [--field …]` | `tracker_links_search` | Paged, filtered links with author, dates, assignee and status. `--type` takes the phrases of `links add`, not link type ids |
+| `uv run ycli tracker attachments list KEY` / `get KEY FILE_ID` | `tracker_attachments_list` / `tracker_attachments_get` | Attachment metadata |
 | `uv run ycli tracker changelog list KEY` | `tracker_changelog_list` | Changelog: who changed what, when |
 | `uv run ycli tracker worklog list KEY` | `tracker_worklog_list` | Time-tracking entries |
 | `uv run ycli tracker transitions list KEY` | `tracker_transitions_list` | Available transitions (a read — used before a write) |
@@ -78,8 +83,9 @@ Every Tracker MCP tool follows the `tracker_<resource>_<action>`
 naming (the rows above cover the reads you reach for most; every write below is a tool
 too — `tracker_issues_create`, `tracker_comments_add`, `tracker_transitions_execute`, …).
 To see the exact list for your build, start the server (`ycli mcp start`) and enumerate
-its tools. The only Tracker operations **not** on MCP are binary downloads
-(`attachments download` / `thumbnail` — CLI/SDK-only).
+its tools. The Tracker operations **not** on MCP are the binary downloads
+(`attachments download` / `thumbnail`) and `import comment-file` — CLI/SDK-only. File uploads
+(`attachments upload` / `upload-temp`) are on MCP as base64, for small files.
 
 ### Search — Tracker Query Language
 
@@ -203,12 +209,38 @@ uv run ycli tracker transitions execute MYQUEUE-123 closed -F 'resolution={"key"
 uv run ycli tracker comments add MYQUEUE-123 --text "$(cat comment.md)"
 ```
 
+### Attach files
+
+```bash
+uv run ycli tracker attachments upload MYQUEUE-123 ./report.pdf [--rename-to name.pdf]
+uv run ycli tracker attachments upload-temp ./report.pdf   # temp id for `attachmentIds` of an issue/comment; works once
+uv run ycli tracker attachments delete MYQUEUE-123 <file-id>
+```
+
 ### Link issues
 
 ```bash
 uv run ycli tracker linktypes list                               # discover valid phrases first
 uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
 ```
+
+---
+
+## Structure, org-wide objects and admin reads
+
+These resources are organisation-wide or need administrator rights. Read first; every write
+below is irreversible or changes shared configuration, so confirm with the user.
+
+| Area | Reads | Writes |
+|------|-------|--------|
+| Workflows | `workflows list` / `get ID` / `for-queue QUEUE` (`tracker_workflows_*`) | `workflows create` / `edit` / `edit-action` (need `--version`) / `delete`; steps and actions are JSON as in the API docs |
+| Components | `components list-for-queue QUEUE` / `get ID`, `user-permissions ID USER`, `group-permissions ID GROUP` | `components delete ID` |
+| Queue versions and access | `queues version-get ID`, `user-permissions QUEUE USER`, `group-permissions QUEUE GROUP` | `queues version-edit ID`, `version-delete ID` |
+| Triggers | `triggers list QUEUE` | — |
+| Projects (legacy API) | `projects list` / `get ID` / `queues ID` | `projects create` / `edit` (needs `--version` and `--queues`) / `delete` |
+| Gaps (absences, admin) | `gaps search USER… [--from … --to …]` | `gaps create` (flags or `--gap` JSON) / `delete GAP_ID…` |
+| Entity rights | `entities direct-permissions TYPE ID` (no inheritance), `entities search report` | `entities set-direct-permissions TYPE ID --grant … --revoke …` |
+| Filters | `filters get ID` | `filters delete ID` |
 
 ---
 
@@ -243,6 +275,17 @@ uv run ycli tracker links add MYQUEUE-130 'depends on' MYQUEUE-129
   `display`, and `cloudUid`. To get a login, call `GET /v3/users/{numericId}`
   separately. Never use `cloudUid` or `display` as a substitute for login.
 
+### Admin-surface quirks (live-verified 2026-10-02)
+
+- **`links search --type` takes relationship phrases** (`relates`, `depends on`,
+  `is subtask for`, …), the same words as `links add`; link type ids such as `subtask` or `epic`
+  answer 400.
+- **`filters delete` uses the `/v3/` route** although the docs print `/v2/`.
+- **Workflow ids of the presets look like `quickStartV2PresetWorkflow`**; `workflows for-queue`
+  shows which one each issue type of a queue uses.
+- **`entities direct-permissions` leaves out a level nobody holds** (no `READ` key), where the
+  docs show empty lists.
+
 ### Admin-surface quirks (live-verified 2026-07-12)
 
 - **Queue keys reject digits.** `--key YCLILTA9` → 422 («В ключе очереди может быть
@@ -276,9 +319,9 @@ issue = client.issues.get("MYQUEUE-123")
 
 `TrackerClient` exposes one sub-client per resource, all sharing a session:
 `issues`, `comments`, `links`, `transitions`, `worklog`, `changelog`, `checklists`,
-`attachments`, `queues`, `boards`, `sprints`, `columns`, `entities`, `bulk`, `import_`,
-`dashboards`, and the dictionaries (`priorities`, `issuetypes`, `linktypes`, `statuses`,
-`resolutions`, `fields`, …). Search, count, full-fetch, create and update are methods on
+`attachments`, `queues`, `components`, `workflows`, `projects`, `gaps`, `triggers`, `filters`,
+`boards`, `sprints`, `columns`, `entities`, `bulk`, `import_`, `dashboards`, and the
+dictionaries (`priorities`, `issuetypes`, `linktypes`, `statuses`, `resolutions`, `fields`, …). Search, count, full-fetch, create and update are methods on
 `client.issues` (`issues.search`, `issues.count`, `issues.get_raw`, `issues.create`,
 `issues.update`). Verify resource/method names against
 `src/ycli/yandex/tracker/client.py` if in doubt.

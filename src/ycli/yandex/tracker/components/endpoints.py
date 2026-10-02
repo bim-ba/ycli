@@ -10,7 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.components.models import Component, ComponentList
+from ycli.yandex.tracker.components.models import (
+    Component,
+    ComponentGroupAccess,
+    ComponentList,
+    ComponentUserAccess,
+)
 
 
 def list_components() -> Endpoint[ComponentList]:
@@ -32,3 +37,29 @@ def edit_component(
         json=body,
         params={"version": version},
     )
+
+
+def list_queue_components(queue_id: str, *, fields: str | None = None) -> Endpoint[ComponentList]:
+    return Endpoint(
+        "GET", f"queues/{segment(queue_id)}/components", ComponentList, params={"fields": fields}
+    )
+
+
+def get_component(component_id: int, *, fields: str | None = None) -> Endpoint[Component]:
+    return Endpoint(
+        "GET", f"components/{segment(component_id)}", Component, params={"fields": fields}
+    )
+
+
+def delete_component(component_id: int) -> Endpoint[None]:
+    return Endpoint("DELETE", f"components/{segment(component_id)}")
+
+
+def get_user_access(component_id: int, user_id: str) -> Endpoint[ComponentUserAccess]:
+    path = f"components/{segment(component_id)}/permissions/users/{segment(user_id)}"
+    return Endpoint("GET", path, ComponentUserAccess)
+
+
+def get_group_access(component_id: int, group_id: int) -> Endpoint[ComponentGroupAccess]:
+    path = f"components/{segment(component_id)}/permissions/groups/{segment(group_id)}"
+    return Endpoint("GET", path, ComponentGroupAccess)

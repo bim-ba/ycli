@@ -1,6 +1,11 @@
 """Contract cases for Tracker ``/entities``: projects, portfolios, goals (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.entities.models import (
+    AclInput,
+    AclPrincipalsInput,
+    DirectPermissionsUpdate,
+)
 
 ENTITY = {"id": "655f", "entityType": "project", "fields": {"summary": "Q4 launch"}}
 COMMENT = {"id": 22, "longId": "lc22", "text": "Готово"}
@@ -1325,5 +1330,192 @@ CASES = [
             {"entity_type": "project", "entity_id": "655f48", "file_id": "48"},
         ),
         exchanges=[(Sent("DELETE", "entities/project/655f48/attachments/48"), Reply())],
+    ),
+    Case(
+        "tracker.entities.search",
+        args=(
+            "report",
+            {"filter": {"author": "report-author"}, "orderBy": "createdAt", "orderAsc": False},
+        ),
+        cli=[
+            "tracker",
+            "entities",
+            "search",
+            "report",
+            "--filter",
+            "author=report-author",
+            "--order-by",
+            "createdAt",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "entities/report/_search",
+                    json={
+                        "filter": {"author": "report-author"},
+                        "orderBy": "createdAt",
+                        "orderAsc": False,
+                    },
+                ),
+                Reply(
+                    json={
+                        "hits": 1,
+                        "pages": 1,
+                        "values": [
+                            {
+                                "self": "https://api.tracker.yandex.net/v3/entities/report/6a0d7cfb",
+                                "id": "6a0d7cfb",
+                                "version": 5,
+                                "shortId": 185,
+                                "entityType": "report",
+                                "createdBy": {"id": "8000000000000005", "display": "Ann"},
+                                "createdAt": "2026-05-20T09:20:59.753+0000",
+                                "updatedAt": "2026-05-20T09:21:00.085+0000",
+                            }
+                        ],
+                    }
+                ),
+            )
+        ],
+        effect="read",
+    ),
+    # The MCP tool reaches the report type too, without the author filter the CLI offers.
+    Case(
+        "tracker.entities.search",
+        args=("report", {"orderBy": "updatedAt"}),
+        cli=None,
+        mcp=("tracker_entities_search", {"entity_type": "report", "order_by": "updatedAt"}),
+        exchanges=[
+            (
+                Sent("POST", "entities/report/_search", json={"orderBy": "updatedAt"}),
+                Reply(json={"hits": 0, "pages": 0, "values": []}),
+            )
+        ],
+        effect="read",
+    ),
+    Case(
+        "tracker.entities.direct_permissions",
+        args=("project", "655f17"),
+        cli=["tracker", "entities", "direct-permissions", "project", "655f17"],
+        mcp=(
+            "tracker_entities_direct_permissions_get",
+            {"entity_type": "project", "entity_id": "655f17"},
+        ),
+        exchanges=[
+            (
+                Sent("GET", "entities/project/655f17/permissions"),
+                Reply(
+                    json={
+                        "READ": {"users": [], "groups": [], "roles": []},
+                        "GRANT": {
+                            "users": [{"id": "8000000000000002", "display": "Ann"}],
+                            "groups": [],
+                            "roles": ["AUTHOR", "OWNER"],
+                        },
+                        "WRITE": {
+                            "users": [],
+                            "groups": [{"id": "5", "display": "All users"}],
+                            "roles": ["CLIENT", "AUTHOR", "FOLLOWER", "OWNER", "MEMBER"],
+                        },
+                    }
+                ),
+            )
+        ],
+    ),
+    Case(
+        "tracker.entities.set_direct_permissions",
+        args=(
+            "goal",
+            "g18",
+            DirectPermissionsUpdate(
+                grant=AclInput(
+                    read=AclPrincipalsInput(users=["ann"], groups=["7"]),
+                    write=AclPrincipalsInput(roles=["MEMBER"]),
+                ),
+                revoke=AclInput(grant=AclPrincipalsInput(users=["bob"], roles=["OWNER"])),
+            ),
+        ),
+        cli=[
+            "tracker",
+            "entities",
+            "set-direct-permissions",
+            "goal",
+            "g18",
+            "--grant",
+            '{"READ": {"users": ["ann"], "groups": ["7"]}, "WRITE": {"roles": ["MEMBER"]}}',
+            "--revoke",
+            '{"GRANT": {"users": ["bob"], "roles": ["OWNER"]}}',
+        ],
+        mcp=(
+            "tracker_entities_set_direct_permissions",
+            {
+                "entity_type": "goal",
+                "entity_id": "g18",
+                "body": {
+                    "grant": {
+                        "READ": {"users": ["ann"], "groups": ["7"]},
+                        "WRITE": {"roles": ["MEMBER"]},
+                    },
+                    "revoke": {"GRANT": {"users": ["bob"], "roles": ["OWNER"]}},
+                },
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "PATCH",
+                    "entities/goal/g18/permissions",
+                    json={
+                        "grant": {
+                            "READ": {"users": ["ann"], "groups": ["7"]},
+                            "WRITE": {"roles": ["MEMBER"]},
+                        },
+                        "revoke": {"GRANT": {"users": ["bob"], "roles": ["OWNER"]}},
+                    },
+                ),
+                Reply(
+                    json={
+                        "READ": {
+                            "users": [{"id": "11", "display": "Ann"}],
+                            "groups": [],
+                            "roles": [],
+                        },
+                        "GRANT": {"users": [], "groups": [], "roles": ["AUTHOR"]},
+                        "WRITE": {"users": [], "groups": [], "roles": ["MEMBER"]},
+                    }
+                ),
+            )
+        ],
+    ),
+    # One side only: the other is left out of the body.
+    Case(
+        "tracker.entities.set_direct_permissions",
+        args=(
+            "portfolio",
+            "pf19",
+            DirectPermissionsUpdate(revoke=AclInput(read=AclPrincipalsInput(groups=["9"]))),
+        ),
+        cli=[
+            "tracker",
+            "entities",
+            "set-direct-permissions",
+            "portfolio",
+            "pf19",
+            "--revoke",
+            '{"READ": {"groups": ["9"]}}',
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "PATCH",
+                    "entities/portfolio/pf19/permissions",
+                    json={"revoke": {"READ": {"groups": ["9"]}}},
+                ),
+                Reply(json={"READ": {"users": [], "groups": [], "roles": []}}),
+            )
+        ],
     ),
 ]

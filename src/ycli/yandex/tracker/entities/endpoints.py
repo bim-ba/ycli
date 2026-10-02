@@ -18,6 +18,7 @@ from typing import Any
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
 from ycli.yandex.tracker.entities.models import (
+    Acl,
     Attachment,
     AttachmentList,
     BulkChangeOperation,
@@ -108,6 +109,14 @@ def set_permissions(
 ) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
     return Endpoint("PATCH", path, ExtendedPermissions, json=body)
+
+
+def get_direct_permissions(entity_type: str, entity_id: str) -> Endpoint[Acl]:
+    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", Acl)
+
+
+def set_direct_permissions(entity_type: str, entity_id: str, body: dict[str, Any]) -> Endpoint[Acl]:
+    return Endpoint("PATCH", f"{_entity(entity_type, entity_id)}/permissions", Acl, json=body)
 
 
 def bulk_update(entity_type: str, body: dict[str, Any]) -> Endpoint[BulkChangeOperation]:

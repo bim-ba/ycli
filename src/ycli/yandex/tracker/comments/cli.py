@@ -55,6 +55,20 @@ def list_(
 
 
 @app.command()
+def get(
+    key: KeyArg,
+    comment_id: CommentIdArg,
+    expand: Annotated[
+        str, typer.Option(help="Extra fields: attachments, html or all (comma-separated).")
+    ] = "",
+    *,
+    tracker: TrackerClient,
+) -> Comment:
+    """Print comment COMMENT_ID of issue KEY."""
+    return tracker.comments.get(key, comment_id, expand=expand or None)
+
+
+@app.command()
 def add(
     key: KeyArg,
     text: Annotated[str, typer.Option(help='Comment text — pass "$(cat note.md)" for markdown.')],

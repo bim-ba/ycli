@@ -16,9 +16,11 @@ from ycli.yandex.core.pagination import PageNumberPagination
 from ycli.yandex.tracker.queues.models import (
     Queue,
     QueueFieldList,
+    QueueGroupAccess,
     QueueList,
     QueuePermissions,
     QueueTagList,
+    QueueUserAccess,
     QueueVersionInfo,
     QueueVersionInfoList,
 )
@@ -82,3 +84,36 @@ def remove_tag(queue_id: str, body: dict[str, Any]) -> Endpoint[None]:
 
 def create_version(body: dict[str, Any]) -> Endpoint[QueueVersionInfo]:
     return Endpoint("POST", "versions/", QueueVersionInfo, json=body)
+
+
+def get_version(version_id: int, *, fields: str | None = None) -> Endpoint[QueueVersionInfo]:
+    return Endpoint(
+        "GET", f"versions/{segment(version_id)}", QueueVersionInfo, params={"fields": fields}
+    )
+
+
+def edit_version(
+    version_id: int, body: dict[str, Any], *, fields: str | None = None
+) -> Endpoint[QueueVersionInfo]:
+    """``PATCH /versions/{id}``: unlike a component, a version takes no ``?version=`` lock."""
+    return Endpoint(
+        "PATCH",
+        f"versions/{segment(version_id)}",
+        QueueVersionInfo,
+        json=body,
+        params={"fields": fields},
+    )
+
+
+def delete_version(version_id: int) -> Endpoint[None]:
+    return Endpoint("DELETE", f"versions/{segment(version_id)}")
+
+
+def get_user_access(queue_id: str, user_id: str) -> Endpoint[QueueUserAccess]:
+    path = f"{_queue(queue_id)}/permissions/users/{segment(user_id)}"
+    return Endpoint("GET", path, QueueUserAccess)
+
+
+def get_group_access(queue_id: str, group_id: int) -> Endpoint[QueueGroupAccess]:
+    path = f"{_queue(queue_id)}/permissions/groups/{segment(group_id)}"
+    return Endpoint("GET", path, QueueGroupAccess)

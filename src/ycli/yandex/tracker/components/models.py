@@ -5,6 +5,11 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.queues.models import (  # pydantic resolves field types at runtime
+    AccessPermissions,
+    AccessRef,
+    QueueUser,
+)
 
 
 class ComponentQueue(APIModel):
@@ -132,4 +137,36 @@ class ComponentUpdate(APIModel):
         default=None,
         serialization_alias="assignAuto",
         description="Whether the owner is auto-assigned to new issues carrying this component.",
+    )
+
+
+class ComponentUserAccess(APIModel):
+    """One user's rights on a component (``GET /components/{id}/permissions/users/{userId}``).
+
+    Example:
+        >>> ComponentUserAccess.model_validate({"component": {"id": 1}}).component.id
+        1
+    """
+
+    user: QueueUser | None = Field(default=None, description="The user the rights belong to.")
+    component: Component | None = Field(default=None, description="The component.")
+    permissions: AccessPermissions | None = Field(
+        default=None,
+        description="Rights by kind (create, read, write, deny), with who grants each.",
+    )
+
+
+class ComponentGroupAccess(APIModel):
+    """One group's rights on a component (``GET /components/{id}/permissions/groups/{groupId}``).
+
+    Example:
+        >>> ComponentGroupAccess.model_validate({"group": {"id": "5"}}).group.id
+        '5'
+    """
+
+    group: AccessRef | None = Field(default=None, description="The group the rights belong to.")
+    component: Component | None = Field(default=None, description="The component.")
+    permissions: AccessPermissions | None = Field(
+        default=None,
+        description="Rights by kind (create, read, write, deny), with who grants each.",
     )

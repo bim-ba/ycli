@@ -16,13 +16,16 @@ if TYPE_CHECKING:
         Queue,
         QueueCreate,
         QueueFieldList,
+        QueueGroupAccess,
         QueuePermissions,
         QueuePermissionsUpdate,
         QueueTagList,
         QueueTagRemove,
+        QueueUserAccess,
         QueueVersionCreate,
         QueueVersionInfo,
         QueueVersionInfoList,
+        QueueVersionUpdate,
     )
 
 
@@ -165,3 +168,59 @@ class QueuesClient(Resource):
         """
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_version(dumped))
+
+    def version_get(self, version_id: int, *, fields: str | None = None) -> QueueVersionInfo:
+        """``GET /versions/{version_id}`` → one queue version.
+
+        ``fields`` is a comma list of the fields to return (``name,dueDate,released``, …).
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.queues.version_get(123).name  # doctest: +SKIP
+            'v1.0'
+        """
+        return self._session.send(endpoints.get_version(version_id, fields=fields))
+
+    def version_edit(
+        self, version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
+    ) -> QueueVersionInfo:
+        """``PATCH /versions/{version_id}`` → change the set fields of a version.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.queues.version_edit(
+            ...     123, QueueVersionUpdate(name="v1.1")
+            ... ).version  # doctest: +SKIP
+            2
+        """
+        dumped = body.model_dump(by_alias=True, exclude_none=True)
+        return self._session.send(endpoints.edit_version(version_id, dumped, fields=fields))
+
+    def version_delete(self, version_id: int) -> None:
+        """``DELETE /versions/{version_id}`` → 204; raises on non-2xx.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.queues.version_delete(123)  # doctest: +SKIP
+        """
+        self._session.send(endpoints.delete_version(version_id))
+
+    def user_permissions(self, queue_id: str, user_id: str) -> QueueUserAccess:
+        """``GET /queues/{queue_id}/permissions/users/{user_id}`` → what a user may do in a queue.
+
+        ``user_id`` is a login or a numeric uid.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.queues.user_permissions("TEST", "alice").permissions.create  # doctest: +SKIP
+        """
+        return self._session.send(endpoints.get_user_access(queue_id, user_id))
+
+    def group_permissions(self, queue_id: str, group_id: int) -> QueueGroupAccess:
+        """``GET /queues/{queue_id}/permissions/groups/{group_id}`` → what a group may do.
+
+        Example:
+            >>> client = TrackerClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
+            >>> client.queues.group_permissions("TEST", 5).permissions.read  # doctest: +SKIP
+        """
+        return self._session.send(endpoints.get_group_access(queue_id, group_id))

@@ -7,14 +7,38 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.links.models import Link, LinkList
+from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.pagination import PageNumberPagination
+from ycli.yandex.tracker.links.models import Link, LinkList, LinkPage
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+PAGE_SIZE = 50
 
 
 def list_links(key: str) -> Endpoint[LinkList]:
     return Endpoint("GET", f"issues/{segment(key)}/links", LinkList)
+
+
+def search_links(
+    key: str, *, link_types: Sequence[str] | None = None, fields: Sequence[str] | None = None
+) -> Paged[LinkPage, Link]:
+    """``POST /issues/{key}/links/_list`` only reads: a page of links, filtered by the body."""
+    body = {"fields": fields, "linkTypes": link_types}
+    return Paged(
+        Endpoint(
+            "POST",
+            f"issues/{segment(key)}/links/_list",
+            LinkPage,
+            json={name: value for name, value in body.items() if value is not None},
+            effect="read",
+        ),
+        PageNumberPagination(page_size=PAGE_SIZE),
+        lambda page: page.links,
+    )
 
 
 def add_link(key: str, body: dict[str, Any]) -> Endpoint[Link]:
