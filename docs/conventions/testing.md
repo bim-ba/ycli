@@ -1,8 +1,7 @@
 # Testing conventions
 
 What a resource ships with, which test catches what, and how the suite stays honest. Agreed in
-[the test decision on #95](https://github.com/bim-ba/ycli/issues/95#issuecomment-5938982896);
-the parts marked *E2* apply to the resources still on uplink until they move to the httpx2 core.
+[the test decision on #95](https://github.com/bim-ba/ycli/issues/95#issuecomment-5938982896).
 
 ## Kinds of tests
 
@@ -42,12 +41,11 @@ tested once, in `tests/yandex/core/`, not per resource.
 
 ## Mocking HTTP
 
-- Resources on the httpx2 core: the `api` fixture (`tests/conftest.py`) answers through
+- The `api` fixture (`tests/conftest.py`) answers through
   `httpx2.MockTransport` via the one seam `ycli.yandex.core.session.default_transport`. An autouse
   fixture keeps every other core request offline, so a missing stub fails loudly.
-- *E2*: resources still on uplink use `responses` until they move.
-- `MockAPI` mirrors the `responses` API (`api.add(method, url, json=…)`, `api.calls`,
-  `api.body(i)`), so moving a test is a mechanical swap.
+- `MockAPI` takes `api.add(method, url, json=…)` answers and records `api.calls`
+  (`api.body(i)` parses a JSON body).
 
 ## Rules
 

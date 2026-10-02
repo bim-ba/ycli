@@ -51,6 +51,22 @@ class HTTPConfig(BaseModel):
     retries: NonNegativeInt = 3
     max_items: PositiveInt = 500
 
+    def cap(self, limit: int, *, all_: bool = False) -> int | None:
+        """A listing's item cap from a ``limit`` option and the CLI's ``--all`` flag.
+
+        ``--all`` uncaps (``None``); a positive ``limit`` wins; otherwise ``max_items``. The MCP
+        surface has no ``--all``, so it is always capped.
+
+        Example:
+            >>> (
+            ...     HTTPConfig(max_items=500).cap(0),
+            ...     HTTPConfig().cap(10),
+            ...     HTTPConfig().cap(10, all_=True),
+            ... )
+            (500, 10, None)
+        """
+        return None if all_ else (limit if limit > 0 else self.max_items)
+
 
 class LoggingConfig(BaseModel):
     """Diagnostic output on stderr (``YCLI__LOGGING__*``)."""

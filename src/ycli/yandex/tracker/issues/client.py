@@ -1,4 +1,4 @@
-"""Tracker ``/issues`` client on the httpx2 core — the first resource off ``uplink``.
+"""Tracker ``/issues`` client on the httpx2 core.
 
 Every method sends one declaration from :mod:`ycli.yandex.tracker.issues.endpoints`.
 """

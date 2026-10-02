@@ -1,11 +1,11 @@
 """MCP client providers resolve credentials on every call — nothing is cached per process."""
 
-import requests
 from fastmcp import Client
 from pydantic import SecretStr
 
 from tests.hosts import TRACKER_BASE
 from ycli.settings import Credentials
+from ycli.yandex.core.session import SyncSession
 from ycli.yandex.mcp import EnvAuthSource, app_config, client_provider
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues import mcp as issues_mcp
@@ -60,9 +60,9 @@ async def test_a_tool_call_closes_the_client_it_built(api, monkeypatch):
     built: list[TrackerClient] = []
     wire = TrackerClient._wire
 
-    def record(client: TrackerClient, transport: requests.Session) -> None:
+    def record(client: TrackerClient, session: SyncSession) -> None:
         built.append(client)
-        wire(client, transport)
+        wire(client, session)
 
     monkeypatch.setattr(TrackerClient, "_wire", record)
     api.add("GET", f"{TRACKER_BASE}/issues/DE-1", json={"key": "DE-1"})

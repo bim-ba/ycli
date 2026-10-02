@@ -9,7 +9,6 @@ import typer
 from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.operations.models import CloneOperationStatus
 from ycli.yandex.wiki.pages.models import (
@@ -52,7 +51,7 @@ def descendants(
     wiki: WikiClient,
 ) -> PageRefList:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants(slug=slug, limit=cap)
 
 
@@ -79,7 +78,7 @@ def descendants_by_id(
     wiki: WikiClient,
 ) -> PageRefList:
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants_by_id(page_id=page_id, limit=cap)
 
 
@@ -96,7 +95,7 @@ def grids(
     wiki: WikiClient,
 ) -> GridRefList:
     """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.pages.grids(page_id=page_id, limit=cap, order_by=order_by or None)
 
 

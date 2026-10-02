@@ -11,7 +11,6 @@ from ycli.cli.output import BinaryResult
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentList
 from ycli.yandex.wiki.client import WikiClient
 
@@ -33,7 +32,7 @@ def list_(
     wiki: WikiClient,
 ) -> AttachmentList:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.attachments.list(page_id=page_id, limit=cap)
 
 

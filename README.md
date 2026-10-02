@@ -391,7 +391,7 @@ references/             # vendored Yandex API reference docs (local-only; see re
 
 ```bash
 uv sync --all-extras   # --all-extras pulls in the `mcp` extra the tests exercise
-uv run pytest          # 100% coverage gate; HTTP stubbed with `responses` (no live network)
+uv run pytest          # 100% coverage gate; HTTP stubbed with `MockAPI` (no live network)
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and how to add an endpoint.

@@ -269,7 +269,7 @@ CASES = [
             )
         ],
     ),
-    # The part keeps the name uplink always sent (`file_data`); the API docs name none.
+    # The part keeps the name ycli has always sent (`file_data`); the API docs name none.
     Case(
         "tracker.import_.file",
         args=("JUNE-5",),

@@ -22,7 +22,6 @@ from ycli.yandex.forms.surveys.models import (
     SurveyUpdate,
 )
 from ycli.yandex.models import Ack, require_found
-from ycli.yandex.pagination import resolve_cap
 
 mcp = FastMCP("forms-surveys")
 
@@ -38,7 +37,7 @@ def list_(
     Capped at the configured item cap unless ``limit`` is given. Each item's ``id`` is the
     form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
     """
-    cap = resolve_cap(limit, config.http.max_items)
+    cap = config.http.cap(limit)
     return client.surveys.list(limit=cap)
 
 

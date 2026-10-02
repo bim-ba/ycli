@@ -1,4 +1,4 @@
-"""OAuthClient — device/implicit OAuth HTTP + api360 org lookup (stubbed with responses)."""
+"""OAuthClient — device/implicit OAuth HTTP + api360 org lookup (stubbed with MockAPI)."""
 
 import httpx2
 import pytest

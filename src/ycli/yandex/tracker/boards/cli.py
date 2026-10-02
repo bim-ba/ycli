@@ -9,7 +9,6 @@ import typer
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
 
@@ -23,7 +22,7 @@ def list_(
     limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
 ) -> BoardList:
     """List all agile boards (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return tracker.boards.list(limit=cap)
 
 

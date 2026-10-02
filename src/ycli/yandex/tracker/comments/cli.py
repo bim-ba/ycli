@@ -10,7 +10,6 @@ import typer
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
 from ycli.yandex.tracker.typedefs import (
@@ -51,7 +50,7 @@ def list_(
     tracker: TrackerClient,
 ) -> CommentList:
     """List all comments on issue KEY (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return tracker.comments.list(key, limit=cap)
 
 

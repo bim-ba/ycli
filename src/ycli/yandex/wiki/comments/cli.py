@@ -8,7 +8,6 @@ import typer
 
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
     CommentCreate,
@@ -32,7 +31,7 @@ def list_(
     wiki: WikiClient,
 ) -> CommentList:
     """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.comments.list(page_id=page_id, limit=cap)
 
 
@@ -51,7 +50,7 @@ def thread(
     Reconstructed from the page's comment list (the Wiki /thread endpoint is dead); the
     comment comes first, then its descendants chained by parent_id.
     """
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return wiki.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
 
 

@@ -8,7 +8,6 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, require_found
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
@@ -69,7 +68,7 @@ def list_(
     filters or raise ``limit``.
     """
     body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=type_)
-    return client.issues.search(body, limit=resolve_cap(limit, config.http.max_items))
+    return client.issues.search(body, limit=config.http.cap(limit))
 
 
 @mcp.tool(
@@ -86,7 +85,7 @@ def search(
     Returns at most ``limit`` issues; exactly ``limit`` back means more may match — refine the
     query or raise ``limit``.
     """
-    return client.issues.search({"query": query}, limit=resolve_cap(limit, config.http.max_items))
+    return client.issues.search({"query": query}, limit=config.http.cap(limit))
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)

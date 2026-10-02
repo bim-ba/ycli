@@ -10,7 +10,6 @@ from ycli.cli.fields import parse_fields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
-from ycli.yandex.pagination import resolve_cap
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import (
     Issue,
@@ -63,7 +62,7 @@ def list_(
 ) -> IssueList:
     """List issues matching the supplied filters (auto-paginated; --all for everything)."""
     body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=type_)
-    return tracker.issues.search(body, limit=resolve_cap(limit, config.http.max_items, all_=all_))
+    return tracker.issues.search(body, limit=config.http.cap(limit, all_=all_))
 
 
 @app.command()
@@ -76,7 +75,7 @@ def search(
     tracker: TrackerClient,
 ) -> IssueList:
     """Search issues by a TQL query string (auto-paginated; --all for everything)."""
-    cap = resolve_cap(limit, config.http.max_items, all_=all_)
+    cap = config.http.cap(limit, all_=all_)
     return tracker.issues.search({"query": query}, limit=cap)
 
 

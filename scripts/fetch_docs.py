@@ -401,7 +401,7 @@ class DocsFetcher(_HttpClient):
         if "markdown" not in response.headers.get("Content-Type", ""):
             return _NO_SOURCE  # a section index / HTML page — no YFM source here
         # Derive the path from the *final* URL so redirects land at their real name.
-        rel_path = self._relative_path(response.url, config)
+        rel_path = self._relative_path(str(response.url), config)
         return rel_path, _tidy(response.text)
 
     def _probe_revision(self, page_url: str) -> str | None:

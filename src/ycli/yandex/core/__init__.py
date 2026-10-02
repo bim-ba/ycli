@@ -5,7 +5,5 @@
 - ``session`` — ``SyncSession`` / ``AsyncSession`` and ``connect`` / ``connect_async``: typed
   errors, retries, logging, page walking.
 - ``auth`` — ``httpx2.Auth`` for every Yandex auth kind; ``profile`` — ``ServiceProfile``.
-
-Domains move onto it one by one (Tracker ``issues`` first); the ``uplink`` transport stays until
-the last one has moved.
+- ``resource`` — ``Resource``, the base of every resource client.
 """

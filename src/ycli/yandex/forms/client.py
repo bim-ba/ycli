@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import requests
+    from ycli.yandex.core.session import SyncSession
 
 from ycli.yandex.base import DomainClient
 from ycli.yandex.forms import SERVICE
@@ -27,8 +27,9 @@ class FormsClient(DomainClient):
         >>> client = FormsClient(oauth_token="…", organization_id="…")  # doctest: +SKIP
     """
 
-    def _wire(self, transport: requests.Session) -> None:
-        session = self._connect(SERVICE.profile)
+    profile = SERVICE.profile
+
+    def _wire(self, session: SyncSession) -> None:
         self.me = MeClient(session=session)
         self.surveys = SurveysClient(session=session)
         self.questions = QuestionsClient(session=session)
