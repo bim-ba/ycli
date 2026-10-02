@@ -9,6 +9,41 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.22.2 (2026-10-02)
+
+### Bug Fixes
+
+- **auth**: Update .env keys with python-dotenv set_key
+  ([#130](https://github.com/bim-ba/ycli/pull/130),
+  [`c731020`](https://github.com/bim-ba/ycli/commit/c731020f906516c412587f218ff5404facb44813))
+
+- **cli**: Send checklist text verbatim and let edit flags turn properties off
+  ([#130](https://github.com/bim-ba/ycli/pull/130),
+  [`c731020`](https://github.com/bim-ba/ycli/commit/c731020f906516c412587f218ff5404facb44813))
+
+- **cli**: Send checklist text verbatim and let flags turn properties off
+  ([#130](https://github.com/bim-ba/ycli/pull/130),
+  [`c731020`](https://github.com/bim-ba/ycli/commit/c731020f906516c412587f218ff5404facb44813))
+
+- **models**: Raise YandexNotFoundError from require_found
+  ([#130](https://github.com/bim-ba/ycli/pull/130),
+  [`c731020`](https://github.com/bim-ba/ycli/commit/c731020f906516c412587f218ff5404facb44813))
+
+### Build System
+
+- Re-lock uv.lock for 0.22.1
+  ([`0899566`](https://github.com/bim-ba/ycli/commit/08995661ea50e39c2caf549f7d45a9db80908d43))
+
+### Testing
+
+- Block unmocked requests on the legacy HTTP stack too
+  ([#130](https://github.com/bim-ba/ycli/pull/130),
+  [`c731020`](https://github.com/bim-ba/ycli/commit/c731020f906516c412587f218ff5404facb44813))
+
+- Compare the usage error without ANSI codes ([#130](https://github.com/bim-ba/ycli/pull/130),
+  [`c731020`](https://github.com/bim-ba/ycli/commit/c731020f906516c412587f218ff5404facb44813))
+
+
 ## v0.22.1 (2026-10-01)
 
 ### Bug Fixes
