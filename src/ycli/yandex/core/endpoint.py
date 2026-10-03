@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 type Effect = Literal["read", "write", "idempotent_write", "destructive"]
 type Method = Literal["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "DELETE", "POST"]
 
-# A request carries the endpoint it was built from, and a listing's first page its pager.
+# A request carries the endpoint it was built from, and every page of a listing the listing.
 ENDPOINT_EXTENSION = "ycli.endpoint"
 PAGED_EXTENSION = "ycli.paged"
 _EFFECT_BY_METHOD: dict[Method, Effect] = {

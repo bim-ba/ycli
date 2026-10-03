@@ -162,7 +162,7 @@ def _page_plan[I](
 
 
 def _first_page(paged: Paged, client: httpx2.Client | httpx2.AsyncClient) -> httpx2.Request:
-    """The request for a listing's first page; it carries ``paged`` for whoever inspects it."""
+    """The request for a listing's first page; it and the pages after it carry ``paged``."""
     request = paged.pagination.first(paged.endpoint.request(client))
     request.extensions[PAGED_EXTENSION] = paged
     return request

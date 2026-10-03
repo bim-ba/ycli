@@ -145,7 +145,7 @@ def test_iterate_walks_pages_until_a_short_one():
     assert list(_session(api).iterate(_listing())) == [1, 2, 3]
 
 
-def test_every_page_carries_its_endpoint_and_the_first_one_the_listing():
+def test_every_page_carries_its_endpoint_and_its_listing():
     api = MockAPI()
     api.add("GET", URL, json=[1, 2])
     api.add("GET", URL, json=[3])
@@ -154,7 +154,7 @@ def test_every_page_carries_its_endpoint_and_the_first_one_the_listing():
     first, second = api.calls
     assert first.extensions[ENDPOINT_EXTENSION] is listing.endpoint
     assert second.extensions[ENDPOINT_EXTENSION] is listing.endpoint
-    assert first.extensions[PAGED_EXTENSION] is listing
+    assert first.extensions[PAGED_EXTENSION] is second.extensions[PAGED_EXTENSION] is listing
 
 
 def test_iterate_stops_on_an_empty_page():
