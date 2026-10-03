@@ -25,7 +25,7 @@ uv run pytest e2e --no-cov -n 0 -m live -k wiki       # one scenario
 | Key | Meaning |
 |---|---|
 | `name`, `smoke` | test id; `smoke: true` also runs on pull requests |
-| `steps[].run` | arguments after `ycli -o json`; `${RUN}`, `${QUEUE}` and saved names are substituted |
+| `steps[].run` | arguments after `ycli -o json --yes`; `${RUN}`, `${QUEUE}` and saved names are substituted |
 | `steps[].output` | `json` (default) or `text` for commands that print raw text, such as `wiki pages get` |
 | `steps[].expect` | JMESPath expression → expected value; `unique(array)` is added for duplicate checks |
 | `steps[].save` | name → JMESPath expression; later steps use `${name}` |

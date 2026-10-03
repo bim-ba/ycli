@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Step(BaseModel):
-    """One ``ycli -o json <run>`` call and what its output must show.
+    """One ``ycli -o json --yes <run>`` call and what its output must show.
 
     ``expect`` maps a JMESPath expression to the value it must yield; ``save`` maps a variable
     name to a JMESPath expression whose value later steps use as ``${name}``. ``cleanup`` is a

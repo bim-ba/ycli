@@ -46,7 +46,10 @@ class CommandResult:
 
 
 class Driver(ABC):
-    """Runs one ycli command, given its arguments after ``ycli -o json``."""
+    """Runs one ycli command, given its arguments after ``ycli -o json --yes``.
+
+    ``--yes`` because a scenario or the janitor deletes on purpose and no one is there to confirm.
+    """
 
     @abstractmethod
     def run(self, arguments: Sequence[str]) -> CommandResult: ...
@@ -64,7 +67,7 @@ class CliDriver(Driver):
 
     def run(self, arguments: Sequence[str]) -> CommandResult:
         completed = subprocess.run(
-            [self._executable, "-o", "json", *arguments],
+            [self._executable, "-o", "json", "--yes", *arguments],
             capture_output=True,
             text=True,
             timeout=self._timeout_seconds,

@@ -138,3 +138,21 @@ def test_scrub_masks_emails_and_uids():
     assert scrub("by ivan.p@yandex.ru uid 1130000012345678 id 50427846") == (
         "by <email> uid <uid> id 50427846"
     )
+
+
+def test_the_cli_driver_confirms_deletes(monkeypatch):
+    """Scenarios and the janitor delete on purpose, and an unattended run has no one to ask."""
+    import subprocess
+
+    from e2e import runner
+
+    sent: list[list[str]] = []
+
+    def fake_run(argv: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        sent.append(argv)
+        return subprocess.CompletedProcess(argv, 0, "{}", "")
+
+    monkeypatch.setattr(runner.shutil, "which", lambda *_args, **_kwargs: "/venv/bin/ycli")
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    runner.CliDriver().run(["wiki", "pages", "delete", "7"])
+    assert sent == [["/venv/bin/ycli", "-o", "json", "--yes", "wiki", "pages", "delete", "7"]]
