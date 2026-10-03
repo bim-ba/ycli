@@ -12,7 +12,7 @@ from tests.hosts import TRACKER_BASE
 from ycli.mcp.listing import UnknownToolError
 from ycli.mcp.profiles import CORE_TOOLS, STATUS_TOOL
 from ycli.mcp.selection import CORE, Selection, split_names
-from ycli.mcp.server import build_server
+from ycli.mcp.server import build_server, check_tool_names
 from ycli.yandex.mcp import WRITE_TAG
 
 
@@ -183,7 +183,32 @@ async def test_status_is_served_under_every_selection():
 async def test_an_unknown_tool_name_fails_loudly(selection):
     """FastMCP would silently match nothing; the server names the typo instead."""
     with pytest.raises(UnknownToolError, match="tracker_issues_gett"):
-        await build_server(selection).list_tools()
+        await check_tool_names(selection)
+
+
+@pytest.mark.parametrize(
+    "selection",
+    [
+        Selection(),
+        Selection(toolsets=("wiki",), tools=("tracker_issues_get",)),
+        Selection(exclude_tools=("tracker_queues_delete",)),
+        Selection(toolsets=(CORE, "wiki"), exclude_tools=("wiki_pages_delete",)),
+        Selection(read_only=True),
+        Selection(tool_search=True),
+        Selection(toolsets=("tracker",), tools=("wiki_pages_get",), read_only=True),
+    ],
+)
+async def test_a_client_connects_and_sees_what_a_direct_listing_shows(selection):
+    """Connecting runs FastMCP's startup, which a direct ``server.list_tools()`` skips.
+
+    That startup runs the server's transforms over the task-capable components only (none
+    here): a name check placed among the transforms refused every ``--tools`` /
+    ``--exclude-tools`` name there and closed the connection.
+    """
+    await check_tool_names(selection)
+    async with Client(build_server(selection)) as client:
+        names = {tool.name for tool in await client.list_tools()}
+    assert names == await served(selection)
 
 
 async def test_the_name_check_does_not_trip_on_good_names():
