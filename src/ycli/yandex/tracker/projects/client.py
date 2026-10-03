@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class ProjectsClient(Resource):
-    """List, get, create, edit and delete projects; list a project's queues."""
+    """List, get, create, update and delete projects; list a project's queues."""
 
     def list(self, *, expand: str | None = None) -> ItemList[Project]:
         """``GET /projects`` → every project of the organization.
@@ -90,7 +90,7 @@ class ProjectsClient(Resource):
         """
         return self._session.send(endpoints.create_project(body))
 
-    def edit(
+    def update(
         self, project_id: int, body: ProjectUpdate, *, version: int, expand: str | None = None
     ) -> Project:
         """``PUT /projects/{project_id}?version=`` → change the set fields of a project.
@@ -109,11 +109,11 @@ class ProjectsClient(Resource):
         Examples:
             >>> from ycli.yandex.tracker.projects.models import ProjectUpdate
             >>> body = ProjectUpdate(queues="EDITQ", name="Renamed")
-            >>> tracker.projects.edit(31, body, version=5, expand="queues").version
+            >>> tracker.projects.update(31, body, version=5, expand="queues").version
             6
         """
         return self._session.send(
-            endpoints.edit_project(project_id, body, version=version, expand=expand)
+            endpoints.update_project(project_id, body, version=version, expand=expand)
         )
 
     def delete(self, project_id: int) -> None:

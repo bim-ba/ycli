@@ -51,7 +51,7 @@ def create(body: StatusCreate, client: TrackerClient = Depends(tracker_client)) 
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker status"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     status_id: Annotated[str, Field(description="Status id or key, from ``statuses_list``.")],
     body: StatusUpdate,
     version: Version = None,
@@ -62,4 +62,4 @@ def edit(
     ``status_id`` is the numeric id (not the key). Pass ``version`` to guard against concurrent
     edits (optimistic locking).
     """
-    return client.statuses.edit(status_id, body, version=version)
+    return client.statuses.update(status_id, body, version=version)

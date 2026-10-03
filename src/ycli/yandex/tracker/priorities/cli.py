@@ -67,4 +67,4 @@ def update(
         name=LocalizedName(ru=name_ru or None, en=name_en or None) if named else None,
         description=description or None,
     )
-    return tracker.priorities.edit(priority_id, body, version=version)
+    return tracker.priorities.update(priority_id, body, version=version)

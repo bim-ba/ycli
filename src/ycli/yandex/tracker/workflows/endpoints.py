@@ -1,7 +1,7 @@
 """Tracker ``/workflows`` operations, each declared once (sans-IO).
 
 Examples:
-    >>> edit_action("W21", "inProgress", "close", {"target": "closed"}, version=2).path
+    >>> update_action("W21", "inProgress", "close", {"target": "closed"}, version=2).path
     'workflows/W21/steps/inProgress/actions/close'
     >>> delete_workflow("W21").effect
     'destructive'
@@ -36,7 +36,7 @@ def create_workflow(body: WorkflowCreate) -> Endpoint[Workflow]:
     return Endpoint("POST", "workflows", Workflow, json=body)
 
 
-def edit_workflow(workflow_id: str, body: WorkflowUpdate, *, version: int) -> Endpoint[Workflow]:
+def update_workflow(workflow_id: str, body: WorkflowUpdate, *, version: int) -> Endpoint[Workflow]:
     """``PATCH /workflows/{id}?version=`` — the optimistic lock is required by the API."""
     return Endpoint(
         "PATCH",
@@ -47,7 +47,7 @@ def edit_workflow(workflow_id: str, body: WorkflowUpdate, *, version: int) -> En
     )
 
 
-def edit_action(
+def update_action(
     workflow_id: str, status: str, action_id: str, body: WorkflowActionUpdate, *, version: int
 ) -> Endpoint[Workflow]:
     """``PATCH /workflows/{id}/steps/{status}/actions/{action}?version=`` — one action only."""

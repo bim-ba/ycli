@@ -89,7 +89,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question"},
     tags=WRITE_TAGS,
 )
-def modify(
+def update(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
     question_id: Annotated[str, Field(description="Question id (integer) to modify.")],
     body: Annotated[
@@ -103,7 +103,7 @@ def modify(
     The body's ``type`` must match the existing question's type; look it up with
     ``questions_get`` first.
     """
-    return client.questions.modify(survey_id, question_id, body)
+    return client.questions.update(survey_id, question_id, body)
 
 
 @mcp.tool(

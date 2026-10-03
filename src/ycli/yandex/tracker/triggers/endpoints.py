@@ -1,7 +1,7 @@
 """Tracker queue ``/triggers`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_trigger("DESIGN", 16, {"active": False}, version=2).params
+    >>> update_trigger("DESIGN", 16, {"active": False}, version=2).params
     {'version': 2}
     >>> list_webhook_log("DEV", 6, limit=100).path
     'queues/DEV/triggers/6/webhooks/log'
@@ -54,7 +54,7 @@ def create_trigger(queue_id: str, body: TriggerCreate) -> Endpoint[Trigger]:
     return Endpoint("POST", f"queues/{segment(queue_id)}/triggers", Trigger, json=body)
 
 
-def edit_trigger(
+def update_trigger(
     queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None
 ) -> Endpoint[Trigger]:
     path = _trigger_path(queue_id, trigger_id)

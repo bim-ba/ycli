@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class MacrosClient(Resource):
-    """List, get, create, edit and delete a queue's macros."""
+    """List, get, create, update and delete a queue's macros."""
 
     def list(self, queue_id: str) -> ItemList[Macro]:
         """``GET /queues/{queue_id}/macros`` → the queue's macros.
@@ -63,7 +63,7 @@ class MacrosClient(Resource):
         """
         return self._session.send(endpoints.create_macro(queue_id, body))
 
-    def edit(self, queue_id: str, macro_id: int, body: MacroUpdate) -> Macro:
+    def update(self, queue_id: str, macro_id: int, body: MacroUpdate) -> Macro:
         """Edit a macro from a typed ``MacroUpdate`` body. Returns the updated ``Macro``.
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
@@ -78,10 +78,10 @@ class MacrosClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.macros.models import MacroUpdate
-            >>> tracker.macros.edit("QA", 6, MacroUpdate(name="Renamed")).name
+            >>> tracker.macros.update("QA", 6, MacroUpdate(name="Renamed")).name
             'Renamed'
         """
-        return self._session.send(endpoints.edit_macro(queue_id, macro_id, body))
+        return self._session.send(endpoints.update_macro(queue_id, macro_id, body))
 
     def delete(self, queue_id: str, macro_id: int) -> None:
         """``DELETE /queues/{queue_id}/macros/{macro_id}`` — delete a macro (``204``, empty body).

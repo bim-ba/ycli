@@ -268,7 +268,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.grids",
+        "wiki.pages.grids_list",
         args=(4301,),
         kwargs={"limit": 30},
         cli=["wiki", "pages", "grids-list", "4301", "--limit", "30"],
@@ -287,7 +287,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.grids",
+        "wiki.pages.grids_list",
         args=(4310,),
         kwargs={"limit": 12, "order_by": "created_at"},
         cli=["wiki", "pages", "grids-list", "4310", "--limit", "12", "--order-by", "created_at"],
@@ -375,7 +375,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.append_content",
+        "wiki.pages.append",
         args=(
             4601,
             PageAppendContent.model_validate(
@@ -399,7 +399,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.append_content",
+        "wiki.pages.append",
         args=(
             4602,
             PageAppendContent.model_validate(
@@ -420,7 +420,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.append_content",
+        "wiki.pages.append",
         args=(
             4603,
             PageAppendContent.model_validate(
@@ -456,7 +456,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.append_content",
+        "wiki.pages.append",
         args=(
             4604,
             PageAppendContent.model_validate(
@@ -650,7 +650,7 @@ CASES = [
     ),
     # GET /pages/{id}/revisions (undocumented): ids filter, cursor paging, a limit.
     Case(
-        "wiki.pages.revisions",
+        "wiki.pages.revisions_list",
         args=(6201,),
         kwargs={"ids": "7001,7002,7003", "limit": 40},
         cli=[
@@ -689,7 +689,7 @@ CASES = [
     ),
     # --all lifts the configured cap (shrunk to 1 here, so a CLI ignoring --all keeps one).
     Case(
-        "wiki.pages.revisions",
+        "wiki.pages.revisions_list",
         args=(6202,),
         kwargs={"limit": None},
         cli=["wiki", "pages", "revisions-list", "6202", "--all"],
@@ -711,7 +711,7 @@ CASES = [
     ),
     # GET /pages/{id}/backlinks (undocumented): both flags, cursor paging, a limit.
     Case(
-        "wiki.pages.backlinks",
+        "wiki.pages.backlinks_list",
         args=(6301,),
         kwargs={"for_cluster": True, "show_all": True, "limit": 30},
         cli=[
@@ -753,7 +753,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.backlinks",
+        "wiki.pages.backlinks_list",
         args=(6302,),
         kwargs={"limit": None},
         cli=["wiki", "pages", "backlinks-list", "6302", "--all"],
@@ -974,7 +974,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.grids",
+        "wiki.pages.grids_list",
         args=(4320,),
         kwargs={"limit": 13, "order_by": "title", "order_direction": "desc"},
         cli=[
@@ -1101,7 +1101,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.append_content",
+        "wiki.pages.append",
         args=(
             4606,
             PageAppendContent.model_validate(

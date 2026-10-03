@@ -57,7 +57,7 @@ def create_worklog(key: str, body: WorklogCreate) -> Endpoint[Worklog]:
     return Endpoint("POST", f"issues/{segment(key)}/worklog", Worklog, json=body)
 
 
-def edit_worklog(key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Worklog]:
+def update_worklog(key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Worklog]:
     path = f"issues/{segment(key)}/worklog/{segment(record_id)}"
     return Endpoint("PATCH", path, Worklog, json=body)
 

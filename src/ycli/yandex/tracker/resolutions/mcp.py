@@ -54,7 +54,7 @@ def create(body: ResolutionCreate, client: TrackerClient = Depends(tracker_clien
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker resolution"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     resolution_id: Annotated[
         str, Field(description="Resolution id or key, from ``resolutions_list``.")
     ],
@@ -67,4 +67,4 @@ def edit(
     ``resolution_id`` is the numeric id (not the key). Pass ``version`` to guard against
     concurrent edits (optimistic locking).
     """
-    return client.resolutions.edit(resolution_id, body, version=version)
+    return client.resolutions.update(resolution_id, body, version=version)

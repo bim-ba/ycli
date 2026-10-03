@@ -159,7 +159,7 @@ def add_rows(
     Column slugs come from ``grids_get``'s structure block. Returns the created rows plus
     the grid's new ``revision``.
     """
-    return client.grids.add_rows(grid_id, body=body)
+    return client.grids.rows_add(grid_id, body=body)
 
 
 @mcp.tool(
@@ -180,7 +180,7 @@ def remove_rows(
     A rare DELETE-with-body: ids and revision travel in the JSON body. Find row ids with
     ``grids_get``. Returns the grid's new ``revision``.
     """
-    return client.grids.remove_rows(grid_id, body=body)
+    return client.grids.rows_remove(grid_id, body=body)
 
 
 @mcp.tool(
@@ -201,7 +201,7 @@ def move_rows(
 
     Returns the grid's new ``revision``.
     """
-    return client.grids.move_rows(grid_id, body=body)
+    return client.grids.rows_move(grid_id, body=body)
 
 
 @mcp.tool(
@@ -226,7 +226,7 @@ def add_columns(
     ``staff``, ``date``, ``checkbox``, ``ticket_field``, …); type-specific fields such as
     ``select_options`` shape it further. Returns the grid's new ``revision``.
     """
-    return client.grids.add_columns(grid_id, body=body)
+    return client.grids.columns_add(grid_id, body=body)
 
 
 @mcp.tool(
@@ -247,7 +247,7 @@ def remove_columns(
     A rare DELETE-with-body: slugs and revision travel in the JSON body. Returns the grid's
     new ``revision``.
     """
-    return client.grids.remove_columns(grid_id, body=body)
+    return client.grids.columns_remove(grid_id, body=body)
 
 
 @mcp.tool(
@@ -270,7 +270,7 @@ def move_columns(
 
     Returns the grid's new ``revision``.
     """
-    return client.grids.move_columns(grid_id, body=body)
+    return client.grids.columns_move(grid_id, body=body)
 
 
 @mcp.tool(
@@ -294,7 +294,7 @@ def update_cells(
     Repeating the same call sets the same values (idempotent). Returns the updated cells
     plus the grid's new ``revision``.
     """
-    return client.grids.update_cells(grid_id, body=body)
+    return client.grids.cells_update(grid_id, body=body)
 
 
 @mcp.tool(name="grids_clone", annotations={**WRITE, "title": "Clone Wiki grid"}, tags=WRITE_TAGS)
@@ -336,7 +336,7 @@ def suggest_column(
     The call is a POST but changes nothing. Yandex does not document this operation (it is in
     the live OpenAPI only) and may change it.
     """
-    return client.grids.suggest_column(grid_id, body=body)
+    return client.grids.columns_suggest(grid_id, body=body)
 
 
 @mcp.tool(
@@ -363,7 +363,7 @@ def update_column(
     the column as saved. Yandex does not document this operation (it is in the
     live OpenAPI only) and may change it.
     """
-    return client.grids.update_column(grid_id, column_slug, body=body)
+    return client.grids.columns_update(grid_id, column_slug, body=body)
 
 
 @mcp.tool(
@@ -387,4 +387,4 @@ def update_row(
     enforced. Yandex does not document this operation (it is in the live OpenAPI only) and may
     change it.
     """
-    return client.grids.update_row(grid_id, row_id, body=body)
+    return client.grids.rows_update(grid_id, row_id, body=body)

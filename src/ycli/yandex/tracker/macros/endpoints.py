@@ -24,7 +24,7 @@ def create_macro(queue_id: str, body: MacroCreate) -> Endpoint[Macro]:
     return Endpoint("POST", f"queues/{segment(queue_id)}/macros", Macro, json=body)
 
 
-def edit_macro(queue_id: str, macro_id: int, body: MacroUpdate) -> Endpoint[Macro]:
+def update_macro(queue_id: str, macro_id: int, body: MacroUpdate) -> Endpoint[Macro]:
     path = f"queues/{segment(queue_id)}/macros/{segment(macro_id)}"
     return Endpoint("PATCH", path, Macro, json=body)
 

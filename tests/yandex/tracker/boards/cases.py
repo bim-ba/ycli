@@ -148,7 +148,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.boards.edit",
+        "tracker.boards.update",
         args=(
             51,
             BoardUpdate(name="Renamed board", backlog_available=False, sprints_available=True),
@@ -190,7 +190,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.boards.edit",
+        "tracker.boards.update",
         args=(52, BoardUpdate(columns=[BoardColumnInput(name="Done", statuses=["closed"])])),
         cli=None,
         mcp=(

@@ -49,7 +49,7 @@ def create(body: IssueTypeCreate, client: TrackerClient = Depends(tracker_client
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue type"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     issue_type_id: Annotated[
         str, Field(description="Issue type id or key, from ``issuetypes_list``.")
     ],
@@ -62,4 +62,4 @@ def edit(
     ``issue_type_id`` is the numeric id (not the key). Pass ``version`` to guard against
     concurrent edits (optimistic locking).
     """
-    return client.issuetypes.edit(issue_type_id, body, version=version)
+    return client.issuetypes.update(issue_type_id, body, version=version)

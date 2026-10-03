@@ -109,7 +109,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.comments.edit",
+        "tracker.comments.update",
         args=("DE-16", "161", CommentUpdate.model_validate({"text": "fixed typo"})),
         cli=["tracker", "comments", "update", "DE-16", "161", "--text", "fixed typo"],
         mcp=(

@@ -69,19 +69,19 @@ def get(
 @app.command()
 def tags_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[str]:
     """List the tags added to QUEUE_ID."""
-    return tracker.queues.tags(queue_id)
+    return tracker.queues.tags_list(queue_id)
 
 
 @app.command()
 def versions_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueVersionInfo]:
     """List the versions defined on QUEUE_ID."""
-    return tracker.queues.versions(queue_id)
+    return tracker.queues.versions_list(queue_id)
 
 
 @app.command()
 def fields_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueField]:
     """List the required/local fields of QUEUE_ID."""
-    return tracker.queues.fields(queue_id)
+    return tracker.queues.fields_list(queue_id)
 
 
 @app.command()
@@ -228,7 +228,7 @@ def version_update(
         start_date=start_date or None,
         due_date=due_date or None,
     )
-    return tracker.queues.version_edit(version_id, body, fields=fields or None)
+    return tracker.queues.version_update(version_id, body, fields=fields or None)
 
 
 @app.command("version-delete")
@@ -248,7 +248,7 @@ def user_permissions_get(
     tracker: TrackerClient,
 ) -> QueueUserAccess:
     """Show what USER may do in QUEUE_ID (GET /queues/{id}/permissions/users/{user})."""
-    return tracker.queues.user_permissions(queue_id, user_id)
+    return tracker.queues.user_permissions_get(queue_id, user_id)
 
 
 @app.command("group-permissions-get")
@@ -259,4 +259,4 @@ def group_permissions_get(
     tracker: TrackerClient,
 ) -> QueueGroupAccess:
     """Show what GROUP_ID may do in QUEUE_ID (GET /queues/{id}/permissions/groups/{group})."""
-    return tracker.queues.group_permissions(queue_id, group_id)
+    return tracker.queues.group_permissions_get(queue_id, group_id)

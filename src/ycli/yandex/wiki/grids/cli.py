@@ -195,7 +195,7 @@ def rows_add(
         position=position,
         after_row_id=after_row_id or None,
     )
-    return wiki.grids.add_rows(grid_id, body=body)
+    return wiki.grids.rows_add(grid_id, body=body)
 
 
 @rows_app.command("remove")
@@ -208,7 +208,7 @@ def rows_remove(
 ) -> RevisionResult:
     """Delete rows from a grid by id (DELETE /grids/{id}/rows)."""
     body = RowsRemove(revision=revision, row_ids=row_id)
-    return wiki.grids.remove_rows(grid_id, body=body)
+    return wiki.grids.rows_remove(grid_id, body=body)
 
 
 @rows_app.command("move")
@@ -234,7 +234,7 @@ def rows_move(
         position=position,
         rows_count=rows_count,
     )
-    return wiki.grids.move_rows(grid_id, body=body)
+    return wiki.grids.rows_move(grid_id, body=body)
 
 
 @columns_app.command("add")
@@ -259,7 +259,7 @@ def columns_add(
     its title (lowercased, non-alphanumeric runs collapsed to ``_``).
     """
     body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position)
-    return wiki.grids.add_columns(grid_id, body=body)
+    return wiki.grids.columns_add(grid_id, body=body)
 
 
 @columns_app.command("remove")
@@ -274,7 +274,7 @@ def columns_remove(
 ) -> RevisionResult:
     """Delete columns from a grid by slug (DELETE /grids/{id}/columns)."""
     body = ColumnsRemove(revision=revision, column_slugs=column_slug)
-    return wiki.grids.remove_columns(grid_id, body=body)
+    return wiki.grids.columns_remove(grid_id, body=body)
 
 
 @columns_app.command("move")
@@ -298,7 +298,7 @@ def columns_move(
         position=position,
         columns_count=columns_count,
     )
-    return wiki.grids.move_columns(grid_id, body=body)
+    return wiki.grids.columns_move(grid_id, body=body)
 
 
 @cells_app.command("update")
@@ -317,7 +317,7 @@ def cells_update(
 ) -> CellsUpdateResult:
     """Set individual cell values in a grid (POST /grids/{id}/cells)."""
     body = CellsUpdate(revision=revision, cells=json.loads(cells))
-    return wiki.grids.update_cells(grid_id, body=body)
+    return wiki.grids.cells_update(grid_id, body=body)
 
 
 @rows_app.command("update")
@@ -338,7 +338,7 @@ def rows_update(
         pinned=pinned,
         color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
     )
-    return wiki.grids.update_row(grid_id, row_id, body=body)
+    return wiki.grids.rows_update(grid_id, row_id, body=body)
 
 
 @columns_app.command("suggest")
@@ -353,7 +353,7 @@ def columns_suggest(
 ) -> ColumnSuggestion:
     """Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API)."""
     body = ColumnSuggest(title=title or None, slug=slug or None)
-    return wiki.grids.suggest_column(grid_id, body=body)
+    return wiki.grids.columns_suggest(grid_id, body=body)
 
 
 @columns_app.command("update")
@@ -394,4 +394,4 @@ def columns_update(
         color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
         select_options=select_options,
     )
-    return wiki.grids.update_column(grid_id, column_slug, body=body)
+    return wiki.grids.columns_update(grid_id, column_slug, body=body)

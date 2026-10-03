@@ -71,7 +71,7 @@ def create(body: SprintCreate, client: TrackerClient = Depends(tracker_client)) 
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker sprint"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     sprint_id: SprintId,
     body: SprintUpdate,
     version: Version = None,
@@ -83,7 +83,7 @@ def edit(
     from ``sprints_get``) — the API requires it for optimistic locking and answers 428 without
     one. Returns the updated sprint.
     """
-    return client.sprints.edit(sprint_id, body, version=version)
+    return client.sprints.update(sprint_id, body, version=version)
 
 
 @mcp.tool(

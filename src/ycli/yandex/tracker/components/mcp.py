@@ -59,7 +59,7 @@ def create(body: ComponentCreate, client: TrackerClient = Depends(tracker_client
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker component"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     component_id: Annotated[
         int, Field(description="Numeric id of the component, from ``components_list``.")
     ],
@@ -72,7 +72,7 @@ def edit(
     Get ``component_id`` from ``components_list``. Pass ``version`` to guard against concurrent
     edits (optimistic locking).
     """
-    return client.components.edit(component_id, body, version=version)
+    return client.components.update(component_id, body, version=version)
 
 
 @mcp.tool(
@@ -136,7 +136,7 @@ def user_permissions_get(
     client: TrackerClient = Depends(tracker_client),
 ) -> ComponentUserAccess:
     """What one user may do on a component (create, read, write, deny) and who grants it."""
-    return client.components.user_permissions(component_id, user_id)
+    return client.components.user_permissions_get(component_id, user_id)
 
 
 @mcp.tool(
@@ -150,4 +150,4 @@ def group_permissions_get(
     client: TrackerClient = Depends(tracker_client),
 ) -> ComponentGroupAccess:
     """What one group may do on a component (create, read, write, deny)."""
-    return client.components.group_permissions(component_id, group_id)
+    return client.components.group_permissions_get(component_id, group_id)

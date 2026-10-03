@@ -60,7 +60,7 @@ CASES = [
     ),
     # No ?version= lock; the filter object is replaced whole.
     Case(
-        "tracker.filters.edit",
+        "tracker.filters.update",
         args=(
             "12347",
             FilterUpdate(name="Renamed", query="Queue: OPS", filter={"queue": "OPS"}),
@@ -97,7 +97,7 @@ CASES = [
     ),
     # Only the supplied fields are sent.
     Case(
-        "tracker.filters.edit",
+        "tracker.filters.update",
         args=("12348", FilterUpdate(name="Only the name")),
         cli=["tracker", "filters", "update", "12348", "--name", "Only the name"],
         mcp=("tracker_filters_update", {"filter_id": "12348", "body": {"name": "Only the name"}}),

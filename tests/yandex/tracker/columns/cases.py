@@ -54,7 +54,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.columns.edit",
+        "tracker.columns.update",
         args=(76, 6, ColumnUpdate(name="Pause", statuses=["paused", "blocked"])),
         cli=[
             "tracker",
@@ -90,7 +90,7 @@ CASES = [
     ),
     # Only the supplied fields are sent.
     Case(
-        "tracker.columns.edit",
+        "tracker.columns.update",
         args=(77, 7, ColumnUpdate(name="Waiting")),
         cli=["tracker", "columns", "update", "77", "7", "--name", "Waiting"],
         mcp=(

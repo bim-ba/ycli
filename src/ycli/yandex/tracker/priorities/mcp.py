@@ -53,7 +53,7 @@ def create(body: PriorityCreate, client: TrackerClient = Depends(tracker_client)
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker priority"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     priority_id: Annotated[str, Field(description="Priority id or key, from ``priorities_list``.")],
     body: PriorityUpdate,
     version: Version = None,
@@ -64,4 +64,4 @@ def edit(
     ``priority_id`` is the numeric id (not the key). Pass ``version`` to guard against
     concurrent edits (optimistic locking).
     """
-    return client.priorities.edit(priority_id, body, version=version)
+    return client.priorities.update(priority_id, body, version=version)

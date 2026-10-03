@@ -1,7 +1,7 @@
 """Tracker ``/priorities`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_priority("one", {"description": "x"}, version=1).params
+    >>> update_priority("one", {"description": "x"}, version=1).params
     {'version': 1}
 """
 
@@ -20,7 +20,7 @@ def create_priority(body: PriorityCreate) -> Endpoint[Priority]:
     return Endpoint("POST", "priorities/", Priority, json=body)
 
 
-def edit_priority(
+def update_priority(
     priority_id: str, body: PriorityUpdate, *, version: int | None = None
 ) -> Endpoint[Priority]:
     """``PATCH /priorities/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""

@@ -49,7 +49,7 @@ CASES = [
     Case(
         "tracker.attachments.download_thumbnail",
         args=("JUNE-4", "4160"),
-        cli=["tracker", "attachments", "thumbnail", "JUNE-4", "4160"],
+        cli=["tracker", "attachments", "download-thumbnail", "JUNE-4", "4160"],
         mcp=None,
         exchanges=[
             (Sent("GET", "issues/JUNE-4/thumbnails/4160"), Reply(content=b"\x89PNGthumb")),

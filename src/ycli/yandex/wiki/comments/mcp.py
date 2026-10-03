@@ -78,7 +78,7 @@ def thread_list(
     read its thread.
     """
     cap = config.http.cap(limit)
-    return client.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
+    return client.comments.thread_list(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
 @mcp.tool(

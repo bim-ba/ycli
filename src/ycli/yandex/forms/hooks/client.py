@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class HooksClient(Resource):
-    """List, get, create, modify and delete a form's integration groups."""
+    """List, get, create, update and delete a form's integration groups."""
 
     def list(self, survey_id: str) -> ItemList[Hook]:
         """``GET /surveys/{id}/hooks`` → every integration group with its integrations.
@@ -66,7 +66,7 @@ class HooksClient(Resource):
         """
         return self._session.send(endpoints.create_hook(survey_id, body))
 
-    def modify(self, survey_id: str, hook_id: int, body: HookUpdate) -> Hook:
+    def update(self, survey_id: str, hook_id: int, body: HookUpdate) -> Hook:
         """``PATCH /surveys/{id}/hooks/{hook_id}`` — only the keys in ``body`` change.
 
         Args:
@@ -79,12 +79,12 @@ class HooksClient(Resource):
 
         Examples:
             >>> from ycli.yandex.forms.hooks.models import HookUpdate
-            >>> forms.hooks.modify(
+            >>> forms.hooks.update(
             ...     "686d0a1b2c3d4e5f000000a0", 15, HookUpdate.model_validate({"name": "CRM"})
             ... ).name
             'CRM'
         """
-        return self._session.send(endpoints.modify_hook(survey_id, hook_id, body))
+        return self._session.send(endpoints.update_hook(survey_id, hook_id, body))
 
     def delete(self, survey_id: str, hook_id: int) -> None:
         """``DELETE /surveys/{id}/hooks/{hook_id}`` — the group and its integrations (200).

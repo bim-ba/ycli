@@ -82,7 +82,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration"},
     tags=WRITE_TAGS,
 )
-def modify(
+def update(
     survey_id: SurveyId,
     hook_id: HookId,
     subscription_id: SubscriptionId,
@@ -93,7 +93,7 @@ def modify(
     client: FormsClient = Depends(forms_client),
 ) -> Subscription:
     """Change an integration: only the fields set in ``body`` change."""
-    return client.subscriptions.modify(survey_id, hook_id, subscription_id, body)
+    return client.subscriptions.update(survey_id, hook_id, subscription_id, body)
 
 
 @mcp.tool(

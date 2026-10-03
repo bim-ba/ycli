@@ -87,7 +87,7 @@ def list_(
     Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
     in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
     """
-    return client.answers.list_all(
+    return client.answers.list(
         survey_id,
         limit=config.http.max_items,
         questions=questions or None,

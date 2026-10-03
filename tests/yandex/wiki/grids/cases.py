@@ -270,7 +270,7 @@ CASES = [
         exchanges=[(Sent("DELETE", f"grids/{G3}"), Reply(status=204))],
     ),
     Case(
-        "wiki.grids.add_rows",
+        "wiki.grids.rows_add",
         args=(
             G1,
             RowsAdd.model_validate(
@@ -311,7 +311,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.add_rows",
+        "wiki.grids.rows_add",
         args=(G2, RowsAdd.model_validate({"revision": "5", "rows": [{"name": "Solo"}]})),
         cli=["wiki", "grids", "rows", "add", G2, "--revision", "5", "--rows", '[{"name": "Solo"}]'],
         mcp=None,
@@ -325,7 +325,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.remove_rows",
+        "wiki.grids.rows_remove",
         args=(G1, RowsRemove.model_validate({"revision": "14", "row_ids": ["r1", "r2"]})),
         cli=[
             "wiki",
@@ -354,7 +354,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.move_rows",
+        "wiki.grids.rows_move",
         args=(
             G1,
             RowsMove.model_validate(
@@ -415,14 +415,14 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.move_rows",
+        "wiki.grids.rows_move",
         args=(G2, RowsMove.model_validate({"revision": "6"})),
         cli=["wiki", "grids", "rows", "move", G2, "--revision", "6"],
         mcp=None,
         exchanges=[(Sent("POST", f"grids/{G2}/rows/move", json={"revision": "6"}), _revision("7"))],
     ),
     Case(
-        "wiki.grids.add_columns",
+        "wiki.grids.columns_add",
         args=(
             G1,
             ColumnsAdd.model_validate({"revision": "16", "columns": COLUMNS_SENT, "position": 1}),
@@ -456,7 +456,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.remove_columns",
+        "wiki.grids.columns_remove",
         args=(
             G1,
             ColumnsRemove.model_validate({"revision": "17", "column_slugs": ["stage", "due_date"]}),
@@ -490,7 +490,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.move_columns",
+        "wiki.grids.columns_move",
         args=(
             G1,
             ColumnsMove.model_validate(
@@ -541,7 +541,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.move_columns",
+        "wiki.grids.columns_move",
         args=(G2, ColumnsMove.model_validate({"revision": "7"})),
         cli=["wiki", "grids", "columns", "move", G2, "--revision", "7"],
         mcp=None,
@@ -550,7 +550,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.update_cells",
+        "wiki.grids.cells_update",
         args=(G1, CellsUpdate.model_validate({"revision": "19", "cells": CELLS})),
         cli=[
             "wiki",
@@ -636,7 +636,7 @@ CASES = [
     ),
     # POST /grids/{id}/columns/suggest (undocumented) only reads, whatever its method says.
     Case(
-        "wiki.grids.suggest_column",
+        "wiki.grids.columns_suggest",
         args=(G2, ColumnSuggest.model_validate({"title": "Due date"})),
         cli=["wiki", "grids", "columns", "suggest", G2, "--title", "Due date"],
         mcp=("wiki_grids_columns_suggest", {"grid_id": G2, "body": {"title": "Due date"}}),
@@ -649,7 +649,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.suggest_column",
+        "wiki.grids.columns_suggest",
         args=(G3, ColumnSuggest.model_validate({"slug": "stage"})),
         cli=["wiki", "grids", "columns", "suggest", G3, "--slug", "stage"],
         mcp=None,
@@ -663,7 +663,7 @@ CASES = [
     ),
     # POST /grids/{id}/column/{slug} (undocumented; the path says "column", singular).
     Case(
-        "wiki.grids.update_column",
+        "wiki.grids.columns_update",
         effect="idempotent_write",
         args=(G1, "stage", ColumnUpdate.model_validate(COLUMN_UPDATE)),
         cli=[
@@ -724,7 +724,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.update_column",
+        "wiki.grids.columns_update",
         effect="idempotent_write",
         args=(G2, "note", ColumnUpdate.model_validate({"title": "Remarks", "required": False})),
         cli=[
@@ -757,7 +757,7 @@ CASES = [
     ),
     # The fields the CLI has no flag for: SDK and MCP only.
     Case(
-        "wiki.grids.update_column",
+        "wiki.grids.columns_update",
         effect="idempotent_write",
         args=(G3, "assignee", ColumnUpdate.model_validate(COLUMN_UPDATE_EXTRA)),
         cli=None,
@@ -787,7 +787,7 @@ CASES = [
     ),
     # POST /grids/{id}/rows/{row_id} (undocumented): pin or colour a row.
     Case(
-        "wiki.grids.update_row",
+        "wiki.grids.rows_update",
         effect="idempotent_write",
         args=(
             G1,
@@ -827,7 +827,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.update_row",
+        "wiki.grids.rows_update",
         effect="idempotent_write",
         args=(G2, "207", RowUpdate.model_validate({"pinned": False})),
         cli=["wiki", "grids", "rows", "update", G2, "207", "--no-pinned"],

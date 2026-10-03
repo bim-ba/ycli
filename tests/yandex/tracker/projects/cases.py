@@ -149,7 +149,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.projects.edit",
+        "tracker.projects.update",
         args=(
             31,
             ProjectUpdate(
@@ -226,7 +226,7 @@ CASES = [
     ),
     # Only the required queues and the lock go out.
     Case(
-        "tracker.projects.edit",
+        "tracker.projects.update",
         args=(32, ProjectUpdate(queues="ONLYQ")),
         kwargs={"version": 2},
         cli=["tracker", "projects", "update", "32", "--version", "2", "--queues", "ONLYQ"],

@@ -73,7 +73,7 @@ def list_(
 ) -> AnswersResponse:
     """List a form's responses, filtered (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return forms.answers.list_all(
+    return forms.answers.list(
         survey_id,
         limit=cap,
         questions=questions or None,

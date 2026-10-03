@@ -73,7 +73,7 @@ def update(
         body=body or None,
         issue_update=json.loads(issue_update) if issue_update else None,
     )
-    return tracker.macros.edit(queue_id, macro_id, macro)
+    return tracker.macros.update(queue_id, macro_id, macro)
 
 
 @app.command()

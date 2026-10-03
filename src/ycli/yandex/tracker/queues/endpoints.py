@@ -93,7 +93,7 @@ def get_version(version_id: int, *, fields: str | None = None) -> Endpoint[Queue
     )
 
 
-def edit_version(
+def update_version(
     version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
 ) -> Endpoint[QueueVersionInfo]:
     """``PATCH /versions/{id}``: unlike a component, a version takes no ``?version=`` lock."""

@@ -104,7 +104,7 @@ def update(
         name=LocalizedName(ru=name_ru or None, en=name_en or None) if named else None,
         options_provider=_options_provider(option, options_type),
     )
-    return tracker.fields.edit(field_id, body, version=version)
+    return tracker.fields.update(field_id, body, version=version)
 
 
 @app.command("category-create")
@@ -147,4 +147,4 @@ def category_update(
         order=order,
         description=description or None,
     )
-    return tracker.fields.category_edit(category_id, body, version=version)
+    return tracker.fields.category_update(category_id, body, version=version)

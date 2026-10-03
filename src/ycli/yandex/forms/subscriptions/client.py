@@ -19,7 +19,7 @@ def _without_id(body: Subscription) -> Subscription:
 
 
 class SubscriptionsClient(Resource):
-    """List, get, create, modify and delete the integrations of a hook; upload attachments."""
+    """List, get, create, update and delete the integrations of a hook; upload attachments."""
 
     def list(self, survey_id: str, hook_id: int) -> ItemList[Subscription]:
         """``GET /surveys/{id}/hooks/{hook_id}/subscriptions`` → every integration of the hook.
@@ -78,7 +78,7 @@ class SubscriptionsClient(Resource):
             endpoints.create_subscription(survey_id, hook_id, _without_id(body))
         )
 
-    def modify(
+    def update(
         self, survey_id: str, hook_id: int, subscription_id: int, body: Subscription
     ) -> Subscription:
         """``PATCH …/subscriptions/{subscription_id}`` — change the fields set in ``body``.
@@ -94,13 +94,13 @@ class SubscriptionsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.forms.subscriptions.models import HttpSubscription
-            >>> forms.subscriptions.modify(
+            >>> forms.subscriptions.update(
             ...     "686d0a1b2c3d4e5f000000b0", 21, 6, HttpSubscription(active=False)
             ... ).active
             False
         """
         return self._session.send(
-            endpoints.modify_subscription(survey_id, hook_id, subscription_id, _without_id(body))
+            endpoints.update_subscription(survey_id, hook_id, subscription_id, _without_id(body))
         )
 
     def delete(self, survey_id: str, hook_id: int, subscription_id: int) -> None:

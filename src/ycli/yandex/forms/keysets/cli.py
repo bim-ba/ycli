@@ -73,7 +73,7 @@ def update(
     ``PATCH``: the API replaces the whole record, so name, total and enabled are sent together.
     """
     body = KeysetUpdate(name=name, total=total, is_enabled=enabled)
-    return forms.keysets.modify(survey_id, keyset_id, body=body)
+    return forms.keysets.update(survey_id, keyset_id, body=body)
 
 
 @app.command()

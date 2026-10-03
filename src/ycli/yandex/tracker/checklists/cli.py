@@ -72,7 +72,7 @@ def update(
         assignee=assignee or None,
         deadline=DeadlineInput(date=deadline) if deadline else None,
     )
-    return tracker.checklists.edit(key, item_id, body=body)
+    return tracker.checklists.update(key, item_id, body=body)
 
 
 @app.command()

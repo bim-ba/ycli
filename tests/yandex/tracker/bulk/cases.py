@@ -231,7 +231,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.bulk.issues",
+        "tracker.bulk.issues_list",
         args=("5ij",),
         cli=["tracker", "bulk", "issues-list", "5ij"],
         mcp=("tracker_bulk_issues_list", {"bulk_id": "5ij"}),

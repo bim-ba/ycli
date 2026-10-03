@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="220" viewBox="0 0 760 220" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" role="img" aria-labelledby="title">
-<title id="title">ycli wraps 334 operations across 62 resources</title>
+<title id="title">ycli wraps 333 operations across 62 resources</title>
 <style>.value{fill:#768390}.label{fill:#768390}.bar{fill:#3987e5}</style>
-<text class="value" x="0" y="40" font-size="36" font-weight="600">334</text>
+<text class="value" x="0" y="40" font-size="36" font-weight="600">333</text>
 <text class="label" x="0" y="66" font-size="15">operations</text>
 <text class="value" x="253.333" y="40" font-size="36" font-weight="600">62</text>
 <text class="label" x="253.333" y="66" font-size="15">resources</text>
@@ -14,6 +14,6 @@
 <path class="bar" d="M90,148H214.211Q218.211,148 218.211,152V166Q218.211,170 214.211,170H90Z"/>
 <text class="label" x="228.211" y="164" font-size="14">58 operations · 56 MCP tools</text>
 <text class="value" x="0" y="200" font-size="15" font-weight="600">Forms</text>
-<path class="bar" d="M90,184H276.105Q280.105,184 280.105,188V202Q280.105,206 276.105,206H90Z"/>
-<text class="label" x="290.105" y="200" font-size="14">86 operations · 78 MCP tools</text>
+<path class="bar" d="M90,184H273.895Q277.895,184 277.895,188V202Q277.895,206 273.895,206H90Z"/>
+<text class="label" x="287.895" y="200" font-size="14">85 operations · 78 MCP tools</text>
 </svg>

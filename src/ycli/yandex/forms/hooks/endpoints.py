@@ -28,7 +28,7 @@ def create_hook(survey_id: str, body: HookCreate) -> Endpoint[Hook]:
     return Endpoint("POST", _hooks(survey_id), Hook, json=body)
 
 
-def modify_hook(survey_id: str, hook_id: int, body: HookUpdate) -> Endpoint[Hook]:
+def update_hook(survey_id: str, hook_id: int, body: HookUpdate) -> Endpoint[Hook]:
     return Endpoint("PATCH", f"{_hooks(survey_id)}/{segment(hook_id)}", Hook, json=body)
 
 

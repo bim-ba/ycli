@@ -1,7 +1,7 @@
 """Forms display-conditions FastMCP tools (reads + writes, honest hints).
 
 Four targets carry condition groups: a question, a page, the submit button and an integration
-group (hook). Each target has the same six tools: list, get, create, modify (a full
+group (hook). Each target has the same six tools: list, get, create, update (a full
 replacement), delete and set_operator (the operator BETWEEN the target's groups).
 """
 
@@ -69,7 +69,7 @@ def question_list(
     """A question's show conditions: the ``{operator, items}`` envelope of condition groups.
 
     The top-level ``operator`` joins the GROUPS; each group has its own ``operator`` joining its
-    clauses. A group's integer ``id`` is what the get/modify/delete tools take.
+    clauses. A group's integer ``id`` is what the get/update/delete tools take.
     """
     return client.conditions.question_list(survey_id, question_id)
 
@@ -118,7 +118,7 @@ def question_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question show condition"},
     tags=WRITE_TAGS,
 )
-def question_modify(
+def question_update(
     survey_id: SurveyId,
     question_id: QuestionId,
     condition_id: ConditionId,
@@ -130,7 +130,7 @@ def question_modify(
     Despite the PATCH verb the API validates a complete group: ``operator`` and at least one
     clause are both required; the group ``id`` is never sent.
     """
-    return client.conditions.question_modify(survey_id, question_id, condition_id, body)
+    return client.conditions.question_update(survey_id, question_id, condition_id, body)
 
 
 @mcp.tool(
@@ -181,7 +181,7 @@ def page_list(
     """A page's show conditions: the ``{operator, items}`` envelope of condition groups.
 
     The top-level ``operator`` joins the GROUPS; each group has its own ``operator`` joining its
-    clauses. A group's integer ``id`` is what the get/modify/delete tools take.
+    clauses. A group's integer ``id`` is what the get/update/delete tools take.
     """
     return client.conditions.page_list(survey_id, page_id)
 
@@ -226,7 +226,7 @@ def page_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms page show condition"},
     tags=WRITE_TAGS,
 )
-def page_modify(
+def page_update(
     survey_id: SurveyId,
     page_id: PageId,
     condition_id: ConditionId,
@@ -234,7 +234,7 @@ def page_modify(
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """Replace a page's condition group — a FULL replacement, not a partial update."""
-    return client.conditions.page_modify(survey_id, page_id, condition_id, body)
+    return client.conditions.page_update(survey_id, page_id, condition_id, body)
 
 
 @mcp.tool(
@@ -316,14 +316,14 @@ def submit_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms submit-button show condition"},
     tags=WRITE_TAGS,
 )
-def submit_modify(
+def submit_update(
     survey_id: SurveyId,
     condition_id: ConditionId,
     body: ReplacementGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """Replace a submit-button condition group — a FULL replacement, not a partial update."""
-    return client.conditions.submit_modify(survey_id, condition_id, body)
+    return client.conditions.submit_update(survey_id, condition_id, body)
 
 
 @mcp.tool(
@@ -405,7 +405,7 @@ def hook_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration-group condition"},
     tags=WRITE_TAGS,
 )
-def hook_modify(
+def hook_update(
     survey_id: SurveyId,
     hook_id: HookId,
     condition_id: ConditionId,
@@ -413,7 +413,7 @@ def hook_modify(
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """Replace an integration group's condition group — a FULL replacement."""
-    return client.conditions.hook_modify(survey_id, hook_id, condition_id, body)
+    return client.conditions.hook_update(survey_id, hook_id, condition_id, body)
 
 
 @mcp.tool(

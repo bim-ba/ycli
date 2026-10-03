@@ -9,6 +9,70 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.53.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.52.0
+  ([`98d0af5`](https://github.com/bim-ba/ycli/commit/98d0af5c1a205e4fc4bc966401ab475844d1520f))
+
+### Features
+
+- **sdk**: An SDK method is named like its MCP tool and CLI command
+  ([#257](https://github.com/bim-ba/ycli/pull/257),
+  [`e260df9`](https://github.com/bim-ba/ycli/commit/e260df9cd3334de1921862ff8a50a63ebb51aea0))
+
+### Breaking Changes
+
+- **sdk**: SDK methods are renamed, with no aliases: forms.answers.list_all -> forms.answers.list
+  forms.conditions.hook_modify -> forms.conditions.hook_update forms.conditions.page_modify ->
+  forms.conditions.page_update forms.conditions.question_modify -> forms.conditions.question_update
+  forms.conditions.submit_modify -> forms.conditions.submit_update forms.hooks.modify ->
+  forms.hooks.update forms.keysets.modify -> forms.keysets.update forms.questions.modify ->
+  forms.questions.update forms.subscriptions.modify -> forms.subscriptions.update
+  forms.surveys.modify -> forms.surveys.update tracker.autoactions.log_detail ->
+  tracker.autoactions.logs_get tracker.autoactions.logs -> tracker.autoactions.logs_list
+  tracker.boards.edit -> tracker.boards.update tracker.bulk.issues -> tracker.bulk.issues_list
+  tracker.checklists.edit -> tracker.checklists.update tracker.columns.edit ->
+  tracker.columns.update tracker.comments.edit -> tracker.comments.update tracker.components.edit ->
+  tracker.components.update tracker.components.group_permissions ->
+  tracker.components.group_permissions_get tracker.components.user_permissions ->
+  tracker.components.user_permissions_get tracker.entities.attachment_download ->
+  tracker.entities.attachments_download tracker.entities.bulk_status ->
+  tracker.entities.bulk_status_get tracker.entities.checklists_edit ->
+  tracker.entities.checklists_update tracker.entities.checklists_edit_item ->
+  tracker.entities.checklists_update_item tracker.entities.comments_edit ->
+  tracker.entities.comments_update tracker.entities.comments_relative ->
+  tracker.entities.comments_relative_list tracker.entities.direct_permissions ->
+  tracker.entities.direct_permissions_get tracker.entities.edit -> tracker.entities.update
+  tracker.entities.history -> tracker.entities.events_list tracker.entities.permissions ->
+  tracker.entities.permissions_get tracker.fields.category_edit -> tracker.fields.category_update
+  tracker.fields.edit -> tracker.fields.update tracker.filters.edit -> tracker.filters.update
+  tracker.issuetypes.edit -> tracker.issuetypes.update tracker.localfields.edit ->
+  tracker.localfields.update tracker.macros.edit -> tracker.macros.update tracker.priorities.edit ->
+  tracker.priorities.update tracker.projects.edit -> tracker.projects.update tracker.queues.fields
+  -> tracker.queues.fields_list tracker.queues.group_permissions ->
+  tracker.queues.group_permissions_get tracker.queues.tags -> tracker.queues.tags_list
+  tracker.queues.user_permissions -> tracker.queues.user_permissions_get tracker.queues.version_edit
+  -> tracker.queues.version_update tracker.queues.versions -> tracker.queues.versions_list
+  tracker.resolutions.edit -> tracker.resolutions.update tracker.sprints.edit ->
+  tracker.sprints.update tracker.statuses.edit -> tracker.statuses.update tracker.triggers.edit ->
+  tracker.triggers.update tracker.triggers.webhook_log -> tracker.triggers.webhook_log_list
+  tracker.workflows.edit -> tracker.workflows.update tracker.workflows.edit_action ->
+  tracker.workflows.update_action tracker.worklog.edit -> tracker.worklog.update
+  wiki.comments.thread -> wiki.comments.thread_list wiki.grids.add_columns -> wiki.grids.columns_add
+  wiki.grids.add_rows -> wiki.grids.rows_add wiki.grids.move_columns -> wiki.grids.columns_move
+  wiki.grids.move_rows -> wiki.grids.rows_move wiki.grids.remove_columns ->
+  wiki.grids.columns_remove wiki.grids.remove_rows -> wiki.grids.rows_remove
+  wiki.grids.suggest_column -> wiki.grids.columns_suggest wiki.grids.update_cells ->
+  wiki.grids.cells_update wiki.grids.update_column -> wiki.grids.columns_update
+  wiki.grids.update_row -> wiki.grids.rows_update wiki.pages.append_content -> wiki.pages.append
+  wiki.pages.backlinks -> wiki.pages.backlinks_list wiki.pages.grids -> wiki.pages.grids_list
+  wiki.pages.revisions -> wiki.pages.revisions_list forms.answers.list (one page) is removed;
+  forms.answers.list is the former list_all. CLI: `tracker attachments thumbnail` -> `tracker
+  attachments download-thumbnail`.
+
+
 ## v0.52.0 (2026-10-03)
 
 ### Build System

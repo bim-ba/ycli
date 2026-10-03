@@ -52,50 +52,6 @@ class AnswersClient(Resource):
         self,
         survey_id: str,
         *,
-        questions: str | None = None,
-        use_slugs: bool = False,
-        date_from: str | None = None,
-        date_to: str | None = None,
-        ordering: str | None = None,
-        page_size: int | None = None,
-        answer_format: str | None = None,
-    ) -> AnswersResponse:
-        """``GET /surveys/{id}/answers`` → the first page's ``{columns, answers, next}`` envelope.
-
-        Args:
-            survey_id: The form's id.
-            questions: The comma-separated question ids to return answers for.
-            use_slugs: Name questions and options by slug instead of id.
-            date_from: ISO-8601 start of the period the answers were given in.
-            date_to: ISO-8601 end of that period.
-            ordering: ``asc`` (oldest first) or ``desc`` (the API's default).
-            page_size: The most answers a page holds (the API's default is 25).
-            answer_format: ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's
-                data as the API stores it, with no ``columns``).
-
-        Returns:
-            The first page of answers, with its columns.
-
-        Examples:
-            >>> forms.answers.list("686d0a1b2c3d4e5f00000030").columns[0].slug
-            'answer_short_text_1'
-        """
-        paged = endpoints.list_answers(
-            survey_id,
-            questions=questions,
-            use_slugs=use_slugs,
-            date_from=date_from,
-            date_to=date_to,
-            ordering=ordering,
-            page_size=page_size,
-            answer_format=answer_format,
-        )
-        return self._session.send(paged.endpoint)
-
-    def list_all(
-        self,
-        survey_id: str,
-        *,
         limit: int | None = None,
         questions: str | None = None,
         use_slugs: bool = False,
@@ -126,8 +82,8 @@ class AnswersClient(Resource):
             The answers of every page, with the first page's columns.
 
         Examples:
-            >>> len(forms.answers.list_all("686d0a1b2c3d4e5f00000030", limit=500).answers)
-            1
+            >>> len(forms.answers.list("686d0a1b2c3d4e5f00000030", limit=500).answers)
+            2
         """
         paged = endpoints.list_answers(
             survey_id,

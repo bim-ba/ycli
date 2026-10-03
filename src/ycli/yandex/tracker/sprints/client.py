@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class SprintsClient(Resource):
-    """List a board's sprints; get, create, edit, delete, start and archive a sprint."""
+    """List a board's sprints; get, create, update, delete, start and archive a sprint."""
 
     def list(self, board_id: int) -> ItemList[Sprint]:
         """``GET /boards/{board_id}/sprints`` → the board's sprint listing.
@@ -67,7 +67,7 @@ class SprintsClient(Resource):
         """
         return self._session.send(endpoints.create_sprint(body))
 
-    def edit(self, sprint_id: int, body: SprintUpdate, *, version: int | None = None) -> Sprint:
+    def update(self, sprint_id: int, body: SprintUpdate, *, version: int | None = None) -> Sprint:
         """Edit a sprint from a typed ``SprintUpdate`` body. Returns the updated ``Sprint``.
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged. ``version``
@@ -84,10 +84,10 @@ class SprintsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.sprints.models import SprintUpdate
-            >>> tracker.sprints.edit(4404, SprintUpdate(name="Updated"), version=5).name
+            >>> tracker.sprints.update(4404, SprintUpdate(name="Updated"), version=5).name
             'Updated'
         """
-        return self._session.send(endpoints.edit_sprint(sprint_id, body, version))
+        return self._session.send(endpoints.update_sprint(sprint_id, body, version))
 
     def delete(self, sprint_id: int) -> None:
         """``DELETE /sprints/{sprint_id}`` — delete a sprint (``204``, empty body).

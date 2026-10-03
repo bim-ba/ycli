@@ -156,7 +156,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.localfields.edit",
+        "tracker.localfields.update",
         args=(
             "SUP",
             "loc_edit",
@@ -234,7 +234,7 @@ CASES = [
     ),
     # Only the options passed are sent; there is no ?version= lock.
     Case(
-        "tracker.localfields.edit",
+        "tracker.localfields.update",
         args=("HR", "loc_order", LocalFieldUpdate(order=5, visible=True)),
         cli=["tracker", "localfields", "update", "HR", "loc_order", "--order", "5", "--visible"],
         mcp=None,

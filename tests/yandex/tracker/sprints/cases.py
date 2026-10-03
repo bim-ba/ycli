@@ -76,7 +76,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.sprints.edit",
+        "tracker.sprints.update",
         args=(
             4404,
             SprintUpdate(
@@ -132,7 +132,7 @@ CASES = [
     ),
     # Without a version no ?version= is sent.
     Case(
-        "tracker.sprints.edit",
+        "tracker.sprints.update",
         args=(4405, SprintUpdate(name="Unlocked")),
         cli=["tracker", "sprints", "update", "4405", "--name", "Unlocked"],
         mcp=("tracker_sprints_update", {"sprint_id": 4405, "body": {"name": "Unlocked"}}),

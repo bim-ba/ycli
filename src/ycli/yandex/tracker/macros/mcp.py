@@ -76,7 +76,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue macro"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     queue_id: QueueId,
     macro_id: MacroId,
     body: MacroUpdate,
@@ -86,7 +86,7 @@ def edit(
 
     Get ``macro_id`` from ``macros_list``. Returns the updated macro.
     """
-    return client.macros.edit(queue_id, macro_id, body)
+    return client.macros.update(queue_id, macro_id, body)
 
 
 @mcp.tool(

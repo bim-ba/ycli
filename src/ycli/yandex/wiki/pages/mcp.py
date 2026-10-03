@@ -113,7 +113,7 @@ def grids_list(
     ``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
     """
     cap = config.http.cap(limit)
-    return client.pages.grids(
+    return client.pages.grids_list(
         page_id=page_id,
         limit=cap,
         order_by=order_by or None,
@@ -275,7 +275,7 @@ def append_content(
     ``body.body.location`` (top/bottom of the page), a numbered ``body.section``, or a named
     text ``body.anchor``. Returns the updated page.
     """
-    return client.pages.append_content(
+    return client.pages.append(
         page_id=page_id,
         body=body,
         fields=fields,
@@ -350,7 +350,7 @@ def revisions_list(
     (it is in the live OpenAPI only) and may change it.
     """
     cap = config.http.cap(limit)
-    return client.pages.revisions(page_id=page_id, ids=ids, limit=cap)
+    return client.pages.revisions_list(page_id=page_id, ids=ids, limit=cap)
 
 
 @mcp.tool(
@@ -376,6 +376,6 @@ def backlinks_list(
     may change it.
     """
     cap = config.http.cap(limit)
-    return client.pages.backlinks(
+    return client.pages.backlinks_list(
         page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
     )

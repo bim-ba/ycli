@@ -11,7 +11,7 @@ Every Yandex operation ycli wraps is declared once, as an `Endpoint`: its method
 response type and what it does to the server. The SDK sends it; the CLI command and the MCP tool
 call the SDK, so the surfaces cannot disagree about an operation. The CLI command and the MCP tool
 share one name: `ycli tracker boards update` is the tool `tracker_boards_update`, and both call
-`tracker.boards.edit`. A name learned on one surface works on the other.
+`tracker.boards.update`. A name learned on one surface works on the other.
 
 ```mermaid
 flowchart LR

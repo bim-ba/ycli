@@ -62,7 +62,7 @@ def issues_list(
     rejected (e.g. an invalid resolution for the target queue/type). Successful issues are not
     listed here.
     """
-    return client.bulk.issues(bulk_id)
+    return client.bulk.issues_list(bulk_id)
 
 
 @mcp.tool(

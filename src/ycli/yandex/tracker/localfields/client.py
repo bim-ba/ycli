@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class LocalFieldsClient(Resource):
-    """List, get, create and edit a queue's local (queue-scoped custom) fields."""
+    """List, get, create and update a queue's local (queue-scoped custom) fields."""
 
     def list(self, queue_id: str) -> ItemList[LocalField]:
         """``GET /queues/{queue_id}/localFields`` → the queue's local fields.
@@ -78,7 +78,7 @@ class LocalFieldsClient(Resource):
         """
         return self._session.send(endpoints.create_local_field(queue_id, body))
 
-    def edit(self, queue_id: str, field_key: str, body: LocalFieldUpdate) -> LocalField:
+    def update(self, queue_id: str, field_key: str, body: LocalFieldUpdate) -> LocalField:
         """Edit local field ``field_key`` of queue ``queue_id`` from a typed ``LocalFieldUpdate``.
 
         This endpoint has no ``?version=`` optimistic lock; only the fields set on ``body`` are
@@ -94,7 +94,7 @@ class LocalFieldsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.localfields.models import LocalFieldUpdate
-            >>> tracker.localfields.edit("SUP", "loc_edit", LocalFieldUpdate(order=102)).order
+            >>> tracker.localfields.update("SUP", "loc_edit", LocalFieldUpdate(order=102)).order
             102
         """
-        return self._session.send(endpoints.edit_local_field(queue_id, field_key, body))
+        return self._session.send(endpoints.update_local_field(queue_id, field_key, body))

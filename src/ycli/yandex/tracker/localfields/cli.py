@@ -115,4 +115,4 @@ def update(
         visible=visible,
         hidden=hidden,
     )
-    return tracker.localfields.edit(queue_id, field_key, body)
+    return tracker.localfields.update(queue_id, field_key, body)

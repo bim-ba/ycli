@@ -79,7 +79,7 @@ def update(
     forms: FormsClient,
 ) -> Subscription:
     """Change integration SUBSCRIPTION_ID: only the fields in the JSON body change (PATCH)."""
-    return forms.subscriptions.modify(survey_id, hook_id, subscription_id, _body(body_file))
+    return forms.subscriptions.update(survey_id, hook_id, subscription_id, _body(body_file))
 
 
 @app.command()

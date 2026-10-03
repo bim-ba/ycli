@@ -88,7 +88,7 @@ def create(body: WorkflowCreate, client: TrackerClient = Depends(tracker_client)
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     workflow_id: WorkflowId,
     body: WorkflowUpdate,
     version: Version,
@@ -99,7 +99,7 @@ def edit(
     Only the fields set in ``body`` change, and a given ``steps`` list replaces the whole step
     list. Returns the workflow with its incremented version.
     """
-    return client.workflows.edit(workflow_id, body, version=version)
+    return client.workflows.update(workflow_id, body, version=version)
 
 
 @mcp.tool(
@@ -107,7 +107,7 @@ def edit(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow action"},
     tags=WRITE_TAGS,
 )
-def edit_action(
+def update_action(
     workflow_id: WorkflowId,
     status: Annotated[str, Field(description="Key of the step (status) the action leaves.")],
     action_id: Annotated[str, Field(description="Id of the action within that step.")],
@@ -119,7 +119,7 @@ def edit_action(
 
     Returns the whole workflow with its incremented version.
     """
-    return client.workflows.edit_action(workflow_id, status, action_id, body, version=version)
+    return client.workflows.update_action(workflow_id, status, action_id, body, version=version)
 
 
 @mcp.tool(

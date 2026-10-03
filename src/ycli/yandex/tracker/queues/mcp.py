@@ -100,7 +100,7 @@ def tags_list(
     These are the tags selectable on the queue's issues (the ``tags`` field). Remove one
     everywhere with ``queues_tag_remove``.
     """
-    return client.queues.tags(queue_id)
+    return client.queues.tags_list(queue_id)
 
 
 @mcp.tool(
@@ -119,7 +119,7 @@ def versions_list(
     Each item carries the version's name, date range and released/archived flags. Create one
     with ``queues_version_create``.
     """
-    return client.queues.versions(queue_id)
+    return client.queues.versions_list(queue_id)
 
 
 @mcp.tool(
@@ -138,7 +138,7 @@ def fields_list(
     Use this to learn which fields an issue in the queue expects (and whether each is required)
     before creating or updating issues there.
     """
-    return client.queues.fields(queue_id)
+    return client.queues.fields_list(queue_id)
 
 
 @mcp.tool(
@@ -251,7 +251,7 @@ def version_get(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue version"},
     tags=WRITE_TAGS,
 )
-def version_edit(
+def version_update(
     version_id: Annotated[
         int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
     ],
@@ -262,7 +262,7 @@ def version_edit(
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueVersionInfo:
     """Edit a queue version; only the fields set in ``body`` change. Returns the version."""
-    return client.queues.version_edit(version_id, body, fields=fields)
+    return client.queues.version_update(version_id, body, fields=fields)
 
 
 @mcp.tool(
@@ -298,7 +298,7 @@ def user_permissions_get(
     Each right lists who grants it: the user personally, a group or a role. To change rights
     use ``queues_set_permissions``.
     """
-    return client.queues.user_permissions(queue_id, user_id)
+    return client.queues.user_permissions_get(queue_id, user_id)
 
 
 @mcp.tool(
@@ -314,4 +314,4 @@ def group_permissions_get(
     client: TrackerClient = Depends(tracker_client),
 ) -> QueueGroupAccess:
     """What one group may do in a queue (create, read, write, grant, deny)."""
-    return client.queues.group_permissions(queue_id, group_id)
+    return client.queues.group_permissions_get(queue_id, group_id)

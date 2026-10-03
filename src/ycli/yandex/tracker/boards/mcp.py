@@ -77,7 +77,7 @@ def create(body: BoardCreate, client: TrackerClient = Depends(tracker_client)) -
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     board_id: BoardId, body: BoardUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> Board:
     """Edit an agile board; only the fields set in ``body`` are changed.
@@ -85,7 +85,7 @@ def edit(
     Supports renaming, toggling ``backlog_available``/``sprints_available`` and replacing the
     ``columns`` layout. Returns the updated board.
     """
-    return client.boards.edit(board_id, body)
+    return client.boards.update(board_id, body)
 
 
 @mcp.tool(

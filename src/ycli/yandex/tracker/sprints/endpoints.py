@@ -28,7 +28,7 @@ def create_sprint(body: SprintCreate) -> Endpoint[Sprint]:
     return Endpoint("POST", "sprints", Sprint, json=body)
 
 
-def edit_sprint(sprint_id: int, body: SprintUpdate, version: int | None) -> Endpoint[Sprint]:
+def update_sprint(sprint_id: int, body: SprintUpdate, version: int | None) -> Endpoint[Sprint]:
     path = f"sprints/{segment(sprint_id)}"
     return Endpoint("PATCH", path, Sprint, json=body, params={"version": version})
 

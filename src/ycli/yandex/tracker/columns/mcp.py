@@ -75,7 +75,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board column"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     board_id: BoardId,
     column_id: ColumnId,
     body: ColumnUpdate,
@@ -85,7 +85,7 @@ def edit(
 
     Get ``column_id`` from ``columns_list``. Returns the updated column.
     """
-    return client.columns.edit(board_id, column_id, body)
+    return client.columns.update(board_id, column_id, body)
 
 
 @mcp.tool(

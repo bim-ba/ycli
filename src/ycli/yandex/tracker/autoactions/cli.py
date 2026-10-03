@@ -84,7 +84,7 @@ def logs_list(
     queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient
 ) -> ItemList[AutoactionLogEntry]:
     """List the run summaries of autoaction ACTION_ID."""
-    return tracker.autoactions.logs(queue_id, action_id)
+    return tracker.autoactions.logs_list(queue_id, action_id)
 
 
 @app.command("logs-get")
@@ -96,4 +96,4 @@ def logs_get(
     tracker: TrackerClient,
 ) -> ItemList[AutoactionRunEntry]:
     """List the per-issue outcomes of run RUN_ID of autoaction ACTION_ID."""
-    return tracker.autoactions.log_detail(queue_id, action_id, run_id)
+    return tracker.autoactions.logs_get(queue_id, action_id, run_id)

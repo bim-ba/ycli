@@ -124,7 +124,7 @@ def question_update(
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
     body = _resolve_body(ConditionUpdate, operator, item, body_file)
-    return forms.conditions.question_modify(survey_id, question_id, condition_id, body)
+    return forms.conditions.question_update(survey_id, question_id, condition_id, body)
 
 
 @question_app.command("delete")
@@ -197,7 +197,7 @@ def page_update(
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
     body = _resolve_body(ConditionUpdate, operator, item, body_file)
-    return forms.conditions.page_modify(survey_id, page_id, condition_id, body)
+    return forms.conditions.page_update(survey_id, page_id, condition_id, body)
 
 
 @page_app.command("delete")
@@ -260,7 +260,7 @@ def submit_update(
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
     body = _resolve_body(ConditionUpdate, operator, item, body_file)
-    return forms.conditions.submit_modify(survey_id, condition_id, body)
+    return forms.conditions.submit_update(survey_id, condition_id, body)
 
 
 @submit_app.command("delete")
@@ -327,7 +327,7 @@ def hook_update(
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
     body = _resolve_body(ConditionUpdate, operator, item, body_file)
-    return forms.conditions.hook_modify(survey_id, hook_id, condition_id, body)
+    return forms.conditions.hook_update(survey_id, hook_id, condition_id, body)
 
 
 @hook_app.command("delete")

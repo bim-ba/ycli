@@ -19,7 +19,7 @@ Several tools connect an agent or a terminal to Yandex Tracker, Wiki and Forms. 
 | aikts/yandex-tracker-mcp 0.10.0 | Tracker | 55 by default, 94 with `TRACKER_ENTITIES_ENABLED` | yes | `TRACKER_READ_ONLY`, 35 tools | 55 of 55 |
 | n-r-w/yandex-mcp v1.0.3 | Tracker, Wiki | 23: Tracker 18, Wiki 5 | no | always | not checked |
 
-A tool count is not an operation count: one tool can cover several API operations, and one operation can be split across tools. ycli wraps 334 operations of the three REST APIs, and each is also a command and a Python method.
+A tool count is not an operation count: one tool can cover several API operations, and one operation can be split across tools. ycli wraps 333 operations of the three REST APIs, and each is also a command and a Python method.
 
 ## How you get and run it
 

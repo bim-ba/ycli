@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class FiltersClient(Resource):
-    """Get, create, edit and delete saved issue filters."""
+    """Get, create, update and delete saved issue filters."""
 
     def get(self, filter_id: str) -> Filter:
         """``GET /filters/{filter_id}`` → parameters of one saved filter.
@@ -45,7 +45,7 @@ class FiltersClient(Resource):
         """
         return self._session.send(endpoints.create_filter(body))
 
-    def edit(self, filter_id: str, body: FilterUpdate) -> Filter:
+    def update(self, filter_id: str, body: FilterUpdate) -> Filter:
         """Edit filter ``filter_id`` from a typed ``FilterUpdate`` body. Returns the ``Filter``.
 
         This endpoint has no ``?version=`` optimistic lock; the ``filter`` object is replaced
@@ -60,10 +60,10 @@ class FiltersClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.filters.models import FilterUpdate
-            >>> tracker.filters.edit("12347", FilterUpdate(name="Renamed")).name
+            >>> tracker.filters.update("12347", FilterUpdate(name="Renamed")).name
             'Renamed'
         """
-        return self._session.send(endpoints.edit_filter(filter_id, body))
+        return self._session.send(endpoints.update_filter(filter_id, body))
 
     def delete(self, filter_id: str) -> None:
         """``DELETE /filters/{filter_id}`` → 204; raises on non-2xx.

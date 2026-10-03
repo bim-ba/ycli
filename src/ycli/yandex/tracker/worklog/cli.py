@@ -108,7 +108,7 @@ def update(
 ) -> Worklog:
     """Edit worklog RECORD_ID on issue KEY — only supplied fields are sent."""
     body = WorklogUpdate(duration=duration or None, comment=comment or None)
-    return tracker.worklog.edit(key, record_id, body=body)
+    return tracker.worklog.update(key, record_id, body=body)
 
 
 @app.command()

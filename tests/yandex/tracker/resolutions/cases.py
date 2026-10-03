@@ -41,7 +41,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.resolutions.edit",
+        "tracker.resolutions.update",
         args=(
             "9",
             ResolutionUpdate(
@@ -96,7 +96,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.resolutions.edit",
+        "tracker.resolutions.update",
         args=("duplicate", ResolutionUpdate(order=15)),
         cli=["tracker", "resolutions", "update", "duplicate", "--order", "15"],
         mcp=None,
