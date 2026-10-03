@@ -45,7 +45,7 @@ $ ycli mcp start [OPTIONS]
 * `--host TEXT`: HTTP only: listen address (YCLI__MCP__HOST).
 * `--port INTEGER`: HTTP only: listen port (YCLI__MCP__PORT).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -68,7 +68,7 @@ $ ycli mcp methods [OPTIONS]
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.
 * `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get stays.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.

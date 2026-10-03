@@ -30,7 +30,8 @@ JqOption = Annotated[
     typer.Option(
         "--jq",
         metavar="EXPR",
-        help="Filter the JSON result through a jq expression; strings print raw, like `jq -r`.",
+        help="Filter the JSON result through a jq expression; strings print raw, like `jq -r`. "
+        "Needs the `jq` extra.",
     ),
 ]
 YesOption = Annotated[

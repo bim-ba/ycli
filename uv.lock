@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
@@ -2228,7 +2228,6 @@ version = "0.44.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx2" },
-    { name = "jq", marker = "platform_machine == 'AMD64' or sys_platform != 'win32'" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
@@ -2239,6 +2238,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+jq = [
+    { name = "jq", marker = "platform_machine == 'AMD64' or sys_platform != 'win32'" },
+]
 mcp = [
     { name = "fastmcp" },
 ]
@@ -2268,7 +2270,7 @@ docs = [
 requires-dist = [
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=4.0.10,<5" },
     { name = "httpx2", specifier = ">=2.13.1" },
-    { name = "jq", marker = "platform_machine == 'AMD64' or sys_platform != 'win32'", specifier = ">=1.12" },
+    { name = "jq", marker = "(platform_machine == 'AMD64' and extra == 'jq') or (sys_platform != 'win32' and extra == 'jq')", specifier = ">=1.12" },
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pydantic-settings", specifier = ">=2.14.2" },
     { name = "pyjwt", extras = ["crypto"], marker = "extra == 'service-account'", specifier = ">=2.15.1" },
@@ -2278,7 +2280,7 @@ requires-dist = [
     { name = "stamina", specifier = ">=26.1.0" },
     { name = "typer", specifier = ">=0.26.8" },
 ]
-provides-extras = ["mcp", "service-account"]
+provides-extras = ["mcp", "service-account", "jq"]
 
 [package.metadata.requires-dev]
 dev = [

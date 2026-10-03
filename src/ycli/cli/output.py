@@ -200,7 +200,7 @@ class ExitWith:
 def check_jq(expression: str, output_format: OutputFormat) -> Any:
     """The compiled ``--jq`` program, or a usage error (exit 2) before a command has run.
 
-    Fails early on a format that is not JSON, a missing ``jq`` package and an expression that
+    Fails early on a format that is not JSON, a missing ``jq`` extra and an expression that
     does not compile, so a bad filter never follows a write that already happened.
     """
     if output_format in _NOT_JSON_FORMATS:
@@ -212,8 +212,9 @@ def check_jq(expression: str, output_format: OutputFormat) -> Any:
         import jq  # ty: ignore[unresolved-import]  # compiled, no stubs; lazy: loads only when used
     except ImportError as exc:
         raise typer.BadParameter(
-            "the `jq` package is not installed (it has no build for every platform): "
-            "`pip install jq`, or pipe the JSON output to the jq program.",
+            "it needs the `jq` extra: `uv tool install 'yandex-cli[jq]'` "
+            "(or `pip install 'yandex-cli[jq]'`). The package has no build for every platform; "
+            "without it, pipe the JSON output to the jq program.",
             param_hint="--jq",
         ) from exc
     try:

@@ -70,7 +70,7 @@ $ ycli forms auth status [OPTIONS]
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -106,7 +106,7 @@ $ ycli forms me get [OPTIONS]
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -150,7 +150,7 @@ $ ycli forms surveys list [OPTIONS]
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -172,7 +172,7 @@ $ ycli forms surveys get [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -197,7 +197,7 @@ $ ycli forms surveys create [OPTIONS]
 * `--max-count INTEGER`: Maximum number of responses (0 = unset).  [default: 0]
 * `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -226,7 +226,7 @@ $ ycli forms surveys update [OPTIONS] SURVEY_ID
 * `--max-count INTEGER`: New response cap (0 = leave unchanged).  [default: 0]
 * `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -248,7 +248,7 @@ $ ycli forms surveys delete [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -270,7 +270,7 @@ $ ycli forms surveys publish [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -292,7 +292,7 @@ $ ycli forms surveys unpublish [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -337,7 +337,7 @@ $ ycli forms questions list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -360,7 +360,7 @@ $ ycli forms questions get [OPTIONS] SURVEY_ID QUESTION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -393,7 +393,7 @@ $ ycli forms questions create [OPTIONS] SURVEY_ID
 * `--option TEXT`: Enum option label (repeatable).
 * `--body-file PATH`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -427,7 +427,7 @@ $ ycli forms questions update [OPTIONS] SURVEY_ID QUESTION_ID
 * `--option TEXT`: Enum option label (repeatable).
 * `--body-file PATH`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -451,7 +451,7 @@ $ ycli forms questions delete [OPTIONS] SURVEY_ID QUESTION_ID
 
 * `--force`: Skip the condition-usage check before deleting.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -483,7 +483,7 @@ $ ycli forms questions move [OPTIONS] SURVEY_ID QUESTION_ID
 * `--create-page`: Create a new page for the question.
 * `--question TEXT`: Question id/slug to move into a question series.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -550,7 +550,7 @@ $ ycli forms conditions question list [OPTIONS] SURVEY_ID QUESTION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -574,7 +574,7 @@ $ ycli forms conditions question get [OPTIONS] SURVEY_ID QUESTION_ID CONDITION_I
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -600,7 +600,7 @@ $ ycli forms conditions question create [OPTIONS] SURVEY_ID QUESTION_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -627,7 +627,7 @@ $ ycli forms conditions question update [OPTIONS] SURVEY_ID QUESTION_ID CONDITIO
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -651,7 +651,7 @@ $ ycli forms conditions question delete [OPTIONS] SURVEY_ID QUESTION_ID CONDITIO
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -675,7 +675,7 @@ $ ycli forms conditions question set-operator [OPTIONS] SURVEY_ID QUESTION_ID
 
 * `--operator TEXT`: Boolean operator: and | or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -721,7 +721,7 @@ $ ycli forms conditions page list [OPTIONS] SURVEY_ID PAGE_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -745,7 +745,7 @@ $ ycli forms conditions page get [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -771,7 +771,7 @@ $ ycli forms conditions page create [OPTIONS] SURVEY_ID PAGE_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -798,7 +798,7 @@ $ ycli forms conditions page update [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -822,7 +822,7 @@ $ ycli forms conditions page delete [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -846,7 +846,7 @@ $ ycli forms conditions page set-operator [OPTIONS] SURVEY_ID PAGE_ID
 
 * `--operator TEXT`: Boolean operator: and | or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -891,7 +891,7 @@ $ ycli forms conditions submit list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -914,7 +914,7 @@ $ ycli forms conditions submit get [OPTIONS] SURVEY_ID CONDITION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -939,7 +939,7 @@ $ ycli forms conditions submit create [OPTIONS] SURVEY_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -965,7 +965,7 @@ $ ycli forms conditions submit update [OPTIONS] SURVEY_ID CONDITION_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -988,7 +988,7 @@ $ ycli forms conditions submit delete [OPTIONS] SURVEY_ID CONDITION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1011,7 +1011,7 @@ $ ycli forms conditions submit set-operator [OPTIONS] SURVEY_ID
 
 * `--operator TEXT`: Boolean operator: and | or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1057,7 +1057,7 @@ $ ycli forms conditions hook list [OPTIONS] SURVEY_ID HOOK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1081,7 +1081,7 @@ $ ycli forms conditions hook get [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1107,7 +1107,7 @@ $ ycli forms conditions hook create [OPTIONS] SURVEY_ID HOOK_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1134,7 +1134,7 @@ $ ycli forms conditions hook update [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file PATH`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1158,7 +1158,7 @@ $ ycli forms conditions hook delete [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1182,7 +1182,7 @@ $ ycli forms conditions hook set-operator [OPTIONS] SURVEY_ID HOOK_ID
 
 * `--operator TEXT`: Boolean operator: and | or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1225,7 +1225,7 @@ $ ycli forms access get [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1249,7 +1249,7 @@ $ ycli forms access set [OPTIONS] SURVEY_ID
 * `--action TEXT`: Action: change (edit, read answers) or submit (fill in).  [required]
 * `--access TEXT`: Level: owner, restricted, common or public.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1276,7 +1276,7 @@ $ ycli forms access grant [OPTIONS] SURVEY_ID
 * `--group-src TEXT`: Group source: dir, cloud, com or staff.
 * `--group-id TEXT`: Group id within its source.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1303,7 +1303,7 @@ $ ycli forms access revoke [OPTIONS] SURVEY_ID
 * `--group-src TEXT`: Group source: dir, cloud, com or staff.
 * `--group-id TEXT`: Group id within its source.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1346,7 +1346,7 @@ $ ycli forms history list [OPTIONS] SURVEY_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1391,7 +1391,7 @@ $ ycli forms answers get [OPTIONS]
 * `--answer-id INTEGER`: Numeric answer id (needs form-edit access; 0 = unset).  [default: 0]
 * `--answer-key TEXT`: Answer key hash (works without form-edit access).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1415,7 +1415,7 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1446,7 +1446,7 @@ $ ycli forms answers export [OPTIONS] SURVEY_ID
 * `--upload-files / --no-upload-files`: Also export uploaded files to Disk.
 * `--wait / --no-wait`: Poll to a terminal status, then download.  [default: wait]
 * `--output TEXT`: Write the exported file here; omit / '-' streams to stdout.
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1466,7 +1466,7 @@ $ ycli forms answers integrations-list [OPTIONS]
 * `--answer-id INTEGER`: Numeric answer id (needs form-edit access; 0 = unset).  [default: 0]
 * `--answer-key TEXT`: Answer key hash (works without form-edit access).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1489,7 +1489,7 @@ $ ycli forms answers delete [OPTIONS] SURVEY_ID ANSWER_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1512,7 +1512,7 @@ $ ycli forms answers restore [OPTIONS] SURVEY_ID ANSWER_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1557,7 +1557,7 @@ $ ycli forms keysets list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1580,7 +1580,7 @@ $ ycli forms keysets get [OPTIONS] SURVEY_ID KEYSET_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1607,7 +1607,7 @@ $ ycli forms keysets create [OPTIONS] SURVEY_ID
 * `--total INTEGER`: Number of keys to generate.  [required]
 * `--enabled / --disabled`: Create the set active (required — the API rejects a create without it).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1635,7 +1635,7 @@ $ ycli forms keysets update [OPTIONS] SURVEY_ID KEYSET_ID
 * `--total INTEGER`: Number of keys (required — replaces the record).  [required]
 * `--enabled / --disabled`: Active flag (required).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1658,7 +1658,7 @@ $ ycli forms keysets delete [OPTIONS] SURVEY_ID KEYSET_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1682,7 +1682,7 @@ $ ycli forms keysets download [OPTIONS] SURVEY_ID KEYSET_ID
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1722,7 +1722,7 @@ $ ycli forms operations get [OPTIONS] OPERATION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1777,7 +1777,7 @@ $ ycli forms notifications list [OPTIONS]
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1799,7 +1799,7 @@ $ ycli forms notifications get [OPTIONS] NOTIFICATION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1821,7 +1821,7 @@ $ ycli forms notifications status-get [OPTIONS] NOTIFICATION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1843,7 +1843,7 @@ $ ycli forms notifications restart [OPTIONS] NOTIFICATION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1865,7 +1865,7 @@ $ ycli forms notifications cancel [OPTIONS] NOTIFICATION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1887,7 +1887,7 @@ $ ycli forms notifications errors-list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1931,7 +1931,7 @@ $ ycli forms files upload [OPTIONS] SURVEY_ID FILE_PATH
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1955,7 +1955,7 @@ $ ycli forms files verify [OPTIONS] SURVEY_ID
 * `--path TEXT`: File path to check (repeatable).
 * `--url TEXT`: File URL to check (repeatable, paired to --path).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1977,7 +1977,7 @@ $ ycli forms files download [OPTIONS]
 * `--download`: Ask the API for a Content-Disposition filename header.
 * `--hash TEXT`: Access hash from the upload response (anonymous download).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1997,7 +1997,7 @@ $ ycli forms files delete [OPTIONS]
 * `--path TEXT`: File download path (from an upload response).
 * `--url TEXT`: File download URL (from an upload response).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2039,7 +2039,7 @@ $ ycli forms images upload [OPTIONS] SURVEY_ID IMAGE_PATH
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2064,7 +2064,7 @@ $ ycli forms images clone [OPTIONS] SURVEY_ID
 * `--name TEXT`: File name for the clone.
 * `--link TEXT`: SIZE=URL of the image to clone (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2107,7 +2107,7 @@ $ ycli forms filling get [OPTIONS] SURVEY_ID
 
 * `--key TEXT`: Personal-link fill key, when the form uses one.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2132,7 +2132,7 @@ $ ycli forms filling submit [OPTIONS] SURVEY_ID
 * `--validate-only`: Validate only — save nothing, fire no integrations.
 * `--key TEXT`: Personal-link fill key, when the form uses one.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2158,7 +2158,7 @@ $ ycli forms filling suggest [OPTIONS] SURVEY_ID
 * `--id TEXT`: Comma-separated suggestion-object ids to resolve.
 * `--parent-id TEXT`: Parent ids for a Master/Detail lookup.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2202,7 +2202,7 @@ $ ycli forms hooks list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2225,7 +2225,7 @@ $ ycli forms hooks get [OPTIONS] SURVEY_ID HOOK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2249,7 +2249,7 @@ $ ycli forms hooks create [OPTIONS] SURVEY_ID
 * `--name TEXT`: Integration group name (max 100 characters).
 * `--active / --inactive`: Run the group's integrations, or pause them.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2274,7 +2274,7 @@ $ ycli forms hooks update [OPTIONS] SURVEY_ID HOOK_ID
 * `--name TEXT`: Integration group name (max 100 characters).
 * `--active / --inactive`: Run the group's integrations, or pause them.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2297,7 +2297,7 @@ $ ycli forms hooks delete [OPTIONS] SURVEY_ID HOOK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2343,7 +2343,7 @@ $ ycli forms subscriptions list [OPTIONS] SURVEY_ID HOOK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2367,7 +2367,7 @@ $ ycli forms subscriptions get [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2391,7 +2391,7 @@ $ ycli forms subscriptions create [OPTIONS] SURVEY_ID HOOK_ID
 
 * `--body-file PATH`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2416,7 +2416,7 @@ $ ycli forms subscriptions update [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID
 
 * `--body-file PATH`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2440,7 +2440,7 @@ $ ycli forms subscriptions delete [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2465,7 +2465,7 @@ $ ycli forms subscriptions attach [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID FI
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -2505,7 +2505,7 @@ $ ycli forms variables list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
