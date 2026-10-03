@@ -22,7 +22,7 @@ PROMPTS = {
     "forms_answers_table": {"survey_id": "686d0a1b"},
     "tracker_issue_brief": {"key": "DE-7"},
     "tracker_queue_digest": {"queue": "DE"},
-    "tracker_sprint_review": {"board_id": "5"},
+    "tracker_sprint_review": {"board": "5", "sprint": "44"},
     "wiki_page_from_issue": {"key": "DE-7", "parent_slug": "team/decisions"},
 }
 TEMPLATES = {
@@ -105,14 +105,6 @@ async def test_a_prompt_names_only_tools_that_exist_and_lists_them():
             assert named == set((prompt.meta or {})[NEEDS_TOOLS]), prompt.name
             writes = any(WRITE_TAG in tools[name] for name in named)
             assert (WRITE_TAG in prompt.tags) is writes, prompt.name
-
-
-async def test_the_sprint_prompt_takes_a_named_sprint():
-    async with Client(full_server) as client:
-        rendered = await client.get_prompt(
-            "tracker_sprint_review", {"board_id": "5", "sprint": "Sprint 12"}
-        )
-    assert "'Sprint 12'" in rendered.messages[0].content.text
 
 
 async def test_a_resource_repeats_a_read_tool():

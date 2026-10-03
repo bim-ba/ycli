@@ -1,7 +1,7 @@
 prompt forms_answers_table(survey_id!)
 prompt tracker_issue_brief(key!)
 prompt tracker_queue_digest(queue!)
-prompt tracker_sprint_review(board_id!, sprint)
+prompt tracker_sprint_review(board!, sprint!)
 prompt wiki_page_from_issue(key!, parent_slug!)
 resource ycli://forms/guide
 resource ycli://forms/survey/{survey_id}

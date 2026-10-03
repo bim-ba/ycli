@@ -82,26 +82,21 @@ def issue_brief(key: str) -> str:
     name="sprint_review",
     title="Review of a sprint",
     tags=TAGS,
-    meta={NEEDS_TOOLS: ["tracker_issues_search", "tracker_sprints_list"]},
+    meta={NEEDS_TOOLS: ["tracker_issues_search", "tracker_sprints_get"]},
 )
-def sprint_review(board_id: str, sprint: str = "") -> str:
+def sprint_review(board: str, sprint: str) -> str:
     """Review a sprint of a Tracker board: what was done, what slipped, what to carry over.
 
     Args:
-        board_id: Numeric id of the agile board.
-        sprint: Sprint id or name; empty means the board's current sprint.
+        board: Numeric id of the agile board.
+        sprint: Numeric id of the sprint.
 
     Returns:
         The request for the model.
     """
-    which = (
-        f"the sprint whose id or name is {sprint!r}"
-        if sprint
-        else "the sprint in progress (status `in_progress`)"
-    )
     return (
-        f"Review a sprint of the Yandex Tracker board {board_id}.\n\n"
-        f"1. Call tracker_sprints_list with board_id {board_id} and take {which}.\n"
+        f"Review the sprint {sprint} of the Yandex Tracker board {board}.\n\n"
+        f"1. Call tracker_sprints_get with sprint_id {sprint}: its name, dates and status.\n"
         '2. Call tracker_issues_search with query `Sprint: "<the sprint\'s name>"`, limit 200.\n'
         "3. Answer with: the sprint's name and dates; counts of issues done, in progress and not "
         "started; the issues done (key, summary, assignee); the issues that will not make it and "

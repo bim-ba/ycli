@@ -41,7 +41,7 @@ Arguments: `queue`. Tools: `tracker_issues_count`, `tracker_issues_search`.
 
 Review a sprint of a Tracker board: what was done, what slipped, what to carry over.
 
-Arguments: `board_id`, `sprint` (optional). Tools: `tracker_issues_search`, `tracker_sprints_list`.
+Arguments: `board`, `sprint`. Tools: `tracker_issues_search`, `tracker_sprints_get`.
 
 ### `wiki_page_from_issue`
 
