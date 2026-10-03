@@ -37,7 +37,9 @@ if TYPE_CHECKING:
 type Effect = Literal["read", "write", "idempotent_write", "destructive"]
 type Method = Literal["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "DELETE", "POST"]
 
-EFFECT_EXTENSION = "ycli.effect"
+# A request carries the endpoint it was built from, and a listing's first page its pager.
+ENDPOINT_EXTENSION = "ycli.endpoint"
+PAGED_EXTENSION = "ycli.paged"
 _EFFECT_BY_METHOD: dict[Method, Effect] = {
     "GET": "read",
     "HEAD": "read",
@@ -159,7 +161,7 @@ class Endpoint[T]:
             content=self.content,
             files=self.files,
             headers=dict(self.headers) or None,
-            extensions={EFFECT_EXTENSION: self.effect},
+            extensions={ENDPOINT_EXTENSION: self},
         )
 
     def parse(self, response: httpx2.Response) -> T:

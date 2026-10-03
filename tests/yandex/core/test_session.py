@@ -9,7 +9,7 @@ from pydantic import SecretStr
 from tests.mock_api import MockAPI
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.auth import OAuthTokenAuth
-from ycli.yandex.core.endpoint import Endpoint, Paged
+from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION, Endpoint, Paged
 from ycli.yandex.core.pagination import PageNumberPagination
 from ycli.yandex.core.profile import ServiceProfile
 from ycli.yandex.core.session import connect, connect_async, default_transport
@@ -143,6 +143,18 @@ def test_iterate_walks_pages_until_a_short_one():
     api.add("GET", URL, json=[1, 2])
     api.add("GET", URL, json=[3])
     assert list(_session(api).iterate(_listing())) == [1, 2, 3]
+
+
+def test_every_page_carries_its_endpoint_and_the_first_one_the_listing():
+    api = MockAPI()
+    api.add("GET", URL, json=[1, 2])
+    api.add("GET", URL, json=[3])
+    listing = _listing()
+    assert list(_session(api).iterate(listing)) == [1, 2, 3]
+    first, second = api.calls
+    assert first.extensions[ENDPOINT_EXTENSION] is listing.endpoint
+    assert second.extensions[ENDPOINT_EXTENSION] is listing.endpoint
+    assert first.extensions[PAGED_EXTENSION] is listing
 
 
 def test_iterate_stops_on_an_empty_page():

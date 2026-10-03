@@ -41,7 +41,7 @@ import httpx2
 import stamina
 
 from ycli.settings import HTTPConfig
-from ycli.yandex.core.endpoint import check_path
+from ycli.yandex.core.endpoint import PAGED_EXTENSION, check_path
 from ycli.yandex.errors import (
     YandexConnectionError,
     YandexRateLimitError,
@@ -161,6 +161,13 @@ def _page_plan[I](
     return items, not has_next or len(items) == room
 
 
+def _first_page(paged: Paged, client: httpx2.Client | httpx2.AsyncClient) -> httpx2.Request:
+    """The request for a listing's first page; it carries ``paged`` for whoever inspects it."""
+    request = paged.pagination.first(paged.endpoint.request(client))
+    request.extensions[PAGED_EXTENSION] = paged
+    return request
+
+
 class SyncSession:
     """Sends endpoints through an ``httpx2.Client`` — the blocking flavour."""
 
@@ -208,7 +215,7 @@ class SyncSession:
         self, paged: Paged[P, I], *, limit: int | None = None, max_pages: int = DEFAULT_MAX_PAGES
     ) -> Iterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
-        request = paged.pagination.first(paged.endpoint.request(self._client))
+        request = _first_page(paged, self._client)
         _announce(self._before_send, paged.endpoint, request)
         produced = 0
         for _ in range(max_pages):
@@ -277,7 +284,7 @@ class AsyncSession:
         self, paged: Paged[P, I], *, limit: int | None = None, max_pages: int = DEFAULT_MAX_PAGES
     ) -> AsyncIterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
-        request = paged.pagination.first(paged.endpoint.request(self._client))
+        request = _first_page(paged, self._client)
         _announce(self._before_send, paged.endpoint, request)
         produced = 0
         for _ in range(max_pages):
