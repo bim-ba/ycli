@@ -9,6 +9,50 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.38.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.37.0
+  ([`c220a75`](https://github.com/bim-ba/ycli/commit/c220a75963e62b42a16204e56730b578dc32cc6b))
+
+### Continuous Integration
+
+- Check the theme partial with --frozen, so a release can publish the docs
+  ([#219](https://github.com/bim-ba/ycli/pull/219),
+  [`963a99a`](https://github.com/bim-ba/ycli/commit/963a99ac567ccace1242851970ec618f9c5b57b1))
+
+- Fail the docs build when the overridden theme partial changes upstream
+  ([#216](https://github.com/bim-ba/ycli/pull/216),
+  [`0a6014f`](https://github.com/bim-ba/ycli/commit/0a6014f2b4fd53f7b8063d2390cc4c22ad79cc1c))
+
+### Documentation
+
+- A landing page that gets to a working call, and no edit link on generated pages
+  ([#216](https://github.com/bim-ba/ycli/pull/216),
+  [`0a6014f`](https://github.com/bim-ba/ycli/commit/0a6014f2b4fd53f7b8063d2390cc4c22ad79cc1c))
+
+- A landing page with a pitch, the smallest example and cards; no edit link on generated pages
+  ([#216](https://github.com/bim-ba/ycli/pull/216),
+  [`0a6014f`](https://github.com/bim-ba/ycli/commit/0a6014f2b4fd53f7b8063d2390cc4c22ad79cc1c))
+
+- An animated terminal on the home page, and the language switch keeps the page
+  ([#218](https://github.com/bim-ba/ycli/pull/218),
+  [`fc606d1`](https://github.com/bim-ba/ycli/commit/fc606d171e9a56d8c53e0979d245b82217db13f0))
+
+- Give the same-page check a timeout ([#218](https://github.com/bim-ba/ycli/pull/218),
+  [`fc606d1`](https://github.com/bim-ba/ycli/commit/fc606d171e9a56d8c53e0979d245b82217db13f0))
+
+### Features
+
+- **sdk**: One class per concept, and no old names ([#217](https://github.com/bim-ba/ycli/pull/217),
+  [`b882c70`](https://github.com/bim-ba/ycli/commit/b882c70019b5d2d3ab2d7c5ac679c0df64442ab1))
+
+### Breaking Changes
+
+- **sdk**: These model names are gone; import the class on the right instead.
+
+
 ## v0.37.0 (2026-10-03)
 
 ### Build System
