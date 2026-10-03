@@ -7,7 +7,6 @@ from pkgutil import resolve_name
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import typer
     from fastmcp import FastMCP
 
     from ycli.yandex.base import DomainClient
@@ -40,10 +39,6 @@ class Service:
     def listing_pagination(self) -> Pagination | None:
         """How every listing of the service pages (``ycli api --paginate``), if one way fits all."""
         return None if self.pagination is None else resolve_name(self.pagination)
-
-    def cli_app(self) -> typer.Typer:
-        """The Typer sub-app mounted as ``ycli <name>``."""
-        return resolve_name(self.cli)
 
     def mcp_server(self) -> FastMCP:
         """The FastMCP sub-server mounted under the ``<name>`` namespace (needs the extra)."""

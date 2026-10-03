@@ -1,6 +1,7 @@
 """The service registry is the only list of services; every surface derives from it."""
 
 import asyncio
+from pkgutil import resolve_name
 
 import pytest
 import typer
@@ -23,7 +24,7 @@ def test_service_names_are_unique():
 @pytest.mark.parametrize("service", SERVICES, ids=lambda service: service.name)
 def test_service_import_paths_resolve(service):
     assert issubclass(service.client_class(), DomainClient)
-    assert service.cli_app().info.name == service.name
+    assert resolve_name(service.cli).info.name == service.name
     assert service.mcp_server().name == service.name
 
 

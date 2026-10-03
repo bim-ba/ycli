@@ -164,5 +164,5 @@ def serve_http(selection: Selection, host: str | None = None, port: int | None =
     )
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main(Selection())
