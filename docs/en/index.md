@@ -75,5 +75,6 @@ The command, the tool an agent calls and the Python method are the same operatio
 | call an endpoint ycli does not wrap | [Call an unwrapped endpoint](how-to/call-an-unwrapped-endpoint.md) |
 | look up a command, a tool, a method or a setting | [Reference](reference/configuration.md) |
 | understand why ycli is built this way | [Design](explanation/design.md) |
+| compare ycli with Yandex's own servers and the community ones | [ycli and the other tools](explanation/comparison.md) |
 
 ycli is open source under the MIT license: [github.com/bim-ba/ycli](https://github.com/bim-ba/ycli).

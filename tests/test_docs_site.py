@@ -275,6 +275,20 @@ def test_llms_txt_lists_every_hand_written_page(language):
     assert outside_llms_txt(language) == []
 
 
+@pytest.mark.parametrize("language", sorted(SITES))
+def test_the_comparison_page_quotes_the_coverage_block(language):
+    """The comparison page quotes the README's generated figures for ycli."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    operations = re.search(r"wraps \*\*(\d+) operations", readme)
+    total = re.search(r"(\d+) \*\*MCP\*\* tools", readme)
+    assert operations is not None and total is not None
+    per_service = re.findall(r"operations · (\d+) MCP tools", readme)
+    page = (_site(language)[0] / "explanation" / "comparison.md").read_text(encoding="utf-8")
+    row = next(line for line in page.splitlines() if line.startswith("| ycli |"))
+    assert re.findall(r"\d+", row) == [total[1], *per_service]
+    assert f" {operations[1]} " in page
+
+
 def test_the_description_check_bites(tmp_path):
     (tmp_path / "a.md").write_text("---\ntype: how-to\n---\n# A\n")
     (tmp_path / "b.md").write_text(f'---\ndescription: "{"x" * 161}"\n---\n# B\n')

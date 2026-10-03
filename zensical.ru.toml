@@ -36,6 +36,7 @@ nav = [
   ] },
   { "Объяснения" = [
     "explanation/design.md",
+    "explanation/comparison.md",
   ] },
 ]
 
