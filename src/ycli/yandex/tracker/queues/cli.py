@@ -35,35 +35,35 @@ VersionIdArg = Annotated[
     int, typer.Argument(metavar="VERSION_ID", help="Numeric id of the queue version.")
 ]
 FieldsOpt = Annotated[
-    str, typer.Option(help="Comma-separated fields to return, e.g. name,dueDate,released.")
+    str | None, typer.Option(help="Comma-separated fields to return, e.g. name,dueDate,released.")
 ]
 
 
 @app.command("list")
 def list_(
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    expand: ExpandOpt = "",
+    expand: ExpandOpt = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Queue]:
     """List all queues (auto-paginated over pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.queues.list(limit=cap, expand=expand or None)
+    return tracker.queues.list(limit=cap, expand=expand)
 
 
 @app.command()
 def get(
     queue_id: Annotated[str, typer.Argument(help="Queue key (case-sensitive) or numeric id.")],
     expand: Annotated[
-        str, typer.Option(help="Extra blocks to include, e.g. all or types,team,versions.")
-    ] = "",
+        str | None, typer.Option(help="Extra blocks to include, e.g. all or types,team,versions.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Queue:
     """Print one queue's settings for QUEUE_ID."""
-    return tracker.queues.get(queue_id, expand=expand or None)
+    return tracker.queues.get(queue_id, expand=expand)
 
 
 @app.command()
@@ -137,13 +137,17 @@ def restore(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Queue:
 def set_permissions(
     queue_id: QueueIdArg,
     create: Annotated[
-        str, typer.Option(help="Create-issue permission scope as a JSON object.")
-    ] = "",
-    write: Annotated[str, typer.Option(help="Edit-issue permission scope as a JSON object.")] = "",
-    read: Annotated[str, typer.Option(help="Read-issue permission scope as a JSON object.")] = "",
+        str | None, typer.Option(help="Create-issue permission scope as a JSON object.")
+    ] = None,
+    write: Annotated[
+        str | None, typer.Option(help="Edit-issue permission scope as a JSON object.")
+    ] = None,
+    read: Annotated[
+        str | None, typer.Option(help="Read-issue permission scope as a JSON object.")
+    ] = None,
     grant: Annotated[
-        str, typer.Option(help="Change-settings permission scope as a JSON object.")
-    ] = "",
+        str | None, typer.Option(help="Change-settings permission scope as a JSON object.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> QueuePermissions:
@@ -153,10 +157,10 @@ def set_permissions(
     --grant '{"roles": {"add": ["author"]}}'. Pass at least one scope.
     """
     body = QueuePermissionsUpdate(
-        create=json.loads(create) if create else None,
-        write=json.loads(write) if write else None,
-        read=json.loads(read) if read else None,
-        grant=json.loads(grant) if grant else None,
+        create=json.loads(create) if create is not None else None,
+        write=json.loads(write) if write is not None else None,
+        read=json.loads(read) if read is not None else None,
+        grant=json.loads(grant) if grant is not None else None,
     )
     return tracker.queues.set_permissions(queue_id, body)
 
@@ -177,13 +181,13 @@ def tag_remove(
 def version_create(
     queue: Annotated[str, typer.Option(help="Key of the queue to create the version in.")],
     name: Annotated[str, typer.Option(help="Name of the new version.")],
-    description: Annotated[str, typer.Option(help="Description of the version.")] = "",
+    description: Annotated[str | None, typer.Option(help="Description of the version.")] = None,
     start_date: Annotated[
-        str, typer.Option("--start-date", help="Version start date (YYYY-MM-DD).")
-    ] = "",
+        str | None, typer.Option("--start-date", help="Version start date (YYYY-MM-DD).")
+    ] = None,
     due_date: Annotated[
-        str, typer.Option("--due-date", help="Version due date (YYYY-MM-DD).")
-    ] = "",
+        str | None, typer.Option("--due-date", help="Version due date (YYYY-MM-DD).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> QueueVersionInfo:
@@ -191,44 +195,44 @@ def version_create(
     body = QueueVersionCreate(
         queue=queue,
         name=name,
-        description=description or None,
-        start_date=start_date or None,
-        due_date=due_date or None,
+        description=description,
+        start_date=start_date,
+        due_date=due_date,
     )
     return tracker.queues.version_create(body)
 
 
 @app.command("version-get")
 def version_get(
-    version_id: VersionIdArg, fields: FieldsOpt = "", *, tracker: TrackerClient
+    version_id: VersionIdArg, fields: FieldsOpt = None, *, tracker: TrackerClient
 ) -> QueueVersionInfo:
     """Print queue version VERSION_ID (GET /versions/{id})."""
-    return tracker.queues.version_get(version_id, fields=fields or None)
+    return tracker.queues.version_get(version_id, fields=fields)
 
 
 @app.command("version-update")
 def version_update(
     version_id: VersionIdArg,
-    name: Annotated[str, typer.Option(help="New name of the version.")] = "",
-    description: Annotated[str, typer.Option(help="New description of the version.")] = "",
+    name: Annotated[str | None, typer.Option(help="New name of the version.")] = None,
+    description: Annotated[str | None, typer.Option(help="New description of the version.")] = None,
     start_date: Annotated[
-        str, typer.Option("--start-date", help="New version start date (YYYY-MM-DD).")
-    ] = "",
+        str | None, typer.Option("--start-date", help="New version start date (YYYY-MM-DD).")
+    ] = None,
     due_date: Annotated[
-        str, typer.Option("--due-date", help="New version due date (YYYY-MM-DD).")
-    ] = "",
-    fields: FieldsOpt = "",
+        str | None, typer.Option("--due-date", help="New version due date (YYYY-MM-DD).")
+    ] = None,
+    fields: FieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> QueueVersionInfo:
     """Edit queue version VERSION_ID (PATCH /versions/{id}); only the given options change."""
     body = QueueVersionUpdate(
-        name=name or None,
-        description=description or None,
-        start_date=start_date or None,
-        due_date=due_date or None,
+        name=name,
+        description=description,
+        start_date=start_date,
+        due_date=due_date,
     )
-    return tracker.queues.version_update(version_id, body, fields=fields or None)
+    return tracker.queues.version_update(version_id, body, fields=fields)
 
 
 @app.command("version-delete")

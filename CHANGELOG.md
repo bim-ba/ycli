@@ -9,6 +9,33 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.54.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.53.1
+  ([`de12aeb`](https://github.com/bim-ba/ycli/commit/de12aeba0f50ef584cda3d1329b0c2113d198b0c))
+
+### Features
+
+- **cli**: An option that is not given is None, so an empty value can be sent
+  ([#265](https://github.com/bim-ba/ycli/pull/265),
+  [`dda7c09`](https://github.com/bim-ba/ycli/commit/dda7c0937726017a59871bc67826d4d226c6f608))
+
+### Refactoring
+
+- **mcp**: A service's MCP server is a package, mcp/server.py
+  ([#263](https://github.com/bim-ba/ycli/pull/263),
+  [`766753c`](https://github.com/bim-ba/ycli/commit/766753ce9a8b7143dfbafa8f2427105b3316993f))
+
+### Breaking Changes
+
+- **cli**: An explicit empty string or zero in a CLI option is sent instead of being read as "not
+  given": `--name ""`, `--queue ""`, `--answer-id 0`, `--version 0` reach the API. `forms surveys
+  update --max-count 0` removes the response cap. `--limit 0` is a usage error (exit code 2); leave
+  `--limit` out for the default cap.
+
+
 ## v0.53.1 (2026-10-03)
 
 ### Bug Fixes

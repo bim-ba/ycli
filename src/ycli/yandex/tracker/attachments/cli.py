@@ -81,7 +81,7 @@ def delete(
 def upload(
     issue_key: Annotated[str, _ISSUE],
     file_path: FilePathArg,
-    rename_to: Annotated[str, _RENAME_TO] = "",
+    rename_to: Annotated[str | None, _RENAME_TO] = None,
     *,
     tracker: TrackerClient,
 ) -> Attachment:
@@ -90,18 +90,18 @@ def upload(
         issue_key,
         filename=file_path.name,
         data=file_path.read_bytes(),
-        rename_to=rename_to or None,
+        rename_to=rename_to,
     )
 
 
 @app.command("upload-temp")
 def upload_temp(
     file_path: FilePathArg,
-    rename_to: Annotated[str, _RENAME_TO] = "",
+    rename_to: Annotated[str | None, _RENAME_TO] = None,
     *,
     tracker: TrackerClient,
 ) -> Attachment:
     """Upload a temporary file (POST /attachments); its id attaches once to an issue or comment."""
     return tracker.attachments.upload_temp(
-        filename=file_path.name, data=file_path.read_bytes(), rename_to=rename_to or None
+        filename=file_path.name, data=file_path.read_bytes(), rename_to=rename_to
     )

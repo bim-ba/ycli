@@ -21,19 +21,19 @@ app = typer.Typer(name="changelog", help="Tracker issue changelog.", no_args_is_
 @app.command("list")
 def list_(
     key: KeyArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    field: Annotated[str, typer.Option(help="Only changes of this field, e.g. status.")] = "",
+    field: Annotated[
+        str | None, typer.Option(help="Only changes of this field, e.g. status.")
+    ] = None,
     change_type: Annotated[
-        str, typer.Option("--type", help="Only changes of this type, e.g. IssueWorkflow.")
-    ] = "",
-    sort: Annotated[str, typer.Option(help="Order of the changes: asc or desc.")] = "",
+        str | None, typer.Option("--type", help="Only changes of this type, e.g. IssueWorkflow.")
+    ] = None,
+    sort: Annotated[str | None, typer.Option(help="Order of the changes: asc or desc.")] = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[ChangelogEntry]:
     """List all changelog entries for issue KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.changelog.list(
-        key, limit=cap, field=field or None, change_type=change_type or None, sort=sort or None
-    )
+    return tracker.changelog.list(key, limit=cap, field=field, change_type=change_type, sort=sort)

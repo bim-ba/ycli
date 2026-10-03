@@ -56,22 +56,22 @@ def create(
 @app.command()
 def update(
     sprint_id: SprintIdArg,
-    name: Annotated[str, typer.Option(help="New sprint name.")] = "",
-    start_date: Annotated[str, typer.Option(help="New start date (YYYY-MM-DD).")] = "",
-    end_date: Annotated[str, typer.Option(help="New end date (YYYY-MM-DD).")] = "",
+    name: Annotated[str | None, typer.Option(help="New sprint name.")] = None,
+    start_date: Annotated[str | None, typer.Option(help="New start date (YYYY-MM-DD).")] = None,
+    end_date: Annotated[str | None, typer.Option(help="New end date (YYYY-MM-DD).")] = None,
     status: Annotated[
-        str, typer.Option(help="New status: draft/in_progress/released/archived.")
-    ] = "",
+        str | None, typer.Option(help="New status: draft/in_progress/released/archived.")
+    ] = None,
     version: VersionOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Sprint:
     """Edit a sprint SPRINT_ID (PATCH /sprints/{id}?version=) — only supplied fields are sent."""
     body = SprintUpdate(
-        name=name or None,
-        start_date=start_date or None,
-        end_date=end_date or None,
-        status=status or None,
+        name=name,
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
     )
     return tracker.sprints.update(sprint_id, body, version=version)
 

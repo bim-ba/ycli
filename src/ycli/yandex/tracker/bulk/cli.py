@@ -35,7 +35,7 @@ IssueOpt = Annotated[
     typer.Option("--issue", help="Issue key to include (repeatable; omit when using --query)."),
 ]
 QueryOpt = Annotated[
-    str,
+    str | None,
     typer.Option("--query", help="Query-language filter selecting issues (instead of --issue)."),
 ]
 ValueOpt = Annotated[
@@ -48,9 +48,9 @@ WaitOpt = Annotated[
 ]
 
 
-def _issues(issue: list[str] | None, query: str) -> list[str] | str:
+def _issues(issue: list[str] | None, query: str | None) -> list[str] | str:
     """The ``issues`` body value: the query string when given, else the collected keys."""
-    return query if query else (issue or [])
+    return query if query is not None else (issue or [])
 
 
 def _finish(tracker: TrackerClient, bulk: BulkChange, wait: bool) -> BulkChange:
@@ -73,7 +73,7 @@ def _finish(tracker: TrackerClient, bulk: BulkChange, wait: bool) -> BulkChange:
 @app.command()
 def update(
     issue: IssueOpt = None,
-    query: QueryOpt = "",
+    query: QueryOpt = None,
     field: ValueOpt = None,
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
@@ -91,7 +91,7 @@ def update(
 def move(
     queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. CHECK.")],
     issue: IssueOpt = None,
-    query: QueryOpt = "",
+    query: QueryOpt = None,
     field: ValueOpt = None,
     move_all_fields: Annotated[
         bool, typer.Option("--move-all-fields", help="Carry versions/components/projects across.")
@@ -122,7 +122,7 @@ def transition(
         str, typer.Argument(metavar="TRANSITION", help="Transition id, e.g. close.")
     ],
     issue: IssueOpt = None,
-    query: QueryOpt = "",
+    query: QueryOpt = None,
     field: ValueOpt = None,
     notify: NotifyOpt = False,
     wait: WaitOpt = True,

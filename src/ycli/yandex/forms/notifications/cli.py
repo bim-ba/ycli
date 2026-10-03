@@ -26,7 +26,9 @@ app = typer.Typer(
 
 @app.command("list")
 def list_(
-    survey_id: Annotated[str, typer.Option(help="Only this form's runs (24-char hex id).")] = "",
+    survey_id: Annotated[
+        str | None, typer.Option(help="Only this form's runs (24-char hex id).")
+    ] = None,
     hook_id: Annotated[int | None, typer.Option(help="Only this integration group.")] = None,
     subscription_id: Annotated[int | None, typer.Option(help="Only this integration.")] = None,
     answer_id: Annotated[int | None, typer.Option(help="Only runs for this answer.")] = None,
@@ -34,23 +36,29 @@ def list_(
         list[str] | None,
         typer.Option("--status", help="pending, success, error or canceled (repeatable)."),
     ] = None,
-    created_since: Annotated[str, typer.Option(help="ISO-8601: queued at or after.")] = "",
-    created_until: Annotated[str, typer.Option(help="ISO-8601: queued at or before.")] = "",
-    finished_since: Annotated[str, typer.Option(help="ISO-8601: ended at or after.")] = "",
-    finished_until: Annotated[str, typer.Option(help="ISO-8601: ended at or before.")] = "",
+    created_since: Annotated[str | None, typer.Option(help="ISO-8601: queued at or after.")] = None,
+    created_until: Annotated[
+        str | None, typer.Option(help="ISO-8601: queued at or before.")
+    ] = None,
+    finished_since: Annotated[str | None, typer.Option(help="ISO-8601: ended at or after.")] = None,
+    finished_until: Annotated[
+        str | None, typer.Option(help="ISO-8601: ended at or before.")
+    ] = None,
     visible: Annotated[
         bool | None,
         typer.Option("--visible/--no-visible", help="Only shown (or only hidden) runs."),
     ] = None,
     integration_type: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--type",
             help="email, tracker, tracker_comment, wiki, jsonrpc, http or function.",
         ),
-    ] = "",
-    ordering: Annotated[str, typer.Option(help="asc (oldest first, the default) or desc.")] = "",
-    limit: LimitOption = 0,
+    ] = None,
+    ordering: Annotated[
+        str | None, typer.Option(help="asc (oldest first, the default) or desc.")
+    ] = None,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -60,18 +68,18 @@ def list_(
     cap = config.http.cap(limit, all_=all_)
     return forms.notifications.list(
         NotificationFilter(
-            survey_id=survey_id or None,
+            survey_id=survey_id,
             hook_id=hook_id,
             subscription_id=subscription_id,
             answer_id=answer_id,
             status=status,
-            created_since=created_since or None,
-            created_until=created_until or None,
-            finished_since=finished_since or None,
-            finished_until=finished_until or None,
+            created_since=created_since,
+            created_until=created_until,
+            finished_since=finished_since,
+            finished_until=finished_until,
             visible=visible,
-            integration_type=integration_type or None,
-            ordering=ordering or None,
+            integration_type=integration_type,
+            ordering=ordering,
         ),
         limit=cap,
     )

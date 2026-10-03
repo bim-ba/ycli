@@ -200,7 +200,7 @@ $ ycli tracker issues list [OPTIONS]
 * `--assignee TEXT`: Assignee login.
 * `--epic TEXT`: Epic key.
 * `--type TEXT`: Issue type key.
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -225,7 +225,7 @@ $ ycli tracker issues search [OPTIONS] QUERY
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--expand TEXT`: Extra blocks to include in the reply.
 * `--scroll-type TEXT`: sorted or unsorted: scroll through the results (no 10 000 cap).
@@ -439,7 +439,7 @@ $ ycli tracker comments list [OPTIONS] KEY
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--expand TEXT`: Extra blocks to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -634,7 +634,7 @@ $ ycli tracker links search [OPTIONS] KEY
 
 * `--type TEXT`: Keep only links with this relationship, e.g. relates (repeatable).
 * `--field TEXT`: Field to include in each link (repeatable).
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -798,7 +798,7 @@ $ ycli tracker worklog list [OPTIONS] KEY
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -961,7 +961,7 @@ $ ycli tracker changelog list [OPTIONS] KEY
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--field TEXT`: Only changes of this field, e.g. status.
 * `--type TEXT`: Only changes of this type, e.g. IssueWorkflow.
@@ -1534,7 +1534,7 @@ $ ycli tracker users list [OPTIONS]
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--expand TEXT`: Extra data to include, e.g. groups.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1769,7 +1769,7 @@ $ ycli tracker queues list [OPTIONS]
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--expand TEXT`: Extra blocks to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -2853,7 +2853,7 @@ $ ycli tracker boards list [OPTIONS]
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -3529,7 +3529,7 @@ $ ycli tracker triggers list [OPTIONS] QUEUE_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -3613,7 +3613,7 @@ $ ycli tracker triggers update [OPTIONS] QUEUE_ID TRIGGER_ID
 * `--action TEXT`: Trigger action as a JSON object (repeatable).
 * `--condition TEXT`: Trigger condition as a JSON object (repeatable).
 * `--active / --inactive`: Activate or disable the trigger.
-* `--version INTEGER`: Current trigger version (optimistic lock).  [default: 0]
+* `--version INTEGER`: Current trigger version (optimistic lock).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -3639,7 +3639,7 @@ $ ycli tracker triggers webhook-log-list [OPTIONS] QUEUE_ID TRIGGER_ID
 **Options**:
 
 * `--issue-id TEXT`: Scope the logs to one issue key/id.
-* `--limit INTEGER`: Max records (API default 10, max 100).  [default: 0]
+* `--limit INTEGER`: Max records (API default 10, max 100).
 * `--from TEXT`: Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).
 * `--to TEXT`: Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -3719,8 +3719,8 @@ $ ycli tracker autoactions create [OPTIONS] QUEUE_ID
 * `--action TEXT`: Autoaction action as a JSON object (repeatable).
 * `--active / --inactive`: Start active or disabled.
 * `--notify / --no-notify`: Send notifications when the autoaction runs.
-* `--interval-millis INTEGER`: Run interval in ms (default 3600000).  [default: 0]
-* `--calendar-id INTEGER`: Working-calendar id for the active window.  [default: 0]
+* `--interval-millis INTEGER`: Run interval in ms (default 3600000).
+* `--calendar-id INTEGER`: Working-calendar id for the active window.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4479,7 +4479,7 @@ $ ycli tracker entities events-list [OPTIONS] TYPE ID
 
 **Options**:
 
-* `--limit INTEGER`: Max events (0 = all).  [default: 0]
+* `--limit INTEGER`: Max events (default: all).
 * `--selected TEXT`: Event id to build the list around.
 * `--new-events-on-top / --no-new-events-on-top`: Newest events first.
 * `--direction TEXT`: forward (the default) or backward.
@@ -4704,7 +4704,7 @@ $ ycli tracker entities comments list [OPTIONS] TYPE ID
 **Options**:
 
 * `--all`: Drain the paginated (_relative) listing.
-* `--limit INTEGER`: Max comments when --all (0 = all).  [default: 0]
+* `--limit INTEGER`: Max comments when --all (default: all).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -5713,7 +5713,7 @@ $ ycli tracker gaps search [OPTIONS] USER...
 
 * `--from TEXT`: Window start (ISO 8601); default: now.
 * `--to TEXT`: Window end (ISO 8601); must be after --from.
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.

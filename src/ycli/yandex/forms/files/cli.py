@@ -74,22 +74,25 @@ def download(
         typer.Option("--download", help="Ask the API for a Content-Disposition filename header."),
     ] = False,
     file_hash: Annotated[
-        str,
+        str | None,
         typer.Option("--hash", help="Access hash from the upload response (anonymous download)."),
-    ] = "",
+    ] = None,
     *,
     forms: FormsClient,
 ) -> BinaryResult:
     """Download a stored file's raw bytes to --output (or stdout). Binary is CLI/SDK-only."""
-    data = forms.files.download(path, download=disposition, file_hash=file_hash or None)
+    data = forms.files.download(path, download=disposition, file_hash=file_hash)
     return BinaryResult(data, output)
 
 
 @app.command()
 def delete(
-    path: Annotated[str, _PATH] = "", url: Annotated[str, _URL] = "", *, forms: FormsClient
+    path: Annotated[str | None, _PATH] = None,
+    url: Annotated[str | None, _URL] = None,
+    *,
+    forms: FormsClient,
 ) -> Ack:
     """Delete a stored file by --path and/or --url (DELETE /files)."""
-    if not path and not url:
+    if path is None and url is None:
         raise typer.BadParameter("pass --path and/or --url")
-    return forms.files.delete(path=path or None, url=url or None)
+    return forms.files.delete(path=path, url=url)

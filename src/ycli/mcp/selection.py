@@ -21,11 +21,11 @@ CORE = "core"
 TOOLSET_NAMES: tuple[str, ...] = (*(service.name for service in SERVICES), CORE, ALL)
 
 
-def split_names(value: str) -> tuple[str, ...]:
+def split_names(value: str | None) -> tuple[str, ...]:
     """A comma-separated flag value as names, blanks dropped.
 
     Args:
-        value: A comma-separated flag value.
+        value: A comma-separated flag value; ``None`` when the flag is not given.
 
     Returns:
         The names, in order.
@@ -34,7 +34,7 @@ def split_names(value: str) -> tuple[str, ...]:
         >>> split_names("tracker, wiki,,")
         ('tracker', 'wiki')
     """
-    return tuple(name for part in value.split(",") if (name := part.strip()))
+    return tuple(name for part in (value or "").split(",") if (name := part.strip()))
 
 
 def _service_of(tool_name: str) -> str | None:

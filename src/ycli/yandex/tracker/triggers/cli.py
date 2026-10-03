@@ -39,7 +39,7 @@ ConditionOpt = Annotated[
 @app.command("list")
 def list_(
     queue_id: QueueIdArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -86,24 +86,26 @@ def create(
 def update(
     queue_id: QueueIdArg,
     trigger_id: TriggerIdArg,
-    name: Annotated[str, typer.Option(help="New name of the trigger.")] = "",
+    name: Annotated[str | None, typer.Option(help="New name of the trigger.")] = None,
     action: ActionOpt = None,
     condition: ConditionOpt = None,
     active: Annotated[
         bool | None, typer.Option("--active/--inactive", help="Activate or disable the trigger.")
     ] = None,
-    version: Annotated[int, typer.Option(help="Current trigger version (optimistic lock).")] = 0,
+    version: Annotated[
+        int | None, typer.Option(help="Current trigger version (optimistic lock).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Trigger:
     """Edit trigger TRIGGER_ID of QUEUE_ID (PATCH ...?version=) — only supplied fields are sent."""
     body = TriggerUpdate(
-        name=name or None,
+        name=name,
         actions=[json.loads(a) for a in action] if action else None,
         conditions=[json.loads(c) for c in condition] if condition else None,
         active=active,
     )
-    return tracker.triggers.update(queue_id, trigger_id, body, version=version or None)
+    return tracker.triggers.update(queue_id, trigger_id, body, version=version)
 
 
 @app.command("webhook-log-list")
@@ -111,15 +113,17 @@ def webhook_log_list(
     queue_id: QueueIdArg,
     trigger_id: TriggerIdArg,
     issue_id: Annotated[
-        str, typer.Option("--issue-id", help="Scope the logs to one issue key/id.")
-    ] = "",
-    limit: Annotated[int, typer.Option(help="Max records (API default 10, max 100).")] = 0,
+        str | None, typer.Option("--issue-id", help="Scope the logs to one issue key/id.")
+    ] = None,
+    limit: Annotated[
+        int | None, typer.Option(help="Max records (API default 10, max 100).")
+    ] = None,
     date_from: Annotated[
-        str, typer.Option("--from", help="Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
-    ] = "",
+        str | None, typer.Option("--from", help="Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
+    ] = None,
     date_to: Annotated[
-        str, typer.Option("--to", help="Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
-    ] = "",
+        str | None, typer.Option("--to", help="Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[WebhookLogEntry]:
@@ -127,8 +131,8 @@ def webhook_log_list(
     return tracker.triggers.webhook_log_list(
         queue_id,
         trigger_id,
-        issue_id=issue_id or None,
-        limit=limit or None,
-        date_from=date_from or None,
-        date_to=date_to or None,
+        issue_id=issue_id,
+        limit=limit,
+        date_from=date_from,
+        date_to=date_to,
     )

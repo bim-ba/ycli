@@ -305,6 +305,10 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
   binary download returns `BinaryResult(data, output)` behind `--output`.
 - Every argument and option is `Annotated[…, typer.Argument(help=…)]` /
   `Annotated[…, typer.Option(help=…)]`. A write builds the typed request model from the options.
+- An option that is not given is `None` (`Annotated[str | None, typer.Option(…)] = None`), never
+  `""` or `0`: an explicit empty string or zero is a value and is sent, so `--description ""`
+  clears a field. A test asks `is not None`, not truthiness.
+  `tests/test_cli_not_given.py` fails on a `""` or `0` default.
 - An async trigger (export, clone, bulk change) takes `--wait/--no-wait`, default `--wait`, and
   polls through `ycli.cli.progress.wait_for`; the matching `operations get` read ships on every
   surface so an agent can poll it too.

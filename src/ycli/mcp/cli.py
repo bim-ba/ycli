@@ -39,11 +39,11 @@ _Toolsets = Annotated[
     ),
 ]
 _Tools = Annotated[
-    str,
+    str | None,
     typer.Option("--tools", help="Comma-separated extra tool names to serve beyond the toolsets."),
 ]
 _ExcludeTools = Annotated[
-    str, typer.Option("--exclude-tools", help="Comma-separated tool names to hide.")
+    str | None, typer.Option("--exclude-tools", help="Comma-separated tool names to hide.")
 ]
 _ReadOnly = Annotated[
     bool,
@@ -90,7 +90,11 @@ _Port = Annotated[
 
 
 def _selection(
-    toolsets: str, tools: str, exclude_tools: str, read_only: bool, tool_search: bool
+    toolsets: str | None,
+    tools: str | None,
+    exclude_tools: str | None,
+    read_only: bool,
+    tool_search: bool,
 ) -> Selection:
     """The flags as a :class:`Selection`; a bad name is a usage error, not a traceback."""
     try:
@@ -108,8 +112,8 @@ def _selection(
 @app.command(help=f"Run the MCP server (tools namespaced {_NAMESPACES}, status_*).")
 def start(
     toolsets: _Toolsets = ALL,
-    tools: _Tools = "",
-    exclude_tools: _ExcludeTools = "",
+    tools: _Tools = None,
+    exclude_tools: _ExcludeTools = None,
     read_only: _ReadOnly = False,
     tool_search: _ToolSearch = False,
     transport: _Transport = Transport.stdio,
@@ -149,8 +153,8 @@ def start(
 @app.command()
 def methods(
     toolsets: _Toolsets = ALL,
-    tools: _Tools = "",
-    exclude_tools: _ExcludeTools = "",
+    tools: _Tools = None,
+    exclude_tools: _ExcludeTools = None,
     read_only: _ReadOnly = False,
     tool_search: _ToolSearch = False,
 ) -> str:

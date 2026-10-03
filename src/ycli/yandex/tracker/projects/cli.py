@@ -16,49 +16,49 @@ app = typer.Typer(name="projects", help="Tracker projects (legacy API).", no_arg
 ProjectIdArg = Annotated[
     int, typer.Argument(metavar="PROJECT_ID", help="Numeric id of the project.")
 ]
-ExpandOpt = Annotated[str, typer.Option(help="Extra blocks to include, e.g. queues.")]
+ExpandOpt = Annotated[str | None, typer.Option(help="Extra blocks to include, e.g. queues.")]
 StatusOpt = Annotated[ProjectStatus | None, typer.Option(help="Stage of the project.")]
-DescriptionOpt = Annotated[str, typer.Option(help="Description of the project.")]
-LeadOpt = Annotated[str, typer.Option(help="Login or id of the project's lead.")]
-StartDateOpt = Annotated[str, typer.Option("--start-date", help="Start date (YYYY-MM-DD).")]
-EndDateOpt = Annotated[str, typer.Option("--end-date", help="End date (YYYY-MM-DD).")]
+DescriptionOpt = Annotated[str | None, typer.Option(help="Description of the project.")]
+LeadOpt = Annotated[str | None, typer.Option(help="Login or id of the project's lead.")]
+StartDateOpt = Annotated[str | None, typer.Option("--start-date", help="Start date (YYYY-MM-DD).")]
+EndDateOpt = Annotated[str | None, typer.Option("--end-date", help="End date (YYYY-MM-DD).")]
 QueuesOpt = Annotated[str, typer.Option(help="Key of the queue whose issues go into the project.")]
 
 
 @app.command("list")
-def list_(expand: ExpandOpt = "", *, tracker: TrackerClient) -> ItemList[Project]:
+def list_(expand: ExpandOpt = None, *, tracker: TrackerClient) -> ItemList[Project]:
     """List the organization's projects (GET /projects)."""
-    return tracker.projects.list(expand=expand or None)
+    return tracker.projects.list(expand=expand)
 
 
 @app.command()
-def get(project_id: ProjectIdArg, expand: ExpandOpt = "", *, tracker: TrackerClient) -> Project:
+def get(project_id: ProjectIdArg, expand: ExpandOpt = None, *, tracker: TrackerClient) -> Project:
     """Print project PROJECT_ID (GET /projects/{id})."""
-    return tracker.projects.get(project_id, expand=expand or None)
+    return tracker.projects.get(project_id, expand=expand)
 
 
 @app.command()
 def queues(
     project_id: ProjectIdArg,
     expand: Annotated[
-        str, typer.Option(help="Extra queue blocks, e.g. all or components,versions.")
-    ] = "",
+        str | None, typer.Option(help="Extra queue blocks, e.g. all or components,versions.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Queue]:
     """List the queues of project PROJECT_ID (GET /projects/{id}/queues)."""
-    return tracker.projects.queues(project_id, expand=expand or None)
+    return tracker.projects.queues(project_id, expand=expand)
 
 
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Name of the project.")],
     queues: QueuesOpt,
-    description: DescriptionOpt = "",
-    lead: LeadOpt = "",
+    description: DescriptionOpt = None,
+    lead: LeadOpt = None,
     status: StatusOpt = None,
-    start_date: StartDateOpt = "",
-    end_date: EndDateOpt = "",
+    start_date: StartDateOpt = None,
+    end_date: EndDateOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Project:
@@ -66,11 +66,11 @@ def create(
     body = ProjectCreate(
         name=name,
         queues=queues,
-        description=description or None,
-        lead=lead or None,
+        description=description,
+        lead=lead,
         status=status,
-        start_date=start_date or None,
-        end_date=end_date or None,
+        start_date=start_date,
+        end_date=end_date,
     )
     return tracker.projects.create(body)
 
@@ -80,27 +80,27 @@ def update(
     project_id: ProjectIdArg,
     version: Annotated[int, typer.Option(help="Current version of the project (required).")],
     queues: QueuesOpt,
-    name: Annotated[str, typer.Option(help="New name of the project.")] = "",
-    description: DescriptionOpt = "",
-    lead: LeadOpt = "",
+    name: Annotated[str | None, typer.Option(help="New name of the project.")] = None,
+    description: DescriptionOpt = None,
+    lead: LeadOpt = None,
     status: StatusOpt = None,
-    start_date: StartDateOpt = "",
-    end_date: EndDateOpt = "",
-    expand: ExpandOpt = "",
+    start_date: StartDateOpt = None,
+    end_date: EndDateOpt = None,
+    expand: ExpandOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Project:
     """Edit project PROJECT_ID (PUT /projects/{id}?version=); only the given options change."""
     body = ProjectUpdate(
         queues=queues,
-        name=name or None,
-        description=description or None,
-        lead=lead or None,
+        name=name,
+        description=description,
+        lead=lead,
         status=status,
-        start_date=start_date or None,
-        end_date=end_date or None,
+        start_date=start_date,
+        end_date=end_date,
     )
-    return tracker.projects.update(project_id, body, version=version, expand=expand or None)
+    return tracker.projects.update(project_id, body, version=version, expand=expand)
 
 
 @app.command()

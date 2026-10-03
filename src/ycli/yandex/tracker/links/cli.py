@@ -51,7 +51,7 @@ def search(
         list[str] | None,
         typer.Option("--field", help="Field to include in each link (repeatable)."),
     ] = None,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,

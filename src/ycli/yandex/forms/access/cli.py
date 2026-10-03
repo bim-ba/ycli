@@ -23,21 +23,27 @@ app = typer.Typer(name="access", help="Forms survey permissions.", no_args_is_he
 ActionOpt = Annotated[
     str, typer.Option(help="Action: change (edit, read answers) or submit (fill in).")
 ]
-UidOpt = Annotated[str, typer.Option("--uid", help="User's Yandex ID uid.")]
-CloudUidOpt = Annotated[str, typer.Option("--cloud-uid", help="User's Yandex Cloud uid.")]
+UidOpt = Annotated[str | None, typer.Option("--uid", help="User's Yandex ID uid.")]
+CloudUidOpt = Annotated[str | None, typer.Option("--cloud-uid", help="User's Yandex Cloud uid.")]
 GroupSrcOpt = Annotated[
-    str, typer.Option("--group-src", help="Group source: dir, cloud, com or staff.")
+    str | None, typer.Option("--group-src", help="Group source: dir, cloud, com or staff.")
 ]
-GroupIdOpt = Annotated[str, typer.Option("--group-id", help="Group id within its source.")]
+GroupIdOpt = Annotated[str | None, typer.Option("--group-id", help="Group id within its source.")]
 
 
 def _principal(
-    uid: str, cloud_uid: str, group_src: str, group_id: str
+    uid: str | None, cloud_uid: str | None, group_src: str | None, group_id: str | None
 ) -> tuple[UserIdentity | None, GroupIdentity | None]:
     """The user and the group the options name (``None`` for the one not given)."""
-    user = UserIdentity(uid=uid or None, cloud_uid=cloud_uid or None) if uid or cloud_uid else None
+    user = (
+        UserIdentity(uid=uid, cloud_uid=cloud_uid)
+        if uid is not None or cloud_uid is not None
+        else None
+    )
     group = (
-        GroupIdentity(src=group_src or None, id=group_id or None) if group_src or group_id else None
+        GroupIdentity(src=group_src, id=group_id)
+        if group_src is not None or group_id is not None
+        else None
     )
     return user, group
 
@@ -65,10 +71,10 @@ def set_(
 def grant(
     survey_id: SurveyIdArg,
     action: ActionOpt,
-    uid: UidOpt = "",
-    cloud_uid: CloudUidOpt = "",
-    group_src: GroupSrcOpt = "",
-    group_id: GroupIdOpt = "",
+    uid: UidOpt = None,
+    cloud_uid: CloudUidOpt = None,
+    group_src: GroupSrcOpt = None,
+    group_id: GroupIdOpt = None,
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:
@@ -82,10 +88,10 @@ def grant(
 def revoke(
     survey_id: SurveyIdArg,
     action: ActionOpt,
-    uid: UidOpt = "",
-    cloud_uid: CloudUidOpt = "",
-    group_src: GroupSrcOpt = "",
-    group_id: GroupIdOpt = "",
+    uid: UidOpt = None,
+    cloud_uid: CloudUidOpt = None,
+    group_src: GroupSrcOpt = None,
+    group_id: GroupIdOpt = None,
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:

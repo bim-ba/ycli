@@ -20,9 +20,9 @@ app = typer.Typer(name="history", help="Forms change log.", no_args_is_help=True
 def list_(
     survey_id: SurveyIdArg,
     ordering: Annotated[
-        str, typer.Option(help="desc (newest first, the API default) or asc.")
-    ] = "",
-    limit: LimitOption = 0,
+        str | None, typer.Option(help="desc (newest first, the API default) or asc.")
+    ] = None,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -30,4 +30,4 @@ def list_(
 ) -> ItemList[HistoryEvent]:
     """List the changes made to form SURVEY_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return forms.history.list(survey_id, ordering=ordering or None, limit=cap)
+    return forms.history.list(survey_id, ordering=ordering, limit=cap)

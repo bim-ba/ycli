@@ -47,7 +47,7 @@ def create(
 def update(
     board_id: BoardIdArg,
     column_id: ColumnIdArg,
-    name: Annotated[str, typer.Option(help="New column name.")] = "",
+    name: Annotated[str | None, typer.Option(help="New column name.")] = None,
     status: Annotated[
         list[str] | None,
         typer.Option("--status", help="Replacement status key (repeatable)."),
@@ -56,7 +56,7 @@ def update(
     tracker: TrackerClient,
 ) -> Column:
     """Edit column COLUMN_ID on board BOARD_ID (PATCH) — only supplied fields are sent."""
-    body = ColumnUpdate(name=name or None, statuses=status or None)
+    body = ColumnUpdate(name=name, statuses=status or None)
     return tracker.columns.update(board_id, column_id, body)
 
 

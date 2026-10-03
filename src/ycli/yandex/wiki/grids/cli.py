@@ -56,7 +56,8 @@ RevisionOpt = Annotated[
     str, typer.Option("--revision", help="Current grid revision (optimistic lock).")
 ]
 OptionalRevisionOpt = Annotated[
-    str, typer.Option("--revision", help="Grid revision (this endpoint does not enforce it).")
+    str | None,
+    typer.Option("--revision", help="Grid revision (this endpoint does not enforce it)."),
 ]
 PositionOpt = Annotated[int | None, typer.Option("--position", help="Zero-based target index.")]
 
@@ -65,29 +66,33 @@ PositionOpt = Annotated[int | None, typer.Option("--position", help="Zero-based 
 def get(
     grid_id: GridIdArg,
     fields: Annotated[
-        str, typer.Option(help="Extra blocks, e.g. attributes,user_permissions.")
-    ] = "",
+        str | None, typer.Option(help="Extra blocks, e.g. attributes,user_permissions.")
+    ] = None,
     filter_: Annotated[
-        str, typer.Option("--filter", help="Row filter expr, e.g. [slug] ~ wiki.")
-    ] = "",
+        str | None, typer.Option("--filter", help="Row filter expr, e.g. [slug] ~ wiki.")
+    ] = None,
     only_cols: Annotated[
-        str, typer.Option("--only-cols", help="Only these column slugs (CSV).")
-    ] = "",
-    only_rows: Annotated[str, typer.Option("--only-rows", help="Only these row ids (CSV).")] = "",
-    revision: Annotated[str, typer.Option("--revision", help="Load a historical revision.")] = "",
-    sort: Annotated[str, typer.Option(help="Row sort, e.g. slug,-slug2.")] = "",
+        str | None, typer.Option("--only-cols", help="Only these column slugs (CSV).")
+    ] = None,
+    only_rows: Annotated[
+        str | None, typer.Option("--only-rows", help="Only these row ids (CSV).")
+    ] = None,
+    revision: Annotated[
+        str | None, typer.Option("--revision", help="Load a historical revision.")
+    ] = None,
+    sort: Annotated[str | None, typer.Option(help="Row sort, e.g. slug,-slug2.")] = None,
     *,
     wiki: WikiClient,
 ) -> Grid:
     """Fetch a grid by GRID_ID (GET /grids/{id}); read its revision to drive later writes."""
     return wiki.grids.get(
         grid_id,
-        fields=fields or None,
-        row_filter=filter_ or None,
-        only_cols=only_cols or None,
-        only_rows=only_rows or None,
-        revision=revision or None,
-        sort=sort or None,
+        fields=fields,
+        row_filter=filter_,
+        only_cols=only_cols,
+        only_rows=only_rows,
+        revision=revision,
+        sort=sort,
     )
 
 
@@ -95,16 +100,18 @@ def get(
 def create(
     title: Annotated[str, typer.Option(help="Title of the new grid.")],
     page_slug: Annotated[
-        str, typer.Option("--page-slug", help="Target page slug, e.g. data/x.")
-    ] = "",
-    page_id: Annotated[int, typer.Option("--page-id", help="Target page numeric id.")] = 0,
+        str | None, typer.Option("--page-slug", help="Target page slug, e.g. data/x.")
+    ] = None,
+    page_id: Annotated[
+        int | None, typer.Option("--page-id", help="Target page numeric id.")
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> Grid:
     """Create a grid on a page (POST /grids). Pass one of --page-slug / --page-id."""
-    if not page_id and not page_slug:
+    if page_id is None and page_slug is None:
         raise typer.BadParameter("provide --page-slug or --page-id")
-    page = PageIdentity(id=page_id) if page_id else PageIdentity(slug=page_slug)
+    page = PageIdentity(id=page_id) if page_id is not None else PageIdentity(slug=page_slug)
     body = GridCreate(title=title, page=page)
     return wiki.grids.create(body=body)
 
@@ -113,15 +120,15 @@ def create(
 def update(
     grid_id: GridIdArg,
     revision: RevisionOpt,
-    title: Annotated[str, typer.Option(help="New grid title.")] = "",
+    title: Annotated[str | None, typer.Option(help="New grid title.")] = None,
     default_sort: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--default-sort",
             help="New default sort as JSON in the write shape "
             '\'[{"<column_slug>": "asc"|"desc"}]\', e.g. \'[{"priority": "desc"}]\'.',
         ),
-    ] = "",
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> RevisionResult:
@@ -132,8 +139,8 @@ def update(
     """
     body = GridUpdate(
         revision=revision,
-        title=title or None,
-        default_sort=json.loads(default_sort) if default_sort else None,
+        title=title,
+        default_sort=json.loads(default_sort) if default_sort is not None else None,
     )
     return wiki.grids.update(grid_id, body=body)
 
@@ -150,7 +157,7 @@ def clone(
     target: Annotated[
         str, typer.Option("--target", help="Destination page slug (created if absent).")
     ],
-    title: Annotated[str, typer.Option(help="Title of the copy, if renaming.")] = "",
+    title: Annotated[str | None, typer.Option(help="Title of the copy, if renaming.")] = None,
     with_data: Annotated[
         bool, typer.Option("--with-data", help="Copy the rows too, not just the structure.")
     ] = False,
@@ -161,7 +168,7 @@ def clone(
     wiki: WikiClient,
 ) -> AsyncOperation | GridCloneOperationStatus:
     """Copy a grid onto another page (POST /grids/{id}/clone; async). --wait polls to completion."""
-    body = GridClone(target=target, title=title or None, with_data=with_data)
+    body = GridClone(target=target, title=title, with_data=with_data)
     operation = wiki.grids.clone(grid_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
@@ -183,8 +190,8 @@ def rows_add(
     ],
     position: PositionOpt = None,
     after_row_id: Annotated[
-        str, typer.Option("--after-row-id", help="Insert after this row id.")
-    ] = "",
+        str | None, typer.Option("--after-row-id", help="Insert after this row id.")
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> RowsAddResult:
@@ -193,7 +200,7 @@ def rows_add(
         revision=revision,
         rows=json.loads(rows),
         position=position,
-        after_row_id=after_row_id or None,
+        after_row_id=after_row_id,
     )
     return wiki.grids.rows_add(grid_id, body=body)
 
@@ -215,10 +222,12 @@ def rows_remove(
 def rows_move(
     grid_id: GridIdArg,
     revision: RevisionOpt,
-    row_id: Annotated[str, typer.Option("--row-id", help="Id of the first row to move.")] = "",
+    row_id: Annotated[
+        str | None, typer.Option("--row-id", help="Id of the first row to move.")
+    ] = None,
     after_row_id: Annotated[
-        str, typer.Option("--after-row-id", help="Move to just after this row id.")
-    ] = "",
+        str | None, typer.Option("--after-row-id", help="Move to just after this row id.")
+    ] = None,
     position: PositionOpt = None,
     rows_count: Annotated[
         int | None, typer.Option("--rows-count", help="How many consecutive rows to move.")
@@ -229,8 +238,8 @@ def rows_move(
     """Reorder rows in a grid (POST /grids/{id}/rows/move)."""
     body = RowsMove(
         revision=revision,
-        row_id=row_id or None,
-        after_row_id=after_row_id or None,
+        row_id=row_id,
+        after_row_id=after_row_id,
         position=position,
         rows_count=rows_count,
     )
@@ -282,8 +291,8 @@ def columns_move(
     grid_id: GridIdArg,
     revision: RevisionOpt,
     column_slug: Annotated[
-        str, typer.Option("--column-slug", help="Slug of the first column to move.")
-    ] = "",
+        str | None, typer.Option("--column-slug", help="Slug of the first column to move.")
+    ] = None,
     position: PositionOpt = None,
     columns_count: Annotated[
         int | None, typer.Option("--columns-count", help="How many consecutive columns to move.")
@@ -294,7 +303,7 @@ def columns_move(
     """Reorder columns in a grid (POST /grids/{id}/columns/move)."""
     body = ColumnsMove(
         revision=revision,
-        column_slug=column_slug or None,
+        column_slug=column_slug,
         position=position,
         columns_count=columns_count,
     )
@@ -324,19 +333,21 @@ def cells_update(
 def rows_update(
     grid_id: GridIdArg,
     row_id: Annotated[str, typer.Argument(metavar="ROW_ID", help="Id of the row to update.")],
-    revision: OptionalRevisionOpt = "",
+    revision: OptionalRevisionOpt = None,
     pinned: Annotated[
         bool | None, typer.Option("--pinned/--no-pinned", help="Pin or unpin the row.")
     ] = None,
-    color: Annotated[str, typer.Option("--color", help="Row background colour, e.g. mint.")] = "",
+    color: Annotated[
+        str | None, typer.Option("--color", help="Row background colour, e.g. mint.")
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> RowUpdateResult:
     """Pin or colour a row (POST /grids/{id}/rows/{row_id}; undocumented by Yandex)."""
     body = RowUpdate(
-        revision=revision or None,
+        revision=revision,
         pinned=pinned,
-        color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
+        color=color,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
     )
     return wiki.grids.rows_update(grid_id, row_id, body=body)
 
@@ -345,14 +356,14 @@ def rows_update(
 def columns_suggest(
     grid_id: GridIdArg,
     title: Annotated[
-        str, typer.Option("--title", help="Title to turn into a slug and check.")
-    ] = "",
-    slug: Annotated[str, typer.Option("--slug", help="Slug to check.")] = "",
+        str | None, typer.Option("--title", help="Title to turn into a slug and check.")
+    ] = None,
+    slug: Annotated[str | None, typer.Option("--slug", help="Slug to check.")] = None,
     *,
     wiki: WikiClient,
 ) -> ColumnSuggestion:
     """Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API)."""
-    body = ColumnSuggest(title=title or None, slug=slug or None)
+    body = ColumnSuggest(title=title, slug=slug)
     return wiki.grids.columns_suggest(grid_id, body=body)
 
 
@@ -362,16 +373,18 @@ def columns_update(
     column_slug: Annotated[
         str, typer.Argument(metavar="COLUMN_SLUG", help="Slug of the column to edit.")
     ],
-    revision: OptionalRevisionOpt = "",
-    title: Annotated[str, typer.Option("--title", help="New column header.")] = "",
-    description: Annotated[str, typer.Option("--description", help="New description.")] = "",
+    revision: OptionalRevisionOpt = None,
+    title: Annotated[str | None, typer.Option("--title", help="New column header.")] = None,
+    description: Annotated[
+        str | None, typer.Option("--description", help="New description.")
+    ] = None,
     required: Annotated[
         bool | None, typer.Option("--required/--no-required", help="Whether a value is mandatory.")
     ] = None,
     width: Annotated[int | None, typer.Option("--width", help="Column width.")] = None,
-    width_units: Annotated[str, typer.Option("--width-units", help="% or px.")] = "",
-    pinned: Annotated[str, typer.Option("--pinned", help="left or right.")] = "",
-    color: Annotated[str, typer.Option("--color", help="Column background colour.")] = "",
+    width_units: Annotated[str | None, typer.Option("--width-units", help="% or px.")] = None,
+    pinned: Annotated[str | None, typer.Option("--pinned", help="left or right.")] = None,
+    color: Annotated[str | None, typer.Option("--color", help="Column background colour.")] = None,
     select_options: Annotated[
         list[str] | None,
         typer.Option("--select-option", help="Allowed choice of a select column (repeatable)."),
@@ -384,14 +397,14 @@ def columns_update(
     Only the options given change; the column type and slug cannot be edited.
     """
     body = ColumnUpdate(
-        revision=revision or None,
-        title=title or None,
-        description=description or None,
+        revision=revision,
+        title=title,
+        description=description,
         required=required,
         width=width,
-        width_units=width_units or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the unit literal
-        pinned=pinned or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the edge literal
-        color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
+        width_units=width_units,  # ty: ignore[invalid-argument-type]  # pydantic validates the unit literal
+        pinned=pinned,  # ty: ignore[invalid-argument-type]  # pydantic validates the edge literal
+        color=color,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
         select_options=select_options,
     )
     return wiki.grids.columns_update(grid_id, column_slug, body=body)

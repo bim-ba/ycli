@@ -89,9 +89,11 @@ def create(
     initial_action: InitialActionOpt,
     step: StepOpt = None,
     workflow_id: Annotated[
-        str, typer.Option("--id", help="Identifier of the workflow (generated if omitted).")
-    ] = "",
-    queue: Annotated[str, typer.Option(help="Queue key to bind to (shared if omitted).")] = "",
+        str | None, typer.Option("--id", help="Identifier of the workflow (generated if omitted).")
+    ] = None,
+    queue: Annotated[
+        str | None, typer.Option(help="Queue key to bind to (shared if omitted).")
+    ] = None,
     visual: Annotated[
         bool, typer.Option("--visual", help="Send type VISUAL (the only type today).")
     ] = False,
@@ -108,9 +110,9 @@ def create(
     """
     body = WorkflowCreate.model_validate(
         {
-            "id": workflow_id or None,
+            "id": workflow_id,
             "name": name,
-            "queue": queue or None,
+            "queue": queue,
             "type": "VISUAL" if visual else None,
             "initialAction": _json(initial_action, "--initial-action"),
             "steps": _json_list(step, "--step") or [],
@@ -124,10 +126,10 @@ def create(
 def update(
     workflow_id: WorkflowIdArg,
     version: VersionOpt,
-    name: Annotated[str, typer.Option(help="New name of the workflow.")] = "",
+    name: Annotated[str | None, typer.Option(help="New name of the workflow.")] = None,
     initial_action: Annotated[
-        str, typer.Option("--initial-action", help="New initial action as a JSON object.")
-    ] = "",
+        str | None, typer.Option("--initial-action", help="New initial action as a JSON object.")
+    ] = None,
     step: StepOpt = None,
     visual: Annotated[
         bool, typer.Option("--visual", help="Send type VISUAL (the only type today).")
@@ -142,9 +144,11 @@ def update(
     """
     body = WorkflowUpdate.model_validate(
         {
-            "name": name or None,
+            "name": name,
             "type": "VISUAL" if visual else None,
-            "initialAction": _json(initial_action, "--initial-action") if initial_action else None,
+            "initialAction": _json(initial_action, "--initial-action")
+            if initial_action is not None
+            else None,
             "steps": _json_list(step, "--step"),
             "issueTypeResolutions": _json_list(issue_type_resolution, "--issue-type-resolution"),
         }
