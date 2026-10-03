@@ -1,4 +1,4 @@
-"""The listing transform, a lighter ``tools/list``, and the error of an unknown tool name.
+"""Listing transforms: a lighter ``tools/list``, and prompts and resources that follow their tools.
 
 ``tools/list`` of the full server is ~1.9 MB, 71% of it output schemas. The MCP spec makes
 ``outputSchema`` optional and a call still returns ``structuredContent`` without one, so the
@@ -12,11 +12,18 @@ import re
 from typing import TYPE_CHECKING, Any
 
 from fastmcp.server.transforms import Transform
+from fastmcp.server.transforms.visibility import is_enabled
+
+from ycli.yandex.mcp import NEEDS_TOOLS, REPEATS_TOOL
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Awaitable, Callable, Sequence
 
+    from fastmcp.prompts.base import Prompt
+    from fastmcp.resources.template import ResourceTemplate
+    from fastmcp.server.transforms import GetPromptNext, GetResourceTemplateNext
     from fastmcp.tools.base import Tool
+    from fastmcp.utilities.versions import VersionSpec
 
 _EXAMPLE_HEADER = re.compile(r"\s*Examples?:\s*$")
 _DOCTEST_PROMPT = re.compile(r"\s*>>>")
@@ -109,3 +116,72 @@ class LightListing(Transform):
 
 class UnknownToolError(ValueError):
     """A tool name in the selection that no mounted service serves."""
+
+
+class ServedWithTheirTools(Transform):
+    """Offers a prompt or a resource template only when the tools it is made of are served.
+
+    A prompt lists the tools its text names (``NEEDS_TOOLS``) and a resource template the read
+    tool it repeats (``REPEATS_TOOL``). One rule then covers every selection flag: with
+    ``--read-only`` a prompt that ends in a write disappears with its write tool, and with
+    ``--toolsets wiki`` so does a prompt that reads Tracker.
+
+    It sits before the search transform, so the tools it sees are the real ones. It learns them
+    from one listing it asks for itself: FastMCP also runs ``list_tools`` at startup over the
+    task-capable tools only, and that list says nothing about what is served.
+    """
+
+    def __init__(self, list_tools: Callable[[], Awaitable[object]]) -> None:
+        self._list_tools = list_tools
+        self._asking = False
+        self._served: frozenset[str] | None = None
+
+    async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The tools unchanged; the enabled ones are remembered when this transform asked."""
+        if self._asking:
+            self._served = frozenset(tool.name for tool in tools if is_enabled(tool))
+        return tools
+
+    async def served(self) -> frozenset[str]:
+        """The names of the tools this server serves (the selection never changes)."""
+        if self._served is None:
+            self._asking = True
+            try:
+                await self._list_tools()
+            finally:
+                self._asking = False
+        assert self._served is not None  # the listing above went through list_tools
+        return self._served
+
+    async def _offered(self, component: Prompt | ResourceTemplate) -> bool:
+        meta = component.meta or {}
+        needed = {*meta.get(NEEDS_TOOLS, ()), *filter(None, [meta.get(REPEATS_TOOL)])}
+        return needed <= await self.served()
+
+    async def list_prompts(self, prompts: Sequence[Prompt]) -> Sequence[Prompt]:
+        """The prompts whose every tool is served."""
+        return [prompt for prompt in prompts if await self._offered(prompt)]
+
+    async def get_prompt(
+        self, name: str, call_next: GetPromptNext, *, version: VersionSpec | None = None
+    ) -> Prompt | None:
+        """The prompt ``name``, or ``None`` when a tool it names is not served."""
+        prompt = await call_next(name, version=version)
+        return prompt if prompt is not None and await self._offered(prompt) else None
+
+    async def list_resource_templates(
+        self, templates: Sequence[ResourceTemplate]
+    ) -> Sequence[ResourceTemplate]:
+        """The resource templates whose read tool is served."""
+        return [template for template in templates if await self._offered(template)]
+
+    async def get_resource_template(
+        self,
+        uri: str,
+        call_next: GetResourceTemplateNext,
+        *,
+        version: VersionSpec | None = None,
+    ) -> ResourceTemplate | None:
+        """The template for ``uri``, or ``None`` when the read tool it repeats is not served."""
+        template = await call_next(uri, version=version)
+        return template if template is not None and await self._offered(template) else None

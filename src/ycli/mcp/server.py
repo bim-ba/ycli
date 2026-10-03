@@ -14,7 +14,7 @@ from fastmcp import FastMCP
 from fastmcp.server.transforms.search import BM25SearchTransform
 from pydantic import ValidationError
 
-from ycli.mcp.listing import LightListing, UnknownToolError
+from ycli.mcp.listing import LightListing, ServedWithTheirTools, UnknownToolError
 from ycli.mcp.profiles import STATUS_TOOL
 from ycli.mcp.selection import Selection
 from ycli.settings import (
@@ -24,7 +24,7 @@ from ycli.settings import (
     MCPHTTPConfig,
     OAuthAppConfig,
 )
-from ycli.yandex.mcp import WRITE_TAG
+from ycli.yandex.mcp import WRITE_TAG, guide
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.mcp import mcp as status_mcp
 
@@ -64,10 +64,24 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
             "have readOnlyHint=false and an explicit destructiveHint — treat destructiveHint=true "
             f"tools (delete/clear/abort) with care. Credentials come from the {OAUTH_TOKEN_ENV} "
             f"and {ORGANIZATION_ID_ENV} environment variables (over HTTP: the signed-in "
-            "caller's Yandex account)."
+            "caller's Yandex account). Each service has a guide to read before its first call, "
+            "as a resource: "
+            + ", ".join(f"ycli://{service.name}/guide" for service in mounted)
+            + "."
         ),
         auth=auth,
     )
+
+    @server.resource(
+        "ycli://guide",
+        name="guide",
+        title="How to work with Yandex 360 through ycli",
+        mime_type="text/markdown",
+    )
+    def root_guide() -> str:
+        """Where to start with Yandex 360 through ycli: access, and which service guide to read."""
+        return guide("ycli.mcp")
+
     for service in mounted:
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
@@ -80,6 +94,10 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
         server.disable(names=set(selection.exclude_tools))
     if selection.read_only:
         server.disable(tags={WRITE_TAG})
+    # `enable(only=True)` above hides prompts and resources too: they follow their tools
+    # instead (before the search transform, which replaces the tool listing).
+    server.enable(components={"prompt", "resource", "template"})
+    server.add_transform(ServedWithTheirTools(server.list_tools))
     if selection.tool_search:
         server.add_transform(BM25SearchTransform(always_visible=[STATUS_TOOL]))
     server.add_transform(LightListing())  # last, so it slims the search tools and their results too

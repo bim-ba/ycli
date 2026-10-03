@@ -6,6 +6,8 @@ from ycli.yandex.wiki.access.mcp import mcp as access_mcp
 from ycli.yandex.wiki.attachments.mcp import mcp as attachments_mcp
 from ycli.yandex.wiki.comments.mcp import mcp as comments_mcp
 from ycli.yandex.wiki.grids.mcp import mcp as grids_mcp
+from ycli.yandex.wiki.mcp.prompts import mcp as prompts_mcp
+from ycli.yandex.wiki.mcp.resources import mcp as mcp_resources_mcp
 from ycli.yandex.wiki.me.mcp import mcp as me_mcp
 from ycli.yandex.wiki.operations.mcp import mcp as operations_mcp
 from ycli.yandex.wiki.pages.mcp import mcp as pages_mcp
@@ -38,3 +40,5 @@ mcp.mount(search_mcp)
 mcp.mount(grids_mcp)
 mcp.mount(operations_mcp)
 mcp.mount(uploadsessions_mcp)
+mcp.mount(prompts_mcp)
+mcp.mount(mcp_resources_mcp)

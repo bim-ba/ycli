@@ -38,6 +38,12 @@ for service in SERVICES:
     with service.client_class()(oauth_token="smoke", organization_id="smoke"):
         pass
 
+# The MCP guides are links to the plugin's skills in the repository: the distribution must
+# hold the text itself, not a dangling link or a one-line path.
+for package in ("ycli.mcp", *(f"ycli.yandex.{service.name}.mcp" for service in SERVICES)):
+    guide = resources.files(package).joinpath("guide.md").read_text(encoding="utf-8")
+    assert guide.startswith("---\nname: yandex-360"), f"{package}: guide.md is not the skill"
+
 # The PEP 561 marker must survive the build into the installed package, or
 # downstream type checkers won't see ycli's types.
 assert resources.files("ycli").joinpath("py.typed").is_file(), "py.typed not shipped in the dist"
