@@ -69,7 +69,7 @@ def test_only_the_selected_services_are_imported():
         "from ycli.mcp.selection import Selection\n"
         "from ycli.mcp.server import build_server\n"
         "build_server(Selection(toolsets=('wiki',)))\n"
-        "assert 'ycli.yandex.wiki.mcp' in sys.modules\n"
+        "assert 'ycli.yandex.wiki.mcp.server' in sys.modules\n"
         "assert 'ycli.yandex.tracker.mcp' not in sys.modules\n"
         "assert 'ycli.yandex.forms.mcp' not in sys.modules\n"
     )

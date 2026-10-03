@@ -8,6 +8,6 @@ SERVICE = Service(
     help="Yandex Forms: surveys, questions, answers, publishing.",
     client="ycli.yandex.forms.client:FormsClient",
     cli="ycli.yandex.forms.cli:app",
-    mcp="ycli.yandex.forms.mcp:mcp",
+    mcp="ycli.yandex.forms.mcp.server:mcp",
     profile=ServiceProfile("https://api.forms.yandex.net/v1"),
 )

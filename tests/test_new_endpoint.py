@@ -123,3 +123,14 @@ def test_the_scaffolded_model_describes_every_field(scaffolded):
     model = importlib.import_module(f"{PACKAGE}.models").ScaffoldProbe
 
     assert all(field.description for field in model.model_fields.values())
+
+
+def test_a_reserved_name_is_refused_as_a_resource(monkeypatch, capsys):
+    """``<domain>/mcp/`` is the service's MCP server, so no resource can take the name."""
+    module = _load_scaffolder()
+    assert module.RESERVED_NAMES == architecture.RESERVED_NAMES
+    monkeypatch.setattr(sys, "argv", ["new_endpoint.py", "tracker", "mcp"])
+    with pytest.raises(SystemExit) as refused:
+        module.main()
+    assert refused.value.code == 2
+    assert "'mcp' is reserved" in capsys.readouterr().err

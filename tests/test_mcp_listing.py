@@ -8,7 +8,7 @@ from fastmcp import Client
 from tests.full_server import mcp
 from tests.hosts import TRACKER_BASE
 from ycli.mcp.listing import strip_examples
-from ycli.yandex.tracker.mcp import mcp as tracker_mcp
+from ycli.yandex.tracker.mcp.server import mcp as tracker_mcp
 
 
 @pytest.mark.parametrize(
