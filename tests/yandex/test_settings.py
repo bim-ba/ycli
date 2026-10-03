@@ -40,6 +40,11 @@ def test_app_config_reads_grouped_env(monkeypatch):
     assert config.logging.level == "DEBUG"
 
 
+def test_an_empty_setting_reads_as_unset(monkeypatch):
+    monkeypatch.setenv("YCLI__HTTP__RETRIES", "")
+    assert AppConfig().http.retries == 3
+
+
 def test_app_config_keyword_arguments_win():
     """The #90 bug: ``AppConfig(timeout_seconds=5)`` used to be silently ignored."""
     config = AppConfig(http={"timeout_seconds": 5, "retries": 0})  # ty: ignore[invalid-argument-type]

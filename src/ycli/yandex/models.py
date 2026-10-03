@@ -77,7 +77,7 @@ class APIModel(BaseModel):
         {'createdAt': 'today'}
     """
 
-    model_config = ConfigDict(extra="ignore", populate_by_name=True, serialize_by_alias=True)
+    model_config = ConfigDict(extra="ignore", validate_by_name=True, serialize_by_alias=True)
 
 
 class WarnsOnIgnored(APIModel):

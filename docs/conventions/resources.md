@@ -20,7 +20,7 @@ class MyModel(APIModel): ...
 ```
 
 `APIModel` sets `extra="ignore"` (unknown API fields are silently dropped),
-`populate_by_name=True` (a field may be set by its Python name *or* its serialization
+`validate_by_name=True` (a field may be set by its Python name *or* its serialization
 alias) and `serialize_by_alias=True` (every dump, CLI and MCP alike, keeps the API's field
 names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`; a bare mapping with no
 fields of its own is a `RootModel[dict[...]]`.

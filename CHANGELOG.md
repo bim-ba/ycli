@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.46.1 (2026-10-03)
+
+### Bug Fixes
+
+- **config**: An empty YCLI__ variable reads as unset, and the settings models share one base
+  ([#245](https://github.com/bim-ba/ycli/pull/245),
+  [`2968f9a`](https://github.com/bim-ba/ycli/commit/2968f9a5a197bed8c6fd10607b6732fcc69e7e40))
+
+### Build System
+
+- Re-lock uv.lock for 0.46.0
+  ([`38394b2`](https://github.com/bim-ba/ycli/commit/38394b26914ef47b9c36582d02164fa9853c75c1))
+
+### Chores
+
+- The docs fetcher no longer re-implements cloning the Yandex Cloud docs
+  ([#244](https://github.com/bim-ba/ycli/pull/244),
+  [`f619483`](https://github.com/bim-ba/ycli/commit/f619483b73da8b69db231f0f2c79d6b2aee085ec))
+
+### Refactoring
+
+- Status codes by name, and the core's boolean arguments by keyword
+  ([#243](https://github.com/bim-ba/ycli/pull/243),
+  [`241a9c0`](https://github.com/bim-ba/ycli/commit/241a9c024f28a2b81ffdfc9d6ea6c37be5c3c00c))
+
+
 ## v0.46.0 (2026-10-03)
 
 ### Build System
