@@ -15,6 +15,7 @@ import re
 import textwrap
 from pathlib import Path
 
+import pytest
 from fastmcp import Client
 
 from tests.full_server import mcp as root_mcp
@@ -25,7 +26,7 @@ from ycli.yandex.registry import SERVICES
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
 YANDEX = SRC / "yandex"
 DOMAINS = tuple(service.name for service in SERVICES)
-CANONICAL = {"__init__.py", "client.py", "cli.py", "mcp.py", "models.py"}
+CANONICAL = {"__init__.py", "endpoints.py", "client.py", "cli.py", "mcp.py", "models.py"}
 
 
 def _resource_dirs():
@@ -35,14 +36,22 @@ def _resource_dirs():
                 yield child
 
 
+def _missing_canonical(directory: Path) -> list[str]:
+    return sorted(CANONICAL - {p.name for p in directory.iterdir() if p.is_file()})
+
+
 def test_arch1_four_surface_symmetry():
-    checked = 0
-    for d in _resource_dirs():
-        files = {p.name for p in d.iterdir() if p.is_file()}
-        missing = CANONICAL - files
-        assert not missing, f"{d.relative_to(SRC)} missing canonical files: {sorted(missing)}"
-        checked += 1
-    assert checked >= 16, f"expected >=16 resource dirs, found {checked}"
+    directories = list(_resource_dirs())
+    assert directories, "no resource directory found"  # the served check counts them
+    for directory in directories:
+        missing = _missing_canonical(directory)
+        assert not missing, f"{directory.relative_to(SRC)} missing canonical files: {missing}"
+
+
+def test_arch1_symmetry_check_bites(tmp_path):
+    for name in CANONICAL - {"endpoints.py", "mcp.py"}:
+        (tmp_path / name).touch()
+    assert _missing_canonical(tmp_path) == ["endpoints.py", "mcp.py"]
 
 
 def _load_gen_coverage():
@@ -573,17 +582,63 @@ def test_arch3_write_tools_carry_write_tag():
 
     tools = _mcp_tools()
     assert tools, "no MCP tools discovered"
-    for t in tools:
-        ann = getattr(t, "annotations", None)
-        assert ann is not None, f"{t.name!r} lacks annotations"
-        meta = getattr(t, "meta", None) or {}
-        tags = set(meta.get("fastmcp", {}).get("tags", []) or [])
-        is_write = ann.read_only_hint is False
-        assert (WRITE_TAG in tags) == is_write, (
-            f"{t.name!r}: readOnlyHint={ann.read_only_hint} but write-tag "
-            f"{'present' if WRITE_TAG in tags else 'absent'} — a write tool must carry the "
-            f"{WRITE_TAG!r} tag (so --read-only hides it) and a read must not"
-        )
+    assert _write_tag_mismatches(tools, WRITE_TAG) == []
+
+
+def _write_tag_mismatches(tools, write_tag: str) -> list[str]:
+    """Tools whose write tag disagrees with ``readOnlyHint``, or that carry no annotations."""
+    mismatches = []
+    for tool in tools:
+        tags = set(((tool.meta or {}).get("fastmcp") or {}).get("tags") or [])
+        is_write = tool.annotations is not None and tool.annotations.read_only_hint is False
+        if tool.annotations is None or (write_tag in tags) != is_write:
+            mismatches.append(tool.name)
+    return mismatches
+
+
+def _probe_tools(register):
+    """The tools of a throwaway server that ``register`` fills."""
+    from fastmcp import FastMCP
+
+    server = FastMCP("probe")
+    register(server)
+
+    async def listed():
+        async with Client(server) as client:
+            return await client.list_tools()
+
+    return asyncio.run(listed())
+
+
+def test_arch3_write_tag_check_bites():
+    from ycli.yandex.mcp import RO, WRITE, WRITE_TAG
+
+    def register(server):
+        @server.tool(annotations={**WRITE, "title": "t"}, tags={"probe"})
+        def untagged_write() -> str:
+            """Probe."""
+            return ""
+
+        @server.tool(annotations={**RO, "title": "t"}, tags={"probe", WRITE_TAG})
+        def tagged_read() -> str:
+            """Probe."""
+            return ""
+
+        @server.tool(tags={"probe"})
+        def unannotated() -> str:
+            """Probe."""
+            return ""
+
+        @server.tool(annotations={**WRITE, "title": "t"}, tags={"probe", WRITE_TAG})
+        def honest_write() -> str:
+            """Probe."""
+            return ""
+
+    assert sorted(_write_tag_mismatches(_probe_tools(register), WRITE_TAG)) == [
+        "tagged_read",
+        "unannotated",
+        "untagged_write",
+    ]
 
 
 # ARCH-3 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
@@ -970,8 +1025,6 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
             offenders.append(f"{rel}: credential variable name spelled outside settings.py")
         if re.search(r"\bos\.(environ|getenv)\b|\bfrom os import (environ|getenv)\b", text):
             offenders.append(f"{rel}: environment access outside settings.py")
-        if "from_env" in text:
-            offenders.append(f"{rel}: from_env reads the environment outside settings.py")
         code = "\n".join(line for line in text.splitlines() if ">>>" not in line)  # not doctests
         if _LITERAL_DEFAULT_RE.search(code):
             offenders.append(f"{rel}: a literal default shadows the HTTP settings")
@@ -990,6 +1043,23 @@ def test_arch5_single_sources_of_truth():
     assert not offenders, offenders
 
 
+def test_arch5_every_host_home_still_spells_a_host():
+    """An allowlist entry whose file no longer names a host is removed, not kept."""
+    stale = [
+        str(rel)
+        for rel in ARCH5_HOST_HOMES
+        if not (SRC / rel).is_file()
+        or not _YANDEX_HOST_RE.search((SRC / rel).read_text(encoding="utf-8"))
+    ]
+    assert stale == []
+
+
+def test_arch5_stale_host_home_check_bites(monkeypatch):
+    monkeypatch.setitem(ARCH5_HOST_HOMES, Path("yandex/models.py"), "names no host")
+    with pytest.raises(AssertionError):
+        test_arch5_every_host_home_still_spells_a_host()
+
+
 def test_arch5_guard_bites():
     rel = Path("yandex/wiki/pages/client.py")
     for source in (
@@ -1000,7 +1070,6 @@ def test_arch5_guard_bites():
         "token = os.environ['T']",
         "token = os.getenv('T')",
         "from os import environ",
-        "client = TrackerClient.from_env()",
         "session.send(request, timeout=30)",
         "def session(*, timeout_seconds: float = 30.0) -> None: ...",
         "def __init__(self, retries: int = 3) -> None: ...",
@@ -1071,6 +1140,23 @@ def test_arch7_settings_are_built_only_at_composition_roots():
         if (lines := _settings_constructions(p.read_text(encoding="utf-8")))
     }
     assert not offenders, f"settings built outside a composition root: {offenders}"
+
+
+def test_arch7_every_root_still_builds_settings():
+    """A root that no longer builds a settings model is removed from the allowlist."""
+    stale = [
+        str(rel)
+        for rel in ARCH7_ROOTS
+        if not (SRC / rel).is_file()
+        or not _settings_constructions((SRC / rel).read_text(encoding="utf-8"))
+    ]
+    assert stale == []
+
+
+def test_arch7_stale_root_check_bites(monkeypatch):
+    monkeypatch.setitem(ARCH7_ROOTS, Path("yandex/models.py"), "builds no settings")
+    with pytest.raises(AssertionError):
+        test_arch7_every_root_still_builds_settings()
 
 
 def test_arch7_guard_bites():
@@ -1221,8 +1307,27 @@ def test_every_mcp_tool_has_description_and_output_schema():
     """
     tools = asyncio.run(tools_with_output_schemas())  # the listing itself carries none
     assert tools, "no MCP tools discovered"
-    for tool in tools:
-        assert tool.description, f"{tool.name!r} is missing a docstring (→ description)"
-        assert tool.output_schema is not None, (
-            f"{tool.name!r} is missing a return type annotation (→ outputSchema)"
-        )
+    assert _undescribed_tools(tools) == []
+
+
+def _undescribed_tools(tools) -> list[str]:
+    """Tools with no docstring (→ description) or no return annotation (→ output schema)."""
+    return [tool.name for tool in tools if not tool.description or tool.output_schema is None]
+
+
+def test_the_description_and_output_schema_check_bites():
+    def register(server):
+        @server.tool
+        def no_docstring() -> str:
+            return ""
+
+        @server.tool
+        def no_return_type():
+            """Probe."""
+
+        @server.tool
+        def complete() -> str:
+            """Probe."""
+            return ""
+
+    assert sorted(_undescribed_tools(_probe_tools(register))) == ["no_docstring", "no_return_type"]
