@@ -13,7 +13,6 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
 from ycli.yandex.models import Ack, ItemList
@@ -147,7 +146,6 @@ def create(
     return tracker.entities.create(type_.value, body=body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     type_: TypeArg,
@@ -229,7 +227,6 @@ def search(
     return tracker.entities.search(type_.value, body, fields=fields or None)
 
 
-@deprecated_alias(app, "history")
 @app.command()
 def events_list(
     type_: TypeArg,
@@ -242,7 +239,6 @@ def events_list(
     return tracker.entities.history(type_.value, entity_id, limit=limit or None)
 
 
-@deprecated_alias(app, "permissions")
 @app.command()
 def permissions_get(
     type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient
@@ -276,7 +272,6 @@ def set_permissions(
     return tracker.entities.set_permissions(type_.value, entity_id, body=body)
 
 
-@deprecated_alias(app, "direct-permissions")
 @app.command("direct-permissions-get")
 def direct_permissions_get(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Acl:
     """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
@@ -308,7 +303,6 @@ def set_direct_permissions(
     return tracker.entities.set_direct_permissions(type_.value, entity_id, body)
 
 
-@deprecated_alias(app, "bulk")
 @app.command()
 def bulk_update(
     type_: TypeArg,
@@ -326,7 +320,6 @@ def bulk_update(
     return tracker.entities.bulk_update(type_.value, body=body)
 
 
-@deprecated_alias(app, "bulk-status")
 @app.command("bulk-status-get")
 def bulk_status_get(
     operation_id: Annotated[str, typer.Argument(metavar="OPERATION_ID", help="Bulk-change id.")],
@@ -416,7 +409,6 @@ def comments_create(
     return tracker.entities.comments_create(type_.value, entity_id, body=body)
 
 
-@deprecated_alias(comments_app, "edit")
 @comments_app.command("update")
 def comments_update(
     type_: TypeArg,
@@ -480,7 +472,6 @@ def checklists_create(
     return tracker.entities.checklists_create(type_.value, entity_id, body=items)
 
 
-@deprecated_alias(checklists_app, "edit")
 @checklists_app.command("update")
 def checklists_update(
     type_: TypeArg,
@@ -507,7 +498,6 @@ def checklists_update(
     return tracker.entities.checklists_edit(type_.value, entity_id, body=items)
 
 
-@deprecated_alias(checklists_app, "edit-item")
 @checklists_app.command("update-item")
 def checklists_update_item(
     type_: TypeArg,

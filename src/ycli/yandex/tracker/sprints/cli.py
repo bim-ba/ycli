@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.sprints.models import Sprint, SprintBoardInput, SprintCreate, SprintUpdate
@@ -54,7 +53,6 @@ def create(
     return tracker.sprints.create(body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     sprint_id: SprintIdArg,

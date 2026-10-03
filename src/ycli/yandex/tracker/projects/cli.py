@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectStatus, ProjectUpdate
@@ -76,7 +75,6 @@ def create(
     return tracker.projects.create(body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     project_id: ProjectIdArg,

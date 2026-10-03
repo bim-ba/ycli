@@ -7,7 +7,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
@@ -53,7 +52,6 @@ def create(
     return tracker.macros.create(queue_id, macro)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     queue_id: QueueIdArg,

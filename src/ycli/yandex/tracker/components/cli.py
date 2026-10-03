@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.components.models import (
@@ -57,7 +56,6 @@ def create(
     return tracker.components.create(body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     component_id: Annotated[
@@ -114,7 +112,6 @@ def delete(component_id: ComponentIdArg, *, tracker: TrackerClient) -> Ack:
     return Ack.deleted("component", component_id)
 
 
-@deprecated_alias(app, "user-permissions")
 @app.command("user-permissions-get")
 def user_permissions_get(
     component_id: ComponentIdArg,
@@ -128,7 +125,6 @@ def user_permissions_get(
     return tracker.components.user_permissions(component_id, user_id)
 
 
-@deprecated_alias(app, "group-permissions")
 @app.command("group-permissions-get")
 def group_permissions_get(
     component_id: ComponentIdArg,

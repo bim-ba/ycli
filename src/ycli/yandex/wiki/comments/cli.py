@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList
@@ -37,7 +36,6 @@ def list_(
     return wiki.comments.list(page_id=page_id, limit=cap)
 
 
-@deprecated_alias(app, "thread")
 @app.command()
 def thread_list(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],

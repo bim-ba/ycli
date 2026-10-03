@@ -7,7 +7,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
@@ -61,21 +60,18 @@ def get(
     return tracker.queues.get(queue_id, expand=expand or None)
 
 
-@deprecated_alias(app, "tags")
 @app.command()
 def tags_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[str]:
     """List the tags added to QUEUE_ID."""
     return tracker.queues.tags(queue_id)
 
 
-@deprecated_alias(app, "versions")
 @app.command()
 def versions_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueVersionInfo]:
     """List the versions defined on QUEUE_ID."""
     return tracker.queues.versions(queue_id)
 
 
-@deprecated_alias(app, "fields")
 @app.command()
 def fields_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueField]:
     """List the required/local fields of QUEUE_ID."""
@@ -131,7 +127,6 @@ def restore(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Queue:
     return tracker.queues.restore(queue_id)
 
 
-@deprecated_alias(app, "permissions")
 @app.command()
 def set_permissions(
     queue_id: QueueIdArg,
@@ -205,7 +200,6 @@ def version_get(
     return tracker.queues.version_get(version_id, fields=fields or None)
 
 
-@deprecated_alias(app, "version-edit")
 @app.command("version-update")
 def version_update(
     version_id: VersionIdArg,
@@ -238,7 +232,6 @@ def version_delete(version_id: VersionIdArg, *, tracker: TrackerClient) -> Ack:
     return Ack.deleted("version", version_id)
 
 
-@deprecated_alias(app, "user-permissions")
 @app.command("user-permissions-get")
 def user_permissions_get(
     queue_id: QueueIdArg,
@@ -252,7 +245,6 @@ def user_permissions_get(
     return tracker.queues.user_permissions(queue_id, user_id)
 
 
-@deprecated_alias(app, "group-permissions")
 @app.command("group-permissions-get")
 def group_permissions_get(
     queue_id: QueueIdArg,

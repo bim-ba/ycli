@@ -11,7 +11,6 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.workflows.models import (
@@ -121,7 +120,6 @@ def create(
     return tracker.workflows.create(body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     workflow_id: WorkflowIdArg,
@@ -154,7 +152,6 @@ def update(
     return tracker.workflows.edit(workflow_id, body, version=version)
 
 
-@deprecated_alias(app, "edit-action")
 @app.command("update-action")
 def update_action(
     workflow_id: WorkflowIdArg,

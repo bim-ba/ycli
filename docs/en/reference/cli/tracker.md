@@ -392,7 +392,6 @@ $ ycli tracker comments [OPTIONS] COMMAND [ARGS]...
 * `get`: Print comment COMMENT_ID of issue KEY.
 * `add`: Add a comment to issue KEY.
 * `update`: Edit comment COMMENT_ID on issue KEY.
-* `edit`: Edit comment COMMENT_ID on issue KEY. (DEPRECATED)
 * `delete`: Delete comment COMMENT_ID from issue KEY.
 * `react`: Add reaction NAME to comment COMMENT_ID on...
 
@@ -475,30 +474,6 @@ Edit comment COMMENT_ID on issue KEY.
 
 ```console
 $ ycli tracker comments update [OPTIONS] KEY COMMENT_ID
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-* `COMMENT_ID`: Comment id (numeric id or longId).  [required]
-
-**Options**:
-
-* `--text TEXT`: New comment text (YFM markdown supported).  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker comments edit`
-
-Edit comment COMMENT_ID on issue KEY.
-
-**Usage**:
-
-```console
-$ ycli tracker comments edit [OPTIONS] KEY COMMENT_ID
 ```
 
 **Arguments**:
@@ -763,9 +738,7 @@ $ ycli tracker worklog [OPTIONS] COMMAND [ARGS]...
 * `search`: Search org-wide worklog by author and/or...
 * `global-list`: List org-wide worklog via GET /worklog...
 * `create`: Log time spent on issue KEY (POST...
-* `add`: Log time spent on issue KEY (POST... (DEPRECATED)
 * `update`: Edit worklog RECORD_ID on issue KEY — only...
-* `edit`: Edit worklog RECORD_ID on issue KEY — only... (DEPRECATED)
 * `delete`: Delete worklog RECORD_ID from issue KEY.
 
 ### `ycli tracker worklog list`
@@ -859,31 +832,6 @@ $ ycli tracker worklog create [OPTIONS] KEY
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker worklog add`
-
-Log time spent on issue KEY (POST /issues/{key}/worklog).
-
-**Usage**:
-
-```console
-$ ycli tracker worklog add [OPTIONS] KEY
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-
-**Options**:
-
-* `--duration TEXT`: Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).  [required]
-* `--start TEXT`: Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted.
-* `--comment TEXT`: Optional note saved in the time report.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker worklog update`
 
 Edit worklog RECORD_ID on issue KEY — only supplied fields are sent.
@@ -892,31 +840,6 @@ Edit worklog RECORD_ID on issue KEY — only supplied fields are sent.
 
 ```console
 $ ycli tracker worklog update [OPTIONS] KEY RECORD_ID
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-* `RECORD_ID`: Worklog record id to edit/delete.  [required]
-
-**Options**:
-
-* `--duration TEXT`: New time spent, ISO-8601 duration.
-* `--comment TEXT`: New note for the time report.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker worklog edit`
-
-Edit worklog RECORD_ID on issue KEY — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker worklog edit [OPTIONS] KEY RECORD_ID
 ```
 
 **Arguments**:
@@ -1017,9 +940,7 @@ $ ycli tracker checklists [OPTIONS] COMMAND [ARGS]...
 
 * `get`: List the checklist items on issue KEY.
 * `create`: Add a checklist item to issue KEY (creates...
-* `add`: Add a checklist item to issue KEY (creates... (DEPRECATED)
 * `update`: Edit checklist item ITEM_ID on issue KEY —...
-* `edit`: Edit checklist item ITEM_ID on issue KEY —... (DEPRECATED)
 * `delete`: Delete checklist item ITEM_ID from issue KEY.
 * `clear`: Delete the entire checklist from issue KEY.
 
@@ -1071,32 +992,6 @@ $ ycli tracker checklists create [OPTIONS] KEY
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker checklists add`
-
-Add a checklist item to issue KEY (creates the checklist if absent).
-
-**Usage**:
-
-```console
-$ ycli tracker checklists add [OPTIONS] KEY
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-
-**Options**:
-
-* `--text TEXT`: Item text.  [required]
-* `--checked / --no-checked`: Done flag.
-* `--assignee TEXT`: Assignee login or id.
-* `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker checklists update`
 
 Edit checklist item ITEM_ID on issue KEY — only supplied fields are sent.
@@ -1105,33 +1000,6 @@ Edit checklist item ITEM_ID on issue KEY — only supplied fields are sent.
 
 ```console
 $ ycli tracker checklists update [OPTIONS] KEY ITEM_ID
-```
-
-**Arguments**:
-
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-* `ITEM_ID`: Checklist item id.  [required]
-
-**Options**:
-
-* `--text TEXT`: Item text.
-* `--checked / --no-checked`: Done flag.
-* `--assignee TEXT`: Assignee login or id.
-* `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker checklists edit`
-
-Edit checklist item ITEM_ID on issue KEY — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker checklists edit [OPTIONS] KEY ITEM_ID
 ```
 
 **Arguments**:
@@ -1216,7 +1084,6 @@ $ ycli tracker columns [OPTIONS] COMMAND [ARGS]...
 * `get`: Get one column COLUMN_ID on board BOARD_ID.
 * `create`: Create a column on board BOARD_ID (POST...
 * `update`: Edit column COLUMN_ID on board BOARD_ID...
-* `edit`: Edit column COLUMN_ID on board BOARD_ID... (DEPRECATED)
 * `delete`: Delete column COLUMN_ID on board BOARD_ID...
 
 ### `ycli tracker columns list`
@@ -1313,31 +1180,6 @@ $ ycli tracker columns update [OPTIONS] BOARD_ID COLUMN_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker columns edit`
-
-Edit column COLUMN_ID on board BOARD_ID (PATCH) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker columns edit [OPTIONS] BOARD_ID COLUMN_ID
-```
-
-**Arguments**:
-
-* `BOARD_ID`: Numeric board identifier.  [required]
-* `COLUMN_ID`: Numeric column identifier.  [required]
-
-**Options**:
-
-* `--name TEXT`: New column name.
-* `--status TEXT`: Replacement status key (repeatable).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker columns delete`
 
 Delete column COLUMN_ID on board BOARD_ID (DELETE /boards/{board_id}/columns/{column_id}).
@@ -1380,7 +1222,6 @@ $ ycli tracker priorities [OPTIONS] COMMAND [ARGS]...
 * `list`: List all priorities.
 * `create`: Create a priority (POST /priorities/).
 * `update`: Edit priority PRIORITY_ID (PATCH...
-* `edit`: Edit priority PRIORITY_ID (PATCH... (DEPRECATED)
 
 ### `ycli tracker priorities list`
 
@@ -1449,32 +1290,6 @@ $ ycli tracker priorities update [OPTIONS] PRIORITY_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker priorities edit`
-
-Edit priority PRIORITY_ID (PATCH /priorities/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker priorities edit [OPTIONS] PRIORITY_ID
-```
-
-**Arguments**:
-
-* `PRIORITY_ID`: Priority id or key.  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New priority name in Russian.
-* `--name-en TEXT`: New priority name in English.
-* `--description TEXT`: New description of the priority.
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker issuetypes`
 
 Tracker issue types.
@@ -1494,7 +1309,6 @@ $ ycli tracker issuetypes [OPTIONS] COMMAND [ARGS]...
 * `list`: List all issue types.
 * `create`: Create an issue type (POST /issuetypes/).
 * `update`: Edit issue type ISSUE_TYPE_ID (PATCH...
-* `edit`: Edit issue type ISSUE_TYPE_ID (PATCH... (DEPRECATED)
 
 ### `ycli tracker issuetypes list`
 
@@ -1543,31 +1357,6 @@ Edit issue type ISSUE_TYPE_ID (PATCH /issuetypes/{id}?version=).
 
 ```console
 $ ycli tracker issuetypes update [OPTIONS] ISSUE_TYPE_ID
-```
-
-**Arguments**:
-
-* `ISSUE_TYPE_ID`: Issue type id or key.  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New issue type name in Russian.
-* `--name-en TEXT`: New issue type name in English.
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker issuetypes edit`
-
-Edit issue type ISSUE_TYPE_ID (PATCH /issuetypes/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker issuetypes edit [OPTIONS] ISSUE_TYPE_ID
 ```
 
 **Arguments**:
@@ -1703,7 +1492,6 @@ $ ycli tracker statuses [OPTIONS] COMMAND [ARGS]...
 * `list`: List all issue statuses.
 * `create`: Create an issue status (POST /statuses/).
 * `update`: Edit issue status STATUS_ID (PATCH...
-* `edit`: Edit issue status STATUS_ID (PATCH... (DEPRECATED)
 
 ### `ycli tracker statuses list`
 
@@ -1773,34 +1561,6 @@ $ ycli tracker statuses update [OPTIONS] STATUS_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker statuses edit`
-
-Edit issue status STATUS_ID (PATCH /statuses/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker statuses edit [OPTIONS] STATUS_ID
-```
-
-**Arguments**:
-
-* `STATUS_ID`: Status id or key.  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New status name in Russian.
-* `--name-en TEXT`: New status name in English.
-* `--description TEXT`: New status description.
-* `--type TEXT`: New status type.
-* `--order INTEGER`: New display-order weight.
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker resolutions`
 
 Tracker issue resolutions.
@@ -1820,7 +1580,6 @@ $ ycli tracker resolutions [OPTIONS] COMMAND [ARGS]...
 * `list`: List all issue resolutions.
 * `create`: Create an issue resolution (POST...
 * `update`: Edit issue resolution RESOLUTION_ID (PATCH...
-* `edit`: Edit issue resolution RESOLUTION_ID (PATCH... (DEPRECATED)
 
 ### `ycli tracker resolutions list`
 
@@ -1888,33 +1647,6 @@ $ ycli tracker resolutions update [OPTIONS] RESOLUTION_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker resolutions edit`
-
-Edit issue resolution RESOLUTION_ID (PATCH /resolutions/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker resolutions edit [OPTIONS] RESOLUTION_ID
-```
-
-**Arguments**:
-
-* `RESOLUTION_ID`: Resolution id or key.  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New resolution name in Russian.
-* `--name-en TEXT`: New resolution name in English.
-* `--description TEXT`: New resolution description.
-* `--order INTEGER`: New display-order weight.
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker queues`
 
 Tracker queues.
@@ -1934,26 +1666,19 @@ $ ycli tracker queues [OPTIONS] COMMAND [ARGS]...
 * `list`: List all queues (auto-paginated over...
 * `get`: Print one queue's settings for QUEUE_ID.
 * `tags-list`: List the tags added to QUEUE_ID.
-* `tags`: List the tags added to QUEUE_ID. (DEPRECATED)
 * `versions-list`: List the versions defined on QUEUE_ID.
-* `versions`: List the versions defined on QUEUE_ID. (DEPRECATED)
 * `fields-list`: List the required/local fields of QUEUE_ID.
-* `fields`: List the required/local fields of QUEUE_ID. (DEPRECATED)
 * `create`: Create a queue (POST /queues/).
 * `delete`: Delete QUEUE_ID (DELETE /queues/{queue_id}).
 * `restore`: Restore a deleted QUEUE_ID (POST...
 * `set-permissions`: Manage access to QUEUE_ID (PATCH...
-* `permissions`: Manage access to QUEUE_ID (PATCH... (DEPRECATED)
 * `tag-remove`: Remove TAG from QUEUE_ID (POST...
 * `version-create`: Create a queue version (POST /versions/).
 * `version-get`: Print queue version VERSION_ID (GET...
 * `version-update`: Edit queue version VERSION_ID (PATCH...
-* `version-edit`: Edit queue version VERSION_ID (PATCH... (DEPRECATED)
 * `version-delete`: Delete queue version VERSION_ID (DELETE...
 * `user-permissions-get`: Show what USER may do in QUEUE_ID (GET...
-* `user-permissions`: Show what USER may do in QUEUE_ID (GET... (DEPRECATED)
 * `group-permissions-get`: Show what GROUP_ID may do in QUEUE_ID (GET...
-* `group-permissions`: Show what GROUP_ID may do in QUEUE_ID (GET... (DEPRECATED)
 
 ### `ycli tracker queues list`
 
@@ -2020,28 +1745,6 @@ $ ycli tracker queues tags-list [OPTIONS] QUEUE_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues tags`
-
-List the tags added to QUEUE_ID.
-
-**Usage**:
-
-```console
-$ ycli tracker queues tags [OPTIONS] QUEUE_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker queues versions-list`
 
 List the versions defined on QUEUE_ID.
@@ -2064,28 +1767,6 @@ $ ycli tracker queues versions-list [OPTIONS] QUEUE_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues versions`
-
-List the versions defined on QUEUE_ID.
-
-**Usage**:
-
-```console
-$ ycli tracker queues versions [OPTIONS] QUEUE_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker queues fields-list`
 
 List the required/local fields of QUEUE_ID.
@@ -2094,28 +1775,6 @@ List the required/local fields of QUEUE_ID.
 
 ```console
 $ ycli tracker queues fields-list [OPTIONS] QUEUE_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker queues fields`
-
-List the required/local fields of QUEUE_ID.
-
-**Usage**:
-
-```console
-$ ycli tracker queues fields [OPTIONS] QUEUE_ID
 ```
 
 **Arguments**:
@@ -2209,35 +1868,6 @@ Each scope is a JSON object of users/groups/roles, e.g.
 
 ```console
 $ ycli tracker queues set-permissions [OPTIONS] QUEUE_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-
-**Options**:
-
-* `--create TEXT`: Create-issue permission scope as a JSON object.
-* `--write TEXT`: Edit-issue permission scope as a JSON object.
-* `--read TEXT`: Read-issue permission scope as a JSON object.
-* `--grant TEXT`: Change-settings permission scope as a JSON object.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker queues permissions`
-
-Manage access to QUEUE_ID (PATCH /queues/{queue_id}/permissions).
-
-Each scope is a JSON object of users/groups/roles, e.g.
---grant '{"roles": {"add": ["author"]}}'. Pass at least one scope.
-
-**Usage**:
-
-```console
-$ ycli tracker queues permissions [OPTIONS] QUEUE_ID
 ```
 
 **Arguments**:
@@ -2352,33 +1982,6 @@ $ ycli tracker queues version-update [OPTIONS] VERSION_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues version-edit`
-
-Edit queue version VERSION_ID (PATCH /versions/{id}); only the given options change.
-
-**Usage**:
-
-```console
-$ ycli tracker queues version-edit [OPTIONS] VERSION_ID
-```
-
-**Arguments**:
-
-* `VERSION_ID`: Numeric id of the queue version.  [required]
-
-**Options**:
-
-* `--name TEXT`: New name of the version.
-* `--description TEXT`: New description of the version.
-* `--start-date TEXT`: New version start date (YYYY-MM-DD).
-* `--due-date TEXT`: New version due date (YYYY-MM-DD).
-* `--fields TEXT`: Comma-separated fields to return, e.g. name,dueDate,released.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker queues version-delete`
 
 Delete queue version VERSION_ID (DELETE /versions/{id}).
@@ -2424,29 +2027,6 @@ $ ycli tracker queues user-permissions-get [OPTIONS] QUEUE_ID USER
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker queues user-permissions`
-
-Show what USER may do in QUEUE_ID (GET /queues/{id}/permissions/users/{user}).
-
-**Usage**:
-
-```console
-$ ycli tracker queues user-permissions [OPTIONS] QUEUE_ID USER
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `USER`: Login or numeric uid of the user.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker queues group-permissions-get`
 
 Show what GROUP_ID may do in QUEUE_ID (GET /queues/{id}/permissions/groups/{group}).
@@ -2455,29 +2035,6 @@ Show what GROUP_ID may do in QUEUE_ID (GET /queues/{id}/permissions/groups/{grou
 
 ```console
 $ ycli tracker queues group-permissions-get [OPTIONS] QUEUE_ID GROUP_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `GROUP_ID`: Numeric id of the group.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker queues group-permissions`
-
-Show what GROUP_ID may do in QUEUE_ID (GET /queues/{id}/permissions/groups/{group}).
-
-**Usage**:
-
-```console
-$ ycli tracker queues group-permissions [OPTIONS] QUEUE_ID GROUP_ID
 ```
 
 **Arguments**:
@@ -2513,7 +2070,6 @@ $ ycli tracker localfields [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one local field FIELD_KEY of queue...
 * `create`: Create a local field in queue QUEUE_ID...
 * `update`: Edit local field FIELD_KEY of queue...
-* `edit`: Edit local field FIELD_KEY of queue... (DEPRECATED)
 
 ### `ycli tracker localfields list`
 
@@ -2625,39 +2181,6 @@ $ ycli tracker localfields update [OPTIONS] QUEUE_ID FIELD_KEY
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker localfields edit`
-
-Edit local field FIELD_KEY of queue QUEUE_ID (PATCH …/localFields/{key}; no version lock).
-
-**Usage**:
-
-```console
-$ ycli tracker localfields edit [OPTIONS] QUEUE_ID FIELD_KEY
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `FIELD_KEY`: Local field key (from `localfields list`).  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New field name in Russian.
-* `--name-en TEXT`: New field name in English.
-* `--category TEXT`: New category id.
-* `--description TEXT`: New description of the local field.
-* `--order INTEGER`: New position in the field list.
-* `--readonly / --no-readonly`: Read-only value.
-* `--visible / --no-visible`: Always show the field.
-* `--hidden / --no-hidden`: Fully hide the field.
-* `--option TEXT`: Allowed drop-down value (repeatable).
-* `--options-type TEXT`: Drop-down provider type for --option values.  [default: FixedListOptionsProvider]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker fields`
 
 Tracker global fields.
@@ -2678,10 +2201,8 @@ $ ycli tracker fields [OPTIONS] COMMAND [ARGS]...
 * `get`: Get parameters of one issue field by...
 * `create`: Create a global field (POST /fields).
 * `update`: Edit a global field FIELD_ID — rename...
-* `edit`: Edit a global field FIELD_ID — rename... (DEPRECATED)
 * `category-create`: Create a field category (POST...
 * `category-update`: Edit a field category CATEGORY_ID (PATCH...
-* `category-edit`: Edit a field category CATEGORY_ID (PATCH... (DEPRECATED)
 
 ### `ycli tracker fields list`
 
@@ -2778,33 +2299,6 @@ $ ycli tracker fields update [OPTIONS] FIELD_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker fields edit`
-
-Edit a global field FIELD_ID — rename and/or change options (PATCH /fields/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker fields edit [OPTIONS] FIELD_ID
-```
-
-**Arguments**:
-
-* `FIELD_ID`: Identifier of the field.  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New field name in Russian.
-* `--name-en TEXT`: New field name in English.
-* `--option TEXT`: Allowed drop-down value (repeatable).
-* `--options-type TEXT`: Drop-down provider type for --option values.  [default: FixedListOptionsProvider]
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker fields category-create`
 
 Create a field category (POST /fields/categories).
@@ -2854,33 +2348,6 @@ $ ycli tracker fields category-update [OPTIONS] CATEGORY_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker fields category-edit`
-
-Edit a field category CATEGORY_ID (PATCH /fields/categories/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker fields category-edit [OPTIONS] CATEGORY_ID
-```
-
-**Arguments**:
-
-* `CATEGORY_ID`: Identifier of the field category.  [required]
-
-**Options**:
-
-* `--name-ru TEXT`: New category name in Russian.
-* `--name-en TEXT`: New category name in English.
-* `--order INTEGER`: New display-order weight.
-* `--description TEXT`: New description of the category.
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker components`
 
 Tracker components.
@@ -2900,14 +2367,11 @@ $ ycli tracker components [OPTIONS] COMMAND [ARGS]...
 * `list`: List all components created in the...
 * `create`: Create a component (POST /components).
 * `update`: Edit component COMPONENT_ID (PATCH...
-* `edit`: Edit component COMPONENT_ID (PATCH... (DEPRECATED)
 * `list-for-queue`: List the components of one queue (GET...
 * `get`: Print component COMPONENT_ID (GET...
 * `delete`: Delete component COMPONENT_ID (DELETE...
 * `user-permissions-get`: Show what USER may do on a component (GET...
-* `user-permissions`: Show what USER may do on a component (GET... (DEPRECATED)
 * `group-permissions-get`: Show what GROUP_ID may do on a component...
-* `group-permissions`: Show what GROUP_ID may do on a component... (DEPRECATED)
 
 ### `ycli tracker components list`
 
@@ -2958,33 +2422,6 @@ Edit component COMPONENT_ID (PATCH /components/{id}?version=).
 
 ```console
 $ ycli tracker components update [OPTIONS] COMPONENT_ID
-```
-
-**Arguments**:
-
-* `COMPONENT_ID`: Numeric id of the component.  [required]
-
-**Options**:
-
-* `--name TEXT`: New display name of the component.
-* `--description TEXT`: New text description of the component.
-* `--lead TEXT`: New login of the component's owner (lead).
-* `--assign-auto / --no-assign-auto`: Auto-assign the owner to issues.
-* `--version INTEGER`: Current version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker components edit`
-
-Edit component COMPONENT_ID (PATCH /components/{id}?version=).
-
-**Usage**:
-
-```console
-$ ycli tracker components edit [OPTIONS] COMPONENT_ID
 ```
 
 **Arguments**:
@@ -3095,29 +2532,6 @@ $ ycli tracker components user-permissions-get [OPTIONS] COMPONENT_ID USER
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker components user-permissions`
-
-Show what USER may do on a component (GET /components/{id}/permissions/users/{user}).
-
-**Usage**:
-
-```console
-$ ycli tracker components user-permissions [OPTIONS] COMPONENT_ID USER
-```
-
-**Arguments**:
-
-* `COMPONENT_ID`: Numeric id of the component.  [required]
-* `USER`: Login or numeric uid of the user.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker components group-permissions-get`
 
 Show what GROUP_ID may do on a component (…/permissions/groups/{group}).
@@ -3126,29 +2540,6 @@ Show what GROUP_ID may do on a component (…/permissions/groups/{group}).
 
 ```console
 $ ycli tracker components group-permissions-get [OPTIONS] COMPONENT_ID GROUP_ID
-```
-
-**Arguments**:
-
-* `COMPONENT_ID`: Numeric id of the component.  [required]
-* `GROUP_ID`: Numeric id of the group.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker components group-permissions`
-
-Show what GROUP_ID may do on a component (…/permissions/groups/{group}).
-
-**Usage**:
-
-```console
-$ ycli tracker components group-permissions [OPTIONS] COMPONENT_ID GROUP_ID
 ```
 
 **Arguments**:
@@ -3183,7 +2574,6 @@ $ ycli tracker filters [OPTIONS] COMMAND [ARGS]...
 * `get`: Get parameters of one saved filter by...
 * `create`: Create a saved filter (POST /filters/).
 * `update`: Edit filter FILTER_ID (PATCH...
-* `edit`: Edit filter FILTER_ID (PATCH... (DEPRECATED)
 * `delete`: Delete saved filter FILTER_ID (DELETE...
 
 ### `ycli tracker filters get`
@@ -3237,31 +2627,6 @@ Edit filter FILTER_ID (PATCH /filters/{id}) — no version lock; filter is repla
 
 ```console
 $ ycli tracker filters update [OPTIONS] FILTER_ID
-```
-
-**Arguments**:
-
-* `FILTER_ID`: Identifier of the saved filter.  [required]
-
-**Options**:
-
-* `--name TEXT`: New display name of the filter.
-* `--query TEXT`: New filtering conditions in query language.
-* `--filter TEXT`: Replacement filtering conditions as a JSON object.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker filters edit`
-
-Edit filter FILTER_ID (PATCH /filters/{id}) — no version lock; filter is replaced whole.
-
-**Usage**:
-
-```console
-$ ycli tracker filters edit [OPTIONS] FILTER_ID
 ```
 
 **Arguments**:
@@ -3357,7 +2722,6 @@ $ ycli tracker boards [OPTIONS] COMMAND [ARGS]...
 * `get`: Get one agile board by BOARD_ID.
 * `create`: Create an agile board (POST /liveBoards/).
 * `update`: Edit an agile board BOARD_ID (PATCH...
-* `edit`: Edit an agile board BOARD_ID (PATCH... (DEPRECATED)
 * `delete`: Delete an agile board BOARD_ID (DELETE...
 
 ### `ycli tracker boards list`
@@ -3450,31 +2814,6 @@ $ ycli tracker boards update [OPTIONS] BOARD_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker boards edit`
-
-Edit an agile board BOARD_ID (PATCH /boards/{board_id}) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker boards edit [OPTIONS] BOARD_ID
-```
-
-**Arguments**:
-
-* `BOARD_ID`: Numeric board identifier.  [required]
-
-**Options**:
-
-* `--name TEXT`: New board name.
-* `--backlog / --no-backlog`: Enable the board backlog.
-* `--sprints / --no-sprints`: Enable board sprints.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker boards delete`
 
 Delete an agile board BOARD_ID (DELETE /boards/{board_id}).
@@ -3517,7 +2856,6 @@ $ ycli tracker sprints [OPTIONS] COMMAND [ARGS]...
 * `get`: Get one sprint by SPRINT_ID.
 * `create`: Create a sprint (POST /sprints).
 * `update`: Edit a sprint SPRINT_ID (PATCH...
-* `edit`: Edit a sprint SPRINT_ID (PATCH... (DEPRECATED)
 * `delete`: Delete a sprint SPRINT_ID (DELETE...
 * `start`: Start a sprint SPRINT_ID (POST...
 * `archive`: Archive a sprint SPRINT_ID (POST...
@@ -3596,33 +2934,6 @@ Edit a sprint SPRINT_ID (PATCH /sprints/{id}?version=) — only supplied fields 
 
 ```console
 $ ycli tracker sprints update [OPTIONS] SPRINT_ID
-```
-
-**Arguments**:
-
-* `SPRINT_ID`: Numeric sprint identifier.  [required]
-
-**Options**:
-
-* `--name TEXT`: New sprint name.
-* `--start-date TEXT`: New start date (YYYY-MM-DD).
-* `--end-date TEXT`: New end date (YYYY-MM-DD).
-* `--status TEXT`: New status: draft/in_progress/released/archived.
-* `--version INTEGER`: Current sprint version for the optimistic lock (?version=).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker sprints edit`
-
-Edit a sprint SPRINT_ID (PATCH /sprints/{id}?version=) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker sprints edit [OPTIONS] SPRINT_ID
 ```
 
 **Arguments**:
@@ -3918,7 +3229,6 @@ $ ycli tracker macros [OPTIONS] COMMAND [ARGS]...
 * `get`: Get macro MACRO_ID of QUEUE_ID.
 * `create`: Create a macro on QUEUE_ID (POST...
 * `update`: Edit macro MACRO_ID of QUEUE_ID (PATCH) —...
-* `edit`: Edit macro MACRO_ID of QUEUE_ID (PATCH) —... (DEPRECATED)
 * `delete`: Delete macro MACRO_ID of QUEUE_ID (DELETE).
 
 ### `ycli tracker macros list`
@@ -4017,32 +3327,6 @@ $ ycli tracker macros update [OPTIONS] QUEUE_ID MACRO_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker macros edit`
-
-Edit macro MACRO_ID of QUEUE_ID (PATCH) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker macros edit [OPTIONS] QUEUE_ID MACRO_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `MACRO_ID`: Numeric macro identifier.  [required]
-
-**Options**:
-
-* `--name TEXT`: New name of the macro.
-* `--body TEXT`: New comment text created when the macro runs.
-* `--issue-update TEXT`: Replacement field→value issue changes as a JSON object.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker macros delete`
 
 Delete macro MACRO_ID of QUEUE_ID (DELETE).
@@ -4086,9 +3370,7 @@ $ ycli tracker triggers [OPTIONS] COMMAND [ARGS]...
 * `get`: Get trigger TRIGGER_ID of QUEUE_ID.
 * `create`: Create a trigger on QUEUE_ID (POST...
 * `update`: Edit trigger TRIGGER_ID of QUEUE_ID (PATCH...
-* `edit`: Edit trigger TRIGGER_ID of QUEUE_ID (PATCH... (DEPRECATED)
 * `webhook-log-list`: List the HTTP-action (Webhook) run logs of...
-* `webhook-log`: List the HTTP-action (Webhook) run logs of... (DEPRECATED)
 
 ### `ycli tracker triggers list`
 
@@ -4194,34 +3476,6 @@ $ ycli tracker triggers update [OPTIONS] QUEUE_ID TRIGGER_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker triggers edit`
-
-Edit trigger TRIGGER_ID of QUEUE_ID (PATCH ...?version=) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker triggers edit [OPTIONS] QUEUE_ID TRIGGER_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `TRIGGER_ID`: Numeric trigger identifier.  [required]
-
-**Options**:
-
-* `--name TEXT`: New name of the trigger.
-* `--action TEXT`: Trigger action as a JSON object (repeatable).
-* `--condition TEXT`: Trigger condition as a JSON object (repeatable).
-* `--active / --inactive`: Activate or disable the trigger.
-* `--version INTEGER`: Current trigger version (optimistic lock).  [default: 0]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker triggers webhook-log-list`
 
 List the HTTP-action (Webhook) run logs of trigger TRIGGER_ID.
@@ -4230,33 +3484,6 @@ List the HTTP-action (Webhook) run logs of trigger TRIGGER_ID.
 
 ```console
 $ ycli tracker triggers webhook-log-list [OPTIONS] QUEUE_ID TRIGGER_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `TRIGGER_ID`: Numeric trigger identifier.  [required]
-
-**Options**:
-
-* `--issue-id TEXT`: Scope the logs to one issue key/id.
-* `--limit INTEGER`: Max records (API default 10, max 100).  [default: 0]
-* `--from TEXT`: Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).
-* `--to TEXT`: Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker triggers webhook-log`
-
-List the HTTP-action (Webhook) run logs of trigger TRIGGER_ID.
-
-**Usage**:
-
-```console
-$ ycli tracker triggers webhook-log [OPTIONS] QUEUE_ID TRIGGER_ID
 ```
 
 **Arguments**:
@@ -4295,9 +3522,7 @@ $ ycli tracker autoactions [OPTIONS] COMMAND [ARGS]...
 * `get`: Get autoaction ACTION_ID of QUEUE_ID.
 * `create`: Create an autoaction on QUEUE_ID (POST...
 * `logs-list`: List the run summaries of autoaction...
-* `logs`: List the run summaries of autoaction... (DEPRECATED)
 * `logs-get`: List the per-issue outcomes of run RUN_ID...
-* `log-detail`: List the per-issue outcomes of run RUN_ID... (DEPRECATED)
 
 ### `ycli tracker autoactions get`
 
@@ -4378,29 +3603,6 @@ $ ycli tracker autoactions logs-list [OPTIONS] QUEUE_ID ACTION_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker autoactions logs`
-
-List the run summaries of autoaction ACTION_ID.
-
-**Usage**:
-
-```console
-$ ycli tracker autoactions logs [OPTIONS] QUEUE_ID ACTION_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `ACTION_ID`: Numeric autoaction identifier.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker autoactions logs-get`
 
 List the per-issue outcomes of run RUN_ID of autoaction ACTION_ID.
@@ -4409,30 +3611,6 @@ List the per-issue outcomes of run RUN_ID of autoaction ACTION_ID.
 
 ```console
 $ ycli tracker autoactions logs-get [OPTIONS] QUEUE_ID ACTION_ID RUN_ID
-```
-
-**Arguments**:
-
-* `QUEUE_ID`: Queue key (case-sensitive) or numeric id.  [required]
-* `ACTION_ID`: Numeric autoaction identifier.  [required]
-* `RUN_ID`: Autoaction run identifier.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker autoactions log-detail`
-
-List the per-issue outcomes of run RUN_ID of autoaction ACTION_ID.
-
-**Usage**:
-
-```console
-$ ycli tracker autoactions log-detail [OPTIONS] QUEUE_ID ACTION_ID RUN_ID
 ```
 
 **Arguments**:
@@ -4470,7 +3648,6 @@ $ ycli tracker bulk [OPTIONS] COMMAND [ARGS]...
 * `transition`: Mass status transition (POST...
 * `get`: Print the current status of bulk-change...
 * `issues-list`: List issues that a bulk change failed on...
-* `issues`: List issues that a bulk change failed on... (DEPRECATED)
 
 ### `ycli tracker bulk update`
 
@@ -4581,28 +3758,6 @@ List issues that a bulk change failed on (GET /bulkchange/{id}/issues).
 
 ```console
 $ ycli tracker bulk issues-list [OPTIONS] BULK_ID
-```
-
-**Arguments**:
-
-* `BULK_ID`: Bulk-change operation id from a trigger.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker bulk issues`
-
-List issues that a bulk change failed on (GET /bulkchange/{id}/issues).
-
-**Usage**:
-
-```console
-$ ycli tracker bulk issues [OPTIONS] BULK_ID
 ```
 
 **Arguments**:
@@ -4905,7 +4060,6 @@ $ ycli tracker dashboards [OPTIONS] COMMAND [ARGS]...
 
 * `create`: Create a dashboard (POST /dashboards/).
 * `add-cycle-time-widget`: Add a cycle-time widget to DASHBOARD_ID...
-* `add-widget`: Add a widget to a dashboard.
 
 ### `ycli tracker dashboards create`
 
@@ -4955,51 +4109,6 @@ $ ycli tracker dashboards add-cycle-time-widget [OPTIONS] DASHBOARD_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker dashboards add-widget`
-
-Add a widget to a dashboard.
-
-**Usage**:
-
-```console
-$ ycli tracker dashboards add-widget [OPTIONS] COMMAND [ARGS]...
-```
-
-**Options**:
-
-* `--help`: Show this message and exit.
-
-**Commands**:
-
-* `cycletime`: Add a cycle-time widget to DASHBOARD_ID... (DEPRECATED)
-
-#### `ycli tracker dashboards add-widget cycletime`
-
-Add a cycle-time widget to DASHBOARD_ID (POST /dashboards/{id}/widgets/cycleTime).
-
-**Usage**:
-
-```console
-$ ycli tracker dashboards add-widget cycletime [OPTIONS] DASHBOARD_ID
-```
-
-**Arguments**:
-
-* `DASHBOARD_ID`: Target dashboard id.  [required]
-
-**Options**:
-
-* `--description TEXT`: Widget name.  [required]
-* `--query TEXT`: Query-language filter selecting issues.
-* `--from-status TEXT`: Status key work starts from (repeatable).
-* `--to-status TEXT`: Status key work ends at (repeatable).
-* `--mode TEXT`: Display mode, e.g. common-lines.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ## `ycli tracker entities`
 
 Tracker projects, portfolios and goals.
@@ -5019,21 +4128,15 @@ $ ycli tracker entities [OPTIONS] COMMAND [ARGS]...
 * `get`: Print a single entity...
 * `create`: Create an entity (POST /entities/TYPE).
 * `update`: Edit entity ID (PATCH /entities/TYPE/ID) —...
-* `edit`: Edit entity ID (PATCH /entities/TYPE/ID) —... (DEPRECATED)
 * `delete`: Delete entity ID (DELETE /entities/TYPE/ID).
 * `search`: Search entities of TYPE (POST...
 * `events-list`: Print an entity's event history (GET...
-* `history`: Print an entity's event history (GET... (DEPRECATED)
 * `permissions-get`: Print an entity's access settings (GET...
-* `permissions`: Print an entity's access settings (GET... (DEPRECATED)
 * `set-permissions`: Set an entity's access settings (PATCH...
 * `direct-permissions-get`: Print an entity's direct READ/WRITE/GRANT...
-* `direct-permissions`: Print an entity's direct READ/WRITE/GRANT... (DEPRECATED)
 * `set-direct-permissions`: Grant and revoke an entity's direct rights...
 * `bulk-update`: Mass-edit entities (POST...
-* `bulk`: Mass-edit entities (POST... (DEPRECATED)
 * `bulk-status-get`: Print a bulk-change operation's status...
-* `bulk-status`: Print a bulk-change operation's status... (DEPRECATED)
 * `create-report`: Build an issue report (POST...
 * `comments`: Entity comments.
 * `checklists`: Entity checklists.
@@ -5106,41 +4209,6 @@ Edit entity ID (PATCH /entities/TYPE/ID) — only supplied fields are sent.
 
 ```console
 $ ycli tracker entities update [OPTIONS] TYPE ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-
-**Options**:
-
-* `--summary TEXT`: New name.
-* `--description TEXT`: New description.
-* `--lead TEXT`: New responsible user id/login.
-* `--author TEXT`: New author user id/login.
-* `--status TEXT`: New entityStatus key.
-* `--start TEXT`: New start date.
-* `--end TEXT`: New deadline date.
-* `--parent TEXT`: New primary parent portfolio/goal id.
-* `--team-user TEXT`: Participant id/login (repeatable).
-* `--tag TEXT`: Tag (repeatable).
-* `--comment TEXT`: Comment to add with the change.
-* `-F, --field TEXT`: Extra fields entry key=value (JSON-coerced; repeatable).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker entities edit`
-
-Edit entity ID (PATCH /entities/TYPE/ID) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli tracker entities edit [OPTIONS] TYPE ID
 ```
 
 **Arguments**:
@@ -5244,30 +4312,6 @@ $ ycli tracker entities events-list [OPTIONS] TYPE ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities history`
-
-Print an entity's event history (GET …/events/_relative, auto-paginated).
-
-**Usage**:
-
-```console
-$ ycli tracker entities history [OPTIONS] TYPE ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-
-**Options**:
-
-* `--limit INTEGER`: Max events (0 = all).  [default: 0]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker entities permissions-get`
 
 Print an entity's access settings (GET …/extendedPermissions).
@@ -5276,29 +4320,6 @@ Print an entity's access settings (GET …/extendedPermissions).
 
 ```console
 $ ycli tracker entities permissions-get [OPTIONS] TYPE ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker entities permissions`
-
-Print an entity's access settings (GET …/extendedPermissions).
-
-**Usage**:
-
-```console
-$ ycli tracker entities permissions [OPTIONS] TYPE ID
 ```
 
 **Arguments**:
@@ -5365,29 +4386,6 @@ $ ycli tracker entities direct-permissions-get [OPTIONS] TYPE ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities direct-permissions`
-
-Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions).
-
-**Usage**:
-
-```console
-$ ycli tracker entities direct-permissions [OPTIONS] TYPE ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker entities set-direct-permissions`
 
 Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke.
@@ -5438,31 +4436,6 @@ $ ycli tracker entities bulk-update [OPTIONS] TYPE
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker entities bulk`
-
-Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle.
-
-**Usage**:
-
-```console
-$ ycli tracker entities bulk [OPTIONS] TYPE
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-
-**Options**:
-
-* `--entity TEXT`: Entity id (repeatable).  [required]
-* `--comment TEXT`: Comment to add to every entity.
-* `-F, --field TEXT`: Extra fields entry key=value (JSON-coerced; repeatable).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker entities bulk-status-get`
 
 Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID).
@@ -5471,28 +4444,6 @@ Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID).
 
 ```console
 $ ycli tracker entities bulk-status-get [OPTIONS] OPERATION_ID
-```
-
-**Arguments**:
-
-* `OPERATION_ID`: Bulk-change id.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker entities bulk-status`
-
-Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID).
-
-**Usage**:
-
-```console
-$ ycli tracker entities bulk-status [OPTIONS] OPERATION_ID
 ```
 
 **Arguments**:
@@ -5548,7 +4499,6 @@ $ ycli tracker entities comments [OPTIONS] COMMAND [ARGS]...
 * `get`: Get one comment on an entity (GET...
 * `create`: Add a comment to an entity (POST …/comments).
 * `update`: Edit a comment on an entity (PATCH...
-* `edit`: Edit a comment on an entity (PATCH... (DEPRECATED)
 * `delete`: Delete a comment from an entity (DELETE...
 
 #### `ycli tracker entities comments list`
@@ -5650,31 +4600,6 @@ $ ycli tracker entities comments update [OPTIONS] TYPE ID COMMENT_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-#### `ycli tracker entities comments edit`
-
-Edit a comment on an entity (PATCH …/comments/COMMENT_ID).
-
-**Usage**:
-
-```console
-$ ycli tracker entities comments edit [OPTIONS] TYPE ID COMMENT_ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-* `COMMENT_ID`: Comment id.  [required]
-
-**Options**:
-
-* `--text TEXT`: New comment text.  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 #### `ycli tracker entities comments delete`
 
 Delete a comment from an entity (DELETE …/comments/COMMENT_ID).
@@ -5717,9 +4642,7 @@ $ ycli tracker entities checklists [OPTIONS] COMMAND [ARGS]...
 
 * `create`: Add checklist items to an entity (POST...
 * `update`: Replace the whole checklist (PATCH...
-* `edit`: Replace the whole checklist (PATCH... (DEPRECATED)
 * `update-item`: Edit a single checklist item (PATCH...
-* `edit-item`: Edit a single checklist item (PATCH... (DEPRECATED)
 * `delete-item`: Remove one checklist item (DELETE...
 * `delete`: Clear the whole checklist (DELETE...
 * `move`: Reorder a checklist item (POST...
@@ -5775,33 +4698,6 @@ $ ycli tracker entities checklists update [OPTIONS] TYPE ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-#### `ycli tracker entities checklists edit`
-
-Replace the whole checklist (PATCH …/checklistItems) from repeated --item id=text.
-
-The text is sent verbatim — never JSON-coerced — and only the first ``=`` splits:
-``--item 5f=true`` sends the text ``true``, ``--item 6a=a=b`` sends ``a=b``.
-
-**Usage**:
-
-```console
-$ ycli tracker entities checklists edit [OPTIONS] TYPE ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-
-**Options**:
-
-* `--item TEXT`: Item as id=text (repeatable — replaces the whole checklist).  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 #### `ycli tracker entities checklists update-item`
 
 Edit a single checklist item (PATCH …/checklistItems/ITEM_ID).
@@ -5810,34 +4706,6 @@ Edit a single checklist item (PATCH …/checklistItems/ITEM_ID).
 
 ```console
 $ ycli tracker entities checklists update-item [OPTIONS] TYPE ID ITEM_ID
-```
-
-**Arguments**:
-
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
-* `ID`: Entity id (or shortId).  [required]
-* `ITEM_ID`: Checklist item id.  [required]
-
-**Options**:
-
-* `--text TEXT`: New item text.
-* `--checked / --no-checked`: Mark the item done or not done.
-* `--assignee TEXT`: Assignee user id/login.
-* `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-#### `ycli tracker entities checklists edit-item`
-
-Edit a single checklist item (PATCH …/checklistItems/ITEM_ID).
-
-**Usage**:
-
-```console
-$ ycli tracker entities checklists edit-item [OPTIONS] TYPE ID ITEM_ID
 ```
 
 **Arguments**:
@@ -6184,9 +5052,7 @@ $ ycli tracker workflows [OPTIONS] COMMAND [ARGS]...
 * `for-queue`: Show which workflow each issue type of...
 * `create`: Create a workflow (POST /workflows).
 * `update`: Edit workflow WORKFLOW_ID (PATCH...
-* `edit`: Edit workflow WORKFLOW_ID (PATCH... (DEPRECATED)
 * `update-action`: Edit one action of a workflow step (PATCH...
-* `edit-action`: Edit one action of a workflow step (PATCH... (DEPRECATED)
 * `delete`: Delete workflow WORKFLOW_ID (DELETE...
 
 ### `ycli tracker workflows list`
@@ -6311,36 +5177,6 @@ $ ycli tracker workflows update [OPTIONS] WORKFLOW_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli tracker workflows edit`
-
-Edit workflow WORKFLOW_ID (PATCH /workflows/{id}?version=); only given options change.
-
-Giving any --step replaces the whole step list.
-
-**Usage**:
-
-```console
-$ ycli tracker workflows edit [OPTIONS] WORKFLOW_ID
-```
-
-**Arguments**:
-
-* `WORKFLOW_ID`: Workflow id, e.g. quickStartV2PresetWorkflow.  [required]
-
-**Options**:
-
-* `--version INTEGER`: Current version of the workflow (optimistic lock); see `workflows get`.  [required]
-* `--name TEXT`: New name of the workflow.
-* `--initial-action TEXT`: New initial action as a JSON object.
-* `--step TEXT`: Step as a JSON object: status plus actions (repeatable).
-* `--visual`: Send type VISUAL (the only type today).
-* `--issue-type-resolution TEXT`: Resolutions of an issue type, e.g. '{"issueType":"task","resolutions":["fixed"]}' (repeatable).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli tracker workflows update-action`
 
 Edit one action of a workflow step (PATCH …/steps/{status}/actions/{action}).
@@ -6349,32 +5185,6 @@ Edit one action of a workflow step (PATCH …/steps/{status}/actions/{action}).
 
 ```console
 $ ycli tracker workflows update-action [OPTIONS] WORKFLOW_ID STATUS ACTION_ID
-```
-
-**Arguments**:
-
-* `WORKFLOW_ID`: Workflow id, e.g. quickStartV2PresetWorkflow.  [required]
-* `STATUS`: Key of the step the action leaves.  [required]
-* `ACTION_ID`: Id of the action.  [required]
-
-**Options**:
-
-* `--version INTEGER`: Current version of the workflow (optimistic lock); see `workflows get`.  [required]
-* `--action TEXT`: Action fields as a JSON object; Tracker requires name and target, e.g. '{"name":{"ru":"Закрыть"},"target":"closed"}'.  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker workflows edit-action`
-
-Edit one action of a workflow step (PATCH …/steps/{status}/actions/{action}).
-
-**Usage**:
-
-```console
-$ ycli tracker workflows edit-action [OPTIONS] WORKFLOW_ID STATUS ACTION_ID
 ```
 
 **Arguments**:
@@ -6436,7 +5246,6 @@ $ ycli tracker projects [OPTIONS] COMMAND [ARGS]...
 * `queues`: List the queues of project PROJECT_ID (GET...
 * `create`: Create a project (POST /projects).
 * `update`: Edit project PROJECT_ID (PUT...
-* `edit`: Edit project PROJECT_ID (PUT... (DEPRECATED)
 * `delete`: Delete project PROJECT_ID (DELETE...
 
 ### `ycli tracker projects list`
@@ -6537,37 +5346,6 @@ Edit project PROJECT_ID (PUT /projects/{id}?version=); only the given options ch
 
 ```console
 $ ycli tracker projects update [OPTIONS] PROJECT_ID
-```
-
-**Arguments**:
-
-* `PROJECT_ID`: Numeric id of the project.  [required]
-
-**Options**:
-
-* `--version INTEGER`: Current version of the project (required).  [required]
-* `--queues TEXT`: Key of the queue whose issues go into the project.  [required]
-* `--name TEXT`: New name of the project.
-* `--description TEXT`: Description of the project.
-* `--lead TEXT`: Login or id of the project's lead.
-* `--status [DRAFT|IN_PROGRESS|LAUNCHED|POSTPONED]`: Stage of the project.
-* `--start-date TEXT`: Start date (YYYY-MM-DD).
-* `--end-date TEXT`: End date (YYYY-MM-DD).
-* `--expand TEXT`: Extra blocks to include, e.g. queues.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli tracker projects edit`
-
-Edit project PROJECT_ID (PUT /projects/{id}?version=); only the given options change.
-
-**Usage**:
-
-```console
-$ ycli tracker projects edit [OPTIONS] PROJECT_ID
 ```
 
 **Arguments**:

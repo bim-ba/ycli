@@ -127,7 +127,6 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 * `get-by-id`: Fetch a page by numeric id (GET...
 * `descendants-by-id`: Print descendant slugs under a numeric...
 * `grids-list`: List dynamic tables (grids) attached to a...
-* `grids`: List dynamic tables (grids) attached to a... (DEPRECATED)
 * `create`: Create a wiki page (POST /pages).
 * `update`: Update a wiki page by id (POST /pages/{id}).
 * `delete`: Delete a wiki page (DELETE /pages/{id});...
@@ -135,9 +134,7 @@ $ ycli wiki pages [OPTIONS] COMMAND [ARGS]...
 * `clone`: Copy a page to a new address (POST...
 * `move`: Move or rename a page (POST /pages/move;...
 * `revisions-list`: List a page's saved revisions (GET...
-* `revisions`: List a page's saved revisions (GET... (DEPRECATED)
 * `backlinks-list`: List the pages that link to PAGE_ID (GET...
-* `backlinks`: List the pages that link to PAGE_ID (GET... (DEPRECATED)
 
 ### `ycli wiki pages get`
 
@@ -241,31 +238,6 @@ List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated).
 
 ```console
 $ ycli wiki pages grids-list [OPTIONS] PAGE_ID
-```
-
-**Arguments**:
-
-* `PAGE_ID`: Numeric page id.  [required]
-
-**Options**:
-
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
-* `--all`: Fetch everything, ignoring the cap.
-* `--order-by TEXT`: Sort field: title or created_at.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli wiki pages grids`
-
-List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated).
-
-**Usage**:
-
-```console
-$ ycli wiki pages grids [OPTIONS] PAGE_ID
 ```
 
 **Arguments**:
@@ -457,31 +429,6 @@ $ ycli wiki pages revisions-list [OPTIONS] PAGE_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli wiki pages revisions`
-
-List a page's saved revisions (GET /pages/{id}/revisions; undocumented by Yandex).
-
-**Usage**:
-
-```console
-$ ycli wiki pages revisions [OPTIONS] PAGE_ID
-```
-
-**Arguments**:
-
-* `PAGE_ID`: Numeric page id.  [required]
-
-**Options**:
-
-* `--ids TEXT`: Only these revision ids (comma separated).
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
-* `--all`: Fetch everything, ignoring the cap.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli wiki pages backlinks-list`
 
 List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by Yandex).
@@ -490,32 +437,6 @@ List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by 
 
 ```console
 $ ycli wiki pages backlinks-list [OPTIONS] PAGE_ID
-```
-
-**Arguments**:
-
-* `PAGE_ID`: Numeric page id.  [required]
-
-**Options**:
-
-* `--for-cluster`: Links to the page's whole subtree.
-* `--show-all`: The API's show_all flag (no effect seen live).
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
-* `--all`: Fetch everything, ignoring the cap.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli wiki pages backlinks`
-
-List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by Yandex).
-
-**Usage**:
-
-```console
-$ ycli wiki pages backlinks [OPTIONS] PAGE_ID
 ```
 
 **Arguments**:
@@ -677,7 +598,6 @@ $ ycli wiki comments [OPTIONS] COMMAND [ARGS]...
 
 * `list`: List comments on a page id (GET...
 * `thread-list`: Print the thread for COMMENT_ID on...
-* `thread`: Print the thread for COMMENT_ID on... (DEPRECATED)
 * `thread-get`: Print what the server returns as the...
 * `create`: Add a comment to a page (POST...
 * `delete`: Delete a comment (DELETE...
@@ -717,34 +637,6 @@ dead); the comment comes first, then its descendants chained by parent_id.
 
 ```console
 $ ycli wiki comments thread-list [OPTIONS] PAGE_ID COMMENT_ID
-```
-
-**Arguments**:
-
-* `PAGE_ID`: Numeric page id.  [required]
-* `COMMENT_ID`: Root comment id.  [required]
-
-**Options**:
-
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
-* `--all`: Fetch everything, ignoring the cap.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli wiki comments thread`
-
-Print the thread for COMMENT_ID on PAGE_ID: the comment plus its replies.
-
-Reconstructed from the page's comment list (the Wiki /thread endpoint, see `thread-get`, is
-dead); the comment comes first, then its descendants chained by parent_id.
-
-**Usage**:
-
-```console
-$ ycli wiki comments thread [OPTIONS] PAGE_ID COMMENT_ID
 ```
 
 **Arguments**:
@@ -1685,9 +1577,7 @@ $ ycli wiki operations [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `clone-get`: Print a page-clone operation's status (GET...
-* `clone`: Print a page-clone operation's status (GET... (DEPRECATED)
 * `gridclone-get`: Print a grid-clone operation's status (GET...
-* `gridclone`: Print a grid-clone operation's status (GET... (DEPRECATED)
 * `move-get`: Print a page-move operation's status (GET...
 
 ### `ycli wiki operations clone-get`
@@ -1712,28 +1602,6 @@ $ ycli wiki operations clone-get [OPTIONS] TASK_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli wiki operations clone`
-
-Print a page-clone operation's status (GET /operations/clone/{task_id}).
-
-**Usage**:
-
-```console
-$ ycli wiki operations clone [OPTIONS] TASK_ID
-```
-
-**Arguments**:
-
-* `TASK_ID`: Operation task id (from a clone or move trigger).  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli wiki operations gridclone-get`
 
 Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id}).
@@ -1742,28 +1610,6 @@ Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_i
 
 ```console
 $ ycli wiki operations gridclone-get [OPTIONS] TASK_ID
-```
-
-**Arguments**:
-
-* `TASK_ID`: Operation task id (from a clone or move trigger).  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli wiki operations gridclone`
-
-Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id}).
-
-**Usage**:
-
-```console
-$ ycli wiki operations gridclone [OPTIONS] TASK_ID
 ```
 
 **Arguments**:

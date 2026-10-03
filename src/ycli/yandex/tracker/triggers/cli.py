@@ -7,7 +7,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList
@@ -83,7 +82,6 @@ def create(
     return tracker.triggers.create(queue_id, body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     queue_id: QueueIdArg,
@@ -108,7 +106,6 @@ def update(
     return tracker.triggers.edit(queue_id, trigger_id, body, version=version or None)
 
 
-@deprecated_alias(app, "webhook-log")
 @app.command("webhook-log-list")
 def webhook_log_list(
     queue_id: QueueIdArg,

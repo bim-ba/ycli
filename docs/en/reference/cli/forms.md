@@ -131,7 +131,6 @@ $ ycli forms surveys [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one form's settings for SURVEY_ID.
 * `create`: Create a form (POST /surveys).
 * `update`: Modify form SURVEY_ID (PATCH...
-* `modify`: Modify form SURVEY_ID (PATCH... (DEPRECATED)
 * `delete`: Delete form SURVEY_ID (DELETE /surveys/{id}).
 * `publish`: Publish form SURVEY_ID (POST...
 * `unpublish`: Unpublish form SURVEY_ID (POST...
@@ -211,35 +210,6 @@ Modify form SURVEY_ID (PATCH /surveys/{id}) — only supplied fields are sent.
 
 ```console
 $ ycli forms surveys update [OPTIONS] SURVEY_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-
-**Options**:
-
-* `--name TEXT`: New form name.
-* `--language TEXT`: New interface language.
-* `--published / --no-published`: Publish / unpublish.
-* `--public / --no-public`: Toggle public fill.
-* `--need-auth / --no-need-auth`: Toggle sign-in requirement.
-* `--max-count INTEGER`: New response cap (0 = leave unchanged).  [default: 0]
-* `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli forms surveys modify`
-
-Modify form SURVEY_ID (PATCH /surveys/{id}) — only supplied fields are sent.
-
-**Usage**:
-
-```console
-$ ycli forms surveys modify [OPTIONS] SURVEY_ID
 ```
 
 **Arguments**:
@@ -347,7 +317,6 @@ $ ycli forms questions [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one question's settings (SURVEY_ID /...
 * `create`: Create a question (POST …/questions).
 * `update`: Modify a question (PATCH …/questions/{id})...
-* `modify`: Modify a question (PATCH …/questions/{id})... (DEPRECATED)
 * `delete`: Delete a question (DELETE...
 * `move`: Move a question (POST...
 
@@ -437,40 +406,6 @@ Modify a question (PATCH …/questions/{id}) — --type + flags, or --body-file 
 
 ```console
 $ ycli forms questions update [OPTIONS] SURVEY_ID QUESTION_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `QUESTION_ID`: Question id (integer), e.g. 17.  [required]
-
-**Options**:
-
-* `--type TEXT`: Question type: string/boolean/integer/date/enum.
-* `--label TEXT`: Question label / title.
-* `--slug TEXT`: Stable machine slug.
-* `--comment TEXT`: Question hint / helper text.
-* `--placeholder TEXT`: Placeholder text.
-* `--required / --no-required`: Answer required or not (sets the whole validators list: [required] or []).
-* `--hidden / --no-hidden`: Hide until conditions match.
-* `--multiline / --no-multiline`: Multiline text (string type).
-* `--widget TEXT`: Enum widget: radio/checkbox/dropdown/stars/onerow.
-* `--option TEXT`: Enum option label (repeatable).
-* `--body-file PATH`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli forms questions modify`
-
-Modify a question (PATCH …/questions/{id}) — --type + flags, or --body-file for full JSON.
-
-**Usage**:
-
-```console
-$ ycli forms questions modify [OPTIONS] SURVEY_ID QUESTION_ID
 ```
 
 **Arguments**:
@@ -594,7 +529,6 @@ $ ycli forms conditions question [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one condition group (SURVEY_ID...
 * `create`: Create a condition group on the question...
 * `update`: Replace condition group CONDITION_ID...
-* `modify`: Replace condition group CONDITION_ID... (DEPRECATED)
 * `delete`: Delete condition group CONDITION_ID...
 * `set-operator`: Set the operator BETWEEN the question's...
 
@@ -698,33 +632,6 @@ $ ycli forms conditions question update [OPTIONS] SURVEY_ID QUESTION_ID CONDITIO
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions question modify`
-
-Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial).
-
-**Usage**:
-
-```console
-$ ycli forms conditions question modify [OPTIONS] SURVEY_ID QUESTION_ID CONDITION_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `QUESTION_ID`: Question id (integer), e.g. 17.  [required]
-* `CONDITION_ID`: Condition group id (integer).  [required]
-
-**Options**:
-
-* `--operator TEXT`: Boolean operator: and | or.
-* `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 #### `ycli forms conditions question delete`
 
 Delete condition group CONDITION_ID (DELETE — the API answers 200, no body).
@@ -793,7 +700,6 @@ $ ycli forms conditions page [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one condition group (SURVEY_ID...
 * `create`: Create a condition group on the page (POST...
 * `update`: Replace condition group CONDITION_ID...
-* `modify`: Replace condition group CONDITION_ID... (DEPRECATED)
 * `delete`: Delete condition group CONDITION_ID...
 * `set-operator`: Set the operator BETWEEN the page's...
 
@@ -897,33 +803,6 @@ $ ycli forms conditions page update [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions page modify`
-
-Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial).
-
-**Usage**:
-
-```console
-$ ycli forms conditions page modify [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `PAGE_ID`: Page id (integer), from `questions list`.  [required]
-* `CONDITION_ID`: Condition group id (integer).  [required]
-
-**Options**:
-
-* `--operator TEXT`: Boolean operator: and | or.
-* `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 #### `ycli forms conditions page delete`
 
 Delete condition group CONDITION_ID (DELETE — the API answers 200, no body).
@@ -992,7 +871,6 @@ $ ycli forms conditions submit [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one condition group (SURVEY_ID...
 * `create`: Create a condition group on the submit...
 * `update`: Replace condition group CONDITION_ID...
-* `modify`: Replace condition group CONDITION_ID... (DEPRECATED)
 * `delete`: Delete condition group CONDITION_ID...
 * `set-operator`: Set the operator BETWEEN the submit...
 
@@ -1092,32 +970,6 @@ $ ycli forms conditions submit update [OPTIONS] SURVEY_ID CONDITION_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-#### `ycli forms conditions submit modify`
-
-Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial).
-
-**Usage**:
-
-```console
-$ ycli forms conditions submit modify [OPTIONS] SURVEY_ID CONDITION_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `CONDITION_ID`: Condition group id (integer).  [required]
-
-**Options**:
-
-* `--operator TEXT`: Boolean operator: and | or.
-* `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 #### `ycli forms conditions submit delete`
 
 Delete condition group CONDITION_ID (DELETE — the API answers 200, no body).
@@ -1184,7 +1036,6 @@ $ ycli forms conditions hook [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one condition group (SURVEY_ID...
 * `create`: Create a condition group on the...
 * `update`: Replace condition group CONDITION_ID...
-* `modify`: Replace condition group CONDITION_ID... (DEPRECATED)
 * `delete`: Delete condition group CONDITION_ID...
 * `set-operator`: Set the operator BETWEEN the integration...
 
@@ -1269,33 +1120,6 @@ Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no
 
 ```console
 $ ycli forms conditions hook update [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `HOOK_ID`: Integration group (hook) id (integer).  [required]
-* `CONDITION_ID`: Condition group id (integer).  [required]
-
-**Options**:
-
-* `--operator TEXT`: Boolean operator: and | or.
-* `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-#### `ycli forms conditions hook modify`
-
-Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial).
-
-**Usage**:
-
-```console
-$ ycli forms conditions hook modify [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 ```
 
 **Arguments**:
@@ -1547,7 +1371,6 @@ $ ycli forms answers [OPTIONS] COMMAND [ARGS]...
 * `list`: List a form's responses (auto-paginated;...
 * `export`: Export a form's answers (POST...
 * `integrations-list`: List the integration runs an answer...
-* `integrations`: List the integration runs an answer... (DEPRECATED)
 * `delete`: Delete an answer (DELETE...
 * `restore`: Bring a deleted answer back (POST...
 
@@ -1648,26 +1471,6 @@ $ ycli forms answers integrations-list [OPTIONS]
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli forms answers integrations`
-
-List the integration runs an answer triggered (exactly one of --answer-id / --answer-key).
-
-**Usage**:
-
-```console
-$ ycli forms answers integrations [OPTIONS]
-```
-
-**Options**:
-
-* `--answer-id INTEGER`: Numeric answer id (needs form-edit access; 0 = unset).  [default: 0]
-* `--answer-key TEXT`: Answer key hash (works without form-edit access).
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli forms answers delete`
 
 Delete an answer (DELETE /surveys/{id}/answers/{answer_id}); `answers restore` undoes it.
@@ -1734,7 +1537,6 @@ $ ycli forms keysets [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one key set (SURVEY_ID KEYSET_ID).
 * `create`: Create a key set on form SURVEY_ID;...
 * `update`: Replace key set KEYSET_ID on SURVEY_ID;...
-* `modify`: Replace key set KEYSET_ID on SURVEY_ID;... (DEPRECATED)
 * `delete`: Delete key set KEYSET_ID on SURVEY_ID...
 * `download`: Download key set KEYSET_ID to --output (or...
 
@@ -1820,34 +1622,6 @@ Replace key set KEYSET_ID on SURVEY_ID; every field is required.
 
 ```console
 $ ycli forms keysets update [OPTIONS] SURVEY_ID KEYSET_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `KEYSET_ID`: Key set id (integer).  [required]
-
-**Options**:
-
-* `--name TEXT`: Key set name (required — replaces the record).  [required]
-* `--total INTEGER`: Number of keys (required — replaces the record).  [required]
-* `--enabled / --disabled`: Active flag (required).  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli forms keysets modify`
-
-Replace key set KEYSET_ID on SURVEY_ID; every field is required.
-
-``PATCH``: the API replaces the whole record, so name, total and enabled are sent together.
-
-**Usage**:
-
-```console
-$ ycli forms keysets modify [OPTIONS] SURVEY_ID KEYSET_ID
 ```
 
 **Arguments**:
@@ -1972,11 +1746,9 @@ $ ycli forms notifications [OPTIONS] COMMAND [ARGS]...
 * `list`: List integration runs, filtered...
 * `get`: Print one run with its context, response...
 * `status-get`: Print a run's state only (pending,...
-* `status`: Print a run's state only (pending,... (DEPRECATED)
 * `restart`: Run the integration again for that answer...
 * `cancel`: Stop a run that has not finished (POST...
 * `errors-list`: List the ids of form SURVEY_ID's failed...
-* `errors`: List the ids of form SURVEY_ID's failed... (DEPRECATED)
 
 ### `ycli forms notifications list`
 
@@ -2054,28 +1826,6 @@ $ ycli forms notifications status-get [OPTIONS] NOTIFICATION_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli forms notifications status`
-
-Print a run's state only (pending, success, error or canceled).
-
-**Usage**:
-
-```console
-$ ycli forms notifications status [OPTIONS] NOTIFICATION_ID
-```
-
-**Arguments**:
-
-* `NOTIFICATION_ID`: Notification id (integer), from `notifications list`.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli forms notifications restart`
 
 Run the integration again for that answer (POST /notifications/{id}/restart).
@@ -2128,28 +1878,6 @@ List the ids of form SURVEY_ID's failed runs; read each with `notifications get`
 
 ```console
 $ ycli forms notifications errors-list [OPTIONS] SURVEY_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-
-**Options**:
-
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli forms notifications errors`
-
-List the ids of form SURVEY_ID's failed runs; read each with `notifications get`.
-
-**Usage**:
-
-```console
-$ ycli forms notifications errors [OPTIONS] SURVEY_ID
 ```
 
 **Arguments**:
@@ -2455,7 +2183,6 @@ $ ycli forms hooks [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one integration group (SURVEY_ID...
 * `create`: Create an integration group on form...
 * `update`: Change integration group HOOK_ID: only the...
-* `modify`: Change integration group HOOK_ID: only the... (DEPRECATED)
 * `delete`: Delete integration group HOOK_ID with all...
 
 ### `ycli forms hooks list`
@@ -2552,31 +2279,6 @@ $ ycli forms hooks update [OPTIONS] SURVEY_ID HOOK_ID
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
 
-### `ycli forms hooks modify`
-
-Change integration group HOOK_ID: only the options given change (PATCH).
-
-**Usage**:
-
-```console
-$ ycli forms hooks modify [OPTIONS] SURVEY_ID HOOK_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `HOOK_ID`: Integration group (hook) id (integer).  [required]
-
-**Options**:
-
-* `--name TEXT`: Integration group name (max 100 characters).
-* `--active / --inactive`: Run the group's integrations, or pause them.
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
 ### `ycli forms hooks delete`
 
 Delete integration group HOOK_ID with all its integrations and conditions.
@@ -2620,7 +2322,6 @@ $ ycli forms subscriptions [OPTIONS] COMMAND [ARGS]...
 * `get`: Print one integration (SURVEY_ID HOOK_ID...
 * `create`: Add an integration to hook HOOK_ID from a...
 * `update`: Change integration SUBSCRIPTION_ID: only...
-* `modify`: Change integration SUBSCRIPTION_ID: only... (DEPRECATED)
 * `delete`: Delete integration SUBSCRIPTION_ID from...
 * `attach`: Upload a file for the integration's fixed...
 
@@ -2703,31 +2404,6 @@ Change integration SUBSCRIPTION_ID: only the fields in the JSON body change (PAT
 
 ```console
 $ ycli forms subscriptions update [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID
-```
-
-**Arguments**:
-
-* `SURVEY_ID`: Form id, e.g. 6818ceffe010db4f59d11329.  [required]
-* `HOOK_ID`: Integration group (hook) id (integer).  [required]
-* `SUBSCRIPTION_ID`: Integration id (integer).  [required]
-
-**Options**:
-
-* `--body-file PATH`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
-* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
-* `-y, --yes`: Do not ask before an operation that deletes data.
-* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
-* `--help`: Show this message and exit.
-
-### `ycli forms subscriptions modify`
-
-Change integration SUBSCRIPTION_ID: only the fields in the JSON body change (PATCH).
-
-**Usage**:
-
-```console
-$ ycli forms subscriptions modify [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID
 ```
 
 **Arguments**:
