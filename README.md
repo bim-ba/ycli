@@ -518,9 +518,9 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 
 **Sent by ycli, not published**
 
-| ycli | Its request, as the contract test sends it |
+| ycli | Its request |
 |---|---|
-| `entities.attachment_download` | `GET /attachments/46/flowers.jpg` |
+| `entities.attachment_download` | `GET /attachments/{file_id}/{filename}` |
 | `linktypes.list` | `GET /linktypes` |
 
 **Parameters and fields**

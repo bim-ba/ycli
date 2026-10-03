@@ -1,0 +1,133 @@
+"""The OpenAPI documents ``scripts/gen_openapi.py`` derives from ycli are valid and honest.
+
+They are not committed (about a megabyte, rewritten by every model change): the docs workflow
+generates them into the site. These tests build them in memory.
+"""
+
+from __future__ import annotations
+
+import inspect
+
+import pytest
+import yaml
+from openapi_spec_validator import validate
+from scripts import api_drift, api_surface, gen_openapi
+
+from tests.contract import Case, Reply, Sent, load_cases
+from ycli.yandex.models import APIModel
+from ycli.yandex.registry import SERVICES
+
+DOCUMENTS = {service: gen_openapi.document(service) for service in api_surface.SERVICES}
+
+
+def _operations(service: str) -> dict[tuple[str, str], dict]:
+    return {
+        (method.upper(), path): operation
+        for path, item in DOCUMENTS[service]["paths"].items()
+        for method, operation in item.items()
+    }
+
+
+@pytest.mark.parametrize("service", api_surface.SERVICES)
+def test_document_is_valid_openapi(service):
+    validate(DOCUMENTS[service])
+    profile = next(found for found in SERVICES if found.name == service).profile
+    assert DOCUMENTS[service]["servers"] == [{"url": profile.base_url}]
+    assert "unofficial" in DOCUMENTS[service]["info"]["title"]
+
+
+@pytest.mark.parametrize("service", api_surface.SERVICES)
+def test_every_sdk_operation_is_in_its_document(service):
+    listed = {
+        f"{service}.{name}"
+        for operation in _operations(service).values()
+        for name in operation["x-ycli-operations"]
+    }
+    assert listed == {case.operation for case in load_cases() if case.domain == service}
+    ids = [operation["operationId"] for operation in _operations(service).values()]
+    assert len(ids) == len(set(ids))
+
+
+def test_path_parameters_are_named_after_the_sdk_arguments():
+    get = _operations("tracker")[("GET", "/issues/{key}")]
+    assert get["operationId"] == "issues_get" and get["x-ycli-effect"] == "read"
+    assert get["parameters"][0] == {
+        "name": "key",
+        "in": "path",
+        "required": True,
+        "schema": {"type": "string"},
+    }
+    # No published page documents this request, so only the SDK's arguments name it.
+    assert ("GET", "/attachments/{file_id}/{filename}") in _operations("tracker")
+
+
+def test_a_segment_no_argument_supplied_takes_the_published_name():
+    """An upload session id comes from an earlier reply, so the case holds it as a literal."""
+    assert ("PUT", "/upload_sessions/{session_id}/upload_part") in _operations("wiki")
+    paths = DOCUMENTS["wiki"]["paths"]
+    assert not [path for path in paths if "3f2b1a0c" in path]
+
+
+def test_two_arguments_with_one_value_are_refused():
+    """Otherwise a path segment could be named after either (docs/conventions/testing.md)."""
+
+    def move(source: str, target: str) -> None: ...
+
+    case = Case(
+        "tracker.issues.move",
+        args=("DE-7", "DE-7"),
+        cli=None,
+        mcp=None,
+        exchanges=[(Sent("POST", "issues/DE-7/_move"), Reply())],
+    )
+    with pytest.raises(SystemExit, match=r"\['source', 'target'\] share the value 'DE-7'"):
+        api_drift._template(case, move, "issues/DE-7/_move")
+    assert inspect.signature(move).parameters  # the stub is only ever inspected
+
+
+def test_a_typed_body_comes_from_the_mcp_tool_and_a_free_form_one_says_so():
+    create = _operations("tracker")[("POST", "/issues")]["requestBody"]
+    assert create["x-ycli-body"] == "typed"
+    assert "summary" in create["content"]["application/json"]["schema"]["properties"]
+    update = _operations("wiki")[("POST", "/pages/{page_id}")]["requestBody"]
+    assert update == {"content": {"application/json": {}}, "x-ycli-body": "untyped"}
+
+
+def test_listings_say_how_they_page_and_keep_the_pager_parameters():
+    listing = _operations("forms")[("GET", "/surveys")]
+    assert listing["x-ycli-pagination"] == "OffsetLimitPagination"
+    assert {"limit", "offset"} <= {parameter["name"] for parameter in listing["parameters"]}
+
+
+@pytest.mark.parametrize("service", api_surface.SERVICES)
+def test_schemas_use_the_api_field_names_and_allow_unknown_fields(service):
+    """Ycli parses by alias and ignores the rest, so the schema must not claim otherwise."""
+    schemas = DOCUMENTS[service]["components"]["schemas"]
+    assert all(schema.get("additionalProperties") is not False for schema in schemas.values())
+    for found in api_drift.recorded():
+        for model in api_drift._models(found.endpoint.response_type):
+            if found.case.domain != service or not issubclass(model, APIModel):
+                continue
+            aliased = {
+                field.alias for name, field in model.model_fields.items() if field.alias != name
+            } - {None}
+            names = {name for name, field in model.model_fields.items() if field.alias}
+            properties = set(schemas.get(model.__name__, {}).get("properties", aliased))
+            assert aliased <= properties and not (names - aliased) & properties, model.__name__
+
+
+def test_a_definition_whose_name_is_taken_gets_a_numbered_one():
+    schemas = {"Item": {"type": "string"}}
+    schema = {"$ref": "#/$defs/Item", "$defs": {"Item": {"type": "integer"}}}
+    assert gen_openapi._hoisted(schema, schemas) == {"$ref": "#/components/schemas/Item2"}
+    assert schemas == {"Item": {"type": "string"}, "Item2": {"type": "integer"}}
+    # The same definition again is the same component.
+    assert gen_openapi._hoisted(schema, schemas) == {"$ref": "#/components/schemas/Item2"}
+    assert len(schemas) == 2
+
+
+def test_main_writes_one_file_per_service(tmp_path):
+    assert gen_openapi.main([str(tmp_path / "openapi")]) == 0
+    for service in api_surface.SERVICES:
+        text = (tmp_path / "openapi" / f"{service}.yaml").read_text(encoding="utf-8")
+        assert yaml.safe_load(text) == DOCUMENTS[service]

@@ -26,13 +26,16 @@ Kill criterion: if Tracker ever publishes its OpenAPI document, the reference-pa
 from __future__ import annotations
 
 import argparse
+import inspect
 import re
 import sys
 import typing
 from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
 from pydantic import BaseModel, RootModel
 
@@ -50,7 +53,9 @@ from ycli.yandex.core.session import SyncSession  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
+
+    import httpx2
 
     from ycli.yandex.core.endpoint import Endpoint
     from ycli.yandex.core.pagination import Pagination
@@ -77,6 +82,23 @@ class Call:
     path: str
     query: frozenset[str]
     response: frozenset[str] | None
+    template: str = ""
+
+
+@dataclass(frozen=True)
+class Recorded:
+    """One endpoint a contract case made the SDK send, with the requests that carried it.
+
+    ``template`` is the endpoint's path with each segment that came from an argument of the
+    SDK call named after it: ``/issues/DE-7`` sent by ``issues.get(key="DE-7")`` is
+    ``/issues/{key}``.
+    """
+
+    case: Case
+    endpoint: Endpoint
+    pagination: Pagination | None
+    requests: tuple[httpx2.Request, ...]
+    template: str
 
 
 @dataclass(frozen=True)
@@ -162,7 +184,24 @@ def _recorded() -> Iterator[list[tuple[Endpoint, Pagination | None]]]:
         SyncSession.send, SyncSession.iterate = send, iterate
 
 
-def _replay(case: Case) -> list[Call]:
+def _template(case: Case, operation: Callable[..., Any], path: str) -> str:
+    """``path`` with the segments that are arguments of ``operation`` replaced by their names."""
+    bound = inspect.signature(operation).bind(*case.args, **case.kwargs)
+    names: dict[str, list[str]] = {}
+    for name, value in bound.arguments.items():
+        if isinstance(value, str | int) and not isinstance(value, bool):
+            names.setdefault(quote(str(value), safe=""), []).append(name)
+    parts = []
+    for part in path.strip("/").split("/"):
+        owners = names.get(part, [])
+        if len(owners) > 1:
+            # docs/conventions/testing.md: every parameter of a case has its own value.
+            raise SystemExit(f"api_drift: {case.id}: {owners} share the value {part!r}")
+        parts.append(f"{{{owners[0]}}}" if owners else part)
+    return "/" + "/".join(parts)
+
+
+def replay(case: Case) -> list[Recorded]:
     """Run ``case`` through the SDK against its canned replies and report what it sent."""
     domain, resource, method = case.operation.split(".")
     service = next(service for service in SERVICES if service.name == domain)
@@ -182,38 +221,65 @@ def _replay(case: Case) -> list[Call]:
         _recorded() as endpoints,
         client_class(oauth_token="t", organization_id="o", transport=api.transport()) as client,
     ):
+        operation = getattr(getattr(client, resource), method)
         args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
-        getattr(getattr(client, resource), method)(*args, **case.kwargs)
-    calls = []
+        operation(*args, **case.kwargs)
+    found = []
     for endpoint, pagination in endpoints:
         url = f"{base_url}/{endpoint.path.strip('/')}"
-        sent_params = [
-            request.url.params
+        requests = tuple(
+            request
             for request in api.calls
             if request.method == endpoint.method
             and str(request.url.copy_with(query=None)).rstrip("/") == url
-        ]
-        # A pager's parameters count even when the case's listing fits one page.
-        pager = vars(pagination) if pagination else {}
-        paging = [value for name, value in pager.items() if name.endswith("_param")]
-        calls.append(
-            Call(
-                operation=case.operation,
-                method=endpoint.method,
-                path="/" + endpoint.path.strip("/"),
-                query=frozenset(endpoint.params).union(paging, *sent_params),
-                # A listing's envelope is read by the pager; callers only ever see its items.
-                response=None if pagination else _fields(endpoint.response_type),
-            )
         )
-    return calls
+        template = _template(case, operation, endpoint.path)
+        found.append(Recorded(case, endpoint, pagination, requests, template))
+    return found
+
+
+@cache
+def recorded() -> tuple[Recorded, ...]:
+    """Every endpoint every SDK operation sends, from replaying the contract cases once."""
+    return tuple(found for case in load_cases() for found in replay(case))
+
+
+def _call(found: Recorded) -> Call:
+    """What ``found`` says ycli can put on the wire and read back."""
+    # A pager's parameters count even when the case's listing fits one page.
+    pager = vars(found.pagination) if found.pagination else {}
+    paging = [value for name, value in pager.items() if name.endswith("_param")]
+    sent_params = [request.url.params for request in found.requests]
+    return Call(
+        operation=found.case.operation,
+        method=found.endpoint.method,
+        path="/" + found.endpoint.path.strip("/"),
+        query=frozenset(found.endpoint.params).union(paging, *sent_params),
+        # A listing's envelope is read by the pager; callers only ever see its items.
+        response=None if found.pagination else _fields(found.endpoint.response_type),
+        template=found.template,
+    )
 
 
 def calls() -> list[Call]:
-    """Every endpoint every SDK operation sends, from replaying the contract cases."""
-    return [call for case in load_cases() for call in _replay(case)]
+    """Every endpoint every SDK operation sends, as the names the comparison needs."""
+    return [_call(found) for found in recorded()]
 
 
+def published_for(published: list[Operation], method: str, path: str) -> Operation | None:
+    """The ``published`` operation a concrete request stands for, the most literal one.
+
+    ``/pages/descendants`` is both itself and an instance of ``/pages/{idx}``.
+    """
+    candidates = [
+        operation
+        for operation in published
+        if operation.method == method and _matcher(operation).fullmatch(path)
+    ]
+    return max(candidates, key=_literals) if candidates else None
+
+
+@cache
 def _matcher(operation: Operation) -> re.Pattern[str]:
     """A pattern for the concrete paths ``operation``'s template stands for."""
     parts = re.split(r"\{\}", shape(operation.path))
@@ -226,20 +292,14 @@ def _literals(operation: Operation) -> int:
 
 def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift:
     """How the ``sent`` calls of ``service`` differ from its ``published`` operations."""
-    matchers = [(operation, _matcher(operation)) for operation in published]
     reached: dict[tuple[str, str], list[Call]] = {}
     unpublished = []
     for call in sent:
-        candidates = [
-            operation
-            for operation, matcher in matchers
-            if operation.method == call.method and matcher.fullmatch(call.path)
-        ]
-        if candidates:
-            # ``/pages/descendants`` is both itself and an instance of ``/pages/{idx}``.
-            reached.setdefault(max(candidates, key=_literals).key, []).append(call)
-        else:
+        operation = published_for(published, call.method, call.path)
+        if operation is None:
             unpublished.append(call)
+        else:
+            reached.setdefault(operation.key, []).append(call)
 
     exhaustive = service in EXHAUSTIVE
     gaps = []
@@ -281,10 +341,8 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
 
 
 def _unique(found: list[Call]) -> list[Call]:
-    """One call per operation and request line length, in a stable order."""
-    seen: dict[tuple[str, str, int], Call] = {}
-    for call in found:
-        seen.setdefault((call.operation, call.method, call.path.count("/")), call)
+    """One call per operation and path template, in a stable order."""
+    seen = {(call.operation, call.method, call.template or call.path): call for call in found}
     return [seen[key] for key in sorted(seen)]
 
 

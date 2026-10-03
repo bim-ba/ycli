@@ -212,7 +212,8 @@ Resources are hand-written, starting from the `/new-endpoint` scaffold
 a `Resource` client). Generating them from a spec is being built in a separate repo,
 [`refract`](https://github.com/bim-ba/refract): one YAML spec per resource compiles into the
 same committed file layout, and ycli's hand-written code is the golden output it must
-reproduce. ycli does not use refract yet. Rejected: generating clients or tools at runtime
+reproduce. ycli does not use refract yet. The opposite direction is in use: `scripts/gen_openapi.py` derives an OpenAPI
+document per service from the code at build time, for the docs site. Rejected: generating clients or tools at runtime
 (metaprogramming), and external SDK generators such as Fern, which cover only the SDK and
 impose their own models. The HTTP stack moves to the httpx2 core independently of refract
 (#85): its `Endpoint[T]` has the same shape as refract's `Request`, so generated resources can
