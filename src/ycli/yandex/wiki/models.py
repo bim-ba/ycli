@@ -108,5 +108,8 @@ class CursorPage[T](APIModel):
         ('data/a', None)
     """
 
-    results: list[T] = Field(default_factory=list)
-    next_cursor: str | None = None
+    results: list[T] = Field(default_factory=list, description="Items on this page of the listing.")
+    next_cursor: str | None = Field(
+        default=None,
+        description="Cursor for the next page; ``null`` when the listing is exhausted.",
+    )
