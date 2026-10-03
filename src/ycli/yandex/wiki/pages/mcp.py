@@ -122,7 +122,7 @@ def grids_list(
 
 
 @mcp.tool(name="pages_get_by_id", annotations={**RO, "title": "Get Wiki page by id"}, tags=TAGS)
-def by_id_get(
+def get_by_id(
     page_id: Annotated[int, Field(description="Numeric page id to fetch.")],
     fields: Annotated[
         str | None,
@@ -155,7 +155,7 @@ def by_id_get(
     annotations={**RO, "title": "List Wiki page descendants by id"},
     tags=TAGS,
 )
-def by_id_descendants(
+def descendants_by_id(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
     limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
     include_self: IncludeSelf = False,
@@ -256,7 +256,7 @@ def delete(
     annotations={**WRITE, "title": "Append content to Wiki page"},
     tags=WRITE_TAGS,
 )
-def append_content(
+def append(
     page_id: Annotated[int, Field(description="Numeric id of the page to append to.")],
     body: Annotated[
         PageAppendContent,
