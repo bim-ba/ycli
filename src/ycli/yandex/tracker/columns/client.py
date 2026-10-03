@@ -63,8 +63,7 @@ class ColumnsClient(Resource):
             ... ).id
             5
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_column(board_id, dumped))
+        return self._session.send(endpoints.create_column(board_id, body))
 
     def edit(self, board_id: int, column_id: int, body: ColumnUpdate) -> Column:
         """Edit a board column from a typed ``ColumnUpdate`` body. Returns the updated ``Column``.
@@ -84,8 +83,7 @@ class ColumnsClient(Resource):
             >>> tracker.columns.edit(76, 6, ColumnUpdate(name="Pause")).name
             'Pause'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_column(board_id, column_id, dumped))
+        return self._session.send(endpoints.edit_column(board_id, column_id, body))
 
     def delete(self, board_id: int, column_id: int) -> None:
         """``DELETE /boards/{board_id}/columns/{column_id}`` — delete a column (``204``, no body).

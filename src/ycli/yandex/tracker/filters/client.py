@@ -43,8 +43,7 @@ class FiltersClient(Resource):
             >>> tracker.filters.create(FilterCreate(name="My open", filter={"status": "open"})).id
             12346
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_filter(dumped))
+        return self._session.send(endpoints.create_filter(body))
 
     def edit(self, filter_id: str, body: FilterUpdate) -> Filter:
         """Edit filter ``filter_id`` from a typed ``FilterUpdate`` body. Returns the ``Filter``.
@@ -64,8 +63,7 @@ class FiltersClient(Resource):
             >>> tracker.filters.edit("12347", FilterUpdate(name="Renamed")).name
             'Renamed'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_filter(filter_id, dumped))
+        return self._session.send(endpoints.edit_filter(filter_id, body))
 
     def delete(self, filter_id: str) -> None:
         """``DELETE /filters/{filter_id}`` → 204; raises on non-2xx.

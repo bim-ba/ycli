@@ -1,6 +1,7 @@
 """Contract cases for Forms answers (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.answers.models import AnswerExport
 
 SID = "686d0a1b2c3d4e5f00000030"
 ANSWER = {"id": 2469549806, "survey": {"id": SID, "name": "Feedback"}, "data": []}
@@ -177,7 +178,7 @@ CASES = [
     ),
     Case(
         "forms.answers.export",
-        args=(SID, EXPORT),
+        args=(SID, AnswerExport.model_validate(EXPORT)),
         cli=[
             "forms",
             "answers",

@@ -1,11 +1,16 @@
 """Contract cases for Tracker ``/dashboards`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.dashboards.models import CycleTimeWidget, DashboardCreate
 
 CASES = [
     Case(
         "tracker.dashboards.create",
-        args=({"name": "Team board", "layout": "two-columns", "owner": {"id": "alice"}},),
+        args=(
+            DashboardCreate.model_validate(
+                {"name": "Team board", "layout": "two-columns", "owner": {"id": "alice"}}
+            ),
+        ),
         cli=[
             "tracker",
             "dashboards",
@@ -36,13 +41,15 @@ CASES = [
         "tracker.dashboards.add_cycle_time_widget",
         args=(
             "11",
-            {
-                "description": "Cycle time",
-                "query": "Queue: DE",
-                "fromStatuses": [{"key": "open"}],
-                "toStatuses": [{"key": "closed"}],
-                "mode": "common-lines",
-            },
+            CycleTimeWidget.model_validate(
+                {
+                    "description": "Cycle time",
+                    "query": "Queue: DE",
+                    "fromStatuses": [{"key": "open"}],
+                    "toStatuses": [{"key": "closed"}],
+                    "mode": "common-lines",
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -93,7 +100,7 @@ CASES = [
     # Only the required options: the CLI leaves every optional key out of the body.
     Case(
         "tracker.dashboards.add_cycle_time_widget",
-        args=("12", {"description": "Bare widget"}),
+        args=("12", CycleTimeWidget.model_validate({"description": "Bare widget"})),
         cli=[
             "tracker",
             "dashboards",
@@ -114,7 +121,7 @@ CASES = [
     ),
     Case(
         "tracker.dashboards.create",
-        args=({"name": "Solo board"},),
+        args=(DashboardCreate.model_validate({"name": "Solo board"}),),
         cli=["tracker", "dashboards", "create", "--name", "Solo board"],
         mcp=None,
         exchanges=[

@@ -124,7 +124,7 @@ class FieldUpdate(APIModel):
     ``optionsProvider``; only the fields that are set are sent.
 
     Examples:
-        >>> FieldUpdate(name=LocalizedName(ru="Поле")).model_dump(by_alias=True, exclude_none=True)
+        >>> FieldUpdate(name=LocalizedName(ru="Поле")).model_dump(exclude_none=True)
         {'name': {'ru': 'Поле'}}
     """
 
@@ -143,7 +143,7 @@ class FieldCategoryCreate(APIModel):
 
     Examples:
         >>> FieldCategoryCreate(name=LocalizedName(ru="Своя"), order=400).model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'name': {'ru': 'Своя'}, 'order': 400}
     """
@@ -159,7 +159,7 @@ class FieldCategoryUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> FieldCategoryUpdate(order=400).model_dump(by_alias=True, exclude_none=True)
+        >>> FieldCategoryUpdate(order=400).model_dump(exclude_none=True)
         {'order': 400}
     """
 

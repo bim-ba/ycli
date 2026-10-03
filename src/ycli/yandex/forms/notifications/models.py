@@ -6,6 +6,8 @@ integration finishes, then ``success``, ``error`` or ``canceled``.
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
@@ -150,3 +152,50 @@ class NotificationAction(APIModel):
     result: NotificationActionResult | None = Field(
         default=None, description="How the action went."
     )
+
+
+class NotificationFilter(APIModel):
+    """Which integration runs a listing returns: every filter given must match.
+
+    The ``*_since`` / ``*_until`` bounds are ISO-8601 times, both ends inclusive.
+
+    Examples:
+        >>> NotificationFilter(status=["error"], created_since="2026-09-01T00:00:00Z").params()[
+        ...     "created_gt"
+        ... ]
+        '2026-09-01T00:00:00Z'
+    """
+
+    survey_id: str | None = Field(default=None, description="Only runs of this form.")
+    hook_id: int | None = Field(default=None, description="Only runs of this integration group.")
+    subscription_id: int | None = Field(default=None, description="Only runs of this integration.")
+    answer_id: int | None = Field(default=None, description="Only runs triggered by this answer.")
+    status: list[str] | None = Field(
+        default=None,
+        description="Only runs in any of these states: pending, success, error, canceled.",
+    )
+    created_since: str | None = Field(
+        default=None, serialization_alias="created_gt", description="Created at or after."
+    )
+    created_until: str | None = Field(
+        default=None, serialization_alias="created_lt", description="Created at or before."
+    )
+    finished_since: str | None = Field(
+        default=None, serialization_alias="finished_gt", description="Finished at or after."
+    )
+    finished_until: str | None = Field(
+        default=None, serialization_alias="finished_lt", description="Finished at or before."
+    )
+    visible: bool | None = Field(
+        default=None, description="Only visible (``True``) or only hidden (``False``) runs."
+    )
+    integration_type: str | None = Field(
+        default=None, serialization_alias="type", description="Only runs of this integration type."
+    )
+    ordering: str | None = Field(
+        default=None, description="``asc`` (oldest first, the API's default) or ``desc``."
+    )
+
+    def params(self) -> dict[str, Any]:
+        """The filters as query parameters, under the API's names; an unset one is ``None``."""
+        return self.model_dump()

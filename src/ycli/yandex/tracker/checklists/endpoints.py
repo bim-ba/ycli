@@ -12,22 +12,25 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItem
+from ycli.yandex.tracker.checklists.models import (
+    Checklist,
+    ChecklistItem,
+    ChecklistItemCreate,
+    ChecklistItemUpdate,
+)
 
 
 def get_checklist(key: str) -> Endpoint[ItemList[ChecklistItem]]:
     return Endpoint("GET", f"issues/{segment(key)}/checklistItems", ItemList[ChecklistItem])
 
 
-def create_checklist_item(key: str, body: dict[str, Any]) -> Endpoint[Checklist]:
+def create_checklist_item(key: str, body: ChecklistItemCreate) -> Endpoint[Checklist]:
     return Endpoint("POST", f"issues/{segment(key)}/checklistItems", Checklist, json=body)
 
 
-def edit_checklist_item(key: str, item_id: str, body: dict[str, Any]) -> Endpoint[Checklist]:
+def edit_checklist_item(key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Checklist]:
     path = f"issues/{segment(key)}/checklistItems/{segment(item_id)}"
     return Endpoint("PATCH", path, Checklist, json=body)
 

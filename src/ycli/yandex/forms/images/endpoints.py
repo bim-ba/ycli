@@ -7,10 +7,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.images.models import Image
+from ycli.yandex.forms.images.models import Image, ImageClone
 
 
 def upload_image(survey_id: str, *, filename: str, data: bytes) -> Endpoint[Image]:
@@ -18,5 +16,5 @@ def upload_image(survey_id: str, *, filename: str, data: bytes) -> Endpoint[Imag
     return Endpoint("POST", path, Image, files={"image": (filename, data)})
 
 
-def clone_image(survey_id: str, body: dict[str, Any]) -> Endpoint[Image]:
+def clone_image(survey_id: str, body: ImageClone) -> Endpoint[Image]:
     return Endpoint("POST", f"surveys/{segment(survey_id)}/images/clone", Image, json=body)

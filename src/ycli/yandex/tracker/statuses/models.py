@@ -42,7 +42,7 @@ class StatusCreate(APIModel):
 
     Examples:
         >>> StatusCreate(key="myStatus", name=LocalizedName(ru="Мой"), type="paused").model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'key': 'myStatus', 'name': {'ru': 'Мой'}, 'type': 'paused'}
     """
@@ -60,7 +60,7 @@ class StatusUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> StatusUpdate(order=350).model_dump(by_alias=True, exclude_none=True)
+        >>> StatusUpdate(order=350).model_dump(exclude_none=True)
         {'order': 350}
     """
 

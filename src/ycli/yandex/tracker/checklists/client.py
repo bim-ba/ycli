@@ -8,14 +8,19 @@ answers with ``200 OK`` and a body (not ``204``).
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.checklists import endpoints
 
 if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
-    from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItem
+    from ycli.yandex.tracker.checklists.models import (
+        Checklist,
+        ChecklistItem,
+        ChecklistItemCreate,
+        ChecklistItemUpdate,
+    )
 
 
 class ChecklistsClient(Resource):
@@ -36,7 +41,7 @@ class ChecklistsClient(Resource):
         """
         return self._session.send(endpoints.get_checklist(key))
 
-    def create(self, key: str, body: dict[str, Any]) -> Checklist:
+    def create(self, key: str, body: ChecklistItemCreate) -> Checklist:
         """``POST /issues/{key}/checklistItems`` — add an item. Returns the issue wrapper.
 
         Args:
@@ -47,12 +52,15 @@ class ChecklistsClient(Resource):
             The issue wrapper with the updated checklist.
 
         Examples:
-            >>> tracker.checklists.create("DE-32", {"text": "step 1"}).key
+            >>> from ycli.yandex.tracker.checklists.models import ChecklistItemCreate
+            >>> tracker.checklists.create(
+            ...     "DE-32", ChecklistItemCreate.model_validate({"text": "step 1"})
+            ... ).key
             'DE-32'
         """
         return self._session.send(endpoints.create_checklist_item(key, body))
 
-    def edit(self, key: str, item_id: str, body: dict[str, Any]) -> Checklist:
+    def edit(self, key: str, item_id: str, body: ChecklistItemUpdate) -> Checklist:
         """``PATCH /issues/{key}/checklistItems/{item_id}`` — edit an item. Returns the wrapper.
 
         Args:
@@ -64,7 +72,10 @@ class ChecklistsClient(Resource):
             The issue wrapper with the updated checklist.
 
         Examples:
-            >>> tracker.checklists.edit("DE-34", "5f4", {"text": "step 2"}).key
+            >>> from ycli.yandex.tracker.checklists.models import ChecklistItemUpdate
+            >>> tracker.checklists.edit(
+            ...     "DE-34", "5f4", ChecklistItemUpdate.model_validate({"text": "step 2"})
+            ... ).key
             'DE-34'
         """
         return self._session.send(endpoints.edit_checklist_item(key, item_id, body))

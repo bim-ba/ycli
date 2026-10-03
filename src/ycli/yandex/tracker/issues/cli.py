@@ -14,7 +14,9 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import (
     Issue,
     IssueCreate,
+    IssueSearch,
     IssueUpdate,
+    ScrollClear,
     count_body,
     filter_body,
 )
@@ -92,7 +94,7 @@ def search(
     """Search issues by a TQL query string (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.issues.search(
-        {"query": query},
+        IssueSearch(query=query),
         limit=cap,
         expand=expand or None,
         scroll_type=scroll_type or None,
@@ -143,9 +145,9 @@ def create(
         description=description,
         tags=tag or None,
     )
-    return tracker.issues.create(
-        body=named.model_dump(exclude_none=True) | parse_fields(field), notify=notify
-    )
+    # The named options, then whatever --field adds or overrides.
+    body = IssueCreate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
+    return tracker.issues.create(body=body, notify=notify)
 
 
 @app.command()
@@ -173,9 +175,8 @@ def update(
         description=description,
         tags=tag or None,
     )
-    return tracker.issues.update(
-        key, body=named.model_dump(exclude_none=True) | parse_fields(field)
-    )
+    body = IssueUpdate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
+    return tracker.issues.update(key, body=body)
 
 
 @app.command()
@@ -255,5 +256,5 @@ def scroll_clear(
 
     Pass each ``--pair scrollId=scrollToken`` from a scrolled ``issues search``.
     """
-    tracker.issues.scroll_clear(parse_fields(pair))
+    tracker.issues.scroll_clear(ScrollClear(parse_fields(pair)))
     return Ack.cleared("search scroll resources")

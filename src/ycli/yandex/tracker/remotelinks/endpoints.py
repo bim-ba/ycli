@@ -7,11 +7,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.remotelinks.models import RemoteLink
+from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate
 
 
 def list_remote_links(issue_key: str) -> Endpoint[ItemList[RemoteLink]]:
@@ -19,7 +17,7 @@ def list_remote_links(issue_key: str) -> Endpoint[ItemList[RemoteLink]]:
 
 
 def create_remote_link(
-    issue_key: str, body: dict[str, Any], backlink: str | None
+    issue_key: str, body: RemoteLinkCreate, backlink: str | None
 ) -> Endpoint[RemoteLink]:
     path = f"issues/{segment(issue_key)}/remotelinks"
     return Endpoint("POST", path, RemoteLink, json=body, params={"backlink": backlink})

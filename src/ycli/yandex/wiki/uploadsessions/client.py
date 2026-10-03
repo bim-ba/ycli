@@ -39,8 +39,7 @@ class UploadSessionsClient(Resource):
             >>> wiki.uploadsessions.create(body).status
             'not_started'
         """
-        payload = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_session(payload))
+        return self._session.send(endpoints.create_session(body))
 
     def get(self, session_id: str) -> UploadSession:
         """``GET /upload_sessions/{session_id}`` → the session's current state (poll ``status``).

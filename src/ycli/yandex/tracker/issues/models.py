@@ -108,7 +108,27 @@ class ScrollClear(RootModel[dict[str, str]]):
     """
 
 
-def count_body(query: str = "", queue: str = "", status: str = "") -> dict[str, Any]:
+class IssueSearch(APIModel):
+    """Typed request body for ``POST /issues/_search`` and ``POST /issues/_count``.
+
+    Give ``query`` (the query language) or ``filter`` (field name → value); a body with neither
+    matches every issue the caller can see. ``extra="allow"`` passes the API's other keys
+    (``keys``, ``queue``, ``order``) through.
+
+    Examples:
+        >>> IssueSearch(filter={"queue": "DE"}).filter
+        {'queue': 'DE'}
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    query: str | None = Field(default=None, description="A query-language string.")
+    filter: dict[str, Any] | None = Field(
+        default=None, description="Field name → value the issues must have."
+    )
+
+
+def count_body(query: str = "", queue: str = "", status: str = "") -> IssueSearch:
     """Build the request body for ``POST /issues/_count``.
 
     When ``query`` is provided it takes precedence and the body is ``{"query": …}``.
@@ -124,21 +144,21 @@ def count_body(query: str = "", queue: str = "", status: str = "") -> dict[str, 
         The request body.
 
     Examples:
-        >>> count_body(query="Queue: DE")
-        {'query': 'Queue: DE'}
-        >>> count_body(queue="DE", status="open")
-        {'filter': {'queue': 'DE', 'status': 'open'}}
-        >>> count_body()
-        {'filter': {}}
+        >>> count_body(query="Queue: DE").query
+        'Queue: DE'
+        >>> count_body(queue="DE", status="open").filter
+        {'queue': 'DE', 'status': 'open'}
+        >>> count_body().filter
+        {}
     """
     if query:
-        return {"query": query}
-    return {"filter": {k: v for k, v in (("queue", queue), ("status", status)) if v}}
+        return IssueSearch(query=query)
+    return IssueSearch(filter={k: v for k, v in (("queue", queue), ("status", status)) if v})
 
 
 def filter_body(
     *, queue: str = "", status: str = "", assignee: str = "", epic: str = "", type_: str = ""
-) -> dict[str, Any]:
+) -> IssueSearch:
     """Build the ``POST /issues/_search`` body for field filters, dropping the empty ones.
 
     Args:
@@ -152,8 +172,8 @@ def filter_body(
         The request body.
 
     Examples:
-        >>> filter_body(queue="DE", type_="bug")
-        {'filter': {'queue': 'DE', 'type': 'bug'}}
+        >>> filter_body(queue="DE", type_="bug").filter
+        {'queue': 'DE', 'type': 'bug'}
     """
     fields = {"queue": queue, "status": status, "assignee": assignee, "epic": epic, "type": type_}
-    return {"filter": {name: value for name, value in fields.items() if value}}
+    return IssueSearch(filter={name: value for name, value in fields.items() if value})

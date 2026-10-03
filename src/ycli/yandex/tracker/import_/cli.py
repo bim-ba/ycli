@@ -55,7 +55,7 @@ def task(
         key=key or None,
         description=description or None,
         assignee=assignee or None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.import_.task(body=body)
 
 
@@ -69,9 +69,7 @@ def comment(
     tracker: TrackerClient,
 ) -> Comment:
     """Import a comment onto issue KEY (POST /issues/{key}/comments/_import)."""
-    body = ImportComment(text=text, createdAt=created_at, createdBy=created_by).model_dump(
-        by_alias=True, exclude_none=True
-    )
+    body = ImportComment(text=text, createdAt=created_at, createdBy=created_by)
     return tracker.import_.comment(key, body=body)
 
 
@@ -88,7 +86,7 @@ def link(
     """Import a link on issue KEY (POST /issues/{key}/links/_import)."""
     body = ImportLink(
         relationship=relationship, issue=issue, createdAt=created_at, createdBy=created_by
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.import_.link(key, body=body)
 
 
@@ -110,7 +108,7 @@ def worklog(
         createdBy=created_by,
         start=start,
         comment=comment or None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.import_.worklog(key, body=body)
 
 

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.links import endpoints
-from ycli.yandex.tracker.links.models import Link
+from ycli.yandex.tracker.links.models import Link, LinkCreate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -65,7 +65,7 @@ class LinksClient(Resource):
         paged = endpoints.search_links(key, link_types=link_types, fields=fields)
         return ItemList[Link](list(self._session.iterate(paged, limit=limit)))
 
-    def add(self, key: str, body: dict[str, Any]) -> Link:
+    def add(self, key: str, body: LinkCreate) -> Link:
         """``POST /issues/{key}/links`` — link two issues. Returns the link.
 
         Args:
@@ -76,8 +76,12 @@ class LinksClient(Resource):
             The created link.
 
         Examples:
+            >>> from ycli.yandex.tracker.links.models import LinkCreate
             >>> tracker.links.add(
-            ...     "DE-42", {"relationship": "is dependent by", "issue": "OPS-9"}
+            ...     "DE-42",
+            ...     LinkCreate.model_validate(
+            ...         {"relationship": "is dependent by", "issue": "OPS-9"}
+            ...     ),
             ... ).object_key
             'OPS-9'
         """

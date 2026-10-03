@@ -4,16 +4,19 @@ The CLI cases pass ``--no-wait``: the ``--wait`` poll is a CLI-only flow, tested
 """
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.bulk.models import BulkMove, BulkTransition, BulkUpdate
 
 CASES = [
     Case(
         "tracker.bulk.update",
         args=(
-            {
-                "issues": ["DE-1", "DE-2"],
-                "values": {"priority": "minor", "sprint": 5},
-                "notify": True,
-            },
+            BulkUpdate.model_validate(
+                {
+                    "issues": ["DE-1", "DE-2"],
+                    "values": {"priority": "minor", "sprint": 5},
+                    "notify": True,
+                }
+            ),
         ),
         kwargs={"notify": True},
         cli=[
@@ -61,7 +64,7 @@ CASES = [
     # --query selects the issues instead of keys; with no -F the values stay an empty object.
     Case(
         "tracker.bulk.update",
-        args=({"issues": "Queue: TEST", "values": {}},),
+        args=(BulkUpdate.model_validate({"issues": "Queue: TEST", "values": {}}),),
         cli=["tracker", "bulk", "update", "--query", "Queue: TEST", "--no-wait"],
         mcp=None,
         exchanges=[
@@ -74,14 +77,16 @@ CASES = [
     Case(
         "tracker.bulk.move",
         args=(
-            {
-                "queue": "CHECK",
-                "issues": ["DE-3"],
-                "values": {"tags": ["moved"]},
-                "moveAllFields": True,
-                "initialStatus": True,
-                "notify": True,
-            },
+            BulkMove.model_validate(
+                {
+                    "queue": "CHECK",
+                    "issues": ["DE-3"],
+                    "values": {"tags": ["moved"]},
+                    "moveAllFields": True,
+                    "initialStatus": True,
+                    "notify": True,
+                }
+            ),
         ),
         kwargs={"notify": True},
         cli=[
@@ -133,7 +138,7 @@ CASES = [
     ),
     Case(
         "tracker.bulk.move",
-        args=({"queue": "ARCHIVE", "issues": "Queue: OLD"},),
+        args=(BulkMove.model_validate({"queue": "ARCHIVE", "issues": "Queue: OLD"}),),
         cli=["tracker", "bulk", "move", "ARCHIVE", "--query", "Queue: OLD", "--no-wait"],
         mcp=None,
         exchanges=[
@@ -146,12 +151,14 @@ CASES = [
     Case(
         "tracker.bulk.transition",
         args=(
-            {
-                "transition": "close",
-                "issues": ["DE-4"],
-                "values": {"resolution": "fixed"},
-                "notify": True,
-            },
+            BulkTransition.model_validate(
+                {
+                    "transition": "close",
+                    "issues": ["DE-4"],
+                    "values": {"resolution": "fixed"},
+                    "notify": True,
+                }
+            ),
         ),
         kwargs={"notify": True},
         cli=[
@@ -197,7 +204,7 @@ CASES = [
     ),
     Case(
         "tracker.bulk.transition",
-        args=({"transition": "reopen", "issues": "Queue: QA"},),
+        args=(BulkTransition.model_validate({"transition": "reopen", "issues": "Queue: QA"}),),
         cli=["tracker", "bulk", "transition", "reopen", "--query", "Queue: QA", "--no-wait"],
         mcp=None,
         exchanges=[

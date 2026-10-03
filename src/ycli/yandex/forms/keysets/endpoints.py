@@ -7,10 +7,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.keysets.models import Keyset
+from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
 from ycli.yandex.models import ItemList
 
 
@@ -26,11 +24,11 @@ def get_keyset(survey_id: str, keyset_id: int) -> Endpoint[Keyset]:
     return Endpoint("GET", f"{_keysets(survey_id)}/{segment(keyset_id)}", Keyset)
 
 
-def create_keyset(survey_id: str, body: dict[str, Any]) -> Endpoint[Keyset]:
+def create_keyset(survey_id: str, body: KeysetCreate) -> Endpoint[Keyset]:
     return Endpoint("POST", _keysets(survey_id), Keyset, json=body)
 
 
-def modify_keyset(survey_id: str, keyset_id: int, body: dict[str, Any]) -> Endpoint[Keyset]:
+def modify_keyset(survey_id: str, keyset_id: int, body: KeysetUpdate) -> Endpoint[Keyset]:
     return Endpoint("PATCH", f"{_keysets(survey_id)}/{segment(keyset_id)}", Keyset, json=body)
 
 

@@ -554,7 +554,7 @@ class ParentEntityInput(APIModel):
     """Typed ``parentEntity`` block for a create/edit body (ids, not objects).
 
     Examples:
-        >>> ParentEntityInput(primary="67f").model_dump(by_alias=True, exclude_none=True)
+        >>> ParentEntityInput(primary="67f").model_dump(exclude_none=True)
         {'primary': '67f'}
     """
 
@@ -581,9 +581,9 @@ class EntityFieldsInput(APIModel):
     ``common-format.md#edit-fields``), alongside their plain replace-list form.
 
     Examples:
-        >>> EntityFieldsInput(summary="Q4 goal").model_dump(by_alias=True, exclude_none=True)
+        >>> EntityFieldsInput(summary="Q4 goal").model_dump(exclude_none=True)
         {'summary': 'Q4 goal'}
-        >>> EntityFieldsInput(tags={"add": ["urgent"]}).model_dump(by_alias=True, exclude_none=True)
+        >>> EntityFieldsInput(tags={"add": ["urgent"]}).model_dump(exclude_none=True)
         {'tags': {'add': ['urgent']}}
     """
 
@@ -635,7 +635,7 @@ class LinkInput(APIModel):
     """A link spec used by create-link and the bulk ``values.links`` array.
 
     Examples:
-        >>> LinkInput(relationship="relates", entity="658").model_dump(by_alias=True)
+        >>> LinkInput(relationship="relates", entity="658").model_dump()
         {'relationship': 'relates', 'entity': '658'}
     """
 
@@ -649,9 +649,7 @@ class EntityCreate(APIModel):
     """Typed request body for ``POST /entities/{type}`` — a ``{fields: {...}}`` envelope.
 
     Examples:
-        >>> EntityCreate(fields=EntityFieldsInput(summary="Q4")).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
+        >>> EntityCreate(fields=EntityFieldsInput(summary="Q4")).model_dump(exclude_none=True)
         {'fields': {'summary': 'Q4'}}
     """
 
@@ -662,9 +660,7 @@ class EntityUpdate(APIModel):
     """Typed request body for ``PATCH /entities/{type}/{id}`` (edit fields, comment, links).
 
     Examples:
-        >>> EntityUpdate(fields=EntityFieldsInput(summary="New")).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
+        >>> EntityUpdate(fields=EntityFieldsInput(summary="New")).model_dump(exclude_none=True)
         {'fields': {'summary': 'New'}}
     """
 
@@ -677,7 +673,7 @@ class CommentUpdate(APIModel):
     """Typed request body for ``PATCH …/comments/{comment_id}`` (the id travels in the path).
 
     Examples:
-        >>> CommentUpdate(text="fixed").model_dump(by_alias=True, exclude_none=True)
+        >>> CommentUpdate(text="fixed").model_dump(exclude_none=True)
         {'text': 'fixed'}
     """
 
@@ -697,7 +693,7 @@ class ChecklistItemInput(APIModel):
     """A checklist item in a create (``[{text}]``) or edit-all (``[{id, text}]``) body.
 
     Examples:
-        >>> ChecklistItemInput(text="step").model_dump(by_alias=True, exclude_none=True)
+        >>> ChecklistItemInput(text="step").model_dump(exclude_none=True)
         {'text': 'step'}
     """
 
@@ -714,7 +710,7 @@ class ChecklistMove(APIModel):
     """Typed request body for ``POST …/checklistItems/{id}/_move`` (reorder an item).
 
     Examples:
-        >>> ChecklistMove(before="65f").model_dump(by_alias=True, exclude_none=True)
+        >>> ChecklistMove(before="65f").model_dump(exclude_none=True)
         {'before': '65f'}
     """
 
@@ -727,7 +723,7 @@ class AclPrincipalsInput(APIModel):
     """The users/groups/roles for one access level in a permissions-set body.
 
     Examples:
-        >>> AclPrincipalsInput(roles=["OWNER"]).model_dump(by_alias=True, exclude_none=True)
+        >>> AclPrincipalsInput(roles=["OWNER"]).model_dump(exclude_none=True)
         {'roles': ['OWNER']}
     """
 
@@ -740,9 +736,7 @@ class AclInput(APIModel):
     """The ``acl`` block for a permissions-set body (READ / WRITE / GRANT principal sets).
 
     Examples:
-        >>> AclInput(read=AclPrincipalsInput(roles=["OWNER"])).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
+        >>> AclInput(read=AclPrincipalsInput(roles=["OWNER"])).model_dump(exclude_none=True)
         {'READ': {'roles': ['OWNER']}}
     """
 
@@ -772,7 +766,7 @@ class ExtendedPermissionsUpdate(APIModel):
     Examples:
         >>> ExtendedPermissionsUpdate(
         ...     acl=AclInput(read=AclPrincipalsInput(roles=["OWNER"]))
-        ... ).model_dump(by_alias=True, exclude_none=True)
+        ... ).model_dump(exclude_none=True)
         {'acl': {'READ': {'roles': ['OWNER']}}}
     """
 
@@ -788,7 +782,7 @@ class DirectPermissionsUpdate(APIModel):
     Examples:
         >>> DirectPermissionsUpdate(
         ...     grant=AclInput(read=AclPrincipalsInput(users=["ann"]))
-        ... ).model_dump(by_alias=True, exclude_none=True)
+        ... ).model_dump(exclude_none=True)
         {'grant': {'READ': {'users': ['ann']}}}
     """
 
@@ -802,7 +796,7 @@ class BulkChangeValues(APIModel):
     """The ``values`` object of a bulk-change body (fields + comment + links).
 
     Examples:
-        >>> BulkChangeValues(comment="done").model_dump(by_alias=True, exclude_none=True)
+        >>> BulkChangeValues(comment="done").model_dump(exclude_none=True)
         {'comment': 'done'}
     """
 
@@ -819,7 +813,7 @@ class BulkChangeUpdate(APIModel):
     Examples:
         >>> BulkChangeUpdate(
         ...     meta_entities=["1", "2"], values=BulkChangeValues(comment="done")
-        ... ).model_dump(by_alias=True, exclude_none=True)
+        ... ).model_dump(exclude_none=True)
         {'metaEntities': ['1', '2'], 'values': {'comment': 'done'}}
     """
 
@@ -838,7 +832,7 @@ class ReportSort(APIModel):
     """A sort clause for a report filter (``parameters.filter.sorts`` element).
 
     Examples:
-        >>> ReportSort(order_by="updated", order_asc=False).model_dump(by_alias=True)
+        >>> ReportSort(order_by="updated", order_asc=False).model_dump()
         {'orderBy': 'updated', 'orderAsc': False}
     """
 
@@ -854,7 +848,7 @@ class ReportFilter(APIModel):
     """The ``filter`` block of a report — a Tracker Query Language ``query`` plus optional sorts.
 
     Examples:
-        >>> ReportFilter(query="Queue: SUPPORT").model_dump(by_alias=True, exclude_none=True)
+        >>> ReportFilter(query="Queue: SUPPORT").model_dump(exclude_none=True)
         {'query': 'Queue: SUPPORT'}
     """
 
@@ -899,8 +893,50 @@ class ReportCreate(APIModel):
     Examples:
         >>> params = ReportParameters(filter=ReportFilter(query="Q"), fields=["key"])
         >>> body = ReportFieldsInput(summary="Export", parameters=params)
-        >>> list(ReportCreate(fields=body).model_dump(by_alias=True))
+        >>> list(ReportCreate(fields=body).model_dump())
         ['fields']
     """
 
     fields: ReportFieldsInput = Field(description="Report settings (summary + export parameters).")
+
+
+class EntitySearch(APIModel):
+    """Typed request body for ``POST /entities/{type}/_search``.
+
+    Examples:
+        >>> search = EntitySearch.model_validate({"input": "launch", "orderBy": "createdAt"})
+        >>> search.model_dump(exclude_none=True)
+        {'input': 'launch', 'orderBy': 'createdAt'}
+    """
+
+    input: str | None = Field(default=None, description="Substring to find in the entity name.")
+    filter: dict[str, Any] | None = Field(
+        default=None, description="Field name → value the entities must have."
+    )
+    order_by: str | None = Field(
+        default=None, alias="orderBy", description="Key of the field to sort by."
+    )
+    order_asc: bool | None = Field(
+        default=None,
+        alias="orderAsc",
+        description="Sort ascending; needs ``order_by``.",
+    )
+    root_only: bool | None = Field(
+        default=None, alias="rootOnly", description="Only entities with no parent."
+    )
+
+
+class PermissionsUpdate(APIModel):
+    """Typed request body for ``PATCH …/extendedPermissions``: rights to grant and to revoke.
+
+    Examples:
+        >>> change = PermissionsUpdate.model_validate(
+        ...     {"acl": {"grant": {"READ": {"users": ["7"]}}}}
+        ... )
+        >>> change.model_dump(exclude_none=True)
+        {'acl': {'grant': {'READ': {'users': ['7']}}}}
+    """
+
+    acl: DirectPermissionsUpdate = Field(
+        description="``grant`` and ``revoke``, each an access level → users, groups and roles."
+    )

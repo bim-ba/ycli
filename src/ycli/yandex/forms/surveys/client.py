@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.surveys import endpoints
-from ycli.yandex.forms.surveys.models import Survey
+from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
 from ycli.yandex.models import Ack, ItemList
 
 
@@ -70,22 +68,25 @@ class SurveysClient(Resource):
         """
         return self._session.send(endpoints.get_survey(survey_id))
 
-    def create(self, body: dict[str, Any]) -> Survey:
-        """``POST /surveys`` — create a form from a ready body (a dumped ``SurveyCreate``).
+    def create(self, body: SurveyCreate) -> Survey:
+        """``POST /surveys`` — create a form from a ``SurveyCreate``.
 
         Args:
-            body: The dumped ``SurveyCreate``.
+            body: The ``SurveyCreate``.
 
         Returns:
             The created form, with its ``id``.
 
         Examples:
-            >>> forms.surveys.create({"name": "Onboarding", "language": "en"}).id
+            >>> from ycli.yandex.forms.surveys.models import SurveyCreate
+            >>> forms.surveys.create(
+            ...     SurveyCreate.model_validate({"name": "Onboarding", "language": "en"})
+            ... ).id
             '686d0a1b2c3d4e5f00000001'
         """
         return self._session.send(endpoints.create_survey(body))
 
-    def modify(self, survey_id: str, body: dict[str, Any]) -> Survey:
+    def modify(self, survey_id: str, body: SurveyUpdate) -> Survey:
         """``PATCH /surveys/{id}`` — only the keys present in ``body`` change (a ``SurveyUpdate``).
 
         Args:
@@ -96,7 +97,10 @@ class SurveysClient(Resource):
             The updated form.
 
         Examples:
-            >>> forms.surveys.modify("686d0a1b2c3d4e5f00000002", {"name": "Onboarding"}).name
+            >>> from ycli.yandex.forms.surveys.models import SurveyUpdate
+            >>> forms.surveys.modify(
+            ...     "686d0a1b2c3d4e5f00000002", SurveyUpdate.model_validate({"name": "Onboarding"})
+            ... ).name
             'Onboarding'
         """
         return self._session.send(endpoints.modify_survey(survey_id, body))

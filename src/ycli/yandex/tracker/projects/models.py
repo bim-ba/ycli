@@ -63,7 +63,7 @@ class ProjectCreate(APIModel):
     """Typed request body for ``projects.create`` (``POST /projects``).
 
     Examples:
-        >>> ProjectCreate(name="Launch", queues="TEST").model_dump(by_alias=True, exclude_none=True)
+        >>> ProjectCreate(name="Launch", queues="TEST").model_dump(exclude_none=True)
         {'name': 'Launch', 'queues': 'TEST'}
     """
 

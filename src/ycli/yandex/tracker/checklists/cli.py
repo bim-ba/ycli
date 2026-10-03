@@ -50,7 +50,7 @@ def create(
         checked=checked,
         assignee=assignee or None,
         deadline=DeadlineInput(date=deadline) if deadline else None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.checklists.create(key, body=body)
 
 
@@ -71,7 +71,7 @@ def update(
         checked=checked,
         assignee=assignee or None,
         deadline=DeadlineInput(date=deadline) if deadline else None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.checklists.edit(key, item_id, body=body)
 
 

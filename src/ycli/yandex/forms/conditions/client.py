@@ -17,10 +17,6 @@ if TYPE_CHECKING:
     from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
 
 
-def _dumped(body: ConditionCreate) -> dict:
-    return body.model_dump(by_alias=True, exclude_none=True)
-
-
 class ConditionsClient(Resource):
     """List, get, create, modify, delete and re-join the display-condition groups of a target."""
 
@@ -87,7 +83,7 @@ class ConditionsClient(Resource):
             103
         """
         target = endpoints.question_target(survey_id, question_id)
-        return self._session.send(endpoints.create_condition(target, _dumped(body)))
+        return self._session.send(endpoints.create_condition(target, body))
 
     def question_modify(
         self, survey_id: str, question_id: str, condition_id: int, body: ConditionUpdate
@@ -113,7 +109,7 @@ class ConditionsClient(Resource):
             104
         """
         target = endpoints.question_target(survey_id, question_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
+        return self._session.send(endpoints.modify_condition(target, condition_id, body))
 
     def question_delete(self, survey_id: str, question_id: str, condition_id: int) -> None:
         """``DELETE …/questions/{question_id}/conditions/{condition_id}`` (200, no body).
@@ -214,7 +210,7 @@ class ConditionsClient(Resource):
             203
         """
         target = endpoints.page_target(survey_id, page_id)
-        return self._session.send(endpoints.create_condition(target, _dumped(body)))
+        return self._session.send(endpoints.create_condition(target, body))
 
     def page_modify(
         self, survey_id: str, page_id: int, condition_id: int, body: ConditionUpdate
@@ -240,7 +236,7 @@ class ConditionsClient(Resource):
             204
         """
         target = endpoints.page_target(survey_id, page_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
+        return self._session.send(endpoints.modify_condition(target, condition_id, body))
 
     def page_delete(self, survey_id: str, page_id: int, condition_id: int) -> None:
         """``DELETE …/pages/{page_id}/conditions/{condition_id}`` (200, no body).
@@ -334,7 +330,7 @@ class ConditionsClient(Resource):
             303
         """
         target = endpoints.submit_target(survey_id)
-        return self._session.send(endpoints.create_condition(target, _dumped(body)))
+        return self._session.send(endpoints.create_condition(target, body))
 
     def submit_modify(self, survey_id: str, condition_id: int, body: ConditionUpdate) -> Condition:
         """``PATCH /surveys/{id}/conditions/{condition_id}`` — replace the group.
@@ -357,7 +353,7 @@ class ConditionsClient(Resource):
             304
         """
         target = endpoints.submit_target(survey_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
+        return self._session.send(endpoints.modify_condition(target, condition_id, body))
 
     def submit_delete(self, survey_id: str, condition_id: int) -> None:
         """``DELETE /surveys/{id}/conditions/{condition_id}`` (200, no body).
@@ -456,7 +452,7 @@ class ConditionsClient(Resource):
             403
         """
         target = endpoints.hook_target(survey_id, hook_id)
-        return self._session.send(endpoints.create_condition(target, _dumped(body)))
+        return self._session.send(endpoints.create_condition(target, body))
 
     def hook_modify(
         self, survey_id: str, hook_id: int, condition_id: int, body: ConditionUpdate
@@ -482,7 +478,7 @@ class ConditionsClient(Resource):
             404
         """
         target = endpoints.hook_target(survey_id, hook_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, _dumped(body)))
+        return self._session.send(endpoints.modify_condition(target, condition_id, body))
 
     def hook_delete(self, survey_id: str, hook_id: int, condition_id: int) -> None:
         """``DELETE …/hooks/{hook_id}/conditions/{condition_id}`` (200, no body).

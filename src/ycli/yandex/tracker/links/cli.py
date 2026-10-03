@@ -71,7 +71,7 @@ def add(
     tracker: TrackerClient,
 ) -> Link:
     """Link issue KEY to TARGET with RELATIONSHIP."""
-    body = LinkCreate(relationship=relationship.value, issue=target).model_dump(exclude_none=True)
+    body = LinkCreate(relationship=relationship.value, issue=target)
     return tracker.links.add(key, body=body)
 
 

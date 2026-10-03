@@ -23,5 +23,5 @@
 === "SDK"
 
     ```python
-    tracker.worklog.create("DE-66", {"duration": "PT2H", "start": "2021-03-04T10:00:00.000+0300", "comment": "pairing"})
+    tracker.worklog.create("DE-66", WorklogCreate(duration="PT2H", start="2021-03-04T10:00:00.000+0300", comment="pairing"))
     ```

@@ -12,17 +12,20 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
     GridRef,
+    PageAppendContent,
+    PageClone,
+    PageCreate,
     PageDeleteResult,
     PageDetails,
+    PageMove,
     PageRef,
     PageRevision,
+    PageUpdate,
 )
 
 
@@ -94,15 +97,13 @@ def list_grids(
     )
 
 
-def create_page(
-    body: dict[str, Any], *, fields: str | None, is_silent: bool
-) -> Endpoint[PageDetails]:
+def create_page(body: PageCreate, *, fields: str | None, is_silent: bool) -> Endpoint[PageDetails]:
     params = {"fields": fields, "is_silent": flag(is_silent)}
     return Endpoint("POST", "pages", PageDetails, params=params, json=body)
 
 
 def update_page(
-    page_id: int, body: dict[str, Any], *, fields: str | None, is_silent: bool, allow_merge: bool
+    page_id: int, body: PageUpdate, *, fields: str | None, is_silent: bool, allow_merge: bool
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}"
     params = {"fields": fields, "is_silent": flag(is_silent), "allow_merge": flag(allow_merge)}
@@ -115,18 +116,18 @@ def delete_page(page_id: int, *, recursive: bool) -> Endpoint[PageDeleteResult]:
 
 
 def append_content(
-    page_id: int, body: dict[str, Any], *, fields: str | None, is_silent: bool
+    page_id: int, body: PageAppendContent, *, fields: str | None, is_silent: bool
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}/append-content"
     params = {"fields": fields, "is_silent": flag(is_silent)}
     return Endpoint("POST", path, PageDetails, params=params, json=body)
 
 
-def clone_page(page_id: int, body: dict[str, Any]) -> Endpoint[AsyncOperation]:
+def clone_page(page_id: int, body: PageClone) -> Endpoint[AsyncOperation]:
     return Endpoint("POST", f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
 
 
-def move_pages(body: dict[str, Any], *, dry_run: bool) -> Endpoint[AsyncOperation]:
+def move_pages(body: PageMove, *, dry_run: bool) -> Endpoint[AsyncOperation]:
     """``POST /pages/move`` (undocumented): a new address for pages; ``dry_run`` only validates."""
     params = {"dry_run": flag(dry_run)}
     return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)

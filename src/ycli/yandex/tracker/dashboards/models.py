@@ -100,7 +100,7 @@ class CycleTimeWidget(APIModel):
 
     Examples:
         >>> CycleTimeWidget(description="My widget", query="Queue: TEST").model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'description': 'My widget', 'query': 'Queue: TEST'}
     """

@@ -3,18 +3,22 @@
 Examples:
     >>> get_issue("TEST-1", expand=None, fields=None).path
     'issues/TEST-1'
-    >>> search_issues({"query": "Queue: TEST"}, expand=None).endpoint.effect
+    >>> search_issues(IssueSearch(query="Queue: TEST"), expand=None).endpoint.effect
     'read'
 """
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination, ScrollPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.issues.models import Issue
+from ycli.yandex.tracker.issues.models import (
+    Issue,
+    IssueCreate,
+    IssueSearch,
+    IssueUpdate,
+    ScrollClear,
+)
 
 # Tracker answers 50 per page by default; 100 halves the round trips of a long listing.
 SEARCH_PAGE_SIZE = 100
@@ -32,7 +36,7 @@ def get_issue(
 
 
 def search_issues(
-    body: dict[str, Any], *, expand: str | None, page_size: int = SEARCH_PAGE_SIZE
+    body: IssueSearch, *, expand: str | None, page_size: int = SEARCH_PAGE_SIZE
 ) -> Paged[ItemList[Issue], Issue]:
     """``POST /issues/_search`` with a ``filter`` or ``query`` body, paged by ``page``/``perPage``.
 
@@ -50,7 +54,7 @@ def search_issues(
 
 
 def scroll_issues(
-    body: dict[str, Any],
+    body: IssueSearch,
     *,
     expand: str | None,
     scroll_type: str,
@@ -74,19 +78,19 @@ def scroll_issues(
     return Paged(endpoint, ScrollPagination(), lambda page: page.root)
 
 
-def count_issues(body: dict[str, Any]) -> Endpoint[int]:
+def count_issues(body: IssueSearch) -> Endpoint[int]:
     return Endpoint("POST", "issues/_count", int, json=body, effect="read")
 
 
 def create_issue(
-    body: dict[str, Any],
+    body: IssueCreate,
     *,
     notify: bool | None,
 ) -> Endpoint[Issue]:
     return Endpoint("POST", "issues/", Issue, json=body, params={"notify": notify})
 
 
-def update_issue(key: str, body: dict[str, Any]) -> Endpoint[Issue]:
+def update_issue(key: str, body: IssueUpdate) -> Endpoint[Issue]:
     return Endpoint("PATCH", f"issues/{segment(key)}", Issue, json=body)
 
 
@@ -131,6 +135,6 @@ def suggest_issues(
     return Endpoint("GET", "issues/_suggest", ItemList[Issue], params=params)
 
 
-def clear_scroll(body: dict[str, str]) -> Endpoint[None]:
+def clear_scroll(body: ScrollClear) -> Endpoint[None]:
     """``POST /system/search/scroll/_clear`` — releasing a scroll is safe to repeat."""
     return Endpoint("POST", "system/search/scroll/_clear", json=body, effect="idempotent_write")

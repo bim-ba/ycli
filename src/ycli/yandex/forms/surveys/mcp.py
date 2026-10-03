@@ -89,7 +89,7 @@ def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> S
     Only the fields you set are sent. Follow up with ``questions_create`` to add questions and
     ``surveys_publish`` to make the form fillable.
     """
-    return client.surveys.create(body.model_dump(exclude_none=True))
+    return client.surveys.create(body)
 
 
 @mcp.tool(
@@ -104,7 +104,7 @@ def modify(
 
     Untouched settings keep their current values, so a partial patch is safe to repeat.
     """
-    return client.surveys.modify(survey_id, body.model_dump(exclude_none=True))
+    return client.surveys.modify(survey_id, body)
 
 
 @mcp.tool(

@@ -179,11 +179,13 @@ def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_cl
 
 ### Typed request body — never `dict`
 
-A write tool that sends a request body types that parameter as the resource's pydantic
-request model — the **same model the CLI command builds** — never a bare `body: dict`. The
-model becomes the tool's input schema, so an agent sees the field names, types, and aliases
-instead of an opaque `object`, and a malformed payload fails schema validation before the
-HTTP call rather than at the live API:
+A request body is the resource's pydantic request model in every layer: the MCP tool takes
+it as its `body` parameter, the CLI command builds it from its options, the client method and
+the endpoint builder take it as it is, and `Endpoint` dumps it once (`core.endpoint.dump_body`:
+API field names, unset fields left out). Nothing in between dumps it, so the three surfaces
+send the same JSON. In an MCP tool the model is the input schema: an agent sees the field
+names, types and aliases instead of an opaque `object`, and a malformed payload fails before
+the HTTP call:
 
 ```python
 @mcp.tool(
@@ -193,15 +195,17 @@ HTTP call rather than at the live API:
 )
 def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation."""
-    return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True))
+    return client.bulk.update(body)
 ```
 
-The client method itself takes a plain dict — the MCP tool converts the validated model with `.model_dump(by_alias=True, exclude_none=True)`, the same call the CLI
-command already makes, so both surfaces produce byte-identical wire JSON from one model.
+A `None` is an absence and is not sent, except where the caller could only have meant it: in a
+field with no default, and in a field the model does not declare (an open body: Tracker clears
+a field given as `null`). A command that merges `--field` values into its body dumps the named
+options, merges, and validates the result into the model.
 
-The only exceptions are a binary upload, which takes `Base64Bytes` (see below), and exactly one
-documented allowlist entry (`ARCH8_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py`) for an
-endpoint whose live wire shape no existing model correctly represents — see Enforcement below.
+The only exception is a binary upload, which takes `Base64Bytes` (see below);
+`ARCH8_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py` is where another would be listed,
+and it is empty.
 
 ### `Ack` for bodyless write responses
 
@@ -221,11 +225,9 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 ### Enforcement
 
 `tests/test_architecture.py::test_arch8_mcp_write_tool_bodies_are_typed` AST-walks every
-`mcp.py` for `@mcp.tool`-decorated functions and fails the build on a bare `dict`/`dict[...]`
-`body` parameter — fail-closed, with exactly one documented exception in
-`ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`: its live wire shape nests
-READ/WRITE/GRANT under `grant`/`revoke` verbs, which the existing
-`ExtendedPermissionsUpdate`/`AclInput` models do not represent).
+`mcp.py`, `client.py` and `endpoints.py` and fails the build on a bare `dict`/`dict[...]`
+`body` parameter; `test_arch8_a_request_body_is_dumped_only_by_the_endpoint` fails on a
+`.model_dump(` in any of the three. Both are fail-closed, with no exception today.
 
 `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema`
 asserts that every registered tool has a non-empty `description` and a non-`None`

@@ -6,10 +6,15 @@ and CLI only; verify and delete also ship as MCP tools.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.files import endpoints
-from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.forms.files.models import FileIn
 from ycli.yandex.models import Ack, ItemList
+
+if TYPE_CHECKING:
+    from ycli.yandex.forms.models import FileOut
 
 
 class FilesClient(Resource):
@@ -57,8 +62,7 @@ class FilesClient(Resource):
             ... ).root[0].check_status
             'ready'
         """
-        body = [file.model_dump(exclude_none=True) for file in files]
-        return self._session.send(endpoints.verify_files(survey_id, body))
+        return self._session.send(endpoints.verify_files(survey_id, ItemList[FileIn](list(files))))
 
     def download(self, path: str, *, download: bool = False, file_hash: str | None = None) -> bytes:
         """``GET /files?path=…`` → a stored file's raw bytes.
@@ -96,9 +100,7 @@ class FilesClient(Resource):
             >>> forms.files.delete(path="a/b/cv.txt", url="https://forms.test/a/b/cv.txt").ok
             True
         """
-        self._session.send(
-            endpoints.delete_file(FileIn(path=path, url=url).model_dump(exclude_none=True))
-        )
+        self._session.send(endpoints.delete_file(FileIn(path=path, url=url)))
         named = " ".join(
             f"{name}={value}" for name, value in (("path", path), ("url", url)) if value
         )

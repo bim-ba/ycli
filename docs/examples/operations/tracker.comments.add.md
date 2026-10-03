@@ -21,5 +21,5 @@
 === "SDK"
 
     ```python
-    tracker.comments.add("DE-14", {"text": "Готово ✅"})
+    tracker.comments.add("DE-14", CommentCreate(text="Готово ✅"))
     ```

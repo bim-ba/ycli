@@ -9,10 +9,13 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachResponse
+from ycli.yandex.wiki.attachments.models import (
+    AttachedFile,
+    Attachment,
+    AttachmentCreate,
+    AttachResponse,
+)
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import CursorPage
 
@@ -55,6 +58,6 @@ def delete_attachment(page_id: int, file_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"pages/{segment(page_id)}/attachments/{segment(file_id)}")
 
 
-def attach_files(page_id: int, body: dict[str, Any]) -> Endpoint[AttachResponse]:
+def attach_files(page_id: int, body: AttachmentCreate) -> Endpoint[AttachResponse]:
     path = f"pages/{segment(page_id)}/attachments"
     return Endpoint("POST", path, AttachResponse, json=body)

@@ -24,5 +24,5 @@
 === "SDK"
 
     ```python
-    tracker.issues.update("DE-7", {"summary": "Renamed", "priority": {"key": "critical"}})
+    tracker.issues.update("DE-7", IssueUpdate(summary="Renamed", priority={"key": "critical"}))
     ```

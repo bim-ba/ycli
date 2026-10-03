@@ -22,6 +22,7 @@ from ycli.yandex.tracker.entities.models import (
     AclInput,
     Attachment,
     BulkChangeOperation,
+    BulkChangeUpdate,
     BulkChangeValues,
     ChecklistItemInput,
     ChecklistMove,
@@ -29,12 +30,16 @@ from ycli.yandex.tracker.entities.models import (
     CommentUpdate,
     DirectPermissionsUpdate,
     Entity,
+    EntityCreate,
     EntityEvent,
     EntityFieldsInput,
+    EntitySearch,
+    EntityUpdate,
     ExtendedPermissions,
     Link,
     LinkInput,
     ParentEntityInput,
+    PermissionsUpdate,
     ReportCreate,
     ReportFieldsInput,
     ReportFilter,
@@ -106,7 +111,7 @@ def _fields_body(
         parentEntity=ParentEntityInput(primary=parent) if parent else None,
         teamUsers=team_user or None,
         tags=tag or None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    ).model_dump(exclude_none=True)
     fields |= parse_fields(field)
     return fields
 
@@ -150,7 +155,7 @@ def create(
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
-    body = {"fields": fields_body}
+    body = EntityCreate.model_validate({"fields": fields_body})
     return tracker.entities.create(type_.value, body=body, fields=fields or None)
 
 
@@ -181,11 +186,7 @@ def update(
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
-    body: dict[str, Any] = {}
-    if fields_body:
-        body["fields"] = fields_body
-    if comment:
-        body["comment"] = comment
+    body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment or None})
     return tracker.entities.edit(
         type_.value, entity_id, body=body, expand=expand or None, fields=fields or None
     )
@@ -226,16 +227,15 @@ def search(
     """Search entities of TYPE (POST /entities/TYPE/_search)."""
     if order_asc and not order_by:
         raise typer.BadParameter("needs --order-by", param_hint="--order-asc")
-    body: dict[str, Any] = {}
-    if input_:
-        body["input"] = input_
-    if filter_:
-        body["filter"] = parse_fields(filter_)
-    if order_by:
-        body["orderBy"] = order_by
-        body["orderAsc"] = order_asc
-    if root_only:
-        body["rootOnly"] = True
+    body = EntitySearch.model_validate(
+        {
+            "input": input_ or None,
+            "filter": parse_fields(filter_) or None,
+            "orderBy": order_by or None,
+            "orderAsc": order_asc if order_by else None,
+            "rootOnly": root_only or None,
+        }
+    )
     return tracker.entities.search(type_.value, body, fields=fields or None)
 
 
@@ -293,7 +293,7 @@ def set_permissions(
     (READ/WRITE/GRANT) to users/groups/roles, e.g.
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
     """
-    body = {"acl": parse_fields(field)}
+    body = PermissionsUpdate.model_validate({"acl": parse_fields(field)})
     return tracker.entities.set_permissions(type_.value, entity_id, body=body)
 
 
@@ -338,10 +338,8 @@ def bulk_update(
     tracker: TrackerClient,
 ) -> BulkChangeOperation:
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
-    values = BulkChangeValues(
-        fields=parse_fields(field) or None, comment=comment or None
-    ).model_dump(by_alias=True, exclude_none=True)
-    body = {"metaEntities": entity, "values": values}
+    values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment or None)
+    body = BulkChangeUpdate.model_validate({"metaEntities": entity, "values": values})
     return tracker.entities.bulk_update(type_.value, body=body)
 
 
@@ -377,7 +375,7 @@ def create_report(
                 format=format_, filter=ReportFilter(query=query), fields=field or []
             ),
         )
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.entities.create_report(body=body)
 
 
@@ -432,9 +430,7 @@ def comments_create(
     tracker: TrackerClient,
 ) -> Comment:
     """Add a comment to an entity (POST …/comments)."""
-    body = CommentCreate(text=text, summonees=summon or None).model_dump(
-        by_alias=True, exclude_none=True
-    )
+    body = CommentCreate(text=text, summonees=summon or None)
     return tracker.entities.comments_create(
         type_.value,
         entity_id,
@@ -460,7 +456,7 @@ def comments_update(
     tracker: TrackerClient,
 ) -> Comment:
     """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
-    body = CommentUpdate(text=text).model_dump(by_alias=True, exclude_none=True)
+    body = CommentUpdate(text=text)
     return tracker.entities.comments_edit(
         type_.value,
         entity_id,
@@ -528,9 +524,7 @@ def checklists_create(
     tracker: TrackerClient,
 ) -> Entity:
     """Add checklist items to an entity (POST …/checklistItems)."""
-    items = ItemList[ChecklistItemInput]([ChecklistItemInput(text=t) for t in text]).model_dump(
-        by_alias=True, exclude_none=True
-    )
+    items = ItemList[ChecklistItemInput]([ChecklistItemInput(text=t) for t in text])
     return tracker.entities.checklists_create(
         type_.value,
         entity_id,
@@ -568,7 +562,7 @@ def checklists_update(
         if not separator:
             raise typer.BadParameter(f"must be id=text, got {raw!r}", param_hint="--item")
         inputs.append(ChecklistItemInput(id=item_id, text=text))
-    items = ItemList[ChecklistItemInput](inputs).model_dump(by_alias=True, exclude_none=True)
+    items = ItemList[ChecklistItemInput](inputs)
     return tracker.entities.checklists_edit(
         type_.value,
         entity_id,
@@ -601,9 +595,7 @@ def checklists_update_item(
     tracker: TrackerClient,
 ) -> Entity:
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
-    body = _item_input(text, checked, assignee, deadline).model_dump(
-        by_alias=True, exclude_none=True
-    )
+    body = _item_input(text, checked, assignee, deadline)
     return tracker.entities.checklists_edit_item(
         type_.value,
         entity_id,
@@ -676,7 +668,7 @@ def checklists_move(
     tracker: TrackerClient,
 ) -> Entity:
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
-    body = ChecklistMove(before=before or None).model_dump(by_alias=True, exclude_none=True)
+    body = ChecklistMove(before=before or None)
     return tracker.entities.checklists_move(
         type_.value,
         entity_id,
@@ -713,7 +705,7 @@ def links_create(
     tracker: TrackerClient,
 ) -> Ack:
     """Create a link between entities (POST …/links)."""
-    body = LinkInput(relationship=relationship, entity=entity).model_dump(by_alias=True)
+    body = LinkInput(relationship=relationship, entity=entity)
     tracker.entities.links_create(type_.value, entity_id, body=body)
     return Ack.linked(type_.value, entity_id, entity, relationship)
 

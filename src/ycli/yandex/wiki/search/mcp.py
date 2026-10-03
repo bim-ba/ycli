@@ -49,4 +49,4 @@ def query(
         order_by=order_by,
         highlight=highlight,
     )
-    return client.search.query(request.model_dump(mode="json", exclude_none=True))
+    return client.search.query(request)

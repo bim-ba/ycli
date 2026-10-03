@@ -13,7 +13,12 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogUpdate
+from ycli.yandex.tracker.worklog.models import (
+    Worklog,
+    WorklogCreate,
+    WorklogSearch,
+    WorklogUpdate,
+)
 
 app = typer.Typer(name="worklog", help="Tracker issue worklog.", no_args_is_help=True)
 
@@ -47,12 +52,10 @@ def search(
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
     """Search org-wide worklog by author and/or time range (POST /worklog/_search)."""
-    body: dict[str, object] = {}
-    if created_by:
-        body["createdBy"] = created_by
-    created_at = {k: v for k, v in (("from", created_from), ("to", created_to)) if v}
-    if created_at:
-        body["createdAt"] = created_at
+    period = {"from": created_from or None, "to": created_to or None}
+    body = WorklogSearch.model_validate(
+        {"createdBy": created_by or None, "createdAt": period if any(period.values()) else None}
+    )
     return tracker.worklog.search(body=body)
 
 
@@ -90,9 +93,7 @@ def create(
 ) -> Worklog:
     """Log time spent on issue KEY (POST /issues/{key}/worklog)."""
     named = {"start": start} if start else {}
-    body = WorklogCreate(duration=duration, comment=comment or None, **named).model_dump(
-        exclude_none=True
-    )
+    body = WorklogCreate(duration=duration, comment=comment or None, **named)
     return tracker.worklog.create(key, body=body)
 
 
@@ -106,9 +107,7 @@ def update(
     tracker: TrackerClient,
 ) -> Worklog:
     """Edit worklog RECORD_ID on issue KEY — only supplied fields are sent."""
-    body = WorklogUpdate(duration=duration or None, comment=comment or None).model_dump(
-        exclude_none=True
-    )
+    body = WorklogUpdate(duration=duration or None, comment=comment or None)
     return tracker.worklog.edit(key, record_id, body=body)
 
 

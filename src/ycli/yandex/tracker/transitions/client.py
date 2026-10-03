@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.transitions import endpoints
 
 if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
-    from ycli.yandex.tracker.transitions.models import Transition
+    from ycli.yandex.tracker.transitions.models import Transition, TransitionExecute
 
 
 class TransitionsClient(Resource):
@@ -30,7 +30,9 @@ class TransitionsClient(Resource):
         """
         return self._session.send(endpoints.list_transitions(key))
 
-    def execute(self, key: str, transition_id: str, body: dict[str, Any]) -> ItemList[Transition]:
+    def execute(
+        self, key: str, transition_id: str, body: TransitionExecute
+    ) -> ItemList[Transition]:
         """``POST /issues/{key}/transitions/{id}/_execute`` → available transitions after move.
 
         Returns the transitions available for the issue in its new status,
@@ -45,8 +47,11 @@ class TransitionsClient(Resource):
             The transitions available after the move.
 
         Examples:
+            >>> from ycli.yandex.tracker.transitions.models import TransitionExecute
             >>> result = tracker.transitions.execute(
-            ...     "DE-52", "close", {"comment": "done", "resolution": "fixed"}
+            ...     "DE-52",
+            ...     "close",
+            ...     TransitionExecute.model_validate({"comment": "done", "resolution": "fixed"}),
             ... )
             >>> result.root[0].id
             'reopen'

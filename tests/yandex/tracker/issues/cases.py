@@ -1,6 +1,7 @@
 """Contract cases for Tracker ``/issues`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from ycli.yandex.tracker.issues.models import IssueCreate, IssueSearch, IssueUpdate, ScrollClear
 
 ISSUE = {"key": "DE-7", "summary": "Fix the login page"}
 SEARCH = {"page": "1", "perPage": "100"}
@@ -15,7 +16,11 @@ CASES = [
     ),
     Case(
         "tracker.issues.search",
-        args=({"filter": {"queue": "DE", "status": "open", "assignee": "alice"}},),
+        args=(
+            IssueSearch.model_validate(
+                {"filter": {"queue": "DE", "status": "open", "assignee": "alice"}}
+            ),
+        ),
         kwargs={"limit": 500},
         cli=[
             "tracker",
@@ -44,7 +49,7 @@ CASES = [
     ),
     Case(
         "tracker.issues.search",
-        args=({"query": "Queue: DE"},),
+        args=(IssueSearch.model_validate({"query": "Queue: DE"}),),
         kwargs={"limit": 3},
         cli=["tracker", "issues", "search", "Queue: DE", "--limit", "3"],
         mcp=("tracker_issues_search", {"query": "Queue: DE", "limit": 3}),
@@ -60,7 +65,7 @@ CASES = [
     ),
     Case(
         "tracker.issues.count",
-        args=({"filter": {"queue": "DE", "status": "open"}},),
+        args=(IssueSearch.model_validate({"filter": {"queue": "DE", "status": "open"}}),),
         cli=["tracker", "issues", "count", "--queue", "DE", "--status", "open"],
         mcp=("tracker_issues_count", {"queue": "DE", "status": "open"}),
         exchanges=[
@@ -73,7 +78,11 @@ CASES = [
     ),
     Case(
         "tracker.issues.create",
-        args=({"queue": "DE", "summary": "New", "type": {"key": "bug"}, "tags": ["ui"]},),
+        args=(
+            IssueCreate.model_validate(
+                {"queue": "DE", "summary": "New", "type": {"key": "bug"}, "tags": ["ui"]}
+            ),
+        ),
         cli=[
             "tracker",
             "issues",
@@ -104,7 +113,10 @@ CASES = [
     ),
     Case(
         "tracker.issues.update",
-        args=("DE-7", {"summary": "Renamed", "priority": {"key": "critical"}}),
+        args=(
+            "DE-7",
+            IssueUpdate.model_validate({"summary": "Renamed", "priority": {"key": "critical"}}),
+        ),
         cli=[
             "tracker",
             "issues",
@@ -146,7 +158,7 @@ CASES = [
     ),
     Case(
         "tracker.issues.scroll_clear",
-        args=({"scroll-1": "token-1"},),
+        args=(ScrollClear.model_validate({"scroll-1": "token-1"}),),
         cli=["tracker", "issues", "scroll-clear", "--pair", "scroll-1=token-1"],
         mcp=("tracker_issues_scroll_clear", {"body": {"scroll-1": "token-1"}}),
         exchanges=[
@@ -156,7 +168,7 @@ CASES = [
     ),
     Case(
         "tracker.issues.count",
-        args=({"query": "Queue: DE AND Status: open"},),
+        args=(IssueSearch.model_validate({"query": "Queue: DE AND Status: open"}),),
         cli=["tracker", "issues", "count", "--query", "Queue: DE AND Status: open"],
         mcp=("tracker_issues_count", {"query": "Queue: DE AND Status: open"}),
         exchanges=[
@@ -169,7 +181,9 @@ CASES = [
     ),
     Case(
         "tracker.issues.create",
-        args=({"queue": "OPS", "summary": "Only the required options"},),
+        args=(
+            IssueCreate.model_validate({"queue": "OPS", "summary": "Only the required options"}),
+        ),
         cli=[
             "tracker",
             "issues",
@@ -193,7 +207,12 @@ CASES = [
     # explicit null is sent.
     Case(
         "tracker.issues.update",
-        args=("DE-8", {"summary": "B", "description": "", "assignee": None, "sprint": 7}),
+        args=(
+            "DE-8",
+            IssueUpdate.model_validate(
+                {"summary": "B", "description": "", "assignee": None, "sprint": 7}
+            ),
+        ),
         cli=[
             "tracker",
             "issues",
@@ -306,7 +325,7 @@ CASES += [
     # Scrolling has no 10 000 cap: each reply names the next page in a header.
     Case(
         "tracker.issues.search",
-        args=({"query": "Queue: BIG"},),
+        args=(IssueSearch.model_validate({"query": "Queue: BIG"}),),
         kwargs={
             "limit": 500,
             "expand": "transitions",

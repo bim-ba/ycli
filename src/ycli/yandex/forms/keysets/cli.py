@@ -54,7 +54,7 @@ def create(
 
     ``POST /surveys/{id}/keysets``: the API requires is_enabled, so it is always sent in the body.
     """
-    body = KeysetCreate(name=name, total=total, is_enabled=enabled).model_dump()
+    body = KeysetCreate(name=name, total=total, is_enabled=enabled)
     return forms.keysets.create(survey_id, body=body)
 
 
@@ -72,7 +72,7 @@ def update(
 
     ``PATCH``: the API replaces the whole record, so name, total and enabled are sent together.
     """
-    body = KeysetUpdate(name=name, total=total, is_enabled=enabled).model_dump()
+    body = KeysetUpdate(name=name, total=total, is_enabled=enabled)
     return forms.keysets.modify(survey_id, keyset_id, body=body)
 
 

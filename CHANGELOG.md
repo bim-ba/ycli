@@ -9,6 +9,42 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.49.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.48.0
+  ([`2b3a7f6`](https://github.com/bim-ba/ycli/commit/2b3a7f65a97f3f228c52a0e32f0d35d4b7a50c03))
+
+### Chores
+
+- Remove a Cloudflare CLI cache file committed by mistake
+  ([#249](https://github.com/bim-ba/ycli/pull/249),
+  [`3b12a02`](https://github.com/bim-ba/ycli/commit/3b12a02a94bed3d63094a8b88c13edfe0bd7feee))
+
+### Documentation
+
+- Three states per operation in the coverage tables
+  ([#248](https://github.com/bim-ba/ycli/pull/248),
+  [`07ef5e1`](https://github.com/bim-ba/ycli/commit/07ef5e165ac73e8a7e87c15e65cdb8116b636c3d))
+
+### Features
+
+- **sdk**: A request body is a model from the call down to the endpoint
+  ([#252](https://github.com/bim-ba/ycli/pull/252),
+  [`3a30706`](https://github.com/bim-ba/ycli/commit/3a307066f9983fa7f6358bdf50d3b21890fdbeb8))
+
+### Breaking Changes
+
+- **sdk**: SDK methods that took `body: dict` take the request model
+  (`tracker.issues.create(IssueCreate(...))`, `wiki.pages.update(page_id, PageUpdate(...))`); build
+  one with the model's constructor or `Model.model_validate(a_dict)`. `forms.notifications.list`
+  takes a `NotificationFilter` instead of twelve keyword arguments.
+  `tracker.issues.models.count_body` and `filter_body` return an `IssueSearch`. `AccessHolders` and
+  `AccessPermissions` moved from `tracker.queues.models` to `tracker.models`, `FileOut` from
+  `forms.files.models` to `forms.models`.
+
+
 ## v0.48.0 (2026-10-03)
 
 ### Build System

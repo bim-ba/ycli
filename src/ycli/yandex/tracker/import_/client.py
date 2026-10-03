@@ -9,7 +9,7 @@ answers with a JSON array); the file import is ``multipart/form-data`` with ``fi
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.import_ import endpoints
@@ -18,6 +18,12 @@ if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.attachments.models import Attachment
     from ycli.yandex.tracker.comments.models import Comment
+    from ycli.yandex.tracker.import_.models import (
+        ImportComment,
+        ImportLink,
+        ImportTask,
+        ImportWorklog,
+    )
     from ycli.yandex.tracker.issues.models import Issue
     from ycli.yandex.tracker.links.models import Link
     from ycli.yandex.tracker.worklog.models import Worklog
@@ -26,7 +32,7 @@ if TYPE_CHECKING:
 class ImportClient(Resource):
     """The Tracker ``/_import`` endpoints (admin-only)."""
 
-    def task(self, body: dict[str, Any]) -> Issue:
+    def task(self, body: ImportTask) -> Issue:
         """``POST /issues/_import`` — import an issue preserving its history. Returns the ``Issue``.
 
         Args:
@@ -36,20 +42,23 @@ class ImportClient(Resource):
             The imported issue.
 
         Examples:
+            >>> from ycli.yandex.tracker.import_.models import ImportTask
             >>> tracker.import_.task(
-            ...     {
-            ...         "queue": "TEST",
-            ...         "summary": "Old task",
-            ...         "createdAt": "2017-08-29T12:34:41.740+0000",
-            ...         "createdBy": "11",
-            ...         "key": "TEST-41",
-            ...     }
+            ...     ImportTask.model_validate(
+            ...         {
+            ...             "queue": "TEST",
+            ...             "summary": "Old task",
+            ...             "createdAt": "2017-08-29T12:34:41.740+0000",
+            ...             "createdBy": "11",
+            ...             "key": "TEST-41",
+            ...         }
+            ...     )
             ... ).key
             'TEST-41'
         """
         return self._session.send(endpoints.import_task(body))
 
-    def comment(self, issue_key: str, body: dict[str, Any]) -> Comment:
+    def comment(self, issue_key: str, body: ImportComment) -> Comment:
         """``POST /issues/{issue_key}/comments/_import`` — import a comment; returns ``Comment``.
 
         Args:
@@ -60,19 +69,22 @@ class ImportClient(Resource):
             The imported comment.
 
         Examples:
+            >>> from ycli.yandex.tracker.import_.models import ImportComment
             >>> tracker.import_.comment(
             ...     "TEST-2",
-            ...     {
-            ...         "text": "Old comment",
-            ...         "createdAt": "2019-02-03T04:05:06.000+0000",
-            ...         "createdBy": "13",
-            ...     },
+            ...     ImportComment.model_validate(
+            ...         {
+            ...             "text": "Old comment",
+            ...             "createdAt": "2019-02-03T04:05:06.000+0000",
+            ...             "createdBy": "13",
+            ...         }
+            ...     ),
             ... ).text
             'Old comment'
         """
         return self._session.send(endpoints.import_comment(issue_key, body))
 
-    def link(self, issue_key: str, body: dict[str, Any]) -> Link:
+    def link(self, issue_key: str, body: ImportLink) -> Link:
         """``POST /issues/{issue_key}/links/_import`` — import an issue link. Returns the ``Link``.
 
         Args:
@@ -83,20 +95,23 @@ class ImportClient(Resource):
             The imported link.
 
         Examples:
+            >>> from ycli.yandex.tracker.import_.models import ImportLink
             >>> tracker.import_.link(
             ...     "TEST-3",
-            ...     {
-            ...         "relationship": "depends on",
-            ...         "issue": "TEST-4",
-            ...         "createdAt": "2020-03-04T05:06:07.000+0000",
-            ...         "createdBy": "14",
-            ...     },
+            ...     ImportLink.model_validate(
+            ...         {
+            ...             "relationship": "depends on",
+            ...             "issue": "TEST-4",
+            ...             "createdAt": "2020-03-04T05:06:07.000+0000",
+            ...             "createdBy": "14",
+            ...         }
+            ...     ),
             ... ).object.key
             'TEST-4'
         """
         return self._session.send(endpoints.import_link(issue_key, body))
 
-    def worklog(self, issue_key: str, body: dict[str, Any]) -> ItemList[Worklog]:
+    def worklog(self, issue_key: str, body: ImportWorklog) -> ItemList[Worklog]:
         """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).
 
         Returns a ``ItemList[Worklog]`` — the live endpoint answers with a JSON **array** of the
@@ -110,14 +125,17 @@ class ImportClient(Resource):
             The created worklog record(s).
 
         Examples:
+            >>> from ycli.yandex.tracker.import_.models import ImportWorklog
             >>> tracker.import_.worklog(
             ...     "TEST-5",
-            ...     {
-            ...         "duration": "PT2H",
-            ...         "createdAt": "2021-04-05T06:07:08.000+0000",
-            ...         "createdBy": "15",
-            ...         "start": "2021-04-05T09:00:00.000+0000",
-            ...     },
+            ...     ImportWorklog.model_validate(
+            ...         {
+            ...             "duration": "PT2H",
+            ...             "createdAt": "2021-04-05T06:07:08.000+0000",
+            ...             "createdBy": "15",
+            ...             "start": "2021-04-05T09:00:00.000+0000",
+            ...         }
+            ...     ),
             ... ).root[0].duration
             'PT2H'
         """

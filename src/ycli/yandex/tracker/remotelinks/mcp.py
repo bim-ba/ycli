@@ -59,9 +59,7 @@ def create(
     Get the application id (``origin``) from ``applications_list``. Pass ``backlink="true"``
     to also create the mirror link in the external app.
     """
-    return client.remotelinks.create(
-        issue_key, body.model_dump(exclude_none=True), backlink=backlink
-    )
+    return client.remotelinks.create(issue_key, body, backlink=backlink)
 
 
 @mcp.tool(

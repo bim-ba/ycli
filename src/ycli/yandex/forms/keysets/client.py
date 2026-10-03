@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.keysets import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.keysets.models import Keyset
+    from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
     from ycli.yandex.models import ItemList
 
 
@@ -46,28 +46,31 @@ class KeysetsClient(Resource):
         """
         return self._session.send(endpoints.get_keyset(survey_id, keyset_id))
 
-    def create(self, survey_id: str, body: dict[str, Any]) -> Keyset:
-        """``POST /surveys/{id}/keysets`` — create a key set from a dumped ``KeysetCreate``.
+    def create(self, survey_id: str, body: KeysetCreate) -> Keyset:
+        """``POST /surveys/{id}/keysets`` — create a key set from a ``KeysetCreate``.
 
         The API requires ``is_enabled`` on create, alongside ``name`` and ``total``.
 
         Args:
             survey_id: The form's id.
-            body: The dumped ``KeysetCreate``.
+            body: The ``KeysetCreate``.
 
         Returns:
             The created key set, with its ``id``.
 
         Examples:
+            >>> from ycli.yandex.forms.keysets.models import KeysetCreate
             >>> forms.keysets.create(
             ...     "686d0a1b2c3d4e5f00000020",
-            ...     {"name": "Q1 invites", "total": 100, "is_enabled": True},
+            ...     KeysetCreate.model_validate(
+            ...         {"name": "Q1 invites", "total": 100, "is_enabled": True}
+            ...     ),
             ... ).id
             3
         """
         return self._session.send(endpoints.create_keyset(survey_id, body))
 
-    def modify(self, survey_id: str, keyset_id: int, body: dict[str, Any]) -> Keyset:
+    def modify(self, survey_id: str, keyset_id: int, body: KeysetUpdate) -> Keyset:
         """``PATCH /surveys/{id}/keysets/{keyset_id}`` — replace a key set → the :class:`Keyset`.
 
         Despite the method, the API validates a full record: ``name``, ``total`` and
@@ -76,16 +79,19 @@ class KeysetsClient(Resource):
         Args:
             survey_id: The form's id.
             keyset_id: The key set's id.
-            body: The dumped ``KeysetUpdate`` with every field set.
+            body: The ``KeysetUpdate`` with every field set.
 
         Returns:
             The replaced key set.
 
         Examples:
+            >>> from ycli.yandex.forms.keysets.models import KeysetUpdate
             >>> forms.keysets.modify(
             ...     "686d0a1b2c3d4e5f00000020",
             ...     4,
-            ...     {"name": "Q1 invites", "total": 100, "is_enabled": True},
+            ...     KeysetUpdate.model_validate(
+            ...         {"name": "Q1 invites", "total": 100, "is_enabled": True}
+            ...     ),
             ... ).name
             'Q1 invites'
         """

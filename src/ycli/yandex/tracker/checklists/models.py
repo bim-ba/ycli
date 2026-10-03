@@ -71,7 +71,7 @@ class ChecklistItemCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/checklistItems`` (add an item).
 
     Examples:
-        >>> ChecklistItemCreate(text="do it").model_dump(by_alias=True, exclude_none=True)
+        >>> ChecklistItemCreate(text="do it").model_dump(exclude_none=True)
         {'text': 'do it'}
     """
 
@@ -85,7 +85,7 @@ class ChecklistItemUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}/checklistItems/{item_id}`` (edit an item).
 
     Examples:
-        >>> ChecklistItemUpdate(checked=True).model_dump(by_alias=True, exclude_none=True)
+        >>> ChecklistItemUpdate(checked=True).model_dump(exclude_none=True)
         {'checked': True}
     """
 

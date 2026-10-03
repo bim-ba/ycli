@@ -1,6 +1,7 @@
 """TDD for Forms files models (FileOut / ItemList[FileOut] / FileIn)."""
 
-from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.forms.files.models import FileIn
+from ycli.yandex.forms.models import FileOut
 from ycli.yandex.models import ItemList
 
 

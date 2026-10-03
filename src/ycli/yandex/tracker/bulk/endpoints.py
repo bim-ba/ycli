@@ -12,15 +12,19 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResult
+from ycli.yandex.tracker.bulk.models import (
+    BulkChange,
+    BulkIssueResult,
+    BulkMove,
+    BulkTransition,
+    BulkUpdate,
+)
 
 
 def update_bulk(
-    body: dict[str, Any],
+    body: BulkUpdate,
     *,
     notify: bool | None,
 ) -> Endpoint[BulkChange]:
@@ -28,7 +32,7 @@ def update_bulk(
 
 
 def move_bulk(
-    body: dict[str, Any],
+    body: BulkMove,
     *,
     notify: bool | None,
 ) -> Endpoint[BulkChange]:
@@ -36,7 +40,7 @@ def move_bulk(
 
 
 def transition_bulk(
-    body: dict[str, Any],
+    body: BulkTransition,
     *,
     notify: bool | None,
 ) -> Endpoint[BulkChange]:

@@ -321,8 +321,8 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 | Service | Published | Wrapped | Not wrapped | Operations that differ | Bodies compared | Source |
 |---------|:---------:|:-------:|:-----------:|:----------------------:|:---------------:|--------|
 | Tracker | 190 | 188 | 0 (+2 on purpose) | 0 | — | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
-| Wiki | 56 | 56 | 0 | 0 | 20 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
-| Forms | 84 | 84 | 0 | 8 | 24 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
+| Wiki | 56 | 56 | 0 | 0 | 24 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
+| Forms | 84 | 84 | 0 | 8 | 26 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
 
 <details>
 <summary><b>Tracker: what differs</b></summary>

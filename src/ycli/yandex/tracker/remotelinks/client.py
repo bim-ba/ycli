@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.remotelinks import endpoints
 
 if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
-    from ycli.yandex.tracker.remotelinks.models import RemoteLink
+    from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate
 
 
 class RemoteLinksClient(Resource):
@@ -31,7 +31,7 @@ class RemoteLinksClient(Resource):
         return self._session.send(endpoints.list_remote_links(issue_key))
 
     def create(
-        self, issue_key: str, body: dict[str, Any], backlink: str | None = None
+        self, issue_key: str, body: RemoteLinkCreate, backlink: str | None = None
     ) -> RemoteLink:
         """``POST /issues/{issue_key}/remotelinks?backlink=…`` — add an external link.
 
@@ -46,9 +46,16 @@ class RemoteLinksClient(Resource):
             The created external link.
 
         Examples:
+            >>> from ycli.yandex.tracker.remotelinks.models import RemoteLinkCreate
             >>> tracker.remotelinks.create(
             ...     "JUNE-3",
-            ...     {"relationship": "BLOCKS", "key": "TEST-18", "origin": "ru.yandex.bitbucket"},
+            ...     RemoteLinkCreate.model_validate(
+            ...         {
+            ...             "relationship": "BLOCKS",
+            ...             "key": "TEST-18",
+            ...             "origin": "ru.yandex.bitbucket",
+            ...         }
+            ...     ),
             ...     backlink="true",
             ... ).object_key
             'TEST-18'

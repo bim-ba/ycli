@@ -9,13 +9,14 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
 from ycli.yandex.core.pagination import NextURLPagination
 from ycli.yandex.forms.answers.models import (
     Answer,
     AnswerDetails,
+    AnswerExport,
     AnswerIntegration,
     AnswersResponse,
 )
@@ -69,7 +70,7 @@ def list_answers(
     )
 
 
-def export_answers(survey_id: str, body: dict[str, Any]) -> Endpoint[OperationResult]:
+def export_answers(survey_id: str, body: AnswerExport) -> Endpoint[OperationResult]:
     return Endpoint(
         "POST", f"surveys/{segment(survey_id)}/answers/export", OperationResult, json=body
     )

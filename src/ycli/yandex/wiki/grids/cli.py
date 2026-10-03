@@ -105,7 +105,7 @@ def create(
     if not page_id and not page_slug:
         raise typer.BadParameter("provide --page-slug or --page-id")
     page = PageIdentity(id=page_id) if page_id else PageIdentity(slug=page_slug)
-    body = GridCreate(title=title, page=page).model_dump(exclude_none=True)
+    body = GridCreate(title=title, page=page)
     return wiki.grids.create(body=body)
 
 
@@ -134,7 +134,7 @@ def update(
         revision=revision,
         title=title or None,
         default_sort=json.loads(default_sort) if default_sort else None,
-    ).model_dump(exclude_none=True)
+    )
     return wiki.grids.update(grid_id, body=body)
 
 
@@ -161,9 +161,7 @@ def clone(
     wiki: WikiClient,
 ) -> AsyncOperation | GridCloneOperationStatus:
     """Copy a grid onto another page (POST /grids/{id}/clone; async). --wait polls to completion."""
-    body = GridClone(target=target, title=title or None, with_data=with_data).model_dump(
-        exclude_none=True
-    )
+    body = GridClone(target=target, title=title or None, with_data=with_data)
     operation = wiki.grids.clone(grid_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
@@ -196,7 +194,7 @@ def rows_add(
         rows=json.loads(rows),
         position=position,
         after_row_id=after_row_id or None,
-    ).model_dump(exclude_none=True)
+    )
     return wiki.grids.add_rows(grid_id, body=body)
 
 
@@ -209,7 +207,7 @@ def rows_remove(
     wiki: WikiClient,
 ) -> RevisionResult:
     """Delete rows from a grid by id (DELETE /grids/{id}/rows)."""
-    body = RowsRemove(revision=revision, row_ids=row_id).model_dump(exclude_none=True)
+    body = RowsRemove(revision=revision, row_ids=row_id)
     return wiki.grids.remove_rows(grid_id, body=body)
 
 
@@ -235,7 +233,7 @@ def rows_move(
         after_row_id=after_row_id or None,
         position=position,
         rows_count=rows_count,
-    ).model_dump(exclude_none=True)
+    )
     return wiki.grids.move_rows(grid_id, body=body)
 
 
@@ -260,9 +258,7 @@ def columns_add(
     The API requires a ``slug`` on every column; a column without one gets a slug derived from
     its title (lowercased, non-alphanumeric runs collapsed to ``_``).
     """
-    body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position).model_dump(
-        exclude_none=True
-    )
+    body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position)
     return wiki.grids.add_columns(grid_id, body=body)
 
 
@@ -277,7 +273,7 @@ def columns_remove(
     wiki: WikiClient,
 ) -> RevisionResult:
     """Delete columns from a grid by slug (DELETE /grids/{id}/columns)."""
-    body = ColumnsRemove(revision=revision, column_slugs=column_slug).model_dump(exclude_none=True)
+    body = ColumnsRemove(revision=revision, column_slugs=column_slug)
     return wiki.grids.remove_columns(grid_id, body=body)
 
 
@@ -301,7 +297,7 @@ def columns_move(
         column_slug=column_slug or None,
         position=position,
         columns_count=columns_count,
-    ).model_dump(exclude_none=True)
+    )
     return wiki.grids.move_columns(grid_id, body=body)
 
 
@@ -320,7 +316,7 @@ def cells_update(
     wiki: WikiClient,
 ) -> CellsUpdateResult:
     """Set individual cell values in a grid (POST /grids/{id}/cells)."""
-    body = CellsUpdate(revision=revision, cells=json.loads(cells)).model_dump(exclude_none=True)
+    body = CellsUpdate(revision=revision, cells=json.loads(cells))
     return wiki.grids.update_cells(grid_id, body=body)
 
 
@@ -341,7 +337,7 @@ def rows_update(
         revision=revision or None,
         pinned=pinned,
         color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
-    ).model_dump(exclude_none=True)
+    )
     return wiki.grids.update_row(grid_id, row_id, body=body)
 
 
@@ -356,7 +352,7 @@ def columns_suggest(
     wiki: WikiClient,
 ) -> ColumnSuggestion:
     """Check a column slug (POST /grids/{id}/columns/suggest; reads only; undocumented API)."""
-    body = ColumnSuggest(title=title or None, slug=slug or None).model_dump(exclude_none=True)
+    body = ColumnSuggest(title=title or None, slug=slug or None)
     return wiki.grids.suggest_column(grid_id, body=body)
 
 
@@ -397,5 +393,5 @@ def columns_update(
         pinned=pinned or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the edge literal
         color=color or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
         select_options=select_options,
-    ).model_dump(exclude_none=True)
+    )
     return wiki.grids.update_column(grid_id, column_slug, body=body)

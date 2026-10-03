@@ -9,11 +9,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.projects.models import Project
+from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
 from ycli.yandex.tracker.queues.models import Queue
 
 
@@ -31,12 +29,12 @@ def list_project_queues(project_id: int, *, expand: str | None = None) -> Endpoi
     )
 
 
-def create_project(body: dict[str, Any]) -> Endpoint[Project]:
+def create_project(body: ProjectCreate) -> Endpoint[Project]:
     return Endpoint("POST", "projects", Project, json=body)
 
 
 def edit_project(
-    project_id: int, body: dict[str, Any], *, version: int, expand: str | None = None
+    project_id: int, body: ProjectUpdate, *, version: int, expand: str | None = None
 ) -> Endpoint[Project]:
     """``PUT /projects/{id}?version=`` — the lock is required; PUT sets, so it is idempotent."""
     return Endpoint(

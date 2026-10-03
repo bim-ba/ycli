@@ -65,11 +65,14 @@ def literal(value: Any) -> str:
         '{"queue": "DE", "tags": ["ui"], "done": True}'
     """
     if isinstance(value, BaseModel):
-        fields = ", ".join(
-            f"{name}={literal(getattr(value, name))}"
+        given = {
+            name: getattr(value, name)
             for name in type(value).model_fields
             if name in value.model_fields_set
-        )
+        }
+        # A field the model does not declare (an open body) is a keyword argument like the rest.
+        given |= value.model_extra or {}
+        fields = ", ".join(f"{name}={literal(item)}" for name, item in given.items())
         return f"{type(value).__name__}({fields})"
     if isinstance(value, str):
         return json.dumps(value, ensure_ascii=False)

@@ -9,18 +9,21 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.queues.models import (
     Queue,
+    QueueCreate,
     QueueField,
     QueueGroupAccess,
     QueuePermissions,
+    QueuePermissionsUpdate,
+    QueueTagRemove,
     QueueUserAccess,
+    QueueVersionCreate,
     QueueVersionInfo,
+    QueueVersionUpdate,
 )
 
 # Tracker's own default page size for /queues/.
@@ -59,7 +62,7 @@ def list_fields(queue_id: str) -> Endpoint[ItemList[QueueField]]:
     return Endpoint("GET", f"{_queue(queue_id)}/fields", ItemList[QueueField])
 
 
-def create_queue(body: dict[str, Any]) -> Endpoint[Queue]:
+def create_queue(body: QueueCreate) -> Endpoint[Queue]:
     return Endpoint("POST", "queues/", Queue, json=body)
 
 
@@ -71,16 +74,16 @@ def restore_queue(queue_id: str) -> Endpoint[Queue]:
     return Endpoint("POST", f"{_queue(queue_id)}/_restore", Queue)
 
 
-def set_permissions(queue_id: str, body: dict[str, Any]) -> Endpoint[QueuePermissions]:
+def set_permissions(queue_id: str, body: QueuePermissionsUpdate) -> Endpoint[QueuePermissions]:
     return Endpoint("PATCH", f"{_queue(queue_id)}/permissions", QueuePermissions, json=body)
 
 
-def remove_tag(queue_id: str, body: dict[str, Any]) -> Endpoint[None]:
+def remove_tag(queue_id: str, body: QueueTagRemove) -> Endpoint[None]:
     """``POST /queues/{id}/tags/_remove`` — strips the tag from every issue of the queue."""
     return Endpoint("POST", f"{_queue(queue_id)}/tags/_remove", json=body, effect="destructive")
 
 
-def create_version(body: dict[str, Any]) -> Endpoint[QueueVersionInfo]:
+def create_version(body: QueueVersionCreate) -> Endpoint[QueueVersionInfo]:
     return Endpoint("POST", "versions/", QueueVersionInfo, json=body)
 
 
@@ -91,7 +94,7 @@ def get_version(version_id: int, *, fields: str | None = None) -> Endpoint[Queue
 
 
 def edit_version(
-    version_id: int, body: dict[str, Any], *, fields: str | None = None
+    version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
 ) -> Endpoint[QueueVersionInfo]:
     """``PATCH /versions/{id}``: unlike a component, a version takes no ``?version=`` lock."""
     return Endpoint(

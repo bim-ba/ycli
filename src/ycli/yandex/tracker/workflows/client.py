@@ -90,8 +90,7 @@ class WorkflowsClient(Resource):
             >>> tracker.workflows.create(new_workflow).id
             'design-flow'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_workflow(dumped))
+        return self._session.send(endpoints.create_workflow(body))
 
     def edit(self, workflow_id: str, body: WorkflowUpdate, *, version: int) -> Workflow:
         """``PATCH /workflows/{workflow_id}?version=`` → change the set fields of a workflow.
@@ -112,8 +111,7 @@ class WorkflowsClient(Resource):
             >>> tracker.workflows.edit("W21", WorkflowUpdate(name="QA process"), version=3).version
             4
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_workflow(workflow_id, dumped, version=version))
+        return self._session.send(endpoints.edit_workflow(workflow_id, body, version=version))
 
     def edit_action(
         self,
@@ -149,8 +147,7 @@ class WorkflowsClient(Resource):
             ... ).version
             3
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        endpoint = endpoints.edit_action(workflow_id, status, action_id, dumped, version=version)
+        endpoint = endpoints.edit_action(workflow_id, status, action_id, body, version=version)
         return self._session.send(endpoint)
 
     def delete(self, workflow_id: str) -> None:

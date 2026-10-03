@@ -37,7 +37,7 @@ def task(body: ImportTask, client: TrackerClient = Depends(tracker_client)) -> I
 
     Returns the imported issue.
     """
-    return client.import_.task(body=body.model_dump(by_alias=True, exclude_none=True))
+    return client.import_.task(body=body)
 
 
 @mcp.tool(
@@ -52,7 +52,7 @@ def comment(
 
     Returns the imported comment.
     """
-    return client.import_.comment(issue_key, body=body.model_dump(by_alias=True, exclude_none=True))
+    return client.import_.comment(issue_key, body=body)
 
 
 @mcp.tool(
@@ -65,7 +65,7 @@ def link(
 
     Returns the imported link.
     """
-    return client.import_.link(issue_key, body=body.model_dump(by_alias=True, exclude_none=True))
+    return client.import_.link(issue_key, body=body)
 
 
 @mcp.tool(
@@ -80,7 +80,7 @@ def worklog(
 
     Returns the imported record(s) — the endpoint answers with a JSON array.
     """
-    return client.import_.worklog(issue_key, body=body.model_dump(by_alias=True, exclude_none=True))
+    return client.import_.worklog(issue_key, body=body)
 
 
 @mcp.tool(

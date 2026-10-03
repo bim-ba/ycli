@@ -9,11 +9,15 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.workflows.models import QueueWorkflows, Workflow
+from ycli.yandex.tracker.workflows.models import (
+    QueueWorkflows,
+    Workflow,
+    WorkflowActionUpdate,
+    WorkflowCreate,
+    WorkflowUpdate,
+)
 
 
 def list_workflows() -> Endpoint[ItemList[Workflow]]:
@@ -28,11 +32,11 @@ def list_queue_workflows(queue_id: str) -> Endpoint[QueueWorkflows]:
     return Endpoint("GET", f"queues/{segment(queue_id)}/workflows", QueueWorkflows)
 
 
-def create_workflow(body: dict[str, Any]) -> Endpoint[Workflow]:
+def create_workflow(body: WorkflowCreate) -> Endpoint[Workflow]:
     return Endpoint("POST", "workflows", Workflow, json=body)
 
 
-def edit_workflow(workflow_id: str, body: dict[str, Any], *, version: int) -> Endpoint[Workflow]:
+def edit_workflow(workflow_id: str, body: WorkflowUpdate, *, version: int) -> Endpoint[Workflow]:
     """``PATCH /workflows/{id}?version=`` — the optimistic lock is required by the API."""
     return Endpoint(
         "PATCH",
@@ -44,7 +48,7 @@ def edit_workflow(workflow_id: str, body: dict[str, Any], *, version: int) -> En
 
 
 def edit_action(
-    workflow_id: str, status: str, action_id: str, body: dict[str, Any], *, version: int
+    workflow_id: str, status: str, action_id: str, body: WorkflowActionUpdate, *, version: int
 ) -> Endpoint[Workflow]:
     """``PATCH /workflows/{id}/steps/{status}/actions/{action}?version=`` — one action only."""
     path = f"workflows/{segment(workflow_id)}/steps/{segment(status)}/actions/{segment(action_id)}"

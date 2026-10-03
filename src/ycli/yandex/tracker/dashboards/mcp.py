@@ -29,7 +29,7 @@ def create(body: DashboardCreate, client: TrackerClient = Depends(tracker_client
     NOTE: dashboard deletion is not wrapped by ycli, so the dashboard stays on the account
     until removed in the UI.
     """
-    return client.dashboards.create(body.model_dump(by_alias=True, exclude_none=True))
+    return client.dashboards.create(body)
 
 
 @mcp.tool(
@@ -46,6 +46,4 @@ def add_cycle_time_widget(
 
     Get ``dashboard_id`` from ``dashboards_create``.
     """
-    return client.dashboards.add_cycle_time_widget(
-        dashboard_id, body.model_dump(by_alias=True, exclude_none=True)
-    )
+    return client.dashboards.add_cycle_time_widget(dashboard_id, body)

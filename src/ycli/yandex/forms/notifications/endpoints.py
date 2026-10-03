@@ -3,7 +3,8 @@
 Examples:
     >>> restart_notification(7).path
     'notifications/7/restart'
-    >>> list_notifications(survey_id="686d", status=["error"]).endpoint.params["status"]
+    >>> filters = NotificationFilter(survey_id="686d", status=["error"])
+    >>> list_notifications(filters).endpoint.params["status"]
     ['error']
 """
 
@@ -17,14 +18,13 @@ from ycli.yandex.forms.notifications.models import (
     Notification,
     NotificationAction,
     NotificationDetails,
+    NotificationFilter,
     NotificationPage,
     NotificationStatus,
 )
 from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     import httpx2
 
 PAGE_SIZE = 100
@@ -34,41 +34,13 @@ def _next_link(response: httpx2.Response) -> str | None:
     return response.json().get("links", {}).get("next")
 
 
-def list_notifications(
-    *,
-    survey_id: str | None = None,
-    hook_id: int | None = None,
-    subscription_id: int | None = None,
-    answer_id: int | None = None,
-    status: Sequence[str] | None = None,
-    created_since: str | None = None,
-    created_until: str | None = None,
-    finished_since: str | None = None,
-    finished_until: str | None = None,
-    visible: bool | None = None,
-    integration_type: str | None = None,
-    ordering: str | None = None,
-) -> Paged[NotificationPage, Notification]:
+def list_notifications(filters: NotificationFilter) -> Paged[NotificationPage, Notification]:
     """``GET /notifications``, paged by the ``links.next`` link.
 
     The link is a host-relative path that ends in a slash, so only its query (the ``id`` cursor
     plus the filters) is carried over onto the request.
     """
-    params = {
-        "survey_id": survey_id,
-        "hook_id": hook_id,
-        "subscription_id": subscription_id,
-        "answer_id": answer_id,
-        "status": status,
-        "created_gt": created_since,
-        "created_lt": created_until,
-        "finished_gt": finished_since,
-        "finished_lt": finished_until,
-        "visible": visible,
-        "type": integration_type,
-        "ordering": ordering,
-        "page_size": PAGE_SIZE,
-    }
+    params = {**filters.params(), "page_size": PAGE_SIZE}
     return Paged(
         Endpoint("GET", "notifications", NotificationPage, params=params),
         NextURLPagination(url_of=_next_link, query_only=True),

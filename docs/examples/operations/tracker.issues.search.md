@@ -20,5 +20,5 @@
 === "SDK"
 
     ```python
-    tracker.issues.search({"filter": {"queue": "DE", "status": "open", "assignee": "alice"}}, limit=500)
+    tracker.issues.search(IssueSearch(filter={"queue": "DE", "status": "open", "assignee": "alice"}), limit=500)
     ```

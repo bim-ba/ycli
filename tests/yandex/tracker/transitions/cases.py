@@ -1,6 +1,7 @@
 """Contract cases for Tracker issue ``/transitions`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.transitions.models import TransitionExecute
 
 AFTER_CLOSE = [{"id": "reopen", "to": {"id": "1", "key": "open", "display": "Open"}}]
 
@@ -20,7 +21,13 @@ CASES = [
     # `--field` values are JSON-coerced.
     Case(
         "tracker.transitions.execute",
-        args=("DE-52", "close", {"comment": "done", "resolution": "fixed", "storyPoints": 3}),
+        args=(
+            "DE-52",
+            "close",
+            TransitionExecute.model_validate(
+                {"comment": "done", "resolution": "fixed", "storyPoints": 3}
+            ),
+        ),
         cli=[
             "tracker",
             "transitions",
@@ -55,7 +62,7 @@ CASES = [
     ),
     Case(
         "tracker.transitions.execute",
-        args=("DE-53", "start_progress", {}),
+        args=("DE-53", "start_progress", TransitionExecute.model_validate({})),
         cli=["tracker", "transitions", "execute", "DE-53", "start_progress"],
         mcp=(
             "tracker_transitions_execute",

@@ -5,8 +5,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.models import KeyedReference, Reference, UserReference
-from ycli.yandex.tracker.queues.models import AccessPermissions
+from ycli.yandex.tracker.models import AccessPermissions, KeyedReference, Reference, UserReference
 
 
 class Component(APIModel):
@@ -46,7 +45,7 @@ class ComponentCreate(APIModel):
     """Typed request body for ``POST /components`` (create a component).
 
     Examples:
-        >>> ComponentCreate(name="UI", queue="TEST").model_dump(by_alias=True, exclude_none=True)
+        >>> ComponentCreate(name="UI", queue="TEST").model_dump(exclude_none=True)
         {'name': 'UI', 'queue': 'TEST'}
     """
 
@@ -67,7 +66,7 @@ class ComponentUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> ComponentUpdate(assign_auto=True).model_dump(by_alias=True, exclude_none=True)
+        >>> ComponentUpdate(assign_auto=True).model_dump(exclude_none=True)
         {'assignAuto': True}
     """
 

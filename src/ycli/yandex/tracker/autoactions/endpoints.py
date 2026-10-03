@@ -7,12 +7,11 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
+    AutoactionCreate,
     AutoactionLogEntry,
     AutoactionRunEntry,
 )
@@ -26,7 +25,7 @@ def get_autoaction(queue_id: str, action_id: int) -> Endpoint[Autoaction]:
     return Endpoint("GET", _autoaction_path(queue_id, action_id), Autoaction)
 
 
-def create_autoaction(queue_id: str, body: dict[str, Any]) -> Endpoint[Autoaction]:
+def create_autoaction(queue_id: str, body: AutoactionCreate) -> Endpoint[Autoaction]:
     return Endpoint("POST", f"queues/{segment(queue_id)}/autoactions", Autoaction, json=body)
 
 
