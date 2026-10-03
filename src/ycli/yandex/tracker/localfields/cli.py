@@ -8,13 +8,8 @@ import typer
 
 from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.localfields.models import (
-    LocalField,
-    LocalFieldCreate,
-    LocalFieldList,
-    LocalFieldUpdate,
-)
-from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
+from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList, LocalFieldUpdate
+from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
 
 app = typer.Typer(name="localfields", help="Tracker per-queue local fields.", no_args_is_help=True)
 
@@ -72,7 +67,7 @@ def create(
     tracker: TrackerClient,
 ) -> LocalField:
     """Create a local field in queue QUEUE_ID (POST /queues/{id}/localFields)."""
-    body = LocalFieldCreate(
+    body = FieldCreate(
         name=LocalizedName(ru=name_ru or None, en=name_en or None),
         id=id_,
         category=category,

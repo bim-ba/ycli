@@ -76,3 +76,19 @@ class AsyncOperation(APIModel):
     dry_run: bool | None = Field(
         default=None, description="Whether this was a validation-only dry run."
     )
+
+
+class User(APIModel):
+    """A Wiki user: its numeric id, login, display name and external identity.
+
+    Examples:
+        >>> User.model_validate({"id": 7, "username": "ivan"}).username
+        'ivan'
+    """
+
+    id: int | None = Field(default=None, description="Wiki's numeric id of the user.")
+    identity: UserIdentity | None = Field(default=None, description="Passport and cloud uids.")
+    username: str | None = Field(default=None, description="Login of the user.")
+    display_name: str | None = Field(default=None, description="Name to show for the user.")
+    is_dismissed: bool | None = Field(default=None, description="Whether the user has left.")
+    affiliation: str | None = Field(default=None, description="Affiliation of the user.")

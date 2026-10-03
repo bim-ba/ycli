@@ -17,12 +17,8 @@ from ycli.yandex.tracker.dependencies import (
     QueueId,
     tracker_client,
 )
-from ycli.yandex.tracker.localfields.models import (
-    LocalField,
-    LocalFieldCreate,
-    LocalFieldList,
-    LocalFieldUpdate,
-)
+from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList, LocalFieldUpdate
+from ycli.yandex.tracker.models import FieldCreate
 
 mcp = FastMCP("tracker-localfields")
 
@@ -76,7 +72,7 @@ def get(
     tags=WRITE_TAGS,
 )
 def create(
-    queue_id: QueueId, body: LocalFieldCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueId, body: FieldCreate, client: TrackerClient = Depends(tracker_client)
 ) -> LocalField:
     """Create a custom field scoped to one queue (a local field).
 

@@ -1,12 +1,8 @@
 """Contract cases for Tracker queue ``/triggers`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.triggers.models import (
-    TriggerAction,
-    TriggerCondition,
-    TriggerCreate,
-    TriggerUpdate,
-)
+from ycli.yandex.tracker.models import AutomationAction
+from ycli.yandex.tracker.triggers.models import TriggerCondition, TriggerCreate, TriggerUpdate
 
 TRANSITION = {"type": "Transition", "status": {"key": "open"}}
 COMMENT = {"type": "CreateComment", "text": "Reopened"}
@@ -32,8 +28,8 @@ CASES = [
             TriggerCreate(
                 name="Reopen on comment",
                 actions=[
-                    TriggerAction.model_validate(TRANSITION),
-                    TriggerAction.model_validate(COMMENT),
+                    AutomationAction.model_validate(TRANSITION),
+                    AutomationAction.model_validate(COMMENT),
                 ],
                 conditions=[TriggerCondition.model_validate(MATCH)],
                 active=False,
@@ -92,7 +88,7 @@ CASES = [
             18,
             TriggerUpdate(
                 name="Renamed trigger",
-                actions=[TriggerAction.model_validate(COMMENT)],
+                actions=[AutomationAction.model_validate(COMMENT)],
                 conditions=[TriggerCondition.model_validate(MATCH)],
                 active=True,
             ),

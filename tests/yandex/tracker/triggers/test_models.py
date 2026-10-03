@@ -1,8 +1,8 @@
 """TDD for the triggers models — polymorphic actions/conditions round-trip via extra=allow."""
 
+from ycli.yandex.tracker.models import AutomationAction
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
-    TriggerAction,
     TriggerCondition,
     TriggerCreate,
     TriggerUpdate,
@@ -34,7 +34,7 @@ def test_trigger_parses_full_payload():
 
 
 def test_action_and_condition_preserve_extra_fields():
-    action = TriggerAction.model_validate(
+    action = AutomationAction.model_validate(
         {"type": "Webhook", "endpoint": "https://x", "method": "GET"}
     )
     assert action.model_dump(exclude_none=True) == {
@@ -55,7 +55,7 @@ def test_action_and_condition_preserve_extra_fields():
 def test_trigger_create_body_serializes_actions_and_conditions():
     body = TriggerCreate(
         name="TriggerName",
-        actions=[TriggerAction(type="Transition", status={"key": "open"})],  # ty: ignore[unknown-argument]
+        actions=[AutomationAction(type="Transition", status={"key": "open"})],  # ty: ignore[unknown-argument]
         conditions=[TriggerCondition(type="CommentFullyMatchCondition", word="Open")],  # ty: ignore[unknown-argument]
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {

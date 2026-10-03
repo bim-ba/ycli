@@ -950,7 +950,7 @@ StringFieldType``). There is no delete endpoint — the field lives until its qu
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
-| `body` | object | yes | Typed request body for ``POST /queues/{id}/localFields`` (create a local field). |
+| `body` | object | yes | Typed request body for creating an issue field, global or local to a queue. |
 
 ## `tracker_localfields_update`
 
@@ -1001,7 +1001,7 @@ residue; prefer ``localfields_create`` for a single queue. Required: ``id`` (lat
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``POST /fields`` (create a global issue field). |
+| `body` | object | yes | Typed request body for creating an issue field, global or local to a queue. |
 
 ## `tracker_fields_update`
 

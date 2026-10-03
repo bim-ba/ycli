@@ -9,12 +9,12 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.checklists.models import (
     Checklist,
-    ChecklistDeadlineInput,
     ChecklistItemCreate,
     ChecklistItemList,
     ChecklistItemUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.models import DeadlineInput
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -50,7 +50,7 @@ def create(
         text=text,
         checked=checked,
         assignee=assignee or None,
-        deadline=ChecklistDeadlineInput(date=deadline) if deadline else None,
+        deadline=DeadlineInput(date=deadline) if deadline else None,
     ).model_dump(by_alias=True, exclude_none=True)
     return tracker.checklists.create(key, body=body)
 
@@ -72,7 +72,7 @@ def update(
         text=text or None,
         checked=checked,
         assignee=assignee or None,
-        deadline=ChecklistDeadlineInput(date=deadline) if deadline else None,
+        deadline=DeadlineInput(date=deadline) if deadline else None,
     ).model_dump(by_alias=True, exclude_none=True)
     return tracker.checklists.edit(key, item_id, body=body)
 

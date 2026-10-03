@@ -10,29 +10,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.models import UserIdentity
-
-
-class UploadSessionUser(APIModel):
-    """The user that created an upload session (the ``user`` object on a session).
-
-    Examples:
-        >>> UploadSessionUser.model_validate({"id": 1, "username": "j"}).username
-        'j'
-    """
-
-    id: int | None = Field(default=None, description="Numeric identifier of the user.")
-    identity: UserIdentity | None = Field(
-        default=None, description="External identity (passport / cloud uid) of the user."
-    )
-    username: str | None = Field(default=None, description="Login of the user.")
-    display_name: str | None = Field(default=None, description="Human-readable name of the user.")
-    is_dismissed: bool | None = Field(
-        default=None, description="Whether the user has been dismissed from the organization."
-    )
-    affiliation: str | None = Field(
-        default=None, description="Affiliation of the user with the organization."
-    )
+from ycli.yandex.wiki.models import User, UserIdentity
 
 
 class UploadSession(APIModel):
@@ -60,9 +38,7 @@ class UploadSession(APIModel):
             "Session status — one of not_started, in_progress, finished, aborted, used, cleanup."
         ),
     )
-    user: UploadSessionUser | None = Field(
-        default=None, description="The user that created the session."
-    )
+    user: User | None = Field(default=None, description="The user that created the session.")
     created_at: str | None = Field(
         default=None, description="ISO-8601 timestamp when the session was created."
     )
@@ -100,3 +76,6 @@ class AbortActiveUploadsResult(APIModel):
 
 
 UploadSessionUserIdentity = UserIdentity  # deprecated, removed in 0.38
+
+
+UploadSessionUser = User  # deprecated, removed in 0.39

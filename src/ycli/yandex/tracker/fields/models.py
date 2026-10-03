@@ -9,27 +9,13 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput, Reference
-
-
-class FieldSchema(APIModel):
-    """Data-type descriptor of a field's value (the ``schema`` object).
-
-    Examples:
-        >>> FieldSchema.model_validate({"type": "array", "items": "string"}).type
-        'array'
-    """
-
-    type: str | None = Field(
-        default=None,
-        description="Value type: string for single-valued fields, array for multi-valued fields.",
-    )
-    items: str | None = Field(
-        default=None, description="Element type; present only on multi-valued (array) fields."
-    )
-    required: bool | None = Field(
-        default=None, description="Whether the field is mandatory (true) or optional (false)."
-    )
+from ycli.yandex.tracker import models as _shared
+from ycli.yandex.tracker.models import (
+    FieldSchema,
+    LocalizedName,
+    OptionsProviderInput,
+    Reference,
+)
 
 
 class FieldProvider(APIModel):
@@ -141,38 +127,6 @@ class FieldCategoryRecord(APIModel):
     )
 
 
-class FieldCreate(APIModel):
-    """Typed request body for ``POST /fields`` (create a global issue field).
-
-    Examples:
-        >>> FieldCreate(
-        ...     name=LocalizedName(ru="Поле"), id="myField", category="1", type="StringFieldType"
-        ... ).model_dump(by_alias=True, exclude_none=True)
-        {'name': {'ru': 'Поле'}, 'id': 'myField', 'category': '1', 'type': 'StringFieldType'}
-    """
-
-    name: LocalizedName = Field(description="Localized display name of the new field.")
-    id: str = Field(description="Identifier (key) of the new field.")
-    category: str = Field(
-        description="Identifier of the field's category (from GET /fields/categories)."
-    )
-    type: str = Field(
-        description="Field type, e.g. ru.yandex.startrek.core.fields.StringFieldType."
-    )
-    options_provider: OptionsProviderInput | None = Field(
-        default=None,
-        serialization_alias="optionsProvider",
-        description="Fixed drop-down values, when the field is a limited-choice list.",
-    )
-    order: int | None = Field(
-        default=None, description="Position of the field in the organisation's list of fields."
-    )
-    description: str | None = Field(default=None, description="Description of the field.")
-    readonly: bool | None = Field(
-        default=None, description="Whether the value is read-only (true) or editable (false)."
-    )
-
-
 class FieldUpdate(APIModel):
     """Typed request body for ``PATCH /fields/{id}?version=`` (rename and/or change options).
 
@@ -229,3 +183,4 @@ class FieldCategoryUpdate(APIModel):
 
 
 FieldCategory = Reference  # deprecated, removed in 0.38
+FieldCreate = _shared.FieldCreate  # deprecated, removed in 0.39

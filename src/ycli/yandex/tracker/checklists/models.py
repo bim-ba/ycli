@@ -3,7 +3,7 @@
 Read shapes: ``ChecklistItem`` / ``ChecklistItemList`` (the ``GET …/checklistItems`` array)
 and ``Checklist`` (the issue wrapper that create/edit/delete calls return, carrying the
 current ``checklistItems``). Typed write bodies: ``ChecklistItemCreate`` / ``ChecklistItemUpdate``
-(with a nested ``ChecklistDeadlineInput``).
+(with a nested ``DeadlineInput``).
 """
 
 from __future__ import annotations
@@ -14,27 +14,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-
-
-class ChecklistDeadline(APIModel):
-    """The ``deadline`` block on a checklist item (response shape).
-
-    Examples:
-        >>> ChecklistDeadline.model_validate(
-        ...     {"date": "2021-05-09T00:00:00.000+0000", "deadlineType": "date"}
-        ... ).deadline_type
-        'date'
-    """
-
-    date: str | None = Field(
-        default=None, description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm."
-    )
-    deadline_type: str | None = Field(
-        default=None, alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
-    )
-    is_exceeded: bool | None = Field(
-        default=None, alias="isExceeded", description="Whether the deadline has already passed."
-    )
+from ycli.yandex.tracker.models import Deadline, DeadlineInput
 
 
 class ChecklistItem(APIModel):
@@ -54,9 +34,7 @@ class ChecklistItem(APIModel):
     assignee: DisplayStr = Field(
         default=None, description="Display name of the item assignee, if any."
     )
-    deadline: ChecklistDeadline | None = Field(
-        default=None, description="Per-item deadline, if set."
-    )
+    deadline: Deadline | None = Field(default=None, description="Per-item deadline, if set.")
     checklist_item_type: str | None = Field(
         default=None, alias="checklistItemType", description="Item type, e.g. 'standard'."
     )
@@ -98,20 +76,6 @@ class Checklist(APIModel):
     )
 
 
-class ChecklistDeadlineInput(APIModel):
-    """Typed ``deadline`` block for a checklist write body.
-
-    Examples:
-        >>> ChecklistDeadlineInput(date="2021-05-09T00:00:00.000+0000").model_dump(by_alias=True)
-        {'date': '2021-05-09T00:00:00.000+0000', 'deadlineType': 'date'}
-    """
-
-    date: str = Field(description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
-    deadline_type: str = Field(
-        default="date", alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
-    )
-
-
 class ChecklistItemCreate(APIModel):
     """Typed request body for ``POST /issues/{key}/checklistItems`` (add an item).
 
@@ -123,7 +87,7 @@ class ChecklistItemCreate(APIModel):
     text: str = Field(description="Item text (required).")
     checked: bool | None = Field(default=None, description="Mark the new item done.")
     assignee: str | None = Field(default=None, description="Assignee login or id for the item.")
-    deadline: ChecklistDeadlineInput | None = Field(default=None, description="Item deadline.")
+    deadline: DeadlineInput | None = Field(default=None, description="Item deadline.")
 
 
 class ChecklistItemUpdate(APIModel):
@@ -137,4 +101,8 @@ class ChecklistItemUpdate(APIModel):
     text: str | None = Field(default=None, description="New item text.")
     checked: bool | None = Field(default=None, description="New done flag.")
     assignee: str | None = Field(default=None, description="New assignee login or id.")
-    deadline: ChecklistDeadlineInput | None = Field(default=None, description="New item deadline.")
+    deadline: DeadlineInput | None = Field(default=None, description="New item deadline.")
+
+
+ChecklistDeadline = Deadline  # deprecated, removed in 0.39
+ChecklistDeadlineInput = DeadlineInput  # deprecated, removed in 0.39

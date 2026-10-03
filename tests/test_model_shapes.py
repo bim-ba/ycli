@@ -26,12 +26,11 @@ PROSE = frozenset({"title", "description", "examples"})
 
 # Groups of same-shaped models that stay separate classes, each with its reason. A group is
 # named by its members, ``<resource>.<Class>``, and belongs to one service.
-AWAITING = "awaiting the owner's decision (#203)"
 TWO_OPERATIONS = "two operations of the API, whose bodies may diverge"
-FOLLOW_UP = "one concept in two places, merged in the follow-up to this change (#203)"
+UNRELATED_BODIES = "bodies of unrelated operations that happen to match"
+TWO_ROLES = "two roles in one model that happen to match"
 SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
-    ("forms", frozenset({"access.AccessGrant", "access.AccessRevoke"})): AWAITING,
-    ("forms", frozenset({"answers.ExportResult", "operations.OperationResult"})): AWAITING,
+    ("forms", frozenset({"access.AccessGrant", "access.AccessRevoke"})): TWO_OPERATIONS,
     (
         "forms",
         frozenset({"conditions.ConditionCreate", "conditions.ConditionUpdate"}),
@@ -41,22 +40,16 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
     (
         "forms",
         frozenset({"questions.QuestionDataSource", "questions.QuestionHintSource"}),
-    ): AWAITING,
+    ): TWO_ROLES,
     (
         "forms",
         frozenset({"subscriptions.AttachmentQuestions", "subscriptions.VariableQuestions"}),
-    ): AWAITING,
+    ): TWO_ROLES,
     ("forms", frozenset({"surveys.SurveyCreate", "surveys.SurveyUpdate"})): TWO_OPERATIONS,
     (
         "forms",
         frozenset({"variables.VariableCategory", "variables.VariableRenderer"}),
     ): "different things that happen to have a name and a type",
-    ("tracker", frozenset({"autoactions.AutoactionAction", "triggers.TriggerAction"})): FOLLOW_UP,
-    ("tracker", frozenset({"checklists.ChecklistDeadline", "entities.Deadline"})): FOLLOW_UP,
-    (
-        "tracker",
-        frozenset({"checklists.ChecklistDeadlineInput", "entities.DeadlineInput"}),
-    ): FOLLOW_UP,
     (
         "tracker",
         frozenset({"dashboards.DashboardOwner", "sprints.SprintBoardInput"}),
@@ -64,9 +57,7 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
     (
         "tracker",
         frozenset({"fields.FieldCategoryUpdate", "resolutions.ResolutionUpdate"}),
-    ): "bodies of unrelated operations that happen to match",
-    ("tracker", frozenset({"fields.FieldCreate", "localfields.LocalFieldCreate"})): FOLLOW_UP,
-    ("tracker", frozenset({"fields.FieldSchema", "localfields.LocalFieldSchema"})): FOLLOW_UP,
+    ): UNRELATED_BODIES,
     (
         "tracker",
         frozenset({"issuetypes.IssueType", "priorities.Priority"}),
@@ -74,18 +65,19 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
     (
         "tracker",
         frozenset({"issuetypes.IssueTypeCreate", "resolutions.ResolutionCreate"}),
-    ): AWAITING,
-    ("tracker", frozenset({"issuetypes.IssueTypeUpdate", "priorities.PriorityUpdate"})): AWAITING,
+    ): UNRELATED_BODIES,
+    (
+        "tracker",
+        frozenset({"issuetypes.IssueTypeUpdate", "priorities.PriorityUpdate"}),
+    ): UNRELATED_BODIES,
     (
         "tracker",
         frozenset({"links.LinkObject", "transitions.StatusRef"}),
     ): "different things that happen to have a key and a display name",
-    ("tracker", frozenset({"linktypes.LinkType", "remotelinks.RemoteLinkType"})): FOLLOW_UP,
     (
         "tracker",
         frozenset({"workflows.WorkflowActionInput", "workflows.WorkflowActionUpdate"}),
     ): TWO_OPERATIONS,
-    ("wiki", frozenset({"access.AccessUser", "uploadsessions.UploadSessionUser"})): AWAITING,
     (
         "wiki",
         frozenset({"pages.BacklinksResponse", "pages.DescendantsResponse"}),
@@ -95,6 +87,60 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
 # Names moved into a service's shared module, by the module that used to define them. They stay
 # importable from there until 0.38; nothing in this repository may import them from there.
 DEPRECATED: dict[tuple[str, str], str] = {
+    (
+        "ycli.yandex.forms.answers.models",
+        "EXPORT_TERMINAL_STATUSES",
+    ): "ycli.yandex.forms.models.TERMINAL_STATUSES",
+    (
+        "ycli.yandex.forms.operations.models",
+        "TERMINAL_STATUSES",
+    ): "ycli.yandex.forms.models.TERMINAL_STATUSES",
+    (
+        "ycli.yandex.forms.answers.models",
+        "ExportResult",
+    ): "ycli.yandex.forms.models.OperationResult",
+    (
+        "ycli.yandex.forms.operations.models",
+        "OperationResult",
+    ): "ycli.yandex.forms.models.OperationResult",
+    (
+        "ycli.yandex.tracker.autoactions.models",
+        "AutoactionAction",
+    ): "ycli.yandex.tracker.models.AutomationAction",
+    (
+        "ycli.yandex.tracker.checklists.models",
+        "ChecklistDeadline",
+    ): "ycli.yandex.tracker.models.Deadline",
+    (
+        "ycli.yandex.tracker.checklists.models",
+        "ChecklistDeadlineInput",
+    ): "ycli.yandex.tracker.models.DeadlineInput",
+    ("ycli.yandex.tracker.entities.models", "Deadline"): "ycli.yandex.tracker.models.Deadline",
+    (
+        "ycli.yandex.tracker.entities.models",
+        "DeadlineInput",
+    ): "ycli.yandex.tracker.models.DeadlineInput",
+    ("ycli.yandex.tracker.fields.models", "FieldCreate"): "ycli.yandex.tracker.models.FieldCreate",
+    ("ycli.yandex.tracker.fields.models", "FieldSchema"): "ycli.yandex.tracker.models.FieldSchema",
+    ("ycli.yandex.tracker.linktypes.models", "LinkType"): "ycli.yandex.tracker.models.LinkType",
+    (
+        "ycli.yandex.tracker.localfields.models",
+        "LocalFieldCreate",
+    ): "ycli.yandex.tracker.models.FieldCreate",
+    (
+        "ycli.yandex.tracker.localfields.models",
+        "LocalFieldSchema",
+    ): "ycli.yandex.tracker.models.FieldSchema",
+    (
+        "ycli.yandex.tracker.remotelinks.models",
+        "RemoteLinkType",
+    ): "ycli.yandex.tracker.models.LinkType",
+    (
+        "ycli.yandex.tracker.triggers.models",
+        "TriggerAction",
+    ): "ycli.yandex.tracker.models.AutomationAction",
+    ("ycli.yandex.wiki.access.models", "AccessUser"): "ycli.yandex.wiki.models.User",
+    ("ycli.yandex.wiki.uploadsessions.models", "UploadSessionUser"): "ycli.yandex.wiki.models.User",
     (
         "ycli.yandex.wiki.operations.models",
         "OperationType",

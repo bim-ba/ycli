@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
-from ycli.yandex.forms.operations.models import OperationResult
+from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.models import require_found
 
 mcp = FastMCP("forms-operations")

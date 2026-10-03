@@ -18,8 +18,8 @@ from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerIntegrationList,
     AnswersResponse,
-    ExportResult,
 )
+from ycli.yandex.forms.models import OperationResult
 
 if TYPE_CHECKING:
     import httpx2
@@ -49,22 +49,24 @@ def list_answers(survey_id: str) -> Paged[AnswersResponse, Answer]:
     )
 
 
-def export_answers(survey_id: str, body: dict[str, Any]) -> Endpoint[ExportResult]:
-    return Endpoint("POST", f"surveys/{segment(survey_id)}/answers/export", ExportResult, json=body)
+def export_answers(survey_id: str, body: dict[str, Any]) -> Endpoint[OperationResult]:
+    return Endpoint(
+        "POST", f"surveys/{segment(survey_id)}/answers/export", OperationResult, json=body
+    )
 
 
-def _export_status(response: httpx2.Response) -> ExportResult:
+def _export_status(response: httpx2.Response) -> OperationResult:
     # A finished export redirects to the exported file: ready, and not worth downloading here.
     if response.is_redirect:
-        return ExportResult(status="ok")
-    return ExportResult.model_validate_json(response.content)
+        return OperationResult(status="ok")
+    return OperationResult.model_validate_json(response.content)
 
 
-def export_results(survey_id: str, task_id: str) -> Endpoint[ExportResult]:
+def export_results(survey_id: str, task_id: str) -> Endpoint[OperationResult]:
     path = f"surveys/{segment(survey_id)}/answers/export-results"
     params = {"task_id": task_id}
     return Endpoint(
-        "GET", path, ExportResult, params=params, parser=_export_status, follow_redirects=False
+        "GET", path, OperationResult, params=params, parser=_export_status, follow_redirects=False
     )
 
 

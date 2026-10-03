@@ -2,13 +2,11 @@
 
 from ycli.yandex.tracker.localfields.models import (
     LocalField,
-    LocalFieldCreate,
     LocalFieldList,
-    LocalFieldSchema,
     LocalFieldUpdate,
     OptionsProvider,
 )
-from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
+from ycli.yandex.tracker.models import FieldCreate, FieldSchema, LocalizedName, OptionsProviderInput
 
 
 def test_local_field_parses_full_payload():
@@ -54,7 +52,7 @@ def test_schema_alias_accepts_name_and_alias():
     assert field_schema is not None
     assert field_schema.type == "array"
     # and via the python field name (populate_by_name)
-    field = LocalField(field_schema=LocalFieldSchema(type="string"))  # ty: ignore[unknown-argument]
+    field = LocalField(field_schema=FieldSchema(type="string"))  # ty: ignore[unknown-argument]
     assert field.field_schema is not None
     assert field.field_schema.type == "string"
 
@@ -82,7 +80,7 @@ def test_local_field_list_root_model():
 
 
 def test_local_field_create_serializes_options_provider_by_alias():
-    body = LocalFieldCreate(
+    body = FieldCreate(
         name=LocalizedName(ru="Поле"),
         id="loc",
         category="1",
@@ -104,6 +102,6 @@ def test_local_field_update_omits_unset_fields():
 
 
 def test_every_write_body_field_has_description():
-    for model in (LocalizedName, OptionsProviderInput, LocalFieldCreate, LocalFieldUpdate):
+    for model in (LocalizedName, OptionsProviderInput, FieldCreate, LocalFieldUpdate):
         for name, field in model.model_fields.items():
             assert field.description, f"{model.__name__}.{name} is missing Field(description=…)"

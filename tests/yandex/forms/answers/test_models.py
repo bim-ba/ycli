@@ -1,11 +1,7 @@
 """TDD for Forms answers models — single-answer details + export body + result flags."""
 
-from ycli.yandex.forms.answers.models import (
-    AnswerDetails,
-    AnswerExport,
-    AnswerIntegrationList,
-    ExportResult,
-)
+from ycli.yandex.forms.answers.models import AnswerDetails, AnswerExport, AnswerIntegrationList
+from ycli.yandex.forms.models import OperationResult
 
 
 def test_answer_details_parses_full_answer():
@@ -41,12 +37,12 @@ def test_answer_export_empty_body_is_empty():
 
 
 def test_export_result_status_flags():
-    assert ExportResult.model_validate({"id": "o", "status": "ok"}).is_ready is True
-    assert ExportResult.model_validate({"id": "o", "status": "ok"}).is_terminal is True
-    assert ExportResult.model_validate({"id": "o", "status": "fail"}).is_terminal is True
-    assert ExportResult.model_validate({"id": "o", "status": "fail"}).is_ready is False
-    assert ExportResult.model_validate({"id": "o", "status": "wait"}).is_terminal is False
-    assert ExportResult.model_validate({}).is_ready is False
+    assert OperationResult.model_validate({"id": "o", "status": "ok"}).is_ready is True
+    assert OperationResult.model_validate({"id": "o", "status": "ok"}).is_terminal is True
+    assert OperationResult.model_validate({"id": "o", "status": "fail"}).is_terminal is True
+    assert OperationResult.model_validate({"id": "o", "status": "fail"}).is_ready is False
+    assert OperationResult.model_validate({"id": "o", "status": "wait"}).is_terminal is False
+    assert OperationResult.model_validate({}).is_ready is False
 
 
 def test_answer_integrations_keep_the_field_of_each_type():

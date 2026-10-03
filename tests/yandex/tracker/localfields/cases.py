@@ -1,8 +1,8 @@
 """Contract cases for Tracker ``/queues/{id}/localFields`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.localfields.models import LocalFieldCreate, LocalFieldUpdate
-from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
+from ycli.yandex.tracker.localfields.models import LocalFieldUpdate
+from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
 
 STRING_TYPE = "ru.yandex.startrek.core.fields.StringFieldType"
 
@@ -35,7 +35,7 @@ CASES = [
         "tracker.localfields.create",
         args=(
             "DEV",
-            LocalFieldCreate(
+            FieldCreate(
                 name=LocalizedName(ru="Поле", en="Field"),
                 id="loc_new",
                 category="cat-3",
@@ -114,7 +114,7 @@ CASES = [
         "tracker.localfields.create",
         args=(
             "QA",
-            LocalFieldCreate(
+            FieldCreate(
                 name=LocalizedName(en="Plain"),
                 id="loc_plain",
                 category="cat-4",
