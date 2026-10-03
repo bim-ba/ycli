@@ -10,7 +10,8 @@ about its output is that it keeps the API's field names.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any
+import logging
+from typing import TYPE_CHECKING, Annotated, Any, ClassVar
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel
 
@@ -18,6 +19,47 @@ from ycli.yandex.errors import YandexNotFoundError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+
+logger = logging.getLogger("ycli.models")
+
+#: How the description of a request field begins when the API accepts the field and does
+#: nothing with it. The field stays (docs/conventions/resources.md); setting it logs a warning.
+IGNORED_BY_API = "Ignored by the API: "
+
+
+def ignored_fields(model: type[BaseModel]) -> tuple[tuple[str, str], ...]:
+    """The fields of ``model`` the API ignores, each with the rest of its description.
+
+    Args:
+        model: The model of a request body.
+
+    Returns:
+        A ``(field name, what happens instead)`` pair per ignored field.
+
+    Examples:
+        >>> from pydantic import Field
+        >>> class Body(APIModel):
+        ...     name: str | None = None
+        ...     draft: bool | None = Field(default=None, description=IGNORED_BY_API + "no effect.")
+        >>> ignored_fields(Body)
+        (('draft', 'no effect.'),)
+    """
+    return tuple(
+        (name, field.description.removeprefix(IGNORED_BY_API))
+        for name, field in model.model_fields.items()
+        if field.description and field.description.startswith(IGNORED_BY_API)
+    )
+
+
+def warn_ignored(name: str, why: str) -> None:
+    """Log that the caller set ``name``, which the API ignores, with the reason ``why``.
+
+    Args:
+        name: The field or parameter the caller set.
+        why: What happens instead, the text after ``IGNORED_BY_API`` in its description.
+    """
+    logger.warning("`%s` is ignored by the API: %s", name, why)
 
 
 class APIModel(BaseModel):
@@ -36,6 +78,36 @@ class APIModel(BaseModel):
     """
 
     model_config = ConfigDict(extra="ignore", populate_by_name=True, serialize_by_alias=True)
+
+
+class WarnsOnIgnored(APIModel):
+    """A request body with a field the API ignores: giving that field a value logs a warning.
+
+    A body model that marks a field with ``IGNORED_BY_API`` inherits from this class, so that
+    only such models pay for the check; ``tests/test_conventions.py`` fails on a marked model
+    that does not.
+
+    Examples:
+        >>> from pydantic import Field
+        >>> class Body(WarnsOnIgnored):
+        ...     draft: bool | None = Field(default=None, description=IGNORED_BY_API + "no effect.")
+        >>> Body.__ignored__
+        (('draft', 'no effect.'),)
+    """
+
+    # The fields of the class the API ignores, found once per class.
+    __ignored__: ClassVar[tuple[tuple[str, str], ...]] = ()
+
+    @classmethod
+    def __pydantic_init_subclass__(cls, **kwargs: Any) -> None:
+        super().__pydantic_init_subclass__(**kwargs)
+        cls.__ignored__ = ignored_fields(cls)
+
+    def model_post_init(self, context: Any, /) -> None:
+        """Warn when the caller gives a value to a field the API ignores."""
+        for name, why in self.__ignored__:
+            if name in self.model_fields_set and getattr(self, name) is not None:
+                warn_ignored(name, why)
 
 
 class ItemList[T](RootModel[list[T]]):

@@ -12,12 +12,8 @@ from typing import Annotated
 import typer
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.conditions.models import (
-    ConditionCreate,
-    ConditionsResponse,
-    ConditionUpdate,
-)
-from ycli.yandex.forms.questions.models import Condition, ConditionOperatorType
+from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
+from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
 from ycli.yandex.forms.typedefs import HookIdArg, PageIdArg, QuestionIdArg, SurveyIdArg
 from ycli.yandex.models import Ack
 

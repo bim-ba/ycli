@@ -316,7 +316,7 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 |---------|:---------:|:-------:|:-----------:|:----------------------:|:---------------:|--------|
 | Tracker | 190 | 188 | 0 (+2 on purpose) | 25 | — | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
 | Wiki | 56 | 56 | 0 | 0 | 20 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
-| Forms | 84 | 84 | 0 | 17 | 24 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
+| Forms | 84 | 84 | 0 | 8 | 24 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
 
 <details>
 <summary><b>Tracker: what differs</b></summary>
@@ -337,33 +337,33 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 
 **Parameters and fields**
 
-| Operation | ycli | Difference |
-|---|---|---|
-| [`POST /bulkchange/_move`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-move-issues) | `bulk.move` | query parameters ycli cannot send: `notify` |
-| [`POST /bulkchange/_transition`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-transition) | `bulk.transition` | query parameters ycli cannot send: `notify` |
-| [`POST /bulkchange/_update`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-update-issues) | `bulk.update` | query parameters ycli cannot send: `notify` |
-| [`POST /entities/{entity_type}`](https://yandex.ru/support/tracker/en/api/entities/create-entity) | `entities.create` | query parameters ycli cannot send: `fields` |
-| [`PATCH /entities/{entity_type}/{entity_ID}`](https://yandex.ru/support/tracker/en/api/entities/update-entity) | `entities.edit` | query parameters ycli cannot send: `expand`, `fields` |
-| [`POST /entities/{entity_type}/{entity_ID}/attachments/{file_ID}`](https://yandex.ru/support/tracker/en/api/entities/attachments/add-attachment) | `entities.attachments_attach` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist) | `entities.checklists_delete` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist) | `entities.checklists_edit` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`POST /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/add-checklist) | `entities.checklists_create` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist-item) | `entities.checklists_delete_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist-item) | `entities.checklists_edit_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`POST /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}/_move`](https://yandex.ru/support/tracker/en/api/entities/checklists/move-checklist-item) | `entities.checklists_move` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
-| [`POST /entities/{entity_type}/{entity_ID}/comments`](https://yandex.ru/support/tracker/en/api/entities/comments/add-comment) | `entities.comments_create` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |
-| [`DELETE /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/delete-comment) | `entities.comments_delete` | query parameters ycli cannot send: `notify`, `notifyAuthor` |
-| [`PATCH /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/patch-comment) | `entities.comments_edit` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |
-| [`GET /entities/{entity_type}/{entity_ID}/events/_relative`](https://yandex.ru/support/tracker/en/api/entities/get-events-relative) | `entities.history` | query parameters ycli cannot send: `direction`, `newEventsOnTop`, `selected` |
-| [`POST /issues`](https://yandex.ru/support/tracker/en/api/issues/create-issue) | `issues.create` | query parameters ycli cannot send: `notify` |
-| [`POST /issues/_search`](https://yandex.ru/support/tracker/en/api/issues/search-issues) | `issues.search` | query parameters ycli cannot send: `expand`, `perScroll`, `scrollId`, `scrollTTLMillis`, `scrollType` |
-| [`GET /issues/_suggest`](https://yandex.ru/support/tracker/en/api/issues/get-suggest) | `issues.suggest` | query parameters ycli cannot send: `embed`, `expand`, `fields`, `full`, `queue` |
-| [`POST /issues/{id_задачи}/_move`](https://yandex.ru/support/tracker/en/api/issues/move-issue) | `issues.move` | query parameters ycli cannot send: `expand`, `initialStatus`, `moveAllFields`, `notify`, `notifyAuthor` |
-| [`GET /issues/{issue_ID}`](https://yandex.ru/support/tracker/en/api/issues/get-issue) | `issues.get` | query parameters ycli cannot send: `expand`, `fields` |
-| [`GET /issues/{issue_ID}/changelog`](https://yandex.ru/support/tracker/en/api/issues/get-changelog) | `changelog.list` | query parameters ycli cannot send: `field`, `sort`, `type` |
-| [`GET /issues/{issue_ID}/comments`](https://yandex.ru/support/tracker/en/api/issues/get-comments) | `comments.list` | query parameters ycli cannot send: `expand` |
-| [`GET /priorities`](https://yandex.ru/support/tracker/en/api/admin/get-priorities) | `priorities.list` | query parameters ycli cannot send: `localized` |
-| [`GET /queues`](https://yandex.ru/support/tracker/en/api/queues/get-queues) | `queues.list` | query parameters ycli cannot send: `expand` |
+| Operation | ycli | Difference | Why it stays |
+|---|---|---|---|
+| [`POST /bulkchange/_move`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-move-issues) | `bulk.move` | query parameters ycli cannot send: `notify` |  |
+| [`POST /bulkchange/_transition`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-transition) | `bulk.transition` | query parameters ycli cannot send: `notify` |  |
+| [`POST /bulkchange/_update`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-update-issues) | `bulk.update` | query parameters ycli cannot send: `notify` |  |
+| [`POST /entities/{entity_type}`](https://yandex.ru/support/tracker/en/api/entities/create-entity) | `entities.create` | query parameters ycli cannot send: `fields` |  |
+| [`PATCH /entities/{entity_type}/{entity_ID}`](https://yandex.ru/support/tracker/en/api/entities/update-entity) | `entities.edit` | query parameters ycli cannot send: `expand`, `fields` |  |
+| [`POST /entities/{entity_type}/{entity_ID}/attachments/{file_ID}`](https://yandex.ru/support/tracker/en/api/entities/attachments/add-attachment) | `entities.attachments_attach` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist) | `entities.checklists_delete` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist) | `entities.checklists_edit` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`POST /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/add-checklist) | `entities.checklists_create` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist-item) | `entities.checklists_delete_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist-item) | `entities.checklists_edit_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`POST /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}/_move`](https://yandex.ru/support/tracker/en/api/entities/checklists/move-checklist-item) | `entities.checklists_move` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
+| [`POST /entities/{entity_type}/{entity_ID}/comments`](https://yandex.ru/support/tracker/en/api/entities/comments/add-comment) | `entities.comments_create` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |  |
+| [`DELETE /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/delete-comment) | `entities.comments_delete` | query parameters ycli cannot send: `notify`, `notifyAuthor` |  |
+| [`PATCH /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/patch-comment) | `entities.comments_edit` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |  |
+| [`GET /entities/{entity_type}/{entity_ID}/events/_relative`](https://yandex.ru/support/tracker/en/api/entities/get-events-relative) | `entities.history` | query parameters ycli cannot send: `direction`, `newEventsOnTop`, `selected` |  |
+| [`POST /issues`](https://yandex.ru/support/tracker/en/api/issues/create-issue) | `issues.create` | query parameters ycli cannot send: `notify` |  |
+| [`POST /issues/_search`](https://yandex.ru/support/tracker/en/api/issues/search-issues) | `issues.search` | query parameters ycli cannot send: `expand`, `perScroll`, `scrollId`, `scrollTTLMillis`, `scrollType` |  |
+| [`GET /issues/_suggest`](https://yandex.ru/support/tracker/en/api/issues/get-suggest) | `issues.suggest` | query parameters ycli cannot send: `embed`, `expand`, `fields`, `full`, `queue` |  |
+| [`POST /issues/{id_задачи}/_move`](https://yandex.ru/support/tracker/en/api/issues/move-issue) | `issues.move` | query parameters ycli cannot send: `expand`, `initialStatus`, `moveAllFields`, `notify`, `notifyAuthor` |  |
+| [`GET /issues/{issue_ID}`](https://yandex.ru/support/tracker/en/api/issues/get-issue) | `issues.get` | query parameters ycli cannot send: `expand`, `fields` |  |
+| [`GET /issues/{issue_ID}/changelog`](https://yandex.ru/support/tracker/en/api/issues/get-changelog) | `changelog.list` | query parameters ycli cannot send: `field`, `sort`, `type` |  |
+| [`GET /issues/{issue_ID}/comments`](https://yandex.ru/support/tracker/en/api/issues/get-comments) | `comments.list` | query parameters ycli cannot send: `expand` |  |
+| [`GET /priorities`](https://yandex.ru/support/tracker/en/api/admin/get-priorities) | `priorities.list` | query parameters ycli cannot send: `localized` |  |
+| [`GET /queues`](https://yandex.ru/support/tracker/en/api/queues/get-queues) | `queues.list` | query parameters ycli cannot send: `expand` |  |
 
 </details>
 
@@ -377,25 +377,16 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 
 **Parameters and fields**
 
-| Operation | ycli | Difference |
-|---|---|---|
-| `GET /answers` | `answers.get` | response fields ycli drops: `started` |
-| `GET /operations/{operation_id}` | `operations.get` | response fields ycli drops: `result` |
-| `GET /surveys` | `surveys.list` | query parameters ycli cannot send: `favourite`, `group`, `name`, `orderby`, `ownership`, `published`, `show_all` |
-| `POST /surveys` | `surveys.create` | body fields ycli cannot send: `api_keys`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `footer`, `iframe`, `metric`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `validator_url`<br>body fields ycli sends that are not published: `is_public`, `is_published`, `language`<br>response fields ycli drops: `allow_multiple_answers`, `author`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `followers`, `footer`, `hashed_id`, `iframe`, `max_count`, `metric`, `need_auth`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `texts`, `validator_url`<br>model fields that are not published: `modified` |
-| `GET /surveys/{survey_id}` | `surveys.get` | response fields ycli drops: `allow_multiple_answers`, `author`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `followers`, `footer`, `hashed_id`, `iframe`, `max_count`, `metric`, `need_auth`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `texts`, `validator_url`<br>model fields that are not published: `modified` |
-| `PATCH /surveys/{survey_id}` | `surveys.modify` | body fields ycli cannot send: `api_keys`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `footer`, `iframe`, `is_favourite`, `metric`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `validator_url`<br>body fields ycli sends that are not published: `is_public`, `is_published`, `language`<br>response fields ycli drops: `allow_multiple_answers`, `author`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `followers`, `footer`, `hashed_id`, `iframe`, `max_count`, `metric`, `need_auth`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `texts`, `validator_url`<br>model fields that are not published: `modified` |
-| `GET /surveys/{survey_id}/answers` | `answers.list`, `answers.list_all` | query parameters ycli cannot send: `date_from`, `date_to`, `format`, `ordering`, `page_size`, `questions`, `use_slugs` |
-| `POST /surveys/{survey_id}/answers/export` | `answers.export` | response fields ycli drops: `result` |
-| `POST /surveys/{survey_id}/hooks/{hook_id}/subscriptions` | `subscriptions.create` | body fields ycli sends that are not published: `id` |
-| `PATCH /surveys/{survey_id}/hooks/{hook_id}/subscriptions/{subscription_id}` | `subscriptions.modify` | body fields ycli sends that are not published: `id` |
-| `POST /surveys/{survey_id}/questions` | `questions.create` | body fields ycli cannot send: `quiz_comment`, `show_suggest`<br>body fields ycli sends that are not published: `id`<br>response fields ycli drops: `account_id`, `columns`, `conditions`, `data_source`, `fixed`, `header`, `hint_source`, `image`, `items`, `modify_choices`, `multichoice`, `quiz_comment`, `quiz_items`, `rows`, `show_first`, `validators`, `widget` |
-| `DELETE /surveys/{survey_id}/questions/{question_id}` | `questions.delete` | query parameters ycli sends that are not published: `force` |
-| `GET /surveys/{survey_id}/questions/{question_id}` | `questions.get` | query parameters ycli cannot send: `with_slugs`<br>response fields ycli drops: `account_id`, `columns`, `conditions`, `data_source`, `fixed`, `header`, `hint_source`, `image`, `items`, `modify_choices`, `multichoice`, `quiz_comment`, `quiz_items`, `rows`, `show_first`, `validators`, `widget` |
-| `PATCH /surveys/{survey_id}/questions/{question_id}` | `questions.modify` | body fields ycli cannot send: `quiz_comment`, `show_suggest`<br>body fields ycli sends that are not published: `id`<br>response fields ycli drops: `account_id`, `columns`, `conditions`, `data_source`, `fixed`, `header`, `hint_source`, `image`, `items`, `modify_choices`, `multichoice`, `quiz_comment`, `quiz_items`, `rows`, `show_first`, `validators`, `widget` |
-| `GET /surveys/{survey_id}/suggest` | `filling.suggest` | response fields ycli drops: `address`, `avatar`, `board`, `city`, `cloud_uid`, `country_id`, `department`, `display_text`, `email`, `floor_id`, `floor_number`, `full_name`, `group_id`, `login`, `office_id`, `parent_id`, `population`, `queue`, `region`, `role_scope`, `row_id`, `slug`, `status`, `tracks_count`, `type`, `uid`, `url`, `yandex_uid` |
-| `POST /surveys/{survey}/form` | `filling.submit` | response fields ycli drops: `quiz_result`<br>model fields that are not published: `results`, `scores`, `total_scores` |
-| `GET /users/me` | `me.get` | response fields ycli drops: `display`, `login` |
+| Operation | ycli | Difference | Why it stays |
+|---|---|---|---|
+| `POST /surveys` | `surveys.create` | body fields ycli sends that are not published: `is_public`, `is_published`, `language`<br>model fields that are not published: `modified` | the API accepts it and ignores it (checked live on 2026-10-04)<br>the API returns it (checked live on 2026-10-04), the published schema omits it |
+| `GET /surveys/{survey_id}` | `surveys.get` | model fields that are not published: `modified` | the API returns it (checked live on 2026-10-04), the published schema omits it |
+| `PATCH /surveys/{survey_id}` | `surveys.modify` | body fields ycli sends that are not published: `is_public`, `is_published`, `language`<br>model fields that are not published: `modified` | the API accepts it and ignores it (checked live on 2026-10-04)<br>the API returns it (checked live on 2026-10-04), the published schema omits it |
+| `POST /surveys/{survey_id}/hooks/{hook_id}/subscriptions` | `subscriptions.create` | body fields ycli sends that are not published: `id` | one model builds the body and reads the reply, and the reply carries `id` |
+| `PATCH /surveys/{survey_id}/hooks/{hook_id}/subscriptions/{subscription_id}` | `subscriptions.modify` | body fields ycli sends that are not published: `id` | one model builds the body and reads the reply, and the reply carries `id` |
+| `POST /surveys/{survey_id}/questions` | `questions.create` | body fields ycli sends that are not published: `id` | the API accepts it and ignores it (checked live on 2026-10-04) |
+| `DELETE /surveys/{survey_id}/questions/{question_id}` | `questions.delete` | query parameters ycli sends that are not published: `force` | the API accepts it and ignores it (checked live on 2026-10-04) |
+| `PATCH /surveys/{survey_id}/questions/{question_id}` | `questions.modify` | body fields ycli sends that are not published: `id` | the API accepts it and ignores it (checked live on 2026-10-04) |
 
 </details>
 <!-- COVERAGE:END -->

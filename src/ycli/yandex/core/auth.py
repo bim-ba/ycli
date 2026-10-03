@@ -29,6 +29,7 @@ import threading
 import time
 import weakref
 from datetime import datetime  # pydantic reads the field type at runtime
+from http import HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -198,7 +199,7 @@ class ServiceAccountAuth(httpx2.Auth):
         sent_with = self._token
         self._authorize(request)
         response = yield request
-        if response.status_code == httpx2.codes.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
             with self._lock:
                 # Refresh once for the whole client: skip it if another call already did.
                 if self._token is sent_with:
@@ -217,7 +218,7 @@ class ServiceAccountAuth(httpx2.Auth):
         sent_with = self._token
         self._authorize(request)
         response = yield request
-        if response.status_code == httpx2.codes.UNAUTHORIZED:
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
             async with lock:
                 if self._token is sent_with:
                     self._store((yield self._token_request()))

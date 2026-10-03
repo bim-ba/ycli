@@ -29,6 +29,23 @@ mcp = FastMCP("forms-surveys")
 @mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
 def list_(
     limit: Annotated[int, Field(description=f"Max forms to return; {LIMIT_CAP}")] = 0,
+    name: Annotated[str, Field(description="Keep the forms whose name matches.")] = "",
+    published: Annotated[
+        bool | None, Field(description="Only published (true) or only unpublished (false).")
+    ] = None,
+    ownership: Annotated[
+        str, Field(description="``mine`` (created by the caller) or ``shared`` (open to them).")
+    ] = "",
+    group: Annotated[str, Field(description="Keep the forms of this group.")] = "",
+    favourite: Annotated[
+        bool | None, Field(description="Only favourites (true) or only the others (false).")
+    ] = None,
+    show_all: Annotated[
+        bool, Field(description="For an administrator, every form of the organization.")
+    ] = False,
+    orderby: Annotated[
+        str, Field(description="Sort, a comma list such as ``name,-modified,-count``.")
+    ] = "",
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Survey]:
@@ -38,7 +55,16 @@ def list_(
     form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
     """
     cap = config.http.cap(limit)
-    return client.surveys.list(limit=cap)
+    return client.surveys.list(
+        limit=cap,
+        name=name or None,
+        published=published,
+        ownership=ownership or None,
+        group=group or None,
+        favourite=favourite,
+        show_all=show_all,
+        orderby=orderby or None,
+    )
 
 
 @mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"}, tags=TAGS)

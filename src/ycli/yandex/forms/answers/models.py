@@ -29,7 +29,8 @@ class Answer(APIModel):
 
     ``data`` is **positional**, aligned to ``columns``; each element is a
     ``{"value": …}`` dict or ``null``. Passed through verbatim as ``Any``
-    (``value`` is a ``str`` or ``list[str]``).
+    (``value`` is a ``str`` or ``list[str]``). Asked for in the ``raw`` format, the reply has
+    no ``columns`` and ``data`` is an object keyed by question.
 
     Examples:
         >>> Answer.model_validate({"id": 9, "created": "2026-01-01", "data": [{"value": "x"}]}).data
@@ -38,7 +39,13 @@ class Answer(APIModel):
 
     id: int | None = None
     created: str | None = None
-    data: list[Any] = Field(default_factory=list)
+    uid: str | None = Field(
+        default=None, description="Passport uid of the respondent (the ``raw`` format only)."
+    )
+    data: list[Any] | dict[str, Any] = Field(
+        default_factory=list,
+        description="Cells aligned to ``columns``; in the ``raw`` format, an object by question.",
+    )
 
 
 class AnswerSurveyRef(APIModel):
@@ -72,6 +79,9 @@ class AnswerDetails(APIModel):
     created: str | None = Field(default=None, description="ISO-8601 submission timestamp.")
     survey: AnswerSurveyRef | None = Field(
         default=None, description="The form this answer belongs to."
+    )
+    started: str | None = Field(
+        default=None, description="ISO-8601 time the respondent began filling the form."
     )
     quiz: Any = Field(default=None, description="Quiz (test) results, when the form is a quiz.")
     data: list[Any] = Field(

@@ -27,6 +27,13 @@ form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer |  | Max forms to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `name` | string |  | Keep the forms whose name matches. |
+| `published` | boolean or null |  | Only published (true) or only unpublished (false). |
+| `ownership` | string |  | ``mine`` (created by the caller) or ``shared`` (open to them). |
+| `group` | string |  | Keep the forms of this group. |
+| `favourite` | boolean or null |  | Only favourites (true) or only the others (false). |
+| `show_all` | boolean |  | For an administrator, every form of the organization. |
+| `orderby` | string |  | Sort, a comma list such as ``name,-modified,-count``. |
 
 ## `forms_surveys_get`
 
@@ -49,7 +56,7 @@ Only the fields you set are sent. Follow up with ``questions_create`` to add que
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | Typed request body for creating a form (``POST /surveys``). Only the most common form settings are modelled as first-class fields; advanced keys (``styles``, ``quiz``, ``auto_publication``, ``followers``, …) go through the CLI's repeatable ``--field key=value`` JSON escape and are merged onto this body. Unset (``None``) fields are dropped before the request is sent. |
+| `body` | object | yes | Typed request body for creating a form (``POST /surveys``). Every setting the API publishes is a field. The CLI has an option for the common ones and takes the rest through its repeatable ``--field key=value`` JSON escape, merged onto this body. Unset (``None``) fields are dropped before the request is sent. ``language``, ``is_published`` and ``is_public`` are accepted and ignored by the API (checked live on 2026-10-04): they stay for callers that send them, and setting one logs a warning. |
 
 ## `forms_surveys_update`
 
@@ -125,6 +132,7 @@ Type-specific detail (validators, options, conditions) is lenient-ignored.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to fetch. |
+| `with_slugs` | boolean |  | Refer to other questions by slug instead of id. |
 
 ## `forms_questions_create`
 
@@ -160,7 +168,9 @@ The body's ``type`` must match the existing question's type; look it up with
 
 *Delete Forms question* · destructive write
 
-Delete a question from a form; refuses if display conditions reference it unless ``force``.
+Delete a question from a form; one that a display condition refers to is refused.
+
+Delete the condition first (``conditions_question_delete``).
 
 The API answers ``204 No Content``; the returned record confirms the accepted action.
 
@@ -168,7 +178,7 @@ The API answers ``204 No Content``; the returned record confirms the accepted ac
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to delete. |
-| `force` | boolean |  | Delete even when another question's display conditions reference this one. |
+| `force` | boolean |  | Ignored by the API: a question that a display condition refers to is refused all the same. |
 
 ## `forms_questions_move`
 
@@ -582,6 +592,13 @@ in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
+| `questions` | string |  | Comma-separated question ids to return answers for. |
+| `use_slugs` | boolean |  | Name questions and options by slug instead of id. |
+| `date_from` | string |  | ISO-8601: answers given at or after. |
+| `date_to` | string |  | ISO-8601: answers given at or before. |
+| `ordering` | string |  | ``asc`` (oldest first) or ``desc`` (the default). |
+| `page_size` | integer or null |  | Answers per request (the API's default is 25). |
+| `answer_format` | string |  | ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's data as stored, with no ``columns``). |
 
 ## `forms_answers_export`
 

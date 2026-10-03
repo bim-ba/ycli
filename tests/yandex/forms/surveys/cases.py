@@ -17,7 +17,10 @@ def _listed(survey_id: str) -> dict:
     """A survey as listed with only its id, every other field unset."""
     unset = (
         "name", "dir_id", "collab_id", "created", "modified", "language", "is_published",
-        "is_public", "is_banned", "answers", "is_favourite",
+        "is_public", "is_banned", "answers", "is_favourite", "hashed_id", "author", "need_auth",
+        "allow_multiple_answers", "show_last_answer", "max_count", "texts", "styles", "quiz",
+        "auto_publication", "follow", "followers", "captcha", "metric", "file_storage",
+        "validator_url", "iframe", "footer", "teaser", "stats", "share", "fill_again",
     )  # fmt: skip
     return {"id": survey_id, **dict.fromkeys(unset)}
 
@@ -152,5 +155,139 @@ CASES = [
             )
         ],
         env={"YCLI__HTTP__MAX_ITEMS": "1"},
+    ),
+    # The filters of the listing (#196).
+    Case(
+        "forms.surveys.list",
+        kwargs={
+            "limit": 7,
+            "name": "Onboarding",
+            "published": True,
+            "ownership": "mine",
+            "group": "hr",
+            "favourite": False,
+            "show_all": True,
+            "orderby": "name,-modified",
+        },
+        cli=[
+            "forms",
+            "surveys",
+            "list",
+            "--limit",
+            "7",
+            "--name",
+            "Onboarding",
+            "--published",
+            "--ownership",
+            "mine",
+            "--group",
+            "hr",
+            "--no-favourite",
+            "--show-all",
+            "--orderby",
+            "name,-modified",
+        ],
+        mcp=(
+            "forms_surveys_list",
+            {
+                "limit": 7,
+                "name": "Onboarding",
+                "published": True,
+                "ownership": "mine",
+                "group": "hr",
+                "favourite": False,
+                "show_all": True,
+                "orderby": "name,-modified",
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "surveys",
+                    {
+                        "offset": "0",
+                        "limit": "100",
+                        "name": "Onboarding",
+                        "published": "true",
+                        "ownership": "mine",
+                        "group": "hr",
+                        "favourite": "false",
+                        "show_all": "true",
+                        "orderby": "name,-modified",
+                    },
+                ),
+                Reply(json={"result": [SURVEY]}),
+            )
+        ],
+    ),
+    # The settings a single form carries, as the API publishes them (#196).
+    Case(
+        "forms.surveys.get",
+        args=("686d0a1b2c3d4e5f00000007",),
+        cli=["forms", "surveys", "get", "686d0a1b2c3d4e5f00000007"],
+        mcp=("forms_surveys_get", {"survey_id": "686d0a1b2c3d4e5f00000007"}),
+        exchanges=[
+            (
+                Sent("GET", "surveys/686d0a1b2c3d4e5f00000007"),
+                Reply(
+                    json={
+                        "id": "686d0a1b2c3d4e5f00000007",
+                        "name": "Quiz",
+                        "hashed_id": "686d0a1b2c3d4e5f00000007.abc",
+                        "is_published": True,
+                        "is_public": False,
+                        "is_favourite": False,
+                        "allow_multiple_answers": True,
+                        "show_last_answer": False,
+                        "need_auth": False,
+                        "max_count": 100,
+                        "metric": 9001,
+                        "follow": "1h",
+                        "captcha": "std",
+                        "file_storage": "https://files.test/",
+                        "validator_url": "https://check.test/",
+                        "iframe": False,
+                        "footer": True,
+                        "teaser": True,
+                        "stats": False,
+                        "share": True,
+                        "fill_again": True,
+                        "texts": {"submit": "Send", "title": "Thanks"},
+                        "styles": {
+                            "id": 3,
+                            "name": "Blue",
+                            "type": "custom",
+                            "custom": {"color": "#00f"},
+                            "images": {"page": {"id": 41, "links": {}, "name": "bg.png"}},
+                        },
+                        "auto_publication": {
+                            "enabled": True,
+                            "date_open": "2026-10-01T00:00:00Z",
+                            "date_close": "2026-12-31T00:00:00Z",
+                        },
+                        "quiz": {
+                            "show_results": True,
+                            "show_format": "score_with_total",
+                            "show_correct": False,
+                            "calc_method": "range",
+                            "pass_scores": 5,
+                            "question_count": 3,
+                            "total_scores": 10,
+                            "items": [{"title": "Passed", "upper_limit": 10}],
+                        },
+                        "followers": [
+                            {"id": 4, "login": "ann", "email": "ann@example.com", "type": "user"},
+                            {"id": "team@example.com", "type": "mail_list"},
+                        ],
+                        "author": {
+                            "identity": {"uid": "9104", "cloud_uid": "cloud-9104"},
+                            "username": "vera",
+                            "display_name": "Vera",
+                        },
+                    }
+                ),
+            )
+        ],
     ),
 ]

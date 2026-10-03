@@ -196,6 +196,14 @@ CASES = [
     ),
     Case(
         "forms.questions.delete",
+        args=(SID, "28"),
+        cli=["forms", "questions", "delete", SID, "28"],
+        mcp=("forms_questions_delete", {"survey_id": SID, "question_id": "28"}),
+        exchanges=[(Sent("DELETE", f"{QUESTIONS}/28"), Reply(status=204))],
+        output={"ok": True, "detail": f"deleted question 28 on survey {SID}"},
+    ),
+    Case(
+        "forms.questions.delete",
         args=(SID, "19"),
         kwargs={"force": True},
         cli=["forms", "questions", "delete", SID, "19", "--force"],
@@ -248,6 +256,107 @@ CASES = [
             (
                 Sent("POST", f"{QUESTIONS}/21/move", json={"page": 1, "position": 3}),
                 Reply(json={"id": 21}),
+            )
+        ],
+    ),
+    # ``with_slugs`` and the type-specific blocks of a question, as the API publishes them (#196).
+    Case(
+        "forms.questions.get",
+        args=(SID, "21"),
+        kwargs={"with_slugs": True},
+        cli=["forms", "questions", "get", SID, "21", "--with-slugs"],
+        mcp=("forms_questions_get", {"survey_id": SID, "question_id": "21", "with_slugs": True}),
+        exchanges=[
+            (
+                Sent("GET", f"{QUESTIONS}/21", {"with_slugs": "true"}),
+                Reply(
+                    json={
+                        "id": 21,
+                        "slug": "contacts",
+                        "type": "series",
+                        "label": "Contacts",
+                        "hidden": True,
+                        "conditions": {
+                            "operator": "and",
+                            "items": [
+                                {
+                                    "id": 301,
+                                    "operator": "or",
+                                    "items": [
+                                        {
+                                            "type": "question",
+                                            "condition": "eq",
+                                            "question": "name",
+                                            "value": "Ann",
+                                        }
+                                    ],
+                                }
+                            ],
+                        },
+                        "image": {
+                            "id": 41,
+                            "links": {"orig": "https://forms.test/41"},
+                            "name": "cover.png",
+                            "check_status": "ready",
+                            "check_mode": "strict",
+                        },
+                        "validators": [{"type": "required"}],
+                        "items": [
+                            {
+                                "id": 22,
+                                "slug": "channel",
+                                "type": "enum",
+                                "label": "Channel",
+                                "widget": "radio",
+                                "modify_choices": "natural",
+                                "show_first": False,
+                                "has_quiz": True,
+                                "quiz_comment": {"correct": "Yes", "incorrect": "No"},
+                                "items": [
+                                    {"id": 51, "slug": "mail", "label": "Mail", "correct": True},
+                                    {"id": 52, "slug": "phone", "label": "Phone", "scores": 0},
+                                ],
+                                "validators": [{"type": "max", "value": 1}],
+                            },
+                            {
+                                "id": 23,
+                                "slug": "city",
+                                "type": "suggest",
+                                "label": "City",
+                                "multichoice": False,
+                                "data_source": {
+                                    "name": "city",
+                                    "params": [{"type": "country", "value": "ru"}],
+                                },
+                            },
+                            {
+                                "id": 24,
+                                "slug": "rating",
+                                "type": "matrix",
+                                "label": "Rating",
+                                "rows": [{"id": 61, "slug": "speed", "label": "Speed"}],
+                                "columns": [{"id": 62, "slug": "good", "label": "Good"}],
+                            },
+                            {
+                                "id": 25,
+                                "slug": "tip",
+                                "type": "payment",
+                                "label": "Tip",
+                                "fixed": True,
+                                "account_id": "4100",
+                            },
+                            {
+                                "id": 26,
+                                "slug": "note",
+                                "type": "string",
+                                "label": "Note",
+                                "hint_source": {"name": "names", "params": []},
+                                "quiz_items": [{"label": "ok", "correct": True, "scores": 1}],
+                            },
+                            {"id": 27, "slug": "intro", "type": "comment", "header": True},
+                        ],
+                    }
+                ),
             )
         ],
     ),

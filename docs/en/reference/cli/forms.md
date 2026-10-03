@@ -127,7 +127,7 @@ $ ycli forms surveys [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List all forms (auto-paginated over offset...
+* `list`: List forms, filtered (auto-paginated over...
 * `get`: Print one form's settings for SURVEY_ID.
 * `create`: Create a form (POST /surveys).
 * `update`: Modify form SURVEY_ID (PATCH...
@@ -137,7 +137,7 @@ $ ycli forms surveys [OPTIONS] COMMAND [ARGS]...
 
 ### `ycli forms surveys list`
 
-List all forms (auto-paginated over offset pages; --all for everything).
+List forms, filtered (auto-paginated over offset pages; --all for everything).
 
 **Usage**:
 
@@ -149,6 +149,13 @@ $ ycli forms surveys list [OPTIONS]
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--name TEXT`: Only forms whose name matches.
+* `--published / --no-published`: Only published (or only unpublished).
+* `--ownership TEXT`: mine (created by you) or shared (open to you).
+* `--group TEXT`: Only forms of this group.
+* `--favourite / --no-favourite`: Only favourites (or only the others).
+* `--show-all`: As an administrator, every form of the organization.
+* `--orderby TEXT`: Sort, e.g. name,-modified,-count.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -190,9 +197,9 @@ $ ycli forms surveys create [OPTIONS]
 **Options**:
 
 * `--name TEXT`: Form name (title).  [required]
-* `--language TEXT`: Interface language, e.g. ru or en.
-* `--published / --no-published`: Publish on creation.
-* `--public / --no-public`: Fillable without an invite.
+* `--language TEXT`: Ignored by the API: the reply reports the language, a request cannot set it.
+* `--published / --no-published`: Ignored by the API: publish a form with ``surveys publish`` instead.
+* `--public / --no-public`: Ignored by the API: the reply reports whether the form is public, a request cannot set it.
 * `--need-auth / --no-need-auth`: Require sign-in to fill.
 * `--max-count INTEGER`: Maximum number of responses (0 = unset).  [default: 0]
 * `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
@@ -219,9 +226,9 @@ $ ycli forms surveys update [OPTIONS] SURVEY_ID
 **Options**:
 
 * `--name TEXT`: New form name.
-* `--language TEXT`: New interface language.
-* `--published / --no-published`: Publish / unpublish.
-* `--public / --no-public`: Toggle public fill.
+* `--language TEXT`: Ignored by the API: the reply reports the language, a request cannot set it.
+* `--published / --no-published`: Ignored by the API: publish a form with ``surveys publish`` instead.
+* `--public / --no-public`: Ignored by the API: the reply reports whether the form is public, a request cannot set it.
 * `--need-auth / --no-need-auth`: Toggle sign-in requirement.
 * `--max-count INTEGER`: New response cap (0 = leave unchanged).  [default: 0]
 * `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
@@ -359,6 +366,7 @@ $ ycli forms questions get [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
+* `--with-slugs`: Refer to other questions by slug, not id.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -434,7 +442,7 @@ $ ycli forms questions update [OPTIONS] SURVEY_ID QUESTION_ID
 
 ### `ycli forms questions delete`
 
-Delete a question (DELETE …/questions/{id}); --force skips the condition-usage check.
+Delete a question (DELETE …/questions/{id}); one a condition refers to is refused.
 
 **Usage**:
 
@@ -449,7 +457,7 @@ $ ycli forms questions delete [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--force`: Skip the condition-usage check before deleting.
+* `--force`: Ignored by the API: a question that a display condition refers to is refused all the same.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1368,7 +1376,7 @@ $ ycli forms answers [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `get`: Fetch one answer (GET /answers).
-* `list`: List a form's responses (auto-paginated;...
+* `list`: List a form's responses, filtered...
 * `export`: Export a form's answers (POST...
 * `integrations-list`: List the integration runs an answer...
 * `delete`: Delete an answer (DELETE...
@@ -1398,7 +1406,7 @@ $ ycli forms answers get [OPTIONS]
 
 ### `ycli forms answers list`
 
-List a form's responses (auto-paginated; --all for everything).
+List a form's responses, filtered (auto-paginated; --all for everything).
 
 **Usage**:
 
@@ -1414,6 +1422,13 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--questions TEXT`: Comma-separated question ids to return answers for.
+* `--use-slugs`: Name questions and options by slug, not id.
+* `--date-from TEXT`: ISO-8601: answers given at or after.
+* `--date-to TEXT`: ISO-8601: answers given at or before.
+* `--ordering TEXT`: asc (oldest first) or desc (the default).
+* `--page-size INTEGER`: Answers per request (the API's default is 25).
+* `--answer-format TEXT`: default (cells by column) or raw (as stored).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.

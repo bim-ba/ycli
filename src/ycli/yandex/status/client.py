@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from http import HTTPStatus
 
 import httpx2
 
@@ -29,7 +30,7 @@ from ycli.yandex.status.oauth_models import (
 logger = logging.getLogger(HTTP_LOGGER_NAME)
 
 # RFC 6749 §5.2: the token endpoint answers an OAuth error with 400, or 401 for invalid_client.
-_OAUTH_ERROR_STATUSES = frozenset({400, 401})
+_OAUTH_ERROR_STATUSES = frozenset({HTTPStatus.BAD_REQUEST, HTTPStatus.UNAUTHORIZED})
 
 
 def _log(response: httpx2.Response) -> None:

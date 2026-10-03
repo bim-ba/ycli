@@ -13,11 +13,29 @@ from ycli.yandex.models import Ack, ItemList
 class SurveysClient(Resource):
     """List, get, create, modify, delete, publish and unpublish forms."""
 
-    def list(self, *, limit: int | None = None) -> ItemList[Survey]:
+    def list(
+        self,
+        *,
+        limit: int | None = None,
+        name: str | None = None,
+        published: bool | None = None,
+        ownership: str | None = None,
+        group: str | None = None,
+        favourite: bool | None = None,
+        show_all: bool = False,
+        orderby: str | None = None,
+    ) -> ItemList[Survey]:
         """``GET /surveys`` → every form, page by page, at most ``limit`` (``None`` = all).
 
         Args:
             limit: The most forms to return; ``None`` returns every form.
+            name: Keep the forms whose name matches.
+            published: Keep only published (``True``) or only unpublished (``False``) forms.
+            ownership: ``mine`` (created by the caller) or ``shared`` (open to the caller).
+            group: Keep the forms of this group.
+            favourite: Keep only favourite (``True``) or only other (``False``) forms.
+            show_all: For an administrator, list every form of the organization.
+            orderby: The sort, a comma list such as ``name,-modified,-count``.
 
         Returns:
             The forms.
@@ -26,7 +44,16 @@ class SurveysClient(Resource):
             >>> forms.surveys.list(limit=500).root[0].name
             'Onboarding'
         """
-        return ItemList[Survey](list(self._session.iterate(endpoints.list_surveys(), limit=limit)))
+        paged = endpoints.list_surveys(
+            name=name,
+            published=published,
+            ownership=ownership,
+            group=group,
+            favourite=favourite,
+            show_all=show_all,
+            orderby=orderby,
+        )
+        return ItemList[Survey](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, survey_id: str) -> Survey:
         """``GET /surveys/{id}`` → a single ``Survey`` (settings).

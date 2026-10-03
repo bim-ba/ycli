@@ -58,6 +58,27 @@ def get(
 @mcp.tool(name="answers_list", annotations={**RO, "title": "List Forms answers"}, tags=TAGS)
 def list_(
     survey_id: SurveyId,
+    questions: Annotated[
+        str, Field(description="Comma-separated question ids to return answers for.")
+    ] = "",
+    use_slugs: Annotated[
+        bool, Field(description="Name questions and options by slug instead of id.")
+    ] = False,
+    date_from: Annotated[str, Field(description="ISO-8601: answers given at or after.")] = "",
+    date_to: Annotated[str, Field(description="ISO-8601: answers given at or before.")] = "",
+    ordering: Annotated[
+        str, Field(description="``asc`` (oldest first) or ``desc`` (the default).")
+    ] = "",
+    page_size: Annotated[
+        int | None, Field(description="Answers per request (the API's default is 25).")
+    ] = None,
+    answer_format: Annotated[
+        str,
+        Field(
+            description="``default`` (cells aligned to ``columns``) or ``raw`` (each answer's "
+            "data as stored, with no ``columns``)."
+        ),
+    ] = "",
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> AnswersResponse:
@@ -66,7 +87,17 @@ def list_(
     Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
     in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
     """
-    return client.answers.list_all(survey_id, limit=config.http.max_items)
+    return client.answers.list_all(
+        survey_id,
+        limit=config.http.max_items,
+        questions=questions or None,
+        use_slugs=use_slugs,
+        date_from=date_from or None,
+        date_to=date_to or None,
+        ordering=ordering or None,
+        page_size=page_size,
+        answer_format=answer_format or None,
+    )
 
 
 @mcp.tool(

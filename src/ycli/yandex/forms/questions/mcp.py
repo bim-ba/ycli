@@ -18,13 +18,14 @@ from ycli.yandex.forms.dependencies import (
     forms_client,
 )
 from ycli.yandex.forms.questions.models import (
+    FORCE_IGNORED,
     Question,
     QuestionCreate,
     QuestionMove,
     QuestionMoveResult,
     QuestionsResponse,
 )
-from ycli.yandex.models import Ack, require_found
+from ycli.yandex.models import IGNORED_BY_API, Ack, require_found
 
 mcp = FastMCP("forms-questions")
 
@@ -39,6 +40,9 @@ def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Q
 def get(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
     question_id: Annotated[str, Field(description="Question id (integer) to fetch.")],
+    with_slugs: Annotated[
+        bool, Field(description="Refer to other questions by slug instead of id.")
+    ] = False,
     client: FormsClient = Depends(forms_client),
 ) -> Question:
     """One question's settings by id — label, slug, type and common presentation flags.
@@ -47,7 +51,7 @@ def get(
     question keyed by ``question_id`` (take it from an item's ``id`` in ``questions_list``).
     Type-specific detail (validators, options, conditions) is lenient-ignored.
     """
-    result = client.questions.get(survey_id, question_id)
+    result = client.questions.get(survey_id, question_id, with_slugs=with_slugs)
     # A 404 / empty body deserializes into an all-None Question (lenient model) rather than
     # raising; turn that into a clean not-found error instead of a phantom empty object.
     return require_found(
@@ -112,13 +116,13 @@ def delete(
     question_id: Annotated[str, Field(description="Question id (integer) to delete.")],
     force: Annotated[
         bool,
-        Field(
-            description="Delete even when another question's display conditions reference this one."
-        ),
+        Field(description=IGNORED_BY_API + FORCE_IGNORED),
     ] = False,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
-    """Delete a question from a form; refuses if display conditions reference it unless ``force``.
+    """Delete a question from a form; one that a display condition refers to is refused.
+
+    Delete the condition first (``conditions_question_delete``).
 
     The API answers ``204 No Content``; the returned record confirms the accepted action.
     """

@@ -167,7 +167,8 @@ class NextURLPagination(Pagination):
 
     ``query_only`` carries just the link's query over onto the current request, for an API
     whose links point at a path that does not answer: Forms prints answers links under a
-    retired ``/v3/`` route.
+    retired ``/v3/`` route. The request's own parameters (its filters) stay, and the link's
+    override them.
     """
 
     url_of: Callable[[httpx2.Response], str | None]
@@ -182,7 +183,7 @@ class NextURLPagination(Pagination):
             return None
         url = request.url.join(link)
         if self.query_only:
-            url = request.url.copy_with(params=url.params)
+            url = request.url.copy_merge_params(url.params)
         return None if url == request.url else _with_url(request, url)
 
 

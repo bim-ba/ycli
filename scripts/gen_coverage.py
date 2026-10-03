@@ -546,8 +546,8 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
                 "",
                 "**Parameters and fields**",
                 "",
-                "| Operation | ycli | Difference |",
-                "|---|---|---|",
+                "| Operation | ycli | Difference | Why it stays |",
+                "|---|---|---|---|",
             ]
             for gap in drift.gaps:
                 differences = "<br>".join(
@@ -555,8 +555,10 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
                     for kind, label in DIFFERENCES.items()
                     if getattr(gap, kind)
                 )
+                why = "<br>".join(api_drift.reasons(drift.service, gap))
                 lines.append(
-                    f"| {_published(gap.published)} | {_sdk(gap.operations)} | {differences} |"
+                    f"| {_published(gap.published)} | {_sdk(gap.operations)} | {differences} "
+                    f"| {why} |"
                 )
         lines += ["", "</details>"]
     return lines

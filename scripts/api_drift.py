@@ -52,6 +52,7 @@ from tests.contract import Case, Sibling, load_cases  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION  # noqa: E402
+from ycli.yandex.models import ignored_fields  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
 if TYPE_CHECKING:
@@ -75,12 +76,43 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
 # published operation or wherever it occurs in a service. Both are checked in both directions:
 # an unexplained difference fails, and so does an entry that matches no difference. A path is
 # written as the snapshot keys it, with ``{}`` for each parameter (``/pages/{}/comments``).
-EXPLAINED: dict[tuple[str, str, str, str, str], str] = {}  # service, method, path, kind, name
-EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {}  # service, kind, name
+# A reason that begins with ``IGNORED`` marks a field or parameter the API accepts and does
+# nothing with: it stays in ycli, its description begins with ``IGNORED_BY_API`` and setting
+# it logs a warning (docs/conventions/resources.md); ``ignored_marks`` ties the two together.
+IGNORED = "the API accepts it and ignores it (checked live on 2026-10-04)"
+_RETURNED = "the API returns it (checked live on 2026-10-04), the published schema omits it"
+_SURVEYS = (("POST", "/surveys"), ("PATCH", "/surveys/{}"))
+_QUESTIONS = (("POST", "/surveys/{}/questions"), ("PATCH", "/surveys/{}/questions/{}"))
+_SUBSCRIPTIONS = (
+    ("POST", "/surveys/{}/hooks/{}/subscriptions"),
+    ("PATCH", "/surveys/{}/hooks/{}/subscriptions/{}"),
+)
+EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, path, kind, name
+    **{
+        ("forms", method, path, "unknown_request", name): IGNORED
+        for method, path in _SURVEYS
+        for name in ("is_public", "is_published", "language")
+    },
+    **{("forms", method, path, "unknown_request", "id"): IGNORED for method, path in _QUESTIONS},
+    **{
+        (
+            "forms",
+            method,
+            path,
+            "unknown_request",
+            "id",
+        ): "one model builds the body and reads the reply, and the reply carries `id`"
+        for method, path in _SUBSCRIPTIONS
+    },
+    ("forms", "DELETE", "/surveys/{}/questions/{}", "unknown_query", "force"): IGNORED,
+}
+EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {  # service, kind, name
+    ("forms", "unknown_response", "modified"): _RETURNED,
+}
 
 # The services whose every difference is fixed or explained. The others join as their gaps
 # close (#196); when all three are here the constant goes and the check covers every service.
-CLOSED = frozenset({"wiki"})
+CLOSED = frozenset({"wiki", "forms"})
 
 
 @dataclass(frozen=True)
@@ -455,6 +487,33 @@ def unexplained(
     stale = [" ".join(key) for key in explained if key[0] in services and key not in present]
     stale += [" ".join(key) for key in everywhere if key[0] in services and key not in anywhere]
     return bare, stale
+
+
+def reasons(service: str, gap: Gap) -> list[str]:
+    """Why the differences of ``gap`` stay, each reason once; empty when none is explained."""
+    found = []
+    for kind in GAP_KINDS:
+        for name in getattr(gap, kind):
+            why = EXPLAINED.get((service, *gap.published.key, kind, name))
+            why = why or EXPLAINED_EVERYWHERE.get((service, kind, name))
+            if why and why not in found:
+                found.append(why)
+    return found
+
+
+def ignored_marks() -> set[tuple[str, str, str, str]]:
+    """Every body field marked ``IGNORED_BY_API``, as ``(service, method, path, name)``."""
+    marked = set()
+    for found in recorded():
+        service = found.case.operation.split(".")[0]
+        published = published_for(
+            api_surface.load(service), found.endpoint.method, "/" + found.endpoint.path.strip("/")
+        )
+        if published is None:
+            continue
+        for model in _models(typed_body(found)):
+            marked |= {(service, *published.key, name) for name, _ in ignored_fields(model)}
+    return marked
 
 
 def _unique(found: list[Call]) -> list[Call]:
