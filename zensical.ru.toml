@@ -31,6 +31,7 @@ nav = [
     "reference/configuration.md",
     { "CLI (англ.)" = "https://ycli.savaznatnov.dev/reference/cli/" },
     { "MCP-инструменты (англ.)" = "https://ycli.savaznatnov.dev/reference/mcp/tracker/" },
+    { "MCP: prompts и ресурсы (англ.)" = "https://ycli.savaznatnov.dev/reference/mcp/prompts-and-resources/" },
     { "Python SDK (англ.)" = "https://ycli.savaznatnov.dev/reference/sdk/tracker/" },
     { "OpenAPI (англ.)" = "https://ycli.savaznatnov.dev/reference/openapi/" },
   ] },
