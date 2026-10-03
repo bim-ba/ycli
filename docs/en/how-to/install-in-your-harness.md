@@ -1,4 +1,5 @@
 ---
+description: "Connect the Yandex Tracker, Wiki and Forms MCP server to Claude, Cursor, VS Code, Windsurf, Zed, Codex, Gemini CLI or opencode."
 type: how-to
 ---
 

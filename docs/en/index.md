@@ -1,5 +1,5 @@
 ---
-description: ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server for AI agents and a Python SDK.
+description: "ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server for AI agents and a Python SDK."
 ---
 
 # ycli

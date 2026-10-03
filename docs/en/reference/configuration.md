@@ -1,4 +1,5 @@
 ---
+description: "Every ycli environment variable, setting and exit code."
 type: reference
 ---
 

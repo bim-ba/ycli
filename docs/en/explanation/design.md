@@ -1,4 +1,5 @@
 ---
+description: "Why ycli is built the way it is: one operation on four surfaces, honest tool hints, the API's own field names."
 type: explanation
 ---
 

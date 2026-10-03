@@ -1,4 +1,5 @@
 ---
+description: "Run the Yandex 360 MCP server: choose which tools an agent gets, serve only reads, connect a client."
 type: how-to
 ---
 

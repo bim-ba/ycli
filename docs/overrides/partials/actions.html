@@ -1,7 +1,26 @@
-{#- A copy of the theme's edit link, hidden on generated pages (front matter `generated: true`); scripts/check_theme_override.py fails when the original changes. -#}
-{% if page.edit_url and "content.action.edit" in features and not page.meta.generated %}
-  <a href="{{ page.edit_url }}" title="{{ lang.t('action.edit') }}" class="md-content__button md-icon" rel="edit">
-    {% set icon = config.theme.icon.edit or "material/file-edit-outline" %}
+{#- A copy of the theme's partial with one change: no edit or view link on generated pages (front matter `generated: true`); scripts/check_theme_override.py fails when the original changes. -#}
+{% if "content.action.copy" in features and page.markdown_url %}
+  <button type="button" title="{{ lang.t('action.copy') }}" aria-label="{{ lang.t('action.copy') }}" class="md-content__button md-icon" data-md-copy-url="{{ page.markdown_url | url }}">
+    {% set icon = config.theme.icon.copy or "material/content-copy" %}
     {% include ".icons/" ~ icon ~ ".svg" %}
-  </a>
+  </button>
+{% endif %}
+{% if page.edit_url and not page.meta.generated %}
+  {% if "content.action.edit" in features %}
+    <a href="{{ page.edit_url }}" title="{{ lang.t('action.edit') }}" class="md-content__button md-icon" rel="edit">
+      {% set icon = config.theme.icon.edit or "material/file-edit-outline" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </a>
+  {% endif %}
+  {% if "content.action.view" in features %}
+    {% if "/blob/" in page.edit_url %}
+      {% set part = "/blob/" %}
+    {% else %}
+      {% set part = "/edit/" %}
+    {% endif %}
+    <a href="{{ page.edit_url | replace(part, '/raw/') }}" title="{{ lang.t('action.view') }}" class="md-content__button md-icon">
+      {% set icon = config.theme.icon.view or "material/file-eye-outline" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </a>
+  {% endif %}
 {% endif %}

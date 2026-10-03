@@ -1,4 +1,5 @@
 ---
+description: "Run ycli in GitHub Actions or GitLab CI: comment on a Yandex Tracker issue after a deploy, with secrets and exit codes."
 type: how-to
 ---
 

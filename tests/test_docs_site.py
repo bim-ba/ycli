@@ -229,3 +229,55 @@ def test_the_terminal_example_prints_what_ycli_prints():
     assert "$ ycli tracker issues get DEMO-42\nkey       DEMO-42\n" in text
     assert "\x1b" not in text
     assert all(line == line.rstrip() for line in text.splitlines())
+
+
+def _front_matter(path: Path) -> str:
+    match = FRONT_MATTER.match(path.read_text(encoding="utf-8"))
+    return match.group(1) if match else ""
+
+
+def undescribed(docs_dir: Path) -> list[str]:
+    """Hand-written pages with no ``description`` of at most 160 characters (the search snippet)."""
+    problems = []
+    for path in sorted(docs_dir.rglob("*.md")):
+        meta = _front_matter(path)
+        if "generated: true" in meta:
+            continue
+        found = re.search(r'^description: "(.+)"$', meta, re.MULTILINE)
+        if found is None or len(found.group(1)) > 160:
+            problems.append(path.relative_to(docs_dir).as_posix())
+    return problems
+
+
+def outside_llms_txt(language: str) -> list[str]:
+    """Hand-written pages that no ``llms.txt`` section lists (the home page is its header)."""
+    from fnmatch import fnmatch
+
+    config = tomllib.loads(SITES[language].read_text(encoding="utf-8"))["project"]
+    docs_dir = ROOT / config["docs_dir"]
+    patterns = [p for section in config["plugins"]["llmstxt"]["sections"].values() for p in section]
+    return [
+        page
+        for page in _nav_pages(config["nav"])
+        if page != "index.md"
+        and "generated: true" not in _front_matter(docs_dir / page)
+        and not any(fnmatch(page, pattern) for pattern in patterns)
+    ]
+
+
+@pytest.mark.parametrize("language", sorted(SITES))
+def test_every_hand_written_page_has_a_description(language):
+    assert undescribed(_site(language)[0]) == []
+
+
+@pytest.mark.parametrize("language", sorted(SITES))
+def test_llms_txt_lists_every_hand_written_page(language):
+    assert outside_llms_txt(language) == []
+
+
+def test_the_description_check_bites(tmp_path):
+    (tmp_path / "a.md").write_text("---\ntype: how-to\n---\n# A\n")
+    (tmp_path / "b.md").write_text(f'---\ndescription: "{"x" * 161}"\n---\n# B\n')
+    (tmp_path / "c.md").write_text('---\ndescription: "Fine."\n---\n# C\n')
+    (tmp_path / "d.md").write_text("---\ngenerated: true\n---\n# D\n")
+    assert undescribed(tmp_path) == ["a.md", "b.md"]

@@ -1,4 +1,5 @@
 ---
+description: "Use the Yandex Tracker, Wiki and Forms CLI in shell scripts: JSON output, jq filters, dry runs, exit codes, shell completion."
 type: how-to
 ---
 

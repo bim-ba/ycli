@@ -60,6 +60,7 @@ nav = [
 custom_dir = "docs/overrides"
 language = "en"
 features = [
+  "content.action.copy",
   "content.action.edit",
   "content.code.annotate",
   "content.code.copy",
@@ -133,3 +134,21 @@ show_signature_annotations = true
 show_source = false
 signature_crossrefs = true
 filters = ["!^_"]
+
+[project.plugins.llmstxt]
+full_output = "llms-full.txt"
+markdown_description = """
+ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server for AI agents and a Python SDK. One operation has one name on every surface: `ycli tracker issues get` is the tool `tracker_issues_get` and the method `tracker.issues.get`.
+
+The full reference is large, one page per service, and is left out of llms-full.txt:
+
+- CLI commands: https://bim-ba.github.io/ycli/reference/cli/tracker/ , https://bim-ba.github.io/ycli/reference/cli/wiki/ , https://bim-ba.github.io/ycli/reference/cli/forms/
+- MCP tools: https://bim-ba.github.io/ycli/reference/mcp/tracker/ , https://bim-ba.github.io/ycli/reference/mcp/wiki/ , https://bim-ba.github.io/ycli/reference/mcp/forms/
+- Python SDK: https://bim-ba.github.io/ycli/reference/sdk/tracker/ , https://bim-ba.github.io/ycli/reference/sdk/wiki/ , https://bim-ba.github.io/ycli/reference/sdk/forms/
+"""
+
+[project.plugins.llmstxt.sections]
+"Tutorials" = ["tutorials/*.md"]
+"How-to guides" = ["how-to/*.md"]
+"Reference" = ["reference/configuration.md", "reference/openapi.md", "reference/cli/index.md", "reference/cli/api.md", "reference/cli/auth.md", "reference/cli/mcp.md"]
+"Explanation" = ["explanation/*.md"]

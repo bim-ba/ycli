@@ -1,4 +1,5 @@
 ---
+description: "Find, create and change Yandex Tracker issues, comment, log time, create a Wiki page: each task as a CLI command, an MCP tool call and Python."
 type: how-to
 ---
 

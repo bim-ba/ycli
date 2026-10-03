@@ -1,4 +1,5 @@
 ---
+description: "Host the Yandex 360 MCP server over HTTPS for a team: sign-in through Yandex ID, Docker Compose, reverse proxy."
 type: how-to
 ---
 
