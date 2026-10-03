@@ -106,7 +106,6 @@ dev = [
     "import-linter>=2.12",
     "jmespath>=1.1.0",
     "pre-commit>=4.6.0",
-    "pydoclint>=0.11.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",

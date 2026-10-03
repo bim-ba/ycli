@@ -14,11 +14,6 @@ repos:
         language: system
         pass_filenames: false
         files: ^src/ycli/.*\.py$
-      - id: pydoclint
-        name: pydoclint (Args/Returns/Raises match the signature)
-        entry: uv run pydoclint
-        language: system
-        files: ^src/ycli/.*\.py$
       - id: architecture-tests
         name: architecture invariants (ARCH-1..8)
         entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py tests/test_docs.py -q --no-cov
@@ -33,6 +28,13 @@ repos:
         entry: bash -c '! git diff --cached -U0 | grep -niE "\[(skip ci|ci skip|no ci|skip actions|actions skip)\]|skip-checks:[[:space:]]*true"'
         language: system
         pass_filenames: false
+  # Its own environment: pydoclint needs docstring-parser-fork, which installs the same
+  # `docstring_parser` module as fastmcp's docstring-parser, so one venv cannot hold both.
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.11.0
+    hooks:
+      - id: pydoclint
+        files: ^src/ycli/.*\.py$
   - repo: https://github.com/astral-sh/ty-pre-commit
     rev: v0.0.55  # tags are v-prefixed; a bare `0.0.55` can't be checked out and breaks every hook run
     hooks:

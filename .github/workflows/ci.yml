@@ -43,11 +43,11 @@ jobs:
       - name: Lint
         if: matrix.python-version == '3.12'
         run: uv run ruff check .
-      # Args, Returns and Raises match each signature (Google style, [tool.pydoclint]); the
-      # examples themselves run as doctests in the pytest step.
+      # Args, Returns and Raises match each signature (Google style, [tool.pydoclint]), in the
+      # hook's own environment (.pre-commit-config.yaml); the examples run in the pytest step.
       - name: Docstrings
         if: matrix.python-version == '3.12'
-        run: uv run pydoclint src/ycli
+        run: uv run pre-commit run pydoclint --all-files
       - name: Check architecture boundaries
         if: matrix.python-version == '3.12'
         run: uv run lint-imports
