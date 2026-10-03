@@ -54,7 +54,7 @@ ycli = "ycli.cli.app:main"
 [project.urls]
 Homepage = "https://github.com/bim-ba/ycli"
 Repository = "https://github.com/bim-ba/ycli"
-Documentation = "https://bim-ba.github.io/ycli/"
+Documentation = "https://ycli.savaznatnov.dev/"
 Issues = "https://github.com/bim-ba/ycli/issues"
 Changelog = "https://github.com/bim-ba/ycli/blob/main/CHANGELOG.md"
 

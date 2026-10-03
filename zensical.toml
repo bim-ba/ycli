@@ -3,7 +3,7 @@
 [project]
 site_name = "ycli"
 site_description = "Yandex 360 (Tracker, Wiki, Forms) from a CLI, an MCP server and a Python SDK."
-site_url = "https://bim-ba.github.io/ycli/"
+site_url = "https://ycli.savaznatnov.dev/"
 repo_url = "https://github.com/bim-ba/ycli"
 repo_name = "bim-ba/ycli"
 edit_uri = "edit/main/docs/en/"
@@ -95,8 +95,8 @@ toggle = { icon = "lucide/moon", name = "Switch to light mode" }
 
 [project.extra]
 alternate = [
-  { name = "English", link = "/ycli/", lang = "en" },
-  { name = "Русский", link = "/ycli/ru/", lang = "ru" },
+  { name = "English", link = "/", lang = "en" },
+  { name = "Русский", link = "/ru/", lang = "ru" },
 ]
 
 [project.markdown_extensions.admonition]
@@ -146,9 +146,9 @@ ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server fo
 
 The full reference is large, one page per service, and is left out of llms-full.txt:
 
-- CLI commands: https://bim-ba.github.io/ycli/reference/cli/tracker/ , https://bim-ba.github.io/ycli/reference/cli/wiki/ , https://bim-ba.github.io/ycli/reference/cli/forms/
-- MCP tools: https://bim-ba.github.io/ycli/reference/mcp/tracker/ , https://bim-ba.github.io/ycli/reference/mcp/wiki/ , https://bim-ba.github.io/ycli/reference/mcp/forms/
-- Python SDK: https://bim-ba.github.io/ycli/reference/sdk/tracker/ , https://bim-ba.github.io/ycli/reference/sdk/wiki/ , https://bim-ba.github.io/ycli/reference/sdk/forms/
+- CLI commands: https://ycli.savaznatnov.dev/reference/cli/tracker/ , https://ycli.savaznatnov.dev/reference/cli/wiki/ , https://ycli.savaznatnov.dev/reference/cli/forms/
+- MCP tools: https://ycli.savaznatnov.dev/reference/mcp/tracker/ , https://ycli.savaznatnov.dev/reference/mcp/wiki/ , https://ycli.savaznatnov.dev/reference/mcp/forms/
+- Python SDK: https://ycli.savaznatnov.dev/reference/sdk/tracker/ , https://ycli.savaznatnov.dev/reference/sdk/wiki/ , https://ycli.savaznatnov.dev/reference/sdk/forms/
 """
 
 [project.plugins.llmstxt.sections]
