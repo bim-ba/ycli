@@ -77,7 +77,7 @@ def test_credentials_read_env_and_hide_the_token(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "y0_secret-value")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     credentials = Credentials()  # ty: ignore[missing-argument]
-    assert credentials.oauth_token.get_secret_value() == "y0_secret-value"
+    assert credentials.token.get_secret_value() == "y0_secret-value"
     assert credentials.organization_id == "org"
     assert "secret-value" not in repr(credentials)
 
@@ -88,13 +88,13 @@ def test_credentials_accept_the_ycli_fallback_names(monkeypatch):
     monkeypatch.setenv("YCLI__AUTH__OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YCLI__AUTH__ORGANIZATION_ID", "org")
     credentials = Credentials()  # ty: ignore[missing-argument]
-    assert credentials.oauth_token.get_secret_value() == "tok"
+    assert credentials.token.get_secret_value() == "tok"
     assert credentials.organization_id == "org"
 
 
 def test_credentials_keyword_arguments():
     credentials = Credentials(oauth_token=SecretStr("tok"), organization_id="org")
-    assert credentials.oauth_token.get_secret_value() == "tok"
+    assert credentials.token.get_secret_value() == "tok"
 
 
 @pytest.mark.parametrize("token", [None, ""])
@@ -106,8 +106,41 @@ def test_credentials_missing_or_empty_token_reads_as_missing(monkeypatch, token)
         monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", token)
     with pytest.raises(ValidationError) as caught:
         Credentials()  # ty: ignore[missing-argument]
-    assert [(error["loc"], error["type"]) for error in caught.value.errors()] == [
-        (("YANDEX_ID_OAUTH_TOKEN",), "missing")
+    assert missing_credentials(caught.value) == ["YANDEX_ID_OAUTH_TOKEN"]
+
+
+def test_an_iam_token_stands_in_for_the_oauth_token(monkeypatch):
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t1.secret")
+    credentials = Credentials()  # ty: ignore[missing-argument]
+    assert (credentials.kind, credentials.token.get_secret_value()) == ("iam", "t1.secret")
+    assert "t1.secret" not in repr(credentials)
+
+
+def test_the_oauth_token_is_the_default_kind():
+    credentials = Credentials()  # ty: ignore[missing-argument]
+    assert credentials.kind == "oauth"
+
+
+def test_two_tokens_at_once_are_refused_and_named(monkeypatch):
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t1.secret")
+    with pytest.raises(ValidationError) as caught:
+        Credentials()  # ty: ignore[missing-argument]
+    (error,) = caught.value.errors()
+    assert error["msg"] == (
+        "YANDEX_ID_OAUTH_TOKEN and YANDEX_CLOUD_IAM_TOKEN are both set: keep one of them"
+    )
+    assert missing_credentials(caught.value) == []  # set, not missing: a configuration error
+
+
+def test_no_token_and_no_organization_are_both_reported(monkeypatch):
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID")
+    with pytest.raises(ValidationError) as caught:
+        Credentials()  # ty: ignore[missing-argument]
+    assert sorted(missing_credentials(caught.value)) == [
+        "YANDEX_ID_OAUTH_TOKEN",
+        "YANDEX_ID_ORGANIZATION_ID",
     ]
 
 

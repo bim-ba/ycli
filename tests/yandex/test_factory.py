@@ -1,5 +1,7 @@
 """TDD for build_client — env-free client construction from instances."""
 
+from pydantic import SecretStr
+
 from tests.hosts import TRACKER_BASE
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.factory import build_client
@@ -54,3 +56,12 @@ def test_build_forwards_before_send_to_the_core_session(api, monkeypatch, tmp_pa
     api.add("GET", f"{TRACKER_BASE}/myself", json={"login": "alice"})
     client.me.get()
     assert seen == [("read", "GET")]
+
+
+def test_an_iam_token_is_sent_as_a_bearer(api):
+    api.add("GET", "https://api.tracker.yandex.net/v3/myself", json={"login": "ivan"})
+    credentials = Credentials(oauth_token=None, iam_token=SecretStr("t1.x"), organization_id="o")
+    with build_client(TrackerClient, credentials, AppConfig()) as client:
+        client.me.get()
+    assert api.calls[0].headers["Authorization"] == "Bearer t1.x"
+    assert api.calls[0].headers["X-Org-Id"] == "o"

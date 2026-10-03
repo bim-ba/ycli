@@ -9,7 +9,9 @@ type: how-to
 
 ## Учётные данные
 
-Сохраните `YANDEX_ID_OAUTH_TOKEN` и `YANDEX_ID_ORGANIZATION_ID` как секреты конвейера и передайте их задаче как переменные окружения. Токен — это OAuth-токен человека (см. [Аутентификация](authenticate.md)): дайте конвейеру токен учётной записи, которая может делать только то, что делает конвейер. Вход от имени сервисного аккаунта в CLI пока не поддерживается ([#201](https://github.com/bim-ba/ycli/issues/201)).
+Сохраните `YANDEX_ID_OAUTH_TOKEN` и `YANDEX_ID_ORGANIZATION_ID` как секреты конвейера и передайте их задаче как переменные окружения. Токен — это OAuth-токен человека (см. [Аутентификация](authenticate.md)). Рабочий путь для конвейера сегодня — учётная запись, заведённая под автоматику: добавьте для неё пользователя в организацию, дайте ему только то, что делает конвейер, и выпустите его OAuth-токен.
+
+Сервисный аккаунт Yandex Cloud заменить такого пользователя не может. Для [Вики](https://yandex.ru/support/wiki/ru/api-ref/access) и [Форм](https://yandex.ru/support/forms/ru/api-ref/access) Яндекс его не допускает вовсе, а для [Трекера](https://yandex.ru/support/tracker/ru/api/access) — только в организации Yandex Cloud и после обращения в поддержку Яндекса. Готовый IAM-токен пользователя работает вместо OAuth-токена (`YANDEX_CLOUD_IAM_TOKEN`, см. [Аутентификация](authenticate.md#use-an-iam-token)), но живёт до 12 часов, поэтому подходит задаче, которая выпускает его в начале, а не хранимому секрету.
 
 ## GitHub Actions
 
@@ -26,7 +28,7 @@ jobs:
       YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
     steps:
       - uses: astral-sh/setup-uv@v10.2.0
-      - run: uvx yandex-cli==0.49.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
+      - run: uvx yandex-cli==0.50.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
 ```
 
 `uvx yandex-cli==<version>` запускает указанную версию, ничего больше не устанавливая. Фиксируйте версию: конвейер не должен менять поведение при выходе нового релиза.
@@ -40,7 +42,7 @@ jobs:
 ```yaml
 comment:
   image:
-    name: ghcr.io/bim-ba/ycli:0.49.0
+    name: ghcr.io/bim-ba/ycli:0.50.0
     entrypoint: [""]
   script:
     - ycli tracker comments add TRACKER-1 --text "Deployed $CI_COMMIT_SHORT_SHA"
@@ -54,7 +56,7 @@ comment:
 
 ```bash
 docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
-  ghcr.io/bim-ba/ycli:0.49.0 tracker comments add TRACKER-1 --text "Deployed"
+  ghcr.io/bim-ba/ycli:0.50.0 tracker comments add TRACKER-1 --text "Deployed"
 ```
 
 ## Команды, которые не ждут

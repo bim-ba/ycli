@@ -13,6 +13,7 @@ ycli читает настройки из окружения или из фай�
 | Переменная | Значение |
 |---|---|
 | `YANDEX_ID_OAUTH_TOKEN` | OAuth-токен Яндекса с доступом к Трекеру, Вики и Формам (запасное имя — `YCLI__AUTH__OAUTH_TOKEN`) |
+| `YANDEX_CLOUD_IAM_TOKEN` | готовый IAM-токен вместо OAuth-токена; живёт до 12 часов. Задать оба токена сразу — ошибка (код возврата 2) |
 | `YANDEX_ID_ORGANIZATION_ID` | идентификатор организации Яндекс 360, передаётся как `X-Org-Id` (запасное имя — `YCLI__AUTH__ORGANIZATION_ID`) |
 | `YANDEX_OAUTH_CLIENT_ID` | идентификатор вашего OAuth-приложения, для `ycli auth login` |
 | `YANDEX_OAUTH_CLIENT_SECRET` | секрет вашего OAuth-приложения: включает device flow в `ycli auth login` |

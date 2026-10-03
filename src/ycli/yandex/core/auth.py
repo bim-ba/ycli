@@ -105,7 +105,8 @@ class ServiceAccountAuth(httpx2.Auth):
     The key signs a short-lived JWT (PS256); ``POST`` of that JWT to the IAM endpoint returns
     the token. The exchange runs through the same client as the API call (``httpx2`` auth flow),
     so retries, proxies and test transports apply to it too. One token is shared by every call
-    until five minutes before it expires; a ``401`` forces one refresh. Needs the
+    until five minutes before it expires; a ``401`` forces one refresh. Both flows are written out
+    (one lock each), so they read the exchange's response themselves before parsing it. Needs the
     ``service-account`` extra (PyJWT with ``cryptography``).
 
     Args:
@@ -118,7 +119,6 @@ class ServiceAccountAuth(httpx2.Auth):
         >>> auth = ServiceAccountAuth.from_key_file("authorized_key.json")  # doctest: +SKIP
     """
 
-    requires_response_body = True
     refresh_margin_seconds = 300.0
     jwt_lifetime_seconds = 3600
 
@@ -195,7 +195,9 @@ class ServiceAccountAuth(httpx2.Auth):
         """Send ``request`` with the shared IAM token, refreshed once after a ``401``."""
         with self._lock:
             if self._needs_token():
-                self._store((yield self._token_request()))
+                exchange = yield self._token_request()
+                exchange.read()
+                self._store(exchange)
         sent_with = self._token
         self._authorize(request)
         response = yield request
@@ -203,7 +205,9 @@ class ServiceAccountAuth(httpx2.Auth):
             with self._lock:
                 # Refresh once for the whole client: skip it if another call already did.
                 if self._token is sent_with:
-                    self._store((yield self._token_request()))
+                    exchange = yield self._token_request()
+                    exchange.read()
+                    self._store(exchange)
             self._authorize(request)
             yield request
 
@@ -214,14 +218,18 @@ class ServiceAccountAuth(httpx2.Auth):
         lock = self._async_lock()
         async with lock:
             if self._needs_token():
-                self._store((yield self._token_request()))
+                exchange = yield self._token_request()
+                await exchange.aread()
+                self._store(exchange)
         sent_with = self._token
         self._authorize(request)
         response = yield request
         if response.status_code == HTTPStatus.UNAUTHORIZED:
             async with lock:
                 if self._token is sent_with:
-                    self._store((yield self._token_request()))
+                    exchange = yield self._token_request()
+                    await exchange.aread()
+                    self._store(exchange)
             self._authorize(request)
             yield request
 

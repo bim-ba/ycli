@@ -9,6 +9,34 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.50.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.49.1
+  ([`81ae0ae`](https://github.com/bim-ba/ycli/commit/81ae0aea92d373162478ff6d916d605b341cc6dc))
+
+### Features
+
+- **auth**: Sign in with a ready IAM token, in the CLI, the MCP server and the SDK
+  ([#253](https://github.com/bim-ba/ycli/pull/253),
+  [`3f3d552`](https://github.com/bim-ba/ycli/commit/3f3d5526bf29923a44596b8b3c3e0b7aa2228ca6))
+
+
+## v0.49.1 (2026-10-03)
+
+### Bug Fixes
+
+- **sdk**: A service account's key is exchanged for a token on a real connection
+  ([#250](https://github.com/bim-ba/ycli/pull/250),
+  [`c2d8e3d`](https://github.com/bim-ba/ycli/commit/c2d8e3d42e371cc319a4f0a266fa91be84f1c4ab))
+
+### Build System
+
+- Re-lock uv.lock for 0.49.0
+  ([`204eb4b`](https://github.com/bim-ba/ycli/commit/204eb4b6c3aa559b410be27ac7eb3883cd409fc0))
+
+
 ## v0.49.0 (2026-10-03)
 
 ### Build System

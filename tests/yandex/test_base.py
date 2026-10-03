@@ -1,8 +1,12 @@
 """DomainClient: one core session per domain client, closed with it; no empty credential."""
 
+import httpx2
 import pytest
+from pydantic import SecretStr
 
 from tests.hosts import WIKI_BASE
+from tests.mock_api import MockAPI
+from ycli.yandex.core.auth import IAMTokenAuth
 from ycli.yandex.core.endpoint import Endpoint, Paged
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.tracker.client import TrackerClient
@@ -10,10 +14,26 @@ from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 
 
-@pytest.mark.parametrize(("token", "organization"), [("", "o"), ("t", "")])
-def test_an_empty_credential_is_refused_before_any_request(token, organization):
-    with pytest.raises(ValueError, match="both required"):
-        TrackerClient(oauth_token=token, organization_id=organization)
+def test_an_empty_organization_is_refused_before_any_request():
+    with pytest.raises(ValueError, match="an organization id is required"):
+        TrackerClient(oauth_token="t", organization_id="")
+
+
+@pytest.mark.parametrize(
+    "credential", [{}, {"oauth_token": ""}, {"oauth_token": "t", "auth": httpx2.Auth()}]
+)
+def test_exactly_one_way_to_sign_in_is_required(credential):
+    with pytest.raises(ValueError, match="one of the two"):
+        TrackerClient(organization_id="o", **credential)
+
+
+def test_any_auth_signs_the_requests_in_place_of_the_oauth_token():
+    api = MockAPI()
+    api.add("GET", "https://api.tracker.yandex.net/v3/myself", json={"login": "ivan"})
+    auth = IAMTokenAuth(SecretStr("t1.secret"))
+    with TrackerClient(auth=auth, organization_id="o", transport=api.transport()) as client:
+        client.me.get()
+    assert api.calls[0].headers["Authorization"] == "Bearer t1.secret"
 
 
 def test_leaving_the_with_block_closes_the_session():

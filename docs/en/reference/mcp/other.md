@@ -15,6 +15,8 @@ Tools that belong to no single service.
 
 Report whose token this is, its organization and which services accept it.
 
-``identity`` is the token's owner (Yandex ID). ``organization`` is the configured id and, when
-the token has the ``directory:read_organization`` scope (API 360), its name. ``services`` has
-one probe each, with ``valid`` and, on failure, ``detail``.
+``credential`` says which token is in use (``oauth`` or ``iam``), never its value.
+``identity`` is the token's owner (Yandex ID; unknown for an IAM token). ``organization`` is
+the configured id and, when the token has the ``directory:read_organization`` scope
+(API 360), its name. ``services`` has one probe each, with ``valid`` and, on failure,
+``detail``.

@@ -33,7 +33,10 @@ if TYPE_CHECKING:
 class DomainClient:
     """One service's resource clients over one core session; a subclass declares only ``_wire``.
 
-    ``profile`` is the service's :class:`~ycli.yandex.core.profile.ServiceProfile`. ``http``
+    Sign in with ``oauth_token=`` (a Yandex ID OAuth token), or with ``auth=`` for anything
+    else: :class:`~ycli.yandex.core.auth.IAMTokenAuth`, ``ServiceAccountAuth`` or your own
+    ``httpx2.Auth``. ``profile`` is the service's
+    :class:`~ycli.yandex.core.profile.ServiceProfile`. ``http``
     defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so there is no second copy of
     them here; ``transport`` replaces the network (tests); ``before_send`` is called once per
     endpoint, before its first attempt, with its effect and request (a surface's seam to confirm
@@ -46,16 +49,23 @@ class DomainClient:
     def __init__(
         self,
         *,
-        oauth_token: str,
+        oauth_token: str | None = None,
+        auth: httpx2.Auth | None = None,
         organization_id: str,
         http: HTTPConfig | None = None,
         transport: httpx2.BaseTransport | None = None,
         before_send: BeforeSend | None = None,
     ) -> None:
-        if not oauth_token or not organization_id:
-            raise ValueError("an OAuth token and an organization id are both required")
+        if bool(oauth_token) == (auth is not None):
+            raise ValueError("pass an OAuth token or an auth, one of the two")
+        if not organization_id:
+            raise ValueError("an organization id is required")
         self._session = self._connect(
-            SecretStr(oauth_token), organization_id, http or HTTPConfig(), transport, before_send
+            auth or SecretStr(oauth_token or ""),
+            organization_id,
+            http or HTTPConfig(),
+            transport,
+            before_send,
         )
         self._wire(self._session)
 
@@ -95,7 +105,7 @@ class DomainClient:
 
     def _connect(
         self,
-        oauth_token: SecretStr,
+        auth: httpx2.Auth | SecretStr,
         organization_id: str,
         http: HTTPConfig,
         transport: httpx2.BaseTransport | None,
@@ -107,7 +117,7 @@ class DomainClient:
 
         return connect(
             self.profile,
-            auth=OAuthTokenAuth(oauth_token),
+            auth=OAuthTokenAuth(auth) if isinstance(auth, SecretStr) else auth,
             organization_id=organization_id,
             http=http,
             transport=transport,

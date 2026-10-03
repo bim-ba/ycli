@@ -17,7 +17,13 @@ from typing import TypeGuard
 from pydantic import ValidationError
 
 from ycli.cli.exit_codes import ExitCode
-from ycli.settings import OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV, AppConfig, missing_credentials
+from ycli.settings import (
+    OAUTH_TOKEN_ENV,
+    ORGANIZATION_ID_ENV,
+    AppConfig,
+    Credentials,
+    missing_credentials,
+)
 from ycli.yandex.errors import (
     YandexAuthError,
     YandexConnectionError,
@@ -42,6 +48,9 @@ _NOT_FOUND_HINT = (
 )
 
 
+_SETTINGS_TITLES = frozenset({AppConfig.__name__, Credentials.__name__})
+
+
 def format_cli_error(exc: Exception) -> str:
     """A single human-readable message for a fatal CLI error, with a next step where it helps."""
     missing = missing_credentials(exc)
@@ -54,7 +63,10 @@ def format_cli_error(exc: Exception) -> str:
         )
     if _is_invalid_configuration(exc):
         return "Invalid configuration:\n" + "\n".join(
+            # A setting is named by its variable; the credentials' own error names them itself.
             f"  YCLI__{'__'.join(str(part) for part in error['loc']).upper()}: {error['msg']}"
+            if exc.title == AppConfig.__name__
+            else f"  {error['msg']}"
             for error in exc.errors()
         )
     message = f"Error: {exc}"
@@ -102,5 +114,8 @@ def _rate_limit_hint(retry_after: float | None) -> str:
 
 
 def _is_invalid_configuration(exc: Exception) -> TypeGuard[ValidationError]:
-    """Whether ``exc`` is the ``ValidationError`` of a bad ``YCLI__…`` setting."""
-    return isinstance(exc, ValidationError) and exc.title == AppConfig.__name__
+    """Whether ``exc`` is the ``ValidationError`` of a bad setting, or of two tokens at once.
+
+    Missing credentials are not a configuration error: :func:`missing_credentials` names them.
+    """
+    return isinstance(exc, ValidationError) and exc.title in _SETTINGS_TITLES

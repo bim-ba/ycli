@@ -26,7 +26,7 @@ def build_client[C: DomainClient](
 
     Args:
         client_cls: The domain client class to build.
-        credentials: The OAuth token and organization id.
+        credentials: The token (OAuth or IAM) and the organization id.
         config: The HTTP settings.
         before_send: The client's per-endpoint hook.
 
@@ -41,8 +41,12 @@ def build_client[C: DomainClient](
         ...     client.me.get().login
         'alice'
     """
+    # Imported here: httpx2 costs ~0.2 s, paid only once a client is built.
+    from ycli.yandex.core.auth import IAMTokenAuth, OAuthTokenAuth
+
+    scheme = IAMTokenAuth if credentials.kind == "iam" else OAuthTokenAuth
     return client_cls(
-        oauth_token=credentials.oauth_token.get_secret_value(),
+        auth=scheme(credentials.token),
         organization_id=credentials.organization_id,
         http=config.http,
         before_send=before_send,

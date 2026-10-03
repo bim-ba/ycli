@@ -9,7 +9,9 @@ Run ycli in a pipeline to comment on an issue after a deploy, move it along its 
 
 ## Credentials
 
-Store `YANDEX_ID_OAUTH_TOKEN` and `YANDEX_ID_ORGANIZATION_ID` as secrets of the pipeline and expose them as environment variables of the job. The token is a person's OAuth token (see [Authenticate](authenticate.md)): give the pipeline a token of an account that can do only what the pipeline does. Signing in as a service account is not in the CLI yet ([#201](https://github.com/bim-ba/ycli/issues/201)).
+Store `YANDEX_ID_OAUTH_TOKEN` and `YANDEX_ID_ORGANIZATION_ID` as secrets of the pipeline and expose them as environment variables of the job. The token is a person's OAuth token (see [Authenticate](authenticate.md)). The working path for a pipeline today is an account created for automation: add a user to the organization for it, give that user only what the pipeline does, and issue its OAuth token.
+
+A Yandex Cloud service account cannot stand in for that user. Yandex does not allow one for [Wiki](https://yandex.ru/support/wiki/en/api-ref/access) and [Forms](https://yandex.ru/support/forms/en/api-ref/access) at all, and for [Tracker](https://yandex.ru/support/tracker/en/api/access) only in a Yandex Cloud organization after a request to Yandex support. A ready IAM token of a user works in place of the OAuth token (`YANDEX_CLOUD_IAM_TOKEN`, see [Authenticate](authenticate.md#use-an-iam-token)), but it lives up to 12 hours, so it suits a job that issues one at its start, not a stored secret.
 
 ## GitHub Actions
 
@@ -26,7 +28,7 @@ jobs:
       YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
     steps:
       - uses: astral-sh/setup-uv@v10.2.0
-      - run: uvx yandex-cli==0.49.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
+      - run: uvx yandex-cli==0.50.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
 ```
 
 `uvx yandex-cli==<version>` runs that version without installing anything else. Pin the version: a pipeline should not change behaviour when a new release comes out.
@@ -40,7 +42,7 @@ The image's entrypoint is `ycli`, so clear it to get a shell for `script`:
 ```yaml
 comment:
   image:
-    name: ghcr.io/bim-ba/ycli:0.49.0
+    name: ghcr.io/bim-ba/ycli:0.50.0
     entrypoint: [""]
   script:
     - ycli tracker comments add TRACKER-1 --text "Deployed $CI_COMMIT_SHORT_SHA"
@@ -54,7 +56,7 @@ With Docker, pass the variables by name so their values stay out of the command 
 
 ```bash
 docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
-  ghcr.io/bim-ba/ycli:0.49.0 tracker comments add TRACKER-1 --text "Deployed"
+  ghcr.io/bim-ba/ycli:0.50.0 tracker comments add TRACKER-1 --text "Deployed"
 ```
 
 ## Commands that do not wait
