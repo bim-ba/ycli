@@ -54,10 +54,15 @@ def cli_leaves() -> dict[str, Any]:
     return {path: command for path, command in _commands() if not hasattr(command, "list_commands")}
 
 
+def cli_signature(path: str, command: Any) -> str:
+    """One leaf command with its parameters, e.g. ``tracker issues get: KEY:TEXT!``."""
+    return f"{path}: {' '.join(sorted(_cli_param(p) for p in command.params))}".rstrip(": ")
+
+
 def cli_signatures() -> list[str]:
-    """Each leaf command with its parameters, e.g. ``tracker issues get: KEY!``."""
+    """Each leaf command with its parameters."""
     return [
-        f"{path}: {' '.join(sorted(_cli_param(p) for p in command.params))}".rstrip(": ")
+        cli_signature(path, command)
         for path, command in _commands()
         if not hasattr(command, "list_commands")
     ]
@@ -71,8 +76,8 @@ def _tools() -> list:
     return asyncio.run(go())
 
 
-def mcp_signatures() -> list[str]:
-    """Each MCP tool with typed parameters, e.g. ``tracker_issues_get(key:string!)``."""
+def mcp_signature(tool: Any) -> str:
+    """One MCP tool with typed parameters, e.g. ``tracker_issues_get(key:string!)``."""
 
     def describe(name: str, schema: dict, required: bool) -> str:
         kind = (
@@ -89,10 +94,12 @@ def mcp_signatures() -> list[str]:
             f"{name}:{kind}" if "default" not in schema else f"{name}:{kind}={schema['default']!r}"
         )
 
-    lines = []
-    for tool in _tools():
-        required = set(tool.input_schema.get("required", []))
-        properties = tool.input_schema.get("properties", {})
-        params = [describe(n, properties[n], n in required) for n in sorted(properties)]
-        lines.append(f"{tool.name}({', '.join(params)})")
-    return sorted(lines)
+    required = set(tool.input_schema.get("required", []))
+    properties = tool.input_schema.get("properties", {})
+    params = [describe(n, properties[n], n in required) for n in sorted(properties)]
+    return f"{tool.name}({', '.join(params)})"
+
+
+def mcp_signatures() -> list[str]:
+    """Each MCP tool with typed parameters."""
+    return sorted(mcp_signature(tool) for tool in _tools())

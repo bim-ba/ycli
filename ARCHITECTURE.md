@@ -66,8 +66,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
   new name (the rule for models is in [`docs/conventions/resources.md`](docs/conventions/resources.md)).
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
   learned on one surface works on the other.
-- **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `client.py`,
-  `cli.py`, `mcp.py`, `models.py`, `__init__.py`; `/new-endpoint` scaffolds them) and
+- **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `endpoints.py`,
+  `client.py`, `cli.py`, `mcp.py`, `models.py`, `__init__.py`; `/new-endpoint` scaffolds them) and
   `test_arch1_operation_level_parity`, which reads which client method each surface actually
   calls, so a command may be named differently from its operation.
   `test_arch1_every_resource_is_served` reads the running surfaces instead of the source: each
@@ -130,12 +130,13 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-5 — Single sources of truth
 - **Rule:** every value has one home: the version in package metadata, environment access
-  (`os.environ`, `os.getenv`, `from_env`), settings models and the credential variable names
+  (`os.environ`, `os.getenv`), settings models and the credential variable names
   in `settings.py`, the org header name in `core/profile.py`, API hosts in each service's
   profile, timeout/retry/limit defaults in the settings models (no `timeout=30`-style literal
   elsewhere).
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration.
-- **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
+- **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`);
+  `test_arch5_every_host_home_still_spells_a_host` keeps the allowlist free of stale entries.
 - **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the Yandex ID / API 360 hosts
   `auth status` reads.
 
@@ -153,7 +154,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
   receives configuration and clients as arguments.
 - **Why:** code that reads the environment itself cannot be reused or tested in isolation.
 - **Check:** `test_arch7_settings_are_built_only_at_composition_roots` (AST: calls, attribute
-  calls, import aliases and bare references such as `default_factory=AppConfig`).
+  calls, import aliases and bare references such as `default_factory=AppConfig`);
+  `test_arch7_every_root_still_builds_settings` removes a root that stopped being one.
 - **Exceptions:** `ARCH7_ROOTS` — the CLI root and its dependency container, the MCP providers
   and entry point, and `auth status`/`login`, which read and write credentials by design.
 

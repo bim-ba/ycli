@@ -22,7 +22,8 @@ class MyModel(APIModel): ...
 `APIModel` sets `extra="ignore"` (unknown API fields are silently dropped),
 `populate_by_name=True` (a field may be set by its Python name *or* its serialization
 alias) and `serialize_by_alias=True` (every dump, CLI and MCP alike, keeps the API's field
-names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`.
+names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`; a bare mapping with no
+fields of its own is a `RootModel[dict[...]]`.
 
 ### One class per shape
 
@@ -58,9 +59,10 @@ class SurveysResponse(APIModel):  # envelope — internal
     result: list[Survey] = Field(default_factory=list)
 ```
 
-A resource does not define a list class of its own. The envelope (`XResponse`, or
-`CursorPage[X]` for a Wiki cursor listing) is an implementation detail of the client and must
-not appear in the public `client.list()` signature or in MCP tool return types.
+A resource does not define a list class of its own. An envelope that holds only the items and
+their paging (`XResponse`, or `CursorPage[X]` for a Wiki cursor listing) is read by the pager and
+flattened. An envelope that carries data of its own is the public type: Forms conditions return
+`ConditionsResponse` because its `operator` joins the groups.
 
 ---
 
@@ -85,8 +87,8 @@ from ycli.yandex.tracker.dependencies import (
 The `dependencies` module re-exports the annotation sets (from `ycli.yandex.mcp`) in its
 `__all__` and defines the domain tags (`TAGS = {"<domain>"}`,
 `WRITE_TAGS = TAGS | {WRITE_TAG}`), so import-linter and IDEs resolve the canonical source
-correctly.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import
-automatically.
+correctly.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import, and
+an import-linter contract forbids a resource `mcp.py` from importing `ycli.yandex.mcp`.
 
 ### Why `<domain>_client` is a per-request provider
 
@@ -286,10 +288,10 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 
 | Rule | Enforced by |
 |---|---|
-| `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
-| `ItemList[X]` / `XResponse` use | code review only — model class names are not snapshotted (snapshots track command and tool signatures) |
-| `dependencies` import path | `scripts/new_endpoint.py` scaffold + code review |
+| `APIModel` base | `tests/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
+| No list class of a resource's own | `tests/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
+| `dependencies` import path | import-linter contract `conventions: a resource mcp.py imports from its domain dependencies` (`uv run lint-imports`) |
 | MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
-| Discriminated MCP output unions | code review + regression test (`status_get` me round-trip) |
+| Discriminated MCP output unions | `tests/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |
