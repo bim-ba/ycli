@@ -160,11 +160,12 @@ def methods(
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
     try:
         from ycli.mcp.listing import UnknownToolError
-        from ycli.mcp.server import build_server
+        from ycli.mcp.server import build_server, check_tool_names
     except ModuleNotFoundError as exc:  # pragma: no cover - only without the extra
         raise typer.BadParameter(_MISSING) from exc
 
     async def _list() -> list[str]:
+        await check_tool_names(selection)
         return sorted(tool.name for tool in await build_server(selection).list_tools())
 
     try:

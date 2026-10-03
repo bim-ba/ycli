@@ -14,7 +14,7 @@ from fastmcp import FastMCP
 from fastmcp.server.transforms.search import BM25SearchTransform
 from pydantic import ValidationError
 
-from ycli.mcp.listing import KnownTools, LightListing
+from ycli.mcp.listing import LightListing, UnknownToolError
 from ycli.mcp.profiles import STATUS_TOOL
 from ycli.mcp.selection import Selection
 from ycli.settings import (
@@ -38,8 +38,8 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     ``auth`` signs callers in (HTTP only, see :func:`serve_http`); over stdio there is none and
     the tools use the environment's credentials.
 
-    The server does not check tool names until it lists tools (:func:`main` does so before
-    serving): an unknown name in ``tools`` / ``exclude_tools`` raises ``UnknownToolError``.
+    The server does not check the names in ``tools`` / ``exclude_tools``: FastMCP silently
+    matches nothing for an unknown one. :func:`check_tool_names` does, before serving.
 
     Args:
         selection: Which services and tools to serve, and how.
@@ -72,7 +72,6 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
 
-    server.add_transform(KnownTools(frozenset({*selection.tools, *selection.exclude_tools})))
     if not selection.serves_everything:
         server.enable(names=set(selection.listed_names()), only=True)
         for name in selection.listed_services():
@@ -87,6 +86,36 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     return server
 
 
+async def check_tool_names(selection: Selection) -> None:
+    """Fail when a name in ``tools`` / ``exclude_tools`` is no tool of its service.
+
+    A typo would otherwise show or hide the wrong set without a word. It reads the services'
+    own servers, not a listing of the root one: at startup FastMCP runs the root's transforms
+    over the task-capable components only, so a check placed there refuses every name.
+
+    Args:
+        selection: Which services and tools to serve, and how.
+
+    Raises:
+        UnknownToolError: A requested name matches no tool.
+
+    Examples:
+        >>> asyncio.run(check_tool_names(Selection(tools=("wiki_pages_get",))))
+    """
+    requested = {*selection.tools, *selection.exclude_tools} - {STATUS_TOOL}
+    if not requested:
+        return
+    mounted = selection.services()
+    known = {
+        f"{service.name}_{tool.name}"
+        for service in SERVICES
+        if service.name in mounted
+        for tool in await service.mcp_server().list_tools()
+    }
+    if unknown := sorted(requested - known):
+        raise UnknownToolError(f"unknown tool name(s): {', '.join(unknown)}")
+
+
 def main(selection: Selection) -> None:
     """Run the root server for ``selection`` over stdio (the console-script entry point).
 
@@ -96,9 +125,8 @@ def main(selection: Selection) -> None:
     Examples:
         >>> main(Selection())  # doctest: +SKIP
     """
-    server = build_server(selection)
-    asyncio.run(server.list_tools())  # fail on an unknown tool name before serving, not later
-    server.run()
+    asyncio.run(check_tool_names(selection))
+    build_server(selection).run()
 
 
 def _settings_problems(exc: ValidationError) -> str:
@@ -157,9 +185,8 @@ def serve_http(selection: Selection, host: str | None = None, port: int | None =
             "YANDEX_OAUTH_CLIENT_ID and YANDEX_OAUTH_CLIENT_SECRET"
         )
     auth = yandex_oauth(config, app.client_id, app.client_secret, AppConfig().http)
-    server = build_server(selection, auth=auth)
-    asyncio.run(server.list_tools())  # fail on an unknown tool name before serving, not later
-    server.run(
+    asyncio.run(check_tool_names(selection))
+    build_server(selection, auth=auth).run(
         transport="http", host=host or config.host, port=port or config.port, stateless_http=True
     )
 
