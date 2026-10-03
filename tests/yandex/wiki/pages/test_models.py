@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from ycli.yandex.wiki.models import AsyncOperation
+from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
     GridRef,
     GridRefList,
@@ -18,7 +18,6 @@ from ycli.yandex.wiki.pages.models import (
     PageMoveStep,
     PageRevision,
     PageRevisionList,
-    RevisionsResponse,
 )
 
 
@@ -164,7 +163,7 @@ def test_a_move_reply_names_the_task_to_poll():
 
 def test_a_revision_parses_as_the_api_sends_it():
     """Shape taken from a live ``GET /pages/{id}/revisions`` reply (2026-10-02)."""
-    reply = RevisionsResponse.model_validate(
+    reply = CursorPage[PageRevision].model_validate(
         {
             "results": [
                 {

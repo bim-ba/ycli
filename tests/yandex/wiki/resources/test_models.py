@@ -1,6 +1,7 @@
 """Wiki page resource models — the {type, item} envelope over attachments and grids."""
 
-from ycli.yandex.wiki.resources.models import ResourceItem, ResourceItemList, ResourcesResponse
+from ycli.yandex.wiki.models import CursorPage
+from ycli.yandex.wiki.resources.models import ResourceItem, ResourceItemList
 
 
 def test_resource_item_keeps_payload_verbatim():
@@ -17,7 +18,7 @@ def test_resource_item_defaults_when_empty():
 
 
 def test_resources_response_parses_results():
-    resp = ResourcesResponse.model_validate(
+    resp = CursorPage[ResourceItem].model_validate(
         {"results": [{"type": "grid", "item": {"id": "g1"}}], "next_cursor": "c1"}
     )
     assert resp.results[0].type == "grid" and resp.next_cursor == "c1"

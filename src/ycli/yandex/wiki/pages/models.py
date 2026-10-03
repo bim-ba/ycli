@@ -71,25 +71,6 @@ class PageRef(APIModel):
     slug: str
 
 
-class DescendantsResponse(APIModel):
-    """``/pages/descendants`` — a paginated listing of ``{id, slug}`` refs.
-
-    ``next_cursor`` is ``null`` (not absent / not empty string) when the listing is
-    exhausted; a caller paginating passes the previous response's ``next_cursor`` back
-    as the next request's ``cursor``.
-
-    Examples:
-        >>> r = DescendantsResponse.model_validate(
-        ...     {"results": [{"id": 1, "slug": "data/a"}], "next_cursor": None}
-        ... )
-        >>> r.results[0].slug, r.next_cursor
-        ('data/a', None)
-    """
-
-    results: list[PageRef] = Field(default_factory=list)
-    next_cursor: str | None = None
-
-
 class PageRefList(RootModel[list[PageRef]]):
     """A drained, flat list of descendant page refs (no cursor — pagination is internal).
 
@@ -113,27 +94,6 @@ class GridRef(APIModel):
     title: str | None = Field(default=None, description="Human-readable grid title.")
     created_at: str | None = Field(
         default=None, description="ISO-8601 timestamp of when the grid was created."
-    )
-
-
-class GridsResponse(APIModel):
-    """Envelope for ``GET /pages/{id}/grids`` — ``{results, next_cursor}``.
-
-    Internal per-page parse type used by ``endpoints.list_grids``. ``next_cursor`` is
-    ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
-    feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
-
-    Examples:
-        >>> GridsResponse.model_validate({"results": [{"id": "g1", "title": "T"}]}).results[0].title
-        'T'
-    """
-
-    results: list[GridRef] = Field(
-        default_factory=list, description="Grid references on this page of the listing."
-    )
-    next_cursor: str | None = Field(
-        default=None,
-        description="Cursor for the next page; ``null`` when the listing is exhausted.",
     )
 
 
@@ -354,25 +314,6 @@ class PageRevision(APIModel):
     )
 
 
-class RevisionsResponse(APIModel):
-    """Envelope for ``GET /pages/{id}/revisions`` — ``{results, next_cursor}``.
-
-    Internal per-page parse type used by ``endpoints.list_revisions``.
-
-    Examples:
-        >>> RevisionsResponse.model_validate({"results": [{"id": 7}]}).results[0].id
-        7
-    """
-
-    results: list[PageRevision] = Field(
-        default_factory=list, description="Revisions on this page of the listing."
-    )
-    next_cursor: str | None = Field(
-        default=None,
-        description="Cursor for the next page; ``null`` when the listing is exhausted.",
-    )
-
-
 class PageRevisionList(RootModel[list[PageRevision]]):
     """A drained, flat list of page revisions (no cursor — pagination is internal).
 
@@ -382,22 +323,3 @@ class PageRevisionList(RootModel[list[PageRevision]]):
     """
 
     root: list[PageRevision] = Field(default_factory=list)
-
-
-class BacklinksResponse(APIModel):
-    """Envelope for ``GET /pages/{id}/backlinks`` — ``{results, next_cursor}`` of page refs.
-
-    Internal per-page parse type used by ``endpoints.list_backlinks``.
-
-    Examples:
-        >>> BacklinksResponse.model_validate({"results": [{"id": 1, "slug": "a"}]}).results[0].slug
-        'a'
-    """
-
-    results: list[PageRef] = Field(
-        default_factory=list, description="Pages that link here, on this page of the listing."
-    )
-    next_cursor: str | None = Field(
-        default=None,
-        description="Cursor for the next page; ``null`` when the listing is exhausted.",
-    )

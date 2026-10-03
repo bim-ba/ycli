@@ -16,17 +16,13 @@ from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
-from ycli.yandex.wiki.models import AsyncOperation
+from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
-    BacklinksResponse,
-    DescendantsResponse,
     GridRef,
-    GridsResponse,
     PageDeleteResult,
     PageDetails,
     PageRef,
     PageRevision,
-    RevisionsResponse,
 )
 
 
@@ -38,10 +34,10 @@ def get_page_by_id(page_id: int, *, fields: str | None) -> Endpoint[PageDetails]
     return Endpoint("GET", f"pages/{segment(page_id)}", PageDetails, params={"fields": fields})
 
 
-def list_descendants(slug: str, *, actuality: str | None) -> Paged[DescendantsResponse, PageRef]:
+def list_descendants(slug: str, *, actuality: str | None) -> Paged[CursorPage[PageRef], PageRef]:
     params = {"slug": slug, "page_size": 100, "actuality": actuality}
     return Paged(
-        Endpoint("GET", "pages/descendants", DescendantsResponse, params=params),
+        Endpoint("GET", "pages/descendants", CursorPage[PageRef], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -49,20 +45,20 @@ def list_descendants(slug: str, *, actuality: str | None) -> Paged[DescendantsRe
 
 def list_descendants_by_id(
     page_id: int, *, actuality: str | None
-) -> Paged[DescendantsResponse, PageRef]:
+) -> Paged[CursorPage[PageRef], PageRef]:
     path = f"pages/{segment(page_id)}/descendants"
     params = {"page_size": 100, "actuality": actuality}
     return Paged(
-        Endpoint("GET", path, DescendantsResponse, params=params),
+        Endpoint("GET", path, CursorPage[PageRef], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
 
 
-def list_grids(page_id: int, *, order_by: str | None) -> Paged[GridsResponse, GridRef]:
+def list_grids(page_id: int, *, order_by: str | None) -> Paged[CursorPage[GridRef], GridRef]:
     params = {"page_size": 50, "order_by": order_by}
     return Paged(
-        Endpoint("GET", f"pages/{segment(page_id)}/grids", GridsResponse, params=params),
+        Endpoint("GET", f"pages/{segment(page_id)}/grids", CursorPage[GridRef], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -95,11 +91,15 @@ def move_pages(body: dict[str, Any], *, dry_run: bool) -> Endpoint[AsyncOperatio
     return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)
 
 
-def list_revisions(page_id: int, *, ids: str | None) -> Paged[RevisionsResponse, PageRevision]:
+def list_revisions(
+    page_id: int, *, ids: str | None
+) -> Paged[CursorPage[PageRevision], PageRevision]:
     """``GET /pages/{id}/revisions`` (undocumented): newest-first revisions, 50 a page at most."""
     params = {"page_size": 50, "ids": ids}
     return Paged(
-        Endpoint("GET", f"pages/{segment(page_id)}/revisions", RevisionsResponse, params=params),
+        Endpoint(
+            "GET", f"pages/{segment(page_id)}/revisions", CursorPage[PageRevision], params=params
+        ),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -107,7 +107,7 @@ def list_revisions(page_id: int, *, ids: str | None) -> Paged[RevisionsResponse,
 
 def list_backlinks(
     page_id: int, *, for_cluster: bool, show_all: bool
-) -> Paged[BacklinksResponse, PageRef]:
+) -> Paged[CursorPage[PageRef], PageRef]:
     """``GET /pages/{id}/backlinks`` (undocumented): the pages that link to this one."""
     params = {
         "page_size": 100,
@@ -115,7 +115,7 @@ def list_backlinks(
         "show_all": "true" if show_all else None,
     }
     return Paged(
-        Endpoint("GET", f"pages/{segment(page_id)}/backlinks", BacklinksResponse, params=params),
+        Endpoint("GET", f"pages/{segment(page_id)}/backlinks", CursorPage[PageRef], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )

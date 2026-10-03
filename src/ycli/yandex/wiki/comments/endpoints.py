@@ -10,28 +10,24 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.wiki.comments.models import (
-    Comment,
-    CommentCreated,
-    CommentDeleteResult,
-    CommentsResponse,
-)
+from ycli.yandex.wiki.comments.models import Comment, CommentCreated, CommentDeleteResult
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
+from ycli.yandex.wiki.models import CursorPage
 
 
-def list_comments(page_id: int) -> Paged[CommentsResponse, Comment]:
+def list_comments(page_id: int) -> Paged[CursorPage[Comment], Comment]:
     path = f"pages/{segment(page_id)}/comments"
     return Paged(
-        Endpoint("GET", path, CommentsResponse, params={"page_size": 100}),
+        Endpoint("GET", path, CursorPage[Comment], params={"page_size": 100}),
         WIKI_CURSOR,
         lambda page: page.results,
     )
 
 
-def get_thread(page_id: int, comment_id: int) -> Paged[CommentsResponse, Comment]:
+def get_thread(page_id: int, comment_id: int) -> Paged[CursorPage[Comment], Comment]:
     path = f"pages/{segment(page_id)}/comments/{segment(comment_id)}/thread"
     return Paged(
-        Endpoint("GET", path, CommentsResponse, params={"page_size": 100}),
+        Endpoint("GET", path, CursorPage[Comment], params={"page_size": 100}),
         WIKI_CURSOR,
         lambda page: page.results,
     )

@@ -55,20 +55,26 @@ TITLES = {"tracker": "Yandex Tracker", "wiki": "Yandex Wiki", "forms": "Yandex F
 _PLACEHOLDER = re.compile(r"\{([^}]*)\}|<([^>]*)>")
 _JSON = "application/json"
 _QUALIFIED = re.compile(r"ycli__yandex__[a-z]+__(\w+?)__models__(\w+)")
+_GENERIC = re.compile(r"(CursorPage)_(\w+)_")
 
 
 def _readable(name: str) -> str:
-    """A component name for a model pydantic had to qualify by module, as resource plus class.
+    """A component name people can read, for a name pydantic had to make unique.
 
-    Two resources of one service may each define ``Comment``; pydantic then names them by their
-    full module path.
+    Two resources of one service may each define ``Comment``, which pydantic names by their
+    full module path; a generic class is named with its parameter in underscores.
 
     Examples:
         >>> _readable("ycli__yandex__tracker__import___models__Comment")
         'ImportComment'
+        >>> _readable("CursorPage_PageRef_")
+        'PageRefPage'
         >>> _readable("PageDetails")
         'PageDetails'
     """
+    if (generic := _GENERIC.fullmatch(name)) is not None:
+        container, item = generic.groups()
+        return _readable(item) + container.removeprefix("Cursor")
     qualified = _QUALIFIED.fullmatch(name)
     if qualified is None:
         return name
