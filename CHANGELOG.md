@@ -9,6 +9,28 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.53.1 (2026-10-03)
+
+### Bug Fixes
+
+- **mcp**: A server started with --tools or --exclude-tools accepts a connection
+  ([#261](https://github.com/bim-ba/ycli/pull/261),
+  [`c839442`](https://github.com/bim-ba/ycli/commit/c8394427eb2a410cd71261089c2d9d7ffcfd764d))
+
+### Build System
+
+- Re-lock uv.lock for 0.53.0
+  ([`0de8d10`](https://github.com/bim-ba/ycli/commit/0de8d103e419a7d3808496205e6eb8931a1b9de4))
+
+### Refactoring
+
+- **cli**: Read the --profile option in one place ([#259](https://github.com/bim-ba/ycli/pull/259),
+  [`98c08f8`](https://github.com/bim-ba/ycli/commit/98c08f849767f05ff54c4468362108b0d70c0953))
+
+- **mcp**: A tool function is named like its tool ([#260](https://github.com/bim-ba/ycli/pull/260),
+  [`9244e95`](https://github.com/bim-ba/ycli/commit/9244e955515e7b090841394e5e0e3323d6420eae))
+
+
 ## v0.53.0 (2026-10-03)
 
 ### Build System
