@@ -7,7 +7,7 @@ import httpx2
 import pytest
 from pydantic import BaseModel
 
-from ycli.yandex.core.endpoint import EFFECT_EXTENSION, Endpoint, check_path, segment
+from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, Endpoint, check_path, segment
 from ycli.yandex.errors import YandexClientError
 
 
@@ -58,7 +58,7 @@ def test_request_uses_the_client_base_url_headers_and_drops_none_params():
     assert request.headers["X-Org-Id"] == "o"
     assert request.headers["X-Extra"] == "1"
     assert request.content == b'{"k":"v"}'
-    assert request.extensions[EFFECT_EXTENSION] == "write"
+    assert request.extensions[ENDPOINT_EXTENSION] is endpoint
 
 
 def test_request_sends_raw_content():
