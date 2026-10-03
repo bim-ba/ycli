@@ -28,6 +28,11 @@ from typing import Any
 from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:  # `tests` is importable when the script runs from anywhere
+    sys.path.insert(0, str(ROOT))
+
+from tests.contract import Sibling, load_cases  # noqa: E402
+
 DOCS = ROOT / "docs"
 SNIPPETS = DOCS / "examples" / "operations"
 INCLUDE = re.compile(r'--8<-- "docs/examples/operations/([\w.]+)\.md"')
@@ -35,10 +40,6 @@ INCLUDE = re.compile(r'--8<-- "docs/examples/operations/([\w.]+)\.md"')
 
 def _cases() -> dict[str, Any]:
     """The case each operation's example comes from: its first one reachable on every surface."""
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
-    from tests.contract import load_cases
-
     chosen: dict[str, Any] = {}
     for case in load_cases():
         current = chosen.get(case.operation)
@@ -75,7 +76,7 @@ def sdk_call(case: Any) -> str:
     """The SDK call of a case: ``tracker.issues.get("DE-7")``."""
     domain = case.operation.split(".")[0]
     arguments = [
-        f"{domain}.{arg.resource}" if type(arg).__name__ == "Sibling" else literal(arg)
+        f"{domain}.{arg.resource}" if isinstance(arg, Sibling) else literal(arg)
         for arg in case.args
     ]
     arguments += [f"{name}={literal(value)}" for name, value in case.kwargs.items()]
