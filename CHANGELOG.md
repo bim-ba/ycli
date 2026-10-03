@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.55.0 (2026-10-03)
+
+### Bug Fixes
+
+- **mcp**: The sprint prompt takes a board and a sprint, as approved
+  ([#264](https://github.com/bim-ba/ycli/pull/264),
+  [`b2ac423`](https://github.com/bim-ba/ycli/commit/b2ac423d29bce7404ce1df99773213327f16f64b))
+
+### Build System
+
+- Re-lock uv.lock for 0.54.0 ([#267](https://github.com/bim-ba/ycli/pull/267),
+  [`73b43f0`](https://github.com/bim-ba/ycli/commit/73b43f098d181ee4ec164365c2f02ea262f480fb))
+
+### Features
+
+- **mcp**: Prompts and resources next to the tools ([#264](https://github.com/bim-ba/ycli/pull/264),
+  [`b2ac423`](https://github.com/bim-ba/ycli/commit/b2ac423d29bce7404ce1df99773213327f16f64b))
+
+### Testing
+
+- Regenerate the CLI snapshot on main after #265 ([#264](https://github.com/bim-ba/ycli/pull/264),
+  [`b2ac423`](https://github.com/bim-ba/ycli/commit/b2ac423d29bce7404ce1df99773213327f16f64b))
+
+
 ## v0.54.0 (2026-10-03)
 
 ### Build System
