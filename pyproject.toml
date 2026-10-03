@@ -277,6 +277,13 @@ source_modules = [
 forbidden_modules = ["ycli.cli", "typer"]
 
 [[tool.importlinter.contracts]]
+name = "conventions: a resource mcp.py imports from its domain dependencies, not ycli.yandex.mcp"
+type = "forbidden"
+source_modules = ["ycli.yandex.*.*.mcp"]
+forbidden_modules = ["ycli.yandex.mcp"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
 name = "ARCH-2: the httpx2 core knows no service and no surface"
 type = "forbidden"
 source_modules = ["ycli.yandex.core"]
