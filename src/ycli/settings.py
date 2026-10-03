@@ -170,9 +170,7 @@ class MCPHTTPConfig(BaseSettings):
     base_url: AnyHttpUrl
     organization_id: str = Field(
         min_length=1,
-        validation_alias=AliasChoices(
-            "organization_id", ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"
-        ),
+        validation_alias=AliasChoices(ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
     )
     host: str = "127.0.0.1"
     port: PositiveInt = 8000

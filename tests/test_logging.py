@@ -77,3 +77,23 @@ def test_verbose_flag_raises_the_level(monkeypatch, flags, level):
     # Root --help does not run the callback; a sub-app's --help does.
     CliRunner().invoke(app, [*flags, "tracker", "--help"])
     assert calls == [{"level": level, "log_format": "text"}]
+
+
+@pytest.mark.parametrize(
+    ("configured", "flags", "level"),
+    [
+        ("DEBUG", [], "DEBUG"),
+        ("DEBUG", ["-v"], "DEBUG"),  # -v never lowers a configured level
+        ("ERROR", [], "ERROR"),
+        ("ERROR", ["-v"], "INFO"),
+        ("INFO", ["-v", "-v"], "DEBUG"),
+    ],
+)
+def test_verbose_flag_never_lowers_the_configured_level(monkeypatch, configured, flags, level):
+    from ycli.cli.app import app
+
+    monkeypatch.setenv("YCLI__LOGGING__LEVEL", configured)
+    calls = []
+    monkeypatch.setattr("ycli.log.configure", lambda **kwargs: calls.append(kwargs))
+    CliRunner().invoke(app, [*flags, "tracker", "--help"])
+    assert calls == [{"level": level, "log_format": "text"}]

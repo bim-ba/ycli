@@ -10,7 +10,7 @@ import pytest
 from fastmcp import FastMCP
 from fastmcp.server.auth import OAuthProxy
 from fastmcp.server.auth.providers.debug import DebugTokenVerifier
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 from typer.testing import CliRunner
 
 from tests.hosts import TRACKER_BASE
@@ -83,6 +83,30 @@ async def test_an_http_call_works_in_the_organization_the_server_checked_at_star
         response = await _call(client, "tracker_issues_get", "caller-token")
     assert _result(response)["structuredContent"]["key"] == "DE-1"
     assert api.calls[0].headers["X-Org-Id"] == "org-mcp"
+
+
+def test_a_bare_organization_id_variable_does_not_configure_the_http_server(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)  # no repo .env
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
+    monkeypatch.setenv("ORGANIZATION_ID", "222")
+    with pytest.raises(ValidationError):
+        MCPHTTPConfig()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+
+
+def test_the_http_organization_comes_from_its_named_variables_or_the_field_name(
+    monkeypatch, tmp_path
+):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)
+    monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
+    monkeypatch.setenv("ORGANIZATION_ID", "222")
+    monkeypatch.setenv("YCLI__MCP__ORGANIZATION_ID", "333")
+    assert MCPHTTPConfig().organization_id == "333"  # ty: ignore[missing-argument]
+    monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "444")
+    assert MCPHTTPConfig().organization_id == "444"  # ty: ignore[missing-argument]
+    by_name = MCPHTTPConfig.model_validate({"base_url": BASE_URL, "organization_id": "555"})
+    assert by_name.organization_id == "555"
 
 
 async def test_an_http_call_without_a_signed_in_caller_never_falls_back_to_the_environment(

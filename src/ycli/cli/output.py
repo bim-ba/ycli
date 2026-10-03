@@ -30,6 +30,7 @@ import typer
 import yaml
 from pydantic import BaseModel
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from ycli.cli.exit_codes import ExitCode
@@ -110,7 +111,7 @@ class PrettyStrategy(SerializationStrategy):
             return None
         if isinstance(value, bool):
             return "[green]✓[/]" if value else "[red]✗[/]"
-        return str(value)
+        return escape(str(value))  # API text must not be parsed as rich markup
 
     def _render_object(self, data: dict[str, Any]) -> Any:
         rows = list(self._object_rows(data))
@@ -120,7 +121,7 @@ class PrettyStrategy(SerializationStrategy):
         table.add_column(style="cyan", no_wrap=True)
         table.add_column(overflow="fold")
         for key, rendered in rows:
-            table.add_row(key, rendered)
+            table.add_row(escape(key), rendered)
         return table
 
     def _object_rows(self, data: dict[str, Any], prefix: str = "") -> Iterator[tuple[str, Any]]:
@@ -162,7 +163,7 @@ class PrettyStrategy(SerializationStrategy):
         columns = [c for c in columns if any(value is not None for value in cells[c])]
         table = Table()
         for column in columns:
-            table.add_column(column, style="cyan", overflow="fold")
+            table.add_column(escape(column), style="cyan", overflow="fold")
         for row in zip(*(cells[c] for c in columns), strict=True):
             table.add_row(*["" if value is None else value for value in row])
         return table

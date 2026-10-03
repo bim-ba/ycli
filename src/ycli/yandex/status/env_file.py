@@ -29,8 +29,10 @@ class EnvFile:
         backup: Path | None = None
         if path.exists():
             backup = path.with_name(path.name + ".bak")
+            # Owner-only before the token is copied in; chmod covers a pre-existing backup.
+            backup.touch(mode=0o600)
+            backup.chmod(0o600)
             backup.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
-            backup.chmod(0o600)  # the backup holds a real token — keep it owner-only
         for key, value in values.items():
             set_key(path, key, value, quote_mode="never")  # the KEY=value form it always wrote
         path.chmod(0o600)  # holds a real OAuth token — keep it owner-only
