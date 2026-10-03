@@ -18,7 +18,7 @@ $ ycli [OPTIONS] COMMAND [ARGS]...
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).  [default: auto]
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `-v, --verbose`: Log to stderr: -v shows HTTP requests, -vv adds debug detail.  [default: 0]

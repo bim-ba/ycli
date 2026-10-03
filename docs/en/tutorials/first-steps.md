@@ -57,7 +57,7 @@ ycli --jq .summary tracker issues get TEST-1
 ```
 
 At a terminal the first command prints a table; piped, ycli prints JSON. `--jq` filters the
-JSON without a separate `jq`.
+JSON without a separate `jq`; it needs the `jq` extra (`uv tool install 'yandex-cli[jq]'`).
 
 ## 4. Read the same issue from Python
 

@@ -86,7 +86,7 @@ def test_an_exit_with_result_is_filtered_before_exiting(capsys):
 
 def test_a_missing_jq_package_is_a_usage_error_that_says_how_to_install(monkeypatch):
     monkeypatch.setitem(sys.modules, "jq", None)  # `import jq` now raises ImportError
-    with pytest.raises(typer.BadParameter, match=r"pip install jq"):
+    with pytest.raises(typer.BadParameter, match=r"uv tool install 'yandex-cli\[jq\]'"):
         check_jq(".key", OutputFormat.json)
 
 

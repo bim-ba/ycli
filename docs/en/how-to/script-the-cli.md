@@ -28,6 +28,8 @@ ycli --jq '.[].key' tracker issues search 'Queue: TEST'
 
 It cannot be combined with `-o yaml` or `-o pretty`.
 
+`--jq` needs the `jq` extra: `uv tool install 'yandex-cli[jq]'`, or `'yandex-cli[mcp,jq]'` with the MCP server (the Docker image has it). Without the extra the flag exits with code 2 and says how to install it; a pipe to the `jq` program works either way.
+
 ## Delete without a prompt
 
 A command that destroys data asks for confirmation at a terminal. In a script there is no one to ask, so it fails with exit code 2 until you pass `--yes` / `-y`:

@@ -60,7 +60,7 @@ docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
 ## Commands that do not wait
 
 - **Deletes need `--yes`.** A command that destroys data asks for confirmation; with no terminal it exits with code 2 instead. Pass `--yes` when the pipeline is meant to delete.
-- **Output is JSON.** Without a terminal ycli prints JSON, so `--jq` or `jq` reads it: `ycli --jq .key tracker issues get TRACKER-1`.
+- **Output is JSON.** Without a terminal ycli prints JSON, so `jq` reads it: `ycli tracker issues get TRACKER-1 | jq .key`. The built-in `--jq` does the same with the `jq` extra installed (`'yandex-cli[jq]'`).
 - **Try it first.** `--dry-run` prints the request a write would send and sends nothing.
 
 ## Fail the job for the right reason

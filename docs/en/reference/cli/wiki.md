@@ -65,7 +65,7 @@ $ ycli wiki auth status [OPTIONS]
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -101,7 +101,7 @@ $ ycli wiki me get [OPTIONS]
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -156,7 +156,7 @@ $ ycli wiki pages get [OPTIONS] SLUG
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
 * `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -182,7 +182,7 @@ $ ycli wiki pages descendants [OPTIONS] SLUG
 * `--include-self`: Also list the ancestor page itself.
 * `--show-all`: The API's show_all flag.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -207,7 +207,7 @@ $ ycli wiki pages get-by-id [OPTIONS] PAGE_ID
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
 * `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -233,7 +233,7 @@ $ ycli wiki pages descendants-by-id [OPTIONS] PAGE_ID
 * `--include-self`: Also list the ancestor page itself.
 * `--show-all`: The API's show_all flag.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -259,7 +259,7 @@ $ ycli wiki pages grids-list [OPTIONS] PAGE_ID
 * `--order-by TEXT`: Sort field: title or created_at.
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -282,7 +282,7 @@ $ ycli wiki pages create [OPTIONS]
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -309,7 +309,7 @@ $ ycli wiki pages update [OPTIONS] PAGE_ID
 * `--silent`: Do not notify the page's subscribers.
 * `--allow-merge`: Merge with a concurrent edit instead of failing.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -332,7 +332,7 @@ $ ycli wiki pages delete [OPTIONS] PAGE_ID
 
 * `--recursive`: Also delete every page under it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -362,7 +362,7 @@ $ ycli wiki pages append [OPTIONS] PAGE_ID
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -388,7 +388,7 @@ $ ycli wiki pages clone [OPTIONS] PAGE_ID
 * `--subscribe-me`: Subscribe yourself to the copy.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -416,7 +416,7 @@ $ ycli wiki pages move [OPTIONS] SOURCE TARGET
 * `--validate-only`: Validate the move without applying it (nothing to wait for).
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -441,7 +441,7 @@ $ ycli wiki pages revisions-list [OPTIONS] PAGE_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -467,7 +467,7 @@ $ ycli wiki pages backlinks-list [OPTIONS] PAGE_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -519,7 +519,7 @@ $ ycli wiki access create [OPTIONS] PAGE_ID
 * `--group-id TEXT`: Id of the group to grant in that directory.
 * `--inheritance [inherited|not_inherited]`: Whether the access also covers subpages: inherited or not_inherited.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -545,7 +545,7 @@ $ ycli wiki access update [OPTIONS] PAGE_ID ACCESS_ID
 * `--inheritance [inherited|not_inherited]`: Whether the access also covers subpages: inherited or not_inherited.
 * `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -569,7 +569,7 @@ $ ycli wiki access delete [OPTIONS] PAGE_ID ACCESS_ID
 
 * `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -592,7 +592,7 @@ $ ycli wiki access clear [OPTIONS] PAGE_ID
 
 * `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -641,7 +641,7 @@ $ ycli wiki comments list [OPTIONS] PAGE_ID
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `--status TEXT`: Only resolved or only unresolved comments.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -669,7 +669,7 @@ $ ycli wiki comments thread-list [OPTIONS] PAGE_ID COMMENT_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -697,7 +697,7 @@ $ ycli wiki comments thread-get [OPTIONS] PAGE_ID COMMENT_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -723,7 +723,7 @@ $ ycli wiki comments create [OPTIONS] PAGE_ID
 * `--parent-id INTEGER`: Reply to this comment id (threaded).  [default: 0]
 * `--thread-id INTEGER`: File into this existing thread id.  [default: 0]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -746,7 +746,7 @@ $ ycli wiki comments delete [OPTIONS] PAGE_ID COMMENT_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -797,7 +797,7 @@ $ ycli wiki attachments list [OPTIONS] PAGE_ID
 * `--order-by TEXT`: Sort field: name, size or created_at.
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -820,7 +820,7 @@ $ ycli wiki attachments get [OPTIONS] PAGE_ID FILE_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -847,7 +847,7 @@ $ ycli wiki attachments preview [OPTIONS] PAGE_ID FILE_ID
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -871,7 +871,7 @@ $ ycli wiki attachments download [OPTIONS] PAGE_ID FILE_ID
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -894,7 +894,7 @@ $ ycli wiki attachments download-by-url [OPTIONS] URL
 
 * `--output TEXT`: Write bytes to this path; omit / '-' streams to stdout.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -917,7 +917,7 @@ $ ycli wiki attachments delete [OPTIONS] PAGE_ID FILE_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -940,7 +940,7 @@ $ ycli wiki attachments attach [OPTIONS] PAGE_ID
 
 * `--session TEXT`: Finished upload-session id to attach (repeatable).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -963,7 +963,7 @@ $ ycli wiki attachments upload [OPTIONS] PAGE_ID FILE_PATH
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1009,7 +1009,7 @@ $ ycli wiki resources list [OPTIONS] PAGE_ID
 * `--order-by TEXT`: Sort field: name_title or created_at.
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1049,7 +1049,7 @@ $ ycli wiki recovery restore [OPTIONS] TOKEN
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1104,7 +1104,7 @@ $ ycli wiki search query [OPTIONS] QUERY
 * `--limit INTEGER RANGE`: Results per page.  [default: 10; 1<=x<=50]
 * `--cursor INTEGER RANGE`: Result page to fetch, from 1 (see next_cursor).  [default: 1; 1<=x<=500]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1157,7 +1157,7 @@ $ ycli wiki grids get [OPTIONS] GRID_ID
 * `--revision TEXT`: Load a historical revision.
 * `--sort TEXT`: Row sort, e.g. slug,-slug2.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1178,7 +1178,7 @@ $ ycli wiki grids create [OPTIONS]
 * `--page-slug TEXT`: Target page slug, e.g. data/x.
 * `--page-id INTEGER`: Target page numeric id.  [default: 0]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1206,7 +1206,7 @@ $ ycli wiki grids update [OPTIONS] GRID_ID
 * `--title TEXT`: New grid title.
 * `--default-sort TEXT`: New default sort as JSON in the write shape '[{"<column_slug>": "asc"|"desc"}]', e.g. '[{"priority": "desc"}]'.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1228,7 +1228,7 @@ $ ycli wiki grids delete [OPTIONS] GRID_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1254,7 +1254,7 @@ $ ycli wiki grids clone [OPTIONS] GRID_ID
 * `--with-data`: Copy the rows too, not just the structure.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1301,7 +1301,7 @@ $ ycli wiki grids rows add [OPTIONS] GRID_ID
 * `--position INTEGER`: Zero-based target index.
 * `--after-row-id TEXT`: Insert after this row id.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1325,7 +1325,7 @@ $ ycli wiki grids rows remove [OPTIONS] GRID_ID
 * `--revision TEXT`: Current grid revision (optimistic lock).  [required]
 * `--row-id TEXT`: Row id to delete (repeatable).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1352,7 +1352,7 @@ $ ycli wiki grids rows move [OPTIONS] GRID_ID
 * `--position INTEGER`: Zero-based target index.
 * `--rows-count INTEGER`: How many consecutive rows to move.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1378,7 +1378,7 @@ $ ycli wiki grids rows update [OPTIONS] GRID_ID ROW_ID
 * `--pinned / --no-pinned`: Pin or unpin the row.
 * `--color TEXT`: Row background colour, e.g. mint.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1428,7 +1428,7 @@ $ ycli wiki grids columns add [OPTIONS] GRID_ID
 * `--columns TEXT`: Columns as JSON, e.g. '[{"title":"C","type":"string"}]' (slug derived from the title when omitted).  [required]
 * `--position INTEGER`: Zero-based target index.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1452,7 +1452,7 @@ $ ycli wiki grids columns remove [OPTIONS] GRID_ID
 * `--revision TEXT`: Current grid revision (optimistic lock).  [required]
 * `--column-slug TEXT`: Column slug to delete (repeatable).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1478,7 +1478,7 @@ $ ycli wiki grids columns move [OPTIONS] GRID_ID
 * `--position INTEGER`: Zero-based target index.
 * `--columns-count INTEGER`: How many consecutive columns to move.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1502,7 +1502,7 @@ $ ycli wiki grids columns suggest [OPTIONS] GRID_ID
 * `--title TEXT`: Title to turn into a slug and check.
 * `--slug TEXT`: Slug to check.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1536,7 +1536,7 @@ $ ycli wiki grids columns update [OPTIONS] GRID_ID COLUMN_SLUG
 * `--color TEXT`: Column background colour.
 * `--select-option TEXT`: Allowed choice of a select column (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1578,7 +1578,7 @@ $ ycli wiki grids cells update [OPTIONS] GRID_ID
 * `--revision TEXT`: Current grid revision (optimistic lock).  [required]
 * `--cells TEXT`: Cells as JSON, e.g. '[{"row_id":1,"column_slug":"name","value":"x"}]'.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1620,7 +1620,7 @@ $ ycli wiki operations clone-get [OPTIONS] TASK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1642,7 +1642,7 @@ $ ycli wiki operations gridclone-get [OPTIONS] TASK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1664,7 +1664,7 @@ $ ycli wiki operations move-get [OPTIONS] TASK_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1707,7 +1707,7 @@ $ ycli wiki uploadsessions create [OPTIONS]
 * `--file-name TEXT`: Name to give the uploaded file.  [required]
 * `--file-size INTEGER`: Total file size in bytes (sum of all parts).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1729,7 +1729,7 @@ $ ycli wiki uploadsessions get [OPTIONS] SESSION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1753,7 +1753,7 @@ $ ycli wiki uploadsessions upload-part [OPTIONS] SESSION_ID FILE_PATH
 
 * `--part-number INTEGER`: 1-based part index (1 for the first part, +1 per next part).  [default: 1]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1775,7 +1775,7 @@ $ ycli wiki uploadsessions finish [OPTIONS] SESSION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1797,7 +1797,7 @@ $ ycli wiki uploadsessions abort [OPTIONS] SESSION_ID
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
@@ -1815,7 +1815,7 @@ $ ycli wiki uploadsessions abort-all [OPTIONS]
 **Options**:
 
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--help`: Show this message and exit.
