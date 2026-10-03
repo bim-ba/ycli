@@ -5,6 +5,7 @@ Run a subcommand directly: ``uv run ycli wiki pages get <slug>`` (or ``python -m
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
 import typer
@@ -105,7 +106,13 @@ def _main(
     # Shared, not copied: a leaf's own ``--yes`` lands in this mapping after this body has run.
     ctx.obj.options = ctx.params
     logging_config = ctx.obj.config.logging
-    level = {0: logging_config.level, 1: "INFO"}.get(verbose, "DEBUG")
+    level = logging_config.level
+    if verbose:  # -v only ever makes the configured level more verbose
+        level = min(
+            level,
+            "INFO" if verbose == 1 else "DEBUG",
+            key=logging.getLevelNamesMapping().__getitem__,
+        )
     configure(level=level, log_format=logging_config.format)
 
 

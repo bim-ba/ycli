@@ -112,3 +112,35 @@ def test_pretty_strategy_renders_bool_as_check_and_cross():
     assert "✓" in out
     assert "✗" in out
     assert "True" not in out and "False" not in out
+
+
+def test_pretty_strategy_prints_api_text_that_looks_like_markup_verbatim():
+    console, buf = _console(terminal=True)
+
+    class _Issue(BaseModel):
+        summary: str
+        tags: list[str]
+        meta: dict[str, str]
+
+    PrettyStrategy().render(
+        _Issue(
+            summary="Crash in [bug] handler", tags=["[a]", "b"], meta={"[k]": "Closing [/oops]"}
+        ),
+        console,
+    )
+    out = buf.getvalue()
+    assert "Crash in [bug] handler" in out
+    assert "[a], b" in out
+    assert "[k]" in out and "Closing [/oops]" in out
+
+
+def test_pretty_strategy_prints_markup_like_keys_and_headers_verbatim():
+    console, buf = _console(terminal=True)
+
+    class _Rows(BaseModel):
+        rows: list[dict[str, str]]
+
+    PrettyStrategy().render(_Rows(rows=[{"[col]": "[/x]"}]), console)
+    out = buf.getvalue()
+    assert "[col]" in out
+    assert "[/x]" in out
