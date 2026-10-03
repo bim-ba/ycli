@@ -21,15 +21,17 @@ $ ycli auth [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `status`: Report whether the env credentials are...
+* `status`: Report whether the credentials are set,...
 * `login`: Obtain a Yandex OAuth token + organization...
+* `profiles`: List the saved profiles: name,...
 
 ## `ycli auth status`
 
-Report whether the env credentials are set, whose they are, and which services accept them.
+Report whether the credentials are set, whose they are, and which services accept them.
 
-The owner comes from Yandex ID, the organization name from API 360, and each service is
-probed with its own call. `ycli <service> auth status` probes just one service.
+The credentials are the active profile's (`--profile` / YCLI_PROFILE), else the
+environment's. The owner comes from Yandex ID, the organization name from API 360, and each
+service is probed with its own call. `ycli <service> auth status` probes just one service.
 
 **Usage**:
 
@@ -43,11 +45,15 @@ $ ycli auth status [OPTIONS]
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
 ## `ycli auth login`
 
 Obtain a Yandex OAuth token + organization id and save them to .env.
+
+With `--profile NAME` they are saved as that profile instead, in the user's configuration
+directory (`ycli auth profiles` lists them).
 
 Uses your own OAuth app (YANDEX_OAUTH_CLIENT_ID / YANDEX_OAUTH_CLIENT_SECRET): the
 headless device flow when both are set, otherwise the browser paste (implicit) flow.
@@ -67,4 +73,27 @@ $ ycli auth login [OPTIONS]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `--help`: Show this message and exit.
+
+## `ycli auth profiles`
+
+List the saved profiles: name, organization and which token each holds, never its value.
+
+A profile is one file in the user's configuration directory (`ycli doctor` prints it),
+written by `ycli auth login --profile NAME`; deleting the file removes the profile.
+
+**Usage**:
+
+```console
+$ ycli auth profiles [OPTIONS]
+```
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.

@@ -21,6 +21,7 @@ $ ycli [OPTIONS] COMMAND [ARGS]...
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `-v, --verbose`: Log to stderr: -v shows HTTP requests, -vv adds debug detail.  [default: 0]
 * `--version`: Show the installed ycli version and exit.
 * `--help`: Show this message and exit.

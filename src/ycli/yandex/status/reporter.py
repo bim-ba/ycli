@@ -64,6 +64,7 @@ def build_report(credentials: Credentials, config: AppConfig) -> AuthReport:
     return AuthReport(
         configured=True,
         credential=credentials.kind,
+        profile=credentials.profile,
         identity=identity,
         organization=organization,
         services=services,

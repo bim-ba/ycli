@@ -25,6 +25,11 @@ class AppContext:
     _credentials: Credentials | None = None
     _clients: dict[type, DomainClient] = field(default_factory=dict)
 
+    @property
+    def profile(self) -> str | None:
+        """The ``--profile`` option of this invocation, on either side of the subcommand."""
+        return self.options.get("profile")
+
     @staticmethod
     def provides(kind: object) -> bool:
         """Whether a parameter annotated ``kind`` is filled by :meth:`resolve`."""
@@ -37,8 +42,9 @@ class AppContext:
         if not issubclass(kind, DomainClient):
             raise TypeError(f"AppContext provides AppConfig and domain clients, not {kind!r}")
         if kind not in self._clients:
-            # Raises a ValidationError naming the missing variables when credentials are unset.
-            self._credentials = self._credentials or Credentials()  # ty: ignore[missing-argument]
+            # Raises a ValidationError naming the missing variables when credentials are unset,
+            # a ProfileError when the named profile cannot be used.
+            self._credentials = self._credentials or Credentials.load(self.profile)
             self._clients[kind] = build_client(
                 kind, self._credentials, self.config, before_send=SendGuard(self.options)
             )

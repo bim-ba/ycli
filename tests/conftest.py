@@ -21,6 +21,17 @@ def creds(monkeypatch):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
 
 
+@pytest.fixture(autouse=True)
+def profiles_directory(monkeypatch, tmp_path):
+    """An empty profiles directory of the test's own, and no profile named by the environment.
+
+    The developer's own profiles never leak into a test; the path is where a test saves one.
+    """
+    monkeypatch.delenv("YCLI_PROFILE", raising=False)
+    monkeypatch.setattr("ycli.settings.user_config_path", lambda name: tmp_path / "config" / name)
+    return tmp_path / "config" / "ycli" / "profiles"
+
+
 def _unmocked(request: httpx2.Request) -> httpx2.Response:
     raise AssertionError(f"unmocked core request: {request.method} {request.url}")
 

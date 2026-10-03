@@ -10,6 +10,10 @@ App settings are grouped, one model per concern, and read from ``YCLI__<GROUP>__
 shape: ``AppConfig(http={"timeout_seconds": 5})``. Credentials keep Yandex's own names
 (``YANDEX_ID_OAUTH_TOKEN``) with a ``YCLI__AUTH__*`` fallback.
 
+A named profile (``--profile`` / ``YCLI_PROFILE``) is a dotenv file with the same credential
+variables under :func:`profiles_directory`. Once one is named it is the only source of the
+token and the organization: the environment and ``.env`` are not read for them.
+
 Examples:
     >>> AppConfig(http={"timeout_seconds": 5}).http.timeout_seconds
     5.0
@@ -18,9 +22,11 @@ Examples:
 from __future__ import annotations
 
 import os
-from typing import Annotated, Literal
+import re
+from typing import TYPE_CHECKING, Annotated, Literal, Self
 
 from dotenv import dotenv_values
+from platformdirs import user_config_path
 from pydantic import (
     AliasChoices,
     AnyHttpUrl,
@@ -31,6 +37,7 @@ from pydantic import (
     NonNegativeInt,
     PositiveFloat,
     PositiveInt,
+    PrivateAttr,
     SecretStr,
     ValidationError,
     ValidationInfo,
@@ -39,11 +46,19 @@ from pydantic import (
 from pydantic_core import ErrorDetails, PydanticCustomError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 # Yandex's own names for the credential variables; everything that names them imports these.
 OAUTH_TOKEN_ENV = "YANDEX_ID_OAUTH_TOKEN"
 ORGANIZATION_ID_ENV = "YANDEX_ID_ORGANIZATION_ID"
 # A ready IAM token (`yc iam create-token`), used in place of the OAuth token.
 IAM_TOKEN_ENV = "YANDEX_CLOUD_IAM_TOKEN"
+# The profile to use when ``--profile`` is not given.
+PROFILE_ENV = "YCLI_PROFILE"
+# A profile's name is a file name: nothing in it can leave the profiles directory.
+_PROFILE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9_-]*")
+_PROFILE_SUFFIX = ".env"
 
 # pydantic-settings reports a missing field under its validation alias (the env var name), so a
 # ``ValidationError`` loc is already one of these strings.
@@ -132,6 +147,66 @@ class AppConfig(_EnvSettings):
     logging: LoggingConfig = LoggingConfig()
 
 
+class ProfileError(ValueError):
+    """A named profile cannot be used: a bad name, no such profile, or a file missing a value."""
+
+
+class _ProfileSelection(_EnvSettings):
+    """The profile named outside the command line: ``YCLI_PROFILE``, environment or ``.env``."""
+
+    name: str | None = Field(default=None, validation_alias=PROFILE_ENV)
+
+
+def profiles_directory() -> Path:
+    """Where profiles live: ``profiles`` under the user's configuration directory for ycli."""
+    return user_config_path("ycli") / "profiles"
+
+
+def profile_path(name: str) -> Path:
+    """The dotenv file of the profile ``name``, whether it exists or not.
+
+    Args:
+        name: The profile's name: lowercase letters, digits, ``-`` and ``_``.
+
+    Returns:
+        The file's path under :func:`profiles_directory`.
+
+    Raises:
+        ProfileError: ``name`` is not a valid profile name.
+
+    Examples:
+        >>> profile_path("work").name
+        'work.env'
+    """
+    if not _PROFILE_NAME_RE.fullmatch(name):
+        raise ProfileError(
+            f"{name!r} is not a profile name: use lowercase letters, digits, '-' and '_'"
+        )
+    return profiles_directory() / f"{name}{_PROFILE_SUFFIX}"
+
+
+def profile_names() -> list[str]:
+    """The names of the saved profiles, sorted; empty when there is no profiles directory."""
+    return sorted(
+        path.name.removesuffix(_PROFILE_SUFFIX)
+        for path in profiles_directory().glob(f"*{_PROFILE_SUFFIX}")
+    )
+
+
+def active_profile(named: str | None = None) -> str | None:
+    """The profile in use: ``named`` (``--profile``), else ``YCLI_PROFILE``, else ``None``."""
+    return named or _ProfileSelection().name
+
+
+def name_profile(name: str) -> None:
+    """Make ``name`` the profile of this process, as ``YCLI_PROFILE`` would.
+
+    For ``ycli mcp start --profile``: the server's providers read the credentials on every
+    tool call, long after the command line was parsed.
+    """
+    os.environ[PROFILE_ENV] = name
+
+
 class Credentials(_EnvSettings):
     """Yandex 360 credentials: one token and the organization; pydantic raises without them.
 
@@ -155,6 +230,8 @@ class Credentials(_EnvSettings):
         validation_alias=AliasChoices(ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
     )
 
+    _profile: str | None = PrivateAttr(default=None)
+
     @field_validator("oauth_token", mode="after")
     @classmethod
     def _exactly_one_token(
@@ -169,6 +246,68 @@ class Credentials(_EnvSettings):
                 f"{OAUTH_TOKEN_ENV} and {IAM_TOKEN_ENV} are both set: keep one of them",
             )
         return oauth_token
+
+    @classmethod
+    def load(cls, profile: str | None = None) -> Self:
+        """The credentials of this invocation: the active profile's, else the environment's.
+
+        Args:
+            profile: The ``--profile`` option; ``None`` leaves the choice to ``YCLI_PROFILE``.
+
+        Returns:
+            The credentials of the active profile, or of the environment when none is named.
+        """
+        name = active_profile(profile)
+        return cls() if name is None else cls.from_profile(name)  # ty: ignore[missing-argument]
+
+    @classmethod
+    def from_profile(cls, name: str) -> Self:
+        """The credentials saved as the profile ``name``; the environment is not consulted.
+
+        Args:
+            name: The profile's name.
+
+        Returns:
+            The profile's credentials, with :attr:`profile` set.
+
+        Raises:
+            ProfileError: There is no such profile, or its file does not hold one token and
+                the organization.
+
+        Examples:
+            >>> Credentials.from_profile("work").profile  # doctest: +SKIP
+            'work'
+        """
+        path = profile_path(name)
+        if not path.is_file():
+            saved = ", ".join(profile_names()) or "none"
+            raise ProfileError(
+                f"profile {name!r} not found in {path.parent} (saved profiles: {saved})"
+            )
+        saved_values = dotenv_values(path)
+        oauth_token, iam_token = saved_values.get(OAUTH_TOKEN_ENV), saved_values.get(IAM_TOKEN_ENV)
+        try:
+            # Every field is passed, so nothing falls through to the environment.
+            credentials = cls(
+                oauth_token=SecretStr(oauth_token) if oauth_token else None,
+                iam_token=SecretStr(iam_token) if iam_token else None,
+                organization_id=saved_values.get(ORGANIZATION_ID_ENV) or "",
+            )
+        except ValidationError as exc:
+            problems = "; ".join(
+                f"{ORGANIZATION_ID_ENV} is not set"
+                if error["loc"] == ("organization_id",)
+                else error["msg"]
+                for error in exc.errors()
+            )
+            raise ProfileError(f"profile {name!r} ({path}): {problems}") from exc
+        credentials._profile = name
+        return credentials
+
+    @property
+    def profile(self) -> str | None:
+        """The profile these credentials were read from; ``None`` for the environment."""
+        return self._profile
 
     @property
     def kind(self) -> CredentialKind:
@@ -245,15 +384,21 @@ def _missing_name(error: ErrorDetails) -> str:
     return str(error["loc"][0]) if error.get("type") == "missing" and error["loc"] else ""
 
 
-def credential_sources() -> dict[str, str]:
+def credential_sources(profile: str | None = None) -> dict[str, str]:
     """Where each credential variable is set: ``environment``, ``.env file`` or ``not set``.
 
     Names only, never a value. A variable set but empty counts as not set, as it does for
-    :class:`Credentials`.
+    :class:`Credentials`. With a profile it is ``profile <name>`` or ``not set``: nothing else
+    is read.
+
+    Args:
+        profile: The active profile, or ``None``.
 
     Returns:
         The source of each credential variable, by its name.
     """
+    if profile is not None:
+        return _profile_sources(profile)
     in_file = dotenv_values(".env")
     names = {
         OAUTH_TOKEN_ENV: (OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
@@ -268,7 +413,25 @@ def credential_sources() -> dict[str, str]:
         else NOT_SET
         for name, aliases in names.items()
     }
-    # One token is enough: the one that is not set is named only when neither is.
+    return _one_token(sources)
+
+
+def _profile_sources(profile: str) -> dict[str, str]:
+    """:func:`credential_sources` of a named profile; a profile that cannot be read sets nothing."""
+    try:
+        saved_values = dotenv_values(profile_path(profile))
+    except ProfileError:
+        saved_values = {}
+    return _one_token(
+        {
+            name: f"profile {profile}" if saved_values.get(name) else NOT_SET
+            for name in (OAUTH_TOKEN_ENV, IAM_TOKEN_ENV, ORGANIZATION_ID_ENV)
+        }
+    )
+
+
+def _one_token(sources: dict[str, str]) -> dict[str, str]:
+    """One token is enough: the one that is not set is named only when neither is."""
     if sources[IAM_TOKEN_ENV] == NOT_SET:
         del sources[IAM_TOKEN_ENV]
     elif sources[OAUTH_TOKEN_ENV] == NOT_SET:

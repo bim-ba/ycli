@@ -54,7 +54,14 @@ def test_the_report_names_the_owner_the_organization_and_every_service(api):
 
 def test_the_report_dumps_with_the_agreed_shape(api):
     dumped = json.loads(_report(api).model_dump_json())
-    assert set(dumped) == {"configured", "credential", "identity", "organization", "services"}
+    assert set(dumped) == {
+        "configured",
+        "credential",
+        "profile",
+        "identity",
+        "organization",
+        "services",
+    }
     assert dumped["credential"] == "oauth"
     assert dumped["organization"] == {"id": "42", "name": "Acme", "detail": ""}
     assert dumped["services"][0] == {"service": "tracker", "valid": True, "detail": ""}

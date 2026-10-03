@@ -65,6 +65,7 @@ def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
     assert json.loads(res.stdout) == {
         "configured": False,
         "credential": None,
+        "profile": None,
         "identity": None,
         "organization": None,
         "services": [],

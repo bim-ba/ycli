@@ -1145,11 +1145,20 @@ ARCH7_ROOTS = {
     Path("cli/app.py"): "CLI root callback (logging config)",
     Path("cli/context.py"): "CLI dependency container",
     Path("mcp/__main__.py"): "python -m ycli.mcp entry point",
+    Path("mcp/cli.py"): "`mcp start --profile` names the profile its providers read",
     Path("mcp/server.py"): "MCP over HTTP reads its address and the OAuth app at start",
     Path("yandex/mcp.py"): "MCP per-request providers",
     Path("yandex/status/cli.py"): "auth status/login read and write credentials by design",
 }
-_SETTINGS_MODELS = {"AppConfig", "Credentials", "MCPHTTPConfig", "OAuthAppConfig"}
+# The settings models, and the functions that read the active profile for them.
+_SETTINGS_MODELS = {
+    "AppConfig",
+    "Credentials",
+    "MCPHTTPConfig",
+    "OAuthAppConfig",
+    "active_profile",
+    "name_profile",
+}
 
 
 def _settings_constructions(source: str) -> list[int]:
@@ -1165,7 +1174,8 @@ def _settings_constructions(source: str) -> list[int]:
             names |= {a.asname for a in node.names if a.name in _SETTINGS_MODELS and a.asname}
     annotations: set[int] = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.Attribute):  # ``AppConfig.__name__`` reads the class, builds none
+        # ``AppConfig.__name__`` reads the class and builds none; ``Credentials.load()`` builds.
+        if isinstance(node, ast.Attribute) and node.attr.startswith("__"):
             annotations.add(id(node.value))
         hints = []
         if isinstance(node, ast.arg | ast.AnnAssign) and node.annotation is not None:
@@ -1222,6 +1232,9 @@ def test_arch7_guard_bites():
     assert _settings_constructions("field(default_factory=AppConfig)") == [1]
     assert _settings_constructions("def f(config: AppConfig) -> AppConfig: return config") == []
     assert _settings_constructions("title = AppConfig.__name__") == []
+    assert _settings_constructions("creds = Credentials.load('work')") == [1]
+    assert _settings_constructions("creds = Credentials.from_profile('work')") == [1]
+    assert _settings_constructions("profile = active_profile()") == [1]
 
 
 # Who may turn a status into a typed error, and why. ``raise_for_status``

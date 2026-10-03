@@ -15,6 +15,7 @@ An invalid value fails at startup, naming the variable (exit code 2).
 | `YANDEX_ID_OAUTH_TOKEN` | a Yandex OAuth token with Tracker, Wiki and Forms access (fallback name `YCLI__AUTH__OAUTH_TOKEN`) |
 | `YANDEX_CLOUD_IAM_TOKEN` | a ready IAM token, in place of the OAuth token; it lives up to 12 hours. Setting both tokens is an error (exit code 2) |
 | `YANDEX_ID_ORGANIZATION_ID` | the Yandex 360 organization id, sent as `X-Org-Id` (fallback name `YCLI__AUTH__ORGANIZATION_ID`) |
+| `YCLI_PROFILE` | the name of a saved profile to take the token and the organization from, in place of the variables above; `--profile` wins over it (see [Authenticate](../how-to/authenticate.md#keep-several-organizations)) |
 | `YANDEX_OAUTH_CLIENT_ID` | your OAuth app's id, for `ycli auth login` |
 | `YANDEX_OAUTH_CLIENT_SECRET` | your OAuth app's secret: enables the device flow of `ycli auth login` |
 

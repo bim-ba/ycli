@@ -9,6 +9,7 @@ import typer
 
 from ycli.cli.global_options import refuse_dry_run
 from ycli.mcp.selection import ALL, TOOLSET_NAMES, Selection, split_names
+from ycli.settings import name_profile
 from ycli.yandex.registry import SERVICES
 
 # Help text lives with the root sub-app list (ycli.cli.app).
@@ -72,7 +73,8 @@ _Transport = Annotated[
     typer.Option(
         "--transport",
         help=(
-            "stdio (default): one local client, credentials from the environment. http: "
+            "stdio (default): one local client, credentials from the environment or from "
+            "--profile. http: "
             "Streamable HTTP for many users, each signed in through Yandex ID (needs "
             "YCLI__MCP__BASE_URL and your Yandex OAuth app; see "
             "https://ycli.savaznatnov.dev/how-to/self-host-over-http/)."
@@ -119,6 +121,14 @@ def start(
     """Start the MCP server on the chosen transport."""
     refuse_dry_run(context, "mcp start serves tools and sends nothing itself; use --read-only.")
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
+    profile = context.find_root().params.get("profile")
+    if profile is not None:
+        if transport is Transport.http:
+            raise typer.BadParameter(
+                "over HTTP every caller signs in with their own account; a profile has no use",
+                param_hint="--profile",
+            )
+        name_profile(profile)
     try:
         from ycli.mcp.listing import UnknownToolError
         from ycli.mcp.server import main as run_server

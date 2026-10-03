@@ -15,7 +15,13 @@ from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_access_token, get_http_request
 from pydantic import SecretStr, ValidationError
 
-from ycli.settings import AppConfig, Credentials, MCPHTTPConfig, missing_credentials
+from ycli.settings import (
+    AppConfig,
+    Credentials,
+    MCPHTTPConfig,
+    ProfileError,
+    missing_credentials,
+)
 from ycli.yandex.factory import build_client
 
 if TYPE_CHECKING:
@@ -51,7 +57,8 @@ def caller_credentials() -> Credentials:
     holds their Yandex token (the MCP client only ever holds the server's own token, so nothing
     the client sends is passed on). The organization is the server's configured one. An HTTP
     call without a signed-in caller is refused: it never falls back to the environment's token.
-    Over stdio the process environment and ``.env`` are read, per call.
+    Over stdio the active profile's file, or else the process environment and ``.env``, is
+    read, per call.
 
     FastMCP hides any other exception behind "Failed to resolve dependency 'client'", which
     tells an agent nothing, so every failure here is a ``ToolError`` naming what is missing.
@@ -67,7 +74,9 @@ def caller_credentials() -> Credentials:
     if _over_http():
         raise ToolError("Not signed in: this HTTP request carries no authenticated caller.")
     try:
-        return Credentials()  # ty: ignore[missing-argument]  # pydantic-settings reads the env
+        return Credentials.load()
+    except ProfileError as exc:
+        raise ToolError(f"Invalid configuration: {exc}") from exc
     except ValidationError as exc:
         missing = missing_credentials(exc)
         if not missing:

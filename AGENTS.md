@@ -46,7 +46,8 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` (or a ready IAM token, `YANDEX_CLOUD_IAM_TOKEN`: one of the two) and
   `YANDEX_ID_ORGANIZATION_ID`, and pass each client its `auth` and `organization_id`; nothing else
-  reads the environment (ARCH-7). Each service's `ServiceProfile` names its organization header, `X-Org-Id` by default.
+  reads the environment (ARCH-7). A named profile (`--profile` / `YCLI_PROFILE`, a dotenv file
+  in the user's configuration directory) replaces the environment as the source of both. Each service's `ServiceProfile` names its organization header, `X-Org-Id` by default.
 
 ## Release & safety
 
