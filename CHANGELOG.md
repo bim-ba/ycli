@@ -9,6 +9,36 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.40.0 (2026-10-03)
+
+### Build System
+
+- PyPI topic classifiers for what ycli is used for ([#224](https://github.com/bim-ba/ycli/pull/224),
+  [`82f867f`](https://github.com/bim-ba/ycli/commit/82f867fcca3b18ff697f95d93dc58096de3eb67a))
+
+- Re-lock uv.lock for 0.39.0
+  ([`eac4f59`](https://github.com/bim-ba/ycli/commit/eac4f59d6cd62de4f87ec7d7c5e43a517a4fc6e8))
+
+### Documentation
+
+- A comparison page, ycli next to Yandex's own servers and the community ones
+  ([#223](https://github.com/bim-ba/ycli/pull/223),
+  [`d976f8a`](https://github.com/bim-ba/ycli/commit/d976f8ae73cb2d94775f48886c9b0d53ae1ab98d))
+
+### Features
+
+- **sdk**: One generic list in place of the per-resource list classes
+  ([#225](https://github.com/bim-ba/ycli/pull/225),
+  [`469eead`](https://github.com/bim-ba/ycli/commit/469eeadaa22ef9b8e3418052fca108efff0e1a74))
+
+### Breaking Changes
+
+- **sdk**: The per-resource list classes are gone; use `ItemList[X]` from `ycli.yandex.models` with
+  the item class instead of `XList` (`ItemList[Board]` for `BoardList`, `ItemList[Queue]` for
+  `QueueList`, and so on for every `…List` model of Tracker, Wiki and Forms). A list can no longer
+  be built without an argument: `SurveyList()` becomes `ItemList[Survey]([])`.
+
+
 ## v0.39.0 (2026-10-03)
 
 ### Build System
