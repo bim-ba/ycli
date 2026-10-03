@@ -3,13 +3,7 @@
 from __future__ import annotations
 
 from ycli.yandex.models import APIModel
-
-
-class Identity(APIModel):
-    """The user's identity ids (``uid``, ``cloud_uid``)."""
-
-    uid: str | None = None
-    cloud_uid: str | None = None
+from ycli.yandex.wiki.models import UserIdentity
 
 
 class Organization(APIModel):
@@ -24,5 +18,8 @@ class Me(APIModel):
 
     username: str | None = None
     home_cluster: str | None = None
-    identity: Identity | None = None
+    identity: UserIdentity | None = None
     org: Organization | None = None
+
+
+Identity = UserIdentity  # deprecated, removed in 0.38

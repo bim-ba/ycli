@@ -69,7 +69,8 @@ class LocalFieldsClient(Resource):
             The created local field.
 
         Examples:
-            >>> from ycli.yandex.tracker.localfields.models import LocalFieldCreate, LocalizedName
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.localfields.models import LocalFieldCreate
             >>> new_field = LocalFieldCreate(
             ...     name=LocalizedName(ru="Поле", en="Field"),
             ...     id="loc_new",

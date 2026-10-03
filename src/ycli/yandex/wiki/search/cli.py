@@ -7,8 +7,8 @@ from typing import Annotated
 
 import typer
 
-from ycli.yandex.wiki.access.models import UserIdentity
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.models import UserIdentity
 from ycli.yandex.wiki.search.models import (
     SearchDateRange,
     SearchDocumentType,

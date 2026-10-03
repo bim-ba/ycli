@@ -1,7 +1,8 @@
 """Contract cases for Tracker ``/issuetypes`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.issuetypes.models import IssueTypeCreate, IssueTypeUpdate, LocalizedName
+from ycli.yandex.tracker.issuetypes.models import IssueTypeCreate, IssueTypeUpdate
+from ycli.yandex.tracker.models import LocalizedName
 
 CASES = [
     Case(

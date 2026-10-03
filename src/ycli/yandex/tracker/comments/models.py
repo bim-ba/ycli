@@ -8,19 +8,8 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-
-
-class CommentAttachment(APIModel):
-    """A file attached to a comment, as listed under ``expand=attachments``.
-
-    Examples:
-        >>> CommentAttachment.model_validate({"id": "1", "display": "Untitled.png"}).display
-        'Untitled.png'
-    """
-
-    self_url: str | None = Field(default=None, alias="self")
-    id: str | None = None
-    display: str | None = None
+from ycli.yandex.tracker import models as _shared
+from ycli.yandex.tracker.models import Reference
 
 
 class Comment(APIModel):
@@ -39,7 +28,7 @@ class Comment(APIModel):
     updated_by: DisplayStr = Field(default=None, alias="updatedBy")
     text: str | None = None
     text_html: str | None = Field(default=None, alias="textHtml")
-    attachments: list[CommentAttachment] | None = None
+    attachments: list[Reference] | None = None
     version: int | None = None
     type: str | None = None
     transport: str | None = None
@@ -54,26 +43,6 @@ class CommentList(RootModel[list[Comment]]):
     """
 
 
-class CommentCreate(APIModel):
-    """Typed request body for ``POST /issues/{key}/comments/`` (add a comment).
-
-    Examples:
-        >>> CommentCreate(text="Готово ✅").model_dump(by_alias=True, exclude_none=True)
-        {'text': 'Готово ✅'}
-    """
-
-    text: str = Field(description="Comment text (YFM markdown supported; required).")
-    summonees: list[str] | None = Field(
-        default=None, description="User ids/logins to summon in the comment."
-    )
-    attachment_ids: list[str] | None = Field(
-        default=None, alias="attachmentIds", description="Temp-file ids to attach as files."
-    )
-    maillist_summonees: list[str] | None = Field(
-        default=None, alias="maillistSummonees", description="Mailing lists to summon."
-    )
-
-
 class CommentUpdate(APIModel):
     """Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment).
 
@@ -83,3 +52,7 @@ class CommentUpdate(APIModel):
     """
 
     text: str = Field(description="Corrected comment text (YFM markdown supported).")
+
+
+CommentAttachment = Reference  # deprecated, removed in 0.38
+CommentCreate = _shared.CommentCreate  # deprecated, removed in 0.38

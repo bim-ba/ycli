@@ -2,13 +2,13 @@
 
 from ycli.yandex.tracker.boards.models import (
     Board,
-    BoardColumn,
     BoardColumnInput,
     BoardCreate,
     BoardList,
     BoardUpdate,
     Calendar,
 )
+from ycli.yandex.tracker.models import Reference
 
 BOARD = {
     "self": "https://api.tracker.yandex.net/v3/boards/1",
@@ -48,7 +48,7 @@ def test_board_parses_full_fixture_and_flattens_refs():
 
 def test_board_columns_and_calendar_are_typed():
     board = Board.model_validate(BOARD)
-    assert isinstance(board.columns[0], BoardColumn)
+    assert isinstance(board.columns[0], Reference)
     assert board.columns[0].id == "1" and board.columns[0].display == "Open"
     assert isinstance(board.calendar, Calendar) and board.calendar.id == 6
 

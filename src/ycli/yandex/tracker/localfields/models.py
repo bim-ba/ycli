@@ -10,6 +10,12 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.models import (
+    KeyedReference,
+    LocalizedName,
+    OptionsProviderInput,
+    Reference,
+)
 
 
 class LocalFieldSchema(APIModel):
@@ -64,41 +70,6 @@ class QueryProvider(APIModel):
     type: str | None = Field(default=None, description="Query-language class of the field.")
 
 
-class FieldCategory(APIModel):
-    """Category a local field belongs to (the ``category`` block).
-
-    Examples:
-        >>> FieldCategory.model_validate({"id": "1", "display": "System"}).display
-        'System'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the category.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the field category.")
-    display: str | None = Field(default=None, description="Human-readable name of the category.")
-
-
-class FieldQueueRef(APIModel):
-    """Reference to the queue a local field is attached to (the ``queue`` block).
-
-    Examples:
-        >>> FieldQueueRef.model_validate({"key": "ORG", "display": "My queue"}).key
-        'ORG'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the queue.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the queue.")
-    key: str | None = Field(default=None, description="Key of the queue (case-sensitive).")
-    display: str | None = Field(default=None, description="Human-readable name of the queue.")
-
-
 class LocalField(APIModel):
     """A local (per-queue) custom field.
 
@@ -150,10 +121,8 @@ class LocalField(APIModel):
     order: int | None = Field(
         default=None, description="Ordinal position of the field in the organisation's field list."
     )
-    category: FieldCategory | None = Field(
-        default=None, description="Category the field belongs to."
-    )
-    queue: FieldQueueRef | None = Field(
+    category: Reference | None = Field(default=None, description="Category the field belongs to.")
+    queue: KeyedReference | None = Field(
         default=None, description="The queue this local field is attached to."
     )
 
@@ -165,33 +134,6 @@ class LocalFieldList(RootModel[list[LocalField]]):
         >>> LocalFieldList.model_validate([{"key": "loc_field_key"}]).root[0].key
         'loc_field_key'
     """
-
-
-class LocalizedName(APIModel):
-    """A localized display name (the ``name`` object) — Russian and/or English text.
-
-    Examples:
-        >>> LocalizedName(ru="Поле", en="Field").model_dump(exclude_none=True)
-        {'ru': 'Поле', 'en': 'Field'}
-    """
-
-    ru: str | None = Field(default=None, description="Name in Russian.")
-    en: str | None = Field(default=None, description="Name in English.")
-
-
-class OptionsProviderInput(APIModel):
-    """Typed ``optionsProvider`` block for a local-field create/edit body (a fixed drop-down).
-
-    Examples:
-        >>> OptionsProviderInput(type="FixedListOptionsProvider", values=["a"]).model_dump()
-        {'type': 'FixedListOptionsProvider', 'values': ['a']}
-    """
-
-    type: str = Field(
-        description="Drop-down provider type, e.g. FixedListOptionsProvider or "
-        "FixedUserListOptionsProvider."
-    )
-    values: list[str] = Field(description="Allowed values offered by the drop-down.")
 
 
 class LocalFieldCreate(APIModel):
@@ -260,3 +202,7 @@ class LocalFieldUpdate(APIModel):
     hidden: bool | None = Field(
         default=None, description="Whether the field is fully hidden even when filled in."
     )
+
+
+FieldCategory = Reference  # deprecated, removed in 0.38
+FieldQueueRef = KeyedReference  # deprecated, removed in 0.38

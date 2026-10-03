@@ -15,24 +15,7 @@ from typing import Any
 from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import APIModel
-
-
-class AutoactionQueueRef(APIModel):
-    """The queue an autoaction belongs to (``queue`` object).
-
-    Examples:
-        >>> AutoactionQueueRef.model_validate({"key": "DESIGN", "display": "Design"}).key
-        'DESIGN'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the queue.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the queue.")
-    key: str | None = Field(default=None, description="Key of the queue (e.g. DESIGN).")
-    display: str | None = Field(default=None, description="Human-readable name of the queue.")
+from ycli.yandex.tracker.models import KeyedReference
 
 
 class AutoactionCalendar(APIModel):
@@ -76,7 +59,7 @@ class Autoaction(APIModel):
         description="API resource URL that returns the autoaction's parameters.",
     )
     id: int | None = Field(default=None, description="Unique identifier of the autoaction.")
-    queue: AutoactionQueueRef | None = Field(
+    queue: KeyedReference | None = Field(
         default=None, description="Queue the autoaction is configured in."
     )
     name: str | None = Field(default=None, description="Human-readable name of the autoaction.")
@@ -260,3 +243,6 @@ class AutoactionRunList(RootModel[list[AutoactionRunEntry]]):
         >>> AutoactionRunList.model_validate([{"id": 0}]).root[0].id
         0
     """
+
+
+AutoactionQueueRef = KeyedReference  # deprecated, removed in 0.38

@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import WRITE, WRITE_TAGS, wiki_client
-from ycli.yandex.wiki.recovery.models import RecoveredPage
+from ycli.yandex.wiki.models import PageIdentity
 
 mcp = FastMCP("wiki-recovery")
 
@@ -23,7 +23,7 @@ def restore(
         str, Field(description="UUID4 ``recovery_token`` returned by ``pages_delete``.")
     ],
     client: WikiClient = Depends(wiki_client),
-) -> RecoveredPage:
+) -> PageIdentity:
     """Undo a page delete: redeem a ``recovery_token`` and bring the page back.
 
     ``pages_delete`` returns the token — it is the only handle to the deleted page. Returns

@@ -8,9 +8,8 @@ from ycli.yandex.tracker.fields.models import (
     FieldCreate,
     FieldList,
     FieldUpdate,
-    LocalizedName,
-    OptionsProviderInput,
 )
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
 
 
 def test_custom_field_parses_nested_schema_and_providers():

@@ -44,7 +44,8 @@ class ResolutionsClient(Resource):
             The created resolution.
 
         Examples:
-            >>> from ycli.yandex.tracker.resolutions.models import LocalizedName, ResolutionCreate
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.resolutions.models import ResolutionCreate
             >>> tracker.resolutions.create(
             ...     ResolutionCreate(
             ...         key="wontFix", name=LocalizedName(ru="Отклонено", en="Won't fix")

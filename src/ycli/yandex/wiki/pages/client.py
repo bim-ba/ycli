@@ -9,12 +9,8 @@ from ycli.yandex.wiki.pages import endpoints
 from ycli.yandex.wiki.pages.models import GridRefList, PageRefList, PageRevisionList
 
 if TYPE_CHECKING:
-    from ycli.yandex.wiki.pages.models import (
-        PageCloneOperation,
-        PageDeleteResult,
-        PageDetails,
-        PageMoveOperation,
-    )
+    from ycli.yandex.wiki.models import AsyncOperation
+    from ycli.yandex.wiki.pages.models import PageDeleteResult, PageDetails
 
 
 class PagesClient(Resource):
@@ -210,10 +206,10 @@ class PagesClient(Resource):
         """
         return self._session.send(endpoints.append_content(page_id, body))
 
-    def clone(self, page_id: int, body: dict[str, Any]) -> PageCloneOperation:
+    def clone(self, page_id: int, body: dict[str, Any]) -> AsyncOperation:
         """``POST /pages/{id}/clone`` — copy the page to a new address (async trigger).
 
-        Returns a :class:`PageCloneOperation`; poll its ``operation.id`` via
+        Returns a :class:`AsyncOperation`; poll its ``operation.id`` via
         ``OperationsClient.clone_get`` until terminal. ``body`` is a dumped :class:`PageClone`
         (``{target, title?, subscribe_me}``).
 
@@ -231,11 +227,11 @@ class PagesClient(Resource):
         """
         return self._session.send(endpoints.clone_page(page_id, body))
 
-    def move(self, body: dict[str, Any], *, dry_run: bool = False) -> PageMoveOperation:
+    def move(self, body: dict[str, Any], *, dry_run: bool = False) -> AsyncOperation:
         """``POST /pages/move`` — give pages new addresses (async; undocumented, may change).
 
         The only way to rename or relocate a page: a page update has no ``slug``. Returns a
-        :class:`PageMoveOperation`; poll its ``operation.id`` via ``OperationsClient.move_get``
+        :class:`AsyncOperation`; poll its ``operation.id`` via ``OperationsClient.move_get``
         until terminal. ``body`` is a dumped :class:`PageMove`
         (``{operations: [{source, target, next_to_slug?, position?}], copy_inherited_access}``;
         the API answers 400 unless ``copy_inherited_access`` is a boolean). A page moves with its

@@ -1,7 +1,7 @@
 """Model-parse + Field-metadata coverage for the Tracker priorities write-body models."""
 
+from ycli.yandex.tracker.models import LocalizedName
 from ycli.yandex.tracker.priorities.models import (
-    LocalizedName,
     Priority,
     PriorityCreate,
     PriorityList,

@@ -73,8 +73,8 @@ class WorkflowsClient(Resource):
             The created workflow.
 
         Examples:
+            >>> from ycli.yandex.tracker.models import LocalizedName
             >>> from ycli.yandex.tracker.workflows.models import (
-            ...     LocalizedText,
             ...     WorkflowActionInput,
             ...     WorkflowCreate,
             ...     WorkflowStepInput,
@@ -83,7 +83,7 @@ class WorkflowsClient(Resource):
             ...     id="design-flow",
             ...     name="Design",
             ...     initial_action=WorkflowActionInput(
-            ...         name=LocalizedText(ru="Открыть", en="Open"), target="open"
+            ...         name=LocalizedName(ru="Открыть", en="Open"), target="open"
             ...     ),
             ...     steps=[WorkflowStepInput(status="open")],
             ... )
@@ -139,9 +139,10 @@ class WorkflowsClient(Resource):
             The whole updated workflow.
 
         Examples:
-            >>> from ycli.yandex.tracker.workflows.models import LocalizedText, WorkflowActionUpdate
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.workflows.models import WorkflowActionUpdate
             >>> action = WorkflowActionUpdate(
-            ...     name=LocalizedText(ru="Завершить", en="Complete"), target="closed"
+            ...     name=LocalizedName(ru="Завершить", en="Complete"), target="closed"
             ... )
             >>> tracker.workflows.edit_action(
             ...     "W23", "inProgress", "close", action, version=2

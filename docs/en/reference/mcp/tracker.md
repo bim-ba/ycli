@@ -169,7 +169,7 @@ Add a comment to a Tracker issue; returns the created comment.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `body` | object | yes | Typed request body for ``POST /issues/{key}/comments/`` (add a comment). |
+| `body` | object | yes | Typed request body for adding a comment to an issue or an entity. |
 
 ## `tracker_comments_update`
 
@@ -2123,7 +2123,7 @@ Add a comment to a Tracker entity; returns the created comment.
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `body` | object | yes | Typed request body for ``POST …/comments`` (add a comment). |
+| `body` | object | yes | Typed request body for adding a comment to an issue or an entity. |
 
 ## `tracker_entities_comments_update`
 

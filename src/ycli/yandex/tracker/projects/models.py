@@ -12,9 +12,7 @@ from typing import Any
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.queues.models import (
-    QueueUser,  # pydantic resolves field types at runtime
-)
+from ycli.yandex.tracker.models import UserReference
 
 
 class ProjectStatus(enum.StrEnum):
@@ -46,7 +44,7 @@ class Project(APIModel):
     description: str | None = Field(
         default=None, description="Description (not shown in the Tracker interface)."
     )
-    lead: QueueUser | None = Field(default=None, description="The project's lead.")
+    lead: UserReference | None = Field(default=None, description="The project's lead.")
     status: str | None = Field(
         default=None, description="Stage: draft, in_progress, launched or postponed."
     )

@@ -39,7 +39,8 @@ class StatusesClient(Resource):
             The created status.
 
         Examples:
-            >>> from ycli.yandex.tracker.statuses.models import LocalizedName, StatusCreate
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.statuses.models import StatusCreate
             >>> tracker.statuses.create(
             ...     StatusCreate(
             ...         key="pause", name=LocalizedName(ru="Пауза", en="Paused"), type="paused"

@@ -36,7 +36,6 @@ from ycli.yandex.tracker.entities.models import (
     ChecklistItemsInput,
     ChecklistMove,
     Comment,
-    CommentCreate,
     CommentList,
     CommentUpdate,
     DirectPermissionsUpdate,
@@ -50,6 +49,7 @@ from ycli.yandex.tracker.entities.models import (
     LinkList,
     ReportCreate,
 )
+from ycli.yandex.tracker.models import CommentCreate
 
 mcp = FastMCP("tracker-entities")
 

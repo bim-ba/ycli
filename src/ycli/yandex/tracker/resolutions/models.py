@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.models import LocalizedName
 
 
 class Resolution(APIModel):
@@ -40,18 +41,6 @@ class ResolutionList(RootModel[list[Resolution]]):
         >>> ResolutionList.model_validate([{"key": "fixed"}]).root[0].key
         'fixed'
     """
-
-
-class LocalizedName(APIModel):
-    """A localized display name (the ``name`` object) — Russian and/or English text.
-
-    Examples:
-        >>> LocalizedName(ru="Решен", en="Fixed").model_dump(exclude_none=True)
-        {'ru': 'Решен', 'en': 'Fixed'}
-    """
-
-    ru: str | None = Field(default=None, description="Name in Russian.")
-    en: str | None = Field(default=None, description="Name in English.")
 
 
 class ResolutionCreate(APIModel):

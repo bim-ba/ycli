@@ -16,9 +16,10 @@ from typing import Literal
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.wiki import models as _shared
+from ycli.yandex.wiki.models import PageIdentity
 
-#: Kind of deferred Wiki operation: the ``type`` of the reference a trigger returns.
-OperationType = Literal["move", "clone", "clone_inline_grid"]
+OperationType = _shared.OperationType  # deprecated, removed in 0.38
 #: Lifecycle status of an async operation.
 OperationStatus = Literal["scheduled", "in_progress", "success", "failed"]
 #: Statuses at which an async operation has stopped running (poll terminates here).
@@ -39,18 +40,6 @@ class OperationProgress(APIModel):
     details: str | None = Field(default=None, description="Free-text progress detail, if any.")
 
 
-class PageSchema(APIModel):
-    """A cloned page reference (``{id, slug}``) in a clone operation's result.
-
-    Examples:
-        >>> PageSchema(id=42, slug="data/y").slug
-        'data/y'
-    """
-
-    id: int | None = Field(default=None, description="Numeric id of the cloned page.")
-    slug: str | None = Field(default=None, description="Slug of the cloned page.")
-
-
 class PageCloneResult(APIModel):
     """Result payload of a finished page-clone operation — the cloned ``page``.
 
@@ -59,7 +48,7 @@ class PageCloneResult(APIModel):
         'data/y'
     """
 
-    page: PageSchema | None = Field(default=None, description="The page that was cloned.")
+    page: PageIdentity | None = Field(default=None, description="The page that was cloned.")
 
 
 class GridCloneResult(APIModel):
@@ -75,10 +64,10 @@ class GridCloneResult(APIModel):
     grid_id: str | int | None = Field(
         default=None, description="Id of the cloned grid (uuid4 or int)."
     )
-    page: PageSchema | None = Field(
+    page: PageIdentity | None = Field(
         default=None, description="Page the dynamic table was copied onto."
     )
-    grid: PageSchema | None = Field(
+    grid: PageIdentity | None = Field(
         default=None, description="Transitional legacy-table schema (deprecated)."
     )
 
@@ -180,3 +169,6 @@ class MoveOperationStatus(APIModel):
     def is_terminal(self) -> bool:
         """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
         return self.status in TERMINAL_STATUSES
+
+
+PageSchema = PageIdentity  # deprecated, removed in 0.38

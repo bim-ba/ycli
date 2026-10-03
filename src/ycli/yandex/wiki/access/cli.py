@@ -15,9 +15,9 @@ from ycli.yandex.wiki.access.models import (
     PageAccess,
     PageAccessCreate,
     PageAccessUpdate,
-    UserIdentity,
 )
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.models import UserIdentity
 
 app = typer.Typer(
     name="access",

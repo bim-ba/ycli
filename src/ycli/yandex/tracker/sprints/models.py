@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker sprints (SprintBoardRef + Sprint + SprintList)."""
+"""Pydantic models for Tracker sprints (Reference + Sprint + SprintList)."""
 
 from __future__ import annotations
 
@@ -8,23 +8,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-
-
-class SprintBoardRef(APIModel):
-    """The board a sprint belongs to (``board`` object) — id + display name.
-
-    Examples:
-        >>> SprintBoardRef.model_validate({"id": "3", "display": "My board"}).display
-        'My board'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the board.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the board.")
-    display: str | None = Field(default=None, description="Human-readable name of the board.")
+from ycli.yandex.tracker.models import Reference
 
 
 class Sprint(APIModel):
@@ -49,7 +33,7 @@ class Sprint(APIModel):
         description="Sprint version; every change to the sprint increments this number.",
     )
     name: str | None = Field(default=None, description="Name of the sprint.")
-    board: SprintBoardRef | None = Field(
+    board: Reference | None = Field(
         default=None, description="Board whose issues the sprint belongs to."
     )
     status: str | None = Field(
@@ -160,3 +144,6 @@ class SprintUpdate(APIModel):
         default=None,
         description="New sprint status: draft, in_progress, released or archived.",
     )
+
+
+SprintBoardRef = Reference  # deprecated, removed in 0.38

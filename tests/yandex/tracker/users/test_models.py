@@ -1,6 +1,7 @@
 """Model-parse + Field-metadata coverage for the Tracker users models."""
 
-from ycli.yandex.tracker.users.models import Group, User, UserList, UsersRelativeResponse
+from ycli.yandex.tracker.models import Reference
+from ycli.yandex.tracker.users.models import User, UserList, UsersRelativeResponse
 
 _FULL = {
     "self": "https://api.tracker.yandex.net/v3/users/12",
@@ -44,7 +45,7 @@ def test_user_parses_every_aliased_field():
 
 
 def test_group_parses_self_alias():
-    g = Group.model_validate({"self": "https://x/groups/5", "id": "5", "display": "Devs"})
+    g = Reference.model_validate({"self": "https://x/groups/5", "id": "5", "display": "Devs"})
     assert g.self_url == "https://x/groups/5" and g.id == "5" and g.display == "Devs"
 
 
@@ -61,7 +62,7 @@ def test_relative_response_envelope():
 def test_every_user_field_has_description():
     for name, field in User.model_fields.items():
         assert field.description, f"User.{name} is missing Field(description=…)"
-    for name, field in Group.model_fields.items():
-        assert field.description, f"Group.{name} is missing Field(description=…)"
+    for name, field in Reference.model_fields.items():
+        assert field.description, f"Reference.{name} is missing Field(description=…)"
     for name, field in UsersRelativeResponse.model_fields.items():
         assert field.description, f"UsersRelativeResponse.{name} is missing Field(description=…)"

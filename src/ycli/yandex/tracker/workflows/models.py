@@ -18,10 +18,7 @@ from typing import Annotated, Any, Literal
 from pydantic import AfterValidator, AliasChoices, Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.queues.models import (  # pydantic resolves field types at runtime
-    QueueRef,
-    QueueUser,
-)
+from ycli.yandex.tracker.models import KeyedReference, LocalizedName, UserReference
 
 
 class WorkflowTransition(APIModel):
@@ -36,7 +33,7 @@ class WorkflowTransition(APIModel):
 
     id: str | None = Field(default=None, description="Identifier of the action within its step.")
     name: str | None = Field(default=None, description="Display name of the action.")
-    target: QueueRef | None = Field(
+    target: KeyedReference | None = Field(
         default=None, description="The status the action moves the issue to."
     )
 
@@ -49,7 +46,7 @@ class WorkflowStep(APIModel):
         'open'
     """
 
-    status: QueueRef | None = Field(default=None, description="The status of the step.")
+    status: KeyedReference | None = Field(default=None, description="The status of the step.")
     actions: list[WorkflowTransition] = Field(
         default_factory=list, description="Actions (transitions) available from this status."
     )
@@ -79,15 +76,15 @@ class Workflow(APIModel):
         alias="initialAction",
         description="The action that sets the status a new issue starts in.",
     )
-    queue: QueueRef | None = Field(
+    queue: KeyedReference | None = Field(
         default=None, description="The queue the workflow is bound to; absent for a shared one."
     )
     created: str | None = Field(default=None, description="Creation time (ISO 8601).")
     updated: str | None = Field(default=None, description="Last change time (ISO 8601).")
-    created_by: QueueUser | None = Field(
+    created_by: UserReference | None = Field(
         default=None, alias="createdBy", description="The workflow's author."
     )
-    updated_by: QueueUser | None = Field(
+    updated_by: UserReference | None = Field(
         default=None, alias="updatedBy", description="The user who changed the workflow last."
     )
     deleted: bool | None = Field(default=None, description="Whether the workflow is deleted.")
@@ -106,7 +103,7 @@ class WorkflowList(RootModel[list[Workflow]]):
     """
 
 
-class QueueWorkflows(RootModel[dict[str, list[QueueRef]]]):
+class QueueWorkflows(RootModel[dict[str, list[KeyedReference]]]):
     """The workflows of a queue: workflow id → the issue types that use it.
 
     Examples:
@@ -128,19 +125,7 @@ class RefSelector(APIModel):
     name: str | None = Field(default=None, description="Display name of the status or queue.")
 
 
-class LocalizedText(APIModel):
-    """A name or description in each language, e.g. ``{"ru": "Закрыть", "en": "Close"}``.
-
-    Examples:
-        >>> LocalizedText(ru="Закрыть", en="Close").model_dump(exclude_none=True)
-        {'ru': 'Закрыть', 'en': 'Close'}
-    """
-
-    ru: str | None = Field(default=None, description="Text in Russian.")
-    en: str | None = Field(default=None, description="Text in English.")
-
-
-def _needs_russian(name: LocalizedText | None) -> LocalizedText | None:
+def _needs_russian(name: LocalizedName | None) -> LocalizedName | None:
     """Tracker refuses an action name without its Russian text (422 "action.name: required").
 
     Args:
@@ -153,7 +138,7 @@ def _needs_russian(name: LocalizedText | None) -> LocalizedText | None:
         ValueError: ``name`` has an English text but no Russian one.
 
     Examples:
-        >>> _needs_russian(LocalizedText(en="Close"))
+        >>> _needs_russian(LocalizedName(en="Close"))
         Traceback (most recent call last):
         ...
         ValueError: an action name needs its Russian text (ru): Tracker refuses it otherwise
@@ -168,16 +153,16 @@ class WorkflowActionInput(APIModel):
 
     Examples:
         >>> WorkflowActionInput(
-        ...     id="close", name=LocalizedText(ru="Закрыть", en="Close"), target="closed"
+        ...     id="close", name=LocalizedName(ru="Закрыть", en="Close"), target="closed"
         ... ).model_dump(exclude_none=True)
         {'id': 'close', 'name': {'ru': 'Закрыть', 'en': 'Close'}, 'target': 'closed'}
     """
 
     id: str | None = Field(default=None, description="Identifier of the action within its step.")
-    name: Annotated[LocalizedText, AfterValidator(_needs_russian)] = Field(
+    name: Annotated[LocalizedName, AfterValidator(_needs_russian)] = Field(
         description="Name of the action in each language; the Russian text is required."
     )
-    description: LocalizedText | None = Field(
+    description: LocalizedName | None = Field(
         default=None, description="Description of the action in each language."
     )
     target: str | int | RefSelector = Field(
@@ -201,17 +186,17 @@ class WorkflowActionUpdate(APIModel):
     ``target`` (422), so both are required; the other fields change only when set.
 
     Examples:
-        >>> WorkflowActionUpdate(name=LocalizedText(ru="Закрыть"), target="closed").model_dump(
+        >>> WorkflowActionUpdate(name=LocalizedName(ru="Закрыть"), target="closed").model_dump(
         ...     exclude_none=True
         ... )
         {'name': {'ru': 'Закрыть'}, 'target': 'closed'}
     """
 
     id: str | None = Field(default=None, description="New identifier of the action.")
-    name: Annotated[LocalizedText, AfterValidator(_needs_russian)] = Field(
+    name: Annotated[LocalizedName, AfterValidator(_needs_russian)] = Field(
         description="Name of the action (required by Tracker, with its Russian text)."
     )
-    description: LocalizedText | None = Field(
+    description: LocalizedName | None = Field(
         default=None, description="New description of the action."
     )
     target: str | int | RefSelector = Field(
@@ -239,7 +224,7 @@ class WorkflowStepInput(APIModel):
     status: str | int | RefSelector = Field(
         description="Status of the step: a key, a numeric id or a ``{key|id|name}`` object."
     )
-    description: LocalizedText | None = Field(
+    description: LocalizedName | None = Field(
         default=None, description="Description of the step in each language."
     )
     actions: list[WorkflowActionInput] | None = Field(
@@ -284,7 +269,7 @@ class WorkflowCreate(APIModel):
         >>> body = WorkflowCreate(
         ...     name="Design",
         ...     initial_action=WorkflowActionInput(
-        ...         name=LocalizedText(ru="Открыть", en="Open"), target="open"
+        ...         name=LocalizedName(ru="Открыть", en="Open"), target="open"
         ...     ),
         ...     steps=[WorkflowStepInput(status="open")],
         ... )
@@ -348,3 +333,6 @@ class WorkflowUpdate(APIModel):
         serialization_alias="issueTypeResolutions",
         description="New resolutions allowed per issue type.",
     )
+
+
+LocalizedText = LocalizedName  # deprecated, removed in 0.38

@@ -28,10 +28,8 @@ from ycli.yandex.wiki.grids.models import (
     ColumnUpdateResult,
     Grid,
     GridClone,
-    GridCloneOperation,
     GridCreate,
     GridUpdate,
-    PageIdentity,
     RevisionResult,
     RowsAdd,
     RowsAddResult,
@@ -40,6 +38,7 @@ from ycli.yandex.wiki.grids.models import (
     RowUpdate,
     RowUpdateResult,
 )
+from ycli.yandex.wiki.models import AsyncOperation, PageIdentity
 from ycli.yandex.wiki.operations.models import GridCloneOperationStatus
 
 app = typer.Typer(name="grids", help="Wiki dynamic tables (grids).", no_args_is_help=True)
@@ -160,7 +159,7 @@ def clone(
     ] = True,
     *,
     wiki: WikiClient,
-) -> GridCloneOperation | GridCloneOperationStatus:
+) -> AsyncOperation | GridCloneOperationStatus:
     """Copy a grid onto another page (POST /grids/{id}/clone; async). --wait polls to completion."""
     body = GridClone(target=target, title=title or None, with_data=with_data).model_dump(
         exclude_none=True

@@ -12,7 +12,8 @@ from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentList, CommentUpdate
+from ycli.yandex.tracker.models import CommentCreate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )

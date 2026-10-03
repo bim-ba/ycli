@@ -44,7 +44,8 @@ class IssueTypesClient(Resource):
             The created issue type.
 
         Examples:
-            >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeCreate, LocalizedName
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeCreate
             >>> tracker.issuetypes.create(
             ...     IssueTypeCreate(key="client", name=LocalizedName(ru="Клиент", en="Client"))
             ... ).key
@@ -70,7 +71,8 @@ class IssueTypesClient(Resource):
             The updated issue type.
 
         Examples:
-            >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeUpdate, LocalizedName
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeUpdate
             >>> tracker.issuetypes.edit(
             ...     "23",
             ...     IssueTypeUpdate(name=LocalizedName(ru="Покупатель", en="Buyer")),

@@ -13,9 +13,8 @@ from ycli.yandex.tracker.localfields.models import (
     LocalFieldCreate,
     LocalFieldList,
     LocalFieldUpdate,
-    LocalizedName,
-    OptionsProviderInput,
 )
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
 
 app = typer.Typer(name="localfields", help="Tracker per-queue local fields.", no_args_is_help=True)
 

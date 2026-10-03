@@ -16,15 +16,14 @@ from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
+from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.pages.models import (
     BacklinksResponse,
     DescendantsResponse,
     GridRef,
     GridsResponse,
-    PageCloneOperation,
     PageDeleteResult,
     PageDetails,
-    PageMoveOperation,
     PageRef,
     PageRevision,
     RevisionsResponse,
@@ -86,14 +85,14 @@ def append_content(page_id: int, body: dict[str, Any]) -> Endpoint[PageDetails]:
     return Endpoint("POST", f"pages/{segment(page_id)}/append-content", PageDetails, json=body)
 
 
-def clone_page(page_id: int, body: dict[str, Any]) -> Endpoint[PageCloneOperation]:
-    return Endpoint("POST", f"pages/{segment(page_id)}/clone", PageCloneOperation, json=body)
+def clone_page(page_id: int, body: dict[str, Any]) -> Endpoint[AsyncOperation]:
+    return Endpoint("POST", f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
 
 
-def move_pages(body: dict[str, Any], *, dry_run: bool) -> Endpoint[PageMoveOperation]:
+def move_pages(body: dict[str, Any], *, dry_run: bool) -> Endpoint[AsyncOperation]:
     """``POST /pages/move`` (undocumented): a new address for pages; ``dry_run`` only validates."""
     params = {"dry_run": "true" if dry_run else None}
-    return Endpoint("POST", "pages/move", PageMoveOperation, params=params, json=body)
+    return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)
 
 
 def list_revisions(page_id: int, *, ids: str | None) -> Paged[RevisionsResponse, PageRevision]:

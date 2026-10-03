@@ -13,9 +13,7 @@ from ycli.yandex.wiki.access.models import (  # pydantic resolves field types at
     PageAccessPolicy,
     PageOwner,
 )
-from ycli.yandex.wiki.operations.models import (
-    OperationType,  # pydantic resolves field types at runtime
-)
+from ycli.yandex.wiki.models import AsyncOperation, OperationIdentity
 
 
 class PageAttributes(APIModel):
@@ -249,7 +247,7 @@ class PageClone(APIModel):
     """Typed body for ``POST /pages/{id}/clone`` — copy a page to a new address (async).
 
     ``target`` is the destination slug; ``subscribe_me`` subscribes the caller to the copy.
-    Clone is deferred — see :class:`PageCloneOperation` and poll via the ``operations`` resource.
+    Clone is deferred — see :class:`AsyncOperation` and poll via the ``operations`` resource.
 
     Examples:
         >>> PageClone(target="data/y", subscribe_me=True).model_dump(exclude_none=True)
@@ -262,48 +260,6 @@ class PageClone(APIModel):
     )
     subscribe_me: bool = Field(
         default=False, description="Subscribe the caller to changes on the copy."
-    )
-
-
-class PageCloneOperationIdentity(APIModel):
-    """Reference to the deferred operation (``{type, id}``) inside a page clone or move reply.
-
-    Examples:
-        >>> PageCloneOperationIdentity(type="clone", id="task-1").id
-        'task-1'
-    """
-
-    type: OperationType | None = Field(
-        default=None,
-        description="Operation kind — ``clone`` for a page clone, ``move`` for a move.",
-    )
-    id: str | None = Field(
-        default=None,
-        description="Task id to poll via ``operations clone`` or ``operations move-get``.",
-    )
-
-
-class PageCloneOperation(APIModel):
-    """Reply of ``POST /pages/{id}/clone`` — a deferred operation reference to poll.
-
-    Page clone is asynchronous: this returns the ``operation`` and a ``status_url``; poll
-    ``operations clone <operation.id>`` until it reaches a terminal state.
-
-    Examples:
-        >>> PageCloneOperation.model_validate(
-        ...     {"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"}
-        ... ).operation.id
-        'task-1'
-    """
-
-    operation: PageCloneOperationIdentity | None = Field(
-        default=None, description="The started operation (``id`` is the task to poll)."
-    )
-    status_url: str | None = Field(
-        default=None, description="URL that reports the operation's progress."
-    )
-    dry_run: bool | None = Field(
-        default=None, description="Whether this was a validation-only dry run."
     )
 
 
@@ -350,31 +306,6 @@ class PageMove(APIModel):
         description="Copy the accesses a page inherited from its old parent when it moves. The "
         "API refuses a move that leaves this unset (400 INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED), "
         "so it is always sent, ``false`` by default.",
-    )
-
-
-class PageMoveOperation(APIModel):
-    """Reply of ``POST /pages/move`` — a deferred operation reference to poll.
-
-    Page move is asynchronous: this returns the ``operation`` and a ``status_url``; poll
-    ``operations move-get <operation.id>`` until it reaches a terminal state. A ``dry_run`` reply
-    carries ``dry_run=true``.
-
-    Examples:
-        >>> PageMoveOperation.model_validate(
-        ...     {"operation": {"type": "move", "id": "task-1"}, "status_url": "u"}
-        ... ).operation.id
-        'task-1'
-    """
-
-    operation: PageCloneOperationIdentity | None = Field(
-        default=None, description="The started operation (``id`` is the task to poll)."
-    )
-    status_url: str | None = Field(
-        default=None, description="URL that reports the operation's progress."
-    )
-    dry_run: bool | None = Field(
-        default=None, description="Whether this was a validation-only dry run."
     )
 
 
@@ -475,3 +406,8 @@ class BacklinksResponse(APIModel):
         default=None,
         description="Cursor for the next page; ``null`` when the listing is exhausted.",
     )
+
+
+PageCloneOperation = AsyncOperation  # deprecated, removed in 0.38
+PageCloneOperationIdentity = OperationIdentity  # deprecated, removed in 0.38
+PageMoveOperation = AsyncOperation  # deprecated, removed in 0.38

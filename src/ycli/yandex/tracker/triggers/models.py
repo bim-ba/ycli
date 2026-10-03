@@ -14,24 +14,7 @@ from typing import Any
 from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import APIModel
-
-
-class TriggerQueueRef(APIModel):
-    """The queue a trigger belongs to (``queue`` object).
-
-    Examples:
-        >>> TriggerQueueRef.model_validate({"key": "DESIGN", "display": "Design"}).key
-        'DESIGN'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the queue.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the queue.")
-    key: str | None = Field(default=None, description="Key of the queue (e.g. DESIGN).")
-    display: str | None = Field(default=None, description="Human-readable name of the queue.")
+from ycli.yandex.tracker.models import KeyedReference
 
 
 class TriggerAction(APIModel):
@@ -87,7 +70,7 @@ class Trigger(APIModel):
         description="API resource URL that returns the trigger's parameters.",
     )
     id: int | None = Field(default=None, description="Unique identifier of the trigger.")
-    queue: TriggerQueueRef | None = Field(
+    queue: KeyedReference | None = Field(
         default=None, description="Queue the trigger is configured in."
     )
     name: str | None = Field(default=None, description="Human-readable name of the trigger.")
@@ -206,3 +189,6 @@ class WebhookLogList(RootModel[list[WebhookLogEntry]]):
         >>> WebhookLogList.model_validate([{"id": "x", "duration": 1}]).root[0].duration
         1
     """
+
+
+TriggerQueueRef = KeyedReference  # deprecated, removed in 0.38

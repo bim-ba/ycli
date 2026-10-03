@@ -6,9 +6,8 @@ from ycli.yandex.tracker.fields.models import (
     FieldCategoryUpdate,
     FieldCreate,
     FieldUpdate,
-    LocalizedName,
-    OptionsProviderInput,
 )
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
 
 STRING_TYPE = "ru.yandex.startrek.core.fields.StringFieldType"
 

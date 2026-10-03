@@ -62,7 +62,8 @@ class FieldsClient(Resource):
             The created field.
 
         Examples:
-            >>> from ycli.yandex.tracker.fields.models import FieldCreate, LocalizedName
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.fields.models import FieldCreate
             >>> tracker.fields.create(
             ...     FieldCreate(
             ...         name=LocalizedName(ru="Поле"),
@@ -91,7 +92,8 @@ class FieldsClient(Resource):
             The updated field.
 
         Examples:
-            >>> from ycli.yandex.tracker.fields.models import FieldUpdate, LocalizedName
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.fields.models import FieldUpdate
             >>> tracker.fields.edit(
             ...     "ruName", FieldUpdate(name=LocalizedName(ru="Имя")), version=3
             ... ).id
@@ -110,7 +112,8 @@ class FieldsClient(Resource):
             The created category.
 
         Examples:
-            >>> from ycli.yandex.tracker.fields.models import FieldCategoryCreate, LocalizedName
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.fields.models import FieldCategoryCreate
             >>> tracker.fields.category_create(
             ...     FieldCategoryCreate(name=LocalizedName(ru="Своя"), order=400)
             ... ).id

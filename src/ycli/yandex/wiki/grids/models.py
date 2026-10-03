@@ -5,7 +5,7 @@ Grids are the modern dynamic tables attached to a page. Every mutating call carr
 write, and the API rejects the write (409) if another edit landed first — so ``revision`` threads
 through :class:`GridUpdate`, the row/column add/remove/move bodies and :class:`CellsUpdate`. The
 two exceptions are :class:`GridCreate` (a brand-new grid has no prior revision) and
-:class:`GridClone` (an async trigger). Clone is deferred: it returns a :class:`GridCloneOperation`
+:class:`GridClone` (an async trigger). Clone is deferred: it returns a :class:`AsyncOperation`
 you poll through the ``operations`` resource.
 
 ``extra='ignore'`` via :class:`~ycli.yandex.models.APIModel`.
@@ -19,9 +19,8 @@ from typing import Any, Literal
 from pydantic import Field, RootModel, model_validator
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.operations.models import (
-    OperationType,  # pydantic resolves field types at runtime
-)
+from ycli.yandex.wiki import models as _shared
+from ycli.yandex.wiki.models import AsyncOperation, PageIdentity
 
 #: Sort order of a column in the grid's default sort.
 SortDirection = Literal["asc", "desc"]
@@ -83,22 +82,6 @@ TicketField = Literal[
     "updated_at",
     "votes",
 ]
-
-
-class PageIdentity(APIModel):
-    """A page address by ``id`` or ``slug`` (grid ``page`` field / create target).
-
-    ``id`` takes priority when both are supplied; ``slug`` is used otherwise.
-
-    Examples:
-        >>> PageIdentity(slug="data/x").slug
-        'data/x'
-    """
-
-    id: int | None = Field(
-        default=None, description="Numeric page id (wins over slug if both set)."
-    )
-    slug: str | None = Field(default=None, description="Permanent page slug, e.g. ``data/x``.")
 
 
 class ColumnSortSchema(APIModel):
@@ -310,46 +293,6 @@ class CellsUpdateResult(APIModel):
     )
     cells: list[CellSchema] = Field(
         default_factory=list, description="The cells that were updated."
-    )
-
-
-class OperationIdentity(APIModel):
-    """Reference to a deferred B2B operation (``{type, id}``) returned by a clone trigger.
-
-    Examples:
-        >>> OperationIdentity(type="clone_inline_grid", id="task-1").id
-        'task-1'
-    """
-
-    type: OperationType | None = Field(
-        default=None, description="Operation kind (``move`` / ``clone`` / ``clone_inline_grid``)."
-    )
-    id: str | None = Field(
-        default=None, description="Task id to poll on the ``operations`` resource."
-    )
-
-
-class GridCloneOperation(APIModel):
-    """Reply of ``POST /grids/{id}/clone`` — a deferred operation reference to poll.
-
-    Grid clone is asynchronous: this returns the ``operation`` (``clone_inline_grid``) and a
-    ``status_url``; poll ``operations gridclone <operation.id>`` until it reaches a terminal state.
-
-    Examples:
-        >>> GridCloneOperation.model_validate(
-        ...     {"operation": {"type": "clone_inline_grid", "id": "t1"}}
-        ... ).operation.id
-        't1'
-    """
-
-    operation: OperationIdentity | None = Field(
-        default=None, description="The started operation (``id`` is the task to poll)."
-    )
-    status_url: str | None = Field(
-        default=None, description="URL that reports the operation's progress."
-    )
-    dry_run: bool | None = Field(
-        default=None, description="Whether this was a validation-only dry run."
     )
 
 
@@ -739,7 +682,7 @@ class GridClone(APIModel):
     """Typed body for ``POST /grids/{id}/clone`` — copy a grid onto another page (async).
 
     ``target`` is the destination page slug (created if absent); ``with_data`` copies the rows as
-    well as the structure. The call is deferred — see :class:`GridCloneOperation`.
+    well as the structure. The call is deferred — see :class:`AsyncOperation`.
 
     Examples:
         >>> GridClone(target="data/y", with_data=True).model_dump(exclude_none=True)
@@ -762,3 +705,7 @@ class GridList(RootModel[list[Grid]]):
     """
 
     root: list[Grid] = Field(default_factory=list)
+
+
+GridCloneOperation = AsyncOperation  # deprecated, removed in 0.38
+OperationIdentity = _shared.OperationIdentity  # deprecated, removed in 0.38

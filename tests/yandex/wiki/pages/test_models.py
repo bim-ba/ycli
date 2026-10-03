@@ -3,6 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
+from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.pages.models import (
     GridRef,
     GridRefList,
@@ -11,11 +12,9 @@ from ycli.yandex.wiki.pages.models import (
     PageAppendContentBody,
     PageAppendContentSection,
     PageClone,
-    PageCloneOperation,
     PageDeleteResult,
     PageDetails,
     PageMove,
-    PageMoveOperation,
     PageMoveStep,
     PageRevision,
     PageRevisionList,
@@ -94,7 +93,7 @@ def test_page_clone_rejects_empty_title():
 
 
 def test_page_clone_operation_parses_identity():
-    op = PageCloneOperation.model_validate(
+    op = AsyncOperation.model_validate(
         {"operation": {"type": "clone", "id": "task-1"}, "status_url": "u"}
     )
     assert op.operation is not None and op.operation.id == "task-1"
@@ -128,7 +127,7 @@ def test_a_page_without_access_fields_leaves_them_unset():
 
 def test_clone_operation_identity_accepts_every_operation_kind():
     for kind in ("move", "clone", "clone_inline_grid"):
-        reply = PageCloneOperation.model_validate({"operation": {"type": kind, "id": "t"}})
+        reply = AsyncOperation.model_validate({"operation": {"type": kind, "id": "t"}})
         assert reply.operation is not None and reply.operation.type == kind
 
 
@@ -152,7 +151,7 @@ def test_a_move_step_refuses_an_unknown_position():
 
 
 def test_a_move_reply_names_the_task_to_poll():
-    reply = PageMoveOperation.model_validate(
+    reply = AsyncOperation.model_validate(
         {
             "operation": {"type": "move", "id": "0807ca4b"},
             "status_url": "/v1/operations/move/0807ca4b",

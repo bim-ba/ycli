@@ -33,7 +33,6 @@ from ycli.yandex.wiki.grids.models import (
     ColumnUpdateResult,
     Grid,
     GridClone,
-    GridCloneOperation,
     GridCreate,
     GridUpdate,
     RevisionResult,
@@ -44,6 +43,7 @@ from ycli.yandex.wiki.grids.models import (
     RowUpdate,
     RowUpdateResult,
 )
+from ycli.yandex.wiki.models import AsyncOperation
 
 mcp = FastMCP("wiki-grids")
 
@@ -308,7 +308,7 @@ def clone(
         ),
     ],
     client: WikiClient = Depends(wiki_client),
-) -> GridCloneOperation:
+) -> AsyncOperation:
     """Copy a grid onto another page (``POST /grids/{id}/clone`` — asynchronous).
 
     ``body.with_data=true`` copies the rows as well as the structure. Returns a deferred

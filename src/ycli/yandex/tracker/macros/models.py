@@ -13,41 +13,7 @@ from typing import Any
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-
-
-class MacroQueueRef(APIModel):
-    """The queue a macro belongs to (``queue`` object).
-
-    Examples:
-        >>> MacroQueueRef.model_validate({"key": "TEST", "display": "My queue"}).key
-        'TEST'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the queue.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the queue.")
-    key: str | None = Field(default=None, description="Key of the queue (e.g. TEST).")
-    display: str | None = Field(default=None, description="Human-readable name of the queue.")
-
-
-class MacroField(APIModel):
-    """A task-field reference inside a macro's ``issueUpdate`` row.
-
-    Examples:
-        >>> MacroField.model_validate({"id": "tags", "display": "Tags"}).id
-        'tags'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the task field.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the task field.")
-    display: str | None = Field(default=None, description="Human-readable name of the task field.")
+from ycli.yandex.tracker.models import KeyedReference, Reference
 
 
 class MacroFieldUpdate(APIModel):
@@ -60,7 +26,7 @@ class MacroFieldUpdate(APIModel):
         'tags'
     """
 
-    field: MacroField | None = Field(
+    field: Reference | None = Field(
         default=None, description="The task field this row updates when the macro runs."
     )
     update: Any = Field(
@@ -82,7 +48,7 @@ class Macro(APIModel):
         description="API resource URL that returns the macro's parameters.",
     )
     id: int | None = Field(default=None, description="Unique identifier of the macro.")
-    queue: MacroQueueRef | None = Field(
+    queue: KeyedReference | None = Field(
         default=None, description="Queue whose issues the macro applies to."
     )
     name: str | None = Field(default=None, description="Human-readable name of the macro.")
@@ -144,3 +110,7 @@ class MacroUpdate(APIModel):
         serialization_alias="issueUpdate",
         description="Replacement field→value object of issue changes the macro applies.",
     )
+
+
+MacroField = Reference  # deprecated, removed in 0.38
+MacroQueueRef = KeyedReference  # deprecated, removed in 0.38

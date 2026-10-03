@@ -1,7 +1,7 @@
 """Model parsing for Tracker workflows: the doc reply and the request bodies."""
 
+from ycli.yandex.tracker.models import LocalizedName
 from ycli.yandex.tracker.workflows.models import (
-    LocalizedText,
     QueueWorkflows,
     Workflow,
     WorkflowActionInput,
@@ -71,7 +71,7 @@ def test_request_bodies_use_the_api_names_and_drop_unset_fields():
     body = WorkflowCreate(
         name="Design",
         initial_action=WorkflowActionInput(
-            name=LocalizedText(ru="Открыть", en="Open"), target="open"
+            name=LocalizedName(ru="Открыть", en="Open"), target="open"
         ),
         steps=[WorkflowStepInput(status="open", status_type="NEW")],
     ).model_dump(by_alias=True, exclude_none=True)
@@ -94,7 +94,7 @@ def test_every_request_field_has_a_description():
 
     for name in (
         "RefSelector",
-        "LocalizedText",
+        "LocalizedName",
         "WorkflowActionInput",
         "WorkflowActionUpdate",
         "WorkflowStepInput",

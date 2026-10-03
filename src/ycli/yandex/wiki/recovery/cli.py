@@ -7,7 +7,7 @@ from typing import Annotated
 import typer
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.recovery.models import RecoveredPage
+from ycli.yandex.wiki.models import PageIdentity
 
 app = typer.Typer(
     name="recovery", help="Wiki page recovery (restore by token).", no_args_is_help=True
@@ -21,6 +21,6 @@ def restore(
     ],
     *,
     wiki: WikiClient,
-) -> RecoveredPage:
+) -> PageIdentity:
     """Restore a deleted page by its recovery TOKEN (POST /recovery_tokens/{token}/recover)."""
     return wiki.recovery.restore(token=token)

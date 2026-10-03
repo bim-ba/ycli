@@ -1,28 +1,11 @@
-"""Pydantic models for Tracker board columns (ColumnStatus + Column + ColumnList + inputs)."""
+"""Pydantic models for Tracker board columns (KeyedReference + Column + ColumnList + inputs)."""
 
 from __future__ import annotations
 
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-
-
-class ColumnStatus(APIModel):
-    """One issue status shown in a board column (``statuses[]`` item).
-
-    Examples:
-        >>> ColumnStatus.model_validate({"id": "1", "key": "open", "display": "Open"}).key
-        'open'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns information about the status.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the status.")
-    key: str | None = Field(default=None, description="Key of the status, e.g. 'open'.")
-    display: str | None = Field(default=None, description="Human-readable name of the status.")
+from ycli.yandex.tracker.models import KeyedReference
 
 
 class Column(APIModel):
@@ -43,7 +26,7 @@ class Column(APIModel):
     )
     id: int | None = Field(default=None, description="Unique identifier of the column.")
     name: str | None = Field(default=None, description="Name of the column.")
-    statuses: list[ColumnStatus] = Field(
+    statuses: list[KeyedReference] = Field(
         default_factory=list,
         description="Issue statuses whose cards are shown in this column.",
     )
@@ -87,3 +70,6 @@ class ColumnUpdate(APIModel):
         default=None,
         description="Replacement keys of the issue statuses whose cards appear in the column.",
     )
+
+
+ColumnStatus = KeyedReference  # deprecated, removed in 0.38
