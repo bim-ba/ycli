@@ -1082,7 +1082,7 @@ def test_arch7_guard_bites():
     assert _settings_constructions("title = AppConfig.__name__") == []
 
 
-# Who may turn a status into a typed error, and why. ``raise_for_status`` (httpx/requests)
+# Who may turn a status into a typed error, and why. ``raise_for_status``
 # would bypass the mapping and raise a library error instead of a YandexError.
 ARCH8_ERROR_MAPPERS = {
     Path("yandex/errors.py"): "defines error_for_status",

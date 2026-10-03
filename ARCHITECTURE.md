@@ -76,8 +76,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch1_cli_path_equals_mcp_name` pairs each MCP tool with the CLI command that calls the
   same client operations and fails when their names differ or either uses a synonym verb.
 - **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
-  one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is
-  CLI-only (bytes do not round-trip an MCP result), plus a few SDK-internal primitives; a
+  one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — a binary download is
+  CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file
+  from disk (the other uploads are MCP tools that take base64), plus a few SDK-internal primitives; a
   resource whose every operation is listed there serves no MCP tool. `status/` and the `ycli.mcp` server package are
   cross-cutting surfaces, not resources; `ARCH1_NON_RESOURCE_CLI_GROUPS` lists the CLI group every
   service mounts that is no resource (`<service> auth`, built once from the registry).
@@ -89,7 +90,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Check:** import-linter contracts in `pyproject.toml` (`uv run lint-imports`): the httpx2
   core imports no service, surface, `typer` or `fastmcp`; MCP modules never import `ycli.cli`
   or `typer`, even indirectly; `cli.py`/`mcp.py`/`models.py` import no HTTP library
-  (`requests`, `httpx2`) directly — HTTP lives in `client.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
+  (`httpx2`) directly — HTTP lives in `client.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
   CLI, clients, models or the `ycli.mcp` package `__init__` (the base install loads `ycli mcp`
   without the extra).
 - **Exceptions:** the MCP server (`ycli.mcp.server`) and its listing transforms
@@ -133,8 +134,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   in `settings.py`, the org header name in `core/profile.py`, API hosts in each service's
   profile, timeout/retry/limit defaults in the settings models (no `timeout=30`-style literal
   elsewhere).
-- **Why:** a second copy drifts, and a hardcoded literal silently beats configuration (the old
-  `@uplink.timeout(30)` bug).
+- **Why:** a second copy drifts, and a hardcoded literal silently beats configuration.
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`).
 - **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the Yandex ID / API 360 hosts
   `auth status` reads.
@@ -179,8 +179,7 @@ rest. Known blind spots:
 
 - **ARCH-1 parity reads direct surface→client calls.** A wrapper that reaches the client through
   a local alias is reported as a (false) gap; an unrelated same-named `X.<resource>.<op>(…)`
-  call could mask a real one. It is an AST scan, not yet the per-endpoint flags planned for
-  when every resource is declared as endpoints (E2). The served-surface check works per
+  call could mask a real one. The served-surface check works per
   resource: it sees an unmounted resource, not one unregistered tool inside a mounted one.
 - **ARCH-2 catches direct imports only** for the HTTP-library and `fastmcp` contracts
   (`allow_indirect_imports = true`, since surfaces reach HTTP through `client.py`): an HTTP call
@@ -214,9 +213,8 @@ same committed file layout, and ycli's hand-written code is the golden output it
 reproduce. ycli does not use refract yet. The opposite direction is in use: `scripts/gen_openapi.py` derives an OpenAPI
 document per service from the code at build time, for the docs site. Rejected: generating clients or tools at runtime
 (metaprogramming), and external SDK generators such as Fern, which cover only the SDK and
-impose their own models. The HTTP stack moves to the httpx2 core independently of refract
-(#85): its `Endpoint[T]` has the same shape as refract's `Request`, so generated resources can
-target it.
+impose their own models. The core's `Endpoint[T]` has the same shape as refract's `Request`,
+so generated resources can target it.
 
 ## Changing an invariant
 

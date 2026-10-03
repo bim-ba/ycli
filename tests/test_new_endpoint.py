@@ -1,13 +1,17 @@
-"""The ``/new-endpoint`` scaffolder must emit a resource package that imports cleanly."""
+"""The ``/new-endpoint`` scaffold imports, and passes the gates a resource meets, as generated."""
 
+import asyncio
 import importlib
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
 import pytest
+from fastmcp import Client
 
 import ycli.yandex.tracker
+from tests import test_architecture as architecture
 from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.core.resource import Resource
 
@@ -61,3 +65,61 @@ def test_scaffolded_client_sends_its_endpoint_on_the_core(scaffolded):
     assert isinstance(client, Resource)
     assert client.get("7") == "parsed"
     assert (sent[0].method, sent[0].path) == ("GET", f"FILL/{RESOURCE}/7")
+
+
+def _generated(tmp_path: Path) -> dict[str, str]:
+    """The scaffold's files, keyed by the path they would have in the repository."""
+    target = _load_scaffolder().scaffold("tracker", RESOURCE, root=tmp_path)
+    return {
+        f"src/ycli/yandex/tracker/{RESOURCE}/{path.name}": path.read_text(encoding="utf-8")
+        for path in sorted(target.iterdir())
+    }
+
+
+@pytest.mark.parametrize("command", [["check"], ["format", "--check"]])
+def test_the_scaffold_passes_ruff_as_generated(command, tmp_path):
+    """No generated file needs a fix: the lint and the format gate pass on the raw output."""
+    for filename, source in _generated(tmp_path).items():
+        ruff = subprocess.run(
+            [sys.executable, "-m", "ruff", *command, "--stdin-filename", filename, "-"],
+            input=source,
+            capture_output=True,
+            text=True,
+            cwd=SCRIPT.parent.parent,
+            check=False,
+        )
+        assert ruff.returncode == 0, f"{filename}:\n{ruff.stdout}{ruff.stderr}"
+
+
+def test_the_scaffold_passes_the_architecture_checks(tmp_path):
+    """The per-file ARCH checks find nothing in the raw output."""
+    offenders = []
+    for filename, source in _generated(tmp_path).items():
+        relative = Path(filename).relative_to("src/ycli")
+        offenders += architecture._stdout_writes(source)
+        offenders += architecture._serializations(source)
+        offenders += architecture._single_source_offenders(relative, source)
+        offenders += architecture._untyped_body_offenders(source, filename)
+        offenders += architecture._error_mapping_offenders(relative, source)
+    assert offenders == []
+
+
+def test_the_scaffolded_tool_meets_the_metadata_standard(scaffolded):
+    """The generated tool is an annotated read whose description, parameters and output are set."""
+    server = importlib.import_module(f"{PACKAGE}.mcp").mcp
+
+    async def listed():
+        async with Client(server) as client:
+            return await client.list_tools()
+
+    (tool,) = asyncio.run(listed())
+    assert tool.name == f"{RESOURCE}_get"
+    assert tool.description and tool.output_schema is not None
+    assert tool.annotations.read_only_hint and tool.annotations.title
+    assert all(schema.get("description") for schema in tool.input_schema["properties"].values())
+
+
+def test_the_scaffolded_model_describes_every_field(scaffolded):
+    model = importlib.import_module(f"{PACKAGE}.models").ScaffoldProbe
+
+    assert all(field.description for field in model.model_fields.values())
