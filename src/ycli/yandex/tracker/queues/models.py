@@ -136,7 +136,7 @@ class QueueTagList(RootModel[list[str]]):
 class QueueVersionInfo(APIModel):
     """A queue version (``GET /queues/{id}/versions`` item, ``POST /versions/`` result).
 
-    Unlike the lean ``Reference`` inside an ``expand=versions`` block, this carries the full
+    Unlike the bare reference inside an ``expand=versions`` block, this carries the full
     version record — release/archive flags, date range and the owning queue reference.
 
     Examples:

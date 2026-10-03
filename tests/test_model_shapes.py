@@ -8,6 +8,7 @@ share a shape must be one class, or a group in ``SAME_SHAPE`` with the reason th
 from __future__ import annotations
 
 import ast
+import doctest
 import importlib
 import json
 import pkgutil
@@ -15,6 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+import pytest
 from pydantic import BaseModel
 
 from ycli.yandex.registry import SERVICES
@@ -90,9 +92,13 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
     ): "cursor envelopes, to become one generic page (#203)",
 }
 
-# Names merged into a shared class, by the module that used to define them. They stay
+# Names moved into a service's shared module, by the module that used to define them. They stay
 # importable from there until 0.38; nothing in this repository may import them from there.
 DEPRECATED: dict[tuple[str, str], str] = {
+    (
+        "ycli.yandex.wiki.operations.models",
+        "OperationType",
+    ): "ycli.yandex.wiki.models.OperationType",
     (
         "ycli.yandex.tracker.attachments.models",
         "AttachmentMetadata",
@@ -289,31 +295,79 @@ def test_models_of_one_shape_are_one_class_or_explained():
     assert not stale, f"SAME_SHAPE names groups that no longer share a shape: {stale}"
 
 
-def deprecated_imports(source: str) -> list[str]:
-    """The ``from <module> import <name>`` statements in ``source`` that ``DEPRECATED`` lists.
+def deprecated_uses(source: str, module: str = "") -> list[str]:
+    """The names ``DEPRECATED`` lists that ``source`` (the module ``module``) takes by old path.
+
+    It sees ``from <module> import <name>``, absolute or relative, ``<alias>.<name>`` where the
+    alias is the old module, and the same inside docstring examples, which users copy. A module
+    reached some other way (``importlib``, a longer attribute chain) is not seen.
 
     Example:
-        >>> deprecated_imports("from ycli.yandex.tracker.users.models import Group, User")
+        >>> deprecated_uses("from ycli.yandex.tracker.users.models import Group, User")
+        ['ycli.yandex.tracker.users.models.Group']
+        >>> deprecated_uses("from .models import Group", "ycli.yandex.tracker.users.client")
         ['ycli.yandex.tracker.users.models.Group']
     """
-    return [
-        f"{node.module}.{alias.name}"
-        for node in ast.walk(ast.parse(source))
-        if isinstance(node, ast.ImportFrom)
-        for alias in node.names
-        if (node.module, alias.name) in DEPRECATED
-    ]
+    tree = ast.parse(source)
+    found: list[str] = []
+    aliases: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            package = module.split(".")[: -node.level] if node.level else []
+            origin = ".".join([*package, *([node.module] if node.module else [])])
+            for alias in node.names:
+                if (origin, alias.name) in DEPRECATED:
+                    found.append(f"{origin}.{alias.name}")
+                aliases[alias.asname or alias.name] = f"{origin}.{alias.name}"
+        elif isinstance(node, ast.Import):
+            aliases.update({alias.asname: alias.name for alias in node.names if alias.asname})
+        elif isinstance(node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef):
+            examples = doctest.DocTestParser().get_examples(ast.get_docstring(node) or "")
+            if examples:
+                code = "".join(example.source for example in examples)
+                found += deprecated_uses(code, module)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            origin = aliases.get(node.value.id, "")
+            if (origin, node.attr) in DEPRECATED:
+                found.append(f"{origin}.{node.attr}")
+    return found
 
 
-def test_nothing_here_imports_a_merged_model_by_its_old_path():
-    found = {
-        str(path.relative_to(ROOT)): names
-        for folder in ("src", "tests", "scripts", "e2e")
-        for path in sorted((ROOT / folder).rglob("*.py"))
-        if (names := deprecated_imports(path.read_text(encoding="utf-8")))
-    }
-    assert not found, f"import the shared class instead: {found}"
-    assert deprecated_imports("from ycli.yandex.tracker.users.models import Group") != []
+def test_nothing_here_takes_a_merged_model_by_its_old_path():
+    found = {}
+    for folder in ("src", "tests", "scripts", "e2e"):
+        for path in sorted((ROOT / folder).rglob("*.py")):
+            relative = path.relative_to(ROOT / "src" if folder == "src" else ROOT)
+            module = ".".join(relative.with_suffix("").parts)
+            if names := deprecated_uses(path.read_text(encoding="utf-8"), module):
+                found[str(path.relative_to(ROOT))] = names
+    assert not found, f"use the shared class instead: {found}"
+
+
+OLD_MODULE = "ycli.yandex.tracker.boards.models"
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "from ycli.yandex.tracker.boards.models import BoardColumn",
+        "from .models import BoardColumn",
+        "from . import models\nmodels.BoardColumn",
+        "import ycli.yandex.tracker.boards.models as m\nm.BoardColumn",
+        "from ycli.yandex.tracker.boards import models as m\nm.BoardColumn",
+        f'def f():\n    """Doc.\n\n    >>> from {OLD_MODULE} import BoardColumn\n    """',
+        "from ycli.yandex.wiki.operations.models import OperationType",
+    ],
+)
+def test_the_old_path_check_sees_each_way_of_taking_a_name(source):
+    assert deprecated_uses(source, "ycli.yandex.tracker.boards.client")
+
+
+def test_the_old_path_check_leaves_the_shared_class_alone():
+    assert not deprecated_uses("from ycli.yandex.tracker.models import Reference\nReference")
+    # The defining module assigns the old name; that is the alias itself, not a use of it.
+    assert not deprecated_uses("BoardColumn = Reference", "ycli.yandex.tracker.boards.models")
 
 
 def test_every_deprecated_name_is_still_importable_and_is_the_shared_class():

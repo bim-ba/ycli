@@ -16,8 +16,10 @@ from typing import Literal
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.wiki import models as _shared
 from ycli.yandex.wiki.models import PageIdentity
 
+OperationType = _shared.OperationType  # deprecated, removed in 0.38
 #: Lifecycle status of an async operation.
 OperationStatus = Literal["scheduled", "in_progress", "success", "failed"]
 #: Statuses at which an async operation has stopped running (poll terminates here).

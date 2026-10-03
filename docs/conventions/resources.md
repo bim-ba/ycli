@@ -28,8 +28,10 @@ names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`.
 
 A shape that two or more resources of a service read (a reference with `self`, `id` and
 `display`; a localized name) is one class in the service's `models.py`
-(`ycli.yandex.tracker.models.Reference`), not a class per resource. A model used by one
-resource stays in that resource. `tests/test_model_shapes.py` fails when two models of a
+(`ycli.yandex.tracker.models.Reference`), not a class per resource. Models of one kind that
+differ by a few fields share a base class and add their own (`KeyedReference(Reference)`
+adds `key`); models of different kinds that only happen to match stay separate. A model
+used by one resource stays in that resource. `tests/test_model_shapes.py` fails when two models of a
 service have the same schema, unless the group is listed in `SAME_SHAPE` with its reason.
 
 A merged class keeps its old name as a plain assignment in the module that defined it

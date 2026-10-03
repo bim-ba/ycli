@@ -44,7 +44,8 @@ class PrioritiesClient(Resource):
             The created priority.
 
         Examples:
-            >>> from ycli.yandex.tracker.priorities.models import LocalizedName, PriorityCreate
+            >>> from ycli.yandex.tracker.models import LocalizedName
+            >>> from ycli.yandex.tracker.priorities.models import PriorityCreate
             >>> tracker.priorities.create(
             ...     PriorityCreate(key="one", name=LocalizedName(ru="Низкий", en="Low"), order=60)
             ... ).key

@@ -25,17 +25,17 @@ class UserIdentity(APIModel):
 
 
 class PageIdentity(APIModel):
-    """A page by ``id`` or ``slug``; ``id`` takes priority when both are given.
+    """A page by its numeric ``id`` and its ``slug``.
+
+    In a request either one addresses the page, and ``id`` takes priority when both are given.
 
     Examples:
         >>> PageIdentity(slug="data/x").slug
         'data/x'
     """
 
-    id: int | None = Field(
-        default=None, description="Numeric page id (wins over slug if both set)."
-    )
-    slug: str | None = Field(default=None, description="Permanent page slug, e.g. ``data/x``.")
+    id: int | None = Field(default=None, description="Numeric id of the page.")
+    slug: str | None = Field(default=None, description="Slug of the page, e.g. ``data/x``.")
 
 
 class OperationIdentity(APIModel):
@@ -47,7 +47,9 @@ class OperationIdentity(APIModel):
     """
 
     type: OperationType | None = Field(
-        default=None, description="Operation kind (``move`` / ``clone`` / ``clone_inline_grid``)."
+        default=None,
+        description="Operation kind: ``move`` or ``clone`` for a page, ``clone_inline_grid`` "
+        "for a grid.",
     )
     id: str | None = Field(
         default=None, description="Task id to poll on the ``operations`` resource."

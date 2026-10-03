@@ -2,7 +2,8 @@
 
 The API describes a related object the same way wherever it appears: a reference with its
 ``self`` link, ``id`` and ``display`` name, sometimes with a ``key`` (a queue, a status) or with
-the account ids of a user. Each of those shapes is one class here, whichever resource reads it.
+the account ids of a user. The plain reference is the base class and the other two add their
+fields to it, whichever resource reads them.
 """
 
 from __future__ import annotations
@@ -27,35 +28,25 @@ class Reference(APIModel):
     display: str | None = Field(default=None, description="Human-readable name of the object.")
 
 
-class KeyedReference(APIModel):
-    """A reference to an object that has a key, such as a queue or a status.
+class KeyedReference(Reference):
+    """A reference to an object that has a key, such as a queue, a status or a priority.
 
     Examples:
         >>> KeyedReference.model_validate({"key": "DESIGN", "display": "Design"}).key
         'DESIGN'
     """
 
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource URL of the referenced object."
-    )
-    id: str | None = Field(default=None, description="Identifier of the referenced object.")
-    key: str | None = Field(default=None, description="Key of the object (e.g. DESIGN).")
-    display: str | None = Field(default=None, description="Human-readable name of the object.")
+    key: str | None = Field(default=None, description="Key of the referenced object.")
 
 
-class UserReference(APIModel):
-    """A reference to a user: the API link, id, display name and account ids.
+class UserReference(Reference):
+    """A reference to a user: the reference itself plus the user's account ids.
 
     Examples:
         >>> UserReference.model_validate({"id": "11", "display": "Ivan Ivanov"}).display
         'Ivan Ivanov'
     """
 
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource URL of the user."
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the user.")
-    display: str | None = Field(default=None, description="Display name of the user.")
     cloud_uid: str | None = Field(
         default=None,
         alias="cloudUid",

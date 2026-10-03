@@ -281,7 +281,7 @@ class GridsClient(Resource):
     def clone(self, grid_id: str, body: dict[str, Any]) -> AsyncOperation:
         """``POST /grids/{id}/clone`` — copy the grid onto another page (async trigger).
 
-        Returns a :class:`~ycli.yandex.wiki.grids.models.GridCloneOperation`; poll its
+        Returns a :class:`~ycli.yandex.wiki.models.AsyncOperation`; poll its
         ``operation.id`` via ``OperationsClient.gridclone_get`` until terminal. ``body`` is a
         dumped ``GridClone`` (``{target, title?, with_data}``).
 
