@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.pages import endpoints
-from ycli.yandex.wiki.pages.models import GridRef, PageRef, PageRevision
+from ycli.yandex.wiki.pages.models import (
+    GridRef,
+    PageAppendContent,
+    PageClone,
+    PageCreate,
+    PageMove,
+    PageRef,
+    PageRevision,
+    PageUpdate,
+)
 
 if TYPE_CHECKING:
     from ycli.yandex.wiki.models import AsyncOperation
@@ -179,7 +188,7 @@ class PagesClient(Resource):
         return ItemList[GridRef](list(self._session.iterate(paged, limit=limit)))
 
     def create(
-        self, body: dict[str, Any], *, fields: str | None = None, is_silent: bool = False
+        self, body: PageCreate, *, fields: str | None = None, is_silent: bool = False
     ) -> PageDetails:
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
 
@@ -192,7 +201,10 @@ class PagesClient(Resource):
             The created page.
 
         Examples:
-            >>> body = {"slug": "eng/new", "title": "New page", "content": "# New"}
+            >>> from ycli.yandex.wiki.pages.models import PageCreate
+            >>> body = PageCreate.model_validate(
+            ...     {"slug": "eng/new", "title": "New page", "content": "# New"}
+            ... )
             >>> wiki.pages.create(body).id
             4401
         """
@@ -201,7 +213,7 @@ class PagesClient(Resource):
     def update(
         self,
         page_id: int,
-        body: dict[str, Any],
+        body: PageUpdate,
         *,
         fields: str | None = None,
         is_silent: bool = False,
@@ -221,7 +233,8 @@ class PagesClient(Resource):
             The updated page.
 
         Examples:
-            >>> wiki.pages.update(4403, {"content": "# Body only"}).id
+            >>> from ycli.yandex.wiki.pages.models import PageUpdate
+            >>> wiki.pages.update(4403, PageUpdate.model_validate({"content": "# Body only"})).id
             4403
         """
         endpoint = endpoints.update_page(
@@ -251,14 +264,14 @@ class PagesClient(Resource):
     def append_content(
         self,
         page_id: int,
-        body: dict[str, Any],
+        body: PageAppendContent,
         *,
         fields: str | None = None,
         is_silent: bool = False,
     ) -> PageDetails:
         """``POST /pages/{id}/append-content`` — append YFM without rewriting the whole body.
 
-        ``body`` is a dumped :class:`PageAppendContent` (``{content, body?, section?, anchor?}``).
+        ``body`` is a :class:`PageAppendContent` (``{content, body?, section?, anchor?}``).
         Unlike :meth:`update` (which replaces the body), this adds to it; ``body.location`` /
         ``section`` / ``anchor`` pinpoint where. Returns the updated :class:`PageDetails`.
 
@@ -272,18 +285,21 @@ class PagesClient(Resource):
             The updated page.
 
         Examples:
-            >>> body = {"content": "## Footer", "body": {"location": "bottom"}}
+            >>> from ycli.yandex.wiki.pages.models import PageAppendContent
+            >>> body = PageAppendContent.model_validate(
+            ...     {"content": "## Footer", "body": {"location": "bottom"}}
+            ... )
             >>> wiki.pages.append_content(4602, body).slug
             'eng/footer'
         """
         endpoint = endpoints.append_content(page_id, body, fields=fields, is_silent=is_silent)
         return self._session.send(endpoint)
 
-    def clone(self, page_id: int, body: dict[str, Any]) -> AsyncOperation:
+    def clone(self, page_id: int, body: PageClone) -> AsyncOperation:
         """``POST /pages/{id}/clone`` — copy the page to a new address (async trigger).
 
         Returns a :class:`AsyncOperation`; poll its ``operation.id`` via
-        ``OperationsClient.clone_get`` until terminal. ``body`` is a dumped :class:`PageClone`
+        ``OperationsClient.clone_get`` until terminal. ``body`` is a :class:`PageClone`
         (``{target, title?, subscribe_me}``).
 
         Args:
@@ -294,18 +310,21 @@ class PagesClient(Resource):
             The clone operation to poll.
 
         Examples:
-            >>> body = {"target": "eng/copy", "title": "Copy", "subscribe_me": True}
+            >>> from ycli.yandex.wiki.pages.models import PageClone
+            >>> body = PageClone.model_validate(
+            ...     {"target": "eng/copy", "title": "Copy", "subscribe_me": True}
+            ... )
             >>> wiki.pages.clone(4701, body).operation.id
             'task-4701'
         """
         return self._session.send(endpoints.clone_page(page_id, body))
 
-    def move(self, body: dict[str, Any], *, dry_run: bool = False) -> AsyncOperation:
+    def move(self, body: PageMove, *, dry_run: bool = False) -> AsyncOperation:
         """``POST /pages/move`` — give pages new addresses (async; undocumented, may change).
 
         The only way to rename or relocate a page: a page update has no ``slug``. Returns a
         :class:`AsyncOperation`; poll its ``operation.id`` via ``OperationsClient.move_get``
-        until terminal. ``body`` is a dumped :class:`PageMove`
+        until terminal. ``body`` is a :class:`PageMove`
         (``{operations: [{source, target, next_to_slug?, position?}], copy_inherited_access}``;
         the API answers 400 unless ``copy_inherited_access`` is a boolean). A page moves with its
         subtree. ``dry_run=True`` validates the request without applying it, and the task id it
@@ -319,10 +338,13 @@ class PagesClient(Resource):
             The move operation to poll.
 
         Examples:
-            >>> body = {
-            ...     "operations": [{"source": "eng/b", "target": "eng/c"}],
-            ...     "copy_inherited_access": False,
-            ... }
+            >>> from ycli.yandex.wiki.pages.models import PageMove
+            >>> body = PageMove.model_validate(
+            ...     {
+            ...         "operations": [{"source": "eng/b", "target": "eng/c"}],
+            ...         "copy_inherited_access": False,
+            ...     }
+            ... )
             >>> wiki.pages.move(body, dry_run=True).operation.id
             'mv-6101'
         """

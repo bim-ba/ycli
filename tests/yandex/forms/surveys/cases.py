@@ -1,6 +1,7 @@
 """Contract cases for Forms ``/surveys`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.surveys.models import SurveyCreate, SurveyUpdate
 
 SURVEY = {"id": "686d0a1b2c3d4e5f00000001", "name": "Onboarding"}
 CREATED = {
@@ -47,7 +48,7 @@ CASES = [
     ),
     Case(
         "forms.surveys.create",
-        args=({**CREATED, "allow_multiple_answers": False},),
+        args=(SurveyCreate.model_validate({**CREATED, "allow_multiple_answers": False}),),
         cli=[
             "forms",
             "surveys",
@@ -74,7 +75,10 @@ CASES = [
     ),
     Case(
         "forms.surveys.modify",
-        args=("686d0a1b2c3d4e5f00000002", {"name": "Renamed", "is_public": True, "max_count": 9}),
+        args=(
+            "686d0a1b2c3d4e5f00000002",
+            SurveyUpdate.model_validate({"name": "Renamed", "is_public": True, "max_count": 9}),
+        ),
         cli=[
             "forms",
             "surveys",

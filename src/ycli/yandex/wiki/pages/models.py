@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
-from ycli.yandex.wiki.models import User
+from ycli.yandex.wiki.models import PageIdentity, User, UserIdentity
 
 
 class PageAttributes(APIModel):
@@ -235,6 +235,103 @@ class PageDeleteResult(APIModel):
     recovery_token: str = Field(
         description="UUID4 token restoring the deleted page via /recovery_tokens/{token}/recover."
     )
+
+
+class PageAccessPolicyUpdate(APIModel):
+    """Who may open a page, in a create or update body (``access_policy``).
+
+    Examples:
+        >>> PageAccessPolicyUpdate(access_type="all_staff", all_staff_role="editor").access_type
+        'all_staff'
+    """
+
+    access_type: Literal["inherited", "all_staff", "custom"] = Field(
+        description="``inherited`` (as the parent), ``all_staff`` or ``custom``."
+    )
+    all_staff_role: str | None = Field(
+        default=None, description="Role every employee gets under ``all_staff``, e.g. editor."
+    )
+
+
+class PageRedirectUpdate(APIModel):
+    """Where a page should redirect to (``redirect`` of an update body).
+
+    ``page`` has no default: ``None`` is sent as ``null`` and removes the redirect.
+
+    Examples:
+        >>> PageRedirectUpdate(page=PageIdentity(slug="eng/new")).page.slug
+        'eng/new'
+    """
+
+    page: PageIdentity | None = Field(
+        description="The page to redirect to, by id or slug; ``None`` removes the redirect."
+    )
+
+
+class PageActualityUpdate(APIModel):
+    """Whether a page is up to date (``actuality`` of an update body).
+
+    Examples:
+        >>> PageActualityUpdate(is_actual=False, comment="replaced").is_actual
+        False
+    """
+
+    is_actual: bool = Field(description="``True`` marks the page up to date, ``False`` obsolete.")
+    comment: str | None = Field(default=None, description="Note left with the mark.")
+    links: list[str] | None = Field(default=None, description="Links to the up-to-date material.")
+
+
+class PageOwnerUpdate(APIModel):
+    """The new owner of a page (``owner`` of an update body).
+
+    Examples:
+        >>> PageOwnerUpdate(user=UserIdentity(uid="1000")).user.uid
+        '1000'
+    """
+
+    user: UserIdentity | None = Field(default=None, description="The user who becomes the owner.")
+
+
+class PageCreate(APIModel):
+    """Typed request body for ``POST /pages``: a new page at ``slug``.
+
+    Examples:
+        >>> PageCreate(slug="eng/new", title="New page", content="# New").slug
+        'eng/new'
+    """
+
+    slug: str = Field(description="Address of the page, e.g. ``data/x``.")
+    title: str = Field(min_length=1, max_length=255, description="Title of the page.")
+    content: str | None = Field(default=None, description="Body of the page in YFM markdown.")
+    access_policy: PageAccessPolicyUpdate | None = Field(
+        default=None, description="Who may open the page."
+    )
+
+
+class PageUpdate(APIModel):
+    """Typed request body for ``POST /pages/{id}``: only the fields set are changed.
+
+    A page's address is not among them: :class:`PageMove` renames or relocates a page.
+
+    Examples:
+        >>> PageUpdate(content="# Rewritten", title="Renamed").title
+        'Renamed'
+    """
+
+    title: str | None = Field(
+        default=None, min_length=1, max_length=255, description="New title of the page."
+    )
+    content: str | None = Field(default=None, description="New body, replacing the whole one.")
+    redirect: PageRedirectUpdate | None = Field(
+        default=None, description="Make the page a redirect, or remove its redirect."
+    )
+    actuality: PageActualityUpdate | None = Field(
+        default=None, description="Mark the page up to date or obsolete."
+    )
+    access_policy: PageAccessPolicyUpdate | None = Field(
+        default=None, description="Who may open the page."
+    )
+    owner: PageOwnerUpdate | None = Field(default=None, description="The new owner of the page.")
 
 
 class PageAppendContentBody(APIModel):

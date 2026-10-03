@@ -168,16 +168,18 @@ allowlist entry in code with its reason, never prose here. Tests are in
   and entry point, and `auth status`/`login`, which read and write credentials by design.
 
 ### ARCH-8 — Typed boundaries
-- **Rule:** data crosses a boundary as a parsed model: MCP write bodies are typed request
-  models, and a non-2xx answer becomes a typed `YandexError` in one place
+- **Rule:** data crosses a boundary as a parsed model: a request body is a typed request
+  model from the MCP tool and the CLI command down to the endpoint, which dumps it once
+  (`core.endpoint.dump_body`), and a non-2xx answer becomes a typed `YandexError` in one place
   (`errors.error_for_status`).
 - **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
-- **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` and
+- **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` (no `body: dict` in an MCP tool, a
+  client method or an endpoint builder), `test_arch8_a_request_body_is_dumped_only_by_the_endpoint`
+  (none of the three dumps a model) and
   `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`
   nowhere; outside `ARCH8_ERROR_MAPPERS`, no `error_for_status`, no `status_code` read and no
   hand-built status-carrying `YandexError` (AST, import aliases resolved).
-- **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (`entities_set_permissions`, whose wire shape no
-  model represents yet); `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange and
+- **Exceptions:** `ARCH8_BODY_DICT_ALLOWLIST` (empty); `ARCH8_ERROR_MAPPERS` (the core sessions, the IAM token exchange and
   the OAuth login flow, whose device-flow polling states arrive as HTTP 400);
   `ARCH8_LOCAL_RAISES` (a request refused before it is sent, a 2xx whose body is empty); `ARCH8_STATUSLESS_ERRORS` (a
   timeout or a lost connection has no status to map).

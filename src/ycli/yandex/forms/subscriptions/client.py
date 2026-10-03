@@ -8,14 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.subscriptions import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.files.models import FileOut
+    from ycli.yandex.forms.models import FileOut
     from ycli.yandex.forms.subscriptions.models import Subscription
     from ycli.yandex.models import ItemList
 
 
-def _dumped(body: Subscription) -> dict:
+def _without_id(body: Subscription) -> Subscription:
     # ``id`` is the server's: a subscription read back and edited must not send it.
-    return body.model_dump(by_alias=True, exclude_none=True, exclude={"id"})
+    return body.model_copy(update={"id": None})
 
 
 class SubscriptionsClient(Resource):
@@ -74,7 +74,9 @@ class SubscriptionsClient(Resource):
             ... ).id
             5
         """
-        return self._session.send(endpoints.create_subscription(survey_id, hook_id, _dumped(body)))
+        return self._session.send(
+            endpoints.create_subscription(survey_id, hook_id, _without_id(body))
+        )
 
     def modify(
         self, survey_id: str, hook_id: int, subscription_id: int, body: Subscription
@@ -98,7 +100,7 @@ class SubscriptionsClient(Resource):
             False
         """
         return self._session.send(
-            endpoints.modify_subscription(survey_id, hook_id, subscription_id, _dumped(body))
+            endpoints.modify_subscription(survey_id, hook_id, subscription_id, _without_id(body))
         )
 
     def delete(self, survey_id: str, hook_id: int, subscription_id: int) -> None:

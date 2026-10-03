@@ -59,8 +59,7 @@ class AutoactionsClient(Resource):
             ... ).id
             10
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_autoaction(queue_id, dumped))
+        return self._session.send(endpoints.create_autoaction(queue_id, body))
 
     def logs(self, queue_id: str, action_id: int) -> ItemList[AutoactionLogEntry]:
         """``GET /queues/{queue_id}/autoactions/{action_id}/logs`` → per-run summaries.

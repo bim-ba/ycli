@@ -53,8 +53,7 @@ class ResolutionsClient(Resource):
             ... ).key
             'wontFix'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_resolution(dumped))
+        return self._session.send(endpoints.create_resolution(body))
 
     def edit(
         self, resolution_id: str, body: ResolutionUpdate, *, version: int | None = None
@@ -79,5 +78,4 @@ class ResolutionsClient(Resource):
             ... ).version
             4
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_resolution(resolution_id, dumped, version=version))
+        return self._session.send(endpoints.edit_resolution(resolution_id, body, version=version))

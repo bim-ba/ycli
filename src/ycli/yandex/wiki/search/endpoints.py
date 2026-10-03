@@ -9,11 +9,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint
-from ycli.yandex.wiki.search.models import SearchPage
+from ycli.yandex.wiki.search.models import SearchPage, SearchRequest
 
 
-def search_pages(body: dict[str, Any]) -> Endpoint[SearchPage]:
+def search_pages(body: SearchRequest) -> Endpoint[SearchPage]:
     return Endpoint("POST", "search", SearchPage, json=body, effect="read")

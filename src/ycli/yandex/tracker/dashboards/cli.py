@@ -33,7 +33,7 @@ def create(
         name=name,
         layout=layout or None,
         owner=DashboardOwner(id=owner) if owner else None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.dashboards.create(body=body)
 
 
@@ -61,5 +61,5 @@ def add_cycle_time_widget(
         fromStatuses=[{"key": s} for s in from_status] if from_status else None,
         toStatuses=[{"key": s} for s in to_status] if to_status else None,
         mode=mode or None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return tracker.dashboards.add_cycle_time_widget(dashboard_id, body=body)

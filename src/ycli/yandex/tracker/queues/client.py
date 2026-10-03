@@ -144,8 +144,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.create(new_queue).key
             'DESIGN'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_queue(dumped))
+        return self._session.send(endpoints.create_queue(body))
 
     def delete(self, queue_id: str) -> None:
         """``DELETE /queues/{queue_id}`` — delete a queue (``204``, empty body).
@@ -196,8 +195,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.set_permissions("PERM", change).version
             11
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.set_permissions(queue_id, dumped))
+        return self._session.send(endpoints.set_permissions(queue_id, body))
 
     def tag_remove(self, queue_id: str, body: QueueTagRemove) -> None:
         """Remove a tag from a queue (admin only; ``204``, empty body).
@@ -210,8 +208,7 @@ class QueuesClient(Resource):
             >>> from ycli.yandex.tracker.queues.models import QueueTagRemove
             >>> tracker.queues.tag_remove("TAGGED", QueueTagRemove(tag="obsolete"))
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        self._session.send(endpoints.remove_tag(queue_id, dumped))
+        self._session.send(endpoints.remove_tag(queue_id, body))
 
     def version_create(self, body: QueueVersionCreate) -> QueueVersionInfo:
         """Create a queue version from a typed ``QueueVersionCreate`` body.
@@ -229,8 +226,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.version_create(QueueVersionCreate(queue="RELQ", name="v2.0")).name
             'v2.0'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_version(dumped))
+        return self._session.send(endpoints.create_version(body))
 
     def version_get(self, version_id: int, *, fields: str | None = None) -> QueueVersionInfo:
         """``GET /versions/{version_id}`` → one queue version.
@@ -270,8 +266,7 @@ class QueuesClient(Resource):
             ... ).version
             2
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_version(version_id, dumped, fields=fields))
+        return self._session.send(endpoints.edit_version(version_id, body, fields=fields))
 
     def version_delete(self, version_id: int) -> None:
         """``DELETE /versions/{version_id}`` → 204; raises on non-2xx.

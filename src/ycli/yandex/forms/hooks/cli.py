@@ -37,7 +37,7 @@ def create(
     survey_id: SurveyIdArg, name: NameOpt = "", active: ActiveOpt = None, *, forms: FormsClient
 ) -> Hook:
     """Create an integration group on form SURVEY_ID (POST /surveys/{id}/hooks)."""
-    body = HookCreate(name=name or None, active=active).model_dump(exclude_none=True)
+    body = HookCreate(name=name or None, active=active)
     return forms.hooks.create(survey_id, body)
 
 
@@ -51,7 +51,7 @@ def update(
     forms: FormsClient,
 ) -> Hook:
     """Change integration group HOOK_ID: only the options given change (PATCH)."""
-    body = HookUpdate(name=name or None, active=active).model_dump(exclude_none=True)
+    body = HookUpdate(name=name or None, active=active)
     return forms.hooks.modify(survey_id, hook_id, body)
 
 

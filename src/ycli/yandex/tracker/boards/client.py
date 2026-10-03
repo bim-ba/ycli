@@ -63,8 +63,7 @@ class BoardsClient(Resource):
             >>> tracker.boards.create(BoardCreate(name="Release train", owner="alice")).id
             41
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_board(dumped))
+        return self._session.send(endpoints.create_board(body))
 
     def edit(self, board_id: int, body: BoardUpdate) -> Board:
         """Edit an agile board from a typed ``BoardUpdate`` body. Returns the updated ``Board``.
@@ -82,8 +81,7 @@ class BoardsClient(Resource):
             >>> tracker.boards.edit(51, BoardUpdate(name="Renamed board")).name
             'Renamed board'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_board(board_id, dumped))
+        return self._session.send(endpoints.edit_board(board_id, body))
 
     def delete(self, board_id: int) -> None:
         """``DELETE /boards/{board_id}`` — delete a board (``204``, empty body).

@@ -39,7 +39,7 @@ class ResolutionCreate(APIModel):
 
     Examples:
         >>> ResolutionCreate(key="wontFix", name=LocalizedName(ru="Отклонено")).model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'key': 'wontFix', 'name': {'ru': 'Отклонено'}}
     """
@@ -56,7 +56,7 @@ class ResolutionUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> ResolutionUpdate(order=90).model_dump(by_alias=True, exclude_none=True)
+        >>> ResolutionUpdate(order=90).model_dump(exclude_none=True)
         {'order': 90}
     """
 

@@ -1,6 +1,7 @@
 """Contract cases for Tracker issue ``/remotelinks`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.remotelinks.models import RemoteLinkCreate
 
 CASES = [
     Case(
@@ -19,7 +20,9 @@ CASES = [
         "tracker.remotelinks.create",
         args=(
             "JUNE-3",
-            {"relationship": "BLOCKS", "key": "TEST-18", "origin": "ru.yandex.bitbucket"},
+            RemoteLinkCreate.model_validate(
+                {"relationship": "BLOCKS", "key": "TEST-18", "origin": "ru.yandex.bitbucket"}
+            ),
         ),
         kwargs={"backlink": "true"},
         cli=[
@@ -64,7 +67,9 @@ CASES = [
         "tracker.remotelinks.create",
         args=(
             "JUNE-4",
-            {"relationship": "RELATES", "key": "TEST-19", "origin": "ru.yandex.lunapark"},
+            RemoteLinkCreate.model_validate(
+                {"relationship": "RELATES", "key": "TEST-19", "origin": "ru.yandex.lunapark"}
+            ),
         ),
         kwargs={"backlink": "false"},
         cli=[
@@ -95,7 +100,9 @@ CASES = [
         "tracker.remotelinks.create",
         args=(
             "JUNE-5",
-            {"relationship": "RELATES", "key": "TEST-20", "origin": "ru.yandex.jenkins"},
+            RemoteLinkCreate.model_validate(
+                {"relationship": "RELATES", "key": "TEST-20", "origin": "ru.yandex.jenkins"}
+            ),
         ),
         cli=None,
         mcp=(

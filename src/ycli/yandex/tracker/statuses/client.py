@@ -49,8 +49,7 @@ class StatusesClient(Resource):
             ... ).key
             'pause'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_status(dumped))
+        return self._session.send(endpoints.create_status(body))
 
     def edit(self, status_id: str, body: StatusUpdate, *, version: int | None = None) -> Status:
         """Edit status ``status_id`` from a typed ``StatusUpdate`` body. Returns the ``Status``.
@@ -73,5 +72,4 @@ class StatusesClient(Resource):
             ... ).version
             6
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_status(status_id, dumped, version=version))
+        return self._session.send(endpoints.edit_status(status_id, body, version=version))

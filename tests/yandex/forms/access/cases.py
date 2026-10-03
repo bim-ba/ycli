@@ -1,6 +1,7 @@
 """Contract cases for Forms ``/surveys/{id}/access`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.access.models import AccessGrant, AccessRevoke, AccessUpdate
 
 SID = "686d0a1b2c3d4e5f000000d0"
 ACCESS = f"surveys/{SID}/access"
@@ -33,7 +34,7 @@ CASES = [
     ),
     Case(
         "forms.access.set",
-        args=(SID, {"action": "submit", "access": "public"}),
+        args=(SID, AccessUpdate.model_validate({"action": "submit", "access": "public"})),
         cli=["forms", "access", "set", SID, "--action", "submit", "--access", "public"],
         mcp=(
             "forms_access_set",
@@ -49,7 +50,7 @@ CASES = [
     ),
     Case(
         "forms.access.grant",
-        args=(SID, {"action": "change", "user": USER}),
+        args=(SID, AccessGrant.model_validate({"action": "change", "user": USER})),
         cli=[
             "forms",
             "access",
@@ -73,7 +74,7 @@ CASES = [
     ),
     Case(
         "forms.access.grant",
-        args=(SID, {"action": "submit", "group": GROUP}),
+        args=(SID, AccessGrant.model_validate({"action": "submit", "group": GROUP})),
         cli=[
             "forms",
             "access",
@@ -97,7 +98,7 @@ CASES = [
     ),
     Case(
         "forms.access.revoke",
-        args=(SID, {"action": "submit", "group": GROUP}),
+        args=(SID, AccessRevoke.model_validate({"action": "submit", "group": GROUP})),
         cli=[
             "forms",
             "access",
@@ -124,7 +125,7 @@ CASES = [
     ),
     Case(
         "forms.access.revoke",
-        args=(SID, {"action": "change", "user": {"uid": "7002"}}),
+        args=(SID, AccessRevoke.model_validate({"action": "change", "user": {"uid": "7002"}})),
         cli=["forms", "access", "revoke", SID, "--action", "change", "--uid", "7002"],
         mcp=None,
         exchanges=[

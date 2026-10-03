@@ -20,5 +20,5 @@
 === "SDK"
 
     ```python
-    wiki.pages.create({"slug": "eng/new", "title": "New page", "content": "# New"})
+    wiki.pages.create(PageCreate(slug="eng/new", title="New page", content="# New"))
     ```

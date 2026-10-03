@@ -65,8 +65,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.create(new_sprint).id
             4403
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_sprint(dumped))
+        return self._session.send(endpoints.create_sprint(body))
 
     def edit(self, sprint_id: int, body: SprintUpdate, *, version: int | None = None) -> Sprint:
         """Edit a sprint from a typed ``SprintUpdate`` body. Returns the updated ``Sprint``.
@@ -88,8 +87,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.edit(4404, SprintUpdate(name="Updated"), version=5).name
             'Updated'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_sprint(sprint_id, dumped, version))
+        return self._session.send(endpoints.edit_sprint(sprint_id, body, version))
 
     def delete(self, sprint_id: int) -> None:
         """``DELETE /sprints/{sprint_id}`` — delete a sprint (``204``, empty body).

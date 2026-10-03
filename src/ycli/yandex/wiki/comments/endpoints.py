@@ -7,10 +7,13 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.wiki.comments.models import Comment, CommentCreated, CommentDeleteResult
+from ycli.yandex.wiki.comments.models import (
+    Comment,
+    CommentCreate,
+    CommentCreated,
+    CommentDeleteResult,
+)
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import CursorPage
 
@@ -41,7 +44,7 @@ def get_thread(page_id: int, comment_id: int) -> Paged[CursorPage[Comment], Comm
     )
 
 
-def create_comment(page_id: int, body: dict[str, Any]) -> Endpoint[CommentCreated]:
+def create_comment(page_id: int, body: CommentCreate) -> Endpoint[CommentCreated]:
     return Endpoint("POST", f"pages/{segment(page_id)}/comments", CommentCreated, json=body)
 
 

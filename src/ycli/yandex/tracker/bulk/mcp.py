@@ -78,7 +78,7 @@ def update(
     Poll the returned operation id with ``bulk_get`` and inspect failures with
     ``bulk_issues_list``.
     """
-    return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True), notify=notify)
+    return client.bulk.update(body, notify=notify)
 
 
 @mcp.tool(
@@ -91,7 +91,7 @@ def move(
 
     Poll with ``bulk_get``.
     """
-    return client.bulk.move(body.model_dump(by_alias=True, exclude_none=True), notify=notify)
+    return client.bulk.move(body, notify=notify)
 
 
 @mcp.tool(
@@ -106,4 +106,4 @@ def transition(
 
     Poll with ``bulk_get``.
     """
-    return client.bulk.transition(body.model_dump(by_alias=True, exclude_none=True), notify=notify)
+    return client.bulk.transition(body, notify=notify)

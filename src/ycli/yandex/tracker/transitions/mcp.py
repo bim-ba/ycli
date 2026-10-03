@@ -48,4 +48,4 @@ def execute(
     fields to set on transition, e.g. a resolution when closing. Returns the transitions
     available from the new status.
     """
-    return client.transitions.execute(key, transition_id, body.model_dump(exclude_none=True))
+    return client.transitions.execute(key, transition_id, body)

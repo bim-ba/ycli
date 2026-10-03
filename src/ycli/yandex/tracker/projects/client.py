@@ -88,8 +88,7 @@ class ProjectsClient(Resource):
             >>> tracker.projects.create(ProjectCreate(name="Launch", queues="LAUNCH")).id
             '9'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_project(dumped))
+        return self._session.send(endpoints.create_project(body))
 
     def edit(
         self, project_id: int, body: ProjectUpdate, *, version: int, expand: str | None = None
@@ -113,9 +112,8 @@ class ProjectsClient(Resource):
             >>> tracker.projects.edit(31, body, version=5, expand="queues").version
             6
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(
-            endpoints.edit_project(project_id, dumped, version=version, expand=expand)
+            endpoints.edit_project(project_id, body, version=version, expand=expand)
         )
 
     def delete(self, project_id: int) -> None:

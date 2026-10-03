@@ -1,6 +1,7 @@
 """Contract cases for Forms notifications and show-errors (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.notifications.models import NotificationFilter
 
 SID = "686d0a1b2c3d4e5f000000f0"
 
@@ -61,21 +62,23 @@ DETAILS = {
 CASES = [
     Case(
         "forms.notifications.list",
-        kwargs={
-            "survey_id": SID,
-            "hook_id": 31,
-            "subscription_id": 41,
-            "answer_id": 51,
-            "status": ["error", "pending"],
-            "created_since": "2026-09-01T00:00:00Z",
-            "created_until": "2026-09-30T00:00:00Z",
-            "finished_since": "2026-09-02T00:00:00Z",
-            "finished_until": "2026-09-29T00:00:00Z",
-            "visible": True,
-            "integration_type": "http",
-            "ordering": "desc",
-            "limit": 500,
-        },
+        args=(
+            NotificationFilter(
+                survey_id=SID,
+                hook_id=31,
+                subscription_id=41,
+                answer_id=51,
+                status=["error", "pending"],
+                created_since="2026-09-01T00:00:00Z",
+                created_until="2026-09-30T00:00:00Z",
+                finished_since="2026-09-02T00:00:00Z",
+                finished_until="2026-09-29T00:00:00Z",
+                visible=True,
+                integration_type="http",
+                ordering="desc",
+            ),
+        ),
+        kwargs={"limit": 500},
         cli=[
             "forms",
             "notifications",
@@ -137,7 +140,8 @@ CASES = [
     ),
     Case(
         "forms.notifications.list",
-        kwargs={"survey_id": "686d0a1b2c3d4e5f000000f1", "limit": 1},
+        args=(NotificationFilter(survey_id="686d0a1b2c3d4e5f000000f1"),),
+        kwargs={"limit": 1},
         cli=[
             "forms",
             "notifications",
@@ -168,7 +172,8 @@ CASES = [
     # Everything, with no filter: `--all` lifts the cap, so the SDK is asked for no limit.
     Case(
         "forms.notifications.list",
-        kwargs={"visible": False, "limit": None},
+        args=(NotificationFilter(visible=False),),
+        kwargs={"limit": None},
         cli=["forms", "notifications", "list", "--all", "--no-visible"],
         mcp=None,
         exchanges=[

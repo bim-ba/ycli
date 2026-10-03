@@ -9,7 +9,7 @@ import typer
 from ycli.cli.fields import parse_fields
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.transitions.models import Transition
+from ycli.yandex.tracker.transitions.models import Transition, TransitionExecute
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -39,4 +39,6 @@ def execute(
     tracker: TrackerClient,
 ) -> ItemList[Transition]:
     """Execute transition ID on issue KEY (optional body via --field)."""
-    return tracker.transitions.execute(key, transition_id, body=parse_fields(field))
+    return tracker.transitions.execute(
+        key, transition_id, body=TransitionExecute(**parse_fields(field))
+    )

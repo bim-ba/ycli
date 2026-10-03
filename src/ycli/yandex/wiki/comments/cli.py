@@ -110,7 +110,7 @@ def create(
         parent_id=parent_id or None,
         thread_id=thread_id or None,
     )
-    return wiki.comments.create(page_id=page_id, body=payload.model_dump(exclude_none=True))
+    return wiki.comments.create(page_id=page_id, body=payload)
 
 
 @app.command()

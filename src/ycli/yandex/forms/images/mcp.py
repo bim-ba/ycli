@@ -29,4 +29,4 @@ def clone(
 
     Reference the returned ``id`` from a question's, option's or form style's ``image``.
     """
-    return client.images.clone(survey_id, body.model_dump(exclude_none=True))
+    return client.images.clone(survey_id, body)

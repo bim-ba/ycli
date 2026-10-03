@@ -122,7 +122,7 @@ def create(
     Pass ``body.parent_id`` to reply to an existing comment — find ids with
     ``comments_list``. Returns the created comment with its numeric ``id``.
     """
-    return client.comments.create(page_id=page_id, body=body.model_dump(exclude_none=True))
+    return client.comments.create(page_id=page_id, body=body)
 
 
 @mcp.tool(

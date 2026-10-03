@@ -1,6 +1,7 @@
 """Contract cases for Forms ``/surveys/{id}/hooks`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.hooks.models import HookCreate, HookUpdate
 
 SID = "686d0a1b2c3d4e5f000000a0"
 HOOKS = f"surveys/{SID}/hooks"
@@ -54,7 +55,7 @@ CASES = [
     ),
     Case(
         "forms.hooks.create",
-        args=(SID, {"name": "CRM", "active": False}),
+        args=(SID, HookCreate.model_validate({"name": "CRM", "active": False})),
         cli=["forms", "hooks", "create", SID, "--name", "CRM", "--inactive"],
         mcp=("forms_hooks_create", {"survey_id": SID, "body": {"name": "CRM", "active": False}}),
         exchanges=[
@@ -63,14 +64,14 @@ CASES = [
     ),
     Case(
         "forms.hooks.create",
-        args=(SID, {}),
+        args=(SID, HookCreate.model_validate({})),
         cli=["forms", "hooks", "create", SID],
         mcp=None,
         exchanges=[(Sent("POST", HOOKS, json={}), Reply(json=_hook(14)))],
     ),
     Case(
         "forms.hooks.modify",
-        args=(SID, 15, {"name": "Helpdesk", "active": True}),
+        args=(SID, 15, HookUpdate.model_validate({"name": "Helpdesk", "active": True})),
         cli=["forms", "hooks", "update", SID, "15", "--name", "Helpdesk", "--active"],
         mcp=(
             "forms_hooks_update",

@@ -62,7 +62,7 @@ def search(
 @mcp.tool(name="links_add", annotations={**WRITE, "title": "Link Tracker issues"}, tags=WRITE_TAGS)
 def add(key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker_client)) -> Link:
     """Link a Tracker issue to another issue; returns the created link."""
-    return client.links.add(key, body.model_dump(exclude_none=True))
+    return client.links.add(key, body)
 
 
 @mcp.tool(

@@ -161,7 +161,7 @@ def export(
         columns=column or None,
         limit=limit or None,
         upload_files=upload_files,
-    ).model_dump(exclude_none=True)
+    )
     op = forms.answers.export(survey_id, body=body)
     return _finish_export(forms, survey_id, op, wait, output)
 

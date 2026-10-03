@@ -7,23 +7,21 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.priorities.models import Priority
+from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, PriorityUpdate
 
 
 def list_priorities(*, localized: bool | None) -> Endpoint[ItemList[Priority]]:
     return Endpoint("GET", "priorities", ItemList[Priority], params={"localized": localized})
 
 
-def create_priority(body: dict[str, Any]) -> Endpoint[Priority]:
+def create_priority(body: PriorityCreate) -> Endpoint[Priority]:
     return Endpoint("POST", "priorities/", Priority, json=body)
 
 
 def edit_priority(
-    priority_id: str, body: dict[str, Any], *, version: int | None = None
+    priority_id: str, body: PriorityUpdate, *, version: int | None = None
 ) -> Endpoint[Priority]:
     """``PATCH /priorities/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
     return Endpoint(

@@ -44,10 +44,12 @@ from ycli.yandex.tracker.entities.models import (
     Entity,
     EntityCreate,
     EntityEvent,
+    EntitySearch,
     EntityUpdate,
     ExtendedPermissions,
     Link,
     LinkInput,
+    PermissionsUpdate,
     ReportCreate,
 )
 from ycli.yandex.tracker.models import CommentCreate
@@ -106,11 +108,7 @@ def search(
     followers, …) use the CLI ``tracker entities search --filter`` which accepts an arbitrary
     filter object.
     """
-    body: dict[str, str] = {}
-    if input_text:
-        body["input"] = input_text
-    if order_by:
-        body["orderBy"] = order_by
+    body = EntitySearch.model_validate({"input": input_text or None, "orderBy": order_by or None})
     return client.entities.search(entity_type, body, fields=fields or None)
 
 
@@ -304,9 +302,7 @@ def create(
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Create a Tracker entity (project, portfolio or goal); returns it with its id."""
-    return client.entities.create(
-        entity_type, body.model_dump(by_alias=True, exclude_none=True), fields=fields
-    )
+    return client.entities.create(entity_type, body, fields=fields)
 
 
 @mcp.tool(
@@ -329,7 +325,7 @@ def edit(
     return client.entities.edit(
         entity_type,
         entity_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         fields=fields,
     )
@@ -365,24 +361,15 @@ def delete(
 def set_permissions(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: Annotated[
-        dict,
-        Field(description="Raw API payload: an ``acl`` object with ``grant`` / ``revoke`` verbs."),
-    ],
+    body: PermissionsUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> ExtendedPermissions:
     """Change an entity's access rules; returns the resulting permission set.
 
-    ``body`` is the raw API payload; its ``acl`` object accepts only ``grant`` / ``revoke``
+    The ``acl`` object of ``body`` accepts only ``grant`` / ``revoke``
     actions, each mapping an access level (``READ``/``WRITE``/``GRANT``) to users/groups/roles,
     e.g. ``{"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}}``. Read the current
     ACL first with ``entities_permissions_get``.
-
-    NOTE: intentionally ``dict`` (not a typed model) — the wire shape nests READ/WRITE/GRANT
-    under ``grant``/``revoke`` verbs (see ``references/yandex-360/tracker/ru/api-ref/entities/
-    patch-access.md``); the existing ``ExtendedPermissionsUpdate``/``AclInput`` models describe
-    a different (direct READ/WRITE/GRANT) shape and would misrepresent this endpoint's real
-    body. Allowlisted in ``tests/test_architecture.py`` pending a correctly shaped model.
     """
     return client.entities.set_permissions(entity_type, entity_id, body)
 
@@ -419,9 +406,7 @@ def bulk_update(
 
     Poll the returned operation id with ``entities_bulk_status_get``.
     """
-    return client.entities.bulk_update(
-        entity_type, body.model_dump(by_alias=True, exclude_none=True)
-    )
+    return client.entities.bulk_update(entity_type, body)
 
 
 @mcp.tool(
@@ -434,7 +419,7 @@ def create_report(body: ReportCreate, client: TrackerClient = Depends(tracker_cl
 
     Returns the report entity.
     """
-    return client.entities.create_report(body.model_dump(by_alias=True, exclude_none=True))
+    return client.entities.create_report(body)
 
 
 @mcp.tool(
@@ -456,7 +441,7 @@ def comments_create(
     return client.entities.comments_create(
         entity_type,
         entity_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         is_add_to_followers=is_add_to_followers,
         notify=notify,
@@ -488,7 +473,7 @@ def comments_update(
         entity_type,
         entity_id,
         comment_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         is_add_to_followers=is_add_to_followers,
         notify=notify,
@@ -541,7 +526,7 @@ def checklists_create(
     return client.entities.checklists_create(
         entity_type,
         entity_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         fields=fields,
         notify=notify,
@@ -572,7 +557,7 @@ def checklists_update(
     return client.entities.checklists_edit(
         entity_type,
         entity_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         fields=fields,
         notify=notify,
@@ -604,7 +589,7 @@ def checklists_edit_item(
         entity_type,
         entity_id,
         item_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         fields=fields,
         notify=notify,
@@ -694,7 +679,7 @@ def checklists_move(
         entity_type,
         entity_id,
         item_id,
-        body.model_dump(by_alias=True, exclude_none=True),
+        body,
         expand=expand,
         fields=fields,
         notify=notify,
@@ -717,7 +702,7 @@ def links_create(
 
     Returns an acknowledgement on success.
     """
-    client.entities.links_create(entity_type, entity_id, body.model_dump(by_alias=True))
+    client.entities.links_create(entity_type, entity_id, body)
     return Ack.linked(entity_type, entity_id, body.entity, body.relationship)
 
 

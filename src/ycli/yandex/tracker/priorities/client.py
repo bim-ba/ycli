@@ -55,8 +55,7 @@ class PrioritiesClient(Resource):
             ... ).key
             'one'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_priority(dumped))
+        return self._session.send(endpoints.create_priority(body))
 
     def edit(
         self, priority_id: str, body: PriorityUpdate, *, version: int | None = None
@@ -81,5 +80,4 @@ class PrioritiesClient(Resource):
             ... ).key
             'blocker'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_priority(priority_id, dumped, version=version))
+        return self._session.send(endpoints.edit_priority(priority_id, body, version=version))

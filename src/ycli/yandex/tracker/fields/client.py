@@ -73,8 +73,7 @@ class FieldsClient(Resource):
             ... ).id
             'myField'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_field(dumped))
+        return self._session.send(endpoints.create_field(body))
 
     def edit(self, field_id: str, body: FieldUpdate, *, version: int | None = None) -> CustomField:
         """Edit field ``field_id`` from a typed ``FieldUpdate`` body (rename and/or options).
@@ -98,8 +97,7 @@ class FieldsClient(Resource):
             ... ).id
             'ruName'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_field(field_id, dumped, version=version))
+        return self._session.send(endpoints.edit_field(field_id, body, version=version))
 
     def category_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
         """Create a field category from a typed ``FieldCategoryCreate`` body.
@@ -118,8 +116,7 @@ class FieldsClient(Resource):
             ... ).id
             '604f99'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_category(dumped))
+        return self._session.send(endpoints.create_category(body))
 
     def category_edit(
         self, category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
@@ -144,5 +141,4 @@ class FieldsClient(Resource):
             ... ).version
             2
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_category(category_id, dumped, version=version))
+        return self._session.send(endpoints.edit_category(category_id, body, version=version))

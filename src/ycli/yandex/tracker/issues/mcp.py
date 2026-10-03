@@ -27,6 +27,7 @@ from ycli.yandex.tracker.dependencies import (
 from ycli.yandex.tracker.issues.models import (
     Issue,
     IssueCreate,
+    IssueSearch,
     IssueUpdate,
     ScrollClear,
     count_body,
@@ -104,7 +105,7 @@ def search(
     query or raise ``limit``.
     """
     return client.issues.search(
-        {"query": query},
+        IssueSearch(query=query),
         limit=config.http.cap(limit),
         expand=expand,
         scroll_type=scroll_type,
@@ -168,7 +169,7 @@ def create(
     body: IssueCreate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
 ) -> Issue:
     """Create a Tracker issue; returns the new issue with its key."""
-    return client.issues.create(body.model_dump(exclude_none=True), notify=notify)
+    return client.issues.create(body, notify=notify)
 
 
 @mcp.tool(
@@ -183,7 +184,7 @@ def update(
 
     Status is NOT changed here — use ``transitions_execute``. Returns the updated issue.
     """
-    return client.issues.update(key, body.model_dump(exclude_none=True))
+    return client.issues.update(key, body)
 
 
 @mcp.tool(name="issues_move", annotations={**WRITE, "title": "Move Tracker issue"}, tags=WRITE_TAGS)
@@ -230,5 +231,5 @@ def scroll_clear(body: ScrollClear, client: TrackerClient = Depends(tracker_clie
     ``body`` maps each ``X-Scroll-Id`` to its ``X-Scroll-Token`` from a scrolled
     ``issues.search`` response. Returns an acknowledgement on success.
     """
-    client.issues.scroll_clear(body.model_dump())
+    client.issues.scroll_clear(body)
     return Ack.cleared("search scroll resources")

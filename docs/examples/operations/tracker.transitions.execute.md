@@ -24,5 +24,5 @@
 === "SDK"
 
     ```python
-    tracker.transitions.execute("DE-52", "close", {"comment": "done", "resolution": "fixed", "storyPoints": 3})
+    tracker.transitions.execute("DE-52", "close", TransitionExecute(comment="done", resolution="fixed", storyPoints=3))
     ```

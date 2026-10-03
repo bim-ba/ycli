@@ -7,11 +7,14 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, flag, segment
-from ycli.yandex.forms.files.models import FileOut
+from ycli.yandex.forms.models import FileOut
 from ycli.yandex.models import ItemList
+
+if TYPE_CHECKING:
+    from ycli.yandex.forms.files.models import FileIn
 
 
 def upload_file(survey_id: str, *, filename: str, data: bytes) -> Endpoint[FileOut]:
@@ -19,7 +22,7 @@ def upload_file(survey_id: str, *, filename: str, data: bytes) -> Endpoint[FileO
     return Endpoint("POST", path, FileOut, files={"file": (filename, data)})
 
 
-def verify_files(survey_id: str, body: list[dict[str, Any]]) -> Endpoint[ItemList[FileOut]]:
+def verify_files(survey_id: str, body: ItemList[FileIn]) -> Endpoint[ItemList[FileOut]]:
     """``POST …/files/verify`` only reads the status of files already uploaded."""
     path = f"surveys/{segment(survey_id)}/files/verify"
     return Endpoint("POST", path, ItemList[FileOut], json=body, effect="read")
@@ -30,5 +33,5 @@ def download_file(path: str, *, download: bool, file_hash: str | None) -> Endpoi
     return Endpoint("GET", "files", bytes, params=params)
 
 
-def delete_file(body: dict[str, Any]) -> Endpoint[None]:
+def delete_file(body: FileIn) -> Endpoint[None]:
     return Endpoint("DELETE", "files", json=body)

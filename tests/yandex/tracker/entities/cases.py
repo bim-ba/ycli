@@ -1,11 +1,22 @@
 """Contract cases for Tracker ``/entities``: projects, portfolios, goals (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
     AclInput,
     AclPrincipalsInput,
+    BulkChangeUpdate,
+    ChecklistItemInput,
+    ChecklistMove,
+    CommentUpdate,
     DirectPermissionsUpdate,
+    EntityCreate,
+    EntityUpdate,
+    LinkInput,
+    PermissionsUpdate,
+    ReportCreate,
 )
+from ycli.yandex.tracker.models import CommentCreate
 
 ENTITY = {"id": "655f", "entityType": "project", "fields": {"summary": "Q4 launch"}}
 COMMENT = {"id": 22, "longId": "lc22", "text": "Готово"}
@@ -16,21 +27,23 @@ CASES = [
         "tracker.entities.create",
         args=(
             "project",
-            {
-                "fields": {
-                    "summary": "Q4 launch",
-                    "description": "Ship the launch",
-                    "lead": "lead-1",
-                    "author": "author-1",
-                    "entityStatus": "in_progress",
-                    "start": "2025-01-01T00:00:00.000+0000",
-                    "end": "2025-03-31T00:00:00.000+0000",
-                    "parentEntity": {"primary": "67f1"},
-                    "teamUsers": ["user-2", "user-3"],
-                    "tags": ["q4"],
-                    "markupType": "md",
+            EntityCreate.model_validate(
+                {
+                    "fields": {
+                        "summary": "Q4 launch",
+                        "description": "Ship the launch",
+                        "lead": "lead-1",
+                        "author": "author-1",
+                        "entityStatus": "in_progress",
+                        "start": "2025-01-01T00:00:00.000+0000",
+                        "end": "2025-03-31T00:00:00.000+0000",
+                        "parentEntity": {"primary": "67f1"},
+                        "teamUsers": ["user-2", "user-3"],
+                        "tags": ["q4"],
+                        "markupType": "md",
+                    }
                 }
-            },
+            ),
         ),
         cli=[
             "tracker",
@@ -111,7 +124,10 @@ CASES = [
     # `--field` merges last: it overrides an option and adds a JSON-coerced key.
     Case(
         "tracker.entities.create",
-        args=("goal", {"fields": {"summary": "Overridden", "teamAccess": True}}),
+        args=(
+            "goal",
+            EntityCreate.model_validate({"fields": {"summary": "Overridden", "teamAccess": True}}),
+        ),
         cli=[
             "tracker",
             "entities",
@@ -185,22 +201,24 @@ CASES = [
         args=(
             "project",
             "655f04",
-            {
-                "fields": {
-                    "summary": "Renamed",
-                    "description": "New text",
-                    "lead": "lead-4",
-                    "author": "author-4",
-                    "entityStatus": "at_risk",
-                    "start": "2025-04-01T00:00:00.000+0000",
-                    "end": "2025-06-30T00:00:00.000+0000",
-                    "parentEntity": {"primary": "67f4"},
-                    "teamUsers": ["user-4"],
-                    "tags": ["h1", "h2"],
-                    "followers": ["follower-4"],
-                },
-                "comment": "Re-planned",
-            },
+            EntityUpdate.model_validate(
+                {
+                    "fields": {
+                        "summary": "Renamed",
+                        "description": "New text",
+                        "lead": "lead-4",
+                        "author": "author-4",
+                        "entityStatus": "at_risk",
+                        "start": "2025-04-01T00:00:00.000+0000",
+                        "end": "2025-06-30T00:00:00.000+0000",
+                        "parentEntity": {"primary": "67f4"},
+                        "teamUsers": ["user-4"],
+                        "tags": ["h1", "h2"],
+                        "followers": ["follower-4"],
+                    },
+                    "comment": "Re-planned",
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -287,7 +305,7 @@ CASES = [
     # A comment alone sends no `fields`; fields alone send no `comment`.
     Case(
         "tracker.entities.edit",
-        args=("goal", "g5", {"comment": "Just a note"}),
+        args=("goal", "g5", EntityUpdate.model_validate({"comment": "Just a note"})),
         cli=["tracker", "entities", "update", "goal", "g5", "--comment", "Just a note"],
         mcp=None,
         exchanges=[
@@ -299,7 +317,11 @@ CASES = [
     ),
     Case(
         "tracker.entities.edit",
-        args=("portfolio", "pf6", {"fields": {"summary": "Only a name"}}),
+        args=(
+            "portfolio",
+            "pf6",
+            EntityUpdate.model_validate({"fields": {"summary": "Only a name"}}),
+        ),
         cli=["tracker", "entities", "update", "portfolio", "pf6", "--summary", "Only a name"],
         mcp=None,
         exchanges=[
@@ -528,12 +550,14 @@ CASES = [
         args=(
             "portfolio",
             "pf16",
-            {
-                "acl": {
-                    "grant": {"READ": {"users": ["8000000000000002"]}},
-                    "revoke": {"WRITE": {"groups": ["42"]}},
+            PermissionsUpdate.model_validate(
+                {
+                    "acl": {
+                        "grant": {"READ": {"users": ["8000000000000002"]}},
+                        "revoke": {"WRITE": {"groups": ["42"]}},
+                    }
                 }
-            },
+            ),
         ),
         cli=[
             "tracker",
@@ -579,10 +603,12 @@ CASES = [
         "tracker.entities.bulk_update",
         args=(
             "project",
-            {
-                "metaEntities": ["655f17", "655f18"],
-                "values": {"fields": {"lead": "lead-17"}, "comment": "Handed over"},
-            },
+            BulkChangeUpdate.model_validate(
+                {
+                    "metaEntities": ["655f17", "655f18"],
+                    "values": {"fields": {"lead": "lead-17"}, "comment": "Handed over"},
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -624,7 +650,7 @@ CASES = [
     ),
     Case(
         "tracker.entities.bulk_update",
-        args=("goal", {"metaEntities": ["g19"], "values": {}}),
+        args=("goal", BulkChangeUpdate.model_validate({"metaEntities": ["g19"], "values": {}})),
         cli=["tracker", "entities", "bulk-update", "goal", "--entity", "g19"],
         mcp=None,
         exchanges=[
@@ -650,17 +676,19 @@ CASES = [
     Case(
         "tracker.entities.create_report",
         args=(
-            {
-                "fields": {
-                    "summary": "Support export",
-                    "parameters": {
-                        "type": "issueFilterExport",
-                        "format": "csv",
-                        "filter": {"query": "Queue: SUPPORT"},
-                        "fields": ["key", "summary", "assignee"],
-                    },
+            ReportCreate.model_validate(
+                {
+                    "fields": {
+                        "summary": "Support export",
+                        "parameters": {
+                            "type": "issueFilterExport",
+                            "format": "csv",
+                            "filter": {"query": "Queue: SUPPORT"},
+                            "fields": ["key", "summary", "assignee"],
+                        },
+                    }
                 }
-            },
+            ),
         ),
         cli=[
             "tracker",
@@ -719,17 +747,19 @@ CASES = [
     Case(
         "tracker.entities.create_report",
         args=(
-            {
-                "fields": {
-                    "summary": "Default export",
-                    "parameters": {
-                        "type": "issueFilterExport",
-                        "format": "xlsx",
-                        "filter": {"query": "Queue: OPS"},
-                        "fields": [],
-                    },
+            ReportCreate.model_validate(
+                {
+                    "fields": {
+                        "summary": "Default export",
+                        "parameters": {
+                            "type": "issueFilterExport",
+                            "format": "xlsx",
+                            "filter": {"query": "Queue: OPS"},
+                            "fields": [],
+                        },
+                    }
                 }
-            },
+            ),
         ),
         cli=[
             "tracker",
@@ -849,7 +879,11 @@ CASES = [
     ),
     Case(
         "tracker.entities.comments_create",
-        args=("project", "655f25", {"text": "Готово", "summonees": ["user-25", "user-26"]}),
+        args=(
+            "project",
+            "655f25",
+            CommentCreate.model_validate({"text": "Готово", "summonees": ["user-25", "user-26"]}),
+        ),
         cli=[
             "tracker",
             "entities",
@@ -886,7 +920,7 @@ CASES = [
     # The comment id travels in the path: a PATCH on the collection answers 405.
     Case(
         "tracker.entities.comments_edit",
-        args=("goal", "g27", "27", {"text": "Fixed typo"}),
+        args=("goal", "g27", "27", CommentUpdate.model_validate({"text": "Fixed typo"})),
         cli=[
             "tracker",
             "entities",
@@ -927,7 +961,11 @@ CASES = [
     # ---- checklists -------------------------------------------------------------------------
     Case(
         "tracker.entities.checklists_create",
-        args=("project", "655f29", [{"text": "Draft"}, {"text": "Review"}]),
+        args=(
+            "project",
+            "655f29",
+            ItemList[ChecklistItemInput].model_validate([{"text": "Draft"}, {"text": "Review"}]),
+        ),
         cli=[
             "tracker",
             "entities",
@@ -961,7 +999,13 @@ CASES = [
     ),
     Case(
         "tracker.entities.checklists_edit",
-        args=("goal", "g30", [{"id": "5f", "text": "Renamed"}, {"id": "6a", "text": "Second"}]),
+        args=(
+            "goal",
+            "g30",
+            ItemList[ChecklistItemInput].model_validate(
+                [{"id": "5f", "text": "Renamed"}, {"id": "6a", "text": "Second"}]
+            ),
+        ),
         cli=[
             "tracker",
             "entities",
@@ -999,12 +1043,14 @@ CASES = [
         args=(
             "project",
             "655f31",
-            [
-                {"id": "7b", "text": "true"},
-                {"id": "8c", "text": "null"},
-                {"id": "9d", "text": "[1, 2]"},
-                {"id": "0e", "text": "a=b"},
-            ],
+            ItemList[ChecklistItemInput].model_validate(
+                [
+                    {"id": "7b", "text": "true"},
+                    {"id": "8c", "text": "null"},
+                    {"id": "9d", "text": "[1, 2]"},
+                    {"id": "0e", "text": "a=b"},
+                ]
+            ),
         ),
         cli=[
             "tracker",
@@ -1045,12 +1091,14 @@ CASES = [
             "portfolio",
             "pf32",
             "1f",
-            {
-                "text": "Sign off",
-                "checked": True,
-                "assignee": "user-32",
-                "deadline": {"date": "2025-12-01T00:00:00.000+0000", "deadlineType": "date"},
-            },
+            ChecklistItemInput.model_validate(
+                {
+                    "text": "Sign off",
+                    "checked": True,
+                    "assignee": "user-32",
+                    "deadline": {"date": "2025-12-01T00:00:00.000+0000", "deadlineType": "date"},
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -1103,7 +1151,7 @@ CASES = [
     ),
     Case(
         "tracker.entities.checklists_edit_item",
-        args=("goal", "g33", "2f", {"checked": False}),
+        args=("goal", "g33", "2f", ChecklistItemInput.model_validate({"checked": False})),
         cli=[
             "tracker",
             "entities",
@@ -1151,7 +1199,7 @@ CASES = [
     ),
     Case(
         "tracker.entities.checklists_move",
-        args=("portfolio", "pf36", "4f", {"before": "5a"}),
+        args=("portfolio", "pf36", "4f", ChecklistMove.model_validate({"before": "5a"})),
         cli=[
             "tracker",
             "entities",
@@ -1186,7 +1234,7 @@ CASES = [
     # Without --before the item moves to the top: an empty body.
     Case(
         "tracker.entities.checklists_move",
-        args=("project", "655f37", "6f", {}),
+        args=("project", "655f37", "6f", ChecklistMove.model_validate({})),
         cli=["tracker", "entities", "checklists", "move", "project", "655f37", "6f"],
         mcp=None,
         exchanges=[
@@ -1223,7 +1271,11 @@ CASES = [
     ),
     Case(
         "tracker.entities.links_create",
-        args=("portfolio", "pf40", {"relationship": "depends on", "entity": "pf41"}),
+        args=(
+            "portfolio",
+            "pf40",
+            LinkInput.model_validate({"relationship": "depends on", "entity": "pf41"}),
+        ),
         cli=[
             "tracker",
             "entities",

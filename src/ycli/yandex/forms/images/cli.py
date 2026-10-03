@@ -43,4 +43,4 @@ def clone(
     """Copy an existing image into the form (POST …/images/clone); returns the new image."""
     links = dict(item.split("=", 1) for item in link) if link else None
     body = ImageClone(id=image_id or None, links=links, name=name or None)
-    return forms.images.clone(survey_id, body.model_dump(exclude_none=True))
+    return forms.images.clone(survey_id, body)

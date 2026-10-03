@@ -7,23 +7,21 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.resolutions.models import Resolution
+from ycli.yandex.tracker.resolutions.models import Resolution, ResolutionCreate, ResolutionUpdate
 
 
 def list_resolutions() -> Endpoint[ItemList[Resolution]]:
     return Endpoint("GET", "resolutions", ItemList[Resolution])
 
 
-def create_resolution(body: dict[str, Any]) -> Endpoint[Resolution]:
+def create_resolution(body: ResolutionCreate) -> Endpoint[Resolution]:
     return Endpoint("POST", "resolutions/", Resolution, json=body)
 
 
 def edit_resolution(
-    resolution_id: str, body: dict[str, Any], *, version: int | None = None
+    resolution_id: str, body: ResolutionUpdate, *, version: int | None = None
 ) -> Endpoint[Resolution]:
     """``PATCH /resolutions/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
     return Endpoint(

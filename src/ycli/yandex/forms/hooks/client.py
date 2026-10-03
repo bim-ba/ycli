@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.hooks import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.hooks.models import Hook
+    from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
     from ycli.yandex.models import ItemList
 
 
@@ -46,23 +46,27 @@ class HooksClient(Resource):
         """
         return self._session.send(endpoints.get_hook(survey_id, hook_id))
 
-    def create(self, survey_id: str, body: dict[str, Any]) -> Hook:
-        """``POST /surveys/{id}/hooks`` — create a group from a dumped ``HookCreate``.
+    def create(self, survey_id: str, body: HookCreate) -> Hook:
+        """``POST /surveys/{id}/hooks`` — create a group from a ``HookCreate``.
 
         Args:
             survey_id: The form's id.
-            body: The dumped ``HookCreate``: the group's name and whether it is active.
+            body: The ``HookCreate``: the group's name and whether it is active.
 
         Returns:
             The created integration group, with its ``id``.
 
         Examples:
-            >>> forms.hooks.create("686d0a1b2c3d4e5f000000a0", {"name": "CRM", "active": False}).id
+            >>> from ycli.yandex.forms.hooks.models import HookCreate
+            >>> forms.hooks.create(
+            ...     "686d0a1b2c3d4e5f000000a0",
+            ...     HookCreate.model_validate({"name": "CRM", "active": False}),
+            ... ).id
             13
         """
         return self._session.send(endpoints.create_hook(survey_id, body))
 
-    def modify(self, survey_id: str, hook_id: int, body: dict[str, Any]) -> Hook:
+    def modify(self, survey_id: str, hook_id: int, body: HookUpdate) -> Hook:
         """``PATCH /surveys/{id}/hooks/{hook_id}`` — only the keys in ``body`` change.
 
         Args:
@@ -74,7 +78,10 @@ class HooksClient(Resource):
             The updated integration group.
 
         Examples:
-            >>> forms.hooks.modify("686d0a1b2c3d4e5f000000a0", 15, {"name": "CRM"}).name
+            >>> from ycli.yandex.forms.hooks.models import HookUpdate
+            >>> forms.hooks.modify(
+            ...     "686d0a1b2c3d4e5f000000a0", 15, HookUpdate.model_validate({"name": "CRM"})
+            ... ).name
             'CRM'
         """
         return self._session.send(endpoints.modify_hook(survey_id, hook_id, body))

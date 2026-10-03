@@ -76,8 +76,7 @@ class LocalFieldsClient(Resource):
             >>> tracker.localfields.create("DEV", new_field).key
             'loc_new'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_local_field(queue_id, dumped))
+        return self._session.send(endpoints.create_local_field(queue_id, body))
 
     def edit(self, queue_id: str, field_key: str, body: LocalFieldUpdate) -> LocalField:
         """Edit local field ``field_key`` of queue ``queue_id`` from a typed ``LocalFieldUpdate``.
@@ -98,5 +97,4 @@ class LocalFieldsClient(Resource):
             >>> tracker.localfields.edit("SUP", "loc_edit", LocalFieldUpdate(order=102)).order
             102
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_local_field(queue_id, field_key, dumped))
+        return self._session.send(endpoints.edit_local_field(queue_id, field_key, body))

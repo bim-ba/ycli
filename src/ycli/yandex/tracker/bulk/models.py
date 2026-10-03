@@ -126,7 +126,7 @@ class BulkUpdate(APIModel):
 
     Examples:
         >>> BulkUpdate(issues=["TEST-1"], values={"priority": {"key": "blocker"}}).model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'issues': ['TEST-1'], 'values': {'priority': {'key': 'blocker'}}}
     """
@@ -138,7 +138,9 @@ class BulkUpdate(APIModel):
         description="Field values to apply (any editable issue field; supports set/add/remove ops)."
     )
     notify: bool | None = Field(
-        default=None, description="Notify users referenced in the issues (default false)."
+        default=None,
+        description="Notify users referenced in the issues (default false). The reference "
+        "publishes ``notify`` as a query parameter; ycli sends it there too.",
     )
 
 
@@ -146,7 +148,7 @@ class BulkMove(APIModel):
     """Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue).
 
     Examples:
-        >>> BulkMove(queue="CHECK", issues=["TEST-1"]).model_dump(by_alias=True, exclude_none=True)
+        >>> BulkMove(queue="CHECK", issues=["TEST-1"]).model_dump(exclude_none=True)
         {'queue': 'CHECK', 'issues': ['TEST-1']}
     """
 
@@ -168,7 +170,9 @@ class BulkMove(APIModel):
         description="Reset each issue's status to the workflow's initial status (default false).",
     )
     notify: bool | None = Field(
-        default=None, description="Notify users referenced in the issues (default false)."
+        default=None,
+        description="Notify users referenced in the issues (default false). The reference "
+        "publishes ``notify`` as a query parameter; ycli sends it there too.",
     )
 
 
@@ -176,9 +180,7 @@ class BulkTransition(APIModel):
     """Typed request body for ``POST /bulkchange/_transition`` (mass status transition).
 
     Examples:
-        >>> BulkTransition(transition="close", issues=["TEST-1"]).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
+        >>> BulkTransition(transition="close", issues=["TEST-1"]).model_dump(exclude_none=True)
         {'transition': 'close', 'issues': ['TEST-1']}
     """
 
@@ -191,5 +193,7 @@ class BulkTransition(APIModel):
         description="Optional field values set during the transition (e.g. a resolution).",
     )
     notify: bool | None = Field(
-        default=None, description="Notify users referenced in the issues (default false)."
+        default=None,
+        description="Notify users referenced in the issues (default false). The reference "
+        "publishes ``notify`` as a query parameter; ycli sends it there too.",
     )

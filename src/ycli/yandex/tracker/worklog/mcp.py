@@ -22,7 +22,12 @@ from ycli.yandex.tracker.dependencies import (
     app_config,
     tracker_client,
 )
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogUpdate
+from ycli.yandex.tracker.worklog.models import (
+    Worklog,
+    WorklogCreate,
+    WorklogSearch,
+    WorklogUpdate,
+)
 
 mcp = FastMCP("tracker-worklog")
 
@@ -68,12 +73,10 @@ def search(
     ``created_by`` to scope to a user and ``created_from`` / ``created_to`` for a time window;
     all are optional.
     """
-    body: dict[str, object] = {}
-    if created_by:
-        body["createdBy"] = created_by
-    created_at = {k: v for k, v in (("from", created_from), ("to", created_to)) if v}
-    if created_at:
-        body["createdAt"] = created_at
+    period = {"from": created_from or None, "to": created_to or None}
+    body = WorklogSearch.model_validate(
+        {"createdBy": created_by or None, "createdAt": period if any(period.values()) else None}
+    )
     return client.worklog.search(body)
 
 
@@ -108,7 +111,7 @@ def create(
     key: IssueKey, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Worklog:
     """Log spent time on a Tracker issue; returns the created worklog record."""
-    return client.worklog.create(key, body.model_dump(exclude_none=True))
+    return client.worklog.create(key, body)
 
 
 @mcp.tool(
@@ -126,7 +129,7 @@ def edit(
 
     Get ``record_id`` from ``worklog_list``. Returns the updated record.
     """
-    return client.worklog.edit(key, record_id, body.model_dump(exclude_none=True))
+    return client.worklog.edit(key, record_id, body)
 
 
 @mcp.tool(

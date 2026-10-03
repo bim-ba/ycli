@@ -1,6 +1,7 @@
 """Contract cases for Tracker worklog (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.worklog.models import WorklogCreate, WorklogSearch, WorklogUpdate
 
 CASES = [
     # The default cap (500) asks for full 100-row pages and walks id=<last record id>.
@@ -58,10 +59,12 @@ CASES = [
     Case(
         "tracker.worklog.search",
         args=(
-            {
-                "createdBy": "veikus",
-                "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
-            },
+            WorklogSearch.model_validate(
+                {
+                    "createdBy": "veikus",
+                    "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -99,7 +102,7 @@ CASES = [
     ),
     Case(
         "tracker.worklog.search",
-        args=({},),
+        args=(WorklogSearch.model_validate({}),),
         cli=["tracker", "worklog", "search"],
         mcp=("tracker_worklog_search", {}),
         exchanges=[(Sent("POST", "worklog/_search", json={}), Reply(json=[]))],
@@ -157,7 +160,9 @@ CASES = [
         "tracker.worklog.create",
         args=(
             "DE-66",
-            {"duration": "PT2H", "start": "2021-03-04T10:00:00.000+0300", "comment": "pairing"},
+            WorklogCreate.model_validate(
+                {"duration": "PT2H", "start": "2021-03-04T10:00:00.000+0300", "comment": "pairing"}
+            ),
         ),
         cli=[
             "tracker",
@@ -199,7 +204,11 @@ CASES = [
     ),
     Case(
         "tracker.worklog.edit",
-        args=("DE-67", "671", {"duration": "PT45M", "comment": "trimmed"}),
+        args=(
+            "DE-67",
+            "671",
+            WorklogUpdate.model_validate({"duration": "PT45M", "comment": "trimmed"}),
+        ),
         cli=[
             "tracker",
             "worklog",

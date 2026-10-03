@@ -73,7 +73,7 @@ def create(
     ``total``. Download the generated keys via the ``forms keysets download`` CLI command
     (binary payload — not exposed over MCP).
     """
-    return client.keysets.create(survey_id, body.model_dump(exclude_none=True))
+    return client.keysets.create(survey_id, body)
 
 
 @mcp.tool(
@@ -95,7 +95,7 @@ def modify(
     Despite the PATCH verb, the API validates the body as a full record: ``name``, ``total``
     and ``is_enabled`` must all be set or the request is rejected with ``400``.
     """
-    return client.keysets.modify(survey_id, keyset_id, body.model_dump(exclude_none=True))
+    return client.keysets.modify(survey_id, keyset_id, body)
 
 
 @mcp.tool(

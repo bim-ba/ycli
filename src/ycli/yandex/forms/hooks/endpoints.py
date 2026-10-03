@@ -7,10 +7,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.hooks.models import Hook
+from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
 from ycli.yandex.models import ItemList
 
 
@@ -26,11 +24,11 @@ def get_hook(survey_id: str, hook_id: int) -> Endpoint[Hook]:
     return Endpoint("GET", f"{_hooks(survey_id)}/{segment(hook_id)}", Hook)
 
 
-def create_hook(survey_id: str, body: dict[str, Any]) -> Endpoint[Hook]:
+def create_hook(survey_id: str, body: HookCreate) -> Endpoint[Hook]:
     return Endpoint("POST", _hooks(survey_id), Hook, json=body)
 
 
-def modify_hook(survey_id: str, hook_id: int, body: dict[str, Any]) -> Endpoint[Hook]:
+def modify_hook(survey_id: str, hook_id: int, body: HookUpdate) -> Endpoint[Hook]:
     return Endpoint("PATCH", f"{_hooks(survey_id)}/{segment(hook_id)}", Hook, json=body)
 
 

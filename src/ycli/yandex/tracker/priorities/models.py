@@ -33,7 +33,7 @@ class PriorityCreate(APIModel):
 
     Examples:
         >>> PriorityCreate(key="one", name=LocalizedName(ru="Низкий"), order=60).model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'key': 'one', 'name': {'ru': 'Низкий'}, 'order': 60}
     """
@@ -53,7 +53,7 @@ class PriorityUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> PriorityUpdate(description="Описание").model_dump(by_alias=True, exclude_none=True)
+        >>> PriorityUpdate(description="Описание").model_dump(exclude_none=True)
         {'description': 'Описание'}
     """
 

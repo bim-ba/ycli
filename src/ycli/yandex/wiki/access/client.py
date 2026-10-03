@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.wiki.access import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.wiki.access.models import PageAccess
+    from ycli.yandex.wiki.access.models import PageAccess, PageAccessCreate, PageAccessUpdate
 
 
 class AccessClient(Resource):
@@ -20,10 +20,10 @@ class AccessClient(Resource):
     or revoked either way.
     """
 
-    def create(self, page_id: int, body: dict[str, Any]) -> PageAccess:
+    def create(self, page_id: int, body: PageAccessCreate) -> PageAccess:
         """``POST /pages/{id}/access`` — grant a user or a group a role; returns the grant.
 
-        ``body`` is a dumped :class:`PageAccessCreate` (``user`` or ``group``, ``role``, optional
+        ``body`` is a :class:`PageAccessCreate` (``user`` or ``group``, ``role``, optional
         ``inheritance``). Granting a user who already holds a personal access is refused; use
         :meth:`update` instead.
 
@@ -35,18 +35,24 @@ class AccessClient(Resource):
             The created grant.
 
         Examples:
-            >>> body = {"user": {"uid": "9001"}, "role": "editor"}
+            >>> from ycli.yandex.wiki.access.models import PageAccessCreate
+            >>> body = PageAccessCreate.model_validate({"user": {"uid": "9001"}, "role": "editor"})
             >>> wiki.access.create(6001, body).id
             '5001'
         """
         return self._session.send(endpoints.create_access(page_id, body))
 
     def update(
-        self, page_id: int, access_id: str, body: dict[str, Any], *, prevent_selflock: bool = False
+        self,
+        page_id: int,
+        access_id: str,
+        body: PageAccessUpdate,
+        *,
+        prevent_selflock: bool = False,
     ) -> PageAccess:
         """``POST /pages/{id}/access/{access_id}`` — change a grant's role or reach.
 
-        ``body`` is a dumped :class:`PageAccessUpdate` (``role`` and/or ``inheritance``).
+        ``body`` is a :class:`PageAccessUpdate` (``role`` and/or ``inheritance``).
 
         Args:
             page_id: The page's id.
@@ -58,8 +64,12 @@ class AccessClient(Resource):
             The updated grant.
 
         Examples:
+            >>> from ycli.yandex.wiki.access.models import PageAccessUpdate
             >>> wiki.access.update(
-            ...     6003, "5003", {"role": "extra_editor"}, prevent_selflock=True
+            ...     6003,
+            ...     "5003",
+            ...     PageAccessUpdate.model_validate({"role": "extra_editor"}),
+            ...     prevent_selflock=True,
             ... ).role
             'extra_editor'
         """

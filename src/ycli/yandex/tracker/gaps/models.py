@@ -140,7 +140,7 @@ class GapInput(APIModel):
     Examples:
         >>> GapInput(
         ...     user="ann", workflow="trip", date_from="2026-07-10", date_to="2026-07-20"
-        ... ).model_dump(by_alias=True, exclude_none=True, mode="json")
+        ... ).model_dump(exclude_none=True, mode="json")
         {'user': 'ann', 'workflow': 'trip', 'from': '2026-07-10', 'to': '2026-07-20'}
     """
 
@@ -186,7 +186,7 @@ class GapsCreate(APIModel):
         ...         )
         ...     ]
         ... )
-        >>> body.model_dump(by_alias=True, exclude_none=True, mode="json")["gaps"][0]["workflow"]
+        >>> body.model_dump(exclude_none=True, mode="json")["gaps"][0]["workflow"]
         'trip'
     """
 

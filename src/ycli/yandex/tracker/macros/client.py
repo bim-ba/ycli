@@ -61,8 +61,7 @@ class MacrosClient(Resource):
             >>> tracker.macros.create("DEV", MacroCreate(name="Triage", body="Taking a look")).id
             5
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_macro(queue_id, dumped))
+        return self._session.send(endpoints.create_macro(queue_id, body))
 
     def edit(self, queue_id: str, macro_id: int, body: MacroUpdate) -> Macro:
         """Edit a macro from a typed ``MacroUpdate`` body. Returns the updated ``Macro``.
@@ -82,8 +81,7 @@ class MacrosClient(Resource):
             >>> tracker.macros.edit("QA", 6, MacroUpdate(name="Renamed")).name
             'Renamed'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_macro(queue_id, macro_id, dumped))
+        return self._session.send(endpoints.edit_macro(queue_id, macro_id, body))
 
     def delete(self, queue_id: str, macro_id: int) -> None:
         """``DELETE /queues/{queue_id}/macros/{macro_id}`` — delete a macro (``204``, empty body).

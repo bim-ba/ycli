@@ -13,13 +13,15 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.wiki.uploadsessions.models import AbortActiveUploadsResult, UploadSession
+from ycli.yandex.wiki.uploadsessions.models import (
+    AbortActiveUploadsResult,
+    UploadSession,
+    UploadSessionCreate,
+)
 
 
-def create_session(body: dict[str, Any]) -> Endpoint[UploadSession]:
+def create_session(body: UploadSessionCreate) -> Endpoint[UploadSession]:
     return Endpoint("POST", "upload_sessions", UploadSession, json=body)
 
 

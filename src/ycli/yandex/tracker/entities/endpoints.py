@@ -16,7 +16,7 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
@@ -25,15 +25,29 @@ from ycli.yandex.tracker.entities.models import (
     Acl,
     Attachment,
     BulkChangeOperation,
+    BulkChangeUpdate,
+    ChecklistItemInput,
+    ChecklistMove,
     Comment,
     CommentsRelativeResponse,
+    CommentUpdate,
+    DirectPermissionsUpdate,
     Entity,
+    EntityCreate,
     EntityEvent,
     EntityEventsResponse,
+    EntitySearch,
     EntitySearchResponse,
+    EntityUpdate,
     ExtendedPermissions,
     Link,
+    LinkInput,
+    PermissionsUpdate,
+    ReportCreate,
 )
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.models import CommentCreate
 
 # The most events / comments one ``_relative`` page returns; a smaller cap asks for fewer.
 RELATIVE_PAGE_SIZE = 100
@@ -48,7 +62,7 @@ def _entity(entity_type: str, entity_id: str) -> str:
 
 def create_entity(
     entity_type: str,
-    body: dict[str, Any],
+    body: EntityCreate,
     *,
     fields: str | None,
 ) -> Endpoint[Entity]:
@@ -67,7 +81,7 @@ def get_entity(
 def edit_entity(
     entity_type: str,
     entity_id: str,
-    body: dict[str, Any],
+    body: EntityUpdate,
     *,
     expand: str | None,
     fields: str | None,
@@ -88,7 +102,7 @@ def delete_entity(entity_type: str, entity_id: str, *, with_board: bool | None) 
 
 def search_entities(
     entity_type: str,
-    body: dict[str, Any],
+    body: EntitySearch,
     *,
     fields: str | None,
     per_page: int | None,
@@ -138,7 +152,7 @@ def get_permissions(entity_type: str, entity_id: str) -> Endpoint[ExtendedPermis
 
 
 def set_permissions(
-    entity_type: str, entity_id: str, body: dict[str, Any]
+    entity_type: str, entity_id: str, body: PermissionsUpdate
 ) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
     return Endpoint("PATCH", path, ExtendedPermissions, json=body)
@@ -148,11 +162,13 @@ def get_direct_permissions(entity_type: str, entity_id: str) -> Endpoint[Acl]:
     return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", Acl)
 
 
-def set_direct_permissions(entity_type: str, entity_id: str, body: dict[str, Any]) -> Endpoint[Acl]:
+def set_direct_permissions(
+    entity_type: str, entity_id: str, body: DirectPermissionsUpdate
+) -> Endpoint[Acl]:
     return Endpoint("PATCH", f"{_entity(entity_type, entity_id)}/permissions", Acl, json=body)
 
 
-def bulk_update(entity_type: str, body: dict[str, Any]) -> Endpoint[BulkChangeOperation]:
+def bulk_update(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChangeOperation]:
     """Each call starts a new async operation: a plain, non-idempotent write."""
     path = f"entities/{segment(entity_type)}/bulkchange/_update"
     return Endpoint("POST", path, BulkChangeOperation, json=body)
@@ -162,7 +178,7 @@ def get_bulk_status(operation_id: str) -> Endpoint[BulkChangeOperation]:
     return Endpoint("GET", f"bulkchange/{segment(operation_id)}", BulkChangeOperation)
 
 
-def create_report(body: dict[str, Any]) -> Endpoint[Entity]:
+def create_report(body: ReportCreate) -> Endpoint[Entity]:
     return Endpoint("POST", "entities/report/", Entity, json=body)
 
 
@@ -202,7 +218,7 @@ def get_comment(
 def create_comment(
     entity_type: str,
     entity_id: str,
-    body: dict[str, Any],
+    body: CommentCreate,
     *,
     expand: str | None,
     is_add_to_followers: bool | None,
@@ -227,7 +243,7 @@ def edit_comment(
     entity_type: str,
     entity_id: str,
     comment_id: str,
-    body: dict[str, Any],
+    body: CommentUpdate,
     *,
     expand: str | None,
     is_add_to_followers: bool | None,
@@ -267,7 +283,7 @@ def delete_comment(
 def create_checklist_items(
     entity_type: str,
     entity_id: str,
-    body: list[dict[str, Any]],
+    body: ItemList[ChecklistItemInput],
     *,
     expand: str | None,
     fields: str | None,
@@ -292,7 +308,7 @@ def create_checklist_items(
 def edit_checklist(
     entity_type: str,
     entity_id: str,
-    body: list[dict[str, Any]],
+    body: ItemList[ChecklistItemInput],
     *,
     expand: str | None,
     fields: str | None,
@@ -318,7 +334,7 @@ def edit_checklist_item(
     entity_type: str,
     entity_id: str,
     item_id: str,
-    body: dict[str, Any],
+    body: ChecklistItemInput,
     *,
     expand: str | None,
     fields: str | None,
@@ -390,7 +406,7 @@ def move_checklist_item(
     entity_type: str,
     entity_id: str,
     item_id: str,
-    body: dict[str, Any],
+    body: ChecklistMove,
     *,
     expand: str | None,
     fields: str | None,
@@ -420,7 +436,7 @@ def list_links(entity_type: str, entity_id: str, *, fields: str | None) -> Endpo
     return Endpoint("GET", path, ItemList[Link], params={"fields": fields})
 
 
-def create_link(entity_type: str, entity_id: str, body: dict[str, Any]) -> Endpoint[None]:
+def create_link(entity_type: str, entity_id: str, body: LinkInput) -> Endpoint[None]:
     """``POST …/links`` answers 200 with no body."""
     return Endpoint("POST", f"{_entity(entity_type, entity_id)}/links", json=body)
 

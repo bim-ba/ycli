@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog import endpoints
-from ycli.yandex.tracker.worklog.models import Worklog
+from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogSearch, WorklogUpdate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -39,7 +39,7 @@ class WorklogClient(Resource):
         paged = endpoints.list_worklog(key, page_size=page_size)
         return ItemList[Worklog](list(self._session.iterate(paged, limit=limit)))
 
-    def search(self, body: dict[str, Any]) -> ItemList[Worklog]:
+    def search(self, body: WorklogSearch) -> ItemList[Worklog]:
         """``POST /worklog/_search`` → org-wide worklog entries matching the body filter.
 
         ``body`` is ``{"createdBy": …, "createdAt": {"from": …, "to": …}}`` (all optional).
@@ -51,11 +51,17 @@ class WorklogClient(Resource):
             The matching worklog entries.
 
         Examples:
+            >>> from ycli.yandex.tracker.worklog.models import WorklogSearch
             >>> found = tracker.worklog.search(
-            ...     {
-            ...         "createdBy": "veikus",
-            ...         "createdAt": {"from": "2018-06-06T00:00:00", "to": "2018-06-07T00:00:00"},
-            ...     }
+            ...     WorklogSearch.model_validate(
+            ...         {
+            ...             "createdBy": "veikus",
+            ...             "createdAt": {
+            ...                 "from": "2018-06-06T00:00:00",
+            ...                 "to": "2018-06-07T00:00:00",
+            ...             },
+            ...         }
+            ...     )
             ... )
             >>> found.root[0].duration
             'PT2H'
@@ -85,7 +91,7 @@ class WorklogClient(Resource):
         """
         return self._session.send(endpoints.list_global_worklog(created_by, created_at))
 
-    def create(self, key: str, body: dict[str, Any]) -> Worklog:
+    def create(self, key: str, body: WorklogCreate) -> Worklog:
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.
 
         Args:
@@ -96,12 +102,16 @@ class WorklogClient(Resource):
             The created entry.
 
         Examples:
-            >>> tracker.worklog.create("DE-66", {"duration": "PT2H", "comment": "pairing"}).duration
+            >>> from ycli.yandex.tracker.worklog.models import WorklogCreate
+            >>> tracker.worklog.create(
+            ...     "DE-66",
+            ...     WorklogCreate.model_validate({"duration": "PT2H", "comment": "pairing"}),
+            ... ).duration
             'PT2H'
         """
         return self._session.send(endpoints.create_worklog(key, body))
 
-    def edit(self, key: str, record_id: int | str, body: dict[str, Any]) -> Worklog:
+    def edit(self, key: str, record_id: int | str, body: WorklogUpdate) -> Worklog:
         """``PATCH /issues/{key}/worklog/{record_id}`` — edit an entry. Returns it.
 
         Args:
@@ -113,7 +123,10 @@ class WorklogClient(Resource):
             The edited entry.
 
         Examples:
-            >>> tracker.worklog.edit("DE-67", "671", {"duration": "PT45M"}).duration
+            >>> from ycli.yandex.tracker.worklog.models import WorklogUpdate
+            >>> tracker.worklog.edit(
+            ...     "DE-67", "671", WorklogUpdate.model_validate({"duration": "PT45M"})
+            ... ).duration
             'PT45M'
         """
         return self._session.send(endpoints.edit_worklog(key, record_id, body))

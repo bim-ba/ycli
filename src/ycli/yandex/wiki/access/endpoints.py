@@ -12,22 +12,20 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.wiki.access.models import PageAccess
+from ycli.yandex.wiki.access.models import PageAccess, PageAccessCreate, PageAccessUpdate
 
 
 def _selflock(prevent_selflock: bool) -> dict[str, bool | None]:
     return {"prevent_selflock": True if prevent_selflock else None}
 
 
-def create_access(page_id: int, body: dict[str, Any]) -> Endpoint[PageAccess]:
+def create_access(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
     return Endpoint("POST", f"pages/{segment(page_id)}/access", PageAccess, json=body)
 
 
 def update_access(
-    page_id: int, access_id: str, body: dict[str, Any], *, prevent_selflock: bool
+    page_id: int, access_id: str, body: PageAccessUpdate, *, prevent_selflock: bool
 ) -> Endpoint[PageAccess]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
     return Endpoint(

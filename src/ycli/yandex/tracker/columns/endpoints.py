@@ -9,11 +9,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.columns.models import Column
+from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdate
 
 
 def list_columns(board_id: int) -> Endpoint[ItemList[Column]]:
@@ -24,11 +22,11 @@ def get_column(board_id: int, column_id: int) -> Endpoint[Column]:
     return Endpoint("GET", f"boards/{segment(board_id)}/columns/{segment(column_id)}", Column)
 
 
-def create_column(board_id: int, body: dict[str, Any]) -> Endpoint[Column]:
+def create_column(board_id: int, body: ColumnCreate) -> Endpoint[Column]:
     return Endpoint("POST", f"boards/{segment(board_id)}/columns/", Column, json=body)
 
 
-def edit_column(board_id: int, column_id: int, body: dict[str, Any]) -> Endpoint[Column]:
+def edit_column(board_id: int, column_id: int, body: ColumnUpdate) -> Endpoint[Column]:
     path = f"boards/{segment(board_id)}/columns/{segment(column_id)}"
     return Endpoint("PATCH", path, Column, json=body)
 

@@ -13,7 +13,8 @@ from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, TAGS, WRITE_TAGS, forms_client
-from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.forms.files.models import FileIn
+from ycli.yandex.forms.models import FileOut
 from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-files")

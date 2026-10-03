@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
@@ -22,6 +22,11 @@ FieldOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Advanced key=value (JSON-coerced; repeatable)."),
 ]
+
+
+def _given(named: dict[str, Any], field: list[str] | None) -> dict[str, Any]:
+    """The options that were given, then whatever ``--field`` adds or overrides."""
+    return {name: value for name, value in named.items() if value is not None} | parse_fields(field)
 
 
 def _body_help(field: str) -> str:
@@ -102,16 +107,15 @@ def create(
     forms: FormsClient,
 ) -> Survey:
     """Create a form (POST /surveys). Advanced keys via --field; returns the created form."""
-    payload = SurveyCreate(
-        name=name,
-        language=language or None,
-        is_published=published,
-        is_public=public,
-        need_auth=need_auth,
-        max_count=max_count or None,
-    )
-    body = payload.model_dump(exclude_none=True) | parse_fields(field)
-    return forms.surveys.create(body=body)
+    named = {
+        "name": name,
+        "language": language or None,
+        "is_published": published,
+        "is_public": public,
+        "need_auth": need_auth,
+        "max_count": max_count or None,
+    }
+    return forms.surveys.create(body=SurveyCreate.model_validate(_given(named, field)))
 
 
 @app.command()
@@ -130,16 +134,15 @@ def update(
     forms: FormsClient,
 ) -> Survey:
     """Modify form SURVEY_ID (PATCH /surveys/{id}) — only supplied fields are sent."""
-    payload = SurveyUpdate(
-        name=name or None,
-        language=language or None,
-        is_published=published,
-        is_public=public,
-        need_auth=need_auth,
-        max_count=max_count or None,
-    )
-    body = payload.model_dump(exclude_none=True) | parse_fields(field)
-    return forms.surveys.modify(survey_id, body=body)
+    named = {
+        "name": name or None,
+        "language": language or None,
+        "is_published": published,
+        "is_public": public,
+        "need_auth": need_auth,
+        "max_count": max_count or None,
+    }
+    return forms.surveys.modify(survey_id, body=SurveyUpdate.model_validate(_given(named, field)))
 
 
 @app.command()

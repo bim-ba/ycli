@@ -7,23 +7,21 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.statuses.models import Status
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpdate
 
 
 def list_statuses() -> Endpoint[ItemList[Status]]:
     return Endpoint("GET", "statuses", ItemList[Status])
 
 
-def create_status(body: dict[str, Any]) -> Endpoint[Status]:
+def create_status(body: StatusCreate) -> Endpoint[Status]:
     return Endpoint("POST", "statuses/", Status, json=body)
 
 
 def edit_status(
-    status_id: str, body: dict[str, Any], *, version: int | None = None
+    status_id: str, body: StatusUpdate, *, version: int | None = None
 ) -> Endpoint[Status]:
     """``PATCH /statuses/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
     return Endpoint(

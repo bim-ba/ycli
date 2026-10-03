@@ -18,12 +18,14 @@ from ycli.yandex.wiki.pages.models import (
     PageAppendContent,
     PageAppendContentBody,
     PageClone,
+    PageCreate,
     PageDeleteResult,
     PageDetails,
     PageMove,
     PageMoveStep,
     PageRef,
     PageRevision,
+    PageUpdate,
 )
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
@@ -161,7 +163,7 @@ def create(
 ) -> PageDetails:
     """Create a wiki page (POST /pages)."""
     return wiki.pages.create(
-        body={"slug": slug, "title": title, "content": content},
+        body=PageCreate(slug=slug, title=title, content=content),
         fields=fields or None,
         is_silent=silent,
     )
@@ -182,12 +184,9 @@ def update(
     wiki: WikiClient,
 ) -> PageDetails:
     """Update a wiki page by id (POST /pages/{id})."""
-    body: dict[str, str] = {"content": content}
-    if title:
-        body["title"] = title
     return wiki.pages.update(
         page_id=page_id,
-        body=body,
+        body=PageUpdate(content=content, title=title or None),
         fields=fields or None,
         is_silent=silent,
         allow_merge=allow_merge,
@@ -231,7 +230,7 @@ def append(
     )
     return wiki.pages.append_content(
         page_id=page_id,
-        body=payload.model_dump(exclude_none=True),
+        body=payload,
         fields=fields or None,
         is_silent=silent,
     )
@@ -252,9 +251,7 @@ def clone(
     wiki: WikiClient,
 ) -> AsyncOperation | CloneOperationStatus:
     """Copy a page to a new address (POST /pages/{id}/clone; async). --wait polls to completion."""
-    body = PageClone(target=target, title=title or None, subscribe_me=subscribe_me).model_dump(
-        exclude_none=True
-    )
+    body = PageClone(target=target, title=title or None, subscribe_me=subscribe_me)
     operation = wiki.pages.clone(page_id=page_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
@@ -301,9 +298,7 @@ def move(
         next_to_slug=next_to or None,
         position=position or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the before|after literal
     )
-    body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access).model_dump(
-        exclude_none=True
-    )
+    body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access)
     operation = wiki.pages.move(body=body, dry_run=validate_only)
     # A validation applies nothing, and the task id it returns answers 404 when polled.
     polled = wait and not validate_only

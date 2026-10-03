@@ -1,6 +1,13 @@
 """Contract cases for Wiki ``/pages`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.wiki.pages.models import (
+    PageAppendContent,
+    PageClone,
+    PageCreate,
+    PageMove,
+    PageUpdate,
+)
 
 
 def _page(page_id: int, slug: str, **extra: object) -> dict[str, object]:
@@ -294,7 +301,9 @@ CASES = [
     ),
     Case(
         "wiki.pages.create",
-        args=({"slug": "eng/new", "title": "New page", "content": "# New"},),
+        args=(
+            PageCreate.model_validate({"slug": "eng/new", "title": "New page", "content": "# New"}),
+        ),
         cli=[
             "wiki",
             "pages",
@@ -320,7 +329,7 @@ CASES = [
     ),
     Case(
         "wiki.pages.update",
-        args=(4402, {"content": "# Rewritten", "title": "Renamed"}),
+        args=(4402, PageUpdate.model_validate({"content": "# Rewritten", "title": "Renamed"})),
         cli=[
             "wiki",
             "pages",
@@ -342,7 +351,7 @@ CASES = [
     ),
     Case(
         "wiki.pages.update",
-        args=(4403, {"content": "# Body only"}),
+        args=(4403, PageUpdate.model_validate({"content": "# Body only"})),
         cli=["wiki", "pages", "update", "4403", "--content", "# Body only"],
         mcp=("wiki_pages_update", {"page_id": 4403, "content": "# Body only"}),
         exchanges=[
@@ -367,7 +376,12 @@ CASES = [
     ),
     Case(
         "wiki.pages.append_content",
-        args=(4601, {"content": "## Top note", "body": {"location": "top"}}),
+        args=(
+            4601,
+            PageAppendContent.model_validate(
+                {"content": "## Top note", "body": {"location": "top"}}
+            ),
+        ),
         cli=["wiki", "pages", "append", "4601", "--content", "## Top note", "--location", "top"],
         mcp=(
             "wiki_pages_append",
@@ -386,7 +400,12 @@ CASES = [
     ),
     Case(
         "wiki.pages.append_content",
-        args=(4602, {"content": "## Footer", "body": {"location": "bottom"}}),
+        args=(
+            4602,
+            PageAppendContent.model_validate(
+                {"content": "## Footer", "body": {"location": "bottom"}}
+            ),
+        ),
         cli=["wiki", "pages", "append", "4602", "--content", "## Footer"],
         mcp=None,
         exchanges=[
@@ -404,10 +423,12 @@ CASES = [
         "wiki.pages.append_content",
         args=(
             4603,
-            {
-                "content": "## Under the anchor",
-                "anchor": {"name": "Risks", "fallback": True, "regex": True},
-            },
+            PageAppendContent.model_validate(
+                {
+                    "content": "## Under the anchor",
+                    "anchor": {"name": "Risks", "fallback": True, "regex": True},
+                }
+            ),
         ),
         cli=None,
         mcp=(
@@ -436,7 +457,12 @@ CASES = [
     ),
     Case(
         "wiki.pages.append_content",
-        args=(4604, {"content": "## In section", "section": {"id": 3, "location": "bottom"}}),
+        args=(
+            4604,
+            PageAppendContent.model_validate(
+                {"content": "## In section", "section": {"id": 3, "location": "bottom"}}
+            ),
+        ),
         cli=None,
         mcp=(
             "wiki_pages_append",
@@ -458,7 +484,10 @@ CASES = [
     ),
     Case(
         "wiki.pages.clone",
-        args=(4701, {"target": "eng/copy", "title": "Copy", "subscribe_me": True}),
+        args=(
+            4701,
+            PageClone.model_validate({"target": "eng/copy", "title": "Copy", "subscribe_me": True}),
+        ),
         cli=[
             "wiki",
             "pages",
@@ -491,7 +520,7 @@ CASES = [
     ),
     Case(
         "wiki.pages.clone",
-        args=(4702, {"target": "eng/mirror", "subscribe_me": False}),
+        args=(4702, PageClone.model_validate({"target": "eng/mirror", "subscribe_me": False})),
         cli=["wiki", "pages", "clone", "4702", "--target", "eng/mirror", "--no-wait"],
         mcp=("wiki_pages_clone", {"page_id": 4702, "body": {"target": "eng/mirror"}}),
         exchanges=[
@@ -509,17 +538,19 @@ CASES = [
     Case(
         "wiki.pages.move",
         args=(
-            {
-                "operations": [
-                    {
-                        "source": "eng/old-plan",
-                        "target": "archive/plan",
-                        "next_to_slug": "archive/first",
-                        "position": "after",
-                    }
-                ],
-                "copy_inherited_access": True,
-            },
+            PageMove.model_validate(
+                {
+                    "operations": [
+                        {
+                            "source": "eng/old-plan",
+                            "target": "archive/plan",
+                            "next_to_slug": "archive/first",
+                            "position": "after",
+                        }
+                    ],
+                    "copy_inherited_access": True,
+                }
+            ),
         ),
         kwargs={"dry_run": True},
         cli=[
@@ -585,10 +616,12 @@ CASES = [
     Case(
         "wiki.pages.move",
         args=(
-            {
-                "operations": [{"source": "eng/b", "target": "eng/c"}],
-                "copy_inherited_access": False,
-            },
+            PageMove.model_validate(
+                {
+                    "operations": [{"source": "eng/b", "target": "eng/c"}],
+                    "copy_inherited_access": False,
+                }
+            ),
         ),
         cli=["wiki", "pages", "move", "eng/b", "eng/c", "--no-wait"],
         mcp=(
@@ -973,7 +1006,11 @@ CASES = [
     ),
     Case(
         "wiki.pages.create",
-        args=({"slug": "eng/quiet", "title": "Quiet page", "content": "# Quiet"},),
+        args=(
+            PageCreate.model_validate(
+                {"slug": "eng/quiet", "title": "Quiet page", "content": "# Quiet"}
+            ),
+        ),
         kwargs={"fields": "content", "is_silent": True},
         cli=[
             "wiki",
@@ -1013,7 +1050,7 @@ CASES = [
     ),
     Case(
         "wiki.pages.update",
-        args=(4406, {"content": "# Merged"}),
+        args=(4406, PageUpdate.model_validate({"content": "# Merged"})),
         kwargs={"fields": "content", "is_silent": True, "allow_merge": True},
         cli=[
             "wiki",
@@ -1065,7 +1102,12 @@ CASES = [
     ),
     Case(
         "wiki.pages.append_content",
-        args=(4606, {"content": "## Quiet note", "body": {"location": "bottom"}}),
+        args=(
+            4606,
+            PageAppendContent.model_validate(
+                {"content": "## Quiet note", "body": {"location": "bottom"}}
+            ),
+        ),
         kwargs={"fields": "content", "is_silent": True},
         cli=[
             "wiki",

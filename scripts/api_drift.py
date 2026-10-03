@@ -26,6 +26,7 @@ Kill criterion: if Tracker ever publishes its OpenAPI document, the reference-pa
 from __future__ import annotations
 
 import argparse
+import ast
 import asyncio
 import builtins
 import importlib
@@ -220,16 +221,34 @@ def _fields(response_type: Any) -> frozenset[str] | None:
     )
 
 
+@cache
+def _checked_imports(module: Any) -> dict[str, Any]:
+    """The names ``module`` imports only for type checking, imported for real."""
+    names: dict[str, Any] = {}
+    for node in ast.parse(inspect.getsource(module)).body:
+        guarded = isinstance(node, ast.If) and ast.unparse(node.test) == "TYPE_CHECKING"
+        for statement in node.body if guarded else ():
+            if isinstance(statement, ast.ImportFrom) and statement.module:
+                source = importlib.import_module(statement.module)
+                names |= {
+                    alias.asname or alias.name: getattr(source, alias.name)
+                    for alias in statement.names
+                }
+    return names
+
+
 def _hints(function: Callable[..., Any]) -> dict[str, Any]:
     """The annotations of ``function`` as types, ``Any`` where one cannot be resolved.
 
-    The modules keep their annotations as strings, and some name an import made only for type
-    checking (``Sequence``), which does not exist at run time. That is why each annotation is
-    resolved on its own: ``inspect.get_annotations(eval_str=True)`` fails for the whole function
-    on the first such name.
+    The modules keep their annotations as strings, and most name an import made only for type
+    checking (a request model, ``Sequence``), which does not exist at run time: those imports
+    are made here. Each annotation is resolved on its own, because
+    ``inspect.get_annotations(eval_str=True)`` fails for the whole function on the first name
+    it cannot find.
     """
     function = getattr(function, "__func__", function)
-    namespace = {**vars(builtins), **vars(inspect.getmodule(function))}
+    module = inspect.getmodule(function)
+    namespace = {**vars(builtins), **vars(module), **_checked_imports(module)}
     hints: dict[str, Any] = {}
     for name, annotation in inspect.get_annotations(function).items():
         try:
@@ -310,17 +329,21 @@ def _tool_functions(domain: str, resource: str) -> dict[str, Callable[..., Any]]
 
 
 def typed_body(found: Recorded) -> Any | None:
-    """The type of the body ``found`` sends, a model or a union of them, if its MCP tool has one.
+    """The type of the body ``found`` sends: a request model or a union of them, else ``None``.
 
-    The SDK itself takes a free-form mapping, so the MCP tool's ``body`` parameter is the one
-    typed description of a request body; it stands for the request only when the operation
-    sends nothing else.
+    The SDK operation's ``body`` parameter says it; an operation that takes its body another
+    way falls back to its MCP tool's ``body``, then to the model its endpoint carries. The type
+    stands for the request only when the operation sends nothing else.
     """
-    if not found.case.mcp or len(replay(found.case)) != 1:
+    if len(replay(found.case)) != 1:
         return None
-    domain, resource, _ = found.case.operation.split(".")
-    function = _tool_functions(domain, resource).get(found.case.mcp[0])
-    annotation = _hints(function).get("body") if function else None
+    annotation = found.hints.get("body")
+    if not _models(annotation) and found.case.mcp:
+        domain, resource, _ = found.case.operation.split(".")
+        function = _tool_functions(domain, resource).get(found.case.mcp[0])
+        annotation = _hints(function).get("body") if function else None
+    if not _models(annotation) and isinstance(found.endpoint.json, BaseModel):
+        annotation = type(found.endpoint.json)  # a body the client builds from its arguments
     return annotation if _models(annotation) else None
 
 

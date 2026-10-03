@@ -79,8 +79,7 @@ class TriggersClient(Resource):
             >>> tracker.triggers.create("ART", new_trigger).id
             17
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_trigger(queue_id, dumped))
+        return self._session.send(endpoints.create_trigger(queue_id, body))
 
     def edit(
         self, queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None = None
@@ -106,9 +105,8 @@ class TriggersClient(Resource):
             ... ).name
             'Renamed trigger'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(
-            endpoints.edit_trigger(queue_id, trigger_id, dumped, version=version)
+            endpoints.edit_trigger(queue_id, trigger_id, body, version=version)
         )
 
     def webhook_log(

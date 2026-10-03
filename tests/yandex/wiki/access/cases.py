@@ -1,6 +1,7 @@
 """Contract cases for Wiki ``/pages/{id}/access`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.wiki.access.models import PageAccessCreate, PageAccessUpdate
 
 
 def _grant(access_id: str, role: str, **extra: object) -> dict[str, object]:
@@ -34,7 +35,7 @@ UPDATE_BODY = {"role": "extra_editor", "inheritance": "inherited"}
 CASES = [
     Case(
         "wiki.access.create",
-        args=(6001, USER_BODY),
+        args=(6001, PageAccessCreate.model_validate(USER_BODY)),
         cli=[
             "wiki",
             "access",
@@ -59,7 +60,7 @@ CASES = [
     ),
     Case(
         "wiki.access.create",
-        args=(6002, GROUP_BODY),
+        args=(6002, PageAccessCreate.model_validate(GROUP_BODY)),
         cli=[
             "wiki",
             "access",
@@ -82,7 +83,7 @@ CASES = [
     ),
     Case(
         "wiki.access.update",
-        args=(6003, "5003", UPDATE_BODY),
+        args=(6003, "5003", PageAccessUpdate.model_validate(UPDATE_BODY)),
         kwargs={"prevent_selflock": True},
         cli=[
             "wiki",
@@ -115,7 +116,7 @@ CASES = [
     ),
     Case(
         "wiki.access.update",
-        args=(6004, "5004", {"inheritance": "not_inherited"}),
+        args=(6004, "5004", PageAccessUpdate.model_validate({"inheritance": "not_inherited"})),
         cli=["wiki", "access", "update", "6004", "5004", "--inheritance", "not_inherited"],
         mcp=(
             "wiki_access_update",

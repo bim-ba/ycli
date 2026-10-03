@@ -91,7 +91,7 @@ class CommentCreate(APIModel):
     """Typed request body for adding a comment to an issue or an entity.
 
     Examples:
-        >>> CommentCreate(text="Готово ✅").model_dump(by_alias=True, exclude_none=True)
+        >>> CommentCreate(text="Готово ✅").model_dump(exclude_none=True)
         {'text': 'Готово ✅'}
     """
 
@@ -128,7 +128,7 @@ class FieldCreate(APIModel):
     Examples:
         >>> FieldCreate(
         ...     name=LocalizedName(ru="Поле"), id="myField", category="1", type="StringFieldType"
-        ... ).model_dump(by_alias=True, exclude_none=True)
+        ... ).model_dump(exclude_none=True)
         {'name': {'ru': 'Поле'}, 'id': 'myField', 'category': '1', 'type': 'StringFieldType'}
     """
 
@@ -227,11 +227,59 @@ class DeadlineInput(APIModel):
     """Typed ``deadline`` block for a checklist item or key result write body.
 
     Examples:
-        >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000").model_dump(by_alias=True)
+        >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000").model_dump()
         {'date': '2025-12-01T00:00:00.000+0000', 'deadlineType': 'date'}
     """
 
     date: str = Field(description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     deadline_type: str = Field(
         default="date", alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
+    )
+
+
+class AccessHolders(APIModel):
+    """Who holds one permission: users, groups and roles (an empty kind is left out by the API).
+
+    Examples:
+        >>> AccessHolders.model_validate({"groups": [{"id": "5"}]}).groups[0].id
+        '5'
+    """
+
+    users: list[UserReference] = Field(
+        default_factory=list, description="Users holding the permission personally."
+    )
+    groups: list[Reference] = Field(
+        default_factory=list, description="Groups holding the permission."
+    )
+    roles: list[Reference] = Field(
+        default_factory=list, description="Roles (queue-lead, author, …) holding the permission."
+    )
+
+
+class AccessPermissions(APIModel):
+    """The permissions of one subject, keyed by kind; a kind the subject lacks is absent.
+
+    ``grant`` (queue settings) exists on a queue only; a component has create/read/write/deny.
+
+    Examples:
+        >>> AccessPermissions.model_validate(
+        ...     {"CREATE": {"roles": [{"id": "author"}]}}
+        ... ).create.roles[0].id
+        'author'
+    """
+
+    grant: AccessHolders | None = Field(
+        default=None, alias="GRANT", description="Who may change the queue's settings."
+    )
+    create: AccessHolders | None = Field(
+        default=None, alias="CREATE", description="Who may create issues."
+    )
+    read: AccessHolders | None = Field(
+        default=None, alias="READ", description="Who may view issues."
+    )
+    write: AccessHolders | None = Field(
+        default=None, alias="WRITE", description="Who may edit issues."
+    )
+    deny: AccessHolders | None = Field(
+        default=None, alias="DENY", description="Who is denied access."
     )

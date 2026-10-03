@@ -1,13 +1,20 @@
 """Endpoint: the effect follows the method unless stated; requests carry client defaults."""
 
 import dataclasses
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx2
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 
-from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, Endpoint, check_path, segment
+from ycli.yandex.core.endpoint import (
+    ENDPOINT_EXTENSION,
+    Endpoint,
+    check_path,
+    dump_body,
+    segment,
+)
 from ycli.yandex.errors import YandexClientError
 
 
@@ -117,3 +124,33 @@ def test_bytes_and_a_parser_read_a_non_json_body():
     response = httpx2.Response(200, content=b"\x89PNG")
     assert Endpoint("GET", "x", bytes).parse(response) == b"\x89PNG"
     assert Endpoint("GET", "x", parser=lambda r: len(r.content)).parse(response) == 4
+
+
+class _Step(BaseModel):
+    target: str | None  # no default: the caller had to give it, so a null is a value
+    note: str | None = None
+    at: datetime | None = None
+    sort_by: str | None = Field(default=None, serialization_alias="sortBy")
+
+
+class _Open(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    summary: str | None = None
+
+
+def test_a_body_is_dumped_once_with_the_nulls_a_caller_can_mean():
+    step = _Step(target=None, at=datetime(2026, 10, 4, tzinfo=UTC), sort_by="name")
+    assert dump_body(step) == {
+        "target": None,
+        "at": "2026-10-04T00:00:00Z",
+        "sortBy": "name",
+    }
+    cleared = _Open.model_validate({"summary": None, "assignee": None, "sprint": 7})
+    assert dump_body(cleared) == {"assignee": None, "sprint": 7}
+    assert dump_body(RootModel[list[_Step]]([_Step(target="a")])) == [{"target": "a"}]
+    assert dump_body({"steps": (_Step(target="b", note="x"),), "dry": True}) == {
+        "steps": [{"target": "b", "note": "x"}],
+        "dry": True,
+    }
+    assert Endpoint("POST", "moves", json=_Step(target="c")).body == {"target": "c"}

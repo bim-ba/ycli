@@ -113,7 +113,7 @@ class BoardCreate(APIModel):
     """Typed request body for ``boards.create`` (``POST /liveBoards/``).
 
     ``name`` is the only required field; every other field is omitted from the JSON
-    body when left as ``None`` (see ``model_dump(by_alias=True, exclude_none=True)``).
+    body when left as ``None`` (see ``model_dump(exclude_none=True)``).
 
     Examples:
         >>> BoardCreate(name="Testing", owner="username").name

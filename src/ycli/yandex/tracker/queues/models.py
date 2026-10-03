@@ -13,7 +13,12 @@ from typing import Any
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.models import KeyedReference, Reference, UserReference
+from ycli.yandex.tracker.models import (
+    AccessPermissions,
+    KeyedReference,
+    Reference,
+    UserReference,
+)
 
 
 class IssueTypeConfig(APIModel):
@@ -380,7 +385,7 @@ class QueueVersionUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> QueueVersionUpdate(name="v1.1").model_dump(by_alias=True, exclude_none=True)
+        >>> QueueVersionUpdate(name="v1.1").model_dump(exclude_none=True)
         {'name': 'v1.1'}
     """
 
@@ -395,54 +400,6 @@ class QueueVersionUpdate(APIModel):
         default=None,
         serialization_alias="dueDate",
         description="New version due date (YYYY-MM-DD).",
-    )
-
-
-class AccessHolders(APIModel):
-    """Who holds one permission: users, groups and roles (an empty kind is left out by the API).
-
-    Examples:
-        >>> AccessHolders.model_validate({"groups": [{"id": "5"}]}).groups[0].id
-        '5'
-    """
-
-    users: list[UserReference] = Field(
-        default_factory=list, description="Users holding the permission personally."
-    )
-    groups: list[Reference] = Field(
-        default_factory=list, description="Groups holding the permission."
-    )
-    roles: list[Reference] = Field(
-        default_factory=list, description="Roles (queue-lead, author, …) holding the permission."
-    )
-
-
-class AccessPermissions(APIModel):
-    """The permissions of one subject, keyed by kind; a kind the subject lacks is absent.
-
-    ``grant`` (queue settings) exists on a queue only; a component has create/read/write/deny.
-
-    Examples:
-        >>> AccessPermissions.model_validate(
-        ...     {"CREATE": {"roles": [{"id": "author"}]}}
-        ... ).create.roles[0].id
-        'author'
-    """
-
-    grant: AccessHolders | None = Field(
-        default=None, alias="GRANT", description="Who may change the queue's settings."
-    )
-    create: AccessHolders | None = Field(
-        default=None, alias="CREATE", description="Who may create issues."
-    )
-    read: AccessHolders | None = Field(
-        default=None, alias="READ", description="Who may view issues."
-    )
-    write: AccessHolders | None = Field(
-        default=None, alias="WRITE", description="Who may edit issues."
-    )
-    deny: AccessHolders | None = Field(
-        default=None, alias="DENY", description="Who is denied access."
     )
 
 

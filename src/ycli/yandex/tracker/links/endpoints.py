@@ -7,12 +7,12 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.links.models import Link, LinkPage
+from ycli.yandex.tracker.links.models import Link, LinkCreate, LinkPage
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -42,7 +42,7 @@ def search_links(
     )
 
 
-def add_link(key: str, body: dict[str, Any]) -> Endpoint[Link]:
+def add_link(key: str, body: LinkCreate) -> Endpoint[Link]:
     return Endpoint("POST", f"issues/{segment(key)}/links", Link, json=body)
 
 
