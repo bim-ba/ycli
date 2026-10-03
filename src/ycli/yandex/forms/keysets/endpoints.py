@@ -10,15 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.keysets.models import Keyset, KeysetList
+from ycli.yandex.forms.keysets.models import Keyset
+from ycli.yandex.models import ItemList
 
 
 def _keysets(survey_id: str) -> str:
     return f"surveys/{segment(survey_id)}/keysets"
 
 
-def list_keysets(survey_id: str) -> Endpoint[KeysetList]:
-    return Endpoint("GET", _keysets(survey_id), KeysetList)
+def list_keysets(survey_id: str) -> Endpoint[ItemList[Keyset]]:
+    return Endpoint("GET", _keysets(survey_id), ItemList[Keyset])
 
 
 def get_keyset(survey_id: str, keyset_id: int) -> Endpoint[Keyset]:

@@ -9,7 +9,7 @@ from __future__ import annotations
 import enum
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import UserReference
@@ -57,15 +57,6 @@ class Project(APIModel):
     queues: list[Any] | None = Field(
         default=None, description="Queues of the project; present with ``expand=queues``."
     )
-
-
-class ProjectList(RootModel[list[Project]]):
-    """A bare JSON array of the organization's projects.
-
-    Examples:
-        >>> ProjectList.model_validate([{"id": "1"}]).root[0].id
-        '1'
-    """
 
 
 class ProjectCreate(APIModel):

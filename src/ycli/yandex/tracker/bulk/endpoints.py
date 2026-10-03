@@ -15,7 +15,8 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResult
 
 
 def update_bulk(body: dict[str, Any]) -> Endpoint[BulkChange]:
@@ -34,5 +35,5 @@ def get_bulk(bulk_id: str) -> Endpoint[BulkChange]:
     return Endpoint("GET", f"bulkchange/{segment(bulk_id)}", BulkChange)
 
 
-def list_bulk_issues(bulk_id: str) -> Endpoint[BulkIssueResultList]:
-    return Endpoint("GET", f"bulkchange/{segment(bulk_id)}/issues", BulkIssueResultList)
+def list_bulk_issues(bulk_id: str) -> Endpoint[ItemList[BulkIssueResult]]:
+    return Endpoint("GET", f"bulkchange/{segment(bulk_id)}/issues", ItemList[BulkIssueResult])

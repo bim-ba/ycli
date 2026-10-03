@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker issue transitions (Transition + TransitionList)."""
+"""Pydantic models for Tracker issue transitions (Transition + ItemList[Transition])."""
 
 from __future__ import annotations
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel
 
@@ -38,15 +38,6 @@ class Transition(APIModel):
     id: str | None = None
     display: str | None = None  # present on the GET list response
     to: StatusRef | None = None  # present on the POST _execute response (the target status)
-
-
-class TransitionList(RootModel[list[Transition]]):
-    """A bare JSON array of transitions.
-
-    Examples:
-        >>> TransitionList.model_validate([{"id": "close"}]).root[0].id
-        'close'
-    """
 
 
 class TransitionExecute(APIModel):

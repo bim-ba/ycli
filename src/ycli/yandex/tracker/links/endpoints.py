@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination
-from ycli.yandex.tracker.links.models import Link, LinkList, LinkPage
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.links.models import Link, LinkPage
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -19,8 +20,8 @@ if TYPE_CHECKING:
 PAGE_SIZE = 50
 
 
-def list_links(key: str) -> Endpoint[LinkList]:
-    return Endpoint("GET", f"issues/{segment(key)}/links", LinkList)
+def list_links(key: str) -> Endpoint[ItemList[Link]]:
+    return Endpoint("GET", f"issues/{segment(key)}/links", ItemList[Link])
 
 
 def search_links(

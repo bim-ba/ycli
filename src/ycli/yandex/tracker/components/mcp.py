@@ -6,13 +6,12 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.components.models import (
     Component,
     ComponentCreate,
     ComponentGroupAccess,
-    ComponentList,
     ComponentUpdate,
     ComponentUserAccess,
 )
@@ -31,7 +30,7 @@ mcp = FastMCP("tracker-components")
 
 
 @mcp.tool(name="components_list", annotations={**RO, "title": "List Tracker components"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> ComponentList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Component]:
     """All components created by the organisation's users.
 
     Each component carries its queue, owner and description. Components are sub-areas used to
@@ -90,7 +89,7 @@ def list_for_queue(
         Field(description="Comma-separated extra fields: ``version,description,lead,assignAuto``."),
     ] = None,
     client: TrackerClient = Depends(tracker_client),
-) -> ComponentList:
+) -> ItemList[Component]:
     """The components of one queue, so you need not filter ``components_list`` by queue."""
     return client.components.list_for_queue(queue_id, fields=fields)
 

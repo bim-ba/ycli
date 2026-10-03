@@ -13,13 +13,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.attachments import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.attachments.models import Attachment, AttachmentList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.attachments.models import Attachment
 
 
 class AttachmentsClient(Resource):
     """Issue ``/attachments`` — list, get, upload, delete, plus two binary downloads."""
 
-    def list(self, issue_key: str) -> AttachmentList:
+    def list(self, issue_key: str) -> ItemList[Attachment]:
         """``GET /issues/{issue_key}/attachments`` → files attached to the issue (and its comments).
 
         Args:

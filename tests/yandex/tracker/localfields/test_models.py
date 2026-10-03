@@ -1,11 +1,7 @@
 """TDD for the localfields models — the schema alias, nested blocks, and write bodies."""
 
-from ycli.yandex.tracker.localfields.models import (
-    LocalField,
-    LocalFieldList,
-    LocalFieldUpdate,
-    OptionsProvider,
-)
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate, OptionsProvider
 from ycli.yandex.tracker.models import FieldCreate, FieldSchema, LocalizedName, OptionsProviderInput
 
 
@@ -75,7 +71,7 @@ def test_options_provider_standalone():
 
 
 def test_local_field_list_root_model():
-    lst = LocalFieldList.model_validate([{"key": "a"}, {"key": "b"}])
+    lst = ItemList[LocalField].model_validate([{"key": "a"}, {"key": "b"}])
     assert [f.key for f in lst.root] == ["a", "b"]
 
 

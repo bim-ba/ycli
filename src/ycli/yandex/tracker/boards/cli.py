@@ -9,8 +9,8 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
-from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
+from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
 
 app = typer.Typer(name="boards", help="Tracker agile boards.", no_args_is_help=True)
@@ -21,7 +21,7 @@ BoardIdArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric boa
 @app.command("list")
 def list_(
     limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
-) -> BoardList:
+) -> ItemList[Board]:
     """List all agile boards (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.boards.list(limit=cap)

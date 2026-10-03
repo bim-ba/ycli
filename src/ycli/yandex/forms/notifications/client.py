@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.notifications import endpoints
-from ycli.yandex.forms.notifications.models import NotificationList
+from ycli.yandex.forms.notifications.models import Notification
+from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -14,7 +15,6 @@ if TYPE_CHECKING:
     from ycli.yandex.forms.notifications.models import (
         NotificationAction,
         NotificationDetails,
-        NotificationIdList,
         NotificationStatus,
     )
 
@@ -38,7 +38,7 @@ class NotificationsClient(Resource):
         integration_type: str | None = None,
         ordering: str | None = None,
         limit: int | None = None,
-    ) -> NotificationList:
+    ) -> ItemList[Notification]:
         """``GET /notifications`` → runs matching every filter given, at most ``limit``.
 
         ``status`` holds any of pending, success, error, canceled; the ``*_since`` / ``*_until``
@@ -84,7 +84,7 @@ class NotificationsClient(Resource):
             integration_type=integration_type,
             ordering=ordering,
         )
-        return NotificationList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Notification](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, notification_id: int) -> NotificationDetails:
         """``GET /notifications/{id}`` → the run with its context, response and error.
@@ -153,7 +153,7 @@ class NotificationsClient(Resource):
         """
         return self._session.send(endpoints.cancel_notification(notification_id))
 
-    def errors_list(self, survey_id: str) -> NotificationIdList:
+    def errors_list(self, survey_id: str) -> ItemList[int]:
         """``GET /surveys/{id}/show-errors`` → ids of the form's failed runs still shown.
 
         Read each with :meth:`get`.

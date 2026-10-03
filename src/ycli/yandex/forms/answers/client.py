@@ -10,13 +10,14 @@ from ycli.yandex.forms.answers import endpoints
 from ycli.yandex.forms.answers.models import (
     Answer,
     AnswerDetails,
-    AnswerIntegrationList,
+    AnswerIntegration,
     AnswersResponse,
     Column,
 )
 
 if TYPE_CHECKING:
     from ycli.yandex.forms.models import OperationResult
+    from ycli.yandex.models import ItemList
 
 
 class AnswersClient(Resource):
@@ -152,7 +153,7 @@ class AnswersClient(Resource):
 
     def integrations_list(
         self, *, answer_id: int | None = None, answer_key: str | None = None
-    ) -> AnswerIntegrationList:
+    ) -> ItemList[AnswerIntegration]:
         """``GET /answers/integrations`` → the integration runs one answer triggered.
 
         Exactly one selector, as for :meth:`get`.

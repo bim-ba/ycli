@@ -7,20 +7,16 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.issuetypes.models import (
-    IssueType,
-    IssueTypeCreate,
-    IssueTypeList,
-    IssueTypeUpdate,
-)
+from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeCreate, IssueTypeUpdate
 from ycli.yandex.tracker.models import LocalizedName
 
 app = typer.Typer(name="issuetypes", help="Tracker issue types.", no_args_is_help=True)
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> IssueTypeList:
+def list_(*, tracker: TrackerClient) -> ItemList[IssueType]:
     """List all issue types."""
     return tracker.issuetypes.list()
 

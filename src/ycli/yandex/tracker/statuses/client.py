@@ -11,13 +11,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.statuses import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpdate
 
 
 class StatusesClient(Resource):
     """List, create and edit issue statuses."""
 
-    def list(self) -> StatusList:
+    def list(self) -> ItemList[Status]:
         """``GET /statuses`` → status listing.
 
         Returns:

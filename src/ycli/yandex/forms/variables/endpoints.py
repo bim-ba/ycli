@@ -8,8 +8,9 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.variables.models import VariableInfoList
+from ycli.yandex.forms.variables.models import VariableInfo
+from ycli.yandex.models import ItemList
 
 
-def list_variables(survey_id: str) -> Endpoint[VariableInfoList]:
-    return Endpoint("GET", f"surveys/{segment(survey_id)}/variables", VariableInfoList)
+def list_variables(survey_id: str) -> Endpoint[ItemList[VariableInfo]]:
+    return Endpoint("GET", f"surveys/{segment(survey_id)}/variables", ItemList[VariableInfo])

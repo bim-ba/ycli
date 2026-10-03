@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -162,12 +162,3 @@ class AnswerIntegration(APIModel):
     issue_key: str | None = Field(default=None, description="Tracker issue key (tracker).")
     url: str | None = Field(default=None, description="URL that was called (http, jsonrpc).")
     function_id: str | None = Field(default=None, description="Cloud function id (function).")
-
-
-class AnswerIntegrationList(RootModel[list[AnswerIntegration]]):
-    """A bare JSON array of :class:`AnswerIntegration`.
-
-    Examples:
-        >>> AnswerIntegrationList.model_validate([{"id": 4}]).root[0].id
-        4
-    """

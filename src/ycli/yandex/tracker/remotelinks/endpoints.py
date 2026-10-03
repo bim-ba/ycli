@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.remotelinks.models import RemoteLink
 
 
-def list_remote_links(issue_key: str) -> Endpoint[RemoteLinkList]:
-    return Endpoint("GET", f"issues/{segment(issue_key)}/remotelinks", RemoteLinkList)
+def list_remote_links(issue_key: str) -> Endpoint[ItemList[RemoteLink]]:
+    return Endpoint("GET", f"issues/{segment(issue_key)}/remotelinks", ItemList[RemoteLink])
 
 
 def create_remote_link(

@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker statuses (Status + StatusList + typed write bodies)."""
+"""Pydantic models for Tracker statuses (Status + ItemList[Status] + typed write bodies)."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import LocalizedName
@@ -35,15 +35,6 @@ class Status(APIModel):
         default=None,
         description="Status type: one of new, inProgress, paused, done, cancelled.",
     )
-
-
-class StatusList(RootModel[list[Status]]):
-    """A bare JSON array of statuses.
-
-    Examples:
-        >>> StatusList.model_validate([{"key": "open"}]).root[0].key
-        'open'
-    """
 
 
 class StatusCreate(APIModel):

@@ -11,8 +11,8 @@ from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
-from ycli.yandex.wiki.attachments.models import AttachedFile, AttachedFileList, AttachmentList
+from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -35,7 +35,7 @@ def list_(
     limit: Annotated[int, Field(description=f"Max attachments to return; {LIMIT_CAP}")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> AttachmentList:
+) -> ItemList[Attachment]:
     """Attachments (name, size, mime type) on a page id, auto-paginated (drains ``next_cursor``).
 
     Capped at the configured item cap unless ``limit`` is given. This is the list surface;
@@ -76,7 +76,7 @@ def attach(
         Field(description="``session_id`` of each FINISHED upload session to attach."),
     ],
     client: WikiClient = Depends(wiki_client),
-) -> AttachedFileList:
+) -> ItemList[AttachedFile]:
     """Attach file(s) from finished upload sessions to a wiki page.
 
     The final step of the upload pipeline: create the session (``uploadsessions_create``),
@@ -97,7 +97,7 @@ def upload(
     file_name: Annotated[str, Field(description="Name to give the uploaded file.")],
     data: Annotated[Base64Bytes, Field(description="The file's bytes, base64-encoded.")],
     client: WikiClient = Depends(wiki_client),
-) -> AttachedFileList:
+) -> ItemList[AttachedFile]:
     """Upload one small file and attach it to a wiki page in a single call.
 
     Runs the whole pipeline end to end: opens an upload session sized to ``data``, PUTs the

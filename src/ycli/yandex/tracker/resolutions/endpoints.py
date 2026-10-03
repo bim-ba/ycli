@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.resolutions.models import Resolution, ResolutionList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.resolutions.models import Resolution
 
 
-def list_resolutions() -> Endpoint[ResolutionList]:
-    return Endpoint("GET", "resolutions", ResolutionList)
+def list_resolutions() -> Endpoint[ItemList[Resolution]]:
+    return Endpoint("GET", "resolutions", ItemList[Resolution])
 
 
 def create_resolution(body: dict[str, Any]) -> Endpoint[Resolution]:

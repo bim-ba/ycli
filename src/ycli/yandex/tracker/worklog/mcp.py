@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -22,7 +22,7 @@ from ycli.yandex.tracker.dependencies import (
     app_config,
     tracker_client,
 )
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogList, WorklogUpdate
+from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogUpdate
 
 mcp = FastMCP("tracker-worklog")
 
@@ -36,7 +36,7 @@ def list_(
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """All time-tracking entries logged against a single Tracker issue.
 
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``
@@ -61,7 +61,7 @@ def search(
         str | None, Field(description="End of the creation-time range (``YYYY-MM-DDThh:mm:ss``).")
     ] = None,
     client: TrackerClient = Depends(tracker_client),
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """Org-wide worklog entries filtered by author and/or a creation-time range.
 
     Unlike ``worklog_list`` (one issue), this searches every issue's worklog. Pass
@@ -90,7 +90,7 @@ def global_list(
         str | None, Field(description="Creation timestamp to filter by (``YYYY-MM-DDThh:mm:ss``).")
     ] = None,
     client: TrackerClient = Depends(tracker_client),
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """Org-wide worklog entries via ``GET /worklog`` query filters (author / exact timestamp).
 
     A lighter sibling of ``worklog_search`` (which takes a time *range*); both filters are

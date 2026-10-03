@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.priorities.models import Priority, PriorityList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.priorities.models import Priority
 
 
-def list_priorities() -> Endpoint[PriorityList]:
-    return Endpoint("GET", "priorities", PriorityList)
+def list_priorities() -> Endpoint[ItemList[Priority]]:
+    return Endpoint("GET", "priorities", ItemList[Priority])
 
 
 def create_priority(body: dict[str, Any]) -> Endpoint[Priority]:

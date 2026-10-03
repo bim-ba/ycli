@@ -17,20 +17,19 @@ from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
     Acl,
     Attachment,
-    AttachmentList,
     BulkChangeOperation,
     Comment,
-    CommentList,
     CommentsRelativeResponse,
     Entity,
     EntityEvent,
     EntityEventsResponse,
     EntitySearchResponse,
     ExtendedPermissions,
-    LinkList,
+    Link,
 )
 
 # The most events / comments one ``_relative`` page returns; a smaller cap asks for fewer.
@@ -136,9 +135,11 @@ def create_report(body: dict[str, Any]) -> Endpoint[Entity]:
 # ---- comments ------------------------------------------------------------------------------
 
 
-def list_comments(entity_type: str, entity_id: str, *, expand: str | None) -> Endpoint[CommentList]:
+def list_comments(
+    entity_type: str, entity_id: str, *, expand: str | None
+) -> Endpoint[ItemList[Comment]]:
     path = f"{_entity(entity_type, entity_id)}/comments"
-    return Endpoint("GET", path, CommentList, params={"expand": expand})
+    return Endpoint("GET", path, ItemList[Comment], params={"expand": expand})
 
 
 def list_comments_relative(
@@ -223,9 +224,9 @@ def move_checklist_item(
 # ---- links ---------------------------------------------------------------------------------
 
 
-def list_links(entity_type: str, entity_id: str, *, fields: str | None) -> Endpoint[LinkList]:
+def list_links(entity_type: str, entity_id: str, *, fields: str | None) -> Endpoint[ItemList[Link]]:
     path = f"{_entity(entity_type, entity_id)}/links"
-    return Endpoint("GET", path, LinkList, params={"fields": fields})
+    return Endpoint("GET", path, ItemList[Link], params={"fields": fields})
 
 
 def create_link(entity_type: str, entity_id: str, body: dict[str, Any]) -> Endpoint[None]:
@@ -241,8 +242,8 @@ def delete_link(entity_type: str, entity_id: str, right: str) -> Endpoint[None]:
 # ---- attachments ---------------------------------------------------------------------------
 
 
-def list_attachments(entity_type: str, entity_id: str) -> Endpoint[AttachmentList]:
-    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/attachments", AttachmentList)
+def list_attachments(entity_type: str, entity_id: str) -> Endpoint[ItemList[Attachment]]:
+    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/attachments", ItemList[Attachment])
 
 
 def get_attachment(entity_type: str, entity_id: str, file_id: str) -> Endpoint[Attachment]:

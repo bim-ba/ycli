@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -17,7 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     IssueKey,
     tracker_client,
 )
-from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate, RemoteLinkList
+from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate
 
 mcp = FastMCP("tracker-remotelinks")
 
@@ -30,7 +30,7 @@ mcp = FastMCP("tracker-remotelinks")
 def list_(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
     client: TrackerClient = Depends(tracker_client),
-) -> RemoteLinkList:
+) -> ItemList[RemoteLink]:
     """Links from a Tracker issue to objects in external applications (Bitbucket, etc.).
 
     Each entry carries the link type, direction, and the external object's key plus its owning

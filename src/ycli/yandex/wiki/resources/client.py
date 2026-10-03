@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.resources import endpoints
-from ycli.yandex.wiki.resources.models import ResourceItemList
+from ycli.yandex.wiki.resources.models import ResourceItem
 
 
 class ResourcesClient(Resource):
@@ -18,8 +19,8 @@ class ResourcesClient(Resource):
         q: str | None = None,
         types: str | None = None,
         order_by: str | None = None,
-    ) -> ResourceItemList:
-        """``GET /pages/{id}/resources`` → flat :class:`ResourceItemList`, draining ``next_cursor``.
+    ) -> ItemList[ResourceItem]:
+        """``GET /pages/{id}/resources`` → ``ItemList[ResourceItem]``, draining ``next_cursor``.
 
         The unified listing of everything attached to a page — attachments AND grids — as
         ``{type, item}`` envelopes. Capped at ``limit`` (``None`` = every resource); narrow
@@ -42,4 +43,4 @@ class ResourcesClient(Resource):
             ['attachment', 'grid']
         """
         paged = endpoints.list_resources(page_id, q=q, types=types, order_by=order_by)
-        return ResourceItemList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[ResourceItem](list(self._session.iterate(paged, limit=limit)))

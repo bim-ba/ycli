@@ -11,12 +11,12 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.fields import endpoints
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.fields.models import (
         CustomField,
         FieldCategoryCreate,
         FieldCategoryRecord,
         FieldCategoryUpdate,
-        FieldList,
         FieldUpdate,
     )
     from ycli.yandex.tracker.models import FieldCreate
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 class FieldsClient(Resource):
     """List, get, create and edit global fields; create and edit their categories."""
 
-    def list(self) -> FieldList:
+    def list(self) -> ItemList[CustomField]:
         """``GET /fields`` → all global fields of the organisation.
 
         Returns:

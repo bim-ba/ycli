@@ -1,11 +1,7 @@
 """Model parsing for Tracker components (+ write-body models)."""
 
-from ycli.yandex.tracker.components.models import (
-    Component,
-    ComponentCreate,
-    ComponentList,
-    ComponentUpdate,
-)
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.components.models import Component, ComponentCreate, ComponentUpdate
 
 
 def test_component_parses_queue_and_lead():
@@ -28,7 +24,7 @@ def test_component_parses_queue_and_lead():
 
 
 def test_component_list_is_flat_array():
-    components = ComponentList.model_validate([{"name": "A"}, {"name": "B"}])
+    components = ItemList[Component].model_validate([{"name": "A"}, {"name": "B"}])
     assert [c.name for c in components.root] == ["A", "B"]
 
 

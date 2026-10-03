@@ -6,7 +6,7 @@ a hook whose conditions match runs each of its active integrations.
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.forms.conditions.models import ConditionsResponse
 from ycli.yandex.forms.subscriptions.models import Subscription
@@ -37,15 +37,6 @@ class Hook(APIModel):
     subscriptions: list[Subscription] = Field(
         default_factory=list, description="The group's integrations, each tagged by type."
     )
-
-
-class HookList(RootModel[list[Hook]]):
-    """A bare JSON array of :class:`Hook` — the return type of ``HooksClient.list``.
-
-    Examples:
-        >>> HookList.model_validate([{"id": 11}]).root[0].id
-        11
-    """
 
 
 class HookCreate(APIModel):

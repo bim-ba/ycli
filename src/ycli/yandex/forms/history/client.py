@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.history import endpoints
-from ycli.yandex.forms.history.models import HistoryEventList
+from ycli.yandex.forms.history.models import HistoryEvent
+from ycli.yandex.models import ItemList
 
 
 class HistoryClient(Resource):
@@ -12,7 +13,7 @@ class HistoryClient(Resource):
 
     def list(
         self, survey_id: str, *, ordering: str | None = None, limit: int | None = None
-    ) -> HistoryEventList:
+    ) -> ItemList[HistoryEvent]:
         """``GET /surveys/{id}/history`` → the form's changes, page by page, at most ``limit``.
 
         ``ordering`` is ``desc`` (newest first, the API default) or ``asc``.
@@ -31,4 +32,4 @@ class HistoryClient(Resource):
             ['servicesurveyhooksubscription', 'surveyhook']
         """
         paged = endpoints.list_history(survey_id, ordering=ordering)
-        return HistoryEventList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[HistoryEvent](list(self._session.iterate(paged, limit=limit)))

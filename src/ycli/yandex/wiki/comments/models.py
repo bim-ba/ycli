@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -34,17 +34,6 @@ class Comment(APIModel):
     created_at: str | None = None
     author: DisplayNameStr = None
     content: str | None = Field(default=None, validation_alias="body")
-
-
-class CommentList(RootModel[list[Comment]]):
-    """Flat collection of :class:`Comment` items — public return type of ``CommentsClient.list``.
-
-    Examples:
-        >>> CommentList([Comment.model_validate({"content": "ok"})]).root[0].content
-        'ok'
-    """
-
-    root: list[Comment] = Field(default_factory=list)
 
 
 class CommentCreate(APIModel):

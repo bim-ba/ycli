@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import AliasChoices, ConfigDict, Field, RootModel
+from pydantic import AliasChoices, ConfigDict, Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -151,15 +151,6 @@ class Attachment(APIModel):
     )
 
 
-class AttachmentList(RootModel[list[Attachment]]):
-    """A bare JSON array of entity attachments (``…/attachments`` response).
-
-    Examples:
-        >>> AttachmentList.model_validate([{"name": "Shops.csv"}]).root[0].name
-        'Shops.csv'
-    """
-
-
 # --------------------------------------------------------------------------------------------
 # Entity + its polymorphic ``fields`` block
 # --------------------------------------------------------------------------------------------
@@ -277,15 +268,6 @@ class Entity(APIModel):
     )
 
 
-class EntityList(RootModel[list[Entity]]):
-    """A flat list of entities — public return of :meth:`EntitiesClient.search`.
-
-    Examples:
-        >>> EntityList.model_validate([{"id": "1", "entityType": "goal"}]).root[0].entity_type
-        'goal'
-    """
-
-
 class EntitySearchResponse(APIModel):
     """The ``POST …/_search`` envelope — ``{hits, pages, values}`` (internal to the client).
 
@@ -343,15 +325,6 @@ class Comment(APIModel):
     transport: str | None = Field(default=None, description="Service field (e.g. 'internal').")
 
 
-class CommentList(RootModel[list[Comment]]):
-    """A flat list of comments — public return of the comment list endpoints.
-
-    Examples:
-        >>> CommentList.model_validate([{"id": 22, "text": "hi"}]).root[0].text
-        'hi'
-    """
-
-
 class CommentsRelativeResponse(APIModel):
     """The ``…/comments/_relative`` envelope — ``{comments, hasNext, hasPrev}`` (internal).
 
@@ -404,15 +377,6 @@ class Link(APIModel):
     )
 
 
-class LinkList(RootModel[list[Link]]):
-    """A flat list of entity links — public return of :meth:`EntitiesClient.links_list`.
-
-    Examples:
-        >>> LinkList.model_validate([{"type": "relates"}]).root[0].type
-        'relates'
-    """
-
-
 # --------------------------------------------------------------------------------------------
 # History (events)
 # --------------------------------------------------------------------------------------------
@@ -461,15 +425,6 @@ class EntityEvent(APIModel):
     changes: list[EventChange] = Field(
         default_factory=list, description="The individual changes carried by this event."
     )
-
-
-class EntityEventList(RootModel[list[EntityEvent]]):
-    """A flat list of history events — public return of :meth:`EntitiesClient.history`.
-
-    Examples:
-        >>> EntityEventList.model_validate([{"id": "65a"}]).root[0].id
-        '65a'
-    """
 
 
 class EntityEventsResponse(APIModel):
@@ -753,17 +708,6 @@ class ChecklistItemInput(APIModel):
     checked: bool | None = Field(default=None, description="Whether the item is marked done.")
     assignee: str | None = Field(default=None, description="Assignee user id/login.")
     deadline: DeadlineInput | None = Field(default=None, description="Per-item deadline.")
-
-
-class ChecklistItemsInput(RootModel[list[ChecklistItemInput]]):
-    """A bare array body for checklist create / edit-all.
-
-    Examples:
-        >>> ChecklistItemsInput([ChecklistItemInput(text="a")]).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
-        [{'text': 'a'}]
-    """
 
 
 class ChecklistMove(APIModel):

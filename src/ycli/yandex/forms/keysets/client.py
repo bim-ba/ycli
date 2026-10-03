@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.keysets import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.keysets.models import Keyset, KeysetList
+    from ycli.yandex.forms.keysets.models import Keyset
+    from ycli.yandex.models import ItemList
 
 
 class KeysetsClient(Resource):
     """List, get, create, modify, delete and download a form's key sets."""
 
-    def list(self, survey_id: str) -> KeysetList:
+    def list(self, survey_id: str) -> ItemList[Keyset]:
         """``GET /surveys/{id}/keysets`` → every key set (a bare, unpaged array).
 
         Args:

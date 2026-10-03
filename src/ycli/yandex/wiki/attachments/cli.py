@@ -10,8 +10,8 @@ import typer
 from ycli.cli.output import BinaryResult
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
-from ycli.yandex.wiki.attachments.models import AttachedFile, AttachedFileList, AttachmentList
+from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment
 from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
@@ -30,7 +30,7 @@ def list_(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> AttachmentList:
+) -> ItemList[Attachment]:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.attachments.list(page_id=page_id, limit=cap)
@@ -109,7 +109,7 @@ def attach(
     ],
     *,
     wiki: WikiClient,
-) -> AttachedFileList:
+) -> ItemList[AttachedFile]:
     """Attach uploaded file(s) to a page by upload-session id (POST /pages/{id}/attachments)."""
     return wiki.attachments.attach(page_id, session)
 
@@ -122,7 +122,7 @@ def upload(
     ],
     *,
     wiki: WikiClient,
-) -> AttachedFileList:
+) -> ItemList[AttachedFile]:
     """Upload a local file and attach it to a page in one step (create→upload→finish→attach)."""
     path = Path(file_path)
     result = wiki.attachments.upload(

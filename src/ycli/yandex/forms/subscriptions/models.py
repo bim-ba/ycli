@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Literal
 
-from pydantic import Field, RootModel, TypeAdapter
+from pydantic import Field, TypeAdapter
 
 from ycli.yandex.models import APIModel
 
@@ -347,12 +347,3 @@ Subscription = Annotated[
     Field(discriminator="type"),
 ]
 SubscriptionAdapter: TypeAdapter[Subscription] = TypeAdapter(Subscription)
-
-
-class SubscriptionList(RootModel[list[Subscription]]):
-    """A bare JSON array of subscriptions — the return type of ``SubscriptionsClient.list``.
-
-    Examples:
-        >>> SubscriptionList.model_validate([{"type": "http", "id": 4}]).root[0].id
-        4
-    """

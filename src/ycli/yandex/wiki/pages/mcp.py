@@ -7,6 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -22,14 +23,14 @@ from ycli.yandex.wiki.dependencies import (
 )
 from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.pages.models import (
-    GridRefList,
+    GridRef,
     PageAppendContent,
     PageClone,
     PageDeleteResult,
     PageDetails,
     PageMove,
-    PageRefList,
-    PageRevisionList,
+    PageRef,
+    PageRevision,
 )
 
 mcp = FastMCP("wiki-pages")
@@ -55,7 +56,7 @@ def descendants(
     limit: Annotated[int, Field(description=f"Max descendant refs to return; {LIMIT_CAP}")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> PageRefList:
+) -> ItemList[PageRef]:
     """All descendant refs under SLUG, auto-paginated.
 
     Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for large trees.
@@ -70,7 +71,7 @@ def grids_list(
     limit: Annotated[int, Field(description="Max grids (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> GridRefList:
+) -> ItemList[GridRef]:
     """Dynamic tables (grids) attached to a page id, auto-paginated (drains ``next_cursor``).
 
     Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at the configured item cap
@@ -113,7 +114,7 @@ def by_id_descendants(
     limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> PageRefList:
+) -> ItemList[PageRef]:
     """All descendant page refs under a numeric page id, auto-paginated.
 
     The id-based twin of ``pages_descendants``. Capped at the configured item cap
@@ -268,7 +269,7 @@ def revisions_list(
     limit: Annotated[int, Field(description="Max revisions (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> PageRevisionList:
+) -> ItemList[PageRevision]:
     """Saved revisions of a page, auto-paginated (``GET /pages/{id}/revisions``).
 
     Each revision has an ``id`` (what ``GET /pages`` takes as ``revision_id``), its ``author``,
@@ -295,7 +296,7 @@ def backlinks_list(
     limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> PageRefList:
+) -> ItemList[PageRef]:
     """Refs (``id`` and ``slug``) of the pages that link to a page (``GET /pages/{id}/backlinks``).
 
     Auto-paginated. Yandex does not document this operation (it is in the live OpenAPI only) and

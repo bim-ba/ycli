@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.variables import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.variables.models import VariableInfoList
+    from ycli.yandex.forms.variables.models import VariableInfo
+    from ycli.yandex.models import ItemList
 
 
 class VariablesClient(Resource):
     """The variable types a form's integrations can reference."""
 
-    def list(self, survey_id: str) -> VariableInfoList:
+    def list(self, survey_id: str) -> ItemList[VariableInfo]:
         """``GET /surveys/{id}/variables`` → every variable type available to the form.
 
         Args:

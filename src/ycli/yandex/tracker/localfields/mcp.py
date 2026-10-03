@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import require_found
+from ycli.yandex.models import ItemList, require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -17,7 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     QueueId,
     tracker_client,
 )
-from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList, LocalFieldUpdate
+from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
 from ycli.yandex.tracker.models import FieldCreate
 
 mcp = FastMCP("tracker-localfields")
@@ -31,7 +31,7 @@ def list_(
         str, Field(description="Queue key (case-sensitive, e.g. ORG) or numeric queue id.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> LocalFieldList:
+) -> ItemList[LocalField]:
     """Custom fields scoped to one queue (its local fields), as a flat list.
 
     Each item's ``key`` is the field key you pass to ``localfields_get``; ``field_schema``

@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.remotelinks import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.remotelinks.models import RemoteLink
 
 
 class RemoteLinksClient(Resource):
     """List, create and delete an issue's links to objects in external applications."""
 
-    def list(self, issue_key: str) -> RemoteLinkList:
+    def list(self, issue_key: str) -> ItemList[RemoteLink]:
         """``GET /issues/{issue_key}/remotelinks`` → the issue's external-app links.
 
         Args:

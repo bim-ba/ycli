@@ -6,11 +6,12 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
     AutoactionCreate,
-    AutoactionLogList,
-    AutoactionRunList,
+    AutoactionLogEntry,
+    AutoactionRunEntry,
 )
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -55,7 +56,7 @@ def logs_list(
     ],
     action_id: Annotated[int, Field(description="Numeric identifier of the autoaction.")],
     client: TrackerClient = Depends(tracker_client),
-) -> AutoactionLogList:
+) -> ItemList[AutoactionLogEntry]:
     """Run summaries for an autoaction — one record per launch with hit/success/failure counts.
 
     Each record's ``id`` is the run id you pass to ``autoactions_logs_get`` for that run's
@@ -76,7 +77,7 @@ def logs_get(
     action_id: Annotated[int, Field(description="Numeric identifier of the autoaction.")],
     run_id: Annotated[str, Field(description="Identifier of the autoaction run (from logs_list).")],
     client: TrackerClient = Depends(tracker_client),
-) -> AutoactionRunList:
+) -> ItemList[AutoactionRunEntry]:
     """The per-issue outcomes of one autoaction run — each issue touched and its result status.
 
     Get the ``run_id`` from ``autoactions_logs_list``. Only autoactions that auto-update issues

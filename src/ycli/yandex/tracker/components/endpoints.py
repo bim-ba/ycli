@@ -10,16 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.components.models import (
     Component,
     ComponentGroupAccess,
-    ComponentList,
     ComponentUserAccess,
 )
 
 
-def list_components() -> Endpoint[ComponentList]:
-    return Endpoint("GET", "components", ComponentList)
+def list_components() -> Endpoint[ItemList[Component]]:
+    return Endpoint("GET", "components", ItemList[Component])
 
 
 def create_component(body: dict[str, Any]) -> Endpoint[Component]:
@@ -39,9 +39,14 @@ def edit_component(
     )
 
 
-def list_queue_components(queue_id: str, *, fields: str | None = None) -> Endpoint[ComponentList]:
+def list_queue_components(
+    queue_id: str, *, fields: str | None = None
+) -> Endpoint[ItemList[Component]]:
     return Endpoint(
-        "GET", f"queues/{segment(queue_id)}/components", ComponentList, params={"fields": fields}
+        "GET",
+        f"queues/{segment(queue_id)}/components",
+        ItemList[Component],
+        params={"fields": fields},
     )
 
 

@@ -9,12 +9,12 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogList, WorklogUpdate
+from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogUpdate
 
 app = typer.Typer(name="worklog", help="Tracker issue worklog.", no_args_is_help=True)
 
@@ -31,7 +31,7 @@ def list_(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """List all worklog entries for issue KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.worklog.list(key, limit=cap)
@@ -46,7 +46,7 @@ def search(
     created_to: Annotated[str, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")] = "",
     *,
     tracker: TrackerClient,
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """Search org-wide worklog by author and/or time range (POST /worklog/_search)."""
     body: dict[str, object] = {}
     if created_by:
@@ -66,7 +66,7 @@ def global_list(
     created_to: Annotated[str, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")] = "",
     *,
     tracker: TrackerClient,
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """List org-wide worklog via GET /worklog (createdAt filters need --created-by)."""
     created_at = [
         f"{prefix}:{value}"

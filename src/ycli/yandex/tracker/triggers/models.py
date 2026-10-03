@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
@@ -72,15 +72,6 @@ class Trigger(APIModel):
     active: bool | None = Field(
         default=None, description="Whether the trigger is active (true) or disabled (false)."
     )
-
-
-class TriggerList(RootModel[list[Trigger]]):
-    """A bare JSON array of triggers (``GET /queues/{id}/triggers``).
-
-    Examples:
-        >>> TriggerList.model_validate([{"id": 16, "name": "T"}]).root[0].name
-        'T'
-    """
 
 
 class TriggerCreate(APIModel):
@@ -165,12 +156,3 @@ class WebhookLogEntry(APIModel):
     response: Any = Field(
         default=None, description="The received HTTP response (headers, statusCode)."
     )
-
-
-class WebhookLogList(RootModel[list[WebhookLogEntry]]):
-    """A bare JSON array of webhook log records (``.../triggers/{id}/webhooks/log``).
-
-    Examples:
-        >>> WebhookLogList.model_validate([{"id": "x", "duration": 1}]).root[0].duration
-        1
-    """

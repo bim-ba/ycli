@@ -8,12 +8,13 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
     AutoactionCalendar,
     AutoactionCreate,
-    AutoactionLogList,
-    AutoactionRunList,
+    AutoactionLogEntry,
+    AutoactionRunEntry,
 )
 from ycli.yandex.tracker.client import TrackerClient
 
@@ -83,7 +84,7 @@ def create(
 @app.command()
 def logs_list(
     queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient
-) -> AutoactionLogList:
+) -> ItemList[AutoactionLogEntry]:
     """List the run summaries of autoaction ACTION_ID."""
     return tracker.autoactions.logs(queue_id, action_id)
 
@@ -96,6 +97,6 @@ def logs_get(
     run_id: Annotated[str, typer.Argument(metavar="RUN_ID", help="Autoaction run identifier.")],
     *,
     tracker: TrackerClient,
-) -> AutoactionRunList:
+) -> ItemList[AutoactionRunEntry]:
     """List the per-issue outcomes of run RUN_ID of autoaction ACTION_ID."""
     return tracker.autoactions.log_detail(queue_id, action_id, run_id)

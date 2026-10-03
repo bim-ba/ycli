@@ -3,6 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.gaps.models import (
     Gap,
     GapCreated,
@@ -10,7 +11,7 @@ from ycli.yandex.tracker.gaps.models import (
     GapsCreate,
     GapSearchPage,
     GapWorkflow,
-    UserGapList,
+    UserGaps,
 )
 
 USER = {
@@ -72,7 +73,7 @@ def test_search_reply_groups_absences_by_user_and_flags_more_pages():
     assert page.has_more is True
     assert page.user_gaps[0].gaps[0].user is None  # inside a search the gap has no user
     assert page.user_gaps[1].gaps == []
-    assert UserGapList(page.user_gaps).root[1].user is not None
+    assert ItemList[UserGaps](page.user_gaps).root[1].user is not None
 
 
 def test_a_gap_without_optional_parts_parses():

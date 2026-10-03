@@ -1,6 +1,7 @@
-"""TDD for Forms files models (FileOut / FileList / FileIn)."""
+"""TDD for Forms files models (FileOut / ItemList[FileOut] / FileIn)."""
 
-from ycli.yandex.forms.files.models import FileIn, FileList, FileOut
+from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.models import ItemList
 
 
 def test_file_out_parses_all_fields():
@@ -11,7 +12,7 @@ def test_file_out_parses_all_fields():
 
 
 def test_file_list_is_flat_root():
-    fl = FileList.model_validate([{"name": "a"}, {"name": "b"}])
+    fl = ItemList[FileOut].model_validate([{"name": "a"}, {"name": "b"}])
     assert [f.name for f in fl.root] == ["a", "b"]
 
 

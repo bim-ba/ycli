@@ -17,8 +17,8 @@ from ycli.yandex.forms.dependencies import (
     SurveyId,
     forms_client,
 )
-from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookList, HookUpdate
-from ycli.yandex.models import Ack, require_found
+from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
+from ycli.yandex.models import Ack, ItemList, require_found
 
 mcp = FastMCP("forms-hooks")
 
@@ -28,7 +28,7 @@ HookId = Annotated[int, Field(description="Integration group id (integer) from h
 @mcp.tool(
     name="hooks_list", annotations={**RO, "title": "List Forms integration groups"}, tags=TAGS
 )
-def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> HookList:
+def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> ItemList[Hook]:
     """A form's integration groups, each with its conditions and integrations.
 
     An integration group (hook) runs its active integrations on every new answer that matches

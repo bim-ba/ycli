@@ -10,11 +10,12 @@ from ycli.cli.aliases import deprecated_alias
 from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.operations.models import CloneOperationStatus, MoveOperationStatus
 from ycli.yandex.wiki.pages.models import (
-    GridRefList,
+    GridRef,
     PageAppendContent,
     PageAppendContentBody,
     PageClone,
@@ -22,8 +23,8 @@ from ycli.yandex.wiki.pages.models import (
     PageDetails,
     PageMove,
     PageMoveStep,
-    PageRefList,
-    PageRevisionList,
+    PageRef,
+    PageRevision,
 )
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
@@ -53,7 +54,7 @@ def descendants(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> PageRefList:
+) -> ItemList[PageRef]:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants(slug=slug, limit=cap)
@@ -80,7 +81,7 @@ def descendants_by_id(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> PageRefList:
+) -> ItemList[PageRef]:
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.descendants_by_id(page_id=page_id, limit=cap)
@@ -98,7 +99,7 @@ def grids_list(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> GridRefList:
+) -> ItemList[GridRef]:
     """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.grids(page_id=page_id, limit=cap, order_by=order_by or None)
@@ -253,7 +254,7 @@ def revisions_list(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> PageRevisionList:
+) -> ItemList[PageRevision]:
     """List a page's saved revisions (GET /pages/{id}/revisions; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.revisions(page_id=page_id, ids=ids or None, limit=cap)
@@ -274,7 +275,7 @@ def backlinks_list(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> PageRefList:
+) -> ItemList[PageRef]:
     """List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.pages.backlinks(

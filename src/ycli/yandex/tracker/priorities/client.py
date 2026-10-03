@@ -11,18 +11,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.priorities import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.priorities.models import (
-        Priority,
-        PriorityCreate,
-        PriorityList,
-        PriorityUpdate,
-    )
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, PriorityUpdate
 
 
 class PrioritiesClient(Resource):
     """List, create and edit issue priorities."""
 
-    def list(self) -> PriorityList:
+    def list(self) -> ItemList[Priority]:
         """``GET /priorities`` → priority listing.
 
         Returns:

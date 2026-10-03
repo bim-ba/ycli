@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import enum
 
-from pydantic import AliasChoices, Field, RootModel
+from pydantic import AliasChoices, Field
 
 from ycli.yandex.models import APIModel
 
@@ -114,15 +114,6 @@ class UserGaps(APIModel):
 
     user: GapUser | None = Field(default=None, description="The requested user.")
     gaps: list[Gap] = Field(default_factory=list, description="Their absences in the window.")
-
-
-class UserGapList(RootModel[list[UserGaps]]):
-    """The users of a search with their absences, every page joined.
-
-    Examples:
-        >>> UserGapList.model_validate([{"gaps": [{"id": "g1"}]}]).root[0].gaps[0].id
-        'g1'
-    """
 
 
 class GapSearchPage(APIModel):

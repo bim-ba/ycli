@@ -12,14 +12,13 @@ from typing import Annotated, Any
 import typer
 
 from ycli.cli.aliases import deprecated_alias
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.workflows.models import (
     QueueWorkflows,
     Workflow,
     WorkflowActionUpdate,
     WorkflowCreate,
-    WorkflowList,
     WorkflowUpdate,
 )
 
@@ -62,7 +61,7 @@ def _json_list(raw: list[str] | None, option: str) -> list[Any] | None:
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> WorkflowList:
+def list_(*, tracker: TrackerClient) -> ItemList[Workflow]:
     """List the organization's workflows (deleted ones excluded)."""
     return tracker.workflows.list()
 

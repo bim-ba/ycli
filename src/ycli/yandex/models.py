@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated, Any
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict
+from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel
 
 from ycli.yandex.errors import YandexNotFoundError
 
@@ -36,6 +36,19 @@ class APIModel(BaseModel):
     """
 
     model_config = ConfigDict(extra="ignore", populate_by_name=True, serialize_by_alias=True)
+
+
+class ItemList[T](RootModel[list[T]]):
+    """A bare JSON array of items: what a listing returns, flat.
+
+    ``ItemList[Board]`` parses ``[{...}, {...}]`` into boards, kept in ``root``.
+
+    Examples:
+        >>> class Item(APIModel):
+        ...     key: str
+        >>> ItemList[Item].model_validate([{"key": "a"}, {"key": "b"}]).root[1].key
+        'b'
+    """
 
 
 class Ack(APIModel):

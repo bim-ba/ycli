@@ -5,8 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.gaps import endpoints
-from ycli.yandex.tracker.gaps.models import UserGapList
+from ycli.yandex.tracker.gaps.models import UserGaps
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -49,7 +50,7 @@ class GapsClient(Resource):
         date_from: str | None = None,
         date_to: str | None = None,
         limit: int | None = None,
-    ) -> UserGapList:
+    ) -> ItemList[UserGaps]:
         """``POST /gaps/_search`` (a read) → each user with the absences that overlap a window.
 
         ``users`` are up to 100 logins or ids; the window is ``date_from`` to ``date_to``
@@ -77,7 +78,7 @@ class GapsClient(Resource):
         window = {"from": date_from, "to": date_to}
         body = {"users": list(users), **{name: value for name, value in window.items() if value}}
         paged = endpoints.search_gaps(body)
-        return UserGapList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[UserGaps](list(self._session.iterate(paged, limit=limit)))
 
     def delete(self, gap_ids: Sequence[str]) -> None:
         """``DELETE /gaps?gapIds=…`` → delete absences by id (up to 100); unknown ids are ignored.

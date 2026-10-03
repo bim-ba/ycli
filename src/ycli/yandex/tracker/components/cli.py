@@ -7,13 +7,12 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.components.models import (
     Component,
     ComponentCreate,
     ComponentGroupAccess,
-    ComponentList,
     ComponentUpdate,
     ComponentUserAccess,
 )
@@ -29,7 +28,7 @@ FieldsOpt = Annotated[
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> ComponentList:
+def list_(*, tracker: TrackerClient) -> ItemList[Component]:
     """List all components created in the organisation."""
     return tracker.components.list()
 
@@ -95,7 +94,7 @@ def list_for_queue(
     fields: FieldsOpt = "",
     *,
     tracker: TrackerClient,
-) -> ComponentList:
+) -> ItemList[Component]:
     """List the components of one queue (GET /queues/{id}/components)."""
     return tracker.components.list_for_queue(queue_id, fields=fields or None)
 

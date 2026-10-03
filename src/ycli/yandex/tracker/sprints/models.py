@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker sprints (Reference + Sprint + SprintList)."""
+"""Pydantic models for Tracker sprints (Reference + Sprint + ItemList[Sprint])."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -74,15 +74,6 @@ class Sprint(APIModel):
         alias="endDateTime",
         description="Actual sprint end timestamp (YYYY-MM-DDThh:mm:ss.sss±hhmm).",
     )
-
-
-class SprintList(RootModel[list[Sprint]]):
-    """A bare JSON array of sprints — the flat public shape of ``sprints.list()``.
-
-    Examples:
-        >>> SprintList.model_validate([{"id": 4405, "name": "Sprint 1"}]).root[0].name
-        'Sprint 1'
-    """
 
 
 class SprintBoardInput(APIModel):

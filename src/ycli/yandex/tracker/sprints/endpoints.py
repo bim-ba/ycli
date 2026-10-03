@@ -14,11 +14,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.sprints.models import Sprint, SprintList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.sprints.models import Sprint
 
 
-def list_sprints(board_id: int) -> Endpoint[SprintList]:
-    return Endpoint("GET", f"boards/{segment(board_id)}/sprints", SprintList)
+def list_sprints(board_id: int) -> Endpoint[ItemList[Sprint]]:
+    return Endpoint("GET", f"boards/{segment(board_id)}/sprints", ItemList[Sprint])
 
 
 def get_sprint(sprint_id: int) -> Endpoint[Sprint]:

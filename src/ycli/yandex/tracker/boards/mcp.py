@@ -7,8 +7,8 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
-from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
+from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -34,7 +34,7 @@ def list_(
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> BoardList:
+) -> ItemList[Board]:
     """All agile boards in the organisation, sorted by ascending board id.
 
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``

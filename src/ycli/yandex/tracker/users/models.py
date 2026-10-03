@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker users (Reference + User + UserList + relative-page envelope)."""
+"""Pydantic models for Tracker users (User and the relative-page envelope)."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import Reference
@@ -91,15 +91,6 @@ class User(APIModel):
         description="Origin of the account data, e.g. the corporate directory.",
     )
     position: str | None = Field(default=None, description="Job title of the user.")
-
-
-class UserList(RootModel[list[User]]):
-    """A bare JSON array of users — the flat public shape of ``users.list()``.
-
-    Examples:
-        >>> UserList.model_validate([{"login": "username"}]).root[0].login
-        'username'
-    """
 
 
 class UsersRelativeResponse(APIModel):

@@ -5,8 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog import endpoints
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogList
+from ycli.yandex.tracker.worklog.models import Worklog
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 class WorklogClient(Resource):
     """An issue's worklog (relative-paginated) and its writes; org-wide search and listing."""
 
-    def list(self, key: str, *, limit: int | None = None) -> WorklogList:
+    def list(self, key: str, *, limit: int | None = None) -> ItemList[Worklog]:
         """All worklog entries on an issue, draining the ``id=<last record id>`` cursor.
 
         ``GET /issues/{key}/worklog`` sorts by ascending record id and pages relatively:
@@ -36,9 +37,9 @@ class WorklogClient(Resource):
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_worklog(key, page_size=page_size)
-        return WorklogList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Worklog](list(self._session.iterate(paged, limit=limit)))
 
-    def search(self, body: dict[str, Any]) -> WorklogList:
+    def search(self, body: dict[str, Any]) -> ItemList[Worklog]:
         """``POST /worklog/_search`` → org-wide worklog entries matching the body filter.
 
         ``body`` is ``{"createdBy": …, "createdAt": {"from": …, "to": …}}`` (all optional).
@@ -63,7 +64,7 @@ class WorklogClient(Resource):
 
     def global_list(
         self, created_by: str | None = None, created_at: Sequence[str] | str | None = None
-    ) -> WorklogList:
+    ) -> ItemList[Worklog]:
         """``GET /worklog?createdBy=…&createdAt=from:…&createdAt=to:…`` → org-wide worklog.
 
         ``created_at`` is a list of ``from:<ts>`` / ``to:<ts>`` strings (repeated ``createdAt``

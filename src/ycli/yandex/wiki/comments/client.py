@@ -6,20 +6,21 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.comments import endpoints
-from ycli.yandex.wiki.comments.models import CommentList
+from ycli.yandex.wiki.comments.models import Comment
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from ycli.yandex.wiki.comments.models import Comment, CommentCreated, CommentDeleteResult
+    from ycli.yandex.wiki.comments.models import CommentCreated, CommentDeleteResult
 
 
 class CommentsClient(Resource):
     """``/pages/{id}/comments``: list, create, delete; ``thread`` rebuilds a thread client-side."""
 
-    def list(self, page_id: int, *, limit: int | None = None) -> CommentList:
-        """``GET /pages/{id}/comments`` → flat :class:`CommentList`, draining ``next_cursor``.
+    def list(self, page_id: int, *, limit: int | None = None) -> ItemList[Comment]:
+        """``GET /pages/{id}/comments`` → flat ``ItemList[Comment]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every comment).
 
@@ -35,9 +36,11 @@ class CommentsClient(Resource):
             ['Vera', 'Ivan']
         """
         paged = endpoints.list_comments(page_id)
-        return CommentList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
-    def thread(self, page_id: int, comment_id: int, *, limit: int | None = None) -> CommentList:
+    def thread(
+        self, page_id: int, comment_id: int, *, limit: int | None = None
+    ) -> ItemList[Comment]:
         """The comment ``comment_id`` followed by its replies, reconstructed from ``comments list``.
 
         The Wiki ``/comments/{id}/thread`` endpoint (:meth:`thread_get`) returns
@@ -45,7 +48,7 @@ class CommentsClient(Resource):
         *sibling* of its parent (tagged only by ``parent_id``; ``thread_id`` / ``thread_info`` are
         ``null``). So this fetches every comment on the page and rebuilds the thread client-side
         by chaining ``parent_id`` from the target to any depth. Returns a flat
-        :class:`CommentList` — the target comment first, then its descendants in depth-first order
+        ``ItemList[Comment]`` — the target comment first, then its descendants in depth-first order
         (each carrying the ``parent_id`` that wires it to its parent) — or an empty list if
         ``comment_id`` is not found. ``limit`` caps the replies collected (``None`` = every reply).
 
@@ -70,11 +73,11 @@ class CommentsClient(Resource):
         comment_id: int,
         *,
         limit: int | None = None,
-    ) -> CommentList:
+    ) -> ItemList[Comment]:
         """Reconstruct one thread from a flat comment list (pure shaping — no HTTP).
 
         Groups comments by ``parent_id`` and walks the ``parent_id`` chain from ``comment_id`` to
-        any depth, returning a :class:`CommentList` of the target comment followed by its
+        any depth, returning a ``ItemList[Comment]`` of the target comment followed by its
         descendants in depth-first order. ``limit`` bounds the number of descendants collected;
         returns an empty list if ``comment_id`` is absent. A ``seen`` set guards against
         self/cyclic ``parent_id`` references.
@@ -97,7 +100,7 @@ class CommentsClient(Resource):
 
         root = by_id.get(comment_id)
         if root is None:
-            return CommentList([])
+            return ItemList[Comment]([])
 
         thread: list[Comment] = [root]
         seen: set[int] = {comment_id}
@@ -114,9 +117,11 @@ class CommentsClient(Resource):
                 walk(child)
 
         walk(root)
-        return CommentList(thread)
+        return ItemList[Comment](thread)
 
-    def thread_get(self, page_id: int, comment_id: int, *, limit: int | None = None) -> CommentList:
+    def thread_get(
+        self, page_id: int, comment_id: int, *, limit: int | None = None
+    ) -> ItemList[Comment]:
         """``GET /pages/{id}/comments/{comment_id}/thread`` → what the server calls the thread.
 
         Checked live on 2026-10-02: the endpoint answers ``{"results": []}`` for a root comment
@@ -137,7 +142,7 @@ class CommentsClient(Resource):
             []
         """
         paged = endpoints.get_thread(page_id, comment_id)
-        return CommentList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def create(self, page_id: int, body: dict[str, Any]) -> CommentCreated:
         """``POST /pages/{id}/comments`` — add a comment; returns a :class:`CommentCreated`.

@@ -8,8 +8,9 @@ import typer
 
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.users.models import User, UserList
+from ycli.yandex.tracker.users.models import User
 
 app = typer.Typer(name="users", help="Tracker organisation users.", no_args_is_help=True)
 
@@ -36,7 +37,7 @@ def list_(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> UserList:
+) -> ItemList[User]:
     """List all organisation users (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.users.list(limit=cap, expand=expand or None)

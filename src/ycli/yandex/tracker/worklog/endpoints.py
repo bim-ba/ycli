@@ -13,7 +13,8 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.worklog.models import Worklog
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -25,28 +26,31 @@ def _record_id(record: Worklog) -> str | None:
     return str(record.id) if record.id is not None else None
 
 
-def list_worklog(key: str, *, page_size: int = PAGE_SIZE) -> Paged[WorklogList, Worklog]:
+def list_worklog(key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Worklog], Worklog]:
     """``GET /issues/{key}/worklog``: ascending ids, each next page from ``id=<last record>``."""
     return Paged(
         Endpoint(
-            "GET", f"issues/{segment(key)}/worklog", WorklogList, params={"perPage": page_size}
+            "GET",
+            f"issues/{segment(key)}/worklog",
+            ItemList[Worklog],
+            params={"perPage": page_size},
         ),
         RelativeIdPagination(id_of=_record_id),
         lambda page: page.root,
     )
 
 
-def search_worklog(body: dict[str, Any]) -> Endpoint[WorklogList]:
+def search_worklog(body: dict[str, Any]) -> Endpoint[ItemList[Worklog]]:
     """``POST /worklog/_search`` only reads."""
-    return Endpoint("POST", "worklog/_search", WorklogList, json=body, effect="read")
+    return Endpoint("POST", "worklog/_search", ItemList[Worklog], json=body, effect="read")
 
 
 def list_global_worklog(
     created_by: str | None, created_at: Sequence[str] | str | None
-) -> Endpoint[WorklogList]:
+) -> Endpoint[ItemList[Worklog]]:
     """``GET /worklog``; a list ``created_at`` repeats ``createdAt`` (``from:…``, ``to:…``)."""
     params = {"createdBy": created_by, "createdAt": created_at}
-    return Endpoint("GET", "worklog", WorklogList, params=params)
+    return Endpoint("GET", "worklog", ItemList[Worklog], params=params)
 
 
 def create_worklog(key: str, body: dict[str, Any]) -> Endpoint[Worklog]:

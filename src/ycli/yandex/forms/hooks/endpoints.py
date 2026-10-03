@@ -10,15 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.hooks.models import Hook, HookList
+from ycli.yandex.forms.hooks.models import Hook
+from ycli.yandex.models import ItemList
 
 
 def _hooks(survey_id: str) -> str:
     return f"surveys/{segment(survey_id)}/hooks"
 
 
-def list_hooks(survey_id: str) -> Endpoint[HookList]:
-    return Endpoint("GET", _hooks(survey_id), HookList)
+def list_hooks(survey_id: str) -> Endpoint[ItemList[Hook]]:
+    return Endpoint("GET", _hooks(survey_id), ItemList[Hook])
 
 
 def get_hook(survey_id: str, hook_id: int) -> Endpoint[Hook]:

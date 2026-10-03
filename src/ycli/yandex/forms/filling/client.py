@@ -8,12 +8,8 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.filling import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.filling.models import (
-        FillableForm,
-        SubmitBody,
-        SubmitResult,
-        SuggestionList,
-    )
+    from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
+    from ycli.yandex.models import ItemList
 
 
 class FillingClient(Resource):
@@ -74,7 +70,7 @@ class FillingClient(Resource):
         text: str | None = None,
         suggest_id: str | None = None,
         parent_id: str | None = None,
-    ) -> SuggestionList:
+    ) -> ItemList[Suggestion]:
         """``GET /surveys/{survey}/suggest`` → prompts for a fill field (read-only).
 
         ``question`` is the question slug, ``text`` the search text, ``suggest_id`` (the API's

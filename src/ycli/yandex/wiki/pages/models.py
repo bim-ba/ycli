@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
@@ -71,15 +71,6 @@ class PageRef(APIModel):
     slug: str
 
 
-class PageRefList(RootModel[list[PageRef]]):
-    """A drained, flat list of descendant page refs (no cursor — pagination is internal).
-
-    Examples:
-        >>> PageRefList([PageRef(id=1, slug="data/a")]).root[0].slug
-        'data/a'
-    """
-
-
 class GridRef(APIModel):
     """A dynamic-table (grid) reference attached to a page (``/pages/{id}/grids`` item).
 
@@ -95,19 +86,6 @@ class GridRef(APIModel):
     created_at: str | None = Field(
         default=None, description="ISO-8601 timestamp of when the grid was created."
     )
-
-
-class GridRefList(RootModel[list[GridRef]]):
-    """A drained, flat list of grid refs (no cursor — pagination is internal).
-
-    Public return type of ``PagesClient.grids``.
-
-    Examples:
-        >>> GridRefList([GridRef(id="g1", title="T")]).root[0].id
-        'g1'
-    """
-
-    root: list[GridRef] = Field(default_factory=list)
 
 
 class PageDeleteResult(APIModel):
@@ -312,14 +290,3 @@ class PageRevision(APIModel):
     publication: RevisionPublication | None = Field(
         default=None, description="Whether the revision is published yet."
     )
-
-
-class PageRevisionList(RootModel[list[PageRevision]]):
-    """A drained, flat list of page revisions (no cursor — pagination is internal).
-
-    Examples:
-        >>> PageRevisionList([PageRevision(id=7)]).root[0].id
-        7
-    """
-
-    root: list[PageRevision] = Field(default_factory=list)

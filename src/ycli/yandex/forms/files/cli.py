@@ -13,11 +13,11 @@ import typer
 
 from ycli.cli.output import BinaryResult
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.files.models import FileIn, FileList, FileOut
+from ycli.yandex.forms.files.models import FileIn, FileOut
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="files", help="Forms form-filling file storage.", no_args_is_help=True)
 
@@ -46,7 +46,7 @@ def verify(
     ] = None,
     *,
     forms: FormsClient,
-) -> FileList:
+) -> ItemList[FileOut]:
     """Check upload status / access of already-uploaded files (POST …/files/verify)."""
     paths = path or []
     urls = url or []

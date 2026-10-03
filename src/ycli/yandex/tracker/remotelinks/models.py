@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -79,15 +79,6 @@ class RemoteLink(APIModel):
     def object_key(self) -> str | None:
         """``object.key`` or ``None``."""
         return self.object.key if self.object else None
-
-
-class RemoteLinkList(RootModel[list[RemoteLink]]):
-    """A bare JSON array of remote links — public return type of ``RemoteLinksClient.list``.
-
-    Examples:
-        >>> RemoteLinkList.model_validate([{"direction": "outward"}]).root[0].direction
-        'outward'
-    """
 
 
 class RemoteLinkCreate(APIModel):

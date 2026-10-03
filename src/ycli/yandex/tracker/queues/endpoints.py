@@ -13,16 +13,14 @@ from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.queues.models import (
     Queue,
-    QueueFieldList,
+    QueueField,
     QueueGroupAccess,
-    QueueList,
     QueuePermissions,
-    QueueTagList,
     QueueUserAccess,
     QueueVersionInfo,
-    QueueVersionInfoList,
 )
 
 # Tracker's own default page size for /queues/.
@@ -33,13 +31,13 @@ def _queue(queue_id: str) -> str:
     return f"queues/{segment(queue_id)}"
 
 
-def list_queues() -> Paged[QueueList, Queue]:
+def list_queues() -> Paged[ItemList[Queue], Queue]:
     """``GET /queues/`` paged by ``page``/``perPage``.
 
     The trailing slash matters: without it Tracker answers with the queue whose key is empty.
     """
     return Paged(
-        Endpoint("GET", "queues/", QueueList),
+        Endpoint("GET", "queues/", ItemList[Queue]),
         PageNumberPagination(page_size=PAGE_SIZE),
         lambda page: page.root,
     )
@@ -49,16 +47,16 @@ def get_queue(queue_id: str, *, expand: str | None = None) -> Endpoint[Queue]:
     return Endpoint("GET", _queue(queue_id), Queue, params={"expand": expand})
 
 
-def list_tags(queue_id: str) -> Endpoint[QueueTagList]:
-    return Endpoint("GET", f"{_queue(queue_id)}/tags", QueueTagList)
+def list_tags(queue_id: str) -> Endpoint[ItemList[str]]:
+    return Endpoint("GET", f"{_queue(queue_id)}/tags", ItemList[str])
 
 
-def list_versions(queue_id: str) -> Endpoint[QueueVersionInfoList]:
-    return Endpoint("GET", f"{_queue(queue_id)}/versions", QueueVersionInfoList)
+def list_versions(queue_id: str) -> Endpoint[ItemList[QueueVersionInfo]]:
+    return Endpoint("GET", f"{_queue(queue_id)}/versions", ItemList[QueueVersionInfo])
 
 
-def list_fields(queue_id: str) -> Endpoint[QueueFieldList]:
-    return Endpoint("GET", f"{_queue(queue_id)}/fields", QueueFieldList)
+def list_fields(queue_id: str) -> Endpoint[ItemList[QueueField]]:
+    return Endpoint("GET", f"{_queue(queue_id)}/fields", ItemList[QueueField])
 
 
 def create_queue(body: dict[str, Any]) -> Endpoint[Queue]:

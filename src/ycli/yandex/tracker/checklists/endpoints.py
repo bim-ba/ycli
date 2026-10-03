@@ -15,11 +15,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItem
 
 
-def get_checklist(key: str) -> Endpoint[ChecklistItemList]:
-    return Endpoint("GET", f"issues/{segment(key)}/checklistItems", ChecklistItemList)
+def get_checklist(key: str) -> Endpoint[ItemList[ChecklistItem]]:
+    return Endpoint("GET", f"issues/{segment(key)}/checklistItems", ItemList[ChecklistItem])
 
 
 def create_checklist_item(key: str, body: dict[str, Any]) -> Endpoint[Checklist]:

@@ -9,9 +9,9 @@ import typer
 
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.links.models import Link, LinkCreate, LinkList
+from ycli.yandex.tracker.links.models import Link, LinkCreate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -32,7 +32,7 @@ class Relationship(enum.StrEnum):
 
 
 @app.command("list")
-def list_(key: KeyArg, *, tracker: TrackerClient) -> LinkList:
+def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[Link]:
     """List links for issue KEY."""
     return tracker.links.list(key)
 
@@ -56,7 +56,7 @@ def search(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> LinkList:
+) -> ItemList[Link]:
     """List links of issue KEY, filtered and paged (POST …/links/_list; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.links.search(key, link_types=link_type, fields=field, limit=cap)

@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.sprints import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintList, SprintUpdate
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintUpdate
 
 
 class SprintsClient(Resource):
     """List a board's sprints; get, create, edit, delete, start and archive a sprint."""
 
-    def list(self, board_id: int) -> SprintList:
+    def list(self, board_id: int) -> ItemList[Sprint]:
         """``GET /boards/{board_id}/sprints`` → the board's sprint listing.
 
         Args:

@@ -1,19 +1,17 @@
 """Model-parse + Field-metadata coverage for the Tracker priorities write-body models."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.priorities.models import (
-    Priority,
-    PriorityCreate,
-    PriorityList,
-    PriorityUpdate,
-)
+from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, PriorityUpdate
 
 
 def test_priority_and_list_parse():
     # The live v3 API carries the display name in `name` (`display` stays null).
     p = Priority.model_validate({"key": "normal", "name": "Normal"})
     assert p.key == "normal" and p.name == "Normal" and p.display is None
-    pl = PriorityList.model_validate([{"key": "critical", "name": "Critical"}, {"key": "normal"}])
+    pl = ItemList[Priority].model_validate(
+        [{"key": "critical", "name": "Critical"}, {"key": "normal"}]
+    )
     assert [x.key for x in pl.root] == ["critical", "normal"]
     assert pl.root[0].name == "Critical"
 

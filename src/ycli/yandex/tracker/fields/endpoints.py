@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.fields.models import CustomField, FieldCategoryRecord, FieldList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.fields.models import CustomField, FieldCategoryRecord
 
 
-def list_fields() -> Endpoint[FieldList]:
-    return Endpoint("GET", "fields", FieldList)
+def list_fields() -> Endpoint[ItemList[CustomField]]:
+    return Endpoint("GET", "fields", ItemList[CustomField])
 
 
 def get_field(field_id: str) -> Endpoint[CustomField]:

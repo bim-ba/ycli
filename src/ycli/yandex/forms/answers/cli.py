@@ -14,13 +14,13 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerExport,
-    AnswerIntegrationList,
+    AnswerIntegration,
     AnswersResponse,
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.forms.typedefs import AnswerIdArg, SurveyIdArg
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
@@ -154,7 +154,7 @@ def integrations_list(
     ] = "",
     *,
     forms: FormsClient,
-) -> AnswerIntegrationList:
+) -> ItemList[AnswerIntegration]:
     """List the integration runs an answer triggered (exactly one of --answer-id / --answer-key)."""
     if bool(answer_id) == bool(answer_key):
         raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")

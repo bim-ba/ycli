@@ -20,8 +20,8 @@ from ycli.yandex.forms.dependencies import (
     SurveyId,
     forms_client,
 )
-from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionList
-from ycli.yandex.models import Ack
+from ycli.yandex.forms.subscriptions.models import Subscription
+from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-subscriptions")
 
@@ -36,7 +36,7 @@ SubscriptionId = Annotated[
 )
 def list_(
     survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)
-) -> SubscriptionList:
+) -> ItemList[Subscription]:
     """Every integration of an integration group (hook), each tagged by ``type``.
 
     Types: email, tracker, tracker_comment, wiki, jsonrpc, http, function. ``hooks_list``

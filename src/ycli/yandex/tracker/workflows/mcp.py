@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -22,7 +22,6 @@ from ycli.yandex.tracker.workflows.models import (
     Workflow,
     WorkflowActionUpdate,
     WorkflowCreate,
-    WorkflowList,
     WorkflowUpdate,
 )
 
@@ -36,7 +35,7 @@ Version = Annotated[
 
 
 @mcp.tool(name="workflows_list", annotations={**RO, "title": "List Tracker workflows"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> WorkflowList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Workflow]:
     """Every workflow of the organization (deleted ones excluded) with its steps and actions.
 
     A workflow is the status graph an issue type follows. Use ``workflows_get`` for one by id

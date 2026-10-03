@@ -11,10 +11,10 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.resolutions import endpoints
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.resolutions.models import (
         Resolution,
         ResolutionCreate,
-        ResolutionList,
         ResolutionUpdate,
     )
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class ResolutionsClient(Resource):
     """List, create and edit issue resolutions."""
 
-    def list(self) -> ResolutionList:
+    def list(self) -> ItemList[Resolution]:
         """``GET /resolutions`` → resolution listing.
 
         Returns:

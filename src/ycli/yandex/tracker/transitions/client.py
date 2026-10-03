@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.transitions import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.transitions.models import TransitionList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.transitions.models import Transition
 
 
 class TransitionsClient(Resource):
     """List an issue's workflow transitions and execute one."""
 
-    def list(self, key: str) -> TransitionList:
+    def list(self, key: str) -> ItemList[Transition]:
         """``GET /issues/{key}/transitions`` → available transitions.
 
         Args:
@@ -29,11 +30,11 @@ class TransitionsClient(Resource):
         """
         return self._session.send(endpoints.list_transitions(key))
 
-    def execute(self, key: str, transition_id: str, body: dict[str, Any]) -> TransitionList:
+    def execute(self, key: str, transition_id: str, body: dict[str, Any]) -> ItemList[Transition]:
         """``POST /issues/{key}/transitions/{id}/_execute`` → available transitions after move.
 
         Returns the transitions available for the issue in its new status,
-        parsed as a ``TransitionList``.
+        parsed as a ``ItemList[Transition]``.
 
         Args:
             key: The issue's key.

@@ -15,7 +15,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerExport,
-    AnswerIntegrationList,
+    AnswerIntegration,
     AnswersResponse,
 )
 from ycli.yandex.forms.client import FormsClient
@@ -30,7 +30,7 @@ from ycli.yandex.forms.dependencies import (
     forms_client,
 )
 from ycli.yandex.forms.models import OperationResult
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-answers")
 
@@ -101,7 +101,7 @@ def integrations_list(
         Field(description="Answer key hash — works without form-edit access."),
     ] = None,
     client: FormsClient = Depends(forms_client),
-) -> AnswerIntegrationList:
+) -> ItemList[AnswerIntegration]:
     """The integration runs one answer triggered, by ``answer_id`` or ``answer_key`` (exactly one).
 
     Each entry has the run's ``status`` and the field of its ``type`` (``issue_key``, ``link``,

@@ -8,11 +8,12 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.autoactions import endpoints
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.autoactions.models import (
         Autoaction,
         AutoactionCreate,
-        AutoactionLogList,
-        AutoactionRunList,
+        AutoactionLogEntry,
+        AutoactionRunEntry,
     )
 
 
@@ -61,7 +62,7 @@ class AutoactionsClient(Resource):
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.create_autoaction(queue_id, dumped))
 
-    def logs(self, queue_id: str, action_id: int) -> AutoactionLogList:
+    def logs(self, queue_id: str, action_id: int) -> ItemList[AutoactionLogEntry]:
         """``GET /queues/{queue_id}/autoactions/{action_id}/logs`` → per-run summaries.
 
         Args:
@@ -77,7 +78,9 @@ class AutoactionsClient(Resource):
         """
         return self._session.send(endpoints.list_run_logs(queue_id, action_id))
 
-    def log_detail(self, queue_id: str, action_id: int, run_id: str) -> AutoactionRunList:
+    def log_detail(
+        self, queue_id: str, action_id: int, run_id: str
+    ) -> ItemList[AutoactionRunEntry]:
         """``GET .../autoactions/{action_id}/logs/{run_id}`` → per-issue outcomes of one run.
 
         Args:

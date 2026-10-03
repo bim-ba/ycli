@@ -11,13 +11,13 @@ from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.notifications.models import (
+    Notification,
     NotificationAction,
     NotificationDetails,
-    NotificationIdList,
-    NotificationList,
     NotificationStatus,
 )
 from ycli.yandex.forms.typedefs import NotificationIdArg, SurveyIdArg
+from ycli.yandex.models import ItemList
 
 app = typer.Typer(
     name="notifications", help="Forms integration runs (notifications).", no_args_is_help=True
@@ -55,7 +55,7 @@ def list_(
     *,
     config: AppConfig,
     forms: FormsClient,
-) -> NotificationList:
+) -> ItemList[Notification]:
     """List integration runs, filtered (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return forms.notifications.list(
@@ -102,6 +102,6 @@ def cancel(notification_id: NotificationIdArg, *, forms: FormsClient) -> Notific
 
 @deprecated_alias(app, "errors")
 @app.command()
-def errors_list(survey_id: SurveyIdArg, *, forms: FormsClient) -> NotificationIdList:
+def errors_list(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[int]:
     """List the ids of form SURVEY_ID's failed runs; read each with `notifications get`."""
     return forms.notifications.errors_list(survey_id)

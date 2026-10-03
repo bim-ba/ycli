@@ -5,8 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.pages import endpoints
-from ycli.yandex.wiki.pages.models import GridRefList, PageRefList, PageRevisionList
+from ycli.yandex.wiki.pages.models import GridRef, PageRef, PageRevision
 
 if TYPE_CHECKING:
     from ycli.yandex.wiki.models import AsyncOperation
@@ -62,7 +63,7 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         actuality: str | None = None,
-    ) -> PageRefList:
+    ) -> ItemList[PageRef]:
         """All descendant refs under ``slug``, draining ``next_cursor`` internally.
 
         Capped at ``limit``.
@@ -80,7 +81,7 @@ class PagesClient(Resource):
             ['eng/a', 'eng/b']
         """
         paged = endpoints.list_descendants(slug, actuality=actuality)
-        return PageRefList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
 
     def descendants_by_id(
         self,
@@ -88,7 +89,7 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         actuality: str | None = None,
-    ) -> PageRefList:
+    ) -> ItemList[PageRef]:
         """All descendant refs under numeric ``page_id``, draining ``next_cursor`` internally.
 
         The numeric-id twin of :meth:`descendants`; capped at ``limit`` (``None`` = every ref).
@@ -106,7 +107,7 @@ class PagesClient(Resource):
             ['sales/a', 'sales/b']
         """
         paged = endpoints.list_descendants_by_id(page_id, actuality=actuality)
-        return PageRefList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
 
     def grids(
         self,
@@ -114,8 +115,8 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         order_by: str | None = None,
-    ) -> GridRefList:
-        """``GET /pages/{id}/grids`` → flat :class:`GridRefList`, draining ``next_cursor``.
+    ) -> ItemList[GridRef]:
+        """``GET /pages/{id}/grids`` → flat ``ItemList[GridRef]``, draining ``next_cursor``.
 
         Dynamic tables (grids) attached to the page. Capped at ``limit`` (``None`` = every
         grid); ``order_by`` sorts the server-side listing (``title`` or ``created_at``).
@@ -133,7 +134,7 @@ class PagesClient(Resource):
             ['Roadmap', 'Budget']
         """
         paged = endpoints.list_grids(page_id, order_by=order_by)
-        return GridRefList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[GridRef](list(self._session.iterate(paged, limit=limit)))
 
     def create(self, body: dict[str, Any]) -> PageDetails:
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
@@ -261,8 +262,8 @@ class PagesClient(Resource):
         *,
         ids: str | None = None,
         limit: int | None = None,
-    ) -> PageRevisionList:
-        """``GET /pages/{id}/revisions`` → flat :class:`PageRevisionList`, draining ``next_cursor``.
+    ) -> ItemList[PageRevision]:
+        """``GET /pages/{id}/revisions`` → ``ItemList[PageRevision]``, draining ``next_cursor``.
 
         Undocumented by Yandex (live OpenAPI only), may change. A revision ``id`` is what
         ``GET /pages`` takes as ``revision_id``. ``ids`` keeps only these revisions (comma
@@ -282,7 +283,7 @@ class PagesClient(Resource):
             [7003, 7002]
         """
         paged = endpoints.list_revisions(page_id, ids=ids)
-        return PageRevisionList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[PageRevision](list(self._session.iterate(paged, limit=limit)))
 
     def backlinks(
         self,
@@ -291,7 +292,7 @@ class PagesClient(Resource):
         for_cluster: bool = False,
         show_all: bool = False,
         limit: int | None = None,
-    ) -> PageRefList:
+    ) -> ItemList[PageRef]:
         """``GET /pages/{id}/backlinks`` → refs of the pages that link here, draining the cursor.
 
         Undocumented by Yandex (live OpenAPI only), may change. ``for_cluster`` also reports links
@@ -314,4 +315,4 @@ class PagesClient(Resource):
             ['eng/linker-a', 'eng/linker-b']
         """
         paged = endpoints.list_backlinks(page_id, for_cluster=for_cluster, show_all=show_all)
-        return PageRefList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))

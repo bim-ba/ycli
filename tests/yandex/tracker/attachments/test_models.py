@@ -1,6 +1,7 @@
 """TDD for Tracker attachment models — full doc sample parse + list array."""
 
-from ycli.yandex.tracker.attachments.models import Attachment, AttachmentList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.attachments.models import Attachment
 
 SAMPLE = {
     "self": "https://api.tracker.yandex.net/v3/issues/JUNE-2/attachments/123",
@@ -32,8 +33,8 @@ def test_attachment_parses_all_fields():
 
 
 def test_attachment_list_parses_array():
-    out = AttachmentList.model_validate([SAMPLE, {"name": "notes.txt"}])
-    assert isinstance(out, AttachmentList)
+    out = ItemList[Attachment].model_validate([SAMPLE, {"name": "notes.txt"}])
+    assert isinstance(out, ItemList[Attachment])
     assert [a.name for a in out.root] == ["picture.jpg", "notes.txt"]
     assert out.root[1].metadata is None  # absent metadata stays None
 

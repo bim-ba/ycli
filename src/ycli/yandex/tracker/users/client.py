@@ -5,14 +5,10 @@ Every method sends one declaration from :mod:`ycli.yandex.tracker.users.endpoint
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.users import endpoints
-from ycli.yandex.tracker.users.models import UserList
-
-if TYPE_CHECKING:
-    from ycli.yandex.tracker.users.models import User
+from ycli.yandex.tracker.users.models import User
 
 
 class UsersClient(Resource):
@@ -36,7 +32,7 @@ class UsersClient(Resource):
         """
         return self._session.send(endpoints.get_user(login_or_id, expand=expand))
 
-    def list(self, *, limit: int | None = None, expand: str | None = None) -> UserList:
+    def list(self, *, limit: int | None = None, expand: str | None = None) -> ItemList[User]:
         """All organisation users, draining the ``id=<last uid>`` relative cursor internally.
 
         Users come back sorted by ascending ``uid``; each next page repeats with
@@ -56,4 +52,4 @@ class UsersClient(Resource):
         # A small cap needs no full page.
         per_page = min(endpoints.MAX_PAGE_SIZE, limit) if limit else endpoints.MAX_PAGE_SIZE
         paged = endpoints.list_users(per_page=per_page, expand=expand)
-        return UserList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[User](list(self._session.iterate(paged, limit=limit)))

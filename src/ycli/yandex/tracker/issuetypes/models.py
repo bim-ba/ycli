@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker issue types (IssueType + IssueTypeList + write bodies)."""
+"""Pydantic models for Tracker issue types (IssueType + ItemList[IssueType] + write bodies)."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import LocalizedName
@@ -22,15 +22,6 @@ class IssueType(APIModel):
     key: str | None = None
     name: str | None = None
     display: str | None = None
-
-
-class IssueTypeList(RootModel[list[IssueType]]):
-    """A bare JSON array of issue types.
-
-    Examples:
-        >>> IssueTypeList.model_validate([{"key": "bug"}]).root[0].key
-        'bug'
-    """
 
 
 class IssueTypeCreate(APIModel):

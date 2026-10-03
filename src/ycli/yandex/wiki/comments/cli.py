@@ -9,12 +9,13 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
+    Comment,
     CommentCreate,
     CommentCreated,
     CommentDeleteResult,
-    CommentList,
 )
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
@@ -30,7 +31,7 @@ def list_(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> CommentList:
+) -> ItemList[Comment]:
     """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.comments.list(page_id=page_id, limit=cap)
@@ -46,7 +47,7 @@ def thread_list(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> CommentList:
+) -> ItemList[Comment]:
     """Print the thread for COMMENT_ID on PAGE_ID: the comment plus its replies.
 
     Reconstructed from the page's comment list (the Wiki /thread endpoint, see `thread-get`, is
@@ -65,7 +66,7 @@ def thread_get(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> CommentList:
+) -> ItemList[Comment]:
     """Print what the server returns as the thread of COMMENT_ID (GET .../comments/{id}/thread).
 
     The server answers an empty list for every real thread (checked 2026-10-02); use `thread-list`,

@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker issue attachments (Attachment + AttachmentList)."""
+"""Pydantic models for Tracker issue attachments (Attachment + ItemList[Attachment])."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -55,12 +55,3 @@ class Attachment(APIModel):
         default=None,
         description="Extra file metadata (image pixel dimensions for graphic files).",
     )
-
-
-class AttachmentList(RootModel[list[Attachment]]):
-    """A bare JSON array of issue attachments — public return type of ``AttachmentsClient.list``.
-
-    Examples:
-        >>> AttachmentList.model_validate([{"name": "picture.jpg"}]).root[0].name
-        'picture.jpg'
-    """

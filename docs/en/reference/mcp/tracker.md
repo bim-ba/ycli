@@ -1370,7 +1370,7 @@ it for optimistic locking and answers 428 without one. Returns the updated sprin
 
 Files attached to a Tracker issue — name, size, MIME type, uploader, download URLs.
 
-Returns metadata only (an ``AttachmentList``); use it to discover a file's id and name.
+Returns metadata only (an ``ItemList[Attachment]``); use it to discover a file's id and name.
 Downloading the file's or thumbnail's raw bytes is CLI/SDK-only — run
 ``ycli tracker attachments download <ISSUE> <FILE_ID> <FILENAME>`` — because binary blobs
 are not an MCP payload.
@@ -2167,7 +2167,7 @@ Add checklist item(s) to a Tracker entity; returns the entity with its checklist
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `body` | array of object | yes | A bare array body for checklist create / edit-all. |
+| `body` | array of object | yes | A bare array of checklist items. |
 
 ## `tracker_entities_checklists_update`
 
@@ -2182,7 +2182,7 @@ item by id use ``entities_checklists_update_item``. Returns the entity with its 
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `body` | array of object | yes | A bare array body for checklist create / edit-all. |
+| `body` | array of object | yes | A bare array of checklist items. |
 
 ## `tracker_entities_checklists_update_item`
 

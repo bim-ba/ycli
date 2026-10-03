@@ -15,9 +15,10 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.progress import wait_for
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import (
     BulkChange,
-    BulkIssueResultList,
+    BulkIssueResult,
     BulkMove,
     BulkTransition,
     BulkUpdate,
@@ -147,6 +148,6 @@ def get(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkChange:
 
 @deprecated_alias(app, "issues")
 @app.command()
-def issues_list(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkIssueResultList:
+def issues_list(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> ItemList[BulkIssueResult]:
     """List issues that a bulk change failed on (GET /bulkchange/{id}/issues)."""
     return tracker.bulk.issues(bulk_id)

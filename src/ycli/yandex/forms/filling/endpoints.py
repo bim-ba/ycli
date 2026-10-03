@@ -10,7 +10,8 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.filling.models import FillableForm, SubmitResult, SuggestionList
+from ycli.yandex.forms.filling.models import FillableForm, SubmitResult, Suggestion
+from ycli.yandex.models import ItemList
 
 
 def get_form(survey: str, *, key: str | None) -> Endpoint[FillableForm]:
@@ -26,5 +27,7 @@ def submit_form(
     )
 
 
-def suggest(survey: str, params: dict[str, str | None]) -> Endpoint[SuggestionList]:
-    return Endpoint("GET", f"surveys/{segment(survey)}/suggest", SuggestionList, params=params)
+def suggest(survey: str, params: dict[str, str | None]) -> Endpoint[ItemList[Suggestion]]:
+    return Endpoint(
+        "GET", f"surveys/{segment(survey)}/suggest", ItemList[Suggestion], params=params
+    )

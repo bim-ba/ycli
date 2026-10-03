@@ -9,7 +9,8 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, app_config, forms_client
-from ycli.yandex.forms.history.models import HistoryEventList
+from ycli.yandex.forms.history.models import HistoryEvent
+from ycli.yandex.models import ItemList
 
 mcp = FastMCP("forms-history")
 
@@ -24,7 +25,7 @@ def list_(
     limit: Annotated[int, Field(description="Most events to return (0 = the configured cap).")] = 0,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
-) -> HistoryEventList:
+) -> ItemList[HistoryEvent]:
     """The changes made to a form — who changed which part, when — across pages.
 
     Capped at the configured item cap unless ``limit`` is given.

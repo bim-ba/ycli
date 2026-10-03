@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
@@ -159,15 +159,6 @@ class AutoactionLogEntry(APIModel):
     )
 
 
-class AutoactionLogList(RootModel[list[AutoactionLogEntry]]):
-    """A bare JSON array of autoaction run summaries (``.../autoactions/{id}/logs``).
-
-    Examples:
-        >>> AutoactionLogList.model_validate([{"id": "x"}]).root[0].id
-        'x'
-    """
-
-
 class AutoactionIssueRef(APIModel):
     """The issue an autoaction run touched (``issueReference`` object).
 
@@ -218,12 +209,3 @@ class AutoactionRunEntry(APIModel):
     status: AutoactionRunStatus | None = Field(
         default=None, description="Outcome of the autoaction on this issue."
     )
-
-
-class AutoactionRunList(RootModel[list[AutoactionRunEntry]]):
-    """A bare JSON array of per-issue run outcomes (``.../autoactions/{id}/logs/{run_id}``).
-
-    Examples:
-        >>> AutoactionRunList.model_validate([{"id": 0}]).root[0].id
-        0
-    """

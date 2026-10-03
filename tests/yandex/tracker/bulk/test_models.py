@@ -1,10 +1,10 @@
 """TDD for Tracker bulk-change models — status parse, terminal predicate, typed bodies."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import (
     TERMINAL_STATUSES,
     BulkChange,
     BulkIssueResult,
-    BulkIssueResultList,
     BulkMove,
     BulkTransition,
     BulkUpdate,
@@ -44,7 +44,7 @@ def test_is_terminal_reflects_status():
 
 
 def test_bulk_issue_result_list_flattens_issue():
-    out = BulkIssueResultList.model_validate(
+    out = ItemList[BulkIssueResult].model_validate(
         [
             {
                 "issue": {"key": "TEST-1", "display": "My issue"},
@@ -54,7 +54,7 @@ def test_bulk_issue_result_list_flattens_issue():
             }
         ]
     )
-    assert isinstance(out, BulkIssueResultList)
+    assert isinstance(out, ItemList[BulkIssueResult])
     result = out.root[0]
     assert isinstance(result, BulkIssueResult)
     assert result.issue == "TEST-1"  # issue object flattened to key

@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, require_found
+from ycli.yandex.models import Ack, ItemList, require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
@@ -23,7 +23,6 @@ from ycli.yandex.tracker.dependencies import (
 from ycli.yandex.tracker.issues.models import (
     Issue,
     IssueCreate,
-    IssueList,
     IssueUpdate,
     ScrollClear,
     count_body,
@@ -58,7 +57,7 @@ def list_(
     limit: Annotated[int, Field(description=_LIMIT)] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> IssueList:
+) -> ItemList[Issue]:
     """Issues matching the supplied filters (omitted filters dropped), auto-paginated.
 
     Returns at most ``limit`` issues; exactly ``limit`` back means more may match — narrow the
@@ -76,7 +75,7 @@ def search(
     limit: Annotated[int, Field(description=_LIMIT)] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> IssueList:
+) -> ItemList[Issue]:
     """Issues matching a TQL query string, auto-paginated.
 
     Returns at most ``limit`` issues; exactly ``limit`` back means more may match — refine the
@@ -111,7 +110,7 @@ def count(
 def suggest(
     text: Annotated[str, Field(description="Text fragment to match in issue summaries.")],
     client: TrackerClient = Depends(tracker_client),
-) -> IssueList:
+) -> ItemList[Issue]:
     """Typeahead over visible issues — issues whose summary contains ``text``.
 
     A lightweight title match; for full TQL search use ``issues_search``.

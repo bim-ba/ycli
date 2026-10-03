@@ -1,5 +1,6 @@
 """TDD for the triggers models — polymorphic actions/conditions round-trip via extra=allow."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import AutomationAction
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
@@ -7,7 +8,6 @@ from ycli.yandex.tracker.triggers.models import (
     TriggerCreate,
     TriggerUpdate,
     WebhookLogEntry,
-    WebhookLogList,
 )
 
 
@@ -80,13 +80,14 @@ def test_webhook_log_entry_aliases():
         {"id": "x", "startTime": "2025", "triggerId": 123, "actionId": 1, "duration": 235}
     )
     assert entry.start_time == "2025" and entry.trigger_id == 123 and entry.action_id == 1
-    assert WebhookLogList.model_validate([{"id": "x"}]).root[0].id == "x"
+    assert ItemList[WebhookLogEntry].model_validate([{"id": "x"}]).root[0].id == "x"
 
 
 def test_trigger_list_is_a_flat_array_in_id_order():
-    from ycli.yandex.tracker.triggers.models import TriggerList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.triggers.models import Trigger
 
-    triggers = TriggerList.model_validate(
+    triggers = ItemList[Trigger].model_validate(
         [
             {"id": 16, "name": "First", "order": "0.0002", "version": 1, "active": True},
             {"id": 17, "name": "Second", "actions": [{"type": "Transition"}]},

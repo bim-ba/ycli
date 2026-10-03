@@ -7,9 +7,10 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import RO, TAGS, app_config, wiki_client
-from ycli.yandex.wiki.resources.models import ResourceItemList
+from ycli.yandex.wiki.resources.models import ResourceItem
 
 mcp = FastMCP("wiki-resources")
 
@@ -24,7 +25,7 @@ def list_(
     ] = "",
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> ResourceItemList:
+) -> ItemList[ResourceItem]:
     """A page's resources — attachments AND grids — as ``{type, item}`` envelopes, auto-paginated.
 
     The unified single-pass listing over what ``attachments_list`` and ``pages_grids_list``

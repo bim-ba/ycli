@@ -10,15 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.localfields.models import LocalField
 
 
 def _local_fields(queue_id: str) -> str:
     return f"queues/{segment(queue_id)}/localFields"
 
 
-def list_local_fields(queue_id: str) -> Endpoint[LocalFieldList]:
-    return Endpoint("GET", _local_fields(queue_id), LocalFieldList)
+def list_local_fields(queue_id: str) -> Endpoint[ItemList[LocalField]]:
+    return Endpoint("GET", _local_fields(queue_id), ItemList[LocalField])
 
 
 def get_local_field(queue_id: str, field_key: str) -> Endpoint[LocalField]:

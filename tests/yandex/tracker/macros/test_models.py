@@ -1,11 +1,7 @@
 """TDD for the macros models — refs, the issueUpdate asymmetry, and write bodies."""
 
-from ycli.yandex.tracker.macros.models import (
-    Macro,
-    MacroCreate,
-    MacroList,
-    MacroUpdate,
-)
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
 
 
 def test_macro_parses_full_payload():
@@ -32,7 +28,7 @@ def test_macro_defaults_issue_update_empty():
 
 
 def test_macro_list_root_model():
-    ml = MacroList.model_validate([{"id": 3, "name": "a"}, {"id": 4, "name": "b"}])
+    ml = ItemList[Macro].model_validate([{"id": 3, "name": "a"}, {"id": 4, "name": "b"}])
     assert [m.name for m in ml.root] == ["a", "b"]
 
 

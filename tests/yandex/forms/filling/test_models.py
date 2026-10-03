@@ -1,12 +1,7 @@
 """TDD for Forms filling models (FillableForm / SubmitBody / SubmitResult / Suggestion)."""
 
-from ycli.yandex.forms.filling.models import (
-    FillableForm,
-    SubmitBody,
-    SubmitResult,
-    Suggestion,
-    SuggestionList,
-)
+from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
+from ycli.yandex.models import ItemList
 
 
 def test_fillable_form_defaults_and_nested_texts():
@@ -37,5 +32,5 @@ def test_suggestion_preserves_layer_extras():
 
 
 def test_suggestion_list_is_flat_root():
-    sl = SuggestionList.model_validate([{"layer": "gender", "id": "m", "text": "Male"}])
+    sl = ItemList[Suggestion].model_validate([{"layer": "gender", "id": "m", "text": "Male"}])
     assert sl.root[0].text == "Male"

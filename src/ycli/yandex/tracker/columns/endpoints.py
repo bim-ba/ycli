@@ -12,11 +12,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.columns.models import Column, ColumnList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.columns.models import Column
 
 
-def list_columns(board_id: int) -> Endpoint[ColumnList]:
-    return Endpoint("GET", f"boards/{segment(board_id)}/columns", ColumnList)
+def list_columns(board_id: int) -> Endpoint[ItemList[Column]]:
+    return Endpoint("GET", f"boards/{segment(board_id)}/columns", ItemList[Column])
 
 
 def get_column(board_id: int, column_id: int) -> Endpoint[Column]:

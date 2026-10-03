@@ -8,14 +8,15 @@ from ycli.yandex.forms.subscriptions.models import (
     FunctionSubscription,
     HttpSubscription,
     JsonRpcSubscription,
+    Subscription,
     SubscriptionAdapter,
-    SubscriptionList,
     TrackerCommentSubscription,
     TrackerFieldKey,
     TrackerSubscription,
     WikiGrid,
     WikiSubscription,
 )
+from ycli.yandex.models import ItemList
 
 
 @pytest.mark.parametrize(
@@ -59,7 +60,7 @@ def test_live_http_subscription_and_rich_members_parse():
         "type": "wiki",
         "grid_data": {"grid_id": "g1", "cols": [{"key": {"slug": "n", "type": "string"}}]},
     }
-    first, second, third = SubscriptionList.model_validate([live, tracker, wiki]).root
+    first, second, third = ItemList[Subscription].model_validate([live, tracker, wiki]).root
     assert first.id == 19059006
     assert isinstance(second, TrackerSubscription) and second.fields and second.attachments
     assert isinstance(second.fields[0].key, TrackerFieldKey)

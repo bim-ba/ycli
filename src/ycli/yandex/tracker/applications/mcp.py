@@ -3,7 +3,8 @@
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 
-from ycli.yandex.tracker.applications.models import ApplicationList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.applications.models import Application
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
 
@@ -15,7 +16,7 @@ mcp = FastMCP("tracker-applications")
     annotations={**RO, "title": "List Tracker external applications"},
     tags=TAGS,
 )
-def list_(client: TrackerClient = Depends(tracker_client)) -> ApplicationList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Application]:
     """External applications that Tracker issues can be linked to via external links.
 
     Use this to discover which application ids/types are available before creating an external

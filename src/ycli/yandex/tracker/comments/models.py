@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker issue comments (Comment + CommentList)."""
+"""Pydantic models for Tracker issue comments (Comment + ItemList[Comment])."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -31,15 +31,6 @@ class Comment(APIModel):
     version: int | None = None
     type: str | None = None
     transport: str | None = None
-
-
-class CommentList(RootModel[list[Comment]]):
-    """A bare JSON array of comments.
-
-    Examples:
-        >>> CommentList.model_validate([{"text": "hi"}]).root[0].text
-        'hi'
-    """
 
 
 class CommentUpdate(APIModel):

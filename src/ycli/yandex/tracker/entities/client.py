@@ -10,20 +10,18 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities import endpoints
 from ycli.yandex.tracker.entities.models import (
     Acl,
     Attachment,
-    AttachmentList,
     BulkChangeOperation,
     Comment,
-    CommentList,
     DirectPermissionsUpdate,
     Entity,
-    EntityEventList,
-    EntityList,
+    EntityEvent,
     ExtendedPermissions,
-    LinkList,
+    Link,
 )
 
 
@@ -129,8 +127,8 @@ class EntitiesClient(Resource):
         fields: str | None = None,
         per_page: int | None = None,
         page: int | None = None,
-    ) -> EntityList:
-        """``POST /entities/{entity_type}/_search`` → flat :class:`EntityList` of ``values``.
+    ) -> ItemList[Entity]:
+        """``POST /entities/{entity_type}/_search`` → flat ``ItemList[Entity]`` of ``values``.
 
         ``body`` carries ``input`` (substring), ``filter`` (field→value), ``orderBy``,
         ``orderAsc`` and ``rootOnly``. ``fields`` selects extra ``fields`` keys in the results;
@@ -155,12 +153,12 @@ class EntitiesClient(Resource):
         endpoint = endpoints.search_entities(
             entity_type, body or {}, fields=fields, per_page=per_page, page=page
         )
-        return EntityList(self._session.send(endpoint).values)
+        return ItemList[Entity](self._session.send(endpoint).values)
 
     def history(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
-    ) -> EntityEventList:
-        """``GET …/events/_relative`` → flat :class:`EntityEventList`, draining ``from=<id>``.
+    ) -> ItemList[EntityEvent]:
+        """``GET …/events/_relative`` → flat ``ItemList[EntityEvent]``, draining ``from=<id>``.
 
         Walks the relative-cursor listing (each page repeats with ``from`` = the last event's
         id) until exhausted or ``limit`` events collected.
@@ -178,7 +176,7 @@ class EntitiesClient(Resource):
             ['e1', 'e2']
         """
         paged = endpoints.list_events(entity_type, entity_id, per_page=_page_size(limit))
-        return EntityEventList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[EntityEvent](list(self._session.iterate(paged, limit=limit)))
 
     def permissions(self, entity_type: str, entity_id: str) -> ExtendedPermissions:
         """``GET …/extendedPermissions`` → access settings (acl + permissionSources).
@@ -333,7 +331,7 @@ class EntitiesClient(Resource):
 
     def comments_list(
         self, entity_type: str, entity_id: str, expand: str | None = None
-    ) -> CommentList:
+    ) -> ItemList[Comment]:
         """``GET …/comments`` → all comments on the entity.
 
         ``expand`` embeds extras (``html``, ``attachments``, ``reactions``, or ``all``).
@@ -354,8 +352,8 @@ class EntitiesClient(Resource):
 
     def comments_relative(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
-    ) -> CommentList:
-        """``GET …/comments/_relative`` → flat :class:`CommentList`, draining ``from=<longId>``.
+    ) -> ItemList[Comment]:
+        """``GET …/comments/_relative`` → flat ``ItemList[Comment]``, draining ``from=<longId>``.
 
         The paginated twin of :meth:`comments_list`; walks the relative-cursor listing until
         exhausted or ``limit`` comments collected.
@@ -376,7 +374,7 @@ class EntitiesClient(Resource):
             [31, 32]
         """
         paged = endpoints.list_comments_relative(entity_type, entity_id, per_page=_page_size(limit))
-        return CommentList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def comments_get(
         self, entity_type: str, entity_id: str, comment_id: str, expand: str | None = None
@@ -578,7 +576,9 @@ class EntitiesClient(Resource):
 
     # ---- links ------------------------------------------------------------------------------
 
-    def links_list(self, entity_type: str, entity_id: str, fields: str | None = None) -> LinkList:
+    def links_list(
+        self, entity_type: str, entity_id: str, fields: str | None = None
+    ) -> ItemList[Link]:
         """``GET …/links`` → the entity's links to other entities.
 
         Args:
@@ -625,7 +625,7 @@ class EntitiesClient(Resource):
 
     # ---- attachments ------------------------------------------------------------------------
 
-    def attachments_list(self, entity_type: str, entity_id: str) -> AttachmentList:
+    def attachments_list(self, entity_type: str, entity_id: str) -> ItemList[Attachment]:
         """``GET …/attachments`` → files attached to the entity (metadata only).
 
         Args:

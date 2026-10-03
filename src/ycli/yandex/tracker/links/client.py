@@ -5,19 +5,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.links import endpoints
-from ycli.yandex.tracker.links.models import LinkList
+from ycli.yandex.tracker.links.models import Link
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from ycli.yandex.tracker.links.models import Link
 
 
 class LinksClient(Resource):
     """List, search (paged), add and delete the links between issues."""
 
-    def list(self, key: str) -> LinkList:
+    def list(self, key: str) -> ItemList[Link]:
         """``GET /issues/{key}/links`` → link listing.
 
         Args:
@@ -39,7 +38,7 @@ class LinksClient(Resource):
         link_types: Sequence[str] | None = None,
         fields: Sequence[str] | None = None,
         limit: int | None = None,
-    ) -> LinkList:
+    ) -> ItemList[Link]:
         """``POST /issues/{key}/links/_list`` (a read) → links, paged by ``page``/``perPage``.
 
         ``link_types`` keeps only links of these relationships and ``fields`` picks the fields to
@@ -64,7 +63,7 @@ class LinksClient(Resource):
             [441, 442]
         """
         paged = endpoints.search_links(key, link_types=link_types, fields=fields)
-        return LinkList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Link](list(self._session.iterate(paged, limit=limit)))
 
     def add(self, key: str, body: dict[str, Any]) -> Link:
         """``POST /issues/{key}/links`` — link two issues. Returns the link.

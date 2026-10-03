@@ -12,19 +12,15 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.projects import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.projects.models import (
-        Project,
-        ProjectCreate,
-        ProjectList,
-        ProjectUpdate,
-    )
-    from ycli.yandex.tracker.queues.models import QueueList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
+    from ycli.yandex.tracker.queues.models import Queue
 
 
 class ProjectsClient(Resource):
     """List, get, create, edit and delete projects; list a project's queues."""
 
-    def list(self, *, expand: str | None = None) -> ProjectList:
+    def list(self, *, expand: str | None = None) -> ItemList[Project]:
         """``GET /projects`` → every project of the organization.
 
         ``expand="queues"`` adds each project's queues.
@@ -57,7 +53,7 @@ class ProjectsClient(Resource):
         """
         return self._session.send(endpoints.get_project(project_id, expand=expand))
 
-    def queues(self, project_id: int, *, expand: str | None = None) -> QueueList:
+    def queues(self, project_id: int, *, expand: str | None = None) -> ItemList[Queue]:
         """``GET /projects/{project_id}/queues`` → the queues whose issues are in the project.
 
         ``expand`` takes the same blocks as :meth:`QueuesClient.get` (``all``, ``components``, …).

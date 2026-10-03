@@ -1,7 +1,8 @@
 """Model-parse + Field-metadata coverage for the Tracker statuses models."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpdate
 
 
 def test_status_parses_every_field():
@@ -24,7 +25,7 @@ def test_status_parses_every_field():
 
 
 def test_statuslist_is_flat_root_array():
-    sl = StatusList.model_validate([{"key": "open"}, {"key": "closed"}])
+    sl = ItemList[Status].model_validate([{"key": "open"}, {"key": "closed"}])
     assert [s.key for s in sl.root] == ["open", "closed"]
 
 

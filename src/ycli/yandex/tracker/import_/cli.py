@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment
@@ -21,7 +22,7 @@ from ycli.yandex.tracker.links.models import Link
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
-from ycli.yandex.tracker.worklog.models import WorklogList
+from ycli.yandex.tracker.worklog.models import Worklog
 
 app = typer.Typer(name="import", help="Tracker data import (admin).", no_args_is_help=True)
 
@@ -101,7 +102,7 @@ def worklog(
     comment: Annotated[str, typer.Option(help="Optional note saved in the time report.")] = "",
     *,
     tracker: TrackerClient,
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import)."""
     body = ImportWorklog(
         duration=duration,

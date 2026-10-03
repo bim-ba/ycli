@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.linktypes import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.linktypes.models import LinkTypeList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.models import LinkType
 
 
 class LinkTypesClient(Resource):
     """List the kinds of links between issues."""
 
-    def list(self) -> LinkTypeList:
+    def list(self) -> ItemList[LinkType]:
         """``GET /linktypes`` → link-type listing.
 
         Returns:

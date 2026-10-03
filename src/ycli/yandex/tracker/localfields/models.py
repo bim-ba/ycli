@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker per-queue local fields (LocalField + nested + LocalFieldList).
+"""Pydantic models for Tracker per-queue local fields (LocalField + nested + ItemList[LocalField]).
 
 Mirrors ``GET /queues/{id}/localFields`` (array) and
 ``GET /queues/{id}/localFields/{key}`` (single). Local fields are custom fields scoped to one
@@ -7,7 +7,7 @@ queue; the same object shape serves both endpoints.
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import (
@@ -106,15 +106,6 @@ class LocalField(APIModel):
     queue: KeyedReference | None = Field(
         default=None, description="The queue this local field is attached to."
     )
-
-
-class LocalFieldList(RootModel[list[LocalField]]):
-    """A bare JSON array of local fields — the flat public shape of ``localfields.list()``.
-
-    Examples:
-        >>> LocalFieldList.model_validate([{"key": "loc_field_key"}]).root[0].key
-        'loc_field_key'
-    """
 
 
 class LocalFieldUpdate(APIModel):

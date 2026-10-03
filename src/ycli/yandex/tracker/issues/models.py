@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker /issues (Issue + IssueList root model)."""
+"""Pydantic models for Tracker /issues (Issue + ItemList[Issue] root model)."""
 
 from __future__ import annotations
 
@@ -34,15 +34,6 @@ class Issue(APIModel):
     description: str | None = None
     created_at: str | None = Field(default=None, alias="createdAt")
     created_by: DisplayStr = Field(default=None, alias="createdBy")
-
-
-class IssueList(RootModel[list[Issue]]):
-    """A bare JSON array of issues (``POST /issues/_search`` response).
-
-    Examples:
-        >>> IssueList.model_validate([{"key": "DE-1"}]).root[0].key
-        'DE-1'
-    """
 
 
 class IssueCreate(APIModel):

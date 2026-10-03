@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.macros.models import Macro, MacroList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.macros.models import Macro
 
 
-def list_macros(queue_id: str) -> Endpoint[MacroList]:
-    return Endpoint("GET", f"queues/{segment(queue_id)}/macros", MacroList)
+def list_macros(queue_id: str) -> Endpoint[ItemList[Macro]]:
+    return Endpoint("GET", f"queues/{segment(queue_id)}/macros", ItemList[Macro])
 
 
 def get_macro(queue_id: str, macro_id: int) -> Endpoint[Macro]:

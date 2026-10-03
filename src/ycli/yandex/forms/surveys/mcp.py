@@ -20,13 +20,8 @@ from ycli.yandex.forms.dependencies import (
     app_config,
     forms_client,
 )
-from ycli.yandex.forms.surveys.models import (
-    Survey,
-    SurveyCreate,
-    SurveyList,
-    SurveyUpdate,
-)
-from ycli.yandex.models import Ack, require_found
+from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
+from ycli.yandex.models import Ack, ItemList, require_found
 
 mcp = FastMCP("forms-surveys")
 
@@ -36,7 +31,7 @@ def list_(
     limit: Annotated[int, Field(description=f"Max forms to return; {LIMIT_CAP}")] = 0,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
-) -> SurveyList:
+) -> ItemList[Survey]:
     """Every form (survey) the caller can see, auto-paginated over the API's offset pages.
 
     Capped at the configured item cap unless ``limit`` is given. Each item's ``id`` is the

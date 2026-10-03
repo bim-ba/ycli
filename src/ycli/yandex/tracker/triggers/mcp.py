@@ -7,6 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
@@ -23,9 +24,8 @@ from ycli.yandex.tracker.dependencies import (
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
     TriggerCreate,
-    TriggerList,
     TriggerUpdate,
-    WebhookLogList,
+    WebhookLogEntry,
 )
 
 mcp = FastMCP("tracker-triggers")
@@ -41,7 +41,7 @@ def list_(
     limit: Annotated[int, Field(description=f"Max triggers to return; {LIMIT_CAP}")] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> TriggerList:
+) -> ItemList[Trigger]:
     """Every trigger of a queue, ascending by id: name, actions, conditions and active flag.
 
     Auto-paginated and capped at the configured item cap unless ``limit`` is given. Use
@@ -84,7 +84,7 @@ def webhooklog_list(
         int, Field(description="Max records (API default 10, max 100); 0 uses the API default.")
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
-) -> WebhookLogList:
+) -> ItemList[WebhookLogEntry]:
     """The execution log of a trigger's HTTP-request (Webhook) action, newest first.
 
     Each record holds the outbound request and received response for one run. Only Webhook

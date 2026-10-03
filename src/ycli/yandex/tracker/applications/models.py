@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker external applications (Application + ApplicationList)."""
+"""Pydantic models for Tracker external applications (Application + ItemList[Application])."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -25,12 +25,3 @@ class Application(APIModel):
         default=None, description="Type of the application; matches the value of the id parameter."
     )
     name: str | None = Field(default=None, description="Display name of the application.")
-
-
-class ApplicationList(RootModel[list[Application]]):
-    """A bare JSON array of external applications — flat public shape of ``applications.list()``.
-
-    Examples:
-        >>> ApplicationList.model_validate([{"id": "my-app"}]).root[0].id
-        'my-app'
-    """

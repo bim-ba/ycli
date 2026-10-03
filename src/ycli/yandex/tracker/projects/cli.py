@@ -7,16 +7,10 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.projects.models import (
-    Project,
-    ProjectCreate,
-    ProjectList,
-    ProjectStatus,
-    ProjectUpdate,
-)
-from ycli.yandex.tracker.queues.models import QueueList
+from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectStatus, ProjectUpdate
+from ycli.yandex.tracker.queues.models import Queue
 
 app = typer.Typer(name="projects", help="Tracker projects (legacy API).", no_args_is_help=True)
 
@@ -33,7 +27,7 @@ QueuesOpt = Annotated[str, typer.Option(help="Key of the queue whose issues go i
 
 
 @app.command("list")
-def list_(expand: ExpandOpt = "", *, tracker: TrackerClient) -> ProjectList:
+def list_(expand: ExpandOpt = "", *, tracker: TrackerClient) -> ItemList[Project]:
     """List the organization's projects (GET /projects)."""
     return tracker.projects.list(expand=expand or None)
 
@@ -52,7 +46,7 @@ def queues(
     ] = "",
     *,
     tracker: TrackerClient,
-) -> QueueList:
+) -> ItemList[Queue]:
     """List the queues of project PROJECT_ID (GET /projects/{id}/queues)."""
     return tracker.projects.queues(project_id, expand=expand or None)
 

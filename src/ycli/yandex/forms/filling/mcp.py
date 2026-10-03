@@ -12,13 +12,8 @@ from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, WRITE, WRITE_TAGS, forms_client
-from ycli.yandex.forms.filling.models import (
-    FillableForm,
-    SubmitBody,
-    SubmitResult,
-    SuggestionList,
-)
-from ycli.yandex.models import require_found
+from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
+from ycli.yandex.models import ItemList, require_found
 
 mcp = FastMCP("forms-filling")
 
@@ -70,7 +65,7 @@ def suggest(
         str | None, Field(description="Parent object id scoping a Master/Detail lookup.")
     ] = None,
     client: FormsClient = Depends(forms_client),
-) -> SuggestionList:
+) -> ItemList[Suggestion]:
     """Autocomplete prompts for a ``suggest``-type question while filling a form.
 
     Pass the question ``slug`` (from ``filling_get``) plus the search ``text``; each returned
