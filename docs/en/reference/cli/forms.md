@@ -149,7 +149,7 @@ $ ycli forms surveys list [OPTIONS]
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--name TEXT`: Only forms whose name matches.
 * `--published / --no-published`: Only published (or only unpublished).
@@ -205,7 +205,7 @@ $ ycli forms surveys create [OPTIONS]
 * `--published / --no-published`: Ignored by the API: publish a form with ``surveys publish`` instead.
 * `--public / --no-public`: Ignored by the API: the reply reports whether the form is public, a request cannot set it.
 * `--need-auth / --no-need-auth`: Require sign-in to fill.
-* `--max-count INTEGER`: Maximum number of responses (0 = unset).  [default: 0]
+* `--max-count INTEGER`: Maximum number of responses (0: no cap).
 * `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -235,7 +235,7 @@ $ ycli forms surveys update [OPTIONS] SURVEY_ID
 * `--published / --no-published`: Ignored by the API: publish a form with ``surveys publish`` instead.
 * `--public / --no-public`: Ignored by the API: the reply reports whether the form is public, a request cannot set it.
 * `--need-auth / --no-need-auth`: Toggle sign-in requirement.
-* `--max-count INTEGER`: New response cap (0 = leave unchanged).  [default: 0]
+* `--max-count INTEGER`: New response cap (0 removes the cap).
 * `-F, --field TEXT`: Advanced key=value (JSON-coerced; repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -499,9 +499,9 @@ $ ycli forms questions move [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--page INTEGER`: Target page number, 1-based (0 = unset; visibly defaults to 1 when only --position is given — the API silently ignores a bare position).  [default: 0]
-* `--page-id INTEGER`: Target page id (0 = unset).  [default: 0]
-* `--position INTEGER`: New position on the page, 1-based (0 = unset).  [default: 0]
+* `--page INTEGER`: Target page number, 1-based (visibly defaults to 1 when only --position is given — the API silently ignores a bare position).
+* `--page-id INTEGER`: Target page id.
+* `--position INTEGER`: New position on the page, 1-based.
 * `--create-page`: Create a new page for the question.
 * `--question TEXT`: Question id/slug to move into a question series.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1394,7 +1394,7 @@ $ ycli forms history list [OPTIONS] SURVEY_ID
 **Options**:
 
 * `--ordering TEXT`: desc (newest first, the API default) or asc.
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -1440,7 +1440,7 @@ $ ycli forms answers get [OPTIONS]
 
 **Options**:
 
-* `--answer-id INTEGER`: Numeric answer id (needs form-edit access; 0 = unset).  [default: 0]
+* `--answer-id INTEGER`: Numeric answer id (needs form-edit access).
 * `--answer-key TEXT`: Answer key hash (works without form-edit access).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -1465,7 +1465,7 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--questions TEXT`: Comma-separated question ids to return answers for.
 * `--use-slugs`: Name questions and options by slug, not id.
@@ -1501,7 +1501,7 @@ $ ycli forms answers export [OPTIONS] SURVEY_ID
 * `--upload TEXT`: Where to upload the result: default or disk (Yandex Disk).  [default: default]
 * `--started-at TEXT`: ISO-8601 start of the answer range (inclusive).
 * `--finished-at TEXT`: ISO-8601 end of the answer range (inclusive).
-* `--limit INTEGER`: Max answers to export (0 = all).  [default: 0]
+* `--limit INTEGER`: Max answers to export (default: all).
 * `--column TEXT`: Column/question slug to include (repeatable).
 * `--pk INTEGER`: Answer id to include (repeatable).
 * `--upload-files / --no-upload-files`: Also export uploaded files to Disk.
@@ -1525,7 +1525,7 @@ $ ycli forms answers integrations-list [OPTIONS]
 
 **Options**:
 
-* `--answer-id INTEGER`: Numeric answer id (needs form-edit access; 0 = unset).  [default: 0]
+* `--answer-id INTEGER`: Numeric answer id (needs form-edit access).
 * `--answer-key TEXT`: Answer key hash (works without form-edit access).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -1846,7 +1846,7 @@ $ ycli forms notifications list [OPTIONS]
 * `--visible / --no-visible`: Only shown (or only hidden) runs.
 * `--type TEXT`: email, tracker, tracker_comment, wiki, jsonrpc, http or function.
 * `--ordering TEXT`: asc (oldest first, the default) or desc.
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -2143,7 +2143,7 @@ $ ycli forms images clone [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--image-id INTEGER`: Id of the image to clone.  [default: 0]
+* `--image-id INTEGER`: Id of the image to clone.
 * `--name TEXT`: File name for the clone.
 * `--link TEXT`: SIZE=URL of the image to clone (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).

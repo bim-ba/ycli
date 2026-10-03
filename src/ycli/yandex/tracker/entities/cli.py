@@ -82,14 +82,14 @@ FieldOpt = Annotated[
 
 
 def _fields_body(
-    summary: str,
-    description: str,
-    lead: str,
-    author: str,
-    status: str,
-    start: str,
-    end: str,
-    parent: str,
+    summary: str | None,
+    description: str | None,
+    lead: str | None,
+    author: str | None,
+    status: str | None,
+    start: str | None,
+    end: str | None,
+    parent: str | None,
     team_user: list[str] | None,
     tag: list[str] | None,
     field: list[str] | None,
@@ -101,14 +101,14 @@ def _fields_body(
     overrides or adds arbitrary field parameters (last write wins).
     """
     fields = EntityFieldsInput(
-        summary=summary or None,
-        description=description or None,
-        lead=lead or None,
-        author=author or None,
-        entityStatus=status or None,
-        start=start or None,
-        end=end or None,
-        parentEntity=ParentEntityInput(primary=parent) if parent else None,
+        summary=summary,
+        description=description,
+        lead=lead,
+        author=author,
+        entityStatus=status,
+        start=start,
+        end=end,
+        parentEntity=ParentEntityInput(primary=parent) if parent is not None else None,
         teamUsers=team_user or None,
         tags=tag or None,
     ).model_dump(exclude_none=True)
@@ -120,34 +120,38 @@ def _fields_body(
 def get(
     type_: TypeArg,
     entity_id: IdArg,
-    expand: Annotated[str, typer.Option(help="Extra info, e.g. attachments.")] = "",
-    fields: Annotated[str, typer.Option(help="Comma-separated extra fields to include.")] = "",
+    expand: Annotated[str | None, typer.Option(help="Extra info, e.g. attachments.")] = None,
+    fields: Annotated[
+        str | None, typer.Option(help="Comma-separated extra fields to include.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
     """Print a single entity (project/portfolio/goal) by ID."""
-    return tracker.entities.get(
-        type_.value, entity_id, expand=expand or None, fields=fields or None
-    )
+    return tracker.entities.get(type_.value, entity_id, expand=expand, fields=fields)
 
 
 @app.command()
 def create(
     type_: TypeArg,
     summary: Annotated[str, typer.Option(help="Entity name (required).")],
-    description: Annotated[str, typer.Option(help="Description.")] = "",
-    lead: Annotated[str, typer.Option(help="Responsible user id/login.")] = "",
-    author: Annotated[str, typer.Option(help="Author user id/login.")] = "",
-    status: Annotated[str, typer.Option("--status", help="entityStatus key to set.")] = "",
-    start: Annotated[str, typer.Option(help="Start date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")] = "",
-    end: Annotated[str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")] = "",
-    parent: Annotated[str, typer.Option(help="Primary parent portfolio/goal id.")] = "",
+    description: Annotated[str | None, typer.Option(help="Description.")] = None,
+    lead: Annotated[str | None, typer.Option(help="Responsible user id/login.")] = None,
+    author: Annotated[str | None, typer.Option(help="Author user id/login.")] = None,
+    status: Annotated[str | None, typer.Option("--status", help="entityStatus key to set.")] = None,
+    start: Annotated[
+        str | None, typer.Option(help="Start date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+    ] = None,
+    end: Annotated[
+        str | None, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+    ] = None,
+    parent: Annotated[str | None, typer.Option(help="Primary parent portfolio/goal id.")] = None,
     team_user: Annotated[
         list[str] | None, typer.Option("--team-user", help="Participant id/login (repeatable).")
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
-    fields: ReplyFieldsOpt = "",
+    fields: ReplyFieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -156,29 +160,31 @@ def create(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = EntityCreate.model_validate({"fields": fields_body})
-    return tracker.entities.create(type_.value, body=body, fields=fields or None)
+    return tracker.entities.create(type_.value, body=body, fields=fields)
 
 
 @app.command()
 def update(
     type_: TypeArg,
     entity_id: IdArg,
-    summary: Annotated[str, typer.Option(help="New name.")] = "",
-    description: Annotated[str, typer.Option(help="New description.")] = "",
-    lead: Annotated[str, typer.Option(help="New responsible user id/login.")] = "",
-    author: Annotated[str, typer.Option(help="New author user id/login.")] = "",
-    status: Annotated[str, typer.Option("--status", help="New entityStatus key.")] = "",
-    start: Annotated[str, typer.Option(help="New start date.")] = "",
-    end: Annotated[str, typer.Option(help="New deadline date.")] = "",
-    parent: Annotated[str, typer.Option(help="New primary parent portfolio/goal id.")] = "",
+    summary: Annotated[str | None, typer.Option(help="New name.")] = None,
+    description: Annotated[str | None, typer.Option(help="New description.")] = None,
+    lead: Annotated[str | None, typer.Option(help="New responsible user id/login.")] = None,
+    author: Annotated[str | None, typer.Option(help="New author user id/login.")] = None,
+    status: Annotated[str | None, typer.Option("--status", help="New entityStatus key.")] = None,
+    start: Annotated[str | None, typer.Option(help="New start date.")] = None,
+    end: Annotated[str | None, typer.Option(help="New deadline date.")] = None,
+    parent: Annotated[
+        str | None, typer.Option(help="New primary parent portfolio/goal id.")
+    ] = None,
     team_user: Annotated[
         list[str] | None, typer.Option("--team-user", help="Participant id/login (repeatable).")
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
-    comment: Annotated[str, typer.Option(help="Comment to add with the change.")] = "",
+    comment: Annotated[str | None, typer.Option(help="Comment to add with the change.")] = None,
     field: FieldOpt = None,
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -186,10 +192,8 @@ def update(
     fields_body = _fields_body(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
-    body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment or None})
-    return tracker.entities.update(
-        type_.value, entity_id, body=body, expand=expand or None, fields=fields or None
-    )
+    body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment})
+    return tracker.entities.update(type_.value, entity_id, body=body, expand=expand, fields=fields)
 
 
 @app.command()
@@ -210,46 +214,54 @@ def delete(
 @app.command()
 def search(
     type_: TypeArg,
-    input_: Annotated[str, typer.Option("--input", help="Substring in the entity name.")] = "",
+    input_: Annotated[
+        str | None, typer.Option("--input", help="Substring in the entity name.")
+    ] = None,
     filter_: Annotated[
         list[str] | None,
         typer.Option("--filter", help="Filter key=value (JSON-coerced; repeatable)."),
     ] = None,
-    order_by: Annotated[str, typer.Option("--order-by", help="Field key to sort by.")] = "",
+    order_by: Annotated[
+        str | None, typer.Option("--order-by", help="Field key to sort by.")
+    ] = None,
     order_asc: Annotated[bool, typer.Option("--order-asc", help="Sort ascending.")] = False,
     root_only: Annotated[
         bool, typer.Option("--root-only", help="Only top-level entities.")
     ] = False,
-    fields: Annotated[str, typer.Option(help="Comma-separated extra fields to include.")] = "",
+    fields: Annotated[
+        str | None, typer.Option(help="Comma-separated extra fields to include.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Entity]:
     """Search entities of TYPE (POST /entities/TYPE/_search)."""
-    if order_asc and not order_by:
+    if order_asc and order_by is None:
         raise typer.BadParameter("needs --order-by", param_hint="--order-asc")
     body = EntitySearch.model_validate(
         {
-            "input": input_ or None,
+            "input": input_,
             "filter": parse_fields(filter_) or None,
-            "orderBy": order_by or None,
-            "orderAsc": order_asc if order_by else None,
+            "orderBy": order_by,
+            "orderAsc": order_asc if order_by is not None else None,
             "rootOnly": root_only or None,
         }
     )
-    return tracker.entities.search(type_.value, body, fields=fields or None)
+    return tracker.entities.search(type_.value, body, fields=fields)
 
 
 @app.command()
 def events_list(
     type_: TypeArg,
     entity_id: IdArg,
-    limit: Annotated[int, typer.Option(help="Max events (0 = all).")] = 0,
-    selected: Annotated[str, typer.Option(help="Event id to build the list around.")] = "",
+    limit: Annotated[int | None, typer.Option(help="Max events (default: all).")] = None,
+    selected: Annotated[str | None, typer.Option(help="Event id to build the list around.")] = None,
     new_events_on_top: Annotated[
         bool | None,
         typer.Option("--new-events-on-top/--no-new-events-on-top", help="Newest events first."),
     ] = None,
-    direction: Annotated[str, typer.Option(help="forward (the default) or backward.")] = "",
+    direction: Annotated[
+        str | None, typer.Option(help="forward (the default) or backward.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[EntityEvent]:
@@ -257,10 +269,10 @@ def events_list(
     return tracker.entities.events_list(
         type_.value,
         entity_id,
-        limit=limit or None,
-        selected=selected or None,
+        limit=limit,
+        selected=selected,
         new_events_on_top=new_events_on_top,
-        direction=direction or None,
+        direction=direction,
     )
 
 
@@ -308,22 +320,22 @@ def set_direct_permissions(
     type_: TypeArg,
     entity_id: IdArg,
     grant: Annotated[
-        str,
+        str | None,
         typer.Option(help='Rights to add as JSON, e.g. \'{"READ":{"users":["ann"]}}\'.'),
-    ] = "",
+    ] = None,
     revoke: Annotated[
-        str,
+        str | None,
         typer.Option(help='Rights to remove as JSON, e.g. \'{"GRANT":{"roles":["OWNER"]}}\'.'),
-    ] = "",
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Acl:
     """Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke."""
-    if not (grant or revoke):
+    if grant is None and revoke is None:
         raise typer.BadParameter("pass --grant and/or --revoke")
     body = DirectPermissionsUpdate(
-        grant=AclInput.model_validate_json(grant) if grant else None,
-        revoke=AclInput.model_validate_json(revoke) if revoke else None,
+        grant=AclInput.model_validate_json(grant) if grant is not None else None,
+        revoke=AclInput.model_validate_json(revoke) if revoke is not None else None,
     )
     return tracker.entities.set_direct_permissions(type_.value, entity_id, body)
 
@@ -332,13 +344,13 @@ def set_direct_permissions(
 def bulk_update(
     type_: TypeArg,
     entity: Annotated[list[str], typer.Option("--entity", help="Entity id (repeatable).")],
-    comment: Annotated[str, typer.Option(help="Comment to add to every entity.")] = "",
+    comment: Annotated[str | None, typer.Option(help="Comment to add to every entity.")] = None,
     field: FieldOpt = None,
     *,
     tracker: TrackerClient,
 ) -> BulkChangeOperation:
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
-    values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment or None)
+    values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment)
     body = BulkChangeUpdate.model_validate({"metaEntities": entity, "values": values})
     return tracker.entities.bulk_update(type_.value, body=body)
 
@@ -396,13 +408,15 @@ def comments_list(
     all_: Annotated[
         bool, typer.Option("--all", help="Drain the paginated (_relative) listing.")
     ] = False,
-    limit: Annotated[int, typer.Option(help="Max comments when --all (0 = all).")] = 0,
+    limit: Annotated[
+        int | None, typer.Option(help="Max comments when --all (default: all).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Comment]:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
     if all_:
-        return tracker.entities.comments_relative_list(type_.value, entity_id, limit=limit or None)
+        return tracker.entities.comments_relative_list(type_.value, entity_id, limit=limit)
     return tracker.entities.comments_list(type_.value, entity_id)
 
 
@@ -422,7 +436,7 @@ def comments_create(
     summon: Annotated[
         list[str] | None, typer.Option("--summon", help="User to summon (repeatable).")
     ] = None,
-    expand: ExpandOpt = "",
+    expand: ExpandOpt = None,
     add_to_followers: AddToFollowersOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
@@ -435,7 +449,7 @@ def comments_create(
         type_.value,
         entity_id,
         body=body,
-        expand=expand or None,
+        expand=expand,
         is_add_to_followers=add_to_followers,
         notify=notify,
         notify_author=notify_author,
@@ -448,7 +462,7 @@ def comments_update(
     entity_id: IdArg,
     comment_id: CommentIdArg,
     text: Annotated[str, typer.Option(help="New comment text.")],
-    expand: ExpandOpt = "",
+    expand: ExpandOpt = None,
     add_to_followers: AddToFollowersOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
@@ -462,7 +476,7 @@ def comments_update(
         entity_id,
         comment_id,
         body=body,
-        expand=expand or None,
+        expand=expand,
         is_add_to_followers=add_to_followers,
         notify=notify,
         notify_author=notify_author,
@@ -497,15 +511,19 @@ ItemIdArg = Annotated[str, typer.Argument(metavar="ITEM_ID", help="Checklist ite
 
 
 def _item_input(
-    text: str, checked: bool | None, assignee: str, deadline: str, item_id: str = ""
+    text: str | None,
+    checked: bool | None,
+    assignee: str | None,
+    deadline: str | None,
+    item_id: str | None = None,
 ) -> ChecklistItemInput:
     """Build a typed checklist item from CLI options."""
     return ChecklistItemInput(
-        id=item_id or None,
-        text=text or None,
+        id=item_id,
+        text=text,
         checked=checked,
-        assignee=assignee or None,
-        deadline=DeadlineInput(date=deadline) if deadline else None,
+        assignee=assignee,
+        deadline=DeadlineInput(date=deadline) if deadline is not None else None,
     )
 
 
@@ -516,8 +534,8 @@ def checklists_create(
     text: Annotated[
         list[str], typer.Option("--text", help="Item text (repeatable — one per item).")
     ],
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -529,8 +547,8 @@ def checklists_create(
         type_.value,
         entity_id,
         body=items,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )
@@ -544,8 +562,8 @@ def checklists_update(
         list[str],
         typer.Option("--item", help="Item as id=text (repeatable — replaces the whole checklist)."),
     ],
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -567,8 +585,8 @@ def checklists_update(
         type_.value,
         entity_id,
         body=items,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )
@@ -579,16 +597,16 @@ def checklists_update_item(
     type_: TypeArg,
     entity_id: IdArg,
     item_id: ItemIdArg,
-    text: Annotated[str, typer.Option(help="New item text.")] = "",
+    text: Annotated[str | None, typer.Option(help="New item text.")] = None,
     checked: Annotated[
         bool | None, typer.Option("--checked/--no-checked", help="Mark the item done or not done.")
     ] = None,
-    assignee: Annotated[str, typer.Option(help="Assignee user id/login.")] = "",
+    assignee: Annotated[str | None, typer.Option(help="Assignee user id/login.")] = None,
     deadline: Annotated[
-        str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
-    ] = "",
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+        str | None, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+    ] = None,
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -601,8 +619,8 @@ def checklists_update_item(
         entity_id,
         item_id,
         body=body,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )
@@ -613,8 +631,8 @@ def checklists_delete_item(
     type_: TypeArg,
     entity_id: IdArg,
     item_id: ItemIdArg,
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -625,8 +643,8 @@ def checklists_delete_item(
         type_.value,
         entity_id,
         item_id,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )
@@ -636,8 +654,8 @@ def checklists_delete_item(
 def checklists_delete(
     type_: TypeArg,
     entity_id: IdArg,
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -647,8 +665,8 @@ def checklists_delete(
     return tracker.entities.checklists_delete(
         type_.value,
         entity_id,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )
@@ -659,23 +677,25 @@ def checklists_move(
     type_: TypeArg,
     entity_id: IdArg,
     item_id: ItemIdArg,
-    before: Annotated[str, typer.Option(help="Item id to insert the moved item before.")] = "",
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    before: Annotated[
+        str | None, typer.Option(help="Item id to insert the moved item before.")
+    ] = None,
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
-    body = ChecklistMove(before=before or None)
+    body = ChecklistMove(before=before)
     return tracker.entities.checklists_move(
         type_.value,
         entity_id,
         item_id,
         body=body,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )
@@ -769,8 +789,8 @@ def attachments_attach(
     type_: TypeArg,
     entity_id: IdArg,
     temp_file_id: Annotated[str, typer.Argument(metavar="TEMP_FILE_ID", help="Temp file id.")],
-    expand: ExpandOpt = "",
-    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
     notify: NotifyOpt = None,
     notify_author: NotifyAuthorOpt = None,
     *,
@@ -781,8 +801,8 @@ def attachments_attach(
         type_.value,
         entity_id,
         temp_file_id,
-        expand=expand or None,
-        fields=fields or None,
+        expand=expand,
+        fields=fields,
         notify=notify,
         notify_author=notify_author,
     )

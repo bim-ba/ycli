@@ -41,7 +41,7 @@ RaiseOnRedirectOption = Annotated[
     typer.Option("--raise-on-redirect", help="Fail if the page is a redirect, do not follow it."),
 ]
 ReplyFieldsOption = Annotated[
-    str, typer.Option("--fields", help="Comma-separated blocks to include in the reply.")
+    str | None, typer.Option("--fields", help="Comma-separated blocks to include in the reply.")
 ]
 SilentOption = Annotated[
     bool, typer.Option("--silent", help="Do not notify the page's subscribers.")
@@ -73,7 +73,7 @@ def get(
 @app.command()
 def descendants(
     slug: SlugArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     include_self: IncludeSelfOption = False,
     show_all: ShowAllOption = False,
@@ -111,7 +111,7 @@ def get_by_id(
 @app.command("descendants-by-id")
 def descendants_by_id(
     page_id: PageIdArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     include_self: IncludeSelfOption = False,
     show_all: ShowAllOption = False,
@@ -129,14 +129,15 @@ def descendants_by_id(
 @app.command()
 def grids_list(
     page_id: PageIdArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     order_by: Annotated[
-        str, typer.Option("--order-by", help="Sort field: title or created_at.")
-    ] = "",
+        str | None, typer.Option("--order-by", help="Sort field: title or created_at.")
+    ] = None,
     order_direction: Annotated[
-        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
-    ] = "",
+        str | None,
+        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+    ] = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -146,8 +147,8 @@ def grids_list(
     return wiki.pages.grids_list(
         page_id=page_id,
         limit=cap,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
+        order_by=order_by,
+        order_direction=order_direction,
     )
 
 
@@ -156,7 +157,7 @@ def create(
     slug: Annotated[str, typer.Option(help="Target slug, e.g. data/x.")],
     title: Annotated[str, typer.Option(help="Page title.")],
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
-    fields: ReplyFieldsOption = "",
+    fields: ReplyFieldsOption = None,
     silent: SilentOption = False,
     *,
     wiki: WikiClient,
@@ -164,7 +165,7 @@ def create(
     """Create a wiki page (POST /pages)."""
     return wiki.pages.create(
         body=PageCreate(slug=slug, title=title, content=content),
-        fields=fields or None,
+        fields=fields,
         is_silent=silent,
     )
 
@@ -173,8 +174,8 @@ def create(
 def update(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
-    title: Annotated[str, typer.Option(help="New title (optional).")] = "",
-    fields: ReplyFieldsOption = "",
+    title: Annotated[str | None, typer.Option(help="New title (optional).")] = None,
+    fields: ReplyFieldsOption = None,
     silent: SilentOption = False,
     allow_merge: Annotated[
         bool,
@@ -186,8 +187,8 @@ def update(
     """Update a wiki page by id (POST /pages/{id})."""
     return wiki.pages.update(
         page_id=page_id,
-        body=PageUpdate(content=content, title=title or None),
-        fields=fields or None,
+        body=PageUpdate(content=content, title=title),
+        fields=fields,
         is_silent=silent,
         allow_merge=allow_merge,
     )
@@ -213,7 +214,7 @@ def append(
     location: Annotated[
         str, typer.Option(help="Where in the body: top or bottom (default: bottom).")
     ] = "bottom",
-    fields: ReplyFieldsOption = "",
+    fields: ReplyFieldsOption = None,
     silent: SilentOption = False,
     *,
     wiki: WikiClient,
@@ -231,7 +232,7 @@ def append(
     return wiki.pages.append(
         page_id=page_id,
         body=payload,
-        fields=fields or None,
+        fields=fields,
         is_silent=silent,
     )
 
@@ -240,7 +241,7 @@ def append(
 def clone(
     page_id: PageIdArg,
     target: Annotated[str, typer.Option("--target", help="Destination slug for the copy.")],
-    title: Annotated[str, typer.Option(help="Title of the copy, if renaming.")] = "",
+    title: Annotated[str | None, typer.Option(help="Title of the copy, if renaming.")] = None,
     subscribe_me: Annotated[
         bool, typer.Option("--subscribe-me", help="Subscribe yourself to the copy.")
     ] = False,
@@ -251,7 +252,7 @@ def clone(
     wiki: WikiClient,
 ) -> AsyncOperation | CloneOperationStatus:
     """Copy a page to a new address (POST /pages/{id}/clone; async). --wait polls to completion."""
-    body = PageClone(target=target, title=title or None, subscribe_me=subscribe_me)
+    body = PageClone(target=target, title=title, subscribe_me=subscribe_me)
     operation = wiki.pages.clone(page_id=page_id, body=body)
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
@@ -269,9 +270,11 @@ def move(
     source: Annotated[str, typer.Argument(metavar="SOURCE", help="Slug of the page to move.")],
     target: Annotated[str, typer.Argument(metavar="TARGET", help="New slug for the page.")],
     next_to: Annotated[
-        str, typer.Option("--next-to", help="Sibling slug to place the page next to.")
-    ] = "",
-    position: Annotated[str, typer.Option("--position", help="before or after --next-to.")] = "",
+        str | None, typer.Option("--next-to", help="Sibling slug to place the page next to.")
+    ] = None,
+    position: Annotated[
+        str | None, typer.Option("--position", help="before or after --next-to.")
+    ] = None,
     copy_inherited_access: Annotated[
         bool,
         typer.Option(
@@ -295,8 +298,8 @@ def move(
     step = PageMoveStep(
         source=source,
         target=target,
-        next_to_slug=next_to or None,
-        position=position or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the before|after literal
+        next_to_slug=next_to,
+        position=position,  # ty: ignore[invalid-argument-type]  # pydantic validates the before|after literal
     )
     body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access)
     operation = wiki.pages.move(body=body, dry_run=validate_only)
@@ -317,9 +320,9 @@ def move(
 def revisions_list(
     page_id: PageIdArg,
     ids: Annotated[
-        str, typer.Option("--ids", help="Only these revision ids (comma separated).")
-    ] = "",
-    limit: LimitOption = 0,
+        str | None, typer.Option("--ids", help="Only these revision ids (comma separated).")
+    ] = None,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -327,7 +330,7 @@ def revisions_list(
 ) -> ItemList[PageRevision]:
     """List a page's saved revisions (GET /pages/{id}/revisions; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.revisions_list(page_id=page_id, ids=ids or None, limit=cap)
+    return wiki.pages.revisions_list(page_id=page_id, ids=ids, limit=cap)
 
 
 @app.command()
@@ -339,7 +342,7 @@ def backlinks_list(
     show_all: Annotated[
         bool, typer.Option("--show-all", help="The API's show_all flag (no effect seen live).")
     ] = False,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,

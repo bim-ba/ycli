@@ -101,7 +101,7 @@ def api(
             f"(works for {_PAGINATED_NAMES}: the other services page in more than one way).",
         ),
     ] = False,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     context: typer.Context,
@@ -120,12 +120,14 @@ def api(
     target, relative = _resolve_target(path, service)
     # Paging is a read, so ``--paginate -f k=v`` stays a GET with its fields in the query.
     verb = (
-        method or ("POST" if (fields or content is not None) and not paginate else "GET")
+        ("POST" if (fields or content is not None) and not paginate else "GET")
+        if method is None
+        else method
     ).upper()
     pagination = target.listing_pagination()
     if paginate:
         _check_paginate(target, pagination, verb)
-    elif limit or all_:
+    elif limit is not None or all_:
         raise typer.BadParameter("--limit and --all need --paginate.", param_hint="--limit")
     in_query = verb in _QUERY_METHODS or content is not None
     # httpx replaces a path's own query with ``params``, so the two are merged here.

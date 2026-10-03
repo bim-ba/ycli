@@ -25,14 +25,15 @@ OutputOption = Annotated[
 @app.command("list")
 def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     order_by: Annotated[
-        str, typer.Option("--order-by", help="Sort field: name, size or created_at.")
-    ] = "",
+        str | None, typer.Option("--order-by", help="Sort field: name, size or created_at.")
+    ] = None,
     order_direction: Annotated[
-        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
-    ] = "",
+        str | None,
+        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+    ] = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -42,8 +43,8 @@ def list_(
     return wiki.attachments.list(
         page_id=page_id,
         limit=cap,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
+        order_by=order_by,
+        order_direction=order_direction,
     )
 
 

@@ -20,18 +20,19 @@ app = typer.Typer(
 @app.command("list")
 def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    q: Annotated[str, typer.Option("--q", help="Title search filter.")] = "",
+    q: Annotated[str | None, typer.Option("--q", help="Title search filter.")] = None,
     types: Annotated[
-        str, typer.Option("--types", help="Comma-separated kinds: attachment,grid.")
-    ] = "",
+        str | None, typer.Option("--types", help="Comma-separated kinds: attachment,grid.")
+    ] = None,
     order_by: Annotated[
-        str, typer.Option("--order-by", help="Sort field: name_title or created_at.")
-    ] = "",
+        str | None, typer.Option("--order-by", help="Sort field: name_title or created_at.")
+    ] = None,
     order_direction: Annotated[
-        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
-    ] = "",
+        str | None,
+        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+    ] = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -41,8 +42,8 @@ def list_(
     return wiki.resources.list(
         page_id=page_id,
         limit=cap,
-        q=q or None,
-        types=types or None,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
+        q=q,
+        types=types,
+        order_by=order_by,
+        order_direction=order_direction,
     )

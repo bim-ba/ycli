@@ -23,16 +23,18 @@ DashboardIdArg = Annotated[str, typer.Argument(metavar="DASHBOARD_ID", help="Tar
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Dashboard name.")],
-    layout: Annotated[str, typer.Option(help="Layout mode, e.g. two-columns.")] = "",
-    owner: Annotated[str, typer.Option(help="Owner login or id (defaults to creator).")] = "",
+    layout: Annotated[str | None, typer.Option(help="Layout mode, e.g. two-columns.")] = None,
+    owner: Annotated[
+        str | None, typer.Option(help="Owner login or id (defaults to creator).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Dashboard:
     """Create a dashboard (POST /dashboards/)."""
     body = DashboardCreate(
         name=name,
-        layout=layout or None,
-        owner=DashboardOwner(id=owner) if owner else None,
+        layout=layout,
+        owner=DashboardOwner(id=owner) if owner is not None else None,
     )
     return tracker.dashboards.create(body=body)
 
@@ -41,7 +43,9 @@ def create(
 def add_cycle_time_widget(
     dashboard_id: DashboardIdArg,
     description: Annotated[str, typer.Option(help="Widget name.")],
-    query: Annotated[str, typer.Option(help="Query-language filter selecting issues.")] = "",
+    query: Annotated[
+        str | None, typer.Option(help="Query-language filter selecting issues.")
+    ] = None,
     from_status: Annotated[
         list[str] | None,
         typer.Option("--from-status", help="Status key work starts from (repeatable)."),
@@ -50,16 +54,16 @@ def add_cycle_time_widget(
         list[str] | None,
         typer.Option("--to-status", help="Status key work ends at (repeatable)."),
     ] = None,
-    mode: Annotated[str, typer.Option(help="Display mode, e.g. common-lines.")] = "",
+    mode: Annotated[str | None, typer.Option(help="Display mode, e.g. common-lines.")] = None,
     *,
     tracker: TrackerClient,
 ) -> Widget:
     """Add a cycle-time widget to DASHBOARD_ID (POST /dashboards/{id}/widgets/cycleTime)."""
     body = CycleTimeWidget(
         description=description,
-        query=query or None,
+        query=query,
         fromStatuses=[{"key": s} for s in from_status] if from_status else None,
         toStatuses=[{"key": s} for s in to_status] if to_status else None,
-        mode=mode or None,
+        mode=mode,
     )
     return tracker.dashboards.add_cycle_time_widget(dashboard_id, body=body)

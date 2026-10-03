@@ -87,14 +87,14 @@ class HTTPConfig(BaseModel):
     # The longest pause a 429's Retry-After may ask for; a longer one fails at once.
     max_retry_after_seconds: PositiveFloat = 60.0
 
-    def cap(self, limit: int, *, all_: bool = False) -> int | None:
+    def cap(self, limit: int | None, *, all_: bool = False) -> int | None:
         """A listing's item cap from a ``limit`` option and the CLI's ``--all`` flag.
 
         ``--all`` uncaps (``None``); a positive ``limit`` wins; otherwise ``max_items``. The MCP
         surface has no ``--all``, so it is always capped.
 
         Args:
-            limit: The ``--limit`` option; zero or less means not given.
+            limit: The ``--limit`` option; ``None`` (zero or less from an MCP tool) is not given.
             all_: The CLI's ``--all`` flag.
 
         Returns:
@@ -108,7 +108,7 @@ class HTTPConfig(BaseModel):
             ... )
             (500, 10, None)
         """
-        return None if all_ else (limit if limit > 0 else self.max_items)
+        return None if all_ else (limit if limit and limit > 0 else self.max_items)
 
 
 # `ycli doctor` asks PyPI for the latest release: one short attempt, so it never holds the report.

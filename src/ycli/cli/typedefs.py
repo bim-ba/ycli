@@ -18,7 +18,7 @@ import typer
 from ycli.cli.formats import OutputFormat
 
 LimitOption = Annotated[
-    int, typer.Option(min=0, help="Max items to fetch; 0 uses the default cap.")
+    int | None, typer.Option(min=1, help="Max items to fetch (default: the configured cap).")
 ]
 AllOption = Annotated[bool, typer.Option("--all", help="Fetch everything, ignoring the cap.")]
 

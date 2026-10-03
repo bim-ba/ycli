@@ -73,7 +73,14 @@ def list_(
     Returns at most ``limit`` issues; exactly ``limit`` back means more may match — narrow the
     filters or raise ``limit``.
     """
-    body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=issue_type)
+    # The tool's parameters say "not given" with an empty string; the body builder with None.
+    body = filter_body(
+        queue=queue or None,
+        status=status or None,
+        assignee=assignee or None,
+        epic=epic or None,
+        type_=issue_type or None,
+    )
     return client.issues.search(body, limit=config.http.cap(limit))
 
 
@@ -129,7 +136,8 @@ def count(
     ``queue``/``status`` to filter by those fields.  With no arguments the API counts
     every issue in the org.
     """
-    return client.issues.count(body=count_body(query=query, queue=queue, status=status))
+    body = count_body(query=query or None, queue=queue or None, status=status or None)
+    return client.issues.count(body=body)
 
 
 @mcp.tool(

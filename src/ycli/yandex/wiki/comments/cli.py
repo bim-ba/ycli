@@ -25,15 +25,18 @@ PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page 
 @app.command("list")
 def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    order_by: Annotated[str, typer.Option("--order-by", help="Sort field: created_at.")] = "",
+    order_by: Annotated[
+        str | None, typer.Option("--order-by", help="Sort field: created_at.")
+    ] = None,
     order_direction: Annotated[
-        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
-    ] = "",
+        str | None,
+        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+    ] = None,
     status: Annotated[
-        str, typer.Option("--status", help="Only resolved or only unresolved comments.")
-    ] = "",
+        str | None, typer.Option("--status", help="Only resolved or only unresolved comments.")
+    ] = None,
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -43,9 +46,9 @@ def list_(
     return wiki.comments.list(
         page_id=page_id,
         limit=cap,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
-        status_filter=status or None,
+        order_by=order_by,
+        order_direction=order_direction,
+        status_filter=status,
     )
 
 
@@ -53,7 +56,7 @@ def list_(
 def thread_list(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -72,7 +75,7 @@ def thread_list(
 def thread_get(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Root comment id.")],
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -92,23 +95,23 @@ def create(
     page_id: PageIdArg,
     body: Annotated[str, typer.Option(help="Comment text.")],
     inline_text: Annotated[
-        str, typer.Option("--inline-text", help="Page fragment to pin the comment to.")
-    ] = "",
+        str | None, typer.Option("--inline-text", help="Page fragment to pin the comment to.")
+    ] = None,
     parent_id: Annotated[
-        int, typer.Option("--parent-id", help="Reply to this comment id (threaded).")
-    ] = 0,
+        int | None, typer.Option("--parent-id", help="Reply to this comment id (threaded).")
+    ] = None,
     thread_id: Annotated[
-        int, typer.Option("--thread-id", help="File into this existing thread id.")
-    ] = 0,
+        int | None, typer.Option("--thread-id", help="File into this existing thread id.")
+    ] = None,
     *,
     wiki: WikiClient,
 ) -> CommentCreated:
     """Add a comment to a page (POST /pages/{id}/comments)."""
     payload = CommentCreate(
         body=body,
-        inline_text=inline_text or None,
-        parent_id=parent_id or None,
-        thread_id=thread_id or None,
+        inline_text=inline_text,
+        parent_id=parent_id,
+        thread_id=thread_id,
     )
     return wiki.comments.create(page_id=page_id, body=payload)
 

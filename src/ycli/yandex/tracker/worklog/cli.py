@@ -30,7 +30,7 @@ RecordIdArg = Annotated[
 @app.command("list")
 def list_(
     key: KeyArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -43,29 +43,37 @@ def list_(
 
 @app.command()
 def search(
-    created_by: Annotated[str, typer.Option("--created-by", help="Author login or id.")] = "",
+    created_by: Annotated[
+        str | None, typer.Option("--created-by", help="Author login or id.")
+    ] = None,
     created_from: Annotated[
-        str, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
-    ] = "",
-    created_to: Annotated[str, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")] = "",
+        str | None, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
+    ] = None,
+    created_to: Annotated[
+        str | None, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
     """Search org-wide worklog by author and/or time range (POST /worklog/_search)."""
-    period = {"from": created_from or None, "to": created_to or None}
+    period = {"from": created_from, "to": created_to}
     body = WorklogSearch.model_validate(
-        {"createdBy": created_by or None, "createdAt": period if any(period.values()) else None}
+        {"createdBy": created_by, "createdAt": period if any(period.values()) else None}
     )
     return tracker.worklog.search(body=body)
 
 
 @app.command("global-list")
 def global_list(
-    created_by: Annotated[str, typer.Option("--created-by", help="Author login or id.")] = "",
+    created_by: Annotated[
+        str | None, typer.Option("--created-by", help="Author login or id.")
+    ] = None,
     created_from: Annotated[
-        str, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
-    ] = "",
-    created_to: Annotated[str, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")] = "",
+        str | None, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
+    ] = None,
+    created_to: Annotated[
+        str | None, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
@@ -75,7 +83,7 @@ def global_list(
         for prefix, value in (("from", created_from), ("to", created_to))
         if value
     ]
-    return tracker.worklog.global_list(created_by=created_by or None, created_at=created_at or None)
+    return tracker.worklog.global_list(created_by=created_by, created_at=created_at or None)
 
 
 @app.command()
@@ -85,15 +93,18 @@ def create(
         str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).")
     ],
     start: Annotated[
-        str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted.")
-    ] = "",
-    comment: Annotated[str, typer.Option(help="Optional note saved in the time report.")] = "",
+        str | None,
+        typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted."),
+    ] = None,
+    comment: Annotated[
+        str | None, typer.Option(help="Optional note saved in the time report.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Worklog:
     """Log time spent on issue KEY (POST /issues/{key}/worklog)."""
-    named = {"start": start} if start else {}
-    body = WorklogCreate(duration=duration, comment=comment or None, **named)
+    named = {"start": start} if start is not None else {}
+    body = WorklogCreate(duration=duration, comment=comment, **named)
     return tracker.worklog.create(key, body=body)
 
 
@@ -101,13 +112,13 @@ def create(
 def update(
     key: KeyArg,
     record_id: RecordIdArg,
-    duration: Annotated[str, typer.Option(help="New time spent, ISO-8601 duration.")] = "",
-    comment: Annotated[str, typer.Option(help="New note for the time report.")] = "",
+    duration: Annotated[str | None, typer.Option(help="New time spent, ISO-8601 duration.")] = None,
+    comment: Annotated[str | None, typer.Option(help="New note for the time report.")] = None,
     *,
     tracker: TrackerClient,
 ) -> Worklog:
     """Edit worklog RECORD_ID on issue KEY — only supplied fields are sent."""
-    body = WorklogUpdate(duration=duration or None, comment=comment or None)
+    body = WorklogUpdate(duration=duration, comment=comment)
     return tracker.worklog.update(key, record_id, body=body)
 
 

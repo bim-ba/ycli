@@ -21,23 +21,23 @@ def get(
         str,
         typer.Argument(metavar="LOGIN_OR_ID", help="User login or uid (login:12345 if numeric)."),
     ],
-    expand: Annotated[str, typer.Option(help="Extra data to include, e.g. groups.")] = "",
+    expand: Annotated[str | None, typer.Option(help="Extra data to include, e.g. groups.")] = None,
     *,
     tracker: TrackerClient,
 ) -> User:
     """Get one user account by LOGIN_OR_ID."""
-    return tracker.users.get(login_or_id=login_or_id, expand=expand or None)
+    return tracker.users.get(login_or_id=login_or_id, expand=expand)
 
 
 @app.command("list")
 def list_(
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    expand: Annotated[str, typer.Option(help="Extra data to include, e.g. groups.")] = "",
+    expand: Annotated[str | None, typer.Option(help="Extra data to include, e.g. groups.")] = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[User]:
     """List all organisation users (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.users.list(limit=cap, expand=expand or None)
+    return tracker.users.list(limit=cap, expand=expand)

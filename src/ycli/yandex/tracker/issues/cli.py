@@ -36,32 +36,32 @@ FieldOpt = Annotated[
 ]
 
 
-def _key(value: str) -> dict[str, str] | None:
+def _key(value: str | None) -> dict[str, str] | None:
     """The ``{"key": …}`` object Tracker takes for a type or priority; ``None`` when not given.
 
     Examples:
-        >>> _key("task"), _key("")
+        >>> _key("task"), _key(None)
         ({'key': 'task'}, None)
     """
-    return {"key": value} if value else None
+    return {"key": value} if value is not None else None
 
 
 @app.command()
 def get(
-    key: KeyArg, expand: ExpandOpt = "", fields: ReplyFieldsOpt = "", *, tracker: TrackerClient
+    key: KeyArg, expand: ExpandOpt = None, fields: ReplyFieldsOpt = None, *, tracker: TrackerClient
 ) -> Issue:
     """Print a single issue (full model) for KEY."""
-    return tracker.issues.get(key, expand=expand or None, fields=fields or None)
+    return tracker.issues.get(key, expand=expand, fields=fields)
 
 
 @app.command("list")
 def list_(
-    queue: Annotated[str, typer.Option(help="Queue key.")] = "",
-    status: Annotated[str, typer.Option(help="Status key.")] = "",
-    assignee: Annotated[str, typer.Option(help="Assignee login.")] = "",
-    epic: Annotated[str, typer.Option(help="Epic key.")] = "",
-    type_: Annotated[str, typer.Option("--type", help="Issue type key.")] = "",
-    limit: LimitOption = 0,
+    queue: Annotated[str | None, typer.Option(help="Queue key.")] = None,
+    status: Annotated[str | None, typer.Option(help="Status key.")] = None,
+    assignee: Annotated[str | None, typer.Option(help="Assignee login.")] = None,
+    epic: Annotated[str | None, typer.Option(help="Epic key.")] = None,
+    type_: Annotated[str | None, typer.Option("--type", help="Issue type key.")] = None,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -75,12 +75,13 @@ def list_(
 @app.command()
 def search(
     query: Annotated[str, typer.Argument(help="TQL query.")],
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    expand: ExpandOpt = "",
+    expand: ExpandOpt = None,
     scroll_type: Annotated[
-        str, typer.Option(help="sorted or unsorted: scroll through the results (no 10 000 cap).")
-    ] = "",
+        str | None,
+        typer.Option(help="sorted or unsorted: scroll through the results (no 10 000 cap)."),
+    ] = None,
     per_scroll: Annotated[
         int | None, typer.Option(help="Issues per scroll page (1000 at most).")
     ] = None,
@@ -96,8 +97,8 @@ def search(
     return tracker.issues.search(
         IssueSearch(query=query),
         limit=cap,
-        expand=expand or None,
-        scroll_type=scroll_type or None,
+        expand=expand,
+        scroll_type=scroll_type,
         per_scroll=per_scroll,
         scroll_ttl_millis=scroll_ttl_millis,
     )
@@ -105,9 +106,11 @@ def search(
 
 @app.command()
 def count(
-    query: Annotated[str, typer.Option(help="TQL query (mutually exclusive with filters).")] = "",
-    queue: Annotated[str, typer.Option(help="Queue key.")] = "",
-    status: Annotated[str, typer.Option(help="Status key.")] = "",
+    query: Annotated[
+        str | None, typer.Option(help="TQL query (mutually exclusive with filters).")
+    ] = None,
+    queue: Annotated[str | None, typer.Option(help="Queue key.")] = None,
+    status: Annotated[str | None, typer.Option(help="Status key.")] = None,
     *,
     tracker: TrackerClient,
 ) -> int:
@@ -123,9 +126,9 @@ def count(
 def create(
     queue: Annotated[str, typer.Option(help="Target queue key.")],
     summary: Annotated[str, typer.Option(help="Issue summary (title).")],
-    type_: Annotated[str, typer.Option("--type", help="Issue type key, e.g. task.")] = "",
-    priority: Annotated[str, typer.Option(help="Priority key, e.g. normal.")] = "",
-    parent: Annotated[str, typer.Option(help="Parent issue key.")] = "",
+    type_: Annotated[str | None, typer.Option("--type", help="Issue type key, e.g. task.")] = None,
+    priority: Annotated[str | None, typer.Option(help="Priority key, e.g. normal.")] = None,
+    parent: Annotated[str | None, typer.Option(help="Parent issue key.")] = None,
     description: Annotated[
         str | None, typer.Option(help='Markdown body — pass "$(cat file.md)".')
     ] = None,
@@ -141,7 +144,7 @@ def create(
         summary=summary,
         type=_key(type_),
         priority=_key(priority),
-        parent=parent or None,
+        parent=parent,
         description=description,
         tags=tag or None,
     )
@@ -153,10 +156,10 @@ def create(
 @app.command()
 def update(
     key: KeyArg,
-    summary: Annotated[str, typer.Option(help="New summary.")] = "",
-    type_: Annotated[str, typer.Option("--type", help="New issue type key.")] = "",
-    priority: Annotated[str, typer.Option(help="New priority key.")] = "",
-    parent: Annotated[str, typer.Option(help="New parent issue key.")] = "",
+    summary: Annotated[str | None, typer.Option(help="New summary.")] = None,
+    type_: Annotated[str | None, typer.Option("--type", help="New issue type key.")] = None,
+    priority: Annotated[str | None, typer.Option(help="New priority key.")] = None,
+    parent: Annotated[str | None, typer.Option(help="New parent issue key.")] = None,
     description: Annotated[
         str | None,
         typer.Option(help='New markdown body — pass "$(cat file.md)"; "" clears it.'),
@@ -168,10 +171,10 @@ def update(
 ) -> Issue:
     """Update issue KEY (PATCH /issues/{key}) — only supplied fields are sent."""
     named = IssueUpdate(
-        summary=summary or None,
+        summary=summary,
         type=_key(type_),
         priority=_key(priority),
-        parent=parent or None,
+        parent=parent,
         description=description,
         tags=tag or None,
     )
@@ -183,7 +186,7 @@ def update(
 def move(
     key: KeyArg,
     queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. NEW.")],
-    expand: ExpandOpt = "",
+    expand: ExpandOpt = None,
     initial_status: Annotated[
         bool | None,
         typer.Option(
@@ -207,7 +210,7 @@ def move(
     return tracker.issues.move(
         key,
         queue,
-        expand=expand or None,
+        expand=expand,
         initial_status=initial_status,
         move_all_fields=move_all_fields,
         notify=notify,
@@ -218,7 +221,7 @@ def move(
 @app.command()
 def suggest(
     text: Annotated[str, typer.Argument(metavar="INPUT", help="Text fragment to match in titles.")],
-    queue: Annotated[str, typer.Option(help="Key of the queue to search in.")] = "",
+    queue: Annotated[str | None, typer.Option(help="Key of the queue to search in.")] = None,
     full: Annotated[
         bool | None,
         typer.Option(
@@ -226,20 +229,22 @@ def suggest(
             help="Return each issue in full; needed for --fields, --expand, --embed.",
         ),
     ] = None,
-    fields: ReplyFieldsOpt = "",
-    expand: ExpandOpt = "",
-    embed: Annotated[str, typer.Option(help="Blocks of --expand to return in more detail.")] = "",
+    fields: ReplyFieldsOpt = None,
+    expand: ExpandOpt = None,
+    embed: Annotated[
+        str | None, typer.Option(help="Blocks of --expand to return in more detail.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Issue]:
     """Suggest issues whose summary contains INPUT (GET /issues/_suggest?input=INPUT)."""
     return tracker.issues.suggest(
         text,
-        queue=queue or None,
+        queue=queue,
         full=full,
-        fields=fields or None,
-        expand=expand or None,
-        embed=embed or None,
+        fields=fields,
+        expand=expand,
+        embed=embed,
     )
 
 

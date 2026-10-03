@@ -53,9 +53,9 @@ def create(
     id_: Annotated[str, typer.Option("--id", help="Identifier (key) of the new local field.")],
     type_: Annotated[str, typer.Option("--type", help="Field type FQN, e.g. …StringFieldType.")],
     category: Annotated[str, typer.Option(help="Category id (from GET /fields/categories).")],
-    name_ru: Annotated[str, typer.Option("--name-ru", help="Field name in Russian.")] = "",
-    name_en: Annotated[str, typer.Option("--name-en", help="Field name in English.")] = "",
-    description: Annotated[str, typer.Option(help="Description of the local field.")] = "",
+    name_ru: Annotated[str | None, typer.Option("--name-ru", help="Field name in Russian.")] = None,
+    name_en: Annotated[str | None, typer.Option("--name-en", help="Field name in English.")] = None,
+    description: Annotated[str | None, typer.Option(help="Description of the local field.")] = None,
     order: Annotated[int | None, typer.Option(help="Position in the org's field list.")] = None,
     readonly: Annotated[
         bool | None,
@@ -68,13 +68,13 @@ def create(
 ) -> LocalField:
     """Create a local field in queue QUEUE_ID (POST /queues/{id}/localFields)."""
     body = FieldCreate(
-        name=LocalizedName(ru=name_ru or None, en=name_en or None),
+        name=LocalizedName(ru=name_ru, en=name_en),
         id=id_,
         category=category,
         type=type_,
         options_provider=_options_provider(option, options_type),
         order=order,
-        description=description or None,
+        description=description,
         readonly=readonly,
     )
     return tracker.localfields.create(queue_id, body)
@@ -84,10 +84,16 @@ def create(
 def update(
     queue_id: QueueArg,
     field_key: Annotated[str, typer.Argument(help="Local field key (from `localfields list`).")],
-    name_ru: Annotated[str, typer.Option("--name-ru", help="New field name in Russian.")] = "",
-    name_en: Annotated[str, typer.Option("--name-en", help="New field name in English.")] = "",
-    category: Annotated[str, typer.Option(help="New category id.")] = "",
-    description: Annotated[str, typer.Option(help="New description of the local field.")] = "",
+    name_ru: Annotated[
+        str | None, typer.Option("--name-ru", help="New field name in Russian.")
+    ] = None,
+    name_en: Annotated[
+        str | None, typer.Option("--name-en", help="New field name in English.")
+    ] = None,
+    category: Annotated[str | None, typer.Option(help="New category id.")] = None,
+    description: Annotated[
+        str | None, typer.Option(help="New description of the local field.")
+    ] = None,
     order: Annotated[int | None, typer.Option(help="New position in the field list.")] = None,
     readonly: Annotated[
         bool | None, typer.Option("--readonly/--no-readonly", help="Read-only value.")
@@ -104,13 +110,13 @@ def update(
     tracker: TrackerClient,
 ) -> LocalField:
     """Edit local field FIELD_KEY of queue QUEUE_ID (PATCH …/localFields/{key}; no version lock)."""
-    named = bool(name_ru or name_en)
+    named = name_ru is not None or name_en is not None
     body = LocalFieldUpdate(
-        name=LocalizedName(ru=name_ru or None, en=name_en or None) if named else None,
-        category=category or None,
+        name=LocalizedName(ru=name_ru, en=name_en) if named else None,
+        category=category,
         options_provider=_options_provider(option, options_type),
         order=order,
-        description=description or None,
+        description=description,
         readonly=readonly,
         visible=visible,
         hidden=hidden,

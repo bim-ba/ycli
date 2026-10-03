@@ -22,7 +22,7 @@ ComponentIdArg = Annotated[
     int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
 ]
 FieldsOpt = Annotated[
-    str, typer.Option(help="Comma-separated fields to return, e.g. name,description,lead.")
+    str | None, typer.Option(help="Comma-separated fields to return, e.g. name,description,lead.")
 ]
 
 
@@ -36,8 +36,10 @@ def list_(*, tracker: TrackerClient) -> ItemList[Component]:
 def create(
     name: Annotated[str, typer.Option(help="Display name of the new component.")],
     queue: Annotated[str, typer.Option(help="Key of the queue the component is created in.")],
-    description: Annotated[str, typer.Option(help="Text description of the component.")] = "",
-    lead: Annotated[str, typer.Option(help="Login of the component's owner (lead).")] = "",
+    description: Annotated[
+        str | None, typer.Option(help="Text description of the component.")
+    ] = None,
+    lead: Annotated[str | None, typer.Option(help="Login of the component's owner (lead).")] = None,
     assign_auto: Annotated[
         bool | None,
         typer.Option("--assign-auto/--no-assign-auto", help="Auto-assign the owner to issues."),
@@ -49,8 +51,8 @@ def create(
     body = ComponentCreate(
         name=name,
         queue=queue,
-        description=description or None,
-        lead=lead or None,
+        description=description,
+        lead=lead,
         assign_auto=assign_auto,
     )
     return tracker.components.create(body)
@@ -61,9 +63,13 @@ def update(
     component_id: Annotated[
         int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
     ],
-    name: Annotated[str, typer.Option(help="New display name of the component.")] = "",
-    description: Annotated[str, typer.Option(help="New text description of the component.")] = "",
-    lead: Annotated[str, typer.Option(help="New login of the component's owner (lead).")] = "",
+    name: Annotated[str | None, typer.Option(help="New display name of the component.")] = None,
+    description: Annotated[
+        str | None, typer.Option(help="New text description of the component.")
+    ] = None,
+    lead: Annotated[
+        str | None, typer.Option(help="New login of the component's owner (lead).")
+    ] = None,
     assign_auto: Annotated[
         bool | None,
         typer.Option("--assign-auto/--no-assign-auto", help="Auto-assign the owner to issues."),
@@ -76,9 +82,9 @@ def update(
 ) -> Component:
     """Edit component COMPONENT_ID (PATCH /components/{id}?version=)."""
     body = ComponentUpdate(
-        name=name or None,
-        description=description or None,
-        lead=lead or None,
+        name=name,
+        description=description,
+        lead=lead,
         assign_auto=assign_auto,
     )
     return tracker.components.update(component_id, body, version=version)
@@ -89,20 +95,20 @@ def list_for_queue(
     queue_id: Annotated[
         str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
     ],
-    fields: FieldsOpt = "",
+    fields: FieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Component]:
     """List the components of one queue (GET /queues/{id}/components)."""
-    return tracker.components.list_for_queue(queue_id, fields=fields or None)
+    return tracker.components.list_for_queue(queue_id, fields=fields)
 
 
 @app.command()
 def get(
-    component_id: ComponentIdArg, fields: FieldsOpt = "", *, tracker: TrackerClient
+    component_id: ComponentIdArg, fields: FieldsOpt = None, *, tracker: TrackerClient
 ) -> Component:
     """Print component COMPONENT_ID (GET /components/{id})."""
-    return tracker.components.get(component_id, fields=fields or None)
+    return tracker.components.get(component_id, fields=fields)
 
 
 @app.command()
