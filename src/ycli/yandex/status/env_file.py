@@ -33,6 +33,7 @@ class EnvFile:
             backup.touch(mode=0o600)
             backup.chmod(0o600)
             backup.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+        path.touch(mode=0o600)  # a new file is owner-only before the token is written
         for key, value in values.items():
             set_key(path, key, value, quote_mode="never")  # the KEY=value form it always wrote
         path.chmod(0o600)  # holds a real OAuth token — keep it owner-only

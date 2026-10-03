@@ -22,6 +22,7 @@ from ycli.settings import (
     ORGANIZATION_ID_ENV,
     AppConfig,
     Credentials,
+    ProfileError,
     missing_credentials,
 )
 from ycli.yandex.errors import (
@@ -69,6 +70,8 @@ def format_cli_error(exc: Exception) -> str:
             else f"  {error['msg']}"
             for error in exc.errors()
         )
+    if isinstance(exc, ProfileError):
+        return f"Invalid configuration:\n  {exc}"
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):
         return message + (_PERMISSION_HINT if exc.status == HTTPStatus.FORBIDDEN else _AUTH_HINT)
@@ -96,7 +99,7 @@ def exit_code_for(exc: Exception) -> ExitCode:
     """
     if missing_credentials(exc) or isinstance(exc, YandexAuthError):
         return ExitCode.AUTH
-    if _is_invalid_configuration(exc):
+    if _is_invalid_configuration(exc) or isinstance(exc, ProfileError):
         return ExitCode.USAGE
     if isinstance(exc, YandexNotFoundError):
         return ExitCode.NOT_FOUND

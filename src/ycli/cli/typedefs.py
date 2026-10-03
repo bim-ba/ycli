@@ -4,8 +4,9 @@ The ``limit`` / ``--all`` pair recurs on every paginated ``list`` command; defin
 :data:`LimitOption` / :data:`AllOption` ``Annotated`` aliases once keeps the caps consistent
 (pair with :meth:`ycli.settings.HTTPConfig.cap` to turn them into a concrete cap).
 
-The global options (``--format``, ``--jq``, ``--yes``, ``--dry-run``) are declared here too, once,
-and reused by the root callback and every leaf command (see :mod:`ycli.cli.global_options`).
+The global options (``--format``, ``--jq``, ``--yes``, ``--dry-run``, ``--profile``) are declared
+here too, once, and reused by the root callback and every leaf command (see
+:mod:`ycli.cli.global_options`).
 """
 
 from __future__ import annotations
@@ -37,6 +38,15 @@ JqOption = Annotated[
 YesOption = Annotated[
     bool,
     typer.Option("--yes", "-y", help="Do not ask before an operation that deletes data."),
+]
+ProfileOption = Annotated[
+    str | None,
+    typer.Option(
+        "--profile",
+        metavar="NAME",
+        help="Use the credentials saved as this profile (YCLI_PROFILE); the environment's and "
+        ".env's are then not read. `ycli auth profiles` lists them.",
+    ),
 ]
 DryRunOption = Annotated[
     bool,

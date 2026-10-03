@@ -198,7 +198,9 @@ def test_pypi_gets_no_credentials_and_no_organization(api):
     assert not any(name.lower().startswith("x-") for name in request.headers)
 
 
-def test_the_command_prints_the_report_and_exits_by_the_first_failure(monkeypatch, tmp_path, api):
+def test_the_command_prints_the_report_and_exits_by_the_first_failure(
+    monkeypatch, tmp_path, api, profiles_directory
+):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.chdir(tmp_path)
@@ -208,7 +210,8 @@ def test_the_command_prints_the_report_and_exits_by_the_first_failure(monkeypatc
     report = json.loads(result.stdout)
     assert report["ok"] is False
     assert report["checks"][0]["detail"] == (
-        "YANDEX_ID_OAUTH_TOKEN: not set; YANDEX_ID_ORGANIZATION_ID: not set"
+        "YANDEX_ID_OAUTH_TOKEN: not set; YANDEX_ID_ORGANIZATION_ID: not set; "
+        f"profile: none named; profiles directory: {profiles_directory}"
     )
 
 

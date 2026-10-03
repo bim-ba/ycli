@@ -27,15 +27,21 @@ from ycli.settings import (
     AppConfig,
     Credentials,
     OAuthAppConfig,
+    ProfileError,
+    active_profile,
     credential_sources,
     missing_credentials,
+    profile_names,
+    profile_path,
+    profiles_directory,
     proxy_variables,
 )
 from ycli.yandex.errors import YandexAuthError
+from ycli.yandex.models import ItemList
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
 from ycli.yandex.status.doctor import diagnose
 from ycli.yandex.status.env_file import EnvFile
-from ycli.yandex.status.models import AuthReport, DoctorReport
+from ycli.yandex.status.models import AuthReport, DoctorReport, SavedProfile
 from ycli.yandex.status.reporter import build_report
 from ycli.yandex.status.service_cli import failure_code
 from ycli.yandex.status.token_client import TokenClient
@@ -57,15 +63,21 @@ _ENV_NAMES = {
 }
 
 
-@app.command()
-def status(*, config: AppConfig) -> AuthReport | ExitWith:
-    """Report whether the env credentials are set, whose they are, and which services accept them.
+def _named_profile(context: typer.Context) -> str | None:
+    """The ``--profile`` option of this invocation, given on either side of the subcommand."""
+    return context.find_root().params.get("profile")
 
-    The owner comes from Yandex ID, the organization name from API 360, and each service is
-    probed with its own call. `ycli <service> auth status` probes just one service.
+
+@app.command()
+def status(*, context: typer.Context, config: AppConfig) -> AuthReport | ExitWith:
+    """Report whether the credentials are set, whose they are, and which services accept them.
+
+    The credentials are the active profile's (`--profile` / YCLI_PROFILE), else the
+    environment's. The owner comes from Yandex ID, the organization name from API 360, and each
+    service is probed with its own call. `ycli <service> auth status` probes just one service.
     """
     try:
-        credentials = Credentials()  # ty: ignore[missing-argument]
+        credentials = Credentials.load(_named_profile(context))
     except ValidationError as exc:
         missing = ", ".join(missing_credentials(exc))
         if not missing:  # two tokens at once: a configuration error, reported as one
@@ -82,7 +94,7 @@ def status(*, config: AppConfig) -> AuthReport | ExitWith:
 
 
 @doctor_app.command()
-def doctor(*, config: AppConfig) -> DoctorReport | ExitWith:
+def doctor(*, context: typer.Context, config: AppConfig) -> DoctorReport | ExitWith:
     """Check everything a working call needs, in order, and say what to fix.
 
     Where the credentials come from (never their value), whether Yandex ID accepts the token,
@@ -91,14 +103,20 @@ def doctor(*, config: AppConfig) -> DoctorReport | ExitWith:
     is skipped. Exits 0 unless a check failed.
     """
     credentials, invalid = None, ""
+    profile = active_profile(_named_profile(context))
     try:
-        credentials = Credentials()  # ty: ignore[missing-argument]
+        credentials = Credentials.load(profile)
+    except ProfileError as exc:
+        invalid = str(exc)
     except ValidationError as exc:
         if not missing_credentials(exc):
             invalid = exc.errors()[0]["msg"]
-    report, exit_code = diagnose(
-        credentials, credential_sources(), proxy_variables(), config, invalid=invalid
-    )
+    sources = {
+        **credential_sources(profile),
+        "profile": profile or "none named",
+        "profiles directory": str(profiles_directory()),
+    }
+    report, exit_code = diagnose(credentials, sources, proxy_variables(), config, invalid=invalid)
     return report if exit_code is ExitCode.OK else ExitWith(report, exit_code=exit_code)
 
 
@@ -124,11 +142,17 @@ def login(
 ) -> AuthReport:
     """Obtain a Yandex OAuth token + organization id and save them to .env.
 
+    With `--profile NAME` they are saved as that profile instead, in the user's configuration
+    directory (`ycli auth profiles` lists them).
+
     Uses your own OAuth app (YANDEX_OAUTH_CLIENT_ID / YANDEX_OAUTH_CLIENT_SECRET): the
     headless device flow when both are set, otherwise the browser paste (implicit) flow.
     The token is validated against every service before it is written.
     """
     refuse_dry_run(context, "auth login signs in and writes .env; there is nothing to plan.")
+    profile = _named_profile(context)
+    # A bad profile name fails here, before the browser opens.
+    target = Path(".env") if profile is None else profile_path(profile)
     oauth_config = OAuthAppConfig()
     if not oauth_config.client_id:
         typer.secho(
@@ -160,8 +184,33 @@ def login(
         oauth_token=SecretStr(token), iam_token=None, organization_id=organization_id
     )
     report = build_report(credentials, config)
-    _write_env_file(token, organization_id, report, assume_yes=assume_yes)
+    _write_env_file(token, organization_id, report, target, assume_yes=assume_yes)
     return report
+
+
+@app.command()
+def profiles(*, context: typer.Context) -> ItemList[SavedProfile]:
+    """List the saved profiles: name, organization and which token each holds, never its value.
+
+    A profile is one file in the user's configuration directory (`ycli doctor` prints it),
+    written by `ycli auth login --profile NAME`; deleting the file removes the profile.
+    """
+    active = active_profile(_named_profile(context))
+    return ItemList[SavedProfile]([_saved_profile(name, active) for name in profile_names()])
+
+
+def _saved_profile(name: str, active: str | None) -> SavedProfile:
+    """The profile ``name`` as a row; one whose file cannot be used keeps only its name."""
+    try:
+        credentials = Credentials.from_profile(name)
+    except ProfileError:
+        return SavedProfile(name=name, active=name == active)
+    return SavedProfile(
+        name=name,
+        organization_id=credentials.organization_id,
+        credential=credentials.kind,
+        active=name == active,
+    )
 
 
 @contextlib.contextmanager
@@ -261,9 +310,11 @@ def _resolve_organization_id(organizations: list[Organization]) -> str:
 
 
 def _write_env_file(
-    token: str, organization_id: str, report: AuthReport, *, assume_yes: bool
+    token: str, organization_id: str, report: AuthReport, target: Path, *, assume_yes: bool
 ) -> None:
-    """Confirm (unless ``--yes``), back up any existing .env, and upsert the two keys.
+    """Confirm (unless ``--yes``), back up any existing ``target``, and upsert the two keys.
+
+    ``target`` is ``.env`` or a profile's file; a profile's directory is created owner-only.
 
     Messages go to stderr: stdout carries only the report the command returns.
     """
@@ -272,7 +323,7 @@ def _write_env_file(
     verdict = f"The token works for: {', '.join(accepted) or 'no service'}."
     if rejected:
         verdict += f" Rejected by: {', '.join(rejected)}."
-    prompt = f"{verdict} Save these credentials to .env?"
+    prompt = f"{verdict} Save these credentials to {target}?"
     if not assume_yes and not typer.confirm(prompt, err=True):
         typer.echo("Skipped; nothing written.", err=True)
         return
@@ -280,11 +331,13 @@ def _write_env_file(
         _ENV_NAMES["oauth_token"]: token,
         _ENV_NAMES["organization_id"]: organization_id,
     }
-    backup = EnvFile.upsert(Path(".env"), values)
+    if target.parent != Path():
+        target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    backup = EnvFile.upsert(target, values)
     if backup is not None:
-        typer.echo(f"Backed up existing .env to {backup}", err=True)
+        typer.echo(f"Backed up existing {target.name} to {backup}", err=True)
     typer.secho(
-        f"Saved credentials to .env (token {_mask(token)}).", fg=typer.colors.GREEN, err=True
+        f"Saved credentials to {target} (token {_mask(token)}).", fg=typer.colors.GREEN, err=True
     )
 
 

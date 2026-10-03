@@ -13,7 +13,7 @@ import typer
 from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
-from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, YesOption
+from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, ProfileOption, YesOption
 from ycli.yandex.registry import SERVICES
 
 
@@ -45,6 +45,7 @@ def _render(
     jq: str | None,
     yes: bool,
     dry_run: bool,
+    profile: str | None,
     verbose: int,
     version: bool,
 ) -> None:
@@ -82,6 +83,7 @@ def _main(
     jq: JqOption = None,
     yes: YesOption = False,
     dry_run: DryRunOption = False,
+    profile: ProfileOption = None,
     verbose: Annotated[
         int,
         typer.Option(
@@ -127,10 +129,11 @@ def main() -> None:
     from pydantic import ValidationError
 
     from ycli.cli.errors import exit_code_for, format_cli_error
+    from ycli.settings import ProfileError
     from ycli.yandex.errors import YandexError
 
     try:
         app()
-    except (YandexError, ValidationError) as exc:
+    except (YandexError, ValidationError, ProfileError) as exc:
         typer.secho(format_cli_error(exc), fg=typer.colors.RED, err=True)
         raise SystemExit(exit_code_for(exc)) from exc

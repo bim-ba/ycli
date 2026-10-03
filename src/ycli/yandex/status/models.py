@@ -55,9 +55,32 @@ class AuthReport(APIModel):
     credential: Literal["oauth", "iam"] | None = Field(
         default=None, description="Which token is in use; never its value."
     )
+    profile: str | None = Field(
+        default=None, description="The named profile the credentials come from, if any."
+    )
     identity: Identity | None = None
     organization: OrganizationStatus | None = None
     services: list[ServiceAuthStatus] = Field(default_factory=list)
+
+
+class SavedProfile(APIModel):
+    """One saved profile, as ``ycli auth profiles`` lists it: never the token itself.
+
+    Examples:
+        >>> SavedProfile(name="work", organization_id="1", credential="oauth").active
+        False
+    """
+
+    name: str
+    organization_id: str | None = Field(
+        default=None, description="`null` when the profile's file cannot be used."
+    )
+    credential: Literal["oauth", "iam"] | None = Field(
+        default=None, description="Which token the profile holds; never its value."
+    )
+    active: bool = Field(
+        default=False, description="Whether `--profile` or `YCLI_PROFILE` names this profile."
+    )
 
 
 class Check(APIModel):

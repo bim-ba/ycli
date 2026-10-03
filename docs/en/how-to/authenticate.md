@@ -57,6 +57,24 @@ ycli doctor
 
 It is sent as `Authorization: Bearer` and works for Tracker, Wiki and Forms. It lives up to 12 hours: when a call starts answering 401, issue a new one. Set one token, not both: with both, ycli stops with exit code 2 and names them. `ycli auth status` cannot name the owner or the organization for an IAM token (Yandex ID and API 360 take an OAuth token only); the service checks still run.
 
+## Keep several organizations
+
+A profile is a saved pair of a token and an organization under a name. Save one per organization, then name the one a command should use:
+
+```bash
+ycli auth login --profile work        # sign in and save the result as "work"
+ycli auth login --profile client
+ycli --profile client tracker me get  # one command as "client"
+export YCLI_PROFILE=work              # every command of this shell as "work"
+ycli auth profiles                    # the saved profiles, without their tokens
+```
+
+Once a profile is named, by `--profile` or by `YCLI_PROFILE`, it is the only source of the token and the organization: `YANDEX_ID_OAUTH_TOKEN`, `YANDEX_ID_ORGANIZATION_ID` and `.env` are not read for them, so an exported token cannot send a command to another organization. The option wins over the variable. With no profile named, nothing changes. Nothing remembers a "current" profile between commands.
+
+A profile is one file, `<name>.env`, with the same variables as `.env`, in the `profiles` directory of your user configuration (`ycli doctor` prints the path; on Linux it is `~/.config/ycli/profiles`). `ycli auth login` creates the file readable by you alone. Copy an existing `.env` there to make a profile by hand, and delete the file to remove one. A name has lowercase letters, digits, `-` and `_`. An unknown name, or a file without a token or an organization, stops the command with exit code 2.
+
+The MCP server takes the same option over stdio: `ycli mcp start --profile work`.
+
 ## Do it by hand
 
 Device flow:

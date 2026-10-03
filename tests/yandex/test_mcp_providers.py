@@ -98,7 +98,7 @@ def test_a_validation_error_unrelated_to_credentials_is_not_reworded(monkeypatch
     def broken() -> Credentials:
         raise unrelated.value
 
-    monkeypatch.setattr("ycli.yandex.mcp.Credentials", broken)
+    monkeypatch.setattr("ycli.yandex.mcp.Credentials.load", broken)
     with pytest.raises(ValidationError):
         caller_credentials()
 

@@ -162,10 +162,12 @@ allowlist entry in code with its reason, never prose here. Tests are in
   receives configuration and clients as arguments.
 - **Why:** code that reads the environment itself cannot be reused or tested in isolation.
 - **Check:** `test_arch7_settings_are_built_only_at_composition_roots` (AST: calls, attribute
-  calls, import aliases and bare references such as `default_factory=AppConfig`);
+  calls, import aliases, bare references such as `default_factory=AppConfig`, a constructor
+  such as `Credentials.load()`, and the functions that read or name the active profile);
   `test_arch7_every_root_still_builds_settings` removes a root that stopped being one.
 - **Exceptions:** `ARCH7_ROOTS` — the CLI root and its dependency container, the MCP providers
-  and entry point, and `auth status`/`login`, which read and write credentials by design.
+  and entry point, `mcp start`, which names the profile its providers read, and
+  `auth status`/`login`/`profiles`, which read and write credentials by design.
 
 ### ARCH-8 — Typed boundaries
 - **Rule:** data crosses a boundary as a parsed model: a request body is a typed request

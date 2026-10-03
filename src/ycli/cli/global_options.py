@@ -22,7 +22,7 @@ import typer
 from typer.models import ArgumentInfo, OptionInfo
 
 from ycli.cli.formats import OutputFormat
-from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, YesOption
+from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, ProfileOption, YesOption
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
@@ -33,6 +33,7 @@ GLOBAL_OPTIONS: dict[str, tuple[Any, object]] = {
     "jq": (JqOption, None),
     "yes": (YesOption, False),
     "dry_run": (DryRunOption, False),
+    "profile": (ProfileOption, None),
 }
 _PREFIX = "_ycli_global_"
 
