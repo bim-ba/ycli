@@ -62,9 +62,6 @@ type BeforeSend = Callable[[Effect, httpx2.Request], None]
 
 logger = logging.getLogger(HTTP_LOGGER_NAME)
 
-DEFAULT_MAX_PAGES = 1000
-# The longest server-requested pause ycli sits through; a longer Retry-After fails fast instead.
-MAX_RETRY_AFTER_SECONDS = 60.0
 # Query parameters that carry a secret (API keys sent as ``?apikey=``) are masked in logs/errors.
 _SECRET_PARAMS = frozenset({"apikey", "api_key", "access_token", "oauth_token", "token"})
 
@@ -117,14 +114,16 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
     )
 
 
-def _retry_policy(idempotent: bool) -> Callable[[Exception], bool | float]:
+def _retry_policy(
+    idempotent: bool, max_retry_after_seconds: float
+) -> Callable[[Exception], bool | float]:
     """Stamina's ``on`` hook: whether (and after how many seconds) to retry ``exception``."""
 
     def decide(exception: Exception) -> bool | float:
         if isinstance(exception, YandexRateLimitError):
             if exception.retry_after is None:
                 return True  # no hint: stamina's exponential backoff
-            if exception.retry_after > MAX_RETRY_AFTER_SECONDS:
+            if exception.retry_after > max_retry_after_seconds:
                 return False  # fail now rather than hang for minutes
             return exception.retry_after
         return idempotent and isinstance(exception, YandexServerError | YandexConnectionError)
@@ -176,11 +175,12 @@ class SyncSession:
         self,
         client: httpx2.Client,
         *,
-        retries: int = HTTPConfig().retries,
+        http: HTTPConfig | None = None,
         before_send: BeforeSend | None = None,
     ) -> None:
         self._client = client
-        self._attempts = retries + 1
+        self._http = http or HTTPConfig()
+        self._attempts = self._http.retries + 1
         self._before_send = before_send
 
     def _send(
@@ -188,7 +188,9 @@ class SyncSession:
     ) -> httpx2.Response:
         check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
-            on=_retry_policy(idempotent), attempts=self._attempts, timeout=None
+            on=_retry_policy(idempotent, self._http.max_retry_after_seconds),
+            attempts=self._attempts,
+            timeout=None,
         )
         for attempt in retrying:
             with attempt:
@@ -212,14 +214,12 @@ class SyncSession:
         )
         return endpoint.parse(response)
 
-    def iterate[P, I](
-        self, paged: Paged[P, I], *, limit: int | None = None, max_pages: int = DEFAULT_MAX_PAGES
-    ) -> Iterator[I]:
+    def iterate[P, I](self, paged: Paged[P, I], *, limit: int | None = None) -> Iterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
         request = _first_page(paged, self._client)
         _announce(self._before_send, paged.endpoint, request)
         produced = 0
-        for _ in range(max_pages):
+        for _ in range(self._http.max_pages):
             response = self._send(
                 request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
             )
@@ -231,7 +231,7 @@ class SyncSession:
             if done or following is None:
                 return
             request = following
-        logger.warning("stopped after %d pages; the listing did not end", max_pages)
+        logger.warning("stopped after %d pages; the listing did not end", self._http.max_pages)
 
     def close(self) -> None:
         """Close the underlying ``httpx2.Client``."""
@@ -245,11 +245,12 @@ class AsyncSession:
         self,
         client: httpx2.AsyncClient,
         *,
-        retries: int = HTTPConfig().retries,
+        http: HTTPConfig | None = None,
         before_send: BeforeSend | None = None,
     ) -> None:
         self._client = client
-        self._attempts = retries + 1
+        self._http = http or HTTPConfig()
+        self._attempts = self._http.retries + 1
         self._before_send = before_send
 
     async def _send(
@@ -257,7 +258,9 @@ class AsyncSession:
     ) -> httpx2.Response:
         check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
-            on=_retry_policy(idempotent), attempts=self._attempts, timeout=None
+            on=_retry_policy(idempotent, self._http.max_retry_after_seconds),
+            attempts=self._attempts,
+            timeout=None,
         )
         async for attempt in retrying:
             with attempt:
@@ -282,13 +285,13 @@ class AsyncSession:
         return endpoint.parse(response)
 
     async def iterate[P, I](
-        self, paged: Paged[P, I], *, limit: int | None = None, max_pages: int = DEFAULT_MAX_PAGES
+        self, paged: Paged[P, I], *, limit: int | None = None
     ) -> AsyncIterator[I]:
         """Yield the listing's items page by page, at most ``limit`` (``None`` = all)."""
         request = _first_page(paged, self._client)
         _announce(self._before_send, paged.endpoint, request)
         produced = 0
-        for _ in range(max_pages):
+        for _ in range(self._http.max_pages):
             response = await self._send(
                 request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
             )
@@ -301,7 +304,7 @@ class AsyncSession:
             if done or following is None:
                 return
             request = following
-        logger.warning("stopped after %d pages; the listing did not end", max_pages)
+        logger.warning("stopped after %d pages; the listing did not end", self._http.max_pages)
 
     async def aclose(self) -> None:
         """Close the underlying ``httpx2.AsyncClient``."""
@@ -341,7 +344,7 @@ def connect(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return SyncSession(client, retries=http.retries, before_send=before_send)
+    return SyncSession(client, http=http, before_send=before_send)
 
 
 def connect_async(
@@ -364,4 +367,4 @@ def connect_async(
         follow_redirects=True,
         transport=transport if transport is not None else default_transport(),
     )
-    return AsyncSession(client, retries=http.retries, before_send=before_send)
+    return AsyncSession(client, http=http, before_send=before_send)

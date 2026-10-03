@@ -56,6 +56,10 @@ class HTTPConfig(BaseModel):
     timeout_seconds: PositiveFloat = 30.0
     retries: NonNegativeInt = 3
     max_items: PositiveInt = 500
+    # A listing that never ends by itself stops after this many pages.
+    max_pages: PositiveInt = 1000
+    # The longest pause a 429's Retry-After may ask for; a longer one fails at once.
+    max_retry_after_seconds: PositiveFloat = 60.0
 
     def cap(self, limit: int, *, all_: bool = False) -> int | None:
         """A listing's item cap from a ``limit`` option and the CLI's ``--all`` flag.

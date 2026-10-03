@@ -26,12 +26,12 @@ PROFILE = ServiceProfile("https://api.test/v1")
 URL = "https://api.test/v1/items"
 
 
-def _session(api: MockAPI, retries: int = 2):
+def _session(api: MockAPI, retries: int = 2, max_pages: int = 1000):
     return connect(
         PROFILE,
         auth=OAuthTokenAuth(SecretStr("y0_secret")),
         organization_id="org",
-        http=HTTPConfig(retries=retries),
+        http=HTTPConfig(retries=retries, max_pages=max_pages),
         transport=api.transport(),
     )
 
@@ -166,7 +166,7 @@ def test_iterate_stops_on_an_empty_page():
 def test_iterate_stops_after_max_pages(caplog):
     api = MockAPI()
     api.add("GET", URL, json=[1, 2])  # every page is full, so the walk never ends by itself
-    assert list(_session(api).iterate(_listing(), max_pages=3)) == [1, 2] * 3
+    assert list(_session(api, max_pages=3).iterate(_listing())) == [1, 2] * 3
     assert "stopped after 3 pages" in caplog.text
 
 
@@ -214,9 +214,14 @@ async def test_async_session_mirrors_the_sync_contract(caplog):
 async def test_async_iterate_limits_and_page_cap(caplog):
     api = MockAPI()
     api.add("GET", URL, json=[1, 2])
-    session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport())
-    assert [item async for item in session.iterate(_listing(), limit=3)] == [1, 2, 1]
-    assert [item async for item in session.iterate(_listing(), max_pages=1)] == [1, 2]
+    session = connect_async(
+        PROFILE,
+        auth=OAuthTokenAuth(SecretStr("t")),
+        http=HTTPConfig(max_pages=1),
+        transport=api.transport(),
+    )
+    assert [item async for item in session.iterate(_listing(), limit=1)] == [1]
+    assert [item async for item in session.iterate(_listing())] == [1, 2]
     assert "stopped after 1 pages" in caplog.text
 
 
@@ -244,11 +249,15 @@ def test_the_default_transport_is_httpx2s_own():
 def test_the_retry_policy_waits_as_long_as_retry_after_says():
     from ycli.yandex.core.session import _retry_policy
 
-    decide = _retry_policy(idempotent=False)
+    decide = _retry_policy(idempotent=False, max_retry_after_seconds=10.0)
     assert decide(YandexRateLimitError("slow down", retry_after=7.0)) == 7.0
+    assert decide(YandexRateLimitError("slow down", retry_after=11.0)) is False
     assert decide(YandexRateLimitError("slow down")) is True
     assert decide(YandexServerError("boom")) is False
-    assert _retry_policy(idempotent=True)(YandexServerError("boom")) is True
+    assert (
+        _retry_policy(idempotent=True, max_retry_after_seconds=10.0)(YandexServerError("boom"))
+        is True
+    )
 
 
 def test_a_redirect_is_followed():
