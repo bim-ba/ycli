@@ -12,11 +12,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.conditions.models import (
-    ConditionCreate,
-    ConditionsResponse,
-    ConditionUpdate,
-)
+from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
@@ -27,7 +23,7 @@ from ycli.yandex.forms.dependencies import (
     SurveyId,
     forms_client,
 )
-from ycli.yandex.forms.questions.models import Condition
+from ycli.yandex.forms.models import Condition, ConditionsResponse
 from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-conditions")

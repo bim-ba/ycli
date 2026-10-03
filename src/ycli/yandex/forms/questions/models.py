@@ -3,7 +3,7 @@
 Two families live here:
 
 * **Read** — the lenient ``Question`` / ``Page`` / ``QuestionsResponse`` envelope returned by
-  ``GET …/questions`` and ``GET …/questions/{id}`` (type-specific detail lenient-ignored).
+  ``GET …/questions`` and ``GET …/questions/{id}``: one class for all twelve types.
 * **Write** — a **fully-typed discriminated union** (:data:`QuestionCreate`) over the 12 API
   question schemas, tagged by ``type``. The same body serves ``POST …/questions`` (create) and
   ``PATCH …/questions/{id}`` (modify); ``QuestionMove`` types the ``/move`` body. Every field
@@ -16,16 +16,21 @@ from typing import Annotated, Any, Literal
 
 from pydantic import Field, TypeAdapter, model_validator
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.forms.images.models import Image
+from ycli.yandex.forms.models import ConditionsResponse
+from ycli.yandex.models import IGNORED_BY_API, APIModel, WarnsOnIgnored
+
+#: What happens to ``force`` of a question delete: the API takes the parameter and ignores it.
+FORCE_IGNORED = "a question that a display condition refers to is refused all the same."
 
 
 class Question(APIModel):
     """A single question / form field.
 
     Serves both ``GET …/questions`` (``pages[].items[]``) and ``GET …/questions/{id}``
-    (a single question's settings). ``id`` is an **int**. Type-specific detail
-    (``data_source``, ``items``, ``validators``, ``conditions``, ``image``,
-    ``quiz_items``, …) is lenient-ignored — the common fields below cover every type.
+    (a single question's settings). ``id`` is an **int**. One class reads all twelve
+    question types: the fields a type does not have stay ``None``. ``items`` holds the options
+    of an ``enum`` question and the sub-questions of a ``series``.
 
     Examples:
         >>> Question.model_validate({"id": 1, "slug": "s", "type": "string", "label": "L"}).slug
@@ -61,6 +66,72 @@ class Question(APIModel):
     has_quiz: bool | None = Field(
         default=None, description="Whether the question is graded as part of a quiz / test."
     )
+    conditions: ConditionsResponse | None = Field(
+        default=None, description="Conditions under which the question is shown."
+    )
+    image: Image | None = Field(default=None, description="Image shown with the question.")
+    validators: list[QuestionValidator] | None = Field(
+        default=None, description="Validation rules of the answer."
+    )
+    hint_source: QuestionHintSource | None = Field(
+        default=None, description="Source of the input hints (string questions)."
+    )
+    quiz_items: list[QuestionQuizItem] | None = Field(
+        default=None, description="Graded answers of a text quiz question."
+    )
+    quiz_comment: QuestionQuizComment | None = Field(
+        default=None, description="Comments shown for a right and a wrong quiz answer."
+    )
+    header: bool | None = Field(
+        default=None, description="Whether a comment block is shown as a heading."
+    )
+    fixed: bool | None = Field(
+        default=None, description="Whether the payment amount is fixed (payment questions)."
+    )
+    account_id: str | None = Field(
+        default=None, description="Wallet that receives the payment (payment questions)."
+    )
+    widget: str | None = Field(
+        default=None,
+        description="How the options are shown: radio, checkbox, dropdown, stars or onerow.",
+    )
+    items: list[QuestionItem] | None = Field(
+        default=None,
+        description="Options of an enum question, or the sub-questions of a series.",
+    )
+    modify_choices: str | None = Field(
+        default=None, description="Order of the options: natural, sort or shuffle."
+    )
+    show_first: bool | None = Field(
+        default=None, description="Whether the first option is shown preselected."
+    )
+    data_source: QuestionDataSource | None = Field(
+        default=None, description="Where a suggest question takes its values."
+    )
+    multichoice: bool | None = Field(
+        default=None, description="Whether several values may be chosen (suggest questions)."
+    )
+    rows: list[QuestionMatrixRow] | None = Field(default=None, description="Rows of a matrix.")
+    columns: list[QuestionMatrixRow] | None = Field(
+        default=None, description="Columns of a matrix."
+    )
+
+
+class QuestionItem(Question):
+    """An item of a question: an option of an ``enum``, or a sub-question of a ``series``.
+
+    An option has ``id``, ``slug``, ``label``, ``hidden``, ``image`` and, in a quiz, ``correct``
+    and ``scores``; a sub-question is a whole question, with its ``type``.
+
+    Examples:
+        >>> QuestionItem.model_validate({"id": 5, "label": "Yes", "correct": True}).correct
+        True
+    """
+
+    correct: bool | None = Field(
+        default=None, description="Whether the option is the right answer of a quiz."
+    )
+    scores: float | None = Field(default=None, description="Points the option gives in a quiz.")
 
 
 class Page(APIModel):
@@ -114,9 +185,6 @@ ValidatorType = Literal[
     "count",
     "single",
 ]
-ConditionOperatorType = Literal["and", "or"]
-ConditionItemKind = Literal["question", "language", "origin", "quiz"]
-ConditionComparison = Literal["eq", "neq", "lt", "gt"]
 
 
 class QuestionValidator(APIModel):
@@ -135,44 +203,6 @@ class QuestionValidator(APIModel):
     type: ValidatorType = Field(description="Validation rule kind, e.g. required, min, max, email.")
     value: int | float | str | None = Field(
         default=None, description="Rule argument (length/number, date string, or regexp pattern)."
-    )
-
-
-class ConditionItem(APIModel):
-    """One clause inside a display-condition group.
-
-    Examples:
-        >>> ConditionItem(type="question", condition="eq", question="q1", value="yes").value
-        'yes'
-    """
-
-    condition: ConditionComparison | None = Field(
-        default=None, description="Comparison operator: eq, neq, lt, gt."
-    )
-    operator: ConditionOperatorType | None = Field(
-        default=None, description="Boolean operator joining this clause to the next: and / or."
-    )
-    type: ConditionItemKind | None = Field(
-        default=None, description="Clause subject: question, language, origin or quiz."
-    )
-    question: str | None = Field(
-        default=None, description="Slug of the question this clause tests (for type=question)."
-    )
-    value: str | None = Field(default=None, description="Value the clause compares against.")
-
-
-class Condition(APIModel):
-    """A display-condition group (the question shows only when the group matches).
-
-    Examples:
-        >>> Condition(operator="and", items=[ConditionItem(question="q1")]).operator
-        'and'
-    """
-
-    id: int | None = Field(default=None, description="Condition group ID.")
-    operator: str | None = Field(default=None, description="Operator combining the group's items.")
-    items: list[ConditionItem] | None = Field(
-        default=None, description="Clauses evaluated within this group."
     )
 
 
@@ -273,6 +303,18 @@ class QuestionEnumItem(APIModel):
     )
 
 
+class QuestionQuizComment(APIModel):
+    """What a quiz question says after a right and after a wrong answer (``quiz_comment``).
+
+    Examples:
+        >>> QuestionQuizComment(correct="Right!").correct
+        'Right!'
+    """
+
+    correct: str | None = Field(default=None, description="Comment for a right answer.")
+    incorrect: str | None = Field(default=None, description="Comment for a wrong answer.")
+
+
 class QuestionMatrixRow(APIModel):
     """One row (or column) of a ``matrix`` question's grid.
 
@@ -286,7 +328,7 @@ class QuestionMatrixRow(APIModel):
     label: str | None = Field(default=None, description="Row/column text.")
 
 
-class _QuestionBase(APIModel):
+class _QuestionBase(WarnsOnIgnored):
     """Fields shared by every question type (the discriminated-union member base).
 
     Concrete members add a ``Literal`` ``type`` tag (the union discriminator) plus their own
@@ -296,7 +338,9 @@ class _QuestionBase(APIModel):
     """
 
     id: int | None = Field(
-        default=None, description="Question ID — set only when modifying an existing question."
+        default=None,
+        description=IGNORED_BY_API + "a new question gets its own id, and an existing one is "
+        "named in the path.",
     )
     label: str | None = Field(default=None, description="Question label / title.")
     slug: str | None = Field(default=None, description="Stable machine slug.")
@@ -329,6 +373,9 @@ class StringQuestion(_QuestionBase):
     has_quiz: bool | None = Field(default=None, description="Grade the answer as a quiz item.")
     quiz_items: list[QuestionQuizItem] | None = Field(
         default=None, description="Accepted correct answers (quiz mode)."
+    )
+    quiz_comment: QuestionQuizComment | None = Field(
+        default=None, description="Comments shown for a right and a wrong quiz answer."
     )
     validators: list[QuestionValidator] | None = Field(
         default=None, description="Validation rules (required, min/max length, email, url, …)."
@@ -465,6 +512,12 @@ class EnumQuestion(_QuestionBase):
         default=None, description="Show the first value (dropdown widget)."
     )
     has_quiz: bool | None = Field(default=None, description="Grade the choice as a quiz item.")
+    quiz_comment: QuestionQuizComment | None = Field(
+        default=None, description="Comments shown for a right and a wrong quiz answer."
+    )
+    show_suggest: bool | None = Field(
+        default=None, description="Offer the options as suggestions while the respondent types."
+    )
     validators: list[QuestionValidator] | None = Field(
         default=None, description="Validation rules (required, single, external)."
     )
@@ -507,14 +560,18 @@ class MatrixQuestion(_QuestionBase):
 class SeriesQuestion(_QuestionBase):
     """A repeatable group nesting other questions (each item is itself a typed question).
 
+    The API accepts ``items`` and ignores them (checked live on 2026-10-04): the series comes
+    back empty.
+
     Examples:
-        >>> SeriesQuestion(label="People", items=[StringQuestion(label="Name")]).items[0].type
-        'string'
+        >>> SeriesQuestion(label="People").type
+        'series'
     """
 
     type: Literal["series"] = Field(default="series", description="Discriminator: series.")
     items: list[QuestionCreate] | None = Field(
-        default=None, description="Nested questions repeated as a group."
+        default=None,
+        description=IGNORED_BY_API + "a series is created with no questions in it.",
     )
 
 

@@ -7,6 +7,11 @@ CASES = [
         "forms.me.get",
         cli=["forms", "me", "get"],
         mcp=("forms_me_get", {}),
-        exchanges=[(Sent("GET", "users/me"), Reply(json={"id": 4, "email": "ann@example.com"}))],
+        exchanges=[
+            (
+                Sent("GET", "users/me"),
+                Reply(json={"id": 4, "login": "ann", "display": "Ann", "email": "ann@example.com"}),
+            )
+        ],
     ),
 ]

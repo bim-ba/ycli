@@ -48,6 +48,27 @@ INTEGRATIONS = [
     {"id": 5, "status": "canceled", "type": "function", "function_id": "d4e0abc"},
 ]
 
+FILTERED = "686d0a1b2c3d4e5f00000036"
+FILTERED_PAGE = "686d0a1b2c3d4e5f00000037"
+FILTERS = {
+    "questions": "17,18",
+    "use_slugs": True,
+    "date_from": "2026-01-01T00:00:00Z",
+    "date_to": "2026-12-31T00:00:00Z",
+    "ordering": "asc",
+    "page_size": 1,
+    "answer_format": "raw",
+}
+SENT_FILTERS = {
+    "questions": "17,18",
+    "use_slugs": "true",
+    "date_from": "2026-01-01T00:00:00Z",
+    "date_to": "2026-12-31T00:00:00Z",
+    "ordering": "asc",
+    "page_size": "1",
+    "format": "raw",
+}
+
 CASES = [
     Case(
         "forms.answers.get",
@@ -91,8 +112,8 @@ CASES = [
                 }
             ],
             "answers": [
-                {"id": 2, "created": None, "data": ["Bob"]},
-                {"id": 1, "created": None, "data": ["Ann"]},
+                {"id": 2, "created": None, "uid": None, "data": ["Bob"]},
+                {"id": 1, "created": None, "uid": None, "data": ["Ann"]},
             ],
             "next": None,
         },
@@ -120,7 +141,7 @@ CASES = [
                     "has_scores": None,
                 }
             ],
-            "answers": [{"id": 1, "created": None, "data": []}],
+            "answers": [{"id": 1, "created": None, "uid": None, "data": []}],
             "next": None,
         },
     ),
@@ -148,8 +169,8 @@ CASES = [
                 }
             ],
             "answers": [
-                {"id": 7, "created": None, "data": []},
-                {"id": 8, "created": None, "data": []},
+                {"id": 7, "created": None, "uid": None, "data": []},
+                {"id": 8, "created": None, "uid": None, "data": []},
             ],
             "next": None,
         },
@@ -259,6 +280,65 @@ CASES = [
         ),
         exchanges=[
             (Sent("POST", "surveys/686d0a1b2c3d4e5f00000032/answers/2542485498/restore"), Reply())
+        ],
+    ),
+    # The filters of the listing, kept on every page; the raw format has no columns (#196).
+    Case(
+        "forms.answers.list_all",
+        args=(FILTERED,),
+        kwargs={"limit": 500, **FILTERS},
+        cli=[
+            "forms",
+            "answers",
+            "list",
+            FILTERED,
+            "--questions",
+            "17,18",
+            "--use-slugs",
+            "--date-from",
+            "2026-01-01T00:00:00Z",
+            "--date-to",
+            "2026-12-31T00:00:00Z",
+            "--ordering",
+            "asc",
+            "--page-size",
+            "1",
+            "--answer-format",
+            "raw",
+        ],
+        mcp=("forms_answers_list", {"survey_id": FILTERED, **FILTERS}),
+        exchanges=[
+            (
+                Sent("GET", f"surveys/{FILTERED}/answers", SENT_FILTERS),
+                Reply(
+                    json={
+                        "answers": [{"id": 31, "uid": "9104", "data": {"name": "Ann"}}],
+                        "next": {"next_url": f"/v3/surveys/{FILTERED}/answers?id=31"},
+                    }
+                ),
+            ),
+            (
+                Sent("GET", f"surveys/{FILTERED}/answers", {**SENT_FILTERS, "id": "31"}),
+                Reply(json={"answers": [{"id": 32, "uid": "9105", "data": {"name": "Bob"}}]}),
+            ),
+        ],
+        output={
+            "columns": [],
+            "answers": [
+                {"id": 31, "created": None, "uid": "9104", "data": {"name": "Ann"}},
+                {"id": 32, "created": None, "uid": "9105", "data": {"name": "Bob"}},
+            ],
+            "next": None,
+        },
+    ),
+    Case(
+        "forms.answers.list",
+        args=(FILTERED_PAGE,),
+        kwargs=FILTERS,
+        cli=None,
+        mcp=None,
+        exchanges=[
+            (Sent("GET", f"surveys/{FILTERED_PAGE}/answers", SENT_FILTERS), Reply(json=PAGE))
         ],
     ),
 ]

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
 from ycli.yandex.core.pagination import NextURLPagination
 from ycli.yandex.forms.answers.models import (
     Answer,
@@ -37,14 +37,33 @@ def _next_url(response: httpx2.Response) -> str | None:
     return following.get("next_url") if isinstance(following, dict) else None
 
 
-def list_answers(survey_id: str) -> Paged[AnswersResponse, Answer]:
+def list_answers(
+    survey_id: str,
+    *,
+    questions: str | None,
+    use_slugs: bool,
+    date_from: str | None,
+    date_to: str | None,
+    ordering: str | None,
+    page_size: int | None,
+    answer_format: str | None,
+) -> Paged[AnswersResponse, Answer]:
     """``GET /surveys/{id}/answers``, paged by the ``next.next_url`` cursor.
 
     The links point at a retired ``/v3/`` route, so only their query (the ``id`` cursor) is
     carried over onto the v1 request.
     """
+    params = {
+        "questions": questions,
+        "use_slugs": flag(use_slugs),
+        "date_from": date_from,
+        "date_to": date_to,
+        "ordering": ordering,
+        "page_size": page_size,
+        "format": answer_format,
+    }
     return Paged(
-        Endpoint("GET", f"surveys/{segment(survey_id)}/answers", AnswersResponse),
+        Endpoint("GET", f"surveys/{segment(survey_id)}/answers", AnswersResponse, params=params),
         NextURLPagination(url_of=_next_url, query_only=True),
         lambda page: page.answers,
     )

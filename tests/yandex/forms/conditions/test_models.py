@@ -3,13 +3,8 @@
 import pytest
 from pydantic import ValidationError
 
-from ycli.yandex.forms.conditions.models import (
-    ConditionCreate,
-    ConditionItemWrite,
-    ConditionsResponse,
-    ConditionUpdate,
-)
-from ycli.yandex.forms.questions.models import ConditionItem
+from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionItemWrite, ConditionUpdate
+from ycli.yandex.forms.models import ConditionItem, ConditionsResponse
 
 CID = 5
 GROUP = {

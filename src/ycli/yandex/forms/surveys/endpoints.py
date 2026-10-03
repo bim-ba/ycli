@@ -11,17 +11,35 @@ from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
 from ycli.yandex.core.pagination import OffsetLimitPagination
 from ycli.yandex.forms.surveys.models import Survey, SurveysResponse
 
 PAGE_SIZE = 100
 
 
-def list_surveys() -> Paged[SurveysResponse, Survey]:
+def list_surveys(
+    *,
+    name: str | None,
+    published: bool | None,
+    ownership: str | None,
+    group: str | None,
+    favourite: bool | None,
+    show_all: bool,
+    orderby: str | None,
+) -> Paged[SurveysResponse, Survey]:
     """``GET /surveys``, paged by ``offset``/``limit`` until a short page."""
+    params = {
+        "name": name,
+        "published": published,
+        "ownership": ownership,
+        "group": group,
+        "favourite": favourite,
+        "show_all": flag(show_all),
+        "orderby": orderby,
+    }
     return Paged(
-        Endpoint("GET", "surveys", SurveysResponse),
+        Endpoint("GET", "surveys", SurveysResponse, params=params),
         OffsetLimitPagination(page_size=PAGE_SIZE),
         lambda page: page.result,
     )

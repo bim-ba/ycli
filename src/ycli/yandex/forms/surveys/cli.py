@@ -24,13 +24,61 @@ FieldOpt = Annotated[
 ]
 
 
+def _body_help(field: str) -> str:
+    """The description of a ``SurveyCreate`` field, so an option says what the model says."""
+    return SurveyCreate.model_fields[field].description or ""
+
+
+# Options the API accepts and ignores: kept, and each says so (docs/conventions/resources.md).
+LanguageOpt = Annotated[str, typer.Option(help=_body_help("language"))]
+PublishedOpt = Annotated[
+    bool | None, typer.Option("--published/--no-published", help=_body_help("is_published"))
+]
+PublicOpt = Annotated[
+    bool | None, typer.Option("--public/--no-public", help=_body_help("is_public"))
+]
+
+
 @app.command("list")
 def list_(
-    limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, forms: FormsClient
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    name: Annotated[str, typer.Option(help="Only forms whose name matches.")] = "",
+    published: Annotated[
+        bool | None,
+        typer.Option("--published/--no-published", help="Only published (or only unpublished)."),
+    ] = None,
+    ownership: Annotated[
+        str, typer.Option(help="mine (created by you) or shared (open to you).")
+    ] = "",
+    group: Annotated[str, typer.Option(help="Only forms of this group.")] = "",
+    favourite: Annotated[
+        bool | None,
+        typer.Option("--favourite/--no-favourite", help="Only favourites (or only the others)."),
+    ] = None,
+    show_all: Annotated[
+        bool,
+        typer.Option("--show-all", help="As an administrator, every form of the organization."),
+    ] = False,
+    orderby: Annotated[
+        str, typer.Option("--orderby", help="Sort, e.g. name,-modified,-count.")
+    ] = "",
+    *,
+    config: AppConfig,
+    forms: FormsClient,
 ) -> ItemList[Survey]:
-    """List all forms (auto-paginated over offset pages; --all for everything)."""
+    """List forms, filtered (auto-paginated over offset pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return forms.surveys.list(limit=cap)
+    return forms.surveys.list(
+        limit=cap,
+        name=name or None,
+        published=published,
+        ownership=ownership or None,
+        group=group or None,
+        favourite=favourite,
+        show_all=show_all,
+        orderby=orderby or None,
+    )
 
 
 @app.command()
@@ -42,13 +90,9 @@ def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> Survey:
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Form name (title).")],
-    language: Annotated[str, typer.Option(help="Interface language, e.g. ru or en.")] = "",
-    published: Annotated[
-        bool | None, typer.Option("--published/--no-published", help="Publish on creation.")
-    ] = None,
-    public: Annotated[
-        bool | None, typer.Option("--public/--no-public", help="Fillable without an invite.")
-    ] = None,
+    language: LanguageOpt = "",
+    published: PublishedOpt = None,
+    public: PublicOpt = None,
     need_auth: Annotated[
         bool | None, typer.Option("--need-auth/--no-need-auth", help="Require sign-in to fill.")
     ] = None,
@@ -74,13 +118,9 @@ def create(
 def update(
     survey_id: SurveyIdArg,
     name: Annotated[str, typer.Option(help="New form name.")] = "",
-    language: Annotated[str, typer.Option(help="New interface language.")] = "",
-    published: Annotated[
-        bool | None, typer.Option("--published/--no-published", help="Publish / unpublish.")
-    ] = None,
-    public: Annotated[
-        bool | None, typer.Option("--public/--no-public", help="Toggle public fill.")
-    ] = None,
+    language: LanguageOpt = "",
+    published: PublishedOpt = None,
+    public: PublicOpt = None,
     need_auth: Annotated[
         bool | None, typer.Option("--need-auth/--no-need-auth", help="Toggle sign-in requirement.")
     ] = None,

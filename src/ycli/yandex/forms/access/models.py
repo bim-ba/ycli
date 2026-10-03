@@ -12,35 +12,11 @@ from typing import Literal
 
 from pydantic import Field
 
+from ycli.yandex.forms.models import UserIdentity, UserRef
 from ycli.yandex.models import APIModel
 
 AccessAction = Literal["change", "submit"]
 AccessLevel = Literal["owner", "restricted", "common", "public"]
-
-
-class UserIdentity(APIModel):
-    """A user by Yandex ID ``uid`` or Yandex Cloud ``cloud_uid``.
-
-    Examples:
-        >>> UserIdentity(uid="101523906").uid
-        '101523906'
-    """
-
-    uid: str | None = Field(default=None, description="Yandex ID user id.")
-    cloud_uid: str | None = Field(default=None, description="Yandex Cloud user id.")
-
-
-class UserRef(APIModel):
-    """A user as Forms lists them: identity, login and display name.
-
-    Examples:
-        >>> UserRef.model_validate({"identity": {"uid": "1"}, "username": "ivan"}).username
-        'ivan'
-    """
-
-    identity: UserIdentity | None = Field(default=None, description="The user's ids.")
-    username: str | None = Field(default=None, description="Login.")
-    display_name: str | None = Field(default=None, description="Display name.")
 
 
 class GroupIdentity(APIModel):

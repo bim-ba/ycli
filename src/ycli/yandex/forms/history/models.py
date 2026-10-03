@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.forms.access.models import UserRef
+from ycli.yandex.forms.models import UserRef
 from ycli.yandex.models import APIModel
 
 

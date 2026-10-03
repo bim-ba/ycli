@@ -13,12 +13,8 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.conditions import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.conditions.models import (
-        ConditionCreate,
-        ConditionsResponse,
-        ConditionUpdate,
-    )
-    from ycli.yandex.forms.questions.models import Condition, ConditionOperatorType
+    from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
+    from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
 
 
 def _dumped(body: ConditionCreate) -> dict:
