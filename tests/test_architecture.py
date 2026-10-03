@@ -29,17 +29,36 @@ SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
 YANDEX = SRC / "yandex"
 DOMAINS = tuple(service.name for service in SERVICES)
 CANONICAL = {"__init__.py", "endpoints.py", "client.py", "cli.py", "mcp.py", "models.py"}
+# Directories of a service that are not resources, and why (scripts/new_endpoint.py refuses
+# them as a resource name).
+RESERVED_NAMES = {"mcp": "<domain>/mcp/ is the service's MCP server"}
+
+
+def _is_resource_dir(path: Path) -> bool:
+    """Whether a directory of a service holds a resource: all but the reserved names."""
+    return path.is_dir() and not path.name.startswith("_") and path.name not in RESERVED_NAMES
 
 
 def _resource_dirs():
     for domain in DOMAINS:
         for child in sorted((YANDEX / domain).iterdir()):
-            if child.is_dir() and not child.name.startswith(("_", "__")):
+            if _is_resource_dir(child):
                 yield child
 
 
 def _missing_canonical(directory: Path) -> list[str]:
     return sorted(CANONICAL - {p.name for p in directory.iterdir() if p.is_file()})
+
+
+def test_arch1_a_reserved_directory_is_not_a_resource(tmp_path):
+    """``<domain>/mcp/`` is the service's MCP server; every other directory is a resource."""
+    for name in ("mcp", "boards", "__pycache__"):
+        (tmp_path / name).mkdir()
+    (tmp_path / "client.py").touch()
+    assert [p.name for p in sorted(tmp_path.iterdir()) if _is_resource_dir(p)] == ["boards"]
+    assert "mcp" not in {directory.name for directory in _resource_dirs()}
+    for domain in DOMAINS:  # the reserved name is taken by the server it is reserved for
+        assert (YANDEX / domain / "mcp" / "server.py").is_file()
 
 
 def test_arch1_four_surface_symmetry():
@@ -282,7 +301,7 @@ def _served_gaps(
         if group not in cli_groups:
             gaps.append(f"{resource}: no CLI group — not add_typer-ed in {domain}/cli.py")
         if resource not in cli_only and not any(tool.startswith(prefix) for tool in tools):
-            gaps.append(f"{resource}: serves no MCP tool — not mounted in {domain}/mcp.py")
+            gaps.append(f"{resource}: serves no MCP tool — not mounted in {domain}/mcp/server.py")
     names = [_surface_names(resource) for resource in on_disk]
     groups = {group for group, _ in names}
     prefixes = tuple(prefix for _, prefix in names)
@@ -334,13 +353,13 @@ def test_arch1_served_check_bites():
     assert _served_gaps(disk | {"forms.ghost"}, disk, groups, tools, set()) == [
         "forms.ghost: not wired into forms/client.py",
         "forms.ghost: no CLI group — not add_typer-ed in forms/cli.py",
-        "forms.ghost: serves no MCP tool — not mounted in forms/mcp.py",
+        "forms.ghost: serves no MCP tool — not mounted in forms/mcp/server.py",
     ]
     assert _served_gaps(disk, disk | {"forms.ghost"}, groups, tools, set()) == [
         "forms.ghost: wired into forms/client.py but has no directory"
     ]
     assert _served_gaps(disk, disk, groups, {"tracker_import_task"}, set()) == [
-        "forms.keysets: serves no MCP tool — not mounted in forms/mcp.py"
+        "forms.keysets: serves no MCP tool — not mounted in forms/mcp/server.py"
     ]
     assert _served_gaps(disk, disk, groups, {"tracker_import_task"}, {"forms.keysets"}) == []
     assert _served_gaps(disk, disk, {"forms.keysets"}, tools, set()) == [

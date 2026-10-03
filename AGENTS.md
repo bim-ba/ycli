@@ -12,7 +12,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Stack:** Python ≥3.12, managed with `uv`. `httpx2` core (`ycli.yandex.core`, every resource), `typer`
   (CLI), `fastmcp` (MCP), `pydantic` (models), stdlib `logging` (diagnostics on stderr).
 - **Layout:** root entry-point packages `src/ycli/cli/` (CLI, `app.py`) and `src/ycli/mcp/` (MCP server, `server.py`); per-domain SDK
-  under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, `mcp.py`, models). Vendored
+  under `src/ycli/yandex/<domain>/` (each has `client.py`, `cli.py`, an `mcp/` package with its server, models). Vendored
   external docs live under `references/` (not `docs/`, which is the repo's own docs):
   `references/yandex-360/` holds the 360/dev-hub docs — git-ignored, local-only, regenerated with
   `scripts/fetch_docs.py` (yandex.ru is not open-licensed); `references/yandex-cloud/` is a git
