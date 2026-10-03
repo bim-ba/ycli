@@ -45,9 +45,8 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 - **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` (which injects clients into commands) for the CLI
   and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /
-  `organization_id` constructor arguments to each client. There is no `from_env` or
-  `session_from_env`. The transport sends one canonical `X-Org-Id` org header for every service
-  (HTTP header names are case-insensitive per RFC 9110), so there is no per-service casing to track.
+  `organization_id` constructor arguments to each client; nothing else reads the environment
+  (ARCH-7). Each service's `ServiceProfile` names its organization header, `X-Org-Id` by default.
 
 ## Release & safety
 
@@ -116,8 +115,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 The repo's structure is enforced by executable checks — see [`ARCHITECTURE.md`](ARCHITECTURE.md)
 for the eight invariants (ARCH-1..8). They are verified by `tests/test_architecture.py`,
 import-linter (`uv run lint-imports`), and `tests/test_snapshots.py`. Do **not** route around
-them: HTTP only in `client.py`; CLI commands return results that `output.render` prints; MCP tools honestly
-annotated (ARCH-3); new resources via `/new-endpoint`. To change an invariant, edit `ARCHITECTURE.md` **and** its
+them; the rules themselves are stated only there. To change an invariant, edit `ARCHITECTURE.md` **and** its
 enforcing check in the **same** PR and flag it.
 
 ## graphify

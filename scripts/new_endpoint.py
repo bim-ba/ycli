@@ -8,7 +8,7 @@ httpx2 core (the pattern of ``tracker/issues/``): each operation declared once i
 annotations (ARCH-3). The scaffold generates one read (`RO` annotations); write tools take the
 `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` annotation sets plus the `write` tag and must agree
 with their endpoint's effect. Fill the marked spots with the real endpoint; the structure
-already satisfies ARCH-1..4 and import-linter.
+already satisfies ARCH-1..4 and import-linter, and passes ruff as generated.
 """
 
 from __future__ import annotations
@@ -27,19 +27,23 @@ MODELS = '''"""Pydantic models for {domain} /{resource}."""
 
 from __future__ import annotations
 
+from pydantic import Field
+
 from ycli.yandex.models import APIModel
 
 
 class {cls}(APIModel):
-    """One {resource} record. FILL: add the real fields."""
+    """One {resource} record. FILL: add the real fields, each with its description."""
 
-    id: str = ""
+    id: str = Field(default="", description="The {resource} id.")
 '''
 
 ENDPOINTS = '''"""{domain} ``/{resource}`` operations, each declared once (sans-IO).
 
-A listing returns ``Paged(Endpoint(...), <the service's Pagination>, <the items of a page>)``;
-``tracker/issues/endpoints.py`` is the worked example.
+A listing returns ``Paged(Endpoint(...), <the service's Pagination>, <the items of a page>)``
+and its client method a flat ``ItemList``; ``tracker/issues/`` is the worked example.
+A shape another resource of the service already reads is imported from the service's
+``models.py``, not declared again.
 """
 
 from __future__ import annotations
@@ -49,7 +53,8 @@ from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
 def get_item(item_id: str) -> Endpoint[{cls}]:
-    return Endpoint("GET", f"FILL/{resource}/{{segment(item_id)}}", {cls})  # FILL: real path
+    # FILL: the real path.
+    return Endpoint("GET", f"FILL/{resource}/{{segment(item_id)}}", {cls})
 '''
 
 CLIENT = '''"""{domain} ``/{resource}`` client on the httpx2 core — sends ``endpoints``."""
@@ -87,6 +92,8 @@ CLI = '''"""{domain} /{resource} Typer commands — each returns its result; the
 
 from __future__ import annotations
 
+from typing import Annotated
+
 import typer
 
 from ycli.yandex.{domain}.client import {domain_cls}Client
@@ -96,7 +103,11 @@ app = typer.Typer(name="{resource}", help="{domain} /{resource}.", no_args_is_he
 
 
 @app.command()
-def get(item_id: str, *, {domain}: {domain_cls}Client) -> {cls}:
+def get(
+    item_id: Annotated[str, typer.Argument(help="The {resource} id.")],
+    *,
+    {domain}: {domain_cls}Client,
+) -> {cls}:
     """Fetch one {resource} by id."""
     return {domain}.{resource}.get(item_id)
 '''
@@ -108,8 +119,11 @@ The scaffolded tool is a read (`RO` annotations). For write tools use the `WRITE
 `write` tag; ARCH-3 checks each tool's hints against the effect of the endpoint it sends.
 """
 
+from typing import Annotated
+
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
+from pydantic import Field
 
 from ycli.yandex.{domain}.client import {domain_cls}Client
 from ycli.yandex.{domain}.dependencies import RO, TAGS, {domain}_client
@@ -127,7 +141,10 @@ mcp = FastMCP("{domain}-{resource}")
     # The return type annotation IS the output schema (auto-derived by fastmcp) —
     # required; do not pass output_schema= to @mcp.tool.
 )
-def get(item_id: str, client: {domain_cls}Client = Depends({domain}_client)) -> {cls}:
+def get(
+    item_id: Annotated[str, Field(description="The {resource} id.")],
+    client: {domain_cls}Client = Depends({domain}_client),
+) -> {cls}:
     """Fetch one {resource} by id."""
     return client.{resource}.get(item_id)
 '''
