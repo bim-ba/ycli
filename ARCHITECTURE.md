@@ -33,7 +33,9 @@ Notable shared pieces:
 - `src/ycli/yandex/core/` — the httpx2 core: `Endpoint[T]` (an operation declared once with its
   effect), one `Pagination` class per Yandex paging kind, `SyncSession` / `AsyncSession` (typed
   errors, retries, logging, page walking), every auth kind as an `httpx2.Auth`, and
-  `ServiceProfile` (base URL + organization header). Every resource runs on it
+  `ServiceProfile` (base URL + organization header). Every resource runs on it. Its auth and
+  pagination kinds are a public part of the SDK, kept for services to come: one that no
+  current service uses is not dead code
 - `src/ycli/yandex/mcp.py` — shared MCP annotation helpers (`RO`) plus the per-request
   client/config providers (`client_provider`, `app_config`): credentials are resolved on every
   tool call, so nothing is cached per process
