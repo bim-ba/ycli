@@ -21,7 +21,7 @@ An exported but empty variable counts as unset. See [Authenticate](../how-to/aut
 
 ## Settings
 
-Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern.
+Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern. An empty one counts as unset too.
 
 | Variable | Default | Meaning |
 |---|---|---|

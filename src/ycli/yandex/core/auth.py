@@ -92,7 +92,7 @@ class APIKeyAuth(httpx2.Auth):
 class _IAMToken(BaseModel):
     """``POST /iam/v1/tokens`` answer: the token and when it expires."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(validate_by_name=True)
 
     token: SecretStr = Field(alias="iamToken")
     expires_at: datetime = Field(alias="expiresAt")
