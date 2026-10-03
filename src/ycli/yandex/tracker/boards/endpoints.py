@@ -39,7 +39,7 @@ def create_board(body: BoardCreate) -> Endpoint[Board]:
     return Endpoint("POST", "liveBoards/", Board, json=body)
 
 
-def edit_board(board_id: int, body: BoardUpdate) -> Endpoint[Board]:
+def update_board(board_id: int, body: BoardUpdate) -> Endpoint[Board]:
     return Endpoint("PATCH", f"boards/{segment(board_id)}", Board, json=body)
 
 

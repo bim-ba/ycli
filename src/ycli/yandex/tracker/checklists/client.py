@@ -1,7 +1,7 @@
 """Tracker issue ``/checklistItems`` client on the httpx2 core.
 
 The ``get`` read returns a bare array of items (``ItemList[ChecklistItem]``); every write
-(create/edit/delete-item/clear) returns the issue wrapper with the updated
+(create/update/delete-item/clear) returns the issue wrapper with the updated
 ``checklistItems`` embedded (``Checklist``) — including the delete calls, which the API
 answers with ``200 OK`` and a body (not ``204``).
 """
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class ChecklistsClient(Resource):
-    """Get, add, edit and delete an issue's checklist items, or clear the whole checklist."""
+    """Get, add, update and delete an issue's checklist items, or clear the whole checklist."""
 
     def get(self, key: str) -> ItemList[ChecklistItem]:
         """``GET /issues/{key}/checklistItems`` → the issue's checklist items.
@@ -60,7 +60,7 @@ class ChecklistsClient(Resource):
         """
         return self._session.send(endpoints.create_checklist_item(key, body))
 
-    def edit(self, key: str, item_id: str, body: ChecklistItemUpdate) -> Checklist:
+    def update(self, key: str, item_id: str, body: ChecklistItemUpdate) -> Checklist:
         """``PATCH /issues/{key}/checklistItems/{item_id}`` — edit an item. Returns the wrapper.
 
         Args:
@@ -73,12 +73,12 @@ class ChecklistsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.checklists.models import ChecklistItemUpdate
-            >>> tracker.checklists.edit(
+            >>> tracker.checklists.update(
             ...     "DE-34", "5f4", ChecklistItemUpdate.model_validate({"text": "step 2"})
             ... ).key
             'DE-34'
         """
-        return self._session.send(endpoints.edit_checklist_item(key, item_id, body))
+        return self._session.send(endpoints.update_checklist_item(key, item_id, body))
 
     def delete(self, key: str, item_id: str) -> Checklist:
         """``DELETE /issues/{key}/checklistItems/{item_id}`` — remove one item (200 + wrapper).

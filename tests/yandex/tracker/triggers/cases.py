@@ -82,7 +82,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.triggers.edit",
+        "tracker.triggers.update",
         args=(
             "BIZ",
             18,
@@ -143,7 +143,7 @@ CASES = [
     ),
     # Without a version (the CLI's 0) no ?version= is sent.
     Case(
-        "tracker.triggers.edit",
+        "tracker.triggers.update",
         args=("CRM", 19, TriggerUpdate(active=False)),
         cli=["tracker", "triggers", "update", "CRM", "19", "--inactive"],
         mcp=(
@@ -159,7 +159,7 @@ CASES = [
     ),
     # `before` (the trigger's place in the order) is an MCP/SDK-only field.
     Case(
-        "tracker.triggers.edit",
+        "tracker.triggers.update",
         args=("HR", 20, TriggerUpdate(before=12)),
         kwargs={"version": 9},
         cli=None,
@@ -175,7 +175,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.triggers.webhook_log",
+        "tracker.triggers.webhook_log_list",
         args=("DEV", 6),
         kwargs={
             "issue_id": "DEV-5",
@@ -216,7 +216,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.triggers.webhook_log",
+        "tracker.triggers.webhook_log_list",
         args=("MKT", 7),
         kwargs={"issue_id": "MKT-8", "limit": 25},
         cli=[
@@ -244,7 +244,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.triggers.webhook_log",
+        "tracker.triggers.webhook_log_list",
         args=("LAB", 8),
         cli=["tracker", "triggers", "webhook-log-list", "LAB", "8"],
         mcp=("tracker_triggers_webhook_log_list", {"queue_id": "LAB", "trigger_id": 8}),

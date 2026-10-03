@@ -33,7 +33,9 @@ def create_local_field(queue_id: str, body: FieldCreate) -> Endpoint[LocalField]
     return Endpoint("POST", _local_fields(queue_id), LocalField, json=body)
 
 
-def edit_local_field(queue_id: str, field_key: str, body: LocalFieldUpdate) -> Endpoint[LocalField]:
+def update_local_field(
+    queue_id: str, field_key: str, body: LocalFieldUpdate
+) -> Endpoint[LocalField]:
     """``PATCH …/localFields/{key}`` — unlike global fields, no ``?version=`` lock."""
     return Endpoint(
         "PATCH", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField, json=body

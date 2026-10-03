@@ -43,7 +43,7 @@ def create_subscription(survey_id: str, hook_id: int, body: Subscription) -> End
     return Endpoint("POST", path, json=body, parser=_subscription)
 
 
-def modify_subscription(
+def update_subscription(
     survey_id: str, hook_id: int, subscription_id: int, body: Subscription
 ) -> Endpoint[Subscription]:
     path = f"{_subscriptions(survey_id, hook_id)}/{segment(subscription_id)}"

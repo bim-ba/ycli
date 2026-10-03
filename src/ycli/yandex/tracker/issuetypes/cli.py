@@ -51,4 +51,4 @@ def update(
 ) -> IssueType:
     """Edit issue type ISSUE_TYPE_ID (PATCH /issuetypes/{id}?version=)."""
     body = IssueTypeUpdate(name=LocalizedName(ru=name_ru or None, en=name_en or None))
-    return tracker.issuetypes.edit(issue_type_id, body, version=version)
+    return tracker.issuetypes.update(issue_type_id, body, version=version)

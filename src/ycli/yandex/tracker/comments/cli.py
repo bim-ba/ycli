@@ -93,7 +93,7 @@ def update(
 ) -> Comment:
     """Edit comment COMMENT_ID on issue KEY."""
     body = CommentUpdate(text=text)
-    return tracker.comments.edit(key, comment_id, body=body)
+    return tracker.comments.update(key, comment_id, body=body)
 
 
 @app.command()

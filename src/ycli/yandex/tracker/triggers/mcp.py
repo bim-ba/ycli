@@ -90,7 +90,7 @@ def webhooklog_list(
     Each record holds the outbound request and received response for one run. Only Webhook
     actions produce these; a trigger with no HTTP action returns an empty list.
     """
-    return client.triggers.webhook_log(
+    return client.triggers.webhook_log_list(
         queue_id, trigger_id, issue_id=issue_id or None, limit=limit or None
     )
 
@@ -120,7 +120,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue trigger"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     queue_id: QueueId,
     trigger_id: Annotated[int, Field(description="Numeric trigger id, from ``triggers_list``.")],
     body: Annotated[TriggerUpdate, Field(description="Fields to change; unset ones stay.")],
@@ -132,4 +132,4 @@ def edit(
     Get ``trigger_id`` from ``triggers_get`` / the queue settings. Pass ``version`` to guard
     against concurrent edits (optimistic locking).
     """
-    return client.triggers.edit(queue_id, trigger_id, body, version=version)
+    return client.triggers.update(queue_id, trigger_id, body, version=version)

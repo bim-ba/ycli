@@ -111,7 +111,7 @@ class WorklogClient(Resource):
         """
         return self._session.send(endpoints.create_worklog(key, body))
 
-    def edit(self, key: str, record_id: int | str, body: WorklogUpdate) -> Worklog:
+    def update(self, key: str, record_id: int | str, body: WorklogUpdate) -> Worklog:
         """``PATCH /issues/{key}/worklog/{record_id}`` — edit an entry. Returns it.
 
         Args:
@@ -124,12 +124,12 @@ class WorklogClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.worklog.models import WorklogUpdate
-            >>> tracker.worklog.edit(
+            >>> tracker.worklog.update(
             ...     "DE-67", "671", WorklogUpdate.model_validate({"duration": "PT45M"})
             ... ).duration
             'PT45M'
         """
-        return self._session.send(endpoints.edit_worklog(key, record_id, body))
+        return self._session.send(endpoints.update_worklog(key, record_id, body))
 
     def delete(self, key: str, record_id: str) -> None:
         """Delete a worklog entry (``DELETE …/worklog/{id}`` → 204). Raises on non-2xx.

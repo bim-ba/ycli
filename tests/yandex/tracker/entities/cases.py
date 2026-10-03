@@ -197,7 +197,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.edit",
+        "tracker.entities.update",
         args=(
             "project",
             "655f04",
@@ -304,7 +304,7 @@ CASES = [
     ),
     # A comment alone sends no `fields`; fields alone send no `comment`.
     Case(
-        "tracker.entities.edit",
+        "tracker.entities.update",
         args=("goal", "g5", EntityUpdate.model_validate({"comment": "Just a note"})),
         cli=["tracker", "entities", "update", "goal", "g5", "--comment", "Just a note"],
         mcp=None,
@@ -316,7 +316,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.edit",
+        "tracker.entities.update",
         args=(
             "portfolio",
             "pf6",
@@ -489,7 +489,7 @@ CASES = [
     # Drained from the last event's id until an empty page; the MCP default cap (500) and the
     # CLI's "all" both ask for full 100-event pages.
     Case(
-        "tracker.entities.history",
+        "tracker.entities.events_list",
         args=("project", "655f13"),
         cli=["tracker", "entities", "events-list", "project", "655f13"],
         mcp=("tracker_entities_events_list", {"entity_type": "project", "entity_id": "655f13"}),
@@ -510,7 +510,7 @@ CASES = [
     ),
     # A limit narrows the page and stops once it is filled.
     Case(
-        "tracker.entities.history",
+        "tracker.entities.events_list",
         args=("goal", "g14"),
         kwargs={"limit": 2},
         cli=["tracker", "entities", "events-list", "goal", "g14", "--limit", "2"],
@@ -526,7 +526,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.permissions",
+        "tracker.entities.permissions_get",
         args=("project", "655f15"),
         cli=["tracker", "entities", "permissions-get", "project", "655f15"],
         mcp=(
@@ -665,7 +665,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.bulk_status",
+        "tracker.entities.bulk_status_get",
         args=("658",),
         cli=["tracker", "entities", "bulk-status-get", "658"],
         mcp=("tracker_entities_bulk_status_get", {"operation_id": "658"}),
@@ -811,7 +811,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.comments_relative",
+        "tracker.entities.comments_relative_list",
         args=("portfolio", "pf22"),
         kwargs={"limit": 10},
         cli=[
@@ -919,7 +919,7 @@ CASES = [
     ),
     # The comment id travels in the path: a PATCH on the collection answers 405.
     Case(
-        "tracker.entities.comments_edit",
+        "tracker.entities.comments_update",
         args=("goal", "g27", "27", CommentUpdate.model_validate({"text": "Fixed typo"})),
         cli=[
             "tracker",
@@ -998,7 +998,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.checklists_edit",
+        "tracker.entities.checklists_update",
         args=(
             "goal",
             "g30",
@@ -1039,7 +1039,7 @@ CASES = [
     ),
     # Item text is never JSON-coerced, and only the first `=` splits.
     Case(
-        "tracker.entities.checklists_edit",
+        "tracker.entities.checklists_update",
         args=(
             "project",
             "655f31",
@@ -1086,7 +1086,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.checklists_edit_item",
+        "tracker.entities.checklists_update_item",
         args=(
             "portfolio",
             "pf32",
@@ -1150,7 +1150,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.checklists_edit_item",
+        "tracker.entities.checklists_update_item",
         args=("goal", "g33", "2f", ChecklistItemInput.model_validate({"checked": False})),
         cli=[
             "tracker",
@@ -1349,7 +1349,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.entities.attachment_download",
+        "tracker.entities.attachments_download",
         args=("46", "flowers.jpg"),
         cli=["tracker", "entities", "attachments", "download", "46", "flowers.jpg"],
         mcp=None,
@@ -1448,7 +1448,7 @@ CASES = [
         effect="read",
     ),
     Case(
-        "tracker.entities.direct_permissions",
+        "tracker.entities.direct_permissions_get",
         args=("project", "655f17"),
         cli=["tracker", "entities", "direct-permissions-get", "project", "655f17"],
         mcp=(
@@ -1612,7 +1612,7 @@ CASES += [
     ),
     with_query(
         CASES,
-        "tracker.entities.edit",
+        "tracker.entities.update",
         kwargs={"expand": "attachments", "fields": "summary"},
         cli=["--expand", "attachments", "--fields", "summary"],
         params={"expand": "attachments", "fields": "summary"},
@@ -1633,14 +1633,14 @@ CASES += [
     ),
     with_query(
         CASES,
-        "tracker.entities.checklists_edit",
+        "tracker.entities.checklists_update",
         kwargs=_REPLY_AND_NOTICE,
         cli=_REPLY_AND_NOTICE_CLI,
         params=_REPLY_AND_NOTICE_SENT,
     ),
     with_query(
         CASES,
-        "tracker.entities.checklists_edit_item",
+        "tracker.entities.checklists_update_item",
         kwargs=_REPLY_AND_NOTICE,
         cli=_REPLY_AND_NOTICE_CLI,
         params=_REPLY_AND_NOTICE_SENT,
@@ -1675,7 +1675,7 @@ CASES += [
     ),
     with_query(
         CASES,
-        "tracker.entities.comments_edit",
+        "tracker.entities.comments_update",
         kwargs=_COMMENT,
         cli=_COMMENT_CLI,
         params=_COMMENT_SENT,
@@ -1689,7 +1689,7 @@ CASES += [
     ),
     with_query(
         CASES,
-        "tracker.entities.history",
+        "tracker.entities.events_list",
         kwargs={"new_events_on_top": True, "direction": "backward"},
         cli=["--new-events-on-top", "--direction", "backward"],
         params={"newEventsOnTop": "true", "direction": "backward"},
@@ -1698,7 +1698,7 @@ CASES += [
 CASES += [
     # ``selected`` asks for one window around an event: no following page is requested.
     Case(
-        "tracker.entities.history",
+        "tracker.entities.events_list",
         args=("portfolio", "pf15"),
         kwargs={"limit": 5, "selected": "e7"},
         cli=[

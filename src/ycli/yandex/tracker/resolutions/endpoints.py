@@ -1,7 +1,7 @@
 """Tracker ``/resolutions`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_resolution("9", {"description": "x"}, version=1).params
+    >>> update_resolution("9", {"description": "x"}, version=1).params
     {'version': 1}
 """
 
@@ -20,7 +20,7 @@ def create_resolution(body: ResolutionCreate) -> Endpoint[Resolution]:
     return Endpoint("POST", "resolutions/", Resolution, json=body)
 
 
-def edit_resolution(
+def update_resolution(
     resolution_id: str, body: ResolutionUpdate, *, version: int | None = None
 ) -> Endpoint[Resolution]:
     """``PATCH /resolutions/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""

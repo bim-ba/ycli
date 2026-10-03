@@ -1,7 +1,7 @@
 """Tracker ``/fields`` operations (global fields and their categories), declared once (sans-IO).
 
 Examples:
-    >>> edit_field("ruName", {"name": {"ru": "Имя"}}, version=3).params
+    >>> update_field("ruName", {"name": {"ru": "Имя"}}, version=3).params
     {'version': 3}
 """
 
@@ -35,7 +35,7 @@ def create_field(body: FieldCreate) -> Endpoint[CustomField]:
     return Endpoint("POST", "fields", CustomField, json=body)
 
 
-def edit_field(
+def update_field(
     field_id: str, body: FieldUpdate, *, version: int | None = None
 ) -> Endpoint[CustomField]:
     """``PATCH /fields/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
@@ -48,7 +48,7 @@ def create_category(body: FieldCategoryCreate) -> Endpoint[FieldCategoryRecord]:
     return Endpoint("POST", "fields/categories", FieldCategoryRecord, json=body)
 
 
-def edit_category(
+def update_category(
     category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
 ) -> Endpoint[FieldCategoryRecord]:
     return Endpoint(

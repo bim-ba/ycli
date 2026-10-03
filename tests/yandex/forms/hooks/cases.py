@@ -70,7 +70,7 @@ CASES = [
         exchanges=[(Sent("POST", HOOKS, json={}), Reply(json=_hook(14)))],
     ),
     Case(
-        "forms.hooks.modify",
+        "forms.hooks.update",
         args=(SID, 15, HookUpdate.model_validate({"name": "Helpdesk", "active": True})),
         cli=["forms", "hooks", "update", SID, "15", "--name", "Helpdesk", "--active"],
         mcp=(

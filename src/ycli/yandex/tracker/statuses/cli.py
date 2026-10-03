@@ -62,4 +62,4 @@ def update(
         type=type_ or None,
         order=order,
     )
-    return tracker.statuses.edit(status_id, body, version=version)
+    return tracker.statuses.update(status_id, body, version=version)

@@ -58,4 +58,4 @@ def update(
         description=description or None,
         order=order,
     )
-    return tracker.resolutions.edit(resolution_id, body, version=version)
+    return tracker.resolutions.update(resolution_id, body, version=version)

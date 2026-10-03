@@ -39,7 +39,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.comments.thread",
+        "wiki.comments.thread_list",
         output=[
             {
                 "id": 5511,

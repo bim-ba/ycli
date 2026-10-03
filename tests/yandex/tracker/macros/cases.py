@@ -63,7 +63,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.macros.edit",
+        "tracker.macros.update",
         args=(
             "QA",
             6,

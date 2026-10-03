@@ -84,7 +84,7 @@ def add(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue comment"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     key: IssueKey,
     comment_id: CommentId,
     body: CommentUpdate,
@@ -94,7 +94,7 @@ def edit(
 
     Get ``comment_id`` from ``comments_list``. Returns the updated comment.
     """
-    return client.comments.edit(key, comment_id, body)
+    return client.comments.update(key, comment_id, body)
 
 
 @mcp.tool(

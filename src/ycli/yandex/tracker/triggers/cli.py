@@ -103,7 +103,7 @@ def update(
         conditions=[json.loads(c) for c in condition] if condition else None,
         active=active,
     )
-    return tracker.triggers.edit(queue_id, trigger_id, body, version=version or None)
+    return tracker.triggers.update(queue_id, trigger_id, body, version=version or None)
 
 
 @app.command("webhook-log-list")
@@ -124,7 +124,7 @@ def webhook_log_list(
     tracker: TrackerClient,
 ) -> ItemList[WebhookLogEntry]:
     """List the HTTP-action (Webhook) run logs of trigger TRIGGER_ID."""
-    return tracker.triggers.webhook_log(
+    return tracker.triggers.webhook_log_list(
         queue_id,
         trigger_id,
         issue_id=issue_id or None,

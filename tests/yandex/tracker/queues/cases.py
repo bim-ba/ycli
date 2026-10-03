@@ -132,14 +132,14 @@ CASES = [
         exchanges=[(Sent("GET", "queues/PLAIN"), Reply(json={"id": "5", "key": "PLAIN"}))],
     ),
     Case(
-        "tracker.queues.tags",
+        "tracker.queues.tags_list",
         args=("TAGQ",),
         cli=["tracker", "queues", "tags-list", "TAGQ"],
         mcp=("tracker_queues_tags_list", {"queue_id": "TAGQ"}),
         exchanges=[(Sent("GET", "queues/TAGQ/tags"), Reply(json=["tag1", "tag2"]))],
     ),
     Case(
-        "tracker.queues.versions",
+        "tracker.queues.versions_list",
         args=("VERQ",),
         cli=["tracker", "queues", "versions-list", "VERQ"],
         mcp=("tracker_queues_versions_list", {"queue_id": "VERQ"}),
@@ -151,7 +151,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.queues.fields",
+        "tracker.queues.fields_list",
         args=("FLDQ",),
         cli=["tracker", "queues", "fields-list", "FLDQ"],
         mcp=("tracker_queues_fields_list", {"queue_id": "FLDQ"}),
@@ -493,7 +493,7 @@ CASES = [
         exchanges=[(Sent("GET", "versions/902"), Reply(json={"id": 902, "name": "Plain"}))],
     ),
     Case(
-        "tracker.queues.version_edit",
+        "tracker.queues.version_update",
         args=(
             903,
             QueueVersionUpdate(
@@ -552,7 +552,7 @@ CASES = [
     ),
     # Only the supplied fields are sent, and no ?version= lock goes with a version edit.
     Case(
-        "tracker.queues.version_edit",
+        "tracker.queues.version_update",
         args=(904, QueueVersionUpdate(due_date="2027-01-31")),
         cli=["tracker", "queues", "version-update", "904", "--due-date", "2027-01-31"],
         mcp=None,
@@ -571,14 +571,14 @@ CASES = [
         exchanges=[(Sent("DELETE", "versions/905"), Reply(status=204))],
     ),
     Case(
-        "tracker.queues.user_permissions",
+        "tracker.queues.user_permissions_get",
         args=("PERMQ", "carol"),
         cli=["tracker", "queues", "user-permissions-get", "PERMQ", "carol"],
         mcp=("tracker_queues_user_permissions_get", {"queue_id": "PERMQ", "user_id": "carol"}),
         exchanges=[(Sent("GET", "queues/PERMQ/permissions/users/carol"), Reply(json=USER_ACCESS))],
     ),
     Case(
-        "tracker.queues.group_permissions",
+        "tracker.queues.group_permissions_get",
         args=("PERMG", 77),
         cli=["tracker", "queues", "group-permissions-get", "PERMG", "77"],
         mcp=("tracker_queues_group_permissions_get", {"queue_id": "PERMG", "group_id": 77}),

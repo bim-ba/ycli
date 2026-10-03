@@ -35,7 +35,7 @@ def test_list_all_carries_the_dead_v3_cursor_onto_v1(api):
     )
     api.add("GET", ANSWERS, json={"columns": [{"slug": "ignored"}], "answers": [{"id": 2}]})
     with FormsClient(oauth_token="t", organization_id="o") as client:
-        result = client.answers.list_all(SID)
+        result = client.answers.list(SID)
     assert [answer.id for answer in result.answers] == [1, 2]
     assert [column.slug for column in result.columns] == ["q1"]
     assert str(api.calls[1].url) == f"{ANSWERS}?id=100"

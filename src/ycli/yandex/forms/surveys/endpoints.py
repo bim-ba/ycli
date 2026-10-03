@@ -51,7 +51,7 @@ def create_survey(body: SurveyCreate) -> Endpoint[Survey]:
     return Endpoint("POST", "surveys", Survey, json=body)
 
 
-def modify_survey(survey_id: str, body: SurveyUpdate) -> Endpoint[Survey]:
+def update_survey(survey_id: str, body: SurveyUpdate) -> Endpoint[Survey]:
     return Endpoint("PATCH", f"surveys/{segment(survey_id)}", Survey, json=body)
 
 

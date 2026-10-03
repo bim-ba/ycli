@@ -74,7 +74,7 @@ CASES = [
         ],
     ),
     Case(
-        "forms.surveys.modify",
+        "forms.surveys.update",
         args=(
             "686d0a1b2c3d4e5f00000002",
             SurveyUpdate.model_validate({"name": "Renamed", "is_public": True, "max_count": 9}),

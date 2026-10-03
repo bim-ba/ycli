@@ -65,7 +65,7 @@ def thread_list(
     dead); the comment comes first, then its descendants chained by parent_id.
     """
     cap = config.http.cap(limit, all_=all_)
-    return wiki.comments.thread(page_id=page_id, comment_id=comment_id, limit=cap)
+    return wiki.comments.thread_list(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
 @app.command("thread-get")

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class TriggersClient(Resource):
-    """List, get, create and edit a queue's triggers; read a trigger's webhook log."""
+    """List, get, create and update a queue's triggers; read a trigger's webhook log."""
 
     def list(self, queue_id: str, *, limit: int | None = None) -> ItemList[Trigger]:
         """``GET /queues/{queue_id}/triggers`` → every trigger of the queue, ascending by id.
@@ -81,7 +81,7 @@ class TriggersClient(Resource):
         """
         return self._session.send(endpoints.create_trigger(queue_id, body))
 
-    def edit(
+    def update(
         self, queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None = None
     ) -> Trigger:
         """Edit a trigger from a typed ``TriggerUpdate`` body. Returns the updated ``Trigger``.
@@ -100,16 +100,16 @@ class TriggersClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.triggers.models import TriggerUpdate
-            >>> tracker.triggers.edit(
+            >>> tracker.triggers.update(
             ...     "BIZ", 18, TriggerUpdate(name="Renamed trigger"), version=3
             ... ).name
             'Renamed trigger'
         """
         return self._session.send(
-            endpoints.edit_trigger(queue_id, trigger_id, body, version=version)
+            endpoints.update_trigger(queue_id, trigger_id, body, version=version)
         )
 
-    def webhook_log(
+    def webhook_log_list(
         self,
         queue_id: str,
         trigger_id: int,
@@ -135,7 +135,7 @@ class TriggersClient(Resource):
             The trigger's Webhook-action execution records.
 
         Examples:
-            >>> tracker.triggers.webhook_log(
+            >>> tracker.triggers.webhook_log_list(
             ...     "DEV",
             ...     6,
             ...     issue_id="DEV-5",

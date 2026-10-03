@@ -100,7 +100,7 @@ def update(
         start_date=start_date or None,
         end_date=end_date or None,
     )
-    return tracker.projects.edit(project_id, body, version=version, expand=expand or None)
+    return tracker.projects.update(project_id, body, version=version, expand=expand or None)
 
 
 @app.command()

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class WorkflowsClient(Resource):
-    """List, get, create, edit and delete workflows; read the workflows of a queue."""
+    """List, get, create, update and delete workflows; read the workflows of a queue."""
 
     def list(self) -> ItemList[Workflow]:
         """``GET /workflows`` → every workflow of the organization except deleted ones.
@@ -92,7 +92,7 @@ class WorkflowsClient(Resource):
         """
         return self._session.send(endpoints.create_workflow(body))
 
-    def edit(self, workflow_id: str, body: WorkflowUpdate, *, version: int) -> Workflow:
+    def update(self, workflow_id: str, body: WorkflowUpdate, *, version: int) -> Workflow:
         """``PATCH /workflows/{workflow_id}?version=`` → change the set fields of a workflow.
 
         ``version`` is the workflow's current version (the API answers 412/428 without a
@@ -108,12 +108,14 @@ class WorkflowsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.workflows.models import WorkflowUpdate
-            >>> tracker.workflows.edit("W21", WorkflowUpdate(name="QA process"), version=3).version
+            >>> tracker.workflows.update(
+            ...     "W21", WorkflowUpdate(name="QA process"), version=3
+            ... ).version
             4
         """
-        return self._session.send(endpoints.edit_workflow(workflow_id, body, version=version))
+        return self._session.send(endpoints.update_workflow(workflow_id, body, version=version))
 
-    def edit_action(
+    def update_action(
         self,
         workflow_id: str,
         status: str,
@@ -142,12 +144,12 @@ class WorkflowsClient(Resource):
             >>> action = WorkflowActionUpdate(
             ...     name=LocalizedName(ru="Завершить", en="Complete"), target="closed"
             ... )
-            >>> tracker.workflows.edit_action(
+            >>> tracker.workflows.update_action(
             ...     "W23", "inProgress", "close", action, version=2
             ... ).version
             3
         """
-        endpoint = endpoints.edit_action(workflow_id, status, action_id, body, version=version)
+        endpoint = endpoints.update_action(workflow_id, status, action_id, body, version=version)
         return self._session.send(endpoint)
 
     def delete(self, workflow_id: str) -> None:

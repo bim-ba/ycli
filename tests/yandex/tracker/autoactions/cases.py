@@ -100,7 +100,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.autoactions.logs",
+        "tracker.autoactions.logs_list",
         args=("QA", 11),
         cli=["tracker", "autoactions", "logs-list", "QA", "11"],
         mcp=("tracker_autoactions_logs_list", {"queue_id": "QA", "action_id": 11}),
@@ -112,7 +112,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.autoactions.log_detail",
+        "tracker.autoactions.logs_get",
         args=("SUP", 12, "run-2"),
         cli=["tracker", "autoactions", "logs-get", "SUP", "12", "run-2"],
         mcp=(

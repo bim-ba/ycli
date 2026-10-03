@@ -1,7 +1,7 @@
 """Tracker ``/components`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_component(111175, {"assignAuto": True}, version=1).path
+    >>> update_component(111175, {"assignAuto": True}, version=1).path
     'components/111175'
 """
 
@@ -26,7 +26,7 @@ def create_component(body: ComponentCreate) -> Endpoint[Component]:
     return Endpoint("POST", "components", Component, json=body)
 
 
-def edit_component(
+def update_component(
     component_id: int, body: ComponentUpdate, *, version: int | None = None
 ) -> Endpoint[Component]:
     """``PATCH /components/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""

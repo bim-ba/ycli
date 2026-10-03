@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 class PagesClient(Resource):
     """``/pages``: get, descendants, grids, create, update, delete, append, clone, move.
 
-    ``move``, ``revisions`` and ``backlinks`` call operations Yandex does not document (they are
-    in the live OpenAPI only), so their contract may change without notice.
+    ``move``, ``revisions_list`` and ``backlinks_list`` call operations Yandex does not document
+    (they are in the live OpenAPI only), so their contract may change without notice.
     """
 
     def get_by_id(
@@ -47,7 +47,7 @@ class PagesClient(Resource):
         Args:
             page_id: The page's numeric id.
             fields: The comma-separated blocks to include.
-            revision_id: The past revision to show, from :meth:`revisions`; ``None`` shows the
+            revision_id: The past revision to show, from :meth:`revisions_list`; ``None`` shows the
                 current one.
             raise_on_redirect: Answer with an error when the page is a redirect, instead of
                 the page it leads to.
@@ -77,7 +77,7 @@ class PagesClient(Resource):
         Args:
             slug: The page's slug.
             fields: The comma-separated blocks to include.
-            revision_id: The past revision to show, from :meth:`revisions`; ``None`` shows the
+            revision_id: The past revision to show, from :meth:`revisions_list`; ``None`` shows the
                 current one.
             raise_on_redirect: Answer with an error when the page is a redirect, instead of
                 the page it leads to.
@@ -158,7 +158,7 @@ class PagesClient(Resource):
         )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
 
-    def grids(
+    def grids_list(
         self,
         page_id: int,
         *,
@@ -181,7 +181,7 @@ class PagesClient(Resource):
             The page's grids.
 
         Examples:
-            >>> [grid.title for grid in wiki.pages.grids(4301, limit=30).root]
+            >>> [grid.title for grid in wiki.pages.grids_list(4301, limit=30).root]
             ['Roadmap', 'Budget']
         """
         paged = endpoints.list_grids(page_id, order_by=order_by, order_direction=order_direction)
@@ -261,7 +261,7 @@ class PagesClient(Resource):
         """
         return self._session.send(endpoints.delete_page(page_id, recursive=recursive))
 
-    def append_content(
+    def append(
         self,
         page_id: int,
         body: PageAppendContent,
@@ -289,7 +289,7 @@ class PagesClient(Resource):
             >>> body = PageAppendContent.model_validate(
             ...     {"content": "## Footer", "body": {"location": "bottom"}}
             ... )
-            >>> wiki.pages.append_content(4602, body).slug
+            >>> wiki.pages.append(4602, body).slug
             'eng/footer'
         """
         endpoint = endpoints.append_content(page_id, body, fields=fields, is_silent=is_silent)
@@ -350,7 +350,7 @@ class PagesClient(Resource):
         """
         return self._session.send(endpoints.move_pages(body, dry_run=dry_run))
 
-    def revisions(
+    def revisions_list(
         self,
         page_id: int,
         *,
@@ -372,14 +372,14 @@ class PagesClient(Resource):
             The page's revisions.
 
         Examples:
-            >>> revisions = wiki.pages.revisions(6201, ids="7002,7003", limit=40)
+            >>> revisions = wiki.pages.revisions_list(6201, ids="7002,7003", limit=40)
             >>> [revision.id for revision in revisions.root]
             [7003, 7002]
         """
         paged = endpoints.list_revisions(page_id, ids=ids)
         return ItemList[PageRevision](list(self._session.iterate(paged, limit=limit)))
 
-    def backlinks(
+    def backlinks_list(
         self,
         page_id: int,
         *,
@@ -404,7 +404,7 @@ class PagesClient(Resource):
             The refs of the pages that link here.
 
         Examples:
-            >>> refs = wiki.pages.backlinks(6301, for_cluster=True, show_all=True, limit=30)
+            >>> refs = wiki.pages.backlinks_list(6301, for_cluster=True, show_all=True, limit=30)
             >>> [ref.slug for ref in refs.root]
             ['eng/linker-a', 'eng/linker-b']
         """

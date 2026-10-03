@@ -143,7 +143,7 @@ def grids_list(
 ) -> ItemList[GridRef]:
     """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.grids(
+    return wiki.pages.grids_list(
         page_id=page_id,
         limit=cap,
         order_by=order_by or None,
@@ -228,7 +228,7 @@ def append(
         content=content,
         body=PageAppendContentBody(location=location),  # ty: ignore[invalid-argument-type]  # pydantic validates the top|bottom literal
     )
-    return wiki.pages.append_content(
+    return wiki.pages.append(
         page_id=page_id,
         body=payload,
         fields=fields or None,
@@ -327,7 +327,7 @@ def revisions_list(
 ) -> ItemList[PageRevision]:
     """List a page's saved revisions (GET /pages/{id}/revisions; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.revisions(page_id=page_id, ids=ids or None, limit=cap)
+    return wiki.pages.revisions_list(page_id=page_id, ids=ids or None, limit=cap)
 
 
 @app.command()
@@ -347,6 +347,6 @@ def backlinks_list(
 ) -> ItemList[PageRef]:
     """List the pages that link to PAGE_ID (GET /pages/{id}/backlinks; undocumented by Yandex)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.backlinks(
+    return wiki.pages.backlinks_list(
         page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
     )

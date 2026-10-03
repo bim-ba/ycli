@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class StatusesClient(Resource):
-    """List, create and edit issue statuses."""
+    """List, create and update issue statuses."""
 
     def list(self) -> ItemList[Status]:
         """``GET /statuses`` → status listing.
@@ -51,7 +51,7 @@ class StatusesClient(Resource):
         """
         return self._session.send(endpoints.create_status(body))
 
-    def edit(self, status_id: str, body: StatusUpdate, *, version: int | None = None) -> Status:
+    def update(self, status_id: str, body: StatusUpdate, *, version: int | None = None) -> Status:
         """Edit status ``status_id`` from a typed ``StatusUpdate`` body. Returns the ``Status``.
 
         ``version`` is the current status version; when set it is sent as ``?version=`` for
@@ -67,9 +67,9 @@ class StatusesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.statuses.models import StatusUpdate
-            >>> tracker.statuses.edit(
+            >>> tracker.statuses.update(
             ...     "29", StatusUpdate(description="Issue is paused"), version=5
             ... ).version
             6
         """
-        return self._session.send(endpoints.edit_status(status_id, body, version=version))
+        return self._session.send(endpoints.update_status(status_id, body, version=version))

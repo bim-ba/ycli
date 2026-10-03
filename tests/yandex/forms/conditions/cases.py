@@ -73,7 +73,7 @@ def _family(
             exchanges=[(Sent("POST", path, json=created), Reply(json=_group(base + 3)))],
         ),
         Case(
-            f"forms.conditions.{family}_modify",
+            f"forms.conditions.{family}_update",
             args=(SID, *owner_sdk, base + 4, ConditionUpdate.model_validate(replaced)),
             cli=[
                 *cli,
@@ -95,7 +95,7 @@ def _family(
             ],
         ),
         Case(
-            f"forms.conditions.{family}_modify",
+            f"forms.conditions.{family}_update",
             args=(SID, *owner_sdk, base + 5, ConditionUpdate.model_validate(FROM_FILE)),
             cli=[*cli, "update", SID, *owner_cli, str(base + 5), "--body-file", GROUP_FILE],
             mcp=None,

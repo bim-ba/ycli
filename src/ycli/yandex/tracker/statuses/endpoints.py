@@ -1,7 +1,7 @@
 """Tracker ``/statuses`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_status("29", {"description": "x"}, version=1).params
+    >>> update_status("29", {"description": "x"}, version=1).params
     {'version': 1}
 """
 
@@ -20,7 +20,7 @@ def create_status(body: StatusCreate) -> Endpoint[Status]:
     return Endpoint("POST", "statuses/", Status, json=body)
 
 
-def edit_status(
+def update_status(
     status_id: str, body: StatusUpdate, *, version: int | None = None
 ) -> Endpoint[Status]:
     """``PATCH /statuses/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""

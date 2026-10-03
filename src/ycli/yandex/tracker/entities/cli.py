@@ -187,7 +187,7 @@ def update(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment or None})
-    return tracker.entities.edit(
+    return tracker.entities.update(
         type_.value, entity_id, body=body, expand=expand or None, fields=fields or None
     )
 
@@ -254,7 +254,7 @@ def events_list(
     tracker: TrackerClient,
 ) -> ItemList[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
-    return tracker.entities.history(
+    return tracker.entities.events_list(
         type_.value,
         entity_id,
         limit=limit or None,
@@ -269,7 +269,7 @@ def permissions_get(
     type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient
 ) -> ExtendedPermissions:
     """Print an entity's access settings (GET …/extendedPermissions)."""
-    return tracker.entities.permissions(type_.value, entity_id)
+    return tracker.entities.permissions_get(type_.value, entity_id)
 
 
 @app.command("set-permissions")
@@ -300,7 +300,7 @@ def set_permissions(
 @app.command("direct-permissions-get")
 def direct_permissions_get(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Acl:
     """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
-    return tracker.entities.direct_permissions(type_.value, entity_id)
+    return tracker.entities.direct_permissions_get(type_.value, entity_id)
 
 
 @app.command("set-direct-permissions")
@@ -350,7 +350,7 @@ def bulk_status_get(
     tracker: TrackerClient,
 ) -> BulkChangeOperation:
     """Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID)."""
-    return tracker.entities.bulk_status(operation_id)
+    return tracker.entities.bulk_status_get(operation_id)
 
 
 @app.command("create-report")
@@ -402,7 +402,7 @@ def comments_list(
 ) -> ItemList[Comment]:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
     if all_:
-        return tracker.entities.comments_relative(type_.value, entity_id, limit=limit or None)
+        return tracker.entities.comments_relative_list(type_.value, entity_id, limit=limit or None)
     return tracker.entities.comments_list(type_.value, entity_id)
 
 
@@ -457,7 +457,7 @@ def comments_update(
 ) -> Comment:
     """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
     body = CommentUpdate(text=text)
-    return tracker.entities.comments_edit(
+    return tracker.entities.comments_update(
         type_.value,
         entity_id,
         comment_id,
@@ -563,7 +563,7 @@ def checklists_update(
             raise typer.BadParameter(f"must be id=text, got {raw!r}", param_hint="--item")
         inputs.append(ChecklistItemInput(id=item_id, text=text))
     items = ItemList[ChecklistItemInput](inputs)
-    return tracker.entities.checklists_edit(
+    return tracker.entities.checklists_update(
         type_.value,
         entity_id,
         body=items,
@@ -596,7 +596,7 @@ def checklists_update_item(
 ) -> Entity:
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
     body = _item_input(text, checked, assignee, deadline)
-    return tracker.entities.checklists_edit_item(
+    return tracker.entities.checklists_update_item(
         type_.value,
         entity_id,
         item_id,
@@ -761,7 +761,7 @@ def attachments_download(
     tracker: TrackerClient,
 ) -> BinaryResult:
     """Download an attachment's raw bytes to --output (or stdout). Binary is CLI/SDK-only."""
-    return BinaryResult(tracker.entities.attachment_download(file_id, filename), output)
+    return BinaryResult(tracker.entities.attachments_download(file_id, filename), output)
 
 
 @attachments_app.command("attach")

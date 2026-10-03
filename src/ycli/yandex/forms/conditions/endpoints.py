@@ -50,7 +50,7 @@ def create_condition(target: str, body: ConditionCreate) -> Endpoint[Condition]:
     return Endpoint("POST", target, Condition, json=body)
 
 
-def modify_condition(target: str, condition_id: int, body: ConditionUpdate) -> Endpoint[Condition]:
+def update_condition(target: str, condition_id: int, body: ConditionUpdate) -> Endpoint[Condition]:
     return Endpoint("PATCH", f"{target}/{segment(condition_id)}", Condition, json=body)
 
 

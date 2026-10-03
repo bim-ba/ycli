@@ -1,4 +1,4 @@
-"""`tracker attachments` commands (reads render; download/thumbnail write raw bytes)."""
+"""`tracker attachments` commands (reads render; the downloads write raw bytes)."""
 
 from __future__ import annotations
 
@@ -42,8 +42,8 @@ def download(
     return BinaryResult(tracker.attachments.download(issue_key, file_id, filename), output)
 
 
-@app.command("thumbnail")
-def thumbnail(
+@app.command("download-thumbnail")
+def download_thumbnail(
     issue_key: Annotated[str, _ISSUE],
     file_id: Annotated[str, _FILE_ID],
     output: Annotated[str | None, _OUTPUT] = None,

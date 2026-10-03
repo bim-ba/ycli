@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class PrioritiesClient(Resource):
-    """List, create and edit issue priorities."""
+    """List, create and update issue priorities."""
 
     def list(
         self,
@@ -57,7 +57,7 @@ class PrioritiesClient(Resource):
         """
         return self._session.send(endpoints.create_priority(body))
 
-    def edit(
+    def update(
         self, priority_id: str, body: PriorityUpdate, *, version: int | None = None
     ) -> Priority:
         """Edit priority ``priority_id`` from a typed ``PriorityUpdate`` body.
@@ -75,9 +75,9 @@ class PrioritiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.priorities.models import PriorityUpdate
-            >>> tracker.priorities.edit(
+            >>> tracker.priorities.update(
             ...     "blocker", PriorityUpdate(description="Stops all"), version=7
             ... ).key
             'blocker'
         """
-        return self._session.send(endpoints.edit_priority(priority_id, body, version=version))
+        return self._session.send(endpoints.update_priority(priority_id, body, version=version))

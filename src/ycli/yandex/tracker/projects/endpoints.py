@@ -3,7 +3,7 @@
 Examples:
     >>> get_project(1, expand="queues").params
     {'expand': 'queues'}
-    >>> edit_project(1, {"queues": "TEST"}, version=2).method
+    >>> update_project(1, {"queues": "TEST"}, version=2).method
     'PUT'
 """
 
@@ -33,7 +33,7 @@ def create_project(body: ProjectCreate) -> Endpoint[Project]:
     return Endpoint("POST", "projects", Project, json=body)
 
 
-def edit_project(
+def update_project(
     project_id: int, body: ProjectUpdate, *, version: int, expand: str | None = None
 ) -> Endpoint[Project]:
     """``PUT /projects/{id}?version=`` — the lock is required; PUT sets, so it is idempotent."""

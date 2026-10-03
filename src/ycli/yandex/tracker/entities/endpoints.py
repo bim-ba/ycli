@@ -78,7 +78,7 @@ def get_entity(
     return Endpoint("GET", _entity(entity_type, entity_id), Entity, params=params)
 
 
-def edit_entity(
+def update_entity(
     entity_type: str,
     entity_id: str,
     body: EntityUpdate,
@@ -239,7 +239,7 @@ def create_comment(
     )
 
 
-def edit_comment(
+def update_comment(
     entity_type: str,
     entity_id: str,
     comment_id: str,
@@ -305,7 +305,7 @@ def create_checklist_items(
     )
 
 
-def edit_checklist(
+def update_checklist(
     entity_type: str,
     entity_id: str,
     body: ItemList[ChecklistItemInput],
@@ -330,7 +330,7 @@ def edit_checklist(
     )
 
 
-def edit_checklist_item(
+def update_checklist_item(
     entity_type: str,
     entity_id: str,
     item_id: str,

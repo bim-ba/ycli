@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class QuestionsClient(Resource):
-    """Get, list, create, modify, delete and move the questions of a form."""
+    """Get, list, create, update, delete and move the questions of a form."""
 
     def get(self, survey_id: str, question_id: str, *, with_slugs: bool = False) -> Question:
         """``GET /surveys/{id}/questions/{question_id}`` → a single :class:`Question` (settings).
@@ -76,7 +76,7 @@ class QuestionsClient(Resource):
         """
         return self._session.send(endpoints.create_question(survey_id, body))
 
-    def modify(self, survey_id: str, question_id: str, body: QuestionCreate) -> Question:
+    def update(self, survey_id: str, question_id: str, body: QuestionCreate) -> Question:
         """``PATCH /surveys/{id}/questions/{question_id}`` — replace a question's settings.
 
         Takes the same typed body as :meth:`create`; its type must match the existing question.
@@ -91,12 +91,12 @@ class QuestionsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.forms.questions.models import StringQuestion
-            >>> forms.questions.modify(
+            >>> forms.questions.update(
             ...     "686d0a1b2c3d4e5f00000010", "22", StringQuestion(label="Name")
             ... ).label
             'Name'
         """
-        return self._session.send(endpoints.modify_question(survey_id, question_id, body))
+        return self._session.send(endpoints.update_question(survey_id, question_id, body))
 
     def delete(self, survey_id: str, question_id: str, *, force: bool = False) -> Ack:
         """``DELETE /surveys/{id}/questions/{question_id}`` → an :class:`Ack`.

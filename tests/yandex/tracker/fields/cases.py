@@ -161,7 +161,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.fields.edit",
+        "tracker.fields.update",
         args=(
             "ruName",
             FieldUpdate(
@@ -214,7 +214,7 @@ CASES = [
     ),
     # Without --version no ?version= is sent; without a name no name key.
     Case(
-        "tracker.fields.edit",
+        "tracker.fields.update",
         args=(
             "tags",
             FieldUpdate(
@@ -236,7 +236,7 @@ CASES = [
     ),
     # A rename alone sends no optionsProvider.
     Case(
-        "tracker.fields.edit",
+        "tracker.fields.update",
         args=("summary", FieldUpdate(name=LocalizedName(ru="Заголовок"))),
         kwargs={"version": 9},
         cli=["tracker", "fields", "update", "summary", "--name-ru", "Заголовок", "--version", "9"],
@@ -294,7 +294,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.fields.category_edit",
+        "tracker.fields.category_update",
         args=(
             "604f99",
             FieldCategoryUpdate(
@@ -341,7 +341,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.fields.category_edit",
+        "tracker.fields.category_update",
         args=("cat-9", FieldCategoryUpdate(order=600)),
         cli=["tracker", "fields", "category-update", "cat-9", "--order", "600"],
         mcp=None,
