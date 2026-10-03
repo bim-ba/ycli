@@ -13,7 +13,7 @@ import re
 import sys
 from pathlib import Path
 
-from scripts import api_surface
+from scripts import api_drift, api_surface
 
 ROOT = Path(__file__).resolve().parent.parent
 HINT = "run `uv run python scripts/gen_coverage.py --write` to regenerate the README tables"
@@ -156,3 +156,52 @@ def test_check_mode_fails_on_a_stale_russian_readme(tmp_path, monkeypatch, capsy
     monkeypatch.setattr(gen, "README_RU", stale)
     assert gen.main(["--check"]) == 1
     assert "stale: README.ru.md" in capsys.readouterr().err
+
+
+def _drift(published: list[api_surface.Operation]) -> api_drift.Drift:
+    """A Wiki drift over a fixture snapshot: ycli wraps ``pages.get`` and sends ``fields``."""
+    sent = [
+        api_drift.Call(
+            "wiki.pages.get", "GET", "/pages/7", query=frozenset({"fields"}), response=None
+        )
+    ]
+    return api_drift.compare("wiki", published, sent)
+
+
+def test_an_operation_added_to_a_snapshot_shows_as_not_covered():
+    """After a refresh the tables say what is new without a hand edit (#193)."""
+    get = api_surface.Operation("GET", "/pages/{idx}", query=("fields",))
+    assert gen._render_not_covered(_drift([get])) == []
+    added = api_surface.Operation("POST", "/pages/{idx}/archive")
+    assert gen._render_not_covered(_drift([get, added])) == [
+        "",
+        "**Not covered** (1)",
+        "",
+        f"- {gen.NOT_COVERED} `POST /pages/{{idx}}/archive`",
+    ]
+
+
+def test_a_parameter_added_to_a_snapshot_marks_the_operation_partial():
+    get = api_surface.Operation("GET", "/pages/{idx}", query=("fields",))
+    assert api_drift.partial([_drift([get])]) == {}
+    grown = api_surface.Operation("GET", "/pages/{idx}", query=("fields", "depth"))
+    gaps = api_drift.partial([_drift([grown])])
+    assert gaps == {"wiki.pages.get": "differs-wiki-get-pages-idx"}
+
+    class Pages:
+        def get(self) -> None: ...
+
+        def create(self) -> None: ...
+
+    row = gen._make_row("wiki", "pages", Pages(), {}, [], [], gaps)
+    assert row.operation_gaps == ("differs-wiki-get-pages-idx", None)
+    table = "\n".join(gen._render_table([row]))
+    assert f"get [{gen.PARTIAL}](#differs-wiki-get-pages-idx) · create |" in table
+    assert Pages().get() is None and Pages().create() is None  # the stubs are only inspected
+
+
+def test_every_partial_mark_links_to_a_row_that_exists():
+    block = gen.build_block()
+    targets = set(re.findall(rf"\[{gen.PARTIAL}\]\(#([a-z0-9-]+)\)", block))
+    anchors = set(re.findall(r'<a id="(differs-[a-z0-9-]+)"></a>', block))
+    assert targets and targets <= anchors
