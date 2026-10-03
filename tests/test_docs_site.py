@@ -155,3 +155,67 @@ def test_the_one_click_links_install_the_documented_server():
     assert {key: config[key] for key in command} == command
     assert {value[len("${input:") : -1] for value in config["env"].values()} == inputs
     assert set(config["env"]) == set(variables)
+
+
+def _load_examples() -> Any:
+    spec = importlib.util.spec_from_file_location(
+        "gen_examples", ROOT / "scripts" / "gen_examples.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_generated_examples_are_fresh():
+    assert _load_examples().main(["--check"]) == 0, "run: uv run scripts/gen_examples.py"
+
+
+def test_an_example_is_the_contract_case_on_each_surface():
+    from tests.contract import Case, Reply, Sent
+    from ycli.yandex.tracker.boards.models import BoardCreate
+
+    examples = _load_examples()
+    case = Case(
+        "tracker.boards.create",
+        args=(BoardCreate(name="Release train", owner="alice"),),
+        kwargs={"notify": False},
+        cli=["tracker", "boards", "create", "--name", "Release train"],
+        mcp=("tracker_boards_create", {"body": {"name": "Release train"}}),
+        exchanges=[(Sent("POST", "liveBoards/"), Reply(json={"id": 1}))],
+    )
+    text = examples.snippet(case)
+    assert "ycli tracker boards create --name 'Release train'" in text
+    assert '"name": "tracker_boards_create"' in text
+    assert (
+        'tracker.boards.create(BoardCreate(name="Release train", owner="alice"), notify=False)'
+        in text
+    )
+    sdk_only = Case("forms.answers.list", args=("s1",), cli=None, mcp=None, exchanges=[])
+    assert [line for line in examples.snippet(sdk_only).splitlines() if line.startswith("===")] == [
+        '=== "SDK"'
+    ]
+
+
+def test_the_examples_check_bites(tmp_path, monkeypatch, capsys):
+    """A stale snippet, an unused one and an operation with no case are each reported."""
+    examples = _load_examples()
+    docs = tmp_path / "docs"
+    snippets = docs / "examples" / "operations"
+    snippets.mkdir(parents=True)
+    (docs / "page.md").write_text('--8<-- "docs/examples/operations/tracker.issues.get.md"\n')
+    (snippets / "tracker.issues.get.md").write_text("old\n")
+    (snippets / "unused.md").write_text("x\n")
+    monkeypatch.setattr(examples, "ROOT", tmp_path)
+    monkeypatch.setattr(examples, "DOCS", docs)
+    monkeypatch.setattr(examples, "SNIPPETS", snippets)
+    assert examples.main(["--check"]) == 1
+    err = capsys.readouterr().err
+    assert "stale: docs/examples/operations/tracker.issues.get.md" in err
+    assert "stale: docs/examples/operations/unused.md" in err
+    assert examples.main([]) == 0
+    assert examples.main(["--check"]) == 0
+    assert not (snippets / "unused.md").exists()
+    (docs / "page.md").write_text('--8<-- "docs/examples/operations/tracker.nope.get.md"\n')
+    with pytest.raises(SystemExit, match=r"no contract case for tracker\.nope\.get"):
+        examples.main(["--check"])
