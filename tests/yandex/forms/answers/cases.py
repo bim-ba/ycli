@@ -9,6 +9,12 @@ PAGE = {
     "answers": [{"id": 1, "data": ["Ann"]}],
     "next": None,
 }
+# The cursor arrives as a link to a retired route; only its query is carried over.
+FIRST_PAGE = {
+    "columns": PAGE["columns"],
+    "answers": [{"id": 2, "data": ["Bob"]}],
+    "next": {"next_url": f"/v3/surveys/{SID}/answers/?id=2"},
+}
 EXPORT = {
     "format": "csv",
     "upload": "disk",
@@ -70,7 +76,26 @@ CASES = [
         kwargs={"limit": 500},
         cli=["forms", "answers", "list", SID],
         mcp=("forms_answers_list", {"survey_id": SID}),
-        exchanges=[(Sent("GET", f"surveys/{SID}/answers"), Reply(json=PAGE))],
+        exchanges=[
+            (Sent("GET", f"surveys/{SID}/answers"), Reply(json=FIRST_PAGE)),
+            (Sent("GET", f"surveys/{SID}/answers", {"id": "2"}), Reply(json=PAGE)),
+        ],
+        output={
+            "columns": [
+                {
+                    "id": None,
+                    "slug": "answer_short_text_1",
+                    "type": None,
+                    "text": None,
+                    "has_scores": None,
+                }
+            ],
+            "answers": [
+                {"id": 2, "created": None, "data": ["Bob"]},
+                {"id": 1, "created": None, "data": ["Ann"]},
+            ],
+            "next": None,
+        },
     ),
     # A limit below the page keeps only that many answers (MCP always uses the configured cap).
     Case(

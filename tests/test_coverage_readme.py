@@ -13,10 +13,14 @@ import re
 import sys
 from pathlib import Path
 
+from scripts import api_surface
+
 ROOT = Path(__file__).resolve().parent.parent
 HINT = "run `uv run python scripts/gen_coverage.py --write` to regenerate the README tables"
 DOCS_BASE = "https://yandex.ru/support/"
 LINK = re.compile(r"\[[^\]]+\]\((https?://[^)]+)\)")
+# The published-API summary links each OpenAPI document, the one link outside the reference.
+OPENAPI_URLS = frozenset(api_surface.OPENAPI_URLS.values())
 
 # The one resource/operation with no public API-reference page. Pinned so a *new* gap
 # (e.g. a resource added without a doc link) fails loudly instead of slipping in silently.
@@ -54,6 +58,8 @@ def test_generated_doc_links_are_well_formed():
     urls = [url for row in table_rows for url in LINK.findall(row)]
     assert urls, "no documentation links were generated"
     for url in urls:
+        if url in OPENAPI_URLS:
+            continue
         assert url.startswith(DOCS_BASE), url
         domain = url.removeprefix(DOCS_BASE).split("/")[0]
         assert f"/{domain}/en/{gen.API_SECTION[domain]}/" in url, url
@@ -88,7 +94,8 @@ def test_every_service_table_is_collapsible():
     for report in gen._reports():
         heading = block.index(f"### {report.title}\n\n<details>\n<summary>")
         assert "</summary>\n\n**" in block[heading:]
-    assert block.count("<details>") == block.count("</details>") == len(gen._reports())
+    # One block of tables and one of differences from the published API per service.
+    assert block.count("<details>") == block.count("</details>") == 2 * len(gen._reports())
 
 
 def test_link_gaps_are_pinned():

@@ -59,6 +59,20 @@ change the public surface on purpose, regenerate snapshots: `uv run python -m te
 - **Secrets:** `.env` and `.mcp.json` are gitignored. Keep real tokens out of commits;
   use `.env.example` / `.mcp.example.json` placeholders.
 
+## Coverage and API drift
+
+README's Coverage section is generated: `uv run python scripts/gen_coverage.py --write` (the
+tests fail while it is stale). Its "Against the published API" part compares what the contract
+cases send with `scripts/api_snapshot/`, the operations Yandex publishes (the Wiki and Forms
+OpenAPI documents, Tracker's API reference), reduced to names.
+
+- `uv run python scripts/api_drift.py` prints the differences; `--live` prints what Yandex has
+  changed since the snapshot; `--refresh` fetches the snapshots again.
+- The weekly `api-drift` workflow runs `--live` and keeps one issue labelled `api-drift` open
+  while the snapshot is behind. To close it, refresh, regenerate README and open a PR.
+- A published operation must be wrapped or listed with its reason in `NOT_WRAPPED`
+  (`scripts/api_drift.py`); `tests/test_api_drift.py` fails otherwise.
+
 ## Commits & releases
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/) —
