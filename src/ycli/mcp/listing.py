@@ -1,4 +1,4 @@
-"""Listing transforms: a lighter ``tools/list`` and a check that selected tool names exist.
+"""The listing transform, a lighter ``tools/list``, and the error of an unknown tool name.
 
 ``tools/list`` of the full server is ~1.9 MB, 71% of it output schemas. The MCP spec makes
 ``outputSchema`` optional and a call still returns ``structuredContent`` without one, so the
@@ -109,21 +109,3 @@ class LightListing(Transform):
 
 class UnknownToolError(ValueError):
     """A tool name in the selection that no mounted service serves."""
-
-
-class KnownTools(Transform):
-    """Fails the listing when a requested tool name matches no tool.
-
-    FastMCP's ``enable`` / ``disable`` silently match nothing for an unknown name, so a typo in
-    ``--tools`` would hide or show the wrong set without a word.
-    """
-
-    def __init__(self, requested: frozenset[str]) -> None:
-        self._requested = requested
-
-    async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
-        """The tools, failing with :class:`UnknownToolError` when a requested name matches none."""
-        unknown = sorted(self._requested - {tool.name for tool in tools})
-        if unknown:
-            raise UnknownToolError(f"unknown tool name(s): {', '.join(unknown)}")
-        return tools
