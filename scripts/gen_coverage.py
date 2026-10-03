@@ -37,6 +37,10 @@ import tomllib
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 ROOT = Path(__file__).resolve().parent.parent
 # Run as a file, a script sees only its own directory: tests/ and scripts/ hang off the root.
@@ -71,6 +75,9 @@ END = "<!-- COVERAGE:END -->"
 
 YES = "✅"
 NO = "—"
+# The state of an operation against the published API: no mark means covered.
+PARTIAL = "◐"
+NOT_COVERED = "○"
 
 # Per-domain category → resource-attribute grouping. Every resource on a client must appear
 # in exactly one group; a resource that is missing here lands in a trailing "Other" group so
@@ -134,6 +141,8 @@ class ResourceRow:
     the final link target per operation — its own endpoint page, else the resource page as a
     fallback, else ``None`` (plain text). ``operation_specific[i]`` is ``True`` when operation
     ``i`` had a dedicated page (vs. falling back to the resource link); it drives the gap stats.
+    ``operation_gaps[i]`` is the anchor of the row that says how operation ``i`` differs from
+    the published API, or ``None`` when it does not (the operation is covered).
     """
 
     display: str
@@ -143,6 +152,7 @@ class ResourceRow:
     resource_url: str | None
     operation_urls: tuple[str | None, ...]
     operation_specific: tuple[bool, ...]
+    operation_gaps: tuple[str | None, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -233,13 +243,15 @@ def _link(text: str, url: str | None) -> str:
 
 def _make_row(
     slug: str,
-    display: str,
+    attribute: str,
     resource: object,
     urls: dict[str, dict],
     paths: list[str],
     tools: list[str],
+    gaps: Mapping[str, str],
 ) -> ResourceRow:
     """Assemble one :class:`ResourceRow`, resolving each op to its page / resource / plain text."""
+    display = _display_name(attribute)
     operations = _sdk_operations(resource)
     entry = urls.get(display, {})
     resource_path = entry.get("resource")
@@ -259,11 +271,16 @@ def _make_row(
         resource_url=_doc_url(slug, resource_path) if resource_path else None,
         operation_urls=tuple(operation_urls),
         operation_specific=tuple(operation_specific),
+        operation_gaps=tuple(gaps.get(f"{slug}.{attribute}.{name}") for name in operations),
     )
 
 
 def _report(
-    spec: DomainSpec, paths: list[str], tools: list[str], urls: dict[str, dict]
+    spec: DomainSpec,
+    paths: list[str],
+    tools: list[str],
+    urls: dict[str, dict],
+    gaps: Mapping[str, str],
 ) -> DomainReport:
     """Build a fully-computed :class:`DomainReport` from a live client + surface + link data."""
     discovered = {name for name, value in vars(spec.client).items() if isinstance(value, Resource)}
@@ -278,8 +295,7 @@ def _report(
             if not isinstance(resource, Resource):
                 raise SystemExit(f"gen_coverage: {spec.slug}.{attribute} is not a resource client")
             placed.add(attribute)
-            display = _display_name(attribute)
-            row = _make_row(spec.slug, display, resource, urls, paths, tools)
+            row = _make_row(spec.slug, attribute, resource, urls, paths, tools, gaps)
             if not row.operations:
                 raise SystemExit(f"gen_coverage: {spec.slug}.{attribute} exposes no SDK operations")
             operation_count += len(row.operations)
@@ -291,7 +307,7 @@ def _report(
         rows = []
         for attribute in unplaced:
             resource = getattr(spec.client, attribute)
-            row = _make_row(spec.slug, _display_name(attribute), resource, urls, paths, tools)
+            row = _make_row(spec.slug, attribute, resource, urls, paths, tools, gaps)
             operation_count += len(row.operations)
             rows.append(row)
         groups.append(("Other", rows))
@@ -353,8 +369,12 @@ def _render_table(rows: list[ResourceRow]) -> list[str]:
         "|----------|------------|:---:|:---:|",
     ]
     for row in rows:
-        cells = zip(row.operations, row.operation_urls, strict=True)
-        operations = " · ".join(_link(operation, url) for operation, url in cells)
+        gaps = row.operation_gaps or (None,) * len(row.operations)
+        cells = zip(row.operations, row.operation_urls, gaps, strict=True)
+        operations = " · ".join(
+            _link(operation, url) + (f" [{PARTIAL}](#{gap})" if gap else "")
+            for operation, url, gap in cells
+        )
         cli = YES if row.has_cli else NO
         mcp = YES if row.has_mcp else NO
         lines.append(f"| {_link(row.display, row.resource_url)} | {operations} | {cli} | {mcp} |")
@@ -388,8 +408,22 @@ def _totals(reports: list[DomainReport]) -> Totals:
     )
 
 
-def _render(reports: list[DomainReport]) -> str:
+def _render_not_covered(drift: api_drift.Drift) -> list[str]:
+    """The published operations of a service that ycli does not wrap, each with its reason."""
+    reasons = dict(drift.excluded)
+    missing = [*drift.not_wrapped, *reasons]
+    if not missing:
+        return []
+    lines = ["", f"**Not covered** ({len(missing)})", ""]
+    for operation in missing:
+        why = reasons.get(operation)
+        lines.append(f"- {NOT_COVERED} {_published(operation)}" + (f": {why}" if why else ""))
+    return lines
+
+
+def _render(reports: list[DomainReport], found: tuple[api_drift.Drift, ...]) -> str:
     """The full inner Markdown block (without the surrounding markers)."""
+    drifts = {drift.service: drift for drift in found}
     totals = _totals(reports)
     cross_cutting_names = ", ".join(f"`{tool}`" for tool in sorted(totals.cross_cutting_tools))
     stats = link_stats(reports)
@@ -410,10 +444,16 @@ def _render(reports: list[DomainReport]) -> str:
         f"> **Legend.** {YES} in **CLI** or **MCP** means the resource is reachable on that "
         "surface; MCP tools carry honest hints (reads are `readOnlyHint`, writes say whether "
         "they are destructive or idempotent), and `ycli mcp start --read-only` serves only the "
-        "reads. Resource and operation names link to the official **Yandex API reference**. A "
-        f"{YES} says ycli wraps the operation; where it differs from what Yandex publishes is "
-        "listed under [Against the published API](#against-the-published-api). Generated from the "
-        "code by [`scripts/gen_coverage.py`](scripts/gen_coverage.py); do not edit by hand.",
+        "reads. Resource and operation names link to the official **Yandex API reference**. "
+        "An operation has one of three states against what Yandex publishes. **Covered** (no "
+        "mark): ycli sends every published parameter and reads every published field. "
+        f"**Partial** ({PARTIAL}): ycli wraps it and differs somewhere; the mark links to the "
+        f"row that says where and why. **Not covered** ({NOT_COVERED}): Yandex publishes it "
+        "and ycli does not wrap it; these are listed under each service. Wiki and Forms are "
+        "measured against their OpenAPI documents; Tracker publishes none, so its state is "
+        "measured against the reference pages (operations, and query parameters where a page "
+        "lists them). Generated from the code by "
+        "[`scripts/gen_coverage.py`](scripts/gen_coverage.py); do not edit by hand.",
     ]
     for report in reports:
         lines += [
@@ -426,7 +466,7 @@ def _render(reports: list[DomainReport]) -> str:
         ]
         for heading, rows in report.groups:
             lines += ["", f"**{heading}**", "", *_render_table(rows)]
-        lines += ["", "</details>"]
+        lines += [*_render_not_covered(drifts[report.slug]), "", "</details>"]
 
     gaps = ", ".join(f"`{gap}`" for gap in stats.gaps)
     unlinked = (
@@ -442,7 +482,7 @@ def _render(reports: list[DomainReport]) -> str:
         "See `CONTRIBUTING.md` for the intentional exclusions (UI-only endpoints with no public "
         "REST API) and per-method notes.",
     ]
-    return "\n".join([*lines, "", *_render_drift(api_drifts())])
+    return "\n".join([*lines, "", *_render_drift(found)])
 
 
 @cache
@@ -556,9 +596,10 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
                     if getattr(gap, kind)
                 )
                 why = "<br>".join(api_drift.reasons(drift.service, gap))
+                anchor = f'<a id="{api_drift.anchor(drift.service, gap)}"></a>'
                 lines.append(
-                    f"| {_published(gap.published)} | {_sdk(gap.operations)} | {differences} "
-                    f"| {why} |"
+                    f"| {anchor}{_published(gap.published)} | {_sdk(gap.operations)} "
+                    f"| {differences} | {why} |"
                 )
         lines += ["", "</details>"]
     return lines
@@ -650,7 +691,8 @@ def _reports() -> list[DomainReport]:
             "Forms", "forms", FormsClient(oauth_token="x", organization_id="x"), FORMS_CATEGORIES
         ),
     ]
-    return [_report(spec, paths, tools, link_map.get(spec.slug, {})) for spec in specs]
+    gaps = api_drift.partial(api_drifts())
+    return [_report(spec, paths, tools, link_map.get(spec.slug, {}), gaps) for spec in specs]
 
 
 def _render_ru(reports: list[DomainReport]) -> str:
@@ -686,7 +728,7 @@ def _render_ru(reports: list[DomainReport]) -> str:
 
 def build_block() -> str:
     """The complete marker-wrapped Coverage block that README embeds."""
-    return f"{START}\n{_render(_reports())}\n{END}"
+    return f"{START}\n{_render(_reports(), api_drifts())}\n{END}"
 
 
 def splice(text: str, block: str) -> str:
@@ -698,7 +740,7 @@ def splice(text: str, block: str) -> str:
 
 def outputs(reports: list[DomainReport]) -> dict[Path, str]:
     """Every generated file's full new text: both READMEs with their block spliced in, the SVG."""
-    blocks = {README: _render(reports), README_RU: _render_ru(reports)}
+    blocks = {README: _render(reports, api_drifts()), README_RU: _render_ru(reports)}
     texts = {
         path: splice(path.read_text(encoding="utf-8"), f"{START}\n{block}\n{END}")
         for path, block in blocks.items()

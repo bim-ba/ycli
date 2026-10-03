@@ -56,7 +56,7 @@ from ycli.yandex.models import ignored_fields  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable, Mapping, Sequence
 
     import httpx2
 
@@ -483,6 +483,27 @@ def unexplained(
     stale = [" ".join(key) for key in explained if key[0] in services and key not in present]
     stale += [" ".join(key) for key in everywhere if key[0] in services and key not in anywhere]
     return bare, stale
+
+
+def anchor(service: str, gap: Gap) -> str:
+    """The id of the row that describes ``gap``, for a link from the operation it belongs to.
+
+    Examples:
+        >>> anchor("forms", Gap(Operation("POST", "/surveys/{survey_id}"), ("forms.surveys.x",)))
+        'differs-forms-post-surveys-survey-id'
+    """
+    path = re.sub(r"[^a-z0-9]+", "-", gap.published.path.lower()).strip("-")
+    return f"differs-{service}-{gap.published.method.lower()}-{path}"
+
+
+def partial(found: Sequence[Drift]) -> dict[str, str]:
+    """Each SDK operation that differs from the published API, with the anchor of its row."""
+    return {
+        operation: anchor(drift.service, gap)
+        for drift in found
+        for gap in drift.gaps
+        for operation in gap.operations
+    }
 
 
 def reasons(service: str, gap: Gap) -> list[str]:
