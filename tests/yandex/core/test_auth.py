@@ -238,3 +238,38 @@ async def test_concurrent_async_401s_refresh_the_token_once():
     responses = await asyncio.gather(*(client.get(API) for _ in range(3)))
     assert {response.json()["auth"] for response in responses} == {"Bearer iam-2"}
     assert iam.issued == 2
+
+
+def _unread(handler):
+    """``handler``'s answers as a real transport gives them: a body that is not read yet.
+
+    ``MockTransport`` hands over a response with its content already loaded, which hides a
+    flow that parses the token without reading the response first.
+    """
+
+    def handle(request: httpx2.Request) -> httpx2.Response:
+        answer = handler(request)
+        return httpx2.Response(
+            answer.status_code, headers=answer.headers, stream=httpx2.ByteStream(answer.content)
+        )
+
+    return httpx2.MockTransport(handle)
+
+
+def test_the_token_is_read_from_a_response_that_arrives_unread():
+    iam = _IAM(reject_first_api_call=True)  # the exchange runs twice: first use, then the 401
+    client = httpx2.Client(auth=_auth(), transport=_unread(iam))
+    assert client.get(API).json() == {"auth": "Bearer iam-2"}
+
+
+async def test_the_async_flow_reads_an_unread_token_response_too():
+    iam = _IAM(reject_first_api_call=True)
+    client = httpx2.AsyncClient(auth=_auth(), transport=_unread(iam))
+    assert (await client.get(API)).json() == {"auth": "Bearer iam-2"}
+
+
+def test_a_failed_exchange_that_arrives_unread_still_raises_a_typed_error():
+    deny = _unread(lambda request: httpx2.Response(403, json={"message": "key revoked"}))
+    client = httpx2.Client(auth=_auth(), transport=deny)
+    with pytest.raises(YandexAuthError, match="key revoked"):
+        client.get(API)
