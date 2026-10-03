@@ -1,40 +1,24 @@
-"""Reproducibly mirror Yandex service documentation to Markdown.
+"""Reproducibly mirror the Yandex 360 and dev-hub documentation to Markdown.
 
-Two documentation sources, one output tree:
-
-* **diplodoc** (default) — the Yandex 360 / dev-hub product docs published as Diplodoc/YFM
-  sites at ``yandex.ru``. Each rendered page has a stable ``.md`` sibling URL that serves the
-  self-contained YFM source over plain HTTP, no browser and no auth; each service publishes a
-  flat ``sitemap.xml``. Pipeline: ``read sitemap -> for each <loc>: GET <loc>.md -> write``.
-* **cloud** — the open-source Yandex Cloud documentation at ``github.com/yandex-cloud/docs``.
-  Enumerated via the GitHub trees API and fetched verbatim from ``raw.githubusercontent.com``,
-  pinned to the default-branch HEAD commit for reproducibility.
+The product docs are Diplodoc/YFM sites at ``yandex.ru``. Each rendered page has a stable
+``.md`` sibling URL that serves the self-contained YFM source over plain HTTP, no browser and
+no auth; each service publishes a flat ``sitemap.xml``. Pipeline:
+``read sitemap -> for each <loc>: GET <loc>.md -> write``.
 
 Examples::
 
-    python scripts/fetch_docs.py tracker --limit 5 --out /tmp/sample      # validate diplodoc
-    python scripts/fetch_docs.py tracker                                  # one diplodoc service
-    python scripts/fetch_docs.py --all                                    # every diplodoc service
+    python scripts/fetch_docs.py tracker --limit 5 --out /tmp/sample      # validate
+    python scripts/fetch_docs.py tracker                                  # one service
+    python scripts/fetch_docs.py --all                                    # every service
     python scripts/fetch_docs.py wiki --dry-run                           # list, no writes
-    python scripts/fetch_docs.py datalens --source cloud --limit 5        # validate cloud
-    python scripts/fetch_docs.py --all --source cloud                     # clone all cloud docs
 
-Diplodoc output mirrors the URL path 1:1 under ``<out>/<service>/<url-path>.md``; cloud output
-mirrors the repo path under ``<out>/cloud/<lang>/<service>/<repo-path>``. Each service dir gets a
-``.fetch-manifest.json`` (revision/generator/pages for diplodoc; licence/commit/pages for cloud)
-so re-runs are diffable.
+Output mirrors the URL path 1:1 under ``<out>/<service>/<url-path>.md``. Each service dir gets a
+``.fetch-manifest.json`` (revision, generator, pages) so re-runs are diffable.
 
-Licensing — read before redistributing what this fetches:
-
-* **diplodoc** pages come from ``yandex.ru`` and are covered by the Yandex User Agreement, NOT an
-  open licence. Fetch them for local/offline reference; do **not** commit or redistribute the
-  corpus without permission.
-* **cloud** pages are (C) YANDEX LLC, licensed under Creative Commons Attribution 4.0
-  International (CC BY 4.0). They may be redistributed **with** attribution; ``--source cloud``
-  writes an ``ATTRIBUTION.md`` and records the licence + pinned commit in the manifest.
-
-A ``GITHUB_TOKEN`` / ``GH_TOKEN`` env var, if present, authenticates the GitHub API calls used by
-cloud mode (raising the rate limit from 60 to 5000 req/h — matters for ``--all --source cloud``).
+Licensing: the pages come from ``yandex.ru`` and are covered by the Yandex User Agreement, NOT
+an open licence. Fetch them for local reference; do **not** commit or redistribute the corpus
+without permission. The open-licensed Yandex Cloud documentation is not fetched here: it is the
+git submodule ``references/yandex-cloud`` (see ``references/README.md``).
 """
 
 from __future__ import annotations
@@ -42,7 +26,6 @@ from __future__ import annotations
 import argparse
 import html
 import json
-import os
 import re
 import time
 import xml.etree.ElementTree as ElementTree
@@ -56,16 +39,6 @@ DEFAULT_OUT = Path(__file__).resolve().parent.parent / "references" / "yandex-36
 USER_AGENT = "ycli-docs-fetcher/1.0 (+https://github.com/bim-ba/ycli)"
 REQUEST_TIMEOUT_SECONDS = 30
 MAX_ATTEMPTS = 3
-
-# --- cloud source: github.com/yandex-cloud/docs (CC BY 4.0) ---------------------------
-GITHUB_API_BASE = "https://api.github.com"
-RAW_BASE = "https://raw.githubusercontent.com"
-CLOUD_OWNER = "yandex-cloud"
-CLOUD_REPO = "docs"
-CLOUD_REPO_URL = "https://github.com/yandex-cloud/docs"
-CLOUD_LICENSE = "CC-BY-4.0"
-CLOUD_LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/"
-CLOUD_COPYRIGHT = "(C) YANDEX LLC, 2018"
 
 
 @dataclass(frozen=True)
@@ -260,7 +233,7 @@ _NO_SOURCE = _NoSource()
 
 @dataclass
 class _HttpClient:
-    """Polite retry/backoff HTTP shared by both fetch strategies, over one Session."""
+    """Polite retry/backoff HTTP over one client, and writes confined to the output root."""
 
     out_dir: Path
     delay_seconds: float = 0.2
@@ -296,22 +269,10 @@ class _HttpClient:
             return response
         raise AssertionError("the last attempt returns")
 
-    def _get_json(self, url: str) -> dict | list | None:
-        response = self._get(url)
-        if response is None or response.status_code != 200:
-            if response is not None:
-                print(f"  ! {url} — HTTP {response.status_code}")
-            return None
-        try:
-            return response.json()
-        except ValueError:
-            print(f"  ! {url} — non-JSON response")
-            return None
-
     def _safe_target(self, rel_path: Path) -> Path | None:
         """Resolve rel_path under out_dir, refusing any path that escapes it (``..``/absolute).
 
-        Write paths derive from remote data (sitemap locs, redirect URLs, git-tree entries);
+        Write paths derive from remote data (sitemap locs, redirect URLs);
         this keeps a hostile or malformed source from writing outside the chosen output root.
         """
         root = self.out_dir.resolve()
@@ -327,14 +288,6 @@ class _HttpClient:
             return
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8")
-
-    def _write_bytes(self, rel_path: Path, data: bytes) -> None:
-        """Write raw response bytes unchanged — keeps a redistributed corpus byte-verbatim."""
-        target = self._safe_target(rel_path)
-        if target is None:
-            return
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(data)
 
 
 @dataclass
@@ -498,153 +451,6 @@ class DocsFetcher(_HttpClient):
         target.write_text(payload + "\n", encoding="utf-8")
 
 
-@dataclass
-class CloudFetcher(_HttpClient):
-    """Mirror CC-BY-4.0 Yandex Cloud docs from github.com/yandex-cloud/docs, verbatim.
-
-    Enumeration uses the GitHub trees API on a single service subtree (bounded, so the 7 MB /
-    100k-entry truncation limit is never hit); files are fetched from raw.githubusercontent.com
-    pinned to the default-branch HEAD commit. Output is byte-for-byte the source — the only
-    additions are an ``ATTRIBUTION.md`` and a manifest, per the CC BY 4.0 attribution clause.
-    """
-
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        self.session.headers["Accept"] = "application/vnd.github+json"
-        token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-        if token:
-            self.session.headers["Authorization"] = f"Bearer {token}"
-
-    # -- pin + enumerate ---------------------------------------------------------------
-    def _resolve_commit(self) -> str | None:
-        """HEAD commit of the repo's default branch — pins the whole corpus for reproducibility."""
-        repo = self._get_json(f"{GITHUB_API_BASE}/repos/{CLOUD_OWNER}/{CLOUD_REPO}")
-        if not isinstance(repo, dict):
-            return None
-        branch = repo.get("default_branch", "master")
-        head = self._get_json(
-            f"{GITHUB_API_BASE}/repos/{CLOUD_OWNER}/{CLOUD_REPO}/commits/{branch}"
-        )
-        return head.get("sha") if isinstance(head, dict) else None
-
-    def _lang_services(self, lang: str, commit: str) -> dict[str, str]:
-        """Map service dir name -> its git-tree SHA for one language root (``ru`` / ``en``)."""
-        url = f"{GITHUB_API_BASE}/repos/{CLOUD_OWNER}/{CLOUD_REPO}/contents/{lang}?ref={commit}"
-        entries = self._get_json(url)
-        if not isinstance(entries, list):
-            return {}
-        return {e["name"]: e["sha"] for e in entries if e.get("type") == "dir"}
-
-    def _service_files(self, tree_sha: str) -> list[str] | None:
-        """Markdown paths (relative to the service dir) via one recursive subtree call.
-
-        Returns None when the API call fails (rate-limit / error) — distinct from a service with 0
-        files.
-        """
-        url = f"{GITHUB_API_BASE}/repos/{CLOUD_OWNER}/{CLOUD_REPO}/git/trees/{tree_sha}?recursive=1"
-        data = self._get_json(url)
-        if not isinstance(data, dict):
-            return None
-        if data.get("truncated"):
-            print("  ! subtree truncated by GitHub — file list is partial")
-        return sorted(
-            node["path"]
-            for node in data.get("tree", [])
-            if node.get("type") == "blob" and node["path"].endswith(".md")
-        )
-
-    # -- orchestration -----------------------------------------------------------------
-    def run(self, service: str | None, all_services: bool, limit: int | None) -> None:
-        commit = self._resolve_commit()
-        if commit is None:
-            print(
-                "! could not resolve yandex-cloud/docs HEAD commit (rate-limited? set GITHUB_TOKEN)"
-            )
-            self.encountered_failure = True
-            return
-        langs = ["ru", "en"] if self.lang == "all" else [self.lang]
-        for lang in langs:
-            available = self._lang_services(lang, commit)
-            if not available:
-                print(f"[cloud/{lang}] ⚠ no services listed (rate-limited? set GITHUB_TOKEN)")
-                self.encountered_failure = True
-                continue
-            names = sorted(available) if all_services else [service]
-            for name in names:
-                if name not in available:
-                    print(f"[cloud/{lang}] unknown service {name!r} — not in repo")
-                    self.encountered_failure = True
-                    continue
-                self._fetch_service(lang, name, available[name], commit, limit)
-
-    def _fetch_service(
-        self, lang: str, service: str, tree_sha: str, commit: str, limit: int | None
-    ) -> None:
-        files = self._service_files(tree_sha)
-        if files is None:
-            print(f"[cloud/{lang}/{service}] ⚠ could not list files — skipping (nothing written)")
-            self.encountered_failure = True
-            return
-        print(f"[cloud/{lang}/{service}] {len(files)} markdown files @ {commit[:8]}")
-
-        if self.dry_run:
-            for path in files[: limit if limit is not None else len(files)]:
-                print(f"  would fetch {lang}/{service}/{path}")
-            return
-
-        written: list[str] = []
-        failed = 0
-        for path in files:
-            if limit is not None and len(written) >= limit:
-                break
-            raw_url = f"{RAW_BASE}/{CLOUD_OWNER}/{CLOUD_REPO}/{commit}/{lang}/{service}/{path}"
-            response = self._get(raw_url)
-            if response is None or response.status_code != 200:
-                if response is not None:
-                    print(f"  ! {raw_url} — HTTP {response.status_code}")
-                failed += 1
-                continue
-            self._write_bytes(Path("cloud") / lang / service / path, response.content)
-            written.append(path)
-            print(f"  + cloud/{lang}/{service}/{path}")
-            time.sleep(self.delay_seconds)
-
-        self._write_attribution(lang, service, commit, written)
-        summary = f"[cloud/{lang}/{service}] wrote {len(written)} files · {CLOUD_LICENSE}"
-        if failed:
-            self.encountered_failure = True
-            summary += f" · ⚠ {failed} skipped (fetch failed) — set GITHUB_TOKEN if rate-limited"
-        print(summary)
-
-    def _write_attribution(self, lang: str, service: str, commit: str, pages: list[str]) -> None:
-        base = self.out_dir / "cloud" / lang / service
-        source_tree = f"{CLOUD_REPO_URL}/tree/{commit}/{lang}/{service}"
-        notice = (
-            "# Attribution\n\n"
-            f"Source: {source_tree}\n\n"
-            f"{CLOUD_COPYRIGHT}. Licensed under the Creative Commons Attribution 4.0 "
-            f"International Public License (CC BY 4.0), {CLOUD_LICENSE_URL}.\n\n"
-            "Files in this directory are reproduced verbatim from the source repository at the "
-            "pinned commit above; only this notice and the manifest have been added.\n"
-        )
-        (base / "ATTRIBUTION.md").parent.mkdir(parents=True, exist_ok=True)
-        (base / "ATTRIBUTION.md").write_text(notice, encoding="utf-8")
-        manifest = {
-            "service": service,
-            "language": lang,
-            "source": f"{CLOUD_OWNER}/{CLOUD_REPO}",
-            "source_repo": CLOUD_REPO_URL,
-            "ref": commit,
-            "license": CLOUD_LICENSE,
-            "license_url": CLOUD_LICENSE_URL,
-            "copyright": CLOUD_COPYRIGHT,
-            "page_count": len(pages),
-            "pages": sorted(pages),
-        }
-        payload = json.dumps(manifest, ensure_ascii=False, indent=2)
-        (base / ".fetch-manifest.json").write_text(payload + "\n", encoding="utf-8")
-
-
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Mirror Yandex service docs to self-contained YFM Markdown.",
@@ -653,17 +459,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "service",
         nargs="?",
-        help="service to fetch (a diplodoc service name, or any cloud service dir); "
-        "omit and pass --all for every service",
+        help="service to fetch; omit and pass --all for every service",
     )
-    parser.add_argument("--all", action="store_true", help="fetch every service in the source")
-    parser.add_argument(
-        "--source",
-        choices=("diplodoc", "cloud"),
-        default="diplodoc",
-        help="doc source: 'diplodoc' (yandex.ru rendered .md, default) or "
-        "'cloud' (github.com/yandex-cloud/docs, CC BY 4.0)",
-    )
+    parser.add_argument("--all", action="store_true", help="fetch every service")
     parser.add_argument(
         "--limit",
         type=int,
@@ -696,22 +494,14 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if bool(args.service) == bool(args.all):
         parser.error("pass exactly one of a service name or --all")
-    if args.source == "diplodoc" and args.service and args.service not in SERVICES:
+    if args.service and args.service not in SERVICES:
         valid = ", ".join(sorted(SERVICES))
-        parser.error(f"unknown diplodoc service {args.service!r}; choose from: {valid}")
+        parser.error(f"unknown service {args.service!r}; choose from: {valid}")
     return args
 
 
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
-    if args.source == "cloud":
-        cloud = CloudFetcher(
-            out_dir=args.out, delay_seconds=args.delay, dry_run=args.dry_run, lang=args.lang
-        )
-        cloud.run(service=args.service, all_services=args.all, limit=args.limit)
-        if cloud.encountered_failure:
-            raise SystemExit(1)
-        return
     fetcher = DocsFetcher(
         out_dir=args.out, delay_seconds=args.delay, dry_run=args.dry_run, lang=args.lang
     )
