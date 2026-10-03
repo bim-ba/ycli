@@ -144,8 +144,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`);
   `test_arch5_every_host_home_still_spells_a_host` keeps the allowlist free of stale entries, and
   `test_arch5_a_logger_name_is_spelled_in_one_module` (+ bite test) the logger names single.
-- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the Yandex ID / API 360 hosts
-  `auth status` reads.
+- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint, the Yandex ID / API 360 hosts
+  `auth status` reads, and PyPI. The version check of `ycli doctor` is the one request ycli sends
+  to a host that is not Yandex's, and it carries no credentials.
 
 ### ARCH-6 — The public surface is versioned
 - **Rule:** the CLI tree, MCP tool names and both surfaces' parameters (name, type, default,

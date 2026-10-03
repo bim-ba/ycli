@@ -84,8 +84,9 @@ def doctor(*, config: AppConfig) -> DoctorReport | ExitWith:
     """Check everything a working call needs, in order, and say what to fix.
 
     Where the credentials come from (never their value), whether Yandex ID accepts the token,
-    the organization, each service, and which extras are installed. A check that cannot run
-    after an earlier failure is skipped. Exits 0 unless a check failed.
+    the organization, each service, which extras are installed, and whether a newer release is
+    out (asked from PyPI, without credentials). A check that cannot run after an earlier failure
+    is skipped. Exits 0 unless a check failed.
     """
     try:
         credentials = Credentials()  # ty: ignore[missing-argument]

@@ -1,6 +1,7 @@
 """``ycli doctor``: each check passes, warns, fails or is skipped on its own, in order."""
 
 import json
+from importlib.metadata import version
 
 import httpx2
 import pytest
@@ -22,7 +23,10 @@ PROBES = {
 }
 CREDENTIALS = Credentials(oauth_token=SecretStr("y0_secret-value"), organization_id="42")
 SOURCES = {"YANDEX_ID_OAUTH_TOKEN": "environment", "YANDEX_ID_ORGANIZATION_ID": ".env file"}
+PYPI_URL = "https://pypi.org/pypi/yandex-cli/json"
+INSTALLED = version("yandex-cli")
 ANSWERS = {
+    PYPI_URL: {"json": {"info": {"version": INSTALLED}}},
     ID_URL: {"json": {"id": "7", "login": "ivan"}},
     ORG_URL: {"json": {"organizations": [{"id": 42, "name": "Acme"}]}},
     **{url: {"json": {"login": "ivan"}} for url in PROBES.values()},
@@ -63,6 +67,7 @@ def test_everything_in_order_is_all_ok_in_the_order_it_ran(api):
         "service:forms",
         "extra:mcp",
         "extra:jq",
+        "version",
     ]
     assert {check.status for check in report.checks} == {"ok"}
     assert checks["credentials"].detail == (
@@ -77,6 +82,7 @@ def test_everything_in_order_is_all_ok_in_the_order_it_ran(api):
 
 def test_without_credentials_nothing_else_is_tried(api):
     sources = dict.fromkeys(SOURCES, "not set")
+    api.add("GET", PYPI_URL, **ANSWERS[PYPI_URL])
     report, exit_code = diagnose(None, sources, [], AppConfig())
     statuses = {check.check: check.status for check in report.checks}
     assert (report.ok, exit_code) == (False, ExitCode.AUTH)
@@ -84,7 +90,7 @@ def test_without_credentials_nothing_else_is_tried(api):
     assert report.checks[0].fix == "run `ycli auth login`"
     skipped = ["token", "organization", "service:tracker", "service:wiki", "service:forms"]
     assert [statuses[name] for name in skipped] == ["skipped"] * 5
-    assert api.calls == []
+    assert [str(call.url) for call in api.calls] == [PYPI_URL]  # nothing went to Yandex
 
 
 def test_a_token_yandex_id_rejects_fails_once_and_skips_the_rest(api):
@@ -103,6 +109,7 @@ def test_no_connection_names_the_proxy_variables_and_skips_the_rest(monkeypatch,
     assert checks["token"].detail.startswith("no connection: ")
     assert checks["token"].detail.endswith("; proxy variables set: HTTPS_PROXY")
     assert checks["service:forms"].status == "skipped"
+    assert checks["version"].status == "skipped"  # no connection: PyPI is not asked either
 
 
 def test_a_yandex_id_outage_is_a_warning_and_the_services_still_answer(api):
@@ -162,10 +169,40 @@ def test_a_missing_extra_is_not_a_problem(monkeypatch, api):
     assert checks["extra:mcp"].detail == "not installed: `yandex-cli[mcp]` adds the MCP server"
 
 
+def test_a_newer_release_is_a_warning_with_the_upgrade_command(api):
+    checks, report, exit_code = _diagnose(
+        api, **{PYPI_URL: {"json": {"info": {"version": "999.0.0"}}}}
+    )
+    assert (report.ok, exit_code) == (True, ExitCode.OK)
+    assert checks["version"].status == "warn"
+    assert checks["version"].detail == f"{INSTALLED} is installed, 999.0.0 is out"
+    assert checks["version"].fix == "`uv tool upgrade yandex-cli`"
+
+
+def test_the_latest_release_is_ok(api):
+    checks, _, _ = _diagnose(api)
+    assert checks["version"].detail == f"{INSTALLED} is the latest release"
+
+
+def test_a_silent_pypi_skips_the_version_check_and_breaks_nothing(api):
+    checks, report, exit_code = _diagnose(api, **{PYPI_URL: {"status": 503, "json": {}}})
+    assert (report.ok, exit_code) == (True, ExitCode.OK)
+    assert checks["version"].status == "skipped"
+    assert checks["version"].detail.startswith(f"{INSTALLED} is installed; PyPI did not answer")
+
+
+def test_pypi_gets_no_credentials_and_no_organization(api):
+    _diagnose(api)
+    (request,) = [call for call in api.calls if str(call.url) == PYPI_URL]
+    assert "authorization" not in request.headers
+    assert not any(name.lower().startswith("x-") for name in request.headers)
+
+
 def test_the_command_prints_the_report_and_exits_by_the_first_failure(monkeypatch, tmp_path, api):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.chdir(tmp_path)
+    api.add("GET", PYPI_URL, **ANSWERS[PYPI_URL])
     result = runner.invoke(cli.app, ["-o", "json", "doctor"])
     assert result.exit_code == 4
     report = json.loads(result.stdout)

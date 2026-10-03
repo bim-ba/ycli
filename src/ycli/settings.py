@@ -87,6 +87,10 @@ class HTTPConfig(BaseModel):
         return None if all_ else (limit if limit > 0 else self.max_items)
 
 
+# `ycli doctor` asks PyPI for the latest release: one short attempt, so it never holds the report.
+RELEASE_CHECK_HTTP = HTTPConfig(timeout_seconds=3.0, retries=0)
+
+
 class LoggingConfig(BaseModel):
     """Diagnostic output on stderr (``YCLI__LOGGING__*``)."""
 

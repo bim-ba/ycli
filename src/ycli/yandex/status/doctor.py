@@ -2,12 +2,13 @@
 
 The checks are the ones ``auth status`` makes (the owner from Yandex ID, the organization from
 API 360, one probe per registered service) plus what a first run trips over: where the
-credentials come from and which extras are installed. A check that cannot run after an earlier
-failure is ``skipped``, so one cause is reported once.
+credentials come from, which extras are installed and whether a newer release is out. A check
+that cannot run after an earlier failure is ``skipped``, so one cause is reported once.
 """
 
 from __future__ import annotations
 
+from importlib.metadata import version
 from importlib.util import find_spec
 from typing import TYPE_CHECKING
 
@@ -18,6 +19,7 @@ from ycli.yandex.errors import YandexAuthError, YandexConnectionError, YandexErr
 from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.models import Check, DoctorReport
+from ycli.yandex.status.release_client import DISTRIBUTION, is_newer, latest_release
 from ycli.yandex.status.reporter import organization_status, probe_error
 from ycli.yandex.status.token_client import TokenClient
 
@@ -27,6 +29,7 @@ if TYPE_CHECKING:
     from ycli.settings import AppConfig, Credentials
 
 SIGN_IN = "run `ycli auth login`"
+NO_CONNECTION = "no connection"
 # The extras a person may be missing: the module each one installs, and what it adds.
 EXTRAS = {"mcp": ("fastmcp", "the MCP server"), "jq": ("jq", "the `--jq` filter")}
 
@@ -50,8 +53,8 @@ class _Diagnosis:
         if self.exit_code is ExitCode.OK:
             self.exit_code = exit_code
 
-    def skipped(self, check: str) -> None:
-        self.checks.append(Check(check=check, status="skipped", detail=self.blocked))
+    def skipped(self, check: str, why: str = "") -> None:
+        self.checks.append(Check(check=check, status="skipped", detail=why or self.blocked))
 
     def unreachable(self, check: str, error: YandexConnectionError, proxies: Sequence[str]) -> None:
         """A request that never completed: every later request would fail the same way."""
@@ -62,7 +65,7 @@ class _Diagnosis:
             "check the network and the proxy settings",
             ExitCode.TRANSIENT,
         )
-        self.blocked = "no connection"
+        self.blocked = NO_CONNECTION
 
 
 def diagnose(
@@ -98,8 +101,30 @@ def diagnose(
         installed = find_spec(module) is not None
         hint = "installed" if installed else f"not installed: `yandex-cli[{extra}]` adds {adds}"
         diagnosis.passed(f"extra:{extra}", hint)
+    _check_version(diagnosis)
     failed = diagnosis.exit_code is not ExitCode.OK
     return DoctorReport(ok=not failed, checks=diagnosis.checks), diagnosis.exit_code
+
+
+def _check_version(diagnosis: _Diagnosis) -> None:
+    """The installed version against the latest release on PyPI (no credentials are sent)."""
+    installed = version(DISTRIBUTION)
+    if diagnosis.blocked == NO_CONNECTION:
+        diagnosis.skipped("version")
+        return
+    try:
+        latest = latest_release()
+    except YandexError as error:
+        diagnosis.skipped("version", f"{installed} is installed; PyPI did not answer: {error}")
+        return
+    if is_newer(latest, installed):
+        diagnosis.warned(
+            "version",
+            f"{installed} is installed, {latest} is out",
+            f"`uv tool upgrade {DISTRIBUTION}`",
+        )
+    else:
+        diagnosis.passed("version", f"{installed} is the latest release")
 
 
 def _check_owner(

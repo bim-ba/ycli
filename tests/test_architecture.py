@@ -1003,8 +1003,8 @@ _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
 _VERSION_RE = re.compile(r"__version__\s*=\s*['\"]\d")
 _ORG_HEADER_RE = re.compile(r"X-Org-I[dD]")
 _YANDEX_HOST_RE = re.compile(
-    r"https://[\w.-]*api[\w.-]*\.yandex\.(?:net|ru)"
-)  # API hosts, not web pages
+    r"https://(?:[\w.-]*api[\w.-]*\.yandex\.(?:net|ru)|pypi\.org)"
+)  # API hosts, not web pages; and PyPI, the one host ycli asks that is not Yandex's
 # Where a Yandex host may be spelled, and why: each service's profile, the IAM token endpoint,
 # and the Yandex ID and API 360 hosts `auth status` reads.
 ARCH5_HOST_HOMES = {
@@ -1013,6 +1013,7 @@ ARCH5_HOST_HOMES = {
     Path("yandex/forms/__init__.py"): "Forms service profile",
     Path("yandex/core/auth.py"): "IAM token endpoint for service accounts",
     Path("yandex/status/token_client.py"): "Yandex ID and API 360 profiles of `auth status`",
+    Path("yandex/status/release_client.py"): "PyPI, asked without credentials by `ycli doctor`",
 }
 
 
@@ -1103,6 +1104,7 @@ def test_arch5_guard_bites():
         '__version__ = "1.0"',
         'headers = {"X-Org-Id": org}',
         'URL = "https://api.wiki.yandex.net/v1"',
+        'URL = "https://pypi.org/pypi/other/json"',
         "token = os.environ['T']",
         "token = os.getenv('T')",
         "from os import environ",
