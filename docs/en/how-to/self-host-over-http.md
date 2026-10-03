@@ -89,6 +89,16 @@ mcp.example.com {
 }
 ```
 
+### Both steps with Docker Compose
+
+Steps 3 and 4 as one file: ycli plus Caddy, which gets the certificate for your domain. Put `MCP_DOMAIN` (the host name, e.g. `mcp.example.com`) and the variables of step 2 into a `.env` file next to it, then run `docker compose up -d`.
+
+```yaml title="compose.yaml"
+--8<-- "docs/examples/compose.yaml"
+```
+
+*Checked on 2026-10-03: `docker compose config` accepts the file and the `ycli` service starts and serves its sign-in metadata; Caddy was not run, it needs a real domain.*
+
 ## 5. Connect clients
 
 | Client | How |

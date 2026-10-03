@@ -9,8 +9,9 @@ ycli работает с Яндекс 360 (**Трекер**, **Вики** и **�
 | Python SDK (`ycli.yandex`) | вы пишете на Python | [справочник по SDK](https://bim-ba.github.io/ycli/reference/sdk/tracker/) |
 | Плагин для Claude Code | вы работаете в Claude Code и хотите получить ещё и навыки | [Установка в вашем ИИ-клиенте](how-to/install-in-your-harness.md) |
 
-Каждая операция одинакова на любом из способов: `ycli tracker boards get 31` — это MCP-инструмент
-`tracker_boards_get` и вызов SDK `tracker.boards.get(31)`.
+Каждая операция одинакова на любом из способов и называется одинаково:
+
+--8<-- "docs/examples/operations/tracker.issues.get.md"
 
 ```bash
 uv tool install 'yandex-cli[mcp]'

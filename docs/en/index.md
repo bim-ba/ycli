@@ -9,8 +9,9 @@ ycli drives Yandex 360 (**Tracker**, **Wiki** and **Forms**) from one SDK, serve
 | Python SDK (`ycli.yandex`) | you write Python | [SDK reference](reference/sdk/tracker.md) |
 | Claude Code plugin | you use Claude Code and want the skills too | [Install in your harness](how-to/install-in-your-harness.md) |
 
-Every operation is the same on each surface: `ycli tracker boards get 31` is the MCP tool
-`tracker_boards_get` and the SDK call `tracker.boards.get(31)`.
+Every operation is the same on each surface, under one name:
+
+--8<-- "docs/examples/operations/tracker.issues.get.md"
 
 ```bash
 uv tool install 'yandex-cli[mcp]'

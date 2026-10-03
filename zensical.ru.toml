@@ -18,9 +18,11 @@ nav = [
   { "Руководства" = [
     "how-to/authenticate.md",
     "how-to/install-in-your-harness.md",
+    "how-to/common-tasks.md",
     "how-to/serve-the-mcp-server.md",
     "how-to/self-host-over-http.md",
     "how-to/script-the-cli.md",
+    "how-to/use-in-ci.md",
     "how-to/call-an-unwrapped-endpoint.md",
   ] },
   { "Справочник" = [

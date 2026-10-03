@@ -137,6 +137,13 @@ version_variables = [
     "mcpb/manifest.json:version",
     "mcpb/pyproject.toml:version",
     "mcpb/pyproject.toml:yandex-cli[mcp]",
+    # The documentation's copy-paste examples pin the current release.
+    "docs/en/how-to/use-in-ci.md:yandex-cli",
+    "docs/en/how-to/use-in-ci.md:ghcr.io/bim-ba/ycli",
+    "docs/ru/how-to/use-in-ci.md:yandex-cli",
+    "docs/ru/how-to/use-in-ci.md:ghcr.io/bim-ba/ycli",
+    "docs/en/how-to/install-in-your-harness.md:yandex-cli[mcp]",
+    "docs/ru/how-to/install-in-your-harness.md:yandex-cli[mcp]",
 ]
 tag_format = "v{version}"
 allow_zero_version = true
