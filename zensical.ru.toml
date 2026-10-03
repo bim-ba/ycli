@@ -64,12 +64,15 @@ features = [
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
+# `primary` is the theme's default colour, spelled out: the social cards fail without it (Zensical 0.0.67).
 scheme = "default"
+primary = "indigo"
 toggle = { icon = "lucide/sun", name = "Тёмная тема" }
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
+primary = "indigo"
 toggle = { icon = "lucide/moon", name = "Светлая тема" }
 
 [project.extra]
@@ -112,3 +115,5 @@ markdown_description = "ycli управляет Яндекс Трекером, �
 "Руководства" = ["how-to/*.md"]
 "Справочник" = ["reference/*.md"]
 "Объяснения" = ["explanation/*.md"]
+
+[project.plugins.social]

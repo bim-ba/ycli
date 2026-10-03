@@ -81,12 +81,15 @@ features = [
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
+# `primary` is the theme's default colour, spelled out: the social cards fail without it (Zensical 0.0.67).
 scheme = "default"
+primary = "indigo"
 toggle = { icon = "lucide/sun", name = "Switch to dark mode" }
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
+primary = "indigo"
 toggle = { icon = "lucide/moon", name = "Switch to light mode" }
 
 [project.extra]
@@ -152,3 +155,5 @@ The full reference is large, one page per service, and is left out of llms-full.
 "How-to guides" = ["how-to/*.md"]
 "Reference" = ["reference/configuration.md", "reference/openapi.md", "reference/cli/index.md", "reference/cli/api.md", "reference/cli/auth.md", "reference/cli/mcp.md"]
 "Explanation" = ["explanation/*.md"]
+
+[project.plugins.social]
