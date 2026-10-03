@@ -121,7 +121,7 @@ def start(
     """Start the MCP server on the chosen transport."""
     refuse_dry_run(context, "mcp start serves tools and sends nothing itself; use --read-only.")
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
-    profile = context.find_root().params.get("profile")
+    profile = context.find_root().obj.profile
     if profile is not None:
         if transport is Transport.http:
             raise typer.BadParameter(

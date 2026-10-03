@@ -83,6 +83,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch1_sdk_method_equals_tool_name` holds the SDK method to the name of a tool that
   calls it (of the CLI command when no tool does; an operation reached only as a step of
   another has no name to match), and the endpoint builders and tool functions to the verbs.
+  `test_arch1_tool_function_is_named_like_its_tool` holds the Python function behind a tool to
+  the tool's name without the resource (`grids_rows_add` is `def rows_add`; a builtin's name
+  takes a trailing underscore, `list_`).
 - **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
   one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — a binary download is
   CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file

@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import ast
 import asyncio
+import builtins
 import functools
 import importlib
 import inspect
+import keyword
 import re
 import textwrap
 from pathlib import Path
@@ -104,7 +106,7 @@ def _wrapped_ops_in_source(source: str, resource_attr: str) -> set[str]:
     Structural, not name-based: the CLI and MCP wrappers reference the client operation
     directly (``app_ctx.tracker.issues.get(…)`` / ``client.issues.get(…)``), so this sees the
     real coverage even where the surface command/tool is *named* differently from the op
-    (``checklists.create`` → CLI ``add``; ``pages.get_by_id`` → MCP ``by_id_get``). A same-named
+    (``issues.search`` → CLI ``issues list``; ``pages.get`` → MCP ``pages_meta``). A same-named
     method on some other object (``other.get(…)``) or a bare-name call does not count.
     """
     wrapped: set[str] = set()
@@ -158,8 +160,6 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
     # exposes the one-shot `export` submit instead of the polling wrapper.
     "forms.answers.export_results": "CLI-only export poll helper",
-    # SDK-internal single-page primitive, superseded by the pagination-aware `list_all` that BOTH
-    # surfaces wrap; `list` itself is intentionally unwrapped on both.
 }
 
 
@@ -513,6 +513,47 @@ def _named_functions() -> set[str]:
         for node in ast.parse((directory / f"{module}.py").read_text(encoding="utf-8")).body
         if isinstance(node, ast.FunctionDef)
     }
+
+
+def _python_name(name: str) -> str:
+    """``name`` as a module-level function: ``list`` is ``list_``, as in ``cli.py``."""
+    return f"{name}_" if hasattr(builtins, name) or keyword.iskeyword(name) else name
+
+
+def _misnamed_tool_functions(functions: dict[str, str], resource: str) -> list[str]:
+    """Tool functions (tool name -> Python name) not named after their tool."""
+    return [
+        f"{resource}.mcp.{function}: name it {wanted!r}, after its tool {tool!r}"
+        for tool, function in sorted(functions.items())
+        if function != (wanted := _python_name(tool.removeprefix(f"{resource}_")))
+    ]
+
+
+def test_arch1_tool_function_is_named_like_its_tool():
+    """The function behind a tool has the tool's name, without the resource (ARCH-1).
+
+    ``grids_rows_add`` is ``def rows_add`` in ``wiki/grids/mcp.py``, so the SDK method, the
+    tool and its function are found under one word.
+    """
+    problems = []
+    for directory in _resource_dirs():
+        domain, resource = directory.parent.name, directory.name
+        server = importlib.import_module(f"ycli.yandex.{domain}.{resource}.mcp").mcp
+        functions = {
+            tool.name: asyncio.run(server.get_tool(tool.name)).fn.__name__
+            for tool in asyncio.run(server.list_tools())
+        }
+        problems += _misnamed_tool_functions(functions, resource.rstrip("_"))
+    assert not problems, "\n  ".join(["a tool function is not named after its tool:", *problems])
+
+
+def test_arch1_tool_function_check_bites():
+    """Prove-it: another word order is reported; a builtin's name takes an underscore."""
+    assert _misnamed_tool_functions({"grids_rows_add": "add_rows"}, "grids") == [
+        "grids.mcp.add_rows: name it 'rows_add', after its tool 'grids_rows_add'"
+    ]
+    assert _misnamed_tool_functions({"queues_list": "list_", "queues_get": "get"}, "queues") == []
+    assert _misnamed_tool_functions({"import_task": "task"}, "import") == []
 
 
 def test_arch1_sdk_method_equals_tool_name():

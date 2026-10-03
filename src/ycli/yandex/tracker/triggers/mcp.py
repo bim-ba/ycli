@@ -72,7 +72,7 @@ def get(
     annotations={**RO, "title": "List Tracker trigger webhook logs"},
     tags=TAGS,
 )
-def webhooklog_list(
+def webhook_log_list(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. DEV) or numeric queue id.")
     ],

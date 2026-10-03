@@ -63,11 +63,6 @@ _ENV_NAMES = {
 }
 
 
-def _named_profile(context: typer.Context) -> str | None:
-    """The ``--profile`` option of this invocation, given on either side of the subcommand."""
-    return context.find_root().params.get("profile")
-
-
 @app.command()
 def status(*, context: typer.Context, config: AppConfig) -> AuthReport | ExitWith:
     """Report whether the credentials are set, whose they are, and which services accept them.
@@ -77,7 +72,7 @@ def status(*, context: typer.Context, config: AppConfig) -> AuthReport | ExitWit
     service is probed with its own call. `ycli <service> auth status` probes just one service.
     """
     try:
-        credentials = Credentials.load(_named_profile(context))
+        credentials = Credentials.load(context.find_root().obj.profile)
     except ValidationError as exc:
         missing = ", ".join(missing_credentials(exc))
         if not missing:  # two tokens at once: a configuration error, reported as one
@@ -103,7 +98,7 @@ def doctor(*, context: typer.Context, config: AppConfig) -> DoctorReport | ExitW
     is skipped. Exits 0 unless a check failed.
     """
     credentials, invalid = None, ""
-    profile = active_profile(_named_profile(context))
+    profile = active_profile(context.find_root().obj.profile)
     try:
         credentials = Credentials.load(profile)
     except ProfileError as exc:
@@ -150,7 +145,7 @@ def login(
     The token is validated against every service before it is written.
     """
     refuse_dry_run(context, "auth login signs in and writes .env; there is nothing to plan.")
-    profile = _named_profile(context)
+    profile = context.find_root().obj.profile
     # A bad profile name fails here, before the browser opens.
     target = Path(".env") if profile is None else profile_path(profile)
     oauth_config = OAuthAppConfig()
@@ -195,7 +190,7 @@ def profiles(*, context: typer.Context) -> ItemList[SavedProfile]:
     A profile is one file in the user's configuration directory (`ycli doctor` prints it),
     written by `ycli auth login --profile NAME`; deleting the file removes the profile.
     """
-    active = active_profile(_named_profile(context))
+    active = active_profile(context.find_root().obj.profile)
     return ItemList[SavedProfile]([_saved_profile(name, active) for name in profile_names()])
 
 
