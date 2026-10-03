@@ -56,4 +56,4 @@ ycli mcp methods --toolsets core --read-only
 
 Точный файл и ключи для каждого ИИ-клиента описаны в разделе [Установка в вашем ИИ-клиенте](install-in-your-harness.md).
 Как обслуживать много пользователей по HTTP, см. [Свой сервер по HTTP](self-host-over-http.md). Все
-инструменты и их параметры — в [справочнике по MCP-инструментам](https://bim-ba.github.io/ycli/reference/mcp/tracker/).
+инструменты и их параметры — в [справочнике по MCP-инструментам](https://ycli.savaznatnov.dev/reference/mcp/tracker/).

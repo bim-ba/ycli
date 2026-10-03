@@ -75,7 +75,7 @@ _Transport = Annotated[
             "stdio (default): one local client, credentials from the environment. http: "
             "Streamable HTTP for many users, each signed in through Yandex ID (needs "
             "YCLI__MCP__BASE_URL and your Yandex OAuth app; see "
-            "https://bim-ba.github.io/ycli/how-to/self-host-over-http/)."
+            "https://ycli.savaznatnov.dev/how-to/self-host-over-http/)."
         ),
     ),
 ]

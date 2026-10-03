@@ -3,7 +3,7 @@
 [project]
 site_name = "ycli"
 site_description = "Яндекс 360 (Трекер, Вики, Формы) из CLI, MCP-сервера и Python SDK."
-site_url = "https://bim-ba.github.io/ycli/ru/"
+site_url = "https://ycli.savaznatnov.dev/ru/"
 repo_url = "https://github.com/bim-ba/ycli"
 repo_name = "bim-ba/ycli"
 edit_uri = "edit/main/docs/ru/"
@@ -29,10 +29,10 @@ nav = [
   ] },
   { "Справочник" = [
     "reference/configuration.md",
-    { "CLI (англ.)" = "https://bim-ba.github.io/ycli/reference/cli/" },
-    { "MCP-инструменты (англ.)" = "https://bim-ba.github.io/ycli/reference/mcp/tracker/" },
-    { "Python SDK (англ.)" = "https://bim-ba.github.io/ycli/reference/sdk/tracker/" },
-    { "OpenAPI (англ.)" = "https://bim-ba.github.io/ycli/reference/openapi/" },
+    { "CLI (англ.)" = "https://ycli.savaznatnov.dev/reference/cli/" },
+    { "MCP-инструменты (англ.)" = "https://ycli.savaznatnov.dev/reference/mcp/tracker/" },
+    { "Python SDK (англ.)" = "https://ycli.savaznatnov.dev/reference/sdk/tracker/" },
+    { "OpenAPI (англ.)" = "https://ycli.savaznatnov.dev/reference/openapi/" },
   ] },
   { "Объяснения" = [
     "explanation/design.md",
@@ -78,8 +78,8 @@ toggle = { icon = "lucide/moon", name = "Светлая тема" }
 
 [project.extra]
 alternate = [
-  { name = "English", link = "/ycli/", lang = "en" },
-  { name = "Русский", link = "/ycli/ru/", lang = "ru" },
+  { name = "English", link = "/", lang = "en" },
+  { name = "Русский", link = "/ru/", lang = "ru" },
 ]
 
 [project.markdown_extensions.admonition]

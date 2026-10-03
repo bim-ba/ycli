@@ -41,7 +41,7 @@ description: "ycli управляет Яндекс Трекером, Вики и
 
     Pydantic-модели для каждого ответа и примеры, которые выполняет набор тестов.
 
-    [Справочник SDK (англ.)](https://bim-ba.github.io/ycli/reference/sdk/tracker/)
+    [Справочник SDK (англ.)](https://ycli.savaznatnov.dev/reference/sdk/tracker/)
 
 -   :material-shield-check-outline: **Бережно к вашим данным**
 

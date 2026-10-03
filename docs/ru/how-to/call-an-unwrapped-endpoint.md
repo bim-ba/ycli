@@ -26,4 +26,4 @@ ycli api pages/descendants --service wiki -f slug=docs --paginate        # вс�
 - `--paginate` идёт по `Link: rel="next"` в Трекере и по `next_cursor` в Вики. Формы разбивают списки
   на страницы несколькими способами, поэтому параметры постраничной выдачи передавайте сами через `-f`.
 
-Полный список опций — в [справочнике по `ycli api`](https://bim-ba.github.io/ycli/reference/cli/api/).
+Полный список опций — в [справочнике по `ycli api`](https://ycli.savaznatnov.dev/reference/cli/api/).

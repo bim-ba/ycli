@@ -7,7 +7,6 @@
 /scripts/
 /.github/
 /.claude/
-/.cursor/
 
 # --- demo sources and images (not durable concepts) ---
 docs/demo/
@@ -15,7 +14,6 @@ docs/assets/
 
 # --- root noise (history, transcripts, boilerplate) ---
 /CHANGELOG.md
-/PROMPT.md
 /CODE_OF_CONDUCT.md
 /AGENTS.md
 
@@ -23,8 +21,6 @@ docs/assets/
 /pyproject.toml
 /uv.lock
 /.pre-commit-config.yaml
-/mkdocs.yml
-/.mcp.example.json
 /.env.example
 /LICENSE
 /.graphifyignore
