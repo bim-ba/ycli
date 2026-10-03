@@ -733,4 +733,370 @@ CASES = [
         ],
         env={"YCLI__HTTP__MAX_ITEMS": "1"},
     ),
+    # Query parameters the published API lists beyond the ones above (#196).
+    Case(
+        "wiki.pages.get",
+        args=("team/archive",),
+        kwargs={"fields": "content", "revision_id": 7101, "raise_on_redirect": True},
+        cli=[
+            "wiki",
+            "pages",
+            "get",
+            "team/archive",
+            "--revision-id",
+            "7101",
+            "--raise-on-redirect",
+        ],
+        mcp=None,
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages",
+                    {
+                        "slug": "team/archive",
+                        "fields": "content",
+                        "revision_id": "7101",
+                        "raise_on_redirect": "true",
+                    },
+                ),
+                Reply(
+                    json=_page(
+                        4005,
+                        "team/archive",
+                        content="# Old text",
+                        active_revision=_revision(7101, "2026-09-01T10:00:00Z", "published"),
+                    )
+                ),
+            )
+        ],
+        cli_output=b"# Old text\n",
+    ),
+    Case(
+        "wiki.pages.get",
+        args=("team/history",),
+        kwargs={"fields": "content", "revision_id": 7101, "raise_on_redirect": True},
+        cli=None,
+        mcp=(
+            "wiki_pages_get",
+            {"slug": "team/history", "revision_id": 7101, "raise_on_redirect": True},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages",
+                    {
+                        "slug": "team/history",
+                        "fields": "content",
+                        "revision_id": "7101",
+                        "raise_on_redirect": "true",
+                    },
+                ),
+                Reply(
+                    json=_page(
+                        4006,
+                        "team/history",
+                        content="# Old text",
+                        active_revision=_revision(7101, "2026-09-01T10:00:00Z", "published"),
+                    )
+                ),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.get_by_id",
+        args=(4105,),
+        kwargs={
+            "fields": "breadcrumbs,redirect,actuality",
+            "revision_id": 7102,
+            "raise_on_redirect": True,
+        },
+        cli=[
+            "wiki",
+            "pages",
+            "get-by-id",
+            "4105",
+            "--fields",
+            "breadcrumbs,redirect,actuality",
+            "--revision-id",
+            "7102",
+            "--raise-on-redirect",
+        ],
+        mcp=(
+            "wiki_pages_get_by_id",
+            {
+                "page_id": 4105,
+                "fields": "breadcrumbs,redirect,actuality",
+                "revision_id": 7102,
+                "raise_on_redirect": True,
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/4105",
+                    {
+                        "fields": "breadcrumbs,redirect,actuality",
+                        "revision_id": "7102",
+                        "raise_on_redirect": "true",
+                    },
+                ),
+                Reply(
+                    json=_page(
+                        4105,
+                        "eng/arch/old",
+                        page_type="wysiwyg",
+                        breadcrumbs=[
+                            {"id": 4100, "title": "Eng", "slug": "eng", "page_exists": True},
+                            {"id": None, "title": "arch", "slug": "eng/arch", "page_exists": False},
+                        ],
+                        redirect={
+                            "page_id": 4106,
+                            "redirect_target": {
+                                "id": 4106,
+                                "slug": "eng/arch/new",
+                                "title": "New arch",
+                                "page_type": "wysiwyg",
+                            },
+                        },
+                        actuality={
+                            "status": "obsolete",
+                            "marked_at": "2026-09-30T09:00:00Z",
+                            "user": _PERSON,
+                            "comment": "Replaced",
+                            "external_links": ["https://example.test/arch"],
+                            "actual_pages": [
+                                {
+                                    "id": 4106,
+                                    "slug": "eng/arch/new",
+                                    "title": "New arch",
+                                    "page_type": "wysiwyg",
+                                }
+                            ],
+                        },
+                        active_revision=_revision(7102, "2026-09-02T10:00:00Z", None),
+                    )
+                ),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.descendants",
+        args=("ops",),
+        kwargs={"limit": 21, "include_self": True, "show_all": True},
+        cli=[
+            "wiki",
+            "pages",
+            "descendants",
+            "ops",
+            "--limit",
+            "21",
+            "--include-self",
+            "--show-all",
+        ],
+        mcp=(
+            "wiki_pages_descendants",
+            {"slug": "ops", "limit": 21, "include_self": True, "show_all": True},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/descendants",
+                    {"slug": "ops", "page_size": "100", "include_self": "true", "show_all": "true"},
+                ),
+                Reply(json=_refs((4230, "ops"), (4231, "ops/runbook"))),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.descendants_by_id",
+        args=(4240,),
+        kwargs={"limit": 22, "include_self": True, "show_all": True},
+        cli=[
+            "wiki",
+            "pages",
+            "descendants-by-id",
+            "4240",
+            "--limit",
+            "22",
+            "--include-self",
+            "--show-all",
+        ],
+        mcp=(
+            "wiki_pages_descendants_by_id",
+            {"page_id": 4240, "limit": 22, "include_self": True, "show_all": True},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/4240/descendants",
+                    {"page_size": "100", "include_self": "true", "show_all": "true"},
+                ),
+                Reply(json=_refs((4240, "hr"), (4241, "hr/leave"))),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.grids",
+        args=(4320,),
+        kwargs={"limit": 13, "order_by": "title", "order_direction": "desc"},
+        cli=[
+            "wiki",
+            "pages",
+            "grids-list",
+            "4320",
+            "--limit",
+            "13",
+            "--order-by",
+            "title",
+            "--order-direction",
+            "desc",
+        ],
+        mcp=(
+            "wiki_pages_grids_list",
+            {"page_id": 4320, "limit": 13, "order_by": "title", "order_direction": "desc"},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/4320/grids",
+                    {"page_size": "50", "order_by": "title", "order_direction": "desc"},
+                ),
+                Reply(json={"results": [{"id": "g-4320", "title": "Zones"}]}),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.create",
+        args=({"slug": "eng/quiet", "title": "Quiet page", "content": "# Quiet"},),
+        kwargs={"fields": "content", "is_silent": True},
+        cli=[
+            "wiki",
+            "pages",
+            "create",
+            "--slug",
+            "eng/quiet",
+            "--title",
+            "Quiet page",
+            "--content",
+            "# Quiet",
+            "--fields",
+            "content",
+            "--silent",
+        ],
+        mcp=(
+            "wiki_pages_create",
+            {
+                "slug": "eng/quiet",
+                "title": "Quiet page",
+                "content": "# Quiet",
+                "fields": "content",
+                "is_silent": True,
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "pages",
+                    {"fields": "content", "is_silent": "true"},
+                    json={"slug": "eng/quiet", "title": "Quiet page", "content": "# Quiet"},
+                ),
+                Reply(json=_page(4405, "eng/quiet", content="# Quiet")),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.update",
+        args=(4406, {"content": "# Merged"}),
+        kwargs={"fields": "content", "is_silent": True, "allow_merge": True},
+        cli=[
+            "wiki",
+            "pages",
+            "update",
+            "4406",
+            "--content",
+            "# Merged",
+            "--fields",
+            "content",
+            "--silent",
+            "--allow-merge",
+        ],
+        mcp=(
+            "wiki_pages_update",
+            {
+                "page_id": 4406,
+                "content": "# Merged",
+                "fields": "content",
+                "is_silent": True,
+                "allow_merge": True,
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "pages/4406",
+                    {"fields": "content", "is_silent": "true", "allow_merge": "true"},
+                    json={"content": "# Merged"},
+                ),
+                Reply(json=_page(4406, "eng/merged", content="# Merged")),
+            )
+        ],
+        effect="idempotent_write",
+    ),
+    Case(
+        "wiki.pages.delete",
+        args=(4502,),
+        kwargs={"recursive": True},
+        cli=["wiki", "pages", "delete", "4502", "--recursive"],
+        mcp=("wiki_pages_delete", {"page_id": 4502, "recursive": True}),
+        exchanges=[
+            (
+                Sent("DELETE", "pages/4502", {"recursive": "true"}),
+                Reply(json={"recovery_token": "recovery-token-3"}),
+            )
+        ],
+    ),
+    Case(
+        "wiki.pages.append_content",
+        args=(4606, {"content": "## Quiet note", "body": {"location": "bottom"}}),
+        kwargs={"fields": "content", "is_silent": True},
+        cli=[
+            "wiki",
+            "pages",
+            "append",
+            "4606",
+            "--content",
+            "## Quiet note",
+            "--fields",
+            "content",
+            "--silent",
+        ],
+        mcp=(
+            "wiki_pages_append",
+            {
+                "page_id": 4606,
+                "body": {"content": "## Quiet note", "body": {"location": "bottom"}},
+                "fields": "content",
+                "is_silent": True,
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "POST",
+                    "pages/4606/append-content",
+                    {"fields": "content", "is_silent": "true"},
+                    json={"content": "## Quiet note", "body": {"location": "bottom"}},
+                ),
+                Reply(json=_page(4606, "eng/quiet-notes", content="# Notes\n## Quiet note")),
+            )
+        ],
+    ),
 ]

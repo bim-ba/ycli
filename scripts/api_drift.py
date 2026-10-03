@@ -71,6 +71,17 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
     ("tracker", "GET", "/users"): "`users list` reads the paginated `GET /users/_relative`",
 }
 
+# A difference that stays, with its reason: one name of one kind (``GAP_KINDS``), either on one
+# published operation or wherever it occurs in a service. Both are checked in both directions:
+# an unexplained difference fails, and so does an entry that matches no difference. A path is
+# written as the snapshot keys it, with ``{}`` for each parameter (``/pages/{}/comments``).
+EXPLAINED: dict[tuple[str, str, str, str, str], str] = {}  # service, method, path, kind, name
+EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {}  # service, kind, name
+
+# The services whose every difference is fixed or explained. The others join as their gaps
+# close (#196); when all three are here the constant goes and the check covers every service.
+CLOSED = frozenset({"wiki"})
+
 
 @dataclass(frozen=True)
 class Call:
@@ -185,7 +196,9 @@ def _hints(function: Callable[..., Any]) -> dict[str, Any]:
     """The annotations of ``function`` as types, ``Any`` where one cannot be resolved.
 
     The modules keep their annotations as strings, and some name an import made only for type
-    checking (``Sequence``), which does not exist at run time.
+    checking (``Sequence``), which does not exist at run time. That is why each annotation is
+    resolved on its own: ``inspect.get_annotations(eval_str=True)`` fails for the whole function
+    on the first such name.
     """
     function = getattr(function, "__func__", function)
     namespace = {**vars(builtins), **vars(inspect.getmodule(function))}
@@ -210,7 +223,7 @@ def _template(case: Case, operation: Callable[..., Any], path: str) -> str:
         owners = names.get(part, [])
         if len(owners) > 1:
             # docs/conventions/testing.md: every parameter of a case has its own value.
-            raise SystemExit(f"api_drift: {case.id}: {owners} share the value {part!r}")
+            raise ValueError(f"{case.id}: {owners} share the value {part!r}")
         parts.append(f"{{{owners[0]}}}" if owners else part)
     return "/" + "/".join(parts)
 
@@ -406,6 +419,44 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
     )
 
 
+def differences(drift: Drift) -> list[tuple[str, str, str, str, str]]:
+    """Every difference of ``drift`` as ``(service, method, path, kind, name)``."""
+    return [
+        (drift.service, *gap.published.key, kind, name)
+        for gap in drift.gaps
+        for kind in GAP_KINDS
+        for name in getattr(gap, kind)
+    ]
+
+
+def unexplained(
+    found: list[Drift],
+    explained: Mapping[tuple[str, str, str, str, str], str],
+    everywhere: Mapping[tuple[str, str, str], str],
+) -> tuple[list[str], list[str]]:
+    """The differences with no reason, and the reasons that match no difference.
+
+    Args:
+        found: The drift of each service to check.
+        explained: Reasons per operation (``EXPLAINED``).
+        everywhere: Reasons per name across a service (``EXPLAINED_EVERYWHERE``).
+
+    Returns:
+        Two lists of lines: differences nothing explains, and entries that explain nothing.
+    """
+    present = [difference for drift in found for difference in differences(drift)]
+    services = {drift.service for drift in found}
+    bare = [
+        " ".join(difference)
+        for difference in present
+        if difference not in explained and (difference[0], *difference[3:]) not in everywhere
+    ]
+    anywhere = {(service, kind, name) for service, _, _, kind, name in present}
+    stale = [" ".join(key) for key in explained if key[0] in services and key not in present]
+    stale += [" ".join(key) for key in everywhere if key[0] in services and key not in anywhere]
+    return bare, stale
+
+
 def _unique(found: list[Call]) -> list[Call]:
     """One call per operation and path template, in a stable order."""
     seen = {(call.operation, call.method, call.template or call.path): call for call in found}
@@ -492,7 +543,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if not (args.live or args.refresh):
-        print(gaps_text(drifts()))
+        try:
+            print(gaps_text(drifts()))
+        except ValueError as error:
+            raise SystemExit(f"api_drift: {error}") from error
         return 0
     report = []
     for service in api_surface.SERVICES:

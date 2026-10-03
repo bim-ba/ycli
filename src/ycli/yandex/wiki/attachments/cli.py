@@ -27,13 +27,24 @@ def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     limit: LimitOption = 0,
     all_: AllOption = False,
+    order_by: Annotated[
+        str, typer.Option("--order-by", help="Sort field: name, size or created_at.")
+    ] = "",
+    order_direction: Annotated[
+        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
+    ] = "",
     *,
     config: AppConfig,
     wiki: WikiClient,
 ) -> ItemList[Attachment]:
     """List attachments on a page id (GET /pages/{id}/attachments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.attachments.list(page_id=page_id, limit=cap)
+    return wiki.attachments.list(
+        page_id=page_id,
+        limit=cap,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+    )
 
 
 @app.command()

@@ -287,13 +287,13 @@ wiki attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes
 wiki attachments download: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments download-by-url: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --yes:BOOLEAN=False URL:TEXT!
 wiki attachments get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
-wiki attachments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki attachments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --order-direction:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki attachments preview: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments upload: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False FILE_PATH:TEXT! PAGE_ID:INTEGER!
 wiki auth status: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
 wiki comments create: --body:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --inline-text:TEXT='' --jq:TEXT --parent-id:INTEGER=0 --thread-id:INTEGER=0 --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki comments delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
-wiki comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --order-direction:TEXT='' --status:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki comments thread-get: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
 wiki comments thread-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False COMMENT_ID:INTEGER! PAGE_ID:INTEGER!
 wiki grids cells update: --cells:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --revision:TEXT! --yes:BOOLEAN=False GRID_ID:TEXT!
@@ -315,21 +315,21 @@ wiki me get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=Fal
 wiki operations clone-get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False TASK_ID:TEXT!
 wiki operations gridclone-get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False TASK_ID:TEXT!
 wiki operations move-get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False TASK_ID:TEXT!
-wiki pages append: --content:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --location:TEXT='bottom' --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages append: --content:TEXT! --dry-run:BOOLEAN=False --fields:TEXT='' --format:CHOICE --jq:TEXT --location:TEXT='bottom' --silent:BOOLEAN=False --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki pages backlinks-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --for-cluster:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --show-all:BOOLEAN=False --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki pages clone: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --subscribe-me:BOOLEAN=False --target:TEXT! --title:TEXT='' --wait:BOOLEAN=True --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki pages create: --content:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --slug:TEXT! --title:TEXT! --yes:BOOLEAN=False
-wiki pages delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki pages descendants: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False SLUG:TEXT!
-wiki pages descendants-by-id: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki pages get: --dry-run:BOOLEAN=False --fields:TEXT='content' --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SLUG:TEXT!
-wiki pages get-by-id: --dry-run:BOOLEAN=False --fields:TEXT='content' --format:CHOICE --jq:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki pages grids-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages create: --content:TEXT! --dry-run:BOOLEAN=False --fields:TEXT='' --format:CHOICE --jq:TEXT --silent:BOOLEAN=False --slug:TEXT! --title:TEXT! --yes:BOOLEAN=False
+wiki pages delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --recursive:BOOLEAN=False --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages descendants: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --include-self:BOOLEAN=False --jq:TEXT --limit:INTEGER RANGE=0 --show-all:BOOLEAN=False --yes:BOOLEAN=False SLUG:TEXT!
+wiki pages descendants-by-id: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --include-self:BOOLEAN=False --jq:TEXT --limit:INTEGER RANGE=0 --show-all:BOOLEAN=False --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages get: --dry-run:BOOLEAN=False --fields:TEXT='content' --format:CHOICE --jq:TEXT --raise-on-redirect:BOOLEAN=False --revision-id:INTEGER --yes:BOOLEAN=False SLUG:TEXT!
+wiki pages get-by-id: --dry-run:BOOLEAN=False --fields:TEXT='content' --format:CHOICE --jq:TEXT --raise-on-redirect:BOOLEAN=False --revision-id:INTEGER --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages grids-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --order-direction:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki pages move: --copy-inherited-access:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --next-to:TEXT='' --position:TEXT='' --validate-only:BOOLEAN=False --wait:BOOLEAN=True --yes:BOOLEAN=False SOURCE:TEXT! TARGET:TEXT!
 wiki pages revisions-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --ids:TEXT='' --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki pages update: --content:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --title:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki pages update: --allow-merge:BOOLEAN=False --content:TEXT! --dry-run:BOOLEAN=False --fields:TEXT='' --format:CHOICE --jq:TEXT --silent:BOOLEAN=False --title:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki recovery restore: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False TOKEN:TEXT!
-wiki resources list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --q:TEXT='' --types:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki resources list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --order-by:TEXT='' --order-direction:TEXT='' --q:TEXT='' --types:TEXT='' --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --dry-run:BOOLEAN=False --format:CHOICE --highlight:BOOLEAN=False --jq:TEXT --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:CHOICE='relevancy' --show-obsolete:BOOLEAN=False --type:CHOICE --yes:BOOLEAN=False TEXT:TEXT!
 wiki uploadsessions abort: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SESSION_ID:TEXT!
 wiki uploadsessions abort-all: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False

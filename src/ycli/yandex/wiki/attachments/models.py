@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.wiki.models import User
 
 
 class Attachment(APIModel):
@@ -58,11 +59,15 @@ class AttachedFile(APIModel):
 
     id: int | None = Field(default=None, description="Numeric id of the new attachment.")
     name: str | None = Field(default=None, description="File name of the attachment.")
+    is_downloadable: bool | None = Field(
+        default=None, description="Whether the file's bytes can be downloaded."
+    )
     download_url: str | None = Field(
         default=None, description="URL from which the attachment's bytes can be downloaded."
     )
     size: str | None = Field(default=None, description="Human-readable size of the attachment.")
     description: str | None = Field(default=None, description="Optional description of the file.")
+    user: User | None = Field(default=None, description="Who attached the file.")
     mimetype: str | None = Field(default=None, description="MIME type of the attachment.")
     has_preview: bool | None = Field(
         default=None, description="Whether the attachment has a rendered preview."

@@ -27,13 +27,26 @@ def list_(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     limit: LimitOption = 0,
     all_: AllOption = False,
+    order_by: Annotated[str, typer.Option("--order-by", help="Sort field: created_at.")] = "",
+    order_direction: Annotated[
+        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
+    ] = "",
+    status: Annotated[
+        str, typer.Option("--status", help="Only resolved or only unresolved comments.")
+    ] = "",
     *,
     config: AppConfig,
     wiki: WikiClient,
 ) -> ItemList[Comment]:
     """List comments on a page id (GET /pages/{id}/comments; auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.comments.list(page_id=page_id, limit=cap)
+    return wiki.comments.list(
+        page_id=page_id,
+        limit=cap,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+        status_filter=status or None,
+    )
 
 
 @app.command()

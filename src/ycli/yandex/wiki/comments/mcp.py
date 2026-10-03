@@ -34,6 +34,13 @@ mcp = FastMCP("wiki-comments")
 def list_(
     page_id: PageId,
     limit: Annotated[int, Field(description=f"Max comments to return; {LIMIT_CAP}")] = 0,
+    order_by: Annotated[str, Field(description="Sort field: ``created_at``.")] = "",
+    order_direction: Annotated[
+        str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    ] = "",
+    status_filter: Annotated[
+        str, Field(description="Keep only ``resolved`` or only ``unresolved`` comments.")
+    ] = "",
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Comment]:
@@ -43,7 +50,13 @@ def list_(
     ``pages_meta`` (its ``attributes.comments_count`` tells you how many exist).
     """
     cap = config.http.cap(limit)
-    return client.comments.list(page_id=page_id, limit=cap)
+    return client.comments.list(
+        page_id=page_id,
+        limit=cap,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+        status_filter=status_filter or None,
+    )
 
 
 @mcp.tool(

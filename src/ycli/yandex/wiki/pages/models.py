@@ -25,11 +25,142 @@ class PageAttributes(APIModel):
     is_draft: bool | None = None
 
 
+class PageRef(APIModel):
+    """A lightweight ``{id, slug}`` reference (``/pages/descendants`` item).
+
+    Examples:
+        >>> PageRef.model_validate({"id": 1, "slug": "data/a"}).slug
+        'data/a'
+    """
+
+    id: int
+    slug: str
+
+
+class PageSummary(PageRef):
+    """A page named inside another page's reply: its reference, title and kind.
+
+    Examples:
+        >>> PageSummary.model_validate({"id": 1, "slug": "data/a", "title": "A"}).title
+        'A'
+    """
+
+    title: str | None = Field(default=None, description="Title of the page.")
+    page_type: str | None = Field(
+        default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
+    )
+
+
+class Breadcrumb(APIModel):
+    """One step of the path from the root to a page (``breadcrumbs`` item).
+
+    Examples:
+        >>> Breadcrumb.model_validate({"title": "Team", "slug": "team", "page_exists": True}).slug
+        'team'
+    """
+
+    id: int | None = Field(default=None, description="Numeric id of the page at this step.")
+    title: str | None = Field(default=None, description="Title of the page at this step.")
+    slug: str | None = Field(default=None, description="Slug of the page at this step.")
+    page_exists: bool | None = Field(
+        default=None, description="Whether a page exists at this slug (a gap in the tree if not)."
+    )
+
+
+class PageRedirect(APIModel):
+    """Where a page redirects to (``fields=redirect``).
+
+    Examples:
+        >>> PageRedirect.model_validate({"page_id": 9}).page_id
+        9
+    """
+
+    page_id: int | None = Field(default=None, description="Id of the page this one redirects to.")
+    redirect_target: PageSummary | None = Field(
+        default=None, description="The page at the end of the redirect chain."
+    )
+
+
+class PageActuality(APIModel):
+    """Whether a page is marked up to date or obsolete (``fields=actuality``).
+
+    Examples:
+        >>> PageActuality.model_validate({"status": "obsolete", "comment": "moved"}).status
+        'obsolete'
+    """
+
+    status: Literal["possibly_obsolete", "unspecified", "actual", "obsolete"] | None = Field(
+        default=None,
+        description="``actual``, ``obsolete``, ``possibly_obsolete``, ``unspecified``.",
+    )
+    marked_at: str | None = Field(default=None, description="ISO-8601 time the mark was set.")
+    user: User | None = Field(default=None, description="Who set the mark.")
+    comment: str | None = Field(default=None, description="Note left with the mark.")
+    external_links: list[str] | None = Field(
+        default=None, description="Links to the up-to-date material outside the wiki."
+    )
+    actual_pages: list[PageSummary] | None = Field(
+        default=None, description="Wiki pages that replace an obsolete one."
+    )
+
+
+class RevisionDraft(APIModel):
+    """The draft a revision was published from (``revision_draft`` of a revision).
+
+    Examples:
+        >>> RevisionDraft.model_validate({"id": 3, "modified_at": "2026-10-03T10:00:00Z"}).id
+        3
+    """
+
+    id: int | None = Field(default=None, description="Draft id.")
+    created_at: str | None = Field(default=None, description="ISO-8601 time the draft was made.")
+    modified_at: str | None = Field(default=None, description="ISO-8601 time of its last edit.")
+
+
+class RevisionPublication(APIModel):
+    """Publication state of a revision (``publication`` of a revision).
+
+    Examples:
+        >>> RevisionPublication(status="published").status
+        'published'
+    """
+
+    status: Literal["pending_publication", "published"] | None = Field(
+        default=None, description="``pending_publication`` or ``published``."
+    )
+
+
+class PageRevision(APIModel):
+    """One saved revision of a page (``/pages/{id}/revisions`` item).
+
+    Examples:
+        >>> PageRevision.model_validate(
+        ...     {"id": 7, "author": {"username": "ivan"}, "page_type": "page"}
+        ... ).author.username
+        'ivan'
+    """
+
+    id: int = Field(description="Revision id (the ``revision_id`` of ``GET /pages``).")
+    author: User | None = Field(default=None, description="Who saved the revision.")
+    created_at: str | None = Field(default=None, description="ISO-8601 time it was saved.")
+    page_type: str | None = Field(
+        default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
+    )
+    revision_draft: RevisionDraft | None = Field(
+        default=None, description="Draft the revision was published from, if any."
+    )
+    publication: RevisionPublication | None = Field(
+        default=None, description="Whether the revision is published yet."
+    )
+
+
 class PageDetails(APIModel):
     """A single wiki page (``GET /pages?slug=``) — id, slug, title, optional content.
 
-    ``content``, ``attributes``, ``owner``, ``access_policy`` and ``access_lists`` come back only
-    when named in ``fields``. ``owner_username`` walks ``owner.user.username`` defensively.
+    ``content``, ``attributes``, ``owner``, ``access_policy``, ``access_lists``, ``breadcrumbs``,
+    ``redirect`` and ``actuality`` come back only when named in ``fields``; ``active_revision``
+    only when the page was asked for at a past revision. ``owner_username`` walks
+    ``owner.user.username`` defensively.
 
     Examples:
         >>> PageDetails.model_validate(
@@ -52,23 +183,25 @@ class PageDetails(APIModel):
         default=None,
         description="Personal accesses: direct, by link, inherited (``fields=access_lists``).",
     )
+    breadcrumbs: list[Breadcrumb] | None = Field(
+        default=None, description="Path from the root to the page (``fields=breadcrumbs``)."
+    )
+    redirect: PageRedirect | None = Field(
+        default=None,
+        description="Where the page redirects to (``fields=redirect``); ``null`` if nowhere.",
+    )
+    actuality: PageActuality | None = Field(
+        default=None, description="Up-to-date or obsolete mark (``fields=actuality``)."
+    )
+    active_revision: PageRevision | None = Field(
+        default=None,
+        description="The past revision shown, when the page was asked for with ``revision_id``.",
+    )
 
     @property
     def owner_username(self) -> str | None:
         """The owner's username, or ``None`` when the page has no owner or the owner no user."""
         return self.owner.user.username if self.owner and self.owner.user else None
-
-
-class PageRef(APIModel):
-    """A lightweight ``{id, slug}`` reference (``/pages/descendants`` item).
-
-    Examples:
-        >>> PageRef.model_validate({"id": 1, "slug": "data/a"}).slug
-        'data/a'
-    """
-
-    id: int
-    slug: str
 
 
 class GridRef(APIModel):
@@ -239,54 +372,4 @@ class PageMove(APIModel):
         description="Copy the accesses a page inherited from its old parent when it moves. The "
         "API refuses a move that leaves this unset (400 INHERITANCE_BEHAVIOR_IS_NOT_SPECIFIED), "
         "so it is always sent, ``false`` by default.",
-    )
-
-
-class RevisionDraft(APIModel):
-    """The draft a revision was published from (``revision_draft`` of a revision).
-
-    Examples:
-        >>> RevisionDraft.model_validate({"id": 3, "modified_at": "2026-10-03T10:00:00Z"}).id
-        3
-    """
-
-    id: int | None = Field(default=None, description="Draft id.")
-    created_at: str | None = Field(default=None, description="ISO-8601 time the draft was made.")
-    modified_at: str | None = Field(default=None, description="ISO-8601 time of its last edit.")
-
-
-class RevisionPublication(APIModel):
-    """Publication state of a revision (``publication`` of a revision).
-
-    Examples:
-        >>> RevisionPublication(status="published").status
-        'published'
-    """
-
-    status: Literal["pending_publication", "published"] | None = Field(
-        default=None, description="``pending_publication`` or ``published``."
-    )
-
-
-class PageRevision(APIModel):
-    """One saved revision of a page (``/pages/{id}/revisions`` item).
-
-    Examples:
-        >>> PageRevision.model_validate(
-        ...     {"id": 7, "author": {"username": "ivan"}, "page_type": "page"}
-        ... ).author.username
-        'ivan'
-    """
-
-    id: int = Field(description="Revision id (the ``revision_id`` of ``GET /pages``).")
-    author: User | None = Field(default=None, description="Who saved the revision.")
-    created_at: str | None = Field(default=None, description="ISO-8601 time it was saved.")
-    page_type: str | None = Field(
-        default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
-    )
-    revision_draft: RevisionDraft | None = Field(
-        default=None, description="Draft the revision was published from, if any."
-    )
-    publication: RevisionPublication | None = Field(
-        default=None, description="Whether the revision is published yet."
     )

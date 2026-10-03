@@ -71,4 +71,35 @@ CASES = [
             )
         ],
     ),
+    Case(
+        "wiki.resources.list",
+        args=(5405,),
+        kwargs={"limit": 18, "order_by": "created_at", "order_direction": "desc"},
+        cli=[
+            "wiki",
+            "resources",
+            "list",
+            "5405",
+            "--limit",
+            "18",
+            "--order-by",
+            "created_at",
+            "--order-direction",
+            "desc",
+        ],
+        mcp=(
+            "wiki_resources_list",
+            {"page_id": 5405, "limit": 18, "order_by": "created_at", "order_direction": "desc"},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/5405/resources",
+                    {"page_size": "100", "order_by": "created_at", "order_direction": "desc"},
+                ),
+                Reply(json={"results": [GRID, ATTACHMENT], "next_cursor": None}),
+            )
+        ],
+    ),
 ]

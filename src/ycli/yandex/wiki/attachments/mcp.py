@@ -33,6 +33,12 @@ mcp = FastMCP("wiki-attachments")
 def list_(
     page_id: PageId,
     limit: Annotated[int, Field(description=f"Max attachments to return; {LIMIT_CAP}")] = 0,
+    order_by: Annotated[
+        str, Field(description="Sort field: ``name``, ``size`` or ``created_at``.")
+    ] = "",
+    order_direction: Annotated[
+        str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    ] = "",
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Attachment]:
@@ -42,7 +48,12 @@ def list_(
     downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP payload).
     """
     cap = config.http.cap(limit)
-    return client.attachments.list(page_id=page_id, limit=cap)
+    return client.attachments.list(
+        page_id=page_id,
+        limit=cap,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+    )
 
 
 @mcp.tool(

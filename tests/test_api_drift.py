@@ -334,6 +334,61 @@ def test_every_published_operation_is_wrapped_or_excluded_on_purpose():
     )
 
 
+def test_a_closed_service_has_no_unexplained_difference_and_no_stale_reason():
+    """A difference with the published API is fixed or carries its reason (#196).
+
+    A refreshed snapshot that gains a parameter or a field fails here until ycli sends or reads
+    it, or the difference is listed in ``EXPLAINED`` / ``EXPLAINED_EVERYWHERE``; a listed
+    difference that is gone fails as well.
+    """
+    closed = [drift for drift in api_drift.drifts() if drift.service in api_drift.CLOSED]
+    assert {drift.service for drift in closed} == api_drift.CLOSED
+    bare, stale = api_drift.unexplained(closed, api_drift.EXPLAINED, api_drift.EXPLAINED_EVERYWHERE)
+    assert not bare, "differs from the published API with no reason:\n" + "\n".join(bare)
+    assert not stale, "explains a difference that is gone:\n" + "\n".join(stale)
+
+
+def test_the_explained_check_bites_in_both_directions():
+    """A field added to a snapshot is reported until explained; a spare reason is reported too."""
+    sent = [_call("wiki.pages.get", "GET", "/pages/7", query=("fields",), response=("id",))]
+    agreed = [Operation("GET", "/pages/{idx}", query=("fields",), response=("id",))]
+    assert api_drift.unexplained([compare("wiki", agreed, sent)], {}, {}) == ([], [])
+
+    grown = [Operation("GET", "/pages/{idx}", query=("fields", "depth"), response=("id", "tags"))]
+    drift = compare("wiki", grown, sent)
+    assert api_drift.unexplained([drift], {}, {}) == (
+        [
+            "wiki GET /pages/{} missing_query depth",
+            "wiki GET /pages/{} dropped_response tags",
+        ],
+        [],
+    )
+    per_operation = {("wiki", "GET", "/pages/{}", "missing_query", "depth"): "paging only"}
+    per_name = {("wiki", "dropped_response", "tags"): "always empty"}
+    assert api_drift.unexplained([drift], per_operation, per_name) == ([], [])
+
+    spare = {
+        **per_operation,
+        ("wiki", "GET", "/pages/{}", "missing_query", "gone"): "was removed",
+        ("forms", "GET", "/surveys", "missing_query", "x"): "another service is not judged",
+    }
+    assert api_drift.unexplained(
+        [drift], spare, {**per_name, ("wiki", "unknown_query", "y"): ""}
+    ) == (
+        [],
+        ["wiki GET /pages/{} missing_query gone", "wiki unknown_query y"],
+    )
+
+
+def test_two_arguments_sharing_a_value_stop_the_report(monkeypatch):
+    def clash() -> list[api_drift.Drift]:
+        raise ValueError("wiki.x: ['a', 'b'] share the value '7'")
+
+    monkeypatch.setattr(api_drift, "drifts", clash)
+    with pytest.raises(SystemExit, match=r"api_drift: wiki\.x"):
+        api_drift.main([])
+
+
 def test_changes_lists_added_removed_and_altered_operations():
     old = [Operation("GET", "/a", query=("x",), response=("id",)), Operation("GET", "/gone")]
     new = [Operation("GET", "/a", query=("y",), response=("id", "name")), Operation("POST", "/a")]

@@ -23,6 +23,12 @@ def list_(
     types: Annotated[
         str, Field(description="Comma-separated kinds to include: ``attachment,grid``.")
     ] = "",
+    order_by: Annotated[
+        str, Field(description="Sort field: ``name_title`` or ``created_at``.")
+    ] = "",
+    order_direction: Annotated[
+        str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    ] = "",
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[ResourceItem]:
@@ -33,4 +39,11 @@ def list_(
     unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,grid``).
     """
     cap = config.http.cap(limit)
-    return client.resources.list(page_id=page_id, limit=cap, q=q or None, types=types or None)
+    return client.resources.list(
+        page_id=page_id,
+        limit=cap,
+        q=q or None,
+        types=types or None,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+    )

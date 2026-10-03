@@ -153,6 +153,8 @@ $ ycli wiki pages get [OPTIONS] SLUG
 **Options**:
 
 * `--fields TEXT`: Comma-separated fields, e.g. content,attributes.  [default: content]
+* `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
+* `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -177,6 +179,8 @@ $ ycli wiki pages descendants [OPTIONS] SLUG
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--include-self`: Also list the ancestor page itself.
+* `--show-all`: The API's show_all flag.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -200,6 +204,8 @@ $ ycli wiki pages get-by-id [OPTIONS] PAGE_ID
 **Options**:
 
 * `--fields TEXT`: Comma-separated fields, e.g. content,attributes.  [default: content]
+* `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
+* `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -224,6 +230,8 @@ $ ycli wiki pages descendants-by-id [OPTIONS] PAGE_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--include-self`: Also list the ancestor page itself.
+* `--show-all`: The API's show_all flag.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -249,6 +257,7 @@ $ ycli wiki pages grids-list [OPTIONS] PAGE_ID
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
 * `--order-by TEXT`: Sort field: title or created_at.
+* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -270,6 +279,8 @@ $ ycli wiki pages create [OPTIONS]
 * `--slug TEXT`: Target slug, e.g. data/x.  [required]
 * `--title TEXT`: Page title.  [required]
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
+* `--fields TEXT`: Comma-separated blocks to include in the reply.
+* `--silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -294,6 +305,9 @@ $ ycli wiki pages update [OPTIONS] PAGE_ID
 
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
 * `--title TEXT`: New title (optional).
+* `--fields TEXT`: Comma-separated blocks to include in the reply.
+* `--silent`: Do not notify the page's subscribers.
+* `--allow-merge`: Merge with a concurrent edit instead of failing.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -316,6 +330,7 @@ $ ycli wiki pages delete [OPTIONS] PAGE_ID
 
 **Options**:
 
+* `--recursive`: Also delete every page under it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -344,6 +359,8 @@ $ ycli wiki pages append [OPTIONS] PAGE_ID
 
 * `--content TEXT`: YFM fragment to append — pass "$(cat file.md)".  [required]
 * `--location TEXT`: Where in the body: top or bottom (default: bottom).  [default: bottom]
+* `--fields TEXT`: Comma-separated blocks to include in the reply.
+* `--silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -620,6 +637,9 @@ $ ycli wiki comments list [OPTIONS] PAGE_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--order-by TEXT`: Sort field: created_at.
+* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
+* `--status TEXT`: Only resolved or only unresolved comments.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -774,6 +794,8 @@ $ ycli wiki attachments list [OPTIONS] PAGE_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--order-by TEXT`: Sort field: name, size or created_at.
+* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -985,6 +1007,7 @@ $ ycli wiki resources list [OPTIONS] PAGE_ID
 * `--q TEXT`: Title search filter.
 * `--types TEXT`: Comma-separated kinds: attachment,grid.
 * `--order-by TEXT`: Sort field: name_title or created_at.
+* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`.
 * `-y, --yes`: Do not ask before an operation that deletes data.

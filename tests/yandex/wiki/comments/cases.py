@@ -143,4 +143,91 @@ CASES = [
         mcp=("wiki_comments_delete", {"page_id": 5506, "comment_id": 5516}),
         exchanges=[(Sent("DELETE", "pages/5506/comments/5516"), Reply(json={"comments_count": 4}))],
     ),
+    Case(
+        "wiki.comments.list",
+        args=(5506,),
+        kwargs={
+            "limit": 16,
+            "order_by": "created_at",
+            "order_direction": "desc",
+            "status_filter": "unresolved",
+        },
+        cli=[
+            "wiki",
+            "comments",
+            "list",
+            "5506",
+            "--limit",
+            "16",
+            "--order-by",
+            "created_at",
+            "--order-direction",
+            "desc",
+            "--status",
+            "unresolved",
+        ],
+        mcp=(
+            "wiki_comments_list",
+            {
+                "page_id": 5506,
+                "limit": 16,
+                "order_by": "created_at",
+                "order_direction": "desc",
+                "status_filter": "unresolved",
+            },
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/5506/comments",
+                    {
+                        "page_size": "100",
+                        "order_by": "created_at",
+                        "order_direction": "desc",
+                        "status_filter": "unresolved",
+                    },
+                ),
+                Reply(json={"results": [REPLY, ROOT], "next_cursor": None}),
+            )
+        ],
+    ),
+    Case(
+        "wiki.comments.create",
+        args=(5507, {"body": "Done"}),
+        cli=["wiki", "comments", "create", "5507", "--body", "Done"],
+        mcp=("wiki_comments_create", {"page_id": 5507, "body": {"body": "Done"}}),
+        exchanges=[
+            (
+                Sent("POST", "pages/5507/comments", json={"body": "Done"}),
+                Reply(
+                    json={
+                        "id": 5517,
+                        "body": "Done",
+                        "inline_text": None,
+                        "parent_id": None,
+                        "thread_id": None,
+                        "created_at": "2026-10-03T12:00:00Z",
+                        "author": {
+                            "id": 8104,
+                            "identity": {"uid": "9104", "cloud_uid": "cloud-9104"},
+                            "username": "vera",
+                            "display_name": "Vera",
+                            "is_dismissed": False,
+                            "affiliation": "",
+                        },
+                        "is_deleted": False,
+                        "resolve_status": "unresolved",
+                        "reactions": [
+                            {
+                                "type": "like",
+                                "author": {"id": 8105, "username": "ivan", "display_name": "Ivan"},
+                                "created_at": "2026-10-03T12:05:00Z",
+                            }
+                        ],
+                    }
+                ),
+            )
+        ],
+    ),
 ]
