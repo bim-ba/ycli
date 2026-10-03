@@ -20,7 +20,7 @@ from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.models import Check, DoctorReport
 from ycli.yandex.status.release_client import DISTRIBUTION, is_newer, latest_release
-from ycli.yandex.status.reporter import organization_status, probe_error
+from ycli.yandex.status.reporter import IAM_ORGANIZATION, organization_status, probe_error
 from ycli.yandex.status.token_client import TokenClient
 
 if TYPE_CHECKING:
@@ -30,6 +30,8 @@ if TYPE_CHECKING:
 
 SIGN_IN = "run `ycli auth login`"
 NO_CONNECTION = "no connection"
+NOT_CONFIGURED = "the credentials are not set"
+IAM_LIFETIME = "an IAM token lives up to 12 hours"
 # The extras a person may be missing: the module each one installs, and what it adds.
 EXTRAS = {"mcp": ("fastmcp", "the MCP server"), "jq": ("jq", "the `--jq` filter")}
 
@@ -73,6 +75,8 @@ def diagnose(
     sources: Mapping[str, str],
     proxies: Sequence[str],
     config: AppConfig,
+    *,
+    invalid: str = "",
 ) -> tuple[DoctorReport, ExitCode]:
     """Every check in order, and the exit status: 0 unless a check failed.
 
@@ -81,6 +85,7 @@ def diagnose(
         sources: Where each credential variable is set (``settings.credential_sources``).
         proxies: The names of the proxy variables that are set.
         config: The HTTP settings.
+        invalid: Why the credentials that are set cannot be used (two tokens at once).
 
     Returns:
         The report and the exit status of its first failed check.
@@ -88,8 +93,11 @@ def diagnose(
     diagnosis = _Diagnosis()
     where = "; ".join(f"{name}: {source}" for name, source in sources.items())
     if credentials is None:
-        diagnosis.failed("credentials", where, SIGN_IN, ExitCode.AUTH)
-        diagnosis.blocked = "the credentials are not set"
+        if invalid:
+            diagnosis.failed("credentials", where, invalid, ExitCode.USAGE)
+        else:
+            diagnosis.failed("credentials", where, SIGN_IN, ExitCode.AUTH)
+        diagnosis.blocked = "the credentials cannot be used" if invalid else NOT_CONFIGURED
         diagnosis.skipped("token")
         diagnosis.skipped("organization")
     else:
@@ -131,6 +139,11 @@ def _check_owner(
     diagnosis: _Diagnosis, credentials: Credentials, proxies: Sequence[str], config: AppConfig
 ) -> None:
     """Whether Yandex ID accepts the token, then whether the organization is one it can see."""
+    if credentials.oauth_token is None:
+        # Yandex ID and API 360 take an OAuth token only; the service probes test an IAM token.
+        diagnosis.passed("token", "an IAM token (it lives up to 12 hours)")
+        diagnosis.passed("organization", f"{credentials.organization_id}, {IAM_ORGANIZATION}")
+        return
     token = credentials.oauth_token.get_secret_value()
     with TokenClient(oauth_token=token, http=config.http) as token_client:
         try:
@@ -178,12 +191,13 @@ def _check_service(
     elif isinstance(error, YandexConnectionError):
         diagnosis.unreachable(check, error, proxies)
     elif isinstance(error, YandexAuthError):
-        diagnosis.failed(
-            check,
-            "rejects the token",
-            f"give your OAuth app the {name} permissions and sign in again, or ask an "
-            f"administrator to enable {name} for the organization",
-            ExitCode.AUTH,
+        fix = (
+            f"{IAM_LIFETIME}: issue a new one (`yc iam create-token`), or check that the "
+            f"account may use {name}"
+            if credentials.kind == "iam"
+            else f"give your OAuth app the {name} permissions and sign in again, or ask an "
+            f"administrator to enable {name} for the organization"
         )
+        diagnosis.failed(check, "rejects the token", fix, ExitCode.AUTH)
     else:
         diagnosis.failed(check, str(error), "run `ycli doctor` again later", exit_code_for(error))

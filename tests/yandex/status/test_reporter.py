@@ -54,7 +54,8 @@ def test_the_report_names_the_owner_the_organization_and_every_service(api):
 
 def test_the_report_dumps_with_the_agreed_shape(api):
     dumped = json.loads(_report(api).model_dump_json())
-    assert set(dumped) == {"configured", "identity", "organization", "services"}
+    assert set(dumped) == {"configured", "credential", "identity", "organization", "services"}
+    assert dumped["credential"] == "oauth"
     assert dumped["organization"] == {"id": "42", "name": "Acme", "detail": ""}
     assert dumped["services"][0] == {"service": "tracker", "valid": True, "detail": ""}
 
@@ -102,3 +103,17 @@ def test_one_failing_service_does_not_hide_the_others(api, service, status, deta
     assert by_name[service].valid is False
     assert detail in by_name[service].detail
     assert all(s.valid for name, s in by_name.items() if name != service)
+
+
+def test_an_iam_token_is_reported_without_asking_yandex_id_or_api_360(api):
+    for name in ("tracker", "wiki", "forms"):
+        api.add("GET", _ANSWERS[name][0], **_ANSWERS[name][1])
+    credentials = Credentials(oauth_token=None, iam_token=SecretStr("t1.x"), organization_id="42")
+    report = build_report(credentials, AppConfig())
+    assert (report.credential, report.identity) == ("iam", None)
+    assert report.organization is not None
+    assert (report.organization.id, report.organization.name) == ("42", None)
+    assert "OAuth token only" in report.organization.detail
+    assert all(service.valid for service in report.services)
+    assert {call.headers["Authorization"] for call in api.calls} == {"Bearer t1.x"}
+    assert not any(call.url.host in {"login.yandex.ru", "api360.yandex.net"} for call in api.calls)

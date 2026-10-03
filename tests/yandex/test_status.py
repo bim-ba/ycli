@@ -10,6 +10,8 @@ from pydantic import ValidationError
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
+from ycli.cli.errors import exit_code_for, format_cli_error
+from ycli.cli.exit_codes import ExitCode
 from ycli.settings import missing_credentials
 
 ID_URL = "https://login.yandex.ru/info"
@@ -62,6 +64,7 @@ def test_missing_env_reports_not_configured(monkeypatch, tmp_path):
     assert "YANDEX_ID_OAUTH_TOKEN" in res.stderr  # the variable is named on stderr
     assert json.loads(res.stdout) == {
         "configured": False,
+        "credential": None,
         "identity": None,
         "organization": None,
         "services": [],
@@ -143,3 +146,15 @@ def test_a_service_auth_status_without_credentials_names_the_missing_variables(
         "YANDEX_ID_OAUTH_TOKEN",
         "YANDEX_ID_ORGANIZATION_ID",
     ]
+
+
+def test_two_tokens_at_once_are_a_configuration_error_not_a_status(creds, monkeypatch):
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t1.secret")
+    res = runner.invoke(cli.app, ["--format", "json", "auth", "status"])
+    assert isinstance(res.exception, ValidationError)
+    message = format_cli_error(res.exception)
+    assert message == (
+        "Invalid configuration:\n"
+        "  YANDEX_ID_OAUTH_TOKEN and YANDEX_CLOUD_IAM_TOKEN are both set: keep one of them"
+    )
+    assert exit_code_for(res.exception) is ExitCode.USAGE

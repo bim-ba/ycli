@@ -45,6 +45,18 @@ ycli doctor                 # every check in order, with what to fix for each on
 `ycli doctor` also says where each credential is set (the environment or the `.env` file, never its value) which extras are installed and whether a newer release is out; add `-o json` for an agent. All three exit non-zero when a service rejects the token. The organization's name needs the optional
 `directory:read_organization` scope; without it you get the id and a note.
 
+## Use an IAM token
+
+An account that cannot get an OAuth token (a federated one, for example) can use a ready IAM token instead:
+
+```bash
+export YANDEX_CLOUD_IAM_TOKEN="$(yc iam create-token)"   # in place of YANDEX_ID_OAUTH_TOKEN
+export YANDEX_ID_ORGANIZATION_ID=...                      # the same organization id
+ycli doctor
+```
+
+It is sent as `Authorization: Bearer` and works for Tracker, Wiki and Forms. It lives up to 12 hours: when a call starts answering 401, issue a new one. Set one token, not both: with both, ycli stops with exit code 2 and names them. `ycli auth status` cannot name the owner or the organization for an IAM token (Yandex ID and API 360 take an OAuth token only); the service checks still run.
+
 ## Do it by hand
 
 Device flow:
