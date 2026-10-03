@@ -10,6 +10,7 @@ import typer
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.questions.models import (
+    FORCE_IGNORED,
     BooleanQuestion,
     DateQuestion,
     EnumQuestion,
@@ -28,7 +29,7 @@ from ycli.yandex.forms.typedefs import (
     QuestionIdArg,
     SurveyIdArg,
 )
-from ycli.yandex.models import Ack
+from ycli.yandex.models import IGNORED_BY_API, Ack
 
 app = typer.Typer(name="questions", help="Forms questions.", no_args_is_help=True)
 
@@ -173,9 +174,17 @@ def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> QuestionsResponse:
 
 
 @app.command()
-def get(survey_id: SurveyIdArg, question_id: QuestionIdArg, *, forms: FormsClient) -> Question:
+def get(
+    survey_id: SurveyIdArg,
+    question_id: QuestionIdArg,
+    with_slugs: Annotated[
+        bool, typer.Option("--with-slugs", help="Refer to other questions by slug, not id.")
+    ] = False,
+    *,
+    forms: FormsClient,
+) -> Question:
     """Print one question's settings (SURVEY_ID / QUESTION_ID)."""
-    return forms.questions.get(survey_id, question_id)
+    return forms.questions.get(survey_id, question_id, with_slugs=with_slugs)
 
 
 @app.command()
@@ -251,13 +260,11 @@ def update(
 def delete(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
-    force: Annotated[
-        bool, typer.Option("--force", help="Skip the condition-usage check before deleting.")
-    ] = False,
+    force: Annotated[bool, typer.Option("--force", help=IGNORED_BY_API + FORCE_IGNORED)] = False,
     *,
     forms: FormsClient,
 ) -> Ack:
-    """Delete a question (DELETE …/questions/{id}); --force skips the condition-usage check."""
+    """Delete a question (DELETE …/questions/{id}); one a condition refers to is refused."""
     return forms.questions.delete(survey_id, question_id, force=force)
 
 

@@ -45,6 +45,15 @@ A set Yandex adds to (a comment reaction, a page type) is a `str` with the value
 its description: an unknown value must not fail the whole reply. A set that is closed by its
 meaning (`resolved` / `unresolved`, `asc` / `desc`) is a `Literal`.
 
+### A field the API ignores
+
+A request field or parameter that the API accepts and does nothing with stays in ycli. Its
+description begins with `IGNORED_BY_API` (`ycli.yandex.models`), so the CLI help, the MCP
+input schema and the reference say so; its body model inherits `WarnsOnIgnored`, so setting
+it logs a warning (a reply carrying the same name is read silently); `scripts/api_drift.py`
+lists it in `EXPLAINED` with the `IGNORED` reason, and `tests/test_api_drift.py` fails when
+one of the two is missing.
+
 ---
 
 ## 2. Lists: `ItemList[X]` is flat, `XResponse` is the envelope

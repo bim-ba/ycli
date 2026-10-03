@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.core.endpoint import Endpoint, flag, segment
 from ycli.yandex.forms.files.models import FileOut
 from ycli.yandex.models import ItemList
 
@@ -26,7 +26,7 @@ def verify_files(survey_id: str, body: list[dict[str, Any]]) -> Endpoint[ItemLis
 
 
 def download_file(path: str, *, download: bool, file_hash: str | None) -> Endpoint[bytes]:
-    params = {"path": path, "download": "true" if download else None, "hash": file_hash}
+    params = {"path": path, "download": flag(download), "hash": file_hash}
     return Endpoint("GET", "files", bytes, params=params)
 
 

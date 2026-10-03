@@ -137,7 +137,8 @@ def test_parameters_take_the_type_of_the_sdk_argument_or_of_the_value_sent():
         p["name"]: p["schema"] for p in _operations("forms")[("GET", "/surveys")]["parameters"]
     }
     # The pager adds them to the request itself, so no value of theirs is seen: left untyped.
-    assert listing == {"limit": {}, "offset": {}}
+    assert (listing["limit"], listing["offset"]) == ({}, {})
+    assert listing["published"] == {"type": "boolean"}  # ``published: bool | None``
     comments = _operations("tracker")[("GET", "/issues/{key}/comments")]["parameters"]
     assert {"name": "perPage", "in": "query", "schema": {"type": "integer"}} in comments
 

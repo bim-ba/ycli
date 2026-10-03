@@ -12,9 +12,9 @@ from ycli.yandex.forms.access.models import (
     AccessUpdate,
     GroupIdentity,
     Permission,
-    UserIdentity,
 )
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.models import UserIdentity
 from ycli.yandex.forms.typedefs import SurveyIdArg
 from ycli.yandex.models import ItemList
 

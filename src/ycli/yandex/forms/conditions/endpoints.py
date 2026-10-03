@@ -16,8 +16,7 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.conditions.models import ConditionsResponse
-from ycli.yandex.forms.questions.models import Condition
+from ycli.yandex.forms.models import Condition, ConditionsResponse
 
 
 def question_target(survey_id: str, question_id: str) -> str:

@@ -7,11 +7,17 @@ import importlib
 import pkgutil
 from typing import Any, get_origin
 
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, Field, RootModel
 
 import ycli.yandex
 from tests.full_server import tools_with_output_schemas
-from ycli.yandex.models import APIModel, ItemList
+from ycli.yandex.models import (
+    IGNORED_BY_API,
+    APIModel,
+    ItemList,
+    WarnsOnIgnored,
+    ignored_fields,
+)
 
 # A pydantic model in ``ycli.yandex`` that is not an ``APIModel``, and why.
 MODEL_BASE_EXCEPTIONS = {
@@ -65,6 +71,30 @@ def test_every_model_inherits_apimodel():
     assert _wrong_base(models) == []
     stale = set(MODEL_BASE_EXCEPTIONS) - {_name(cls) for cls in models}
     assert not stale, f"an exception names a class that no longer exists: {stale}"
+
+
+def _marked_without_warning(models: list[type[BaseModel]]) -> list[str]:
+    """Models with a field marked ``IGNORED_BY_API`` that would not warn when it is set."""
+    return [
+        f"{model.__module__}.{model.__name__}"
+        for model in models
+        if ignored_fields(model) and not issubclass(model, WarnsOnIgnored)
+    ]
+
+
+def test_a_model_with_an_ignored_field_warns_when_it_is_set():
+    """A field the API ignores: only a ``WarnsOnIgnored`` body logs the warning."""
+    assert _marked_without_warning(_models()) == []
+
+    class Silent(APIModel):
+        draft: bool | None = Field(default=None, description=IGNORED_BY_API + "no effect.")
+
+    class Loud(WarnsOnIgnored):
+        draft: bool | None = Field(default=None, description=IGNORED_BY_API + "no effect.")
+
+    assert [name.rsplit(".", 1)[-1] for name in _marked_without_warning([Silent, Loud])] == [
+        "Silent"
+    ]
 
 
 def test_no_resource_defines_a_list_class_of_its_own():

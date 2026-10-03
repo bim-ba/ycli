@@ -9,7 +9,7 @@ forms answers delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BO
 forms answers export: --column:TEXT --dry-run:BOOLEAN=False --finished-at:TEXT='' --format:TEXT='xlsx' --jq:TEXT --limit:INTEGER=0 --output:TEXT --pk:INTEGER --started-at:TEXT='' --upload-files:BOOLEAN --upload:TEXT='default' --wait:BOOLEAN=True --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms answers get: --answer-id:INTEGER=0 --answer-key:TEXT='' --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
 forms answers integrations-list: --answer-id:INTEGER=0 --answer-key:TEXT='' --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
-forms answers list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False SURVEY_ID:TEXT!
+forms answers list: --all:BOOLEAN=False --answer-format:TEXT='' --date-from:TEXT='' --date-to:TEXT='' --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --ordering:TEXT='' --page-size:INTEGER --questions:TEXT='' --use-slugs:BOOLEAN=False --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms answers restore: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False ANSWER_ID:INTEGER! SURVEY_ID:TEXT!
 forms auth status: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False
 forms conditions hook create: --body-file:PATH --dry-run:BOOLEAN=False --format:CHOICE --item:TEXT --jq:TEXT --operator:TEXT='' --yes:BOOLEAN=False HOOK_ID:INTEGER! SURVEY_ID:TEXT!
@@ -67,7 +67,7 @@ forms notifications status-get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEX
 forms operations get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
 forms questions create: --body-file:PATH --comment:TEXT='' --dry-run:BOOLEAN=False --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms questions delete: --dry-run:BOOLEAN=False --force:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms questions get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms questions get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --with-slugs:BOOLEAN=False --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms questions move: --create-page:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --page-id:INTEGER=0 --page:INTEGER=0 --position:INTEGER=0 --question:TEXT='' --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions update: --body-file:PATH --comment:TEXT='' --dry-run:BOOLEAN=False --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT='' --multiline:BOOLEAN --option:TEXT --placeholder:TEXT='' --required:BOOLEAN --slug:TEXT='' --type:TEXT='' --widget:TEXT='' --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
@@ -80,7 +80,7 @@ forms subscriptions update: --body-file:PATH! --dry-run:BOOLEAN=False --format:C
 forms surveys create: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --jq:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT! --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN --yes:BOOLEAN=False
 forms surveys delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms surveys get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
-forms surveys list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE=0 --yes:BOOLEAN=False
+forms surveys list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --favourite:BOOLEAN --format:CHOICE --group:TEXT='' --jq:TEXT --limit:INTEGER RANGE=0 --name:TEXT='' --orderby:TEXT='' --ownership:TEXT='' --published:BOOLEAN --show-all:BOOLEAN=False --yes:BOOLEAN=False
 forms surveys publish: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms surveys unpublish: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms surveys update: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --jq:TEXT --language:TEXT='' --max-count:INTEGER=0 --name:TEXT='' --need-auth:BOOLEAN --public:BOOLEAN --published:BOOLEAN --yes:BOOLEAN=False SURVEY_ID:TEXT!

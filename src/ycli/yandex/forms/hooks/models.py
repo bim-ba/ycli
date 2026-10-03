@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.forms.conditions.models import ConditionsResponse
+from ycli.yandex.forms.models import ConditionsResponse
 from ycli.yandex.forms.subscriptions.models import Subscription
 from ycli.yandex.models import APIModel
 

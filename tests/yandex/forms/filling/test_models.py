@@ -1,6 +1,12 @@
 """TDD for Forms filling models (FillableForm / SubmitBody / SubmitResult / Suggestion)."""
 
-from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
+from ycli.yandex.forms.filling.models import (
+    FillableForm,
+    SubmitBody,
+    SubmitQuizResult,
+    SubmitResult,
+    Suggestion,
+)
 from ycli.yandex.models import ItemList
 
 
@@ -17,9 +23,22 @@ def test_submit_body_is_flexible_slug_map():
 
 def test_submit_result_typed_scalars():
     out = SubmitResult.model_validate(
-        {"id": "686d", "answer_id": 99, "scores": 1.5, "integrations": [{"id": 1, "type": "email"}]}
+        {
+            "id": "686d",
+            "answer_id": 99,
+            # As the API sends it: the numbers of a quiz result arrive as strings.
+            "quiz_result": {
+                "show_format": "score_with_total",
+                "scores": "1.5",
+                "total_scores": "2",
+            },
+            "integrations": [{"id": 1, "type": "email"}],
+        }
     )
-    assert out.answer_id == 99 and out.scores == 1.5
+    assert out.answer_id == 99
+    assert out.quiz_result == SubmitQuizResult(
+        show_format="score_with_total", scores=1.5, total_scores=2
+    )
     assert out.integrations[0]["type"] == "email"
 
 
