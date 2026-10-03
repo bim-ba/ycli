@@ -324,7 +324,7 @@ A failed `ycli` command exits with a code that says what kind of failure it was,
 
 `ycli` wraps **334 operations across 62 resources** of the Tracker, Wiki, and Forms REST API. Every one is reachable from the **Python SDK** and the **CLI**, and 322 **MCP** tools serve them to agents (321 per service plus `status_get`).
 
-> **Legend.** ✅ in **CLI** or **MCP** means the resource is reachable on that surface; MCP tools carry honest hints (reads are `readOnlyHint`, writes say whether they are destructive or idempotent), and `ycli mcp start --read-only` serves only the reads. Resource and operation names link to the official **Yandex API reference**. A ✅ says ycli wraps the operation, not that it matches what Yandex documents today: that comparison is [#82](https://github.com/bim-ba/ycli/issues/82). Generated from the code by [`scripts/gen_coverage.py`](scripts/gen_coverage.py); do not edit by hand.
+> **Legend.** ✅ in **CLI** or **MCP** means the resource is reachable on that surface; MCP tools carry honest hints (reads are `readOnlyHint`, writes say whether they are destructive or idempotent), and `ycli mcp start --read-only` serves only the reads. Resource and operation names link to the official **Yandex API reference**. A ✅ says ycli wraps the operation; where it differs from what Yandex publishes is listed under [Against the published API](#against-the-published-api). Generated from the code by [`scripts/gen_coverage.py`](scripts/gen_coverage.py); do not edit by hand.
 
 ### Tracker
 
@@ -495,6 +495,115 @@ A failed `ycli` command exits with a code that says what kind of failure it was,
 </details>
 
 Every resource and operation above deep-links to the Yandex API reference: 318 of 334 operations resolve to their own endpoint page and 15 to their resource's page. No public API reference exists yet for `tracker.linktypes`, `tracker.linktypes.list`, shown as plain text. See `CONTRIBUTING.md` for the intentional exclusions (UI-only endpoints with no public REST API) and per-method notes.
+
+### Against the published API
+
+What ycli sends, replayed from its contract tests, compared with what Yandex publishes: the Wiki and Forms OpenAPI documents and Tracker's API reference (prose, so only operations and the query parameters a page lists are compared). The published side is the snapshot in [`scripts/api_snapshot/`](scripts/api_snapshot); a [weekly job](.github/workflows/api-drift.yml) fetches it again and opens an issue when Yandex has changed it.
+
+| Service | Published | Wrapped | Not wrapped | Operations that differ | Source |
+|---------|:---------:|:-------:|:-----------:|:----------------------:|--------|
+| Tracker | 190 | 188 | 0 (+2 on purpose) | 25 | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
+| Wiki | 56 | 56 | 0 | 15 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
+| Forms | 84 | 84 | 0 | 15 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
+
+<details>
+<summary><b>Tracker: what differs</b></summary>
+
+**Not wrapped on purpose**
+
+| Operation | Why |
+|---|---|
+| [`GET /boards`](https://yandex.ru/support/tracker/en/api/boards/get-boards) | `boards list` reads the paginated `GET /boards/_paginate` |
+| [`GET /users`](https://yandex.ru/support/tracker/en/api/users/get-users) | `users list` reads the paginated `GET /users/_relative` |
+
+**Sent by ycli, not published**
+
+| ycli | Its request, as the contract test sends it |
+|---|---|
+| `entities.attachment_download` | `GET /attachments/46/flowers.jpg` |
+| `linktypes.list` | `GET /linktypes` |
+
+**Parameters and fields**
+
+| Operation | ycli | Difference |
+|---|---|---|
+| [`POST /bulkchange/_move`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-move-issues) | `bulk.move` | query parameters ycli cannot send: `notify` |
+| [`POST /bulkchange/_transition`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-transition) | `bulk.transition` | query parameters ycli cannot send: `notify` |
+| [`POST /bulkchange/_update`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-update-issues) | `bulk.update` | query parameters ycli cannot send: `notify` |
+| [`POST /entities/{entity_type}`](https://yandex.ru/support/tracker/en/api/entities/create-entity) | `entities.create` | query parameters ycli cannot send: `fields` |
+| [`PATCH /entities/{entity_type}/{entity_ID}`](https://yandex.ru/support/tracker/en/api/entities/update-entity) | `entities.edit` | query parameters ycli cannot send: `expand`, `fields` |
+| [`POST /entities/{entity_type}/{entity_ID}/attachments/{file_ID}`](https://yandex.ru/support/tracker/en/api/entities/attachments/add-attachment) | `entities.attachments_attach` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist) | `entities.checklists_delete` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist) | `entities.checklists_edit` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`POST /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/add-checklist) | `entities.checklists_create` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist-item) | `entities.checklists_delete_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist-item) | `entities.checklists_edit_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`POST /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}/_move`](https://yandex.ru/support/tracker/en/api/entities/checklists/move-checklist-item) | `entities.checklists_move` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |
+| [`POST /entities/{entity_type}/{entity_ID}/comments`](https://yandex.ru/support/tracker/en/api/entities/comments/add-comment) | `entities.comments_create` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |
+| [`DELETE /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/delete-comment) | `entities.comments_delete` | query parameters ycli cannot send: `notify`, `notifyAuthor` |
+| [`PATCH /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/patch-comment) | `entities.comments_edit` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |
+| [`GET /entities/{entity_type}/{entity_ID}/events/_relative`](https://yandex.ru/support/tracker/en/api/entities/get-events-relative) | `entities.history` | query parameters ycli cannot send: `direction`, `newEventsOnTop`, `selected` |
+| [`POST /issues`](https://yandex.ru/support/tracker/en/api/issues/create-issue) | `issues.create` | query parameters ycli cannot send: `notify` |
+| [`POST /issues/_search`](https://yandex.ru/support/tracker/en/api/issues/search-issues) | `issues.search` | query parameters ycli cannot send: `expand`, `perScroll`, `scrollId`, `scrollTTLMillis`, `scrollType` |
+| [`GET /issues/_suggest`](https://yandex.ru/support/tracker/en/api/issues/get-suggest) | `issues.suggest` | query parameters ycli cannot send: `embed`, `expand`, `fields`, `full`, `queue` |
+| [`POST /issues/{id_задачи}/_move`](https://yandex.ru/support/tracker/en/api/issues/move-issue) | `issues.move` | query parameters ycli cannot send: `expand`, `initialStatus`, `moveAllFields`, `notify`, `notifyAuthor` |
+| [`GET /issues/{issue_ID}`](https://yandex.ru/support/tracker/en/api/issues/get-issue) | `issues.get` | query parameters ycli cannot send: `expand`, `fields` |
+| [`GET /issues/{issue_ID}/changelog`](https://yandex.ru/support/tracker/en/api/issues/get-changelog) | `changelog.list` | query parameters ycli cannot send: `field`, `sort`, `type` |
+| [`GET /issues/{issue_ID}/comments`](https://yandex.ru/support/tracker/en/api/issues/get-comments) | `comments.list` | query parameters ycli cannot send: `expand` |
+| [`GET /priorities`](https://yandex.ru/support/tracker/en/api/admin/get-priorities) | `priorities.list` | query parameters ycli cannot send: `localized` |
+| [`GET /queues`](https://yandex.ru/support/tracker/en/api/queues/get-queues) | `queues.list` | query parameters ycli cannot send: `expand` |
+
+</details>
+
+<details>
+<summary><b>Wiki: what differs</b></summary>
+
+**Parameters and fields**
+
+| Operation | ycli | Difference |
+|---|---|---|
+| `GET /pages` | `pages.get` | query parameters ycli cannot send: `raise_on_redirect`, `revision_id`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
+| `POST /pages` | `pages.create` | query parameters ycli cannot send: `fields`, `is_silent`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
+| `GET /pages/descendants` | `pages.descendants` | query parameters ycli cannot send: `include_self`, `show_all` |
+| `DELETE /pages/{idx}` | `pages.delete` | query parameters ycli cannot send: `recursive` |
+| `GET /pages/{idx}` | `pages.get_by_id` | query parameters ycli cannot send: `raise_on_redirect`, `revision_id`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
+| `POST /pages/{idx}` | `pages.update` | query parameters ycli cannot send: `allow_merge`, `fields`, `is_silent`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
+| `POST /pages/{idx}/append-content` | `pages.append_content` | query parameters ycli cannot send: `fields`, `is_silent`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
+| `GET /pages/{idx}/attachments` | `attachments.list` | query parameters ycli cannot send: `order_by`, `order_direction` |
+| `GET /pages/{idx}/attachments/{file_id}` | `attachments.get` | response fields ycli drops: `is_downloadable`, `user` |
+| `GET /pages/{idx}/comments` | `comments.list`, `comments.thread` | query parameters ycli cannot send: `order_by`, `order_direction`, `status_filter` |
+| `POST /pages/{idx}/comments` | `comments.create` | response fields ycli drops: `author`, `is_deleted`, `reactions`, `resolve_status` |
+| `GET /pages/{idx}/descendants` | `pages.descendants_by_id` | query parameters ycli cannot send: `include_self`, `show_all` |
+| `GET /pages/{idx}/grids` | `pages.grids` | query parameters ycli cannot send: `order_direction` |
+| `GET /pages/{idx}/resources` | `resources.list` | query parameters ycli cannot send: `order_direction` |
+| `POST /recovery_tokens/{idx}/recover` | `recovery.restore` | response fields ycli drops: `pages_count` |
+
+</details>
+
+<details>
+<summary><b>Forms: what differs</b></summary>
+
+**Parameters and fields**
+
+| Operation | ycli | Difference |
+|---|---|---|
+| `GET /answers` | `answers.get` | response fields ycli drops: `started` |
+| `GET /operations/{operation_id}` | `operations.get` | response fields ycli drops: `result` |
+| `GET /surveys` | `surveys.list` | query parameters ycli cannot send: `favourite`, `group`, `name`, `orderby`, `ownership`, `published`, `show_all` |
+| `POST /surveys` | `surveys.create` | response fields ycli drops: `allow_multiple_answers`, `author`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `followers`, `footer`, `hashed_id`, `iframe`, `max_count`, `metric`, `need_auth`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `texts`, `validator_url`<br>model fields that are not published: `modified` |
+| `GET /surveys/{survey_id}` | `surveys.get` | response fields ycli drops: `allow_multiple_answers`, `author`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `followers`, `footer`, `hashed_id`, `iframe`, `max_count`, `metric`, `need_auth`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `texts`, `validator_url`<br>model fields that are not published: `modified` |
+| `PATCH /surveys/{survey_id}` | `surveys.modify` | response fields ycli drops: `allow_multiple_answers`, `author`, `auto_publication`, `captcha`, `file_storage`, `fill_again`, `follow`, `followers`, `footer`, `hashed_id`, `iframe`, `max_count`, `metric`, `need_auth`, `quiz`, `share`, `show_last_answer`, `stats`, `styles`, `teaser`, `texts`, `validator_url`<br>model fields that are not published: `modified` |
+| `GET /surveys/{survey_id}/answers` | `answers.list`, `answers.list_all` | query parameters ycli cannot send: `date_from`, `date_to`, `format`, `ordering`, `page_size`, `questions`, `use_slugs` |
+| `POST /surveys/{survey_id}/answers/export` | `answers.export` | response fields ycli drops: `result` |
+| `POST /surveys/{survey_id}/questions` | `questions.create` | response fields ycli drops: `account_id`, `columns`, `conditions`, `data_source`, `fixed`, `header`, `hint_source`, `image`, `items`, `modify_choices`, `multichoice`, `quiz_comment`, `quiz_items`, `rows`, `show_first`, `validators`, `widget` |
+| `DELETE /surveys/{survey_id}/questions/{question_id}` | `questions.delete` | query parameters ycli sends that are not published: `force` |
+| `GET /surveys/{survey_id}/questions/{question_id}` | `questions.get` | query parameters ycli cannot send: `with_slugs`<br>response fields ycli drops: `account_id`, `columns`, `conditions`, `data_source`, `fixed`, `header`, `hint_source`, `image`, `items`, `modify_choices`, `multichoice`, `quiz_comment`, `quiz_items`, `rows`, `show_first`, `validators`, `widget` |
+| `PATCH /surveys/{survey_id}/questions/{question_id}` | `questions.modify` | response fields ycli drops: `account_id`, `columns`, `conditions`, `data_source`, `fixed`, `header`, `hint_source`, `image`, `items`, `modify_choices`, `multichoice`, `quiz_comment`, `quiz_items`, `rows`, `show_first`, `validators`, `widget` |
+| `GET /surveys/{survey_id}/suggest` | `filling.suggest` | response fields ycli drops: `address`, `avatar`, `board`, `city`, `cloud_uid`, `country_id`, `department`, `display_text`, `email`, `floor_id`, `floor_number`, `full_name`, `group_id`, `login`, `office_id`, `parent_id`, `population`, `queue`, `region`, `role_scope`, `row_id`, `slug`, `status`, `tracks_count`, `type`, `uid`, `url`, `yandex_uid` |
+| `POST /surveys/{survey}/form` | `filling.submit` | response fields ycli drops: `quiz_result`<br>model fields that are not published: `results`, `scores`, `total_scores` |
+| `GET /users/me` | `me.get` | response fields ycli drops: `display`, `login` |
+
+</details>
 <!-- COVERAGE:END -->
 
 ## Development

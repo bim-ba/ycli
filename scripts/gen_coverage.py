@@ -8,6 +8,10 @@ snapshot ``tests/snapshots/mcp_signatures.txt``) and emits the Markdown block RE
 between its ``COVERAGE:START`` / ``COVERAGE:END`` markers; README.ru.md gets a short Russian
 block between the same markers, with the totals and a link to the English tables.
 
+Below the tables it prints how ycli differs from the API Yandex publishes (operations it does
+not wrap, query parameters it cannot send, response fields its models drop), computed by
+``scripts/api_drift.py`` from the committed snapshots under ``scripts/api_snapshot/``.
+
 Per resource it reports the wrapped SDK operations (public methods on the resource client
 class, in source order) and whether that resource is reachable via the CLI and via at least
 one MCP tool. MCP mirrors the SDK with honest annotations (ARCH-3): reads carry
@@ -31,14 +35,22 @@ import inspect
 import sys
 import tomllib
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 
-from ycli.yandex.core.resource import Resource
-from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.wiki.client import WikiClient
-
 ROOT = Path(__file__).resolve().parent.parent
+# Run as a file, a script sees only its own directory: tests/ and scripts/ hang off the root.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts import api_drift, api_surface  # noqa: E402
+from tests.snapshots._surface import cli_tree  # noqa: E402
+
+from ycli.yandex.core.resource import Resource  # noqa: E402
+from ycli.yandex.forms.client import FormsClient  # noqa: E402
+from ycli.yandex.tracker.client import TrackerClient  # noqa: E402
+from ycli.yandex.wiki.client import WikiClient  # noqa: E402
+
 README = ROOT / "README.md"
 README_RU = ROOT / "README.ru.md"
 MCP_SIGNATURES = ROOT / "tests" / "snapshots" / "mcp_signatures.txt"
@@ -164,10 +176,6 @@ class LinkStats:
 
 def _cli_paths() -> list[str]:
     """Every CLI command path (space-joined), via the shared surface enumerator."""
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
-    from tests.snapshots._surface import cli_tree
-
     return cli_tree()
 
 
@@ -403,8 +411,8 @@ def _render(reports: list[DomainReport]) -> str:
         "surface; MCP tools carry honest hints (reads are `readOnlyHint`, writes say whether "
         "they are destructive or idempotent), and `ycli mcp start --read-only` serves only the "
         "reads. Resource and operation names link to the official **Yandex API reference**. A "
-        f"{YES} says ycli wraps the operation, not that it matches what Yandex documents today: "
-        "that comparison is [#82](https://github.com/bim-ba/ycli/issues/82). Generated from the "
+        f"{YES} says ycli wraps the operation; where it differs from what Yandex publishes is "
+        "listed under [Against the published API](#against-the-published-api). Generated from the "
         "code by [`scripts/gen_coverage.py`](scripts/gen_coverage.py); do not edit by hand.",
     ]
     for report in reports:
@@ -434,7 +442,109 @@ def _render(reports: list[DomainReport]) -> str:
         "See `CONTRIBUTING.md` for the intentional exclusions (UI-only endpoints with no public "
         "REST API) and per-method notes.",
     ]
-    return "\n".join(lines)
+    return "\n".join([*lines, "", *_render_drift(api_drifts())])
+
+
+@cache
+def api_drifts() -> tuple[api_drift.Drift, ...]:
+    """Every service's differences from its published API (replays the contract cases once)."""
+    return tuple(api_drift.drifts())
+
+
+PUBLISHED = {
+    "tracker": "[API reference](https://yandex.ru/support/tracker/en/api/about-api)",
+    "wiki": f"[OpenAPI]({api_surface.OPENAPI_URLS['wiki']})",
+    "forms": f"[OpenAPI]({api_surface.OPENAPI_URLS['forms']})",
+}
+TRACKER_DOCS = "https://yandex.ru/support/tracker/en/"
+# How each kind of difference reads in the table, in the order they are listed.
+DIFFERENCES = {
+    "missing_query": "query parameters ycli cannot send",
+    "unknown_query": "query parameters ycli sends that are not published",
+    "dropped_response": "response fields ycli drops",
+    "unknown_response": "model fields that are not published",
+}
+
+
+def _names(names: tuple[str, ...]) -> str:
+    return ", ".join(f"`{name}`" for name in names)
+
+
+def _published(operation: api_surface.Operation) -> str:
+    """A published operation as ``METHOD /path``, linked to its reference page if it has one."""
+    label = f"`{operation.method} {operation.path}`"
+    return _link(label, TRACKER_DOCS + operation.page if operation.page else None)
+
+
+def _sdk(operations: tuple[str, ...]) -> str:
+    """SDK operations without their service: ``wiki.pages.get`` → ``pages.get``."""
+    return ", ".join(f"`{operation.split('.', 1)[1]}`" for operation in operations)
+
+
+def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
+    """The "Against the published API" section: a summary row and the details per service."""
+    lines = [
+        "### Against the published API",
+        "",
+        "What ycli sends, replayed from its contract tests, compared with what Yandex publishes: "
+        "the Wiki and Forms OpenAPI documents and Tracker's API reference (prose, so only "
+        "operations and the query parameters a page lists are compared). The published side is "
+        "the snapshot in [`scripts/api_snapshot/`](scripts/api_snapshot); a "
+        "[weekly job](.github/workflows/api-drift.yml) fetches it again and opens an issue when "
+        "Yandex has changed it.",
+        "",
+        "| Service | Published | Wrapped | Not wrapped | Operations that differ | Source |",
+        "|---------|:---------:|:-------:|:-----------:|:----------------------:|--------|",
+    ]
+    for drift in drifts:
+        excluded = f" (+{len(drift.excluded)} on purpose)" if drift.excluded else ""
+        lines.append(
+            f"| {drift.service.capitalize()} | {len(drift.published)} | {drift.wrapped} | "
+            f"{len(drift.not_wrapped)}{excluded} | {len(drift.gaps)} | {PUBLISHED[drift.service]} |"
+        )
+    for drift in drifts:
+        lines += [
+            "",
+            "<details>",
+            f"<summary><b>{drift.service.capitalize()}: what differs</b></summary>",
+        ]
+        if drift.not_wrapped:
+            lines += ["", "**Published, not wrapped**", ""]
+            lines += [f"- {_published(operation)}" for operation in drift.not_wrapped]
+        if drift.excluded:
+            lines += ["", "**Not wrapped on purpose**", "", "| Operation | Why |", "|---|---|"]
+            lines += [f"| {_published(operation)} | {why} |" for operation, why in drift.excluded]
+        if drift.unpublished:
+            lines += [
+                "",
+                "**Sent by ycli, not published**",
+                "",
+                "| ycli | Its request, as the contract test sends it |",
+                "|---|---|",
+            ]
+            lines += [
+                f"| {_sdk((call.operation,))} | `{call.method} {call.path}` |"
+                for call in drift.unpublished
+            ]
+        if drift.gaps:
+            lines += [
+                "",
+                "**Parameters and fields**",
+                "",
+                "| Operation | ycli | Difference |",
+                "|---|---|---|",
+            ]
+            for gap in drift.gaps:
+                differences = "<br>".join(
+                    f"{label}: {_names(getattr(gap, kind))}"
+                    for kind, label in DIFFERENCES.items()
+                    if getattr(gap, kind)
+                )
+                lines.append(
+                    f"| {_published(gap.published)} | {_sdk(gap.operations)} | {differences} |"
+                )
+        lines += ["", "</details>"]
+    return lines
 
 
 # The preview's geometry and colours. It is shown through <img>, so it has no script, no web
@@ -544,6 +654,15 @@ def _render_ru(reports: list[DomainReport]) -> str:
             f"ресурсов: **{totals.resources}**; все операции доступны из **Python SDK** и **CLI**. "
             f"MCP-инструментов для агентов: **{totals.mcp_tools}**. Таблицы по ресурсам и "
             "операциям — в [английском README](README.md#coverage).",
+            "",
+            "Из опубликованных Яндексом операций обёрнуто: "
+            + ", ".join(
+                f"{services[drift.service]} — {drift.wrapped} из {len(drift.published)}"
+                for drift in api_drifts()
+            )
+            + ". Чего ycli пока не умеет (параметры запросов, поля ответов), перечислено в "
+            "разделе [Against the published API](README.md#against-the-published-api); сверка "
+            "повторяется каждую неделю.",
         ]
     )
 

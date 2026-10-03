@@ -29,7 +29,7 @@
 # * an operation with no entry falls back to the resource's `resource` link;
 # * a resource with no `resource` value (and its ops) render as plain text — never a
 #   guessed/broken link. gen_coverage `--check` prints the plain-text gaps and
-#   tests/test_coverage_links.py pins them so a new gap is surfaced, not silent.
+#   tests/test_coverage_readme.py pins them so a new gap is surfaced, not silent.
 #
 # /new-endpoint authors: add the new resource's `resource` + `operations.*` paths
 # here so its README row deep-links like the rest.
