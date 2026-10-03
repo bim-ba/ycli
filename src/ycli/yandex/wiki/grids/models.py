@@ -8,7 +8,7 @@ two exceptions are :class:`GridCreate` (a brand-new grid has no prior revision) 
 :class:`GridClone` (an async trigger). Clone is deferred: it returns a :class:`AsyncOperation`
 you poll through the ``operations`` resource.
 
-``extra='ignore'`` via :class:`~ycli.yandex.models.APIModel`.
+Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from typing import Any, Literal
 
 from pydantic import Field, RootModel, model_validator
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import PageIdentity
 
 #: Sort order of a column in the grid's default sort.
@@ -295,7 +295,7 @@ class CellsUpdateResult(APIModel):
     )
 
 
-class NewColumnSchema(APIModel):
+class NewColumnSchema(RequestBody):
     """Typed body for one new column in a ``columns add`` request.
 
     ``title`` and ``type`` are required; the remaining fields shape a specific column type
@@ -368,7 +368,7 @@ class NewColumnSchema(APIModel):
         return self
 
 
-class GridCreate(APIModel):
+class GridCreate(RequestBody):
     """Typed body for ``POST /grids`` — create a new grid as a resource of a page.
 
     A new grid has no prior revision, so this body carries none. Columns and rows are added
@@ -385,7 +385,7 @@ class GridCreate(APIModel):
     page: PageIdentity = Field(description="Page the grid is created under (by id or slug).")
 
 
-class GridUpdate(APIModel):
+class GridUpdate(RequestBody):
     """Typed body for ``POST /grids/{id}`` — rename or re-sort a grid (POST, not PATCH).
 
     ``revision`` is required (optimistic lock); ``title`` and ``default_sort`` are the editable
@@ -410,7 +410,7 @@ class GridUpdate(APIModel):
     )
 
 
-class RowsAdd(APIModel):
+class RowsAdd(RequestBody):
     """Typed body for ``POST /grids/{id}/rows`` — insert rows at a position.
 
     Each item of ``rows`` maps a column slug to its cell value. ``position`` /
@@ -431,7 +431,7 @@ class RowsAdd(APIModel):
     )
 
 
-class RowsRemove(APIModel):
+class RowsRemove(RequestBody):
     """Typed body for ``DELETE /grids/{id}/rows`` — delete rows by id.
 
     Examples:
@@ -445,7 +445,7 @@ class RowsRemove(APIModel):
     )
 
 
-class RowsMove(APIModel):
+class RowsMove(RequestBody):
     """Typed body for ``POST /grids/{id}/rows/move`` — move a run of rows to a position.
 
     Examples:
@@ -464,7 +464,7 @@ class RowsMove(APIModel):
     )
 
 
-class ColumnsAdd(APIModel):
+class ColumnsAdd(RequestBody):
     """Typed body for ``POST /grids/{id}/columns`` — add columns at a position.
 
     Examples:
@@ -479,7 +479,7 @@ class ColumnsAdd(APIModel):
     position: int | None = Field(default=None, description="Zero-based index to insert at.")
 
 
-class ColumnsRemove(APIModel):
+class ColumnsRemove(RequestBody):
     """Typed body for ``DELETE /grids/{id}/columns`` — delete columns by slug.
 
     Examples:
@@ -491,7 +491,7 @@ class ColumnsRemove(APIModel):
     column_slugs: list[str] = Field(description="Slugs of the columns to delete.")
 
 
-class ColumnsMove(APIModel):
+class ColumnsMove(RequestBody):
     """Typed body for ``POST /grids/{id}/columns/move`` — move a run of columns to a position.
 
     Examples:
@@ -507,7 +507,7 @@ class ColumnsMove(APIModel):
     )
 
 
-class UpdateCellSchema(APIModel):
+class UpdateCellSchema(RequestBody):
     """Typed body for one cell in a ``cells update`` request (``row_id``, ``column_slug``, value).
 
     Examples:
@@ -520,7 +520,7 @@ class UpdateCellSchema(APIModel):
     value: Any = Field(default=None, description="New cell value (scalar, list, or user ref).")
 
 
-class CellsUpdate(APIModel):
+class CellsUpdate(RequestBody):
     """Typed body for ``POST /grids/{id}/cells`` — set the value of individual cells.
 
     Examples:
@@ -534,7 +534,7 @@ class CellsUpdate(APIModel):
     cells: list[UpdateCellSchema] = Field(description="The cells to update.")
 
 
-class ColumnSuggest(APIModel):
+class ColumnSuggest(RequestBody):
     """Typed body for ``POST /grids/{id}/columns/suggest`` — check a column slug (undocumented).
 
     Give a ``slug`` to see whether it is taken, or a ``title`` to have it turned into a slug first:
@@ -581,7 +581,7 @@ class ColumnSuggestion(APIModel):
     )
 
 
-class ColumnUpdate(APIModel):
+class ColumnUpdate(RequestBody):
     """Typed body for ``POST /grids/{id}/column/{slug}`` — edit a column in place (undocumented).
 
     Every field is optional and only the ones sent change. The column ``type`` and ``slug`` cannot
@@ -640,7 +640,7 @@ class ColumnUpdateResult(APIModel):
     column: ColumnSchema | None = Field(default=None, description="The column after the edit.")
 
 
-class RowUpdate(APIModel):
+class RowUpdate(RequestBody):
     """Typed body for ``POST /grids/{id}/rows/{row_id}`` — pin or colour a row (undocumented).
 
     Cell values are not part of it; set those with ``cells update``. Like ``ColumnUpdate`` it does
@@ -677,7 +677,7 @@ class RowUpdateResult(APIModel):
     )
 
 
-class GridClone(APIModel):
+class GridClone(RequestBody):
     """Typed body for ``POST /grids/{id}/clone`` — copy a grid onto another page (async).
 
     ``target`` is the destination page slug (created if absent); ``with_data`` copies the rows as

@@ -1,10 +1,10 @@
-"""Pydantic v2 models for Yandex Wiki /pages/{id}/attachments responses (extra='ignore')."""
+"""Pydantic v2 models for Yandex Wiki /pages/{id}/attachments responses."""
 
 from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import User
 
 
@@ -30,7 +30,7 @@ class Attachment(APIModel):
     mimetype: str | None = None
 
 
-class AttachmentCreate(APIModel):
+class AttachmentCreate(RequestBody):
     """Typed request body for ``attachments.attach`` (``POST /pages/{id}/attachments``).
 
     Attaches file(s) already uploaded via the upload-session pipeline; each entry is a

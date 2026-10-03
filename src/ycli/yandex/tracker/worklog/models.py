@@ -6,9 +6,10 @@ from datetime import datetime
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 
 
@@ -44,7 +45,7 @@ def _now() -> str:
     return f"{moment:%Y-%m-%dT%H:%M:%S}.{moment.microsecond // 1000:03d}{moment:%z}"
 
 
-class WorklogCreate(APIModel):
+class WorklogCreate(RequestBody):
     """Typed request body for ``POST /issues/{key}/worklog`` (log time spent).
 
     Examples:
@@ -67,7 +68,7 @@ class WorklogCreate(APIModel):
     )
 
 
-class WorklogUpdate(APIModel):
+class WorklogUpdate(RequestBody):
     """Typed request body for ``PATCH /issues/{key}/worklog/{record_id}`` (edit an entry).
 
     Examples:
@@ -81,7 +82,7 @@ class WorklogUpdate(APIModel):
     comment: str | None = Field(default=None, description="New note for the time-tracking report.")
 
 
-class WorklogPeriod(APIModel):
+class WorklogPeriod(RequestBody):
     """A range of creation times (``createdAt`` of a worklog search).
 
     Examples:
@@ -102,7 +103,7 @@ class WorklogPeriod(APIModel):
     )
 
 
-class WorklogSearch(APIModel):
+class WorklogSearch(RequestBody):
     """Typed request body for ``POST /worklog/_search``: by author, by creation time, or both.
 
     Examples:

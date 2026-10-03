@@ -6,9 +6,10 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 
 
@@ -65,7 +66,7 @@ class Widget(APIModel):
     mode: str | None = Field(default=None, description="Data display mode, e.g. ``common-lines``.")
 
 
-class DashboardOwner(APIModel):
+class DashboardOwner(RequestBody):
     """The ``owner`` sub-object of a dashboard create body — a ``{"id": <login|id>}`` reference.
 
     Examples:
@@ -76,7 +77,7 @@ class DashboardOwner(APIModel):
     id: str = Field(description="Login or id of the dashboard owner.")
 
 
-class DashboardCreate(APIModel):
+class DashboardCreate(RequestBody):
     """Typed request body for ``POST /dashboards/`` (create a dashboard).
 
     Examples:
@@ -95,7 +96,7 @@ class DashboardCreate(APIModel):
     )
 
 
-class CycleTimeWidget(APIModel):
+class CycleTimeWidget(RequestBody):
     """Typed request body for ``POST /dashboards/{id}/widgets/cycleTime`` (add a cycle-time chart).
 
     Examples:

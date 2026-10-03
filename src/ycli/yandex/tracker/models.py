@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class Reference(APIModel):
@@ -87,7 +87,7 @@ class AttachmentMetadata(APIModel):
     )
 
 
-class CommentCreate(APIModel):
+class CommentCreate(RequestBody):
     """Typed request body for adding a comment to an issue or an entity.
 
     Examples:
@@ -107,7 +107,7 @@ class CommentCreate(APIModel):
     )
 
 
-class OptionsProviderInput(APIModel):
+class OptionsProviderInput(RequestBody):
     """Typed ``optionsProvider`` block for a field create/edit body (a fixed drop-down).
 
     Examples:
@@ -122,7 +122,7 @@ class OptionsProviderInput(APIModel):
     values: list[str] = Field(description="Allowed values offered by the drop-down.")
 
 
-class FieldCreate(APIModel):
+class FieldCreate(RequestBody):
     """Typed request body for creating an issue field, global or local to a queue.
 
     Examples:
@@ -223,7 +223,7 @@ class Deadline(APIModel):
     )
 
 
-class DeadlineInput(APIModel):
+class DeadlineInput(RequestBody):
     """Typed ``deadline`` block for a checklist item or key result write body.
 
     Examples:

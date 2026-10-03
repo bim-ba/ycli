@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import Reference
 
@@ -76,7 +77,7 @@ class Sprint(APIModel):
     )
 
 
-class SprintBoardInput(APIModel):
+class SprintBoardInput(RequestBody):
     """The ``board`` object in a create-sprint body — a board identifier wrapper.
 
     Examples:
@@ -87,7 +88,7 @@ class SprintBoardInput(APIModel):
     id: str = Field(description="Identifier of the board the sprint belongs to.")
 
 
-class SprintCreate(APIModel):
+class SprintCreate(RequestBody):
     """Typed request body for ``sprints.create`` (``POST /sprints``).
 
     Examples:
@@ -110,7 +111,7 @@ class SprintCreate(APIModel):
     )
 
 
-class SprintUpdate(APIModel):
+class SprintUpdate(RequestBody):
     """Typed request body for ``sprints.edit`` (``PATCH /sprints/{sprint_id}``).
 
     Every field is optional; only the fields you set are sent.

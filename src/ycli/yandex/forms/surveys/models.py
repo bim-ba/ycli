@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ycli.yandex.forms.images.models import Image
 from ycli.yandex.forms.models import UserRef
-from ycli.yandex.models import IGNORED_BY_API, APIModel, WarnsOnIgnored
+from ycli.yandex.models import IGNORED_BY_API, APIModel, RequestBody, WarnsOnIgnored
 
 
 class SurveyTexts(APIModel):
@@ -132,7 +132,7 @@ class SurveyQuiz(APIModel):
     )
 
 
-class SurveyApiKey(APIModel):
+class SurveyApiKey(RequestBody):
     """An API key a form's integrations use (``api_keys`` item of a request).
 
     Examples:

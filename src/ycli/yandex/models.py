@@ -63,7 +63,10 @@ def warn_ignored(name: str, why: str) -> None:
 
 
 class APIModel(BaseModel):
-    """Base for all Yandex API models: ignore unknown fields, allow name-or-alias population.
+    """Base for all Yandex API models: keep unknown fields, allow name-or-alias population.
+
+    A reply keeps a field the model does not declare (``extra="allow"``), so what Yandex adds
+    is printed at once, untyped; a request body inherits :class:`RequestBody`, which refuses it.
 
     ``serialize_by_alias`` keeps the API's field names (``createdAt``) in every dump, so the
     CLI and the MCP server print the same keys the vendor docs show, while Python code reads
@@ -77,10 +80,31 @@ class APIModel(BaseModel):
         {'createdAt': 'today'}
     """
 
-    model_config = ConfigDict(extra="ignore", validate_by_name=True, serialize_by_alias=True)
+    model_config = ConfigDict(extra="allow", validate_by_name=True, serialize_by_alias=True)
 
 
-class WarnsOnIgnored(APIModel):
+class RequestBody(APIModel):
+    """Base for a request body: a field the model does not declare is an error, not sent.
+
+    A reply keeps what Yandex adds (``APIModel`` is open); a body is closed, so a mistyped key
+    fails where the body is built, with the field's name, instead of reaching the API.
+
+    Examples:
+        >>> class Rename(RequestBody):
+        ...     name: str
+        >>> Rename.model_validate({"name": "Sprint", "nmae": "x"})
+        Traceback (most recent call last):
+            ...
+        pydantic_core._pydantic_core.ValidationError: 1 validation error for Rename
+        nmae
+          Extra inputs are not permitted [type=extra_forbidden, input_value='x', input_type=str]
+            For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class WarnsOnIgnored(RequestBody):
     """A request body with a field the API ignores: giving that field a value logs a warning.
 
     A body model that marks a field with ``IGNORED_BY_API`` inherits from this class, so that

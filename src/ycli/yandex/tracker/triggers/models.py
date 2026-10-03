@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
 
 
@@ -74,7 +74,7 @@ class Trigger(APIModel):
     )
 
 
-class TriggerCreate(APIModel):
+class TriggerCreate(RequestBody):
     """Typed request body for ``triggers.create`` (``POST /queues/{id}/triggers``).
 
     Examples:
@@ -94,7 +94,7 @@ class TriggerCreate(APIModel):
     )
 
 
-class TriggerUpdate(APIModel):
+class TriggerUpdate(RequestBody):
     """Typed request body for ``triggers.edit`` (``PATCH /queues/{id}/triggers/{trigger_id}``).
 
     Every field is optional; only the fields you set are sent.

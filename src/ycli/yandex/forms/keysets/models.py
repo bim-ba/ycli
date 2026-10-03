@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class Keyset(APIModel):
@@ -27,7 +27,7 @@ class Keyset(APIModel):
     is_enabled: bool | None = Field(default=None, description="Whether the key set is active.")
 
 
-class KeysetCreate(APIModel):
+class KeysetCreate(RequestBody):
     """Typed request body for creating a key set (``POST /surveys/{id}/keysets``).
 
     Unset (``None``) fields are dropped before the request is sent. The create endpoint,

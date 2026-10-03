@@ -126,7 +126,7 @@ One question's settings by id — label, slug, type and common presentation flag
 
 Where ``questions_list`` returns every question grouped into pages, this fetches a single
 question keyed by ``question_id`` (take it from an item's ``id`` in ``questions_list``).
-Type-specific detail (validators, options, conditions) is lenient-ignored.
+Type-specific detail (validators, options, conditions) comes in the fields of its type.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import (
     FieldSchema,
     KeyedReference,
@@ -108,7 +108,7 @@ class LocalField(APIModel):
     )
 
 
-class LocalFieldUpdate(APIModel):
+class LocalFieldUpdate(RequestBody):
     """Typed request body for ``PATCH /queues/{id}/localFields/{key}`` (edit a local field).
 
     This endpoint has no ``?version=`` optimistic lock; only the fields that are set are sent.

@@ -503,7 +503,7 @@ DIFFERENCES = {
     "unknown_query": "query parameters ycli sends that are not published",
     "missing_request": "body fields ycli cannot send",
     "unknown_request": "body fields ycli sends that are not published",
-    "dropped_response": "response fields ycli drops",
+    "untyped_response": "response fields ycli passes through untyped",
     "unknown_response": "model fields that are not published",
 }
 

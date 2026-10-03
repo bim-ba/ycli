@@ -17,10 +17,10 @@ from ycli.yandex.forms.models import (
     ConditionItemKind,
     ConditionOperatorType,
 )
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import RequestBody
 
 
-class ConditionItemWrite(APIModel):
+class ConditionItemWrite(RequestBody):
     """One clause of a create/modify condition-group body (the API's ``ConditionItemIn``).
 
     Unlike the lenient read ``ConditionItem``, the write clause enforces the input schema:
@@ -47,7 +47,7 @@ class ConditionItemWrite(APIModel):
     )
 
 
-class ConditionCreate(APIModel):
+class ConditionCreate(RequestBody):
     """Typed body for ``POST …/conditions`` — one new condition group.
 
     The API requires both fields: ``operator`` joins the clauses WITHIN the group and

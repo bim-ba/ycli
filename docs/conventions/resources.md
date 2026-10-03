@@ -19,11 +19,20 @@ from ycli.yandex.models import APIModel
 class MyModel(APIModel): ...
 ```
 
-`APIModel` sets `extra="ignore"` (unknown API fields are silently dropped),
-`validate_by_name=True` (a field may be set by its Python name *or* its serialization
-alias) and `serialize_by_alias=True` (every dump, CLI and MCP alike, keeps the API's field
-names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`; a bare mapping with no
-fields of its own is a `RootModel[dict[...]]`.
+`APIModel` sets `extra="allow"` (a reply keeps a field the model does not declare, so what
+Yandex adds shows up in the output at once, untyped), `validate_by_name=True` (a field may be
+set by its Python name *or* its alias) and `serialize_by_alias=True` (every dump, CLI and MCP
+alike, keeps the API's field names). A model that only request bodies are built from inherits
+`RequestBody` (`extra="forbid"`): a key it does not declare is an error where the body is
+built, not something sent to the API. Never use bare `pydantic.BaseModel` inside
+`ycli.yandex`; a bare mapping with no fields of its own is a `RootModel[dict[...]]`.
+
+Two lists in `tests/test_conventions.py` hold what is open on purpose, each entry with its
+reason: `OPEN_BODIES` (an issue takes custom fields) and `BODY_AND_REPLY` (a model that both
+builds a body and reads a reply stays open, so a key it does not declare, nested in a body,
+reaches the API). A model must not carry a pydantic serializer (`field_serializer`,
+`model_serializer`, `computed_field`, …): `core.endpoint.dump_body` reads field values itself
+and would skip it.
 
 ### One class per shape
 

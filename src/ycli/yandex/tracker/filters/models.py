@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import Reference, UserReference
 
 
@@ -87,7 +87,7 @@ class Filter(APIModel):
     )
 
 
-class FilterCreate(APIModel):
+class FilterCreate(RequestBody):
     """Typed request body for ``POST /filters/`` (create a saved filter).
 
     Pass either ``filter`` (a field→condition mapping) or ``query`` (a Tracker query string),
@@ -107,7 +107,7 @@ class FilterCreate(APIModel):
     )
 
 
-class FilterUpdate(APIModel):
+class FilterUpdate(RequestBody):
     """Typed request body for ``PATCH /filters/{id}`` (edit a saved filter).
 
     Only the fields that are set are sent; note the API replaces ``filter`` wholesale rather

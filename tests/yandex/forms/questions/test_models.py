@@ -181,26 +181,14 @@ def test_series_question_nests_typed_questions():
     assert isinstance(q.items[1], IntegerQuestion)
 
 
-def test_image_and_hidden_are_shared_and_conditions_key_is_dropped():
-    q = QuestionCreateAdapter.validate_python(
-        {
-            "type": "string",
-            "label": "Q",
-            "hidden": True,
-            "image": {"id": 7, "name": "cover.png"},
-            "conditions": [
-                {
-                    "operator": "and",
-                    "items": [
-                        {"type": "question", "condition": "eq", "question": "q1", "value": "yes"}
-                    ],
-                }
-            ],
-        }
-    )
+def test_image_and_hidden_are_shared_and_a_conditions_key_is_refused():
+    body = {"type": "string", "label": "Q", "hidden": True, "image": {"id": 7, "name": "cover.png"}}
+    q = QuestionCreateAdapter.validate_python(body)
     assert q.hidden is True and q.image.id == 7
     assert "conditions" not in type(q).model_fields
-    assert "conditions" not in q.model_dump(exclude_none=True)
+    # Display conditions are not part of a question body: they have their own resource.
+    with pytest.raises(ValidationError, match="conditions"):
+        QuestionCreateAdapter.validate_python({**body, "conditions": [{"operator": "and"}]})
 
 
 def test_dump_by_alias_exclude_none_is_a_clean_request_body():

@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
     IdStr,
     KeyStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 
 
@@ -67,7 +68,7 @@ class LinkPage(APIModel):
     links: list[Link] = Field(default_factory=list, description="The page's links.")
 
 
-class LinkCreate(APIModel):
+class LinkCreate(RequestBody):
     """Typed request body for ``POST /issues/{key}/links`` (link to another issue).
 
     Examples:

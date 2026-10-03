@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -34,7 +34,7 @@ class Resolution(APIModel):
     )
 
 
-class ResolutionCreate(APIModel):
+class ResolutionCreate(RequestBody):
     """Typed request body for ``POST /resolutions/`` (create a resolution).
 
     Examples:
@@ -50,7 +50,7 @@ class ResolutionCreate(APIModel):
     name: LocalizedName = Field(description="Localized display name of the resolution.")
 
 
-class ResolutionUpdate(APIModel):
+class ResolutionUpdate(RequestBody):
     """Typed request body for ``PATCH /resolutions/{id}?version=`` (edit a resolution).
 
     Only the fields that are set are sent, so omitted fields stay unchanged.

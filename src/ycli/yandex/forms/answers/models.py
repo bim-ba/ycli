@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class Column(APIModel):
@@ -106,7 +106,7 @@ class AnswersResponse(APIModel):
     next: Any = None
 
 
-class AnswerExport(APIModel):
+class AnswerExport(RequestBody):
     """Typed request body for ``POST /v1/surveys/{id}/answers/export`` (start an async export).
 
     Every field is optional — the API defaults ``format`` to ``xlsx`` and ``upload`` to

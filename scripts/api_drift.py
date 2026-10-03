@@ -84,10 +84,6 @@ IGNORED = "the API accepts it and ignores it (checked live on 2026-10-04)"
 _RETURNED = "the API returns it (checked live on 2026-10-04), the published schema omits it"
 _SURVEYS = (("POST", "/surveys"), ("PATCH", "/surveys/{}"))
 _QUESTIONS = (("POST", "/surveys/{}/questions"), ("PATCH", "/surveys/{}/questions/{}"))
-_SUBSCRIPTIONS = (
-    ("POST", "/surveys/{}/hooks/{}/subscriptions"),
-    ("PATCH", "/surveys/{}/hooks/{}/subscriptions/{}"),
-)
 EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, path, kind, name
     **{
         ("forms", method, path, "unknown_request", name): IGNORED
@@ -95,16 +91,6 @@ EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, pat
         for name in ("is_public", "is_published", "language")
     },
     **{("forms", method, path, "unknown_request", "id"): IGNORED for method, path in _QUESTIONS},
-    **{
-        (
-            "forms",
-            method,
-            path,
-            "unknown_request",
-            "id",
-        ): "one model builds the body and reads the reply, and the reply carries `id`"
-        for method, path in _SUBSCRIPTIONS
-    },
     ("forms", "DELETE", "/surveys/{}/questions/{}", "unknown_query", "force"): IGNORED,
 }
 EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {  # service, kind, name
@@ -159,7 +145,7 @@ class Gap:
     unknown_query: tuple[str, ...] = ()
     missing_request: tuple[str, ...] = ()
     unknown_request: tuple[str, ...] = ()
-    dropped_response: tuple[str, ...] = ()
+    untyped_response: tuple[str, ...] = ()
     unknown_response: tuple[str, ...] = ()
 
     @property
@@ -174,7 +160,7 @@ GAP_KINDS = (
     "unknown_query",
     "missing_request",
     "unknown_request",
-    "dropped_response",
+    "untyped_response",
     "unknown_response",
 )
 
@@ -444,7 +430,7 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
             unknown_query=tuple(sorted(query - set(operation.query))) if exhaustive else (),
             missing_request=tuple(sorted(set(operation.request) - body)) if compare_request else (),
             unknown_request=tuple(sorted(body - set(operation.request))) if compare_request else (),
-            dropped_response=tuple(sorted(set(operation.response) - fields))
+            untyped_response=tuple(sorted(set(operation.response) - fields))
             if compare_response
             else (),
             unknown_response=tuple(sorted(fields - set(operation.response)))

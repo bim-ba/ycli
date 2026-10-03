@@ -4,7 +4,7 @@ A page's access is a policy (who may open it at all) plus lists of personal gran
 is a :class:`PageAccess` — a user or a group, with a role. ``GET /pages/{id}?fields=access_policy,
 access_lists,owner`` reads them back (see :class:`~ycli.yandex.wiki.pages.models.PageDetails`).
 
-``extra='ignore'`` via :class:`~ycli.yandex.models.APIModel`.
+Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from typing import Any, Literal, Self
 
 from pydantic import Field, model_validator
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import User, UserIdentity
 
 #: What a grant lets its holder do, weakest first.
@@ -76,7 +76,7 @@ class PageAccess(APIModel):
     )
 
 
-class PageAccessCreate(APIModel):
+class PageAccessCreate(RequestBody):
     """Typed body for ``POST /pages/{id}/access`` — grant a user or a group a role on a page.
 
     Name exactly one of ``user`` and ``group``.
@@ -102,7 +102,7 @@ class PageAccessCreate(APIModel):
         return self
 
 
-class PageAccessUpdate(APIModel):
+class PageAccessUpdate(RequestBody):
     """Typed body for ``POST /pages/{id}/access/{access_id}`` — change a grant's role or reach.
 
     Examples:

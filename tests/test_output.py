@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ycli.cli.output import OutputFormat, PrettyStrategy, SerializationStrategy
+from ycli.yandex.models import APIModel
 
 
 class Item(BaseModel):
@@ -21,6 +22,10 @@ class Item(BaseModel):
 
 class Items(RootModel[list[Item]]):
     pass
+
+
+class Reply(APIModel):
+    id: int
 
 
 def _console(*, tty: bool) -> tuple[Console, io.StringIO]:
@@ -52,6 +57,20 @@ def test_explicit_json_on_tty_is_highlighted():
     _render(Item(id=7, name="bob"), OutputFormat.json, console)
     out = buf.getvalue()
     assert "bob" in out and "id" in out
+
+
+def test_a_field_the_model_does_not_declare_is_printed_under_its_wire_name():
+    """A reply keeps what Yandex adds (#197): every format shows it, as it came."""
+    reply = Reply.model_validate({"id": 7, "brandNew": {"since": "2026"}, "isFresh": True})
+    console, buf = _console(tty=False)
+    _render(reply, OutputFormat.json, console)
+    assert json.loads(buf.getvalue()) == {"id": 7, "brandNew": {"since": "2026"}, "isFresh": True}
+    console, buf = _console(tty=False)
+    _render(reply, OutputFormat.yaml, console)
+    assert "brandNew:" in buf.getvalue() and "isFresh: true" in buf.getvalue()
+    console, buf = _console(tty=True)
+    _render(reply, OutputFormat.pretty, console)
+    assert "brandNew.since" in buf.getvalue() and "isFresh" in buf.getvalue()
 
 
 def test_yaml_format():

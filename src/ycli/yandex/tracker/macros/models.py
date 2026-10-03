@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import KeyedReference, Reference
 
 
@@ -62,7 +62,7 @@ class Macro(APIModel):
     )
 
 
-class MacroCreate(APIModel):
+class MacroCreate(RequestBody):
     """Typed request body for ``macros.create`` (``POST /queues/{id}/macros``).
 
     ``issue_update`` here is a field→value *object* (not the list the read side returns),
@@ -82,7 +82,7 @@ class MacroCreate(APIModel):
     )
 
 
-class MacroUpdate(APIModel):
+class MacroUpdate(RequestBody):
     """Typed request body for ``macros.edit`` (``PATCH /queues/{id}/macros/{macro_id}``).
 
     Every field is optional; only the fields you set are sent.

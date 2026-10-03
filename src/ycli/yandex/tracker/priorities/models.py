@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -28,7 +28,7 @@ class Priority(APIModel):
     display: str | None = None
 
 
-class PriorityCreate(APIModel):
+class PriorityCreate(RequestBody):
     """Typed request body for ``POST /priorities/`` (create a priority).
 
     Examples:
@@ -47,7 +47,7 @@ class PriorityCreate(APIModel):
     description: str | None = Field(default=None, description="Description of the priority.")
 
 
-class PriorityUpdate(APIModel):
+class PriorityUpdate(RequestBody):
     """Typed request body for ``PATCH /priorities/{id}?version=`` (edit a priority).
 
     Only the fields that are set are sent, so omitted fields stay unchanged.

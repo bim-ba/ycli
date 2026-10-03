@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class Image(APIModel):
@@ -39,7 +39,7 @@ class Image(APIModel):
     )
 
 
-class ImageClone(APIModel):
+class ImageClone(RequestBody):
     """Typed body for ``POST /surveys/{id}/images/clone``: the image to copy and its new name.
 
     Unset fields are dropped before the request is sent.

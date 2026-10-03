@@ -10,7 +10,7 @@ from pydantic import Field
 
 from ycli.yandex.forms.models import ConditionsResponse
 from ycli.yandex.forms.subscriptions.models import Subscription
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class Hook(APIModel):
@@ -39,7 +39,7 @@ class Hook(APIModel):
     )
 
 
-class HookCreate(APIModel):
+class HookCreate(RequestBody):
     """Typed body for ``POST /surveys/{id}/hooks``; unset fields are dropped before sending.
 
     Examples:

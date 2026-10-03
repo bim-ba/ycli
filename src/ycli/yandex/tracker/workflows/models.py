@@ -17,7 +17,7 @@ from typing import Annotated, Any, Literal
 
 from pydantic import AfterValidator, AliasChoices, Field, RootModel
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import KeyedReference, LocalizedName, UserReference
 
 
@@ -103,7 +103,7 @@ class QueueWorkflows(RootModel[dict[str, list[KeyedReference]]]):
     """
 
 
-class RefSelector(APIModel):
+class RefSelector(RequestBody):
     """A status or queue named by an object; give one of ``key``, ``id`` or ``name``.
 
     Examples:
@@ -139,7 +139,7 @@ def _needs_russian(name: LocalizedName | None) -> LocalizedName | None:
     return name
 
 
-class WorkflowActionInput(APIModel):
+class WorkflowActionInput(RequestBody):
     """An action in a request: ``name`` and ``target`` are required.
 
     Examples:
@@ -170,7 +170,7 @@ class WorkflowActionInput(APIModel):
     )
 
 
-class WorkflowActionUpdate(APIModel):
+class WorkflowActionUpdate(RequestBody):
     """Typed request body for ``workflows.edit_action``.
 
     The docs mark every field optional, but Tracker refuses an edit without ``name`` and
@@ -204,7 +204,7 @@ class WorkflowActionUpdate(APIModel):
     )
 
 
-class WorkflowStepInput(APIModel):
+class WorkflowStepInput(RequestBody):
     """A step in a request: a status and the actions leaving it.
 
     Examples:
@@ -235,7 +235,7 @@ class WorkflowStepInput(APIModel):
     )
 
 
-class IssueTypeResolutions(APIModel):
+class IssueTypeResolutions(RequestBody):
     """The resolutions allowed for one issue type in a workflow.
 
     Examples:
@@ -253,7 +253,7 @@ class IssueTypeResolutions(APIModel):
     )
 
 
-class WorkflowCreate(APIModel):
+class WorkflowCreate(RequestBody):
     """Typed request body for ``workflows.create`` (``POST /workflows``).
 
     Examples:
@@ -295,7 +295,7 @@ class WorkflowCreate(APIModel):
     )
 
 
-class WorkflowUpdate(APIModel):
+class WorkflowUpdate(RequestBody):
     """Typed request body for ``workflows.edit`` (``PATCH /workflows/{id}``).
 
     Only the fields that are set change; a given ``steps`` list replaces the whole step list.

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import User
 
 
@@ -50,7 +50,7 @@ class UploadSession(APIModel):
     )
 
 
-class UploadSessionCreate(APIModel):
+class UploadSessionCreate(RequestBody):
     """Typed request body for ``uploadsessions.create`` (``POST /upload_sessions``).
 
     Examples:

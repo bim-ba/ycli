@@ -1,4 +1,4 @@
-"""Pydantic v2 models for Yandex Wiki /pages/{id}/resources responses (extra='ignore')."""
+"""Pydantic v2 models for Yandex Wiki /pages/{id}/resources responses."""
 
 from __future__ import annotations
 

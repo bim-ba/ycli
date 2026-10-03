@@ -1,6 +1,6 @@
 """Pydantic models for Wiki full-text search (``POST /search``).
 
-``extra='ignore'`` via :class:`~ycli.yandex.models.APIModel`.
+Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import UserIdentity
 
 #: What a search hit is.
@@ -19,7 +19,7 @@ SearchDocumentType = Literal["page", "file"]
 SearchOrder = Literal["relevancy", "creation_date", "modified_date"]
 
 
-class SearchDateRange(APIModel):
+class SearchDateRange(RequestBody):
     """A time window for ``created_at`` / ``modified_at``; both ends are required.
 
     The spec calls both ends optional, but the live API answers an open-ended window with
@@ -34,7 +34,7 @@ class SearchDateRange(APIModel):
     end: datetime = Field(alias="to", description="End of the window (ISO 8601).")
 
 
-class SearchFilters(APIModel):
+class SearchFilters(RequestBody):
     """What to narrow a search to; every filter is optional.
 
     Examples:
@@ -63,7 +63,7 @@ class SearchFilters(APIModel):
     )
 
 
-class SearchRequest(APIModel):
+class SearchRequest(RequestBody):
     """Body of ``POST /search``: the query, filters and one page of the results.
 
     Examples:

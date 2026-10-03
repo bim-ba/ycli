@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import LinkType
 
@@ -81,7 +82,7 @@ class RemoteLink(APIModel):
         return self.object.key if self.object else None
 
 
-class RemoteLinkCreate(APIModel):
+class RemoteLinkCreate(RequestBody):
     """Typed request body for ``POST /issues/{key}/remotelinks`` (add an external link).
 
     Examples:
