@@ -77,7 +77,8 @@
       link.href = base;
       if (base === current) return;
       const samePage = base + here.slice(current.length);
-      fetch(samePage, { method: "HEAD" })
+      // A slow or failed request leaves the link on the other language's home page.
+      fetch(samePage, { method: "HEAD", signal: AbortSignal.timeout(3000) })
         .then((answer) => {
           if (answer.ok && location.href.split("#")[0] === here) link.href = samePage;
         })
