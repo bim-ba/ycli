@@ -92,3 +92,21 @@ class User(APIModel):
     display_name: str | None = Field(default=None, description="Name to show for the user.")
     is_dismissed: bool | None = Field(default=None, description="Whether the user has left.")
     affiliation: str | None = Field(default=None, description="Affiliation of the user.")
+
+
+class CursorPage[T](APIModel):
+    """One page of a Wiki listing: its ``results`` and the cursor of the page after it.
+
+    ``next_cursor`` is ``null``, not absent and not an empty string, once the listing is
+    exhausted; a caller paging by hand sends it back as the next request's ``cursor``.
+
+    Examples:
+        >>> page = CursorPage[PageIdentity].model_validate(
+        ...     {"results": [{"id": 1, "slug": "data/a"}], "next_cursor": None}
+        ... )
+        >>> page.results[0].slug, page.next_cursor
+        ('data/a', None)
+    """
+
+    results: list[T] = Field(default_factory=list)
+    next_cursor: str | None = None

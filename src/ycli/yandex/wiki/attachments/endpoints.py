@@ -12,19 +12,15 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.wiki.attachments.models import (
-    AttachedFile,
-    Attachment,
-    AttachmentsResponse,
-    AttachResponse,
-)
+from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachResponse
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
+from ycli.yandex.wiki.models import CursorPage
 
 
-def list_attachments(page_id: int) -> Paged[AttachmentsResponse, Attachment]:
+def list_attachments(page_id: int) -> Paged[CursorPage[Attachment], Attachment]:
     path = f"pages/{segment(page_id)}/attachments"
     return Paged(
-        Endpoint("GET", path, AttachmentsResponse, params={"page_size": 100}),
+        Endpoint("GET", path, CursorPage[Attachment], params={"page_size": 100}),
         WIKI_CURSOR,
         lambda page: page.results,
     )

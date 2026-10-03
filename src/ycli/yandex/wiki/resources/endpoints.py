@@ -9,15 +9,18 @@ from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
-from ycli.yandex.wiki.resources.models import ResourceItem, ResourcesResponse
+from ycli.yandex.wiki.models import CursorPage
+from ycli.yandex.wiki.resources.models import ResourceItem
 
 
 def list_resources(
     page_id: int, *, q: str | None, types: str | None, order_by: str | None
-) -> Paged[ResourcesResponse, ResourceItem]:
+) -> Paged[CursorPage[ResourceItem], ResourceItem]:
     params = {"page_size": 100, "q": q, "types": types, "order_by": order_by}
     return Paged(
-        Endpoint("GET", f"pages/{segment(page_id)}/resources", ResourcesResponse, params=params),
+        Endpoint(
+            "GET", f"pages/{segment(page_id)}/resources", CursorPage[ResourceItem], params=params
+        ),
         WIKI_CURSOR,
         lambda page: page.results,
     )

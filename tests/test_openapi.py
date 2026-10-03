@@ -124,6 +124,12 @@ def test_models_that_share_a_class_name_are_named_by_resource():
     assert gen_openapi._readable("ycli__yandex__tracker__import___models__Link") == "ImportLink"
 
 
+def test_a_generic_page_is_named_after_its_item():
+    names = set(DOCUMENTS["wiki"]["components"]["schemas"])
+    assert {"PageRefPage", "AttachmentPage", "CommentPage"} <= names
+    assert not [name for name in names if name.startswith("CursorPage")]
+
+
 def test_parameters_take_the_type_of_the_sdk_argument_or_of_the_value_sent():
     by_id = _operations("wiki")[("GET", "/pages/{page_id}")]
     assert by_id["parameters"][0]["schema"] == {"type": "integer"}  # ``page_id: int``

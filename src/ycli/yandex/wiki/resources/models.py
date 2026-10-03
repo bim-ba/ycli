@@ -29,28 +29,6 @@ class ResourceItem(APIModel):
     )
 
 
-class ResourcesResponse(APIModel):
-    """Envelope for ``GET /pages/{id}/resources`` — ``{results, next_cursor}``.
-
-    Internal per-page parse type used by ``endpoints.list_resources``. ``next_cursor`` is
-    ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
-    feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
-
-    Examples:
-        >>> r = ResourcesResponse.model_validate({"results": [{"type": "grid", "item": {}}]})
-        >>> r.results[0].type
-        'grid'
-    """
-
-    results: list[ResourceItem] = Field(
-        default_factory=list, description="Resource envelopes on this page of the listing."
-    )
-    next_cursor: str | None = Field(
-        default=None,
-        description="Cursor for the next page; ``null`` when the listing is exhausted.",
-    )
-
-
 class ResourceItemList(RootModel[list[ResourceItem]]):
     """A drained, flat list of page resources (no cursor — pagination is internal).
 

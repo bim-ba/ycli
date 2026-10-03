@@ -36,25 +36,6 @@ class Comment(APIModel):
     content: str | None = Field(default=None, validation_alias="body")
 
 
-class CommentsResponse(APIModel):
-    """Envelope for ``GET /pages/{id}/comments`` — ``{results, next_cursor}``.
-
-    Internal per-page parse type used by ``endpoints.list_comments``. ``next_cursor`` is
-    ``null`` (not absent / not empty string) once the listing is exhausted; a paginating caller
-    feeds the previous response's ``next_cursor`` back as the next request's ``cursor``.
-
-    Examples:
-        >>> CommentsResponse.model_validate({"results": [{"content": "ok"}]}).results[0].content
-        'ok'
-    """
-
-    results: list[Comment] = Field(default_factory=list)
-    next_cursor: str | None = Field(
-        default=None,
-        description="Cursor for the next page; ``null`` when the listing is exhausted.",
-    )
-
-
 class CommentList(RootModel[list[Comment]]):
     """Flat collection of :class:`Comment` items — public return type of ``CommentsClient.list``.
 

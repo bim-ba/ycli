@@ -73,10 +73,6 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
         "tracker",
         frozenset({"workflows.WorkflowActionInput", "workflows.WorkflowActionUpdate"}),
     ): TWO_OPERATIONS,
-    (
-        "wiki",
-        frozenset({"pages.BacklinksResponse", "pages.DescendantsResponse"}),
-    ): "cursor envelopes, to become one generic page (#203)",
 }
 
 
