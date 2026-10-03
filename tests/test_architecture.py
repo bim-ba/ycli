@@ -1043,6 +1043,34 @@ def test_arch5_single_sources_of_truth():
     assert not offenders, offenders
 
 
+_LOGGER_NAME_RE = re.compile(r"""getLogger\(\s*["']([\w.]+)["']""")
+
+
+def _repeated_logger_names(sources: dict[str, str]) -> dict[str, list[str]]:
+    """A logger name spelled as a literal in more than one module, with those modules."""
+    homes: dict[str, list[str]] = {}
+    for rel, text in sources.items():
+        for name in set(_LOGGER_NAME_RE.findall(text)):
+            homes.setdefault(name, []).append(rel)
+    return {name: sorted(rels) for name, rels in homes.items() if len(rels) > 1}
+
+
+def test_arch5_a_logger_name_is_spelled_in_one_module():
+    """Two modules that log to one channel share its constant (``ycli.log``)."""
+    sources = {str(p.relative_to(SRC)): p.read_text(encoding="utf-8") for p in SRC.rglob("*.py")}
+    assert _repeated_logger_names(sources) == {}
+
+
+def test_arch5_logger_name_check_bites():
+    sources = {
+        "a.py": 'logger = logging.getLogger("ycli.http")',
+        "b.py": "logger = logging.getLogger('ycli.http')",
+        "c.py": 'logger = logging.getLogger("ycli.status")',
+        "d.py": "logger = logging.getLogger(HTTP_LOGGER_NAME)",
+    }
+    assert _repeated_logger_names(sources) == {"ycli.http": ["a.py", "b.py"]}
+
+
 def test_arch5_every_host_home_still_spells_a_host():
     """An allowlist entry whose file no longer names a host is removed, not kept."""
     stale = [

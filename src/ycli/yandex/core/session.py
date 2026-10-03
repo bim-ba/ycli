@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING, cast
 import httpx2
 import stamina
 
+from ycli.log import HTTP_LOGGER_NAME
 from ycli.settings import HTTPConfig
 from ycli.yandex.core.endpoint import PAGED_EXTENSION, check_path
 from ycli.yandex.errors import (
@@ -59,7 +60,7 @@ if TYPE_CHECKING:
 # Called once per endpoint with what it does to the server and the request about to be sent.
 type BeforeSend = Callable[[Effect, httpx2.Request], None]
 
-logger = logging.getLogger("ycli.http")
+logger = logging.getLogger(HTTP_LOGGER_NAME)
 
 DEFAULT_MAX_PAGES = 1000
 # The longest server-requested pause ycli sits through; a longer Retry-After fails fast instead.
