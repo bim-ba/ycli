@@ -44,8 +44,8 @@ Server only:
 
 ```bash
 claude mcp add yandex-360 --transport stdio \
-  --env YANDEX_ID_OAUTH_TOKEN="$YANDEX_ID_OAUTH_TOKEN" \
-  --env YANDEX_ID_ORGANIZATION_ID="$YANDEX_ID_ORGANIZATION_ID" \
+  --env YANDEX_ID_OAUTH_TOKEN='${YANDEX_ID_OAUTH_TOKEN}' \
+  --env YANDEX_ID_ORGANIZATION_ID='${YANDEX_ID_ORGANIZATION_ID}' \
   -- uvx --from 'yandex-cli[mcp]' ycli mcp start
 ```
 
