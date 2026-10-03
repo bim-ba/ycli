@@ -75,5 +75,6 @@ description: "ycli управляет Яндекс Трекером, Вики и
 | вызвать эндпоинт, который ycli не оборачивает | [Вызов необёрнутого эндпоинта](how-to/call-an-unwrapped-endpoint.md) |
 | найти команду, инструмент, метод или настройку | [Справочник](reference/configuration.md) |
 | понять, почему ycli устроен именно так | [Устройство](explanation/design.md) |
+| сравнить ycli с серверами самого Яндекса и сообщества | [ycli и другие инструменты](explanation/comparison.md) |
 
 ycli — открытый проект под лицензией MIT: [github.com/bim-ba/ycli](https://github.com/bim-ba/ycli).
