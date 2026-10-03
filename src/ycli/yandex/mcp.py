@@ -9,6 +9,7 @@ negligible next to the HTTP round trip it serves.
 from __future__ import annotations
 
 from contextlib import contextmanager
+from importlib.resources import files
 from typing import TYPE_CHECKING
 
 from fastmcp.exceptions import ToolError
@@ -45,9 +46,33 @@ WRITE_IDEMPOTENT: dict[str, bool] = {**WRITE, "idempotentHint": True}
 DESTRUCTIVE: dict[str, bool] = {**WRITE, "destructiveHint": True}
 # Tag carried by every write tool — `ycli mcp start --read-only` disables it wholesale.
 WRITE_TAG = "write"
+# Meta keys of a prompt and of a resource template: the root-server tool names a prompt's
+# text tells the model to call, and the read tool a resource repeats. The server offers
+# neither when one of those tools is not served (ycli.mcp.listing.ServedWithTheirTools).
+NEEDS_TOOLS = "ycli_needs_tools"
+REPEATS_TOOL = "ycli_repeats_tool"
 # The tail of every listing tool's `limit` description. It names the setting, not its value,
 # so the text stays true when HTTPConfig.max_items or the environment changes the cap.
 LIMIT_CAP = "0 means the configured cap (YCLI__HTTP__MAX_ITEMS)."
+
+
+def guide(package: str) -> str:
+    """The guide shipped in ``package`` as ``guide.md``: the plugin's skill for that service.
+
+    The file is a link to the plugin's ``SKILL.md`` in the repository and a copy of it in the
+    wheel, so a client without the plugin reads the same text.
+
+    Args:
+        package: The package that holds ``guide.md``, e.g. ``ycli.yandex.tracker.mcp``.
+
+    Returns:
+        The guide's Markdown.
+
+    Examples:
+        >>> guide("ycli.yandex.tracker.mcp").splitlines()[1]
+        'name: yandex-360-tracker'
+    """
+    return files(package).joinpath("guide.md").read_text(encoding="utf-8")
 
 
 def caller_credentials() -> Credentials:

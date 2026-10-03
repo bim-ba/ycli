@@ -1,4 +1,4 @@
-"""Deterministic enumerators of ycli's public surface (CLI tree and signatures, MCP signatures)."""
+"""Deterministic enumerators of ycli's public surface: the CLI and what the MCP server offers."""
 
 from __future__ import annotations
 
@@ -103,3 +103,27 @@ def mcp_signature(tool: Any) -> str:
 def mcp_signatures() -> list[str]:
     """Each MCP tool with typed parameters."""
     return sorted(mcp_signature(tool) for tool in _tools())
+
+
+def mcp_prompts_and_resources() -> list[str]:
+    """Each MCP prompt with its arguments (``!`` = required), then each resource address."""
+
+    async def go() -> list[str]:
+        async with Client(mcp) as client:
+            prompts = [
+                f"prompt {prompt.name}("
+                + ", ".join(
+                    f"{argument.name}{'!' if argument.required else ''}"
+                    for argument in prompt.arguments or []
+                )
+                + ")"
+                for prompt in await client.list_prompts()
+            ]
+            resources = [f"resource {resource.uri}" for resource in await client.list_resources()]
+            templates = [
+                f"resource {template.uri_template}"
+                for template in await client.list_resource_templates()
+            ]
+        return [*sorted(prompts), *sorted([*resources, *templates])]
+
+    return asyncio.run(go())

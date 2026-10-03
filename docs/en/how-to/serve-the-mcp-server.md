@@ -34,6 +34,27 @@ Every tool says what it does: reads carry `readOnlyHint`, writes say whether the
 or idempotent. A host can auto-approve reads and ask before a destructive call. `--read-only`
 removes every write, for a deployment where the agent must not change anything.
 
+## Prompts and resources
+
+Besides tools, the server offers a few prompts and resources. A client shows a prompt as a ready request (in Claude Code, `/yandex-360:tracker_issue_brief DE-7`) and lets you attach a resource to the conversation (`@yandex-360:ycli://tracker/issue/DE-7`).
+
+| Prompt | What it asks for |
+|---|---|
+| `tracker_queue_digest` | the open issues of a queue: how many, what is stuck, who holds what |
+| `tracker_issue_brief` | one issue: where it stands, what was decided, what blocks it |
+| `tracker_sprint_review` | a sprint of a board: what was done, what slipped |
+| `wiki_page_from_issue` | a Wiki page drafted from an issue, created after you approve the draft |
+| `forms_answers_table` | the answers of a form as a table, with a summary |
+
+| Resource | Content |
+|---|---|
+| `ycli://tracker/issue/{key}` | the issue, as `tracker_issues_get` returns it |
+| `ycli://wiki/page/{slug}` | the page's Markdown |
+| `ycli://forms/survey/{survey_id}` | the form's settings, as `forms_surveys_get` returns them |
+| `ycli://tracker/guide`, `ycli://wiki/guide`, `ycli://forms/guide`, `ycli://guide` | how to work with the service through these tools: the text of the plugin's skills, for a client without the plugin |
+
+A prompt or a resource is offered only when the server serves the tools it is made of: with `--read-only` there is no `wiki_page_from_issue`, with `--toolsets wiki` no Tracker prompt. `ycli mcp methods --kind prompts` and `--kind resources` list what a server with the same flags offers. The arguments are in the [reference](../reference/mcp/prompts-and-resources.md).
+
 ## Connect a client
 
 Most MCP clients take a command and an environment:

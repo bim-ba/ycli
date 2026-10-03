@@ -24,6 +24,8 @@ from ycli.yandex.tracker.links.mcp import mcp as links_mcp
 from ycli.yandex.tracker.linktypes.mcp import mcp as linktypes_mcp
 from ycli.yandex.tracker.localfields.mcp import mcp as localfields_mcp
 from ycli.yandex.tracker.macros.mcp import mcp as macros_mcp
+from ycli.yandex.tracker.mcp.prompts import mcp as prompts_mcp
+from ycli.yandex.tracker.mcp.resources import mcp as mcp_resources_mcp
 from ycli.yandex.tracker.me.mcp import mcp as me_mcp
 from ycli.yandex.tracker.priorities.mcp import mcp as priorities_mcp
 from ycli.yandex.tracker.projects.mcp import mcp as projects_mcp
@@ -83,3 +85,5 @@ mcp.mount(entities_mcp)
 mcp.mount(workflows_mcp)
 mcp.mount(projects_mcp)
 mcp.mount(gaps_mcp)
+mcp.mount(prompts_mcp)
+mcp.mount(mcp_resources_mcp)

@@ -87,7 +87,7 @@ forms surveys publish: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profi
 forms surveys unpublish: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms surveys update: --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --jq:TEXT --language:TEXT --max-count:INTEGER --name:TEXT --need-auth:BOOLEAN --profile:TEXT --public:BOOLEAN --published:BOOLEAN --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms variables list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
-mcp methods: --dry-run:BOOLEAN=False --exclude-tools:TEXT --format:CHOICE --jq:TEXT --profile:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT --toolsets:TEXT='all' --yes:BOOLEAN=False
+mcp methods: --dry-run:BOOLEAN=False --exclude-tools:TEXT --format:CHOICE --jq:TEXT --kind:CHOICE=<Kind.tools: 'tools'> --profile:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT --toolsets:TEXT='all' --yes:BOOLEAN=False
 mcp start: --dry-run:BOOLEAN=False --exclude-tools:TEXT --format:CHOICE --host:TEXT --jq:TEXT --port:INTEGER --profile:TEXT --read-only:BOOLEAN=False --tool-search:BOOLEAN=False --tools:TEXT --toolsets:TEXT='all' --transport:CHOICE=<Transport.stdio: 'stdio'> --yes:BOOLEAN=False
 tracker applications list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False
 tracker attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:TEXT! ISSUE_KEY:TEXT!

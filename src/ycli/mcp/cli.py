@@ -68,6 +68,21 @@ class Transport(enum.StrEnum):
     http = "http"
 
 
+class Kind(enum.StrEnum):
+    """What ``ycli mcp methods`` lists."""
+
+    tools = "tools"
+    prompts = "prompts"
+    resources = "resources"
+
+
+_Kind = Annotated[
+    Kind,
+    typer.Option(
+        "--kind",
+        help="What to list: tools (default), prompts, or resources (addresses and templates).",
+    ),
+]
 _Transport = Annotated[
     Transport,
     typer.Option(
@@ -157,8 +172,13 @@ def methods(
     exclude_tools: _ExcludeTools = None,
     read_only: _ReadOnly = False,
     tool_search: _ToolSearch = False,
+    kind: _Kind = Kind.tools,
 ) -> str:
-    """List the MCP tool names a server with the same flags exposes, one per line."""
+    """List what a server with the same flags exposes, one name per line: tools by default.
+
+    `--kind prompts` lists the prompts and `--kind resources` the resource addresses; a prompt
+    or a resource is served only when the tools it is made of are.
+    """
     import asyncio
 
     selection = _selection(toolsets, tools, exclude_tools, read_only, tool_search)
@@ -170,7 +190,17 @@ def methods(
 
     async def _list() -> list[str]:
         await check_tool_names(selection)
-        return sorted(tool.name for tool in await build_server(selection).list_tools())
+        server = build_server(selection)
+        if kind is Kind.prompts:
+            return sorted(prompt.name for prompt in await server.list_prompts())
+        if kind is Kind.resources:
+            return sorted(
+                [
+                    *[str(resource.uri) for resource in await server.list_resources()],
+                    *[template.uri_template for template in await server.list_resource_templates()],
+                ]
+            )
+        return sorted(tool.name for tool in await server.list_tools())
 
     try:
         return "\n".join(asyncio.run(_list()))

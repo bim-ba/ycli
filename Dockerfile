@@ -13,6 +13,8 @@ ENV UV_PROJECT_ENVIRONMENT=/opt/ycli UV_COMPILE_BYTECODE=1 UV_PYTHON_DOWNLOADS=n
 WORKDIR /src
 COPY pyproject.toml uv.lock README.md LICENSE CHANGELOG.md ./
 COPY src ./src
+# guide.md in the package links to the plugin's skills.
+COPY plugins ./plugins
 RUN uv sync --frozen --no-dev --extra mcp --extra jq --no-editable --no-cache
 
 FROM python:3.12-slim-trixie
