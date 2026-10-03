@@ -9,6 +9,65 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.41.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.40.0
+  ([`10d6a41`](https://github.com/bim-ba/ycli/commit/10d6a4183d81eee0b383b2a9cc9ff01f4d9e542d))
+
+### Features
+
+- **cli**: A renamed command no longer answers to its old name
+  ([#226](https://github.com/bim-ba/ycli/pull/226),
+  [`b704c54`](https://github.com/bim-ba/ycli/commit/b704c548e6b2bd75f76324b53ba6cbf49bfc9b73))
+
+### Breaking Changes
+
+- **cli**: The old command names stop working; use the new ones: `forms answers integrations` →
+  `forms answers integrations-list`; `forms conditions hook modify` → `forms conditions hook
+  update`; `forms conditions page modify` → `forms conditions page update`; `forms conditions
+  question modify` → `forms conditions question update`; `forms conditions submit modify` → `forms
+  conditions submit update`; `forms hooks modify` → `forms hooks update`; `forms keysets modify` →
+  `forms keysets update`; `forms notifications errors` → `forms notifications errors-list`; `forms
+  notifications status` → `forms notifications status-get`; `forms questions modify` → `forms
+  questions update`; `forms subscriptions modify` → `forms subscriptions update`; `forms surveys
+  modify` → `forms surveys update`; `tracker autoactions log-detail` → `tracker autoactions
+  logs-get`; `tracker autoactions logs` → `tracker autoactions logs-list`; `tracker boards edit` →
+  `tracker boards update`; `tracker bulk issues` → `tracker bulk issues-list`; `tracker checklists
+  add` → `tracker checklists create`; `tracker checklists edit` → `tracker checklists update`;
+  `tracker columns edit` → `tracker columns update`; `tracker comments edit` → `tracker comments
+  update`; `tracker components edit` → `tracker components update`; `tracker components
+  group-permissions` → `tracker components group-permissions-get`; `tracker components
+  user-permissions` → `tracker components user-permissions-get`; `tracker dashboards add-widget
+  cycletime` → `tracker dashboards add-cycle-time-widget`; `tracker entities bulk` → `tracker
+  entities bulk-update`; `tracker entities bulk-status` → `tracker entities bulk-status-get`;
+  `tracker entities checklists edit` → `tracker entities checklists update`; `tracker entities
+  checklists edit-item` → `tracker entities checklists update-item`; `tracker entities comments
+  edit` → `tracker entities comments update`; `tracker entities direct-permissions` → `tracker
+  entities direct-permissions-get`; `tracker entities edit` → `tracker entities update`; `tracker
+  entities history` → `tracker entities events-list`; `tracker entities permissions` → `tracker
+  entities permissions-get`; `tracker fields category-edit` → `tracker fields category-update`;
+  `tracker fields edit` → `tracker fields update`; `tracker filters edit` → `tracker filters
+  update`; `tracker issuetypes edit` → `tracker issuetypes update`; `tracker localfields edit` →
+  `tracker localfields update`; `tracker macros edit` → `tracker macros update`; `tracker priorities
+  edit` → `tracker priorities update`; `tracker projects edit` → `tracker projects update`; `tracker
+  queues fields` → `tracker queues fields-list`; `tracker queues group-permissions` → `tracker
+  queues group-permissions-get`; `tracker queues permissions` → `tracker queues set-permissions`;
+  `tracker queues tags` → `tracker queues tags-list`; `tracker queues user-permissions` → `tracker
+  queues user-permissions-get`; `tracker queues version-edit` → `tracker queues version-update`;
+  `tracker queues versions` → `tracker queues versions-list`; `tracker resolutions edit` → `tracker
+  resolutions update`; `tracker sprints edit` → `tracker sprints update`; `tracker statuses edit` →
+  `tracker statuses update`; `tracker triggers edit` → `tracker triggers update`; `tracker triggers
+  webhook-log` → `tracker triggers webhook-log-list`; `tracker workflows edit` → `tracker workflows
+  update`; `tracker workflows edit-action` → `tracker workflows update-action`; `tracker worklog
+  add` → `tracker worklog create`; `tracker worklog edit` → `tracker worklog update`; `wiki comments
+  thread` → `wiki comments thread-list`; `wiki operations clone` → `wiki operations clone-get`;
+  `wiki operations gridclone` → `wiki operations gridclone-get`; `wiki pages backlinks` → `wiki
+  pages backlinks-list`; `wiki pages grids` → `wiki pages grids-list`; `wiki pages revisions` →
+  `wiki pages revisions-list`.
+
+
 ## v0.40.0 (2026-10-03)
 
 ### Build System
