@@ -25,11 +25,9 @@ import, no reader of the site) within two milestones, delete the script and the 
 from __future__ import annotations
 
 import argparse
-import asyncio
 import re
 import sys
 from collections import defaultdict
-from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -42,7 +40,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts import api_drift, api_surface  # noqa: E402
-from tests.full_server import mcp  # noqa: E402
 
 from ycli.yandex.core.profile import ORG_HEADER  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
@@ -55,12 +52,6 @@ SCHEMAS = "#/components/schemas/"
 TITLES = {"tracker": "Yandex Tracker", "wiki": "Yandex Wiki", "forms": "Yandex Forms"}
 _PLACEHOLDER = re.compile(r"\{([^}]*)\}|<([^>]*)>")
 _JSON = "application/json"
-
-
-@cache
-def _mcp_tools() -> dict[str, Any]:
-    """Every MCP tool by name; their ``body`` parameters are ycli's typed request bodies."""
-    return {tool.name: tool for tool in asyncio.run(mcp.list_tools())}
 
 
 def _hoisted(schema: dict[str, Any], schemas: dict[str, Any]) -> dict[str, Any]:
@@ -150,13 +141,10 @@ def _request_body(group: list[Recorded], schemas: dict[str, Any]) -> dict[str, A
     kind = requests[0].headers.get("Content-Type", "application/octet-stream").split(";")[0]
     if kind != _JSON:
         return {"content": {kind: {}}}
-    primary = _primary(group)
-    tool = _mcp_tools().get(primary.case.mcp[0]) if primary.case.mcp else None
-    body = (tool.parameters.get("properties", {}) if tool else {}).get("body")
-    if tool is None or body is None or len(api_drift.replay(primary.case)) != 1:
+    body = api_drift.typed_body(_primary(group))
+    if body is None:
         return {"content": {_JSON: {}}, "x-ycli-body": "untyped"}
-    schema = _hoisted({**body, "$defs": tool.parameters.get("$defs", {})}, schemas)
-    return {"content": {_JSON: {"schema": schema}}, "x-ycli-body": "typed"}
+    return {"content": {_JSON: {"schema": _hoisted(body, schemas)}}, "x-ycli-body": "typed"}
 
 
 def _response(found: Recorded, responses: dict[str, Any]) -> dict[str, Any]:

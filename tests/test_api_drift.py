@@ -243,6 +243,7 @@ def _call(operation: str, method: str, path: str, **parts) -> Call:
         path,
         query=frozenset(parts.get("query", ())),
         response=frozenset(parts["response"]) if "response" in parts else None,
+        request=frozenset(parts["request"]) if "request" in parts else None,
     )
 
 
@@ -273,6 +274,28 @@ def test_compare_reports_every_kind_of_difference(monkeypatch):
     assert (get.missing_query, get.unknown_query) == (("revision_id",), ("raw",))
     assert (get.dropped_response, get.unknown_response) == (("slug",), ("x",))
     assert create.unknown_response == ("slug",) and not create.dropped_response
+
+
+def test_compare_reports_body_fields_only_for_a_typed_body():
+    published = [Operation("POST", "/pages", request=("title", "slug"))]
+    typed = _call("wiki.pages.create", "POST", "/pages", request=("title", "typo"))
+    drift = compare("wiki", published, [typed])
+    (gap,) = drift.gaps
+    assert (gap.missing_request, gap.unknown_request) == (("slug",), ("typo",))
+    assert (drift.bodies_compared, drift.bodies_published) == (1, 1)
+    # A free-form body, or one that takes any field, says nothing about what ycli can send.
+    free_form = compare("wiki", published, [_call("wiki.pages.create", "POST", "/pages")])
+    assert free_form.gaps == () and (free_form.bodies_compared, free_form.bodies_published) == (
+        0,
+        1,
+    )
+
+
+def test_a_typed_body_lists_its_fields_and_an_open_one_does_not():
+    by_operation = {call.operation: call for call in api_drift.calls()}
+    assert {"name", "language"} <= (by_operation["forms.surveys.create"].request or set())
+    assert by_operation["tracker.issues.create"].request is None  # extra="allow": any field
+    assert by_operation["wiki.pages.get"].request is None  # no body
 
 
 def test_compare_trusts_a_reference_page_only_for_what_it_lists():
