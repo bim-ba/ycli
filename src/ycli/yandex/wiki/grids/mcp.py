@@ -143,7 +143,7 @@ def delete(
 @mcp.tool(
     name="grids_rows_add", annotations={**WRITE, "title": "Add Wiki grid rows"}, tags=WRITE_TAGS
 )
-def add_rows(
+def rows_add(
     grid_id: GridIdParam,
     body: Annotated[
         RowsAdd,
@@ -167,7 +167,7 @@ def add_rows(
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid rows"},
     tags=WRITE_TAGS,
 )
-def remove_rows(
+def rows_remove(
     grid_id: GridIdParam,
     body: Annotated[
         RowsRemove,
@@ -186,7 +186,7 @@ def remove_rows(
 @mcp.tool(
     name="grids_rows_move", annotations={**WRITE, "title": "Move Wiki grid rows"}, tags=WRITE_TAGS
 )
-def move_rows(
+def rows_move(
     grid_id: GridIdParam,
     body: Annotated[
         RowsMove,
@@ -209,7 +209,7 @@ def move_rows(
     annotations={**WRITE, "title": "Add Wiki grid columns"},
     tags=WRITE_TAGS,
 )
-def add_columns(
+def columns_add(
     grid_id: GridIdParam,
     body: Annotated[
         ColumnsAdd,
@@ -234,7 +234,7 @@ def add_columns(
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid columns"},
     tags=WRITE_TAGS,
 )
-def remove_columns(
+def columns_remove(
     grid_id: GridIdParam,
     body: Annotated[
         ColumnsRemove,
@@ -255,7 +255,7 @@ def remove_columns(
     annotations={**WRITE, "title": "Move Wiki grid columns"},
     tags=WRITE_TAGS,
 )
-def move_columns(
+def columns_move(
     grid_id: GridIdParam,
     body: Annotated[
         ColumnsMove,
@@ -278,7 +278,7 @@ def move_columns(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid cells"},
     tags=WRITE_TAGS,
 )
-def update_cells(
+def cells_update(
     grid_id: GridIdParam,
     body: Annotated[
         CellsUpdate,
@@ -323,7 +323,7 @@ def clone(
     annotations={**RO, "title": "Suggest Wiki grid column slug"},
     tags=TAGS,
 )
-def suggest_column(
+def columns_suggest(
     grid_id: GridIdParam,
     body: Annotated[
         ColumnSuggest,
@@ -344,7 +344,7 @@ def suggest_column(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid column"},
     tags=WRITE_TAGS,
 )
-def update_column(
+def columns_update(
     grid_id: GridIdParam,
     column_slug: Annotated[str, Field(description="Slug of the column to edit.")],
     body: Annotated[
@@ -371,7 +371,7 @@ def update_column(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid row"},
     tags=WRITE_TAGS,
 )
-def update_row(
+def rows_update(
     grid_id: GridIdParam,
     row_id: Annotated[str, Field(description="Id of the row to pin or colour.")],
     body: Annotated[
