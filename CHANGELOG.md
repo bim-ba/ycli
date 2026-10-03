@@ -9,6 +9,39 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.39.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.38.0
+  ([`794dc0a`](https://github.com/bim-ba/ycli/commit/794dc0a5d4c4868139f5d4aceb8f187e9d2bcb2c))
+
+### Documentation
+
+- Llms.txt, a description and a preview card for every page
+  ([#220](https://github.com/bim-ba/ycli/pull/220),
+  [`c238ba8`](https://github.com/bim-ba/ycli/commit/c238ba8a5a816897a7d615a9fd25b19d4dca2696))
+
+- Serve llms.txt, describe every page, and keep the theme's copy button
+  ([#220](https://github.com/bim-ba/ycli/pull/220),
+  [`c238ba8`](https://github.com/bim-ba/ycli/commit/c238ba8a5a816897a7d615a9fd25b19d4dca2696))
+
+- Social cards for every page, with the card fonts cached in CI
+  ([#220](https://github.com/bim-ba/ycli/pull/220),
+  [`c238ba8`](https://github.com/bim-ba/ycli/commit/c238ba8a5a816897a7d615a9fd25b19d4dca2696))
+
+### Features
+
+- **sdk**: One generic page for the Wiki cursor listings
+  ([#222](https://github.com/bim-ba/ycli/pull/222),
+  [`b6800dc`](https://github.com/bim-ba/ycli/commit/b6800dc777650a7b1bc2b8d16ef7893c381e73aa))
+
+### Breaking Changes
+
+- **sdk**: These Wiki model names are gone; use `ycli.yandex.wiki.models.CursorPage` with the item
+  type instead.
+
+
 ## v0.38.0 (2026-10-03)
 
 ### Build System
