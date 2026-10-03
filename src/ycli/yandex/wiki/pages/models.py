@@ -8,7 +8,7 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
-from ycli.yandex.wiki.models import AsyncOperation, OperationIdentity, User
+from ycli.yandex.wiki.models import User
 
 
 class PageAttributes(APIModel):
@@ -401,8 +401,3 @@ class BacklinksResponse(APIModel):
         default=None,
         description="Cursor for the next page; ``null`` when the listing is exhausted.",
     )
-
-
-PageCloneOperation = AsyncOperation  # deprecated, removed in 0.38
-PageCloneOperationIdentity = OperationIdentity  # deprecated, removed in 0.38
-PageMoveOperation = AsyncOperation  # deprecated, removed in 0.38

@@ -227,9 +227,3 @@ class AutoactionRunList(RootModel[list[AutoactionRunEntry]]):
         >>> AutoactionRunList.model_validate([{"id": 0}]).root[0].id
         0
     """
-
-
-AutoactionQueueRef = KeyedReference  # deprecated, removed in 0.38
-
-
-AutoactionAction = AutomationAction  # deprecated, removed in 0.39

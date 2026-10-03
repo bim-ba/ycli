@@ -514,10 +514,3 @@ class QueueGroupAccess(APIModel):
     components: list[Reference] = Field(
         default_factory=list, description="Components the group has access to."
     )
-
-
-AccessRef = Reference  # deprecated, removed in 0.38
-QueueRef = KeyedReference  # deprecated, removed in 0.38
-QueueUser = UserReference  # deprecated, removed in 0.38
-QueueVersion = Reference  # deprecated, removed in 0.38
-WorkflowRef = Reference  # deprecated, removed in 0.38

@@ -170,6 +170,3 @@ class PageOwner(APIModel):
 
     user: User | None = Field(default=None, description="The owning user.")
     group: AccessGroup | None = Field(default=None, description="The owning group (not in use).")
-
-
-AccessUser = User  # deprecated, removed in 0.39

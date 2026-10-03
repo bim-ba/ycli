@@ -9,7 +9,6 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker import models as _shared
 from ycli.yandex.tracker.models import (
     FieldSchema,
     LocalizedName,
@@ -180,7 +179,3 @@ class FieldCategoryUpdate(APIModel):
         default=None, description="New weight controlling the category's display order."
     )
     description: str | None = Field(default=None, description="New description of the category.")
-
-
-FieldCategory = Reference  # deprecated, removed in 0.38
-FieldCreate = _shared.FieldCreate  # deprecated, removed in 0.39

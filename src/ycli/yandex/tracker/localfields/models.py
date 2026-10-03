@@ -11,7 +11,6 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import (
-    FieldCreate,
     FieldSchema,
     KeyedReference,
     LocalizedName,
@@ -152,11 +151,3 @@ class LocalFieldUpdate(APIModel):
     hidden: bool | None = Field(
         default=None, description="Whether the field is fully hidden even when filled in."
     )
-
-
-FieldCategory = Reference  # deprecated, removed in 0.38
-FieldQueueRef = KeyedReference  # deprecated, removed in 0.38
-
-
-LocalFieldCreate = FieldCreate  # deprecated, removed in 0.39
-LocalFieldSchema = FieldSchema  # deprecated, removed in 0.39

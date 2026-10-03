@@ -178,6 +178,3 @@ class BoardUpdate(APIModel):
     columns: list[BoardColumnInput] | None = Field(
         default=None, description="Replacement status-backed columns of the board."
     )
-
-
-BoardColumn = Reference  # deprecated, removed in 0.38

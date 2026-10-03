@@ -6,7 +6,6 @@ from typing import Any
 
 from pydantic import Field, RootModel
 
-from ycli.yandex.forms.models import TERMINAL_STATUSES, OperationResult
 from ycli.yandex.models import APIModel
 
 
@@ -97,9 +96,6 @@ class AnswersResponse(APIModel):
     next: Any = None
 
 
-EXPORT_TERMINAL_STATUSES = TERMINAL_STATUSES  # deprecated, removed in 0.39
-
-
 class AnswerExport(APIModel):
     """Typed request body for ``POST /v1/surveys/{id}/answers/export`` (start an async export).
 
@@ -175,6 +171,3 @@ class AnswerIntegrationList(RootModel[list[AnswerIntegration]]):
         >>> AnswerIntegrationList.model_validate([{"id": 4}]).root[0].id
         4
     """
-
-
-ExportResult = OperationResult  # deprecated, removed in 0.39

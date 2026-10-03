@@ -105,6 +105,3 @@ class RemoteLinkCreate(APIModel):
     )
     key: str = Field(description="Key of the object in the external application.")
     origin: str = Field(description="Identifier of the external application to link with.")
-
-
-RemoteLinkType = LinkType  # deprecated, removed in 0.39

@@ -102,7 +102,3 @@ class ChecklistItemUpdate(APIModel):
     checked: bool | None = Field(default=None, description="New done flag.")
     assignee: str | None = Field(default=None, description="New assignee login or id.")
     deadline: DeadlineInput | None = Field(default=None, description="New item deadline.")
-
-
-ChecklistDeadline = Deadline  # deprecated, removed in 0.39
-ChecklistDeadlineInput = DeadlineInput  # deprecated, removed in 0.39

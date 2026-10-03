@@ -174,9 +174,3 @@ class WebhookLogList(RootModel[list[WebhookLogEntry]]):
         >>> WebhookLogList.model_validate([{"id": "x", "duration": 1}]).root[0].duration
         1
     """
-
-
-TriggerQueueRef = KeyedReference  # deprecated, removed in 0.38
-
-
-TriggerAction = AutomationAction  # deprecated, removed in 0.39

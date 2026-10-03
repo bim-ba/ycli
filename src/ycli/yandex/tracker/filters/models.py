@@ -127,8 +127,3 @@ class FilterUpdate(APIModel):
     query: str | None = Field(
         default=None, description="New filtering conditions in the Tracker query language."
     )
-
-
-FilterFieldRef = Reference  # deprecated, removed in 0.38
-FilterGroup = Reference  # deprecated, removed in 0.38
-FilterUser = UserReference  # deprecated, removed in 0.38

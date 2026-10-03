@@ -19,7 +19,6 @@ from pydantic import AliasChoices, ConfigDict, Field, RootModel
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
 )
-from ycli.yandex.tracker import models as _shared
 from ycli.yandex.tracker.models import (
     AttachmentMetadata,
     Deadline,
@@ -961,10 +960,3 @@ class ReportCreate(APIModel):
     """
 
     fields: ReportFieldsInput = Field(description="Report settings (summary + export parameters).")
-
-
-AclGroup = Reference  # deprecated, removed in 0.38
-EntityRef = Reference  # deprecated, removed in 0.38
-IssueQueueRef = KeyedReference  # deprecated, removed in 0.38
-UserRef = UserReference  # deprecated, removed in 0.38
-CommentCreate = _shared.CommentCreate  # deprecated, removed in 0.38

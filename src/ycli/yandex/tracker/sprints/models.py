@@ -144,6 +144,3 @@ class SprintUpdate(APIModel):
         default=None,
         description="New sprint status: draft, in_progress, released or archived.",
     )
-
-
-SprintBoardRef = Reference  # deprecated, removed in 0.38

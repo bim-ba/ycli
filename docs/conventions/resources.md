@@ -34,9 +34,9 @@ adds `key`); models of different kinds that only happen to match stay separate. 
 used by one resource stays in that resource. `tests/test_model_shapes.py` fails when two models of a
 service have the same schema, unless the group is listed in `SAME_SHAPE` with its reason.
 
-A merged class keeps its old name as a plain assignment in the module that defined it
-(`BoardColumn = Reference  # deprecated, removed in 0.38`) for one minor release;
-`DEPRECATED` in the same test lists them, and nothing in the repository may import them.
+A public model that is renamed or merged stops importing under its old name in the same
+release: no alias is kept. The commit that does it carries a `BREAKING CHANGE` footer listing
+"was → is", which becomes the changelog entry.
 
 ---
 

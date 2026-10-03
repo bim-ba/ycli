@@ -10,7 +10,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.models import User, UserIdentity
+from ycli.yandex.wiki.models import User
 
 
 class UploadSession(APIModel):
@@ -73,9 +73,3 @@ class AbortActiveUploadsResult(APIModel):
     status: str = Field(
         default="ok", description="Literal ``ok`` once every active session has been aborted."
     )
-
-
-UploadSessionUserIdentity = UserIdentity  # deprecated, removed in 0.38
-
-
-UploadSessionUser = User  # deprecated, removed in 0.39
