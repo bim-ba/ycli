@@ -94,30 +94,31 @@ class LoggingConfig(BaseModel):
     format: Literal["text", "json"] = "text"
 
 
-class AppConfig(BaseSettings):
+class _EnvSettings(BaseSettings):
+    """What every settings model shares: read ``.env`` too, and stay immutable.
+
+    ``env_ignore_empty``: an exported-but-empty variable reads as "not set", so the CLI routes
+    it to the same "run `ycli auth login`" hint as a missing one.
+    """
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore", validate_by_name=True, frozen=True
+    )
+
+
+class AppConfig(_EnvSettings):
     """Process-wide app configuration — always constructible, never needs credentials."""
 
     model_config = SettingsConfigDict(
-        env_prefix="YCLI__",
-        env_nested_delimiter="__",
-        env_nested_max_split=1,
-        env_file=".env",
-        extra="ignore",
-        frozen=True,
+        env_prefix="YCLI__", env_nested_delimiter="__", env_nested_max_split=1
     )
 
     http: HTTPConfig = HTTPConfig()
     logging: LoggingConfig = LoggingConfig()
 
 
-class Credentials(BaseSettings):
+class Credentials(_EnvSettings):
     """Yandex 360 credentials — required; pydantic raises if either is absent or empty."""
-
-    # env_ignore_empty: an exported-but-empty variable reads as "not set", so the CLI routes it
-    # to the same "run `ycli auth login`" hint as a missing one.
-    model_config = SettingsConfigDict(
-        env_file=".env", env_ignore_empty=True, extra="ignore", validate_by_name=True, frozen=True
-    )
 
     oauth_token: SecretStr = Field(
         min_length=1,
@@ -129,7 +130,7 @@ class Credentials(BaseSettings):
     )
 
 
-class OAuthAppConfig(BaseSettings):
+class OAuthAppConfig(_EnvSettings):
     """The user's OWN Yandex OAuth application, used by ``ycli auth login``.
 
     Both are optional: with only ``client_id`` the browser (implicit) flow is used;
@@ -137,17 +138,13 @@ class OAuthAppConfig(BaseSettings):
     the caller registers their app at https://oauth.yandex.ru.
     """
 
-    model_config = SettingsConfigDict(
-        env_file=".env", env_ignore_empty=True, extra="ignore", validate_by_name=True, frozen=True
-    )
-
     client_id: str | None = Field(default=None, validation_alias="YANDEX_OAUTH_CLIENT_ID")
     client_secret: SecretStr | None = Field(
         default=None, validation_alias="YANDEX_OAUTH_CLIENT_SECRET"
     )
 
 
-class MCPHTTPConfig(BaseSettings):
+class MCPHTTPConfig(_EnvSettings):
     """``ycli mcp start --transport http`` (``YCLI__MCP__*``): the server's address and signing key.
 
     ``base_url`` is the public HTTPS address MCP clients reach (the Yandex OAuth app's redirect
@@ -162,14 +159,7 @@ class MCPHTTPConfig(BaseSettings):
         8000
     """
 
-    model_config = SettingsConfigDict(
-        env_prefix="YCLI__MCP__",
-        env_file=".env",
-        env_ignore_empty=True,
-        extra="ignore",
-        validate_by_name=True,
-        frozen=True,
-    )
+    model_config = SettingsConfigDict(env_prefix="YCLI__MCP__")
 
     base_url: AnyHttpUrl
     organization_id: str = Field(
