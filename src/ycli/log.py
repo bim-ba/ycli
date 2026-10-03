@@ -20,6 +20,8 @@ from typing import Literal
 type LogFormat = Literal["text", "json"]
 
 LOGGER_NAME = "ycli"
+# The channel of HTTP traffic: the core sessions and the token client both log to it.
+HTTP_LOGGER_NAME = f"{LOGGER_NAME}.http"
 _HANDLER_NAME = "ycli.stderr"
 
 

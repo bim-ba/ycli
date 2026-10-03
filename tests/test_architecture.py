@@ -990,7 +990,13 @@ def test_arch4_stdout_guard_bites():
 
 # `timeout=30` as a keyword argument, or `timeout: float = 30.0` as an annotated default.
 _LITERAL_DEFAULT_RE = re.compile(
-    r"\b(timeout|timeout_seconds|retries|max_items)\s*(:[^=\n]+)?=\s*\d"
+    r"\b(timeout|timeout_seconds|retries|max_items|max_pages|max_retry_after_seconds)"
+    r"\s*(:[^=\n]+)?=\s*\d"
+)
+# `MAX_RETRY_AFTER_SECONDS = 60.0` at module level: a limit a user can run into, kept out of
+# the settings. A page size is a fact of the API and stays where it is used.
+_LIMIT_CONSTANT_RE = re.compile(
+    r"^_?(DEFAULT|MAX)_(?!\w*PAGE_SIZE\b)\w+\s*(:[^=\n]+)?=\s*\d", re.MULTILINE
 )
 _CREDENTIAL_ENV_RE = re.compile(r"YANDEX_ID_(OAUTH_TOKEN|ORGANIZATION_ID)\b")
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
@@ -1028,6 +1034,8 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
         code = "\n".join(line for line in text.splitlines() if ">>>" not in line)  # not doctests
         if _LITERAL_DEFAULT_RE.search(code):
             offenders.append(f"{rel}: a literal default shadows the HTTP settings")
+        if _LIMIT_CONSTANT_RE.search(code):
+            offenders.append(f"{rel}: a limit is a module constant instead of a setting")
         if re.search(r"class \w+\(BaseSettings\)", text):
             offenders.append(f"{rel}: BaseSettings subclass outside settings.py")
     return offenders
@@ -1041,6 +1049,34 @@ def test_arch5_single_sources_of_truth():
         for finding in _single_source_offenders(p.relative_to(SRC), p.read_text(encoding="utf-8"))
     ]
     assert not offenders, offenders
+
+
+_LOGGER_NAME_RE = re.compile(r"""getLogger\(\s*["']([\w.]+)["']""")
+
+
+def _repeated_logger_names(sources: dict[str, str]) -> dict[str, list[str]]:
+    """A logger name spelled as a literal in more than one module, with those modules."""
+    homes: dict[str, list[str]] = {}
+    for rel, text in sources.items():
+        for name in set(_LOGGER_NAME_RE.findall(text)):
+            homes.setdefault(name, []).append(rel)
+    return {name: sorted(rels) for name, rels in homes.items() if len(rels) > 1}
+
+
+def test_arch5_a_logger_name_is_spelled_in_one_module():
+    """Two modules that log to one channel share its constant (``ycli.log``)."""
+    sources = {str(p.relative_to(SRC)): p.read_text(encoding="utf-8") for p in SRC.rglob("*.py")}
+    assert _repeated_logger_names(sources) == {}
+
+
+def test_arch5_logger_name_check_bites():
+    sources = {
+        "a.py": 'logger = logging.getLogger("ycli.http")',
+        "b.py": "logger = logging.getLogger('ycli.http')",
+        "c.py": 'logger = logging.getLogger("ycli.status")',
+        "d.py": "logger = logging.getLogger(HTTP_LOGGER_NAME)",
+    }
+    assert _repeated_logger_names(sources) == {"ycli.http": ["a.py", "b.py"]}
 
 
 def test_arch5_every_host_home_still_spells_a_host():
@@ -1074,6 +1110,9 @@ def test_arch5_guard_bites():
         "def session(*, timeout_seconds: float = 30.0) -> None: ...",
         "def __init__(self, retries: int = 3) -> None: ...",
         "def items(max_items: int | None = 500) -> None: ...",
+        "def iterate(paged, *, max_pages: int = 1000) -> None: ...",
+        "DEFAULT_MAX_PAGES = 1000",
+        "MAX_RETRY_AFTER_SECONDS = 60.0",
         "class Local(BaseSettings): ...",
         'hint = "check YANDEX_ID_OAUTH_TOKEN"',
         'missing = {"YANDEX_ID_ORGANIZATION_ID"}',

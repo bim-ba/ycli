@@ -10,7 +10,7 @@ import logging
 
 # A library never configures logging; it only emits. The CLI and MCP entry points attach a real
 # handler (see ``ycli.log``), and a host application may attach its own.
-logging.getLogger("ycli").addHandler(logging.NullHandler())
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def __getattr__(name: str) -> str:

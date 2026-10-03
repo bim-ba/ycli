@@ -134,11 +134,14 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Rule:** every value has one home: the version in package metadata, environment access
   (`os.environ`, `os.getenv`), settings models and the credential variable names
   in `settings.py`, the org header name in `core/profile.py`, API hosts in each service's
-  profile, timeout/retry/limit defaults in the settings models (no `timeout=30`-style literal
-  elsewhere).
+  profile, a logger name in the one module that spells it. A limit a user can run into
+  (timeout, retries, item cap, page cap, the longest `Retry-After`) is a default in the settings
+  models, with no `timeout=30`-style literal or `MAX_…` constant elsewhere; a fact of the API
+  (a page size it accepts, a status code) is a named constant in the module that uses it.
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration.
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`);
-  `test_arch5_every_host_home_still_spells_a_host` keeps the allowlist free of stale entries.
+  `test_arch5_every_host_home_still_spells_a_host` keeps the allowlist free of stale entries, and
+  `test_arch5_a_logger_name_is_spelled_in_one_module` (+ bite test) the logger names single.
 - **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the Yandex ID / API 360 hosts
   `auth status` reads.
 
@@ -191,8 +194,9 @@ rest. Known blind spots:
 - **ARCH-3's effect check sees the requests a contract case makes**: a branch no case takes is
   not checked.
 - **ARCH-5 is not secret scanning** (gitleaks is). Its literal-default check reads keyword
-  arguments and annotated defaults (`timeout=30`, `retries: int = 3`), not a bare `500`
-  elsewhere, which is indistinguishable from the HTTP status.
+  arguments, annotated defaults and `MAX_…` / `DEFAULT_…` module constants (`timeout=30`,
+  `retries: int = 3`, `MAX_PAGES = 1000`), not a bare `500` elsewhere, which is indistinguishable
+  from the HTTP status, and not a limit under another name (`attempts=30` of the polling loop).
 - **ARCH-7 reads names**: a settings model reached through a module alias it cannot resolve
   (`import ycli.settings as s; s.AppConfig()` is caught, `getattr(s, "AppConfig")()` is not).
   ARCH-4 and ARCH-8 read names the same way: `getattr(builtins, "print")`, a write to file

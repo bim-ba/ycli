@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 import httpx2
 
+from ycli.log import HTTP_LOGGER_NAME
 from ycli.yandex.core import session as core_session
 from ycli.yandex.errors import (
     YandexConnectionError,
@@ -25,7 +26,7 @@ from ycli.yandex.status.oauth_models import (
     TokenResponse,
 )
 
-logger = logging.getLogger("ycli.http")
+logger = logging.getLogger(HTTP_LOGGER_NAME)
 
 # RFC 6749 §5.2: the token endpoint answers an OAuth error with 400, or 401 for invalid_client.
 _OAUTH_ERROR_STATUSES = frozenset({400, 401})
