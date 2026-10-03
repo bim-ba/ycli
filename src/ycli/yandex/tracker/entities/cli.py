@@ -41,6 +41,13 @@ from ycli.yandex.tracker.entities.models import (
     ReportParameters,
 )
 from ycli.yandex.tracker.models import CommentCreate, DeadlineInput
+from ycli.yandex.tracker.typedefs import (
+    AddToFollowersOpt,
+    ExpandOpt,
+    NotifyAuthorOpt,
+    NotifyOpt,
+    ReplyFieldsOpt,
+)
 
 
 class EntityType(enum.StrEnum):
@@ -135,6 +142,7 @@ def create(
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
+    fields: ReplyFieldsOpt = "",
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -143,7 +151,7 @@ def create(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = {"fields": fields_body}
-    return tracker.entities.create(type_.value, body=body)
+    return tracker.entities.create(type_.value, body=body, fields=fields or None)
 
 
 @app.command()
@@ -164,6 +172,8 @@ def update(
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     comment: Annotated[str, typer.Option(help="Comment to add with the change.")] = "",
     field: FieldOpt = None,
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -176,7 +186,9 @@ def update(
         body["fields"] = fields_body
     if comment:
         body["comment"] = comment
-    return tracker.entities.edit(type_.value, entity_id, body=body)
+    return tracker.entities.edit(
+        type_.value, entity_id, body=body, expand=expand or None, fields=fields or None
+    )
 
 
 @app.command()
@@ -232,11 +244,24 @@ def events_list(
     type_: TypeArg,
     entity_id: IdArg,
     limit: Annotated[int, typer.Option(help="Max events (0 = all).")] = 0,
+    selected: Annotated[str, typer.Option(help="Event id to build the list around.")] = "",
+    new_events_on_top: Annotated[
+        bool | None,
+        typer.Option("--new-events-on-top/--no-new-events-on-top", help="Newest events first."),
+    ] = None,
+    direction: Annotated[str, typer.Option(help="forward (the default) or backward.")] = "",
     *,
     tracker: TrackerClient,
 ) -> ItemList[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
-    return tracker.entities.history(type_.value, entity_id, limit=limit or None)
+    return tracker.entities.history(
+        type_.value,
+        entity_id,
+        limit=limit or None,
+        selected=selected or None,
+        new_events_on_top=new_events_on_top,
+        direction=direction or None,
+    )
 
 
 @app.command()
@@ -399,6 +424,10 @@ def comments_create(
     summon: Annotated[
         list[str] | None, typer.Option("--summon", help="User to summon (repeatable).")
     ] = None,
+    expand: ExpandOpt = "",
+    add_to_followers: AddToFollowersOpt = None,
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Comment:
@@ -406,7 +435,15 @@ def comments_create(
     body = CommentCreate(text=text, summonees=summon or None).model_dump(
         by_alias=True, exclude_none=True
     )
-    return tracker.entities.comments_create(type_.value, entity_id, body=body)
+    return tracker.entities.comments_create(
+        type_.value,
+        entity_id,
+        body=body,
+        expand=expand or None,
+        is_add_to_followers=add_to_followers,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @comments_app.command("update")
@@ -415,20 +452,41 @@ def comments_update(
     entity_id: IdArg,
     comment_id: CommentIdArg,
     text: Annotated[str, typer.Option(help="New comment text.")],
+    expand: ExpandOpt = "",
+    add_to_followers: AddToFollowersOpt = None,
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Comment:
     """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
     body = CommentUpdate(text=text).model_dump(by_alias=True, exclude_none=True)
-    return tracker.entities.comments_edit(type_.value, entity_id, comment_id, body=body)
+    return tracker.entities.comments_edit(
+        type_.value,
+        entity_id,
+        comment_id,
+        body=body,
+        expand=expand or None,
+        is_add_to_followers=add_to_followers,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @comments_app.command("delete")
 def comments_delete(
-    type_: TypeArg, entity_id: IdArg, comment_id: CommentIdArg, *, tracker: TrackerClient
+    type_: TypeArg,
+    entity_id: IdArg,
+    comment_id: CommentIdArg,
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
+    *,
+    tracker: TrackerClient,
 ) -> Ack:
     """Delete a comment from an entity (DELETE …/comments/COMMENT_ID)."""
-    tracker.entities.comments_delete(type_.value, entity_id, comment_id)
+    tracker.entities.comments_delete(
+        type_.value, entity_id, comment_id, notify=notify, notify_author=notify_author
+    )
     return Ack.deleted("comment", comment_id, on=f"{type_.value} {entity_id}")
 
 
@@ -462,6 +520,10 @@ def checklists_create(
     text: Annotated[
         list[str], typer.Option("--text", help="Item text (repeatable — one per item).")
     ],
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -469,7 +531,15 @@ def checklists_create(
     items = ItemList[ChecklistItemInput]([ChecklistItemInput(text=t) for t in text]).model_dump(
         by_alias=True, exclude_none=True
     )
-    return tracker.entities.checklists_create(type_.value, entity_id, body=items)
+    return tracker.entities.checklists_create(
+        type_.value,
+        entity_id,
+        body=items,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @checklists_app.command("update")
@@ -480,6 +550,10 @@ def checklists_update(
         list[str],
         typer.Option("--item", help="Item as id=text (repeatable — replaces the whole checklist)."),
     ],
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -495,7 +569,15 @@ def checklists_update(
             raise typer.BadParameter(f"must be id=text, got {raw!r}", param_hint="--item")
         inputs.append(ChecklistItemInput(id=item_id, text=text))
     items = ItemList[ChecklistItemInput](inputs).model_dump(by_alias=True, exclude_none=True)
-    return tracker.entities.checklists_edit(type_.value, entity_id, body=items)
+    return tracker.entities.checklists_edit(
+        type_.value,
+        entity_id,
+        body=items,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @checklists_app.command("update-item")
@@ -511,6 +593,10 @@ def checklists_update_item(
     deadline: Annotated[
         str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     ] = "",
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
@@ -518,21 +604,62 @@ def checklists_update_item(
     body = _item_input(text, checked, assignee, deadline).model_dump(
         by_alias=True, exclude_none=True
     )
-    return tracker.entities.checklists_edit_item(type_.value, entity_id, item_id, body=body)
+    return tracker.entities.checklists_edit_item(
+        type_.value,
+        entity_id,
+        item_id,
+        body=body,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @checklists_app.command("delete-item")
 def checklists_delete_item(
-    type_: TypeArg, entity_id: IdArg, item_id: ItemIdArg, *, tracker: TrackerClient
+    type_: TypeArg,
+    entity_id: IdArg,
+    item_id: ItemIdArg,
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
+    *,
+    tracker: TrackerClient,
 ) -> Entity:
     """Remove one checklist item (DELETE …/checklistItems/ITEM_ID)."""
-    return tracker.entities.checklists_delete_item(type_.value, entity_id, item_id)
+    return tracker.entities.checklists_delete_item(
+        type_.value,
+        entity_id,
+        item_id,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @checklists_app.command("delete")
-def checklists_delete(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Entity:
+def checklists_delete(
+    type_: TypeArg,
+    entity_id: IdArg,
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
+    *,
+    tracker: TrackerClient,
+) -> Entity:
     """Clear the whole checklist (DELETE …/checklistItems)."""
-    return tracker.entities.checklists_delete(type_.value, entity_id)
+    return tracker.entities.checklists_delete(
+        type_.value,
+        entity_id,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @checklists_app.command("move")
@@ -541,12 +668,25 @@ def checklists_move(
     entity_id: IdArg,
     item_id: ItemIdArg,
     before: Annotated[str, typer.Option(help="Item id to insert the moved item before.")] = "",
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
     body = ChecklistMove(before=before or None).model_dump(by_alias=True, exclude_none=True)
-    return tracker.entities.checklists_move(type_.value, entity_id, item_id, body=body)
+    return tracker.entities.checklists_move(
+        type_.value,
+        entity_id,
+        item_id,
+        body=body,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 # --------------------------------------------------------------------------------------------
@@ -637,11 +777,23 @@ def attachments_attach(
     type_: TypeArg,
     entity_id: IdArg,
     temp_file_id: Annotated[str, typer.Argument(metavar="TEMP_FILE_ID", help="Temp file id.")],
+    expand: ExpandOpt = "",
+    fields: ReplyFieldsOpt = "",
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Entity:
     """Attach a previously uploaded temp file to an entity (POST …/attachments/TEMP_FILE_ID)."""
-    return tracker.entities.attachments_attach(type_.value, entity_id, temp_file_id)
+    return tracker.entities.attachments_attach(
+        type_.value,
+        entity_id,
+        temp_file_id,
+        expand=expand or None,
+        fields=fields or None,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @attachments_app.command("delete")

@@ -172,6 +172,8 @@ $ ycli tracker issues get [OPTIONS] KEY
 
 **Options**:
 
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -221,6 +223,10 @@ $ ycli tracker issues search [OPTIONS] QUERY
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--scroll-type TEXT`: sorted or unsorted: scroll through the results (no 10 000 cap).
+* `--per-scroll INTEGER`: Issues per scroll page (1000 at most).
+* `--scroll-ttl-millis INTEGER`: How long the scroll stays open, in milliseconds.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -271,6 +277,7 @@ $ ycli tracker issues create [OPTIONS]
 * `--description TEXT`: Markdown body — pass "$(cat file.md)".
 * `--tag TEXT`: Tag (repeatable).
 * `-F, --field TEXT`: Extra field key=value (JSON-coerced; repeatable).
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -323,6 +330,11 @@ $ ycli tracker issues move [OPTIONS] KEY QUEUE
 
 **Options**:
 
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--initial-status / --no-initial-status`: Reset the status to the new queue's initial one.
+* `--move-all-fields / --no-move-all-fields`: Keep the versions, components and projects the new queue also has.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -345,6 +357,11 @@ $ ycli tracker issues suggest [OPTIONS] INPUT
 
 **Options**:
 
+* `--queue TEXT`: Key of the queue to search in.
+* `--full / --no-full`: Return each issue in full; needed for --fields, --expand, --embed.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--embed TEXT`: Blocks of --expand to return in more detail.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -413,6 +430,7 @@ $ ycli tracker comments list [OPTIONS] KEY
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--expand TEXT`: Extra blocks to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -916,6 +934,9 @@ $ ycli tracker changelog list [OPTIONS] KEY
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--field TEXT`: Only changes of this field, e.g. status.
+* `--type TEXT`: Only changes of this type, e.g. IssueWorkflow.
+* `--sort TEXT`: Order of the changes: asc or desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1235,6 +1256,7 @@ $ ycli tracker priorities list [OPTIONS]
 
 **Options**:
 
+* `--localized / --no-localized`: --no-localized returns the names in every language.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1694,6 +1716,7 @@ $ ycli tracker queues list [OPTIONS]
 
 * `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
 * `--all`: Fetch everything, ignoring the cap.
+* `--expand TEXT`: Extra blocks to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4195,6 +4218,7 @@ $ ycli tracker entities create [OPTIONS] TYPE
 * `--team-user TEXT`: Participant id/login (repeatable).
 * `--tag TEXT`: Tag (repeatable).
 * `-F, --field TEXT`: Extra fields entry key=value (JSON-coerced; repeatable).
+* `--fields TEXT`: Comma-separated fields to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4230,6 +4254,8 @@ $ ycli tracker entities update [OPTIONS] TYPE ID
 * `--tag TEXT`: Tag (repeatable).
 * `--comment TEXT`: Comment to add with the change.
 * `-F, --field TEXT`: Extra fields entry key=value (JSON-coerced; repeatable).
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4306,6 +4332,9 @@ $ ycli tracker entities events-list [OPTIONS] TYPE ID
 **Options**:
 
 * `--limit INTEGER`: Max events (0 = all).  [default: 0]
+* `--selected TEXT`: Event id to build the list around.
+* `--new-events-on-top / --no-new-events-on-top`: Newest events first.
+* `--direction TEXT`: forward (the default) or backward.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4569,6 +4598,10 @@ $ ycli tracker entities comments create [OPTIONS] TYPE ID
 
 * `--text TEXT`: Comment text — pass "$(cat note.md)" for markdown.  [required]
 * `--summon TEXT`: User to summon (repeatable).
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--add-to-followers / --no-add-to-followers`: Add the comment's author to the followers (the API adds by default).
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4594,6 +4627,10 @@ $ ycli tracker entities comments update [OPTIONS] TYPE ID COMMENT_ID
 **Options**:
 
 * `--text TEXT`: New comment text.  [required]
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--add-to-followers / --no-add-to-followers`: Add the comment's author to the followers (the API adds by default).
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4618,6 +4655,8 @@ $ ycli tracker entities comments delete [OPTIONS] TYPE ID COMMENT_ID
 
 **Options**:
 
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4665,6 +4704,10 @@ $ ycli tracker entities checklists create [OPTIONS] TYPE ID
 **Options**:
 
 * `--text TEXT`: Item text (repeatable — one per item).  [required]
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4692,6 +4735,10 @@ $ ycli tracker entities checklists update [OPTIONS] TYPE ID
 **Options**:
 
 * `--item TEXT`: Item as id=text (repeatable — replaces the whole checklist).  [required]
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4720,6 +4767,10 @@ $ ycli tracker entities checklists update-item [OPTIONS] TYPE ID ITEM_ID
 * `--checked / --no-checked`: Mark the item done or not done.
 * `--assignee TEXT`: Assignee user id/login.
 * `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4744,6 +4795,10 @@ $ ycli tracker entities checklists delete-item [OPTIONS] TYPE ID ITEM_ID
 
 **Options**:
 
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4767,6 +4822,10 @@ $ ycli tracker entities checklists delete [OPTIONS] TYPE ID
 
 **Options**:
 
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4792,6 +4851,10 @@ $ ycli tracker entities checklists move [OPTIONS] TYPE ID ITEM_ID
 **Options**:
 
 * `--before TEXT`: Item id to insert the moved item before.
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -5001,6 +5064,10 @@ $ ycli tracker entities attachments attach [OPTIONS] TYPE ID TEMP_FILE_ID
 
 **Options**:
 
+* `--expand TEXT`: Extra blocks to include in the reply.
+* `--fields TEXT`: Comma-separated fields to include in the reply.
+* `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
+* `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.

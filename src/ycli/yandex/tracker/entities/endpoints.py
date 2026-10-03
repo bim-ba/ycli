@@ -7,7 +7,10 @@ Examples:
     {'expand': None, 'fields': 'summary'}
     >>> search_entities("goal", {}, fields=None, per_page=None, page=None).effect
     'read'
-    >>> list_events("project", "655f", per_page=100).endpoint.path
+    >>> events = list_events(
+    ...     "project", "655f", per_page=100, selected=None, new_events_on_top=None, direction=None
+    ... )
+    >>> events.endpoint.path
     'entities/project/655f/events/_relative'
 """
 
@@ -43,8 +46,15 @@ def _entity(entity_type: str, entity_id: str) -> str:
 # ---- core ----------------------------------------------------------------------------------
 
 
-def create_entity(entity_type: str, body: dict[str, Any]) -> Endpoint[Entity]:
-    return Endpoint("POST", f"entities/{segment(entity_type)}", Entity, json=body)
+def create_entity(
+    entity_type: str,
+    body: dict[str, Any],
+    *,
+    fields: str | None,
+) -> Endpoint[Entity]:
+    return Endpoint(
+        "POST", f"entities/{segment(entity_type)}", Entity, json=body, params={"fields": fields}
+    )
 
 
 def get_entity(
@@ -54,8 +64,21 @@ def get_entity(
     return Endpoint("GET", _entity(entity_type, entity_id), Entity, params=params)
 
 
-def edit_entity(entity_type: str, entity_id: str, body: dict[str, Any]) -> Endpoint[Entity]:
-    return Endpoint("PATCH", _entity(entity_type, entity_id), Entity, json=body)
+def edit_entity(
+    entity_type: str,
+    entity_id: str,
+    body: dict[str, Any],
+    *,
+    expand: str | None,
+    fields: str | None,
+) -> Endpoint[Entity]:
+    return Endpoint(
+        "PATCH",
+        _entity(entity_type, entity_id),
+        Entity,
+        json=body,
+        params={"expand": expand, "fields": fields},
+    )
 
 
 def delete_entity(entity_type: str, entity_id: str, *, with_board: bool | None) -> Endpoint[None]:
@@ -83,7 +106,13 @@ def search_entities(
 
 
 def list_events(
-    entity_type: str, entity_id: str, *, per_page: int
+    entity_type: str,
+    entity_id: str,
+    *,
+    per_page: int,
+    selected: str | None,
+    new_events_on_top: bool | None,
+    direction: str | None,
 ) -> Paged[EntityEventsResponse, EntityEvent]:
     """``GET …/events/_relative``, each next page from the last event's id (``from=``)."""
     return Paged(
@@ -91,7 +120,12 @@ def list_events(
             "GET",
             f"{_entity(entity_type, entity_id)}/events/_relative",
             EntityEventsResponse,
-            params={"perPage": per_page},
+            params={
+                "perPage": per_page,
+                "selected": selected,
+                "newEventsOnTop": new_events_on_top,
+                "direction": direction,
+            },
         ),
         RelativeIdPagination(id_of=lambda event: event.id, id_param="from"),
         lambda page: page.events,
@@ -165,60 +199,217 @@ def get_comment(
     return Endpoint("GET", path, Comment, params={"expand": expand})
 
 
-def create_comment(entity_type: str, entity_id: str, body: dict[str, Any]) -> Endpoint[Comment]:
-    return Endpoint("POST", f"{_entity(entity_type, entity_id)}/comments", Comment, json=body)
+def create_comment(
+    entity_type: str,
+    entity_id: str,
+    body: dict[str, Any],
+    *,
+    expand: str | None,
+    is_add_to_followers: bool | None,
+    notify: bool | None,
+    notify_author: bool | None,
+) -> Endpoint[Comment]:
+    return Endpoint(
+        "POST",
+        f"{_entity(entity_type, entity_id)}/comments",
+        Comment,
+        json=body,
+        params={
+            "expand": expand,
+            "isAddToFollowers": is_add_to_followers,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
 def edit_comment(
-    entity_type: str, entity_id: str, comment_id: str, body: dict[str, Any]
+    entity_type: str,
+    entity_id: str,
+    comment_id: str,
+    body: dict[str, Any],
+    *,
+    expand: str | None,
+    is_add_to_followers: bool | None,
+    notify: bool | None,
+    notify_author: bool | None,
 ) -> Endpoint[Comment]:
     path = f"{_entity(entity_type, entity_id)}/comments/{segment(comment_id)}"
-    return Endpoint("PATCH", path, Comment, json=body)
+    return Endpoint(
+        "PATCH",
+        path,
+        Comment,
+        json=body,
+        params={
+            "expand": expand,
+            "isAddToFollowers": is_add_to_followers,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
-def delete_comment(entity_type: str, entity_id: str, comment_id: str) -> Endpoint[None]:
+def delete_comment(
+    entity_type: str,
+    entity_id: str,
+    comment_id: str,
+    *,
+    notify: bool | None,
+    notify_author: bool | None,
+) -> Endpoint[None]:
     path = f"{_entity(entity_type, entity_id)}/comments/{segment(comment_id)}"
-    return Endpoint("DELETE", path)
+    return Endpoint("DELETE", path, params={"notify": notify, "notifyAuthor": notify_author})
 
 
 # ---- checklists ----------------------------------------------------------------------------
 
 
 def create_checklist_items(
-    entity_type: str, entity_id: str, body: list[dict[str, Any]]
+    entity_type: str,
+    entity_id: str,
+    body: list[dict[str, Any]],
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems"
-    return Endpoint("POST", path, Entity, json=body)
+    return Endpoint(
+        "POST",
+        path,
+        Entity,
+        json=body,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
 def edit_checklist(
-    entity_type: str, entity_id: str, body: list[dict[str, Any]]
+    entity_type: str,
+    entity_id: str,
+    body: list[dict[str, Any]],
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems"
-    return Endpoint("PATCH", path, Entity, json=body)
+    return Endpoint(
+        "PATCH",
+        path,
+        Entity,
+        json=body,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
 def edit_checklist_item(
-    entity_type: str, entity_id: str, item_id: str, body: dict[str, Any]
+    entity_type: str,
+    entity_id: str,
+    item_id: str,
+    body: dict[str, Any],
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems/{segment(item_id)}"
-    return Endpoint("PATCH", path, Entity, json=body)
+    return Endpoint(
+        "PATCH",
+        path,
+        Entity,
+        json=body,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
-def delete_checklist(entity_type: str, entity_id: str) -> Endpoint[Entity]:
-    return Endpoint("DELETE", f"{_entity(entity_type, entity_id)}/checklistItems", Entity)
+def delete_checklist(
+    entity_type: str,
+    entity_id: str,
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
+) -> Endpoint[Entity]:
+    return Endpoint(
+        "DELETE",
+        f"{_entity(entity_type, entity_id)}/checklistItems",
+        Entity,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
-def delete_checklist_item(entity_type: str, entity_id: str, item_id: str) -> Endpoint[Entity]:
+def delete_checklist_item(
+    entity_type: str,
+    entity_id: str,
+    item_id: str,
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
+) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems/{segment(item_id)}"
-    return Endpoint("DELETE", path, Entity)
+    return Endpoint(
+        "DELETE",
+        path,
+        Entity,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
 def move_checklist_item(
-    entity_type: str, entity_id: str, item_id: str, body: dict[str, Any]
+    entity_type: str,
+    entity_id: str,
+    item_id: str,
+    body: dict[str, Any],
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems/{segment(item_id)}/_move"
-    return Endpoint("POST", path, Entity, json=body)
+    return Endpoint(
+        "POST",
+        path,
+        Entity,
+        json=body,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
 # ---- links ---------------------------------------------------------------------------------
@@ -255,9 +446,28 @@ def download_attachment(file_id: str, filename: str) -> Endpoint[bytes]:
     return Endpoint("GET", f"attachments/{segment(file_id)}/{segment(filename)}", bytes)
 
 
-def attach_file(entity_type: str, entity_id: str, temp_file_id: str) -> Endpoint[Entity]:
+def attach_file(
+    entity_type: str,
+    entity_id: str,
+    temp_file_id: str,
+    *,
+    expand: str | None,
+    fields: str | None,
+    notify: bool | None,
+    notify_author: bool | None,
+) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/attachments/{segment(temp_file_id)}"
-    return Endpoint("POST", path, Entity)
+    return Endpoint(
+        "POST",
+        path,
+        Entity,
+        params={
+            "expand": expand,
+            "fields": fields,
+            "notify": notify,
+            "notifyAuthor": notify_author,
+        },
+    )
 
 
 def delete_attachment(entity_type: str, entity_id: str, file_id: str) -> Endpoint[None]:

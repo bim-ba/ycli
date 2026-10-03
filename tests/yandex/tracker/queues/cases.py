@@ -1,6 +1,6 @@
 """Contract cases for Tracker ``/queues`` and ``/versions`` (see tests/contract.py)."""
 
-from tests.contract import Case, Reply, Sent
+from tests.contract import Case, Reply, Sent, with_query
 from ycli.yandex.tracker.queues.models import (
     IssueTypeConfigInput,
     QueueCreate,
@@ -601,5 +601,15 @@ CASES = [
                 ),
             )
         ],
+    ),
+]
+
+CASES += [
+    with_query(
+        CASES,
+        "tracker.queues.list",
+        kwargs={"expand": "team"},
+        cli=["--expand", "team"],
+        params={"expand": "team"},
     ),
 ]

@@ -1,9 +1,9 @@
 """Tracker ``/issues`` operations, each declared once (sans-IO, shared by sync and async).
 
 Examples:
-    >>> get_issue("TEST-1").path
+    >>> get_issue("TEST-1", expand=None, fields=None).path
     'issues/TEST-1'
-    >>> search_issues({"query": "Queue: TEST"}).endpoint.effect
+    >>> search_issues({"query": "Queue: TEST"}, expand=None).endpoint.effect
     'read'
 """
 
@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import PageNumberPagination
+from ycli.yandex.core.pagination import PageNumberPagination, ScrollPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.issues.models import Issue
 
@@ -20,42 +20,115 @@ from ycli.yandex.tracker.issues.models import Issue
 SEARCH_PAGE_SIZE = 100
 
 
-def get_issue(key: str) -> Endpoint[Issue]:
-    return Endpoint("GET", f"issues/{segment(key)}", Issue)
+def get_issue(
+    key: str,
+    *,
+    expand: str | None,
+    fields: str | None,
+) -> Endpoint[Issue]:
+    return Endpoint(
+        "GET", f"issues/{segment(key)}", Issue, params={"expand": expand, "fields": fields}
+    )
 
 
 def search_issues(
-    body: dict[str, Any], *, page_size: int = SEARCH_PAGE_SIZE
+    body: dict[str, Any], *, expand: str | None, page_size: int = SEARCH_PAGE_SIZE
 ) -> Paged[ItemList[Issue], Issue]:
     """``POST /issues/_search`` with a ``filter`` or ``query`` body, paged by ``page``/``perPage``.
 
-    Page-number paging covers up to 10 000 results; Tracker's scroll mode for more is not wired.
+    Page-number paging covers up to 10 000 results; :func:`scroll_issues` reads more.
     """
-    return Paged(
-        Endpoint("POST", "issues/_search", ItemList[Issue], json=body, effect="read"),
-        PageNumberPagination(page_size=page_size),
-        lambda page: page.root,
+    endpoint = Endpoint(
+        "POST",
+        "issues/_search",
+        ItemList[Issue],
+        params={"expand": expand},
+        json=body,
+        effect="read",
     )
+    return Paged(endpoint, PageNumberPagination(page_size=page_size), lambda page: page.root)
+
+
+def scroll_issues(
+    body: dict[str, Any],
+    *,
+    expand: str | None,
+    scroll_type: str,
+    per_scroll: int | None,
+    scroll_ttl_millis: int | None,
+) -> Paged[ItemList[Issue], Issue]:
+    """``POST /issues/_search`` in scroll mode: no 10 000 cap, each page named by the last reply.
+
+    ``scroll_type`` is ``sorted`` (the order of the search) or ``unsorted``; ``per_scroll`` is
+    the page size (1000 at most) and ``scroll_ttl_millis`` how long the scroll stays open.
+    """
+    params = {
+        "expand": expand,
+        "scrollType": scroll_type,
+        "perScroll": per_scroll,
+        "scrollTTLMillis": scroll_ttl_millis,
+    }
+    endpoint = Endpoint(
+        "POST", "issues/_search", ItemList[Issue], params=params, json=body, effect="read"
+    )
+    return Paged(endpoint, ScrollPagination(), lambda page: page.root)
 
 
 def count_issues(body: dict[str, Any]) -> Endpoint[int]:
     return Endpoint("POST", "issues/_count", int, json=body, effect="read")
 
 
-def create_issue(body: dict[str, Any]) -> Endpoint[Issue]:
-    return Endpoint("POST", "issues/", Issue, json=body)
+def create_issue(
+    body: dict[str, Any],
+    *,
+    notify: bool | None,
+) -> Endpoint[Issue]:
+    return Endpoint("POST", "issues/", Issue, json=body, params={"notify": notify})
 
 
 def update_issue(key: str, body: dict[str, Any]) -> Endpoint[Issue]:
     return Endpoint("PATCH", f"issues/{segment(key)}", Issue, json=body)
 
 
-def move_issue(key: str, queue: str) -> Endpoint[Issue]:
-    return Endpoint("POST", f"issues/{segment(key)}/_move", Issue, params={"queue": queue})
+def move_issue(
+    key: str,
+    queue: str,
+    *,
+    expand: str | None,
+    initial_status: bool | None,
+    move_all_fields: bool | None,
+    notify: bool | None,
+    notify_author: bool | None,
+) -> Endpoint[Issue]:
+    params = {
+        "queue": queue,
+        "expand": expand,
+        "initialStatus": initial_status,
+        "moveAllFields": move_all_fields,
+        "notify": notify,
+        "notifyAuthor": notify_author,
+    }
+    return Endpoint("POST", f"issues/{segment(key)}/_move", Issue, params=params)
 
 
-def suggest_issues(text: str) -> Endpoint[ItemList[Issue]]:
-    return Endpoint("GET", "issues/_suggest", ItemList[Issue], params={"input": text})
+def suggest_issues(
+    text: str,
+    *,
+    queue: str | None,
+    full: bool | None,
+    fields: str | None,
+    expand: str | None,
+    embed: str | None,
+) -> Endpoint[ItemList[Issue]]:
+    params = {
+        "input": text,
+        "queue": queue,
+        "full": full,
+        "fields": fields,
+        "expand": expand,
+        "embed": embed,
+    }
+    return Endpoint("GET", "issues/_suggest", ItemList[Issue], params=params)
 
 
 def clear_scroll(body: dict[str, str]) -> Endpoint[None]:

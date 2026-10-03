@@ -11,7 +11,15 @@ from ycli.yandex.tracker.changelog.models import ChangelogEntry
 class ChangelogClient(Resource):
     """The change history of an issue (relative-paginated)."""
 
-    def list(self, key: str, *, limit: int | None = None) -> ItemList[ChangelogEntry]:
+    def list(
+        self,
+        key: str,
+        *,
+        limit: int | None = None,
+        field: str | None = None,
+        change_type: str | None = None,
+        sort: str | None = None,
+    ) -> ItemList[ChangelogEntry]:
         """All changelog events on an issue, draining the ``id=<last change id>`` cursor.
 
         ``GET /issues/{key}/changelog`` returns one page at a time; each next page repeats
@@ -21,6 +29,9 @@ class ChangelogClient(Resource):
         Args:
             key: The issue key.
             limit: The most events to return; ``None`` returns the full history.
+            field: Keep the changes of this field, e.g. ``status`` or ``checklistItems``.
+            change_type: Keep the changes of this type, e.g. ``IssueWorkflow``.
+            sort: The order of the changes: ``asc`` or ``desc``.
 
         Returns:
             The changelog events.
@@ -30,5 +41,7 @@ class ChangelogClient(Resource):
             ['ch1', 'ch2', 'ch3']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_changelog(key, page_size=page_size)
+        paged = endpoints.list_changelog(
+            key, page_size=page_size, field=field, change_type=change_type, sort=sort
+        )
         return ItemList[ChangelogEntry](list(self._session.iterate(paged, limit=limit)))

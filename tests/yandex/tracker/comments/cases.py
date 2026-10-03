@@ -1,6 +1,6 @@
 """Contract cases for Tracker issue ``/comments`` (see tests/contract.py)."""
 
-from tests.contract import Case, Reply, Sent
+from tests.contract import Case, Reply, Sent, with_query
 
 CASES = [
     # The default cap (500) asks for full 100-row pages and walks id=<last comment id>.
@@ -180,5 +180,15 @@ CASES = [
                 Reply(json={"id": 9002, "text": "By long id"}),
             )
         ],
+    ),
+]
+
+CASES += [
+    with_query(
+        CASES,
+        "tracker.comments.list",
+        kwargs={"expand": "attachments"},
+        cli=["--expand", "attachments"],
+        params={"expand": "attachments"},
     ),
 ]

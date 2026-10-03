@@ -120,3 +120,19 @@ CASES = [
         ],
     ),
 ]
+
+CASES += [
+    # Not localized, a priority carries its name in every language.
+    Case(
+        "tracker.priorities.list",
+        kwargs={"localized": False},
+        cli=["tracker", "priorities", "list", "--no-localized"],
+        mcp=("tracker_priorities_list", {"localized": False}),
+        exchanges=[
+            (
+                Sent("GET", "priorities", {"localized": "false"}),
+                Reply(json=[{"key": "trivial", "name": {"en": "Trivial", "ru": "Незначительный"}}]),
+            )
+        ],
+    ),
+]

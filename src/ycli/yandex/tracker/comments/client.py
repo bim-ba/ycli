@@ -13,7 +13,13 @@ from ycli.yandex.tracker.comments.models import Comment
 class CommentsClient(Resource):
     """List (relative-paginated), get, add, edit, delete and react to an issue's comments."""
 
-    def list(self, key: str, *, limit: int | None = None) -> ItemList[Comment]:
+    def list(
+        self,
+        key: str,
+        *,
+        limit: int | None = None,
+        expand: str | None = None,
+    ) -> ItemList[Comment]:
         """All comments on an issue, draining the ``id=<last comment id>`` relative cursor.
 
         ``GET /issues/{key}/comments`` returns one page at a time; each next page repeats with
@@ -23,6 +29,7 @@ class CommentsClient(Resource):
         Args:
             key: The issue key.
             limit: The most comments to return; ``None`` returns every comment.
+            expand: The extra blocks to include: ``attachments``, ``html`` or ``all``.
 
         Returns:
             The issue's comments.
@@ -32,7 +39,7 @@ class CommentsClient(Resource):
             ['first', 'second', 'third']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_comments(key, page_size=page_size)
+        paged = endpoints.list_comments(key, page_size=page_size, expand=expand)
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:

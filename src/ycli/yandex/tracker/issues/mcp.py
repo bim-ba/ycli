@@ -16,7 +16,11 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Expand,
     IssueKey,
+    Notify,
+    NotifyAuthor,
+    ReplyFields,
     app_config,
     tracker_client,
 )
@@ -35,9 +39,14 @@ _LIMIT = f"Max issues to return; {LIMIT_CAP}"
 
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)
-def get(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Issue:
+def get(
+    key: IssueKey,
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> Issue:
     """A single Tracker issue by key (raises if not found)."""
-    result = client.issues.get(key)
+    result = client.issues.get(key, expand=expand, fields=fields)
     # The core session already raises on a 404; this guard only fires for a 2xx with an empty
     # body (key=None), e.g. missing permissions answered with a blank object instead of a 403.
     return require_found(
@@ -73,6 +82,19 @@ def list_(
 def search(
     query: Annotated[str, Field(description="TQL query, e.g. ``Queue: QUEUE Status: open``.")],
     limit: Annotated[int, Field(description=_LIMIT)] = 0,
+    expand: Expand = None,
+    scroll_type: Annotated[
+        str | None,
+        Field(
+            description="``sorted`` or ``unsorted``: scroll through the results (no 10 000 cap)."
+        ),
+    ] = None,
+    per_scroll: Annotated[
+        int | None, Field(description="Issues per scroll page (1000 at most).")
+    ] = None,
+    scroll_ttl_millis: Annotated[
+        int | None, Field(description="How long the scroll stays open, in milliseconds.")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Issue]:
@@ -81,7 +103,14 @@ def search(
     Returns at most ``limit`` issues; exactly ``limit`` back means more may match — refine the
     query or raise ``limit``.
     """
-    return client.issues.search({"query": query}, limit=config.http.cap(limit))
+    return client.issues.search(
+        {"query": query},
+        limit=config.http.cap(limit),
+        expand=expand,
+        scroll_type=scroll_type,
+        per_scroll=per_scroll,
+        scroll_ttl_millis=scroll_ttl_millis,
+    )
 
 
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)
@@ -109,21 +138,37 @@ def count(
 )
 def suggest(
     text: Annotated[str, Field(description="Text fragment to match in issue summaries.")],
+    queue: Annotated[str | None, Field(description="Key of the queue to search in.")] = None,
+    full: Annotated[
+        bool | None,
+        Field(
+            description="Return each issue in full; needed for ``fields``, ``expand``, ``embed``."
+        ),
+    ] = None,
+    fields: ReplyFields = None,
+    expand: Expand = None,
+    embed: Annotated[
+        str | None, Field(description="Blocks of ``expand`` to return in more detail.")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Issue]:
     """Typeahead over visible issues — issues whose summary contains ``text``.
 
     A lightweight title match; for full TQL search use ``issues_search``.
     """
-    return client.issues.suggest(text)
+    return client.issues.suggest(
+        text, queue=queue, full=full, fields=fields, expand=expand, embed=embed
+    )
 
 
 @mcp.tool(
     name="issues_create", annotations={**WRITE, "title": "Create Tracker issue"}, tags=WRITE_TAGS
 )
-def create(body: IssueCreate, client: TrackerClient = Depends(tracker_client)) -> Issue:
+def create(
+    body: IssueCreate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> Issue:
     """Create a Tracker issue; returns the new issue with its key."""
-    return client.issues.create(body.model_dump(exclude_none=True))
+    return client.issues.create(body.model_dump(exclude_none=True), notify=notify)
 
 
 @mcp.tool(
@@ -145,6 +190,17 @@ def update(
 def move(
     key: IssueKey,
     queue: Annotated[str, Field(description="Target queue key, e.g. NEW.")],
+    expand: Expand = None,
+    initial_status: Annotated[
+        bool | None,
+        Field(description="Reset the status to the new queue's initial one."),
+    ] = None,
+    move_all_fields: Annotated[
+        bool | None,
+        Field(description="Keep the versions, components and projects the new queue also has."),
+    ] = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Issue:
     """Move a Tracker issue to another queue (it gets a new key there; the old key redirects).
@@ -152,7 +208,15 @@ def move(
     ``queue`` is the target queue key. Fields that do not exist in the target queue may be
     dropped. Returns the moved issue with its new key.
     """
-    return client.issues.move(key, queue)
+    return client.issues.move(
+        key,
+        queue,
+        expand=expand,
+        initial_status=initial_status,
+        move_all_fields=move_all_fields,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @mcp.tool(

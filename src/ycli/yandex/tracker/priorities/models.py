@@ -12,7 +12,8 @@ class Priority(APIModel):
     """A priority reference (``/priorities`` item).
 
     The live v3 API carries the display name in ``name`` (``display`` stays null there), so
-    both fields are mapped.
+    both fields are mapped. Asked for with ``localized=False``, ``name`` is the name in every
+    language instead of a string.
 
     Examples:
         >>> Priority.model_validate({"key": "normal", "name": "Normal"}).name
@@ -20,7 +21,10 @@ class Priority(APIModel):
     """
 
     key: str | None = None
-    name: str | None = None
+    name: str | LocalizedName | None = Field(
+        default=None,
+        description="Name in the caller's language, or in every language when not localized.",
+    )
     display: str | None = None
 
 

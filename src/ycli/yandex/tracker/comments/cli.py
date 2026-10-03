@@ -14,6 +14,7 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
 from ycli.yandex.tracker.models import CommentCreate
 from ycli.yandex.tracker.typedefs import (
+    ExpandOpt,
     KeyArg,
 )
 
@@ -46,13 +47,14 @@ def list_(
     key: KeyArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
+    expand: ExpandOpt = "",
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Comment]:
     """List all comments on issue KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.comments.list(key, limit=cap)
+    return tracker.comments.list(key, limit=cap, expand=expand or None)
 
 
 @app.command()

@@ -1,7 +1,8 @@
 """Tracker issue ``/changelog`` listing, declared once (sans-IO).
 
 Examples:
-    >>> list_changelog("DE-1", page_size=5).endpoint.path
+    >>> paged = list_changelog("DE-1", field=None, change_type=None, sort=None, page_size=5)
+    >>> paged.endpoint.path
     'issues/DE-1/changelog'
 """
 
@@ -20,7 +21,12 @@ def _entry_id(entry: ChangelogEntry) -> str | None:
 
 
 def list_changelog(
-    key: str, *, page_size: int = PAGE_SIZE
+    key: str,
+    *,
+    field: str | None,
+    change_type: str | None,
+    sort: str | None,
+    page_size: int = PAGE_SIZE,
 ) -> Paged[ItemList[ChangelogEntry], ChangelogEntry]:
     """``GET /issues/{key}/changelog``, each next page from ``id=<last change id>``."""
     return Paged(
@@ -28,7 +34,7 @@ def list_changelog(
             "GET",
             f"issues/{segment(key)}/changelog",
             ItemList[ChangelogEntry],
-            params={"perPage": page_size},
+            params={"perPage": page_size, "field": field, "type": change_type, "sort": sort},
         ),
         RelativeIdPagination(id_of=_entry_id),
         lambda page: page.root,

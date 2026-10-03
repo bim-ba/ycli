@@ -19,6 +19,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
     CommentId,
+    Expand,
     IssueKey,
     app_config,
     tracker_client,
@@ -37,6 +38,7 @@ def list_(
         int,
         Field(description=f"Max comments to return; {LIMIT_CAP}"),
     ] = 0,
+    expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Comment]:
@@ -46,7 +48,7 @@ def list_(
     are truncated at the cap rather than fetched forever.
     """
     cap = config.http.cap(limit)
-    return client.comments.list(key, limit=cap)
+    return client.comments.list(key, limit=cap, expand=expand)
 
 
 @mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"}, tags=TAGS)

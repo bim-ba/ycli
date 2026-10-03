@@ -32,7 +32,12 @@ if TYPE_CHECKING:
 class QueuesClient(Resource):
     """List (page-paginated), get, create, delete and restore queues; tags, versions, access."""
 
-    def list(self, *, limit: int | None = None) -> ItemList[Queue]:
+    def list(
+        self,
+        *,
+        limit: int | None = None,
+        expand: str | None = None,
+    ) -> ItemList[Queue]:
         """``GET /queues/`` → flat ``ItemList[Queue]``, draining ``page``/``perPage`` internally.
 
         Capped at ``limit`` (``None`` = every queue). The API returns 50 queues per page; this
@@ -40,6 +45,7 @@ class QueuesClient(Resource):
 
         Args:
             limit: The most queues to return; ``None`` returns every queue.
+            expand: The extra blocks to include in each queue, as in :meth:`get`.
 
         Returns:
             The queues, across all pages.
@@ -48,7 +54,9 @@ class QueuesClient(Resource):
             >>> tracker.queues.list(limit=500).root[-1].key
             'TAIL'
         """
-        return ItemList[Queue](list(self._session.iterate(endpoints.list_queues(), limit=limit)))
+        return ItemList[Queue](
+            list(self._session.iterate(endpoints.list_queues(expand=expand), limit=limit))
+        )
 
     def get(self, queue_id: str, expand: str | None = None) -> Queue:
         """``GET /queues/{queue_id}`` → a single :class:`Queue`.

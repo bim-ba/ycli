@@ -1,6 +1,6 @@
 """Contract cases for Tracker ``/issues`` (see tests/contract.py)."""
 
-from tests.contract import Case, Reply, Sent
+from tests.contract import Case, Reply, Sent, with_query
 
 ISSUE = {"key": "DE-7", "summary": "Fix the login page"}
 SEARCH = {"page": "1", "perPage": "100"}
@@ -221,5 +221,147 @@ CASES = [
                 Reply(json=ISSUE),
             )
         ],
+    ),
+]
+
+# The query parameters the published API lists beyond the ones above (#196).
+CASES += [
+    with_query(
+        CASES,
+        "tracker.issues.get",
+        kwargs={"expand": "transitions", "fields": "summary,status"},
+        cli=["--expand", "transitions", "--fields", "summary,status"],
+        params={"expand": "transitions", "fields": "summary,status"},
+    ),
+    with_query(
+        CASES,
+        "tracker.issues.create",
+        kwargs={"notify": False},
+        cli=["--no-notify"],
+        params={"notify": "false"},
+    ),
+    with_query(
+        CASES,
+        "tracker.issues.move",
+        kwargs={
+            "expand": "transitions",
+            "initial_status": True,
+            "move_all_fields": True,
+            "notify": False,
+            "notify_author": True,
+        },
+        cli=[
+            "--expand",
+            "transitions",
+            "--initial-status",
+            "--move-all-fields",
+            "--no-notify",
+            "--notify-author",
+        ],
+        params={
+            "expand": "transitions",
+            "initialStatus": "true",
+            "moveAllFields": "true",
+            "notify": "false",
+            "notifyAuthor": "true",
+        },
+    ),
+    with_query(
+        CASES,
+        "tracker.issues.suggest",
+        kwargs={
+            "queue": "DE",
+            "full": True,
+            "fields": "summary",
+            "expand": "transitions",
+            "embed": "transitions",
+        },
+        cli=[
+            "--queue",
+            "DE",
+            "--full",
+            "--fields",
+            "summary",
+            "--expand",
+            "transitions",
+            "--embed",
+            "transitions",
+        ],
+        params={
+            "queue": "DE",
+            "full": "true",
+            "fields": "summary",
+            "expand": "transitions",
+            "embed": "transitions",
+        },
+    ),
+]
+_SCROLL = {
+    "expand": "transitions",
+    "scrollType": "sorted",
+    "perScroll": "2",
+    "scrollTTLMillis": "10000",
+}
+CASES += [
+    # Scrolling has no 10 000 cap: each reply names the next page in a header.
+    Case(
+        "tracker.issues.search",
+        args=({"query": "Queue: BIG"},),
+        kwargs={
+            "limit": 500,
+            "expand": "transitions",
+            "scroll_type": "sorted",
+            "per_scroll": 2,
+            "scroll_ttl_millis": 10000,
+        },
+        cli=[
+            "tracker",
+            "issues",
+            "search",
+            "Queue: BIG",
+            "--expand",
+            "transitions",
+            "--scroll-type",
+            "sorted",
+            "--per-scroll",
+            "2",
+            "--scroll-ttl-millis",
+            "10000",
+        ],
+        mcp=(
+            "tracker_issues_search",
+            {
+                "query": "Queue: BIG",
+                "expand": "transitions",
+                "scroll_type": "sorted",
+                "per_scroll": 2,
+                "scroll_ttl_millis": 10000,
+            },
+        ),
+        exchanges=[
+            (
+                Sent("POST", "issues/_search", _SCROLL, {"query": "Queue: BIG"}),
+                Reply(json=[{"key": "BIG-1"}, {"key": "BIG-2"}], headers={"X-Scroll-Id": "scr-1"}),
+            ),
+            (
+                Sent(
+                    "POST",
+                    "issues/_search",
+                    {**_SCROLL, "scrollId": "scr-1"},
+                    {"query": "Queue: BIG"},
+                ),
+                Reply(json=[{"key": "BIG-3"}], headers={"X-Scroll-Id": "scr-2"}),
+            ),
+            (
+                Sent(
+                    "POST",
+                    "issues/_search",
+                    {**_SCROLL, "scrollId": "scr-2"},
+                    {"query": "Queue: BIG"},
+                ),
+                Reply(json=[]),
+            ),
+        ],
+        effect="read",
     ),
 ]
