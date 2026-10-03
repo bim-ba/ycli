@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.44.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.43.0
+  ([`1481935`](https://github.com/bim-ba/ycli/commit/1481935a33444e7ba45bbbcb3fa59105c27e345f))
+
+### Features
+
+- **config**: The page cap and the longest Retry-After are settings
+  ([#237](https://github.com/bim-ba/ycli/pull/237),
+  [`4ec54b4`](https://github.com/bim-ba/ycli/commit/4ec54b456a32b39eab3283e153c438d92704f523))
+
+### Breaking Changes
+
+- **config**: Ycli.yandex.core.session.DEFAULT_MAX_PAGES and MAX_RETRY_AFTER_SECONDS are removed;
+  read HTTPConfig().max_pages and .max_retry_after_seconds. SyncSession and AsyncSession take
+  http=HTTPConfig(...) instead of retries=, and iterate() no longer takes max_pages=: set it on the
+  HTTPConfig the session is built with.
+
+
 ## v0.43.0 (2026-10-03)
 
 ### Build System
