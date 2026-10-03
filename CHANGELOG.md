@@ -9,6 +9,38 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.42.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.41.0
+  ([`fe95644`](https://github.com/bim-ba/ycli/commit/fe95644710fe9f078859e62a9f930c7bb2ba8a8b))
+
+### Chores
+
+- Conventions say what the code does, and the scaffold passes the gates as generated
+  ([#228](https://github.com/bim-ba/ycli/pull/228),
+  [`32456f8`](https://github.com/bim-ba/ycli/commit/32456f8a70a469226836f56c06810c610fc0f8af))
+
+### Documentation
+
+- Say when a field with a set of values is a str and when a Literal
+  ([#231](https://github.com/bim-ba/ycli/pull/231),
+  [`52c1cc9`](https://github.com/bim-ba/ycli/commit/52c1cc9b4542769d48db9df24a9d9a315fc762b0))
+
+### Features
+
+- **wiki**: Send every published query parameter and read every published field
+  ([#231](https://github.com/bim-ba/ycli/pull/231),
+  [`52c1cc9`](https://github.com/bim-ba/ycli/commit/52c1cc9b4542769d48db9df24a9d9a315fc762b0))
+
+### Testing
+
+- Every convention has a check that was seen failing, or is gone
+  ([#235](https://github.com/bim-ba/ycli/pull/235),
+  [`e55697a`](https://github.com/bim-ba/ycli/commit/e55697a4a8c4e74f660c205bcebdc157516c23ff))
+
+
 ## v0.41.0 (2026-10-03)
 
 ### Build System
