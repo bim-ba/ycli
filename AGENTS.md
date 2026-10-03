@@ -30,7 +30,17 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
 ## Project-Specific Conventions
 
 - **Tests:** `uv run pytest`. Async MCP tests rely on `asyncio_mode = "auto"`; HTTP is stubbed
-  with the `api` fixture (`MockAPI`), no live network.
+  with the `api` fixture (`MockAPI`), no live network. It also runs every docstring example in
+  `src/` as a doctest: the repo-root `conftest.py` hands each one `tracker` / `wiki` / `forms`
+  clients answered by the contract cases, so an example uses the arguments of its operation's
+  first case. That conftest must not import the MCP layer at module level: `pytest e2e` runs
+  without the `mcp` extra.
+- **Docs:** the site (<https://bim-ba.github.io/ycli/>) is Zensical, `docs/en` + `docs/ru`
+  (`zensical.toml`, `zensical.ru.toml`), published by a release or a manual `docs` run. The CLI /
+  MCP / SDK reference is generated (`uv run scripts/gen_reference.py`); `tests/test_docs_site.py`
+  holds the contract. Docstrings are Google style (ruff `D`), and pydoclint checks
+  Args/Returns/Raises from its own pre-commit environment, because its `docstring-parser-fork`
+  and fastmcp's `docstring-parser` install the same module.
 - **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` (which injects clients into commands) for the CLI
   and the per-request `client_provider` in each domain's MCP `dependencies` module; both read
   `YANDEX_ID_OAUTH_TOKEN` / `YANDEX_ID_ORGANIZATION_ID` and pass raw `oauth_token` /
