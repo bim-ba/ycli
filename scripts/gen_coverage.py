@@ -461,6 +461,8 @@ TRACKER_DOCS = "https://yandex.ru/support/tracker/en/"
 DIFFERENCES = {
     "missing_query": "query parameters ycli cannot send",
     "unknown_query": "query parameters ycli sends that are not published",
+    "missing_request": "body fields ycli cannot send",
+    "unknown_request": "body fields ycli sends that are not published",
     "dropped_response": "response fields ycli drops",
     "unknown_response": "model fields that are not published",
 }
@@ -481,6 +483,13 @@ def _sdk(operations: tuple[str, ...]) -> str:
     return ", ".join(f"`{operation.split('.', 1)[1]}`" for operation in operations)
 
 
+def _bodies(drift: api_drift.Drift) -> str:
+    """How many published request bodies were compared: the rest have no typed model in ycli."""
+    if not drift.bodies_published:
+        return NO
+    return f"{drift.bodies_compared} of {drift.bodies_published}"
+
+
 def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
     """The "Against the published API" section: a summary row and the details per service."""
     lines = [
@@ -488,19 +497,25 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
         "",
         "What ycli sends, replayed from its contract tests, compared with what Yandex publishes: "
         "the Wiki and Forms OpenAPI documents and Tracker's API reference (prose, so only "
-        "operations and the query parameters a page lists are compared). The published side is "
+        "operations and the query parameters a page lists are compared). A request body is "
+        "compared only where ycli has a typed model for it and the model is closed; the "
+        "**Bodies compared** column says how many that is, so an empty list is not read as "
+        "a match. The published side is "
         "the snapshot in [`scripts/api_snapshot/`](scripts/api_snapshot); a "
         "[weekly job](.github/workflows/api-drift.yml) fetches it again and opens an issue when "
         "Yandex has changed it.",
         "",
-        "| Service | Published | Wrapped | Not wrapped | Operations that differ | Source |",
-        "|---------|:---------:|:-------:|:-----------:|:----------------------:|--------|",
+        "| Service | Published | Wrapped | Not wrapped | Operations that differ | "
+        "Bodies compared | Source |",
+        "|---------|:---------:|:-------:|:-----------:|:----------------------:|"
+        ":---------------:|--------|",
     ]
     for drift in drifts:
         excluded = f" (+{len(drift.excluded)} on purpose)" if drift.excluded else ""
         lines.append(
             f"| {drift.service.capitalize()} | {len(drift.published)} | {drift.wrapped} | "
-            f"{len(drift.not_wrapped)}{excluded} | {len(drift.gaps)} | {PUBLISHED[drift.service]} |"
+            f"{len(drift.not_wrapped)}{excluded} | {len(drift.gaps)} | {_bodies(drift)} | "
+            f"{PUBLISHED[drift.service]} |"
         )
     for drift in drifts:
         lines += [

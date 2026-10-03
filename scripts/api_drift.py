@@ -26,6 +26,7 @@ Kill criterion: if Tracker ever publishes its OpenAPI document, the reference-pa
 from __future__ import annotations
 
 import argparse
+import asyncio
 import inspect
 import re
 import sys
@@ -47,6 +48,7 @@ if str(ROOT) not in sys.path:
 from scripts import api_surface  # noqa: E402
 from scripts.api_surface import Operation, shape  # noqa: E402
 from tests.contract import Case, Sibling, load_cases  # noqa: E402
+from tests.full_server import mcp  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
 from ycli.yandex.core.session import SyncSession  # noqa: E402
@@ -74,7 +76,9 @@ NOT_WRAPPED: dict[tuple[str, str, str], str] = {
 class Call:
     """One endpoint an SDK operation sends: what ycli can put on the wire and read back.
 
-    ``response`` is the field names of the model the reply parses into (``None``: no model).
+    ``response`` is the field names of the model the reply parses into (``None``: no model);
+    ``request`` those of its typed body (``None``: no body, a free-form one, or one that takes
+    any field).
     """
 
     operation: str
@@ -83,6 +87,7 @@ class Call:
     query: frozenset[str]
     response: frozenset[str] | None
     template: str = ""
+    request: frozenset[str] | None = None
 
 
 @dataclass(frozen=True)
@@ -109,6 +114,8 @@ class Gap:
     operations: tuple[str, ...]
     missing_query: tuple[str, ...] = ()
     unknown_query: tuple[str, ...] = ()
+    missing_request: tuple[str, ...] = ()
+    unknown_request: tuple[str, ...] = ()
     dropped_response: tuple[str, ...] = ()
     unknown_response: tuple[str, ...] = ()
 
@@ -122,6 +129,8 @@ class Gap:
 GAP_KINDS = (
     "missing_query",
     "unknown_query",
+    "missing_request",
+    "unknown_request",
     "dropped_response",
     "unknown_response",
 )
@@ -129,7 +138,11 @@ GAP_KINDS = (
 
 @dataclass(frozen=True)
 class Drift:
-    """One service: the published operations, and how ycli differs from them."""
+    """One service: the published operations, and how ycli differs from them.
+
+    ``bodies_published`` counts the wrapped operations whose published request body lists its
+    fields; ``bodies_compared`` those of them ycli has a typed body for.
+    """
 
     service: str
     published: tuple[Operation, ...]
@@ -137,6 +150,8 @@ class Drift:
     excluded: tuple[tuple[Operation, str], ...]
     unpublished: tuple[Call, ...]
     gaps: tuple[Gap, ...]
+    bodies_published: int = 0
+    bodies_compared: int = 0
 
     @property
     def wrapped(self) -> int:
@@ -239,6 +254,26 @@ def replay(case: Case) -> list[Recorded]:
 
 
 @cache
+def _mcp_tools() -> dict[str, Any]:
+    """Every MCP tool by name; their ``body`` parameters are ycli's typed request bodies."""
+    return {tool.name: tool for tool in asyncio.run(mcp.list_tools())}
+
+
+def typed_body(found: Recorded) -> dict[str, Any] | None:
+    """The schema of the body ``found`` sends, when its MCP tool declares a body model.
+
+    The SDK itself takes a free-form mapping, so the MCP tool's ``body`` parameter is the one
+    typed description of a request body; it stands for the request only when the operation
+    sends nothing else. ``$defs`` rides along for the references to resolve.
+    """
+    tool = _mcp_tools().get(found.case.mcp[0]) if found.case.mcp else None
+    body = (tool.parameters.get("properties", {}) if tool else {}).get("body")
+    if tool is None or body is None or len(replay(found.case)) != 1:
+        return None
+    return {**body, "$defs": tool.parameters.get("$defs", {})}
+
+
+@cache
 def recorded() -> tuple[Recorded, ...]:
     """Every endpoint every SDK operation sends, from replaying the contract cases once."""
     return tuple(found for case in load_cases() for found in replay(case))
@@ -258,7 +293,22 @@ def _call(found: Recorded) -> Call:
         # A listing's envelope is read by the pager; callers only ever see its items.
         response=None if found.pagination else _fields(found.endpoint.response_type),
         template=found.template,
+        request=_body_fields(typed_body(found)),
     )
+
+
+def _body_fields(schema: dict[str, Any] | None) -> frozenset[str] | None:
+    """The top-level names a typed body can carry; ``None`` when it is open to any field."""
+    if schema is None or _resolved_body(schema).get("additionalProperties"):
+        return None
+    return frozenset(api_surface.field_names(schema, schema))
+
+
+def _resolved_body(schema: dict[str, Any]) -> dict[str, Any]:
+    """``schema`` with a top-level reference into its own ``$defs`` followed."""
+    while "$ref" in schema:
+        schema = {**schema["$defs"][schema["$ref"].rsplit("/", 1)[1]], "$defs": schema["$defs"]}
+    return schema
 
 
 def calls() -> list[Call]:
@@ -303,11 +353,17 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
 
     exhaustive = service in EXHAUSTIVE
     gaps = []
+    bodies_published = bodies_compared = 0
     for operation in published:
         found = reached.get(operation.key)
         if not found:
             continue
         query = frozenset().union(*(call.query for call in found))
+        bodies = [call.request for call in found if call.request is not None]
+        body = frozenset().union(*bodies)
+        compare_request = bool(exhaustive and bodies and operation.request)
+        bodies_published += bool(exhaustive and operation.request)
+        bodies_compared += compare_request
         models = [call.response for call in found if call.response is not None]
         fields = frozenset().union(*models)
         compare_response = bool(models and operation.response)
@@ -316,6 +372,8 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
             operations=tuple(sorted({call.operation for call in found})),
             missing_query=tuple(sorted(set(operation.query) - query)),
             unknown_query=tuple(sorted(query - set(operation.query))) if exhaustive else (),
+            missing_request=tuple(sorted(set(operation.request) - body)) if compare_request else (),
+            unknown_request=tuple(sorted(body - set(operation.request))) if compare_request else (),
             dropped_response=tuple(sorted(set(operation.response) - fields))
             if compare_response
             else (),
@@ -337,6 +395,8 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
         ),
         unpublished=tuple(_unique(unpublished)),
         gaps=tuple(gaps),
+        bodies_published=bodies_published,
+        bodies_compared=bodies_compared,
     )
 
 
