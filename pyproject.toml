@@ -239,7 +239,7 @@ source_modules = [
     "ycli.yandex.**.mcp",
     "ycli.yandex.**.models",
 ]
-forbidden_modules = ["requests", "httpx2"]
+forbidden_modules = ["httpx2"]
 allow_indirect_imports = true
 
 [[tool.importlinter.contracts]]
@@ -289,5 +289,4 @@ forbidden_modules = [
     "ycli.mcp",
     "typer",
     "fastmcp",
-    "requests",
 ]

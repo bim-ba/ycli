@@ -13,9 +13,9 @@ Run the generator, then finish wiring the new resource:
    `tracker/issues/` is the worked example. Consult the vendored API docs under
    `references/yandex-360/<domain>/` (they are git-ignored/local-only — regenerate with
    `uv run python scripts/fetch_docs.py <domain>` if the tree is empty).
-3. Register the resource in the domain client's `_wire`
-   (`self.<resource> = <Resource>Client(session=session)`, the domain's one core session from
-   `self._connect(SERVICE.profile)`), then mount the
+3. Register the resource in the domain client's `_wire(self, session)`
+   (`self.<resource> = <Resource>Client(session=session)`: the domain's one core session is
+   handed to it), then mount the
    new sub-app into the domain `cli.py` (`app.add_typer(...)`) and the new subserver into the
    domain `mcp.py` (`mcp.mount(...)`), mirroring a sibling resource.
 4. Add `tests/yandex/<domain>/<resource>/cases.py`: one contract `Case` per way of reaching
@@ -26,9 +26,6 @@ Run the generator, then finish wiring the new resource:
    purpose — the new commands/tools change the CLI tree and MCP tool list (ARCH-6):
    `uv run python -m tests.snapshots --update`.
 
-Architecture rules (see `ARCHITECTURE.md`, ARCH-1..8): HTTP only in `client.py`; a CLI command
-returns its result and never prints (`output.render` does); `fastmcp` only in `mcp.py`, and every new MCP tool carries
-honest annotations (reads `RO`; writes the `WRITE` / `WRITE_IDEMPOTENT` / `DESTRUCTIVE` sets plus
-the `write` tag — they must agree with the effect of the endpoint the tool sends); clients receive
-credentials as constructor arguments and never read the environment (no `from_env`). New resources
-go on the httpx2 core.
+The rules the result must meet are in `ARCHITECTURE.md` (ARCH-1..8) and
+`docs/conventions/resources.md`; the scaffold already meets them, and `uv run pytest` names the
+one a change breaks.
