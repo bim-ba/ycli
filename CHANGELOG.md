@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.47.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.46.1
+  ([`1d35212`](https://github.com/bim-ba/ycli/commit/1d3521286ba027603083c7dec10f9cd59d3ce126))
+
+### Features
+
+- **tracker**: Send every published query parameter
+  ([#246](https://github.com/bim-ba/ycli/pull/246),
+  [`4b0f4ef`](https://github.com/bim-ba/ycli/commit/4b0f4ef49ac29d6bddb2d624697e4f03d8d5c0c3))
+
+
 ## v0.46.1 (2026-10-03)
 
 ### Bug Fixes
