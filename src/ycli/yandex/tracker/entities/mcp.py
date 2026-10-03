@@ -23,6 +23,11 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    AddToFollowers,
+    Expand,
+    Notify,
+    NotifyAuthor,
+    ReplyFields,
     app_config,
     tracker_client,
 )
@@ -118,6 +123,14 @@ def events_list(
     entity_type: TypeArg,
     entity_id: IdArg,
     limit: Annotated[int, Field(description="Max events (0 = configured cap).")] = 0,
+    selected: Annotated[
+        str | None,
+        Field(description="Event id to build the list around, instead of from the start."),
+    ] = None,
+    new_events_on_top: Annotated[bool | None, Field(description="Newest events first.")] = None,
+    direction: Annotated[
+        str | None, Field(description="``forward`` (the default) or ``backward``.")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[EntityEvent]:
@@ -127,7 +140,14 @@ def events_list(
     Capped at the configured item cap unless ``limit`` is given.
     """
     cap = config.http.cap(limit)
-    return client.entities.history(entity_type, entity_id, limit=cap)
+    return client.entities.history(
+        entity_type,
+        entity_id,
+        limit=cap,
+        selected=selected,
+        new_events_on_top=new_events_on_top,
+        direction=direction,
+    )
 
 
 @mcp.tool(
@@ -278,10 +298,15 @@ def comments_relative_list(
     name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"}, tags=WRITE_TAGS
 )
 def create(
-    entity_type: TypeArg, body: EntityCreate, client: TrackerClient = Depends(tracker_client)
+    entity_type: TypeArg,
+    body: EntityCreate,
+    fields: ReplyFields = None,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Create a Tracker entity (project, portfolio or goal); returns it with its id."""
-    return client.entities.create(entity_type, body.model_dump(by_alias=True, exclude_none=True))
+    return client.entities.create(
+        entity_type, body.model_dump(by_alias=True, exclude_none=True), fields=fields
+    )
 
 
 @mcp.tool(
@@ -293,6 +318,8 @@ def edit(
     entity_type: TypeArg,
     entity_id: IdArg,
     body: EntityUpdate,
+    expand: Expand = None,
+    fields: ReplyFields = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Edit a Tracker entity; only the ``fields`` keys present in ``body`` are changed.
@@ -300,7 +327,11 @@ def edit(
     Returns the updated entity.
     """
     return client.entities.edit(
-        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        fields=fields,
     )
 
 
@@ -415,11 +446,21 @@ def comments_create(
     entity_type: TypeArg,
     entity_id: IdArg,
     body: CommentCreate,
+    expand: Expand = None,
+    is_add_to_followers: AddToFollowers = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """Add a comment to a Tracker entity; returns the created comment."""
     return client.entities.comments_create(
-        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        is_add_to_followers=is_add_to_followers,
+        notify=notify,
+        notify_author=notify_author,
     )
 
 
@@ -433,6 +474,10 @@ def comments_update(
     entity_id: IdArg,
     comment_id: Annotated[str, Field(description="Comment id (from entities_comments_list).")],
     body: CommentUpdate,
+    expand: Expand = None,
+    is_add_to_followers: AddToFollowers = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
     """Edit a comment on a Tracker entity; returns the updated comment.
@@ -440,7 +485,14 @@ def comments_update(
     ``comment_id`` addresses the comment (get it from ``entities_comments_list``).
     """
     return client.entities.comments_edit(
-        entity_type, entity_id, comment_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        comment_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        is_add_to_followers=is_add_to_followers,
+        notify=notify,
+        notify_author=notify_author,
     )
 
 
@@ -453,13 +505,17 @@ def comments_delete(
     entity_type: TypeArg,
     entity_id: IdArg,
     comment_id: Annotated[str, Field(description="Comment id (from entities_comments_list).")],
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Ack:
     """Permanently delete one comment from a Tracker entity (irreversible).
 
     Returns an acknowledgement on success.
     """
-    client.entities.comments_delete(entity_type, entity_id, comment_id)
+    client.entities.comments_delete(
+        entity_type, entity_id, comment_id, notify=notify, notify_author=notify_author
+    )
     return Ack.deleted("comment", comment_id, on=f"{entity_type} {entity_id}")
 
 
@@ -472,6 +528,10 @@ def checklists_create(
     entity_type: TypeArg,
     entity_id: IdArg,
     body: ChecklistItems,
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Add checklist item(s) to a Tracker entity; returns the entity with its checklist.
@@ -479,7 +539,13 @@ def checklists_create(
     ``body`` is a bare array of items, e.g. ``[{"text": "…"}]``.
     """
     return client.entities.checklists_create(
-        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
     )
 
 
@@ -492,6 +558,10 @@ def checklists_update(
     entity_type: TypeArg,
     entity_id: IdArg,
     body: ChecklistItems,
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Replace/update a Tracker entity's checklist items in one call.
@@ -500,7 +570,13 @@ def checklists_update(
     item by id use ``entities_checklists_update_item``. Returns the entity with its checklist.
     """
     return client.entities.checklists_edit(
-        entity_type, entity_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
     )
 
 
@@ -514,6 +590,10 @@ def checklists_edit_item(
     entity_id: IdArg,
     item_id: Annotated[str, Field(description="Checklist item id.")],
     body: ChecklistItemInput,
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Edit one checklist item on a Tracker entity (text, checked state, assignee, deadline).
@@ -521,7 +601,14 @@ def checklists_edit_item(
     Returns the entity with its updated checklist.
     """
     return client.entities.checklists_edit_item(
-        entity_type, entity_id, item_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        item_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
     )
 
 
@@ -531,13 +618,26 @@ def checklists_edit_item(
     tags=WRITE_TAGS,
 )
 def checklists_delete(
-    entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
+    entity_type: TypeArg,
+    entity_id: IdArg,
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Permanently delete the ENTIRE checklist of a Tracker entity (all items, irreversible).
 
     To remove a single item use ``entities_checklists_delete_item``. Returns the entity.
     """
-    return client.entities.checklists_delete(entity_type, entity_id)
+    return client.entities.checklists_delete(
+        entity_type,
+        entity_id,
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @mcp.tool(
@@ -549,13 +649,25 @@ def checklists_delete_item(
     entity_type: TypeArg,
     entity_id: IdArg,
     item_id: Annotated[str, Field(description="Checklist item id.")],
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Permanently remove one item from a Tracker entity's checklist (irreversible).
 
     Returns the entity with its remaining checklist.
     """
-    return client.entities.checklists_delete_item(entity_type, entity_id, item_id)
+    return client.entities.checklists_delete_item(
+        entity_type,
+        entity_id,
+        item_id,
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @mcp.tool(
@@ -568,6 +680,10 @@ def checklists_move(
     entity_id: IdArg,
     item_id: Annotated[str, Field(description="Checklist item id to move.")],
     body: ChecklistMove,
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Reorder a checklist item within a Tracker entity's checklist.
@@ -575,7 +691,14 @@ def checklists_move(
     Returns the entity with its reordered checklist.
     """
     return client.entities.checklists_move(
-        entity_type, entity_id, item_id, body.model_dump(by_alias=True, exclude_none=True)
+        entity_type,
+        entity_id,
+        item_id,
+        body.model_dump(by_alias=True, exclude_none=True),
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
     )
 
 
@@ -629,6 +752,10 @@ def attachments_attach(
     temp_file_id: Annotated[
         str, Field(description="Temporary file id from a prior POST /attachments upload.")
     ],
+    expand: Expand = None,
+    fields: ReplyFields = None,
+    notify: Notify = None,
+    notify_author: NotifyAuthor = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Attach a previously uploaded temporary file to a Tracker entity.
@@ -636,7 +763,15 @@ def attachments_attach(
     Requires a ``temp_file_id`` from the Tracker temporary-upload endpoint (not wrapped by
     ycli — files are usually seeded via the UI). Returns the entity.
     """
-    return client.entities.attachments_attach(entity_type, entity_id, temp_file_id)
+    return client.entities.attachments_attach(
+        entity_type,
+        entity_id,
+        temp_file_id,
+        expand=expand,
+        fields=fields,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @mcp.tool(

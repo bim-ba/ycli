@@ -4,7 +4,7 @@ Every trigger starts a new async operation, so even ``_update`` is a plain (non-
 write; the two reads poll it.
 
 Examples:
-    >>> update_bulk({"issues": ["TEST-1"]}).effect
+    >>> update_bulk({"issues": ["TEST-1"]}, notify=None).effect
     'write'
     >>> get_bulk("1ab2").path
     'bulkchange/1ab2'
@@ -19,16 +19,30 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResult
 
 
-def update_bulk(body: dict[str, Any]) -> Endpoint[BulkChange]:
-    return Endpoint("POST", "bulkchange/_update", BulkChange, json=body)
+def update_bulk(
+    body: dict[str, Any],
+    *,
+    notify: bool | None,
+) -> Endpoint[BulkChange]:
+    return Endpoint("POST", "bulkchange/_update", BulkChange, json=body, params={"notify": notify})
 
 
-def move_bulk(body: dict[str, Any]) -> Endpoint[BulkChange]:
-    return Endpoint("POST", "bulkchange/_move", BulkChange, json=body)
+def move_bulk(
+    body: dict[str, Any],
+    *,
+    notify: bool | None,
+) -> Endpoint[BulkChange]:
+    return Endpoint("POST", "bulkchange/_move", BulkChange, json=body, params={"notify": notify})
 
 
-def transition_bulk(body: dict[str, Any]) -> Endpoint[BulkChange]:
-    return Endpoint("POST", "bulkchange/_transition", BulkChange, json=body)
+def transition_bulk(
+    body: dict[str, Any],
+    *,
+    notify: bool | None,
+) -> Endpoint[BulkChange]:
+    return Endpoint(
+        "POST", "bulkchange/_transition", BulkChange, json=body, params={"notify": notify}
+    )
 
 
 def get_bulk(bulk_id: str) -> Endpoint[BulkChange]:

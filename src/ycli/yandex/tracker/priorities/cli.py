@@ -15,9 +15,18 @@ app = typer.Typer(name="priorities", help="Tracker priorities.", no_args_is_help
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> ItemList[Priority]:
+def list_(
+    localized: Annotated[
+        bool | None,
+        typer.Option(
+            "--localized/--no-localized", help="--no-localized returns the names in every language."
+        ),
+    ] = None,
+    *,
+    tracker: TrackerClient,
+) -> ItemList[Priority]:
     """List all priorities."""
-    return tracker.priorities.list()
+    return tracker.priorities.list(localized=localized)
 
 
 @app.command()

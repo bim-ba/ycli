@@ -1,6 +1,6 @@
 """Contract cases for Tracker issue ``/changelog`` (see tests/contract.py)."""
 
-from tests.contract import Case, Reply, Sent
+from tests.contract import Case, Reply, Sent, with_query
 
 STATUS_CHANGE = {
     "id": "ch1",
@@ -53,5 +53,15 @@ CASES = [
         cli=["tracker", "changelog", "list", "DE-23", "--all"],
         mcp=None,
         exchanges=[(Sent("GET", "issues/DE-23/changelog", {"perPage": "100"}), Reply(json=[]))],
+    ),
+]
+
+CASES += [
+    with_query(
+        CASES,
+        "tracker.changelog.list",
+        kwargs={"field": "status", "change_type": "IssueWorkflow", "sort": "desc"},
+        cli=["--field", "status", "--type", "IssueWorkflow", "--sort", "desc"],
+        params={"field": "status", "type": "IssueWorkflow", "sort": "desc"},
     ),
 ]

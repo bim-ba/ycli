@@ -31,6 +31,15 @@ def list_(
         int,
         Field(description=f"Max changes to return; {LIMIT_CAP}"),
     ] = 0,
+    field: Annotated[
+        str | None, Field(description="Keep the changes of this field, e.g. ``status``.")
+    ] = None,
+    change_type: Annotated[
+        str | None, Field(description="Keep the changes of this type, e.g. ``IssueWorkflow``.")
+    ] = None,
+    sort: Annotated[
+        str | None, Field(description="Order of the changes: ``asc`` or ``desc``.")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[ChangelogEntry]:
@@ -40,4 +49,4 @@ def list_(
     is given.
     """
     cap = config.http.cap(limit)
-    return client.changelog.list(key, limit=cap)
+    return client.changelog.list(key, limit=cap, field=field, change_type=change_type, sort=sort)

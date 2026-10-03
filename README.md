@@ -314,7 +314,7 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 
 | Service | Published | Wrapped | Not wrapped | Operations that differ | Bodies compared | Source |
 |---------|:---------:|:-------:|:-----------:|:----------------------:|:---------------:|--------|
-| Tracker | 190 | 188 | 0 (+2 on purpose) | 25 | — | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
+| Tracker | 190 | 188 | 0 (+2 on purpose) | 0 | — | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
 | Wiki | 56 | 56 | 0 | 0 | 20 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
 | Forms | 84 | 84 | 0 | 8 | 24 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
 
@@ -334,36 +334,6 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 |---|---|
 | `entities.attachment_download` | `GET /attachments/{file_id}/{filename}` |
 | `linktypes.list` | `GET /linktypes` |
-
-**Parameters and fields**
-
-| Operation | ycli | Difference | Why it stays |
-|---|---|---|---|
-| [`POST /bulkchange/_move`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-move-issues) | `bulk.move` | query parameters ycli cannot send: `notify` |  |
-| [`POST /bulkchange/_transition`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-transition) | `bulk.transition` | query parameters ycli cannot send: `notify` |  |
-| [`POST /bulkchange/_update`](https://yandex.ru/support/tracker/en/api/bulkchange/bulk-update-issues) | `bulk.update` | query parameters ycli cannot send: `notify` |  |
-| [`POST /entities/{entity_type}`](https://yandex.ru/support/tracker/en/api/entities/create-entity) | `entities.create` | query parameters ycli cannot send: `fields` |  |
-| [`PATCH /entities/{entity_type}/{entity_ID}`](https://yandex.ru/support/tracker/en/api/entities/update-entity) | `entities.edit` | query parameters ycli cannot send: `expand`, `fields` |  |
-| [`POST /entities/{entity_type}/{entity_ID}/attachments/{file_ID}`](https://yandex.ru/support/tracker/en/api/entities/attachments/add-attachment) | `entities.attachments_attach` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist) | `entities.checklists_delete` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist) | `entities.checklists_edit` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`POST /entities/{entity_type}/{entity_ID}/checklistItems`](https://yandex.ru/support/tracker/en/api/entities/checklists/add-checklist) | `entities.checklists_create` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`DELETE /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/delete-checklist-item) | `entities.checklists_delete_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`PATCH /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}`](https://yandex.ru/support/tracker/en/api/entities/checklists/patch-checklist-item) | `entities.checklists_edit_item` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`POST /entities/{entity_type}/{entity_ID}/checklistItems/{checklist_item_ID}/_move`](https://yandex.ru/support/tracker/en/api/entities/checklists/move-checklist-item) | `entities.checklists_move` | query parameters ycli cannot send: `expand`, `fields`, `notify`, `notifyAuthor` |  |
-| [`POST /entities/{entity_type}/{entity_ID}/comments`](https://yandex.ru/support/tracker/en/api/entities/comments/add-comment) | `entities.comments_create` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |  |
-| [`DELETE /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/delete-comment) | `entities.comments_delete` | query parameters ycli cannot send: `notify`, `notifyAuthor` |  |
-| [`PATCH /entities/{entity_type}/{entity_ID}/comments/{comment_ID}`](https://yandex.ru/support/tracker/en/api/entities/comments/patch-comment) | `entities.comments_edit` | query parameters ycli cannot send: `expand`, `isAddToFollowers`, `notify`, `notifyAuthor` |  |
-| [`GET /entities/{entity_type}/{entity_ID}/events/_relative`](https://yandex.ru/support/tracker/en/api/entities/get-events-relative) | `entities.history` | query parameters ycli cannot send: `direction`, `newEventsOnTop`, `selected` |  |
-| [`POST /issues`](https://yandex.ru/support/tracker/en/api/issues/create-issue) | `issues.create` | query parameters ycli cannot send: `notify` |  |
-| [`POST /issues/_search`](https://yandex.ru/support/tracker/en/api/issues/search-issues) | `issues.search` | query parameters ycli cannot send: `expand`, `perScroll`, `scrollId`, `scrollTTLMillis`, `scrollType` |  |
-| [`GET /issues/_suggest`](https://yandex.ru/support/tracker/en/api/issues/get-suggest) | `issues.suggest` | query parameters ycli cannot send: `embed`, `expand`, `fields`, `full`, `queue` |  |
-| [`POST /issues/{id_задачи}/_move`](https://yandex.ru/support/tracker/en/api/issues/move-issue) | `issues.move` | query parameters ycli cannot send: `expand`, `initialStatus`, `moveAllFields`, `notify`, `notifyAuthor` |  |
-| [`GET /issues/{issue_ID}`](https://yandex.ru/support/tracker/en/api/issues/get-issue) | `issues.get` | query parameters ycli cannot send: `expand`, `fields` |  |
-| [`GET /issues/{issue_ID}/changelog`](https://yandex.ru/support/tracker/en/api/issues/get-changelog) | `changelog.list` | query parameters ycli cannot send: `field`, `sort`, `type` |  |
-| [`GET /issues/{issue_ID}/comments`](https://yandex.ru/support/tracker/en/api/issues/get-comments) | `comments.list` | query parameters ycli cannot send: `expand` |  |
-| [`GET /priorities`](https://yandex.ru/support/tracker/en/api/admin/get-priorities) | `priorities.list` | query parameters ycli cannot send: `localized` |  |
-| [`GET /queues`](https://yandex.ru/support/tracker/en/api/queues/get-queues) | `queues.list` | query parameters ycli cannot send: `expand` |  |
 
 </details>
 

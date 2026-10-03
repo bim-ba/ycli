@@ -23,9 +23,15 @@ mcp = FastMCP("tracker-priorities")
 
 
 @mcp.tool(name="priorities_list", annotations={**RO, "title": "List Tracker priorities"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Priority]:
+def list_(
+    localized: Annotated[
+        bool | None,
+        Field(description="``false`` returns the names in every language."),
+    ] = None,
+    client: TrackerClient = Depends(tracker_client),
+) -> ItemList[Priority]:
     """All available issue priorities in the organisation."""
-    return client.priorities.list()
+    return client.priorities.list(localized=localized)
 
 
 @mcp.tool(

@@ -42,12 +42,19 @@ class EntitiesClient(Resource):
 
     # ---- core -------------------------------------------------------------------------------
 
-    def create(self, entity_type: str, body: dict[str, Any]) -> Entity:
+    def create(
+        self,
+        entity_type: str,
+        body: dict[str, Any],
+        *,
+        fields: str | None = None,
+    ) -> Entity:
         """``POST /entities/{entity_type}`` — create an entity from a ``{fields: …}`` body.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             body: The new entity, as ``{"fields": {...}}``.
+            fields: The comma-separated entity fields to include in the reply.
 
         Returns:
             The created entity.
@@ -56,7 +63,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.create("project", {"fields": {"summary": "Q4 launch"}}).id
             '655f'
         """
-        return self._session.send(endpoints.create_entity(entity_type, body))
+        return self._session.send(endpoints.create_entity(entity_type, body, fields=fields))
 
     def get(
         self,
@@ -89,13 +96,23 @@ class EntitiesClient(Resource):
         endpoint = endpoints.get_entity(entity_type, entity_id, expand=expand, fields=fields)
         return self._session.send(endpoint)
 
-    def edit(self, entity_type: str, entity_id: str, body: dict[str, Any]) -> Entity:
+    def edit(
+        self,
+        entity_type: str,
+        entity_id: str,
+        body: dict[str, Any],
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+    ) -> Entity:
         """``PATCH /entities/{entity_type}/{entity_id}`` — edit fields/comment/links. Returns it.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             body: The changes: ``fields``, a ``comment`` or ``links``.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
 
         Returns:
             The updated entity.
@@ -104,7 +121,9 @@ class EntitiesClient(Resource):
             >>> tracker.entities.edit("project", "655f04", {"fields": {"summary": "Renamed"}}).id
             '655f04'
         """
-        return self._session.send(endpoints.edit_entity(entity_type, entity_id, body))
+        return self._session.send(
+            endpoints.edit_entity(entity_type, entity_id, body, expand=expand, fields=fields)
+        )
 
     def delete(self, entity_type: str, entity_id: str, *, with_board: bool | None = None) -> None:
         """Delete an entity. Pass ``with_board=True`` to delete its board too. Raises on non-2xx.
@@ -156,17 +175,29 @@ class EntitiesClient(Resource):
         return ItemList[Entity](self._session.send(endpoint).values)
 
     def history(
-        self, entity_type: str, entity_id: str, *, limit: int | None = None
+        self,
+        entity_type: str,
+        entity_id: str,
+        *,
+        limit: int | None = None,
+        selected: str | None = None,
+        new_events_on_top: bool | None = None,
+        direction: str | None = None,
     ) -> ItemList[EntityEvent]:
         """``GET …/events/_relative`` → flat ``ItemList[EntityEvent]``, draining ``from=<id>``.
 
         Walks the relative-cursor listing (each page repeats with ``from`` = the last event's
-        id) until exhausted or ``limit`` events collected.
+        id) until exhausted or ``limit`` events collected. With ``selected`` the API builds one
+        window around that event and does not take ``from``, so that window is all there is.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             limit: The most events to return; ``None`` returns every event.
+            selected: The id of the event to build the list around, instead of from the start.
+            new_events_on_top: Whether to return the newest events first.
+            direction: ``forward`` (the API's default) or ``backward``, which inverts
+                ``new_events_on_top``.
 
         Returns:
             The entity's events.
@@ -175,7 +206,16 @@ class EntitiesClient(Resource):
             >>> [event.id for event in tracker.entities.history("project", "655f13").root]
             ['e1', 'e2']
         """
-        paged = endpoints.list_events(entity_type, entity_id, per_page=_page_size(limit))
+        paged = endpoints.list_events(
+            entity_type,
+            entity_id,
+            per_page=_page_size(limit),
+            selected=selected,
+            new_events_on_top=new_events_on_top,
+            direction=direction,
+        )
+        if selected is not None:
+            return ItemList[EntityEvent](self._session.send(paged.endpoint).events)
         return ItemList[EntityEvent](list(self._session.iterate(paged, limit=limit)))
 
     def permissions(self, entity_type: str, entity_id: str) -> ExtendedPermissions:
@@ -397,13 +437,30 @@ class EntitiesClient(Resource):
         endpoint = endpoints.get_comment(entity_type, entity_id, comment_id, expand=expand)
         return self._session.send(endpoint)
 
-    def comments_create(self, entity_type: str, entity_id: str, body: dict[str, Any]) -> Comment:
+    def comments_create(
+        self,
+        entity_type: str,
+        entity_id: str,
+        body: dict[str, Any],
+        *,
+        expand: str | None = None,
+        is_add_to_followers: bool | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
+    ) -> Comment:
         """``POST …/comments`` — add a comment. Returns the created comment.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             body: The new comment: its text and optional summonees.
+            expand: The extra blocks to include in the reply.
+            is_add_to_followers: Whether to add the comment's author to the followers; ``None``
+                leaves the API's default (it adds).
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The created comment.
@@ -412,10 +469,29 @@ class EntitiesClient(Resource):
             >>> tracker.entities.comments_create("project", "655f25", {"text": "Готово"}).id
             22
         """
-        return self._session.send(endpoints.create_comment(entity_type, entity_id, body))
+        return self._session.send(
+            endpoints.create_comment(
+                entity_type,
+                entity_id,
+                body,
+                expand=expand,
+                is_add_to_followers=is_add_to_followers,
+                notify=notify,
+                notify_author=notify_author,
+            )
+        )
 
     def comments_edit(
-        self, entity_type: str, entity_id: str, comment_id: str, body: dict[str, Any]
+        self,
+        entity_type: str,
+        entity_id: str,
+        comment_id: str,
+        body: dict[str, Any],
+        *,
+        expand: str | None = None,
+        is_add_to_followers: bool | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
     ) -> Comment:
         """``PATCH …/comments/{comment_id}`` — edit a comment. Returns the updated comment.
 
@@ -427,6 +503,13 @@ class EntitiesClient(Resource):
             entity_id: The entity's id.
             comment_id: The comment's id.
             body: The comment fields to change.
+            expand: The extra blocks to include in the reply.
+            is_add_to_followers: Whether to add the comment's author to the followers; ``None``
+                leaves the API's default (it adds).
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated comment.
@@ -435,26 +518,59 @@ class EntitiesClient(Resource):
             >>> tracker.entities.comments_edit("goal", "g27", "27", {"text": "Fixed typo"}).text
             'Fixed typo'
         """
-        endpoint = endpoints.edit_comment(entity_type, entity_id, comment_id, body)
+        endpoint = endpoints.edit_comment(
+            entity_type,
+            entity_id,
+            comment_id,
+            body,
+            expand=expand,
+            is_add_to_followers=is_add_to_followers,
+            notify=notify,
+            notify_author=notify_author,
+        )
         return self._session.send(endpoint)
 
-    def comments_delete(self, entity_type: str, entity_id: str, comment_id: str) -> None:
+    def comments_delete(
+        self,
+        entity_type: str,
+        entity_id: str,
+        comment_id: str,
+        *,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
+    ) -> None:
         """Delete a comment from an entity. Raises on non-2xx.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             comment_id: The comment's id.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Examples:
             >>> tracker.entities.comments_delete("portfolio", "pf28", "28")
         """
-        self._session.send(endpoints.delete_comment(entity_type, entity_id, comment_id))
+        self._session.send(
+            endpoints.delete_comment(
+                entity_type, entity_id, comment_id, notify=notify, notify_author=notify_author
+            )
+        )
 
     # ---- checklists -------------------------------------------------------------------------
 
     def checklists_create(
-        self, entity_type: str, entity_id: str, body: list[dict[str, Any]]
+        self,
+        entity_type: str,
+        entity_id: str,
+        body: list[dict[str, Any]],
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
     ) -> Entity:
         """``POST …/checklistItems`` — add items (``body`` is a JSON array). Returns the entity.
 
@@ -462,6 +578,12 @@ class EntitiesClient(Resource):
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             body: The items to add.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -472,10 +594,28 @@ class EntitiesClient(Resource):
             ... ).id
             '655f29'
         """
-        return self._session.send(endpoints.create_checklist_items(entity_type, entity_id, body))
+        return self._session.send(
+            endpoints.create_checklist_items(
+                entity_type,
+                entity_id,
+                body,
+                expand=expand,
+                fields=fields,
+                notify=notify,
+                notify_author=notify_author,
+            )
+        )
 
     def checklists_edit(
-        self, entity_type: str, entity_id: str, body: list[dict[str, Any]]
+        self,
+        entity_type: str,
+        entity_id: str,
+        body: list[dict[str, Any]],
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
     ) -> Entity:
         """``PATCH …/checklistItems`` — replace items (``body`` is a JSON array of ``{id, …}``).
 
@@ -483,6 +623,12 @@ class EntitiesClient(Resource):
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             body: The items to replace, each with its ``id``.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -493,10 +639,29 @@ class EntitiesClient(Resource):
             ... ).id
             'g30'
         """
-        return self._session.send(endpoints.edit_checklist(entity_type, entity_id, body))
+        return self._session.send(
+            endpoints.edit_checklist(
+                entity_type,
+                entity_id,
+                body,
+                expand=expand,
+                fields=fields,
+                notify=notify,
+                notify_author=notify_author,
+            )
+        )
 
     def checklists_edit_item(
-        self, entity_type: str, entity_id: str, item_id: str, body: dict[str, Any]
+        self,
+        entity_type: str,
+        entity_id: str,
+        item_id: str,
+        body: dict[str, Any],
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
     ) -> Entity:
         """``PATCH …/checklistItems/{item_id}`` — edit one item. Returns the entity.
 
@@ -505,6 +670,12 @@ class EntitiesClient(Resource):
             entity_id: The entity's id.
             item_id: The checklist item's id.
             body: The item fields to change.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -515,15 +686,39 @@ class EntitiesClient(Resource):
             ... ).id
             'pf32'
         """
-        endpoint = endpoints.edit_checklist_item(entity_type, entity_id, item_id, body)
+        endpoint = endpoints.edit_checklist_item(
+            entity_type,
+            entity_id,
+            item_id,
+            body,
+            expand=expand,
+            fields=fields,
+            notify=notify,
+            notify_author=notify_author,
+        )
         return self._session.send(endpoint)
 
-    def checklists_delete(self, entity_type: str, entity_id: str) -> Entity:
+    def checklists_delete(
+        self,
+        entity_type: str,
+        entity_id: str,
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
+    ) -> Entity:
         """``DELETE …/checklistItems`` — clear the whole checklist. Returns the entity.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -532,15 +727,40 @@ class EntitiesClient(Resource):
             >>> tracker.entities.checklists_delete("project", "655f34").id
             '655f34'
         """
-        return self._session.send(endpoints.delete_checklist(entity_type, entity_id))
+        return self._session.send(
+            endpoints.delete_checklist(
+                entity_type,
+                entity_id,
+                expand=expand,
+                fields=fields,
+                notify=notify,
+                notify_author=notify_author,
+            )
+        )
 
-    def checklists_delete_item(self, entity_type: str, entity_id: str, item_id: str) -> Entity:
+    def checklists_delete_item(
+        self,
+        entity_type: str,
+        entity_id: str,
+        item_id: str,
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
+    ) -> Entity:
         """``DELETE …/checklistItems/{item_id}`` — remove one item. Returns the entity.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             item_id: The checklist item's id.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -549,10 +769,29 @@ class EntitiesClient(Resource):
             >>> tracker.entities.checklists_delete_item("goal", "g35", "3f").id
             'g35'
         """
-        return self._session.send(endpoints.delete_checklist_item(entity_type, entity_id, item_id))
+        return self._session.send(
+            endpoints.delete_checklist_item(
+                entity_type,
+                entity_id,
+                item_id,
+                expand=expand,
+                fields=fields,
+                notify=notify,
+                notify_author=notify_author,
+            )
+        )
 
     def checklists_move(
-        self, entity_type: str, entity_id: str, item_id: str, body: dict[str, Any]
+        self,
+        entity_type: str,
+        entity_id: str,
+        item_id: str,
+        body: dict[str, Any],
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
     ) -> Entity:
         """``POST …/checklistItems/{item_id}/_move`` — reorder an item. Returns the entity.
 
@@ -563,6 +802,12 @@ class EntitiesClient(Resource):
             entity_id: The entity's id.
             item_id: The checklist item's id.
             body: The new position, as ``{"before": "<item id>"}``.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -571,7 +816,16 @@ class EntitiesClient(Resource):
             >>> tracker.entities.checklists_move("portfolio", "pf36", "4f", {"before": "5a"}).id
             'pf36'
         """
-        endpoint = endpoints.move_checklist_item(entity_type, entity_id, item_id, body)
+        endpoint = endpoints.move_checklist_item(
+            entity_type,
+            entity_id,
+            item_id,
+            body,
+            expand=expand,
+            fields=fields,
+            notify=notify,
+            notify_author=notify_author,
+        )
         return self._session.send(endpoint)
 
     # ---- links ------------------------------------------------------------------------------
@@ -677,7 +931,17 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.download_attachment(file_id, filename))
 
-    def attachments_attach(self, entity_type: str, entity_id: str, temp_file_id: str) -> Entity:
+    def attachments_attach(
+        self,
+        entity_type: str,
+        entity_id: str,
+        temp_file_id: str,
+        *,
+        expand: str | None = None,
+        fields: str | None = None,
+        notify: bool | None = None,
+        notify_author: bool | None = None,
+    ) -> Entity:
         """``POST …/attachments/{temp_file_id}`` — attach a previously uploaded temp file.
 
         Returns the updated entity. ``temp_file_id`` is the id of a file uploaded to the temp
@@ -687,6 +951,12 @@ class EntitiesClient(Resource):
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
             entity_id: The entity's id.
             temp_file_id: The id of the uploaded temporary file.
+            expand: The extra blocks to include in the reply.
+            fields: The comma-separated entity fields to include in the reply.
+            notify: Whether to notify the users in the entity's fields; ``None`` leaves the API's
+                default (it notifies).
+            notify_author: Whether to notify the author of the change; ``None`` leaves the API's
+                default (it does not).
 
         Returns:
             The updated entity.
@@ -695,7 +965,17 @@ class EntitiesClient(Resource):
             >>> tracker.entities.attachments_attach("portfolio", "pf47", "tmp47").id
             'pf47'
         """
-        return self._session.send(endpoints.attach_file(entity_type, entity_id, temp_file_id))
+        return self._session.send(
+            endpoints.attach_file(
+                entity_type,
+                entity_id,
+                temp_file_id,
+                expand=expand,
+                fields=fields,
+                notify=notify,
+                notify_author=notify_author,
+            )
+        )
 
     def attachments_delete(self, entity_type: str, entity_id: str, file_id: str) -> None:
         """Detach a file from an entity. Raises on non-2xx.

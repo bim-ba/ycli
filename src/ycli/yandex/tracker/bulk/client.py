@@ -21,11 +21,18 @@ if TYPE_CHECKING:
 class BulkClient(Resource):
     """``/bulkchange`` (mass update/move/transition + status reads)."""
 
-    def update(self, body: dict[str, Any]) -> BulkChange:
+    def update(
+        self,
+        body: dict[str, Any],
+        *,
+        notify: bool | None = None,
+    ) -> BulkChange:
         """``POST /bulkchange/_update`` — mass-edit issues. Returns the started ``BulkChange``.
 
         Args:
             body: The request body: the issues to change and the field values to set.
+            notify: Whether to notify the users in the issues' fields; ``None`` leaves the API's
+                default (it notifies).
 
         Returns:
             The started bulk change.
@@ -36,13 +43,20 @@ class BulkClient(Resource):
             ... ).status
             'CREATED'
         """
-        return self._session.send(endpoints.update_bulk(body))
+        return self._session.send(endpoints.update_bulk(body, notify=notify))
 
-    def move(self, body: dict[str, Any]) -> BulkChange:
+    def move(
+        self,
+        body: dict[str, Any],
+        *,
+        notify: bool | None = None,
+    ) -> BulkChange:
         """``POST /bulkchange/_move`` — mass-move issues to another queue. Returns a ``BulkChange``.
 
         Args:
             body: The request body: the target queue and the issues to move.
+            notify: Whether to notify the users in the issues' fields; ``None`` leaves the API's
+                default (it notifies).
 
         Returns:
             The started bulk change.
@@ -51,13 +65,20 @@ class BulkClient(Resource):
             >>> tracker.bulk.move({"queue": "CHECK", "issues": ["DE-3"]}).id
             '2cd'
         """
-        return self._session.send(endpoints.move_bulk(body))
+        return self._session.send(endpoints.move_bulk(body, notify=notify))
 
-    def transition(self, body: dict[str, Any]) -> BulkChange:
+    def transition(
+        self,
+        body: dict[str, Any],
+        *,
+        notify: bool | None = None,
+    ) -> BulkChange:
         """``POST /bulkchange/_transition`` — mass status transition. Returns a ``BulkChange``.
 
         Args:
             body: The request body: the transition to run and the issues to run it on.
+            notify: Whether to notify the users in the issues' fields; ``None`` leaves the API's
+                default (it notifies).
 
         Returns:
             The started bulk change.
@@ -66,7 +87,7 @@ class BulkClient(Resource):
             >>> tracker.bulk.transition({"transition": "close", "issues": ["DE-4"]}).status
             'CREATED'
         """
-        return self._session.send(endpoints.transition_bulk(body))
+        return self._session.send(endpoints.transition_bulk(body, notify=notify))
 
     def get(self, bulk_id: str) -> BulkChange:
         """``GET /bulkchange/{bulk_id}`` → the operation's current status (poll this to wait).

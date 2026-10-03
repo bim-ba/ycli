@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import importlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -141,6 +141,38 @@ class Case:
         """``operation:how`` — pytest numbers the cases that share one."""
         how = " ".join(self.cli[:3]) if self.cli else self.mcp[0] if self.mcp else "sdk"
         return f"{self.operation}:{how}"
+
+
+def with_query(
+    cases: Sequence[Case],
+    operation: str,
+    *,
+    kwargs: Mapping[str, Any],
+    cli: Sequence[str],
+    params: Mapping[str, str],
+    mcp: Mapping[str, Any] | None = None,
+) -> Case:
+    """The first three-surface case of ``operation`` again, with query parameters added.
+
+    The request, the body and the reply stay; ``kwargs`` go to the SDK call, ``cli`` to the
+    command line, ``mcp`` (``kwargs`` when not given) to the tool, and every request must carry
+    ``params``. For a parameter that changes neither the body nor what the reply is parsed into.
+    """
+    for base in cases:
+        if base.operation != operation or base.cli is None or base.mcp is None:
+            continue
+        tool, arguments = base.mcp
+        return replace(
+            base,
+            kwargs={**base.kwargs, **kwargs},
+            cli=[*base.cli, *cli],
+            mcp=(tool, {**arguments, **(kwargs if mcp is None else mcp)}),
+            exchanges=[
+                (replace(sent, params={**sent.params, **params}), reply)
+                for sent, reply in base.exchanges
+            ],
+        )
+    raise LookupError(f"no case of {operation} runs on all three surfaces")
 
 
 def mismatches(

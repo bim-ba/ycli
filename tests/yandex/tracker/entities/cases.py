@@ -1,6 +1,6 @@
 """Contract cases for Tracker ``/entities``: projects, portfolios, goals (see tests/contract.py)."""
 
-from tests.contract import Case, Reply, Sent
+from tests.contract import Case, Reply, Sent, with_query
 from ycli.yandex.tracker.entities.models import (
     AclInput,
     AclPrincipalsInput,
@@ -1515,6 +1515,163 @@ CASES = [
                     json={"revoke": {"READ": {"groups": ["9"]}}},
                 ),
                 Reply(json={"READ": {"users": [], "groups": [], "roles": []}}),
+            )
+        ],
+    ),
+]
+
+# The query parameters the published API lists beyond the body (#196): what the reply carries
+# and who is notified. Each case repeats the operation's first one with them.
+_REPLY_AND_NOTICE = {
+    "expand": "attachments",
+    "fields": "checklistItems",
+    "notify": False,
+    "notify_author": True,
+}
+_REPLY_AND_NOTICE_CLI = [
+    "--expand",
+    "attachments",
+    "--fields",
+    "checklistItems",
+    "--no-notify",
+    "--notify-author",
+]
+_REPLY_AND_NOTICE_SENT = {
+    "expand": "attachments",
+    "fields": "checklistItems",
+    "notify": "false",
+    "notifyAuthor": "true",
+}
+_COMMENT = {"expand": "html", "is_add_to_followers": False, "notify": False, "notify_author": True}
+_COMMENT_CLI = ["--expand", "html", "--no-add-to-followers", "--no-notify", "--notify-author"]
+_COMMENT_SENT = {
+    "expand": "html",
+    "isAddToFollowers": "false",
+    "notify": "false",
+    "notifyAuthor": "true",
+}
+CASES += [
+    with_query(
+        CASES,
+        "tracker.entities.create",
+        kwargs={"fields": "summary"},
+        cli=["--fields", "summary"],
+        params={"fields": "summary"},
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.edit",
+        kwargs={"expand": "attachments", "fields": "summary"},
+        cli=["--expand", "attachments", "--fields", "summary"],
+        params={"expand": "attachments", "fields": "summary"},
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.attachments_attach",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.checklists_create",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.checklists_edit",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.checklists_edit_item",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.checklists_delete",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.checklists_delete_item",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.checklists_move",
+        kwargs=_REPLY_AND_NOTICE,
+        cli=_REPLY_AND_NOTICE_CLI,
+        params=_REPLY_AND_NOTICE_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.comments_create",
+        kwargs=_COMMENT,
+        cli=_COMMENT_CLI,
+        params=_COMMENT_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.comments_edit",
+        kwargs=_COMMENT,
+        cli=_COMMENT_CLI,
+        params=_COMMENT_SENT,
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.comments_delete",
+        kwargs={"notify": False, "notify_author": True},
+        cli=["--no-notify", "--notify-author"],
+        params={"notify": "false", "notifyAuthor": "true"},
+    ),
+    with_query(
+        CASES,
+        "tracker.entities.history",
+        kwargs={"new_events_on_top": True, "direction": "backward"},
+        cli=["--new-events-on-top", "--direction", "backward"],
+        params={"newEventsOnTop": "true", "direction": "backward"},
+    ),
+]
+CASES += [
+    # ``selected`` asks for one window around an event: no following page is requested.
+    Case(
+        "tracker.entities.history",
+        args=("portfolio", "pf15"),
+        kwargs={"limit": 5, "selected": "e7"},
+        cli=[
+            "tracker",
+            "entities",
+            "events-list",
+            "portfolio",
+            "pf15",
+            "--limit",
+            "5",
+            "--selected",
+            "e7",
+        ],
+        mcp=(
+            "tracker_entities_events_list",
+            {"entity_type": "portfolio", "entity_id": "pf15", "limit": 5, "selected": "e7"},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "entities/portfolio/pf15/events/_relative",
+                    {"perPage": "5", "selected": "e7"},
+                ),
+                Reply(json={"events": [{"id": "e7"}, {"id": "e6"}, {"id": "e8"}], "hasNext": True}),
             )
         ],
     ),

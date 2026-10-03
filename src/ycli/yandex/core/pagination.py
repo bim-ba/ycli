@@ -110,6 +110,27 @@ class PageNumberPagination(Pagination):
 
 
 @dataclass(frozen=True)
+class ScrollPagination(Pagination):
+    """A scroll id read from a response header, sent back as ``?scrollId=`` (Tracker search).
+
+    The first request opens the scroll with the endpoint's own parameters; each reply names the
+    next page in ``X-Scroll-Id``, and a reply with no items or no such header ends the listing.
+    """
+
+    scroll_param: str = "scrollId"
+    scroll_header: str = "X-Scroll-Id"
+
+    def next(
+        self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
+    ) -> httpx2.Request | None:
+        """The request for the next scroll page, or ``None`` after the last one."""
+        scroll = response.headers.get(self.scroll_header)
+        if not scroll or not items:
+            return None
+        return _with_params(request, {self.scroll_param: scroll})
+
+
+@dataclass(frozen=True)
 class CursorPagination(Pagination):
     """A cursor read from the response, sent back as ``?cursor=`` (Wiki ``next_cursor``)."""
 

@@ -14,8 +14,8 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.priorities.models import Priority
 
 
-def list_priorities() -> Endpoint[ItemList[Priority]]:
-    return Endpoint("GET", "priorities", ItemList[Priority])
+def list_priorities(*, localized: bool | None) -> Endpoint[ItemList[Priority]]:
+    return Endpoint("GET", "priorities", ItemList[Priority], params={"localized": localized})
 
 
 def create_priority(body: dict[str, Any]) -> Endpoint[Priority]:
