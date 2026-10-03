@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.51.0 (2026-10-03)
+
+### Bug Fixes
+
+- **drift**: A body a reply also reads is still compared with the published one
+  ([#255](https://github.com/bim-ba/ycli/pull/255),
+  [`bd3e7fd`](https://github.com/bim-ba/ycli/commit/bd3e7fd44156ef09e6555afbb1da4bb64e00ecd1))
+
+### Build System
+
+- Re-lock uv.lock for 0.50.0
+  ([`4095c28`](https://github.com/bim-ba/ycli/commit/4095c283cb46b65d75583f5a2f015d224a6d915b))
+
+### Features
+
+- **sdk**: A reply keeps the fields Yandex adds, a request body refuses unknown ones
+  ([#255](https://github.com/bim-ba/ycli/pull/255),
+  [`bd3e7fd`](https://github.com/bim-ba/ycli/commit/bd3e7fd44156ef09e6555afbb1da4bb64e00ecd1))
+
+
 ## v0.50.0 (2026-10-03)
 
 ### Build System
