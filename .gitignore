@@ -77,3 +77,6 @@ PROMPT.md
 
 # Zensical build output (site_dir in zensical.toml).
 /site/
+
+# Cloudflare CLI state: per-machine, never committed
+.cloudflare/
