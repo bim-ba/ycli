@@ -75,6 +75,10 @@ OpenAPI documents, Tracker's API reference), reduced to names.
   the site; they are not committed.
 - A published operation must be wrapped or listed with its reason in `NOT_WRAPPED`
   (`scripts/api_drift.py`); `tests/test_api_drift.py` fails otherwise.
+- For a service listed in `CLOSED` (Wiki so far), a query parameter, body field or response
+  field that differs from the published one is added, or listed with its reason in `EXPLAINED`
+  (one operation) or `EXPLAINED_EVERYWHERE` (a name across the service). The test fails on a
+  difference with no reason and on a reason whose difference is gone.
 
 ## Commits & releases
 

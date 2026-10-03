@@ -30,6 +30,24 @@ app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
 SlugArg = Annotated[str, typer.Argument(metavar="SLUG", help="Wiki page slug.")]
 PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")]
+RevisionIdOption = Annotated[
+    int | None,
+    typer.Option("--revision-id", help="Show this past revision (ids from `revisions-list`)."),
+]
+RaiseOnRedirectOption = Annotated[
+    bool,
+    typer.Option("--raise-on-redirect", help="Fail if the page is a redirect, do not follow it."),
+]
+ReplyFieldsOption = Annotated[
+    str, typer.Option("--fields", help="Comma-separated blocks to include in the reply.")
+]
+SilentOption = Annotated[
+    bool, typer.Option("--silent", help="Do not notify the page's subscribers.")
+]
+IncludeSelfOption = Annotated[
+    bool, typer.Option("--include-self", help="Also list the ancestor page itself.")
+]
+ShowAllOption = Annotated[bool, typer.Option("--show-all", help="The API's show_all flag.")]
 
 
 @app.command()
@@ -38,11 +56,16 @@ def get(
     fields: Annotated[
         str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
     ] = "content",
+    revision_id: RevisionIdOption = None,
+    raise_on_redirect: RaiseOnRedirectOption = False,
     *,
     wiki: WikiClient,
 ) -> str:
     """Print the page body (default fields=content) for SLUG."""
-    return wiki.pages.get(slug=slug, fields=fields).content or ""
+    page = wiki.pages.get(
+        slug=slug, fields=fields, revision_id=revision_id, raise_on_redirect=raise_on_redirect
+    )
+    return page.content or ""
 
 
 @app.command()
@@ -50,13 +73,17 @@ def descendants(
     slug: SlugArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
+    include_self: IncludeSelfOption = False,
+    show_all: ShowAllOption = False,
     *,
     config: AppConfig,
     wiki: WikiClient,
 ) -> ItemList[PageRef]:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.descendants(slug=slug, limit=cap)
+    return wiki.pages.descendants(
+        slug=slug, limit=cap, include_self=include_self, show_all=show_all
+    )
 
 
 @app.command("get-by-id")
@@ -65,11 +92,18 @@ def get_by_id(
     fields: Annotated[
         str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
     ] = "content",
+    revision_id: RevisionIdOption = None,
+    raise_on_redirect: RaiseOnRedirectOption = False,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
     """Fetch a page by numeric id (GET /pages/{id}); dumps the full model."""
-    return wiki.pages.get_by_id(page_id=page_id, fields=fields)
+    return wiki.pages.get_by_id(
+        page_id=page_id,
+        fields=fields,
+        revision_id=revision_id,
+        raise_on_redirect=raise_on_redirect,
+    )
 
 
 @app.command("descendants-by-id")
@@ -77,13 +111,17 @@ def descendants_by_id(
     page_id: PageIdArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
+    include_self: IncludeSelfOption = False,
+    show_all: ShowAllOption = False,
     *,
     config: AppConfig,
     wiki: WikiClient,
 ) -> ItemList[PageRef]:
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.descendants_by_id(page_id=page_id, limit=cap)
+    return wiki.pages.descendants_by_id(
+        page_id=page_id, limit=cap, include_self=include_self, show_all=show_all
+    )
 
 
 @app.command()
@@ -94,13 +132,21 @@ def grids_list(
     order_by: Annotated[
         str, typer.Option("--order-by", help="Sort field: title or created_at.")
     ] = "",
+    order_direction: Annotated[
+        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
+    ] = "",
     *,
     config: AppConfig,
     wiki: WikiClient,
 ) -> ItemList[GridRef]:
     """List dynamic tables (grids) attached to a numeric PAGE_ID (auto-paginated)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.grids(page_id=page_id, limit=cap, order_by=order_by or None)
+    return wiki.pages.grids(
+        page_id=page_id,
+        limit=cap,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+    )
 
 
 @app.command()
@@ -108,11 +154,17 @@ def create(
     slug: Annotated[str, typer.Option(help="Target slug, e.g. data/x.")],
     title: Annotated[str, typer.Option(help="Page title.")],
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
+    fields: ReplyFieldsOption = "",
+    silent: SilentOption = False,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
     """Create a wiki page (POST /pages)."""
-    return wiki.pages.create(body={"slug": slug, "title": title, "content": content})
+    return wiki.pages.create(
+        body={"slug": slug, "title": title, "content": content},
+        fields=fields or None,
+        is_silent=silent,
+    )
 
 
 @app.command()
@@ -120,6 +172,12 @@ def update(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     content: Annotated[str, typer.Option(help='Markdown body — pass "$(cat file.md)".')],
     title: Annotated[str, typer.Option(help="New title (optional).")] = "",
+    fields: ReplyFieldsOption = "",
+    silent: SilentOption = False,
+    allow_merge: Annotated[
+        bool,
+        typer.Option("--allow-merge", help="Merge with a concurrent edit instead of failing."),
+    ] = False,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -127,13 +185,26 @@ def update(
     body: dict[str, str] = {"content": content}
     if title:
         body["title"] = title
-    return wiki.pages.update(page_id=page_id, body=body)
+    return wiki.pages.update(
+        page_id=page_id,
+        body=body,
+        fields=fields or None,
+        is_silent=silent,
+        allow_merge=allow_merge,
+    )
 
 
 @app.command()
-def delete(page_id: PageIdArg, *, wiki: WikiClient) -> PageDeleteResult:
+def delete(
+    page_id: PageIdArg,
+    recursive: Annotated[
+        bool, typer.Option("--recursive", help="Also delete every page under it.")
+    ] = False,
+    *,
+    wiki: WikiClient,
+) -> PageDeleteResult:
     """Delete a wiki page (DELETE /pages/{id}); emits the recovery_token to undo it."""
-    return wiki.pages.delete(page_id=page_id)
+    return wiki.pages.delete(page_id=page_id, recursive=recursive)
 
 
 @app.command()
@@ -143,6 +214,8 @@ def append(
     location: Annotated[
         str, typer.Option(help="Where in the body: top or bottom (default: bottom).")
     ] = "bottom",
+    fields: ReplyFieldsOption = "",
+    silent: SilentOption = False,
     *,
     wiki: WikiClient,
 ) -> PageDetails:
@@ -156,7 +229,12 @@ def append(
         content=content,
         body=PageAppendContentBody(location=location),  # ty: ignore[invalid-argument-type]  # pydantic validates the top|bottom literal
     )
-    return wiki.pages.append_content(page_id=page_id, body=payload.model_dump(exclude_none=True))
+    return wiki.pages.append_content(
+        page_id=page_id,
+        body=payload.model_dump(exclude_none=True),
+        fields=fields or None,
+        is_silent=silent,
+    )
 
 
 @app.command()

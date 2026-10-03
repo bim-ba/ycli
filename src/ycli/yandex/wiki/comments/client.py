@@ -19,7 +19,15 @@ if TYPE_CHECKING:
 class CommentsClient(Resource):
     """``/pages/{id}/comments``: list, create, delete; ``thread`` rebuilds a thread client-side."""
 
-    def list(self, page_id: int, *, limit: int | None = None) -> ItemList[Comment]:
+    def list(
+        self,
+        page_id: int,
+        *,
+        limit: int | None = None,
+        order_by: str | None = None,
+        order_direction: str | None = None,
+        status_filter: str | None = None,
+    ) -> ItemList[Comment]:
         """``GET /pages/{id}/comments`` → flat ``ItemList[Comment]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every comment).
@@ -27,6 +35,9 @@ class CommentsClient(Resource):
         Args:
             page_id: The page's id.
             limit: The most comments to return; ``None`` returns every comment.
+            order_by: The sort field; the API accepts ``created_at``.
+            order_direction: The sort direction for ``order_by``: ``asc`` or ``desc``.
+            status_filter: Keep only ``resolved`` or only ``unresolved`` comments.
 
         Returns:
             The page's comments.
@@ -35,7 +46,9 @@ class CommentsClient(Resource):
             >>> [comment.author for comment in wiki.comments.list(5501, limit=45).root]
             ['Vera', 'Ivan']
         """
-        paged = endpoints.list_comments(page_id)
+        paged = endpoints.list_comments(
+            page_id, order_by=order_by, order_direction=order_direction, status_filter=status_filter
+        )
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def thread(

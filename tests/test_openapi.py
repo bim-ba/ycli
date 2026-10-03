@@ -76,7 +76,7 @@ def test_two_arguments_with_one_value_are_refused():
         mcp=None,
         exchanges=[(Sent("POST", "issues/DE-7/_move"), Reply())],
     )
-    with pytest.raises(SystemExit, match=r"\['source', 'target'\] share the value 'DE-7'"):
+    with pytest.raises(ValueError, match=r"\['source', 'target'\] share the value 'DE-7'"):
         api_drift._template(case, move, "issues/DE-7/_move")
     assert inspect.signature(move).parameters  # the stub is only ever inspected
 

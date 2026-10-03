@@ -17,10 +17,13 @@ from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import CursorPage
 
 
-def list_attachments(page_id: int) -> Paged[CursorPage[Attachment], Attachment]:
+def list_attachments(
+    page_id: int, *, order_by: str | None, order_direction: str | None
+) -> Paged[CursorPage[Attachment], Attachment]:
     path = f"pages/{segment(page_id)}/attachments"
+    params = {"page_size": 100, "order_by": order_by, "order_direction": order_direction}
     return Paged(
-        Endpoint("GET", path, CursorPage[Attachment], params={"page_size": 100}),
+        Endpoint("GET", path, CursorPage[Attachment], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )

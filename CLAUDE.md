@@ -86,7 +86,8 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   (`scripts/api_drift.py --refresh` rewrites it); README's "Against the published API" and
   `tests/test_api_drift.py` compare it with what the contract cases send, and the weekly
   `api-drift` workflow opens an issue when Yandex changes it. A published operation is wrapped
-  or listed with its reason in `NOT_WRAPPED`.
+  or listed with its reason in `NOT_WRAPPED`; for a service in `CLOSED`, every parameter or
+  field that differs is fixed or listed in `EXPLAINED` / `EXPLAINED_EVERYWHERE`.
 - **Branch → PR → explicit approval before merge — enforced.** `main` is protected by a
   repository ruleset (`Protect main — require CI`): the checks `tests` (the Python
   matrix gate, 3.12 up to the latest stable) · `gitleaks` · `rulesync` · `skills` · `package / smoke` are **required** before any merge, and `main` cannot be force-pushed or deleted.

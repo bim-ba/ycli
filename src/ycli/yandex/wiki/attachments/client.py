@@ -23,7 +23,14 @@ class AttachmentsClient(Resource):
     only), so their contract may change without notice.
     """
 
-    def list(self, page_id: int, *, limit: int | None = None) -> ItemList[Attachment]:
+    def list(
+        self,
+        page_id: int,
+        *,
+        limit: int | None = None,
+        order_by: str | None = None,
+        order_direction: str | None = None,
+    ) -> ItemList[Attachment]:
         """``GET /pages/{id}/attachments`` → ``ItemList[Attachment]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every attachment).
@@ -31,6 +38,8 @@ class AttachmentsClient(Resource):
         Args:
             page_id: The page's id.
             limit: The most attachments to return; ``None`` returns every attachment.
+            order_by: The sort field: ``name``, ``size`` or ``created_at``.
+            order_direction: The sort direction for ``order_by``: ``asc`` or ``desc``.
 
         Returns:
             The page's attachments.
@@ -39,7 +48,9 @@ class AttachmentsClient(Resource):
             >>> [file.name for file in wiki.attachments.list(5601, limit=20).root]
             ['spec.pdf', 'logo.png']
         """
-        paged = endpoints.list_attachments(page_id)
+        paged = endpoints.list_attachments(
+            page_id, order_by=order_by, order_direction=order_direction
+        )
         return ItemList[Attachment](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, page_id: int, file_id: int) -> AttachedFile:

@@ -503,7 +503,7 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 | Service | Published | Wrapped | Not wrapped | Operations that differ | Bodies compared | Source |
 |---------|:---------:|:-------:|:-----------:|:----------------------:|:---------------:|--------|
 | Tracker | 190 | 188 | 0 (+2 on purpose) | 25 | — | [API reference](https://yandex.ru/support/tracker/en/api/about-api) |
-| Wiki | 56 | 56 | 0 | 15 | 20 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
+| Wiki | 56 | 56 | 0 | 0 | 20 of 24 | [OpenAPI](https://api.wiki.yandex.net/v1/openapi.json) |
 | Forms | 84 | 84 | 0 | 17 | 24 of 30 | [OpenAPI](https://api.forms.yandex.net/v1/openapi.json) |
 
 <details>
@@ -557,26 +557,6 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 
 <details>
 <summary><b>Wiki: what differs</b></summary>
-
-**Parameters and fields**
-
-| Operation | ycli | Difference |
-|---|---|---|
-| `GET /pages` | `pages.get` | query parameters ycli cannot send: `raise_on_redirect`, `revision_id`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
-| `POST /pages` | `pages.create` | query parameters ycli cannot send: `fields`, `is_silent`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
-| `GET /pages/descendants` | `pages.descendants` | query parameters ycli cannot send: `include_self`, `show_all` |
-| `DELETE /pages/{idx}` | `pages.delete` | query parameters ycli cannot send: `recursive` |
-| `GET /pages/{idx}` | `pages.get_by_id` | query parameters ycli cannot send: `raise_on_redirect`, `revision_id`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
-| `POST /pages/{idx}` | `pages.update` | query parameters ycli cannot send: `allow_merge`, `fields`, `is_silent`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
-| `POST /pages/{idx}/append-content` | `pages.append_content` | query parameters ycli cannot send: `fields`, `is_silent`<br>response fields ycli drops: `active_revision`, `actuality`, `breadcrumbs`, `redirect` |
-| `GET /pages/{idx}/attachments` | `attachments.list` | query parameters ycli cannot send: `order_by`, `order_direction` |
-| `GET /pages/{idx}/attachments/{file_id}` | `attachments.get` | response fields ycli drops: `is_downloadable`, `user` |
-| `GET /pages/{idx}/comments` | `comments.list`, `comments.thread` | query parameters ycli cannot send: `order_by`, `order_direction`, `status_filter` |
-| `POST /pages/{idx}/comments` | `comments.create` | response fields ycli drops: `author`, `is_deleted`, `reactions`, `resolve_status` |
-| `GET /pages/{idx}/descendants` | `pages.descendants_by_id` | query parameters ycli cannot send: `include_self`, `show_all` |
-| `GET /pages/{idx}/grids` | `pages.grids` | query parameters ycli cannot send: `order_direction` |
-| `GET /pages/{idx}/resources` | `resources.list` | query parameters ycli cannot send: `order_direction` |
-| `POST /recovery_tokens/{idx}/recover` | `recovery.restore` | response fields ycli drops: `pages_count` |
 
 </details>
 

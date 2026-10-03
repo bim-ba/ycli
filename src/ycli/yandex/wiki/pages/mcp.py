@@ -35,11 +35,37 @@ from ycli.yandex.wiki.pages.models import (
 
 mcp = FastMCP("wiki-pages")
 
+RevisionId = Annotated[
+    int | None,
+    Field(description="Show this past revision (an id from ``pages_revisions_list``)."),
+]
+RaiseOnRedirect = Annotated[
+    bool, Field(description="Fail if the page is a redirect instead of following it.")
+]
+ReplyFields = Annotated[
+    str | None,
+    Field(description="Extra blocks to include in the reply (CSV), e.g. ``content,attributes``."),
+]
+Silent = Annotated[bool, Field(description="Do not notify the page's subscribers.")]
+IncludeSelf = Annotated[bool, Field(description="Also return the ancestor page itself.")]
+ShowAll = Annotated[bool, Field(description="The API's ``show_all`` flag.")]
+OrderDirection = Annotated[
+    str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+]
+
 
 @mcp.tool(name="pages_get", annotations={**RO, "title": "Get Wiki page"}, tags=TAGS)
-def get(slug: Slug, client: WikiClient = Depends(wiki_client)) -> str:
+def get(
+    slug: Slug,
+    revision_id: RevisionId = None,
+    raise_on_redirect: RaiseOnRedirect = False,
+    client: WikiClient = Depends(wiki_client),
+) -> str:
     """The page's markdown body for SLUG."""
-    return client.pages.get(slug=slug, fields="content").content or ""
+    page = client.pages.get(
+        slug=slug, fields="content", revision_id=revision_id, raise_on_redirect=raise_on_redirect
+    )
+    return page.content or ""
 
 
 @mcp.tool(name="pages_meta", annotations={**RO, "title": "Get Wiki page metadata"}, tags=TAGS)
@@ -54,6 +80,8 @@ def meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
 def descendants(
     slug: Slug,
     limit: Annotated[int, Field(description=f"Max descendant refs to return; {LIMIT_CAP}")] = 0,
+    include_self: IncludeSelf = False,
+    show_all: ShowAll = False,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:
@@ -62,13 +90,17 @@ def descendants(
     Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for large trees.
     """
     cap = config.http.cap(limit)
-    return client.pages.descendants(slug=slug, limit=cap)
+    return client.pages.descendants(
+        slug=slug, limit=cap, include_self=include_self, show_all=show_all
+    )
 
 
 @mcp.tool(name="pages_grids_list", annotations={**RO, "title": "List Wiki page grids"}, tags=TAGS)
 def grids_list(
     page_id: Annotated[int, Field(description="Numeric page id whose grids to list.")],
     limit: Annotated[int, Field(description="Max grids (0 = configured cap).")] = 0,
+    order_by: Annotated[str, Field(description="Sort field: ``title`` or ``created_at``.")] = "",
+    order_direction: OrderDirection = "",
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[GridRef]:
@@ -79,7 +111,12 @@ def grids_list(
     ``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
     """
     cap = config.http.cap(limit)
-    return client.pages.grids(page_id=page_id, limit=cap)
+    return client.pages.grids(
+        page_id=page_id,
+        limit=cap,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
+    )
 
 
 @mcp.tool(name="pages_get_by_id", annotations={**RO, "title": "Get Wiki page by id"}, tags=TAGS)
@@ -92,6 +129,8 @@ def by_id_get(
             "Omitted = id/slug/title only."
         ),
     ] = None,
+    revision_id: RevisionId = None,
+    raise_on_redirect: RaiseOnRedirect = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """A single page by its numeric id — the id-based twin of ``pages_get``/``pages_meta``.
@@ -101,7 +140,12 @@ def by_id_get(
     without it the response carries id/slug/title only; ask for ``content`` or
     ``attributes`` explicitly.
     """
-    return client.pages.get_by_id(page_id=page_id, fields=fields)
+    return client.pages.get_by_id(
+        page_id=page_id,
+        fields=fields,
+        revision_id=revision_id,
+        raise_on_redirect=raise_on_redirect,
+    )
 
 
 @mcp.tool(
@@ -112,6 +156,8 @@ def by_id_get(
 def by_id_descendants(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
     limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
+    include_self: IncludeSelf = False,
+    show_all: ShowAll = False,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:
@@ -122,7 +168,9 @@ def by_id_descendants(
     ``slug``.
     """
     cap = config.http.cap(limit)
-    return client.pages.descendants_by_id(page_id=page_id, limit=cap)
+    return client.pages.descendants_by_id(
+        page_id=page_id, limit=cap, include_self=include_self, show_all=show_all
+    )
 
 
 @mcp.tool(name="pages_create", annotations={**WRITE, "title": "Create Wiki page"}, tags=WRITE_TAGS)
@@ -135,6 +183,8 @@ def create(
     ],
     title: Annotated[str, Field(description="Page title.")],
     content: Annotated[str, Field(description="Page body in YFM markdown.")],
+    fields: ReplyFields = None,
+    is_silent: Silent = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """Create a wiki page at ``slug`` (``POST /pages``).
@@ -143,7 +193,11 @@ def create(
     then answers 404 and links to it break, so pick the slug carefully. Returns the created page
     (its numeric ``id`` drives the id-based tools and every subsequent write).
     """
-    return client.pages.create(body={"slug": slug, "title": title, "content": content})
+    return client.pages.create(
+        body={"slug": slug, "title": title, "content": content},
+        fields=fields,
+        is_silent=is_silent,
+    )
 
 
 @mcp.tool(
@@ -155,6 +209,12 @@ def update(
     page_id: Annotated[int, Field(description="Numeric id of the page to update.")],
     content: Annotated[str, Field(description="New page body in YFM markdown (full replace).")],
     title: Annotated[str | None, Field(description="New title (unchanged when omitted).")] = None,
+    fields: ReplyFields = None,
+    is_silent: Silent = False,
+    allow_merge: Annotated[
+        bool,
+        Field(description="Merge with a concurrent edit (3-way merge) instead of failing."),
+    ] = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """Replace a wiki page's body (and optionally its title) by numeric id.
@@ -166,7 +226,9 @@ def update(
     body: dict[str, str] = {"content": content}
     if title is not None:
         body["title"] = title
-    return client.pages.update(page_id=page_id, body=body)
+    return client.pages.update(
+        page_id=page_id, body=body, fields=fields, is_silent=is_silent, allow_merge=allow_merge
+    )
 
 
 @mcp.tool(
@@ -174,6 +236,7 @@ def update(
 )
 def delete(
     page_id: Annotated[int, Field(description="Numeric id of the page to delete.")],
+    recursive: Annotated[bool, Field(description="Also delete every page under it.")] = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDeleteResult:
     """Delete a wiki page by numeric id (``DELETE /pages/{id}``).
@@ -182,7 +245,7 @@ def delete(
     (redeem it with ``recovery_restore``). Deleting removes the page's descendants'
     anchor too, so double-check the id (``pages_get_by_id``) before calling.
     """
-    return client.pages.delete(page_id=page_id)
+    return client.pages.delete(page_id=page_id, recursive=recursive)
 
 
 @mcp.tool(
@@ -199,6 +262,8 @@ def append_content(
             "optional ``body`` (top/bottom), ``section`` or ``anchor`` placement."
         ),
     ],
+    fields: ReplyFields = None,
+    is_silent: Silent = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """Append a YFM fragment to a wiki page without rewriting the whole body.
@@ -207,7 +272,12 @@ def append_content(
     ``body.body.location`` (top/bottom of the page), a numbered ``body.section``, or a named
     text ``body.anchor``. Returns the updated page.
     """
-    return client.pages.append_content(page_id=page_id, body=body.model_dump(exclude_none=True))
+    return client.pages.append_content(
+        page_id=page_id,
+        body=body.model_dump(exclude_none=True),
+        fields=fields,
+        is_silent=is_silent,
+    )
 
 
 @mcp.tool(name="pages_clone", annotations={**WRITE, "title": "Clone Wiki page"}, tags=WRITE_TAGS)

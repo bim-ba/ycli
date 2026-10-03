@@ -13,7 +13,7 @@ CASES = [
         exchanges=[
             (
                 Sent("POST", f"recovery_tokens/{TOKEN}/recover"),
-                Reply(json={"id": 5101, "slug": "eng/restored"}),
+                Reply(json={"id": 5101, "slug": "eng/restored", "pages_count": 3}),
             )
         ],
     ),

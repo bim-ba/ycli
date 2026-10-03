@@ -1,0 +1,88 @@
+# The query parameters of the page operations beyond the body: the reply's blocks, silence,
+# a past revision, the page itself among its descendants, and the sort of the listings.
+name: wiki/page-options
+steps:
+  - id: create
+    run: wiki pages create --slug ${RUN} --title "${RUN} page" --content "first body ${RUN}" --fields content,breadcrumbs --silent
+    expect:
+      slug: ${RUN}
+      "contains(content, 'first body ${RUN}')": true
+      "breadcrumbs[-1].slug": ${RUN}
+    save:
+      id: id
+    cleanup: wiki pages delete ${id} --recursive
+  - id: child
+    run: wiki pages create --slug ${RUN}/child --title "${RUN} child" --content "child body" --silent
+    expect:
+      slug: ${RUN}/child
+  - id: with-self
+    run: wiki pages descendants ${RUN} --include-self --show-all --all
+    expect:
+      "length(@)": 2
+      "contains([].slug, '${RUN}')": true
+  - id: with-self-by-id
+    run: wiki pages descendants-by-id ${id} --include-self --all
+    expect:
+      "length(@)": 2
+  - id: update
+    run: wiki pages update ${id} --content "second body ${RUN}" --fields content --silent --allow-merge
+    expect:
+      "contains(content, 'second body ${RUN}')": true
+  - id: append
+    run: wiki pages append ${id} --content "appended ${RUN}" --fields content --silent
+    expect:
+      "contains(content, 'appended ${RUN}')": true
+  - id: revisions
+    run: wiki pages revisions-list ${id} --all
+    save:
+      first: "[-1].id"
+  - id: past
+    run: wiki pages get-by-id ${id} --fields content,redirect,actuality --revision-id ${first} --raise-on-redirect
+    expect:
+      "contains(content, 'first body ${RUN}')": true
+      "to_string(active_revision.id)": ${first}
+      redirect: null
+  - id: past-text
+    run: wiki pages get ${RUN} --revision-id ${first} --raise-on-redirect
+    output: text
+    expect:
+      "contains(@, 'first body ${RUN}')": true
+  - id: comment
+    run: wiki comments create ${id} --body "note ${RUN}"
+    expect:
+      is_deleted: false
+      resolve_status: unresolved
+      reactions: []
+      "author.username != null": true
+  - id: comments
+    run: wiki comments list ${id} --order-by created_at --order-direction desc --status unresolved --all
+    expect:
+      "length(@)": 1
+  - id: attachments
+    run: wiki attachments list ${id} --order-by name --order-direction desc --all
+    expect:
+      "length(@)": 0
+  - id: resources
+    run: wiki resources list ${id} --order-by created_at --order-direction desc --all
+    expect:
+      "length(@)": 0
+  - id: grids
+    run: wiki pages grids-list ${id} --order-by title --order-direction desc --all
+    expect:
+      "length(@)": 0
+  - id: delete
+    run: wiki pages delete ${id} --recursive
+    disarms: [create]
+    save:
+      token: recovery_token
+  - id: restore
+    run: wiki recovery restore ${token}
+    expect:
+      slug: ${RUN}
+      pages_count: 2
+  - id: delete-again
+    run: wiki pages delete ${id} --recursive
+  - id: gone
+    run: wiki pages descendants "" --all
+    expect:
+      "length([?starts_with(slug, '${RUN}')])": 0

@@ -29,6 +29,9 @@ def list_(
     order_by: Annotated[
         str, typer.Option("--order-by", help="Sort field: name_title or created_at.")
     ] = "",
+    order_direction: Annotated[
+        str, typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc.")
+    ] = "",
     *,
     config: AppConfig,
     wiki: WikiClient,
@@ -36,5 +39,10 @@ def list_(
     """List a page's resources — attachments and grids (GET /pages/{id}/resources)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.resources.list(
-        page_id=page_id, limit=cap, q=q or None, types=types or None, order_by=order_by or None
+        page_id=page_id,
+        limit=cap,
+        q=q or None,
+        types=types or None,
+        order_by=order_by or None,
+        order_direction=order_direction or None,
     )

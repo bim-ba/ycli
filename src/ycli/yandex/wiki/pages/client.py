@@ -21,7 +21,14 @@ class PagesClient(Resource):
     in the live OpenAPI only), so their contract may change without notice.
     """
 
-    def get_by_id(self, page_id: int, fields: str | None = None) -> PageDetails:
+    def get_by_id(
+        self,
+        page_id: int,
+        fields: str | None = None,
+        *,
+        revision_id: int | None = None,
+        raise_on_redirect: bool = False,
+    ) -> PageDetails:
         """``GET /pages/{id}?fields=`` → a single page by numeric id (raises on non-2xx).
 
         The slug-addressed sibling is :meth:`get`; use this when you hold the numeric id
@@ -31,6 +38,10 @@ class PagesClient(Resource):
         Args:
             page_id: The page's numeric id.
             fields: The comma-separated blocks to include.
+            revision_id: The past revision to show, from :meth:`revisions`; ``None`` shows the
+                current one.
+            raise_on_redirect: Answer with an error when the page is a redirect, instead of
+                the page it leads to.
 
         Returns:
             The page.
@@ -39,14 +50,28 @@ class PagesClient(Resource):
             >>> wiki.pages.get_by_id(4101, fields="content,breadcrumbs").content
             '# Arch'
         """
-        return self._session.send(endpoints.get_page_by_id(page_id, fields=fields))
+        endpoint = endpoints.get_page_by_id(
+            page_id, fields=fields, revision_id=revision_id, raise_on_redirect=raise_on_redirect
+        )
+        return self._session.send(endpoint)
 
-    def get(self, slug: str, fields: str | None = None) -> PageDetails:
+    def get(
+        self,
+        slug: str,
+        fields: str | None = None,
+        *,
+        revision_id: int | None = None,
+        raise_on_redirect: bool = False,
+    ) -> PageDetails:
         """``GET /pages?slug=&fields=`` → a single page (raises on non-2xx).
 
         Args:
             slug: The page's slug.
             fields: The comma-separated blocks to include.
+            revision_id: The past revision to show, from :meth:`revisions`; ``None`` shows the
+                current one.
+            raise_on_redirect: Answer with an error when the page is a redirect, instead of
+                the page it leads to.
 
         Returns:
             The page.
@@ -55,7 +80,10 @@ class PagesClient(Resource):
             >>> wiki.pages.get("team/handbook", fields="content,attributes").content
             '# Handbook'
         """
-        return self._session.send(endpoints.get_page(slug, fields=fields))
+        endpoint = endpoints.get_page(
+            slug, fields=fields, revision_id=revision_id, raise_on_redirect=raise_on_redirect
+        )
+        return self._session.send(endpoint)
 
     def descendants(
         self,
@@ -63,6 +91,8 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         actuality: str | None = None,
+        include_self: bool = False,
+        show_all: bool = False,
     ) -> ItemList[PageRef]:
         """All descendant refs under ``slug``, draining ``next_cursor`` internally.
 
@@ -72,6 +102,8 @@ class PagesClient(Resource):
             slug: The ancestor page's slug.
             limit: The most refs to return; ``None`` returns every ref.
             actuality: The page state to list.
+            include_self: Also return the ancestor page itself.
+            show_all: The API's flag of that name.
 
         Returns:
             The descendants' refs.
@@ -80,7 +112,9 @@ class PagesClient(Resource):
             >>> [ref.slug for ref in wiki.pages.descendants("eng", limit=40).root]
             ['eng/a', 'eng/b']
         """
-        paged = endpoints.list_descendants(slug, actuality=actuality)
+        paged = endpoints.list_descendants(
+            slug, actuality=actuality, include_self=include_self, show_all=show_all
+        )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
 
     def descendants_by_id(
@@ -89,6 +123,8 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         actuality: str | None = None,
+        include_self: bool = False,
+        show_all: bool = False,
     ) -> ItemList[PageRef]:
         """All descendant refs under numeric ``page_id``, draining ``next_cursor`` internally.
 
@@ -98,6 +134,8 @@ class PagesClient(Resource):
             page_id: The ancestor page's numeric id.
             limit: The most refs to return; ``None`` returns every ref.
             actuality: The page state to list.
+            include_self: Also return the ancestor page itself.
+            show_all: The API's flag of that name.
 
         Returns:
             The descendants' refs.
@@ -106,7 +144,9 @@ class PagesClient(Resource):
             >>> [ref.slug for ref in wiki.pages.descendants_by_id(4210, limit=35).root]
             ['sales/a', 'sales/b']
         """
-        paged = endpoints.list_descendants_by_id(page_id, actuality=actuality)
+        paged = endpoints.list_descendants_by_id(
+            page_id, actuality=actuality, include_self=include_self, show_all=show_all
+        )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
 
     def grids(
@@ -115,6 +155,7 @@ class PagesClient(Resource):
         *,
         limit: int | None = None,
         order_by: str | None = None,
+        order_direction: str | None = None,
     ) -> ItemList[GridRef]:
         """``GET /pages/{id}/grids`` → flat ``ItemList[GridRef]``, draining ``next_cursor``.
 
@@ -125,6 +166,7 @@ class PagesClient(Resource):
             page_id: The page's id.
             limit: The most grids to return; ``None`` returns every grid.
             order_by: The sort field: ``title`` or ``created_at``.
+            order_direction: The sort direction for ``order_by``: ``asc`` or ``desc``.
 
         Returns:
             The page's grids.
@@ -133,14 +175,18 @@ class PagesClient(Resource):
             >>> [grid.title for grid in wiki.pages.grids(4301, limit=30).root]
             ['Roadmap', 'Budget']
         """
-        paged = endpoints.list_grids(page_id, order_by=order_by)
+        paged = endpoints.list_grids(page_id, order_by=order_by, order_direction=order_direction)
         return ItemList[GridRef](list(self._session.iterate(paged, limit=limit)))
 
-    def create(self, body: dict[str, Any]) -> PageDetails:
+    def create(
+        self, body: dict[str, Any], *, fields: str | None = None, is_silent: bool = False
+    ) -> PageDetails:
         """``POST /pages`` — create. ``body`` carries ``content``/``title``/``slug``.
 
         Args:
             body: The new page: ``content``, ``title`` and ``slug``.
+            fields: The comma-separated blocks to include in the reply.
+            is_silent: Do not notify the page's subscribers.
 
         Returns:
             The created page.
@@ -150,14 +196,26 @@ class PagesClient(Resource):
             >>> wiki.pages.create(body).id
             4401
         """
-        return self._session.send(endpoints.create_page(body))
+        return self._session.send(endpoints.create_page(body, fields=fields, is_silent=is_silent))
 
-    def update(self, page_id: int, body: dict[str, Any]) -> PageDetails:
+    def update(
+        self,
+        page_id: int,
+        body: dict[str, Any],
+        *,
+        fields: str | None = None,
+        is_silent: bool = False,
+        allow_merge: bool = False,
+    ) -> PageDetails:
         """``POST /pages/{id}`` — update (POST not PATCH; PATCH returns 405).
 
         Args:
             page_id: The page's id.
             body: The fields to change.
+            fields: The comma-separated blocks to include in the reply.
+            is_silent: Do not notify the page's subscribers.
+            allow_merge: Merge with a concurrent edit (3-way merge) instead of failing on the
+                conflict.
 
         Returns:
             The updated page.
@@ -166,9 +224,12 @@ class PagesClient(Resource):
             >>> wiki.pages.update(4403, {"content": "# Body only"}).id
             4403
         """
-        return self._session.send(endpoints.update_page(page_id, body))
+        endpoint = endpoints.update_page(
+            page_id, body, fields=fields, is_silent=is_silent, allow_merge=allow_merge
+        )
+        return self._session.send(endpoint)
 
-    def delete(self, page_id: int) -> PageDeleteResult:
+    def delete(self, page_id: int, *, recursive: bool = False) -> PageDeleteResult:
         """``DELETE /pages/{id}`` → ``{recovery_token}``; keep the token to restore (undo).
 
         The returned :class:`PageDeleteResult` carries the ``recovery_token`` — the only handle
@@ -176,6 +237,7 @@ class PagesClient(Resource):
 
         Args:
             page_id: The page's id.
+            recursive: Also delete every page under it.
 
         Returns:
             The result, carrying the deleted page's ``recovery_token``.
@@ -184,9 +246,16 @@ class PagesClient(Resource):
             >>> wiki.pages.delete(4501).recovery_token
             'recovery-token-2'
         """
-        return self._session.send(endpoints.delete_page(page_id))
+        return self._session.send(endpoints.delete_page(page_id, recursive=recursive))
 
-    def append_content(self, page_id: int, body: dict[str, Any]) -> PageDetails:
+    def append_content(
+        self,
+        page_id: int,
+        body: dict[str, Any],
+        *,
+        fields: str | None = None,
+        is_silent: bool = False,
+    ) -> PageDetails:
         """``POST /pages/{id}/append-content`` — append YFM without rewriting the whole body.
 
         ``body`` is a dumped :class:`PageAppendContent` (``{content, body?, section?, anchor?}``).
@@ -196,6 +265,8 @@ class PagesClient(Resource):
         Args:
             page_id: The page's id.
             body: The YFM to append and where to put it.
+            fields: The comma-separated blocks to include in the reply.
+            is_silent: Do not notify the page's subscribers.
 
         Returns:
             The updated page.
@@ -205,7 +276,8 @@ class PagesClient(Resource):
             >>> wiki.pages.append_content(4602, body).slug
             'eng/footer'
         """
-        return self._session.send(endpoints.append_content(page_id, body))
+        endpoint = endpoints.append_content(page_id, body, fields=fields, is_silent=is_silent)
+        return self._session.send(endpoint)
 
     def clone(self, page_id: int, body: dict[str, Any]) -> AsyncOperation:
         """``POST /pages/{id}/clone`` — copy the page to a new address (async trigger).

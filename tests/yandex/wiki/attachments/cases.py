@@ -143,9 +143,11 @@ CASES = [
             {
                 "id": 5616,
                 "name": "diagram.txt",
+                "is_downloadable": None,
                 "download_url": None,
                 "size": None,
                 "description": None,
+                "user": None,
                 "mimetype": None,
                 "has_preview": None,
                 "check_status": None,
@@ -188,6 +190,37 @@ CASES = [
                 Sent("POST", "pages/5606/attachments", json={"upload_sessions": [SESSION]}),
                 Reply(json={"results": [{"id": 5616, "name": "diagram.txt"}]}),
             ),
+        ],
+    ),
+    Case(
+        "wiki.attachments.list",
+        args=(5608,),
+        kwargs={"limit": 17, "order_by": "size", "order_direction": "desc"},
+        cli=[
+            "wiki",
+            "attachments",
+            "list",
+            "5608",
+            "--limit",
+            "17",
+            "--order-by",
+            "size",
+            "--order-direction",
+            "desc",
+        ],
+        mcp=(
+            "wiki_attachments_list",
+            {"page_id": 5608, "limit": 17, "order_by": "size", "order_direction": "desc"},
+        ),
+        exchanges=[
+            (
+                Sent(
+                    "GET",
+                    "pages/5608/attachments",
+                    {"page_size": "100", "order_by": "size", "order_direction": "desc"},
+                ),
+                Reply(json={"results": [ATTACHMENT], "next_cursor": None}),
+            )
         ],
     ),
 ]

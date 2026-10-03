@@ -123,7 +123,7 @@ def _schemas(found: list[Recorded], schemas: dict[str, Any]) -> dict[tuple[str, 
     definitions = shared.get("$defs", {})
     names = {name: _readable(name) for name in definitions}
     if len(set(names.values())) != len(names):
-        raise SystemExit("gen_openapi: two models of one resource share a class name")
+        raise ValueError("two models of one resource share a class name")
     schemas.update({names[name]: _renamed(schema, names) for name, schema in definitions.items()})
     return {key: _renamed(schema, names) for (key, _mode), schema in by_key.items()}
 
@@ -325,8 +325,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("directory", type=Path, help="where to write <service>.yaml")
     args = parser.parse_args(argv)
     args.directory.mkdir(parents=True, exist_ok=True)
-    for service in api_surface.SERVICES:
-        (args.directory / f"{service}.yaml").write_text(dump(service), encoding="utf-8")
+    try:
+        documents = {service: dump(service) for service in api_surface.SERVICES}
+    except ValueError as error:
+        raise SystemExit(f"gen_openapi: {error}") from error
+    for service, text in documents.items():
+        (args.directory / f"{service}.yaml").write_text(text, encoding="utf-8")
     return 0
 
 

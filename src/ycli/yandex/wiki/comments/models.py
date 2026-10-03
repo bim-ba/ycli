@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
     DisplayNameStr,
 )
+from ycli.yandex.wiki.models import User
 
 
 class Comment(APIModel):
@@ -60,6 +63,21 @@ class CommentCreate(APIModel):
     )
 
 
+class CommentReaction(APIModel):
+    """One reaction left on a comment (``reactions`` item).
+
+    Examples:
+        >>> CommentReaction.model_validate({"type": "like"}).type
+        'like'
+    """
+
+    type: str | None = Field(
+        default=None, description="Kind of reaction, e.g. ``like``, ``heart``, ``check``."
+    )
+    author: User | None = Field(default=None, description="Who left the reaction.")
+    created_at: str | None = Field(default=None, description="ISO-8601 time it was left.")
+
+
 class CommentCreated(APIModel):
     """The comment returned by ``POST /pages/{id}/comments`` — id + echoed placement fields.
 
@@ -80,6 +98,14 @@ class CommentCreated(APIModel):
         default=None, description="Id of the thread the comment belongs to."
     )
     created_at: str | None = Field(default=None, description="ISO-8601 creation timestamp.")
+    author: User | None = Field(default=None, description="Who wrote the comment.")
+    is_deleted: bool | None = Field(default=None, description="Whether the comment is deleted.")
+    resolve_status: Literal["resolved", "unresolved"] | None = Field(
+        default=None, description="``resolved`` or ``unresolved``."
+    )
+    reactions: list[CommentReaction] = Field(
+        default_factory=list, description="Reactions left on the comment."
+    )
 
 
 class CommentDeleteResult(APIModel):

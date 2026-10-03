@@ -39,6 +39,12 @@ A public model that is renamed or merged stops importing under its old name in t
 release: no alias is kept. The commit that does it carries a `BREAKING CHANGE` footer listing
 "was → is", which becomes the changelog entry.
 
+### A field with a set of values
+
+A set Yandex adds to (a comment reaction, a page type) is a `str` with the values listed in
+its description: an unknown value must not fail the whole reply. A set that is closed by its
+meaning (`resolved` / `unresolved`, `asc` / `desc`) is a `Literal`.
+
 ---
 
 ## 2. Lists: `ItemList[X]` is flat, `XResponse` is the envelope

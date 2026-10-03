@@ -24,6 +24,8 @@ The page's markdown body for SLUG.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
+| `revision_id` | integer or null |  | Show this past revision (an id from ``pages_revisions_list``). |
+| `raise_on_redirect` | boolean |  | Fail if the page is a redirect instead of following it. |
 
 ## `wiki_pages_meta`
 
@@ -47,6 +49,8 @@ Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for 
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
 | `limit` | integer |  | Max descendant refs to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `include_self` | boolean |  | Also return the ancestor page itself. |
+| `show_all` | boolean |  | The API's ``show_all`` flag. |
 
 ## `wiki_pages_grids_list`
 
@@ -62,6 +66,8 @@ unless ``limit`` is given. Reads a page's numeric id — pair with
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose grids to list. |
 | `limit` | integer |  | Max grids (0 = configured cap). |
+| `order_by` | string |  | Sort field: ``title`` or ``created_at``. |
+| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
 
 ## `wiki_pages_get_by_id`
 
@@ -78,6 +84,8 @@ without it the response carries id/slug/title only; ask for ``content`` or
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id to fetch. |
 | `fields` | string or null |  | Extra blocks (CSV), e.g. ``content,attributes,breadcrumbs``. Omitted = id/slug/title only. |
+| `revision_id` | integer or null |  | Show this past revision (an id from ``pages_revisions_list``). |
+| `raise_on_redirect` | boolean |  | Fail if the page is a redirect instead of following it. |
 
 ## `wiki_pages_descendants_by_id`
 
@@ -93,6 +101,8 @@ unless ``limit`` is given; each ref carries the child's numeric ``id`` and perma
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose subtree to list. |
 | `limit` | integer |  | Max refs (0 = configured cap). |
+| `include_self` | boolean |  | Also return the ancestor page itself. |
+| `show_all` | boolean |  | The API's ``show_all`` flag. |
 
 ## `wiki_pages_create`
 
@@ -109,6 +119,8 @@ then answers 404 and links to it break, so pick the slug carefully. Returns the 
 | `slug` | string | yes | Target slug, e.g. ``data/x``. Treat it as permanent (a move breaks links). |
 | `title` | string | yes | Page title. |
 | `content` | string | yes | Page body in YFM markdown. |
+| `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
+| `is_silent` | boolean |  | Do not notify the page's subscribers. |
 
 ## `wiki_pages_update`
 
@@ -125,6 +137,9 @@ handles that quirk. Repeating the same call yields the same page state (idempote
 | `page_id` | integer | yes | Numeric id of the page to update. |
 | `content` | string | yes | New page body in YFM markdown (full replace). |
 | `title` | string or null |  | New title (unchanged when omitted). |
+| `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
+| `is_silent` | boolean |  | Do not notify the page's subscribers. |
+| `allow_merge` | boolean |  | Merge with a concurrent edit (3-way merge) instead of failing. |
 
 ## `wiki_pages_delete`
 
@@ -139,6 +154,7 @@ anchor too, so double-check the id (``pages_get_by_id``) before calling.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to delete. |
+| `recursive` | boolean |  | Also delete every page under it. |
 
 ## `wiki_pages_append`
 
@@ -154,6 +170,8 @@ text ``body.anchor``. Returns the updated page.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric id of the page to append to. |
 | `body` | object | yes | What to append and where: required ``content`` (YFM fragment) plus optional ``body`` (top/bottom), ``section`` or ``anchor`` placement. |
+| `fields` | string or null |  | Extra blocks to include in the reply (CSV), e.g. ``content,attributes``. |
+| `is_silent` | boolean |  | Do not notify the page's subscribers. |
 
 ## `wiki_pages_clone`
 
@@ -291,6 +309,9 @@ Capped at the configured item cap unless ``limit`` is given. Pair with
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
 | `limit` | integer |  | Max comments to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `order_by` | string |  | Sort field: ``created_at``. |
+| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `status_filter` | string |  | Keep only ``resolved`` or only ``unresolved`` comments. |
 
 ## `wiki_comments_thread_list`
 
@@ -368,6 +389,8 @@ downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP p
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
 | `limit` | integer |  | Max attachments to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `order_by` | string |  | Sort field: ``name``, ``size`` or ``created_at``. |
+| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
 
 ## `wiki_attachments_get`
 
@@ -448,6 +471,8 @@ unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,
 | `limit` | integer |  | Max resources (0 = configured cap). |
 | `q` | string |  | Optional title search filter. |
 | `types` | string |  | Comma-separated kinds to include: ``attachment,grid``. |
+| `order_by` | string |  | Sort field: ``name_title`` or ``created_at``. |
+| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
 
 ## `wiki_recovery_restore`
 
@@ -456,7 +481,8 @@ unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,
 Undo a page delete: redeem a ``recovery_token`` and bring the page back.
 
 ``pages_delete`` returns the token — it is the only handle to the deleted page. Returns
-the restored page's numeric ``id`` and permanent ``slug``. No request body; the token in
+the restored page's numeric ``id`` and permanent ``slug``, and ``pages_count``, how many pages
+came back (the page and those under it). No request body; the token in
 the path is the whole request.
 
 | Parameter | Type | Required | Description |

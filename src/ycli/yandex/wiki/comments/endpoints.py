@@ -15,10 +15,18 @@ from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import CursorPage
 
 
-def list_comments(page_id: int) -> Paged[CursorPage[Comment], Comment]:
+def list_comments(
+    page_id: int, *, order_by: str | None, order_direction: str | None, status_filter: str | None
+) -> Paged[CursorPage[Comment], Comment]:
     path = f"pages/{segment(page_id)}/comments"
+    params = {
+        "page_size": 100,
+        "order_by": order_by,
+        "order_direction": order_direction,
+        "status_filter": status_filter,
+    }
     return Paged(
-        Endpoint("GET", path, CursorPage[Comment], params={"page_size": 100}),
+        Endpoint("GET", path, CursorPage[Comment], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
