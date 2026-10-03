@@ -35,6 +35,27 @@ ycli mcp methods --toolsets core --read-only
 подтверждение перед разрушающим вызовом. `--read-only` убирает все записи — для случая, когда агент
 ничего не должен менять.
 
+## Prompts и ресурсы
+
+Кроме инструментов сервер предлагает несколько prompts и ресурсов. Клиент показывает prompt как готовый запрос (в Claude Code — `/yandex-360:tracker_issue_brief DE-7`) и позволяет прикрепить ресурс к разговору (`@yandex-360:ycli://tracker/issue/DE-7`).
+
+| Prompt | Что запрашивает |
+|---|---|
+| `tracker_queue_digest` | открытые задачи очереди: сколько их, что застряло, кто чем занят |
+| `tracker_issue_brief` | одну задачу: в каком она состоянии, что решено, что её блокирует |
+| `tracker_sprint_review` | спринт доски: что сделано, что не успели |
+| `wiki_page_from_issue` | страницу Вики по задаче; создаётся после того, как вы одобрите черновик |
+| `forms_answers_table` | ответы формы таблицей, с кратким итогом |
+
+| Ресурс | Содержимое |
+|---|---|
+| `ycli://tracker/issue/{key}` | задача, как её возвращает `tracker_issues_get` |
+| `ycli://wiki/page/{slug}` | Markdown страницы |
+| `ycli://forms/survey/{survey_id}` | настройки формы, как их возвращает `forms_surveys_get` |
+| `ycli://tracker/guide`, `ycli://wiki/guide`, `ycli://forms/guide`, `ycli://guide` | как работать с сервисом через эти инструменты: текст skills из плагина, для клиента без плагина |
+
+Prompt или ресурс предлагается, только если сервер отдаёт инструменты, из которых он состоит: с `--read-only` нет `wiki_page_from_issue`, с `--toolsets wiki` нет prompts Трекера. `ycli mcp methods --kind prompts` и `--kind resources` показывают, что предложит сервер с теми же флагами. Аргументы — в [справочнике (англ.)](https://ycli.savaznatnov.dev/reference/mcp/prompts-and-resources/).
+
 ## Подключите клиент
 
 Большинство MCP-клиентов принимают команду и окружение:

@@ -22,7 +22,7 @@ $ ycli mcp [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `start`: Run the MCP server (tools namespaced...
-* `methods`: List the MCP tool names a server with the...
+* `methods`: List what a server with the same flags...
 
 ## `ycli mcp start`
 
@@ -53,7 +53,10 @@ $ ycli mcp start [OPTIONS]
 
 ## `ycli mcp methods`
 
-List the MCP tool names a server with the same flags exposes, one per line.
+List what a server with the same flags exposes, one name per line: tools by default.
+
+`--kind prompts` lists the prompts and `--kind resources` the resource addresses; a prompt
+or a resource is served only when the tools it is made of are.
 
 **Usage**:
 
@@ -68,6 +71,7 @@ $ ycli mcp methods [OPTIONS]
 * `--exclude-tools TEXT`: Comma-separated tool names to hide.
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.
 * `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get stays.
+* `--kind [tools|prompts|resources]`: What to list: tools (default), prompts, or resources (addresses and templates).  [default: tools]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.

@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "yandex-360",
   "display_name": "Yandex 360 (ycli)",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "description": "Yandex 360 Tracker, Wiki and Forms: read and write tools for Claude Desktop.",
   "author": { "name": "bim-ba", "url": "https://github.com/bim-ba" },
   "repository": { "type": "git", "url": "https://github.com/bim-ba/ycli.git" },

@@ -122,6 +122,11 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `effect=` that differs from the method in `ARCH3_EFFECT_OVERRIDES`;
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete. `status_get`, the one
   tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
+  A prompt and a resource follow their tools (`tests/test_mcp_prompts_resources.py`): a
+  prompt lists the tools its text names, all of them exist, and one write among them means
+  the `write` tag; a resource template names the read tool it repeats and returns what that
+  tool returns; the server offers neither when one of those tools is not served, so `--read-only`
+  and every other selection flag cover them without a rule of their own.
 - **Exceptions:** `ARCH3_EFFECT_OVERRIDES` (a read over `POST`, an idempotent `POST`).
 
 ### ARCH-4 — One output path
@@ -159,10 +164,11 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-6 — The public surface is versioned
 - **Rule:** the CLI tree, MCP tool names and both surfaces' parameters (name, type, default,
-  required) change only on purpose.
+  required), and the MCP prompts (with their arguments) and resource addresses, change only on
+  purpose.
 - **Why:** scripts and agents depend on them; a silent rename or new required parameter breaks
   them.
-- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures}.txt`;
+- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures,mcp_prompts_and_resources}.txt`;
   accept a change with `uv run python -m tests.snapshots --update`.
 - **Exceptions:** none. Fields nested inside an MCP `body` model are not snapshotted.
 

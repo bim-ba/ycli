@@ -1,6 +1,6 @@
 [project]
 name = "yandex-cli"
-version = "0.54.0"
+version = "0.55.0"
 description = "Interact with Yandex 360 services (Wiki, Tracker, Forms, …) from a CLI, an MCP server, or a Python SDK."
 readme = "README.md"
 license = "MIT"
@@ -72,7 +72,15 @@ packages = ["src/ycli"]
 # LICENSE are always included from metadata) — not the repo's docs, tests, Claude
 # plugin, agent config, or vendored API references.
 [tool.hatch.build.targets.sdist]
-only-include = ["src/ycli", "CHANGELOG.md"]
+# The four plugin skills are the MCP guides: `guide.md` in the package is a link to each.
+only-include = [
+    "src/ycli",
+    "CHANGELOG.md",
+    "plugins/yandex-360/skills/yandex-360/SKILL.md",
+    "plugins/yandex-360/skills/yandex-360-tracker/SKILL.md",
+    "plugins/yandex-360/skills/yandex-360-wiki/SKILL.md",
+    "plugins/yandex-360/skills/yandex-360-forms/SKILL.md",
+]
 
 # TestPyPI as an explicit publish target (used by `uv publish --index testpypi`).
 # `explicit = true` keeps it out of normal dependency resolution.

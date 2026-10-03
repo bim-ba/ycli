@@ -44,6 +44,7 @@ nav = [
       "reference/mcp/wiki.md",
       "reference/mcp/forms.md",
       "reference/mcp/other.md",
+      "reference/mcp/prompts-and-resources.md",
     ] },
     { "Python SDK" = [
       "reference/sdk/tracker.md",

@@ -29,6 +29,7 @@ from ycli.cli.app import app
 from ycli.mcp.selection import Selection
 from ycli.mcp.server import build_server
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.mcp import NEEDS_TOOLS, REPEATS_TOOL
 from ycli.yandex.registry import SERVICES
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -129,7 +130,50 @@ def mcp_pages() -> dict[str, str]:
     for tool in other:
         body += _tool_section(tool)
     pages["mcp/other.md"] = _page("\n".join(body))
+    pages["mcp/prompts-and-resources.md"] = _page("\n".join(_prompts_and_resources(server)))
     return pages
+
+
+def _prompts_and_resources(server: Any) -> list[str]:
+    """The page of prompts (with their arguments) and resource addresses."""
+    body = [
+        "# MCP prompts and resources",
+        "",
+        "A prompt or a resource is offered only when the server serves the tools it is made of.",
+        "",
+        "## Prompts",
+        "",
+    ]
+    for prompt in sorted(asyncio.run(server.list_prompts()), key=lambda prompt: prompt.name):
+        arguments = ", ".join(
+            f"`{argument.name}`" + ("" if argument.required else " (optional)")
+            for argument in prompt.arguments or []
+        )
+        tools = ", ".join(f"`{name}`" for name in prompt.meta[NEEDS_TOOLS])
+        body += [
+            f"### `{prompt.name}`",
+            "",
+            f"*{prompt.title}*",
+            "",
+            (prompt.description or "").strip().split("\n\n")[0],
+            "",
+            f"Arguments: {arguments}. Tools: {tools}.",
+            "",
+        ]
+    body += ["## Resources", "", "| Address | Content | Repeats |", "|---|---|---|"]
+    templates = asyncio.run(server.list_resource_templates())
+    body += [
+        f"| `{template.uri_template}` | {_cell((template.description or '').strip())} "
+        f"| `{template.meta[REPEATS_TOOL]}` |"
+        for template in sorted(templates, key=lambda template: template.uri_template)
+    ]
+    body += ["", "## Guides", "", "| Address | Content |", "|---|---|"]
+    guides = asyncio.run(server.list_resources())
+    body += [
+        f"| `{guide.uri}` | {_cell((guide.description or '').strip())} |"
+        for guide in sorted(guides, key=lambda guide: str(guide.uri))
+    ]
+    return [*body, ""]
 
 
 def sdk_pages() -> dict[str, str]:
