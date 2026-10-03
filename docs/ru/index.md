@@ -11,11 +11,7 @@ description: ycli управляет Яндекс Трекером, Вики и 
 
 ## От установки до первого вызова
 
-```bash
-uv tool install 'yandex-cli[mcp]'
-ycli auth login
-ycli tracker issues get TRACKER-1
-```
+--8<-- "docs/examples/terminal/first-call.ru.md"
 
 `ycli auth login` выполняет вход через Яндекс ID и сохраняет токен. В первый раз ему нужно ваше OAuth-приложение Яндекса: как его завести, описано в разделе [Аутентификация](how-to/authenticate.md).
 

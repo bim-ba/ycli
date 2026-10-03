@@ -11,11 +11,7 @@ description: ycli drives Yandex Tracker, Wiki and Forms from a command line, an 
 
 ## From install to a working call
 
-```bash
-uv tool install 'yandex-cli[mcp]'
-ycli auth login
-ycli tracker issues get TRACKER-1
-```
+--8<-- "docs/examples/terminal/first-call.en.md"
 
 `ycli auth login` signs you in through Yandex ID and saves the token. The first time it needs a Yandex OAuth app of yours: [Authenticate](how-to/authenticate.md) walks you through it.
 

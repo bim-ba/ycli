@@ -209,6 +209,8 @@ def test_the_examples_check_bites(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(examples, "ROOT", tmp_path)
     monkeypatch.setattr(examples, "DOCS", docs)
     monkeypatch.setattr(examples, "SNIPPETS", snippets)
+    monkeypatch.setattr(examples, "TERMINALS", docs / "examples" / "terminal")
+    monkeypatch.setattr(examples, "SIGN_IN", {})  # no terminal snippet in this tree
     assert examples.main(["--check"]) == 1
     err = capsys.readouterr().err
     assert "stale: docs/examples/operations/tracker.issues.get.md" in err
@@ -219,3 +221,11 @@ def test_the_examples_check_bites(tmp_path, monkeypatch, capsys):
     (docs / "page.md").write_text('--8<-- "docs/examples/operations/tracker.nope.get.md"\n')
     with pytest.raises(SystemExit, match=r"no contract case for tracker\.nope\.get"):
         examples.main(["--check"])
+
+
+def test_the_terminal_example_prints_what_ycli_prints():
+    """The home page's terminal shows the demo fixture as the real CLI renders it."""
+    text = _load_examples().first_call("en")
+    assert "$ ycli tracker issues get DEMO-42\nkey       DEMO-42\n" in text
+    assert "\x1b" not in text
+    assert all(line == line.rstrip() for line in text.splitlines())

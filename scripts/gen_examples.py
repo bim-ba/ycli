@@ -19,8 +19,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shlex
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -36,6 +38,13 @@ from tests.contract import Sibling, load_cases  # noqa: E402
 DOCS = ROOT / "docs"
 SNIPPETS = DOCS / "examples" / "operations"
 INCLUDE = re.compile(r'--8<-- "docs/examples/operations/([\w.]+)\.md"')
+TERMINALS = DOCS / "examples" / "terminal"
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+# The remark under `ycli auth login`, per site language.
+SIGN_IN = {
+    "en": "sign in through Yandex ID: the token is saved to .env",
+    "ru": "вход через Яндекс ID: токен сохраняется в .env",
+}
 
 
 def _cases() -> dict[str, Any]:
@@ -102,6 +111,29 @@ def snippet(case: Any) -> str:
     return "\n".join(blocks)
 
 
+def first_call(language: str) -> str:
+    """The animated terminal of the home page: install, sign in, and a real `issues get`.
+
+    The issue is the demo fixture printed by ``docs/demo/render.py``, the same offline renderer
+    the README recording uses, so the output is what ycli prints and holds no real data.
+    """
+    render = subprocess.run(
+        [sys.executable, str(DOCS / "demo" / "render.py"), "tracker", "issues", "get", "DEMO-42"],
+        capture_output=True,
+        text=True,
+        check=True,
+        env={**os.environ, "COLUMNS": "100"},
+    )
+    output = "\n".join(line.rstrip() for line in ANSI.sub("", render.stdout).splitlines())
+    return (
+        '<div class="termy" markdown>\n\n```console\n'
+        "$ uv tool install 'yandex-cli[mcp]'\n---> 100%\n"
+        f"$ ycli auth login\n// {SIGN_IN[language]}\n"
+        f"$ ycli tracker issues get DEMO-42\n{output.strip()}\n"
+        "```\n\n</div>\n"
+    )
+
+
 def included() -> set[str]:
     """Every operation some documentation page includes."""
     return {
@@ -118,7 +150,13 @@ def build() -> dict[Path, str]:
     unknown = sorted(included() - cases.keys())
     if unknown:
         raise SystemExit(f"gen_examples: no contract case for {', '.join(unknown)}")
-    return {SNIPPETS / f"{operation}.md": snippet(cases[operation]) for operation in included()}
+    terminals = {
+        TERMINALS / f"first-call.{language}.md": first_call(language) for language in SIGN_IN
+    }
+    operations = {
+        SNIPPETS / f"{operation}.md": snippet(cases[operation]) for operation in included()
+    }
+    return {**operations, **terminals}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -127,7 +165,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true", help="exit 1 if a snippet is stale")
     args = parser.parse_args(argv)
     snippets = build()
-    orphans = [path for path in SNIPPETS.glob("*.md") if path not in snippets]
+    orphans = [
+        path
+        for directory in (SNIPPETS, TERMINALS)
+        for path in directory.glob("*.md")
+        if path not in snippets
+    ]
     if args.check:
         stale = [
             path
@@ -140,10 +183,10 @@ def main(argv: list[str] | None = None) -> int:
             print("run: uv run scripts/gen_examples.py", file=sys.stderr)
             return 1
         return 0
-    SNIPPETS.mkdir(parents=True, exist_ok=True)
     for path in orphans:
         path.unlink()
     for path, text in snippets.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
     return 0
 
