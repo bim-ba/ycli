@@ -1,6 +1,7 @@
 """Contract cases for Forms ``/surveys/{id}/keysets`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.keysets.models import KeysetCreate, KeysetUpdate
 
 SID = "686d0a1b2c3d4e5f00000020"
 KEYSETS = f"surveys/{SID}/keysets"
@@ -23,7 +24,10 @@ CASES = [
     ),
     Case(
         "forms.keysets.create",
-        args=(SID, {"name": "Q1 invites", "total": 100, "is_enabled": True}),
+        args=(
+            SID,
+            KeysetCreate.model_validate({"name": "Q1 invites", "total": 100, "is_enabled": True}),
+        ),
         cli=[
             "forms",
             "keysets",
@@ -50,7 +54,11 @@ CASES = [
     ),
     Case(
         "forms.keysets.modify",
-        args=(SID, 4, {"name": "Q2 invites", "total": 7, "is_enabled": False}),
+        args=(
+            SID,
+            4,
+            KeysetUpdate.model_validate({"name": "Q2 invites", "total": 7, "is_enabled": False}),
+        ),
         cli=[
             "forms",
             "keysets",

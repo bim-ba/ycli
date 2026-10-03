@@ -642,23 +642,13 @@ def test_arch3_write_tag_check_bites():
     ]
 
 
-# ARCH-3 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
-# write MCP tool's `body` parameter must be the resource's typed pydantic request model, never a
-# bare `dict`/`dict[...]`. Fail-closed with exactly one documented exception (id -> reason),
-# frozen here in the same `ARCH1_SURFACE_ASYMMETRIES` string-map style. `Annotated[Base64Bytes,
-# …]` (binary uploads) is an `ast.Subscript` whose `.value` is `ast.Name(id="Annotated")`, never
-# `dict`, so it never matches this check — no allowlist entry is needed for it.
-ARCH8_BODY_DICT_ALLOWLIST: dict[str, str] = {
-    # PATCH …/extendedPermissions nests READ/WRITE/GRANT principal sets under grant/revoke verbs
-    # (see references/yandex-360/tracker/ru/api-ref/entities/patch-access.md); the existing
-    # ExtendedPermissionsUpdate/AclInput models describe a different, direct READ/WRITE/GRANT
-    # shape and would misrepresent this endpoint's real wire body if used here. See the NOTE on
-    # `set_permissions` in yandex/tracker/entities/mcp.py.
-    "yandex/tracker/entities/mcp.py:set_permissions": (
-        "wire shape nests READ/WRITE/GRANT under grant/revoke verbs; the existing "
-        "ExtendedPermissionsUpdate/AclInput models describe a different (direct) shape"
-    ),
-}
+# ARCH-8 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
+# `body` parameter is the resource's request model, never a bare `dict`/`dict[...]`, in every
+# layer that hands it on: the MCP tool, the client method and the endpoint builder. Fail-closed;
+# an exception would be listed here (id -> reason), as in `ARCH1_SURFACE_ASYMMETRIES`.
+# `Annotated[Base64Bytes, …]` (binary uploads) is an `ast.Subscript` whose `.value` is
+# `ast.Name(id="Annotated")`, never `dict`, so it never matches this check.
+ARCH8_BODY_DICT_ALLOWLIST: dict[str, str] = {}
 
 
 def _bare_dict_annotation(annotation: ast.expr | None) -> bool:
@@ -716,7 +706,7 @@ def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
 
 
 def test_arch8_mcp_write_tool_bodies_are_typed():
-    """An MCP write tool's ``body`` parameter is a typed pydantic model, never bare ``dict``.
+    """A ``body`` parameter is a typed pydantic model, never bare ``dict``, in every layer.
 
     docs/conventions/resources.md §4: the model becomes the tool's input schema, so an agent
     sees field names/types/aliases instead of an opaque ``object``, and a malformed payload
@@ -724,16 +714,45 @@ def test_arch8_mcp_write_tool_bodies_are_typed():
     ``ARCH8_BODY_DICT_ALLOWLIST`` entry is exempt.
     """
     offenders = []
-    for mcp_py in YANDEX.rglob("mcp.py"):
-        rel = str(mcp_py.relative_to(SRC))
-        offenders += _untyped_body_offenders(mcp_py.read_text(encoding="utf-8"), rel)
+    for layer in ("mcp.py", "client.py", "endpoints.py"):
+        for path in YANDEX.rglob(layer):
+            rel = str(path.relative_to(SRC))
+            offenders += _untyped_body_offenders(path.read_text(encoding="utf-8"), rel)
     assert not offenders, (
-        "MCP write-tool `body` parameters must be typed pydantic models, not dict — convert the "
-        f"parameter, or add a documented ARCH8_BODY_DICT_ALLOWLIST entry: {offenders}"
+        "a `body` parameter must be a typed pydantic model, not dict — convert the parameter, "
+        f"or add a documented ARCH8_BODY_DICT_ALLOWLIST entry: {offenders}"
     )
 
 
-def test_arch8_typed_body_guard_bites():
+def _dumps(source: str, module_label: str) -> list[str]:
+    """Places in ``source`` that dump a model themselves (``.model_dump(`` / ``_json(``)."""
+    return [
+        f"{module_label}:{node.lineno}"
+        for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr in {"model_dump", "model_dump_json"}
+    ]
+
+
+def test_arch8_a_request_body_is_dumped_only_by_the_endpoint():
+    """The MCP tool, the client and the endpoint builder hand the model on, undumped.
+
+    ``Endpoint`` dumps it once (``core.endpoint.dump_body``), so every surface sends the same
+    JSON. A CLI command may dump a model to merge ``--field`` values into it before it builds
+    the request model.
+    """
+    offenders = []
+    for layer in ("mcp.py", "client.py", "endpoints.py"):
+        for path in YANDEX.rglob(layer):
+            offenders += _dumps(path.read_text(encoding="utf-8"), str(path.relative_to(SRC)))
+    assert offenders == []
+    assert _dumps("def f(body):\n    return send(body.model_dump())\n", "x/client.py") == [
+        "x/client.py:2"
+    ]
+
+
+def test_arch8_typed_body_guard_bites(monkeypatch):
     """Prove-it: the guard flags bare/subscripted ``dict`` bodies and respects the allowlist.
 
     A typed model or ``Annotated[Base64Bytes, …]`` is not flagged.
@@ -779,14 +798,8 @@ def test_arch8_typed_body_guard_bites():
     )
     assert _untyped_body_offenders(binary_upload, "synthetic/mcp.py") == []
 
-    allowlisted_key = next(iter(ARCH8_BODY_DICT_ALLOWLIST))
-    module_label, func_name = allowlisted_key.rsplit(":", 1)
-    allowlisted = (
-        f'@mcp.tool(name="{func_name}")\n'
-        f"def {func_name}(body: dict, client=Depends(x)) -> Permissions:\n"
-        "    return client.entities.set_permissions(body)\n"
-    )
-    assert _untyped_body_offenders(allowlisted, module_label) == []
+    monkeypatch.setitem(ARCH8_BODY_DICT_ALLOWLIST, "synthetic/mcp.py:create", "a listed exception")
+    assert _untyped_body_offenders(bare, "synthetic/mcp.py") == []
 
 
 def _import_aliases(tree: ast.AST) -> dict[str, str]:

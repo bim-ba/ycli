@@ -114,7 +114,7 @@ class LocalFieldUpdate(APIModel):
     This endpoint has no ``?version=`` optimistic lock; only the fields that are set are sent.
 
     Examples:
-        >>> LocalFieldUpdate(order=102).model_dump(by_alias=True, exclude_none=True)
+        >>> LocalFieldUpdate(order=102).model_dump(exclude_none=True)
         {'order': 102}
     """
 

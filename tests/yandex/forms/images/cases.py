@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.forms.images.models import ImageClone
 
 SID = "686d0a1b2c3d4e5f00000050"
 LOGO = Path(__file__).with_name("logo.png")
@@ -30,7 +31,7 @@ CASES = [
     ),
     Case(
         "forms.images.clone",
-        args=("686d0a1b2c3d4e5f00000051", {"id": 7, "name": "copy.png"}),
+        args=("686d0a1b2c3d4e5f00000051", ImageClone.model_validate({"id": 7, "name": "copy.png"})),
         cli=[
             "forms",
             "images",
@@ -58,7 +59,10 @@ CASES = [
     ),
     Case(
         "forms.images.clone",
-        args=("686d0a1b2c3d4e5f00000052", {"links": {"orig": "https://img.test/a.png"}}),
+        args=(
+            "686d0a1b2c3d4e5f00000052",
+            ImageClone.model_validate({"links": {"orig": "https://img.test/a.png"}}),
+        ),
         cli=[
             "forms",
             "images",

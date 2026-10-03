@@ -114,7 +114,7 @@ def export(
     ``operations_get`` until the status is terminal; download the finished file with the
     ``forms answers export --wait`` CLI command (binary payload — not exposed over MCP).
     """
-    return client.answers.export(survey_id, body.model_dump(exclude_none=True))
+    return client.answers.export(survey_id, body)
 
 
 @mcp.tool(

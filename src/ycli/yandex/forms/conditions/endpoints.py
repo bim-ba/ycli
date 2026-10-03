@@ -13,10 +13,13 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.models import Condition, ConditionsResponse
+
+if TYPE_CHECKING:
+    from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 
 
 def question_target(survey_id: str, question_id: str) -> str:
@@ -43,11 +46,11 @@ def get_condition(target: str, condition_id: int) -> Endpoint[Condition]:
     return Endpoint("GET", f"{target}/{segment(condition_id)}", Condition)
 
 
-def create_condition(target: str, body: dict[str, Any]) -> Endpoint[Condition]:
+def create_condition(target: str, body: ConditionCreate) -> Endpoint[Condition]:
     return Endpoint("POST", target, Condition, json=body)
 
 
-def modify_condition(target: str, condition_id: int, body: dict[str, Any]) -> Endpoint[Condition]:
+def modify_condition(target: str, condition_id: int, body: ConditionUpdate) -> Endpoint[Condition]:
     return Endpoint("PATCH", f"{target}/{segment(condition_id)}", Condition, json=body)
 
 

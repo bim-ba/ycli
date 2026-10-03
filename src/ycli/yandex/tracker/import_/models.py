@@ -22,7 +22,7 @@ class ImportTask(APIModel):
         ...     summary="Test",
         ...     created_at="2017-08-29T12:34:41.740+0000",
         ...     created_by="11",
-        ... ).model_dump(by_alias=True, exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
         {'queue': 'TEST', 'summary': 'Test', 'createdAt': '2017-08-29T12:34:41.740+0000',
          'createdBy': '11'}
     """
@@ -59,7 +59,7 @@ class ImportComment(APIModel):
     Examples:
         >>> ImportComment(
         ...     text="Test", created_at="2017-08-29T12:34:41.740+0000", created_by="11"
-        ... ).model_dump(by_alias=True, exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
         {'text': 'Test', 'createdAt': '2017-08-29T12:34:41.740+0000', 'createdBy': '11'}
     """
 
@@ -87,7 +87,7 @@ class ImportLink(APIModel):
         ...     issue="TEST-2",
         ...     created_at="2017-08-29T12:34:41.740+0000",
         ...     created_by="11",
-        ... ).model_dump(by_alias=True, exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
         {'relationship': 'relates', 'issue': 'TEST-2',
          'createdAt': '2017-08-29T12:34:41.740+0000', 'createdBy': '11'}
     """
@@ -119,7 +119,7 @@ class ImportWorklog(APIModel):
         ...     created_at="2025-02-18T16:35:41.740+0000",
         ...     created_by="username",
         ...     start="2025-02-18T16:35:41.740+0000",
-        ... ).model_dump(by_alias=True, exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
         {'duration': 'PT1H', 'createdAt': '2025-02-18T16:35:41.740+0000',
          'createdBy': 'username', 'start': '2025-02-18T16:35:41.740+0000'}
     """

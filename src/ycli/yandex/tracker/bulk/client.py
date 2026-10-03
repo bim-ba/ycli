@@ -8,14 +8,20 @@ let a caller poll it to a terminal state.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.bulk import endpoints
 
 if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
-    from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResult
+    from ycli.yandex.tracker.bulk.models import (
+        BulkChange,
+        BulkIssueResult,
+        BulkMove,
+        BulkTransition,
+        BulkUpdate,
+    )
 
 
 class BulkClient(Resource):
@@ -23,7 +29,7 @@ class BulkClient(Resource):
 
     def update(
         self,
-        body: dict[str, Any],
+        body: BulkUpdate,
         *,
         notify: bool | None = None,
     ) -> BulkChange:
@@ -38,8 +44,11 @@ class BulkClient(Resource):
             The started bulk change.
 
         Examples:
+            >>> from ycli.yandex.tracker.bulk.models import BulkUpdate
             >>> tracker.bulk.update(
-            ...     {"issues": ["DE-1", "DE-2"], "values": {"priority": "minor"}}
+            ...     BulkUpdate.model_validate(
+            ...         {"issues": ["DE-1", "DE-2"], "values": {"priority": "minor"}}
+            ...     )
             ... ).status
             'CREATED'
         """
@@ -47,7 +56,7 @@ class BulkClient(Resource):
 
     def move(
         self,
-        body: dict[str, Any],
+        body: BulkMove,
         *,
         notify: bool | None = None,
     ) -> BulkChange:
@@ -62,14 +71,17 @@ class BulkClient(Resource):
             The started bulk change.
 
         Examples:
-            >>> tracker.bulk.move({"queue": "CHECK", "issues": ["DE-3"]}).id
+            >>> from ycli.yandex.tracker.bulk.models import BulkMove
+            >>> tracker.bulk.move(
+            ...     BulkMove.model_validate({"queue": "CHECK", "issues": ["DE-3"]})
+            ... ).id
             '2cd'
         """
         return self._session.send(endpoints.move_bulk(body, notify=notify))
 
     def transition(
         self,
-        body: dict[str, Any],
+        body: BulkTransition,
         *,
         notify: bool | None = None,
     ) -> BulkChange:
@@ -84,7 +96,10 @@ class BulkClient(Resource):
             The started bulk change.
 
         Examples:
-            >>> tracker.bulk.transition({"transition": "close", "issues": ["DE-4"]}).status
+            >>> from ycli.yandex.tracker.bulk.models import BulkTransition
+            >>> tracker.bulk.transition(
+            ...     BulkTransition.model_validate({"transition": "close", "issues": ["DE-4"]})
+            ... ).status
             'CREATED'
         """
         return self._session.send(endpoints.transition_bulk(body, notify=notify))

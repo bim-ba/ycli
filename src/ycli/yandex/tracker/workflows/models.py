@@ -208,7 +208,7 @@ class WorkflowStepInput(APIModel):
     """A step in a request: a status and the actions leaving it.
 
     Examples:
-        >>> WorkflowStepInput(status="open").model_dump(by_alias=True, exclude_none=True)
+        >>> WorkflowStepInput(status="open").model_dump(exclude_none=True)
         {'status': 'open'}
     """
 
@@ -239,7 +239,7 @@ class IssueTypeResolutions(APIModel):
     """The resolutions allowed for one issue type in a workflow.
 
     Examples:
-        >>> IssueTypeResolutions(issue_type="task", resolutions=["fixed"]).model_dump(by_alias=True)
+        >>> IssueTypeResolutions(issue_type="task", resolutions=["fixed"]).model_dump()
         {'issueType': 'task', 'resolutions': ['fixed']}
     """
 
@@ -264,7 +264,7 @@ class WorkflowCreate(APIModel):
         ...     ),
         ...     steps=[WorkflowStepInput(status="open")],
         ... )
-        >>> sorted(body.model_dump(by_alias=True, exclude_none=True))
+        >>> sorted(body.model_dump(exclude_none=True))
         ['initialAction', 'name', 'steps']
     """
 
@@ -301,7 +301,7 @@ class WorkflowUpdate(APIModel):
     Only the fields that are set change; a given ``steps`` list replaces the whole step list.
 
     Examples:
-        >>> WorkflowUpdate(name="Renamed").model_dump(by_alias=True, exclude_none=True)
+        >>> WorkflowUpdate(name="Renamed").model_dump(exclude_none=True)
         {'name': 'Renamed'}
     """
 

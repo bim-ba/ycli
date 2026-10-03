@@ -6,12 +6,10 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.notifications import endpoints
-from ycli.yandex.forms.notifications.models import Notification
+from ycli.yandex.forms.notifications.models import Notification, NotificationFilter
 from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from ycli.yandex.forms.notifications.models import (
         NotificationAction,
         NotificationDetails,
@@ -23,67 +21,29 @@ class NotificationsClient(Resource):
     """List, inspect, restart and cancel the runs of a form's integrations."""
 
     def list(
-        self,
-        *,
-        survey_id: str | None = None,
-        hook_id: int | None = None,
-        subscription_id: int | None = None,
-        answer_id: int | None = None,
-        status: Sequence[str] | None = None,
-        created_since: str | None = None,
-        created_until: str | None = None,
-        finished_since: str | None = None,
-        finished_until: str | None = None,
-        visible: bool | None = None,
-        integration_type: str | None = None,
-        ordering: str | None = None,
-        limit: int | None = None,
+        self, filters: NotificationFilter | None = None, *, limit: int | None = None
     ) -> ItemList[Notification]:
         """``GET /notifications`` → runs matching every filter given, at most ``limit``.
 
-        ``status`` holds any of pending, success, error, canceled; the ``*_since`` / ``*_until``
-        bounds are ISO-8601 times (both ends inclusive); ``ordering`` is ``asc`` (the API
-        default) or ``desc``.
-
         Args:
-            survey_id: Only runs of this form.
-            hook_id: Only runs of this integration group.
-            subscription_id: Only runs of this integration.
-            answer_id: Only runs triggered by this answer.
-            status: Only runs in any of these states.
-            created_since: Only runs created at or after this time.
-            created_until: Only runs created at or before this time.
-            finished_since: Only runs finished at or after this time.
-            finished_until: Only runs finished at or before this time.
-            visible: Only visible (``True``) or hidden (``False``) runs.
-            integration_type: Only runs of this integration type.
-            ordering: ``asc`` (the API default) or ``desc``.
+            filters: Which runs to return; ``None`` returns the runs of every form.
             limit: The most runs to return; ``None`` returns every run.
 
         Returns:
             The matching runs.
 
         Examples:
+            >>> from ycli.yandex.forms.notifications.models import NotificationFilter
             >>> runs = forms.notifications.list(
-            ...     survey_id="686d0a1b2c3d4e5f000000f0", status=["error", "pending"], limit=500
+            ...     NotificationFilter(
+            ...         survey_id="686d0a1b2c3d4e5f000000f0", status=["error", "pending"]
+            ...     ),
+            ...     limit=500,
             ... )
             >>> [run.id for run in runs.root]
             [9001, 9002, 9003]
         """
-        paged = endpoints.list_notifications(
-            survey_id=survey_id,
-            hook_id=hook_id,
-            subscription_id=subscription_id,
-            answer_id=answer_id,
-            status=status,
-            created_since=created_since,
-            created_until=created_until,
-            finished_since=finished_since,
-            finished_until=finished_until,
-            visible=visible,
-            integration_type=integration_type,
-            ordering=ordering,
-        )
+        paged = endpoints.list_notifications(filters or NotificationFilter())
         return ItemList[Notification](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, notification_id: int) -> NotificationDetails:

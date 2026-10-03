@@ -26,11 +26,13 @@ from ycli.yandex.wiki.pages.models import (
     GridRef,
     PageAppendContent,
     PageClone,
+    PageCreate,
     PageDeleteResult,
     PageDetails,
     PageMove,
     PageRef,
     PageRevision,
+    PageUpdate,
 )
 
 mcp = FastMCP("wiki-pages")
@@ -194,7 +196,7 @@ def create(
     (its numeric ``id`` drives the id-based tools and every subsequent write).
     """
     return client.pages.create(
-        body={"slug": slug, "title": title, "content": content},
+        body=PageCreate(slug=slug, title=title, content=content),
         fields=fields,
         is_silent=is_silent,
     )
@@ -223,11 +225,12 @@ def update(
     instead. The Wiki API updates via POST, not PATCH (PATCH returns 405); the SDK already
     handles that quirk. Repeating the same call yields the same page state (idempotent).
     """
-    body: dict[str, str] = {"content": content}
-    if title is not None:
-        body["title"] = title
     return client.pages.update(
-        page_id=page_id, body=body, fields=fields, is_silent=is_silent, allow_merge=allow_merge
+        page_id=page_id,
+        body=PageUpdate(content=content, title=title),
+        fields=fields,
+        is_silent=is_silent,
+        allow_merge=allow_merge,
     )
 
 
@@ -274,7 +277,7 @@ def append_content(
     """
     return client.pages.append_content(
         page_id=page_id,
-        body=body.model_dump(exclude_none=True),
+        body=body,
         fields=fields,
         is_silent=is_silent,
     )
@@ -298,7 +301,7 @@ def clone(
     ``pages_move``. The call returns a deferred operation reference — poll
     ``operations_clone_get`` with the returned ``operation.id`` until it reaches a terminal status.
     """
-    return client.pages.clone(page_id=page_id, body=body.model_dump(exclude_none=True))
+    return client.pages.clone(page_id=page_id, body=body)
 
 
 @mcp.tool(name="pages_move", annotations={**WRITE, "title": "Move Wiki page"}, tags=WRITE_TAGS)
@@ -323,7 +326,7 @@ def move(
     cannot be polled. Yandex does not document this operation (it is in the live OpenAPI only)
     and may change it.
     """
-    return client.pages.move(body=body.model_dump(exclude_none=True), dry_run=dry_run)
+    return client.pages.move(body=body, dry_run=dry_run)
 
 
 @mcp.tool(

@@ -7,7 +7,7 @@ checklists, links and attachments. Every method sends one declaration from
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
@@ -16,13 +16,26 @@ from ycli.yandex.tracker.entities.models import (
     Acl,
     Attachment,
     BulkChangeOperation,
+    BulkChangeUpdate,
+    ChecklistItemInput,
+    ChecklistMove,
     Comment,
+    CommentUpdate,
     DirectPermissionsUpdate,
     Entity,
+    EntityCreate,
     EntityEvent,
+    EntitySearch,
+    EntityUpdate,
     ExtendedPermissions,
     Link,
+    LinkInput,
+    PermissionsUpdate,
+    ReportCreate,
 )
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.models import CommentCreate
 
 
 def _page_size(limit: int | None) -> int:
@@ -45,7 +58,7 @@ class EntitiesClient(Resource):
     def create(
         self,
         entity_type: str,
-        body: dict[str, Any],
+        body: EntityCreate,
         *,
         fields: str | None = None,
     ) -> Entity:
@@ -60,7 +73,10 @@ class EntitiesClient(Resource):
             The created entity.
 
         Examples:
-            >>> tracker.entities.create("project", {"fields": {"summary": "Q4 launch"}}).id
+            >>> from ycli.yandex.tracker.entities.models import EntityCreate
+            >>> tracker.entities.create(
+            ...     "project", EntityCreate.model_validate({"fields": {"summary": "Q4 launch"}})
+            ... ).id
             '655f'
         """
         return self._session.send(endpoints.create_entity(entity_type, body, fields=fields))
@@ -100,7 +116,7 @@ class EntitiesClient(Resource):
         self,
         entity_type: str,
         entity_id: str,
-        body: dict[str, Any],
+        body: EntityUpdate,
         *,
         expand: str | None = None,
         fields: str | None = None,
@@ -118,7 +134,12 @@ class EntitiesClient(Resource):
             The updated entity.
 
         Examples:
-            >>> tracker.entities.edit("project", "655f04", {"fields": {"summary": "Renamed"}}).id
+            >>> from ycli.yandex.tracker.entities.models import EntityUpdate
+            >>> tracker.entities.edit(
+            ...     "project",
+            ...     "655f04",
+            ...     EntityUpdate.model_validate({"fields": {"summary": "Renamed"}}),
+            ... ).id
             '655f04'
         """
         return self._session.send(
@@ -141,7 +162,7 @@ class EntitiesClient(Resource):
     def search(
         self,
         entity_type: str,
-        body: dict | None = None,
+        body: EntitySearch | None = None,
         *,
         fields: str | None = None,
         per_page: int | None = None,
@@ -170,7 +191,7 @@ class EntitiesClient(Resource):
             '655f'
         """
         endpoint = endpoints.search_entities(
-            entity_type, body or {}, fields=fields, per_page=per_page, page=page
+            entity_type, body or EntitySearch(), fields=fields, per_page=per_page, page=page
         )
         return ItemList[Entity](self._session.send(endpoint).values)
 
@@ -235,7 +256,7 @@ class EntitiesClient(Resource):
         return self._session.send(endpoints.get_permissions(entity_type, entity_id))
 
     def set_permissions(
-        self, entity_type: str, entity_id: str, body: dict[str, Any]
+        self, entity_type: str, entity_id: str, body: PermissionsUpdate
     ) -> ExtendedPermissions:
         """``PATCH …/extendedPermissions`` — set access settings. Returns the new settings.
 
@@ -251,10 +272,13 @@ class EntitiesClient(Resource):
             The new access settings.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import PermissionsUpdate
             >>> tracker.entities.set_permissions(
             ...     "portfolio",
             ...     "pf16",
-            ...     {"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}},
+            ...     PermissionsUpdate.model_validate(
+            ...         {"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}}
+            ...     ),
             ... ).acl.read.users[0].id
             '8000000000000002'
         """
@@ -298,10 +322,9 @@ class EntitiesClient(Resource):
             >>> tracker.entities.set_direct_permissions("goal", "g18", update).read.users[0].display
             'Ann'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.set_direct_permissions(entity_type, entity_id, dumped))
+        return self._session.send(endpoints.set_direct_permissions(entity_type, entity_id, body))
 
-    def bulk_update(self, entity_type: str, body: dict[str, Any]) -> BulkChangeOperation:
+    def bulk_update(self, entity_type: str, body: BulkChangeUpdate) -> BulkChangeOperation:
         """``POST …/bulkchange/_update`` — mass-edit entities (async). Returns the operation.
 
         The response is a handle whose ``status`` starts at ``CREATED``; poll
@@ -315,8 +338,12 @@ class EntitiesClient(Resource):
             The started bulk-change operation.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import BulkChangeUpdate
             >>> tracker.entities.bulk_update(
-            ...     "project", {"metaEntities": ["655f17"], "values": {"comment": "Handed over"}}
+            ...     "project",
+            ...     BulkChangeUpdate.model_validate(
+            ...         {"metaEntities": ["655f17"], "values": {"comment": "Handed over"}}
+            ...     ),
             ... ).status
             'CREATED'
         """
@@ -337,7 +364,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.get_bulk_status(operation_id))
 
-    def create_report(self, body: dict[str, Any]) -> Entity:
+    def create_report(self, body: ReportCreate) -> Entity:
         """``POST /entities/report/`` — build an issue report from a ``{fields: …}`` body.
 
         The body carries the report name plus export ``parameters`` (type/format, the issue
@@ -350,18 +377,21 @@ class EntitiesClient(Resource):
             The created report entity.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import ReportCreate
             >>> tracker.entities.create_report(
-            ...     {
-            ...         "fields": {
-            ...             "summary": "Support export",
-            ...             "parameters": {
-            ...                 "type": "issueFilterExport",
-            ...                 "format": "csv",
-            ...                 "filter": {"query": "Queue: SUPPORT"},
-            ...                 "fields": ["key", "summary", "assignee"],
-            ...             },
+            ...     ReportCreate.model_validate(
+            ...         {
+            ...             "fields": {
+            ...                 "summary": "Support export",
+            ...                 "parameters": {
+            ...                     "type": "issueFilterExport",
+            ...                     "format": "csv",
+            ...                     "filter": {"query": "Queue: SUPPORT"},
+            ...                     "fields": ["key", "summary", "assignee"],
+            ...                 },
+            ...             }
             ...         }
-            ...     }
+            ...     )
             ... ).entity_type
             'report'
         """
@@ -441,7 +471,7 @@ class EntitiesClient(Resource):
         self,
         entity_type: str,
         entity_id: str,
-        body: dict[str, Any],
+        body: CommentCreate,
         *,
         expand: str | None = None,
         is_add_to_followers: bool | None = None,
@@ -466,7 +496,10 @@ class EntitiesClient(Resource):
             The created comment.
 
         Examples:
-            >>> tracker.entities.comments_create("project", "655f25", {"text": "Готово"}).id
+            >>> from ycli.yandex.tracker.models import CommentCreate
+            >>> tracker.entities.comments_create(
+            ...     "project", "655f25", CommentCreate.model_validate({"text": "Готово"})
+            ... ).id
             22
         """
         return self._session.send(
@@ -486,7 +519,7 @@ class EntitiesClient(Resource):
         entity_type: str,
         entity_id: str,
         comment_id: str,
-        body: dict[str, Any],
+        body: CommentUpdate,
         *,
         expand: str | None = None,
         is_add_to_followers: bool | None = None,
@@ -515,7 +548,10 @@ class EntitiesClient(Resource):
             The updated comment.
 
         Examples:
-            >>> tracker.entities.comments_edit("goal", "g27", "27", {"text": "Fixed typo"}).text
+            >>> from ycli.yandex.tracker.entities.models import CommentUpdate
+            >>> tracker.entities.comments_edit(
+            ...     "goal", "g27", "27", CommentUpdate.model_validate({"text": "Fixed typo"})
+            ... ).text
             'Fixed typo'
         """
         endpoint = endpoints.edit_comment(
@@ -565,7 +601,7 @@ class EntitiesClient(Resource):
         self,
         entity_type: str,
         entity_id: str,
-        body: list[dict[str, Any]],
+        body: ItemList[ChecklistItemInput],
         *,
         expand: str | None = None,
         fields: str | None = None,
@@ -589,8 +625,14 @@ class EntitiesClient(Resource):
             The updated entity.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import ChecklistItemInput
+            >>> from ycli.yandex.models import ItemList
             >>> tracker.entities.checklists_create(
-            ...     "project", "655f29", [{"text": "Draft"}, {"text": "Review"}]
+            ...     "project",
+            ...     "655f29",
+            ...     ItemList[ChecklistItemInput].model_validate(
+            ...         [{"text": "Draft"}, {"text": "Review"}]
+            ...     ),
             ... ).id
             '655f29'
         """
@@ -610,7 +652,7 @@ class EntitiesClient(Resource):
         self,
         entity_type: str,
         entity_id: str,
-        body: list[dict[str, Any]],
+        body: ItemList[ChecklistItemInput],
         *,
         expand: str | None = None,
         fields: str | None = None,
@@ -634,8 +676,14 @@ class EntitiesClient(Resource):
             The updated entity.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import ChecklistItemInput
+            >>> from ycli.yandex.models import ItemList
             >>> tracker.entities.checklists_edit(
-            ...     "goal", "g30", [{"id": "5f", "text": "Renamed"}, {"id": "6a", "text": "Second"}]
+            ...     "goal",
+            ...     "g30",
+            ...     ItemList[ChecklistItemInput].model_validate(
+            ...         [{"id": "5f", "text": "Renamed"}, {"id": "6a", "text": "Second"}]
+            ...     ),
             ... ).id
             'g30'
         """
@@ -656,7 +704,7 @@ class EntitiesClient(Resource):
         entity_type: str,
         entity_id: str,
         item_id: str,
-        body: dict[str, Any],
+        body: ChecklistItemInput,
         *,
         expand: str | None = None,
         fields: str | None = None,
@@ -681,8 +729,12 @@ class EntitiesClient(Resource):
             The updated entity.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import ChecklistItemInput
             >>> tracker.entities.checklists_edit_item(
-            ...     "portfolio", "pf32", "1f", {"text": "Sign off", "checked": True}
+            ...     "portfolio",
+            ...     "pf32",
+            ...     "1f",
+            ...     ChecklistItemInput.model_validate({"text": "Sign off", "checked": True}),
             ... ).id
             'pf32'
         """
@@ -786,7 +838,7 @@ class EntitiesClient(Resource):
         entity_type: str,
         entity_id: str,
         item_id: str,
-        body: dict[str, Any],
+        body: ChecklistMove,
         *,
         expand: str | None = None,
         fields: str | None = None,
@@ -813,7 +865,10 @@ class EntitiesClient(Resource):
             The updated entity.
 
         Examples:
-            >>> tracker.entities.checklists_move("portfolio", "pf36", "4f", {"before": "5a"}).id
+            >>> from ycli.yandex.tracker.entities.models import ChecklistMove
+            >>> tracker.entities.checklists_move(
+            ...     "portfolio", "pf36", "4f", ChecklistMove.model_validate({"before": "5a"})
+            ... ).id
             'pf36'
         """
         endpoint = endpoints.move_checklist_item(
@@ -849,7 +904,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.list_links(entity_type, entity_id, fields=fields))
 
-    def links_create(self, entity_type: str, entity_id: str, body: dict) -> None:
+    def links_create(self, entity_type: str, entity_id: str, body: LinkInput) -> None:
         """Create a link (``body`` is ``{relationship, entity}``). Raises on non-2xx.
 
         Args:
@@ -858,8 +913,11 @@ class EntitiesClient(Resource):
             body: The link, as ``{"relationship": ..., "entity": ...}``.
 
         Examples:
+            >>> from ycli.yandex.tracker.entities.models import LinkInput
             >>> tracker.entities.links_create(
-            ...     "portfolio", "pf40", {"relationship": "depends on", "entity": "pf41"}
+            ...     "portfolio",
+            ...     "pf40",
+            ...     LinkInput.model_validate({"relationship": "depends on", "entity": "pf41"}),
             ... )
         """
         self._session.send(endpoints.create_link(entity_type, entity_id, body))

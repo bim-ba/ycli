@@ -9,12 +9,12 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.worklog.models import Worklog
+from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogSearch, WorklogUpdate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -40,7 +40,7 @@ def list_worklog(key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Work
     )
 
 
-def search_worklog(body: dict[str, Any]) -> Endpoint[ItemList[Worklog]]:
+def search_worklog(body: WorklogSearch) -> Endpoint[ItemList[Worklog]]:
     """``POST /worklog/_search`` only reads."""
     return Endpoint("POST", "worklog/_search", ItemList[Worklog], json=body, effect="read")
 
@@ -53,11 +53,11 @@ def list_global_worklog(
     return Endpoint("GET", "worklog", ItemList[Worklog], params=params)
 
 
-def create_worklog(key: str, body: dict[str, Any]) -> Endpoint[Worklog]:
+def create_worklog(key: str, body: WorklogCreate) -> Endpoint[Worklog]:
     return Endpoint("POST", f"issues/{segment(key)}/worklog", Worklog, json=body)
 
 
-def edit_worklog(key: str, record_id: int | str, body: dict[str, Any]) -> Endpoint[Worklog]:
+def edit_worklog(key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Worklog]:
     path = f"issues/{segment(key)}/worklog/{segment(record_id)}"
     return Endpoint("PATCH", path, Worklog, json=body)
 

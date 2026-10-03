@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.comments import endpoints
-from ycli.yandex.wiki.comments.models import Comment
+from ycli.yandex.wiki.comments.models import Comment, CommentCreate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -157,10 +157,10 @@ class CommentsClient(Resource):
         paged = endpoints.get_thread(page_id, comment_id)
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
-    def create(self, page_id: int, body: dict[str, Any]) -> CommentCreated:
+    def create(self, page_id: int, body: CommentCreate) -> CommentCreated:
         """``POST /pages/{id}/comments`` — add a comment; returns a :class:`CommentCreated`.
 
-        ``body`` is a dumped :class:`CommentCreate` (``body`` + optional
+        ``body`` is a :class:`CommentCreate` (``body`` + optional
         ``inline_text`` / ``parent_id`` / ``thread_id``).
 
         Args:
@@ -171,7 +171,8 @@ class CommentsClient(Resource):
             The created comment.
 
         Examples:
-            >>> wiki.comments.create(5505, {"body": "Plain note"}).id
+            >>> from ycli.yandex.wiki.comments.models import CommentCreate
+            >>> wiki.comments.create(5505, CommentCreate.model_validate({"body": "Plain note"})).id
             5515
         """
         return self._session.send(endpoints.create_comment(page_id, body))

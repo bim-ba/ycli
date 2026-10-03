@@ -57,7 +57,7 @@ def set_(
     forms: FormsClient,
 ) -> ItemList[Permission]:
     """Set the access level of one action on form SURVEY_ID (POST …/access)."""
-    body = AccessUpdate.model_validate({"action": action, "access": access}).model_dump()
+    body = AccessUpdate.model_validate({"action": action, "access": access})
     return forms.access.set(survey_id, body)
 
 
@@ -75,7 +75,7 @@ def grant(
     """Let a user (--uid / --cloud-uid) or a group (--group-src + --group-id) perform ACTION."""
     user, group = _principal(uid, cloud_uid, group_src, group_id)
     body = AccessGrant.model_validate({"action": action, "user": user, "group": group})
-    return forms.access.grant(survey_id, body.model_dump(exclude_none=True))
+    return forms.access.grant(survey_id, body)
 
 
 @app.command()
@@ -92,4 +92,4 @@ def revoke(
     """Stop a user (--uid / --cloud-uid) or a group (--group-src + --group-id) performing ACTION."""
     user, group = _principal(uid, cloud_uid, group_src, group_id)
     body = AccessRevoke.model_validate({"action": action, "user": user, "group": group})
-    return forms.access.revoke(survey_id, body.model_dump(exclude_none=True))
+    return forms.access.revoke(survey_id, body)

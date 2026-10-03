@@ -5,19 +5,24 @@ Every method sends one declaration from :mod:`ycli.yandex.tracker.dashboards.end
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.dashboards import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.dashboards.models import Dashboard, Widget
+    from ycli.yandex.tracker.dashboards.models import (
+        CycleTimeWidget,
+        Dashboard,
+        DashboardCreate,
+        Widget,
+    )
 
 
 class DashboardsClient(Resource):
     """``/dashboards`` (create a dashboard, add a cycle-time widget)."""
 
-    def create(self, body: dict[str, Any]) -> Dashboard:
+    def create(self, body: DashboardCreate) -> Dashboard:
         """``POST /dashboards/`` — create a dashboard. Returns the created ``Dashboard``.
 
         Args:
@@ -27,12 +32,15 @@ class DashboardsClient(Resource):
             The created dashboard.
 
         Examples:
-            >>> tracker.dashboards.create({"name": "Team board", "layout": "two-columns"}).id
+            >>> from ycli.yandex.tracker.dashboards.models import DashboardCreate
+            >>> tracker.dashboards.create(
+            ...     DashboardCreate.model_validate({"name": "Team board", "layout": "two-columns"})
+            ... ).id
             10
         """
         return self._session.send(endpoints.create_dashboard(body))
 
-    def add_cycle_time_widget(self, dashboard_id: str, body: dict[str, Any]) -> Widget:
+    def add_cycle_time_widget(self, dashboard_id: str, body: CycleTimeWidget) -> Widget:
         """``POST /dashboards/{dashboard_id}/widgets/cycleTime`` — add a cycle-time widget.
 
         Returns the created ``Widget``.
@@ -45,8 +53,12 @@ class DashboardsClient(Resource):
             The created widget.
 
         Examples:
+            >>> from ycli.yandex.tracker.dashboards.models import CycleTimeWidget
             >>> tracker.dashboards.add_cycle_time_widget(
-            ...     "11", {"description": "Cycle time", "query": "Queue: DE"}
+            ...     "11",
+            ...     CycleTimeWidget.model_validate(
+            ...         {"description": "Cycle time", "query": "Queue: DE"}
+            ...     ),
             ... ).id
             123456
         """

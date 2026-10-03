@@ -1,6 +1,7 @@
 """Contract cases for Wiki ``/pages/{id}/comments`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.wiki.comments.models import CommentCreate
 
 ROOT = {"id": 5511, "body": "Ship it?", "author": {"display_name": "Vera"}, "parent_id": None}
 REPLY = {"id": 5512, "body": "Agreed", "author": {"display_name": "Ivan"}, "parent_id": 5511}
@@ -101,7 +102,7 @@ CASES = [
     ),
     Case(
         "wiki.comments.create",
-        args=(5504, CREATE_BODY),
+        args=(5504, CommentCreate.model_validate(CREATE_BODY)),
         cli=[
             "wiki",
             "comments",
@@ -126,7 +127,7 @@ CASES = [
     ),
     Case(
         "wiki.comments.create",
-        args=(5505, {"body": "Plain note"}),
+        args=(5505, CommentCreate.model_validate({"body": "Plain note"})),
         cli=["wiki", "comments", "create", "5505", "--body", "Plain note"],
         mcp=("wiki_comments_create", {"page_id": 5505, "body": {"body": "Plain note"}}),
         exchanges=[
@@ -194,7 +195,7 @@ CASES = [
     ),
     Case(
         "wiki.comments.create",
-        args=(5507, {"body": "Done"}),
+        args=(5507, CommentCreate.model_validate({"body": "Done"})),
         cli=["wiki", "comments", "create", "5507", "--body", "Done"],
         mcp=("wiki_comments_create", {"page_id": 5507, "body": {"body": "Done"}}),
         exchanges=[

@@ -82,7 +82,7 @@ def create(
         else None
     )
     body = PageAccessCreate(user=user, group=group, role=role, inheritance=inheritance)
-    return wiki.access.create(page_id=page_id, body=body.model_dump(exclude_none=True))
+    return wiki.access.create(page_id=page_id, body=body)
 
 
 @app.command()
@@ -103,7 +103,7 @@ def update(
     return wiki.access.update(
         page_id=page_id,
         access_id=access_id,
-        body=body.model_dump(exclude_none=True),
+        body=body,
         prevent_selflock=prevent_selflock,
     )
 

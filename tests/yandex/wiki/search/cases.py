@@ -1,6 +1,7 @@
 """Contract cases for Wiki ``/search`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.wiki.search.models import SearchRequest
 
 HIT = {
     "url": "/team/roadmap",
@@ -32,7 +33,7 @@ FULL_BODY = {
 CASES = [
     Case(
         "wiki.search.query",
-        args=(FULL_BODY,),
+        args=(SearchRequest.model_validate(FULL_BODY),),
         cli=[
             "wiki",
             "search",
@@ -85,13 +86,15 @@ CASES = [
     Case(
         "wiki.search.query",
         args=(
-            {
-                "query": "budget",
-                "cursor": 1,
-                "limit": 10,
-                "order_by": "relevancy",
-                "highlight": False,
-            },
+            SearchRequest.model_validate(
+                {
+                    "query": "budget",
+                    "cursor": 1,
+                    "limit": 10,
+                    "order_by": "relevancy",
+                    "highlight": False,
+                }
+            ),
         ),
         cli=["wiki", "search", "query", "budget"],
         mcp=None,
@@ -116,13 +119,15 @@ CASES = [
     Case(
         "wiki.search.query",
         args=(
-            {
-                "query": "onboarding",
-                "cursor": 1,
-                "limit": 10,
-                "order_by": "relevancy",
-                "highlight": False,
-            },
+            SearchRequest.model_validate(
+                {
+                    "query": "onboarding",
+                    "cursor": 1,
+                    "limit": 10,
+                    "order_by": "relevancy",
+                    "highlight": False,
+                }
+            ),
         ),
         cli=None,
         mcp=("wiki_search_query", {"text": "onboarding"}),

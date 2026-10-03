@@ -7,13 +7,13 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.components.models import (
     Component,
+    ComponentCreate,
     ComponentGroupAccess,
+    ComponentUpdate,
     ComponentUserAccess,
 )
 
@@ -22,12 +22,12 @@ def list_components() -> Endpoint[ItemList[Component]]:
     return Endpoint("GET", "components", ItemList[Component])
 
 
-def create_component(body: dict[str, Any]) -> Endpoint[Component]:
+def create_component(body: ComponentCreate) -> Endpoint[Component]:
     return Endpoint("POST", "components", Component, json=body)
 
 
 def edit_component(
-    component_id: int, body: dict[str, Any], *, version: int | None = None
+    component_id: int, body: ComponentUpdate, *, version: int | None = None
 ) -> Endpoint[Component]:
     """``PATCH /components/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
     return Endpoint(

@@ -56,7 +56,7 @@ def create(
 
     Returns the issue with its full checklist.
     """
-    return client.checklists.create(key, body.model_dump(by_alias=True, exclude_none=True))
+    return client.checklists.create(key, body)
 
 
 @mcp.tool(
@@ -74,7 +74,7 @@ def edit(
 
     Get ``item_id`` from ``checklists_get``. Returns the issue with its updated checklist.
     """
-    return client.checklists.edit(key, item_id, body.model_dump(by_alias=True, exclude_none=True))
+    return client.checklists.edit(key, item_id, body)
 
 
 @mcp.tool(

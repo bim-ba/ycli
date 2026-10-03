@@ -13,6 +13,7 @@ from ycli.yandex.forms.notifications.models import (
     Notification,
     NotificationAction,
     NotificationDetails,
+    NotificationFilter,
     NotificationStatus,
 )
 from ycli.yandex.forms.typedefs import NotificationIdArg, SurveyIdArg
@@ -58,18 +59,20 @@ def list_(
     """List integration runs, filtered (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return forms.notifications.list(
-        survey_id=survey_id or None,
-        hook_id=hook_id,
-        subscription_id=subscription_id,
-        answer_id=answer_id,
-        status=status,
-        created_since=created_since or None,
-        created_until=created_until or None,
-        finished_since=finished_since or None,
-        finished_until=finished_until or None,
-        visible=visible,
-        integration_type=integration_type or None,
-        ordering=ordering or None,
+        NotificationFilter(
+            survey_id=survey_id or None,
+            hook_id=hook_id,
+            subscription_id=subscription_id,
+            answer_id=answer_id,
+            status=status,
+            created_since=created_since or None,
+            created_until=created_until or None,
+            finished_since=finished_since or None,
+            finished_until=finished_until or None,
+            visible=visible,
+            integration_type=integration_type or None,
+            ordering=ordering or None,
+        ),
         limit=cap,
     )
 

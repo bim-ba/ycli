@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.answers import endpoints
 from ycli.yandex.forms.answers.models import (
     Answer,
     AnswerDetails,
+    AnswerExport,
     AnswerIntegration,
     AnswersResponse,
     Column,
@@ -148,7 +149,7 @@ class AnswersClient(Resource):
         answers = list(self._session.iterate(replace(paged, items_of=items_of), limit=limit))
         return AnswersResponse(columns=columns, answers=answers, next=None)
 
-    def export(self, survey_id: str, body: dict[str, Any]) -> OperationResult:
+    def export(self, survey_id: str, body: AnswerExport) -> OperationResult:
         """``POST /surveys/{id}/answers/export`` — start an export → ``202`` with its operation.
 
         Build ``body`` from an ``AnswerExport``; poll :meth:`export_results` (or
@@ -156,14 +157,16 @@ class AnswersClient(Resource):
 
         Args:
             survey_id: The form's id.
-            body: The dumped ``AnswerExport``: format, destination and filters.
+            body: The ``AnswerExport``: format, destination and filters.
 
         Returns:
             The export operation, with its ``id`` to poll.
 
         Examples:
+            >>> from ycli.yandex.forms.answers.models import AnswerExport
             >>> forms.answers.export(
-            ...     "686d0a1b2c3d4e5f00000030", {"format": "csv", "upload": "disk"}
+            ...     "686d0a1b2c3d4e5f00000030",
+            ...     AnswerExport.model_validate({"format": "csv", "upload": "disk"}),
             ... ).id
             'op-77'
         """

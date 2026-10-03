@@ -65,7 +65,7 @@ def create(
     Add integrations with ``subscriptions_create`` and conditions with
     ``conditions_hook_create``.
     """
-    return client.hooks.create(survey_id, body.model_dump(exclude_none=True))
+    return client.hooks.create(survey_id, body)
 
 
 @mcp.tool(
@@ -80,7 +80,7 @@ def modify(
     client: FormsClient = Depends(forms_client),
 ) -> Hook:
     """Rename an integration group or switch it on or off; only the fields set change."""
-    return client.hooks.modify(survey_id, hook_id, body.model_dump(exclude_none=True))
+    return client.hooks.modify(survey_id, hook_id, body)
 
 
 @mcp.tool(

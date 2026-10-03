@@ -7,21 +7,19 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.filters.models import Filter
+from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
 
 
 def get_filter(filter_id: str) -> Endpoint[Filter]:
     return Endpoint("GET", f"filters/{segment(filter_id)}", Filter)
 
 
-def create_filter(body: dict[str, Any]) -> Endpoint[Filter]:
+def create_filter(body: FilterCreate) -> Endpoint[Filter]:
     return Endpoint("POST", "filters/", Filter, json=body)
 
 
-def edit_filter(filter_id: str, body: dict[str, Any]) -> Endpoint[Filter]:
+def edit_filter(filter_id: str, body: FilterUpdate) -> Endpoint[Filter]:
     """``PATCH /filters/{id}``: no ``?version=`` lock; ``filter`` is replaced, not merged."""
     return Endpoint("PATCH", f"filters/{segment(filter_id)}", Filter, json=body)
 

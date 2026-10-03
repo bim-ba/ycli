@@ -5,12 +5,16 @@ Every method sends one declaration from :mod:`ycli.yandex.tracker.issues.endpoin
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.issues import endpoints
-from ycli.yandex.tracker.issues.models import Issue
+from ycli.yandex.tracker.issues.models import (
+    Issue,
+    IssueCreate,
+    IssueSearch,
+    IssueUpdate,
+    ScrollClear,
+)
 
 
 class IssuesClient(Resource):
@@ -41,7 +45,7 @@ class IssuesClient(Resource):
 
     def search(
         self,
-        body: dict[str, Any],
+        body: IssueSearch,
         *,
         limit: int | None = None,
         expand: str | None = None,
@@ -72,8 +76,10 @@ class IssuesClient(Resource):
             ValueError: If ``limit`` is below 1.
 
         Examples:
+            >>> from ycli.yandex.tracker.issues.models import IssueSearch
             >>> found = tracker.issues.search(
-            ...     {"filter": {"queue": "DE", "status": "open"}}, limit=500
+            ...     IssueSearch.model_validate({"filter": {"queue": "DE", "status": "open"}}),
+            ...     limit=500,
             ... )
             >>> found.root[0].key
             'DE-7'
@@ -94,7 +100,7 @@ class IssuesClient(Resource):
             paged = endpoints.search_issues(body, expand=expand, page_size=page_size)
         return ItemList[Issue](list(self._session.iterate(paged, limit=limit)))
 
-    def count(self, body: dict[str, Any]) -> int:
+    def count(self, body: IssueSearch) -> int:
         """``POST /issues/_count`` → the number of matching issues.
 
         Args:
@@ -107,7 +113,7 @@ class IssuesClient(Resource):
 
     def create(
         self,
-        body: dict[str, Any],
+        body: IssueCreate,
         *,
         notify: bool | None = None,
     ) -> Issue:
@@ -123,7 +129,7 @@ class IssuesClient(Resource):
         """
         return self._session.send(endpoints.create_issue(body, notify=notify))
 
-    def update(self, key: str, body: dict[str, Any]) -> Issue:
+    def update(self, key: str, body: IssueUpdate) -> Issue:
         """``PATCH /issues/{key}`` — update fields; returns the updated ``Issue``.
 
         Args:
@@ -207,7 +213,7 @@ class IssuesClient(Resource):
             )
         )
 
-    def scroll_clear(self, body: dict[str, str]) -> None:
+    def scroll_clear(self, body: ScrollClear) -> None:
         """Release a search scroll's server resources (``POST …/scroll/_clear``).
 
         Args:

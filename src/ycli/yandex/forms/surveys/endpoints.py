@@ -9,11 +9,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, flag, segment
 from ycli.yandex.core.pagination import OffsetLimitPagination
-from ycli.yandex.forms.surveys.models import Survey, SurveysResponse
+from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveysResponse, SurveyUpdate
 
 PAGE_SIZE = 100
 
@@ -49,11 +47,11 @@ def get_survey(survey_id: str) -> Endpoint[Survey]:
     return Endpoint("GET", f"surveys/{segment(survey_id)}", Survey)
 
 
-def create_survey(body: dict[str, Any]) -> Endpoint[Survey]:
+def create_survey(body: SurveyCreate) -> Endpoint[Survey]:
     return Endpoint("POST", "surveys", Survey, json=body)
 
 
-def modify_survey(survey_id: str, body: dict[str, Any]) -> Endpoint[Survey]:
+def modify_survey(survey_id: str, body: SurveyUpdate) -> Endpoint[Survey]:
     return Endpoint("PATCH", f"surveys/{segment(survey_id)}", Survey, json=body)
 
 

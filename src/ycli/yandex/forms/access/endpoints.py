@@ -12,10 +12,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.access.models import Permission
+from ycli.yandex.forms.access.models import AccessGrant, AccessRevoke, AccessUpdate, Permission
 from ycli.yandex.models import ItemList
 
 
@@ -27,17 +25,17 @@ def get_access(survey_id: str) -> Endpoint[ItemList[Permission]]:
     return Endpoint("GET", _access(survey_id), ItemList[Permission])
 
 
-def set_access(survey_id: str, body: dict[str, Any]) -> Endpoint[ItemList[Permission]]:
+def set_access(survey_id: str, body: AccessUpdate) -> Endpoint[ItemList[Permission]]:
     return Endpoint(
         "POST", _access(survey_id), ItemList[Permission], json=body, effect="idempotent_write"
     )
 
 
-def grant_access(survey_id: str, body: dict[str, Any]) -> Endpoint[ItemList[Permission]]:
+def grant_access(survey_id: str, body: AccessGrant) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/grant"
     return Endpoint("POST", path, ItemList[Permission], json=body, effect="idempotent_write")
 
 
-def revoke_access(survey_id: str, body: dict[str, Any]) -> Endpoint[ItemList[Permission]]:
+def revoke_access(survey_id: str, body: AccessRevoke) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/revoke"
     return Endpoint("POST", path, ItemList[Permission], json=body, effect="destructive")

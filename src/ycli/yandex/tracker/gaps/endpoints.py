@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged
 from ycli.yandex.core.pagination import PageNumberPagination
-from ycli.yandex.tracker.gaps.models import GapCreated, GapSearchPage, UserGaps
+from ycli.yandex.tracker.gaps.models import GapCreated, GapsCreate, GapSearchPage, UserGaps
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 PAGE_SIZE = 50
 
 
-def create_gaps(body: dict[str, Any]) -> Endpoint[GapCreated]:
+def create_gaps(body: GapsCreate) -> Endpoint[GapCreated]:
     return Endpoint("POST", "gaps", GapCreated, json=body)
 
 

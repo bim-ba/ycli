@@ -7,11 +7,14 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.localfields.models import LocalField
+from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.models import FieldCreate
 
 
 def _local_fields(queue_id: str) -> str:
@@ -26,11 +29,11 @@ def get_local_field(queue_id: str, field_key: str) -> Endpoint[LocalField]:
     return Endpoint("GET", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField)
 
 
-def create_local_field(queue_id: str, body: dict[str, Any]) -> Endpoint[LocalField]:
+def create_local_field(queue_id: str, body: FieldCreate) -> Endpoint[LocalField]:
     return Endpoint("POST", _local_fields(queue_id), LocalField, json=body)
 
 
-def edit_local_field(queue_id: str, field_key: str, body: dict[str, Any]) -> Endpoint[LocalField]:
+def edit_local_field(queue_id: str, field_key: str, body: LocalFieldUpdate) -> Endpoint[LocalField]:
     """``PATCH …/localFields/{key}`` — unlike global fields, no ``?version=`` lock."""
     return Endpoint(
         "PATCH", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField, json=body

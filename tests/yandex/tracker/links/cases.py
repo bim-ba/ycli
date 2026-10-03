@@ -1,6 +1,7 @@
 """Contract cases for Tracker issue ``/links`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.links.models import LinkCreate
 
 CASES = [
     Case(
@@ -17,7 +18,10 @@ CASES = [
     ),
     Case(
         "tracker.links.add",
-        args=("DE-42", {"relationship": "is dependent by", "issue": "OPS-9"}),
+        args=(
+            "DE-42",
+            LinkCreate.model_validate({"relationship": "is dependent by", "issue": "OPS-9"}),
+        ),
         cli=["tracker", "links", "add", "DE-42", "is dependent by", "OPS-9"],
         mcp=(
             "tracker_links_add",

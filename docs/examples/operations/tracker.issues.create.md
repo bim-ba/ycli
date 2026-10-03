@@ -27,5 +27,5 @@
 === "SDK"
 
     ```python
-    tracker.issues.create({"queue": "DE", "summary": "New", "type": {"key": "bug"}, "tags": ["ui"]})
+    tracker.issues.create(IssueCreate(queue="DE", summary="New", type={"key": "bug"}, tags=["ui"]))
     ```

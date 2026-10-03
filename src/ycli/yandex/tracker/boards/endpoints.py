@@ -9,12 +9,10 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.boards.models import Board
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 
 PAGE_SIZE = 100
 
@@ -36,12 +34,12 @@ def get_board(board_id: int) -> Endpoint[Board]:
     return Endpoint("GET", f"boards/{segment(board_id)}", Board)
 
 
-def create_board(body: dict[str, Any]) -> Endpoint[Board]:
+def create_board(body: BoardCreate) -> Endpoint[Board]:
     """``POST /liveBoards/``: the older ``POST /boards/`` silently ignores the body."""
     return Endpoint("POST", "liveBoards/", Board, json=body)
 
 
-def edit_board(board_id: int, body: dict[str, Any]) -> Endpoint[Board]:
+def edit_board(board_id: int, body: BoardUpdate) -> Endpoint[Board]:
     return Endpoint("PATCH", f"boards/{segment(board_id)}", Board, json=body)
 
 

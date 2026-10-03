@@ -1265,7 +1265,7 @@ permissions template, the ``backlog_available``/``sprints_available`` flags and 
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``boards.create`` (``POST /liveBoards/``). ``name`` is the only required field; every other field is omitted from the JSON body when left as ``None`` (see ``model_dump(by_alias=True, exclude_none=True)``). |
+| `body` | object | yes | Typed request body for ``boards.create`` (``POST /liveBoards/``). ``name`` is the only required field; every other field is omitted from the JSON body when left as ``None`` (see ``model_dump(exclude_none=True)``). |
 
 ## `tracker_boards_update`
 
@@ -2091,22 +2091,16 @@ acknowledgement on success.
 
 Change an entity's access rules; returns the resulting permission set.
 
-``body`` is the raw API payload; its ``acl`` object accepts only ``grant`` / ``revoke``
+The ``acl`` object of ``body`` accepts only ``grant`` / ``revoke``
 actions, each mapping an access level (``READ``/``WRITE``/``GRANT``) to users/groups/roles,
 e.g. ``{"acl": {"grant": {"READ": {"users": ["8000000000000002"]}}}}``. Read the current
 ACL first with ``entities_permissions_get``.
-
-NOTE: intentionally ``dict`` (not a typed model) — the wire shape nests READ/WRITE/GRANT
-under ``grant``/``revoke`` verbs (see ``references/yandex-360/tracker/ru/api-ref/entities/
-patch-access.md``); the existing ``ExtendedPermissionsUpdate``/``AclInput`` models describe
-a different (direct READ/WRITE/GRANT) shape and would misrepresent this endpoint's real
-body. Allowlisted in ``tests/test_architecture.py`` pending a correctly shaped model.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `body` | object | yes | Raw API payload: an ``acl`` object with ``grant`` / ``revoke`` verbs. |
+| `body` | object | yes | Typed request body for ``PATCH …/extendedPermissions``: rights to grant and to revoke. |
 
 ## `tracker_entities_set_direct_permissions`
 

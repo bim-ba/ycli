@@ -161,8 +161,7 @@ class AttachmentsClient(Resource):
             'b.png'
         """
         body = AttachmentCreate(upload_sessions=list(session_ids))
-        payload = body.model_dump(by_alias=True, exclude_none=True)
-        response = self._session.send(endpoints.attach_files(page_id, payload))
+        response = self._session.send(endpoints.attach_files(page_id, body))
         return ItemList[AttachedFile](response.results)
 
     def upload(

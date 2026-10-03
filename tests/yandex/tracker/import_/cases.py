@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.import_.models import ImportComment, ImportLink, ImportTask, ImportWorklog
 
 UPLOAD = Path(__file__).with_name("pic.png")
 
@@ -10,15 +11,17 @@ CASES = [
     Case(
         "tracker.import_.task",
         args=(
-            {
-                "queue": "TEST",
-                "summary": "Old task",
-                "createdAt": "2017-08-29T12:34:41.740+0000",
-                "createdBy": "11",
-                "key": "TEST-41",
-                "description": "Imported from Jira",
-                "assignee": "bob",
-            },
+            ImportTask.model_validate(
+                {
+                    "queue": "TEST",
+                    "summary": "Old task",
+                    "createdAt": "2017-08-29T12:34:41.740+0000",
+                    "createdBy": "11",
+                    "key": "TEST-41",
+                    "description": "Imported from Jira",
+                    "assignee": "bob",
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -76,12 +79,14 @@ CASES = [
     Case(
         "tracker.import_.task",
         args=(
-            {
-                "queue": "OPS",
-                "summary": "Bare import",
-                "createdAt": "2018-01-02T03:04:05.000+0000",
-                "createdBy": "12",
-            },
+            ImportTask.model_validate(
+                {
+                    "queue": "OPS",
+                    "summary": "Bare import",
+                    "createdAt": "2018-01-02T03:04:05.000+0000",
+                    "createdBy": "12",
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -117,7 +122,13 @@ CASES = [
         "tracker.import_.comment",
         args=(
             "TEST-2",
-            {"text": "Old comment", "createdAt": "2019-02-03T04:05:06.000+0000", "createdBy": "13"},
+            ImportComment.model_validate(
+                {
+                    "text": "Old comment",
+                    "createdAt": "2019-02-03T04:05:06.000+0000",
+                    "createdBy": "13",
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -161,12 +172,14 @@ CASES = [
         "tracker.import_.link",
         args=(
             "TEST-3",
-            {
-                "relationship": "depends on",
-                "issue": "TEST-4",
-                "createdAt": "2020-03-04T05:06:07.000+0000",
-                "createdBy": "14",
-            },
+            ImportLink.model_validate(
+                {
+                    "relationship": "depends on",
+                    "issue": "TEST-4",
+                    "createdAt": "2020-03-04T05:06:07.000+0000",
+                    "createdBy": "14",
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -215,13 +228,15 @@ CASES = [
         "tracker.import_.worklog",
         args=(
             "TEST-5",
-            {
-                "duration": "PT2H",
-                "createdAt": "2021-04-05T06:07:08.000+0000",
-                "createdBy": "15",
-                "start": "2021-04-05T09:00:00.000+0000",
-                "comment": "Backfilled",
-            },
+            ImportWorklog.model_validate(
+                {
+                    "duration": "PT2H",
+                    "createdAt": "2021-04-05T06:07:08.000+0000",
+                    "createdBy": "15",
+                    "start": "2021-04-05T09:00:00.000+0000",
+                    "comment": "Backfilled",
+                }
+            ),
         ),
         cli=[
             "tracker",

@@ -9,12 +9,15 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.triggers.models import Trigger, WebhookLogEntry
+from ycli.yandex.tracker.triggers.models import (
+    Trigger,
+    TriggerCreate,
+    TriggerUpdate,
+    WebhookLogEntry,
+)
 
 PAGE_SIZE = 50
 
@@ -47,12 +50,12 @@ def get_trigger(queue_id: str, trigger_id: int) -> Endpoint[Trigger]:
     return Endpoint("GET", _trigger_path(queue_id, trigger_id), Trigger)
 
 
-def create_trigger(queue_id: str, body: dict[str, Any]) -> Endpoint[Trigger]:
+def create_trigger(queue_id: str, body: TriggerCreate) -> Endpoint[Trigger]:
     return Endpoint("POST", f"queues/{segment(queue_id)}/triggers", Trigger, json=body)
 
 
 def edit_trigger(
-    queue_id: str, trigger_id: int, body: dict[str, Any], *, version: int | None
+    queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None
 ) -> Endpoint[Trigger]:
     path = _trigger_path(queue_id, trigger_id)
     return Endpoint("PATCH", path, Trigger, json=body, params={"version": version})

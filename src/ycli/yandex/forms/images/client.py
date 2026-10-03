@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.images import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.images.models import Image
+    from ycli.yandex.forms.images.models import Image, ImageClone
 
 
 class ImagesClient(Resource):
@@ -35,7 +35,7 @@ class ImagesClient(Resource):
         """
         return self._session.send(endpoints.upload_image(survey_id, filename=filename, data=data))
 
-    def clone(self, survey_id: str, body: dict[str, Any]) -> Image:
+    def clone(self, survey_id: str, body: ImageClone) -> Image:
         """``POST /surveys/{id}/images/clone`` — copy an existing image into the form.
 
         Build ``body`` from an ``ImageClone``: the source image's ``id`` (or its ``links``) and
@@ -43,13 +43,17 @@ class ImagesClient(Resource):
 
         Args:
             survey_id: The form's id.
-            body: The dumped ``ImageClone``.
+            body: The ``ImageClone``.
 
         Returns:
             The copied image, with its new ``id``.
 
         Examples:
-            >>> forms.images.clone("686d0a1b2c3d4e5f00000051", {"id": 7, "name": "copy.png"}).id
+            >>> from ycli.yandex.forms.images.models import ImageClone
+            >>> forms.images.clone(
+            ...     "686d0a1b2c3d4e5f00000051",
+            ...     ImageClone.model_validate({"id": 7, "name": "copy.png"}),
+            ... ).id
             8
         """
         return self._session.send(endpoints.clone_image(survey_id, body))

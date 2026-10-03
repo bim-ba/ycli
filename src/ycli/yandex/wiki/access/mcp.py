@@ -47,7 +47,7 @@ def create(
     Read the current accesses with ``pages_get_by_id`` and
     ``fields="access_policy,access_lists"``.
     """
-    return client.access.create(page_id=page_id, body=body.model_dump(exclude_none=True))
+    return client.access.create(page_id=page_id, body=body)
 
 
 @mcp.tool(
@@ -72,7 +72,7 @@ def update(
     return client.access.update(
         page_id=page_id,
         access_id=access_id,
-        body=body.model_dump(exclude_none=True),
+        body=body,
         prevent_selflock=prevent_selflock,
     )
 

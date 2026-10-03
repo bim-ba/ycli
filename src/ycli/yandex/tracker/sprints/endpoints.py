@@ -11,11 +11,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.sprints.models import Sprint
+from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintUpdate
 
 
 def list_sprints(board_id: int) -> Endpoint[ItemList[Sprint]]:
@@ -26,11 +24,11 @@ def get_sprint(sprint_id: int) -> Endpoint[Sprint]:
     return Endpoint("GET", f"sprints/{segment(sprint_id)}", Sprint)
 
 
-def create_sprint(body: dict[str, Any]) -> Endpoint[Sprint]:
+def create_sprint(body: SprintCreate) -> Endpoint[Sprint]:
     return Endpoint("POST", "sprints", Sprint, json=body)
 
 
-def edit_sprint(sprint_id: int, body: dict[str, Any], version: int | None) -> Endpoint[Sprint]:
+def edit_sprint(sprint_id: int, body: SprintUpdate, version: int | None) -> Endpoint[Sprint]:
     path = f"sprints/{segment(sprint_id)}"
     return Endpoint("PATCH", path, Sprint, json=body, params={"version": version})
 

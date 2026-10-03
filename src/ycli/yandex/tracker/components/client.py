@@ -50,8 +50,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.create(ComponentCreate(name="UI", queue="WEB")).id
             111175
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_component(dumped))
+        return self._session.send(endpoints.create_component(body))
 
     def edit(
         self, component_id: int, body: ComponentUpdate, *, version: int | None = None
@@ -74,8 +73,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.edit(111175, ComponentUpdate(name="Web UI"), version=4).version
             5
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_component(component_id, dumped, version=version))
+        return self._session.send(endpoints.edit_component(component_id, body, version=version))
 
     def list_for_queue(self, queue_id: str, *, fields: str | None = None) -> ItemList[Component]:
         """``GET /queues/{queue_id}/components`` → the components of one queue.

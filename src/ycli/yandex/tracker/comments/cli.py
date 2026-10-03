@@ -79,7 +79,7 @@ def add(
     tracker: TrackerClient,
 ) -> Comment:
     """Add a comment to issue KEY."""
-    body = CommentCreate(text=text).model_dump(by_alias=True, exclude_none=True)
+    body = CommentCreate(text=text)
     return tracker.comments.add(key, body=body)
 
 
@@ -92,7 +92,7 @@ def update(
     tracker: TrackerClient,
 ) -> Comment:
     """Edit comment COMMENT_ID on issue KEY."""
-    body = CommentUpdate(text=text).model_dump(exclude_none=True)
+    body = CommentUpdate(text=text)
     return tracker.comments.edit(key, comment_id, body=body)
 
 

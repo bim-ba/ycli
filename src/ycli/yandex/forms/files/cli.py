@@ -13,7 +13,8 @@ import typer
 
 from ycli.cli.output import BinaryResult
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.forms.files.models import FileIn
+from ycli.yandex.forms.models import FileOut
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )

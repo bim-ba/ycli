@@ -40,8 +40,7 @@ class GapsClient(Resource):
             >>> tracker.gaps.create(GapsCreate(gaps=[gap])).gaps[0].id
             '68340a1f2b4c1a3d5e7f9011'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True, mode="json")
-        return self._session.send(endpoints.create_gaps(dumped))
+        return self._session.send(endpoints.create_gaps(body))
 
     def search(
         self,

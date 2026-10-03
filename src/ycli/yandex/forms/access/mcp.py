@@ -43,7 +43,7 @@ def set_(
     client: FormsClient = Depends(forms_client),
 ) -> ItemList[Permission]:
     """Set the access level of one action (change or submit); returns every permission."""
-    return client.access.set(survey_id, body.model_dump())
+    return client.access.set(survey_id, body)
 
 
 @mcp.tool(
@@ -60,7 +60,7 @@ def grant(
 
     Granting someone who already has the action changes nothing.
     """
-    return client.access.grant(survey_id, body.model_dump(exclude_none=True))
+    return client.access.grant(survey_id, body)
 
 
 @mcp.tool(
@@ -74,4 +74,4 @@ def revoke(
     client: FormsClient = Depends(forms_client),
 ) -> ItemList[Permission]:
     """Stop a user or a group performing an action on a form; returns every permission."""
-    return client.access.revoke(survey_id, body.model_dump(exclude_none=True))
+    return client.access.revoke(survey_id, body)

@@ -47,8 +47,7 @@ class IssueTypesClient(Resource):
             ... ).key
             'client'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_issue_type(dumped))
+        return self._session.send(endpoints.create_issue_type(body))
 
     def edit(
         self, issue_type_id: str, body: IssueTypeUpdate, *, version: int | None = None
@@ -76,5 +75,4 @@ class IssueTypesClient(Resource):
             ... ).key
             'client'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.edit_issue_type(issue_type_id, dumped, version=version))
+        return self._session.send(endpoints.edit_issue_type(issue_type_id, body, version=version))

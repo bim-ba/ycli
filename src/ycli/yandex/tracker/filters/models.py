@@ -94,9 +94,7 @@ class FilterCreate(APIModel):
     not both.
 
     Examples:
-        >>> FilterCreate(name="My open", filter={"status": "open"}).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
+        >>> FilterCreate(name="My open", filter={"status": "open"}).model_dump(exclude_none=True)
         {'name': 'My open', 'filter': {'status': 'open'}}
     """
 
@@ -116,7 +114,7 @@ class FilterUpdate(APIModel):
     than merging it, so pass every condition you want to keep.
 
     Examples:
-        >>> FilterUpdate(name="Renamed").model_dump(by_alias=True, exclude_none=True)
+        >>> FilterUpdate(name="Renamed").model_dump(exclude_none=True)
         {'name': 'Renamed'}
     """
 

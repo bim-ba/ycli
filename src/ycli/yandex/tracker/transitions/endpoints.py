@@ -7,11 +7,9 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.transitions.models import Transition
+from ycli.yandex.tracker.transitions.models import Transition, TransitionExecute
 
 
 def list_transitions(key: str) -> Endpoint[ItemList[Transition]]:
@@ -19,7 +17,7 @@ def list_transitions(key: str) -> Endpoint[ItemList[Transition]]:
 
 
 def execute_transition(
-    key: str, transition_id: str, body: dict[str, Any]
+    key: str, transition_id: str, body: TransitionExecute
 ) -> Endpoint[ItemList[Transition]]:
     path = f"issues/{segment(key)}/transitions/{segment(transition_id)}/_execute"
     return Endpoint("POST", path, ItemList[Transition], json=body)

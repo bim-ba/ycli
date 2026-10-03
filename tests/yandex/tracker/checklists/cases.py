@@ -1,6 +1,7 @@
 """Contract cases for Tracker issue ``/checklistItems`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.checklists.models import ChecklistItemCreate, ChecklistItemUpdate
 
 CASES = [
     Case(
@@ -19,12 +20,14 @@ CASES = [
         "tracker.checklists.create",
         args=(
             "DE-32",
-            {
-                "text": "step 1",
-                "checked": True,
-                "assignee": "sava",
-                "deadline": {"date": "2021-05-09T00:00:00.000+0000", "deadlineType": "date"},
-            },
+            ChecklistItemCreate.model_validate(
+                {
+                    "text": "step 1",
+                    "checked": True,
+                    "assignee": "sava",
+                    "deadline": {"date": "2021-05-09T00:00:00.000+0000", "deadlineType": "date"},
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -75,7 +78,9 @@ CASES = [
         "tracker.checklists.create",
         args=(
             "DE-33",
-            {"text": "Q4 goal", "deadline": {"date": "2026-10-01", "deadlineType": "quarter"}},
+            ChecklistItemCreate.model_validate(
+                {"text": "Q4 goal", "deadline": {"date": "2026-10-01", "deadlineType": "quarter"}}
+            ),
         ),
         cli=None,
         mcp=(
@@ -107,12 +112,14 @@ CASES = [
         args=(
             "DE-34",
             "5f4",
-            {
-                "text": "step 2",
-                "checked": False,
-                "assignee": "petr",
-                "deadline": {"date": "2022-01-02T00:00:00.000+0300", "deadlineType": "date"},
-            },
+            ChecklistItemUpdate.model_validate(
+                {
+                    "text": "step 2",
+                    "checked": False,
+                    "assignee": "petr",
+                    "deadline": {"date": "2022-01-02T00:00:00.000+0300", "deadlineType": "date"},
+                }
+            ),
         ),
         cli=[
             "tracker",
@@ -163,7 +170,7 @@ CASES = [
     # Only the supplied fields are sent.
     Case(
         "tracker.checklists.edit",
-        args=("DE-35", "5f5", {"checked": True}),
+        args=("DE-35", "5f5", ChecklistItemUpdate.model_validate({"checked": True})),
         cli=["tracker", "checklists", "update", "DE-35", "5f5", "--checked"],
         mcp=(
             "tracker_checklists_update",

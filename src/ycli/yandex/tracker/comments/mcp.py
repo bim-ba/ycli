@@ -76,7 +76,7 @@ def add(
     key: IssueKey, body: CommentCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Comment:
     """Add a comment to a Tracker issue; returns the created comment."""
-    return client.comments.add(key, body.model_dump(by_alias=True, exclude_none=True))
+    return client.comments.add(key, body)
 
 
 @mcp.tool(
@@ -94,7 +94,7 @@ def edit(
 
     Get ``comment_id`` from ``comments_list``. Returns the updated comment.
     """
-    return client.comments.edit(key, comment_id, body.model_dump(exclude_none=True))
+    return client.comments.edit(key, comment_id, body)
 
 
 @mcp.tool(

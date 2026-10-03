@@ -83,7 +83,7 @@ def update(
     """Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value."""
     body = BulkUpdate(
         issues=_issues(issue, query), values=parse_fields(field), notify=notify or None
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return _finish(tracker, tracker.bulk.update(body=body, notify=notify or None), wait)
 
 
@@ -112,7 +112,7 @@ def move(
         moveAllFields=move_all_fields or None,
         initialStatus=initial_status or None,
         notify=notify or None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return _finish(tracker, tracker.bulk.move(body=body, notify=notify or None), wait)
 
 
@@ -135,7 +135,7 @@ def transition(
         issues=_issues(issue, query),
         values=parse_fields(field) or None,
         notify=notify or None,
-    ).model_dump(by_alias=True, exclude_none=True)
+    )
     return _finish(tracker, tracker.bulk.transition(body=body, notify=notify or None), wait)
 
 

@@ -79,3 +79,42 @@ class WorklogUpdate(APIModel):
         default=None, description="New time spent as an ISO-8601 duration, e.g. PT30M."
     )
     comment: str | None = Field(default=None, description="New note for the time-tracking report.")
+
+
+class WorklogPeriod(APIModel):
+    """A range of creation times (``createdAt`` of a worklog search).
+
+    Examples:
+        >>> period = WorklogPeriod.model_validate({"from": "2026-01-01T00:00:00"})
+        >>> period.model_dump(exclude_none=True)
+        {'from': '2026-01-01T00:00:00'}
+    """
+
+    start: str | None = Field(
+        default=None,
+        alias="from",
+        description="Start of the range, ``YYYY-MM-DDThh:mm:ss``.",
+    )
+    end: str | None = Field(
+        default=None,
+        alias="to",
+        description="End of the range, ``YYYY-MM-DDThh:mm:ss``.",
+    )
+
+
+class WorklogSearch(APIModel):
+    """Typed request body for ``POST /worklog/_search``: by author, by creation time, or both.
+
+    Examples:
+        >>> WorklogSearch.model_validate({"createdBy": "ann"}).model_dump(exclude_none=True)
+        {'createdBy': 'ann'}
+    """
+
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="Login or id of the author of the records.",
+    )
+    created_at: WorklogPeriod | None = Field(
+        default=None, alias="createdAt", description="When the records were created."
+    )

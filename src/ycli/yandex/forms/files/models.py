@@ -15,32 +15,6 @@ from pydantic import Field
 from ycli.yandex.models import APIModel
 
 
-class FileOut(APIModel):
-    """A file stored for form filling (``upload`` result and each ``verify`` item).
-
-    A ``File``-type form field is filled by first uploading the file here; the returned
-    ``path`` / ``url`` then reference it in a form response. ``check_status`` reports the
-    antivirus/upload scan.
-
-    Examples:
-        >>> FileOut.model_validate(
-        ...     {"name": "cv.pdf", "path": "p", "size": 12, "url": "u", "check_status": "ready"}
-        ... ).check_status
-        'ready'
-    """
-
-    name: str | None = Field(default=None, description="File name.")
-    path: str | None = Field(
-        default=None, description="File download path (pass to download / verify / delete)."
-    )
-    size: int | None = Field(default=None, description="File size in bytes.")
-    url: str | None = Field(default=None, description="File download URL.")
-    check_status: str | None = Field(
-        default=None,
-        description="Virus/upload scan status — one of: check, ready, infected, error, deleted.",
-    )
-
-
 class FileIn(APIModel):
     """A stored-file reference by ``path`` / ``url`` — the ``verify`` / ``delete`` request item.
 

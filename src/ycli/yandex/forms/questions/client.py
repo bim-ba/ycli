@@ -74,8 +74,7 @@ class QuestionsClient(Resource):
             >>> forms.questions.create("686d0a1b2c3d4e5f00000010", StringQuestion(label="Name")).id
             17
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.create_question(survey_id, dumped))
+        return self._session.send(endpoints.create_question(survey_id, body))
 
     def modify(self, survey_id: str, question_id: str, body: QuestionCreate) -> Question:
         """``PATCH /surveys/{id}/questions/{question_id}`` — replace a question's settings.
@@ -97,8 +96,7 @@ class QuestionsClient(Resource):
             ... ).label
             'Name'
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.modify_question(survey_id, question_id, dumped))
+        return self._session.send(endpoints.modify_question(survey_id, question_id, body))
 
     def delete(self, survey_id: str, question_id: str, *, force: bool = False) -> Ack:
         """``DELETE /surveys/{id}/questions/{question_id}`` → an :class:`Ack`.
@@ -145,5 +143,4 @@ class QuestionsClient(Resource):
             ... ).id
             20
         """
-        dumped = body.model_dump(by_alias=True, exclude_none=True)
-        return self._session.send(endpoints.move_question(survey_id, question_id, dumped))
+        return self._session.send(endpoints.move_question(survey_id, question_id, body))

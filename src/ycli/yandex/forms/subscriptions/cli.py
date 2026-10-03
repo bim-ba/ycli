@@ -12,7 +12,7 @@ from typing import Annotated
 import typer
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.files.models import FileOut
+from ycli.yandex.forms.models import FileOut
 from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionAdapter
 from ycli.yandex.forms.typedefs import HookIdArg, SurveyIdArg
 from ycli.yandex.models import Ack, ItemList

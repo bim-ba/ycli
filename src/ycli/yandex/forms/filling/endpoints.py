@@ -7,10 +7,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
-
 from ycli.yandex.core.endpoint import Endpoint, flag, segment
-from ycli.yandex.forms.filling.models import FillableForm, SubmitResult, Suggestion
+from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.models import ItemList
 
 
@@ -19,7 +17,7 @@ def get_form(survey: str, *, key: str | None) -> Endpoint[FillableForm]:
 
 
 def submit_form(
-    survey: str, body: dict[str, Any], *, dry_run: bool, key: str | None
+    survey: str, body: SubmitBody, *, dry_run: bool, key: str | None
 ) -> Endpoint[SubmitResult]:
     params = {"dry_run": flag(dry_run), "key": key}
     return Endpoint(

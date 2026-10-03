@@ -40,9 +40,7 @@ def create(
     tracker: TrackerClient,
 ) -> RemoteLink:
     """Add an external link to issue KEY (POST /issues/{key}/remotelinks)."""
-    body = RemoteLinkCreate(relationship=relationship, key=object_key, origin=origin).model_dump(
-        exclude_none=True
-    )
+    body = RemoteLinkCreate(relationship=relationship, key=object_key, origin=origin)
     return tracker.remotelinks.create(key, body=body, backlink="true" if backlink else "false")
 
 

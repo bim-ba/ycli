@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.comments import endpoints
-from ycli.yandex.tracker.comments.models import Comment
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.models import CommentCreate
 
 
 class CommentsClient(Resource):
@@ -62,7 +65,7 @@ class CommentsClient(Resource):
         """
         return self._session.send(endpoints.get_comment(key, comment_id, expand=expand))
 
-    def add(self, key: str, body: dict[str, Any]) -> Comment:
+    def add(self, key: str, body: CommentCreate) -> Comment:
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.
 
         Args:
@@ -73,12 +76,15 @@ class CommentsClient(Resource):
             The created comment.
 
         Examples:
-            >>> tracker.comments.add("DE-14", {"text": "Готово ✅"}).id
+            >>> from ycli.yandex.tracker.models import CommentCreate
+            >>> tracker.comments.add(
+            ...     "DE-14", CommentCreate.model_validate({"text": "Готово ✅"})
+            ... ).id
             141
         """
         return self._session.send(endpoints.add_comment(key, body))
 
-    def edit(self, key: str, comment_id: int | str, body: dict[str, Any]) -> Comment:
+    def edit(self, key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
         """``PATCH /issues/{key}/comments/{comment_id}`` — edit a comment. Returns it.
 
         Args:
@@ -90,7 +96,10 @@ class CommentsClient(Resource):
             The updated comment.
 
         Examples:
-            >>> tracker.comments.edit("DE-16", "161", {"text": "fixed typo"}).text
+            >>> from ycli.yandex.tracker.comments.models import CommentUpdate
+            >>> tracker.comments.edit(
+            ...     "DE-16", "161", CommentUpdate.model_validate({"text": "fixed typo"})
+            ... ).text
             'fixed typo'
         """
         return self._session.send(endpoints.edit_comment(key, comment_id, body))

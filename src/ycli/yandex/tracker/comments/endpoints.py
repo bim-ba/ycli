@@ -9,12 +9,15 @@ Examples:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.comments.models import Comment
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
+
+if TYPE_CHECKING:
+    from ycli.yandex.tracker.models import CommentCreate
 
 PAGE_SIZE = 100
 
@@ -44,11 +47,11 @@ def get_comment(key: str, comment_id: int | str, *, expand: str | None = None) -
     return Endpoint("GET", path, Comment, params={"expand": expand})
 
 
-def add_comment(key: str, body: dict[str, Any]) -> Endpoint[Comment]:
+def add_comment(key: str, body: CommentCreate) -> Endpoint[Comment]:
     return Endpoint("POST", f"issues/{segment(key)}/comments/", Comment, json=body)
 
 
-def edit_comment(key: str, comment_id: int | str, body: dict[str, Any]) -> Endpoint[Comment]:
+def edit_comment(key: str, comment_id: int | str, body: CommentUpdate) -> Endpoint[Comment]:
     path = f"issues/{segment(key)}/comments/{segment(comment_id)}"
     return Endpoint("PATCH", path, Comment, json=body)
 

@@ -81,14 +81,16 @@ def test_two_arguments_with_one_value_are_refused():
     assert inspect.signature(move).parameters  # the stub is only ever inspected
 
 
-def test_a_typed_body_comes_from_the_mcp_tool_and_a_free_form_one_says_so():
+def test_a_typed_body_comes_from_the_request_model_and_a_free_form_one_says_so():
     create = _operations("tracker")[("POST", "/issues")]["requestBody"]
     assert create["x-ycli-body"] == "typed"
     reference = create["content"]["application/json"]["schema"]["$ref"]
     model = DOCUMENTS["tracker"]["components"]["schemas"][reference.rsplit("/", 1)[1]]
     assert "summary" in model["properties"]
     update = _operations("wiki")[("POST", "/pages/{page_id}")]["requestBody"]
-    assert update == {"content": {"application/json": {}}, "x-ycli-body": "untyped"}
+    assert update["x-ycli-body"] == "typed"
+    clear = _operations("tracker")[("POST", "/system/search/scroll/_clear")]["requestBody"]
+    assert clear == {"content": {"application/json": {}}, "x-ycli-body": "untyped"}
 
 
 def test_listings_say_how_they_page_and_keep_the_pager_parameters():

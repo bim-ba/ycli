@@ -9,10 +9,10 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.files.models import FileOut
+from ycli.yandex.forms.models import FileOut
 from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionAdapter
 from ycli.yandex.models import ItemList
 
@@ -38,15 +38,13 @@ def get_subscription(survey_id: str, hook_id: int, subscription_id: int) -> Endp
     return Endpoint("GET", path, parser=_subscription)
 
 
-def create_subscription(
-    survey_id: str, hook_id: int, body: dict[str, Any]
-) -> Endpoint[Subscription]:
+def create_subscription(survey_id: str, hook_id: int, body: Subscription) -> Endpoint[Subscription]:
     path = _subscriptions(survey_id, hook_id)
     return Endpoint("POST", path, json=body, parser=_subscription)
 
 
 def modify_subscription(
-    survey_id: str, hook_id: int, subscription_id: int, body: dict[str, Any]
+    survey_id: str, hook_id: int, subscription_id: int, body: Subscription
 ) -> Endpoint[Subscription]:
     path = f"{_subscriptions(survey_id, hook_id)}/{segment(subscription_id)}"
     return Endpoint("PATCH", path, json=body, parser=_subscription)

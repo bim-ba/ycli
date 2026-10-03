@@ -29,7 +29,7 @@ class IssueTypeCreate(APIModel):
 
     Examples:
         >>> IssueTypeCreate(key="client", name=LocalizedName(ru="Клиент")).model_dump(
-        ...     by_alias=True, exclude_none=True
+        ...     exclude_none=True
         ... )
         {'key': 'client', 'name': {'ru': 'Клиент'}}
     """
@@ -44,9 +44,7 @@ class IssueTypeUpdate(APIModel):
     Only the fields that are set are sent, so omitted fields stay unchanged.
 
     Examples:
-        >>> IssueTypeUpdate(name=LocalizedName(ru="Покупатель")).model_dump(
-        ...     by_alias=True, exclude_none=True
-        ... )
+        >>> IssueTypeUpdate(name=LocalizedName(ru="Покупатель")).model_dump(exclude_none=True)
         {'name': {'ru': 'Покупатель'}}
     """
 

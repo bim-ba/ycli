@@ -1,6 +1,8 @@
 """Contract cases for Tracker issue ``/comments`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from ycli.yandex.tracker.comments.models import CommentUpdate
+from ycli.yandex.tracker.models import CommentCreate
 
 CASES = [
     # The default cap (500) asks for full 100-row pages and walks id=<last comment id>.
@@ -53,7 +55,7 @@ CASES = [
     ),
     Case(
         "tracker.comments.add",
-        args=("DE-14", {"text": "Готово ✅"}),
+        args=("DE-14", CommentCreate.model_validate({"text": "Готово ✅"})),
         cli=["tracker", "comments", "add", "DE-14", "--text", "Готово ✅"],
         mcp=("tracker_comments_add", {"key": "DE-14", "body": {"text": "Готово ✅"}}),
         exchanges=[
@@ -68,12 +70,14 @@ CASES = [
         "tracker.comments.add",
         args=(
             "DE-15",
-            {
-                "text": "Please review",
-                "summonees": ["bob"],
-                "attachmentIds": ["att-1"],
-                "maillistSummonees": ["team@example.com"],
-            },
+            CommentCreate.model_validate(
+                {
+                    "text": "Please review",
+                    "summonees": ["bob"],
+                    "attachmentIds": ["att-1"],
+                    "maillistSummonees": ["team@example.com"],
+                }
+            ),
         ),
         cli=None,
         mcp=(
@@ -106,7 +110,7 @@ CASES = [
     ),
     Case(
         "tracker.comments.edit",
-        args=("DE-16", "161", {"text": "fixed typo"}),
+        args=("DE-16", "161", CommentUpdate.model_validate({"text": "fixed typo"})),
         cli=["tracker", "comments", "update", "DE-16", "161", "--text", "fixed typo"],
         mcp=(
             "tracker_comments_update",

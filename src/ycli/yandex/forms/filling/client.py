@@ -57,9 +57,7 @@ class FillingClient(Resource):
             >>> forms.filling.submit("686d0a1b2c3d4e5f00000060", body, key="k-2").answer_id
             99
         """
-        endpoint = endpoints.submit_form(
-            survey, body.model_dump(), dry_run=dry_run, key=key or None
-        )
+        endpoint = endpoints.submit_form(survey, body, dry_run=dry_run, key=key or None)
         return self._session.send(endpoint)
 
     def suggest(
