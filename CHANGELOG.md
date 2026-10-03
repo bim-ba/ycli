@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.45.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.44.0
+  ([`6976c32`](https://github.com/bim-ba/ycli/commit/6976c320945c370b50f6118c00bd012e726a496e))
+
+### Features
+
+- **cli**: Jq is an extra, so a plain install no longer needs a compiled package
+  ([#239](https://github.com/bim-ba/ycli/pull/239),
+  [`826a8c1`](https://github.com/bim-ba/ycli/commit/826a8c1502dd5c8cd6416a9b4cab1af4968636b0))
+
+### Breaking Changes
+
+- **cli**: Pip install yandex-cli no longer installs jq, so --jq exits with code 2 until the extra
+  is installed: uv tool install 'yandex-cli[jq]' (or 'yandex-cli[mcp,jq]' with the MCP server).
+
+
 ## v0.44.0 (2026-10-03)
 
 ### Build System

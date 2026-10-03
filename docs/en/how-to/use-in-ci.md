@@ -26,7 +26,7 @@ jobs:
       YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
     steps:
       - uses: astral-sh/setup-uv@v10.2.0
-      - run: uvx yandex-cli==0.44.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
+      - run: uvx yandex-cli==0.45.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
 ```
 
 `uvx yandex-cli==<version>` runs that version without installing anything else. Pin the version: a pipeline should not change behaviour when a new release comes out.
@@ -40,7 +40,7 @@ The image's entrypoint is `ycli`, so clear it to get a shell for `script`:
 ```yaml
 comment:
   image:
-    name: ghcr.io/bim-ba/ycli:0.44.0
+    name: ghcr.io/bim-ba/ycli:0.45.0
     entrypoint: [""]
   script:
     - ycli tracker comments add TRACKER-1 --text "Deployed $CI_COMMIT_SHORT_SHA"
@@ -54,7 +54,7 @@ With Docker, pass the variables by name so their values stay out of the command 
 
 ```bash
 docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
-  ghcr.io/bim-ba/ycli:0.44.0 tracker comments add TRACKER-1 --text "Deployed"
+  ghcr.io/bim-ba/ycli:0.45.0 tracker comments add TRACKER-1 --text "Deployed"
 ```
 
 ## Commands that do not wait
