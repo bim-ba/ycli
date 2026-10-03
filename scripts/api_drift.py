@@ -33,7 +33,6 @@ import inspect
 import re
 import sys
 import typing
-from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
@@ -52,15 +51,15 @@ from scripts.api_surface import Operation, shape  # noqa: E402
 from tests.contract import Case, Sibling, load_cases  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
-from ycli.yandex.core.session import SyncSession  # noqa: E402
+from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Mapping
+    from collections.abc import Callable, Mapping
 
     import httpx2
 
-    from ycli.yandex.core.endpoint import Endpoint
+    from ycli.yandex.core.endpoint import Endpoint, Paged
     from ycli.yandex.core.pagination import Pagination
 
 # Tracker's reference pages are prose and omit paging parameters: only what a page lists counts.
@@ -182,27 +181,6 @@ def _fields(response_type: Any) -> frozenset[str] | None:
     )
 
 
-@contextmanager
-def _recorded() -> Iterator[list[tuple[Endpoint, Pagination | None]]]:
-    """Every endpoint a core session is asked to send while the block runs, with its pager."""
-    endpoints: list[tuple[Endpoint, Pagination | None]] = []
-    send, iterate = SyncSession.send, SyncSession.iterate
-
-    def record_send(session: SyncSession, endpoint: Endpoint) -> Any:
-        endpoints.append((endpoint, None))
-        return send(session, endpoint)
-
-    def record_iterate(session: SyncSession, paged: Any, **options: Any) -> Any:
-        endpoints.append((paged.endpoint, paged.pagination))
-        return iterate(session, paged, **options)
-
-    SyncSession.send, SyncSession.iterate = record_send, record_iterate  # ty: ignore[invalid-assignment]
-    try:
-        yield endpoints
-    finally:
-        SyncSession.send, SyncSession.iterate = send, iterate
-
-
 def _hints(function: Callable[..., Any]) -> dict[str, Any]:
     """The annotations of ``function`` as types, ``Any`` where one cannot be resolved.
 
@@ -252,16 +230,23 @@ def replay(case: Case) -> list[Recorded]:
             headers=dict(reply.headers),
             content=reply.content,
         )
+    announced: list[httpx2.Request] = []
     client_class = service.client_class()
-    with (
-        _recorded() as endpoints,
-        client_class(oauth_token="t", organization_id="o", transport=api.transport()) as client,
-    ):
+    # The session calls the hook once per endpoint, with the request that carries it.
+    with client_class(
+        oauth_token="t",
+        organization_id="o",
+        transport=api.transport(),
+        before_send=lambda _effect, request: announced.append(request),
+    ) as client:
         operation = getattr(getattr(client, resource), method)
         args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
         operation(*args, **case.kwargs)
     found = []
-    for endpoint, pagination in endpoints:
+    for first in announced:
+        endpoint: Endpoint = first.extensions[ENDPOINT_EXTENSION]
+        paged: Paged | None = first.extensions.get(PAGED_EXTENSION)
+        pagination = paged.pagination if paged else None
         url = f"{base_url}/{endpoint.path.strip('/')}"
         requests = tuple(
             request

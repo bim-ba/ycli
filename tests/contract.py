@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from ycli.yandex.core.endpoint import _EFFECT_BY_METHOD, EFFECT_EXTENSION
+from ycli.yandex.core.endpoint import _EFFECT_BY_METHOD, ENDPOINT_EXTENSION
 from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_IDEMPOTENT
 
 if TYPE_CHECKING:
@@ -302,7 +302,7 @@ def output_problems(case: Case, output: Any) -> list[str]:
 
 def effect_sent(requests: Sequence[httpx2.Request]) -> Effect:
     """The strongest effect the endpoints behind ``requests`` declared."""
-    return strongest(request.extensions[EFFECT_EXTENSION] for request in requests)
+    return strongest(request.extensions[ENDPOINT_EXTENSION].effect for request in requests)
 
 
 def hints_disagree(annotations: Mapping[str, Any], effect: Effect) -> list[str]:
