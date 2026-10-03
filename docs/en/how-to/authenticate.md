@@ -39,9 +39,10 @@ Yandex issues OAuth tokens only through a registered application.
 ```bash
 ycli auth status            # whose token, which organization, which services accept it
 ycli tracker auth status    # one service only (also wiki, forms)
+ycli doctor                 # every check in order, with what to fix for each one that fails
 ```
 
-Both exit non-zero when a service rejects the token. The organization's name needs the optional
+`ycli doctor` also says where each credential is set (the environment or the `.env` file, never its value) which extras are installed and whether a newer release is out; add `-o json` for an agent. All three exit non-zero when a service rejects the token. The organization's name needs the optional
 `directory:read_organization` scope; without it you get the id and a note.
 
 ## Do it by hand

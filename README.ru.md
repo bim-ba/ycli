@@ -117,6 +117,7 @@ print(tracker.issues.get("TRACKER-1").summary)
 ```bash
 ycli auth login     # получает токен через Яндекс ID, находит вашу организацию, сохраняет оба значения в .env
 ycli auth status    # чей это токен и принимает ли его каждый сервис
+ycli doctor         # что-то не работает? все проверки по порядку и что исправить
 ```
 
 В первый раз для `ycli auth login` нужно собственное OAuth-приложение Яндекса: страница [Аутентификация](https://ycli.savaznatnov.dev/ru/how-to/authenticate/) проведёт по шагам. ycli читает две переменные — из окружения или из файла `.env`:

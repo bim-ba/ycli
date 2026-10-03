@@ -17,8 +17,10 @@ Examples:
 
 from __future__ import annotations
 
+import os
 from typing import Annotated, Literal
 
+from dotenv import dotenv_values
 from pydantic import (
     AliasChoices,
     AnyHttpUrl,
@@ -83,6 +85,10 @@ class HTTPConfig(BaseModel):
             (500, 10, None)
         """
         return None if all_ else (limit if limit > 0 else self.max_items)
+
+
+# `ycli doctor` asks PyPI for the latest release: one short attempt, so it never holds the report.
+RELEASE_CHECK_HTTP = HTTPConfig(timeout_seconds=3.0, retries=0)
 
 
 class LoggingConfig(BaseModel):
@@ -186,4 +192,43 @@ def missing_credentials(exc: Exception) -> list[str]:
         if error.get("type") == "missing"
         and error["loc"]
         and (name := str(error["loc"][0])) in _CREDENTIAL_ENV_NAMES
+    ]
+
+
+def credential_sources() -> dict[str, str]:
+    """Where each credential variable is set: ``environment``, ``.env file`` or ``not set``.
+
+    Names only, never a value. A variable set but empty counts as not set, as it does for
+    :class:`Credentials`.
+
+    Returns:
+        The source of each credential variable, by its name.
+    """
+    in_file = dotenv_values(".env")
+    names = {
+        OAUTH_TOKEN_ENV: (OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
+        ORGANIZATION_ID_ENV: (ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
+    }
+    return {
+        name: "environment"
+        if any(os.environ.get(alias) for alias in aliases)
+        else ".env file"
+        if any(in_file.get(alias) for alias in aliases)
+        else "not set"
+        for name, aliases in names.items()
+    }
+
+
+def proxy_variables() -> list[str]:
+    """The names of the proxy variables that are set: they change where a request goes.
+
+    Returns:
+        The names, as spelled in the environment.
+    """
+    known = ("HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY", "NO_PROXY")
+    return [
+        name
+        for known_name in known
+        for name in (known_name, known_name.lower())
+        if os.environ.get(name)
     ]

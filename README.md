@@ -118,6 +118,7 @@ It adds the MCP server and four skills (`yandex-360`, `yandex-360-tracker`, `yan
 ```bash
 ycli auth login     # gets a token through Yandex ID, finds your organization, saves both to .env
 ycli auth status    # whose token it is, and whether each service accepts it
+ycli doctor         # something not working? every check in order, with the fix
 ```
 
 `ycli auth login` needs a Yandex OAuth app of your own the first time: [Authenticate](https://ycli.savaznatnov.dev/how-to/authenticate/) walks you through it. ycli reads two variables, from the environment or a `.env` file:

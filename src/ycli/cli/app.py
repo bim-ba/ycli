@@ -25,6 +25,12 @@ class _Ycli(RootGroup):
         SubApp("auth", "Inspect and obtain Yandex 360 credentials.", "ycli.yandex.status.cli:app"),
         SubApp("mcp", "MCP server control (reads + writes).", "ycli.mcp.cli:app"),
         SubApp(
+            "doctor",
+            "Check what a working call needs and say what to fix.",
+            "ycli.yandex.status.cli:doctor_app",
+            command=True,
+        ),
+        SubApp(
             "api",
             "Call any API endpoint ycli has not wrapped, like `gh api`.",
             "ycli.cli.api:app",

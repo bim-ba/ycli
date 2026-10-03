@@ -52,7 +52,9 @@ Notable shared pieces:
   `src/ycli/cli/fields.py` — the shared `key=value` field parser (`--field`, and `ycli api`'s `-f`/`-F`)
 - `src/ycli/cli/api.py` — `ycli api`, the raw passthrough: it builds an `Endpoint` and sends it with
   `DomainClient.send` / `iterate`, so retries, errors, `--dry-run` and the delete guard all apply. A
-  CLI-only root command, not a resource, so ARCH-1 (per-resource parity) has no entry for it
+  CLI-only root command, not a resource, so ARCH-1 (per-resource parity) has no entry for it.
+  `ycli doctor` (`yandex/status/doctor.py`) is one too: it runs the probes of `auth status`
+  in order and says what to fix; an agent has `status_get`
 
 ## Invariants (ARCH-1..8)
 
@@ -142,8 +144,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`);
   `test_arch5_every_host_home_still_spells_a_host` keeps the allowlist free of stale entries, and
   `test_arch5_a_logger_name_is_spelled_in_one_module` (+ bite test) the logger names single.
-- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint and the Yandex ID / API 360 hosts
-  `auth status` reads.
+- **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint, the Yandex ID / API 360 hosts
+  `auth status` reads, and PyPI. The version check of `ycli doctor` is the one request ycli sends
+  to a host that is not Yandex's, and it carries no credentials.
 
 ### ARCH-6 — The public surface is versioned
 - **Rule:** the CLI tree, MCP tool names and both surfaces' parameters (name, type, default,
