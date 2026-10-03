@@ -519,11 +519,11 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
                 "",
                 "**Sent by ycli, not published**",
                 "",
-                "| ycli | Its request, as the contract test sends it |",
+                "| ycli | Its request |",
                 "|---|---|",
             ]
             lines += [
-                f"| {_sdk((call.operation,))} | `{call.method} {call.path}` |"
+                f"| {_sdk((call.operation,))} | `{call.method} {call.template}` |"
                 for call in drift.unpublished
             ]
         if drift.gaps:

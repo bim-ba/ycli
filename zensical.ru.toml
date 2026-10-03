@@ -28,6 +28,7 @@ nav = [
     { "CLI (англ.)" = "https://bim-ba.github.io/ycli/reference/cli/" },
     { "MCP-инструменты (англ.)" = "https://bim-ba.github.io/ycli/reference/mcp/tracker/" },
     { "Python SDK (англ.)" = "https://bim-ba.github.io/ycli/reference/sdk/tracker/" },
+    { "OpenAPI (англ.)" = "https://bim-ba.github.io/ycli/reference/openapi/" },
   ] },
   { "Объяснения" = [
     "explanation/design.md",

@@ -45,6 +45,7 @@ nav = [
       "reference/sdk/wiki.md",
       "reference/sdk/forms.md",
     ] },
+    "reference/openapi.md",
   ] },
   { "Explanation" = [
     "explanation/design.md",

@@ -72,8 +72,11 @@ async def test_a_tool_call_over_http_uses_the_callers_token_not_the_environments
     assert api.calls[0].headers["X-Org-Id"] == "org-env"
 
 
-async def test_an_http_call_works_in_the_organization_the_server_checked_at_start(api, monkeypatch):
+async def test_an_http_call_works_in_the_organization_the_server_checked_at_start(
+    api, monkeypatch, tmp_path
+):
     """Configured only as YCLI__MCP__ORGANIZATION_ID, the organization still reaches the call."""
+    monkeypatch.chdir(tmp_path)  # a developer's own .env names an organization too
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     monkeypatch.setenv("YCLI__MCP__ORGANIZATION_ID", "org-mcp")
     monkeypatch.setenv("YCLI__MCP__BASE_URL", BASE_URL)

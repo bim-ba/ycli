@@ -70,6 +70,9 @@ OpenAPI documents, Tracker's API reference), reduced to names.
   changed since the snapshot; `--refresh` fetches the snapshots again.
 - The weekly `api-drift` workflow runs `--live` and keeps one issue labelled `api-drift` open
   while the snapshot is behind. To close it, refresh, regenerate README and open a PR.
+- `uv run scripts/gen_openapi.py <directory>` writes an OpenAPI 3.1 document per service,
+  derived from the same replayed cases and ycli's models. The docs workflow publishes them on
+  the site; they are not committed.
 - A published operation must be wrapped or listed with its reason in `NOT_WRAPPED`
   (`scripts/api_drift.py`); `tests/test_api_drift.py` fails otherwise.
 
