@@ -1,4 +1,5 @@
 ---
+description: "Подключите MCP-сервер Яндекс Трекера, Вики и Форм к Claude, Cursor, VS Code, Windsurf, Zed, Codex, Gemini CLI или opencode."
 type: how-to
 ---
 

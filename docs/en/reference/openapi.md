@@ -1,4 +1,5 @@
 ---
+description: "OpenAPI 3.1 documents for Yandex Tracker, Wiki and Forms, describing each API as ycli wraps it."
 type: reference
 ---
 

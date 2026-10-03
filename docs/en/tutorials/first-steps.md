@@ -1,4 +1,5 @@
 ---
+description: "Install ycli, sign in to Yandex 360 and read a Tracker issue from the terminal, from Python and through an AI agent."
 type: tutorial
 ---
 

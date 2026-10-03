@@ -1,4 +1,5 @@
 ---
+description: "Свой MCP-сервер Яндекс 360 по HTTPS для команды: вход через Яндекс ID, Docker Compose, обратный прокси."
 type: how-to
 ---
 

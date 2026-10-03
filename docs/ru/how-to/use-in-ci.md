@@ -1,4 +1,5 @@
 ---
+description: "ycli в GitHub Actions и GitLab CI: комментарий в задаче Яндекс Трекера после выкладки, секреты и коды возврата."
 type: how-to
 ---
 

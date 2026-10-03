@@ -1,4 +1,5 @@
 ---
+description: "Get a Yandex OAuth token and your Yandex 360 organization id for ycli: one command, or by hand."
 type: how-to
 ---
 

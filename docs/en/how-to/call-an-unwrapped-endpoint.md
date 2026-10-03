@@ -1,4 +1,5 @@
 ---
+description: "Call any Yandex Tracker, Wiki or Forms API endpoint from the command line with ycli api, like gh api."
 type: how-to
 ---
 

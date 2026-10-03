@@ -43,6 +43,7 @@ nav = [
 custom_dir = "docs/overrides"
 language = "ru"
 features = [
+  "content.action.copy",
   "content.action.edit",
   "content.code.annotate",
   "content.code.copy",
@@ -63,12 +64,15 @@ features = [
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: light)"
+# `primary` is the theme's default colour, spelled out: the social cards fail without it (Zensical 0.0.67).
 scheme = "default"
+primary = "indigo"
 toggle = { icon = "lucide/sun", name = "Тёмная тема" }
 
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
+primary = "indigo"
 toggle = { icon = "lucide/moon", name = "Светлая тема" }
 
 [project.extra]
@@ -101,3 +105,15 @@ custom_fences = [
 ]
 [project.markdown_extensions.pymdownx.tabbed]
 alternate_style = true
+
+[project.plugins.llmstxt]
+full_output = "llms-full.txt"
+markdown_description = "ycli управляет Яндекс Трекером, Вики и Формами из командной строки, MCP-сервера для ИИ-агентов и Python SDK. У каждой операции одно имя на всех способах."
+
+[project.plugins.llmstxt.sections]
+"Обучение" = ["tutorials/*.md"]
+"Руководства" = ["how-to/*.md"]
+"Справочник" = ["reference/*.md"]
+"Объяснения" = ["explanation/*.md"]
+
+[project.plugins.social]

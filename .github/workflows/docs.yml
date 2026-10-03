@@ -30,7 +30,7 @@ jobs:
         uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
         with:
           python-version: "3.12"
-      # Zensical's cache is still being reworked, so it recommends a clean build and no CI cache.
+      # --frozen, not --locked, in every step: a release tag carries the new version before uv.lock is re-locked.
       - name: Check the overridden theme partial against its original
         run: uv run --frozen --isolated --only-group docs scripts/check_theme_override.py
       - name: Check the Compose example
@@ -40,11 +40,19 @@ jobs:
           YANDEX_OAUTH_CLIENT_ID: client-id
           YANDEX_OAUTH_CLIENT_SECRET: placeholder
         run: docker compose --file docs/examples/compose.yaml config --quiet
-      # English first: its --clean empties site/, then the Russian site lands in site/ru/.
-      # --frozen, not --locked: a release tag carries the new version before uv.lock is re-locked.
+      - name: Read the Zensical version
+        id: zensical
+        run: echo "version=$(uv run --frozen --isolated --only-group docs zensical --version)" >> "$GITHUB_OUTPUT"
+      # The social cards need Roboto, fetched from Google Fonts unless it is already here.
+      - name: Restore the social card fonts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/plugin/social/fonts
+          key: social-fonts-zensical-${{ steps.zensical.outputs.version }}
+      # No --clean: the checkout is fresh, and --clean would delete the restored fonts. Only the fonts are cached, never Zensical's page cache, which it advises against keeping in CI.
       - name: Build
         run: |
-          uv run --frozen --isolated --only-group docs zensical build --clean
+          uv run --frozen --isolated --only-group docs zensical build
           uv run --frozen --isolated --only-group docs zensical build --config-file zensical.ru.toml
       # About a megabyte and rewritten by every model change, so generated here, not committed.
       - name: Generate the OpenAPI documents
