@@ -3,9 +3,9 @@
 
 # ycli
 
-**One Yandex 360 toolkit — four ways to use it.**
-Drive **Tracker**, **Wiki**, and **Forms** from a CLI, an MCP server, a Python SDK,
-or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
+**Yandex 360 for people and for agents.**
+
+Tracker, Wiki and Forms from a command line, an MCP server and Python: one tool, and one name for each operation everywhere.
 
 **English** · [Русский](README.ru.md)
 
@@ -14,308 +14,120 @@ or a Claude Code plugin. Built for AI agents first — pleasant for humans too.
 [![PyPI](https://img.shields.io/pypi/v/yandex-cli?logo=pypi&logoColor=white&label=pypi)](https://pypi.org/project/yandex-cli/)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey?logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Docs](https://img.shields.io/badge/docs-bim--ba.github.io%2Fycli-blue?logo=materialformkdocs&logoColor=white)](https://bim-ba.github.io/ycli/)
+[![Docs](https://img.shields.io/badge/docs-ycli.savaznatnov.dev-blue?logo=materialformkdocs&logoColor=white)](https://ycli.savaznatnov.dev/)
 [![DeepWiki](https://img.shields.io/badge/deepwiki-ask%20the%20repo-blue?logo=readthedocs&logoColor=white)](https://deepwiki.com/bim-ba/ycli)
 
 <img src="https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/demo.gif" alt="ycli in action" width="760">
 
 </div>
 
-- 🧩 **One SDK, four surfaces** — write logic once, use it as a CLI, an MCP server, a Python
-  library, or a Claude Code plugin.
-- 🤖 **Agent-native** — the MCP server exposes read **and write** `tracker_*`, `wiki_*`,
-  `forms_*` tools, one per SDK/CLI operation, plus a cross-cutting `status` tool (counts in
-  [Coverage](#coverage)), with honest annotations (reads are marked read-only; writes
-  declare whether they are destructive/idempotent); `ycli mcp start --read-only` serves a
-  reads-only view for cautious deployments, and `--toolsets core` serves a curated everyday
-  profile when a host limits how many tools it accepts.
-- 🛡️ **Trustworthy** — typed pydantic models, the real Yandex API quirks handled for you,
-  and a test suite kept at **100% coverage**.
-- ⚡ **Zero-friction start** — `uv add yandex-cli`, `ycli auth login`, go.
+- **A command line that scripts well.** JSON when piped, a `--jq` filter, `--dry-run` for every write, an exit code for each kind of failure.
+- **An MCP server agents can trust.** Every tool says whether it reads, writes or destroys; serve only reads, or a small everyday set.
+- **A typed Python SDK.** Pydantic models for every answer, and examples the test suite runs.
+- **Careful with your data.** A delete asks first, and your token goes only to Yandex's own hosts.
 
-The full documentation (tutorial, how-to guides, the CLI, MCP and SDK reference) is at
-[bim-ba.github.io/ycli](https://bim-ba.github.io/ycli/).
+Documentation: [ycli.savaznatnov.dev](https://ycli.savaznatnov.dev/).
 
 ## Install
 
 ```bash
-uv add yandex-cli            # CLI + Python SDK
-uv add 'yandex-cli[mcp]'     # …plus the MCP server (`ycli mcp start`)
+uv tool install 'yandex-cli[mcp]'   # the ycli command, with the MCP server
+uvx yandex-cli --help               # or run it once, without installing
+pipx install 'yandex-cli[mcp]'      # or with pipx
 ```
 
-Run it without installing, or install it as a standalone tool:
+The command is `ycli` (also `yandex-cli`). Then sign in: `ycli auth login` ([how](https://ycli.savaznatnov.dev/how-to/authenticate/)).
 
-```bash
-uvx yandex-cli --help                 # one-off, no install
-uv tool install yandex-cli            # persistent CLI
-uv tool install 'yandex-cli[mcp]'     # …with the MCP server
-```
+Writing Python? Add the SDK to your project: `uv add yandex-cli`.
 
-`pip install yandex-cli` works too. The CLI ships as both `yandex-cli` and the short `ycli`.
+| Extra | Adds | Install |
+|---|---|---|
+| `mcp` | the MCP server, `ycli mcp start` | `uv tool install 'yandex-cli[mcp]'` |
+| `jq` | the built-in `--jq` filter (a pipe to the `jq` program needs no extra) | `uv tool install 'yandex-cli[mcp,jq]'` |
+| `service-account` | the SDK's `ServiceAccountAuth` for a Yandex Cloud service-account key | `uv add 'yandex-cli[service-account]'` |
 
-Using an AI harness (Claude Code, Claude Desktop, Cursor, VS Code, Codex, Gemini CLI, opencode,
-Docker)? See [Install in your harness](https://bim-ba.github.io/ycli/how-to/install-in-your-harness/).
+### Connect your AI client
 
-The SDK's `ServiceAccountAuth` (IAM tokens minted from a Yandex Cloud service-account key) needs
-the `service-account` extra: `uv add 'yandex-cli[service-account]'`.
+Every client gets the same MCP server, `uvx --from 'yandex-cli[mcp]' ycli mcp start`, and the same two variables.
 
-## Quick start
-
-Pick the surface that fits how you work.
-
-<details open>
-<summary><b>CLI</b></summary>
-
-```bash
-uv add yandex-cli
-ycli --help
-ycli tracker issues get TRACKER-1
-ycli wiki pages get onboarding
-```
-
-**Output formats** — a global `--format` / `-o` picks how results print (the global options work before or after the subcommand: `ycli -o json tracker issues get K` = `ycli tracker issues get K -o json`; a command that declares an option of its own, like `forms answers export --format`, keeps it):
-
-```bash
-ycli tracker issues get TRACKER-1            # auto: a pretty table on a TTY…
-ycli tracker issues get TRACKER-1 | jq .     # …and raw JSON when piped (agent/script-safe)
-ycli -o yaml wiki pages get onboarding       # or: -o json | -o yaml | -o pretty
-ycli --jq .summary tracker issues get TRACKER-1   # filter the JSON with jq; a string prints bare
-```
-
-`--jq EXPR` runs a [jq](https://jqlang.org) program over the command's JSON result and prints
-like `jq -r`: a string comes out raw, anything else as one compact JSON value per line. It
-cannot be combined with `-o yaml` / `-o pretty`, and it needs the `jq` Python package (a
-dependency; it has no build for Windows on ARM).
-
-**Deleting asks first.** A command that destroys data (every `delete`, `clear`, `abort`…) asks
-`DELETE <url> — this deletes data. Continue?` on stderr when you are at a terminal, and exits 1
-if you decline. In a script, a pipe or CI there is no one to ask, so it fails with exit 2 until
-you pass `--yes` / `-y`: `ycli tracker boards delete 7 --yes`. Reads and ordinary writes never ask.
-
-**Preview a write.** `--dry-run` sends nothing for any write: it prints the request instead
-(method, URL, body; never your token), through the same `-o` / `--jq` output, and exits 0.
-Reads still run, so a command that reads and then writes shows its first write only:
-`ycli tracker boards delete 7 --dry-run`. (The two commands that ask the API itself to validate
-a request, `forms filling submit` and `wiki pages move`, call that `--validate-only`.)
-
-**An endpoint ycli has not wrapped.** `ycli api PATH --service tracker|wiki|forms` calls it like
-[`gh api`](https://cli.github.com/manual/gh_api) would, with the same auth, retries, output and exit codes:
-
-```bash
-ycli api issues/TRACKER-1 --service tracker --jq .summary           # GET (the default method)
-ycli api issues/TRACKER-1/comments --service tracker -F text=@note.md   # POST: a field turns it into one
-ycli api pages/descendants --service wiki -f slug=docs --paginate   # every page, as one JSON array
-```
-
-`PATH` is relative to the service's base URL; a full URL of a service needs no `--service`, and
-any other host is refused (your token never goes elsewhere). `-f key=value` is a string, `-F` is
-typed (`true`, `null`, numbers, JSON, `@file` for a file's text, `key[sub]=v` to nest, `key[]=v`
-for an array); fields of a GET or DELETE go to the query string, otherwise to a JSON body (`--input
-FILE` sends a raw body instead). `-H 'Name: value'` adds a header, `-X` sets the method, and
-`--dry-run`, `--yes` and `--jq` behave as everywhere. `--paginate` follows Tracker's `Link: rel="next"`
-and Wiki's `next_cursor`; Forms pages its listings in more than one way, so pass its paging
-parameters with `-f` yourself.
-</details>
-
-<details>
-<summary><b>MCP server</b> (read/write)</summary>
-
-Run it over stdio (needs the `mcp` extra):
-
-```bash
-ycli mcp start               # full read/write tool set (honest annotations)
-ycli mcp start --read-only   # reads-only view for cautious deployments
-```
-
-Serving every tool costs a large `tools/list` and some hosts cap a request (VS Code allows
-128 tools), so pick what the session needs:
-
-| Flag | Serves |
+| Client | Fastest way |
 |---|---|
-| `--toolsets tracker,wiki` | only those services (`tracker`, `wiki`, `forms`); default `all` |
-| `--toolsets core` | a curated everyday profile of about 40 tools (issues, comments, transitions, worklog, wiki pages and search, form reads) |
-| `--tools a,b` / `--exclude-tools a,b` | add or hide single tools by name (unknown names fail at start) |
-| `--read-only` | no write tools; always wins over the flags above |
-| `--tool-search` | lists a search tool and a call proxy instead of the tools; use it with a large set |
+| Claude Code | `/plugin marketplace add bim-ba/ycli`, then `/plugin install yandex-360@ycli` |
+| Claude Desktop | open the `.mcpb` bundle from the [latest release](https://github.com/bim-ba/ycli/releases/latest) |
+| Cursor | [one-click install](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#cursor) |
+| VS Code | [one-click install](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#vs-code) |
+| Windsurf (Devin Desktop) | [config file](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#windsurf-devin-desktop) |
+| Zed | [config file](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#zed) |
+| Codex | [config file](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#codex) |
+| Gemini CLI | [config file](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#gemini-cli) |
+| opencode | [config file](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#opencode) |
+| Any other MCP client | [three values to copy](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#any-other-client) |
 
-`status_get` is always served. The listing omits output schemas and doctest examples (results
-still carry `structuredContent`), which cuts `tools/list` from about 1.9 MB to about 0.5 MB for
-the full set.
+Also: a Docker image, `ghcr.io/bim-ba/ycli` ([as a server or a plain CLI](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#docker)), [pipelines](https://ycli.savaznatnov.dev/how-to/use-in-ci/), and the [official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.bim-ba/ycli) entry `io.github.bim-ba/ycli`.
 
-For several users, serve it over HTTP: each MCP client signs its user in through Yandex ID
-(OAuth), and every tool call runs with that user's own Yandex token. Setup, including the
-Yandex OAuth app and the reverse proxy, is in [Self-host over HTTP](https://bim-ba.github.io/ycli/how-to/self-host-over-http/).
+Something not working? [If it does not work](https://ycli.savaznatnov.dev/how-to/install-in-your-harness/#if-it-does-not-work).
+
+## Use it
+
+### Command line
 
 ```bash
-ycli mcp start --transport http --toolsets core   # needs YCLI__MCP__BASE_URL and an OAuth app
+ycli tracker issues get TRACKER-1                  # a table at a terminal
+ycli tracker issues get TRACKER-1 | jq .summary    # JSON when piped
+ycli -o yaml wiki pages get onboarding             # or pick: -o json | yaml | pretty
+ycli tracker boards delete 7 --dry-run             # print the request a write would send
+ycli tracker boards delete 7 --yes                 # a delete asks first; --yes answers
+ycli api issues/TRACKER-1 --service tracker        # an endpoint ycli does not wrap
 ```
 
-List the tool names a given set of flags exposes without running the server:
+More: [Script the CLI](https://ycli.savaznatnov.dev/how-to/script-the-cli/), [Call an unwrapped endpoint](https://ycli.savaznatnov.dev/how-to/call-an-unwrapped-endpoint/), the [CLI reference](https://ycli.savaznatnov.dev/reference/cli/).
+
+### MCP server
 
 ```bash
-ycli mcp methods --toolsets core --read-only
+ycli mcp start                     # every tool, reads and writes
+ycli mcp start --read-only         # reads only
+ycli mcp start --toolsets core     # about 40 everyday tools, for a client that caps the count
+ycli mcp methods --toolsets core   # list the tool names without starting the server
 ```
 
-Point an MCP client at it — no prior install needed via `uvx` (tools are namespaced
-`tracker_*`, `wiki_*`, `forms_*`):
+More: [Serve the MCP server](https://ycli.savaznatnov.dev/how-to/serve-the-mcp-server/), [Self-host over HTTP](https://ycli.savaznatnov.dev/how-to/self-host-over-http/) for a team, the [tool reference](https://ycli.savaznatnov.dev/reference/mcp/tracker/).
 
-```json
-{
-  "mcpServers": {
-    "yandex": {
-      "command": "uvx",
-      "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"],
-      "env": {
-        "YANDEX_ID_OAUTH_TOKEN": "...",
-        "YANDEX_ID_ORGANIZATION_ID": "..."
-      }
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Python SDK</b></summary>
+### Python
 
 ```python
 from ycli.yandex.tracker.client import TrackerClient
 
 tracker = TrackerClient(oauth_token="…", organization_id="…")
-issue = tracker.issues.get("TRACKER-1")
-print(issue.summary)
+print(tracker.issues.get("TRACKER-1").summary)
 ```
-</details>
 
-<details>
-<summary><b>Claude Code plugin</b></summary>
+More: the [SDK reference](https://ycli.savaznatnov.dev/reference/sdk/tracker/).
+
+### Claude Code plugin
 
 ```
 /plugin marketplace add bim-ba/ycli
 /plugin install yandex-360@ycli
 ```
 
-Teaches an agent to drive Yandex 360 through `ycli` — including the real API quirks.
-See [`plugins/yandex-360/`](plugins/yandex-360/).
-</details>
-
-## Skills (Claude Code plugin)
-
-| Skill | Use for |
-|-------|---------|
-| `yandex-360` | Entry point — install + auth, pick a surface (CLI/MCP/SDK), route to a domain |
-| `yandex-360-tracker` | Issues, epics, comments, transitions, links, worklog, changelog |
-| `yandex-360-wiki` | Wiki pages, page tree, comments, attachments, YFM authoring |
-| `yandex-360-forms` | Forms, questions/schema, responses, publishing |
-
-The skills encode the read/write commands **and** the gnarly Yandex API quirks
-(epic-vs-parent, transition discovery, permanent wiki slugs, `fields=` rules, Forms
-host/header traps, answers pagination).
+It adds the MCP server and four skills (`yandex-360`, `yandex-360-tracker`, `yandex-360-wiki`, `yandex-360-forms`) that teach an agent the commands and the API's quirks. Source: [`plugins/yandex-360/`](plugins/yandex-360/).
 
 ## Configure
 
-`ycli` reads two values from the environment (or a `.env` file — `cp .env.example .env`):
+```bash
+ycli auth login     # gets a token through Yandex ID, finds your organization, saves both to .env
+ycli auth status    # whose token it is, and whether each service accepts it
+```
+
+`ycli auth login` needs a Yandex OAuth app of your own the first time: [Authenticate](https://ycli.savaznatnov.dev/how-to/authenticate/) walks you through it. ycli reads two variables, from the environment or a `.env` file:
 
 ```bash
-YANDEX_ID_OAUTH_TOKEN=...        # a Yandex OAuth token with Tracker/Wiki/Forms access
+YANDEX_ID_OAUTH_TOKEN=...        # a Yandex OAuth token with Tracker, Wiki and Forms access
 YANDEX_ID_ORGANIZATION_ID=...    # your Yandex 360 organization id
 ```
 
-ycli sends the org id as `X-Org-Id` for every service (HTTP header names are case-insensitive
-per RFC 9110, so one casing serves all).
-
-Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern; ycli rejects an invalid value
-at startup and names the variable:
-
-| Variable | Default | Meaning |
-|---|---|---|
-| `YCLI__HTTP__TIMEOUT_SECONDS` | `30` | Per-request timeout, seconds (> 0) |
-| `YCLI__HTTP__RETRIES` | `3` | Retries for idempotent requests on 429/5xx (≥ 0) |
-| `YCLI__HTTP__MAX_ITEMS` | `500` | Item cap for listings without `--limit`/`--all` (> 0) |
-| `YCLI__LOGGING__LEVEL` | `WARNING` | `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`; `-v` means `INFO` (every HTTP request), `-vv` means `DEBUG` |
-| `YCLI__LOGGING__FORMAT` | `text` | `text` or `json` (one object per line); logs always go to stderr |
-
-### Get your credentials
-
-Yandex issues OAuth tokens only through a **registered application**, so it's a one-time
-app registration plus one command.
-
-**1. Register an OAuth app** at [oauth.yandex.ru](https://oauth.yandex.ru/client/new) and
-grant it the **Tracker**, **Wiki**, and **Forms** permissions (read **and** write — the
-CLI and the MCP server both write; the read scopes alone suffice only if you run the MCP
-server with `ycli mcp start --read-only`). Put the **ClientID** — and the **Client secret**
-if you want the headless flow — in your `.env` (ycli reads it from there):
-
-```bash
-YANDEX_OAUTH_CLIENT_ID=...        # from your app
-YANDEX_OAUTH_CLIENT_SECRET=...    # optional — enables the headless device flow
-```
-
-**2. Log in.** `ycli auth login` gets a token, detects your organization, and writes both
-into `.env`:
-
-```bash
-ycli auth login
-```
-
-- **client id + secret** → the **device flow**: ycli prints a code and a
-  `https://ya.ru/device` link; approve there and it captures the token — no redirect, works
-  over SSH.
-- **only the client id** (or `--implicit`) → the **browser flow**: ycli opens the Yandex
-  authorize page; approve, then copy the token it displays and paste it back.
-
-Check it any time with `ycli auth status`: it shows whose token it is (from Yandex ID), your
-organization (its name needs the optional `directory:read_organization` scope; without it you
-get the id and a note) and whether each service accepts the token. `ycli tracker auth status`
-(or `wiki`, `forms`) probes just that one service. Both exit non-zero when a service rejects
-the token.
-
-<details>
-<summary><b>Prefer to do it by hand?</b></summary>
-
-**Headless (device flow):**
-
-```bash
-# 1. start the flow — returns a user_code + verification_url
-curl -s -X POST https://oauth.yandex.ru/device/code -d "client_id=$YANDEX_OAUTH_CLIENT_ID"
-# 2. open https://ya.ru/device, enter the user_code, approve
-# 3. exchange the device_code for the token
-curl -s -X POST https://oauth.yandex.ru/token \
-  -d grant_type=device_code -d "code=<device_code>" \
-  -d "client_id=$YANDEX_OAUTH_CLIENT_ID" -d "client_secret=$YANDEX_OAUTH_CLIENT_SECRET"
-```
-
-**Browser (implicit):** open
-`https://oauth.yandex.ru/authorize?response_type=token&client_id=<ClientID>` in a logged-in
-browser, approve, and copy the token from the page. (Plain `curl` can't — implicit needs an
-interactive browser session.)
-
-**Organization id:** [tracker.yandex.ru/admin/orgs](https://tracker.yandex.ru/admin/orgs) →
-your organization → copy the identifier.
-</details>
-
-The Yandex documentation behind each step:
-
-| Step | Yandex docs |
-|---|---|
-| Register the OAuth app | [Registering an app](https://yandex.ru/dev/id/doc/en/register-client) (Yandex ID) |
-| Device flow (`ycli auth login` with a secret) | [Entering the code on the authorization page](https://yandex.ru/dev/id/doc/en/codes/screen-code-oauth) |
-| Browser flow (`--implicit`) | [Obtain a token manually](https://yandex.ru/dev/id/doc/en/tokens/debug-token) |
-| Token and organization header per service | [Tracker](https://yandex.ru/support/tracker/en/api/access) · [Wiki](https://yandex.ru/support/wiki/en/api-ref/access) · [Forms](https://yandex.ru/support/forms/en/api-ref/access) API access |
-
-## Exit codes
-
-A failed `ycli` command exits with a code that says what kind of failure it was, so a script can branch without parsing the message.
-
-| Code | Meaning | When |
-|---|---|---|
-| 0 | ok | the command succeeded |
-| 1 | failure | any other failure: a 4xx the API rejected, an unmapped error, a declined confirmation |
-| 2 | usage | a bad command line or an invalid `YCLI__…` setting |
-| 3 | not found | the API answered 404 (or the token cannot see the object) |
-| 4 | auth | 401 / 403, or no credentials set |
-| 5 | rate limited | the API answered 429 and the retries ran out (the hint shows `Retry-After`) |
-| 6 | transient | a 5xx, a timeout or a lost connection: worth retrying later |
+Timeouts, retries, limits, logging and the exit codes are in the [configuration reference](https://ycli.savaznatnov.dev/reference/configuration/).
 
 <!-- COVERAGE:START (generated by scripts/gen_coverage.py — do not edit by hand) -->
 ## Coverage
@@ -591,13 +403,11 @@ What ycli sends, replayed from its contract tests, compared with what Yandex pub
 ## Development
 
 ```bash
-uv sync --all-extras   # --all-extras pulls in the `mcp` extra the tests exercise
-uv run pytest          # 100% coverage gate; HTTP stubbed with `MockAPI` (no live network)
+uv sync --all-extras   # the tests use every extra
+uv run pytest          # 100% coverage gate; HTTP is stubbed, no live network
 ```
 
-The source layout and the invariants that keep it regular are in [ARCHITECTURE.md](ARCHITECTURE.md);
-see [CONTRIBUTING.md](CONTRIBUTING.md) for conventions and how to add an endpoint.
-Contributions welcome.
+The layout and the invariants that keep it regular are in [ARCHITECTURE.md](ARCHITECTURE.md); [CONTRIBUTING.md](CONTRIBUTING.md) has the conventions and how to add an endpoint. Contributions are welcome.
 
 ## License
 
