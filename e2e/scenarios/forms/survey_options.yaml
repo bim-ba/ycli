@@ -1,0 +1,53 @@
+# The filters of the listings and the settings a form carries beyond its name.
+name: forms/survey-options
+steps:
+  - id: create
+    run: forms surveys create --name "${RUN} survey" --max-count 5 --field show_last_answer=true --field footer=false
+    expect:
+      name: ${RUN} survey
+    save:
+      id: id
+    cleanup: forms surveys delete ${id}
+  - id: settings
+    run: forms surveys get ${id}
+    expect:
+      max_count: 5
+      show_last_answer: true
+      footer: false
+      "author.username != null": true
+      "texts.submit != null": true
+  - id: add-question
+    run: forms questions create ${id} --type string --label "${RUN} question" --slug name
+    save:
+      question: id
+  - id: question
+    run: forms questions get ${id} ${question} --with-slugs
+    expect:
+      slug: name
+      type: string
+  - id: publish
+    run: forms surveys publish ${id}
+  - id: listed
+    run: forms surveys list --name "${RUN} survey" --published --ownership mine --no-favourite --orderby name --all
+    expect:
+      "length([?id == '${id}'])": 1
+  - id: not-listed
+    run: forms surveys list --name "${RUN} survey" --no-published --all
+    expect:
+      "length([?id == '${id}'])": 0
+  - id: answers
+    run: forms answers list ${id} --ordering asc --page-size 1 --use-slugs --date-from 2020-01-01T00:00:00Z --date-to 2099-01-01T00:00:00Z --all
+    expect:
+      "length(answers)": 0
+  - id: answers-raw
+    run: forms answers list ${id} --answer-format raw --all
+    expect:
+      "length(answers)": 0
+      "length(columns)": 0
+  - id: me
+    run: forms me get
+    expect:
+      "id != null": true
+  - id: delete
+    run: forms surveys delete ${id}
+    disarms: [create]

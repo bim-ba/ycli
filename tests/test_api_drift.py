@@ -380,6 +380,45 @@ def test_the_explained_check_bites_in_both_directions():
     )
 
 
+# A marked field the comparison cannot see: its name is published for another question type.
+MARKED_BUT_PUBLISHED = {
+    ("forms", "POST", "/surveys/{}/questions", "items"),
+    ("forms", "PATCH", "/surveys/{}/questions/{}", "items"),
+}
+
+
+def test_a_field_the_api_ignores_says_so_where_it_is_declared():
+    """An ``IGNORED`` reason and the ``IGNORED_BY_API`` mark of a body field go together.
+
+    The reason keeps the comparison green; the mark is what a caller reads in ``--help``, in
+    the MCP input schema and on the site, and what makes setting the field log a warning.
+    """
+    explained = {
+        (service, method, path, name)
+        for (service, method, path, kind, name), why in api_drift.EXPLAINED.items()
+        if why == api_drift.IGNORED and kind == "unknown_request"
+    }
+    marked = api_drift.ignored_marks()
+    assert explained - marked == set(), "explained as ignored, not marked in the body model"
+    assert marked - explained == MARKED_BUT_PUBLISHED, "marked in the body model, not explained"
+
+
+def test_the_ignored_mark_warns_when_the_field_is_set(caplog):
+    from ycli.yandex.forms.questions.models import Question
+    from ycli.yandex.forms.surveys.models import Survey, SurveyCreate
+
+    SurveyCreate(name="Quiet")
+    SurveyCreate(name="Unset", is_published=None)  # what the CLI passes without the option
+    # A reply that carries the same names is read without a word: only a body warns.
+    Survey.model_validate({"id": "686d", "is_published": True, "is_public": True, "language": "ru"})
+    Question.model_validate({"id": 7, "type": "series", "items": [{"id": 8, "type": "string"}]})
+    assert caplog.records == []
+    SurveyCreate(name="Loud", is_published=True)
+    assert [record.getMessage() for record in caplog.records] == [
+        "`is_published` is ignored by the API: publish a form with ``surveys publish`` instead."
+    ]
+
+
 def test_two_arguments_sharing_a_value_stop_the_report(monkeypatch):
     def clash() -> list[api_drift.Drift]:
         raise ValueError("wiki.x: ['a', 'b'] share the value '7'")

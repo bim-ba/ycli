@@ -12,35 +12,12 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.forms.questions.models import (
-    Condition,
+from ycli.yandex.forms.models import (
     ConditionComparison,
     ConditionItemKind,
     ConditionOperatorType,
 )
 from ycli.yandex.models import APIModel
-
-
-class ConditionsResponse(APIModel):
-    """The ``{operator, items}`` envelope of a target's condition groups.
-
-    Returned by every ``*_list`` and ``*_set_operator`` operation. Unlike the transport
-    envelopes that the resource conventions flatten, ``operator`` here is data (the boolean
-    operator BETWEEN the groups), so the envelope itself is the public return type.
-
-    Examples:
-        >>> ConditionsResponse.model_validate(
-        ...     {"operator": "and", "items": [{"id": 1, "operator": "or", "items": []}]}
-        ... ).items[0].id
-        1
-    """
-
-    operator: str | None = Field(
-        default=None, description="Boolean operator joining the condition groups: and / or."
-    )
-    items: list[Condition] = Field(
-        default_factory=list, description="The target's condition groups."
-    )
 
 
 class ConditionItemWrite(APIModel):

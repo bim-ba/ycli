@@ -47,11 +47,30 @@ class AnswersClient(Resource):
             raise ValueError("pass exactly one of answer_id or answer_key")
         return self._session.send(endpoints.get_answer(answer_id=answer_id, answer_key=answer_key))
 
-    def list(self, survey_id: str) -> AnswersResponse:
+    def list(
+        self,
+        survey_id: str,
+        *,
+        questions: str | None = None,
+        use_slugs: bool = False,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        ordering: str | None = None,
+        page_size: int | None = None,
+        answer_format: str | None = None,
+    ) -> AnswersResponse:
         """``GET /surveys/{id}/answers`` → the first page's ``{columns, answers, next}`` envelope.
 
         Args:
             survey_id: The form's id.
+            questions: The comma-separated question ids to return answers for.
+            use_slugs: Name questions and options by slug instead of id.
+            date_from: ISO-8601 start of the period the answers were given in.
+            date_to: ISO-8601 end of that period.
+            ordering: ``asc`` (oldest first) or ``desc`` (the API's default).
+            page_size: The most answers a page holds (the API's default is 25).
+            answer_format: ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's
+                data as the API stores it, with no ``columns``).
 
         Returns:
             The first page of answers, with its columns.
@@ -60,9 +79,31 @@ class AnswersClient(Resource):
             >>> forms.answers.list("686d0a1b2c3d4e5f00000030").columns[0].slug
             'answer_short_text_1'
         """
-        return self._session.send(endpoints.list_answers(survey_id).endpoint)
+        paged = endpoints.list_answers(
+            survey_id,
+            questions=questions,
+            use_slugs=use_slugs,
+            date_from=date_from,
+            date_to=date_to,
+            ordering=ordering,
+            page_size=page_size,
+            answer_format=answer_format,
+        )
+        return self._session.send(paged.endpoint)
 
-    def list_all(self, survey_id: str, *, limit: int | None = None) -> AnswersResponse:
+    def list_all(
+        self,
+        survey_id: str,
+        *,
+        limit: int | None = None,
+        questions: str | None = None,
+        use_slugs: bool = False,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        ordering: str | None = None,
+        page_size: int | None = None,
+        answer_format: str | None = None,
+    ) -> AnswersResponse:
         """Every answer across pages, at most ``limit`` (``None`` = all).
 
         ``columns`` come from the first page (identical across pages); the merged ``next`` is
@@ -71,6 +112,14 @@ class AnswersClient(Resource):
         Args:
             survey_id: The form's id.
             limit: The most answers to return; ``None`` returns every answer.
+            questions: The comma-separated question ids to return answers for.
+            use_slugs: Name questions and options by slug instead of id.
+            date_from: ISO-8601 start of the period the answers were given in.
+            date_to: ISO-8601 end of that period.
+            ordering: ``asc`` (oldest first) or ``desc`` (the API's default).
+            page_size: The most answers a page holds (the API's default is 25).
+            answer_format: ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's
+                data as the API stores it, with no ``columns``).
 
         Returns:
             The answers of every page, with the first page's columns.
@@ -79,7 +128,16 @@ class AnswersClient(Resource):
             >>> len(forms.answers.list_all("686d0a1b2c3d4e5f00000030", limit=500).answers)
             1
         """
-        paged = endpoints.list_answers(survey_id)
+        paged = endpoints.list_answers(
+            survey_id,
+            questions=questions,
+            use_slugs=use_slugs,
+            date_from=date_from,
+            date_to=date_to,
+            ordering=ordering,
+            page_size=page_size,
+            answer_format=answer_format,
+        )
         columns: list[Column] = []
 
         def items_of(page: AnswersResponse) -> list[Answer]:

@@ -9,8 +9,8 @@ from ycli.yandex.forms.access.models import (
     AccessUpdate,
     GroupIdentity,
     Permission,
-    UserIdentity,
 )
+from ycli.yandex.forms.models import UserIdentity
 from ycli.yandex.models import ItemList
 
 # As GET /surveys/{id}/access answered on the test organization (2026-10-02).

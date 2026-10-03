@@ -51,13 +51,39 @@ def list_(
     survey_id: SurveyIdArg,
     limit: LimitOption = 0,
     all_: AllOption = False,
+    questions: Annotated[
+        str, typer.Option(help="Comma-separated question ids to return answers for.")
+    ] = "",
+    use_slugs: Annotated[
+        bool, typer.Option("--use-slugs", help="Name questions and options by slug, not id.")
+    ] = False,
+    date_from: Annotated[str, typer.Option(help="ISO-8601: answers given at or after.")] = "",
+    date_to: Annotated[str, typer.Option(help="ISO-8601: answers given at or before.")] = "",
+    ordering: Annotated[str, typer.Option(help="asc (oldest first) or desc (the default).")] = "",
+    page_size: Annotated[
+        int | None, typer.Option(help="Answers per request (the API's default is 25).")
+    ] = None,
+    answer_format: Annotated[
+        str,
+        typer.Option("--answer-format", help="default (cells by column) or raw (as stored)."),
+    ] = "",
     *,
     config: AppConfig,
     forms: FormsClient,
 ) -> AnswersResponse:
-    """List a form's responses (auto-paginated; --all for everything)."""
+    """List a form's responses, filtered (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return forms.answers.list_all(survey_id, limit=cap)
+    return forms.answers.list_all(
+        survey_id,
+        limit=cap,
+        questions=questions or None,
+        use_slugs=use_slugs,
+        date_from=date_from or None,
+        date_to=date_to or None,
+        ordering=ordering or None,
+        page_size=page_size,
+        answer_format=answer_format or None,
+    )
 
 
 def _finish_export(

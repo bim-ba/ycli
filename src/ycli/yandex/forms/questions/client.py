@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.questions import endpoints
-from ycli.yandex.models import Ack
+from ycli.yandex.forms.questions.models import FORCE_IGNORED
+from ycli.yandex.models import Ack, warn_ignored
 
 if TYPE_CHECKING:
     from ycli.yandex.forms.questions.models import (
@@ -21,12 +22,13 @@ if TYPE_CHECKING:
 class QuestionsClient(Resource):
     """Get, list, create, modify, delete and move the questions of a form."""
 
-    def get(self, survey_id: str, question_id: str) -> Question:
+    def get(self, survey_id: str, question_id: str, *, with_slugs: bool = False) -> Question:
         """``GET /surveys/{id}/questions/{question_id}`` → a single :class:`Question` (settings).
 
         Args:
             survey_id: The form's id.
             question_id: The question's id.
+            with_slugs: The API's flag of that name: refer to other questions by slug.
 
         Returns:
             The question.
@@ -35,7 +37,8 @@ class QuestionsClient(Resource):
             >>> forms.questions.get("686d0a1b2c3d4e5f00000010", "17").slug
             'name'
         """
-        return self._session.send(endpoints.get_question(survey_id, question_id))
+        endpoint = endpoints.get_question(survey_id, question_id, with_slugs=with_slugs)
+        return self._session.send(endpoint)
 
     def list(self, survey_id: str) -> QuestionsResponse:
         """``GET /surveys/{id}/questions`` → every question, grouped into the ``{pages}`` envelope.
@@ -101,20 +104,23 @@ class QuestionsClient(Resource):
         """``DELETE /surveys/{id}/questions/{question_id}`` → an :class:`Ack`.
 
         The API refuses to delete a question that another question's display conditions still
-        reference; ``force=True`` skips that check.
+        reference (400 ``dependency_error.question_condition``): delete the condition first.
+        ``force`` is sent, and the API ignores it (checked live on 2026-10-04).
 
         Args:
             survey_id: The form's id.
             question_id: The question's id.
-            force: Whether to skip the display-conditions check.
+            force: Ignored by the API: the display-conditions check is not skipped.
 
         Returns:
             An acknowledgement naming the deleted question.
 
         Examples:
-            >>> forms.questions.delete("686d0a1b2c3d4e5f00000010", "19", force=True).ok
+            >>> forms.questions.delete("686d0a1b2c3d4e5f00000010", "28").ok
             True
         """
+        if force:
+            warn_ignored("force", FORCE_IGNORED)
         self._session.send(endpoints.delete_question(survey_id, question_id, force=force))
         return Ack.deleted("question", question_id, on=f"survey {survey_id}")
 

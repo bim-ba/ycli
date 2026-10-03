@@ -120,6 +120,23 @@ class SubmitBody(APIModel):
     model_config = ConfigDict(extra="allow")
 
 
+class SubmitQuizResult(APIModel):
+    """What a respondent scored on a quiz (``quiz_result`` of a submission).
+
+    Examples:
+        >>> SubmitQuizResult(show_format="score_with_total", scores=7, total_scores=10).scores
+        7.0
+    """
+
+    show_format: str | None = Field(
+        default=None, description="How the result is shown: score, percent or score_with_total."
+    )
+    scores: float | None = Field(default=None, description="Points scored, or the percentage.")
+    total_scores: float | None = Field(
+        default=None, description="Most points the quiz gives (``score_with_total`` only)."
+    )
+
+
 class SubmitResult(APIModel):
     """The success-page payload returned by ``POST …/form`` (``200 OK``).
 
@@ -145,12 +162,12 @@ class SubmitResult(APIModel):
     fill_again: bool | None = Field(
         default=None, description="Whether refilling the form is offered."
     )
-    results: bool | None = Field(default=None, description="Whether the quiz result is shown.")
     correct: bool | None = Field(
         default=None, description="Whether correct quiz answers are shown."
     )
-    scores: float | None = Field(default=None, description="Points scored on the quiz.")
-    total_scores: float | None = Field(default=None, description="Maximum points on the quiz.")
+    quiz_result: SubmitQuizResult | None = Field(
+        default=None, description="Result of the quiz, in the format the form shows it."
+    )
     stats: dict[str, Any] | None = Field(default=None, description="Fill-statistics block.")
     integrations: list[dict[str, Any]] = Field(
         default_factory=list, description="Integrations triggered by the submit (id + type)."
@@ -169,8 +186,9 @@ class Suggestion(APIModel):
     """One fill-suggestion (``GET …/suggest`` item).
 
     Suggestions come in 26 ``layer`` shapes (country, city, staff person, tracker issue, …) that
-    share ``layer`` / ``id`` / ``text`` and add layer-specific keys; ``extra="allow"`` preserves
-    those extras (``country_id``, ``population``, ``login``, ``email``, ``queue``, …).
+    share ``layer`` / ``id`` / ``text`` and add layer-specific keys (``country_id``,
+    ``population``, ``login``, ``email``, ``queue``, …). One class reads them all: the keys a
+    layer does not have stay ``None``, and ``extra="allow"`` keeps a key of a layer Yandex adds.
 
     Examples:
         >>> Suggestion.model_validate({"layer": "city", "id": "1", "text": "Berlin"}).text
@@ -183,3 +201,39 @@ class Suggestion(APIModel):
     id: str | None = Field(default=None, description="Suggestion object id.")
     text: str | None = Field(default=None, description="Display text of the suggestion.")
     orig_id: str | None = Field(default=None, description="Source-database id, where applicable.")
+    country_id: str | None = Field(default=None, description="Id of the country (city).")
+    population: int | None = Field(default=None, description="Population of the city.")
+    city: str | None = Field(default=None, description="City of the university.")
+    region: str | None = Field(default=None, description="Region of the university.")
+    tracks_count: int | None = Field(
+        default=None, description="Number of tracks in the music genre."
+    )
+    address: str | None = Field(default=None, description="Address of the office.")
+    url: str | None = Field(default=None, description="Slug of the staff group.")
+    type: str | None = Field(default=None, description="Kind of the staff group.")
+    role_scope: str | None = Field(default=None, description="Scope of the staff group.")
+    full_name: str | None = Field(default=None, description="Full name of the employee.")
+    login: str | None = Field(default=None, description="Login of the user.")
+    email: str | None = Field(default=None, description="Email of the user or employee.")
+    uid: str | None = Field(default=None, description="Passport uid of the user or employee.")
+    yandex_uid: str | None = Field(
+        default=None, description="Passport uid of the user or employee."
+    )
+    cloud_uid: str | None = Field(default=None, description="Cloud uid of the user.")
+    avatar: str | None = Field(default=None, description="Avatar of the user or employee.")
+    group_id: str | None = Field(default=None, description="Id of the employee's staff group.")
+    department: str | None = Field(default=None, description="Department of the employee.")
+    office_id: str | None = Field(default=None, description="Id of the meeting room's office.")
+    floor_number: str | None = Field(default=None, description="Floor of the meeting room.")
+    floor_id: str | None = Field(default=None, description="Id of the meeting room's floor.")
+    row_id: str | None = Field(default=None, description="Universal id of the table row.")
+    parent_id: str | None = Field(
+        default=None, description="Id of the parent row, for linked suggestions."
+    )
+    display_text: str | None = Field(default=None, description="Text to show for the table row.")
+    board: str | None = Field(default=None, description="Name of the sprint's agile board.")
+    queue: str | None = Field(
+        default=None, description="Queue of the Tracker issue, component or field."
+    )
+    status: str | None = Field(default=None, description="Status of the Tracker issue.")
+    slug: str | None = Field(default=None, description="Slug of the Tracker field.")

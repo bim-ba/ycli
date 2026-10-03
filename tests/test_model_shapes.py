@@ -40,7 +40,6 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
         "forms",
         frozenset({"subscriptions.AttachmentQuestions", "subscriptions.VariableQuestions"}),
     ): TWO_ROLES,
-    ("forms", frozenset({"surveys.SurveyCreate", "surveys.SurveyUpdate"})): TWO_OPERATIONS,
     (
         "forms",
         frozenset({"variables.VariableCategory", "variables.VariableRenderer"}),
