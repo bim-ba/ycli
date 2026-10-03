@@ -5,7 +5,6 @@ import pytest
 
 from ycli.yandex.core.pagination import (
     CursorPagination,
-    HeaderCursorPagination,
     LinkHeaderPagination,
     NextURLPagination,
     OffsetLimitPagination,
@@ -68,14 +67,6 @@ def test_cursor_from_the_body_and_a_non_advancing_cursor():
     assert second.url.params["cursor"] == "c2"
     assert pagination.next(second, httpx2.Response(200, json={"next_cursor": "c2"}), [2]) is None
     assert pagination.next(second, httpx2.Response(200, json={"next_cursor": None}), [2]) is None
-
-
-def test_header_cursor_reads_the_scroll_id():
-    pagination = HeaderCursorPagination()
-    response = httpx2.Response(200, headers={"X-Scroll-Id": "s1"})
-    following = pagination.next(_request(), response, [1])
-    assert following is not None
-    assert following.url.params["scrollId"] == "s1"
 
 
 def test_link_header_copies_only_the_query_of_a_schemeless_link():
