@@ -119,7 +119,10 @@ def worklog(
 @app.command()
 def file(
     key: KeyArg,
-    path: Annotated[Path, typer.Argument(help="Local file to attach.")],
+    path: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True, help="Local file to attach."),
+    ],
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
     filename: Annotated[
@@ -142,7 +145,10 @@ def file(
 def comment_file(
     key: KeyArg,
     comment_id: Annotated[str, typer.Argument(metavar="COMMENT_ID", help="Id of the comment.")],
-    path: Annotated[Path, typer.Argument(help="Local file to attach.")],
+    path: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True, help="Local file to attach."),
+    ],
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
     filename: Annotated[

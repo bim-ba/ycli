@@ -6,6 +6,7 @@ Every method sends one declaration from :mod:`ycli.yandex.tracker.issues.endpoin
 from __future__ import annotations
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.issues import endpoints
 from ycli.yandex.tracker.issues.models import (
@@ -73,7 +74,7 @@ class IssuesClient(Resource):
             The matching issues.
 
         Raises:
-            ValueError: If ``limit`` is below 1.
+            YandexInvalidRequestError: If ``limit`` is below 1.
 
         Examples:
             >>> from ycli.yandex.tracker.issues.models import IssueSearch
@@ -85,7 +86,9 @@ class IssuesClient(Resource):
             'DE-7'
         """
         if limit is not None and limit < 1:
-            raise ValueError(f"limit must be a positive number of issues or None, got {limit}")
+            raise YandexInvalidRequestError(
+                f"limit must be a positive number of issues or None, got {limit}"
+            )
         # A small cap needs no 100-issue page.
         page_size = min(limit, endpoints.SEARCH_PAGE_SIZE) if limit else endpoints.SEARCH_PAGE_SIZE
         if scroll_type is not None:

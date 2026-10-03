@@ -294,6 +294,13 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 carries `Field(description=…)`, which becomes the MCP schema text. Request bodies are typed
 models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 
+**What ycli checks.** The form of a request, as the published schema shows it without the
+server: field names, types, closed sets of values, which arguments go together. A client method
+that finds a wrong form raises `YandexInvalidRequestError` (`ycli.yandex.errors`) before anything
+is sent; the CLI prints it as a usage error (exit code 2), an MCP tool as a tool error, and
+neither surface repeats the check. Whether a well-formed request makes sense is the API's to
+say: its error is returned as it is.
+
 **`cli.py`**:
 
 - `from __future__ import annotations`; `app = typer.Typer(name=…, help=…, no_args_is_help=True)`;
@@ -305,6 +312,9 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
   binary download returns `BinaryResult(data, output)` behind `--output`.
 - Every argument and option is `Annotated[…, typer.Argument(help=…)]` /
   `Annotated[…, typer.Option(help=…)]`. A write builds the typed request model from the options.
+- A local file is a `Path` with `exists=True, dir_okay=False, readable=True`, so a missing file
+  is a usage error, not a traceback; a JSON body file goes through `Model.model_validate_json`
+  (`tests/test_cli_files.py` lists every such command).
 - An option that is not given is `None` (`Annotated[str | None, typer.Option(…)] = None`), never
   `""` or `0`: an explicit empty string or zero is a value and is sent, so `--description ""`
   clears a field. A test asks `is not None`, not truthiness. An MCP tool parameter follows the

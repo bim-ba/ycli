@@ -41,8 +41,6 @@ def get(
 
     The single-answer read is a flat query-param route, so no survey id is needed.
     """
-    if bool(answer_id) == bool(answer_key):
-        raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")
     return forms.answers.get(answer_id=answer_id, answer_key=answer_key)
 
 
@@ -186,8 +184,6 @@ def integrations_list(
     forms: FormsClient,
 ) -> ItemList[AnswerIntegration]:
     """List the integration runs an answer triggered (exactly one of --answer-id / --answer-key)."""
-    if bool(answer_id) == bool(answer_key):
-        raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")
     return forms.answers.integrations_list(answer_id=answer_id, answer_key=answer_key)
 
 

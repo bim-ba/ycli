@@ -2,7 +2,7 @@
 
 import pytest
 
-from ycli.yandex.errors import YandexClientError
+from ycli.yandex.errors import YandexClientError, YandexInvalidRequestError
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import IssueSearch, IssueUpdate
 
@@ -20,6 +20,6 @@ def test_a_key_cannot_reach_another_endpoint(api):
 def test_search_rejects_a_non_positive_limit():
     with (
         TrackerClient(oauth_token="t", organization_id="o") as client,
-        pytest.raises(ValueError, match="positive"),
+        pytest.raises(YandexInvalidRequestError, match="positive"),
     ):
         client.issues.search(IssueSearch(query="q"), limit=0)
