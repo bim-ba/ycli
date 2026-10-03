@@ -9,6 +9,33 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.56.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.55.0
+  ([`90ce6ad`](https://github.com/bim-ba/ycli/commit/90ce6adbd65cf9b09622a9a0cd36376e3e8b04d7))
+
+### Features
+
+- **mcp**: A tool parameter that is not given is None, as in the CLI
+  ([#269](https://github.com/bim-ba/ycli/pull/269),
+  [`2a74a25`](https://github.com/bim-ba/ycli/commit/2a74a25559a9143969221ec9c9219977dc1ff3d9))
+
+### Testing
+
+- **e2e**: The janitor counts an issue that is already closed as done
+  ([#266](https://github.com/bim-ba/ycli/pull/266),
+  [`777e114`](https://github.com/bim-ba/ycli/commit/777e114635c374b35797f3c254ada87d4546924a))
+
+### Breaking Changes
+
+- **mcp**: In the input schemas of these MCP tools the default of the listed parameters is null
+  instead of "" or 0, an explicit "" is sent to the API instead of being ignored, and `limit` has
+  minimum 1 (`limit: 0` is refused; leave it out for the configured cap): forms_answers_list:
+  answer_format, date_from, date_to, ordering, questions
+
+
 ## v0.55.0 (2026-10-03)
 
 ### Bug Fixes
