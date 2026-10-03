@@ -52,7 +52,9 @@ Notable shared pieces:
   `src/ycli/cli/fields.py` — the shared `key=value` field parser (`--field`, and `ycli api`'s `-f`/`-F`)
 - `src/ycli/cli/api.py` — `ycli api`, the raw passthrough: it builds an `Endpoint` and sends it with
   `DomainClient.send` / `iterate`, so retries, errors, `--dry-run` and the delete guard all apply. A
-  CLI-only root command, not a resource, so ARCH-1 (per-resource parity) has no entry for it
+  CLI-only root command, not a resource, so ARCH-1 (per-resource parity) has no entry for it.
+  `ycli doctor` (`yandex/status/doctor.py`) is one too: it runs the probes of `auth status`
+  in order and says what to fix; an agent has `status_get`
 
 ## Invariants (ARCH-1..8)
 

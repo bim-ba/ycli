@@ -34,4 +34,5 @@ Exit codes: 0 ok · 1 failure · 2 usage · 3 not found · 4 auth · 5 rate limi
 * [`ycli forms`](forms.md): Yandex Forms: surveys, questions, answers, publishing.
 * [`ycli auth`](auth.md): Inspect and obtain Yandex 360 credentials.
 * [`ycli mcp`](mcp.md): MCP server control (reads + writes).
+* [`ycli doctor`](doctor.md): Check what a working call needs and say what to fix.
 * [`ycli api`](api.md): Call any API endpoint ycli has not wrapped, like `gh api`.

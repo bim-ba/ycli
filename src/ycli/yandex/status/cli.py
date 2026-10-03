@@ -27,12 +27,15 @@ from ycli.settings import (
     AppConfig,
     Credentials,
     OAuthAppConfig,
+    credential_sources,
     missing_credentials,
+    proxy_variables,
 )
 from ycli.yandex.errors import YandexAuthError
 from ycli.yandex.status.client import OAuthClient, TokenPollResult
+from ycli.yandex.status.doctor import diagnose
 from ycli.yandex.status.env_file import EnvFile
-from ycli.yandex.status.models import AuthReport
+from ycli.yandex.status.models import AuthReport, DoctorReport
 from ycli.yandex.status.reporter import build_report
 from ycli.yandex.status.service_cli import failure_code
 from ycli.yandex.status.token_client import TokenClient
@@ -44,6 +47,9 @@ if TYPE_CHECKING:
 
 # Help text lives with the root sub-app list (ycli.cli.app).
 app = typer.Typer(name="auth", no_args_is_help=True)
+# `ycli doctor`: one command at the root. It lives here because, like `auth status`, it reads
+# the credentials itself to report on them (ARCH-7 root).
+doctor_app = typer.Typer(name="doctor", add_completion=False)
 
 _ENV_NAMES = {
     "oauth_token": OAUTH_TOKEN_ENV,
@@ -71,6 +77,22 @@ def status(*, config: AppConfig) -> AuthReport | ExitWith:
         if all(s.valid for s in report.services)
         else ExitWith(report, exit_code=failure_code(report.services))
     )
+
+
+@doctor_app.command()
+def doctor(*, config: AppConfig) -> DoctorReport | ExitWith:
+    """Check everything a working call needs, in order, and say what to fix.
+
+    Where the credentials come from (never their value), whether Yandex ID accepts the token,
+    the organization, each service, and which extras are installed. A check that cannot run
+    after an earlier failure is skipped. Exits 0 unless a check failed.
+    """
+    try:
+        credentials = Credentials()  # ty: ignore[missing-argument]
+    except ValidationError:
+        credentials = None
+    report, exit_code = diagnose(credentials, credential_sources(), proxy_variables(), config)
+    return report if exit_code is ExitCode.OK else ExitWith(report, exit_code=exit_code)
 
 
 @app.command()

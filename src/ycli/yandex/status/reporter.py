@@ -33,13 +33,20 @@ def probe_service(name: str, client: DomainClient) -> ServiceAuthStatus:
     A 401 gives ``valid=False, detail="token invalid or expired"``; any other failure keeps its
     message in ``detail``.
     """
+    error = probe_error(client)
+    if error is None:
+        return ServiceAuthStatus(service=name, valid=True)
+    detail = TOKEN_REJECTED if isinstance(error, YandexAuthError) else str(error)
+    return ServiceAuthStatus(service=name, detail=detail)
+
+
+def probe_error(client: DomainClient) -> YandexError | None:
+    """What ``client``'s own ``probe()`` raised, or ``None`` when the service accepts the token."""
     try:
         client.probe()
-    except YandexAuthError:
-        return ServiceAuthStatus(service=name, detail=TOKEN_REJECTED)
-    except YandexError as exc:
-        return ServiceAuthStatus(service=name, detail=str(exc))
-    return ServiceAuthStatus(service=name, valid=True)
+    except YandexError as error:
+        return error
+    return None
 
 
 def build_report(credentials: Credentials, config: AppConfig) -> AuthReport:
@@ -51,7 +58,7 @@ def build_report(credentials: Credentials, config: AppConfig) -> AuthReport:
     token = credentials.oauth_token.get_secret_value()
     with TokenClient(oauth_token=token, http=config.http) as token_client:
         identity = _identity(token_client)
-        organization = _organization(token_client, credentials.organization_id)
+        organization = organization_status(token_client, credentials.organization_id)
     services = []
     for service in SERVICES:
         with build_client(service.client_class(), credentials, config) as client:
@@ -70,7 +77,7 @@ def _identity(token_client: TokenClient) -> Identity | None:
         return None
 
 
-def _organization(token_client: TokenClient, organization_id: str) -> OrganizationStatus:
+def organization_status(token_client: TokenClient, organization_id: str) -> OrganizationStatus:
     """The configured organization with its name, or its id alone and a note saying why."""
     try:
         organizations = token_client.organizations()

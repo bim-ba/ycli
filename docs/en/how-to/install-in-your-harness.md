@@ -402,7 +402,7 @@ npx skills add bim-ba/ycli/plugins/yandex-360
 | Nothing changes after you edit the config | Restart the client; Claude Desktop must be quit completely |
 | The first start times out | The first `uvx` run downloads the package. Run `uvx --from 'yandex-cli[mcp]' ycli --version` once in a terminal, or raise the client's start timeout |
 | The client rejects the server or hides tools | It limits the number of tools (VS Code 128, Cascade 100). Serve fewer: `--toolsets core`, see [Serve the MCP server](serve-the-mcp-server.md) |
-| A call answers 401 or 403 | The token is wrong or lacks a permission: run `ycli auth status` with the same two values |
+| A call answers 401 or 403 | The token is wrong or lacks a permission: run `ycli doctor` with the same two values: it names the check that fails and the fix |
 
 To see what the server does, start it by hand and read the error it prints:
 

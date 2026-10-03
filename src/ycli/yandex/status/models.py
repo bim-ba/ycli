@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
@@ -53,3 +55,26 @@ class AuthReport(APIModel):
     identity: Identity | None = None
     organization: OrganizationStatus | None = None
     services: list[ServiceAuthStatus] = Field(default_factory=list)
+
+
+class Check(APIModel):
+    """One thing ``ycli doctor`` checked: what it found and, when it is wrong, what to do."""
+
+    check: str = Field(description="What was checked: `token`, `service:tracker`, `extra:mcp`.")
+    status: Literal["ok", "warn", "fail", "skipped"] = Field(
+        description="`fail` breaks a call, `warn` does not, `skipped` could not run."
+    )
+    detail: str = Field(default="", description="What was found, or why the check was skipped.")
+    fix: str | None = Field(default=None, description="What to do about a `warn` or a `fail`.")
+
+
+class DoctorReport(APIModel):
+    """Every check of ``ycli doctor`` in the order it ran.
+
+    Examples:
+        >>> DoctorReport(ok=True, checks=[Check(check="token", status="ok")]).checks[0].status
+        'ok'
+    """
+
+    ok: bool = Field(description="`false` when a check failed.")
+    checks: list[Check] = Field(default_factory=list, description="The checks, in order.")
