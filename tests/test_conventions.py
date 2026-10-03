@@ -163,16 +163,6 @@ def test_the_union_check_bites():
     assert _undiscriminated_unions({"anyOf": [{"$ref": "#/$defs/A"}, {"type": "null"}]}) == []
 
 
-# A request body that takes fields its model does not declare, and why it must.
-OPEN_BODIES = {
-    "ycli.yandex.forms.filling.models.SubmitBody": "the answers of a form, one key per question",
-    "ycli.yandex.tracker.entities.models.EntityFieldsInput": "an entity takes custom fields",
-    "ycli.yandex.tracker.issues.models.IssueCreate": "an issue takes custom fields",
-    "ycli.yandex.tracker.issues.models.IssueUpdate": "an issue takes custom fields",
-    "ycli.yandex.tracker.issues.models.IssueSearch": "the search takes the API's other keys",
-    "ycli.yandex.tracker.transitions.models.TransitionExecute": "a transition sets any issue field",
-}
-
 # Models that both build a request body and read a reply. A reply keeps what Yandex adds, so
 # they stay open; a key they do not declare, nested in a body, reaches the API.
 BODY_AND_REPLY = {
@@ -255,7 +245,7 @@ def test_a_request_body_is_closed_or_listed_with_its_reason():
     longer fits its list fails too.
     """
     bodies, replies = _model_roles()
-    assert _open_bodies(bodies, replies) == sorted(OPEN_BODIES)
+    assert _open_bodies(bodies, replies) == sorted(api_drift.OPEN_BODIES)
     assert sorted(_name(model) for model in bodies & replies) == sorted(BODY_AND_REPLY)
     closed_replies = sorted(_name(model) for model in replies if issubclass(model, RequestBody))
     assert closed_replies == [], "a reply model that refuses unknown fields"

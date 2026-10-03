@@ -84,6 +84,10 @@ IGNORED = "the API accepts it and ignores it (checked live on 2026-10-04)"
 _RETURNED = "the API returns it (checked live on 2026-10-04), the published schema omits it"
 _SURVEYS = (("POST", "/surveys"), ("PATCH", "/surveys/{}"))
 _QUESTIONS = (("POST", "/surveys/{}/questions"), ("PATCH", "/surveys/{}/questions/{}"))
+_SUBSCRIPTIONS = (
+    ("POST", "/surveys/{}/hooks/{}/subscriptions"),
+    ("PATCH", "/surveys/{}/hooks/{}/subscriptions/{}"),
+)
 EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, path, kind, name
     **{
         ("forms", method, path, "unknown_request", name): IGNORED
@@ -91,6 +95,16 @@ EXPLAINED: dict[tuple[str, str, str, str, str], str] = {  # service, method, pat
         for name in ("is_public", "is_published", "language")
     },
     **{("forms", method, path, "unknown_request", "id"): IGNORED for method, path in _QUESTIONS},
+    **{
+        (
+            "forms",
+            method,
+            path,
+            "unknown_request",
+            "id",
+        ): "one model builds the body and reads the reply, and the reply carries `id`"
+        for method, path in _SUBSCRIPTIONS
+    },
     ("forms", "DELETE", "/surveys/{}/questions/{}", "unknown_query", "force"): IGNORED,
 }
 EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {  # service, kind, name
@@ -357,10 +371,27 @@ def _call(found: Recorded) -> Call:
     )
 
 
+# A request body that takes fields its model does not declare, and why it must. Every other
+# body is compared by its declared fields, a model a reply also reads included.
+OPEN_BODIES = {
+    "ycli.yandex.forms.filling.models.SubmitBody": "the answers of a form, one key per question",
+    "ycli.yandex.tracker.entities.models.EntityFieldsInput": "an entity takes custom fields",
+    "ycli.yandex.tracker.issues.models.IssueCreate": "an issue takes custom fields",
+    "ycli.yandex.tracker.issues.models.IssueUpdate": "an issue takes custom fields",
+    "ycli.yandex.tracker.issues.models.IssueSearch": "the search takes the API's other keys",
+    "ycli.yandex.tracker.transitions.models.TransitionExecute": "a transition sets any issue field",
+}
+
+
+def _qualified(model: type) -> str:
+    """The dotted name ``OPEN_BODIES`` lists a model under."""
+    return f"{model.__module__}.{model.__qualname__}"
+
+
 def _body_fields(body: Any | None) -> frozenset[str] | None:
     """The top-level names a typed body can carry; ``None`` when it is open to any field."""
     models = _models(body)
-    if not models or any(model.model_config.get("extra") == "allow" for model in models):
+    if not models or any(_qualified(model) in OPEN_BODIES for model in models):
         return None
     return frozenset(
         field.alias or name for model in models for name, field in model.model_fields.items()

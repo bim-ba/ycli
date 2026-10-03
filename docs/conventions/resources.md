@@ -27,10 +27,11 @@ alike, keeps the API's field names). A model that only request bodies are built 
 built, not something sent to the API. Never use bare `pydantic.BaseModel` inside
 `ycli.yandex`; a bare mapping with no fields of its own is a `RootModel[dict[...]]`.
 
-Two lists in `tests/test_conventions.py` hold what is open on purpose, each entry with its
-reason: `OPEN_BODIES` (an issue takes custom fields) and `BODY_AND_REPLY` (a model that both
-builds a body and reads a reply stays open, so a key it does not declare, nested in a body,
-reaches the API). A model must not carry a pydantic serializer (`field_serializer`,
+Two lists hold what is open on purpose, each entry with its reason: `OPEN_BODIES` in
+`scripts/api_drift.py` (an issue takes custom fields; the drift comparison skips only these
+bodies) and `BODY_AND_REPLY` in `tests/test_conventions.py` (a model that both builds a body
+and reads a reply stays open, so a key it does not declare, nested in a body, reaches the API;
+its declared fields are still compared with the published ones). A model must not carry a pydantic serializer (`field_serializer`,
 `model_serializer`, `computed_field`, …): `core.endpoint.dump_body` reads field values itself
 and would skip it.
 
