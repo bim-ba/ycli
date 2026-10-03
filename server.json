@@ -3,7 +3,7 @@
   "name": "io.github.bim-ba/ycli",
   "title": "Yandex 360 (ycli)",
   "description": "Yandex 360 Tracker, Wiki and Forms: read and write tools with honest read-only annotations.",
-  "version": "0.47.0",
+  "version": "0.48.0",
   "websiteUrl": "https://github.com/bim-ba/ycli",
   "repository": {
     "url": "https://github.com/bim-ba/ycli",
@@ -13,10 +13,10 @@
     {
       "registryType": "pypi",
       "identifier": "yandex-cli",
-      "version": "0.47.0",
+      "version": "0.48.0",
       "runtimeHint": "uvx",
       "runtimeArguments": [
-        { "type": "named", "name": "--with", "value": "yandex-cli[mcp]==0.47.0" }
+        { "type": "named", "name": "--with", "value": "yandex-cli[mcp]==0.48.0" }
       ],
       "packageArguments": [
         { "type": "positional", "value": "mcp" },
@@ -30,7 +30,7 @@
     },
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/bim-ba/ycli:0.47.0",
+      "identifier": "ghcr.io/bim-ba/ycli:0.48.0",
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "YANDEX_ID_OAUTH_TOKEN", "description": "Yandex OAuth token with Tracker, Wiki and Forms access.", "isRequired": true, "isSecret": true },

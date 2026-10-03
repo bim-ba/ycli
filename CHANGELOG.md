@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.48.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.47.0
+  ([`9f68db7`](https://github.com/bim-ba/ycli/commit/9f68db77097793c75328adf74a4bd600f643399e))
+
+### Features
+
+- **cli**: Ycli doctor says what is broken and how to fix it
+  ([#247](https://github.com/bim-ba/ycli/pull/247),
+  [`a3aeb66`](https://github.com/bim-ba/ycli/commit/a3aeb66b341191a51cf505615fb2152341f884c5))
+
+- **cli**: Ycli doctor says when a newer release is out
+  ([#247](https://github.com/bim-ba/ycli/pull/247),
+  [`a3aeb66`](https://github.com/bim-ba/ycli/commit/a3aeb66b341191a51cf505615fb2152341f884c5))
+
+
 ## v0.47.0 (2026-10-03)
 
 ### Build System
