@@ -27,6 +27,8 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import builtins
+import importlib
 import inspect
 import re
 import sys
@@ -47,14 +49,13 @@ if str(ROOT) not in sys.path:
 from scripts import api_surface  # noqa: E402
 from scripts.api_surface import Operation, shape  # noqa: E402
 from tests.contract import Case, Sibling, load_cases  # noqa: E402
-from tests.full_server import mcp  # noqa: E402
 from tests.mock_api import MockAPI  # noqa: E402
 
 from ycli.yandex.core.endpoint import ENDPOINT_EXTENSION, PAGED_EXTENSION  # noqa: E402
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Mapping
 
     import httpx2
 
@@ -95,7 +96,8 @@ class Recorded:
 
     ``template`` is the endpoint's path with each segment that came from an argument of the
     SDK call named after it: ``/issues/DE-7`` sent by ``issues.get(key="DE-7")`` is
-    ``/issues/{key}``.
+    ``/issues/{key}``. ``arguments`` are those of that call by name, ``hints`` their
+    annotations.
     """
 
     case: Case
@@ -103,6 +105,8 @@ class Recorded:
     pagination: Pagination | None
     requests: tuple[httpx2.Request, ...]
     template: str
+    arguments: Mapping[str, Any]
+    hints: Mapping[str, Any]
 
 
 @dataclass(frozen=True)
@@ -177,6 +181,23 @@ def _fields(response_type: Any) -> frozenset[str] | None:
     )
 
 
+def _hints(function: Callable[..., Any]) -> dict[str, Any]:
+    """The annotations of ``function`` as types, ``Any`` where one cannot be resolved.
+
+    The modules keep their annotations as strings, and some name an import made only for type
+    checking (``Sequence``), which does not exist at run time.
+    """
+    function = getattr(function, "__func__", function)
+    namespace = {**vars(builtins), **vars(inspect.getmodule(function))}
+    hints: dict[str, Any] = {}
+    for name, annotation in inspect.get_annotations(function).items():
+        try:
+            hints[name] = eval(annotation, namespace) if isinstance(annotation, str) else annotation
+        except NameError:
+            hints[name] = Any
+    return hints
+
+
 def _template(case: Case, operation: Callable[..., Any], path: str) -> str:
     """``path`` with the segments that are arguments of ``operation`` replaced by their names."""
     bound = inspect.signature(operation).bind(*case.args, **case.kwargs)
@@ -234,28 +255,32 @@ def replay(case: Case) -> list[Recorded]:
             and str(request.url.copy_with(query=None)).rstrip("/") == url
         )
         template = _template(case, operation, endpoint.path)
-        found.append(Recorded(case, endpoint, pagination, requests, template))
+        arguments = inspect.signature(operation).bind(*case.args, **case.kwargs).arguments
+        hints = _hints(operation)
+        found.append(Recorded(case, endpoint, pagination, requests, template, arguments, hints))
     return found
 
 
 @cache
-def _mcp_tools() -> dict[str, Any]:
-    """Every MCP tool by name; their ``body`` parameters are ycli's typed request bodies."""
-    return {tool.name: tool for tool in asyncio.run(mcp.list_tools())}
+def _tool_functions(domain: str, resource: str) -> dict[str, Callable[..., Any]]:
+    """The functions behind a resource's MCP tools, by the tool's served name."""
+    module = importlib.import_module(f"ycli.yandex.{domain}.{resource}.mcp")
+    return {f"{domain}_{tool.name}": tool.fn for tool in asyncio.run(module.mcp.list_tools())}
 
 
-def typed_body(found: Recorded) -> dict[str, Any] | None:
-    """The schema of the body ``found`` sends, when its MCP tool declares a body model.
+def typed_body(found: Recorded) -> Any | None:
+    """The type of the body ``found`` sends, a model or a union of them, if its MCP tool has one.
 
     The SDK itself takes a free-form mapping, so the MCP tool's ``body`` parameter is the one
     typed description of a request body; it stands for the request only when the operation
-    sends nothing else. ``$defs`` rides along for the references to resolve.
+    sends nothing else.
     """
-    tool = _mcp_tools().get(found.case.mcp[0]) if found.case.mcp else None
-    body = (tool.parameters.get("properties", {}) if tool else {}).get("body")
-    if tool is None or body is None or len(replay(found.case)) != 1:
+    if not found.case.mcp or len(replay(found.case)) != 1:
         return None
-    return {**body, "$defs": tool.parameters.get("$defs", {})}
+    domain, resource, _ = found.case.operation.split(".")
+    function = _tool_functions(domain, resource).get(found.case.mcp[0])
+    annotation = _hints(function).get("body") if function else None
+    return annotation if _models(annotation) else None
 
 
 @cache
@@ -282,18 +307,14 @@ def _call(found: Recorded) -> Call:
     )
 
 
-def _body_fields(schema: dict[str, Any] | None) -> frozenset[str] | None:
+def _body_fields(body: Any | None) -> frozenset[str] | None:
     """The top-level names a typed body can carry; ``None`` when it is open to any field."""
-    if schema is None or _resolved_body(schema).get("additionalProperties"):
+    models = _models(body)
+    if not models or any(model.model_config.get("extra") == "allow" for model in models):
         return None
-    return frozenset(api_surface.field_names(schema, schema))
-
-
-def _resolved_body(schema: dict[str, Any]) -> dict[str, Any]:
-    """``schema`` with a top-level reference into its own ``$defs`` followed."""
-    while "$ref" in schema:
-        schema = {**schema["$defs"][schema["$ref"].rsplit("/", 1)[1]], "$defs": schema["$defs"]}
-    return schema
+    return frozenset(
+        field.alias or name for model in models for name, field in model.model_fields.items()
+    )
 
 
 def calls() -> list[Call]:
