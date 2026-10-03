@@ -51,7 +51,7 @@ def add_comment(key: str, body: CommentCreate) -> Endpoint[Comment]:
     return Endpoint("POST", f"issues/{segment(key)}/comments/", Comment, json=body)
 
 
-def edit_comment(key: str, comment_id: int | str, body: CommentUpdate) -> Endpoint[Comment]:
+def update_comment(key: str, comment_id: int | str, body: CommentUpdate) -> Endpoint[Comment]:
     path = f"issues/{segment(key)}/comments/{segment(comment_id)}"
     return Endpoint("PATCH", path, Comment, json=body)
 

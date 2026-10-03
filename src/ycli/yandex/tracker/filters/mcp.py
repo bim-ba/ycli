@@ -55,7 +55,7 @@ def create(body: FilterCreate, client: TrackerClient = Depends(tracker_client)) 
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker filter"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     filter_id: Annotated[
         str, Field(description="Identifier of the saved filter, from ``filters_get``.")
     ],
@@ -66,7 +66,7 @@ def edit(
 
     Get ``filter_id`` from ``filters_get`` / the Tracker UI. Returns the updated filter.
     """
-    return client.filters.edit(filter_id, body)
+    return client.filters.update(filter_id, body)
 
 
 @mcp.tool(

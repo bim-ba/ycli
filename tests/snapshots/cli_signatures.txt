@@ -92,9 +92,9 @@ mcp start: --dry-run:BOOLEAN=False --exclude-tools:TEXT='' --format:CHOICE --hos
 tracker applications list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False
 tracker attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments download: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILENAME:TEXT! FILE_ID:TEXT! ISSUE_KEY:TEXT!
+tracker attachments download-thumbnail: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
-tracker attachments thumbnail: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:TEXT! ISSUE_KEY:TEXT!
 tracker attachments upload: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --rename-to:TEXT='' --yes:BOOLEAN=False FILE_PATH:PATH! ISSUE_KEY:TEXT!
 tracker attachments upload-temp: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --rename-to:TEXT='' --yes:BOOLEAN=False FILE_PATH:PATH!
 tracker auth status: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False

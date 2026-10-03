@@ -71,7 +71,7 @@ def update(
 ) -> Filter:
     """Edit filter FILTER_ID (PATCH /filters/{id}) — no version lock; filter is replaced whole."""
     body = FilterUpdate(name=name or None, query=query or None, filter=_parse_filter(filter_))
-    return tracker.filters.edit(filter_id, body)
+    return tracker.filters.update(filter_id, body)
 
 
 @app.command()

@@ -34,7 +34,7 @@ def create_question(survey_id: str, body: QuestionCreate) -> Endpoint[Question]:
     return Endpoint("POST", _questions(survey_id), Question, json=body)
 
 
-def modify_question(survey_id: str, question_id: str, body: QuestionCreate) -> Endpoint[Question]:
+def update_question(survey_id: str, question_id: str, body: QuestionCreate) -> Endpoint[Question]:
     path = f"{_questions(survey_id)}/{segment(question_id)}"
     return Endpoint("PATCH", path, Question, json=body)
 

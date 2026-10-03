@@ -1,4 +1,4 @@
-"""Wiki ``/pages/{id}/comments`` client on the httpx2 core; ``thread`` rebuilds client-side."""
+"""Wiki ``/pages/{id}/comments`` client on the httpx2 core; ``thread_list`` rebuilds client-side."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class CommentsClient(Resource):
-    """``/pages/{id}/comments``: list, create, delete; ``thread`` rebuilds a thread client-side."""
+    """``/pages/{id}/comments``: list, create, delete; ``thread_list`` rebuilds a thread."""
 
     def list(
         self,
@@ -51,7 +51,7 @@ class CommentsClient(Resource):
         )
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
-    def thread(
+    def thread_list(
         self, page_id: int, comment_id: int, *, limit: int | None = None
     ) -> ItemList[Comment]:
         """The comment ``comment_id`` followed by its replies, reconstructed from ``comments list``.
@@ -74,7 +74,10 @@ class CommentsClient(Resource):
             The comment and its replies.
 
         Examples:
-            >>> [comment.content for comment in wiki.comments.thread(5503, 5511, limit=15).root]
+            >>> [
+            ...     comment.content
+            ...     for comment in wiki.comments.thread_list(5503, 5511, limit=15).root
+            ... ]
             ['Ship it?', 'Agreed']
         """
         comments = self.list(page_id=page_id).root
@@ -139,7 +142,7 @@ class CommentsClient(Resource):
 
         Checked live on 2026-10-02: the endpoint answers ``{"results": []}`` for a root comment
         and for its replies, plain or inline, so this returns an empty list for every real
-        thread. Use :meth:`thread`, which rebuilds the thread from :meth:`list`; this raw call
+        thread. Use :meth:`thread_list`, which rebuilds the thread from :meth:`list`; this raw call
         stays for the day the server fills it in. Capped at ``limit`` (``None`` = everything).
 
         Args:

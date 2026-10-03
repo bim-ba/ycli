@@ -142,7 +142,7 @@ def update(
         "need_auth": need_auth,
         "max_count": max_count or None,
     }
-    return forms.surveys.modify(survey_id, body=SurveyUpdate.model_validate(_given(named, field)))
+    return forms.surveys.update(survey_id, body=SurveyUpdate.model_validate(_given(named, field)))
 
 
 @app.command()

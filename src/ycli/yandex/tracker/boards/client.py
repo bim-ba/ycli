@@ -9,7 +9,7 @@ from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 
 
 class BoardsClient(Resource):
-    """List (relative-paginated), get, create, edit and delete agile boards."""
+    """List (relative-paginated), get, create, update and delete agile boards."""
 
     def list(self, *, limit: int | None = None) -> ItemList[Board]:
         """All agile boards in the organisation, draining the ``id=<last board id>`` cursor.
@@ -65,7 +65,7 @@ class BoardsClient(Resource):
         """
         return self._session.send(endpoints.create_board(body))
 
-    def edit(self, board_id: int, body: BoardUpdate) -> Board:
+    def update(self, board_id: int, body: BoardUpdate) -> Board:
         """Edit an agile board from a typed ``BoardUpdate`` body. Returns the updated ``Board``.
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
@@ -78,10 +78,10 @@ class BoardsClient(Resource):
             The updated board.
 
         Examples:
-            >>> tracker.boards.edit(51, BoardUpdate(name="Renamed board")).name
+            >>> tracker.boards.update(51, BoardUpdate(name="Renamed board")).name
             'Renamed board'
         """
-        return self._session.send(endpoints.edit_board(board_id, body))
+        return self._session.send(endpoints.update_board(board_id, body))
 
     def delete(self, board_id: int) -> None:
         """``DELETE /boards/{board_id}`` — delete a board (``204``, empty body).

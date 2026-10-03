@@ -6,7 +6,7 @@ answers with ``200`` and a body — returns the issue with its updated checklist
 Examples:
     >>> clear_checklist("DE-1").effect
     'destructive'
-    >>> edit_checklist_item("DE-1", "5f", {"checked": True}).path
+    >>> update_checklist_item("DE-1", "5f", {"checked": True}).path
     'issues/DE-1/checklistItems/5f'
 """
 
@@ -30,7 +30,7 @@ def create_checklist_item(key: str, body: ChecklistItemCreate) -> Endpoint[Check
     return Endpoint("POST", f"issues/{segment(key)}/checklistItems", Checklist, json=body)
 
 
-def edit_checklist_item(key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Checklist]:
+def update_checklist_item(key: str, item_id: str, body: ChecklistItemUpdate) -> Endpoint[Checklist]:
     path = f"issues/{segment(key)}/checklistItems/{segment(item_id)}"
     return Endpoint("PATCH", path, Checklist, json=body)
 

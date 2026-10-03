@@ -81,7 +81,7 @@ def update(
         lead=lead or None,
         assign_auto=assign_auto,
     )
-    return tracker.components.edit(component_id, body, version=version)
+    return tracker.components.update(component_id, body, version=version)
 
 
 @app.command("list-for-queue")
@@ -122,7 +122,7 @@ def user_permissions_get(
     tracker: TrackerClient,
 ) -> ComponentUserAccess:
     """Show what USER may do on a component (GET /components/{id}/permissions/users/{user})."""
-    return tracker.components.user_permissions(component_id, user_id)
+    return tracker.components.user_permissions_get(component_id, user_id)
 
 
 @app.command("group-permissions-get")
@@ -133,4 +133,4 @@ def group_permissions_get(
     tracker: TrackerClient,
 ) -> ComponentGroupAccess:
     """Show what GROUP_ID may do on a component (…/permissions/groups/{group})."""
-    return tracker.components.group_permissions(component_id, group_id)
+    return tracker.components.group_permissions_get(component_id, group_id)

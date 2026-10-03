@@ -119,7 +119,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker worklog record"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     key: IssueKey,
     record_id: WorklogRecordId,
     body: WorklogUpdate,
@@ -129,7 +129,7 @@ def edit(
 
     Get ``record_id`` from ``worklog_list``. Returns the updated record.
     """
-    return client.worklog.edit(key, record_id, body)
+    return client.worklog.update(key, record_id, body)
 
 
 @mcp.tool(

@@ -9,7 +9,7 @@ from ycli.yandex.models import Ack, ItemList
 
 
 class SurveysClient(Resource):
-    """List, get, create, modify, delete, publish and unpublish forms."""
+    """List, get, create, update, delete, publish and unpublish forms."""
 
     def list(
         self,
@@ -86,7 +86,7 @@ class SurveysClient(Resource):
         """
         return self._session.send(endpoints.create_survey(body))
 
-    def modify(self, survey_id: str, body: SurveyUpdate) -> Survey:
+    def update(self, survey_id: str, body: SurveyUpdate) -> Survey:
         """``PATCH /surveys/{id}`` — only the keys present in ``body`` change (a ``SurveyUpdate``).
 
         Args:
@@ -98,12 +98,12 @@ class SurveysClient(Resource):
 
         Examples:
             >>> from ycli.yandex.forms.surveys.models import SurveyUpdate
-            >>> forms.surveys.modify(
+            >>> forms.surveys.update(
             ...     "686d0a1b2c3d4e5f00000002", SurveyUpdate.model_validate({"name": "Onboarding"})
             ... ).name
             'Onboarding'
         """
-        return self._session.send(endpoints.modify_survey(survey_id, body))
+        return self._session.send(endpoints.update_survey(survey_id, body))
 
     def delete(self, survey_id: str) -> Ack:
         """``DELETE /surveys/{id}`` (``204 No Content``) → an :class:`Ack`.

@@ -203,7 +203,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.worklog.edit",
+        "tracker.worklog.update",
         args=(
             "DE-67",
             "671",

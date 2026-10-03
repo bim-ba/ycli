@@ -78,7 +78,7 @@ class QueuesClient(Resource):
         """
         return self._session.send(endpoints.get_queue(queue_id, expand=expand))
 
-    def tags(self, queue_id: str) -> ItemList[str]:
+    def tags_list(self, queue_id: str) -> ItemList[str]:
         """``GET /queues/{queue_id}/tags`` → the queue's tag names as a flat string array.
 
         Args:
@@ -88,12 +88,12 @@ class QueuesClient(Resource):
             The queue's tag names.
 
         Examples:
-            >>> tracker.queues.tags("TAGQ").root
+            >>> tracker.queues.tags_list("TAGQ").root
             ['tag1', 'tag2']
         """
         return self._session.send(endpoints.list_tags(queue_id))
 
-    def versions(self, queue_id: str) -> ItemList[QueueVersionInfo]:
+    def versions_list(self, queue_id: str) -> ItemList[QueueVersionInfo]:
         """``GET /queues/{queue_id}/versions`` → the queue's versions.
 
         Args:
@@ -103,12 +103,12 @@ class QueuesClient(Resource):
             The queue's versions.
 
         Examples:
-            >>> tracker.queues.versions("VERQ").root[0].name
+            >>> tracker.queues.versions_list("VERQ").root[0].name
             'v0.1'
         """
         return self._session.send(endpoints.list_versions(queue_id))
 
-    def fields(self, queue_id: str) -> ItemList[QueueField]:
+    def fields_list(self, queue_id: str) -> ItemList[QueueField]:
         """``GET /queues/{queue_id}/fields`` → the queue's required/local fields.
 
         Args:
@@ -118,7 +118,7 @@ class QueuesClient(Resource):
             The queue's fields.
 
         Examples:
-            >>> tracker.queues.fields("FLDQ").root[0].id
+            >>> tracker.queues.fields_list("FLDQ").root[0].id
             'myfield'
         """
         return self._session.send(endpoints.list_fields(queue_id))
@@ -231,7 +231,7 @@ class QueuesClient(Resource):
     def version_get(self, version_id: int, *, fields: str | None = None) -> QueueVersionInfo:
         """``GET /versions/{version_id}`` → one queue version.
 
-        ``fields`` is a comma list of the fields to return (``name,dueDate,released``, …).
+        ``fields_list`` is a comma list of the fields to return (``name,dueDate,released``, …).
 
         Args:
             version_id: The version's id.
@@ -246,7 +246,7 @@ class QueuesClient(Resource):
         """
         return self._session.send(endpoints.get_version(version_id, fields=fields))
 
-    def version_edit(
+    def version_update(
         self, version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
     ) -> QueueVersionInfo:
         """``PATCH /versions/{version_id}`` → change the set fields of a version.
@@ -261,12 +261,12 @@ class QueuesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.queues.models import QueueVersionUpdate
-            >>> tracker.queues.version_edit(
+            >>> tracker.queues.version_update(
             ...     903, QueueVersionUpdate(name="Release 1.1"), fields="name,description"
             ... ).version
             2
         """
-        return self._session.send(endpoints.edit_version(version_id, body, fields=fields))
+        return self._session.send(endpoints.update_version(version_id, body, fields=fields))
 
     def version_delete(self, version_id: int) -> None:
         """``DELETE /versions/{version_id}`` → 204; raises on non-2xx.
@@ -279,7 +279,7 @@ class QueuesClient(Resource):
         """
         self._session.send(endpoints.delete_version(version_id))
 
-    def user_permissions(self, queue_id: str, user_id: str) -> QueueUserAccess:
+    def user_permissions_get(self, queue_id: str, user_id: str) -> QueueUserAccess:
         """``GET /queues/{queue_id}/permissions/users/{user_id}`` → what a user may do in a queue.
 
         ``user_id`` is a login or a numeric uid.
@@ -292,12 +292,12 @@ class QueuesClient(Resource):
             The user's rights in the queue.
 
         Examples:
-            >>> tracker.queues.user_permissions("PERMQ", "carol").user.display
+            >>> tracker.queues.user_permissions_get("PERMQ", "carol").user.display
             'Carol'
         """
         return self._session.send(endpoints.get_user_access(queue_id, user_id))
 
-    def group_permissions(self, queue_id: str, group_id: int) -> QueueGroupAccess:
+    def group_permissions_get(self, queue_id: str, group_id: int) -> QueueGroupAccess:
         """``GET /queues/{queue_id}/permissions/groups/{group_id}`` → what a group may do.
 
         Args:
@@ -308,7 +308,7 @@ class QueuesClient(Resource):
             The group's rights in the queue.
 
         Examples:
-            >>> tracker.queues.group_permissions("PERMG", 77).group.display
+            >>> tracker.queues.group_permissions_get("PERMG", 77).group.display
             'Editors'
         """
         return self._session.send(endpoints.get_group_access(queue_id, group_id))

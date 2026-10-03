@@ -66,7 +66,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.statuses.edit",
+        "tracker.statuses.update",
         args=(
             "29",
             StatusUpdate(
@@ -126,7 +126,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.statuses.edit",
+        "tracker.statuses.update",
         args=("closed", StatusUpdate(order=900)),
         cli=["tracker", "statuses", "update", "closed", "--order", "900"],
         mcp=None,

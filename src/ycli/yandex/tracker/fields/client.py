@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 class FieldsClient(Resource):
-    """List, get, create and edit global fields; create and edit their categories."""
+    """List, get, create and update global fields; create and edit their categories."""
 
     def list(self) -> ItemList[CustomField]:
         """``GET /fields`` → all global fields of the organisation.
@@ -75,7 +75,9 @@ class FieldsClient(Resource):
         """
         return self._session.send(endpoints.create_field(body))
 
-    def edit(self, field_id: str, body: FieldUpdate, *, version: int | None = None) -> CustomField:
+    def update(
+        self, field_id: str, body: FieldUpdate, *, version: int | None = None
+    ) -> CustomField:
         """Edit field ``field_id`` from a typed ``FieldUpdate`` body (rename and/or options).
 
         ``version`` is the current field version; when set it is sent as ``?version=`` for
@@ -92,12 +94,12 @@ class FieldsClient(Resource):
         Examples:
             >>> from ycli.yandex.tracker.models import LocalizedName
             >>> from ycli.yandex.tracker.fields.models import FieldUpdate
-            >>> tracker.fields.edit(
+            >>> tracker.fields.update(
             ...     "ruName", FieldUpdate(name=LocalizedName(ru="Имя")), version=3
             ... ).id
             'ruName'
         """
-        return self._session.send(endpoints.edit_field(field_id, body, version=version))
+        return self._session.send(endpoints.update_field(field_id, body, version=version))
 
     def category_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
         """Create a field category from a typed ``FieldCategoryCreate`` body.
@@ -118,7 +120,7 @@ class FieldsClient(Resource):
         """
         return self._session.send(endpoints.create_category(body))
 
-    def category_edit(
+    def category_update(
         self, category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
     ) -> FieldCategoryRecord:
         """Edit field category ``category_id`` from a typed ``FieldCategoryUpdate`` body.
@@ -136,9 +138,9 @@ class FieldsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.fields.models import FieldCategoryUpdate
-            >>> tracker.fields.category_edit(
+            >>> tracker.fields.category_update(
             ...     "604f99", FieldCategoryUpdate(order=500), version=1
             ... ).version
             2
         """
-        return self._session.send(endpoints.edit_category(category_id, body, version=version))
+        return self._session.send(endpoints.update_category(category_id, body, version=version))

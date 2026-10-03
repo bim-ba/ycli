@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class CommentsClient(Resource):
-    """List (relative-paginated), get, add, edit, delete and react to an issue's comments."""
+    """List (relative-paginated), get, add, update, delete and react to an issue's comments."""
 
     def list(
         self,
@@ -84,7 +84,7 @@ class CommentsClient(Resource):
         """
         return self._session.send(endpoints.add_comment(key, body))
 
-    def edit(self, key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
+    def update(self, key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
         """``PATCH /issues/{key}/comments/{comment_id}`` — edit a comment. Returns it.
 
         Args:
@@ -97,12 +97,12 @@ class CommentsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.comments.models import CommentUpdate
-            >>> tracker.comments.edit(
+            >>> tracker.comments.update(
             ...     "DE-16", "161", CommentUpdate.model_validate({"text": "fixed typo"})
             ... ).text
             'fixed typo'
         """
-        return self._session.send(endpoints.edit_comment(key, comment_id, body))
+        return self._session.send(endpoints.update_comment(key, comment_id, body))
 
     def delete(self, key: str, comment_id: str) -> None:
         """Delete a comment (``DELETE …/comments/{id}`` → 204). Raises on non-2xx.

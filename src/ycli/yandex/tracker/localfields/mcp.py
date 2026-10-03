@@ -88,7 +88,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker local field"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     queue_id: QueueId,
     field_key: Annotated[
         str, Field(description="Key of the queue-local field, from ``localfields_list``.")
@@ -100,4 +100,4 @@ def edit(
 
     Get ``field_key`` from ``localfields_list``. Returns the updated field definition.
     """
-    return client.localfields.edit(queue_id, field_key, body)
+    return client.localfields.update(queue_id, field_key, body)

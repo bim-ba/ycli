@@ -112,7 +112,7 @@ class EntitiesClient(Resource):
         endpoint = endpoints.get_entity(entity_type, entity_id, expand=expand, fields=fields)
         return self._session.send(endpoint)
 
-    def edit(
+    def update(
         self,
         entity_type: str,
         entity_id: str,
@@ -135,7 +135,7 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import EntityUpdate
-            >>> tracker.entities.edit(
+            >>> tracker.entities.update(
             ...     "project",
             ...     "655f04",
             ...     EntityUpdate.model_validate({"fields": {"summary": "Renamed"}}),
@@ -143,7 +143,7 @@ class EntitiesClient(Resource):
             '655f04'
         """
         return self._session.send(
-            endpoints.edit_entity(entity_type, entity_id, body, expand=expand, fields=fields)
+            endpoints.update_entity(entity_type, entity_id, body, expand=expand, fields=fields)
         )
 
     def delete(self, entity_type: str, entity_id: str, *, with_board: bool | None = None) -> None:
@@ -195,7 +195,7 @@ class EntitiesClient(Resource):
         )
         return ItemList[Entity](self._session.send(endpoint).values)
 
-    def history(
+    def events_list(
         self,
         entity_type: str,
         entity_id: str,
@@ -224,7 +224,7 @@ class EntitiesClient(Resource):
             The entity's events.
 
         Examples:
-            >>> [event.id for event in tracker.entities.history("project", "655f13").root]
+            >>> [event.id for event in tracker.entities.events_list("project", "655f13").root]
             ['e1', 'e2']
         """
         paged = endpoints.list_events(
@@ -239,7 +239,7 @@ class EntitiesClient(Resource):
             return ItemList[EntityEvent](self._session.send(paged.endpoint).events)
         return ItemList[EntityEvent](list(self._session.iterate(paged, limit=limit)))
 
-    def permissions(self, entity_type: str, entity_id: str) -> ExtendedPermissions:
+    def permissions_get(self, entity_type: str, entity_id: str) -> ExtendedPermissions:
         """``GET …/extendedPermissions`` → access settings (acl + permissionSources).
 
         Args:
@@ -250,7 +250,7 @@ class EntitiesClient(Resource):
             The entity's access settings.
 
         Examples:
-            >>> tracker.entities.permissions("project", "655f15").acl.read.roles
+            >>> tracker.entities.permissions_get("project", "655f15").acl.read.roles
             ['OWNER']
         """
         return self._session.send(endpoints.get_permissions(entity_type, entity_id))
@@ -284,10 +284,10 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.set_permissions(entity_type, entity_id, body))
 
-    def direct_permissions(self, entity_type: str, entity_id: str) -> Acl:
+    def direct_permissions_get(self, entity_type: str, entity_id: str) -> Acl:
         """``GET …/permissions`` → the direct READ / WRITE / GRANT rights, without inheritance.
 
-        :meth:`permissions` is the extended view (``acl`` plus where rights are inherited from).
+        :meth:`permissions_get` is the extended view (``acl`` plus where rights are inherited from).
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
@@ -297,7 +297,7 @@ class EntitiesClient(Resource):
             The entity's direct rights.
 
         Examples:
-            >>> tracker.entities.direct_permissions("project", "655f17").grant.roles
+            >>> tracker.entities.direct_permissions_get("project", "655f17").grant.roles
             ['AUTHOR', 'OWNER']
         """
         return self._session.send(endpoints.get_direct_permissions(entity_type, entity_id))
@@ -328,7 +328,7 @@ class EntitiesClient(Resource):
         """``POST …/bulkchange/_update`` — mass-edit entities (async). Returns the operation.
 
         The response is a handle whose ``status`` starts at ``CREATED``; poll
-        :meth:`bulk_status` with ``id`` until it reaches a terminal status.
+        :meth:`bulk_status_get` with ``id`` until it reaches a terminal status.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
@@ -349,7 +349,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.bulk_update(entity_type, body))
 
-    def bulk_status(self, operation_id: str) -> BulkChangeOperation:
+    def bulk_status_get(self, operation_id: str) -> BulkChangeOperation:
         """``GET /bulkchange/{operation_id}`` → the current bulk-change operation status.
 
         Args:
@@ -359,7 +359,7 @@ class EntitiesClient(Resource):
             The operation with its current status.
 
         Examples:
-            >>> tracker.entities.bulk_status("658").status
+            >>> tracker.entities.bulk_status_get("658").status
             'COMPLETE'
         """
         return self._session.send(endpoints.get_bulk_status(operation_id))
@@ -420,7 +420,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.list_comments(entity_type, entity_id, expand=expand))
 
-    def comments_relative(
+    def comments_relative_list(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
     ) -> ItemList[Comment]:
         """``GET …/comments/_relative`` → flat ``ItemList[Comment]``, draining ``from=<longId>``.
@@ -439,7 +439,9 @@ class EntitiesClient(Resource):
         Examples:
             >>> [
             ...     c.id
-            ...     for c in tracker.entities.comments_relative("portfolio", "pf22", limit=10).root
+            ...     for c in tracker.entities.comments_relative_list(
+            ...         "portfolio", "pf22", limit=10
+            ...     ).root
             ... ]
             [31, 32]
         """
@@ -514,7 +516,7 @@ class EntitiesClient(Resource):
             )
         )
 
-    def comments_edit(
+    def comments_update(
         self,
         entity_type: str,
         entity_id: str,
@@ -549,12 +551,12 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import CommentUpdate
-            >>> tracker.entities.comments_edit(
+            >>> tracker.entities.comments_update(
             ...     "goal", "g27", "27", CommentUpdate.model_validate({"text": "Fixed typo"})
             ... ).text
             'Fixed typo'
         """
-        endpoint = endpoints.edit_comment(
+        endpoint = endpoints.update_comment(
             entity_type,
             entity_id,
             comment_id,
@@ -648,7 +650,7 @@ class EntitiesClient(Resource):
             )
         )
 
-    def checklists_edit(
+    def checklists_update(
         self,
         entity_type: str,
         entity_id: str,
@@ -678,7 +680,7 @@ class EntitiesClient(Resource):
         Examples:
             >>> from ycli.yandex.tracker.entities.models import ChecklistItemInput
             >>> from ycli.yandex.models import ItemList
-            >>> tracker.entities.checklists_edit(
+            >>> tracker.entities.checklists_update(
             ...     "goal",
             ...     "g30",
             ...     ItemList[ChecklistItemInput].model_validate(
@@ -688,7 +690,7 @@ class EntitiesClient(Resource):
             'g30'
         """
         return self._session.send(
-            endpoints.edit_checklist(
+            endpoints.update_checklist(
                 entity_type,
                 entity_id,
                 body,
@@ -699,7 +701,7 @@ class EntitiesClient(Resource):
             )
         )
 
-    def checklists_edit_item(
+    def checklists_update_item(
         self,
         entity_type: str,
         entity_id: str,
@@ -730,7 +732,7 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import ChecklistItemInput
-            >>> tracker.entities.checklists_edit_item(
+            >>> tracker.entities.checklists_update_item(
             ...     "portfolio",
             ...     "pf32",
             ...     "1f",
@@ -738,7 +740,7 @@ class EntitiesClient(Resource):
             ... ).id
             'pf32'
         """
-        endpoint = endpoints.edit_checklist_item(
+        endpoint = endpoints.update_checklist_item(
             entity_type,
             entity_id,
             item_id,
@@ -970,7 +972,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.get_attachment(entity_type, entity_id, file_id))
 
-    def attachment_download(self, file_id: str, filename: str) -> bytes:
+    def attachments_download(self, file_id: str, filename: str) -> bytes:
         r"""Download an attachment's raw bytes (a non-2xx answer raises a typed error).
 
         Binary output is CLI/SDK-only — never an MCP payload. ``file_id`` and ``filename`` come
@@ -984,7 +986,7 @@ class EntitiesClient(Resource):
             The attachment's raw bytes.
 
         Examples:
-            >>> tracker.entities.attachment_download("46", "flowers.jpg")[:4]
+            >>> tracker.entities.attachments_download("46", "flowers.jpg")[:4]
             b'\xff\xd8\xff\xe0'
         """
         return self._session.send(endpoints.download_attachment(file_id, filename))

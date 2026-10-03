@@ -2,7 +2,7 @@
 
 A "condition" is a GROUP of clauses with its own ``operator``; a target's groups are joined by
 the target-level operator that ``*_set_operator`` changes. Individual clauses have no ids: a
-clause is edited by replacing its whole group with ``*_modify``.
+clause is edited by replacing its whole group with ``*_update``.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class ConditionsClient(Resource):
-    """List, get, create, modify, delete and re-join the display-condition groups of a target."""
+    """List, get, create, update, delete and re-join the display-condition groups of a target."""
 
     # --- question family: when a question is shown ---
 
@@ -85,7 +85,7 @@ class ConditionsClient(Resource):
         target = endpoints.question_target(survey_id, question_id)
         return self._session.send(endpoints.create_condition(target, body))
 
-    def question_modify(
+    def question_update(
         self, survey_id: str, question_id: str, condition_id: int, body: ConditionUpdate
     ) -> Condition:
         """``PATCH …/questions/{question_id}/conditions/{condition_id}`` — replace the group.
@@ -105,11 +105,11 @@ class ConditionsClient(Resource):
             ...     operator="or",
             ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
             ... )
-            >>> forms.conditions.question_modify("686d0a1b2c3d4e5f00000090", "17", 104, body).id
+            >>> forms.conditions.question_update("686d0a1b2c3d4e5f00000090", "17", 104, body).id
             104
         """
         target = endpoints.question_target(survey_id, question_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, body))
+        return self._session.send(endpoints.update_condition(target, condition_id, body))
 
     def question_delete(self, survey_id: str, question_id: str, condition_id: int) -> None:
         """``DELETE …/questions/{question_id}/conditions/{condition_id}`` (200, no body).
@@ -212,7 +212,7 @@ class ConditionsClient(Resource):
         target = endpoints.page_target(survey_id, page_id)
         return self._session.send(endpoints.create_condition(target, body))
 
-    def page_modify(
+    def page_update(
         self, survey_id: str, page_id: int, condition_id: int, body: ConditionUpdate
     ) -> Condition:
         """``PATCH …/pages/{page_id}/conditions/{condition_id}`` — replace the group.
@@ -232,11 +232,11 @@ class ConditionsClient(Resource):
             ...     operator="or",
             ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
             ... )
-            >>> forms.conditions.page_modify("686d0a1b2c3d4e5f00000090", 3, 204, body).id
+            >>> forms.conditions.page_update("686d0a1b2c3d4e5f00000090", 3, 204, body).id
             204
         """
         target = endpoints.page_target(survey_id, page_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, body))
+        return self._session.send(endpoints.update_condition(target, condition_id, body))
 
     def page_delete(self, survey_id: str, page_id: int, condition_id: int) -> None:
         """``DELETE …/pages/{page_id}/conditions/{condition_id}`` (200, no body).
@@ -332,7 +332,7 @@ class ConditionsClient(Resource):
         target = endpoints.submit_target(survey_id)
         return self._session.send(endpoints.create_condition(target, body))
 
-    def submit_modify(self, survey_id: str, condition_id: int, body: ConditionUpdate) -> Condition:
+    def submit_update(self, survey_id: str, condition_id: int, body: ConditionUpdate) -> Condition:
         """``PATCH /surveys/{id}/conditions/{condition_id}`` — replace the group.
 
         Args:
@@ -349,11 +349,11 @@ class ConditionsClient(Resource):
             ...     operator="or",
             ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
             ... )
-            >>> forms.conditions.submit_modify("686d0a1b2c3d4e5f00000090", 304, body).id
+            >>> forms.conditions.submit_update("686d0a1b2c3d4e5f00000090", 304, body).id
             304
         """
         target = endpoints.submit_target(survey_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, body))
+        return self._session.send(endpoints.update_condition(target, condition_id, body))
 
     def submit_delete(self, survey_id: str, condition_id: int) -> None:
         """``DELETE /surveys/{id}/conditions/{condition_id}`` (200, no body).
@@ -454,7 +454,7 @@ class ConditionsClient(Resource):
         target = endpoints.hook_target(survey_id, hook_id)
         return self._session.send(endpoints.create_condition(target, body))
 
-    def hook_modify(
+    def hook_update(
         self, survey_id: str, hook_id: int, condition_id: int, body: ConditionUpdate
     ) -> Condition:
         """``PATCH …/hooks/{hook_id}/conditions/{condition_id}`` — replace the group.
@@ -474,11 +474,11 @@ class ConditionsClient(Resource):
             ...     operator="or",
             ...     items=[ConditionItemWrite(type="language", condition="eq", value="ru")],
             ... )
-            >>> forms.conditions.hook_modify("686d0a1b2c3d4e5f00000090", 11, 404, body).id
+            >>> forms.conditions.hook_update("686d0a1b2c3d4e5f00000090", 11, 404, body).id
             404
         """
         target = endpoints.hook_target(survey_id, hook_id)
-        return self._session.send(endpoints.modify_condition(target, condition_id, body))
+        return self._session.send(endpoints.update_condition(target, condition_id, body))
 
     def hook_delete(self, survey_id: str, hook_id: int, condition_id: int) -> None:
         """``DELETE …/hooks/{hook_id}/conditions/{condition_id}`` (200, no body).

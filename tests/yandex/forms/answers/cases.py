@@ -50,7 +50,6 @@ INTEGRATIONS = [
 ]
 
 FILTERED = "686d0a1b2c3d4e5f00000036"
-FILTERED_PAGE = "686d0a1b2c3d4e5f00000037"
 FILTERS = {
     "questions": "17,18",
     "use_slugs": True,
@@ -88,13 +87,6 @@ CASES = [
     Case(
         "forms.answers.list",
         args=(SID,),
-        cli=None,
-        mcp=None,
-        exchanges=[(Sent("GET", f"surveys/{SID}/answers"), Reply(json=PAGE))],
-    ),
-    Case(
-        "forms.answers.list_all",
-        args=(SID,),
         kwargs={"limit": 500},
         cli=["forms", "answers", "list", SID],
         mcp=("forms_answers_list", {"survey_id": SID}),
@@ -122,7 +114,7 @@ CASES = [
     ),
     # A limit below the page keeps only that many answers (MCP always uses the configured cap).
     Case(
-        "forms.answers.list_all",
+        "forms.answers.list",
         args=(SID,),
         kwargs={"limit": 1},
         cli=["forms", "answers", "list", SID, "--limit", "1"],
@@ -149,7 +141,7 @@ CASES = [
         },
     ),
     Case(
-        "forms.answers.list_all",
+        "forms.answers.list",
         args=(SID,),
         kwargs={"limit": None},
         cli=["forms", "answers", "list", SID, "--all"],
@@ -288,7 +280,7 @@ CASES = [
     ),
     # The filters of the listing, kept on every page; the raw format has no columns (#196).
     Case(
-        "forms.answers.list_all",
+        "forms.answers.list",
         args=(FILTERED,),
         kwargs={"limit": 500, **FILTERS},
         cli=[
@@ -334,15 +326,5 @@ CASES = [
             ],
             "next": None,
         },
-    ),
-    Case(
-        "forms.answers.list",
-        args=(FILTERED_PAGE,),
-        kwargs=FILTERS,
-        cli=None,
-        mcp=None,
-        exchanges=[
-            (Sent("GET", f"surveys/{FILTERED_PAGE}/answers", SENT_FILTERS), Reply(json=PAGE))
-        ],
     ),
 ]

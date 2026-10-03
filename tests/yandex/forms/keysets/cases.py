@@ -53,7 +53,7 @@ CASES = [
         ],
     ),
     Case(
-        "forms.keysets.modify",
+        "forms.keysets.update",
         args=(
             SID,
             4,

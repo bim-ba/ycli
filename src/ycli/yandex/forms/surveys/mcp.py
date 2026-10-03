@@ -97,14 +97,14 @@ def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> S
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms survey"},
     tags=WRITE_TAGS,
 )
-def modify(
+def update(
     survey_id: SurveyId, body: SurveyUpdate, client: FormsClient = Depends(forms_client)
 ) -> Survey:
     """Patch a form's settings — only the fields set in ``body`` change; returns the ``Survey``.
 
     Untouched settings keep their current values, so a partial patch is safe to repeat.
     """
-    return client.surveys.modify(survey_id, body)
+    return client.surveys.update(survey_id, body)
 
 
 @mcp.tool(

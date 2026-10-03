@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class ResolutionsClient(Resource):
-    """List, create and edit issue resolutions."""
+    """List, create and update issue resolutions."""
 
     def list(self) -> ItemList[Resolution]:
         """``GET /resolutions`` → resolution listing.
@@ -55,7 +55,7 @@ class ResolutionsClient(Resource):
         """
         return self._session.send(endpoints.create_resolution(body))
 
-    def edit(
+    def update(
         self, resolution_id: str, body: ResolutionUpdate, *, version: int | None = None
     ) -> Resolution:
         """Edit resolution ``resolution_id`` from a typed ``ResolutionUpdate`` body.
@@ -73,9 +73,9 @@ class ResolutionsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.resolutions.models import ResolutionUpdate
-            >>> tracker.resolutions.edit(
+            >>> tracker.resolutions.update(
             ...     "9", ResolutionUpdate(description="Won't be fixed"), version=3
             ... ).version
             4
         """
-        return self._session.send(endpoints.edit_resolution(resolution_id, body, version=version))
+        return self._session.send(endpoints.update_resolution(resolution_id, body, version=version))

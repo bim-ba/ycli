@@ -52,7 +52,7 @@ def update(
 ) -> Hook:
     """Change integration group HOOK_ID: only the options given change (PATCH)."""
     body = HookUpdate(name=name or None, active=active)
-    return forms.hooks.modify(survey_id, hook_id, body)
+    return forms.hooks.update(survey_id, hook_id, body)
 
 
 @app.command()

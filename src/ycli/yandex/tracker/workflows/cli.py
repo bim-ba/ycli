@@ -149,7 +149,7 @@ def update(
             "issueTypeResolutions": _json_list(issue_type_resolution, "--issue-type-resolution"),
         }
     )
-    return tracker.workflows.edit(workflow_id, body, version=version)
+    return tracker.workflows.update(workflow_id, body, version=version)
 
 
 @app.command("update-action")
@@ -173,7 +173,7 @@ def update_action(
 ) -> Workflow:
     """Edit one action of a workflow step (PATCH …/steps/{status}/actions/{action})."""
     body = WorkflowActionUpdate.model_validate(_json(action, "--action"))
-    return tracker.workflows.edit_action(workflow_id, status, action_id, body, version=version)
+    return tracker.workflows.update_action(workflow_id, status, action_id, body, version=version)
 
 
 @app.command()

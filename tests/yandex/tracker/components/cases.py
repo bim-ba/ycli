@@ -92,7 +92,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.components.edit",
+        "tracker.components.update",
         args=(
             111175,
             ComponentUpdate(
@@ -146,7 +146,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.components.edit",
+        "tracker.components.update",
         args=(222, ComponentUpdate(assign_auto=True)),
         cli=["tracker", "components", "update", "222", "--assign-auto"],
         mcp=None,
@@ -232,7 +232,7 @@ CASES = [
         exchanges=[(Sent("DELETE", "components/127"), Reply(status=204))],
     ),
     Case(
-        "tracker.components.user_permissions",
+        "tracker.components.user_permissions_get",
         args=(128, "dan"),
         cli=["tracker", "components", "user-permissions-get", "128", "dan"],
         mcp=("tracker_components_user_permissions_get", {"component_id": 128, "user_id": "dan"}),
@@ -260,7 +260,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.components.group_permissions",
+        "tracker.components.group_permissions_get",
         args=(129, 88),
         cli=["tracker", "components", "group-permissions-get", "129", "88"],
         mcp=("tracker_components_group_permissions_get", {"component_id": 129, "group_id": 88}),

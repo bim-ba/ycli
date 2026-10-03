@@ -73,14 +73,14 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration group"},
     tags=WRITE_TAGS,
 )
-def modify(
+def update(
     survey_id: SurveyId,
     hook_id: HookId,
     body: Annotated[HookUpdate, Field(description="Fields to change; unset ones stay.")],
     client: FormsClient = Depends(forms_client),
 ) -> Hook:
     """Rename an integration group or switch it on or off; only the fields set change."""
-    return client.hooks.modify(survey_id, hook_id, body)
+    return client.hooks.update(survey_id, hook_id, body)
 
 
 @mcp.tool(

@@ -138,7 +138,7 @@ def events_list(
     Capped at the configured item cap unless ``limit`` is given.
     """
     cap = config.http.cap(limit)
-    return client.entities.history(
+    return client.entities.events_list(
         entity_type,
         entity_id,
         limit=cap,
@@ -162,7 +162,7 @@ def permissions_get(
     parent entities this one inherits permissions from. Change them with
     ``entities_set_permissions``.
     """
-    return client.entities.permissions(entity_type, entity_id)
+    return client.entities.permissions_get(entity_type, entity_id)
 
 
 @mcp.tool(
@@ -178,7 +178,7 @@ def direct_permissions_get(
     Unlike ``entities_permissions_get`` this leaves out inheritance (``permissionSources``).
     Change the rights with ``entities_set_direct_permissions``.
     """
-    return client.entities.direct_permissions(entity_type, entity_id)
+    return client.entities.direct_permissions_get(entity_type, entity_id)
 
 
 @mcp.tool(
@@ -268,7 +268,7 @@ def bulk_status_get(
 
     ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; poll until it settles.
     """
-    return client.entities.bulk_status(operation_id)
+    return client.entities.bulk_status_get(operation_id)
 
 
 @mcp.tool(
@@ -289,7 +289,7 @@ def comments_relative_list(
     pages up to ``limit`` (the configured item cap by default).
     """
     cap = config.http.cap(limit)
-    return client.entities.comments_relative(entity_type, entity_id, limit=cap)
+    return client.entities.comments_relative_list(entity_type, entity_id, limit=cap)
 
 
 @mcp.tool(
@@ -310,7 +310,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     entity_type: TypeArg,
     entity_id: IdArg,
     body: EntityUpdate,
@@ -322,7 +322,7 @@ def edit(
 
     Returns the updated entity.
     """
-    return client.entities.edit(
+    return client.entities.update(
         entity_type,
         entity_id,
         body,
@@ -469,7 +469,7 @@ def comments_update(
 
     ``comment_id`` addresses the comment (get it from ``entities_comments_list``).
     """
-    return client.entities.comments_edit(
+    return client.entities.comments_update(
         entity_type,
         entity_id,
         comment_id,
@@ -554,7 +554,7 @@ def checklists_update(
     ``body`` is a bare array of items, each with ``id``/``text``/``checked``. To edit a single
     item by id use ``entities_checklists_update_item``. Returns the entity with its checklist.
     """
-    return client.entities.checklists_edit(
+    return client.entities.checklists_update(
         entity_type,
         entity_id,
         body,
@@ -570,7 +570,7 @@ def checklists_update(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist item"},
     tags=WRITE_TAGS,
 )
-def checklists_edit_item(
+def checklists_update_item(
     entity_type: TypeArg,
     entity_id: IdArg,
     item_id: Annotated[str, Field(description="Checklist item id.")],
@@ -585,7 +585,7 @@ def checklists_edit_item(
 
     Returns the entity with its updated checklist.
     """
-    return client.entities.checklists_edit_item(
+    return client.entities.checklists_update_item(
         entity_type,
         entity_id,
         item_id,

@@ -61,7 +61,7 @@ class AutoactionsClient(Resource):
         """
         return self._session.send(endpoints.create_autoaction(queue_id, body))
 
-    def logs(self, queue_id: str, action_id: int) -> ItemList[AutoactionLogEntry]:
+    def logs_list(self, queue_id: str, action_id: int) -> ItemList[AutoactionLogEntry]:
         """``GET /queues/{queue_id}/autoactions/{action_id}/logs`` → per-run summaries.
 
         Args:
@@ -72,14 +72,12 @@ class AutoactionsClient(Resource):
             One summary per run.
 
         Examples:
-            >>> tracker.autoactions.logs("QA", 11).root[0].search_hits
+            >>> tracker.autoactions.logs_list("QA", 11).root[0].search_hits
             3
         """
         return self._session.send(endpoints.list_run_logs(queue_id, action_id))
 
-    def log_detail(
-        self, queue_id: str, action_id: int, run_id: str
-    ) -> ItemList[AutoactionRunEntry]:
+    def logs_get(self, queue_id: str, action_id: int, run_id: str) -> ItemList[AutoactionRunEntry]:
         """``GET .../autoactions/{action_id}/logs/{run_id}`` → per-issue outcomes of one run.
 
         Args:
@@ -91,7 +89,7 @@ class AutoactionsClient(Resource):
             The outcome for each issue the run touched.
 
         Examples:
-            >>> tracker.autoactions.log_detail("SUP", 12, "run-2").root[0].status.value
+            >>> tracker.autoactions.logs_get("SUP", 12, "run-2").root[0].status.value
             'success'
         """
         return self._session.send(endpoints.get_run_log(queue_id, action_id, run_id))

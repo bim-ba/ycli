@@ -1,7 +1,7 @@
 """Tracker saved ``/filters`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_filter("12345", {"name": "Renamed"}).method
+    >>> update_filter("12345", {"name": "Renamed"}).method
     'PATCH'
 """
 
@@ -19,7 +19,7 @@ def create_filter(body: FilterCreate) -> Endpoint[Filter]:
     return Endpoint("POST", "filters/", Filter, json=body)
 
 
-def edit_filter(filter_id: str, body: FilterUpdate) -> Endpoint[Filter]:
+def update_filter(filter_id: str, body: FilterUpdate) -> Endpoint[Filter]:
     """``PATCH /filters/{id}``: no ``?version=`` lock; ``filter`` is replaced, not merged."""
     return Endpoint("PATCH", f"filters/{segment(filter_id)}", Filter, json=body)
 

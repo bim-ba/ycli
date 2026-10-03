@@ -62,7 +62,7 @@ def logs_list(
     Each record's ``id`` is the run id you pass to ``autoactions_logs_get`` for that run's
     per-issue outcomes.
     """
-    return client.autoactions.logs(queue_id, action_id)
+    return client.autoactions.logs_list(queue_id, action_id)
 
 
 @mcp.tool(
@@ -83,7 +83,7 @@ def logs_get(
     Get the ``run_id`` from ``autoactions_logs_list``. Only autoactions that auto-update issues
     produce these detail logs.
     """
-    return client.autoactions.log_detail(queue_id, action_id, run_id)
+    return client.autoactions.logs_get(queue_id, action_id, run_id)
 
 
 @mcp.tool(

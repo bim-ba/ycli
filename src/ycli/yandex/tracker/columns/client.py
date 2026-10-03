@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class ColumnsClient(Resource):
-    """List, get, create, edit and delete the columns of an agile board."""
+    """List, get, create, update and delete the columns of an agile board."""
 
     def list(self, board_id: int) -> ItemList[Column]:
         """``GET /boards/{board_id}/columns`` → the board's column listing.
@@ -65,7 +65,7 @@ class ColumnsClient(Resource):
         """
         return self._session.send(endpoints.create_column(board_id, body))
 
-    def edit(self, board_id: int, column_id: int, body: ColumnUpdate) -> Column:
+    def update(self, board_id: int, column_id: int, body: ColumnUpdate) -> Column:
         """Edit a board column from a typed ``ColumnUpdate`` body. Returns the updated ``Column``.
 
         Only the fields set on ``body`` are sent, so omitted fields stay unchanged.
@@ -80,10 +80,10 @@ class ColumnsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.columns.models import ColumnUpdate
-            >>> tracker.columns.edit(76, 6, ColumnUpdate(name="Pause")).name
+            >>> tracker.columns.update(76, 6, ColumnUpdate(name="Pause")).name
             'Pause'
         """
-        return self._session.send(endpoints.edit_column(board_id, column_id, body))
+        return self._session.send(endpoints.update_column(board_id, column_id, body))
 
     def delete(self, board_id: int, column_id: int) -> None:
         """``DELETE /boards/{board_id}/columns/{column_id}`` — delete a column (``204``, no body).

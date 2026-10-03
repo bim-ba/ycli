@@ -205,7 +205,7 @@ server-side — moving a question above one its conditions depend on is rejected
 A question's show conditions: the ``{operator, items}`` envelope of condition groups.
 
 The top-level ``operator`` joins the GROUPS; each group has its own ``operator`` joining its
-clauses. A group's integer ``id`` is what the get/modify/delete tools take.
+clauses. A group's integer ``id`` is what the get/update/delete tools take.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -291,7 +291,7 @@ Group-internal operators are untouched — change those via ``conditions_questio
 A page's show conditions: the ``{operator, items}`` envelope of condition groups.
 
 The top-level ``operator`` joins the GROUPS; each group has its own ``operator`` joining its
-clauses. A group's integer ``id`` is what the get/modify/delete tools take.
+clauses. A group's integer ``id`` is what the get/update/delete tools take.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

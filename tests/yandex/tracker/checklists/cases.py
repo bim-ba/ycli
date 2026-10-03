@@ -108,7 +108,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.checklists.edit",
+        "tracker.checklists.update",
         args=(
             "DE-34",
             "5f4",
@@ -169,7 +169,7 @@ CASES = [
     ),
     # Only the supplied fields are sent.
     Case(
-        "tracker.checklists.edit",
+        "tracker.checklists.update",
         args=("DE-35", "5f5", ChecklistItemUpdate.model_validate({"checked": True})),
         cli=["tracker", "checklists", "update", "DE-35", "5f5", "--checked"],
         mcp=(

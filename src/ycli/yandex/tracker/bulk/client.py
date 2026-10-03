@@ -2,7 +2,7 @@
 
 Every method sends one declaration from :mod:`ycli.yandex.tracker.bulk.endpoints`. The three
 trigger calls (update/move/transition) each start an *async* operation and return a
-:class:`~ycli.yandex.tracker.bulk.models.BulkChange`; the reads (:meth:`get`, :meth:`issues`)
+:class:`~ycli.yandex.tracker.bulk.models.BulkChange`; the reads (:meth:`get`, :meth:`issues_list`)
 let a caller poll it to a terminal state.
 """
 
@@ -119,7 +119,7 @@ class BulkClient(Resource):
         """
         return self._session.send(endpoints.get_bulk(bulk_id))
 
-    def issues(self, bulk_id: str) -> ItemList[BulkIssueResult]:
+    def issues_list(self, bulk_id: str) -> ItemList[BulkIssueResult]:
         """``GET /bulkchange/{bulk_id}/issues`` → issues for which the operation failed.
 
         Args:
@@ -129,7 +129,7 @@ class BulkClient(Resource):
             The per-issue results.
 
         Examples:
-            >>> tracker.bulk.issues("5ij").root[0].issue
+            >>> tracker.bulk.issues_list("5ij").root[0].issue
             'DE-9'
         """
         return self._session.send(endpoints.list_bulk_issues(bulk_id))

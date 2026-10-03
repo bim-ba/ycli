@@ -26,7 +26,7 @@ def create_column(board_id: int, body: ColumnCreate) -> Endpoint[Column]:
     return Endpoint("POST", f"boards/{segment(board_id)}/columns/", Column, json=body)
 
 
-def edit_column(board_id: int, column_id: int, body: ColumnUpdate) -> Endpoint[Column]:
+def update_column(board_id: int, column_id: int, body: ColumnUpdate) -> Endpoint[Column]:
     path = f"boards/{segment(board_id)}/columns/{segment(column_id)}"
     return Endpoint("PATCH", path, Column, json=body)
 

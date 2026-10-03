@@ -76,7 +76,7 @@ def update(
         backlog_available=backlog,
         sprints_available=sprints,
     )
-    return tracker.boards.edit(board_id, body)
+    return tracker.boards.update(board_id, body)
 
 
 @app.command()

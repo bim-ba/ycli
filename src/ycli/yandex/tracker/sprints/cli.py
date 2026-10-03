@@ -73,7 +73,7 @@ def update(
         end_date=end_date or None,
         status=status or None,
     )
-    return tracker.sprints.edit(sprint_id, body, version=version)
+    return tracker.sprints.update(sprint_id, body, version=version)
 
 
 @app.command()

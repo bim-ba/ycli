@@ -66,7 +66,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.priorities.edit",
+        "tracker.priorities.update",
         args=(
             "blocker",
             PriorityUpdate(name=LocalizedName(ru="Блокер", en="Blocker"), description="Stops all"),
@@ -108,7 +108,7 @@ CASES = [
     ),
     # Without a name option no name key is sent; without --version no ?version=.
     Case(
-        "tracker.priorities.edit",
+        "tracker.priorities.update",
         args=("minor", PriorityUpdate(description="Small")),
         cli=["tracker", "priorities", "update", "minor", "--description", "Small"],
         mcp=None,

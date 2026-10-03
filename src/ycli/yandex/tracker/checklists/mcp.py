@@ -64,7 +64,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker checklist item"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     key: IssueKey,
     item_id: ChecklistItemId,
     body: ChecklistItemUpdate,
@@ -74,7 +74,7 @@ def edit(
 
     Get ``item_id`` from ``checklists_get``. Returns the issue with its updated checklist.
     """
-    return client.checklists.edit(key, item_id, body)
+    return client.checklists.update(key, item_id, body)
 
 
 @mcp.tool(

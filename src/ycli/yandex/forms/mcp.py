@@ -23,7 +23,7 @@ mcp = FastMCP(
     "forms",
     instructions=(
         "Yandex Forms — reads and writes. Reference a survey by id: surveys_list enumerates "
-        "them, questions_list / answers_list drill into one. Write tools (create / modify / "
+        "them, questions_list / answers_list drill into one. Write tools (create / update / "
         "delete / publish / submit / export / move) carry the 'write' tag and honest "
         "destructive/idempotent hints; binary endpoints (file & image upload, downloads) stay "
         "CLI/SDK-only."

@@ -1,7 +1,7 @@
 """Tracker ``/issuetypes`` operations, declared once (sans-IO).
 
 Examples:
-    >>> edit_issue_type("23", {"description": "x"}, version=1).params
+    >>> update_issue_type("23", {"description": "x"}, version=1).params
     {'version': 1}
 """
 
@@ -20,7 +20,7 @@ def create_issue_type(body: IssueTypeCreate) -> Endpoint[IssueType]:
     return Endpoint("POST", "issuetypes/", IssueType, json=body)
 
 
-def edit_issue_type(
+def update_issue_type(
     issue_type_id: str, body: IssueTypeUpdate, *, version: int | None = None
 ) -> Endpoint[IssueType]:
     """``PATCH /issuetypes/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""

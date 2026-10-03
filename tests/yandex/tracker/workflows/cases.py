@@ -234,7 +234,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.workflows.edit",
+        "tracker.workflows.update",
         args=(
             "W21",
             WorkflowUpdate(
@@ -309,7 +309,7 @@ CASES = [
     ),
     # Only the supplied fields are sent.
     Case(
-        "tracker.workflows.edit",
+        "tracker.workflows.update",
         args=("W22", WorkflowUpdate(name="Renamed")),
         kwargs={"version": 7},
         cli=["tracker", "workflows", "update", "W22", "--version", "7", "--name", "Renamed"],
@@ -322,7 +322,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.workflows.edit_action",
+        "tracker.workflows.update_action",
         args=(
             "W23",
             "inProgress",

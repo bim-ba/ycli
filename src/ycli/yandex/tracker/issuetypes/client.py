@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class IssueTypesClient(Resource):
-    """List, create and edit issue types."""
+    """List, create and update issue types."""
 
     def list(self) -> ItemList[IssueType]:
         """``GET /issuetypes`` → issue-type listing.
@@ -49,7 +49,7 @@ class IssueTypesClient(Resource):
         """
         return self._session.send(endpoints.create_issue_type(body))
 
-    def edit(
+    def update(
         self, issue_type_id: str, body: IssueTypeUpdate, *, version: int | None = None
     ) -> IssueType:
         """Edit issue type ``issue_type_id`` from a typed ``IssueTypeUpdate`` body.
@@ -68,11 +68,11 @@ class IssueTypesClient(Resource):
         Examples:
             >>> from ycli.yandex.tracker.models import LocalizedName
             >>> from ycli.yandex.tracker.issuetypes.models import IssueTypeUpdate
-            >>> tracker.issuetypes.edit(
+            >>> tracker.issuetypes.update(
             ...     "23",
             ...     IssueTypeUpdate(name=LocalizedName(ru="Покупатель", en="Buyer")),
             ...     version=2,
             ... ).key
             'client'
         """
-        return self._session.send(endpoints.edit_issue_type(issue_type_id, body, version=version))
+        return self._session.send(endpoints.update_issue_type(issue_type_id, body, version=version))

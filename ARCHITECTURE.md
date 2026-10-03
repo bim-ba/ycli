@@ -65,7 +65,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
 ### ARCH-1 — Surface parity
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
   name: the CLI path (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name,
-  and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
+  the SDK method is that name without the service and resource (`tracker_boards_update` is
+  `tracker.boards.update`), and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
   stops answering to its old name in the same release, and the changelog lists the old and the
   new name (the rule for models is in [`docs/conventions/resources.md`](docs/conventions/resources.md)).
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
@@ -79,6 +80,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   serves MCP tools from the mounted server, and nothing is served without a directory.
   `test_arch1_cli_path_equals_mcp_name` pairs each MCP tool with the CLI command that calls the
   same client operations and fails when their names differ or either uses a synonym verb.
+  `test_arch1_sdk_method_equals_tool_name` holds the SDK method to the name of a tool that
+  calls it (of the CLI command when no tool does; an operation reached only as a step of
+  another has no name to match), and the endpoint builders and tool functions to the verbs.
 - **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
   one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — a binary download is
   CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file

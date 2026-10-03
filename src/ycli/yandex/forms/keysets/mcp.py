@@ -1,6 +1,6 @@
 """Forms /surveys/{id}/keysets FastMCP tools (reads + writes, honest hints).
 
-List/get/create/modify/delete are all exposed; ``download`` (the actual keys) is a binary
+List/get/create/update/delete are all exposed; ``download`` (the actual keys) is a binary
 payload and stays CLI/SDK-only.
 """
 
@@ -81,7 +81,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms key set"},
     tags=WRITE_TAGS,
 )
-def modify(
+def update(
     survey_id: Annotated[str, Field(description="Form id (24-char hex) the key set belongs to.")],
     keyset_id: Annotated[int, Field(description="Key set id (integer) from ``keysets_list``.")],
     body: Annotated[
@@ -95,7 +95,7 @@ def modify(
     Despite the PATCH verb, the API validates the body as a full record: ``name``, ``total``
     and ``is_enabled`` must all be set or the request is rejected with ``400``.
     """
-    return client.keysets.modify(survey_id, keyset_id, body)
+    return client.keysets.update(survey_id, keyset_id, body)
 
 
 @mcp.tool(

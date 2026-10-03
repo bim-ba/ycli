@@ -81,7 +81,7 @@ def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client))
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker project"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     project_id: ProjectId,
     body: ProjectUpdate,
     version: Annotated[
@@ -94,7 +94,7 @@ def edit(
 
     Returns the project with its incremented version.
     """
-    return client.projects.edit(project_id, body, version=version, expand=expand)
+    return client.projects.update(project_id, body, version=version, expand=expand)
 
 
 @mcp.tool(

@@ -141,7 +141,7 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     # are not a model and can't round-trip an MCP tool result, so these stay CLI-only.
     "tracker.attachments.download": "binary download — CLI-only (bytes)",
     "tracker.attachments.download_thumbnail": "binary download — CLI-only (bytes)",
-    "tracker.entities.attachment_download": "binary download — CLI-only (bytes)",
+    "tracker.entities.attachments_download": "binary download — CLI-only (bytes)",
     "wiki.attachments.download": "binary download — CLI-only (bytes)",
     "wiki.attachments.download_by_url": "binary download — CLI-only (bytes)",
     "wiki.attachments.preview": "binary download — CLI-only (bytes)",
@@ -160,7 +160,6 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     "forms.answers.export_results": "CLI-only export poll helper",
     # SDK-internal single-page primitive, superseded by the pagination-aware `list_all` that BOTH
     # surfaces wrap; `list` itself is intentionally unwrapped on both.
-    "forms.answers.list": "SDK-internal single-page primitive (surfaces wrap list_all)",
 }
 
 
@@ -474,6 +473,95 @@ def test_arch1_cli_path_equals_mcp_name():
         "a CLI command and an MCP tool serve the same operation under different names; rename "
         "the CLI command or the tool, or list the "
         "tool in ARCH1_NAME_EXCEPTIONS with a reason:\n  " + "\n  ".join(problems)
+    )
+
+
+def _sdk_name_mismatches(
+    operations: set[str], cli: dict[str, frozenset[str]], tools: dict[str, frozenset[str]]
+) -> list[str]:
+    """SDK operations (``tracker.boards.edit``) named differently from what serves them.
+
+    An operation answers to the name of an MCP tool that calls it, without the service and
+    resource prefix; the CLI command's name stands in when no tool does. One operation may
+    serve several tools (``issues.search`` behind ``issues_list`` and ``issues_search``): any
+    of their names fits. An operation neither surface reaches under its own resource is a
+    step of another one and has no name to match.
+    """
+    problems = []
+    for operation in sorted(operations):
+        service, resource, method = operation.split(".")
+        prefix = f"{service}_{resource.rstrip('_')}_"
+        served = [
+            {name.removeprefix(prefix) for name in _counterparts(surface, frozenset({operation}))}
+            for surface in (
+                {name: ops for name, ops in tools.items() if name.startswith(prefix)},
+                {name: ops for name, ops in cli.items() if name.startswith(prefix)},
+            )
+        ]
+        names = served[0] or served[1]
+        if names and method not in names:
+            problems.append(f"{operation}: the surfaces call it {sorted(names)}")
+    return problems
+
+
+def _named_functions() -> set[str]:
+    """Every endpoint builder and MCP tool function, as ``tracker_boards_endpoints_update``."""
+    return {
+        f"{directory.parent.name}_{directory.name}_{module}_{node.name}"
+        for directory in _resource_dirs()
+        for module in ("endpoints", "mcp")
+        for node in ast.parse((directory / f"{module}.py").read_text(encoding="utf-8")).body
+        if isinstance(node, ast.FunctionDef)
+    }
+
+
+def test_arch1_sdk_method_equals_tool_name():
+    """An SDK method is named like the MCP tool that serves it, verb included (ARCH-1, #229).
+
+    ``tracker_boards_update`` is ``tracker.boards.update``; the endpoint builders and the tool
+    functions use the same verbs.
+    """
+    operations = {
+        f"{slug}.{attr}.{op}" for slug, attr, sdk_ops in _resource_operations() for op in sdk_ops
+    }
+    problems = _sdk_name_mismatches(operations, _cli_commands_by_name(), _mcp_tools_by_name())
+    problems += _synonym_verbs({operation.replace(".", "_") for operation in operations})
+    problems += _synonym_verbs(_named_functions())
+    assert not problems, (
+        "an SDK method is named differently from the MCP tool or the CLI command that serves "
+        "it; rename the method:\n  " + "\n  ".join(problems)
+    )
+
+
+def test_arch1_sdk_name_check_bites():
+    """Prove-it: a synonym verb, a bare-noun read and a CLI-only name are reported.
+
+    A second tool on the same operation and an operation no surface reaches are not.
+    """
+    edit = frozenset({"tracker.boards.edit"})
+    assert _sdk_name_mismatches(set(edit), {}, {"tracker_boards_update": edit}) == [
+        "tracker.boards.edit: the surfaces call it ['update']"
+    ]
+    assert _sdk_name_mismatches(
+        {"tracker.queues.tags"},
+        {},
+        {"tracker_queues_tags_list": frozenset({"tracker.queues.tags"})},
+    ) == ["tracker.queues.tags: the surfaces call it ['tags_list']"]
+    download = frozenset({"wiki.pages.fetch"})
+    assert _sdk_name_mismatches(set(download), {"wiki_pages_download": download}, {}) == [
+        "wiki.pages.fetch: the surfaces call it ['download']"
+    ]
+    search = frozenset({"tracker.issues.search"})
+    two = {"tracker_issues_list": search, "tracker_issues_search": search}
+    assert _sdk_name_mismatches(set(search), {}, two) == []
+    assert _sdk_name_mismatches({"forms.answers.export_results"}, {}, {}) == []
+    assert (
+        _sdk_name_mismatches(
+            {"tracker.import_.task"},
+            {},
+            {"tracker_import_task": frozenset({"tracker.import_.task"})},
+        )
+        == []
     )
 
 

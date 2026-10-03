@@ -148,4 +148,4 @@ def get(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkChange:
 @app.command()
 def issues_list(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> ItemList[BulkIssueResult]:
     """List issues that a bulk change failed on (GET /bulkchange/{id}/issues)."""
-    return tracker.bulk.issues(bulk_id)
+    return tracker.bulk.issues_list(bulk_id)

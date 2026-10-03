@@ -28,7 +28,7 @@ def create_keyset(survey_id: str, body: KeysetCreate) -> Endpoint[Keyset]:
     return Endpoint("POST", _keysets(survey_id), Keyset, json=body)
 
 
-def modify_keyset(survey_id: str, keyset_id: int, body: KeysetUpdate) -> Endpoint[Keyset]:
+def update_keyset(survey_id: str, keyset_id: int, body: KeysetUpdate) -> Endpoint[Keyset]:
     return Endpoint("PATCH", f"{_keysets(survey_id)}/{segment(keyset_id)}", Keyset, json=body)
 
 

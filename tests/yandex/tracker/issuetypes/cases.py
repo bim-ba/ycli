@@ -41,7 +41,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.issuetypes.edit",
+        "tracker.issuetypes.update",
         args=("23", IssueTypeUpdate(name=LocalizedName(ru="Покупатель", en="Buyer"))),
         kwargs={"version": 2},
         cli=[
@@ -77,7 +77,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.issuetypes.edit",
+        "tracker.issuetypes.update",
         args=("epic", IssueTypeUpdate(name=LocalizedName(en="Saga"))),
         cli=["tracker", "issuetypes", "update", "epic", "--name-en", "Saga"],
         mcp=None,

@@ -141,7 +141,7 @@ CASES = [
     ),
     # The --no-* flags send false, and --no-required clears every validator.
     Case(
-        "forms.questions.modify",
+        "forms.questions.update",
         args=(
             SID,
             "22",
@@ -180,7 +180,7 @@ CASES = [
         ],
     ),
     Case(
-        "forms.questions.modify",
+        "forms.questions.update",
         args=(SID, "18", QuestionCreateAdapter.validate_json(MATRIX.read_text())),
         cli=["forms", "questions", "update", SID, "18", "--body-file", str(MATRIX)],
         mcp=(

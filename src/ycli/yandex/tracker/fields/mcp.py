@@ -73,7 +73,7 @@ def create(body: FieldCreate, client: TrackerClient = Depends(tracker_client)) -
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field"},
     tags=WRITE_TAGS,
 )
-def edit(
+def update(
     field_id: Annotated[
         str, Field(description="Identifier of the issue field, from ``fields_list``.")
     ],
@@ -86,7 +86,7 @@ def edit(
     Pass ``version`` to guard against concurrent edits (optimistic locking). Returns the
     updated field definition.
     """
-    return client.fields.edit(field_id, body, version=version)
+    return client.fields.update(field_id, body, version=version)
 
 
 @mcp.tool(
@@ -110,7 +110,7 @@ def category_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field category"},
     tags=WRITE_TAGS,
 )
-def category_edit(
+def category_update(
     category_id: Annotated[str, Field(description="Identifier of the field category.")],
     body: FieldCategoryUpdate,
     version: Version = None,
@@ -120,4 +120,4 @@ def category_edit(
 
     Pass ``version`` to guard against concurrent edits (optimistic locking).
     """
-    return client.fields.category_edit(category_id, body, version=version)
+    return client.fields.category_update(category_id, body, version=version)

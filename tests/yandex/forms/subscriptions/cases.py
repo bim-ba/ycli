@@ -59,7 +59,7 @@ CASES = [
         exchanges=[(Sent("POST", SUBS, json=EMAIL), Reply(json=_read(5, EMAIL)))],
     ),
     Case(
-        "forms.subscriptions.modify",
+        "forms.subscriptions.update",
         args=(SID, 21, 6, SubscriptionAdapter.validate_python({**HTTP, "id": 6})),
         cli=None,
         mcp=(
@@ -69,7 +69,7 @@ CASES = [
         exchanges=[(Sent("PATCH", f"{SUBS}/6", json=HTTP), Reply(json=_read(6, HTTP)))],
     ),
     Case(
-        "forms.subscriptions.modify",
+        "forms.subscriptions.update",
         args=(SID, 21, 7, SubscriptionAdapter.validate_python(EMAIL)),
         cli=["forms", "subscriptions", "update", SID, "21", "7", "--body-file", EMAIL_FILE],
         mcp=None,

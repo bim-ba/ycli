@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class ComponentsClient(Resource):
-    """List, get, create, edit and delete queue components; read who may use them."""
+    """List, get, create, update and delete queue components; read who may use them."""
 
     def list(self) -> ItemList[Component]:
         """``GET /components`` → all components created by the organisation's users.
@@ -52,7 +52,7 @@ class ComponentsClient(Resource):
         """
         return self._session.send(endpoints.create_component(body))
 
-    def edit(
+    def update(
         self, component_id: int, body: ComponentUpdate, *, version: int | None = None
     ) -> Component:
         """Edit component ``component_id`` from a typed ``ComponentUpdate`` body.
@@ -70,10 +70,10 @@ class ComponentsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.components.models import ComponentUpdate
-            >>> tracker.components.edit(111175, ComponentUpdate(name="Web UI"), version=4).version
+            >>> tracker.components.update(111175, ComponentUpdate(name="Web UI"), version=4).version
             5
         """
-        return self._session.send(endpoints.edit_component(component_id, body, version=version))
+        return self._session.send(endpoints.update_component(component_id, body, version=version))
 
     def list_for_queue(self, queue_id: str, *, fields: str | None = None) -> ItemList[Component]:
         """``GET /queues/{queue_id}/components`` → the components of one queue.
@@ -123,7 +123,7 @@ class ComponentsClient(Resource):
         """
         self._session.send(endpoints.delete_component(component_id))
 
-    def user_permissions(self, component_id: int, user_id: str) -> ComponentUserAccess:
+    def user_permissions_get(self, component_id: int, user_id: str) -> ComponentUserAccess:
         """``GET /components/{id}/permissions/users/{user_id}`` → a user's rights on a component.
 
         ``user_id`` is a login or a numeric uid.
@@ -136,12 +136,12 @@ class ComponentsClient(Resource):
             The user's rights on the component.
 
         Examples:
-            >>> tracker.components.user_permissions(128, "dan").user.display
+            >>> tracker.components.user_permissions_get(128, "dan").user.display
             'Dan'
         """
         return self._session.send(endpoints.get_user_access(component_id, user_id))
 
-    def group_permissions(self, component_id: int, group_id: int) -> ComponentGroupAccess:
+    def group_permissions_get(self, component_id: int, group_id: int) -> ComponentGroupAccess:
         """``GET /components/{id}/permissions/groups/{group_id}`` → a group's rights on it.
 
         Args:
@@ -152,7 +152,7 @@ class ComponentsClient(Resource):
             The group's rights on the component.
 
         Examples:
-            >>> tracker.components.group_permissions(129, 88).group.display
+            >>> tracker.components.group_permissions_get(129, 88).group.display
             'Reviewers'
         """
         return self._session.send(endpoints.get_group_access(component_id, group_id))

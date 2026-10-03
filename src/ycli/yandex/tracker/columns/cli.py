@@ -57,7 +57,7 @@ def update(
 ) -> Column:
     """Edit column COLUMN_ID on board BOARD_ID (PATCH) — only supplied fields are sent."""
     body = ColumnUpdate(name=name or None, statuses=status or None)
-    return tracker.columns.edit(board_id, column_id, body)
+    return tracker.columns.update(board_id, column_id, body)
 
 
 @app.command()

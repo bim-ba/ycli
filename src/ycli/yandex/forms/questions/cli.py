@@ -253,7 +253,7 @@ def update(
         option,
         body_file,
     )
-    return forms.questions.modify(survey_id, question_id, payload)
+    return forms.questions.update(survey_id, question_id, payload)
 
 
 @app.command()
