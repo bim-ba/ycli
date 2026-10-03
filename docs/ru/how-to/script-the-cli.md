@@ -1,0 +1,64 @@
+---
+type: how-to
+---
+
+# CLI в скриптах
+
+## Получить JSON
+
+В терминале ycli печатает таблицы, а при передаче по конвейеру — JSON. Формат можно задать явно
+глобальным флагом `--format` / `-o` (`auto`, `json`, `yaml`, `pretty`) до команды или после неё:
+
+```bash
+ycli tracker issues get TRACKER-1 | jq .        # JSON, потому что вывод передаётся по конвейеру
+ycli -o yaml wiki pages get onboarding
+ycli wiki pages get onboarding -o json
+```
+
+Ключи — это имена полей самого API (`createdAt` в Трекере, `created_at` в Вики), поэтому фильтры из
+документации Яндекса работают как есть.
+
+## Фильтрация без jq
+
+`--jq EXPR` выполняет программу [jq](https://jqlang.org) над JSON и печатает как `jq -r`: строку без
+кавычек, всё остальное — по одному компактному значению JSON в строке.
+
+```bash
+ycli --jq .summary tracker issues get TRACKER-1
+ycli --jq '.[].key' tracker issues search 'Queue: TEST'
+```
+
+Сочетать его с `-o yaml` или `-o pretty` нельзя.
+
+## Удаление без запроса подтверждения
+
+Команда, которая уничтожает данные, в терминале просит подтверждения. В скрипте спросить некого,
+поэтому она завершается с кодом 2, пока вы не передадите `--yes` / `-y`:
+
+```bash
+ycli tracker boards delete 7 --yes
+```
+
+## Предпросмотр записи
+
+`--dry-run` ничего не записывает, а печатает запрос (метод, URL, тело — но никогда не токен)
+в том же формате `-o` и с тем же `--jq`, и завершается с кодом 0. Чтения всё равно выполняются,
+поэтому команда, которая сначала читает, а потом пишет, покажет только свою первую запись.
+
+```bash
+ycli tracker boards delete 7 --dry-run
+```
+
+## Ветвление по коду возврата
+
+У каждого вида ошибки свой код возврата; они перечислены в
+[справочнике по конфигурации](../reference/configuration.md#exit-codes).
+
+```bash
+ycli tracker issues get TRACKER-1 > issue.json
+case $? in
+  0) echo found ;;
+  3) echo "no such issue" ;;
+  6) echo "try again later" ;;
+esac
+```

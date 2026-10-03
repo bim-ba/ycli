@@ -71,7 +71,7 @@ def test_check_mode_fails_on_a_stale_svg(tmp_path, monkeypatch, capsys):
     stale.write_text("<svg/>", encoding="utf-8")
     monkeypatch.setattr(gen, "COVERAGE_SVG", stale)
     assert gen.main(["--check"]) == 1
-    assert "coverage.svg is stale" in capsys.readouterr().err
+    assert "stale: coverage.svg" in capsys.readouterr().err
 
 
 def test_svg_shows_every_service_and_the_totals():
@@ -132,3 +132,20 @@ def test_check_mode_surfaces_link_gaps_on_stderr(capsys):
     err = capsys.readouterr().err
     assert "operations → their own page" in err
     assert "Gaps (no public link): tracker.linktypes" in err
+
+
+def test_the_russian_readme_carries_the_same_totals():
+    readme = (ROOT / "README.ru.md").read_text(encoding="utf-8")
+    block = readme[readme.index(gen.START) : readme.index(gen.END)]
+    for report in gen._reports():
+        assert f"— {report.operation_count}" in block
+    assert gen.COVERAGE_SVG_URL in block
+    assert "README.md#coverage" in block
+
+
+def test_check_mode_fails_on_a_stale_russian_readme(tmp_path, monkeypatch, capsys):
+    stale = tmp_path / "README.ru.md"
+    stale.write_text(f"{gen.START}\nold\n{gen.END}\n", encoding="utf-8")
+    monkeypatch.setattr(gen, "README_RU", stale)
+    assert gen.main(["--check"]) == 1
+    assert "stale: README.ru.md" in capsys.readouterr().err

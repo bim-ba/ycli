@@ -5,7 +5,8 @@ Introspects the three domain clients **offline** (dummy credentials — construc
 opens no connection) plus the committed public-surface data (the CLI
 tree from :func:`tests.snapshots._surface.cli_tree` and the tool names in the MCP signature
 snapshot ``tests/snapshots/mcp_signatures.txt``) and emits the Markdown block README embeds
-between its ``COVERAGE:START`` / ``COVERAGE:END`` markers.
+between its ``COVERAGE:START`` / ``COVERAGE:END`` markers; README.ru.md gets a short Russian
+block between the same markers, with the totals and a link to the English tables.
 
 Per resource it reports the wrapped SDK operations (public methods on the resource client
 class, in source order) and whether that resource is reachable via the CLI and via at least
@@ -16,8 +17,8 @@ tool yet shows ``—`` in the MCP column.
 Usage::
 
     python scripts/gen_coverage.py            # print the block to stdout
-    python scripts/gen_coverage.py --write    # splice it into README.md, write the SVG preview
-    python scripts/gen_coverage.py --check     # exit 1 if README's block or the SVG is stale
+    python scripts/gen_coverage.py --write    # splice it into both READMEs, write the SVG
+    python scripts/gen_coverage.py --check     # exit 1 if a README block or the SVG is stale
 
 ``--check`` powers ``tests/test_coverage_readme.py`` so the tables can never silently drift
 from the code.
@@ -27,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import inspect
-import re
 import sys
 import tomllib
 from dataclasses import dataclass
@@ -40,6 +40,7 @@ from ycli.yandex.wiki.client import WikiClient
 
 ROOT = Path(__file__).resolve().parent.parent
 README = ROOT / "README.md"
+README_RU = ROOT / "README.ru.md"
 MCP_SIGNATURES = ROOT / "tests" / "snapshots" / "mcp_signatures.txt"
 
 # Committed map of resource/operation → public Yandex API-reference page (relative paths).
@@ -525,23 +526,48 @@ def _reports() -> list[DomainReport]:
     return [_report(spec, paths, tools, link_map.get(spec.slug, {})) for spec in specs]
 
 
+def _render_ru(reports: list[DomainReport]) -> str:
+    """The Russian README's short Coverage section: the preview, the totals, the tables link."""
+    totals = _totals(reports)
+    services = {"tracker": "Трекер", "wiki": "Вики", "forms": "Формы"}
+    per_service = ", ".join(
+        f"{services[report.slug]} — {report.operation_count}" for report in reports
+    )
+    return "\n".join(
+        [
+            "## Покрытие API",
+            "",
+            f'<img src="{COVERAGE_SVG_URL}" alt="Операций: {totals.operations}, ресурсов: '
+            f'{totals.resources}" width="760">',
+            "",
+            f"Операций REST API Трекера, Вики и Форм: **{totals.operations}** ({per_service}), "
+            f"ресурсов: **{totals.resources}**; все операции доступны из **Python SDK** и **CLI**. "
+            f"MCP-инструментов для агентов: **{totals.mcp_tools}**. Таблицы по ресурсам и "
+            "операциям — в [английском README](README.md#coverage).",
+        ]
+    )
+
+
 def build_block() -> str:
     """The complete marker-wrapped Coverage block that README embeds."""
     return f"{START}\n{_render(_reports())}\n{END}"
 
 
 def splice(text: str, block: str) -> str:
-    """Return ``text`` with its Coverage block replaced by ``block``.
+    """Return ``text`` with the part between its Coverage markers replaced by ``block``."""
+    if START not in text or END not in text:
+        raise SystemExit("gen_coverage: the COVERAGE markers are missing")
+    return text[: text.index(START)] + block + text[text.index(END) + len(END) :]
 
-    If the markers already exist, replace between them; otherwise (first run) replace the
-    legacy ``## What's covered`` section that sits just before ``## Configure``.
-    """
-    if START in text and END in text:
-        return text[: text.index(START)] + block + text[text.index(END) + len(END) :]
-    pattern = re.compile(r"## What's covered.*?(?=\n## Configure)", re.DOTALL)
-    if not pattern.search(text):
-        raise SystemExit("gen_coverage: could not locate the coverage section to replace")
-    return pattern.sub(lambda _match: block + "\n", text)
+
+def outputs(reports: list[DomainReport]) -> dict[Path, str]:
+    """Every generated file's full new text: both READMEs with their block spliced in, the SVG."""
+    blocks = {README: _render(reports), README_RU: _render_ru(reports)}
+    texts = {
+        path: splice(path.read_text(encoding="utf-8"), f"{START}\n{block}\n{END}")
+        for path, block in blocks.items()
+    }
+    return {**texts, COVERAGE_SVG: render_svg(reports)}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -549,19 +575,17 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Generate README's Coverage section.")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        "--write", action="store_true", help="splice the block into README.md and write the SVG"
+        "--write", action="store_true", help="write both READMEs' blocks and the SVG"
     )
     group.add_argument(
-        "--check", action="store_true", help="exit 1 if README's block or the SVG is stale"
+        "--check", action="store_true", help="exit 1 if a README block or the SVG is stale"
     )
     args = parser.parse_args(argv)
 
     reports = _reports()
-    block = f"{START}\n{_render(reports)}\n{END}"
-    svg = render_svg(reports)
     if args.write:
-        README.write_text(splice(README.read_text(encoding="utf-8"), block), encoding="utf-8")
-        COVERAGE_SVG.write_text(svg, encoding="utf-8")
+        for path, text in outputs(reports).items():
+            path.write_text(text, encoding="utf-8")
         return 0
     if args.check:
         stats = link_stats(reports)
@@ -572,17 +596,19 @@ def main(argv: list[str] | None = None) -> int:
             f"Gaps (no public link): {', '.join(stats.gaps) or 'none'}.",
             file=sys.stderr,
         )
-        current = README.read_text(encoding="utf-8")
-        svg_current = COVERAGE_SVG.read_text(encoding="utf-8") if COVERAGE_SVG.exists() else ""
-        if current != splice(current, block) or svg_current != svg:
+        stale = [
+            path.name
+            for path, text in outputs(reports).items()
+            if not path.exists() or path.read_text(encoding="utf-8") != text
+        ]
+        if stale:
             print(
-                "README coverage block or docs/assets/coverage.svg is stale; run: "
-                "uv run python scripts/gen_coverage.py --write",
+                f"stale: {', '.join(stale)}; run: uv run python scripts/gen_coverage.py --write",
                 file=sys.stderr,
             )
             return 1
         return 0
-    print(block)
+    print(build_block())
     return 0
 
 

@@ -31,8 +31,11 @@ jobs:
         with:
           python-version: "3.12"
       # Zensical's cache is still being reworked, so it recommends a clean build and no CI cache.
+      # English first: its --clean empties site/, then the Russian site lands in site/ru/.
       - name: Build
-        run: uv run --locked --isolated --only-group docs zensical build --clean
+        run: |
+          uv run --locked --isolated --only-group docs zensical build --clean
+          uv run --locked --isolated --only-group docs zensical build --config-file zensical.ru.toml
       - name: Upload the site
         if: inputs.deploy || github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0

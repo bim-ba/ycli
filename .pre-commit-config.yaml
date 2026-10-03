@@ -21,7 +21,7 @@ repos:
         pass_filenames: false
         # The Python surface, plus the live docs tests/test_docs.py scans (keep in sync with
         # its _LIVE_DOC_GLOBS) and ARCHITECTURE.md, which defines the invariants.
-        files: '^(src/ycli/|tests/).*\.py$|^(README|CLAUDE|AGENTS|CONTRIBUTING|SECURITY|ARCHITECTURE)\.md$|^(docs/conventions|docs/en|plugins)/.*\.md$'
+        files: '^(src/ycli/|tests/).*\.py$|^(README|CLAUDE|AGENTS|CONTRIBUTING|SECURITY|ARCHITECTURE)\.md$|^README\.ru\.md$|^(docs/conventions|docs/en|docs/ru|plugins)/.*\.md$'
       - id: no-skip-ci
         name: block skip-ci tokens in tracked files
         # Match the full token set GitHub honors (see CLAUDE.md "Never write a skip-ci token").
