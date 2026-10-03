@@ -115,7 +115,7 @@ def _checked(response: httpx2.Response, elapsed_seconds: float) -> httpx2.Respon
 
 
 def _retry_policy(
-    idempotent: bool, max_retry_after_seconds: float
+    *, idempotent: bool, max_retry_after_seconds: float
 ) -> Callable[[Exception], bool | float]:
     """Stamina's ``on`` hook: whether (and after how many seconds) to retry ``exception``."""
 
@@ -143,7 +143,7 @@ def _log_retry(request: httpx2.Request, attempt: int, attempts: int) -> None:
 
 
 def _page_plan[I](
-    items: Sequence[I], produced: int, limit: int | None, has_next: bool
+    items: Sequence[I], produced: int, limit: int | None, *, has_next: bool
 ) -> tuple[Sequence[I], bool]:
     """Which of a page's ``items`` to yield, and whether the walk ends after them.
 
@@ -184,11 +184,14 @@ class SyncSession:
         self._before_send = before_send
 
     def _send(
-        self, request: httpx2.Request, idempotent: bool, *, follow_redirects: bool = True
+        self, request: httpx2.Request, *, idempotent: bool, follow_redirects: bool = True
     ) -> httpx2.Response:
         check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
-            on=_retry_policy(idempotent, self._http.max_retry_after_seconds),
+            on=_retry_policy(
+                idempotent=idempotent,
+                max_retry_after_seconds=self._http.max_retry_after_seconds,
+            ),
             attempts=self._attempts,
             timeout=None,
         )
@@ -210,7 +213,9 @@ class SyncSession:
         request = endpoint.request(self._client)
         _announce(self._before_send, endpoint, request)
         response = self._send(
-            request, endpoint.idempotent, follow_redirects=endpoint.follow_redirects
+            request,
+            idempotent=endpoint.idempotent,
+            follow_redirects=endpoint.follow_redirects,
         )
         return endpoint.parse(response)
 
@@ -221,11 +226,13 @@ class SyncSession:
         produced = 0
         for _ in range(self._http.max_pages):
             response = self._send(
-                request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
+                request,
+                idempotent=paged.endpoint.idempotent,
+                follow_redirects=paged.endpoint.follow_redirects,
             )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
             following = paged.pagination.next(request, response, items) if items else None
-            taken, done = _page_plan(items, produced, limit, following is not None)
+            taken, done = _page_plan(items, produced, limit, has_next=following is not None)
             produced += len(taken)
             yield from taken
             if done or following is None:
@@ -254,11 +261,14 @@ class AsyncSession:
         self._before_send = before_send
 
     async def _send(
-        self, request: httpx2.Request, idempotent: bool, *, follow_redirects: bool = True
+        self, request: httpx2.Request, *, idempotent: bool, follow_redirects: bool = True
     ) -> httpx2.Response:
         check_path(request.url.raw_path.decode().partition("?")[0])
         retrying = stamina.retry_context(
-            on=_retry_policy(idempotent, self._http.max_retry_after_seconds),
+            on=_retry_policy(
+                idempotent=idempotent,
+                max_retry_after_seconds=self._http.max_retry_after_seconds,
+            ),
             attempts=self._attempts,
             timeout=None,
         )
@@ -280,7 +290,9 @@ class AsyncSession:
         request = endpoint.request(self._client)
         _announce(self._before_send, endpoint, request)
         response = await self._send(
-            request, endpoint.idempotent, follow_redirects=endpoint.follow_redirects
+            request,
+            idempotent=endpoint.idempotent,
+            follow_redirects=endpoint.follow_redirects,
         )
         return endpoint.parse(response)
 
@@ -293,11 +305,13 @@ class AsyncSession:
         produced = 0
         for _ in range(self._http.max_pages):
             response = await self._send(
-                request, paged.endpoint.idempotent, follow_redirects=paged.endpoint.follow_redirects
+                request,
+                idempotent=paged.endpoint.idempotent,
+                follow_redirects=paged.endpoint.follow_redirects,
             )
             items: Sequence[I] = paged.items_of(paged.endpoint.parse(response))
             following = paged.pagination.next(request, response, items) if items else None
-            taken, done = _page_plan(items, produced, limit, following is not None)
+            taken, done = _page_plan(items, produced, limit, has_next=following is not None)
             produced += len(taken)
             for item in taken:
                 yield item

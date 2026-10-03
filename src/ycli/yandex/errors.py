@@ -7,6 +7,7 @@ Kept free of any HTTP library so cli/mcp may import it under ARCH-2. The core se
 from __future__ import annotations
 
 import json
+from http import HTTPStatus
 
 
 class YandexError(Exception):
@@ -133,13 +134,13 @@ def error_for_status(
         'YandexNotFoundError'
     """
     match status:
-        case 401 | 403:
+        case HTTPStatus.UNAUTHORIZED | HTTPStatus.FORBIDDEN:
             return YandexAuthError(message, status=status, url=url)
-        case 404:
+        case HTTPStatus.NOT_FOUND:
             return YandexNotFoundError(message, status=status, url=url)
-        case 429:
+        case HTTPStatus.TOO_MANY_REQUESTS:
             return YandexRateLimitError(message, status=status, url=url, retry_after=retry_after)
-        case _ if status >= 500:
+        case _ if status >= HTTPStatus.INTERNAL_SERVER_ERROR:
             return YandexServerError(message, status=status, url=url)
         case _:
             return YandexClientError(message, status=status, url=url)
