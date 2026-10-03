@@ -19,7 +19,7 @@ BoardIdArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric boa
 
 @app.command("list")
 def list_(
-    limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
+    limit: LimitOption = None, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
 ) -> ItemList[Board]:
     """List all agile boards (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
@@ -35,8 +35,10 @@ def get(board_id: BoardIdArg, *, tracker: TrackerClient) -> Board:
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Name of the new board.")],
-    owner: Annotated[str, typer.Option(help="Login or uid of the board owner.")] = "",
-    permissions: Annotated[str, typer.Option(help="Access template: 'private' or 'public'.")] = "",
+    owner: Annotated[str | None, typer.Option(help="Login or uid of the board owner.")] = None,
+    permissions: Annotated[
+        str | None, typer.Option(help="Access template: 'private' or 'public'.")
+    ] = None,
     backlog: Annotated[
         bool | None, typer.Option("--backlog/--no-backlog", help="Enable the board backlog.")
     ] = None,
@@ -49,8 +51,8 @@ def create(
     """Create an agile board (POST /liveBoards/)."""
     body = BoardCreate(
         name=name,
-        owner=owner or None,
-        board_permissions_template=permissions or None,
+        owner=owner,
+        board_permissions_template=permissions,
         backlog_available=backlog,
         sprints_available=sprints,
     )
@@ -60,7 +62,7 @@ def create(
 @app.command()
 def update(
     board_id: BoardIdArg,
-    name: Annotated[str, typer.Option(help="New board name.")] = "",
+    name: Annotated[str | None, typer.Option(help="New board name.")] = None,
     backlog: Annotated[
         bool | None, typer.Option("--backlog/--no-backlog", help="Enable the board backlog.")
     ] = None,
@@ -72,7 +74,7 @@ def update(
 ) -> Board:
     """Edit an agile board BOARD_ID (PATCH /boards/{board_id}) — only supplied fields are sent."""
     body = BoardUpdate(
-        name=name or None,
+        name=name,
         backlog_available=backlog,
         sprints_available=sprints,
     )

@@ -18,13 +18,17 @@ app = typer.Typer(name="gaps", help="Tracker employee absences (admin).", no_arg
 
 @app.command()
 def create(
-    user: Annotated[str, typer.Option(help="Login or id of the absent user.")] = "",
+    user: Annotated[str | None, typer.Option(help="Login or id of the absent user.")] = None,
     workflow: Annotated[GapWorkflow | None, typer.Option(help="Kind of absence.")] = None,
-    date_from: Annotated[str, typer.Option("--from", help="Start of the absence (ISO 8601).")] = "",
-    date_to: Annotated[str, typer.Option("--to", help="End of the absence (ISO 8601).")] = "",
+    date_from: Annotated[
+        str | None, typer.Option("--from", help="Start of the absence (ISO 8601).")
+    ] = None,
+    date_to: Annotated[
+        str | None, typer.Option("--to", help="End of the absence (ISO 8601).")
+    ] = None,
     gap_id: Annotated[
-        str, typer.Option("--id", help="Identifier of the absence (generated if omitted).")
-    ] = "",
+        str | None, typer.Option("--id", help="Identifier of the absence (generated if omitted).")
+    ] = None,
     full_day: Annotated[
         bool | None, typer.Option("--full-day/--part-day", help="Whether it covers whole days.")
     ] = None,
@@ -44,12 +48,12 @@ def create(
     Example: --user ann --workflow trip --from 2026-07-10T00:00Z --to 2026-07-20T00:00Z
     """
     gaps = []
-    if user or workflow or date_from or date_to:
-        if not (user and workflow and date_from and date_to):
+    if user is not None or workflow is not None or date_from is not None or date_to is not None:
+        if user is None or workflow is None or date_from is None or date_to is None:
             raise typer.BadParameter("--user, --workflow, --from and --to go together")
         gaps.append(
             GapInput(
-                id=gap_id or None,
+                id=gap_id,
                 user=user,
                 workflow=workflow,
                 date_from=date_from,
@@ -74,12 +78,12 @@ def search(
         list[str], typer.Argument(metavar="USER...", help="Logins or ids (up to 100).")
     ],
     date_from: Annotated[
-        str, typer.Option("--from", help="Window start (ISO 8601); default: now.")
-    ] = "",
+        str | None, typer.Option("--from", help="Window start (ISO 8601); default: now.")
+    ] = None,
     date_to: Annotated[
-        str, typer.Option("--to", help="Window end (ISO 8601); must be after --from.")
-    ] = "",
-    limit: LimitOption = 0,
+        str | None, typer.Option("--to", help="Window end (ISO 8601); must be after --from.")
+    ] = None,
+    limit: LimitOption = None,
     all_: AllOption = False,
     *,
     config: AppConfig,
@@ -87,9 +91,7 @@ def search(
 ) -> ItemList[UserGaps]:
     """Find the absences of USER... overlapping a window (POST /gaps/_search; --all for all)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.gaps.search(
-        users, date_from=date_from or None, date_to=date_to or None, limit=cap
-    )
+    return tracker.gaps.search(users, date_from=date_from, date_to=date_to, limit=cap)
 
 
 @app.command()

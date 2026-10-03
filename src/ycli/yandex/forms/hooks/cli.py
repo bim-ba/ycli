@@ -13,7 +13,7 @@ from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="hooks", help="Forms integration groups (hooks).", no_args_is_help=True)
 
-NameOpt = Annotated[str, typer.Option(help="Integration group name (max 100 characters).")]
+NameOpt = Annotated[str | None, typer.Option(help="Integration group name (max 100 characters).")]
 ActiveOpt = Annotated[
     bool | None,
     typer.Option("--active/--inactive", help="Run the group's integrations, or pause them."),
@@ -34,10 +34,10 @@ def get(survey_id: SurveyIdArg, hook_id: HookIdArg, *, forms: FormsClient) -> Ho
 
 @app.command()
 def create(
-    survey_id: SurveyIdArg, name: NameOpt = "", active: ActiveOpt = None, *, forms: FormsClient
+    survey_id: SurveyIdArg, name: NameOpt = None, active: ActiveOpt = None, *, forms: FormsClient
 ) -> Hook:
     """Create an integration group on form SURVEY_ID (POST /surveys/{id}/hooks)."""
-    body = HookCreate(name=name or None, active=active)
+    body = HookCreate(name=name, active=active)
     return forms.hooks.create(survey_id, body)
 
 
@@ -45,13 +45,13 @@ def create(
 def update(
     survey_id: SurveyIdArg,
     hook_id: HookIdArg,
-    name: NameOpt = "",
+    name: NameOpt = None,
     active: ActiveOpt = None,
     *,
     forms: FormsClient,
 ) -> Hook:
     """Change integration group HOOK_ID: only the options given change (PATCH)."""
-    body = HookUpdate(name=name or None, active=active)
+    body = HookUpdate(name=name, active=active)
     return forms.hooks.update(survey_id, hook_id, body)
 
 

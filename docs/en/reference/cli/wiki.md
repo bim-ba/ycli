@@ -180,7 +180,7 @@ $ ycli wiki pages descendants [OPTIONS] SLUG
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--include-self`: Also list the ancestor page itself.
 * `--show-all`: The API's show_all flag.
@@ -233,7 +233,7 @@ $ ycli wiki pages descendants-by-id [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--include-self`: Also list the ancestor page itself.
 * `--show-all`: The API's show_all flag.
@@ -260,7 +260,7 @@ $ ycli wiki pages grids-list [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--order-by TEXT`: Sort field: title or created_at.
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
@@ -451,7 +451,7 @@ $ ycli wiki pages revisions-list [OPTIONS] PAGE_ID
 **Options**:
 
 * `--ids TEXT`: Only these revision ids (comma separated).
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -478,7 +478,7 @@ $ ycli wiki pages backlinks-list [OPTIONS] PAGE_ID
 
 * `--for-cluster`: Links to the page's whole subtree.
 * `--show-all`: The API's show_all flag (no effect seen live).
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -654,7 +654,7 @@ $ ycli wiki comments list [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--order-by TEXT`: Sort field: created_at.
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
@@ -686,7 +686,7 @@ $ ycli wiki comments thread-list [OPTIONS] PAGE_ID COMMENT_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -715,7 +715,7 @@ $ ycli wiki comments thread-get [OPTIONS] PAGE_ID COMMENT_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -742,8 +742,8 @@ $ ycli wiki comments create [OPTIONS] PAGE_ID
 
 * `--body TEXT`: Comment text.  [required]
 * `--inline-text TEXT`: Page fragment to pin the comment to.
-* `--parent-id INTEGER`: Reply to this comment id (threaded).  [default: 0]
-* `--thread-id INTEGER`: File into this existing thread id.  [default: 0]
+* `--parent-id INTEGER`: Reply to this comment id (threaded).
+* `--thread-id INTEGER`: File into this existing thread id.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -816,7 +816,7 @@ $ ycli wiki attachments list [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--order-by TEXT`: Sort field: name, size or created_at.
 * `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
@@ -1034,7 +1034,7 @@ $ ycli wiki resources list [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--limit INTEGER RANGE`: Max items to fetch; 0 uses the default cap.  [default: 0; x>=0]
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--q TEXT`: Title search filter.
 * `--types TEXT`: Comma-separated kinds: attachment,grid.
@@ -1212,7 +1212,7 @@ $ ycli wiki grids create [OPTIONS]
 
 * `--title TEXT`: Title of the new grid.  [required]
 * `--page-slug TEXT`: Target page slug, e.g. data/x.
-* `--page-id INTEGER`: Target page numeric id.  [default: 0]
+* `--page-id INTEGER`: Target page numeric id.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.

@@ -9,9 +9,11 @@ import typer
 KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key, e.g. DATAENGINEERING-1.")]
 
 # The parameters most write operations share: what the reply carries and who is notified.
-ExpandOpt = Annotated[str, typer.Option("--expand", help="Extra blocks to include in the reply.")]
+ExpandOpt = Annotated[
+    str | None, typer.Option("--expand", help="Extra blocks to include in the reply.")
+]
 ReplyFieldsOpt = Annotated[
-    str, typer.Option("--fields", help="Comma-separated fields to include in the reply.")
+    str | None, typer.Option("--fields", help="Comma-separated fields to include in the reply.")
 ]
 NotifyOpt = Annotated[
     bool | None,

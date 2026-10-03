@@ -27,13 +27,13 @@ app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 @app.command()
 def get(
     answer_id: Annotated[
-        int,
-        typer.Option("--answer-id", help="Numeric answer id (needs form-edit access; 0 = unset)."),
-    ] = 0,
+        int | None,
+        typer.Option("--answer-id", help="Numeric answer id (needs form-edit access)."),
+    ] = None,
     answer_key: Annotated[
-        str,
+        str | None,
         typer.Option("--answer-key", help="Answer key hash (works without form-edit access)."),
-    ] = "",
+    ] = None,
     *,
     forms: FormsClient,
 ) -> AnswerDetails:
@@ -43,30 +43,36 @@ def get(
     """
     if bool(answer_id) == bool(answer_key):
         raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")
-    return forms.answers.get(answer_id=answer_id or None, answer_key=answer_key or None)
+    return forms.answers.get(answer_id=answer_id, answer_key=answer_key)
 
 
 @app.command("list")
 def list_(
     survey_id: SurveyIdArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
     questions: Annotated[
-        str, typer.Option(help="Comma-separated question ids to return answers for.")
-    ] = "",
+        str | None, typer.Option(help="Comma-separated question ids to return answers for.")
+    ] = None,
     use_slugs: Annotated[
         bool, typer.Option("--use-slugs", help="Name questions and options by slug, not id.")
     ] = False,
-    date_from: Annotated[str, typer.Option(help="ISO-8601: answers given at or after.")] = "",
-    date_to: Annotated[str, typer.Option(help="ISO-8601: answers given at or before.")] = "",
-    ordering: Annotated[str, typer.Option(help="asc (oldest first) or desc (the default).")] = "",
+    date_from: Annotated[
+        str | None, typer.Option(help="ISO-8601: answers given at or after.")
+    ] = None,
+    date_to: Annotated[
+        str | None, typer.Option(help="ISO-8601: answers given at or before.")
+    ] = None,
+    ordering: Annotated[
+        str | None, typer.Option(help="asc (oldest first) or desc (the default).")
+    ] = None,
     page_size: Annotated[
         int | None, typer.Option(help="Answers per request (the API's default is 25).")
     ] = None,
     answer_format: Annotated[
-        str,
+        str | None,
         typer.Option("--answer-format", help="default (cells by column) or raw (as stored)."),
-    ] = "",
+    ] = None,
     *,
     config: AppConfig,
     forms: FormsClient,
@@ -76,13 +82,13 @@ def list_(
     return forms.answers.list(
         survey_id,
         limit=cap,
-        questions=questions or None,
+        questions=questions,
         use_slugs=use_slugs,
-        date_from=date_from or None,
-        date_to=date_to or None,
-        ordering=ordering or None,
+        date_from=date_from,
+        date_to=date_to,
+        ordering=ordering,
         page_size=page_size,
-        answer_format=answer_format or None,
+        answer_format=answer_format,
     )
 
 
@@ -120,12 +126,12 @@ def export(
         str, typer.Option(help="Where to upload the result: default or disk (Yandex Disk).")
     ] = "default",
     started_at: Annotated[
-        str, typer.Option(help="ISO-8601 start of the answer range (inclusive).")
-    ] = "",
+        str | None, typer.Option(help="ISO-8601 start of the answer range (inclusive).")
+    ] = None,
     finished_at: Annotated[
-        str, typer.Option(help="ISO-8601 end of the answer range (inclusive).")
-    ] = "",
-    limit: Annotated[int, typer.Option(help="Max answers to export (0 = all).")] = 0,
+        str | None, typer.Option(help="ISO-8601 end of the answer range (inclusive).")
+    ] = None,
+    limit: Annotated[int | None, typer.Option(help="Max answers to export (default: all).")] = None,
     column: Annotated[
         list[str] | None,
         typer.Option("--column", help="Column/question slug to include (repeatable)."),
@@ -155,11 +161,11 @@ def export(
     body = AnswerExport(
         format=export_format,
         upload=upload,
-        started_at=started_at or None,
-        finished_at=finished_at or None,
+        started_at=started_at,
+        finished_at=finished_at,
         pks=pk or None,
         columns=column or None,
-        limit=limit or None,
+        limit=limit,
         upload_files=upload_files,
     )
     op = forms.answers.export(survey_id, body=body)
@@ -169,22 +175,20 @@ def export(
 @app.command()
 def integrations_list(
     answer_id: Annotated[
-        int,
-        typer.Option("--answer-id", help="Numeric answer id (needs form-edit access; 0 = unset)."),
-    ] = 0,
+        int | None,
+        typer.Option("--answer-id", help="Numeric answer id (needs form-edit access)."),
+    ] = None,
     answer_key: Annotated[
-        str,
+        str | None,
         typer.Option("--answer-key", help="Answer key hash (works without form-edit access)."),
-    ] = "",
+    ] = None,
     *,
     forms: FormsClient,
 ) -> ItemList[AnswerIntegration]:
     """List the integration runs an answer triggered (exactly one of --answer-id / --answer-key)."""
     if bool(answer_id) == bool(answer_key):
         raise typer.BadParameter("pass exactly one of --answer-id / --answer-key")
-    return forms.answers.integrations_list(
-        answer_id=answer_id or None, answer_key=answer_key or None
-    )
+    return forms.answers.integrations_list(answer_id=answer_id, answer_key=answer_key)
 
 
 @app.command()

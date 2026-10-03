@@ -33,9 +33,11 @@ BodyFileArg = Annotated[
 
 
 @app.command()
-def get(survey: SurveyIdArg, key: Annotated[str, _KEY] = "", *, forms: FormsClient) -> FillableForm:
+def get(
+    survey: SurveyIdArg, key: Annotated[str | None, _KEY] = None, *, forms: FormsClient
+) -> FillableForm:
     """Print the fillable-form settings for SURVEY (GET …/form) — pages, conditions, values."""
-    return forms.filling.get(survey, key=key or None)
+    return forms.filling.get(survey, key=key)
 
 
 @app.command()
@@ -46,34 +48,36 @@ def submit(
         bool,
         typer.Option("--validate-only", help="Validate only — save nothing, fire no integrations."),
     ] = False,
-    key: Annotated[str, _KEY] = "",
+    key: Annotated[str | None, _KEY] = None,
     *,
     forms: FormsClient,
 ) -> SubmitResult:
     """Submit a form response from --body-file (POST …/form); --validate-only validates only."""
     payload = SubmitBody.model_validate(json.loads(body_file.read_text(encoding="utf-8")))
-    return forms.filling.submit(survey, payload, dry_run=validate_only, key=key or None)
+    return forms.filling.submit(survey, payload, dry_run=validate_only, key=key)
 
 
 @app.command()
 def suggest(
     survey: SurveyIdArg,
-    question: Annotated[str, typer.Option(help="Question slug the suggestion is for.")] = "",
-    text: Annotated[str, typer.Option(help="Text to search suggestions for.")] = "",
+    question: Annotated[
+        str | None, typer.Option(help="Question slug the suggestion is for.")
+    ] = None,
+    text: Annotated[str | None, typer.Option(help="Text to search suggestions for.")] = None,
     suggest_id: Annotated[
-        str, typer.Option("--id", help="Comma-separated suggestion-object ids to resolve.")
-    ] = "",
+        str | None, typer.Option("--id", help="Comma-separated suggestion-object ids to resolve.")
+    ] = None,
     parent_id: Annotated[
-        str, typer.Option("--parent-id", help="Parent ids for a Master/Detail lookup.")
-    ] = "",
+        str | None, typer.Option("--parent-id", help="Parent ids for a Master/Detail lookup.")
+    ] = None,
     *,
     forms: FormsClient,
 ) -> ItemList[Suggestion]:
     """Get fill suggestions for a question (GET …/suggest)."""
     return forms.filling.suggest(
         survey,
-        question=question or None,
-        text=text or None,
-        suggest_id=suggest_id or None,
-        parent_id=parent_id or None,
+        question=question,
+        text=text,
+        suggest_id=suggest_id,
+        parent_id=parent_id,
     )

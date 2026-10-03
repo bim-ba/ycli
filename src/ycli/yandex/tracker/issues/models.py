@@ -128,11 +128,13 @@ class IssueSearch(APIModel):
     )
 
 
-def count_body(query: str = "", queue: str = "", status: str = "") -> IssueSearch:
+def count_body(
+    query: str | None = None, queue: str | None = None, status: str | None = None
+) -> IssueSearch:
     """Build the request body for ``POST /issues/_count``.
 
     When ``query`` is provided it takes precedence and the body is ``{"query": …}``.
-    Otherwise a ``{"filter": {…}}`` body is built from the non-empty ``queue``/``status``
+    Otherwise a ``{"filter": {…}}`` body is built from the given ``queue``/``status``
     values (an empty filter counts every issue in the org).
 
     Args:
@@ -151,15 +153,21 @@ def count_body(query: str = "", queue: str = "", status: str = "") -> IssueSearc
         >>> count_body().filter
         {}
     """
-    if query:
+    if query is not None:
         return IssueSearch(query=query)
-    return IssueSearch(filter={k: v for k, v in (("queue", queue), ("status", status)) if v})
+    given = (("queue", queue), ("status", status))
+    return IssueSearch(filter={name: value for name, value in given if value is not None})
 
 
 def filter_body(
-    *, queue: str = "", status: str = "", assignee: str = "", epic: str = "", type_: str = ""
+    *,
+    queue: str | None = None,
+    status: str | None = None,
+    assignee: str | None = None,
+    epic: str | None = None,
+    type_: str | None = None,
 ) -> IssueSearch:
-    """Build the ``POST /issues/_search`` body for field filters, dropping the empty ones.
+    """Build the ``POST /issues/_search`` body for field filters, leaving out the ones not given.
 
     Args:
         queue: A queue key.
@@ -176,4 +184,4 @@ def filter_body(
         {'queue': 'DE', 'type': 'bug'}
     """
     fields = {"queue": queue, "status": status, "assignee": assignee, "epic": epic, "type": type_}
-    return IssueSearch(filter={name: value for name, value in fields.items() if value})
+    return IssueSearch(filter={name: value for name, value in fields.items() if value is not None})

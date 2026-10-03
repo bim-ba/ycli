@@ -40,9 +40,11 @@ def task(
     summary: Annotated[str, typer.Option(help="Issue title.")],
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
-    key: Annotated[str, typer.Option(help="Explicit issue key (must belong to the queue).")] = "",
-    description: Annotated[str, typer.Option(help="Issue description (YFM).")] = "",
-    assignee: Annotated[str, typer.Option(help="Assignee login or id.")] = "",
+    key: Annotated[
+        str | None, typer.Option(help="Explicit issue key (must belong to the queue).")
+    ] = None,
+    description: Annotated[str | None, typer.Option(help="Issue description (YFM).")] = None,
+    assignee: Annotated[str | None, typer.Option(help="Assignee login or id.")] = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
@@ -52,9 +54,9 @@ def task(
         summary=summary,
         createdAt=created_at,
         createdBy=created_by,
-        key=key or None,
-        description=description or None,
-        assignee=assignee or None,
+        key=key,
+        description=description,
+        assignee=assignee,
     )
     return tracker.import_.task(body=body)
 
@@ -97,7 +99,9 @@ def worklog(
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
     start: Annotated[str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")],
-    comment: Annotated[str, typer.Option(help="Optional note saved in the time report.")] = "",
+    comment: Annotated[
+        str | None, typer.Option(help="Optional note saved in the time report.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
@@ -107,7 +111,7 @@ def worklog(
         createdAt=created_at,
         createdBy=created_by,
         start=start,
-        comment=comment or None,
+        comment=comment,
     )
     return tracker.import_.worklog(key, body=body)
 
@@ -119,15 +123,15 @@ def file(
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
     filename: Annotated[
-        str, typer.Option(help="Override the attachment name (default: basename).")
-    ] = "",
+        str | None, typer.Option(help="Override the attachment name (default: basename).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Attachment:
     """Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import)."""
     return tracker.import_.file(
         key,
-        filename=filename or path.name,
+        filename=path.name if filename is None else filename,
         created_at=created_at,
         created_by=created_by,
         data=path.read_bytes(),
@@ -142,8 +146,8 @@ def comment_file(
     created_at: CreatedAtOpt,
     created_by: CreatedByOpt,
     filename: Annotated[
-        str, typer.Option(help="Override the attachment name (default: basename).")
-    ] = "",
+        str | None, typer.Option(help="Override the attachment name (default: basename).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Attachment:
@@ -151,7 +155,7 @@ def comment_file(
     return tracker.import_.comment_file(
         key,
         comment_id,
-        filename=filename or path.name,
+        filename=path.name if filename is None else filename,
         created_at=created_at,
         created_by=created_by,
         data=path.read_bytes(),

@@ -35,7 +35,7 @@ def _body_help(field: str) -> str:
 
 
 # Options the API accepts and ignores: kept, and each says so (docs/conventions/resources.md).
-LanguageOpt = Annotated[str, typer.Option(help=_body_help("language"))]
+LanguageOpt = Annotated[str | None, typer.Option(help=_body_help("language"))]
 PublishedOpt = Annotated[
     bool | None, typer.Option("--published/--no-published", help=_body_help("is_published"))
 ]
@@ -46,17 +46,17 @@ PublicOpt = Annotated[
 
 @app.command("list")
 def list_(
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    name: Annotated[str, typer.Option(help="Only forms whose name matches.")] = "",
+    name: Annotated[str | None, typer.Option(help="Only forms whose name matches.")] = None,
     published: Annotated[
         bool | None,
         typer.Option("--published/--no-published", help="Only published (or only unpublished)."),
     ] = None,
     ownership: Annotated[
-        str, typer.Option(help="mine (created by you) or shared (open to you).")
-    ] = "",
-    group: Annotated[str, typer.Option(help="Only forms of this group.")] = "",
+        str | None, typer.Option(help="mine (created by you) or shared (open to you).")
+    ] = None,
+    group: Annotated[str | None, typer.Option(help="Only forms of this group.")] = None,
     favourite: Annotated[
         bool | None,
         typer.Option("--favourite/--no-favourite", help="Only favourites (or only the others)."),
@@ -66,8 +66,8 @@ def list_(
         typer.Option("--show-all", help="As an administrator, every form of the organization."),
     ] = False,
     orderby: Annotated[
-        str, typer.Option("--orderby", help="Sort, e.g. name,-modified,-count.")
-    ] = "",
+        str | None, typer.Option("--orderby", help="Sort, e.g. name,-modified,-count.")
+    ] = None,
     *,
     config: AppConfig,
     forms: FormsClient,
@@ -76,13 +76,13 @@ def list_(
     cap = config.http.cap(limit, all_=all_)
     return forms.surveys.list(
         limit=cap,
-        name=name or None,
+        name=name,
         published=published,
-        ownership=ownership or None,
-        group=group or None,
+        ownership=ownership,
+        group=group,
         favourite=favourite,
         show_all=show_all,
-        orderby=orderby or None,
+        orderby=orderby,
     )
 
 
@@ -95,13 +95,15 @@ def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> Survey:
 @app.command()
 def create(
     name: Annotated[str, typer.Option(help="Form name (title).")],
-    language: LanguageOpt = "",
+    language: LanguageOpt = None,
     published: PublishedOpt = None,
     public: PublicOpt = None,
     need_auth: Annotated[
         bool | None, typer.Option("--need-auth/--no-need-auth", help="Require sign-in to fill.")
     ] = None,
-    max_count: Annotated[int, typer.Option(help="Maximum number of responses (0 = unset).")] = 0,
+    max_count: Annotated[
+        int | None, typer.Option(help="Maximum number of responses (0: no cap).")
+    ] = None,
     field: FieldOpt = None,
     *,
     forms: FormsClient,
@@ -109,11 +111,11 @@ def create(
     """Create a form (POST /surveys). Advanced keys via --field; returns the created form."""
     named = {
         "name": name,
-        "language": language or None,
+        "language": language,
         "is_published": published,
         "is_public": public,
         "need_auth": need_auth,
-        "max_count": max_count or None,
+        "max_count": max_count,
     }
     return forms.surveys.create(body=SurveyCreate.model_validate(_given(named, field)))
 
@@ -121,26 +123,28 @@ def create(
 @app.command()
 def update(
     survey_id: SurveyIdArg,
-    name: Annotated[str, typer.Option(help="New form name.")] = "",
-    language: LanguageOpt = "",
+    name: Annotated[str | None, typer.Option(help="New form name.")] = None,
+    language: LanguageOpt = None,
     published: PublishedOpt = None,
     public: PublicOpt = None,
     need_auth: Annotated[
         bool | None, typer.Option("--need-auth/--no-need-auth", help="Toggle sign-in requirement.")
     ] = None,
-    max_count: Annotated[int, typer.Option(help="New response cap (0 = leave unchanged).")] = 0,
+    max_count: Annotated[
+        int | None, typer.Option(help="New response cap (0 removes the cap).")
+    ] = None,
     field: FieldOpt = None,
     *,
     forms: FormsClient,
 ) -> Survey:
     """Modify form SURVEY_ID (PATCH /surveys/{id}) — only supplied fields are sent."""
     named = {
-        "name": name or None,
-        "language": language or None,
+        "name": name,
+        "language": language,
         "is_published": published,
         "is_public": public,
         "need_auth": need_auth,
-        "max_count": max_count or None,
+        "max_count": max_count,
     }
     return forms.surveys.update(survey_id, body=SurveyUpdate.model_validate(_given(named, field)))
 

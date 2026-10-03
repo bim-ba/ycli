@@ -32,7 +32,8 @@ app.add_typer(hook_app)
 ConditionIdArg = Annotated[
     int, typer.Argument(metavar="CONDITION_ID", help="Condition group id (integer).")
 ]
-OperatorOpt = Annotated[str, typer.Option("--operator", help="Boolean operator: and | or.")]
+OperatorOpt = Annotated[str | None, typer.Option("--operator", help="Boolean operator: and | or.")]
+JoinOperatorOpt = Annotated[str, typer.Option("--operator", help="Boolean operator: and | or.")]
 ItemOpt = Annotated[
     list[str] | None,
     typer.Option(
@@ -61,12 +62,12 @@ def _validated_operator(operator: str) -> ConditionOperatorType:
 
 
 def _resolve_body[M: ConditionCreate](
-    model_cls: type[M], operator: str, item: list[str] | None, body_file: Path | None
+    model_cls: type[M], operator: str | None, item: list[str] | None, body_file: Path | None
 ) -> M:
     """The typed group body from ``--body-file`` JSON, or from ``--operator`` + ``--item``."""
     if body_file is not None:
         return model_cls.model_validate(json.loads(body_file.read_text(encoding="utf-8")))
-    if not operator or not item:
+    if operator is None or not item:
         raise typer.BadParameter("pass --operator and at least one --item, or --body-file")
     return model_cls.model_validate(
         {"operator": _validated_operator(operator), "items": [json.loads(c) for c in item]}
@@ -100,7 +101,7 @@ def question_get(
 def question_create(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -116,7 +117,7 @@ def question_update(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     condition_id: ConditionIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -142,7 +143,11 @@ def question_delete(
 
 @question_app.command("set-operator")
 def question_set_operator(
-    survey_id: SurveyIdArg, question_id: QuestionIdArg, operator: OperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIdArg,
+    question_id: QuestionIdArg,
+    operator: JoinOperatorOpt,
+    *,
+    forms: FormsClient,
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the question's condition groups (collection PATCH)."""
     return forms.conditions.question_set_operator(
@@ -173,7 +178,7 @@ def page_get(
 def page_create(
     survey_id: SurveyIdArg,
     page_id: PageIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -189,7 +194,7 @@ def page_update(
     survey_id: SurveyIdArg,
     page_id: PageIdArg,
     condition_id: ConditionIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -211,7 +216,7 @@ def page_delete(
 
 @page_app.command("set-operator")
 def page_set_operator(
-    survey_id: SurveyIdArg, page_id: PageIdArg, operator: OperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIdArg, page_id: PageIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the page's condition groups (collection PATCH)."""
     return forms.conditions.page_set_operator(survey_id, page_id, _validated_operator(operator))
@@ -237,7 +242,7 @@ def submit_get(
 @submit_app.command("create")
 def submit_create(
     survey_id: SurveyIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -252,7 +257,7 @@ def submit_create(
 def submit_update(
     survey_id: SurveyIdArg,
     condition_id: ConditionIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -274,7 +279,7 @@ def submit_delete(
 
 @submit_app.command("set-operator")
 def submit_set_operator(
-    survey_id: SurveyIdArg, operator: OperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the submit button's condition groups (collection PATCH)."""
     return forms.conditions.submit_set_operator(survey_id, _validated_operator(operator))
@@ -303,7 +308,7 @@ def hook_get(
 def hook_create(
     survey_id: SurveyIdArg,
     hook_id: HookIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -319,7 +324,7 @@ def hook_update(
     survey_id: SurveyIdArg,
     hook_id: HookIdArg,
     condition_id: ConditionIdArg,
-    operator: OperatorOpt = "",
+    operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -341,7 +346,7 @@ def hook_delete(
 
 @hook_app.command("set-operator")
 def hook_set_operator(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, operator: OperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIdArg, hook_id: HookIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the integration group's condition groups (collection PATCH)."""
     return forms.conditions.hook_set_operator(survey_id, hook_id, _validated_operator(operator))

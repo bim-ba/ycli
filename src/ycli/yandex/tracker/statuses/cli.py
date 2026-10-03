@@ -23,8 +23,12 @@ def list_(*, tracker: TrackerClient) -> ItemList[Status]:
 @app.command()
 def create(
     key: Annotated[str, typer.Option(help="Key of the new status (Latin, lower-case start).")],
-    name_ru: Annotated[str, typer.Option("--name-ru", help="Status name in Russian.")] = "",
-    name_en: Annotated[str, typer.Option("--name-en", help="Status name in English.")] = "",
+    name_ru: Annotated[
+        str | None, typer.Option("--name-ru", help="Status name in Russian.")
+    ] = None,
+    name_en: Annotated[
+        str | None, typer.Option("--name-en", help="Status name in English.")
+    ] = None,
     type_: Annotated[
         str, typer.Option("--type", help="Status type: new/inProgress/paused/done/cancelled.")
     ] = "new",
@@ -34,7 +38,7 @@ def create(
     """Create an issue status (POST /statuses/)."""
     body = StatusCreate(
         key=key,
-        name=LocalizedName(ru=name_ru or None, en=name_en or None),
+        name=LocalizedName(ru=name_ru, en=name_en),
         type=type_,
     )
     return tracker.statuses.create(body)
@@ -43,10 +47,14 @@ def create(
 @app.command()
 def update(
     status_id: Annotated[str, typer.Argument(metavar="STATUS_ID", help="Status id or key.")],
-    name_ru: Annotated[str, typer.Option("--name-ru", help="New status name in Russian.")] = "",
-    name_en: Annotated[str, typer.Option("--name-en", help="New status name in English.")] = "",
-    description: Annotated[str, typer.Option(help="New status description.")] = "",
-    type_: Annotated[str, typer.Option("--type", help="New status type.")] = "",
+    name_ru: Annotated[
+        str | None, typer.Option("--name-ru", help="New status name in Russian.")
+    ] = None,
+    name_en: Annotated[
+        str | None, typer.Option("--name-en", help="New status name in English.")
+    ] = None,
+    description: Annotated[str | None, typer.Option(help="New status description.")] = None,
+    type_: Annotated[str | None, typer.Option("--type", help="New status type.")] = None,
     order: Annotated[int | None, typer.Option(help="New display-order weight.")] = None,
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")
@@ -55,11 +63,11 @@ def update(
     tracker: TrackerClient,
 ) -> Status:
     """Edit issue status STATUS_ID (PATCH /statuses/{id}?version=)."""
-    named = bool(name_ru or name_en)
+    named = name_ru is not None or name_en is not None
     body = StatusUpdate(
-        name=LocalizedName(ru=name_ru or None, en=name_en or None) if named else None,
-        description=description or None,
-        type=type_ or None,
+        name=LocalizedName(ru=name_ru, en=name_en) if named else None,
+        description=description,
+        type=type_,
         order=order,
     )
     return tracker.statuses.update(status_id, body, version=version)

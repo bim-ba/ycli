@@ -31,8 +31,10 @@ def upload(survey_id: SurveyIdArg, image_path: ImagePathArg, *, forms: FormsClie
 @app.command()
 def clone(
     survey_id: SurveyIdArg,
-    image_id: Annotated[int, typer.Option("--image-id", help="Id of the image to clone.")] = 0,
-    name: Annotated[str, typer.Option(help="File name for the clone.")] = "",
+    image_id: Annotated[
+        int | None, typer.Option("--image-id", help="Id of the image to clone.")
+    ] = None,
+    name: Annotated[str | None, typer.Option(help="File name for the clone.")] = None,
     link: Annotated[
         list[str] | None,
         typer.Option("--link", help="SIZE=URL of the image to clone (repeatable)."),
@@ -42,5 +44,5 @@ def clone(
 ) -> Image:
     """Copy an existing image into the form (POST …/images/clone); returns the new image."""
     links = dict(item.split("=", 1) for item in link) if link else None
-    body = ImageClone(id=image_id or None, links=links, name=name or None)
+    body = ImageClone(id=image_id, links=links, name=name)
     return forms.images.clone(survey_id, body)

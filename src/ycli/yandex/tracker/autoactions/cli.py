@@ -37,10 +37,12 @@ def get(queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient)
 def create(
     queue_id: QueueIdArg,
     name: Annotated[str, typer.Option(help="Name of the new autoaction.")],
-    query: Annotated[str, typer.Option(help="TQL query selecting the issues to act on.")] = "",
+    query: Annotated[
+        str | None, typer.Option(help="TQL query selecting the issues to act on.")
+    ] = None,
     filter_: Annotated[
-        str, typer.Option("--filter", help="Field-based filter as a JSON object.")
-    ] = "",
+        str | None, typer.Option("--filter", help="Field-based filter as a JSON object.")
+    ] = None,
     action: Annotated[
         list[str] | None,
         typer.Option("--action", help="Autoaction action as a JSON object (repeatable)."),
@@ -53,11 +55,11 @@ def create(
         typer.Option("--notify/--no-notify", help="Send notifications when the autoaction runs."),
     ] = None,
     interval_millis: Annotated[
-        int, typer.Option("--interval-millis", help="Run interval in ms (default 3600000).")
-    ] = 0,
+        int | None, typer.Option("--interval-millis", help="Run interval in ms (default 3600000).")
+    ] = None,
     calendar_id: Annotated[
-        int, typer.Option("--calendar-id", help="Working-calendar id for the active window.")
-    ] = 0,
+        int | None, typer.Option("--calendar-id", help="Working-calendar id for the active window.")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Autoaction:
@@ -68,13 +70,13 @@ def create(
     """
     body = AutoactionCreate(
         name=name,
-        query=query or None,
-        filter=json.loads(filter_) if filter_ else None,
+        query=query,
+        filter=json.loads(filter_) if filter_ is not None else None,
         actions=[json.loads(a) for a in action] if action else [],
         active=active,
         enable_notifications=enable_notifications,
-        interval_millis=interval_millis or None,
-        calendar=AutoactionCalendar(id=calendar_id) if calendar_id else None,
+        interval_millis=interval_millis,
+        calendar=AutoactionCalendar(id=calendar_id) if calendar_id is not None else None,
     )
     return tracker.autoactions.create(queue_id, body)
 

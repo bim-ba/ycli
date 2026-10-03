@@ -37,14 +37,14 @@ app = typer.Typer(name="questions", help="Forms questions.", no_args_is_help=Tru
 def _build_from_flags(
     type_: str,
     *,
-    label: str,
-    slug: str,
-    comment: str,
-    placeholder: str,
+    label: str | None,
+    slug: str | None,
+    comment: str | None,
+    placeholder: str | None,
     required: bool | None,
     hidden: bool | None,
     multiline: bool | None,
-    widget: str,
+    widget: str | None,
     options: list[str] | None,
 ) -> QuestionCreate:
     """Build a typed question from the common ``--type`` flags (string/boolean/integer/date/enum).
@@ -56,22 +56,22 @@ def _build_from_flags(
         >>> _build_from_flags(
         ...     "string",
         ...     label="Name",
-        ...     slug="",
-        ...     comment="",
-        ...     placeholder="",
+        ...     slug=None,
+        ...     comment=None,
+        ...     placeholder=None,
         ...     required=True,
         ...     hidden=False,
         ...     multiline=True,
-        ...     widget="",
+        ...     widget=None,
         ...     options=None,
         ... ).multiline
         True
     """
     common: dict[str, Any] = {
-        "label": label or None,
-        "slug": slug or None,
-        "comment": comment or None,
-        "placeholder": placeholder or None,
+        "label": label,
+        "slug": slug,
+        "comment": comment,
+        "placeholder": placeholder,
         "hidden": hidden,
     }
     # The flags carry only the ``required`` rule, so they set the whole validators list:
@@ -91,7 +91,7 @@ def _build_from_flags(
         items = [QuestionEnumItem(label=text) for text in options or []]
         return EnumQuestion(
             **common,
-            widget=widget or None,  # ty: ignore[invalid-argument-type]  # pydantic validates the widget literal
+            widget=widget,  # ty: ignore[invalid-argument-type]  # pydantic validates the widget literal
             items=items or None,
             validators=validators,
         )
@@ -101,15 +101,15 @@ def _build_from_flags(
 
 
 def _resolve_body(
-    type_: str,
-    label: str,
-    slug: str,
-    comment: str,
-    placeholder: str,
+    type_: str | None,
+    label: str | None,
+    slug: str | None,
+    comment: str | None,
+    placeholder: str | None,
     required: bool | None,
     hidden: bool | None,
     multiline: bool | None,
-    widget: str,
+    widget: str | None,
     options: list[str] | None,
     body_file: Path | None,
 ) -> QuestionCreate:
@@ -117,7 +117,7 @@ def _resolve_body(
     if body_file is not None:
         data = json.loads(body_file.read_text(encoding="utf-8"))
         return QuestionCreateAdapter.validate_python(data)
-    if not type_:
+    if type_ is None:
         raise typer.BadParameter("pass --type (with flags) or --body-file")
     return _build_from_flags(
         type_,
@@ -134,12 +134,12 @@ def _resolve_body(
 
 
 TypeOpt = Annotated[
-    str, typer.Option("--type", help="Question type: string/boolean/integer/date/enum.")
+    str | None, typer.Option("--type", help="Question type: string/boolean/integer/date/enum.")
 ]
-LabelOpt = Annotated[str, typer.Option(help="Question label / title.")]
-SlugOpt = Annotated[str, typer.Option(help="Stable machine slug.")]
-CommentOpt = Annotated[str, typer.Option(help="Question hint / helper text.")]
-PlaceholderOpt = Annotated[str, typer.Option(help="Placeholder text.")]
+LabelOpt = Annotated[str | None, typer.Option(help="Question label / title.")]
+SlugOpt = Annotated[str | None, typer.Option(help="Stable machine slug.")]
+CommentOpt = Annotated[str | None, typer.Option(help="Question hint / helper text.")]
+PlaceholderOpt = Annotated[str | None, typer.Option(help="Placeholder text.")]
 RequiredOpt = Annotated[
     bool | None,
     typer.Option(
@@ -153,7 +153,9 @@ HiddenOpt = Annotated[
 MultilineOpt = Annotated[
     bool | None, typer.Option("--multiline/--no-multiline", help="Multiline text (string type).")
 ]
-WidgetOpt = Annotated[str, typer.Option(help="Enum widget: radio/checkbox/dropdown/stars/onerow.")]
+WidgetOpt = Annotated[
+    str | None, typer.Option(help="Enum widget: radio/checkbox/dropdown/stars/onerow.")
+]
 OptionOpt = Annotated[
     list[str] | None, typer.Option("--option", help="Enum option label (repeatable).")
 ]
@@ -190,15 +192,15 @@ def get(
 @app.command()
 def create(
     survey_id: SurveyIdArg,
-    type_: TypeOpt = "",
-    label: LabelOpt = "",
-    slug: SlugOpt = "",
-    comment: CommentOpt = "",
-    placeholder: PlaceholderOpt = "",
+    type_: TypeOpt = None,
+    label: LabelOpt = None,
+    slug: SlugOpt = None,
+    comment: CommentOpt = None,
+    placeholder: PlaceholderOpt = None,
     required: RequiredOpt = None,
     hidden: HiddenOpt = None,
     multiline: MultilineOpt = None,
-    widget: WidgetOpt = "",
+    widget: WidgetOpt = None,
     option: OptionOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -225,15 +227,15 @@ def create(
 def update(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
-    type_: TypeOpt = "",
-    label: LabelOpt = "",
-    slug: SlugOpt = "",
-    comment: CommentOpt = "",
-    placeholder: PlaceholderOpt = "",
+    type_: TypeOpt = None,
+    label: LabelOpt = None,
+    slug: SlugOpt = None,
+    comment: CommentOpt = None,
+    placeholder: PlaceholderOpt = None,
     required: RequiredOpt = None,
     hidden: HiddenOpt = None,
     multiline: MultilineOpt = None,
-    widget: WidgetOpt = "",
+    widget: WidgetOpt = None,
     option: OptionOpt = None,
     body_file: BodyFileOpt = None,
     *,
@@ -273,22 +275,20 @@ def move(
     survey_id: SurveyIdArg,
     question_id: QuestionIdArg,
     page: Annotated[
-        int,
+        int | None,
         typer.Option(
-            help="Target page number, 1-based (0 = unset; visibly defaults to 1 when only "
+            help="Target page number, 1-based (visibly defaults to 1 when only "
             "--position is given — the API silently ignores a bare position)."
         ),
-    ] = 0,
-    page_id: Annotated[int, typer.Option("--page-id", help="Target page id (0 = unset).")] = 0,
-    position: Annotated[
-        int, typer.Option(help="New position on the page, 1-based (0 = unset).")
-    ] = 0,
+    ] = None,
+    page_id: Annotated[int | None, typer.Option("--page-id", help="Target page id.")] = None,
+    position: Annotated[int | None, typer.Option(help="New position on the page, 1-based.")] = None,
     create_page: Annotated[
         bool, typer.Option("--create-page", help="Create a new page for the question.")
     ] = False,
     question: Annotated[
-        str, typer.Option(help="Question id/slug to move into a question series.")
-    ] = "",
+        str | None, typer.Option(help="Question id/slug to move into a question series.")
+    ] = None,
     *,
     forms: FormsClient,
 ) -> QuestionMoveResult:
@@ -298,10 +298,10 @@ def move(
     moves) — and ``QuestionMove`` now raises rather than guessing, so ``--page`` explicitly
     defaults to 1 here when only ``--position`` is given.
     """
-    target_page: int | None = page or None
-    target_page_id = page_id or None
-    target_position = position or None
-    target_question = question or None
+    target_page: int | None = page
+    target_page_id = page_id
+    target_position = position
+    target_question = question
     target_create_page = create_page or None
     no_target = (
         target_page is None

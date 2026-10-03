@@ -73,12 +73,14 @@ def create(
     --group-id.
     """
     user = (
-        UserIdentity(uid=user_uid, cloud_uid=user_cloud_uid) if user_uid or user_cloud_uid else None
+        UserIdentity(uid=user_uid, cloud_uid=user_cloud_uid)
+        if user_uid is not None or user_cloud_uid is not None
+        else None
     )
     given = {"src": group_src, "id": group_id}
     group = (
         GroupIdentity.model_validate({key: value for key, value in given.items() if value})
-        if group_src or group_id
+        if group_src or group_id is not None
         else None
     )
     body = PageAccessCreate(user=user, group=group, role=role, inheritance=inheritance)

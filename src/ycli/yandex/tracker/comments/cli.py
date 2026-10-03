@@ -45,16 +45,16 @@ class Reaction(enum.StrEnum):
 @app.command("list")
 def list_(
     key: KeyArg,
-    limit: LimitOption = 0,
+    limit: LimitOption = None,
     all_: AllOption = False,
-    expand: ExpandOpt = "",
+    expand: ExpandOpt = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Comment]:
     """List all comments on issue KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.comments.list(key, limit=cap, expand=expand or None)
+    return tracker.comments.list(key, limit=cap, expand=expand)
 
 
 @app.command()
@@ -62,13 +62,13 @@ def get(
     key: KeyArg,
     comment_id: CommentIdArg,
     expand: Annotated[
-        str, typer.Option(help="Extra fields: attachments, html or all (comma-separated).")
-    ] = "",
+        str | None, typer.Option(help="Extra fields: attachments, html or all (comma-separated).")
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Comment:
     """Print comment COMMENT_ID of issue KEY."""
-    return tracker.comments.get(key, comment_id, expand=expand or None)
+    return tracker.comments.get(key, comment_id, expand=expand)
 
 
 @app.command()

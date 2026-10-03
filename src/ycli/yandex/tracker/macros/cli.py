@@ -35,19 +35,21 @@ def get(queue_id: QueueIdArg, macro_id: MacroIdArg, *, tracker: TrackerClient) -
 def create(
     queue_id: QueueIdArg,
     name: Annotated[str, typer.Option(help="Name of the new macro.")],
-    body: Annotated[str, typer.Option(help="Comment text created when the macro runs.")] = "",
+    body: Annotated[
+        str | None, typer.Option(help="Comment text created when the macro runs.")
+    ] = None,
     issue_update: Annotated[
-        str,
+        str | None,
         typer.Option("--issue-update", help="Field→value issue changes as a JSON object."),
-    ] = "",
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Macro:
     """Create a macro on QUEUE_ID (POST /queues/{queue_id}/macros)."""
     macro = MacroCreate(
         name=name,
-        body=body or None,
-        issue_update=json.loads(issue_update) if issue_update else None,
+        body=body,
+        issue_update=json.loads(issue_update) if issue_update is not None else None,
     )
     return tracker.macros.create(queue_id, macro)
 
@@ -56,22 +58,24 @@ def create(
 def update(
     queue_id: QueueIdArg,
     macro_id: MacroIdArg,
-    name: Annotated[str, typer.Option(help="New name of the macro.")] = "",
-    body: Annotated[str, typer.Option(help="New comment text created when the macro runs.")] = "",
+    name: Annotated[str | None, typer.Option(help="New name of the macro.")] = None,
+    body: Annotated[
+        str | None, typer.Option(help="New comment text created when the macro runs.")
+    ] = None,
     issue_update: Annotated[
-        str,
+        str | None,
         typer.Option(
             "--issue-update", help="Replacement field→value issue changes as a JSON object."
         ),
-    ] = "",
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> Macro:
     """Edit macro MACRO_ID of QUEUE_ID (PATCH) — only supplied fields are sent."""
     macro = MacroUpdate(
-        name=name or None,
-        body=body or None,
-        issue_update=json.loads(issue_update) if issue_update else None,
+        name=name,
+        body=body,
+        issue_update=json.loads(issue_update) if issue_update is not None else None,
     )
     return tracker.macros.update(queue_id, macro_id, macro)
 
