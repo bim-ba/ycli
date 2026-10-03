@@ -57,7 +57,7 @@ change the public surface on purpose, regenerate snapshots: `uv run python -m te
   hardcode credentials. The transport sends one canonical `X-Org-Id` org header for every
   service (case-insensitive per RFC 9110).
 - **Secrets:** `.env` and `.mcp.json` are gitignored. Keep real tokens out of commits;
-  use `.env.example` / `.mcp.example.json` placeholders.
+  use the `.env.example` placeholders.
 
 ## Coverage and API drift
 

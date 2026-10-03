@@ -54,6 +54,7 @@ jobs:
               echo "Yandex's published API no longer matches \`scripts/api_snapshot/\`."
               echo
               cat "$RUNNER_TEMP/changes.md"
+              echo
               echo "To accept the change: \`uv run python scripts/api_drift.py --refresh\`, then"
               echo "\`uv run python scripts/gen_coverage.py --write\`. \`uv run pytest tests/test_api_drift.py\`"
               echo "fails on a new operation until ycli wraps it or lists it in \`NOT_WRAPPED\`."

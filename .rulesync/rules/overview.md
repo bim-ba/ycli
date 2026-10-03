@@ -75,7 +75,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `[ci skip]` written into staged file *content*; this rule covers what neither can see (a
   message typed in the GitHub UI). Neither guard sees a token already sitting in an *earlier*
   squashed commit either: a squash-merge concatenates every squashed commit's body, so one stray
-  token — e.g. from a server-side bot auto-commit like `demo.yml`'s — rides into `main` and
+  token — e.g. from a server-side bot auto-commit — rides into `main` and
   cancels the release. Keep bot commits out of the release trigger; re-scan `git log <base>..HEAD`
   for the token before squash-merging.
 - **Secrets never reach a commit.** gitleaks runs in pre-commit and CI. Credentials live in the
@@ -84,8 +84,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `.rulesync.local/mcp.jsonc` overlay carries their literal values, so no harness needs them in
   its launch environment. `.mcp.json`, `.codex/config.toml` and `opencode.jsonc` are therefore
   per-machine output and are **untracked**; never write a literal credential into `.rulesync/`
-  or into a tracked file. Run `rulesync generate --check` as the drift gate; the CI `rulesync`
-  job enforces it on every PR with the rulesync version pinned in `ci.yml`.
+  or into a tracked file. The drift gate is `rulesync generate` followed by an empty
+  `git status --porcelain` (`--check` also flags the untracked per-machine files); the CI
+  `rulesync` job enforces it on every PR with the rulesync version pinned in `ci.yml`.
 - **Reproducible artifacts.** Generated demos/tables come from a committed source —
   regenerate, never hand-author (the `demo.svg` incident).
 - **API drift.** `scripts/api_snapshot/` holds the operations Yandex publishes, names only
