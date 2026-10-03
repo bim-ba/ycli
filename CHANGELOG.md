@@ -9,6 +9,94 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.37.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.36.3
+  ([`93848e5`](https://github.com/bim-ba/ycli/commit/93848e538b635540a8a86bacbedc99b7f16c85c7))
+
+### Chores
+
+- Drop the Codex converter marker nothing reads any more
+  ([#194](https://github.com/bim-ba/ycli/pull/194),
+  [`e019f2f`](https://github.com/bim-ba/ycli/commit/e019f2fd5c0d7fd5af65b9e1a152927c98bd7b1b))
+
+### Continuous Integration
+
+- Build the docs site at a release tag, whose lockfile lags the version
+  ([#184](https://github.com/bim-ba/ycli/pull/184),
+  [`4573105`](https://github.com/bim-ba/ycli/commit/45731057c1692e6c9eb86e770345772fff69393c))
+
+### Documentation
+
+- Add a Compose file for self-hosting, included from the page and checked in CI
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- Add a page on using ycli in CI, and shell completion
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- An install page a newcomer can follow, CI and Compose guides
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- Compare request bodies with the published API ([#195](https://github.com/bim-ba/ycli/pull/195),
+  [`6a0bf39`](https://github.com/bim-ba/ycli/commit/6a0bf3991e02d8d262e8785f88bb9f50e83fd4ef))
+
+- Describe the image as ycli itself, and add the Glama maintainer file
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- Let the release stamp the version the copy-paste examples pin
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- Publish an OpenAPI document per service, derived from ycli
+  ([#185](https://github.com/bim-ba/ycli/pull/185),
+  [`f4e1e6c`](https://github.com/bim-ba/ycli/commit/f4e1e6c36e551f8b2f84e62f74bd070bb322048b))
+
+- Rewrite the client install page: one order per client, one-click links, more clients
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- Show one operation as CLI, MCP and SDK tabs, generated from the contract cases
+  ([#215](https://github.com/bim-ba/ycli/pull/215),
+  [`f171449`](https://github.com/bim-ba/ycli/commit/f17144985bb6e2d2f3ad6ea4a74c61ec635ba691))
+
+- Stop the Claude Code command from writing the token into its config
+  ([#214](https://github.com/bim-ba/ycli/pull/214),
+  [`fb13cff`](https://github.com/bim-ba/ycli/commit/fb13cffdcc06d23330349b3e0e85fd408331bdfe))
+
+- Type the OpenAPI parameters and name its schemas by resource
+  ([#200](https://github.com/bim-ba/ycli/pull/200),
+  [`b0f16f9`](https://github.com/bim-ba/ycli/commit/b0f16f9e1c6f8ddbb6625ba92a80fae99eb58a41))
+
+- **site**: Turn on the navigation, code and tab features the theme already ships
+  ([#204](https://github.com/bim-ba/ycli/pull/204),
+  [`7357535`](https://github.com/bim-ba/ycli/commit/7357535b4083844d0842984526e25621a39fe668))
+
+### Features
+
+- **sdk**: Address the review of the shared models ([#213](https://github.com/bim-ba/ycli/pull/213),
+  [`c1d48b0`](https://github.com/bim-ba/ycli/commit/c1d48b0ce5ba28df82c9bbca6f49000d7350324b))
+
+- **sdk**: One shared class for each shape several resources read
+  ([#213](https://github.com/bim-ba/ycli/pull/213),
+  [`c1d48b0`](https://github.com/bim-ba/ycli/commit/c1d48b0ce5ba28df82c9bbca6f49000d7350324b))
+
+### Refactoring
+
+- **core**: Carry the endpoint on its request instead of only its effect
+  ([#198](https://github.com/bim-ba/ycli/pull/198),
+  [`cc6458f`](https://github.com/bim-ba/ycli/commit/cc6458f757ecfac1ecb13d3cea796f0eb3d8e312))
+
+- **core**: Say that every page of a listing carries it
+  ([#198](https://github.com/bim-ba/ycli/pull/198),
+  [`cc6458f`](https://github.com/bim-ba/ycli/commit/cc6458f757ecfac1ecb13d3cea796f0eb3d8e312))
+
+
 ## v0.36.3 (2026-10-03)
 
 ### Bug Fixes

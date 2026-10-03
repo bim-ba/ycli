@@ -25,7 +25,7 @@ jobs:
       YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
     steps:
       - uses: astral-sh/setup-uv@v10.2.0
-      - run: uvx yandex-cli==0.36.3 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
+      - run: uvx yandex-cli==0.37.0 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
 ```
 
 `uvx yandex-cli==<version>` запускает указанную версию, ничего больше не устанавливая. Фиксируйте версию: конвейер не должен менять поведение при выходе нового релиза.
@@ -39,7 +39,7 @@ jobs:
 ```yaml
 comment:
   image:
-    name: ghcr.io/bim-ba/ycli:0.36.3
+    name: ghcr.io/bim-ba/ycli:0.37.0
     entrypoint: [""]
   script:
     - ycli tracker comments add TRACKER-1 --text "Deployed $CI_COMMIT_SHORT_SHA"
@@ -53,7 +53,7 @@ comment:
 
 ```bash
 docker run --rm -e YANDEX_ID_OAUTH_TOKEN -e YANDEX_ID_ORGANIZATION_ID \
-  ghcr.io/bim-ba/ycli:0.36.3 tracker comments add TRACKER-1 --text "Deployed"
+  ghcr.io/bim-ba/ycli:0.37.0 tracker comments add TRACKER-1 --text "Deployed"
 ```
 
 ## Команды, которые не ждут
