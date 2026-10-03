@@ -25,14 +25,16 @@ import, no reader of the site) within two milestones, delete the script and the 
 from __future__ import annotations
 
 import argparse
+import inspect
 import re
 import sys
+import typing
 from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import yaml
-from pydantic import TypeAdapter
+from pydantic import PydanticUserError, TypeAdapter
 
 ROOT = Path(__file__).resolve().parent.parent
 # Run as a file, a script sees only its own directory: tests/ and scripts/ hang off the root.
@@ -52,58 +54,65 @@ SCHEMAS = "#/components/schemas/"
 TITLES = {"tracker": "Yandex Tracker", "wiki": "Yandex Wiki", "forms": "Yandex Forms"}
 _PLACEHOLDER = re.compile(r"\{([^}]*)\}|<([^>]*)>")
 _JSON = "application/json"
+_QUALIFIED = re.compile(r"ycli__yandex__[a-z]+__(\w+?)__models__(\w+)")
 
 
-def _hoisted(schema: dict[str, Any], schemas: dict[str, Any]) -> dict[str, Any]:
-    """``schema`` with its ``$defs`` moved into ``schemas`` and its references pointed there.
+def _readable(name: str) -> str:
+    """A component name for a model pydantic had to qualify by module, as resource plus class.
 
-    A definition whose name is taken by a different schema (a request model named like a
-    response model) gets a numbered name.
+    Two resources of one service may each define ``Comment``; pydantic then names them by their
+    full module path.
+
+    Examples:
+        >>> _readable("ycli__yandex__tracker__import___models__Comment")
+        'ImportComment'
+        >>> _readable("PageDetails")
+        'PageDetails'
     """
-    renamed: dict[str, str] = {}
-
-    def moved(node: Any) -> Any:
-        if isinstance(node, dict):
-            return {
-                key: SCHEMAS + renamed.get(name := value.rsplit("/", 1)[1], name)
-                if key == "$ref"
-                else moved(value)
-                for key, value in node.items()
-                if key != "$defs"
-            }
-        return [moved(item) for item in node] if isinstance(node, list) else node
-
-    definitions = schema.get("$defs", {})
-    for name, definition in definitions.items():
-        candidates = (name, *(f"{name}{number}" for number in range(2, 100)))
-        mine = moved(definition)
-        renamed[name] = next(c for c in candidates if schemas.get(c, mine) == mine)
-    for name, definition in definitions.items():
-        schemas[renamed[name]] = moved(definition)
-    return moved(schema)
+    qualified = _QUALIFIED.fullmatch(name)
+    if qualified is None:
+        return name
+    resource, model = qualified.groups()
+    return "".join(part.capitalize() for part in resource.split("_")) + model
 
 
-def _response_schemas(found: list[Recorded], schemas: dict[str, Any]) -> dict[str, Any]:
-    """The schema of every response type among ``found``, by case id; models go to ``schemas``.
+def _renamed(node: Any, names: dict[str, str]) -> Any:
+    """``node`` with every component reference pointed at its readable name."""
+    if isinstance(node, dict):
+        return {
+            key: SCHEMAS + names[value.removeprefix(SCHEMAS)]
+            if key == "$ref"
+            else _renamed(value, names)
+            for key, value in node.items()
+        }
+    return [_renamed(item, names) for item in node] if isinstance(node, list) else node
 
-    One pydantic pass over all of them, so two models that share a class name get distinct
-    component names.
+
+def _schemas(found: list[Recorded], schemas: dict[str, Any]) -> dict[tuple[str, str], Any]:
+    """The schema of every response type and typed body among ``found``; models go to ``schemas``.
+
+    Keys are ``("response" | "body", case id + template)``. One pydantic pass over all of them,
+    so two models that share a class name get distinct component names.
     """
-    typed = {
-        recording.case.id + recording.template: recording.endpoint.response_type
-        for recording in found
-        if recording.endpoint.response_type not in (None, bytes)
-    }
-    inputs: list[tuple[str, JsonSchemaMode, TypeAdapter[Any]]] = [
-        (key, "validation", TypeAdapter(response_type)) for key, response_type in typed.items()
+    typed: dict[tuple[str, str], Any] = {}
+    for recording in found:
+        key = recording.case.id + recording.template
+        if recording.endpoint.response_type not in (None, bytes):
+            typed["response", key] = recording.endpoint.response_type
+        if (body := api_drift.typed_body(recording)) is not None:
+            typed["body", key] = body
+    inputs: list[tuple[tuple[str, str], JsonSchemaMode, TypeAdapter[Any]]] = [
+        (key, "validation", TypeAdapter(annotation)) for key, annotation in typed.items()
     ]
     by_key, shared = TypeAdapter.json_schemas(
-        inputs,
-        by_alias=True,
-        ref_template=SCHEMAS + "{model}",
+        inputs, by_alias=True, ref_template=SCHEMAS + "{model}"
     )
-    schemas.update(shared.get("$defs", {}))
-    return {key: schema for (key, _mode), schema in by_key.items()}
+    definitions = shared.get("$defs", {})
+    names = {name: _readable(name) for name in definitions}
+    if len(set(names.values())) != len(names):
+        raise SystemExit("gen_openapi: two models of one resource share a class name")
+    schemas.update({names[name]: _renamed(schema, names) for name, schema in definitions.items()})
+    return {key: _renamed(schema, names) for (key, _mode), schema in by_key.items()}
 
 
 def _path(found: Recorded, published: list[api_surface.Operation]) -> str:
@@ -133,33 +142,83 @@ def _primary(group: list[Recorded]) -> Recorded:
     return min(group, key=lambda found: (alone[found.case.id], found.case.operation))
 
 
-def _request_body(group: list[Recorded], schemas: dict[str, Any]) -> dict[str, Any] | None:
+def _request_body(
+    group: list[Recorded], found: dict[tuple[str, str], Any]
+) -> dict[str, Any] | None:
     """The request body of an operation, typed when its MCP tool declares a body model."""
-    requests = [request for found in group for request in found.requests if request.content]
+    requests = [request for recording in group for request in recording.requests if request.content]
     if not requests:
         return None
     kind = requests[0].headers.get("Content-Type", "application/octet-stream").split(";")[0]
     if kind != _JSON:
         return {"content": {kind: {}}}
-    body = api_drift.typed_body(_primary(group))
-    if body is None:
+    primary = _primary(group)
+    schema = found.get(("body", primary.case.id + primary.template))
+    if schema is None:
         return {"content": {_JSON: {}}, "x-ycli-body": "untyped"}
-    return {"content": {_JSON: {"schema": _hoisted(body, schemas)}}, "x-ycli-body": "typed"}
+    return {"content": {_JSON: {"schema": schema}}, "x-ycli-body": "typed"}
 
 
-def _response(found: Recorded, responses: dict[str, Any]) -> dict[str, Any]:
+def _response(recording: Recorded, found: dict[tuple[str, str], Any]) -> dict[str, Any]:
     """The success response: the schema of the type ycli parses the reply into."""
-    response_type = found.endpoint.response_type
+    response_type = recording.endpoint.response_type
     if response_type is None:
         return {"description": "ycli reads no body."}
     if response_type is bytes:
         return {"description": "Raw bytes.", "content": {"application/octet-stream": {}}}
-    schema = responses[found.case.id + found.template]
+    schema = found["response", recording.case.id + recording.template]
     return {"description": "Parsed by ycli.", "content": {_JSON: {"schema": schema}}}
 
 
+_BY_VALUE = {bool: "boolean", int: "integer", float: "number", str: "string", list: "array"}
+
+
+def _wire_schema(annotation: Any) -> dict[str, Any]:
+    """The schema of a parameter annotated ``annotation`` as it goes on the wire.
+
+    ``None`` in a union means "not sent", so it is dropped; a type whose schema needs shared
+    definitions (an enum class) is left untyped rather than half-described.
+    """
+    options = [option for option in typing.get_args(annotation) if option is not type(None)]
+    if type(None) in typing.get_args(annotation) and len(options) == 1:
+        annotation = options[0]
+    if annotation is Any or annotation is inspect.Parameter.empty:
+        return {}
+    try:
+        schema = TypeAdapter(annotation).json_schema(mode="serialization")
+    except PydanticUserError:
+        return {}
+    return {} if "$defs" in schema else schema
+
+
+def _query_schema(name: str, group: list[Recorded]) -> dict[str, Any]:
+    """The type of query parameter ``name``: the SDK argument it carries, else its value's.
+
+    A parameter is tied to an argument when exactly one argument of the call has its value.
+    """
+    for recording in sorted(group, key=lambda recording: recording.case.id):
+        value = recording.endpoint.params.get(name)
+        if value is None:
+            continue
+        owners = [
+            argument
+            for argument, given in recording.arguments.items()
+            if type(given) is type(value) and given == value
+        ]
+        if len(owners) == 1 and (schema := _wire_schema(recording.hints.get(owners[0], Any))):
+            return schema
+        return {"type": _BY_VALUE[type(value)]} if type(value) in _BY_VALUE else {}
+    return {}
+
+
+def _path_schema(name: str, group: list[Recorded]) -> dict[str, Any]:
+    """The type of path parameter ``name``: its SDK argument's, or a string for a borrowed name."""
+    hints = [recording.hints[name] for recording in group if name in recording.hints]
+    return (_wire_schema(hints[0]) if hints else {}) or {"type": "string"}
+
+
 def _operation(
-    group: list[Recorded], path: str, schemas: dict[str, Any], responses: dict[str, Any]
+    group: list[Recorded], path: str, found: dict[tuple[str, str], Any]
 ) -> dict[str, Any]:
     """One OpenAPI operation from every recording of the same method and path."""
     primary = _primary(group)
@@ -175,15 +234,17 @@ def _operation(
     if primary.pagination is not None:
         operation["x-ycli-pagination"] = type(primary.pagination).__name__
     parameters = [
-        {"name": name, "in": "path", "required": True, "schema": {"type": "string"}}
+        {"name": name, "in": "path", "required": True, "schema": _path_schema(name, group)}
         for name in re.findall(r"\{(\w+)\}", path)
     ]
-    parameters += [{"name": name, "in": "query", "schema": {}} for name in query]
+    parameters += [
+        {"name": name, "in": "query", "schema": _query_schema(name, group)} for name in query
+    ]
     if parameters:
         operation["parameters"] = parameters
-    if (body := _request_body(group, schemas)) is not None:
+    if (body := _request_body(group, found)) is not None:
         operation["requestBody"] = body
-    operation["responses"] = {"200": _response(primary, responses)}
+    operation["responses"] = {"200": _response(primary, found)}
     return operation
 
 
@@ -197,11 +258,11 @@ def document(service: str) -> dict[str, Any]:
             groups[(_path(found, published), found.endpoint.method)].append(found)
 
     schemas: dict[str, Any] = {}
-    responses = _response_schemas([found for group in groups.values() for found in group], schemas)
+    found = _schemas([recording for group in groups.values() for recording in group], schemas)
     paths: dict[str, dict[str, Any]] = defaultdict(dict)
     operation_ids: dict[str, str] = {}
     for (path, method), group in sorted(groups.items()):
-        operation = _operation(group, path, schemas, responses)
+        operation = _operation(group, path, found)
         # One operation may send two requests (a listing and its paged twin): keep ids unique.
         if operation["operationId"] in operation_ids:
             suffix = re.sub(r"\W+", "_", path).strip("_")

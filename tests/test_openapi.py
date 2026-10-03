@@ -51,12 +51,8 @@ def test_every_sdk_operation_is_in_its_document(service):
 def test_path_parameters_are_named_after_the_sdk_arguments():
     get = _operations("tracker")[("GET", "/issues/{key}")]
     assert get["operationId"] == "issues_get" and get["x-ycli-effect"] == "read"
-    assert get["parameters"][0] == {
-        "name": "key",
-        "in": "path",
-        "required": True,
-        "schema": {"type": "string"},
-    }
+    key = {"name": "key", "in": "path", "required": True, "schema": {"type": "string"}}
+    assert get["parameters"][0] == key
     # No published page documents this request, so only the SDK's arguments name it.
     assert ("GET", "/attachments/{file_id}/{filename}") in _operations("tracker")
 
@@ -88,7 +84,9 @@ def test_two_arguments_with_one_value_are_refused():
 def test_a_typed_body_comes_from_the_mcp_tool_and_a_free_form_one_says_so():
     create = _operations("tracker")[("POST", "/issues")]["requestBody"]
     assert create["x-ycli-body"] == "typed"
-    assert "summary" in create["content"]["application/json"]["schema"]["properties"]
+    reference = create["content"]["application/json"]["schema"]["$ref"]
+    model = DOCUMENTS["tracker"]["components"]["schemas"][reference.rsplit("/", 1)[1]]
+    assert "summary" in model["properties"]
     update = _operations("wiki")[("POST", "/pages/{page_id}")]["requestBody"]
     assert update == {"content": {"application/json": {}}, "x-ycli-body": "untyped"}
 
@@ -116,14 +114,38 @@ def test_schemas_use_the_api_field_names_and_allow_unknown_fields(service):
             assert aliased <= properties and not (names - aliased) & properties, model.__name__
 
 
-def test_a_definition_whose_name_is_taken_gets_a_numbered_one():
-    schemas = {"Item": {"type": "string"}}
-    schema = {"$ref": "#/$defs/Item", "$defs": {"Item": {"type": "integer"}}}
-    assert gen_openapi._hoisted(schema, schemas) == {"$ref": "#/components/schemas/Item2"}
-    assert schemas == {"Item": {"type": "string"}, "Item2": {"type": "integer"}}
-    # The same definition again is the same component.
-    assert gen_openapi._hoisted(schema, schemas) == {"$ref": "#/components/schemas/Item2"}
-    assert len(schemas) == 2
+def test_models_that_share_a_class_name_are_named_by_resource():
+    """Tracker defines ``Comment`` for issues and for entities; neither name depends on order."""
+    names = set(DOCUMENTS["tracker"]["components"]["schemas"])
+    assert {"CommentsComment", "EntitiesComment"} <= names and "Comment" not in names
+    for service in api_surface.SERVICES:
+        schemas = DOCUMENTS[service]["components"]["schemas"]
+        assert not [name for name in schemas if "__" in name or name[-1].isdigit()]
+    assert gen_openapi._readable("ycli__yandex__tracker__import___models__Link") == "ImportLink"
+
+
+def test_parameters_take_the_type_of_the_sdk_argument_or_of_the_value_sent():
+    by_id = _operations("wiki")[("GET", "/pages/{page_id}")]
+    assert by_id["parameters"][0]["schema"] == {"type": "integer"}  # ``page_id: int``
+    listing = {
+        p["name"]: p["schema"] for p in _operations("forms")[("GET", "/surveys")]["parameters"]
+    }
+    # The pager adds them to the request itself, so no value of theirs is seen: left untyped.
+    assert listing == {"limit": {}, "offset": {}}
+    comments = _operations("tracker")[("GET", "/issues/{key}/comments")]["parameters"]
+    assert {"name": "perPage", "in": "query", "schema": {"type": "integer"}} in comments
+
+
+@pytest.mark.parametrize(("service", "at_least"), [("tracker", 62), ("wiki", 35), ("forms", 31)])
+def test_most_query_parameters_are_typed(service, at_least):
+    """A floor, so a change that silently loses the types is seen."""
+    query = [
+        parameter
+        for operation in _operations(service).values()
+        for parameter in operation.get("parameters", [])
+        if parameter["in"] == "query"
+    ]
+    assert sum(bool(parameter["schema"]) for parameter in query) >= at_least
 
 
 def test_main_writes_one_file_per_service(tmp_path):

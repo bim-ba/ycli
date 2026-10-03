@@ -38,7 +38,11 @@ specification for Wiki and Forms and none for Tracker; these three share one for
 - A document is only as complete as ycli. README's
   [Against the published API](https://github.com/bim-ba/ycli#against-the-published-api) lists
   the query parameters ycli cannot send and the response fields its models drop.
-- Query parameters carry no type, and every path parameter is a string.
+- A parameter's type is the type of the SDK argument it carries, or of the value ycli sends;
+  one ycli cannot tie to either has none. An `enum` lists the values ycli accepts, which may
+  be fewer than the API does.
 - Responses describe what ycli reads. Its models ignore unknown fields, so a schema never
   forbids extra properties.
-- Component schema names are ycli's class names and change when a model is renamed.
+- Component schema names are ycli's class names, prefixed with the resource where two
+  resources share one (`CommentsComment`, `EntitiesComment`). They change when a model is
+  renamed.
