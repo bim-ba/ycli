@@ -21,8 +21,10 @@ FRESH = f"e2e-{NOW - 60}-bbbb"
 class FakeOrganization(Driver):
     """Listings for each service; records every write the janitor sends."""
 
-    def __init__(self, transitions: list[dict[str, object]]) -> None:
+    def __init__(self, transitions: list[dict[str, object]], status: str = "inProgress") -> None:
         self.transitions = transitions
+        # What ``issues get`` answers for the stale issue; the listing may lag behind it.
+        self.status = status
         self.writes: list[list[str]] = []
 
     def run(self, arguments: Sequence[str]) -> CommandResult:
@@ -43,6 +45,7 @@ class FakeOrganization(Driver):
                 {"id": "f2", "name": None},
             ],
             "tracker transitions list": self.transitions,
+            "tracker issues get": {"key": "Q-1", "status": self.status},
         }
         command = " ".join(arguments[:3])
         if command in listings:
@@ -92,6 +95,16 @@ def test_an_issue_without_a_close_transition_is_reported(capsys):
     organization = FakeOrganization([{"id": "start", "to": {"key": "inProgress"}}])
     assert sweep(organization, "Q", 3600, 1, dry_run=False, now=NOW) == 1
     assert "FAILED tracker Q-1: Q-1: no transition leads to closed" in capsys.readouterr().err
+
+
+def test_an_issue_the_listing_still_shows_open_but_is_closed_counts_as_done(capsys):
+    """The search lags: a scenario closed the issue seconds ago, and closed has no way out."""
+    organization = FakeOrganization([{"id": "reopen", "to": {"key": "open"}}], status="closed")
+    assert sweep(organization, "Q", 3600, 1, dry_run=False, now=NOW) == 0
+    assert organization.writes == []
+    captured = capsys.readouterr()
+    assert "already closed tracker Q-1" in captured.out
+    assert captured.err == ""
 
 
 def test_parse_duration():

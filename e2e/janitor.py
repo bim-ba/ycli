@@ -77,6 +77,12 @@ def find_leftovers(driver: Driver, queue: str) -> list[Leftover]:
 def remove(driver: Driver, leftover: Leftover) -> str:
     """Close the issue or delete the page or survey; return what was done."""
     if leftover.service == "tracker":
+        # The listing comes from the search, which lags: a run may have closed the issue since.
+        if (
+            run_json(driver, ["tracker", "issues", "get", leftover.identifier])["status"]
+            == "closed"
+        ):
+            return "already closed"
         transitions = run_json(driver, ["tracker", "transitions", "list", leftover.identifier])
         close = next(
             (item["id"] for item in transitions if (item.get("to") or {}).get("key") == "closed"),
