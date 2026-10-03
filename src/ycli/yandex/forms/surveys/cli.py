@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
@@ -71,7 +70,6 @@ def create(
     return forms.surveys.create(body=body)
 
 
-@deprecated_alias(app, "modify")
 @app.command()
 def update(
     survey_id: SurveyIdArg,

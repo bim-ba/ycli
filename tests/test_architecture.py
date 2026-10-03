@@ -384,8 +384,7 @@ def _function_operations(function: object) -> frozenset[str]:
 def _cli_commands_by_name() -> dict[str, frozenset[str]]:
     """Visible CLI leaf commands as ``tracker_issues_get``-style names, with their operations.
 
-    The operations are named under their service (``tracker.issues.get``). A hidden alias is not
-    a surface.
+    The operations are named under their service (``tracker.issues.get``).
     """
     out: dict[str, frozenset[str]] = {}
     for path, command in cli_leaves().items():
@@ -453,9 +452,8 @@ def test_arch1_cli_path_equals_mcp_name():
     """An operation served on both surfaces has the same name on both (ARCH-1, #104).
 
     The CLI path with spaces and hyphens as ``_`` is the MCP tool name, verb last (``update``,
-    never ``edit`` or ``modify``). The old CLI names keep working as hidden aliases, which are not
-    the surface. The tools read are those of the resource servers; the root server must serve
-    exactly them (plus ``status_get``), so a tool cannot hide from this check.
+    never ``edit`` or ``modify``). The tools read are those of the resource servers; the root
+    server must serve exactly them (plus ``status_get``), so a tool cannot hide from this check.
     """
     tools = _mcp_tools_by_name()
     served = {tool.name for tool in _mcp_tools()} - {"status_get"}
@@ -465,7 +463,7 @@ def test_arch1_cli_path_equals_mcp_name():
     problems += _synonym_verbs(set(cli) | set(tools))
     assert not problems, (
         "a CLI command and an MCP tool serve the same operation under different names; rename "
-        "the CLI command (keep the old name with `deprecated_alias`) or the tool, or list the "
+        "the CLI command or the tool, or list the "
         "tool in ARCH1_NAME_EXCEPTIONS with a reason:\n  " + "\n  ".join(problems)
     )
 

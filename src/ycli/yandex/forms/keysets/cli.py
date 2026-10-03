@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.output import BinaryResult
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
@@ -59,7 +58,6 @@ def create(
     return forms.keysets.create(survey_id, body=body)
 
 
-@deprecated_alias(app, "modify")
 @app.command()
 def update(
     survey_id: SurveyIdArg,

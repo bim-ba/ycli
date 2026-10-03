@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
@@ -81,7 +80,6 @@ def get(notification_id: NotificationIdArg, *, forms: FormsClient) -> Notificati
     return forms.notifications.get(notification_id)
 
 
-@deprecated_alias(app, "status")
 @app.command()
 def status_get(notification_id: NotificationIdArg, *, forms: FormsClient) -> NotificationStatus:
     """Print a run's state only (pending, success, error or canceled)."""
@@ -100,7 +98,6 @@ def cancel(notification_id: NotificationIdArg, *, forms: FormsClient) -> Notific
     return forms.notifications.cancel(notification_id)
 
 
-@deprecated_alias(app, "errors")
 @app.command()
 def errors_list(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[int]:
     """List the ids of form SURVEY_ID's failed runs; read each with `notifications get`."""

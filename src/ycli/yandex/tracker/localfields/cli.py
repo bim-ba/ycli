@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
@@ -81,7 +80,6 @@ def create(
     return tracker.localfields.create(queue_id, body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     queue_id: QueueArg,

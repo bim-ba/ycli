@@ -7,7 +7,6 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
@@ -57,7 +56,6 @@ def create(
     return tracker.filters.create(body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     filter_id: Annotated[

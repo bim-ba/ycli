@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
@@ -76,7 +75,6 @@ def global_list(
     return tracker.worklog.global_list(created_by=created_by or None, created_at=created_at or None)
 
 
-@deprecated_alias(app, "add")
 @app.command()
 def create(
     key: KeyArg,
@@ -98,7 +96,6 @@ def create(
     return tracker.worklog.create(key, body=body)
 
 
-@deprecated_alias(app, "edit")
 @app.command()
 def update(
     key: KeyArg,

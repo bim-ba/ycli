@@ -62,7 +62,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
   name: the CLI path (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name,
   and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
-  keeps its old name as a hidden, deprecated alias (`ycli.cli.aliases.deprecated_alias`).
+  stops answering to its old name in the same release, and the changelog lists the old and the
+  new name (the rule for models is in [`docs/conventions/resources.md`](docs/conventions/resources.md)).
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
   learned on one surface works on the other.
 - **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `client.py`,
@@ -73,9 +74,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   resource directory is wired into its domain client, is a group of the built CLI tree and
   serves MCP tools from the mounted server, and nothing is served without a directory.
   `test_arch1_cli_path_equals_mcp_name` pairs each MCP tool with the CLI command that calls the
-  same client operations and fails when their names differ or either uses a synonym verb;
-  `tests/test_cli_aliases.py` and `tests/cli_aliases.py` keep every hidden alias listed and
-  working.
+  same client operations and fails when their names differ or either uses a synonym verb.
 - **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
   one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — binary download/upload is
   CLI-only (bytes do not round-trip an MCP result), plus a few SDK-internal primitives; a

@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
@@ -87,7 +86,6 @@ def descendants_by_id(
     return wiki.pages.descendants_by_id(page_id=page_id, limit=cap)
 
 
-@deprecated_alias(app, "grids")
 @app.command()
 def grids_list(
     page_id: PageIdArg,
@@ -242,7 +240,6 @@ def move(
     return operation
 
 
-@deprecated_alias(app, "revisions")
 @app.command()
 def revisions_list(
     page_id: PageIdArg,
@@ -260,7 +257,6 @@ def revisions_list(
     return wiki.pages.revisions(page_id=page_id, ids=ids or None, limit=cap)
 
 
-@deprecated_alias(app, "backlinks")
 @app.command()
 def backlinks_list(
     page_id: PageIdArg,

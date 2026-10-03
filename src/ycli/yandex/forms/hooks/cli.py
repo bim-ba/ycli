@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
 from ycli.yandex.forms.typedefs import HookIdArg, SurveyIdArg
@@ -42,7 +41,6 @@ def create(
     return forms.hooks.create(survey_id, body)
 
 
-@deprecated_alias(app, "modify")
 @app.command()
 def update(
     survey_id: SurveyIdArg,

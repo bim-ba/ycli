@@ -14,14 +14,8 @@ from ycli.cli.app import app
 from ycli.cli.lazy import LazyGroup
 
 
-def _walk(
-    command, context: typer.Context, prefix: str, *, hidden: bool = False
-) -> list[tuple[str, Any]]:
-    """Every ``(path, command)`` under ``command``; list/get_command, as the root is lazy.
-
-    A hidden command is a deprecated alias of a visible one (``ycli.cli.aliases``): it is not
-    part of the surface the snapshots and the contract table cover, unless ``hidden`` asks.
-    """
+def _walk(command, context: typer.Context, prefix: str) -> list[tuple[str, Any]]:
+    """Every ``(path, command)`` under ``command``; list/get_command, as the root is lazy."""
     out: list[tuple[str, Any]] = []
     if not hasattr(command, "list_commands"):
         return out
@@ -29,17 +23,15 @@ def _walk(
         sub = command.get_command(context, name)
         if isinstance(sub, LazyGroup):  # the stand-in lists a sub-app; walk the real one
             sub = sub.load()
-        if sub.hidden and not hidden:
-            continue
         path = f"{prefix} {name}".strip()
         out.append((path, sub))
-        out += _walk(sub, typer.Context(sub, parent=context, info_name=name), path, hidden=hidden)
+        out += _walk(sub, typer.Context(sub, parent=context, info_name=name), path)
     return out
 
 
-def _commands(*, hidden: bool = False) -> list[tuple[str, Any]]:
+def _commands() -> list[tuple[str, Any]]:
     root = typer.main.get_command(app)
-    return _walk(root, typer.Context(root, info_name="ycli"), "", hidden=hidden)
+    return _walk(root, typer.Context(root, info_name="ycli"), "")
 
 
 def cli_tree() -> list[str]:
@@ -58,18 +50,8 @@ def _cli_param(param: Any) -> str:
 
 
 def cli_leaves() -> dict[str, Any]:
-    """Every visible leaf command by space-joined path, e.g. ``'tracker issues get'``."""
+    """Every leaf command by space-joined path, e.g. ``'tracker issues get'``."""
     return {path: command for path, command in _commands() if not hasattr(command, "list_commands")}
-
-
-def cli_hidden_leaves() -> dict[str, Any]:
-    """Every hidden leaf command, or leaf under a hidden group, by space-joined path."""
-    visible = set(cli_leaves())
-    return {
-        path: command
-        for path, command in _commands(hidden=True)
-        if not hasattr(command, "list_commands") and path not in visible
-    }
 
 
 def cli_signatures() -> list[str]:

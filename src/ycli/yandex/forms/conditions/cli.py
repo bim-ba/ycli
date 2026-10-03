@@ -11,7 +11,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.conditions.models import (
     ConditionCreate,
@@ -116,7 +115,6 @@ def question_create(
     return forms.conditions.question_create(survey_id, question_id, body)
 
 
-@deprecated_alias(question_app, "modify")
 @question_app.command("update")
 def question_update(
     survey_id: SurveyIdArg,
@@ -190,7 +188,6 @@ def page_create(
     return forms.conditions.page_create(survey_id, page_id, body)
 
 
-@deprecated_alias(page_app, "modify")
 @page_app.command("update")
 def page_update(
     survey_id: SurveyIdArg,
@@ -255,7 +252,6 @@ def submit_create(
     return forms.conditions.submit_create(survey_id, body)
 
 
-@deprecated_alias(submit_app, "modify")
 @submit_app.command("update")
 def submit_update(
     survey_id: SurveyIdArg,
@@ -322,7 +318,6 @@ def hook_create(
     return forms.conditions.hook_create(survey_id, hook_id, body)
 
 
-@deprecated_alias(hook_app, "modify")
 @hook_app.command("update")
 def hook_update(
     survey_id: SurveyIdArg,

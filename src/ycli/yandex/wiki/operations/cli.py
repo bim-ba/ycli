@@ -6,7 +6,6 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.operations.models import (
     CloneOperationStatus,
@@ -25,14 +24,12 @@ TaskIdArg = Annotated[
 ]
 
 
-@deprecated_alias(app, "clone")
 @app.command()
 def clone_get(task_id: TaskIdArg, *, wiki: WikiClient) -> CloneOperationStatus:
     """Print a page-clone operation's status (GET /operations/clone/{task_id})."""
     return wiki.operations.clone_get(task_id)
 
 
-@deprecated_alias(app, "gridclone")
 @app.command()
 def gridclone_get(task_id: TaskIdArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
     """Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id})."""
