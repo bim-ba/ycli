@@ -57,4 +57,4 @@ CLI и инструмент принимают частые фильтры ка�
 
 --8<-- "docs/examples/operations/forms.surveys.get.md"
 
-Все остальные операции — в справочнике (на английском): [CLI](https://bim-ba.github.io/ycli/reference/cli/), [MCP-инструменты](https://bim-ba.github.io/ycli/reference/mcp/tracker/), [SDK](https://bim-ba.github.io/ycli/reference/sdk/tracker/).
+Все остальные операции — в справочнике (на английском): [CLI](https://ycli.savaznatnov.dev/reference/cli/), [MCP-инструменты](https://ycli.savaznatnov.dev/reference/mcp/tracker/), [SDK](https://ycli.savaznatnov.dev/reference/sdk/tracker/).

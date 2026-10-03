@@ -35,7 +35,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   clients answered by the contract cases, so an example uses the arguments of its operation's
   first case. That conftest must not import the MCP layer at module level: `pytest e2e` runs
   without the `mcp` extra.
-- **Docs:** the site (<https://bim-ba.github.io/ycli/>) is Zensical, `docs/en` + `docs/ru`
+- **Docs:** the site (<https://ycli.savaznatnov.dev/>) is Zensical, `docs/en` + `docs/ru`
   (`zensical.toml`, `zensical.ru.toml`), published only by a release. The CLI /
   MCP / SDK reference is generated (`uv run scripts/gen_reference.py`), and so are the CLI / MCP /
   SDK example tabs a page includes (`uv run scripts/gen_examples.py`, from the contract cases);
