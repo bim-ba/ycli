@@ -9,6 +9,34 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.46.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.45.0
+  ([`4e6bbb8`](https://github.com/bim-ba/ycli/commit/4e6bbb88f41d73a443a1e333832c17c54f238942))
+
+### Documentation
+
+- A README of short examples that link to the site ([#241](https://github.com/bim-ba/ycli/pull/241),
+  [`f1744e4`](https://github.com/bim-ba/ycli/commit/f1744e4744c6c91b0a0d4752082b0c7a604ff120))
+
+### Features
+
+- **forms**: Match the published API, and say which fields it ignores
+  ([#242](https://github.com/bim-ba/ycli/pull/242),
+  [`2bfc5c8`](https://github.com/bim-ba/ycli/commit/2bfc5c86fb1c8ee75f661630fc37862116274b0c))
+
+### Breaking Changes
+
+- **forms**: Models shared by Forms resources moved to `ycli.yandex.forms.models`: `Condition`,
+  `ConditionItem` and the `ConditionOperatorType`, `ConditionItemKind`, `ConditionComparison`
+  aliases (were in `forms.questions.models`), `ConditionsResponse` (was in
+  `forms.conditions.models`), `UserIdentity` and `UserRef` (were in `forms.access.models`).
+  `SubmitResult` loses `results`, `scores` and `total_scores`, which the API never sends: a quiz
+  result is in `quiz_result`. `Answer.data` is a list or, in the raw format, an object.
+
+
 ## v0.45.0 (2026-10-03)
 
 ### Build System
