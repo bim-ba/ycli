@@ -17,6 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     WRITE_TAGS,
+    Expand,
     QueueId,
     app_config,
     tracker_client,
@@ -41,6 +42,7 @@ mcp = FastMCP("tracker-queues")
 @mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"}, tags=TAGS)
 def list_(
     limit: Annotated[int, Field(description=f"Max queues to return; {LIMIT_CAP}")] = 0,
+    expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Queue]:
@@ -51,7 +53,7 @@ def list_(
     ``queues_get`` for a single queue's full configuration (types, workflows, resolutions).
     """
     cap = config.http.cap(limit)
-    return client.queues.list(limit=cap)
+    return client.queues.list(limit=cap, expand=expand)
 
 
 @mcp.tool(name="queues_get", annotations={**RO, "title": "Get Tracker queue"}, tags=TAGS)

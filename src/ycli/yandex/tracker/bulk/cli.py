@@ -84,7 +84,7 @@ def update(
     body = BulkUpdate(
         issues=_issues(issue, query), values=parse_fields(field), notify=notify or None
     ).model_dump(by_alias=True, exclude_none=True)
-    return _finish(tracker, tracker.bulk.update(body=body), wait)
+    return _finish(tracker, tracker.bulk.update(body=body, notify=notify or None), wait)
 
 
 @app.command()
@@ -113,7 +113,7 @@ def move(
         initialStatus=initial_status or None,
         notify=notify or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    return _finish(tracker, tracker.bulk.move(body=body), wait)
+    return _finish(tracker, tracker.bulk.move(body=body, notify=notify or None), wait)
 
 
 @app.command()
@@ -136,7 +136,7 @@ def transition(
         values=parse_fields(field) or None,
         notify=notify or None,
     ).model_dump(by_alias=True, exclude_none=True)
-    return _finish(tracker, tracker.bulk.transition(body=body), wait)
+    return _finish(tracker, tracker.bulk.transition(body=body, notify=notify or None), wait)
 
 
 @app.command()

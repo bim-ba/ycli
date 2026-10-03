@@ -18,8 +18,16 @@ if TYPE_CHECKING:
 class PrioritiesClient(Resource):
     """List, create and edit issue priorities."""
 
-    def list(self) -> ItemList[Priority]:
+    def list(
+        self,
+        *,
+        localized: bool | None = None,
+    ) -> ItemList[Priority]:
         """``GET /priorities`` → priority listing.
+
+        Args:
+            localized: ``False`` returns the names in every language; the API's default is the
+                caller's language only.
 
         Returns:
             The priorities.
@@ -28,7 +36,7 @@ class PrioritiesClient(Resource):
             >>> tracker.priorities.list().root[0].key
             'normal'
         """
-        return self._session.send(endpoints.list_priorities())
+        return self._session.send(endpoints.list_priorities(localized=localized))
 
     def create(self, body: PriorityCreate) -> Priority:
         """Create a priority from a typed ``PriorityCreate`` body. Returns the new ``Priority``.

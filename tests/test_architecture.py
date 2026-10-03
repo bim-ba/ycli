@@ -514,6 +514,7 @@ def test_arch1_name_parity_check_bites():
 # a wrong label would also make the retry policy re-send a non-idempotent request.
 ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "tracker/issues/endpoints.py:search_issues": "POST _search only reads",
+    "tracker/issues/endpoints.py:scroll_issues": "POST _search only reads",
     "tracker/issues/endpoints.py:count_issues": "POST _count only reads",
     "tracker/issues/endpoints.py:clear_scroll": "releasing a scroll twice is harmless",
     "tracker/worklog/endpoints.py:search_worklog": "POST _search only reads",

@@ -1,0 +1,73 @@
+# The query parameters beyond the body: what a reply carries, who is notified, how a listing
+# is filtered and read. The issue ends closed in the sandbox queue; the project is deleted.
+name: tracker/issue-options
+steps:
+  - id: create
+    run: tracker issues create --queue ${QUEUE} --summary "${RUN} options" --no-notify
+    expect:
+      summary: ${RUN} options
+    save:
+      key: key
+    cleanup: tracker transitions execute ${key} close --field resolution=fixed
+  - id: get
+    run: tracker issues get ${key} --expand transitions --fields summary,status
+    expect:
+      summary: ${RUN} options
+  - id: comment
+    run: tracker comments add ${key} --text "comment from ${RUN}"
+  - id: comments
+    run: tracker comments list ${key} --expand attachments
+    expect:
+      "length(@)": 1
+  - id: changelog
+    run: tracker changelog list ${key} --type IssueCreated --sort desc
+    expect:
+      "length(@)": 1
+  - id: scroll
+    run: 'tracker issues search "Key: ${key}" --scroll-type sorted --per-scroll 1 --scroll-ttl-millis 10000 --expand transitions'
+    expect:
+      "length(@)": 1
+      "[0].key": ${key}
+  - id: suggest
+    run: tracker issues suggest "${RUN}" --queue ${QUEUE} --full --fields summary
+  - id: priorities
+    run: tracker priorities list --no-localized
+    expect:
+      "length(@) > `0`": true
+  - id: queues
+    run: tracker queues list --expand team --limit 1
+    expect:
+      "length(@)": 1
+  - id: close
+    run: tracker transitions execute ${key} close --field resolution=fixed
+    disarms: [create]
+  - id: project
+    run: tracker entities create project --summary "${RUN} project" --fields summary
+    expect:
+      "fields.summary": ${RUN} project
+    save:
+      project: id
+    cleanup: tracker entities delete project ${project}
+  - id: rename
+    run: tracker entities update project ${project} --summary "${RUN} renamed" --fields summary --expand attachments
+    expect:
+      "fields.summary": ${RUN} renamed
+  - id: checklist
+    run: tracker entities checklists create project ${project} --text "step one" --fields checklistItems --no-notify --no-notify-author
+    expect:
+      "length(fields.checklistItems)": 1
+  - id: entity-comment
+    run: tracker entities comments create project ${project} --text "note ${RUN}" --no-add-to-followers --no-notify --expand html
+    expect:
+      text: note ${RUN}
+    save:
+      comment: id
+  - id: entity-comment-delete
+    run: tracker entities comments delete project ${project} ${comment} --no-notify
+  - id: events
+    run: tracker entities events-list project ${project} --new-events-on-top --direction forward
+    expect:
+      "length(@) > `0`": true
+  - id: delete-project
+    run: tracker entities delete project ${project}
+    disarms: [project]

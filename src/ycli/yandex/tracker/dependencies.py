@@ -36,6 +36,23 @@ CommentId = Annotated[
 ]
 ChecklistItemId = Annotated[str, Field(description="Checklist item id, from ``checklists_get``.")]
 WorklogRecordId = Annotated[str, Field(description="Worklog record id, from ``worklog_list``.")]
+# The parameters most write operations share: what the reply carries and who is notified.
+Expand = Annotated[str | None, Field(description="Extra blocks to include in the reply.")]
+ReplyFields = Annotated[
+    str | None, Field(description="Comma-separated fields to include in the reply.")
+]
+Notify = Annotated[
+    bool | None,
+    Field(description="Notify the users in the fields of the object; omitted, the API notifies."),
+]
+NotifyAuthor = Annotated[
+    bool | None,
+    Field(description="Notify the author of the change; omitted, the API does not."),
+]
+AddToFollowers = Annotated[
+    bool | None,
+    Field(description="Add the comment's author to the followers; omitted, the API adds."),
+]
 Version = Annotated[
     int | None,
     Field(description="Current version of the object (optimistic lock), from its get/list tool."),

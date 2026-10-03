@@ -31,13 +31,13 @@ def _queue(queue_id: str) -> str:
     return f"queues/{segment(queue_id)}"
 
 
-def list_queues() -> Paged[ItemList[Queue], Queue]:
+def list_queues(*, expand: str | None) -> Paged[ItemList[Queue], Queue]:
     """``GET /queues/`` paged by ``page``/``perPage``.
 
     The trailing slash matters: without it Tracker answers with the queue whose key is empty.
     """
     return Paged(
-        Endpoint("GET", "queues/", ItemList[Queue]),
+        Endpoint("GET", "queues/", ItemList[Queue], params={"expand": expand}),
         PageNumberPagination(page_size=PAGE_SIZE),
         lambda page: page.root,
     )

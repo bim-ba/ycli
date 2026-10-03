@@ -11,6 +11,7 @@ from ycli.yandex.core.pagination import (
     OffsetLimitPagination,
     PageNumberPagination,
     RelativeIdPagination,
+    ScrollPagination,
 )
 
 BASE = "https://api.test/v1/items"
@@ -111,6 +112,16 @@ def test_next_url_can_carry_only_the_query_of_a_dead_link():
     assert following is not None
     assert str(following.url) == f"{BASE}?id=100"
     assert pagination.next(following, response, [1]) is None
+
+
+def test_scroll_follows_the_header_and_stops_without_it_or_without_items():
+    pagination = ScrollPagination()
+    named = httpx2.Response(200, headers={"X-Scroll-Id": "scr-1"})
+    following = pagination.next(_request(f"{BASE}?scrollType=sorted"), named, [1, 2])
+    assert following is not None
+    assert dict(following.url.params) == {"scrollType": "sorted", "scrollId": "scr-1"}
+    assert pagination.next(following, httpx2.Response(200), [3]) is None
+    assert pagination.next(following, named, []) is None
 
 
 @pytest.mark.parametrize("items", [[], [{"id": None}]])

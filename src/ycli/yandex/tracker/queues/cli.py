@@ -24,6 +24,7 @@ from ycli.yandex.tracker.queues.models import (
     QueueVersionInfo,
     QueueVersionUpdate,
 )
+from ycli.yandex.tracker.typedefs import ExpandOpt
 
 app = typer.Typer(name="queues", help="Tracker queues.", no_args_is_help=True)
 
@@ -40,11 +41,16 @@ FieldsOpt = Annotated[
 
 @app.command("list")
 def list_(
-    limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
+    limit: LimitOption = 0,
+    all_: AllOption = False,
+    expand: ExpandOpt = "",
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
 ) -> ItemList[Queue]:
     """List all queues (auto-paginated over pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.queues.list(limit=cap)
+    return tracker.queues.list(limit=cap, expand=expand or None)
 
 
 @app.command()

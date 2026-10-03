@@ -334,16 +334,16 @@ def test_every_published_operation_is_wrapped_or_excluded_on_purpose():
     )
 
 
-def test_a_closed_service_has_no_unexplained_difference_and_no_stale_reason():
+def test_no_service_has_an_unexplained_difference_or_a_stale_reason():
     """A difference with the published API is fixed or carries its reason (#196).
 
     A refreshed snapshot that gains a parameter or a field fails here until ycli sends or reads
     it, or the difference is listed in ``EXPLAINED`` / ``EXPLAINED_EVERYWHERE``; a listed
     difference that is gone fails as well.
     """
-    closed = [drift for drift in api_drift.drifts() if drift.service in api_drift.CLOSED]
-    assert {drift.service for drift in closed} == api_drift.CLOSED
-    bare, stale = api_drift.unexplained(closed, api_drift.EXPLAINED, api_drift.EXPLAINED_EVERYWHERE)
+    bare, stale = api_drift.unexplained(
+        api_drift.drifts(), api_drift.EXPLAINED, api_drift.EXPLAINED_EVERYWHERE
+    )
     assert not bare, "differs from the published API with no reason:\n" + "\n".join(bare)
     assert not stale, "explains a difference that is gone:\n" + "\n".join(stale)
 
@@ -471,4 +471,4 @@ def test_default_mode_prints_the_gaps(capsys):
     out = capsys.readouterr().out
     wiki = len(api_surface.load("wiki"))
     assert f"wiki: {wiki} of {wiki} published operations wrapped" in out
-    assert "missing_query: " in out
+    assert "unknown_request: " in out

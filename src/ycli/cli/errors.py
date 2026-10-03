@@ -11,6 +11,7 @@ is the one mapping from an error to the process exit status (see :class:`ExitCod
 
 from __future__ import annotations
 
+from http import HTTPStatus
 from typing import TypeGuard
 
 from pydantic import ValidationError
@@ -58,7 +59,7 @@ def format_cli_error(exc: Exception) -> str:
         )
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):
-        return message + (_PERMISSION_HINT if exc.status == 403 else _AUTH_HINT)
+        return message + (_PERMISSION_HINT if exc.status == HTTPStatus.FORBIDDEN else _AUTH_HINT)
     if isinstance(exc, YandexNotFoundError):
         return message + _NOT_FOUND_HINT
     if isinstance(exc, YandexRateLimitError):

@@ -24,6 +24,7 @@ from ycli.yandex.tracker.dependencies import (
     TAGS,
     WRITE,
     WRITE_TAGS,
+    Notify,
     tracker_client,
 )
 
@@ -69,24 +70,28 @@ def issues_list(
     annotations={**WRITE, "title": "Bulk-update Tracker issues"},
     tags=WRITE_TAGS,
 )
-def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def update(
+    body: BulkUpdate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation.
 
     Poll the returned operation id with ``bulk_get`` and inspect failures with
     ``bulk_issues_list``.
     """
-    return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True))
+    return client.bulk.update(body.model_dump(by_alias=True, exclude_none=True), notify=notify)
 
 
 @mcp.tool(
     name="bulk_move", annotations={**WRITE, "title": "Bulk-move Tracker issues"}, tags=WRITE_TAGS
 )
-def move(body: BulkMove, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def move(
+    body: BulkMove, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> BulkChange:
     """Start an async bulk move of many Tracker issues to another queue; returns the operation.
 
     Poll with ``bulk_get``.
     """
-    return client.bulk.move(body.model_dump(by_alias=True, exclude_none=True))
+    return client.bulk.move(body.model_dump(by_alias=True, exclude_none=True), notify=notify)
 
 
 @mcp.tool(
@@ -94,9 +99,11 @@ def move(body: BulkMove, client: TrackerClient = Depends(tracker_client)) -> Bul
     annotations={**WRITE, "title": "Bulk-transition Tracker issues"},
     tags=WRITE_TAGS,
 )
-def transition(body: BulkTransition, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
+def transition(
+    body: BulkTransition, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
+) -> BulkChange:
     """Start an async bulk status transition over many Tracker issues; returns the operation.
 
     Poll with ``bulk_get``.
     """
-    return client.bulk.transition(body.model_dump(by_alias=True, exclude_none=True))
+    return client.bulk.transition(body.model_dump(by_alias=True, exclude_none=True), notify=notify)

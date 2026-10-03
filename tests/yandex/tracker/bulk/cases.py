@@ -15,6 +15,7 @@ CASES = [
                 "notify": True,
             },
         ),
+        kwargs={"notify": True},
         cli=[
             "tracker",
             "bulk",
@@ -37,7 +38,8 @@ CASES = [
                     "issues": ["DE-1", "DE-2"],
                     "values": {"priority": "minor", "sprint": 5},
                     "notify": True,
-                }
+                },
+                "notify": True,
             },
         ),
         exchanges=[
@@ -45,6 +47,7 @@ CASES = [
                 Sent(
                     "POST",
                     "bulkchange/_update",
+                    {"notify": "true"},
                     json={
                         "issues": ["DE-1", "DE-2"],
                         "values": {"priority": "minor", "sprint": 5},
@@ -80,6 +83,7 @@ CASES = [
                 "notify": True,
             },
         ),
+        kwargs={"notify": True},
         cli=[
             "tracker",
             "bulk",
@@ -104,7 +108,8 @@ CASES = [
                     "moveAllFields": True,
                     "initialStatus": True,
                     "notify": True,
-                }
+                },
+                "notify": True,
             },
         ),
         exchanges=[
@@ -112,6 +117,7 @@ CASES = [
                 Sent(
                     "POST",
                     "bulkchange/_move",
+                    {"notify": "true"},
                     json={
                         "queue": "CHECK",
                         "issues": ["DE-3"],
@@ -147,6 +153,7 @@ CASES = [
                 "notify": True,
             },
         ),
+        kwargs={"notify": True},
         cli=[
             "tracker",
             "bulk",
@@ -167,7 +174,8 @@ CASES = [
                     "issues": ["DE-4"],
                     "values": {"resolution": "fixed"},
                     "notify": True,
-                }
+                },
+                "notify": True,
             },
         ),
         exchanges=[
@@ -175,6 +183,7 @@ CASES = [
                 Sent(
                     "POST",
                     "bulkchange/_transition",
+                    {"notify": "true"},
                     json={
                         "transition": "close",
                         "issues": ["DE-4"],

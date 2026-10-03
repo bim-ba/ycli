@@ -24,6 +24,8 @@ A single Tracker issue by key (raises if not found).
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
 
 ## `tracker_issues_list`
 
@@ -56,6 +58,10 @@ query or raise ``limit``.
 |---|---|:---:|---|
 | `query` | string | yes | TQL query, e.g. ``Queue: QUEUE Status: open``. |
 | `limit` | integer |  | Max issues to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `scroll_type` | string or null |  | ``sorted`` or ``unsorted``: scroll through the results (no 10 000 cap). |
+| `per_scroll` | integer or null |  | Issues per scroll page (1000 at most). |
+| `scroll_ttl_millis` | integer or null |  | How long the scroll stays open, in milliseconds. |
 
 ## `tracker_issues_count`
 
@@ -84,6 +90,11 @@ A lightweight title match; for full TQL search use ``issues_search``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `text` | string | yes | Text fragment to match in issue summaries. |
+| `queue` | string or null |  | Key of the queue to search in. |
+| `full` | boolean or null |  | Return each issue in full; needed for ``fields``, ``expand``, ``embed``. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `embed` | string or null |  | Blocks of ``expand`` to return in more detail. |
 
 ## `tracker_issues_create`
 
@@ -94,6 +105,7 @@ Create a Tracker issue; returns the new issue with its key.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /issues/`` (create an issue). Covers the common fields; ``extra="allow"`` lets any custom (global or queue-local) field key=value pair pass through unvalidated, matching the CLI's ``-F key=value`` escape hatch. ``type``/``priority`` accept either a bare key string or a ``{"key": ...}`` object (both are valid per the Tracker API); the CLI sends the object form. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 
 ## `tracker_issues_update`
 
@@ -121,6 +133,11 @@ dropped. Returns the moved issue with its new key.
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `queue` | string | yes | Target queue key, e.g. NEW. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `initial_status` | boolean or null |  | Reset the status to the new queue's initial one. |
+| `move_all_fields` | boolean or null |  | Keep the versions, components and projects the new queue also has. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_issues_scroll_clear`
 
@@ -148,6 +165,7 @@ are truncated at the cap rather than fetched forever.
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer |  | Max comments to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_comments_get`
 
@@ -388,6 +406,9 @@ is given.
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `limit` | integer |  | Max changes to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `field` | string or null |  | Keep the changes of this field, e.g. ``status``. |
+| `change_type` | string or null |  | Keep the changes of this type, e.g. ``IssueWorkflow``. |
+| `sort` | string or null |  | Order of the changes: ``asc`` or ``desc``. |
 
 ## `tracker_checklists_get`
 
@@ -528,6 +549,10 @@ Returns an acknowledgement on success.
 *List Tracker priorities* · read-only
 
 All available issue priorities in the organisation.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `localized` | boolean or null |  | ``false`` returns the names in every language. |
 
 ## `tracker_priorities_create`
 
@@ -716,6 +741,7 @@ queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TES
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `limit` | integer |  | Max queues to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_queues_get`
 
@@ -1678,6 +1704,7 @@ Poll the returned operation id with ``bulk_get`` and inspect failures with
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /bulkchange/_update`` (mass-edit issues). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 
 ## `tracker_bulk_move`
 
@@ -1690,6 +1717,7 @@ Poll with ``bulk_get``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 
 ## `tracker_bulk_transition`
 
@@ -1702,6 +1730,7 @@ Poll with ``bulk_get``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /bulkchange/_transition`` (mass status transition). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 
 ## `tracker_remotelinks_list`
 
@@ -1890,6 +1919,9 @@ Capped at the configured item cap unless ``limit`` is given.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `limit` | integer |  | Max events (0 = configured cap). |
+| `selected` | string or null |  | Event id to build the list around, instead of from the start. |
+| `new_events_on_top` | boolean or null |  | Newest events first. |
+| `direction` | string or null |  | ``forward`` (the default) or ``backward``. |
 
 ## `tracker_entities_permissions_get`
 
@@ -2020,6 +2052,7 @@ Create a Tracker entity (project, portfolio or goal); returns it with its id.
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `body` | object | yes | Typed request body for ``POST /entities/{type}`` — a ``{fields: {...}}`` envelope. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
 
 ## `tracker_entities_update`
 
@@ -2034,6 +2067,8 @@ Returns the updated entity.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | Typed request body for ``PATCH /entities/{type}/{id}`` (edit fields, comment, links). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
 
 ## `tracker_entities_delete`
 
@@ -2125,6 +2160,10 @@ Add a comment to a Tracker entity; returns the created comment.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | Typed request body for adding a comment to an issue or an entity. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `is_add_to_followers` | boolean or null |  | Add the comment's author to the followers; omitted, the API adds. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_comments_update`
 
@@ -2140,6 +2179,10 @@ Edit a comment on a Tracker entity; returns the updated comment.
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `comment_id` | string | yes | Comment id (from entities_comments_list). |
 | `body` | object | yes | Typed request body for ``PATCH …/comments/{comment_id}`` (the id travels in the path). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `is_add_to_followers` | boolean or null |  | Add the comment's author to the followers; omitted, the API adds. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_comments_delete`
 
@@ -2154,6 +2197,8 @@ Returns an acknowledgement on success.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `comment_id` | string | yes | Comment id (from entities_comments_list). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_checklists_create`
 
@@ -2168,6 +2213,10 @@ Add checklist item(s) to a Tracker entity; returns the entity with its checklist
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | array of object | yes | A bare array of checklist items. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_checklists_update`
 
@@ -2183,6 +2232,10 @@ item by id use ``entities_checklists_update_item``. Returns the entity with its 
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | array of object | yes | A bare array of checklist items. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_checklists_update_item`
 
@@ -2198,6 +2251,10 @@ Returns the entity with its updated checklist.
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `item_id` | string | yes | Checklist item id. |
 | `body` | object | yes | A checklist item in a create (``[{text}]``) or edit-all (``[{id, text}]``) body. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_checklists_delete`
 
@@ -2211,6 +2268,10 @@ To remove a single item use ``entities_checklists_delete_item``. Returns the ent
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_checklists_delete_item`
 
@@ -2225,6 +2286,10 @@ Returns the entity with its remaining checklist.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `item_id` | string | yes | Checklist item id. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_checklists_move`
 
@@ -2240,6 +2305,10 @@ Returns the entity with its reordered checklist.
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `item_id` | string | yes | Checklist item id to move. |
 | `body` | object | yes | Typed request body for ``POST …/checklistItems/{id}/_move`` (reorder an item). |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_links_create`
 
@@ -2284,6 +2353,10 @@ ycli — files are usually seeded via the UI). Returns the entity.
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `temp_file_id` | string | yes | Temporary file id from a prior POST /attachments upload. |
+| `expand` | string or null |  | Extra blocks to include in the reply. |
+| `fields` | string or null |  | Comma-separated fields to include in the reply. |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+| `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
 ## `tracker_entities_attachments_delete`
 

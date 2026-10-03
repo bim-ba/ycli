@@ -110,10 +110,6 @@ EXPLAINED_EVERYWHERE: dict[tuple[str, str, str], str] = {  # service, kind, name
     ("forms", "unknown_response", "modified"): _RETURNED,
 }
 
-# The services whose every difference is fixed or explained. The others join as their gaps
-# close (#196); when all three are here the constant goes and the check covers every service.
-CLOSED = frozenset({"wiki", "forms"})
-
 
 @dataclass(frozen=True)
 class Call:

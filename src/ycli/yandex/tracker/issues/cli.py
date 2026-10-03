@@ -19,7 +19,11 @@ from ycli.yandex.tracker.issues.models import (
     filter_body,
 )
 from ycli.yandex.tracker.typedefs import (
+    ExpandOpt,
     KeyArg,
+    NotifyAuthorOpt,
+    NotifyOpt,
+    ReplyFieldsOpt,
 )
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
@@ -41,9 +45,11 @@ def _key(value: str) -> dict[str, str] | None:
 
 
 @app.command()
-def get(key: KeyArg, *, tracker: TrackerClient) -> Issue:
+def get(
+    key: KeyArg, expand: ExpandOpt = "", fields: ReplyFieldsOpt = "", *, tracker: TrackerClient
+) -> Issue:
     """Print a single issue (full model) for KEY."""
-    return tracker.issues.get(key)
+    return tracker.issues.get(key, expand=expand or None, fields=fields or None)
 
 
 @app.command("list")
@@ -69,13 +75,30 @@ def search(
     query: Annotated[str, typer.Argument(help="TQL query.")],
     limit: LimitOption = 0,
     all_: AllOption = False,
+    expand: ExpandOpt = "",
+    scroll_type: Annotated[
+        str, typer.Option(help="sorted or unsorted: scroll through the results (no 10 000 cap).")
+    ] = "",
+    per_scroll: Annotated[
+        int | None, typer.Option(help="Issues per scroll page (1000 at most).")
+    ] = None,
+    scroll_ttl_millis: Annotated[
+        int | None, typer.Option(help="How long the scroll stays open, in milliseconds.")
+    ] = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Issue]:
     """Search issues by a TQL query string (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.issues.search({"query": query}, limit=cap)
+    return tracker.issues.search(
+        {"query": query},
+        limit=cap,
+        expand=expand or None,
+        scroll_type=scroll_type or None,
+        per_scroll=per_scroll,
+        scroll_ttl_millis=scroll_ttl_millis,
+    )
 
 
 @app.command()
@@ -106,6 +129,7 @@ def create(
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
     field: FieldOpt = None,
+    notify: NotifyOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
@@ -119,7 +143,9 @@ def create(
         description=description,
         tags=tag or None,
     )
-    return tracker.issues.create(body=named.model_dump(exclude_none=True) | parse_fields(field))
+    return tracker.issues.create(
+        body=named.model_dump(exclude_none=True) | parse_fields(field), notify=notify
+    )
 
 
 @app.command()
@@ -156,21 +182,64 @@ def update(
 def move(
     key: KeyArg,
     queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. NEW.")],
+    expand: ExpandOpt = "",
+    initial_status: Annotated[
+        bool | None,
+        typer.Option(
+            "--initial-status/--no-initial-status",
+            help="Reset the status to the new queue's initial one.",
+        ),
+    ] = None,
+    move_all_fields: Annotated[
+        bool | None,
+        typer.Option(
+            "--move-all-fields/--no-move-all-fields",
+            help="Keep the versions, components and projects the new queue also has.",
+        ),
+    ] = None,
+    notify: NotifyOpt = None,
+    notify_author: NotifyAuthorOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
     """Move issue KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE)."""
-    return tracker.issues.move(key, queue)
+    return tracker.issues.move(
+        key,
+        queue,
+        expand=expand or None,
+        initial_status=initial_status,
+        move_all_fields=move_all_fields,
+        notify=notify,
+        notify_author=notify_author,
+    )
 
 
 @app.command()
 def suggest(
     text: Annotated[str, typer.Argument(metavar="INPUT", help="Text fragment to match in titles.")],
+    queue: Annotated[str, typer.Option(help="Key of the queue to search in.")] = "",
+    full: Annotated[
+        bool | None,
+        typer.Option(
+            "--full/--no-full",
+            help="Return each issue in full; needed for --fields, --expand, --embed.",
+        ),
+    ] = None,
+    fields: ReplyFieldsOpt = "",
+    expand: ExpandOpt = "",
+    embed: Annotated[str, typer.Option(help="Blocks of --expand to return in more detail.")] = "",
     *,
     tracker: TrackerClient,
 ) -> ItemList[Issue]:
     """Suggest issues whose summary contains INPUT (GET /issues/_suggest?input=INPUT)."""
-    return tracker.issues.suggest(text)
+    return tracker.issues.suggest(
+        text,
+        queue=queue or None,
+        full=full,
+        fields=fields or None,
+        expand=expand or None,
+        embed=embed or None,
+    )
 
 
 @app.command("scroll-clear")

@@ -54,10 +54,6 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
     ): UNRELATED_BODIES,
     (
         "tracker",
-        frozenset({"issuetypes.IssueType", "priorities.Priority"}),
-    ): "different concepts that share a form",
-    (
-        "tracker",
         frozenset({"issuetypes.IssueTypeCreate", "resolutions.ResolutionCreate"}),
     ): UNRELATED_BODIES,
     (
