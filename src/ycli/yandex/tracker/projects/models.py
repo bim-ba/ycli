@@ -11,7 +11,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import UserReference
 
 
@@ -59,7 +59,7 @@ class Project(APIModel):
     )
 
 
-class ProjectCreate(APIModel):
+class ProjectCreate(RequestBody):
     """Typed request body for ``projects.create`` (``POST /projects``).
 
     Examples:
@@ -80,7 +80,7 @@ class ProjectCreate(APIModel):
     )
 
 
-class ProjectUpdate(APIModel):
+class ProjectUpdate(RequestBody):
     """Typed request body for ``projects.edit`` (``PUT /projects/{id}?version=``).
 
     ``queues`` is required by the API on every edit; the rest change when set.

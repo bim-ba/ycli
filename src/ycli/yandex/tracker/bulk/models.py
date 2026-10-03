@@ -13,10 +13,11 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
     KeyStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 
 #: Statuses at which a bulk-change operation has stopped running (poll terminates here).
@@ -121,7 +122,7 @@ class BulkIssueResult(APIModel):
     )
 
 
-class BulkUpdate(APIModel):
+class BulkUpdate(RequestBody):
     """Typed request body for ``POST /bulkchange/_update`` (mass-edit issues).
 
     Examples:
@@ -144,7 +145,7 @@ class BulkUpdate(APIModel):
     )
 
 
-class BulkMove(APIModel):
+class BulkMove(RequestBody):
     """Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue).
 
     Examples:
@@ -176,7 +177,7 @@ class BulkMove(APIModel):
     )
 
 
-class BulkTransition(APIModel):
+class BulkTransition(RequestBody):
     """Typed request body for ``POST /bulkchange/_transition`` (mass status transition).
 
     Examples:

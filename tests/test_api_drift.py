@@ -272,8 +272,8 @@ def test_compare_reports_every_kind_of_difference(monkeypatch):
     get, create = drift.gaps
     assert get.operations == ("wiki.pages.get",)
     assert (get.missing_query, get.unknown_query) == (("revision_id",), ("raw",))
-    assert (get.dropped_response, get.unknown_response) == (("slug",), ("x",))
-    assert create.unknown_response == ("slug",) and not create.dropped_response
+    assert (get.untyped_response, get.unknown_response) == (("slug",), ("x",))
+    assert create.unknown_response == ("slug",) and not create.untyped_response
 
 
 def test_compare_reports_body_fields_only_for_a_typed_body():
@@ -306,7 +306,7 @@ def test_compare_trusts_a_reference_page_only_for_what_it_lists():
     ]
     (gap,) = compare("tracker", published, sent).gaps
     assert gap.missing_query == ("expand",)
-    assert not (gap.unknown_query or gap.dropped_response or gap.unknown_response)
+    assert not (gap.unknown_query or gap.untyped_response or gap.unknown_response)
 
 
 def test_replaying_the_cases_yields_what_each_operation_sends():
@@ -359,12 +359,12 @@ def test_the_explained_check_bites_in_both_directions():
     assert api_drift.unexplained([drift], {}, {}) == (
         [
             "wiki GET /pages/{} missing_query depth",
-            "wiki GET /pages/{} dropped_response tags",
+            "wiki GET /pages/{} untyped_response tags",
         ],
         [],
     )
     per_operation = {("wiki", "GET", "/pages/{}", "missing_query", "depth"): "paging only"}
-    per_name = {("wiki", "dropped_response", "tags"): "always empty"}
+    per_name = {("wiki", "untyped_response", "tags"): "always empty"}
     assert api_drift.unexplained([drift], per_operation, per_name) == ([], [])
 
     spare = {

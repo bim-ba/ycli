@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import Reference
 
@@ -33,7 +34,7 @@ class Comment(APIModel):
     transport: str | None = None
 
 
-class CommentUpdate(APIModel):
+class CommentUpdate(RequestBody):
     """Typed request body for ``PATCH /issues/{key}/comments/{id}`` (edit a comment).
 
     Examples:

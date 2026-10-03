@@ -10,9 +10,10 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import Deadline, DeadlineInput
 
@@ -67,7 +68,7 @@ class Checklist(APIModel):
     )
 
 
-class ChecklistItemCreate(APIModel):
+class ChecklistItemCreate(RequestBody):
     """Typed request body for ``POST /issues/{key}/checklistItems`` (add an item).
 
     Examples:
@@ -81,7 +82,7 @@ class ChecklistItemCreate(APIModel):
     deadline: DeadlineInput | None = Field(default=None, description="Item deadline.")
 
 
-class ChecklistItemUpdate(APIModel):
+class ChecklistItemUpdate(RequestBody):
     """Typed request body for ``PATCH /issues/{key}/checklistItems/{item_id}`` (edit an item).
 
     Examples:

@@ -1,4 +1,4 @@
-"""Pydantic v2 models for Yandex Wiki /pages responses (extra='ignore')."""
+"""Pydantic v2 models for Yandex Wiki /pages responses."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
 from ycli.yandex.wiki.models import PageIdentity, User, UserIdentity
 
@@ -237,7 +237,7 @@ class PageDeleteResult(APIModel):
     )
 
 
-class PageAccessPolicyUpdate(APIModel):
+class PageAccessPolicyUpdate(RequestBody):
     """Who may open a page, in a create or update body (``access_policy``).
 
     Examples:
@@ -253,7 +253,7 @@ class PageAccessPolicyUpdate(APIModel):
     )
 
 
-class PageRedirectUpdate(APIModel):
+class PageRedirectUpdate(RequestBody):
     """Where a page should redirect to (``redirect`` of an update body).
 
     ``page`` has no default: ``None`` is sent as ``null`` and removes the redirect.
@@ -268,7 +268,7 @@ class PageRedirectUpdate(APIModel):
     )
 
 
-class PageActualityUpdate(APIModel):
+class PageActualityUpdate(RequestBody):
     """Whether a page is up to date (``actuality`` of an update body).
 
     Examples:
@@ -281,7 +281,7 @@ class PageActualityUpdate(APIModel):
     links: list[str] | None = Field(default=None, description="Links to the up-to-date material.")
 
 
-class PageOwnerUpdate(APIModel):
+class PageOwnerUpdate(RequestBody):
     """The new owner of a page (``owner`` of an update body).
 
     Examples:
@@ -292,7 +292,7 @@ class PageOwnerUpdate(APIModel):
     user: UserIdentity | None = Field(default=None, description="The user who becomes the owner.")
 
 
-class PageCreate(APIModel):
+class PageCreate(RequestBody):
     """Typed request body for ``POST /pages``: a new page at ``slug``.
 
     Examples:
@@ -308,7 +308,7 @@ class PageCreate(APIModel):
     )
 
 
-class PageUpdate(APIModel):
+class PageUpdate(RequestBody):
     """Typed request body for ``POST /pages/{id}``: only the fields set are changed.
 
     A page's address is not among them: :class:`PageMove` renames or relocates a page.
@@ -334,7 +334,7 @@ class PageUpdate(APIModel):
     owner: PageOwnerUpdate | None = Field(default=None, description="The new owner of the page.")
 
 
-class PageAppendContentBody(APIModel):
+class PageAppendContentBody(RequestBody):
     """Where in the whole page body to append — ``top`` or ``bottom`` (``append-content`` ``body``).
 
     Examples:
@@ -348,7 +348,7 @@ class PageAppendContentBody(APIModel):
     )
 
 
-class PageAppendContentSection(APIModel):
+class PageAppendContentSection(RequestBody):
     """Append relative to a numbered section (``append-content`` ``section``).
 
     Examples:
@@ -363,7 +363,7 @@ class PageAppendContentSection(APIModel):
     )
 
 
-class PageAppendContentAnchor(APIModel):
+class PageAppendContentAnchor(RequestBody):
     """Append relative to a named text anchor (``append-content`` ``anchor``).
 
     Examples:
@@ -378,7 +378,7 @@ class PageAppendContentAnchor(APIModel):
     regex: bool = Field(default=False, description="Treat ``name`` as a regular expression.")
 
 
-class PageAppendContent(APIModel):
+class PageAppendContent(RequestBody):
     """Typed body for ``POST /pages/{id}/append-content`` — add YFM without a full rewrite.
 
     ``content`` is the required, non-empty YFM fragment to append; ``body``, ``section`` and
@@ -406,7 +406,7 @@ class PageAppendContent(APIModel):
     )
 
 
-class PageClone(APIModel):
+class PageClone(RequestBody):
     """Typed body for ``POST /pages/{id}/clone`` — copy a page to a new address (async).
 
     ``target`` is the destination slug; ``subscribe_me`` subscribes the caller to the copy.
@@ -426,7 +426,7 @@ class PageClone(APIModel):
     )
 
 
-class PageMoveStep(APIModel):
+class PageMoveStep(RequestBody):
     """One step of a page move: take the page at ``source`` and give it the address ``target``.
 
     ``next_to_slug`` and ``position`` set where the moved page lands among its new siblings.
@@ -446,7 +446,7 @@ class PageMoveStep(APIModel):
     )
 
 
-class PageMove(APIModel):
+class PageMove(RequestBody):
     """Typed body for ``POST /pages/move`` — give pages new addresses (async, undocumented).
 
     The API runs the steps in order. It moves a page together with its subtree, which is the only

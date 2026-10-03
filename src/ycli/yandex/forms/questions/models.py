@@ -18,7 +18,7 @@ from pydantic import Field, TypeAdapter, model_validator
 
 from ycli.yandex.forms.images.models import Image
 from ycli.yandex.forms.models import ConditionsResponse
-from ycli.yandex.models import IGNORED_BY_API, APIModel, WarnsOnIgnored
+from ycli.yandex.models import IGNORED_BY_API, APIModel, RequestBody, WarnsOnIgnored
 
 #: What happens to ``force`` of a question delete: the API takes the parameter and ignores it.
 FORCE_IGNORED = "a question that a display condition refers to is refused all the same."
@@ -206,7 +206,7 @@ class QuestionValidator(APIModel):
     )
 
 
-class QuestionImage(APIModel):
+class QuestionImage(RequestBody):
     """An image attached to a question (or an enum option).
 
     Examples:
@@ -282,7 +282,7 @@ class QuestionQuizItem(APIModel):
     scores: float | None = Field(default=None, description="Points awarded for this option.")
 
 
-class QuestionEnumItem(APIModel):
+class QuestionEnumItem(RequestBody):
     """One selectable option of an ``enum`` (radio/checkbox/dropdown/stars) question.
 
     Examples:
@@ -601,7 +601,7 @@ SeriesQuestion.model_rebuild()
 QuestionCreateAdapter: TypeAdapter[Any] = TypeAdapter(QuestionCreate)
 
 
-class QuestionMove(APIModel):
+class QuestionMove(RequestBody):
     """Typed body for ``POST …/questions/{id}/move`` — where to reposition the question.
 
     A bare ``position`` with no page target is a **silent no-op** live: the API answers 200

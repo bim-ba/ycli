@@ -110,6 +110,7 @@ CASES = [
                     "type": None,
                     "text": None,
                     "has_scores": None,
+                    "label": "Name",
                 }
             ],
             "answers": [
@@ -140,6 +141,7 @@ CASES = [
                     "type": None,
                     "text": None,
                     "has_scores": None,
+                    "label": "Name",
                 }
             ],
             "answers": [{"id": 1, "created": None, "uid": None, "data": []}],
@@ -167,6 +169,7 @@ CASES = [
                     "type": None,
                     "text": None,
                     "has_scores": None,
+                    "label": "Name",
                 }
             ],
             "answers": [

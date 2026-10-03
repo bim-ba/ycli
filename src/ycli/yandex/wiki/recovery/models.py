@@ -1,4 +1,4 @@
-"""Pydantic v2 models for Yandex Wiki /recovery_tokens responses (extra='ignore')."""
+"""Pydantic v2 models for Yandex Wiki /recovery_tokens responses."""
 
 from __future__ import annotations
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import KeyedReference
 
 
@@ -32,7 +32,7 @@ class Column(APIModel):
     )
 
 
-class ColumnCreate(APIModel):
+class ColumnCreate(RequestBody):
     """Typed request body for ``columns.create`` (``POST /boards/{board_id}/columns/``).
 
     Examples:
@@ -46,7 +46,7 @@ class ColumnCreate(APIModel):
     )
 
 
-class ColumnUpdate(APIModel):
+class ColumnUpdate(RequestBody):
     """Typed request body for ``columns.edit`` (``PATCH /boards/{board_id}/columns/{column_id}``).
 
     Every field is optional; only the fields you set are sent.

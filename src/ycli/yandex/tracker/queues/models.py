@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import (
     AccessPermissions,
     KeyedReference,
@@ -207,7 +207,7 @@ class QueueField(APIModel):
     )
 
 
-class IssueTypeConfigInput(APIModel):
+class IssueTypeConfigInput(RequestBody):
     """One ``issueTypesConfig`` row in a create-queue body — binds a type to its workflow.
 
     Examples:
@@ -225,7 +225,7 @@ class IssueTypeConfigInput(APIModel):
     )
 
 
-class QueueCreate(APIModel):
+class QueueCreate(RequestBody):
     """Typed request body for ``queues.create`` (``POST /queues/``).
 
     Examples:
@@ -257,7 +257,7 @@ class QueueCreate(APIModel):
     )
 
 
-class QueueTagRemove(APIModel):
+class QueueTagRemove(RequestBody):
     """Typed request body for ``queues.tag_remove`` (``POST /queues/{id}/tags/_remove``).
 
     Examples:
@@ -268,7 +268,7 @@ class QueueTagRemove(APIModel):
     tag: str = Field(description="Name of the tag to remove from the queue.")
 
 
-class QueueVersionCreate(APIModel):
+class QueueVersionCreate(RequestBody):
     """Typed request body for ``queues.version_create`` (``POST /versions/``).
 
     Examples:
@@ -291,7 +291,7 @@ class QueueVersionCreate(APIModel):
     )
 
 
-class QueuePermissionSubjects(APIModel):
+class QueuePermissionSubjects(RequestBody):
     """The add/remove form of a permission subject list (users, groups or roles).
 
     Passing a bare array instead overwrites the subject list; this object form incrementally
@@ -310,7 +310,7 @@ class QueuePermissionSubjects(APIModel):
     )
 
 
-class QueuePermissionScope(APIModel):
+class QueuePermissionScope(RequestBody):
     """One permission category (create/write/read/grant) in a permissions PATCH body.
 
     Each subject list is either a bare array (which overwrites) or a
@@ -333,7 +333,7 @@ class QueuePermissionScope(APIModel):
     )
 
 
-class QueuePermissionsUpdate(APIModel):
+class QueuePermissionsUpdate(RequestBody):
     """Typed request body for ``queues.set_permissions`` (``PATCH /queues/{id}/permissions``).
 
     Set at least one category. Each names the users/groups/roles the permission applies to.
@@ -379,7 +379,7 @@ class QueuePermissions(APIModel):
     grant: Any = Field(default=None, description="Effective change-settings permissions.")
 
 
-class QueueVersionUpdate(APIModel):
+class QueueVersionUpdate(RequestBody):
     """Typed request body for ``queues.version_edit`` (``PATCH /versions/{id}``).
 
     Only the fields that are set are sent, so omitted fields stay unchanged.

@@ -6,7 +6,7 @@ endpoint here until ``status`` reaches a terminal value. :attr:`CloneOperationSt
 :attr:`GridCloneOperationStatus.is_terminal` and :attr:`MoveOperationStatus.is_terminal` are the
 stop predicates for the ``--wait`` CLI path.
 
-``extra='ignore'`` via :class:`~ycli.yandex.models.APIModel`.
+Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
 from __future__ import annotations

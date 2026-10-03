@@ -49,7 +49,7 @@ def get(
 
     Where ``questions_list`` returns every question grouped into pages, this fetches a single
     question keyed by ``question_id`` (take it from an item's ``id`` in ``questions_list``).
-    Type-specific detail (validators, options, conditions) is lenient-ignored.
+    Type-specific detail (validators, options, conditions) comes in the fields of its type.
     """
     result = client.questions.get(survey_id, question_id, with_slugs=with_slugs)
     # A 404 / empty body deserializes into an all-None Question (lenient model) rather than

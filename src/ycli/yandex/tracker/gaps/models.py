@@ -11,7 +11,7 @@ import enum
 
 from pydantic import AliasChoices, Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class GapWorkflow(enum.StrEnum):
@@ -134,7 +134,7 @@ class GapSearchPage(APIModel):
     )
 
 
-class GapInput(APIModel):
+class GapInput(RequestBody):
     """One absence to create.
 
     Examples:
@@ -175,7 +175,7 @@ class GapInput(APIModel):
     )
 
 
-class GapsCreate(APIModel):
+class GapsCreate(RequestBody):
     """Typed request body for ``gaps.create`` (``POST /gaps``): up to 100 absences.
 
     Examples:

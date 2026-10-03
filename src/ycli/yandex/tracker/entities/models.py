@@ -16,8 +16,9 @@ from typing import Any
 
 from pydantic import AliasChoices, ConfigDict, Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import (
     AttachmentMetadata,
@@ -550,7 +551,7 @@ class BulkChangeOperation(APIModel):
 # --------------------------------------------------------------------------------------------
 
 
-class ParentEntityInput(APIModel):
+class ParentEntityInput(RequestBody):
     """Typed ``parentEntity`` block for a create/edit body (ids, not objects).
 
     Examples:
@@ -631,7 +632,7 @@ class EntityFieldsInput(APIModel):
     )
 
 
-class LinkInput(APIModel):
+class LinkInput(RequestBody):
     """A link spec used by create-link and the bulk ``values.links`` array.
 
     Examples:
@@ -645,7 +646,7 @@ class LinkInput(APIModel):
     entity: str = Field(description="Identifier of the entity to link to.")
 
 
-class EntityCreate(APIModel):
+class EntityCreate(RequestBody):
     """Typed request body for ``POST /entities/{type}`` — a ``{fields: {...}}`` envelope.
 
     Examples:
@@ -656,7 +657,7 @@ class EntityCreate(APIModel):
     fields: EntityFieldsInput = Field(description="Entity settings (summary is required).")
 
 
-class EntityUpdate(APIModel):
+class EntityUpdate(RequestBody):
     """Typed request body for ``PATCH /entities/{type}/{id}`` (edit fields, comment, links).
 
     Examples:
@@ -669,7 +670,7 @@ class EntityUpdate(APIModel):
     links: list[LinkInput] | None = Field(default=None, description="Links to add.")
 
 
-class CommentUpdate(APIModel):
+class CommentUpdate(RequestBody):
     """Typed request body for ``PATCH …/comments/{comment_id}`` (the id travels in the path).
 
     Examples:
@@ -689,7 +690,7 @@ class CommentUpdate(APIModel):
     )
 
 
-class ChecklistItemInput(APIModel):
+class ChecklistItemInput(RequestBody):
     """A checklist item in a create (``[{text}]``) or edit-all (``[{id, text}]``) body.
 
     Examples:
@@ -706,7 +707,7 @@ class ChecklistItemInput(APIModel):
     deadline: DeadlineInput | None = Field(default=None, description="Per-item deadline.")
 
 
-class ChecklistMove(APIModel):
+class ChecklistMove(RequestBody):
     """Typed request body for ``POST …/checklistItems/{id}/_move`` (reorder an item).
 
     Examples:
@@ -719,7 +720,7 @@ class ChecklistMove(APIModel):
     )
 
 
-class AclPrincipalsInput(APIModel):
+class AclPrincipalsInput(RequestBody):
     """The users/groups/roles for one access level in a permissions-set body.
 
     Examples:
@@ -732,7 +733,7 @@ class AclPrincipalsInput(APIModel):
     roles: list[str] | None = Field(default=None, description="Roles to grant this level.")
 
 
-class AclInput(APIModel):
+class AclInput(RequestBody):
     """The ``acl`` block for a permissions-set body (READ / WRITE / GRANT principal sets).
 
     Examples:
@@ -773,7 +774,7 @@ class ExtendedPermissionsUpdate(APIModel):
     acl: AclInput = Field(description="Access-control lists to set, by level.")
 
 
-class DirectPermissionsUpdate(APIModel):
+class DirectPermissionsUpdate(RequestBody):
     """Typed request body for ``PATCH …/permissions`` (grant and revoke direct rights).
 
     Each side maps an access level (READ / WRITE / GRANT) to users, groups and roles; the API
@@ -792,7 +793,7 @@ class DirectPermissionsUpdate(APIModel):
     )
 
 
-class BulkChangeValues(APIModel):
+class BulkChangeValues(RequestBody):
     """The ``values`` object of a bulk-change body (fields + comment + links).
 
     Examples:
@@ -807,7 +808,7 @@ class BulkChangeValues(APIModel):
     links: list[LinkInput] | None = Field(default=None, description="Links to add to every entity.")
 
 
-class BulkChangeUpdate(APIModel):
+class BulkChangeUpdate(RequestBody):
     """Typed request body for ``POST …/bulkchange/_update`` (mass-edit entities).
 
     Examples:
@@ -828,7 +829,7 @@ class BulkChangeUpdate(APIModel):
 # --------------------------------------------------------------------------------------------
 
 
-class ReportSort(APIModel):
+class ReportSort(RequestBody):
     """A sort clause for a report filter (``parameters.filter.sorts`` element).
 
     Examples:
@@ -844,7 +845,7 @@ class ReportSort(APIModel):
     )
 
 
-class ReportFilter(APIModel):
+class ReportFilter(RequestBody):
     """The ``filter`` block of a report — a Tracker Query Language ``query`` plus optional sorts.
 
     Examples:
@@ -858,7 +859,7 @@ class ReportFilter(APIModel):
     )
 
 
-class ReportParameters(APIModel):
+class ReportParameters(RequestBody):
     """The ``parameters`` block of a report — export settings plus the issue filter.
 
     Examples:
@@ -874,7 +875,7 @@ class ReportParameters(APIModel):
     fields: list[str] = Field(description="Issue field keys to include as report columns.")
 
 
-class ReportFieldsInput(APIModel):
+class ReportFieldsInput(RequestBody):
     """The ``fields`` object of a report create body — the report name plus export ``parameters``.
 
     Examples:
@@ -887,7 +888,7 @@ class ReportFieldsInput(APIModel):
     parameters: ReportParameters = Field(description="Export settings and issue filter.")
 
 
-class ReportCreate(APIModel):
+class ReportCreate(RequestBody):
     """Typed request body for ``POST /entities/report/`` — a ``{fields: {...}}`` envelope.
 
     Examples:
@@ -900,7 +901,7 @@ class ReportCreate(APIModel):
     fields: ReportFieldsInput = Field(description="Report settings (summary + export parameters).")
 
 
-class EntitySearch(APIModel):
+class EntitySearch(RequestBody):
     """Typed request body for ``POST /entities/{type}/_search``.
 
     Examples:
@@ -926,7 +927,7 @@ class EntitySearch(APIModel):
     )
 
 
-class PermissionsUpdate(APIModel):
+class PermissionsUpdate(RequestBody):
     """Typed request body for ``PATCH …/extendedPermissions``: rights to grant and to revoke.
 
     Examples:

@@ -1,4 +1,4 @@
-"""Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses (extra='ignore')."""
+"""Pydantic v2 models for Yandex Wiki /pages/{id}/comments responses."""
 
 from __future__ import annotations
 
@@ -6,9 +6,10 @@ from typing import Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayNameStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.wiki.models import User
 
@@ -39,7 +40,7 @@ class Comment(APIModel):
     content: str | None = Field(default=None, validation_alias="body")
 
 
-class CommentCreate(APIModel):
+class CommentCreate(RequestBody):
     """Typed body for ``POST /pages/{id}/comments`` — a new comment (or threaded reply).
 
     ``body`` is the comment text; the rest place it: ``inline_text`` pins it to a quoted

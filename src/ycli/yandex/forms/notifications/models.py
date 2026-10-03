@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class Notification(APIModel):
@@ -154,7 +154,7 @@ class NotificationAction(APIModel):
     )
 
 
-class NotificationFilter(APIModel):
+class NotificationFilter(RequestBody):
     """Which integration runs a listing returns: every filter given must match.
 
     The ``*_since`` / ``*_until`` bounds are ISO-8601 times, both ends inclusive.

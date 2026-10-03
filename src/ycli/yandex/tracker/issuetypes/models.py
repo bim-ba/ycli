@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -24,7 +24,7 @@ class IssueType(APIModel):
     display: str | None = None
 
 
-class IssueTypeCreate(APIModel):
+class IssueTypeCreate(RequestBody):
     """Typed request body for ``POST /issuetypes/`` (create an issue type).
 
     Examples:
@@ -38,7 +38,7 @@ class IssueTypeCreate(APIModel):
     name: LocalizedName = Field(description="Localized display name of the issue type.")
 
 
-class IssueTypeUpdate(APIModel):
+class IssueTypeUpdate(RequestBody):
     """Typed request body for ``PATCH /issuetypes/{id}?version=`` (edit an issue type).
 
     Only the fields that are set are sent, so omitted fields stay unchanged.

@@ -1,13 +1,25 @@
-from ycli.yandex.models import Ack, APIModel, DisplayStr, KeyStr, _extract
+import pytest
+from pydantic import ValidationError
+
+from ycli.yandex.models import Ack, APIModel, DisplayStr, KeyStr, RequestBody, _extract
 
 
-def test_apimodel_is_lenient_and_alias_friendly():
+def test_a_reply_keeps_a_field_the_model_does_not_declare():
     cfg = APIModel.model_config
-    assert cfg["extra"] == "ignore"
+    assert cfg["extra"] == "allow"
     assert cfg["validate_by_name"] is True
-    # Runtime behaviour, not just the config dict: an unknown field is dropped, not an error.
-    instance = APIModel.model_validate({"unknown_field": "dropped"})
-    assert not hasattr(instance, "unknown_field")
+    # Runtime behaviour, not just the config dict: a field Yandex adds shows up at once, untyped.
+    instance = APIModel.model_validate({"brandNew": {"nested": 1}})
+    assert instance.model_dump() == {"brandNew": {"nested": 1}}
+
+
+def test_a_request_body_refuses_a_field_the_model_does_not_declare():
+    class Rename(RequestBody):
+        name: str
+
+    assert RequestBody.model_config["extra"] == "forbid"
+    with pytest.raises(ValidationError, match="nmae"):
+        Rename.model_validate({"name": "Sprint", "nmae": "typo"})
 
 
 def test_extract_pulls_field_from_wrapper_and_passes_scalars_through():

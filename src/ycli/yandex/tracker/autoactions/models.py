@@ -14,7 +14,7 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
 
 
@@ -93,7 +93,7 @@ class Autoaction(APIModel):
     )
 
 
-class AutoactionCreate(APIModel):
+class AutoactionCreate(RequestBody):
     """Typed request body for ``autoactions.create`` (``POST /queues/{id}/autoactions``).
 
     Supply at least one of ``filter`` or ``query`` to select the issues to act on.

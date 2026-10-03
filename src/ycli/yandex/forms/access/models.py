@@ -13,7 +13,7 @@ from typing import Literal
 from pydantic import Field
 
 from ycli.yandex.forms.models import UserIdentity, UserRef
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 
 AccessAction = Literal["change", "submit"]
 AccessLevel = Literal["owner", "restricted", "common", "public"]
@@ -66,7 +66,7 @@ class Permission(APIModel):
     )
 
 
-class AccessUpdate(APIModel):
+class AccessUpdate(RequestBody):
     """Typed body for ``POST /surveys/{id}/access``: set one action's access level.
 
     Examples:
@@ -78,7 +78,7 @@ class AccessUpdate(APIModel):
     access: AccessLevel = Field(description="Access level: owner, restricted, common or public.")
 
 
-class AccessGrant(APIModel):
+class AccessGrant(RequestBody):
     """Typed body for ``POST /surveys/{id}/access/grant``: add a user or a group to an action.
 
     Unset fields are dropped before the request is sent.

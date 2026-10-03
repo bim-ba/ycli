@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import (
     FieldSchema,
     LocalizedName,
@@ -117,7 +117,7 @@ class FieldCategoryRecord(APIModel):
     )
 
 
-class FieldUpdate(APIModel):
+class FieldUpdate(RequestBody):
     """Typed request body for ``PATCH /fields/{id}?version=`` (rename and/or change options).
 
     Rename and change-options share one PATCH, so this one body covers both ``name`` and
@@ -138,7 +138,7 @@ class FieldUpdate(APIModel):
     )
 
 
-class FieldCategoryCreate(APIModel):
+class FieldCategoryCreate(RequestBody):
     """Typed request body for ``POST /fields/categories`` (create a field category).
 
     Examples:
@@ -153,7 +153,7 @@ class FieldCategoryCreate(APIModel):
     description: str | None = Field(default=None, description="Description of the category.")
 
 
-class FieldCategoryUpdate(APIModel):
+class FieldCategoryUpdate(RequestBody):
     """Typed request body for ``PATCH /fields/categories/{id}?version=`` (edit a category).
 
     Only the fields that are set are sent, so omitted fields stay unchanged.

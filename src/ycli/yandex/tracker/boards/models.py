@@ -6,9 +6,10 @@ from typing import Any
 
 from pydantic import Field
 
-from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
+from ycli.yandex.models import (
     APIModel,
     DisplayStr,
+    RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import Reference
 
@@ -91,7 +92,7 @@ class Board(APIModel):
     )
 
 
-class BoardColumnInput(APIModel):
+class BoardColumnInput(RequestBody):
     """One column in a create/edit board request body (``columns[]`` item).
 
     Examples:
@@ -109,7 +110,7 @@ class BoardColumnInput(APIModel):
     )
 
 
-class BoardCreate(APIModel):
+class BoardCreate(RequestBody):
     """Typed request body for ``boards.create`` (``POST /liveBoards/``).
 
     ``name`` is the only required field; every other field is omitted from the JSON
@@ -144,7 +145,7 @@ class BoardCreate(APIModel):
     )
 
 
-class BoardUpdate(APIModel):
+class BoardUpdate(RequestBody):
     """Typed request body for ``boards.edit`` (``PATCH /boards/{board_id}``).
 
     Every field is optional; only the fields you set are sent, so an omitted field

@@ -159,7 +159,7 @@ class Gap:
     unknown_query: tuple[str, ...] = ()
     missing_request: tuple[str, ...] = ()
     unknown_request: tuple[str, ...] = ()
-    dropped_response: tuple[str, ...] = ()
+    untyped_response: tuple[str, ...] = ()
     unknown_response: tuple[str, ...] = ()
 
     @property
@@ -174,7 +174,7 @@ GAP_KINDS = (
     "unknown_query",
     "missing_request",
     "unknown_request",
-    "dropped_response",
+    "untyped_response",
     "unknown_response",
 )
 
@@ -371,10 +371,27 @@ def _call(found: Recorded) -> Call:
     )
 
 
+# A request body that takes fields its model does not declare, and why it must. Every other
+# body is compared by its declared fields, a model a reply also reads included.
+OPEN_BODIES = {
+    "ycli.yandex.forms.filling.models.SubmitBody": "the answers of a form, one key per question",
+    "ycli.yandex.tracker.entities.models.EntityFieldsInput": "an entity takes custom fields",
+    "ycli.yandex.tracker.issues.models.IssueCreate": "an issue takes custom fields",
+    "ycli.yandex.tracker.issues.models.IssueUpdate": "an issue takes custom fields",
+    "ycli.yandex.tracker.issues.models.IssueSearch": "the search takes the API's other keys",
+    "ycli.yandex.tracker.transitions.models.TransitionExecute": "a transition sets any issue field",
+}
+
+
+def _qualified(model: type) -> str:
+    """The dotted name ``OPEN_BODIES`` lists a model under."""
+    return f"{model.__module__}.{model.__qualname__}"
+
+
 def _body_fields(body: Any | None) -> frozenset[str] | None:
     """The top-level names a typed body can carry; ``None`` when it is open to any field."""
     models = _models(body)
-    if not models or any(model.model_config.get("extra") == "allow" for model in models):
+    if not models or any(_qualified(model) in OPEN_BODIES for model in models):
         return None
     return frozenset(
         field.alias or name for model in models for name, field in model.model_fields.items()
@@ -444,7 +461,7 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
             unknown_query=tuple(sorted(query - set(operation.query))) if exhaustive else (),
             missing_request=tuple(sorted(set(operation.request) - body)) if compare_request else (),
             unknown_request=tuple(sorted(body - set(operation.request))) if compare_request else (),
-            dropped_response=tuple(sorted(set(operation.response) - fields))
+            untyped_response=tuple(sorted(set(operation.response) - fields))
             if compare_response
             else (),
             unknown_response=tuple(sorted(fields - set(operation.response)))

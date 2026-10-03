@@ -35,10 +35,10 @@ def test_upload_session_parses_full_payload():
     assert session.storage_type == "mds"
 
 
-def test_upload_session_ignores_unknown_fields():
+def test_upload_session_keeps_unknown_fields():
     session = UploadSession.model_validate({"session_id": "s-1", "surprise": "value"})
     assert session.session_id == "s-1"
-    assert not hasattr(session, "surprise")
+    assert session.model_dump(exclude_none=True) == {"session_id": "s-1", "surprise": "value"}
 
 
 def test_upload_session_create_dumps_body():

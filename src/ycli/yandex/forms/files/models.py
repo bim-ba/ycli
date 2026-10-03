@@ -12,10 +12,10 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import RequestBody
 
 
-class FileIn(APIModel):
+class FileIn(RequestBody):
     """A stored-file reference by ``path`` / ``url`` — the ``verify`` / ``delete`` request item.
 
     Both fields are optional, but at least one must identify the file; ``path`` comes from the

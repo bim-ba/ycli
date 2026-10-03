@@ -10,10 +10,10 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel  # pydantic resolves field types at runtime
+from ycli.yandex.models import RequestBody
 
 
-class ImportTask(APIModel):
+class ImportTask(RequestBody):
     """Typed body for ``POST /issues/_import`` — import one issue, preserving its history.
 
     Examples:
@@ -53,7 +53,7 @@ class ImportTask(APIModel):
     )
 
 
-class ImportComment(APIModel):
+class ImportComment(RequestBody):
     """Typed body for ``POST /issues/{key}/comments/_import`` — import one comment with history.
 
     Examples:
@@ -78,7 +78,7 @@ class ImportComment(APIModel):
     )
 
 
-class ImportLink(APIModel):
+class ImportLink(RequestBody):
     """Typed body for ``POST /issues/{key}/links/_import`` — import one issue link with history.
 
     Examples:
@@ -110,7 +110,7 @@ class ImportLink(APIModel):
     )
 
 
-class ImportWorklog(APIModel):
+class ImportWorklog(RequestBody):
     """Typed body for ``POST /issues/{key}/worklogs/_import`` — import one worklog with history.
 
     Examples:

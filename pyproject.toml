@@ -190,7 +190,12 @@ known-first-party = ["ycli"]
 
 # Pydantic resolves field annotations at runtime, so a model's imports stay real imports.
 [tool.ruff.lint.flake8-type-checking]
-runtime-evaluated-base-classes = ["pydantic.BaseModel", "ycli.yandex.models.APIModel"]
+runtime-evaluated-base-classes = [
+    "pydantic.BaseModel",
+    "ycli.yandex.models.APIModel",
+    "ycli.yandex.models.RequestBody",
+    "ycli.yandex.models.WarnsOnIgnored",
+]
 
 [tool.ruff.lint.per-file-ignores]
 # Only the shipped package must document every public name; the rest keeps the format rules.

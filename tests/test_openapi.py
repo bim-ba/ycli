@@ -100,10 +100,17 @@ def test_listings_say_how_they_page_and_keep_the_pager_parameters():
 
 
 @pytest.mark.parametrize("service", api_surface.SERVICES)
-def test_schemas_use_the_api_field_names_and_allow_unknown_fields(service):
-    """Ycli parses by alias and ignores the rest, so the schema must not claim otherwise."""
+def test_schemas_use_the_api_field_names_and_say_which_models_are_closed(service):
+    """A reply keeps unknown fields and a request body refuses them: the schema says the same."""
     schemas = DOCUMENTS[service]["components"]["schemas"]
-    assert all(schema.get("additionalProperties") is not False for schema in schemas.values())
+    closed = {
+        name for name, schema in schemas.items() if schema.get("additionalProperties") is False
+    }
+    for found in api_drift.recorded():
+        if found.case.domain == service:
+            replies = {model.__name__ for model in api_drift._models(found.endpoint.response_type)}
+            assert not replies & closed, sorted(replies & closed)
+    assert closed, "no request body of the service is closed"
     for found in api_drift.recorded():
         for model in api_drift._models(found.endpoint.response_type):
             if found.case.domain != service or not issubclass(model, APIModel):

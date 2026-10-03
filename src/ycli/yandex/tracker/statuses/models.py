@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel
+from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import LocalizedName
 
 
@@ -37,7 +37,7 @@ class Status(APIModel):
     )
 
 
-class StatusCreate(APIModel):
+class StatusCreate(RequestBody):
     """Typed request body for ``POST /statuses/`` (create an issue status).
 
     Examples:
@@ -54,7 +54,7 @@ class StatusCreate(APIModel):
     type: str = Field(description="Status type: one of new, inProgress, paused, done, cancelled.")
 
 
-class StatusUpdate(APIModel):
+class StatusUpdate(RequestBody):
     """Typed request body for ``PATCH /statuses/{id}?version=`` (edit a status).
 
     Only the fields that are set are sent, so omitted fields stay unchanged.
