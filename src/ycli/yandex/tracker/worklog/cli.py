@@ -57,8 +57,9 @@ def search(
 ) -> ItemList[Worklog]:
     """Search org-wide worklog by author and/or time range (POST /worklog/_search)."""
     period = {"from": created_from, "to": created_to}
+    given = created_from is not None or created_to is not None
     body = WorklogSearch.model_validate(
-        {"createdBy": created_by, "createdAt": period if any(period.values()) else None}
+        {"createdBy": created_by, "createdAt": period if given else None}
     )
     return tracker.worklog.search(body=body)
 

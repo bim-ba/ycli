@@ -18,17 +18,19 @@ mcp = FastMCP("wiki-resources")
 @mcp.tool(name="resources_list", annotations={**RO, "title": "List Wiki page resources"}, tags=TAGS)
 def list_(
     page_id: Annotated[int, Field(description="Numeric page id whose resources to list.")],
-    limit: Annotated[int, Field(description="Max resources (0 = configured cap).")] = 0,
-    q: Annotated[str, Field(description="Optional title search filter.")] = "",
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max resources (omitted: the configured cap).")
+    ] = None,
+    q: Annotated[str | None, Field(description="Optional title search filter.")] = None,
     types: Annotated[
-        str, Field(description="Comma-separated kinds to include: ``attachment,grid``.")
-    ] = "",
+        str | None, Field(description="Comma-separated kinds to include: ``attachment,grid``.")
+    ] = None,
     order_by: Annotated[
-        str, Field(description="Sort field: ``name_title`` or ``created_at``.")
-    ] = "",
+        str | None, Field(description="Sort field: ``name_title`` or ``created_at``.")
+    ] = None,
     order_direction: Annotated[
-        str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
-    ] = "",
+        str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[ResourceItem]:
@@ -42,8 +44,8 @@ def list_(
     return client.resources.list(
         page_id=page_id,
         limit=cap,
-        q=q or None,
-        types=types or None,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
+        q=q,
+        types=types,
+        order_by=order_by,
+        order_direction=order_direction,
     )

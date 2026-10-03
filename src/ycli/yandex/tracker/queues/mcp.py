@@ -41,7 +41,9 @@ mcp = FastMCP("tracker-queues")
 
 @mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"}, tags=TAGS)
 def list_(
-    limit: Annotated[int, Field(description=f"Max queues to return; {LIMIT_CAP}")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max queues to return; {LIMIT_CAP}")
+    ] = None,
     expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
@@ -62,14 +64,14 @@ def get(
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
     ],
     expand: Annotated[
-        str,
+        str | None,
         Field(
             description=(
                 "Extra blocks to include, e.g. 'all' or a comma list of "
                 "projects,components,versions,types,team,workflows,fields,issueTypesConfig."
             )
         ),
-    ] = "",
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Queue:
     """One queue's settings and configuration by key or id (raises if not found).
@@ -78,7 +80,7 @@ def get(
     types, versions, team, workflows and per-type resolution config. Sibling ``queues_list``
     enumerates every queue; pass one of its ``key`` values here.
     """
-    result = client.queues.get(queue_id, expand=expand or None)
+    result = client.queues.get(queue_id, expand=expand)
     return require_found(
         result,
         sentinel=lambda r: r.key is None and r.id is None,

@@ -59,26 +59,30 @@ def get(
 def list_(
     survey_id: SurveyId,
     questions: Annotated[
-        str, Field(description="Comma-separated question ids to return answers for.")
-    ] = "",
+        str | None, Field(description="Comma-separated question ids to return answers for.")
+    ] = None,
     use_slugs: Annotated[
         bool, Field(description="Name questions and options by slug instead of id.")
     ] = False,
-    date_from: Annotated[str, Field(description="ISO-8601: answers given at or after.")] = "",
-    date_to: Annotated[str, Field(description="ISO-8601: answers given at or before.")] = "",
+    date_from: Annotated[
+        str | None, Field(description="ISO-8601: answers given at or after.")
+    ] = None,
+    date_to: Annotated[
+        str | None, Field(description="ISO-8601: answers given at or before.")
+    ] = None,
     ordering: Annotated[
-        str, Field(description="``asc`` (oldest first) or ``desc`` (the default).")
-    ] = "",
+        str | None, Field(description="``asc`` (oldest first) or ``desc`` (the default).")
+    ] = None,
     page_size: Annotated[
         int | None, Field(description="Answers per request (the API's default is 25).")
     ] = None,
     answer_format: Annotated[
-        str,
+        str | None,
         Field(
             description="``default`` (cells aligned to ``columns``) or ``raw`` (each answer's "
             "data as stored, with no ``columns``)."
         ),
-    ] = "",
+    ] = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> AnswersResponse:
@@ -90,13 +94,13 @@ def list_(
     return client.answers.list(
         survey_id,
         limit=config.http.max_items,
-        questions=questions or None,
+        questions=questions,
         use_slugs=use_slugs,
-        date_from=date_from or None,
-        date_to=date_to or None,
-        ordering=ordering or None,
+        date_from=date_from,
+        date_to=date_to,
+        ordering=ordering,
         page_size=page_size,
-        answer_format=answer_format or None,
+        answer_format=answer_format,
     )
 
 

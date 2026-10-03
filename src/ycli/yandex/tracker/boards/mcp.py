@@ -29,9 +29,9 @@ mcp = FastMCP("tracker-boards")
 @mcp.tool(name="boards_list", annotations={**RO, "title": "List Tracker boards"}, tags=TAGS)
 def list_(
     limit: Annotated[
-        int,
-        Field(description=f"Max boards to return; {LIMIT_CAP}"),
-    ] = 0,
+        int | None,
+        Field(ge=1, description=f"Max boards to return; {LIMIT_CAP}"),
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Board]:

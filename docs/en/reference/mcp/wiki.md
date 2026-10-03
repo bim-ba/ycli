@@ -48,7 +48,7 @@ Capped at the configured item cap unless ``limit`` is given; narrow by SLUG for 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
-| `limit` | integer |  | Max descendant refs to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max descendant refs to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `include_self` | boolean |  | Also return the ancestor page itself. |
 | `show_all` | boolean |  | The API's ``show_all`` flag. |
 
@@ -65,9 +65,9 @@ unless ``limit`` is given. Reads a page's numeric id — pair with
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose grids to list. |
-| `limit` | integer |  | Max grids (0 = configured cap). |
-| `order_by` | string |  | Sort field: ``title`` or ``created_at``. |
-| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `limit` | integer or null |  | Max grids (omitted: the configured cap). |
+| `order_by` | string or null |  | Sort field: ``title`` or ``created_at``. |
+| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
 
 ## `wiki_pages_get_by_id`
 
@@ -100,7 +100,7 @@ unless ``limit`` is given; each ref carries the child's numeric ``id`` and perma
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose subtree to list. |
-| `limit` | integer |  | Max refs (0 = configured cap). |
+| `limit` | integer or null |  | Max refs (omitted: the configured cap). |
 | `include_self` | boolean |  | Also return the ancestor page itself. |
 | `show_all` | boolean |  | The API's ``show_all`` flag. |
 
@@ -220,7 +220,7 @@ Each revision has an ``id`` (what ``GET /pages`` takes as ``revision_id``), its 
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose revisions to list. |
 | `ids` | string or null |  | Only these revision ids (comma separated). |
-| `limit` | integer |  | Max revisions (0 = configured cap). |
+| `limit` | integer or null |  | Max revisions (omitted: the configured cap). |
 
 ## `wiki_pages_backlinks_list`
 
@@ -236,7 +236,7 @@ may change it.
 | `page_id` | integer | yes | Numeric id of the page that is linked to. |
 | `for_cluster` | boolean |  | Links to the page's whole subtree, not just the page. |
 | `show_all` | boolean |  | The API's ``show_all`` flag (undocumented; no effect seen live). |
-| `limit` | integer |  | Max refs (0 = configured cap). |
+| `limit` | integer or null |  | Max refs (omitted: the configured cap). |
 
 ## `wiki_access_create`
 
@@ -308,10 +308,10 @@ Capped at the configured item cap unless ``limit`` is given. Pair with
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
-| `limit` | integer |  | Max comments to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
-| `order_by` | string |  | Sort field: ``created_at``. |
-| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
-| `status_filter` | string |  | Keep only ``resolved`` or only ``unresolved`` comments. |
+| `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `order_by` | string or null |  | Sort field: ``created_at``. |
+| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `status_filter` | string or null |  | Keep only ``resolved`` or only ``unresolved`` comments. |
 
 ## `wiki_comments_thread_list`
 
@@ -329,7 +329,7 @@ read its thread.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id the comment lives on. |
 | `comment_id` | integer | yes | Root comment id whose reply thread to fetch. |
-| `limit` | integer |  | Max replies (0 = configured cap). |
+| `limit` | integer or null |  | Max replies (omitted: the configured cap). |
 
 ## `wiki_comments_thread_get`
 
@@ -345,7 +345,7 @@ thread from the page's comment list.
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id the comment lives on. |
 | `comment_id` | integer | yes | Comment id whose server-side thread to fetch. |
-| `limit` | integer |  | Max comments (0 = configured cap). |
+| `limit` | integer or null |  | Max comments (omitted: the configured cap). |
 
 ## `wiki_comments_create`
 
@@ -388,9 +388,9 @@ downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP p
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
-| `limit` | integer |  | Max attachments to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
-| `order_by` | string |  | Sort field: ``name``, ``size`` or ``created_at``. |
-| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `limit` | integer or null |  | Max attachments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `order_by` | string or null |  | Sort field: ``name``, ``size`` or ``created_at``. |
+| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
 
 ## `wiki_attachments_get`
 
@@ -468,11 +468,11 @@ unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose resources to list. |
-| `limit` | integer |  | Max resources (0 = configured cap). |
-| `q` | string |  | Optional title search filter. |
-| `types` | string |  | Comma-separated kinds to include: ``attachment,grid``. |
-| `order_by` | string |  | Sort field: ``name_title`` or ``created_at``. |
-| `order_direction` | string |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `limit` | integer or null |  | Max resources (omitted: the configured cap). |
+| `q` | string or null |  | Optional title search filter. |
+| `types` | string or null |  | Comma-separated kinds to include: ``attachment,grid``. |
+| `order_by` | string or null |  | Sort field: ``name_title`` or ``created_at``. |
+| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
 
 ## `wiki_recovery_restore`
 

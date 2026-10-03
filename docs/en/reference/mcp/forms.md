@@ -26,14 +26,14 @@ form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer |  | Max forms to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
-| `name` | string |  | Keep the forms whose name matches. |
+| `limit` | integer or null |  | Max forms to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `name` | string or null |  | Keep the forms whose name matches. |
 | `published` | boolean or null |  | Only published (true) or only unpublished (false). |
-| `ownership` | string |  | ``mine`` (created by the caller) or ``shared`` (open to them). |
-| `group` | string |  | Keep the forms of this group. |
+| `ownership` | string or null |  | ``mine`` (created by the caller) or ``shared`` (open to them). |
+| `group` | string or null |  | Keep the forms of this group. |
 | `favourite` | boolean or null |  | Only favourites (true) or only the others (false). |
 | `show_all` | boolean |  | For an administrator, every form of the organization. |
-| `orderby` | string |  | Sort, a comma list such as ``name,-modified,-count``. |
+| `orderby` | string or null |  | Sort, a comma list such as ``name,-modified,-count``. |
 
 ## `forms_surveys_get`
 
@@ -564,7 +564,7 @@ Capped at the configured item cap unless ``limit`` is given.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex). |
 | `ordering` | `asc` · `desc` or null |  | desc (newest first, the API default) or asc. |
-| `limit` | integer |  | Most events to return (0 = the configured cap). |
+| `limit` | integer or null |  | Most events to return (omitted: the configured cap). |
 
 ## `forms_answers_get`
 
@@ -592,13 +592,13 @@ in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
-| `questions` | string |  | Comma-separated question ids to return answers for. |
+| `questions` | string or null |  | Comma-separated question ids to return answers for. |
 | `use_slugs` | boolean |  | Name questions and options by slug instead of id. |
-| `date_from` | string |  | ISO-8601: answers given at or after. |
-| `date_to` | string |  | ISO-8601: answers given at or before. |
-| `ordering` | string |  | ``asc`` (oldest first) or ``desc`` (the default). |
+| `date_from` | string or null |  | ISO-8601: answers given at or after. |
+| `date_to` | string or null |  | ISO-8601: answers given at or before. |
+| `ordering` | string or null |  | ``asc`` (oldest first) or ``desc`` (the default). |
 | `page_size` | integer or null |  | Answers per request (the API's default is 25). |
-| `answer_format` | string |  | ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's data as stored, with no ``columns``). |
+| `answer_format` | string or null |  | ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's data as stored, with no ``columns``). |
 
 ## `forms_answers_export`
 
@@ -760,7 +760,7 @@ response and error with ``notifications_get``.
 | `visible` | boolean or null |  | True: only shown runs; false: only hidden ones. |
 | `integration_type` | `email` · `tracker` · `tracker_comment` · `wiki` · `jsonrpc` · `post` · `put` · `http` · `function` or null |  | Only runs of this integration type. |
 | `ordering` | `asc` · `desc` or null |  | asc (oldest first, the API default) or desc. |
-| `limit` | integer |  | Most runs to return (0 = the configured cap). |
+| `limit` | integer or null |  | Most runs to return (omitted: the configured cap). |
 
 ## `forms_notifications_get`
 

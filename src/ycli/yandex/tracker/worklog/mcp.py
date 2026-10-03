@@ -36,9 +36,9 @@ mcp = FastMCP("tracker-worklog")
 def list_(
     key: IssueKey,
     limit: Annotated[
-        int,
-        Field(description=f"Max records to return; {LIMIT_CAP}"),
-    ] = 0,
+        int | None,
+        Field(ge=1, description=f"Max records to return; {LIMIT_CAP}"),
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Worklog]:
@@ -73,9 +73,10 @@ def search(
     ``created_by`` to scope to a user and ``created_from`` / ``created_to`` for a time window;
     all are optional.
     """
-    period = {"from": created_from or None, "to": created_to or None}
+    period = {"from": created_from, "to": created_to}
+    given = created_from is not None or created_to is not None
     body = WorklogSearch.model_validate(
-        {"createdBy": created_by or None, "createdAt": period if any(period.values()) else None}
+        {"createdBy": created_by, "createdAt": period if given else None}
     )
     return client.worklog.search(body)
 

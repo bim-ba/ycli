@@ -188,7 +188,7 @@ def test_cli_callback_uses_configured_log_level(monkeypatch):
 
 @pytest.mark.parametrize(
     ("limit", "all_", "cap"),
-    [(0, False, 500), (-5, False, 500), (10, False, 10), (10, True, None), (0, True, None)],
+    [(None, False, 500), (10, False, 10), (10, True, None), (None, True, None)],
 )
 def test_the_listing_cap_takes_the_limit_then_the_default_and_all_lifts_it(limit, all_, cap):
     assert HTTPConfig(max_items=500).cap(limit, all_=all_) == cap

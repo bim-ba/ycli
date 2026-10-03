@@ -35,9 +35,9 @@ mcp = FastMCP("tracker-comments")
 def list_(
     key: IssueKey,
     limit: Annotated[
-        int,
-        Field(description=f"Max comments to return; {LIMIT_CAP}"),
-    ] = 0,
+        int | None,
+        Field(ge=1, description=f"Max comments to return; {LIMIT_CAP}"),
+    ] = None,
     expand: Expand = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),

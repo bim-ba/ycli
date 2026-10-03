@@ -28,15 +28,18 @@ mcp = FastMCP("forms-surveys")
 
 @mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
 def list_(
-    limit: Annotated[int, Field(description=f"Max forms to return; {LIMIT_CAP}")] = 0,
-    name: Annotated[str, Field(description="Keep the forms whose name matches.")] = "",
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max forms to return; {LIMIT_CAP}")
+    ] = None,
+    name: Annotated[str | None, Field(description="Keep the forms whose name matches.")] = None,
     published: Annotated[
         bool | None, Field(description="Only published (true) or only unpublished (false).")
     ] = None,
     ownership: Annotated[
-        str, Field(description="``mine`` (created by the caller) or ``shared`` (open to them).")
-    ] = "",
-    group: Annotated[str, Field(description="Keep the forms of this group.")] = "",
+        str | None,
+        Field(description="``mine`` (created by the caller) or ``shared`` (open to them)."),
+    ] = None,
+    group: Annotated[str | None, Field(description="Keep the forms of this group.")] = None,
     favourite: Annotated[
         bool | None, Field(description="Only favourites (true) or only the others (false).")
     ] = None,
@@ -44,8 +47,8 @@ def list_(
         bool, Field(description="For an administrator, every form of the organization.")
     ] = False,
     orderby: Annotated[
-        str, Field(description="Sort, a comma list such as ``name,-modified,-count``.")
-    ] = "",
+        str | None, Field(description="Sort, a comma list such as ``name,-modified,-count``.")
+    ] = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Survey]:
@@ -57,13 +60,13 @@ def list_(
     cap = config.http.cap(limit)
     return client.surveys.list(
         limit=cap,
-        name=name or None,
+        name=name,
         published=published,
-        ownership=ownership or None,
-        group=group or None,
+        ownership=ownership,
+        group=group,
         favourite=favourite,
         show_all=show_all,
-        orderby=orderby or None,
+        orderby=orderby,
     )
 
 

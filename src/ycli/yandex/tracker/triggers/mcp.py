@@ -38,7 +38,9 @@ def list_(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. DESIGN) or numeric queue id.")
     ],
-    limit: Annotated[int, Field(description=f"Max triggers to return; {LIMIT_CAP}")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max triggers to return; {LIMIT_CAP}")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Trigger]:
@@ -78,11 +80,12 @@ def webhook_log_list(
     ],
     trigger_id: Annotated[int, Field(description="Numeric identifier of the trigger.")],
     issue_id: Annotated[
-        str, Field(description="Optional issue key/id to scope the logs to one issue.")
-    ] = "",
+        str | None, Field(description="Optional issue key/id to scope the logs to one issue.")
+    ] = None,
     limit: Annotated[
-        int, Field(description="Max records (API default 10, max 100); 0 uses the API default.")
-    ] = 0,
+        int | None,
+        Field(ge=1, description="Max records (API default 10, max 100); 0 uses the API default."),
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[WebhookLogEntry]:
     """The execution log of a trigger's HTTP-request (Webhook) action, newest first.
@@ -90,9 +93,7 @@ def webhook_log_list(
     Each record holds the outbound request and received response for one run. Only Webhook
     actions produce these; a trigger with no HTTP action returns an empty list.
     """
-    return client.triggers.webhook_log_list(
-        queue_id, trigger_id, issue_id=issue_id or None, limit=limit or None
-    )
+    return client.triggers.webhook_log_list(queue_id, trigger_id, issue_id=issue_id, limit=limit)
 
 
 @mcp.tool(
