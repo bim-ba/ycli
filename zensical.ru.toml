@@ -38,6 +38,7 @@ nav = [
 ]
 
 [project.theme]
+custom_dir = "docs/overrides"
 language = "ru"
 features = [
   "content.action.edit",

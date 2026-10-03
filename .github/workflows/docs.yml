@@ -31,6 +31,8 @@ jobs:
         with:
           python-version: "3.12"
       # Zensical's cache is still being reworked, so it recommends a clean build and no CI cache.
+      - name: Check the overridden theme partial against its original
+        run: uv run --locked --isolated --only-group docs scripts/check_theme_override.py
       - name: Check the Compose example
         env:
           MCP_DOMAIN: mcp.example.com
