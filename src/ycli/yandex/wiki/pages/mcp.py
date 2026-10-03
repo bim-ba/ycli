@@ -52,7 +52,7 @@ Silent = Annotated[bool, Field(description="Do not notify the page's subscribers
 IncludeSelf = Annotated[bool, Field(description="Also return the ancestor page itself.")]
 ShowAll = Annotated[bool, Field(description="The API's ``show_all`` flag.")]
 OrderDirection = Annotated[
-    str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
 ]
 
 
@@ -81,7 +81,9 @@ def meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
 )
 def descendants(
     slug: Slug,
-    limit: Annotated[int, Field(description=f"Max descendant refs to return; {LIMIT_CAP}")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max descendant refs to return; {LIMIT_CAP}")
+    ] = None,
     include_self: IncludeSelf = False,
     show_all: ShowAll = False,
     client: WikiClient = Depends(wiki_client),
@@ -100,9 +102,13 @@ def descendants(
 @mcp.tool(name="pages_grids_list", annotations={**RO, "title": "List Wiki page grids"}, tags=TAGS)
 def grids_list(
     page_id: Annotated[int, Field(description="Numeric page id whose grids to list.")],
-    limit: Annotated[int, Field(description="Max grids (0 = configured cap).")] = 0,
-    order_by: Annotated[str, Field(description="Sort field: ``title`` or ``created_at``.")] = "",
-    order_direction: OrderDirection = "",
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max grids (omitted: the configured cap).")
+    ] = None,
+    order_by: Annotated[
+        str | None, Field(description="Sort field: ``title`` or ``created_at``.")
+    ] = None,
+    order_direction: OrderDirection = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[GridRef]:
@@ -116,8 +122,8 @@ def grids_list(
     return client.pages.grids_list(
         page_id=page_id,
         limit=cap,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
+        order_by=order_by,
+        order_direction=order_direction,
     )
 
 
@@ -157,7 +163,9 @@ def get_by_id(
 )
 def descendants_by_id(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
-    limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
+    ] = None,
     include_self: IncludeSelf = False,
     show_all: ShowAll = False,
     client: WikiClient = Depends(wiki_client),
@@ -339,7 +347,9 @@ def revisions_list(
     ids: Annotated[
         str | None, Field(description="Only these revision ids (comma separated).")
     ] = None,
-    limit: Annotated[int, Field(description="Max revisions (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max revisions (omitted: the configured cap).")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRevision]:
@@ -366,7 +376,9 @@ def backlinks_list(
     show_all: Annotated[
         bool, Field(description="The API's ``show_all`` flag (undocumented; no effect seen live).")
     ] = False,
-    limit: Annotated[int, Field(description="Max refs (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:

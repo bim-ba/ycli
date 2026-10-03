@@ -28,9 +28,9 @@ mcp = FastMCP("tracker-changelog")
 def list_(
     key: IssueKey,
     limit: Annotated[
-        int,
-        Field(description=f"Max changes to return; {LIMIT_CAP}"),
-    ] = 0,
+        int | None,
+        Field(ge=1, description=f"Max changes to return; {LIMIT_CAP}"),
+    ] = None,
     field: Annotated[
         str | None, Field(description="Keep the changes of this field, e.g. ``status``.")
     ] = None,

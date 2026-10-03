@@ -77,10 +77,10 @@ def get(
     entity_type: TypeArg,
     entity_id: IdArg,
     fields: Annotated[
-        str,
+        str | None,
         Field(description="Comma-separated extra fields, e.g. ``keyResultItems,checklistItems``."),
-    ] = "",
-    expand: Annotated[str, Field(description="Extra info, e.g. ``attachments``.")] = "",
+    ] = None,
+    expand: Annotated[str | None, Field(description="Extra info, e.g. ``attachments``.")] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """A single Tracker entity (project, portfolio or goal) by id, with its ``fields`` block.
@@ -90,15 +90,19 @@ def get(
     metric widgets, or ``summary,description,entityStatus`` for the basics. Use
     ``entities_search`` to discover ids first.
     """
-    return client.entities.get(entity_type, entity_id, expand=expand or None, fields=fields or None)
+    return client.entities.get(entity_type, entity_id, expand=expand, fields=fields)
 
 
 @mcp.tool(name="entities_search", annotations={**RO, "title": "Search Tracker entities"}, tags=TAGS)
 def search(
     entity_type: SearchTypeArg,
-    input_text: Annotated[str, Field(description="Substring to match in the entity name.")] = "",
-    order_by: Annotated[str, Field(description="Field key to sort the results by.")] = "",
-    fields: Annotated[str, Field(description="Comma-separated extra fields to include.")] = "",
+    input_text: Annotated[
+        str | None, Field(description="Substring to match in the entity name.")
+    ] = None,
+    order_by: Annotated[str | None, Field(description="Field key to sort the results by.")] = None,
+    fields: Annotated[
+        str | None, Field(description="Comma-separated extra fields to include.")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Entity]:
     """Entities of a given type matching a name substring, sorted server-side.
@@ -108,8 +112,8 @@ def search(
     followers, …) use the CLI ``tracker entities search --filter`` which accepts an arbitrary
     filter object.
     """
-    body = EntitySearch.model_validate({"input": input_text or None, "orderBy": order_by or None})
-    return client.entities.search(entity_type, body, fields=fields or None)
+    body = EntitySearch.model_validate({"input": input_text, "orderBy": order_by})
+    return client.entities.search(entity_type, body, fields=fields)
 
 
 @mcp.tool(
@@ -120,7 +124,9 @@ def search(
 def events_list(
     entity_type: TypeArg,
     entity_id: IdArg,
-    limit: Annotated[int, Field(description="Max events (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max events (omitted: the configured cap).")
+    ] = None,
     selected: Annotated[
         str | None,
         Field(description="Event id to build the list around, instead of from the start."),
@@ -279,7 +285,9 @@ def bulk_status_get(
 def comments_relative_list(
     entity_type: TypeArg,
     entity_id: IdArg,
-    limit: Annotated[int, Field(description="Max comments (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max comments (omitted: the configured cap).")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Comment]:

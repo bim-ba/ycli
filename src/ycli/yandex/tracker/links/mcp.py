@@ -46,7 +46,9 @@ def search(
     fields: Annotated[
         list[str] | None, Field(description="Fields to include in each link; all when omitted.")
     ] = None,
-    limit: Annotated[int, Field(description=f"Max links to return; {LIMIT_CAP}")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max links to return; {LIMIT_CAP}")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Link]:

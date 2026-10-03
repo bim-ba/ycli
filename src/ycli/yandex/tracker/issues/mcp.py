@@ -59,12 +59,14 @@ def get(
 
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"}, tags=TAGS)
 def list_(
-    queue: Annotated[str, Field(description="Queue key, e.g. QUEUE.")] = "",
-    status: Annotated[str, Field(description="Status key, e.g. open.")] = "",
-    assignee: Annotated[str, Field(description="Assignee login or id.")] = "",
-    epic: Annotated[str, Field(description="Epic issue key.")] = "",
-    issue_type: Annotated[str, Field(description="Issue type key, e.g. bug or task.")] = "",
-    limit: Annotated[int, Field(description=_LIMIT)] = 0,
+    queue: Annotated[str | None, Field(description="Queue key, e.g. QUEUE.")] = None,
+    status: Annotated[str | None, Field(description="Status key, e.g. open.")] = None,
+    assignee: Annotated[str | None, Field(description="Assignee login or id.")] = None,
+    epic: Annotated[str | None, Field(description="Epic issue key.")] = None,
+    issue_type: Annotated[
+        str | None, Field(description="Issue type key, e.g. bug or task.")
+    ] = None,
+    limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Issue]:
@@ -75,11 +77,11 @@ def list_(
     """
     # The tool's parameters say "not given" with an empty string; the body builder with None.
     body = filter_body(
-        queue=queue or None,
-        status=status or None,
-        assignee=assignee or None,
-        epic=epic or None,
-        type_=issue_type or None,
+        queue=queue,
+        status=status,
+        assignee=assignee,
+        epic=epic,
+        type_=issue_type,
     )
     return client.issues.search(body, limit=config.http.cap(limit))
 
@@ -89,7 +91,7 @@ def list_(
 )
 def search(
     query: Annotated[str, Field(description="TQL query, e.g. ``Queue: QUEUE Status: open``.")],
-    limit: Annotated[int, Field(description=_LIMIT)] = 0,
+    limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
     expand: Expand = None,
     scroll_type: Annotated[
         str | None,
@@ -124,10 +126,10 @@ def search(
 @mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)
 def count(
     query: Annotated[
-        str, Field(description="TQL query; takes precedence over ``queue`` / ``status``.")
-    ] = "",
-    queue: Annotated[str, Field(description="Queue key to count issues in.")] = "",
-    status: Annotated[str, Field(description="Status key to count issues in.")] = "",
+        str | None, Field(description="TQL query; takes precedence over ``queue`` / ``status``.")
+    ] = None,
+    queue: Annotated[str | None, Field(description="Queue key to count issues in.")] = None,
+    status: Annotated[str | None, Field(description="Status key to count issues in.")] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> int:
     """Count of issues matching a TQL query or filters.
@@ -136,7 +138,7 @@ def count(
     ``queue``/``status`` to filter by those fields.  With no arguments the API counts
     every issue in the org.
     """
-    body = count_body(query=query or None, queue=queue or None, status=status or None)
+    body = count_body(query=query, queue=queue, status=status)
     return client.issues.count(body=body)
 
 

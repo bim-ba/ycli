@@ -33,14 +33,16 @@ mcp = FastMCP("wiki-comments")
 @mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"}, tags=TAGS)
 def list_(
     page_id: PageId,
-    limit: Annotated[int, Field(description=f"Max comments to return; {LIMIT_CAP}")] = 0,
-    order_by: Annotated[str, Field(description="Sort field: ``created_at``.")] = "",
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max comments to return; {LIMIT_CAP}")
+    ] = None,
+    order_by: Annotated[str | None, Field(description="Sort field: ``created_at``.")] = None,
     order_direction: Annotated[
-        str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
-    ] = "",
+        str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    ] = None,
     status_filter: Annotated[
-        str, Field(description="Keep only ``resolved`` or only ``unresolved`` comments.")
-    ] = "",
+        str | None, Field(description="Keep only ``resolved`` or only ``unresolved`` comments.")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Comment]:
@@ -53,9 +55,9 @@ def list_(
     return client.comments.list(
         page_id=page_id,
         limit=cap,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
-        status_filter=status_filter or None,
+        order_by=order_by,
+        order_direction=order_direction,
+        status_filter=status_filter,
     )
 
 
@@ -65,7 +67,9 @@ def list_(
 def thread_list(
     page_id: Annotated[int, Field(description="Numeric page id the comment lives on.")],
     comment_id: Annotated[int, Field(description="Root comment id whose reply thread to fetch.")],
-    limit: Annotated[int, Field(description="Max replies (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max replies (omitted: the configured cap).")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Comment]:
@@ -89,7 +93,9 @@ def thread_list(
 def thread_get(
     page_id: Annotated[int, Field(description="Numeric page id the comment lives on.")],
     comment_id: Annotated[int, Field(description="Comment id whose server-side thread to fetch.")],
-    limit: Annotated[int, Field(description="Max comments (0 = configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Max comments (omitted: the configured cap).")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Comment]:

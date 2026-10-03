@@ -37,7 +37,9 @@ def search(
     date_to: Annotated[
         str | None, Field(description="Window end (ISO 8601); must be after ``date_from``.")
     ] = None,
-    limit: Annotated[int, Field(description=f"Max users to return; {LIMIT_CAP}")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max users to return; {LIMIT_CAP}")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[UserGaps]:

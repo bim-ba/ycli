@@ -32,13 +32,15 @@ mcp = FastMCP("wiki-attachments")
 @mcp.tool(name="attachments_list", annotations={**RO, "title": "List Wiki attachments"}, tags=TAGS)
 def list_(
     page_id: PageId,
-    limit: Annotated[int, Field(description=f"Max attachments to return; {LIMIT_CAP}")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max attachments to return; {LIMIT_CAP}")
+    ] = None,
     order_by: Annotated[
-        str, Field(description="Sort field: ``name``, ``size`` or ``created_at``.")
-    ] = "",
+        str | None, Field(description="Sort field: ``name``, ``size`` or ``created_at``.")
+    ] = None,
     order_direction: Annotated[
-        str, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
-    ] = "",
+        str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Attachment]:
@@ -51,8 +53,8 @@ def list_(
     return client.attachments.list(
         page_id=page_id,
         limit=cap,
-        order_by=order_by or None,
-        order_direction=order_direction or None,
+        order_by=order_by,
+        order_direction=order_direction,
     )
 
 

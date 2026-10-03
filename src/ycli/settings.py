@@ -90,11 +90,11 @@ class HTTPConfig(BaseModel):
     def cap(self, limit: int | None, *, all_: bool = False) -> int | None:
         """A listing's item cap from a ``limit`` option and the CLI's ``--all`` flag.
 
-        ``--all`` uncaps (``None``); a positive ``limit`` wins; otherwise ``max_items``. The MCP
+        ``--all`` uncaps (``None``); a given ``limit`` wins; otherwise ``max_items``. The MCP
         surface has no ``--all``, so it is always capped.
 
         Args:
-            limit: The ``--limit`` option; ``None`` (zero or less from an MCP tool) is not given.
+            limit: The ``--limit`` option or a tool's ``limit``; ``None`` when not given.
             all_: The CLI's ``--all`` flag.
 
         Returns:
@@ -102,13 +102,13 @@ class HTTPConfig(BaseModel):
 
         Examples:
             >>> (
-            ...     HTTPConfig(max_items=500).cap(0),
+            ...     HTTPConfig(max_items=500).cap(None),
             ...     HTTPConfig().cap(10),
             ...     HTTPConfig().cap(10, all_=True),
             ... )
             (500, 10, None)
         """
-        return None if all_ else (limit if limit and limit > 0 else self.max_items)
+        return None if all_ else (self.max_items if limit is None else limit)
 
 
 # `ycli doctor` asks PyPI for the latest release: one short attempt, so it never holds the report.

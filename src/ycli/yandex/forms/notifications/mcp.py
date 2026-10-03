@@ -60,7 +60,9 @@ def list_(
         Literal["asc", "desc"] | None,
         Field(description="asc (oldest first, the API default) or desc."),
     ] = None,
-    limit: Annotated[int, Field(description="Most runs to return (0 = the configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Most runs to return (omitted: the configured cap).")
+    ] = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[Notification]:

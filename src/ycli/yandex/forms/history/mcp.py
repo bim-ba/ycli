@@ -22,7 +22,9 @@ def list_(
         Literal["asc", "desc"] | None,
         Field(description="desc (newest first, the API default) or asc."),
     ] = None,
-    limit: Annotated[int, Field(description="Most events to return (0 = the configured cap).")] = 0,
+    limit: Annotated[
+        int | None, Field(ge=1, description="Most events to return (omitted: the configured cap).")
+    ] = None,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[HistoryEvent]:

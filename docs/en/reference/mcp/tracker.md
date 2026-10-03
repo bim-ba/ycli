@@ -38,12 +38,12 @@ filters or raise ``limit``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `queue` | string |  | Queue key, e.g. QUEUE. |
-| `status` | string |  | Status key, e.g. open. |
-| `assignee` | string |  | Assignee login or id. |
-| `epic` | string |  | Epic issue key. |
-| `issue_type` | string |  | Issue type key, e.g. bug or task. |
-| `limit` | integer |  | Max issues to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `queue` | string or null |  | Queue key, e.g. QUEUE. |
+| `status` | string or null |  | Status key, e.g. open. |
+| `assignee` | string or null |  | Assignee login or id. |
+| `epic` | string or null |  | Epic issue key. |
+| `issue_type` | string or null |  | Issue type key, e.g. bug or task. |
+| `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_issues_search`
 
@@ -57,7 +57,7 @@ query or raise ``limit``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `query` | string | yes | TQL query, e.g. ``Queue: QUEUE Status: open``. |
-| `limit` | integer |  | Max issues to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 | `scroll_type` | string or null |  | ``sorted`` or ``unsorted``: scroll through the results (no 10 000 cap). |
 | `per_scroll` | integer or null |  | Issues per scroll page (1000 at most). |
@@ -75,9 +75,9 @@ every issue in the org.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `query` | string |  | TQL query; takes precedence over ``queue`` / ``status``. |
-| `queue` | string |  | Queue key to count issues in. |
-| `status` | string |  | Status key to count issues in. |
+| `query` | string or null |  | TQL query; takes precedence over ``queue`` / ``status``. |
+| `queue` | string or null |  | Queue key to count issues in. |
+| `status` | string or null |  | Status key to count issues in. |
 
 ## `tracker_issues_suggest`
 
@@ -164,7 +164,7 @@ are truncated at the cap rather than fetched forever.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `limit` | integer |  | Max comments to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_comments_get`
@@ -256,7 +256,7 @@ or fields matter; it carries each link's author, dates, assignee and status.
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_types` | array of string or null |  | Keep only links with these relationships, e.g. ``relates`` or ``is subtask for`` (the phrases of ``links_add``, not linktypes ids). |
 | `fields` | array of string or null |  | Fields to include in each link; all when omitted. |
-| `limit` | integer |  | Max links to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max links to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_links_add`
 
@@ -323,7 +323,7 @@ creation-time range) use ``worklog_search`` instead.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `limit` | integer |  | Max records to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max records to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_worklog_search`
 
@@ -405,7 +405,7 @@ is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `limit` | integer |  | Max changes to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max changes to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `field` | string or null |  | Keep the changes of this field, e.g. ``status``. |
 | `change_type` | string or null |  | Keep the changes of this type, e.g. ``IssueWorkflow``. |
 | `sort` | string or null |  | Order of the changes: ``asc`` or ``desc``. |
@@ -648,7 +648,7 @@ is given; use ``users_get`` instead when you already know the specific login or 
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer |  | Max users to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max users to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra data to include per user, e.g. groups. |
 
 ## `tracker_statuses_list`
@@ -740,7 +740,7 @@ queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TES
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer |  | Max queues to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max queues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
 
 ## `tracker_queues_get`
@@ -756,7 +756,7 @@ enumerates every queue; pass one of its ``key`` values here.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
-| `expand` | string |  | Extra blocks to include, e.g. 'all' or a comma list of projects,components,versions,types,team,workflows,fields,issueTypesConfig. |
+| `expand` | string or null |  | Extra blocks to include, e.g. 'all' or a comma list of projects,components,versions,types,team,workflows,fields,issueTypesConfig. |
 
 ## `tracker_queues_tags_list`
 
@@ -1237,7 +1237,7 @@ board's sprints.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `limit` | integer |  | Max boards to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max boards to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_boards_get`
 
@@ -1542,7 +1542,7 @@ Auto-paginated and capped at the configured item cap unless ``limit`` is given. 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. DESIGN) or numeric queue id. |
-| `limit` | integer |  | Max triggers to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max triggers to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_triggers_get`
 
@@ -1571,8 +1571,8 @@ actions produce these; a trigger with no HTTP action returns an empty list.
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. DEV) or numeric queue id. |
 | `trigger_id` | integer | yes | Numeric identifier of the trigger. |
-| `issue_id` | string |  | Optional issue key/id to scope the logs to one issue. |
-| `limit` | integer |  | Max records (API default 10, max 100); 0 uses the API default. |
+| `issue_id` | string or null |  | Optional issue key/id to scope the logs to one issue. |
+| `limit` | integer or null |  | Max records (API default 10, max 100); 0 uses the API default. |
 
 ## `tracker_triggers_create`
 
@@ -1884,8 +1884,8 @@ metric widgets, or ``summary,description,entityStatus`` for the basics. Use
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `fields` | string |  | Comma-separated extra fields, e.g. ``keyResultItems,checklistItems``. |
-| `expand` | string |  | Extra info, e.g. ``attachments``. |
+| `fields` | string or null |  | Comma-separated extra fields, e.g. ``keyResultItems,checklistItems``. |
+| `expand` | string or null |  | Extra info, e.g. ``attachments``. |
 
 ## `tracker_entities_search`
 
@@ -1901,9 +1901,9 @@ filter object.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio``, ``goal`` or ``report`` (issue reports). |
-| `input_text` | string |  | Substring to match in the entity name. |
-| `order_by` | string |  | Field key to sort the results by. |
-| `fields` | string |  | Comma-separated extra fields to include. |
+| `input_text` | string or null |  | Substring to match in the entity name. |
+| `order_by` | string or null |  | Field key to sort the results by. |
+| `fields` | string or null |  | Comma-separated extra fields to include. |
 
 ## `tracker_entities_events_list`
 
@@ -1918,7 +1918,7 @@ Capped at the configured item cap unless ``limit`` is given.
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `limit` | integer |  | Max events (0 = configured cap). |
+| `limit` | integer or null |  | Max events (omitted: the configured cap). |
 | `selected` | string or null |  | Event id to build the list around, instead of from the start. |
 | `new_events_on_top` | boolean or null |  | Newest events first. |
 | `direction` | string or null |  | ``forward`` (the default) or ``backward``. |
@@ -2040,7 +2040,7 @@ pages up to ``limit`` (the configured item cap by default).
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
-| `limit` | integer |  | Max comments (0 = configured cap). |
+| `limit` | integer or null |  | Max comments (omitted: the configured cap). |
 
 ## `tracker_entities_create`
 
@@ -2538,7 +2538,7 @@ with an empty ``gaps`` list when they are not absent.
 | `users` | array of string | yes | Logins or ids of the users to look up (up to 100). |
 | `date_from` | string or null |  | Window start (ISO 8601); defaults to now. |
 | `date_to` | string or null |  | Window end (ISO 8601); must be after ``date_from``. |
-| `limit` | integer |  | Max users to return; 0 means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `limit` | integer or null |  | Max users to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
 ## `tracker_gaps_create`
 

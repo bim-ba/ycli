@@ -1,12 +1,16 @@
-"""An option that is not given is ``None``: an explicit empty string or zero is sent (#233)."""
+"""An option or tool parameter that is not given is ``None``; an explicit value is sent."""
 
 import ast
 from pathlib import Path
 
+import pytest
+from fastmcp import Client
+from fastmcp.exceptions import ToolError
 from typer.testing import CliRunner
 
 import ycli.cli.app as cli
-from tests.hosts import FORMS_BASE
+from tests.full_server import mcp
+from tests.hosts import FORMS_BASE, TRACKER_BASE
 
 SRC = Path(__file__).resolve().parents[1] / "src" / "ycli"
 
@@ -33,9 +37,9 @@ def _sentinel_defaults(source: str) -> list[str]:
     return found
 
 
-def test_no_command_spells_not_given_as_an_empty_string_or_zero():
+def test_no_command_or_tool_spells_not_given_as_an_empty_string_or_zero():
     """A default of ``""`` or ``0`` makes the explicit value unsendable; ``None`` says not given."""
-    modules = [*SRC.rglob("cli.py"), SRC / "cli" / "api.py"]
+    modules = [*SRC.rglob("cli.py"), *SRC.rglob("mcp.py"), SRC / "cli" / "api.py"]
     offenders = {
         str(module.relative_to(SRC)): found
         for module in modules
@@ -71,4 +75,18 @@ def test_a_zero_limit_is_a_usage_error(api):
     res = CliRunner().invoke(cli.app, ["tracker", "queues", "list", "--limit", "0"])
     assert res.exit_code == 2
     assert "--limit" in res.output
+    assert api.calls == []
+
+
+async def test_a_tool_sends_an_empty_filter_value_and_leaves_out_an_absent_one(api):
+    api.add("POST", f"{TRACKER_BASE}/issues/_search", json=[])
+    async with Client(mcp) as client:
+        await client.call_tool("tracker_issues_list", {"queue": "", "status": "open"})
+    assert api.body() == {"filter": {"queue": "", "status": "open"}}
+
+
+async def test_a_tool_refuses_a_zero_limit(api):
+    async with Client(mcp) as client:
+        with pytest.raises(ToolError, match="limit"):
+            await client.call_tool("tracker_queues_list", {"limit": 0})
     assert api.calls == []

@@ -39,9 +39,9 @@ def get(
 @mcp.tool(name="users_list", annotations={**RO, "title": "List Tracker users"}, tags=TAGS)
 def list_(
     limit: Annotated[
-        int,
-        Field(description=f"Max users to return; {LIMIT_CAP}"),
-    ] = 0,
+        int | None,
+        Field(ge=1, description=f"Max users to return; {LIMIT_CAP}"),
+    ] = None,
     expand: Annotated[
         str | None,
         Field(description="Extra data to include per user, e.g. groups."),
