@@ -693,14 +693,3 @@ class GridClone(APIModel):
         default=None, min_length=1, max_length=255, description="Title of the copy, if renaming."
     )
     with_data: bool = Field(default=False, description="Copy the rows too, not just the structure.")
-
-
-class GridList(RootModel[list[Grid]]):
-    """A bare list of grids (helper wrapper for uniform CLI/serializer rendering).
-
-    Examples:
-        >>> GridList([Grid(id="g1")]).root[0].id
-        'g1'
-    """
-
-    root: list[Grid] = Field(default_factory=list)

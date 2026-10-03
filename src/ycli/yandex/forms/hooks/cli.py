@@ -8,9 +8,9 @@ import typer
 
 from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookList, HookUpdate
+from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
 from ycli.yandex.forms.typedefs import HookIdArg, SurveyIdArg
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="hooks", help="Forms integration groups (hooks).", no_args_is_help=True)
 
@@ -22,7 +22,7 @@ ActiveOpt = Annotated[
 
 
 @app.command("list")
-def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> HookList:
+def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[Hook]:
     """List the integration groups of form SURVEY_ID with their integrations."""
     return forms.hooks.list(survey_id)
 

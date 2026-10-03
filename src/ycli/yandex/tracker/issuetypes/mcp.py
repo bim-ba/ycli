@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -16,12 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     Version,
     tracker_client,
 )
-from ycli.yandex.tracker.issuetypes.models import (
-    IssueType,
-    IssueTypeCreate,
-    IssueTypeList,
-    IssueTypeUpdate,
-)
+from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeCreate, IssueTypeUpdate
 
 mcp = FastMCP("tracker-issuetypes")
 
@@ -29,7 +25,7 @@ mcp = FastMCP("tracker-issuetypes")
 @mcp.tool(
     name="issuetypes_list", annotations={**RO, "title": "List Tracker issue types"}, tags=TAGS
 )
-def list_(client: TrackerClient = Depends(tracker_client)) -> IssueTypeList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[IssueType]:
     """All available issue types (e.g. task, bug, epic)."""
     return client.issuetypes.list()
 

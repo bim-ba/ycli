@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -119,15 +119,6 @@ class BulkIssueResult(APIModel):
     error: BulkError | None = Field(
         default=None, description="Details of the errors that occurred on this issue."
     )
-
-
-class BulkIssueResultList(RootModel[list[BulkIssueResult]]):
-    """A bare JSON array of per-issue bulk-change results.
-
-    Examples:
-        >>> BulkIssueResultList.model_validate([{"status": "FAILED"}]).root[0].status
-        'FAILED'
-    """
 
 
 class BulkUpdate(APIModel):

@@ -1,7 +1,8 @@
 """Forms integration-group (hook) models parse what the live API returns."""
 
-from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookList, HookUpdate
+from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
 from ycli.yandex.forms.subscriptions.models import HttpSubscription
+from ycli.yandex.models import ItemList
 
 # As GET /surveys/{id}/hooks/{hook_id} answered on the test organization (2026-10-02).
 LIVE = {
@@ -37,7 +38,7 @@ def test_hook_keeps_its_conditions():
 
 
 def test_hook_list_wraps_bare_array():
-    assert [h.id for h in HookList.model_validate([LIVE, {"id": 2}]).root] == [18746511, 2]
+    assert [h.id for h in ItemList[Hook].model_validate([LIVE, {"id": 2}]).root] == [18746511, 2]
 
 
 def test_hook_bodies_drop_unset_fields():

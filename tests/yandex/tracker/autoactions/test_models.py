@@ -1,13 +1,12 @@
 """TDD for the autoactions models — the two log shapes and the typed create body."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
     AutoactionCalendar,
     AutoactionCreate,
     AutoactionLogEntry,
-    AutoactionLogList,
     AutoactionRunEntry,
-    AutoactionRunList,
 )
 from ycli.yandex.tracker.models import AutomationAction
 
@@ -67,7 +66,7 @@ def test_log_entry_and_list():
         {"id": "x", "launchTime": "2025", "searchHits": 3, "successes": 3, "searchFailed": False}
     )
     assert entry.launch_time == "2025" and entry.search_hits == 3 and entry.search_failed is False
-    assert AutoactionLogList.model_validate([{"id": "x"}]).root[0].id == "x"
+    assert ItemList[AutoactionLogEntry].model_validate([{"id": "x"}]).root[0].id == "x"
 
 
 def test_run_entry_and_list():
@@ -80,4 +79,4 @@ def test_run_entry_and_list():
     )
     assert entry.id == 0 and entry.issue_reference.key == "TEST-1"  # ty: ignore[unresolved-attribute]
     assert entry.status.value == "success"  # ty: ignore[unresolved-attribute]
-    assert AutoactionRunList.model_validate([{"id": 0}]).root[0].id == 0
+    assert ItemList[AutoactionRunEntry].model_validate([{"id": 0}]).root[0].id == 0

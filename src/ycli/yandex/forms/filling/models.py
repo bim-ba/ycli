@@ -8,7 +8,7 @@ Three families:
   ``conditions`` / ``styles`` are kept as flexible mappings and the common scalars are typed.
 * :class:`SubmitBody` (write, ``extra="allow"``) and :class:`SubmitResult` — the ``POST …/form``
   answer map keyed by question slug, and the success-page payload it returns.
-* :class:`Suggestion` / :class:`SuggestionList` — the ``GET …/suggest`` prompts (26 polymorphic
+* :class:`Suggestion` / ``ItemList[Suggestion]`` — the ``GET …/suggest`` prompts (26 polymorphic
   ``layer`` shapes, so extra keys are preserved).
 """
 
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel
 
@@ -183,16 +183,3 @@ class Suggestion(APIModel):
     id: str | None = Field(default=None, description="Suggestion object id.")
     text: str | None = Field(default=None, description="Display text of the suggestion.")
     orig_id: str | None = Field(default=None, description="Source-database id, where applicable.")
-
-
-class SuggestionList(RootModel[list[Suggestion]]):
-    """Flat list of :class:`Suggestion` — the public return of ``FillingClient.suggest``.
-
-    Examples:
-        >>> SuggestionList.model_validate([{"layer": "gender", "id": "m", "text": "Male"}]).root[
-        ...     0
-        ... ].text
-        'Male'
-    """
-
-    root: list[Suggestion] = []

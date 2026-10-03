@@ -10,15 +10,16 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.transitions.models import TransitionList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.transitions.models import Transition
 
 
-def list_transitions(key: str) -> Endpoint[TransitionList]:
-    return Endpoint("GET", f"issues/{segment(key)}/transitions", TransitionList)
+def list_transitions(key: str) -> Endpoint[ItemList[Transition]]:
+    return Endpoint("GET", f"issues/{segment(key)}/transitions", ItemList[Transition])
 
 
 def execute_transition(
     key: str, transition_id: str, body: dict[str, Any]
-) -> Endpoint[TransitionList]:
+) -> Endpoint[ItemList[Transition]]:
     path = f"issues/{segment(key)}/transitions/{segment(transition_id)}/_execute"
-    return Endpoint("POST", path, TransitionList, json=body)
+    return Endpoint("POST", path, ItemList[Transition], json=body)

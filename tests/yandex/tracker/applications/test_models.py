@@ -1,6 +1,7 @@
 """Model parsing for Tracker external applications."""
 
-from ycli.yandex.tracker.applications.models import Application, ApplicationList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.applications.models import Application
 
 
 def test_application_parses_self_and_type():
@@ -17,5 +18,5 @@ def test_application_parses_self_and_type():
 
 
 def test_application_list_is_flat_array():
-    apps = ApplicationList.model_validate([{"id": "a"}, {"id": "b"}])
+    apps = ItemList[Application].model_validate([{"id": "a"}, {"id": "b"}])
     assert [a.id for a in apps.root] == ["a", "b"]

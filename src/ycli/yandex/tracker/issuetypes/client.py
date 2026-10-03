@@ -11,18 +11,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.issuetypes import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.issuetypes.models import (
-        IssueType,
-        IssueTypeCreate,
-        IssueTypeList,
-        IssueTypeUpdate,
-    )
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeCreate, IssueTypeUpdate
 
 
 class IssueTypesClient(Resource):
     """List, create and edit issue types."""
 
-    def list(self) -> IssueTypeList:
+    def list(self) -> ItemList[IssueType]:
         """``GET /issuetypes`` → issue-type listing.
 
         Returns:

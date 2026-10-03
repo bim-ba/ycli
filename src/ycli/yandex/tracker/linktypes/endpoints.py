@@ -8,8 +8,9 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint
-from ycli.yandex.tracker.linktypes.models import LinkTypeList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.models import LinkType
 
 
-def list_link_types() -> Endpoint[LinkTypeList]:
-    return Endpoint("GET", "linktypes", LinkTypeList)
+def list_link_types() -> Endpoint[ItemList[LinkType]]:
+    return Endpoint("GET", "linktypes", ItemList[LinkType])

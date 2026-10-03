@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -15,7 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     IssueKey,
     tracker_client,
 )
-from ycli.yandex.tracker.transitions.models import TransitionExecute, TransitionList
+from ycli.yandex.tracker.transitions.models import Transition, TransitionExecute
 
 mcp = FastMCP("tracker-transitions")
 
@@ -25,7 +26,7 @@ mcp = FastMCP("tracker-transitions")
     annotations={**RO, "title": "List Tracker issue transitions"},
     tags=TAGS,
 )
-def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> TransitionList:
+def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> ItemList[Transition]:
     """Available workflow transitions for a Tracker issue."""
     return client.transitions.list(key)
 
@@ -40,7 +41,7 @@ def execute(
     transition_id: Annotated[str, Field(description="Transition id, from ``transitions_list``.")],
     body: TransitionExecute,
     client: TrackerClient = Depends(tracker_client),
-) -> TransitionList:
+) -> ItemList[Transition]:
     """Move a Tracker issue through a workflow transition (change its status).
 
     Get ``transition_id`` from ``transitions_list``. ``body`` may be empty or carry issue

@@ -1,10 +1,10 @@
-"""Pydantic models for Tracker worklog (Worklog + WorklogList)."""
+"""Pydantic models for Tracker worklog (Worklog + ItemList[Worklog])."""
 
 from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -28,15 +28,6 @@ class Worklog(APIModel):
     duration: str | None = None
     start: str | None = None
     comment: str | None = None
-
-
-class WorklogList(RootModel[list[Worklog]]):
-    """A bare JSON array of worklog entries.
-
-    Examples:
-        >>> WorklogList.model_validate([{"duration": "PT1H"}]).root[0].duration
-        'PT1H'
-    """
 
 
 def _now() -> str:

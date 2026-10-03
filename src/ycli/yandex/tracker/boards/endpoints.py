@@ -13,7 +13,8 @@ from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
-from ycli.yandex.tracker.boards.models import Board, BoardList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.boards.models import Board
 
 PAGE_SIZE = 100
 
@@ -22,10 +23,10 @@ def _board_id(board: Board) -> str | None:
     return str(board.id) if board.id is not None else None
 
 
-def list_boards(*, page_size: int = PAGE_SIZE) -> Paged[BoardList, Board]:
+def list_boards(*, page_size: int = PAGE_SIZE) -> Paged[ItemList[Board], Board]:
     """``GET /boards/_paginate``: ascending ids, each next page from ``id=<last board id>``."""
     return Paged(
-        Endpoint("GET", "boards/_paginate", BoardList, params={"perPage": page_size}),
+        Endpoint("GET", "boards/_paginate", ItemList[Board], params={"perPage": page_size}),
         RelativeIdPagination(id_of=_board_id),
         lambda page: page.root,
     )

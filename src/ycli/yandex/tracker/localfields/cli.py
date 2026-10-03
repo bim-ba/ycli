@@ -7,8 +7,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList, LocalFieldUpdate
+from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
 from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
 
 app = typer.Typer(name="localfields", help="Tracker per-queue local fields.", no_args_is_help=True)
@@ -31,7 +32,7 @@ def _options_provider(values: list[str] | None, provider_type: str) -> OptionsPr
 
 
 @app.command("list")
-def list_(queue_id: QueueArg, *, tracker: TrackerClient) -> LocalFieldList:
+def list_(queue_id: QueueArg, *, tracker: TrackerClient) -> ItemList[LocalField]:
     """List the local fields of queue QUEUE_ID."""
     return tracker.localfields.list(queue_id)
 

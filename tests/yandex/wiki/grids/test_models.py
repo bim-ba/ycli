@@ -3,6 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.grids.models import (
     CellsUpdate,
     ColumnsAdd,
@@ -15,7 +16,6 @@ from ycli.yandex.wiki.grids.models import (
     Grid,
     GridClone,
     GridCreate,
-    GridList,
     GridRow,
     GridUpdate,
     NewColumnSchema,
@@ -209,7 +209,7 @@ def test_grid_operation_identity_accepts_a_move():
 
 
 def test_grid_list_wraps_flat_root():
-    assert GridList([Grid(id="g1")]).root[0].id == "g1"
+    assert ItemList[Grid]([Grid(id="g1")]).root[0].id == "g1"
 
 
 def test_column_suggest_dumps_only_what_was_given():

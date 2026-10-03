@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.issuetypes.models import IssueType
 
 
-def list_issue_types() -> Endpoint[IssueTypeList]:
-    return Endpoint("GET", "issuetypes", IssueTypeList)
+def list_issue_types() -> Endpoint[ItemList[IssueType]]:
+    return Endpoint("GET", "issuetypes", ItemList[IssueType])
 
 
 def create_issue_type(body: dict[str, Any]) -> Endpoint[IssueType]:

@@ -1,6 +1,7 @@
 """Forms variable catalogue models parse what the live API returns."""
 
-from ycli.yandex.forms.variables.models import VariableInfoList
+from ycli.yandex.forms.variables.models import VariableInfo
+from ycli.yandex.models import ItemList
 
 # Two items as GET /surveys/{id}/variables answered on the test organization (2026-10-02).
 LIVE = [
@@ -20,7 +21,7 @@ LIVE = [
 
 
 def test_variables_parse_live_answer():
-    first, second = VariableInfoList.model_validate(LIVE).root
+    first, second = ItemList[VariableInfo].model_validate(LIVE).root
     assert first.category is not None and first.category.type == "form"
     assert second.filters == {"question": {"answer_type": "answer_choices"}}
     assert second.arguments == ["question"] and second.renderers is None

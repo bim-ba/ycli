@@ -10,22 +10,19 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.queues.models import (
     Queue,
     QueueCreate,
-    QueueFieldList,
+    QueueField,
     QueueGroupAccess,
-    QueueList,
     QueuePermissions,
     QueuePermissionsUpdate,
-    QueueTagList,
     QueueTagRemove,
     QueueUserAccess,
     QueueVersionCreate,
     QueueVersionInfo,
-    QueueVersionInfoList,
     QueueVersionUpdate,
 )
 
@@ -45,7 +42,7 @@ FieldsOpt = Annotated[
 @app.command("list")
 def list_(
     limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, tracker: TrackerClient
-) -> QueueList:
+) -> ItemList[Queue]:
     """List all queues (auto-paginated over pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.queues.list(limit=cap)
@@ -66,21 +63,21 @@ def get(
 
 @deprecated_alias(app, "tags")
 @app.command()
-def tags_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueTagList:
+def tags_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[str]:
     """List the tags added to QUEUE_ID."""
     return tracker.queues.tags(queue_id)
 
 
 @deprecated_alias(app, "versions")
 @app.command()
-def versions_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueVersionInfoList:
+def versions_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueVersionInfo]:
     """List the versions defined on QUEUE_ID."""
     return tracker.queues.versions(queue_id)
 
 
 @deprecated_alias(app, "fields")
 @app.command()
-def fields_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> QueueFieldList:
+def fields_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueField]:
     """List the required/local fields of QUEUE_ID."""
     return tracker.queues.fields(queue_id)
 

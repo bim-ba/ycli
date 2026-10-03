@@ -7,20 +7,16 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.priorities.models import (
-    Priority,
-    PriorityCreate,
-    PriorityList,
-    PriorityUpdate,
-)
+from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, PriorityUpdate
 
 app = typer.Typer(name="priorities", help="Tracker priorities.", no_args_is_help=True)
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> PriorityList:
+def list_(*, tracker: TrackerClient) -> ItemList[Priority]:
     """List all priorities."""
     return tracker.priorities.list()
 

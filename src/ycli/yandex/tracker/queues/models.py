@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker /queues (Queue + nested refs + QueueList).
+"""Pydantic models for Tracker /queues (Queue + nested refs + ItemList[Queue]).
 
 Mirrors the ``GET /queues/`` (list) and ``GET /queues/{id}`` (single) response shapes. The
 list and the single-queue endpoints return the same object, so one :class:`Queue` model serves
@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import KeyedReference, Reference, UserReference
@@ -115,24 +115,6 @@ class Queue(APIModel):
     )
 
 
-class QueueList(RootModel[list[Queue]]):
-    """A bare JSON array of queues — the flat public shape of ``queues.list()``.
-
-    Examples:
-        >>> QueueList.model_validate([{"key": "TEST"}]).root[0].key
-        'TEST'
-    """
-
-
-class QueueTagList(RootModel[list[str]]):
-    """A bare JSON array of queue tag names (``GET /queues/{id}/tags``).
-
-    Examples:
-        >>> QueueTagList.model_validate(["tag1", "tag2"]).root[0]
-        'tag1'
-    """
-
-
 class QueueVersionInfo(APIModel):
     """A queue version (``GET /queues/{id}/versions`` item, ``POST /versions/`` result).
 
@@ -170,15 +152,6 @@ class QueueVersionInfo(APIModel):
     archived: bool | None = Field(
         default=None, description="Whether the version is archived (true) or active (false)."
     )
-
-
-class QueueVersionInfoList(RootModel[list[QueueVersionInfo]]):
-    """A bare JSON array of queue versions (``GET /queues/{id}/versions``).
-
-    Examples:
-        >>> QueueVersionInfoList.model_validate([{"id": 1, "name": "v0.1"}]).root[0].name
-        'v0.1'
-    """
 
 
 class QueueField(APIModel):
@@ -227,15 +200,6 @@ class QueueField(APIModel):
         default=None,
         description="Display weight in the UI; lower-weight fields render above higher ones.",
     )
-
-
-class QueueFieldList(RootModel[list[QueueField]]):
-    """A bare JSON array of queue required fields (``GET /queues/{id}/fields``).
-
-    Examples:
-        >>> QueueFieldList.model_validate([{"id": "myfield"}]).root[0].id
-        'myfield'
-    """
 
 
 class IssueTypeConfigInput(APIModel):

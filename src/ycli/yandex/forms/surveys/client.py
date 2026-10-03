@@ -6,14 +6,14 @@ from typing import Any
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.surveys import endpoints
-from ycli.yandex.forms.surveys.models import Survey, SurveyList
-from ycli.yandex.models import Ack
+from ycli.yandex.forms.surveys.models import Survey
+from ycli.yandex.models import Ack, ItemList
 
 
 class SurveysClient(Resource):
     """List, get, create, modify, delete, publish and unpublish forms."""
 
-    def list(self, *, limit: int | None = None) -> SurveyList:
+    def list(self, *, limit: int | None = None) -> ItemList[Survey]:
         """``GET /surveys`` → every form, page by page, at most ``limit`` (``None`` = all).
 
         Args:
@@ -26,7 +26,7 @@ class SurveysClient(Resource):
             >>> forms.surveys.list(limit=500).root[0].name
             'Onboarding'
         """
-        return SurveyList(list(self._session.iterate(endpoints.list_surveys(), limit=limit)))
+        return ItemList[Survey](list(self._session.iterate(endpoints.list_surveys(), limit=limit)))
 
     def get(self, survey_id: str) -> Survey:
         """``GET /surveys/{id}`` → a single ``Survey`` (settings).

@@ -20,8 +20,8 @@ from ycli.yandex.forms.dependencies import (
     WRITE_TAGS,
     forms_client,
 )
-from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetList, KeysetUpdate
-from ycli.yandex.models import Ack
+from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
+from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-keysets")
 
@@ -32,7 +32,7 @@ def list_(
         str, Field(description="Form id (24-char hex), e.g. 6818ceffe010db4f59d11329.")
     ],
     client: FormsClient = Depends(forms_client),
-) -> KeysetList:
+) -> ItemList[Keyset]:
     """Every personal-link key set on a form, as a flat array.
 
     A key set is a batch of single-use keys that become personal form-filling links; each item's

@@ -11,14 +11,15 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.localfields import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList, LocalFieldUpdate
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
     from ycli.yandex.tracker.models import FieldCreate
 
 
 class LocalFieldsClient(Resource):
     """List, get, create and edit a queue's local (queue-scoped custom) fields."""
 
-    def list(self, queue_id: str) -> LocalFieldList:
+    def list(self, queue_id: str) -> ItemList[LocalField]:
         """``GET /queues/{queue_id}/localFields`` → the queue's local fields.
 
         ``queue_id`` is the queue key (case-sensitive) or numeric id. Local fields are custom

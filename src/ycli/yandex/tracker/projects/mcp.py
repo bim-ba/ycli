@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -17,13 +17,8 @@ from ycli.yandex.tracker.dependencies import (
     WRITE_TAGS,
     tracker_client,
 )
-from ycli.yandex.tracker.projects.models import (
-    Project,
-    ProjectCreate,
-    ProjectList,
-    ProjectUpdate,
-)
-from ycli.yandex.tracker.queues.models import QueueList
+from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
+from ycli.yandex.tracker.queues.models import Queue
 
 mcp = FastMCP("tracker-projects")
 
@@ -32,7 +27,9 @@ Expand = Annotated[str | None, Field(description="Extra blocks to include, e.g. 
 
 
 @mcp.tool(name="projects_list", annotations={**RO, "title": "List Tracker projects"}, tags=TAGS)
-def list_(expand: Expand = None, client: TrackerClient = Depends(tracker_client)) -> ProjectList:
+def list_(
+    expand: Expand = None, client: TrackerClient = Depends(tracker_client)
+) -> ItemList[Project]:
     """Every project of the organization (the legacy Projects API).
 
     ``entities_search`` is the newer way to find projects and portfolios.
@@ -60,7 +57,7 @@ def queues(
         Field(description="Extra queue blocks, e.g. ``all`` or ``components,versions``."),
     ] = None,
     client: TrackerClient = Depends(tracker_client),
-) -> QueueList:
+) -> ItemList[Queue]:
     """The queues whose issues belong to a project."""
     return client.projects.queues(project_id, expand=expand)
 

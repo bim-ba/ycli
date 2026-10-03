@@ -1,12 +1,8 @@
 """Model-parse + Field-metadata coverage for the Tracker resolutions models."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.resolutions.models import (
-    Resolution,
-    ResolutionCreate,
-    ResolutionList,
-    ResolutionUpdate,
-)
+from ycli.yandex.tracker.resolutions.models import Resolution, ResolutionCreate, ResolutionUpdate
 
 
 def test_resolution_parses_every_field():
@@ -27,7 +23,7 @@ def test_resolution_parses_every_field():
 
 
 def test_resolutionlist_is_flat_root_array():
-    rl = ResolutionList.model_validate([{"key": "fixed"}, {"key": "duplicate"}])
+    rl = ItemList[Resolution].model_validate([{"key": "fixed"}, {"key": "duplicate"}])
     assert [r.key for r in rl.root] == ["fixed", "duplicate"]
 
 

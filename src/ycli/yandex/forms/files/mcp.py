@@ -13,8 +13,8 @@ from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, TAGS, WRITE_TAGS, forms_client
-from ycli.yandex.forms.files.models import FileIn, FileList
-from ycli.yandex.models import Ack
+from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-files")
 
@@ -27,7 +27,7 @@ def verify(
         Field(description="File references to check — each a ``{path, url}`` from an upload."),
     ],
     client: FormsClient = Depends(forms_client),
-) -> FileList:
+) -> ItemList[FileOut]:
     """Check the upload/scan status and download access of already-uploaded form-filling files.
 
     A read done via POST — nothing is mutated. Each returned item's ``check_status`` is one of

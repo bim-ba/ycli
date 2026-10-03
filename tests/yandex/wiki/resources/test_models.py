@@ -1,7 +1,8 @@
 """Wiki page resource models — the {type, item} envelope over attachments and grids."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.models import CursorPage
-from ycli.yandex.wiki.resources.models import ResourceItem, ResourceItemList
+from ycli.yandex.wiki.resources.models import ResourceItem
 
 
 def test_resource_item_keeps_payload_verbatim():
@@ -25,5 +26,5 @@ def test_resources_response_parses_results():
 
 
 def test_resource_item_list_wraps_flat_root():
-    lst = ResourceItemList([ResourceItem(type="grid", item={})])
+    lst = ItemList[ResourceItem]([ResourceItem(type="grid", item={})])
     assert lst.root[0].type == "grid"

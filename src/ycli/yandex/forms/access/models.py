@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -88,15 +88,6 @@ class Permission(APIModel):
     groups: list[PermissionGroup] | None = Field(
         default=None, description="Groups granted the action (restricted access)."
     )
-
-
-class PermissionList(RootModel[list[Permission]]):
-    """A bare JSON array of :class:`Permission` — one per action.
-
-    Examples:
-        >>> PermissionList.model_validate([{"action": "change"}]).root[0].action
-        'change'
-    """
 
 
 class AccessUpdate(APIModel):

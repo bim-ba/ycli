@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.forms.access.models import UserRef
 from ycli.yandex.models import APIModel
@@ -38,12 +38,3 @@ class HistoryPage(APIModel):
     iteration_key: int | None = Field(default=None, description="Cursor of the next page.")
     limit: int | None = Field(default=None, description="Events per page.")
     items: list[HistoryEvent] = Field(default_factory=list, description="The page's events.")
-
-
-class HistoryEventList(RootModel[list[HistoryEvent]]):
-    """A flat list of :class:`HistoryEvent` — the return type of ``HistoryClient.list``.
-
-    Examples:
-        >>> HistoryEventList.model_validate([{"id": 7}]).root[0].id
-        7
-    """

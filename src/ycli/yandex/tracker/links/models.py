@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker issue links (LinkObject + Link + LinkList)."""
+"""Pydantic models for Tracker issue links (LinkObject + Link + ItemList[Link])."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -54,15 +54,6 @@ class Link(APIModel):
     def object_display(self) -> str | None:
         """``object.display`` or ``None``."""
         return self.object.display if self.object else None
-
-
-class LinkList(RootModel[list[Link]]):
-    """A bare JSON array of links.
-
-    Examples:
-        >>> LinkList.model_validate([{"direction": "outward"}]).root[0].direction
-        'outward'
-    """
 
 
 class LinkPage(APIModel):

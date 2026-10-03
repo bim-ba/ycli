@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker priorities (Priority + PriorityList + typed write bodies)."""
+"""Pydantic models for Tracker priorities (Priority + ItemList[Priority] + typed write bodies)."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import LocalizedName
@@ -22,15 +22,6 @@ class Priority(APIModel):
     key: str | None = None
     name: str | None = None
     display: str | None = None
-
-
-class PriorityList(RootModel[list[Priority]]):
-    """A bare JSON array of priorities.
-
-    Examples:
-        >>> PriorityList.model_validate([{"key": "normal"}]).root[0].key
-        'normal'
-    """
 
 
 class PriorityCreate(APIModel):

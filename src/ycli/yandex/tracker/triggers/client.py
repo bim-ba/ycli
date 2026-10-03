@@ -5,22 +5,24 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.triggers import endpoints
-from ycli.yandex.tracker.triggers.models import TriggerList
+from ycli.yandex.tracker.triggers.models import (
+    Trigger,
+)
 
 if TYPE_CHECKING:
     from ycli.yandex.tracker.triggers.models import (
-        Trigger,
         TriggerCreate,
         TriggerUpdate,
-        WebhookLogList,
+        WebhookLogEntry,
     )
 
 
 class TriggersClient(Resource):
     """List, get, create and edit a queue's triggers; read a trigger's webhook log."""
 
-    def list(self, queue_id: str, *, limit: int | None = None) -> TriggerList:
+    def list(self, queue_id: str, *, limit: int | None = None) -> ItemList[Trigger]:
         """``GET /queues/{queue_id}/triggers`` → every trigger of the queue, ascending by id.
 
         Drains the relative cursor (``id=<last trigger id>``). Capped at ``limit`` (``None`` =
@@ -39,7 +41,7 @@ class TriggersClient(Resource):
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_triggers(queue_id, page_size=page_size)
-        return TriggerList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Trigger](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, queue_id: str, trigger_id: int) -> Trigger:
         """``GET /queues/{queue_id}/triggers/{trigger_id}`` → a single trigger.
@@ -117,7 +119,7 @@ class TriggersClient(Resource):
         limit: int | None = None,
         date_from: str | None = None,
         date_to: str | None = None,
-    ) -> WebhookLogList:
+    ) -> ItemList[WebhookLogEntry]:
         """``GET /queues/{queue_id}/triggers/{trigger_id}/webhooks/log`` → HTTP-action run logs.
 
         Returns the trigger's Webhook-action execution records (default 10, ``limit`` up to 100).

@@ -6,9 +6,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate, RemoteLinkList
+from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -19,7 +19,7 @@ app = typer.Typer(
 
 
 @app.command("list")
-def list_(key: KeyArg, *, tracker: TrackerClient) -> RemoteLinkList:
+def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[RemoteLink]:
     """List external links on issue KEY (GET /issues/{key}/remotelinks)."""
     return tracker.remotelinks.list(key)
 

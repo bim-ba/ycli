@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.macros import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroList, MacroUpdate
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
 
 
 class MacrosClient(Resource):
     """List, get, create, edit and delete a queue's macros."""
 
-    def list(self, queue_id: str) -> MacroList:
+    def list(self, queue_id: str) -> ItemList[Macro]:
         """``GET /queues/{queue_id}/macros`` → the queue's macros.
 
         Args:

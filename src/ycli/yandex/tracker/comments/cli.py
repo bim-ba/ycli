@@ -10,9 +10,9 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentList, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
 from ycli.yandex.tracker.models import CommentCreate
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
@@ -50,7 +50,7 @@ def list_(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> CommentList:
+) -> ItemList[Comment]:
     """List all comments on issue KEY (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.comments.list(key, limit=cap)

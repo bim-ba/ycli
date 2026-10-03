@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker board columns (KeyedReference + Column + ColumnList + inputs)."""
+"""Pydantic models for Tracker board columns (Column and its write bodies)."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import KeyedReference
@@ -30,15 +30,6 @@ class Column(APIModel):
         default_factory=list,
         description="Issue statuses whose cards are shown in this column.",
     )
-
-
-class ColumnList(RootModel[list[Column]]):
-    """A bare JSON array of columns — the flat public shape of ``columns.list()``.
-
-    Examples:
-        >>> ColumnList.model_validate([{"id": 1, "name": "Open"}]).root[0].name
-        'Open'
-    """
 
 
 class ColumnCreate(APIModel):

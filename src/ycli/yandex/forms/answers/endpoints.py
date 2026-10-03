@@ -16,10 +16,11 @@ from ycli.yandex.core.pagination import NextURLPagination
 from ycli.yandex.forms.answers.models import (
     Answer,
     AnswerDetails,
-    AnswerIntegrationList,
+    AnswerIntegration,
     AnswersResponse,
 )
 from ycli.yandex.forms.models import OperationResult
+from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     import httpx2
@@ -77,10 +78,10 @@ def download_export(survey_id: str, task_id: str) -> Endpoint[bytes]:
 
 def list_answer_integrations(
     *, answer_id: int | None, answer_key: str | None
-) -> Endpoint[AnswerIntegrationList]:
+) -> Endpoint[ItemList[AnswerIntegration]]:
     """``GET /answers/integrations`` — flat like :func:`get_answer`, keyed by query."""
     params = {"answer_id": answer_id, "answer_key": answer_key}
-    return Endpoint("GET", "answers/integrations", AnswerIntegrationList, params=params)
+    return Endpoint("GET", "answers/integrations", ItemList[AnswerIntegration], params=params)
 
 
 def delete_answer(survey_id: str, answer_id: int) -> Endpoint[None]:

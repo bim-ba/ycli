@@ -5,14 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.attachments import endpoints
-from ycli.yandex.wiki.attachments.models import AttachedFileList, AttachmentCreate, AttachmentList
+from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentCreate
 from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from ycli.yandex.wiki.attachments.models import AttachedFile
     from ycli.yandex.wiki.uploadsessions.client import UploadSessionsClient
 
 
@@ -23,8 +23,8 @@ class AttachmentsClient(Resource):
     only), so their contract may change without notice.
     """
 
-    def list(self, page_id: int, *, limit: int | None = None) -> AttachmentList:
-        """``GET /pages/{id}/attachments`` → flat :class:`AttachmentList`, draining ``next_cursor``.
+    def list(self, page_id: int, *, limit: int | None = None) -> ItemList[Attachment]:
+        """``GET /pages/{id}/attachments`` → ``ItemList[Attachment]``, draining ``next_cursor``.
 
         Capped at ``limit`` (``None`` = every attachment).
 
@@ -40,7 +40,7 @@ class AttachmentsClient(Resource):
             ['spec.pdf', 'logo.png']
         """
         paged = endpoints.list_attachments(page_id)
-        return AttachmentList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Attachment](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, page_id: int, file_id: int) -> AttachedFile:
         """``GET /pages/{id}/attachments/{file_id}`` → one attachment's metadata.
@@ -132,7 +132,7 @@ class AttachmentsClient(Resource):
         """
         self._session.send(endpoints.delete_attachment(page_id, file_id))
 
-    def attach(self, page_id: int, session_ids: Sequence[str]) -> AttachedFileList:
+    def attach(self, page_id: int, session_ids: Sequence[str]) -> ItemList[AttachedFile]:
         """``POST /pages/{id}/attachments`` — attach file(s) from finished upload sessions.
 
         ``session_ids`` are the ``session_id`` of each finished upload session (see
@@ -152,7 +152,7 @@ class AttachmentsClient(Resource):
         body = AttachmentCreate(upload_sessions=list(session_ids))
         payload = body.model_dump(by_alias=True, exclude_none=True)
         response = self._session.send(endpoints.attach_files(page_id, payload))
-        return AttachedFileList(response.results)
+        return ItemList[AttachedFile](response.results)
 
     def upload(
         self,
@@ -161,7 +161,7 @@ class AttachmentsClient(Resource):
         *,
         file_name: str,
         data: bytes,
-    ) -> AttachedFileList:
+    ) -> ItemList[AttachedFile]:
         """Run the whole upload pipeline for one file, then attach it to ``page_id``.
 
         Drives the four steps end to end against the injected ``sessions`` client: open a

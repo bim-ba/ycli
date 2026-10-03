@@ -8,8 +8,8 @@ from typing import Annotated
 import typer
 
 from ycli.cli.output import BinaryResult
-from ycli.yandex.models import Ack
-from ycli.yandex.tracker.attachments.models import Attachment, AttachmentList
+from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
 
 app = typer.Typer(name="attachments", help="Tracker issue attachments.", no_args_is_help=True)
@@ -24,7 +24,7 @@ FilePathArg = Annotated[Path, typer.Argument(metavar="FILE_PATH", help="Local fi
 
 
 @app.command("list")
-def list_(issue_key: Annotated[str, _ISSUE], *, tracker: TrackerClient) -> AttachmentList:
+def list_(issue_key: Annotated[str, _ISSUE], *, tracker: TrackerClient) -> ItemList[Attachment]:
     """List files attached to an issue (GET /issues/{issue}/attachments)."""
     return tracker.attachments.list(issue_key)
 

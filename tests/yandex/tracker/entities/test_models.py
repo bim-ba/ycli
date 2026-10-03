@@ -1,5 +1,6 @@
 """TDD for entities models — read parsing (aliases + nesting) and typed write-body dumps."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
     AclInput,
     AclPrincipalsInput,
@@ -8,7 +9,6 @@ from ycli.yandex.tracker.entities.models import (
     BulkChangeUpdate,
     BulkChangeValues,
     ChecklistItemInput,
-    ChecklistItemsInput,
     ChecklistMove,
     Comment,
     CommentUpdate,
@@ -197,7 +197,7 @@ def test_comment_create_and_update():
 
 
 def test_checklist_items_input_and_deadline():
-    body = ChecklistItemsInput(
+    body = ItemList[ChecklistItemInput](
         [
             ChecklistItemInput(text="a"),
             ChecklistItemInput(

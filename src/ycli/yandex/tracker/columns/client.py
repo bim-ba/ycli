@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.columns import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnList, ColumnUpdate
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdate
 
 
 class ColumnsClient(Resource):
     """List, get, create, edit and delete the columns of an agile board."""
 
-    def list(self, board_id: int) -> ColumnList:
+    def list(self, board_id: int) -> ItemList[Column]:
         """``GET /boards/{board_id}/columns`` → the board's column listing.
 
         Args:

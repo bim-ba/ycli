@@ -199,7 +199,7 @@ rest. Known blind spots:
 
 ## Resource conventions (models, naming, MCP imports)
 
-The conventions that ARCH-1..8 do not capture — `APIModel` inheritance, `XList`/`XResponse`
+The conventions that ARCH-1..8 do not capture — `APIModel` inheritance, `ItemList[X]`/`XResponse`
 naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
 What each resource is tested with, and how, is in

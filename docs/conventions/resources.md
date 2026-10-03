@@ -40,26 +40,27 @@ release: no alias is kept. The commit that does it carries a `BREAKING CHANGE` f
 
 ---
 
-## 2. List-model naming: `XList` is flat, `XResponse` is the envelope
+## 2. Lists: `ItemList[X]` is flat, `XResponse` is the envelope
 
-| Convention | Class signature | Used as |
+| What | Type | Used as |
 |---|---|---|
-| Flat list | `class XList(RootModel[list[X]]): root: list[X] = []` | Public return type of `client.list()` and MCP `list_` tool |
-| Envelope | `class XResponse(APIModel): links: ...; result: list[X]` | Internal parse type of `client._list_page()` |
+| Flat list | `ItemList[X]` from `ycli.yandex.models` | Public return type of `client.list()` and of the MCP `list` tool |
+| Envelope | `class XResponse(APIModel): links: ...; result: list[X]` | The page the endpoint parses, read by the pager |
 
 ```python
+# client.py
+def list(self, *, limit: int | None = None) -> ItemList[Survey]: ...
+
+
 # models.py
-class SurveyList(RootModel[list[Survey]]):  # flat — public
-    root: list[Survey] = []
-
-
 class SurveysResponse(APIModel):  # envelope — internal
     links: dict[str, Any] = Field(default_factory=dict)
     result: list[Survey] = Field(default_factory=list)
 ```
 
-The envelope type (`XResponse`) is an implementation detail of the client and must not
-appear in the public `client.list()` signature or in MCP tool return types.
+A resource does not define a list class of its own. The envelope (`XResponse`, or
+`CursorPage[X]` for a Wiki cursor listing) is an implementation detail of the client and must
+not appear in the public `client.list()` signature or in MCP tool return types.
 
 ---
 
@@ -252,7 +253,7 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 
 - Subclass `ycli.yandex.core.resource.Resource`; each public method sends one declaration
   (`self._session.send(…)`, or `self._session.iterate(…, limit=…)` for a listing, returning the
-  flat `XList` of §2). A bodyless write returns `None` and the surfaces build the `Ack`; a binary
+  flat `ItemList[X]` of §2). A bodyless write returns `None` and the surfaces build the `Ack`; a binary
   download declares `response_type=bytes` and returns `bytes`.
 - Every public method's docstring names its `METHOD /path`, has Google-style `Args:`,
   `Returns:` and `Raises:` sections that match the signature (ruff `D`, `pydoclint`), and an
@@ -287,7 +288,7 @@ models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 | Rule | Enforced by |
 |---|---|
 | `APIModel` base | code review only — no automated check (ARCH-1 verifies the files exist, not what they subclass) |
-| `XList` / `XResponse` naming | code review only — model class names are not snapshotted (snapshots track command and tool signatures) |
+| `ItemList[X]` / `XResponse` use | code review only — model class names are not snapshotted (snapshots track command and tool signatures) |
 | `dependencies` import path | `scripts/new_endpoint.py` scaffold + code review |
 | MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/test_architecture.py` ARCH-3 |
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |

@@ -8,9 +8,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroList, MacroUpdate
+from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
 
 app = typer.Typer(name="macros", help="Tracker queue macros.", no_args_is_help=True)
 
@@ -21,7 +21,7 @@ MacroIdArg = Annotated[int, typer.Argument(metavar="MACRO_ID", help="Numeric mac
 
 
 @app.command("list")
-def list_(queue_id: QueueIdArg, *, tracker: TrackerClient) -> MacroList:
+def list_(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[Macro]:
     """List the macros of QUEUE_ID."""
     return tracker.macros.list(queue_id)
 

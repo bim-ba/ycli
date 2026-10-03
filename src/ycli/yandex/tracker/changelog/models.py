@@ -1,10 +1,10 @@
-"""Pydantic models for Tracker changelog (ChangeField + ChangelogEntry + ChangelogList)."""
+"""Pydantic models for the Tracker changelog (ChangeField + ChangelogEntry)."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -44,12 +44,3 @@ class ChangelogEntry(APIModel):
     updated_by: DisplayStr = Field(default=None, alias="updatedBy")
     type: str | None = None
     fields: list[ChangeField] = Field(default_factory=list)
-
-
-class ChangelogList(RootModel[list[ChangelogEntry]]):
-    """A bare JSON array of changelog entries.
-
-    Examples:
-        >>> ChangelogList.model_validate([{"id": "1"}]).root[0].id
-        '1'
-    """

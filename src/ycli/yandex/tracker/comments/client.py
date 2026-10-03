@@ -5,14 +5,15 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.comments import endpoints
-from ycli.yandex.tracker.comments.models import Comment, CommentList
+from ycli.yandex.tracker.comments.models import Comment
 
 
 class CommentsClient(Resource):
     """List (relative-paginated), get, add, edit, delete and react to an issue's comments."""
 
-    def list(self, key: str, *, limit: int | None = None) -> CommentList:
+    def list(self, key: str, *, limit: int | None = None) -> ItemList[Comment]:
         """All comments on an issue, draining the ``id=<last comment id>`` relative cursor.
 
         ``GET /issues/{key}/comments`` returns one page at a time; each next page repeats with
@@ -32,7 +33,7 @@ class CommentsClient(Resource):
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_comments(key, page_size=page_size)
-        return CommentList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:
         """``GET /issues/{key}/comments/{comment_id}`` — one comment. Returns it.

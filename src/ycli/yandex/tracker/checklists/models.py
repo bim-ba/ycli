@@ -1,6 +1,6 @@
 """Pydantic models for Tracker issue checklists.
 
-Read shapes: ``ChecklistItem`` / ``ChecklistItemList`` (the ``GET …/checklistItems`` array)
+Read shapes: ``ChecklistItem`` / ``ItemList[ChecklistItem]`` (the ``GET …/checklistItems`` array)
 and ``Checklist`` (the issue wrapper that create/edit/delete calls return, carrying the
 current ``checklistItems``). Typed write bodies: ``ChecklistItemCreate`` / ``ChecklistItemUpdate``
 (with a nested ``DeadlineInput``).
@@ -8,7 +8,7 @@ current ``checklistItems``). Typed write bodies: ``ChecklistItemCreate`` / ``Che
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -38,15 +38,6 @@ class ChecklistItem(APIModel):
     checklist_item_type: str | None = Field(
         default=None, alias="checklistItemType", description="Item type, e.g. 'standard'."
     )
-
-
-class ChecklistItemList(RootModel[list[ChecklistItem]]):
-    """A bare JSON array of checklist items (``GET …/checklistItems`` response).
-
-    Examples:
-        >>> ChecklistItemList.model_validate([{"text": "step 1"}]).root[0].text
-        'step 1'
-    """
 
 
 class Checklist(APIModel):

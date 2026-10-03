@@ -1,10 +1,10 @@
 """Model tests for Tracker boards — full fixture, ref-flattening, flat list shape."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.boards.models import (
     Board,
     BoardColumnInput,
     BoardCreate,
-    BoardList,
     BoardUpdate,
     Calendar,
 )
@@ -54,8 +54,8 @@ def test_board_columns_and_calendar_are_typed():
 
 
 def test_board_list_is_flat_root_model():
-    boards = BoardList.model_validate([BOARD, {"id": 2, "name": "Second"}])
-    assert isinstance(boards, BoardList)
+    boards = ItemList[Board].model_validate([BOARD, {"id": 2, "name": "Second"}])
+    assert isinstance(boards, ItemList[Board])
     assert [b.name for b in boards.root] == ["My board", "Second"]
 
 

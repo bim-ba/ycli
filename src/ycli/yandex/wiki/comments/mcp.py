@@ -7,12 +7,13 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
+    Comment,
     CommentCreate,
     CommentCreated,
     CommentDeleteResult,
-    CommentList,
 )
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -35,7 +36,7 @@ def list_(
     limit: Annotated[int, Field(description=f"Max comments to return; {LIMIT_CAP}")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> CommentList:
+) -> ItemList[Comment]:
     """Comments on a page id, auto-paginated (drains the ``next_cursor`` internally).
 
     Capped at the configured item cap unless ``limit`` is given. Pair with
@@ -54,7 +55,7 @@ def thread_list(
     limit: Annotated[int, Field(description="Max replies (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> CommentList:
+) -> ItemList[Comment]:
     """A comment and its replies, reconstructed from the page's comment list.
 
     The Wiki ``/thread`` endpoint (``comments_thread_get``) is dead (returns no replies), so this
@@ -78,7 +79,7 @@ def thread_get(
     limit: Annotated[int, Field(description="Max comments (0 = configured cap).")] = 0,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
-) -> CommentList:
+) -> ItemList[Comment]:
     """The thread of a comment as the Wiki server returns it — an empty list for every real thread.
 
     Checked live on 2026-10-02: the server's ``/thread`` endpoint has no replies to give, for a

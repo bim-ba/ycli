@@ -7,9 +7,10 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
-from ycli.yandex.tracker.users.models import User, UserList
+from ycli.yandex.tracker.users.models import User
 
 mcp = FastMCP("tracker-users")
 
@@ -47,7 +48,7 @@ def list_(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> UserList:
+) -> ItemList[User]:
     """All users registered in the organisation, sorted by ascending uid.
 
     Auto-paginated via the relative id-cursor. Capped at the configured item cap unless ``limit``

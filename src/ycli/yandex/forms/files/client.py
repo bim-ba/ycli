@@ -8,8 +8,8 @@ from __future__ import annotations
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.files import endpoints
-from ycli.yandex.forms.files.models import FileIn, FileList, FileOut
-from ycli.yandex.models import Ack
+from ycli.yandex.forms.files.models import FileIn, FileOut
+from ycli.yandex.models import Ack, ItemList
 
 
 class FilesClient(Resource):
@@ -37,7 +37,7 @@ class FilesClient(Resource):
         """
         return self._session.send(endpoints.upload_file(survey_id, filename=filename, data=data))
 
-    def verify(self, survey_id: str, files: list[FileIn]) -> FileList:
+    def verify(self, survey_id: str, files: list[FileIn]) -> ItemList[FileOut]:
         """``POST …/files/verify`` (a read) → the upload status and access of each file.
 
         Args:

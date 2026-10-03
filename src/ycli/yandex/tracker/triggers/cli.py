@@ -10,13 +10,13 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
     TriggerCreate,
-    TriggerList,
     TriggerUpdate,
-    WebhookLogList,
+    WebhookLogEntry,
 )
 
 app = typer.Typer(name="triggers", help="Tracker queue triggers.", no_args_is_help=True)
@@ -45,7 +45,7 @@ def list_(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> TriggerList:
+) -> ItemList[Trigger]:
     """List the triggers of QUEUE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.triggers.list(queue_id, limit=cap)
@@ -125,7 +125,7 @@ def webhook_log_list(
     ] = "",
     *,
     tracker: TrackerClient,
-) -> WebhookLogList:
+) -> ItemList[WebhookLogEntry]:
     """List the HTTP-action (Webhook) run logs of trigger TRIGGER_ID."""
     return tracker.triggers.webhook_log(
         queue_id,

@@ -9,11 +9,11 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.output import BinaryResult
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetList, KeysetUpdate
+from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="keysets", help="Forms personal-link key sets.", no_args_is_help=True)
 
@@ -25,7 +25,7 @@ OutputOption = Annotated[
 
 
 @app.command("list")
-def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> KeysetList:
+def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[Keyset]:
     """List key sets on form SURVEY_ID (GET /surveys/{id}/keysets)."""
     return forms.keysets.list(survey_id)
 

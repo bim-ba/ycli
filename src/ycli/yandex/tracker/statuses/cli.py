@@ -7,15 +7,16 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpdate
 
 app = typer.Typer(name="statuses", help="Tracker issue statuses.", no_args_is_help=True)
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> StatusList:
+def list_(*, tracker: TrackerClient) -> ItemList[Status]:
     """List all issue statuses."""
     return tracker.statuses.list()
 

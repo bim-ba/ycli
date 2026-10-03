@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker global fields (CustomField + FieldList).
+"""Pydantic models for Tracker global fields (CustomField + ItemList[CustomField]).
 
 The single-record class is named ``CustomField`` (not ``Field``) so it never shadows
 ``pydantic.Field``, which every attribute in this module is declared with.
@@ -6,7 +6,7 @@ The single-record class is named ``CustomField`` (not ``Field``) so it never sha
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import (
@@ -95,15 +95,6 @@ class CustomField(APIModel):
         default=None, description="Object with information about the field's category."
     )
     type: str | None = Field(default=None, description="Type of the field.")
-
-
-class FieldList(RootModel[list[CustomField]]):
-    """A bare JSON array of global fields — the flat public shape of ``fields.list()``.
-
-    Examples:
-        >>> FieldList.model_validate([{"id": "ruName"}]).root[0].id
-        'ruName'
-    """
 
 
 class FieldCategoryRecord(APIModel):

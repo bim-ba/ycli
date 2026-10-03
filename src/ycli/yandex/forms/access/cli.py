@@ -11,11 +11,12 @@ from ycli.yandex.forms.access.models import (
     AccessRevoke,
     AccessUpdate,
     GroupIdentity,
-    PermissionList,
+    Permission,
     UserIdentity,
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.typedefs import SurveyIdArg
+from ycli.yandex.models import ItemList
 
 app = typer.Typer(name="access", help="Forms survey permissions.", no_args_is_help=True)
 
@@ -42,7 +43,7 @@ def _principal(
 
 
 @app.command()
-def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> PermissionList:
+def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[Permission]:
     """Print who may edit and who may fill form SURVEY_ID (one entry per action)."""
     return forms.access.get(survey_id)
 
@@ -54,7 +55,7 @@ def set_(
     access: Annotated[str, typer.Option(help="Level: owner, restricted, common or public.")],
     *,
     forms: FormsClient,
-) -> PermissionList:
+) -> ItemList[Permission]:
     """Set the access level of one action on form SURVEY_ID (POST …/access)."""
     body = AccessUpdate.model_validate({"action": action, "access": access}).model_dump()
     return forms.access.set(survey_id, body)
@@ -70,7 +71,7 @@ def grant(
     group_id: GroupIdOpt = "",
     *,
     forms: FormsClient,
-) -> PermissionList:
+) -> ItemList[Permission]:
     """Let a user (--uid / --cloud-uid) or a group (--group-src + --group-id) perform ACTION."""
     user, group = _principal(uid, cloud_uid, group_src, group_id)
     body = AccessGrant.model_validate({"action": action, "user": user, "group": group})
@@ -87,7 +88,7 @@ def revoke(
     group_id: GroupIdOpt = "",
     *,
     forms: FormsClient,
-) -> PermissionList:
+) -> ItemList[Permission]:
     """Stop a user (--uid / --cloud-uid) or a group (--group-src + --group-id) performing ACTION."""
     user, group = _principal(uid, cloud_uid, group_src, group_id)
     body = AccessRevoke.model_validate({"action": action, "user": user, "group": group})

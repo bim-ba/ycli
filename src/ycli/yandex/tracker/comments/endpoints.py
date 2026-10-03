@@ -13,7 +13,8 @@ from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIdPagination
-from ycli.yandex.tracker.comments.models import Comment, CommentList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.comments.models import Comment
 
 PAGE_SIZE = 100
 
@@ -22,11 +23,14 @@ def _comment_id(comment: Comment) -> str | None:
     return str(comment.id) if comment.id is not None else None
 
 
-def list_comments(key: str, *, page_size: int = PAGE_SIZE) -> Paged[CommentList, Comment]:
+def list_comments(key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Comment], Comment]:
     """``GET /issues/{key}/comments``, each next page from ``id=<last comment id>``."""
     return Paged(
         Endpoint(
-            "GET", f"issues/{segment(key)}/comments", CommentList, params={"perPage": page_size}
+            "GET",
+            f"issues/{segment(key)}/comments",
+            ItemList[Comment],
+            params={"perPage": page_size},
         ),
         RelativeIdPagination(id_of=_comment_id),
         lambda page: page.root,

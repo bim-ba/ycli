@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import KeyedReference, Reference
@@ -60,15 +60,6 @@ class Macro(APIModel):
         alias="issueUpdate",
         description="Field updates the macro applies to the issue.",
     )
-
-
-class MacroList(RootModel[list[Macro]]):
-    """A bare JSON array of macros — the flat public shape of ``macros.list()``.
-
-    Examples:
-        >>> MacroList.model_validate([{"id": 3, "name": "My macro"}]).root[0].name
-        'My macro'
-    """
 
 
 class MacroCreate(APIModel):

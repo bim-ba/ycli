@@ -7,13 +7,13 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.fields.models import (
     CustomField,
     FieldCategoryCreate,
     FieldCategoryRecord,
     FieldCategoryUpdate,
-    FieldList,
     FieldUpdate,
 )
 from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
@@ -37,7 +37,7 @@ def _options_provider(values: list[str] | None, provider_type: str) -> OptionsPr
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> FieldList:
+def list_(*, tracker: TrackerClient) -> ItemList[CustomField]:
     """List all global fields of the organisation."""
     return tracker.fields.list()
 

@@ -10,12 +10,12 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, WRITE, WRITE_TAGS, app_config, forms_client
 from ycli.yandex.forms.notifications.models import (
+    Notification,
     NotificationAction,
     NotificationDetails,
-    NotificationIdList,
-    NotificationList,
     NotificationStatus,
 )
+from ycli.yandex.models import ItemList
 
 mcp = FastMCP("forms-notifications")
 
@@ -62,7 +62,7 @@ def list_(
     limit: Annotated[int, Field(description="Most runs to return (0 = the configured cap).")] = 0,
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
-) -> NotificationList:
+) -> ItemList[Notification]:
     """Runs of a form's integrations (one per answer and integration), across pages.
 
     Capped at the configured item cap unless ``limit`` is given. Read one run's context,
@@ -149,7 +149,7 @@ def cancel(
 def errors_list(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
     client: FormsClient = Depends(forms_client),
-) -> NotificationIdList:
+) -> ItemList[int]:
     """Ids of a form's failed integration runs that are still shown.
 
     Read each with ``notifications_get``.

@@ -1,6 +1,6 @@
 """Tracker issue ``/checklistItems`` client on the httpx2 core.
 
-The ``get`` read returns a bare array of items (``ChecklistItemList``); every write
+The ``get`` read returns a bare array of items (``ItemList[ChecklistItem]``); every write
 (create/edit/delete-item/clear) returns the issue wrapper with the updated
 ``checklistItems`` embedded (``Checklist``) — including the delete calls, which the API
 answers with ``200 OK`` and a body (not ``204``).
@@ -14,13 +14,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.checklists import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItemList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.checklists.models import Checklist, ChecklistItem
 
 
 class ChecklistsClient(Resource):
     """Get, add, edit and delete an issue's checklist items, or clear the whole checklist."""
 
-    def get(self, key: str) -> ChecklistItemList:
+    def get(self, key: str) -> ItemList[ChecklistItem]:
         """``GET /issues/{key}/checklistItems`` → the issue's checklist items.
 
         Args:

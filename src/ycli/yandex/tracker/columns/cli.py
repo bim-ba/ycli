@@ -7,9 +7,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnList, ColumnUpdate
+from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdate
 
 app = typer.Typer(name="columns", help="Tracker agile board columns.", no_args_is_help=True)
 
@@ -18,7 +18,7 @@ ColumnIdArg = Annotated[int, typer.Argument(metavar="COLUMN_ID", help="Numeric c
 
 
 @app.command("list")
-def list_(board_id: BoardIdArg, *, tracker: TrackerClient) -> ColumnList:
+def list_(board_id: BoardIdArg, *, tracker: TrackerClient) -> ItemList[Column]:
     """List all columns on board BOARD_ID."""
     return tracker.columns.list(board_id=board_id)
 

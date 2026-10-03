@@ -7,8 +7,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.fields import parse_fields
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.transitions.models import TransitionList
+from ycli.yandex.tracker.transitions.models import Transition
 from ycli.yandex.tracker.typedefs import (
     KeyArg,
 )
@@ -17,7 +18,7 @@ app = typer.Typer(name="transitions", help="Tracker issue transitions.", no_args
 
 
 @app.command("list")
-def list_(key: KeyArg, *, tracker: TrackerClient) -> TransitionList:
+def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[Transition]:
     """List available transitions for issue KEY."""
     return tracker.transitions.list(key)
 
@@ -36,6 +37,6 @@ def execute(
     ] = None,
     *,
     tracker: TrackerClient,
-) -> TransitionList:
+) -> ItemList[Transition]:
     """Execute transition ID on issue KEY (optional body via --field)."""
     return tracker.transitions.execute(key, transition_id, body=parse_fields(field))

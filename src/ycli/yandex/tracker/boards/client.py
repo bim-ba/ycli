@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.boards import endpoints
-from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardList, BoardUpdate
+from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 
 
 class BoardsClient(Resource):
     """List (relative-paginated), get, create, edit and delete agile boards."""
 
-    def list(self, *, limit: int | None = None) -> BoardList:
+    def list(self, *, limit: int | None = None) -> ItemList[Board]:
         """All agile boards in the organisation, draining the ``id=<last board id>`` cursor.
 
         ``/boards/_paginate`` sorts by ascending board id; each next page repeats with
@@ -29,7 +30,7 @@ class BoardsClient(Resource):
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_boards(page_size=page_size)
-        return BoardList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Board](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, board_id: int) -> Board:
         """``GET /boards/{board_id}`` → a single agile board.

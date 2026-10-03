@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -16,13 +17,13 @@ from ycli.yandex.tracker.dependencies import (
     Version,
     tracker_client,
 )
-from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpdate
 
 mcp = FastMCP("tracker-statuses")
 
 
 @mcp.tool(name="statuses_list", annotations={**RO, "title": "List Tracker statuses"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> StatusList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Status]:
     """Every issue status configured in the organisation's workflows.
 
     Each status has a key, a name and a type such as new/inProgress/done. Use this to resolve or

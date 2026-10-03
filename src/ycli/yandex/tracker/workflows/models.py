@@ -94,15 +94,6 @@ class Workflow(APIModel):
     )
 
 
-class WorkflowList(RootModel[list[Workflow]]):
-    """A bare JSON array of the organization's workflows (deleted ones excluded).
-
-    Examples:
-        >>> WorkflowList.model_validate([{"id": "W21"}]).root[0].id
-        'W21'
-    """
-
-
 class QueueWorkflows(RootModel[dict[str, list[KeyedReference]]]):
     """The workflows of a queue: workflow id → the issue types that use it.
 

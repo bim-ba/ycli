@@ -10,11 +10,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.statuses.models import Status, StatusList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.statuses.models import Status
 
 
-def list_statuses() -> Endpoint[StatusList]:
-    return Endpoint("GET", "statuses", StatusList)
+def list_statuses() -> Endpoint[ItemList[Status]]:
+    return Endpoint("GET", "statuses", ItemList[Status])
 
 
 def create_status(body: dict[str, Any]) -> Endpoint[Status]:

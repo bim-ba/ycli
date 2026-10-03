@@ -8,9 +8,10 @@ from ycli.yandex.forms.access.models import (
     AccessRevoke,
     AccessUpdate,
     GroupIdentity,
-    PermissionList,
+    Permission,
     UserIdentity,
 )
+from ycli.yandex.models import ItemList
 
 # As GET /surveys/{id}/access answered on the test organization (2026-10-02).
 LIVE = [
@@ -30,7 +31,7 @@ LIVE = [
 
 
 def test_permissions_parse_live_answer():
-    change, submit = PermissionList.model_validate(LIVE).root
+    change, submit = ItemList[Permission].model_validate(LIVE).root
     assert change.users and change.users[0].identity and change.users[0].identity.uid == "101523906"
     assert submit.access == "common" and submit.users is None
 

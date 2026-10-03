@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.applications import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.applications.models import ApplicationList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.applications.models import Application
 
 
 class ApplicationsClient(Resource):
     """List the external applications issues can be linked to."""
 
-    def list(self) -> ApplicationList:
+    def list(self) -> ItemList[Application]:
         """``GET /applications`` → external applications that issues can be linked to.
 
         Returns:

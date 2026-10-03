@@ -7,9 +7,9 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentList, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
@@ -39,7 +39,7 @@ def list_(
     ] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> CommentList:
+) -> ItemList[Comment]:
     """All comments on a Tracker issue, auto-paginated via the relative id-cursor.
 
     Capped at the configured item cap unless ``limit`` is given, so very long threads

@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -19,7 +19,7 @@ from ycli.yandex.tracker.dependencies import (
     Version,
     tracker_client,
 )
-from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintList, SprintUpdate
+from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintUpdate
 
 mcp = FastMCP("tracker-sprints")
 
@@ -30,7 +30,7 @@ def list_(
         int, Field(description="Numeric identifier of the board whose sprints to list.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> SprintList:
+) -> ItemList[Sprint]:
     """Every sprint defined on the given agile board, in the order Tracker returns them.
 
     Each sprint carries its status, planned dates and parent board. Use this to enumerate a

@@ -1,10 +1,10 @@
-"""Pydantic models for Forms /surveys (Survey + SurveysResponse envelope + SurveyList)."""
+"""Pydantic models for Forms /surveys (Survey + SurveysResponse envelope + ItemList[Survey])."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -47,17 +47,6 @@ class SurveysResponse(APIModel):
 
     links: dict[str, Any] = Field(default_factory=dict)
     result: list[Survey] = Field(default_factory=list)
-
-
-class SurveyList(RootModel[list[Survey]]):
-    """Flat collection of :class:`Survey` items — the public return type of ``SurveysClient.list``.
-
-    Examples:
-        >>> SurveyList([Survey.model_validate({"id": "a"})]).root[0].id
-        'a'
-    """
-
-    root: list[Survey] = []
 
 
 class SurveyTexts(APIModel):

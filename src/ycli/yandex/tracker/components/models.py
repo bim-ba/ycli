@@ -1,8 +1,8 @@
-"""Pydantic models for Tracker components (Component + ComponentList)."""
+"""Pydantic models for Tracker components (Component + ItemList[Component])."""
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import KeyedReference, Reference, UserReference
@@ -40,15 +40,6 @@ class Component(APIModel):
         alias="assignAuto",
         description="Whether the owner is auto-assigned to new issues carrying this component.",
     )
-
-
-class ComponentList(RootModel[list[Component]]):
-    """A bare JSON array of components — the flat public shape of ``components.list()``.
-
-    Examples:
-        >>> ComponentList.model_validate([{"name": "Test"}]).root[0].name
-        'Test'
-    """
 
 
 class ComponentCreate(APIModel):

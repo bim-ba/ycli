@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -19,7 +19,7 @@ from ycli.yandex.tracker.dependencies import (
     QueueId,
     tracker_client,
 )
-from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroList, MacroUpdate
+from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
 
 mcp = FastMCP("tracker-macros")
 
@@ -30,7 +30,7 @@ def list_(
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> MacroList:
+) -> ItemList[Macro]:
     """Every macro configured on a queue — each a canned comment plus field updates.
 
     Each item's ``id`` is what you pass to ``macros_get`` for the full body and issueUpdate

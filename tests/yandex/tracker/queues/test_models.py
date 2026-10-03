@@ -1,5 +1,6 @@
-"""TDD for the queues models — aliases, nested refs, and the flat QueueList."""
+"""TDD for the queues models — aliases, nested refs, and the flat ItemList[Queue]."""
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import Reference, UserReference
 from ycli.yandex.tracker.queues.models import (
     IssueTypeConfig,
@@ -7,16 +8,12 @@ from ycli.yandex.tracker.queues.models import (
     Queue,
     QueueCreate,
     QueueField,
-    QueueFieldList,
-    QueueList,
     QueuePermissionScope,
     QueuePermissionSubjects,
     QueuePermissionsUpdate,
-    QueueTagList,
     QueueTagRemove,
     QueueVersionCreate,
     QueueVersionInfo,
-    QueueVersionInfoList,
 )
 
 
@@ -67,8 +64,8 @@ def test_queue_accepts_integer_id_from_top_level_endpoint():
     # The live GET /queues/ and GET /queues/{id} return the top-level id as a JSON integer.
     single = Queue.model_validate({"id": 2, "key": "TEST"})
     assert single.id == 2
-    # ... and the same integer id inside a QueueList array must parse too.
-    listed = QueueList.model_validate([{"id": 2, "key": "TEST"}, {"id": 7, "key": "DEMO"}])
+    # ... and the same integer id inside a ItemList[Queue] array must parse too.
+    listed = ItemList[Queue].model_validate([{"id": 2, "key": "TEST"}, {"id": 7, "key": "DEMO"}])
     assert [q.id for q in listed.root] == [2, 7]
     # A string id (as returned in expand blocks / older shapes) must still parse.
     assert Queue.model_validate({"id": "3", "key": "TEST"}).id == "3"
@@ -96,13 +93,13 @@ def test_nested_models_standalone():
 
 
 def test_queue_list_root_model():
-    ql = QueueList.model_validate([{"key": "TEST"}, {"key": "DEMO"}])
+    ql = ItemList[Queue].model_validate([{"key": "TEST"}, {"key": "DEMO"}])
     assert [q.key for q in ql.root] == ["TEST", "DEMO"]
-    assert QueueList([Queue.model_validate({"key": "X"})]).root[0].key == "X"
+    assert ItemList[Queue]([Queue.model_validate({"key": "X"})]).root[0].key == "X"
 
 
 def test_tag_list_root_model():
-    tags = QueueTagList.model_validate(["a", "b"])
+    tags = ItemList[str].model_validate(["a", "b"])
     assert tags.root == ["a", "b"]
 
 
@@ -123,7 +120,7 @@ def test_version_info_parses_full_payload():
     )
     assert v.name == "v0.1" and v.start_date == "2023-10-03" and v.due_date == "2024-06-03"
     assert v.queue.key == "TEST" and v.released is False  # ty: ignore[unresolved-attribute]
-    assert QueueVersionInfoList.model_validate([{"id": 1}]).root[0].id == 1
+    assert ItemList[QueueVersionInfo].model_validate([{"id": 1}]).root[0].id == 1
 
 
 def test_queue_field_aliases_schema():
@@ -131,7 +128,7 @@ def test_queue_field_aliases_schema():
         {"id": "myfield", "name": "My field", "schema": {"type": "string"}, "order": 5}
     )
     assert f.field_schema == {"type": "string"} and f.order == 5
-    assert QueueFieldList.model_validate([{"id": "x"}]).root[0].id == "x"
+    assert ItemList[QueueField].model_validate([{"id": "x"}]).root[0].id == "x"
 
 
 def test_queue_create_serializes_aliases():

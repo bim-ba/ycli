@@ -16,29 +16,25 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
     Acl,
     AclInput,
     Attachment,
-    AttachmentList,
     BulkChangeOperation,
     BulkChangeValues,
     ChecklistItemInput,
-    ChecklistItemsInput,
     ChecklistMove,
     Comment,
-    CommentList,
     CommentUpdate,
     DirectPermissionsUpdate,
     Entity,
-    EntityEventList,
+    EntityEvent,
     EntityFieldsInput,
-    EntityList,
     ExtendedPermissions,
+    Link,
     LinkInput,
-    LinkList,
     ParentEntityInput,
     ReportCreate,
     ReportFieldsInput,
@@ -216,7 +212,7 @@ def search(
     fields: Annotated[str, typer.Option(help="Comma-separated extra fields to include.")] = "",
     *,
     tracker: TrackerClient,
-) -> EntityList:
+) -> ItemList[Entity]:
     """Search entities of TYPE (POST /entities/TYPE/_search)."""
     if order_asc and not order_by:
         raise typer.BadParameter("needs --order-by", param_hint="--order-asc")
@@ -241,7 +237,7 @@ def events_list(
     limit: Annotated[int, typer.Option(help="Max events (0 = all).")] = 0,
     *,
     tracker: TrackerClient,
-) -> EntityEventList:
+) -> ItemList[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
     return tracker.entities.history(type_.value, entity_id, limit=limit or None)
 
@@ -387,7 +383,7 @@ def comments_list(
     limit: Annotated[int, typer.Option(help="Max comments when --all (0 = all).")] = 0,
     *,
     tracker: TrackerClient,
-) -> CommentList:
+) -> ItemList[Comment]:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
     if all_:
         return tracker.entities.comments_relative(type_.value, entity_id, limit=limit or None)
@@ -478,7 +474,7 @@ def checklists_create(
     tracker: TrackerClient,
 ) -> Entity:
     """Add checklist items to an entity (POST …/checklistItems)."""
-    items = ChecklistItemsInput([ChecklistItemInput(text=t) for t in text]).model_dump(
+    items = ItemList[ChecklistItemInput]([ChecklistItemInput(text=t) for t in text]).model_dump(
         by_alias=True, exclude_none=True
     )
     return tracker.entities.checklists_create(type_.value, entity_id, body=items)
@@ -507,7 +503,7 @@ def checklists_update(
         if not separator:
             raise typer.BadParameter(f"must be id=text, got {raw!r}", param_hint="--item")
         inputs.append(ChecklistItemInput(id=item_id, text=text))
-    items = ChecklistItemsInput(inputs).model_dump(by_alias=True, exclude_none=True)
+    items = ItemList[ChecklistItemInput](inputs).model_dump(by_alias=True, exclude_none=True)
     return tracker.entities.checklists_edit(type_.value, entity_id, body=items)
 
 
@@ -572,7 +568,7 @@ app.add_typer(links_app)
 
 
 @links_app.command("list")
-def links_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> LinkList:
+def links_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> ItemList[Link]:
     """List an entity's links to other entities (GET …/links)."""
     return tracker.entities.links_list(type_.value, entity_id)
 
@@ -616,7 +612,9 @@ FileIdArg = Annotated[str, typer.Argument(metavar="FILE_ID", help="Attachment fi
 
 
 @attachments_app.command("list")
-def attachments_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> AttachmentList:
+def attachments_list(
+    type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient
+) -> ItemList[Attachment]:
     """List files attached to an entity (GET …/attachments)."""
     return tracker.entities.attachments_list(type_.value, entity_id)
 

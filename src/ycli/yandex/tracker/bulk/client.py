@@ -14,7 +14,8 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.bulk import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResultList
+    from ycli.yandex.models import ItemList
+    from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResult
 
 
 class BulkClient(Resource):
@@ -82,7 +83,7 @@ class BulkClient(Resource):
         """
         return self._session.send(endpoints.get_bulk(bulk_id))
 
-    def issues(self, bulk_id: str) -> BulkIssueResultList:
+    def issues(self, bulk_id: str) -> ItemList[BulkIssueResult]:
         """``GET /bulkchange/{bulk_id}/issues`` → issues for which the operation failed.
 
         Args:

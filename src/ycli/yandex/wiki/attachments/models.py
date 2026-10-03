@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -27,19 +27,6 @@ class Attachment(APIModel):
     name: str | None = None
     size: str | None = None
     mimetype: str | None = None
-
-
-class AttachmentList(RootModel[list[Attachment]]):
-    """Flat collection of :class:`Attachment` items.
-
-    Public return type of ``AttachmentsClient.list``.
-
-    Examples:
-        >>> AttachmentList([Attachment.model_validate({"name": "d.png"})]).root[0].name
-        'd.png'
-    """
-
-    root: list[Attachment] = Field(default_factory=list)
 
 
 class AttachmentCreate(APIModel):
@@ -93,7 +80,7 @@ class AttachResponse(APIModel):
     """Envelope for ``POST /pages/{id}/attachments`` — ``{results: [AttachedFile, …]}``.
 
     Internal parse type used by ``AttachmentsClient._attach``; callers get the flat
-    :class:`AttachedFileList`.
+    ``ItemList[AttachedFile]``.
 
     Examples:
         >>> AttachResponse.model_validate({"results": [{"id": 7}]}).results[0].id
@@ -101,14 +88,3 @@ class AttachResponse(APIModel):
     """
 
     results: list[AttachedFile] = Field(default_factory=list)
-
-
-class AttachedFileList(RootModel[list[AttachedFile]]):
-    """Flat collection of :class:`AttachedFile` items — public return of ``attach`` / ``upload``.
-
-    Examples:
-        >>> AttachedFileList([AttachedFile.model_validate({"id": 7})]).root[0].id
-        7
-    """
-
-    root: list[AttachedFile] = Field(default_factory=list)

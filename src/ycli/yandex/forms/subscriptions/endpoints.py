@@ -13,11 +13,8 @@ from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.files.models import FileOut
-from ycli.yandex.forms.subscriptions.models import (
-    Subscription,
-    SubscriptionAdapter,
-    SubscriptionList,
-)
+from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionAdapter
+from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     import httpx2
@@ -32,8 +29,8 @@ def _subscriptions(survey_id: str, hook_id: int) -> str:
     return f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/subscriptions"
 
 
-def list_subscriptions(survey_id: str, hook_id: int) -> Endpoint[SubscriptionList]:
-    return Endpoint("GET", _subscriptions(survey_id, hook_id), SubscriptionList)
+def list_subscriptions(survey_id: str, hook_id: int) -> Endpoint[ItemList[Subscription]]:
+    return Endpoint("GET", _subscriptions(survey_id, hook_id), ItemList[Subscription])
 
 
 def get_subscription(survey_id: str, hook_id: int, subscription_id: int) -> Endpoint[Subscription]:

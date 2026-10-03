@@ -12,11 +12,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.workflows.models import QueueWorkflows, Workflow, WorkflowList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.workflows.models import QueueWorkflows, Workflow
 
 
-def list_workflows() -> Endpoint[WorkflowList]:
-    return Endpoint("GET", "workflows", WorkflowList)
+def list_workflows() -> Endpoint[ItemList[Workflow]]:
+    return Endpoint("GET", "workflows", ItemList[Workflow])
 
 
 def get_workflow(workflow_id: str) -> Endpoint[Workflow]:

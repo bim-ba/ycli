@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import yaml
-from pydantic import PydanticUserError, TypeAdapter
+from pydantic import PydanticUserError, RootModel, TypeAdapter
 
 ROOT = Path(__file__).resolve().parent.parent
 # Run as a file, a script sees only its own directory: tests/ and scripts/ hang off the root.
@@ -94,6 +94,13 @@ def _renamed(node: Any, names: dict[str, str]) -> Any:
     return [_renamed(item, names) for item in node] if isinstance(node, list) else node
 
 
+def _unwrapped(annotation: Any) -> Any:
+    """What a root model wraps: a document says "an array of boards", not ``ItemList[Board]``."""
+    if isinstance(annotation, type) and issubclass(annotation, RootModel):
+        return annotation.model_fields["root"].annotation
+    return annotation
+
+
 def _schemas(found: list[Recorded], schemas: dict[str, Any]) -> dict[tuple[str, str], Any]:
     """The schema of every response type and typed body among ``found``; models go to ``schemas``.
 
@@ -104,9 +111,9 @@ def _schemas(found: list[Recorded], schemas: dict[str, Any]) -> dict[tuple[str, 
     for recording in found:
         key = recording.case.id + recording.template
         if recording.endpoint.response_type not in (None, bytes):
-            typed["response", key] = recording.endpoint.response_type
+            typed["response", key] = _unwrapped(recording.endpoint.response_type)
         if (body := api_drift.typed_body(recording)) is not None:
-            typed["body", key] = body
+            typed["body", key] = _unwrapped(body)
     inputs: list[tuple[tuple[str, str], JsonSchemaMode, TypeAdapter[Any]]] = [
         (key, "validation", TypeAdapter(annotation)) for key, annotation in typed.items()
     ]

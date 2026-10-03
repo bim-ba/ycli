@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -16,12 +17,7 @@ from ycli.yandex.tracker.dependencies import (
     Version,
     tracker_client,
 )
-from ycli.yandex.tracker.resolutions.models import (
-    Resolution,
-    ResolutionCreate,
-    ResolutionList,
-    ResolutionUpdate,
-)
+from ycli.yandex.tracker.resolutions.models import Resolution, ResolutionCreate, ResolutionUpdate
 
 mcp = FastMCP("tracker-resolutions")
 
@@ -29,7 +25,7 @@ mcp = FastMCP("tracker-resolutions")
 @mcp.tool(
     name="resolutions_list", annotations={**RO, "title": "List Tracker resolutions"}, tags=TAGS
 )
-def list_(client: TrackerClient = Depends(tracker_client)) -> ResolutionList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Resolution]:
     """Every issue resolution configured in the organisation.
 
     A resolution is the close-out result such as fixed/duplicate/won't-fix. Use this to resolve

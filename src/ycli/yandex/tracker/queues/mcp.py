@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, require_found
+from ycli.yandex.models import Ack, ItemList, require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -24,17 +24,14 @@ from ycli.yandex.tracker.dependencies import (
 from ycli.yandex.tracker.queues.models import (
     Queue,
     QueueCreate,
-    QueueFieldList,
+    QueueField,
     QueueGroupAccess,
-    QueueList,
     QueuePermissions,
     QueuePermissionsUpdate,
-    QueueTagList,
     QueueTagRemove,
     QueueUserAccess,
     QueueVersionCreate,
     QueueVersionInfo,
-    QueueVersionInfoList,
     QueueVersionUpdate,
 )
 
@@ -43,13 +40,10 @@ mcp = FastMCP("tracker-queues")
 
 @mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"}, tags=TAGS)
 def list_(
-    limit: Annotated[
-        int,
-        Field(description=f"Max queues to return; {LIMIT_CAP}"),
-    ] = 0,
+    limit: Annotated[int, Field(description=f"Max queues to return; {LIMIT_CAP}")] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> QueueList:
+) -> ItemList[Queue]:
     """Every queue the caller can see, auto-paginated over the API's page/perPage pages.
 
     Capped at the configured item cap unless ``limit`` is given. Each item's ``key`` is the
@@ -98,7 +92,7 @@ def tags_list(
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> QueueTagList:
+) -> ItemList[str]:
     """Every tag name that has been added to the queue, as a flat string array.
 
     These are the tags selectable on the queue's issues (the ``tags`` field). Remove one
@@ -117,7 +111,7 @@ def versions_list(
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> QueueVersionInfoList:
+) -> ItemList[QueueVersionInfo]:
     """The queue's versions — release milestones issues can be assigned to.
 
     Each item carries the version's name, date range and released/archived flags. Create one
@@ -136,7 +130,7 @@ def fields_list(
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> QueueFieldList:
+) -> ItemList[QueueField]:
     """The queue's required/local fields with their schema, options and display order.
 
     Use this to learn which fields an issue in the queue expects (and whether each is required)

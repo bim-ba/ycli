@@ -9,12 +9,11 @@ import typer
 from ycli.cli.fields import parse_fields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import (
     Issue,
     IssueCreate,
-    IssueList,
     IssueUpdate,
     count_body,
     filter_body,
@@ -59,7 +58,7 @@ def list_(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> IssueList:
+) -> ItemList[Issue]:
     """List issues matching the supplied filters (auto-paginated; --all for everything)."""
     body = filter_body(queue=queue, status=status, assignee=assignee, epic=epic, type_=type_)
     return tracker.issues.search(body, limit=config.http.cap(limit, all_=all_))
@@ -73,7 +72,7 @@ def search(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> IssueList:
+) -> ItemList[Issue]:
     """Search issues by a TQL query string (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.issues.search({"query": query}, limit=cap)
@@ -169,7 +168,7 @@ def suggest(
     text: Annotated[str, typer.Argument(metavar="INPUT", help="Text fragment to match in titles.")],
     *,
     tracker: TrackerClient,
-) -> IssueList:
+) -> ItemList[Issue]:
     """Suggest issues whose summary contains INPUT (GET /issues/_suggest?input=INPUT)."""
     return tracker.issues.suggest(text)
 

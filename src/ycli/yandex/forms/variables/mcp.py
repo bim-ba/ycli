@@ -8,7 +8,8 @@ from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
-from ycli.yandex.forms.variables.models import VariableInfoList
+from ycli.yandex.forms.variables.models import VariableInfo
+from ycli.yandex.models import ItemList
 
 mcp = FastMCP("forms-variables")
 
@@ -21,7 +22,7 @@ mcp = FastMCP("forms-variables")
 def list_(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
     client: FormsClient = Depends(forms_client),
-) -> VariableInfoList:
+) -> ItemList[VariableInfo]:
     """The variable types a form's integrations can reference in their texts.
 
     Each item names a ``type`` (e.g. ``form.answer_url``, ``form.question_answer``), the

@@ -1,6 +1,7 @@
 """TDD for Forms keysets models (Keyset read + KeysetCreate/Update write bodies)."""
 
-from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetList, KeysetUpdate
+from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
+from ycli.yandex.models import ItemList
 
 
 def test_keyset_parses_read_fields():
@@ -9,7 +10,7 @@ def test_keyset_parses_read_fields():
 
 
 def test_keyset_list_wraps_bare_array():
-    out = KeysetList.model_validate([{"id": 7}, {"id": 8}])
+    out = ItemList[Keyset].model_validate([{"id": 7}, {"id": 8}])
     assert [k.id for k in out.root] == [7, 8]
 
 

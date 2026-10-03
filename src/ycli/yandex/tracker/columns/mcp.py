@@ -6,9 +6,9 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnList, ColumnUpdate
+from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdate
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
@@ -30,7 +30,7 @@ def list_(
         int, Field(description="Numeric identifier of the board whose columns to list.")
     ],
     client: TrackerClient = Depends(tracker_client),
-) -> ColumnList:
+) -> ItemList[Column]:
     """Every column defined on the given agile board.
 
     Each column carries the issue statuses whose cards land in it. Use this to inspect a board's

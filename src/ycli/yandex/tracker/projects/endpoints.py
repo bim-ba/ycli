@@ -12,21 +12,22 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.projects.models import Project, ProjectList
-from ycli.yandex.tracker.queues.models import QueueList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.projects.models import Project
+from ycli.yandex.tracker.queues.models import Queue
 
 
-def list_projects(*, expand: str | None = None) -> Endpoint[ProjectList]:
-    return Endpoint("GET", "projects", ProjectList, params={"expand": expand})
+def list_projects(*, expand: str | None = None) -> Endpoint[ItemList[Project]]:
+    return Endpoint("GET", "projects", ItemList[Project], params={"expand": expand})
 
 
 def get_project(project_id: int, *, expand: str | None = None) -> Endpoint[Project]:
     return Endpoint("GET", f"projects/{segment(project_id)}", Project, params={"expand": expand})
 
 
-def list_project_queues(project_id: int, *, expand: str | None = None) -> Endpoint[QueueList]:
+def list_project_queues(project_id: int, *, expand: str | None = None) -> Endpoint[ItemList[Queue]]:
     return Endpoint(
-        "GET", f"projects/{segment(project_id)}/queues", QueueList, params={"expand": expand}
+        "GET", f"projects/{segment(project_id)}/queues", ItemList[Queue], params={"expand": expand}
     )
 
 

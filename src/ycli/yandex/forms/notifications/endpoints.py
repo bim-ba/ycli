@@ -17,10 +17,10 @@ from ycli.yandex.forms.notifications.models import (
     Notification,
     NotificationAction,
     NotificationDetails,
-    NotificationIdList,
     NotificationPage,
     NotificationStatus,
 )
+from ycli.yandex.models import ItemList
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -94,5 +94,5 @@ def cancel_notification(notification_id: int) -> Endpoint[NotificationAction]:
     return Endpoint("POST", path, NotificationAction)
 
 
-def list_failed_notifications(survey_id: str) -> Endpoint[NotificationIdList]:
-    return Endpoint("GET", f"surveys/{segment(survey_id)}/show-errors", NotificationIdList)
+def list_failed_notifications(survey_id: str) -> Endpoint[ItemList[int]]:
+    return Endpoint("GET", f"surveys/{segment(survey_id)}/show-errors", ItemList[int])

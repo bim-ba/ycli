@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -27,16 +27,3 @@ class ResourceItem(APIModel):
         default_factory=dict,
         description="The resource payload (an AttachmentSchema or PageGridsSchema), kept verbatim.",
     )
-
-
-class ResourceItemList(RootModel[list[ResourceItem]]):
-    """A drained, flat list of page resources (no cursor — pagination is internal).
-
-    Public return type of ``ResourcesClient.list``.
-
-    Examples:
-        >>> ResourceItemList([ResourceItem(type="grid", item={})]).root[0].type
-        'grid'
-    """
-
-    root: list[ResourceItem] = Field(default_factory=list)

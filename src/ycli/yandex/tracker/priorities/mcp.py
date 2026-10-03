@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -16,18 +17,13 @@ from ycli.yandex.tracker.dependencies import (
     Version,
     tracker_client,
 )
-from ycli.yandex.tracker.priorities.models import (
-    Priority,
-    PriorityCreate,
-    PriorityList,
-    PriorityUpdate,
-)
+from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, PriorityUpdate
 
 mcp = FastMCP("tracker-priorities")
 
 
 @mcp.tool(name="priorities_list", annotations={**RO, "title": "List Tracker priorities"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> PriorityList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Priority]:
     """All available issue priorities in the organisation."""
     return client.priorities.list()
 

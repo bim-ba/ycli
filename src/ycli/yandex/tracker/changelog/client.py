@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.changelog import endpoints
-from ycli.yandex.tracker.changelog.models import ChangelogList
+from ycli.yandex.tracker.changelog.models import ChangelogEntry
 
 
 class ChangelogClient(Resource):
     """The change history of an issue (relative-paginated)."""
 
-    def list(self, key: str, *, limit: int | None = None) -> ChangelogList:
+    def list(self, key: str, *, limit: int | None = None) -> ItemList[ChangelogEntry]:
         """All changelog events on an issue, draining the ``id=<last change id>`` cursor.
 
         ``GET /issues/{key}/changelog`` returns one page at a time; each next page repeats
@@ -30,4 +31,4 @@ class ChangelogClient(Resource):
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_changelog(key, page_size=page_size)
-        return ChangelogList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[ChangelogEntry](list(self._session.iterate(paged, limit=limit)))

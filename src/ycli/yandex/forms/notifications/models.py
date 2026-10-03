@@ -6,7 +6,7 @@ integration finishes, then ``success``, ``error`` or ``canceled``.
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -101,15 +101,6 @@ class NotificationPage(APIModel):
     result: list[Notification] = Field(default_factory=list, description="The page's runs.")
 
 
-class NotificationList(RootModel[list[Notification]]):
-    """A flat list of :class:`Notification` — the return type of ``NotificationsClient.list``.
-
-    Examples:
-        >>> NotificationList.model_validate([{"id": 7}]).root[0].id
-        7
-    """
-
-
 class NotificationStatus(APIModel):
     """A notification's id and run state.
 
@@ -159,12 +150,3 @@ class NotificationAction(APIModel):
     result: NotificationActionResult | None = Field(
         default=None, description="How the action went."
     )
-
-
-class NotificationIdList(RootModel[list[int]]):
-    """A bare JSON array of notification ids — the failed runs of a form.
-
-    Examples:
-        >>> NotificationIdList.model_validate([7, 9]).root
-        [7, 9]
-    """

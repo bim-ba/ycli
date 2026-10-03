@@ -7,20 +7,16 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.resolutions.models import (
-    Resolution,
-    ResolutionCreate,
-    ResolutionList,
-    ResolutionUpdate,
-)
+from ycli.yandex.tracker.resolutions.models import Resolution, ResolutionCreate, ResolutionUpdate
 
 app = typer.Typer(name="resolutions", help="Tracker issue resolutions.", no_args_is_help=True)
 
 
 @app.command("list")
-def list_(*, tracker: TrackerClient) -> ResolutionList:
+def list_(*, tracker: TrackerClient) -> ItemList[Resolution]:
     """List all issue resolutions."""
     return tracker.resolutions.list()
 

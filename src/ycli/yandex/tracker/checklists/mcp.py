@@ -6,10 +6,11 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.checklists.models import (
     Checklist,
+    ChecklistItem,
     ChecklistItemCreate,
-    ChecklistItemList,
     ChecklistItemUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
@@ -34,7 +35,7 @@ mcp = FastMCP("tracker-checklists")
 def get(
     key: Annotated[str, Field(description="Issue key, e.g. QUEUE-123.")],
     client: TrackerClient = Depends(tracker_client),
-) -> ChecklistItemList:
+) -> ItemList[ChecklistItem]:
     """The checklist items on a Tracker issue (text, done flag, assignee, per-item deadline).
 
     Returns a flat array; an issue with no checklist yields an empty list. Item ids from here

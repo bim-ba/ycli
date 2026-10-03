@@ -8,12 +8,12 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.workflows import endpoints
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.workflows.models import (
         QueueWorkflows,
         Workflow,
         WorkflowActionUpdate,
         WorkflowCreate,
-        WorkflowList,
         WorkflowUpdate,
     )
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class WorkflowsClient(Resource):
     """List, get, create, edit and delete workflows; read the workflows of a queue."""
 
-    def list(self) -> WorkflowList:
+    def list(self) -> ItemList[Workflow]:
         """``GET /workflows`` → every workflow of the organization except deleted ones.
 
         Returns:

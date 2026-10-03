@@ -12,11 +12,12 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.issues.models import Issue
 from ycli.yandex.tracker.links.models import Link
-from ycli.yandex.tracker.worklog.models import WorklogList
+from ycli.yandex.tracker.worklog.models import Worklog
 
 
 def import_task(body: dict[str, Any]) -> Endpoint[Issue]:
@@ -31,10 +32,10 @@ def import_link(issue_key: str, body: dict[str, Any]) -> Endpoint[Link]:
     return Endpoint("POST", f"issues/{segment(issue_key)}/links/_import", Link, json=body)
 
 
-def import_worklog(issue_key: str, body: dict[str, Any]) -> Endpoint[WorklogList]:
+def import_worklog(issue_key: str, body: dict[str, Any]) -> Endpoint[ItemList[Worklog]]:
     """The live endpoint answers with a JSON array of the created record(s)."""
     path = f"issues/{segment(issue_key)}/worklogs/_import"
-    return Endpoint("POST", path, WorklogList, json=body)
+    return Endpoint("POST", path, ItemList[Worklog], json=body)
 
 
 def import_file(

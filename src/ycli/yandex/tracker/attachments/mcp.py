@@ -10,8 +10,8 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
-from ycli.yandex.models import Ack
-from ycli.yandex.tracker.attachments.models import Attachment, AttachmentList
+from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -33,10 +33,10 @@ mcp = FastMCP("tracker-attachments")
 def list_(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
     client: TrackerClient = Depends(tracker_client),
-) -> AttachmentList:
+) -> ItemList[Attachment]:
     """Files attached to a Tracker issue — name, size, MIME type, uploader, download URLs.
 
-    Returns metadata only (an ``AttachmentList``); use it to discover a file's id and name.
+    Returns metadata only (an ``ItemList[Attachment]``); use it to discover a file's id and name.
     Downloading the file's or thumbnail's raw bytes is CLI/SDK-only — run
     ``ycli tracker attachments download <ISSUE> <FILE_ID> <FILENAME>`` — because binary blobs
     are not an MCP payload.

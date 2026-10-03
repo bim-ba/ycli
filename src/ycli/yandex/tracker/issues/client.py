@@ -8,8 +8,9 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.issues import endpoints
-from ycli.yandex.tracker.issues.models import Issue, IssueList
+from ycli.yandex.tracker.issues.models import Issue
 
 
 class IssuesClient(Resource):
@@ -30,7 +31,7 @@ class IssuesClient(Resource):
         """
         return self._session.send(endpoints.get_issue(key))
 
-    def search(self, body: dict[str, Any], *, limit: int | None = None) -> IssueList:
+    def search(self, body: dict[str, Any], *, limit: int | None = None) -> ItemList[Issue]:
         """``POST /issues/_search`` → every matching issue, page by page, at most ``limit``.
 
         ``body`` is ``{"filter": …}`` or ``{"query": …}``. ``limit=None`` fetches every page (up
@@ -59,7 +60,7 @@ class IssuesClient(Resource):
         # A small cap needs no 100-issue page.
         page_size = min(limit, endpoints.SEARCH_PAGE_SIZE) if limit else endpoints.SEARCH_PAGE_SIZE
         paged = endpoints.search_issues(body, page_size=page_size)
-        return IssueList(list(self._session.iterate(paged, limit=limit)))
+        return ItemList[Issue](list(self._session.iterate(paged, limit=limit)))
 
     def count(self, body: dict[str, Any]) -> int:
         """``POST /issues/_count`` → the number of matching issues.
@@ -107,7 +108,7 @@ class IssuesClient(Resource):
         """
         return self._session.send(endpoints.move_issue(key, queue))
 
-    def suggest(self, text: str) -> IssueList:
+    def suggest(self, text: str) -> ItemList[Issue]:
         """``GET /issues/_suggest?input=<text>`` → issues whose summary contains ``text``.
 
         Args:

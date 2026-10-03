@@ -14,7 +14,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -29,24 +29,20 @@ from ycli.yandex.tracker.dependencies import (
 from ycli.yandex.tracker.entities.models import (
     Acl,
     Attachment,
-    AttachmentList,
     BulkChangeOperation,
     BulkChangeUpdate,
     ChecklistItemInput,
-    ChecklistItemsInput,
     ChecklistMove,
     Comment,
-    CommentList,
     CommentUpdate,
     DirectPermissionsUpdate,
     Entity,
     EntityCreate,
-    EntityEventList,
-    EntityList,
+    EntityEvent,
     EntityUpdate,
     ExtendedPermissions,
+    Link,
     LinkInput,
-    LinkList,
     ReportCreate,
 )
 from ycli.yandex.tracker.models import CommentCreate
@@ -62,6 +58,11 @@ SearchTypeArg = Annotated[
     ),
 ]
 IdArg = Annotated[str, Field(description="Entity id (or shortId).")]
+
+
+ChecklistItems = Annotated[
+    ItemList[ChecklistItemInput], Field(description="A bare array of checklist items.")
+]
 
 
 @mcp.tool(name="entities_get", annotations={**RO, "title": "Get Tracker entity"}, tags=TAGS)
@@ -92,7 +93,7 @@ def search(
     order_by: Annotated[str, Field(description="Field key to sort the results by.")] = "",
     fields: Annotated[str, Field(description="Comma-separated extra fields to include.")] = "",
     client: TrackerClient = Depends(tracker_client),
-) -> EntityList:
+) -> ItemList[Entity]:
     """Entities of a given type matching a name substring, sorted server-side.
 
     Returns a flat list of entities. Pass ``input_text`` to match part of the name and
@@ -119,7 +120,7 @@ def events_list(
     limit: Annotated[int, Field(description="Max events (0 = configured cap).")] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> EntityEventList:
+) -> ItemList[EntityEvent]:
     """An entity's event history (created/updated/commented/…), auto-paginated.
 
     Each event carries an author, a timestamp, a display title and the individual field changes.
@@ -169,7 +170,7 @@ def direct_permissions_get(
 )
 def comments_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
-) -> CommentList:
+) -> ItemList[Comment]:
     """All comments on an entity — author, text, timestamps and summoned users."""
     return client.entities.comments_list(entity_type, entity_id)
 
@@ -194,7 +195,7 @@ def comments_get(
 )
 def links_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
-) -> LinkList:
+) -> ItemList[Link]:
     """An entity's links to other entities — the link type and the linked entity's summary + id."""
     return client.entities.links_list(entity_type, entity_id)
 
@@ -206,7 +207,7 @@ def links_list(
 )
 def attachments_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
-) -> AttachmentList:
+) -> ItemList[Attachment]:
     """Files attached to an entity — name, size, MIME type, uploader and download URL.
 
     Returns metadata only. Downloading the raw bytes is CLI/SDK-only — run
@@ -263,7 +264,7 @@ def comments_relative_list(
     limit: Annotated[int, Field(description="Max comments (0 = configured cap).")] = 0,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
-) -> CommentList:
+) -> ItemList[Comment]:
     """An entity's comments via the cursor-paginated ``…/comments/_relative`` endpoint.
 
     Prefer this over ``entities_comments_list`` when the comment thread is long — it drains
@@ -470,7 +471,7 @@ def comments_delete(
 def checklists_create(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: ChecklistItemsInput,
+    body: ChecklistItems,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Add checklist item(s) to a Tracker entity; returns the entity with its checklist.
@@ -490,7 +491,7 @@ def checklists_create(
 def checklists_update(
     entity_type: TypeArg,
     entity_id: IdArg,
-    body: ChecklistItemsInput,
+    body: ChecklistItems,
     client: TrackerClient = Depends(tracker_client),
 ) -> Entity:
     """Replace/update a Tracker entity's checklist items in one call.

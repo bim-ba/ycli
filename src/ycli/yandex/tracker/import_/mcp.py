@@ -11,6 +11,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment
@@ -23,7 +24,7 @@ from ycli.yandex.tracker.dependencies import (
 from ycli.yandex.tracker.import_.models import ImportComment, ImportLink, ImportTask, ImportWorklog
 from ycli.yandex.tracker.issues.models import Issue
 from ycli.yandex.tracker.links.models import Link
-from ycli.yandex.tracker.worklog.models import WorklogList
+from ycli.yandex.tracker.worklog.models import Worklog
 
 mcp = FastMCP("tracker-import")
 
@@ -74,7 +75,7 @@ def link(
 )
 def worklog(
     issue_key: IssueKey, body: ImportWorklog, client: TrackerClient = Depends(tracker_client)
-) -> WorklogList:
+) -> ItemList[Worklog]:
     """Import a worklog record preserving its original author and timestamps (admin-only).
 
     Returns the imported record(s) — the endpoint answers with a JSON array.

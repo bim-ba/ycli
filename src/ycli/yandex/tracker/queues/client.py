@@ -8,23 +8,23 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.queues import endpoints
-from ycli.yandex.tracker.queues.models import QueueList
+from ycli.yandex.tracker.queues.models import (
+    Queue,
+)
 
 if TYPE_CHECKING:
     from ycli.yandex.tracker.queues.models import (
-        Queue,
         QueueCreate,
-        QueueFieldList,
+        QueueField,
         QueueGroupAccess,
         QueuePermissions,
         QueuePermissionsUpdate,
-        QueueTagList,
         QueueTagRemove,
         QueueUserAccess,
         QueueVersionCreate,
         QueueVersionInfo,
-        QueueVersionInfoList,
         QueueVersionUpdate,
     )
 
@@ -32,8 +32,8 @@ if TYPE_CHECKING:
 class QueuesClient(Resource):
     """List (page-paginated), get, create, delete and restore queues; tags, versions, access."""
 
-    def list(self, *, limit: int | None = None) -> QueueList:
-        """``GET /queues/`` → flat :class:`QueueList`, draining ``page``/``perPage`` internally.
+    def list(self, *, limit: int | None = None) -> ItemList[Queue]:
+        """``GET /queues/`` → flat ``ItemList[Queue]``, draining ``page``/``perPage`` internally.
 
         Capped at ``limit`` (``None`` = every queue). The API returns 50 queues per page; this
         advances the page number up to ``X-Total-Pages``, or until a short page comes back.
@@ -48,7 +48,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.list(limit=500).root[-1].key
             'TAIL'
         """
-        return QueueList(list(self._session.iterate(endpoints.list_queues(), limit=limit)))
+        return ItemList[Queue](list(self._session.iterate(endpoints.list_queues(), limit=limit)))
 
     def get(self, queue_id: str, expand: str | None = None) -> Queue:
         """``GET /queues/{queue_id}`` → a single :class:`Queue`.
@@ -70,7 +70,7 @@ class QueuesClient(Resource):
         """
         return self._session.send(endpoints.get_queue(queue_id, expand=expand))
 
-    def tags(self, queue_id: str) -> QueueTagList:
+    def tags(self, queue_id: str) -> ItemList[str]:
         """``GET /queues/{queue_id}/tags`` → the queue's tag names as a flat string array.
 
         Args:
@@ -85,7 +85,7 @@ class QueuesClient(Resource):
         """
         return self._session.send(endpoints.list_tags(queue_id))
 
-    def versions(self, queue_id: str) -> QueueVersionInfoList:
+    def versions(self, queue_id: str) -> ItemList[QueueVersionInfo]:
         """``GET /queues/{queue_id}/versions`` → the queue's versions.
 
         Args:
@@ -100,7 +100,7 @@ class QueuesClient(Resource):
         """
         return self._session.send(endpoints.list_versions(queue_id))
 
-    def fields(self, queue_id: str) -> QueueFieldList:
+    def fields(self, queue_id: str) -> ItemList[QueueField]:
         """``GET /queues/{queue_id}/fields`` → the queue's required/local fields.
 
         Args:

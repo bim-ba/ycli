@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.access import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.access.models import PermissionList
+    from ycli.yandex.forms.access.models import Permission
+    from ycli.yandex.models import ItemList
 
 
 class AccessClient(Resource):
     """Read and change who may edit and who may fill a form."""
 
-    def get(self, survey_id: str) -> PermissionList:
+    def get(self, survey_id: str) -> ItemList[Permission]:
         """``GET /surveys/{id}/access`` → one permission per action (change, submit).
 
         Args:
@@ -29,7 +30,7 @@ class AccessClient(Resource):
         """
         return self._session.send(endpoints.get_access(survey_id))
 
-    def set(self, survey_id: str, body: dict[str, Any]) -> PermissionList:
+    def set(self, survey_id: str, body: dict[str, Any]) -> ItemList[Permission]:
         """``POST /surveys/{id}/access`` — set one action's level from a dumped ``AccessUpdate``.
 
         Args:
@@ -47,7 +48,7 @@ class AccessClient(Resource):
         """
         return self._session.send(endpoints.set_access(survey_id, body))
 
-    def grant(self, survey_id: str, body: dict[str, Any]) -> PermissionList:
+    def grant(self, survey_id: str, body: dict[str, Any]) -> ItemList[Permission]:
         """``POST /surveys/{id}/access/grant`` — add a user or group (a dumped ``AccessGrant``).
 
         Args:
@@ -66,7 +67,7 @@ class AccessClient(Resource):
         """
         return self._session.send(endpoints.grant_access(survey_id, body))
 
-    def revoke(self, survey_id: str, body: dict[str, Any]) -> PermissionList:
+    def revoke(self, survey_id: str, body: dict[str, Any]) -> ItemList[Permission]:
         """``POST /surveys/{id}/access/revoke`` — remove a user or group (``AccessRevoke``).
 
         Args:

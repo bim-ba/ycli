@@ -9,7 +9,8 @@ from ycli.yandex.forms.subscriptions import endpoints
 
 if TYPE_CHECKING:
     from ycli.yandex.forms.files.models import FileOut
-    from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionList
+    from ycli.yandex.forms.subscriptions.models import Subscription
+    from ycli.yandex.models import ItemList
 
 
 def _dumped(body: Subscription) -> dict:
@@ -20,7 +21,7 @@ def _dumped(body: Subscription) -> dict:
 class SubscriptionsClient(Resource):
     """List, get, create, modify and delete the integrations of a hook; upload attachments."""
 
-    def list(self, survey_id: str, hook_id: int) -> SubscriptionList:
+    def list(self, survey_id: str, hook_id: int) -> ItemList[Subscription]:
         """``GET /surveys/{id}/hooks/{hook_id}/subscriptions`` → every integration of the hook.
 
         Args:

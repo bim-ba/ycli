@@ -3,14 +3,14 @@
 Two families live here:
 
 * **Read/out** — :class:`FileOut` (an uploaded/verified file: name, path, size, url, status) and
-  the flat :class:`FileList` returned by ``verify``.
+  the flat ``ItemList[FileOut]`` returned by ``verify``.
 * **Write/in** — :class:`FileIn` (the ``{path, url}`` reference ``verify``/``delete`` take). The
   bodyless ``delete`` returns a shared :class:`~ycli.yandex.models.Ack`, not a domain-specific type.
 """
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -39,17 +39,6 @@ class FileOut(APIModel):
         default=None,
         description="Virus/upload scan status — one of: check, ready, infected, error, deleted.",
     )
-
-
-class FileList(RootModel[list[FileOut]]):
-    """Flat list of :class:`FileOut` — the public return of ``FilesClient.verify``.
-
-    Examples:
-        >>> FileList.model_validate([{"name": "cv.pdf", "check_status": "ready"}]).root[0].name
-        'cv.pdf'
-    """
-
-    root: list[FileOut] = []
 
 
 class FileIn(APIModel):

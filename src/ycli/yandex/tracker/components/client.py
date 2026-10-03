@@ -11,11 +11,11 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.components import endpoints
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.components.models import (
         Component,
         ComponentCreate,
         ComponentGroupAccess,
-        ComponentList,
         ComponentUpdate,
         ComponentUserAccess,
     )
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 class ComponentsClient(Resource):
     """List, get, create, edit and delete queue components; read who may use them."""
 
-    def list(self) -> ComponentList:
+    def list(self) -> ItemList[Component]:
         """``GET /components`` → all components created by the organisation's users.
 
         Returns:
@@ -77,7 +77,7 @@ class ComponentsClient(Resource):
         dumped = body.model_dump(by_alias=True, exclude_none=True)
         return self._session.send(endpoints.edit_component(component_id, dumped, version=version))
 
-    def list_for_queue(self, queue_id: str, *, fields: str | None = None) -> ComponentList:
+    def list_for_queue(self, queue_id: str, *, fields: str | None = None) -> ItemList[Component]:
         """``GET /queues/{queue_id}/components`` → the components of one queue.
 
         ``fields`` is a comma list of extra fields (``version,description,lead,assignAuto``);

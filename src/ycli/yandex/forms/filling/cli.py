@@ -12,10 +12,11 @@ from typing import Annotated
 import typer
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, SuggestionList
+from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )
+from ycli.yandex.models import ItemList
 
 app = typer.Typer(name="filling", help="Forms form filling.", no_args_is_help=True)
 
@@ -67,7 +68,7 @@ def suggest(
     ] = "",
     *,
     forms: FormsClient,
-) -> SuggestionList:
+) -> ItemList[Suggestion]:
     """Get fill suggestions for a question (GET …/suggest)."""
     return forms.filling.suggest(
         survey,

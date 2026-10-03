@@ -10,9 +10,10 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import (
     BulkChange,
-    BulkIssueResultList,
+    BulkIssueResult,
     BulkMove,
     BulkTransition,
     BulkUpdate,
@@ -53,7 +54,7 @@ def get(
 def issues_list(
     bulk_id: Annotated[str, Field(description="Bulk-change operation id to inspect.")],
     client: TrackerClient = Depends(tracker_client),
-) -> BulkIssueResultList:
+) -> ItemList[BulkIssueResult]:
     """The issues a bulk-change operation could NOT change, each with its per-field error.
 
     Use after ``bulk_get`` reports a non-zero failure count to see *why* specific issues were

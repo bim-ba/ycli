@@ -8,13 +8,14 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.hooks import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.hooks.models import Hook, HookList
+    from ycli.yandex.forms.hooks.models import Hook
+    from ycli.yandex.models import ItemList
 
 
 class HooksClient(Resource):
     """List, get, create, modify and delete a form's integration groups."""
 
-    def list(self, survey_id: str) -> HookList:
+    def list(self, survey_id: str) -> ItemList[Hook]:
         """``GET /surveys/{id}/hooks`` → every integration group with its integrations.
 
         Args:

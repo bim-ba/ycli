@@ -1,10 +1,10 @@
-"""Pydantic models for Tracker agile boards (Reference + Calendar + Board + BoardList)."""
+"""Pydantic models for Tracker agile boards (Reference + Calendar + Board + ItemList[Board])."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
@@ -89,15 +89,6 @@ class Board(APIModel):
         alias="autoFilterSettings",
         description="Filter settings that auto-add issues to and remove them from the board.",
     )
-
-
-class BoardList(RootModel[list[Board]]):
-    """A bare JSON array of boards — the flat public shape of ``boards.list()``.
-
-    Examples:
-        >>> BoardList.model_validate([{"id": 1, "name": "My board"}]).root[0].name
-        'My board'
-    """
 
 
 class BoardColumnInput(APIModel):

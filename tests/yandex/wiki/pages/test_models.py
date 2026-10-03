@@ -3,10 +3,10 @@
 import pytest
 from pydantic import ValidationError
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
     GridRef,
-    GridRefList,
     PageAppendContent,
     PageAppendContentAnchor,
     PageAppendContentBody,
@@ -17,7 +17,6 @@ from ycli.yandex.wiki.pages.models import (
     PageMove,
     PageMoveStep,
     PageRevision,
-    PageRevisionList,
 )
 
 
@@ -40,7 +39,7 @@ def test_grid_ref_parses_uuid_id_and_optional_fields():
 
 
 def test_grid_ref_list_wraps_flat_root():
-    lst = GridRefList([GridRef(id="g1", title="T")])
+    lst = ItemList[GridRef]([GridRef(id="g1", title="T")])
     assert lst.root[0].id == "g1"
 
 
@@ -194,7 +193,7 @@ def test_a_revision_parses_as_the_api_sends_it():
     assert revision.revision_draft is not None and revision.revision_draft.id == 5
     assert revision.publication is not None
     assert revision.publication.status == "pending_publication"
-    assert PageRevisionList([revision]).root[0].id == 76188809
+    assert ItemList[PageRevision]([revision]).root[0].id == 76188809
 
 
 def test_a_revision_without_draft_or_publication_parses():

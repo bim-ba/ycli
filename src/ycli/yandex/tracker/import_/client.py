@@ -2,9 +2,9 @@
 
 Every method sends one declaration from :mod:`ycli.yandex.tracker.import_.endpoints`. Import
 preserves the source ``createdAt`` / ``createdBy``. The four JSON imports return the canonical
-sibling entity model (the worklog import returns ``WorklogList`` — the live endpoint answers with
-a JSON array); the file import is ``multipart/form-data`` with ``filename`` / ``createdAt`` /
-``createdBy`` as query parameters.
+sibling entity model (the worklog import returns ``ItemList[Worklog]``: the live endpoint
+answers with a JSON array); the file import is ``multipart/form-data`` with ``filename`` /
+``createdAt`` / ``createdBy`` as query parameters.
 """
 
 from __future__ import annotations
@@ -15,11 +15,12 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.import_ import endpoints
 
 if TYPE_CHECKING:
+    from ycli.yandex.models import ItemList
     from ycli.yandex.tracker.attachments.models import Attachment
     from ycli.yandex.tracker.comments.models import Comment
     from ycli.yandex.tracker.issues.models import Issue
     from ycli.yandex.tracker.links.models import Link
-    from ycli.yandex.tracker.worklog.models import WorklogList
+    from ycli.yandex.tracker.worklog.models import Worklog
 
 
 class ImportClient(Resource):
@@ -95,10 +96,10 @@ class ImportClient(Resource):
         """
         return self._session.send(endpoints.import_link(issue_key, body))
 
-    def worklog(self, issue_key: str, body: dict[str, Any]) -> WorklogList:
+    def worklog(self, issue_key: str, body: dict[str, Any]) -> ItemList[Worklog]:
         """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).
 
-        Returns a ``WorklogList`` — the live endpoint answers with a JSON **array** of the
+        Returns a ``ItemList[Worklog]`` — the live endpoint answers with a JSON **array** of the
         created worklog record(s), not a single object.
 
         Args:

@@ -6,6 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -21,7 +22,6 @@ from ycli.yandex.tracker.fields.models import (
     FieldCategoryCreate,
     FieldCategoryRecord,
     FieldCategoryUpdate,
-    FieldList,
     FieldUpdate,
 )
 from ycli.yandex.tracker.models import FieldCreate
@@ -30,7 +30,7 @@ mcp = FastMCP("tracker-fields")
 
 
 @mcp.tool(name="fields_list", annotations={**RO, "title": "List Tracker global fields"}, tags=TAGS)
-def list_(client: TrackerClient = Depends(tracker_client)) -> FieldList:
+def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[CustomField]:
     """All global (organisation-wide) issue fields, both standard and custom.
 
     Each field carries its value schema, category and provider metadata. Use this to discover

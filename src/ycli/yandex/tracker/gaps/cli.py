@@ -9,15 +9,9 @@ import typer
 
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.gaps.models import (
-    GapCreated,
-    GapInput,
-    GapsCreate,
-    GapWorkflow,
-    UserGapList,
-)
+from ycli.yandex.tracker.gaps.models import GapCreated, GapInput, GapsCreate, GapWorkflow, UserGaps
 
 app = typer.Typer(name="gaps", help="Tracker employee absences (admin).", no_args_is_help=True)
 
@@ -90,7 +84,7 @@ def search(
     *,
     config: AppConfig,
     tracker: TrackerClient,
-) -> UserGapList:
+) -> ItemList[UserGaps]:
     """Find the absences of USER... overlapping a window (POST /gaps/_search; --all for all)."""
     cap = config.http.cap(limit, all_=all_)
     return tracker.gaps.search(

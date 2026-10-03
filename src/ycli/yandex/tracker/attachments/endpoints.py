@@ -10,11 +10,12 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.tracker.attachments.models import Attachment, AttachmentList
+from ycli.yandex.models import ItemList
+from ycli.yandex.tracker.attachments.models import Attachment
 
 
-def list_attachments(issue_key: str) -> Endpoint[AttachmentList]:
-    return Endpoint("GET", f"issues/{segment(issue_key)}/attachments", AttachmentList)
+def list_attachments(issue_key: str) -> Endpoint[ItemList[Attachment]]:
+    return Endpoint("GET", f"issues/{segment(issue_key)}/attachments", ItemList[Attachment])
 
 
 def download_attachment(issue_key: str, file_id: str, filename: str) -> Endpoint[bytes]:

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -68,12 +68,3 @@ class VariableInfo(APIModel):
     renderers: list[VariableRenderer] | None = Field(
         default=None, description="Ways the variable's value can render."
     )
-
-
-class VariableInfoList(RootModel[list[VariableInfo]]):
-    """A bare JSON array of :class:`VariableInfo` — the return type of ``VariablesClient.list``.
-
-    Examples:
-        >>> VariableInfoList.model_validate([{"type": "form.id"}]).root[0].type
-        'form.id'
-    """

@@ -1,4 +1,4 @@
-"""Pydantic models for Forms key sets (Keyset + KeysetList + typed write bodies).
+"""Pydantic models for Forms key sets (Keyset + ItemList[Keyset] + typed write bodies).
 
 A *key set* is a batch of single-use keys the API turns into personal form-filling links —
 see the Forms "form-filling keys" API. ``keyset_id`` is an **integer** (unlike ``survey_id``,
@@ -7,7 +7,7 @@ which is a 24-char hex string).
 
 from __future__ import annotations
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel
 
@@ -25,15 +25,6 @@ class Keyset(APIModel):
     total: int | None = Field(default=None, description="Number of keys in the set.")
     used: int | None = Field(default=None, description="Number of keys already used.")
     is_enabled: bool | None = Field(default=None, description="Whether the key set is active.")
-
-
-class KeysetList(RootModel[list[Keyset]]):
-    """A bare JSON array of :class:`Keyset` items — the return type of ``KeysetsClient.list``.
-
-    Examples:
-        >>> KeysetList.model_validate([{"id": 7, "name": "Q1"}]).root[0].id
-        7
-    """
 
 
 class KeysetCreate(APIModel):

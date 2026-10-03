@@ -7,10 +7,11 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.checklists.models import (
     Checklist,
+    ChecklistItem,
     ChecklistItemCreate,
-    ChecklistItemList,
     ChecklistItemUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
@@ -29,7 +30,7 @@ DeadlineOpt = Annotated[str, typer.Option(help="Deadline date, YYYY-MM-DDThh:mm:
 
 
 @app.command()
-def get(key: KeyArg, *, tracker: TrackerClient) -> ChecklistItemList:
+def get(key: KeyArg, *, tracker: TrackerClient) -> ItemList[ChecklistItem]:
     """List the checklist items on issue KEY."""
     return tracker.checklists.get(key)
 

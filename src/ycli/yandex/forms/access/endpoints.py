@@ -15,28 +15,29 @@ from __future__ import annotations
 from typing import Any
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.access.models import PermissionList
+from ycli.yandex.forms.access.models import Permission
+from ycli.yandex.models import ItemList
 
 
 def _access(survey_id: str) -> str:
     return f"surveys/{segment(survey_id)}/access"
 
 
-def get_access(survey_id: str) -> Endpoint[PermissionList]:
-    return Endpoint("GET", _access(survey_id), PermissionList)
+def get_access(survey_id: str) -> Endpoint[ItemList[Permission]]:
+    return Endpoint("GET", _access(survey_id), ItemList[Permission])
 
 
-def set_access(survey_id: str, body: dict[str, Any]) -> Endpoint[PermissionList]:
+def set_access(survey_id: str, body: dict[str, Any]) -> Endpoint[ItemList[Permission]]:
     return Endpoint(
-        "POST", _access(survey_id), PermissionList, json=body, effect="idempotent_write"
+        "POST", _access(survey_id), ItemList[Permission], json=body, effect="idempotent_write"
     )
 
 
-def grant_access(survey_id: str, body: dict[str, Any]) -> Endpoint[PermissionList]:
+def grant_access(survey_id: str, body: dict[str, Any]) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/grant"
-    return Endpoint("POST", path, PermissionList, json=body, effect="idempotent_write")
+    return Endpoint("POST", path, ItemList[Permission], json=body, effect="idempotent_write")
 
 
-def revoke_access(survey_id: str, body: dict[str, Any]) -> Endpoint[PermissionList]:
+def revoke_access(survey_id: str, body: dict[str, Any]) -> Endpoint[ItemList[Permission]]:
     path = f"{_access(survey_id)}/revoke"
-    return Endpoint("POST", path, PermissionList, json=body, effect="destructive")
+    return Endpoint("POST", path, ItemList[Permission], json=body, effect="destructive")

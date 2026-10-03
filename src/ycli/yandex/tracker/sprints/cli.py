@@ -7,15 +7,9 @@ from typing import Annotated
 import typer
 
 from ycli.cli.aliases import deprecated_alias
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.sprints.models import (
-    Sprint,
-    SprintBoardInput,
-    SprintCreate,
-    SprintList,
-    SprintUpdate,
-)
+from ycli.yandex.tracker.sprints.models import Sprint, SprintBoardInput, SprintCreate, SprintUpdate
 
 app = typer.Typer(name="sprints", help="Tracker board sprints.", no_args_is_help=True)
 
@@ -30,7 +24,7 @@ def list_(
     board_id: Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")],
     *,
     tracker: TrackerClient,
-) -> SprintList:
+) -> ItemList[Sprint]:
     """List all sprints on board BOARD_ID."""
     return tracker.sprints.list(board_id=board_id)
 

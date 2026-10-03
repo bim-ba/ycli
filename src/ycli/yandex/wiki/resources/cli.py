@@ -8,8 +8,9 @@ import typer
 
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
+from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.resources.models import ResourceItemList
+from ycli.yandex.wiki.resources.models import ResourceItem
 
 app = typer.Typer(
     name="resources", help="Wiki page resources (attachments + grids).", no_args_is_help=True
@@ -31,7 +32,7 @@ def list_(
     *,
     config: AppConfig,
     wiki: WikiClient,
-) -> ResourceItemList:
+) -> ItemList[ResourceItem]:
     """List a page's resources — attachments and grids (GET /pages/{id}/resources)."""
     cap = config.http.cap(limit, all_=all_)
     return wiki.resources.list(

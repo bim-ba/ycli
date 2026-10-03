@@ -14,13 +14,9 @@ import typer
 from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.files.models import FileOut
-from ycli.yandex.forms.subscriptions.models import (
-    Subscription,
-    SubscriptionAdapter,
-    SubscriptionList,
-)
+from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionAdapter
 from ycli.yandex.forms.typedefs import HookIdArg, SurveyIdArg
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(
     name="subscriptions", help="Forms integrations of an integration group.", no_args_is_help=True
@@ -47,7 +43,9 @@ def _body(body_file: Path) -> Subscription:
 
 
 @app.command("list")
-def list_(survey_id: SurveyIdArg, hook_id: HookIdArg, *, forms: FormsClient) -> SubscriptionList:
+def list_(
+    survey_id: SurveyIdArg, hook_id: HookIdArg, *, forms: FormsClient
+) -> ItemList[Subscription]:
     """List the integrations of hook HOOK_ID (GET …/hooks/{id}/subscriptions)."""
     return forms.subscriptions.list(survey_id, hook_id)
 

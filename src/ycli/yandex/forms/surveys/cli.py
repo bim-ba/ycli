@@ -11,11 +11,11 @@ from ycli.cli.fields import parse_fields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyList, SurveyUpdate
+from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
 from ycli.yandex.forms.typedefs import (
     SurveyIdArg,
 )
-from ycli.yandex.models import Ack
+from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="surveys", help="Forms surveys.", no_args_is_help=True)
 
@@ -28,7 +28,7 @@ FieldOpt = Annotated[
 @app.command("list")
 def list_(
     limit: LimitOption = 0, all_: AllOption = False, *, config: AppConfig, forms: FormsClient
-) -> SurveyList:
+) -> ItemList[Survey]:
     """List all forms (auto-paginated over offset pages; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
     return forms.surveys.list(limit=cap)
