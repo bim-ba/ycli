@@ -9,6 +9,78 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.36.3 (2026-10-03)
+
+### Bug Fixes
+
+- Print API text verbatim in pretty output and close three smaller leaks
+  ([#180](https://github.com/bim-ba/ycli/pull/180),
+  [`6065d1e`](https://github.com/bim-ba/ycli/commit/6065d1e1a2aea73226db565e195e5520a0cd65aa))
+
+### Build System
+
+- Re-lock uv.lock for 0.36.2
+  ([`fb05456`](https://github.com/bim-ba/ycli/commit/fb05456c31c65bd08d806aa70a5993146d12d2a2))
+
+### Chores
+
+- Correct stale tooling hints and tighten two workflows
+  ([#183](https://github.com/bim-ba/ycli/pull/183),
+  [`e81f056`](https://github.com/bim-ba/ycli/commit/e81f056b70d386e477eedd12933a61eba6f05e94))
+
+### Continuous Integration
+
+- Compare ycli with the API Yandex publishes, in README and weekly
+  ([#181](https://github.com/bim-ba/ycli/pull/181),
+  [`9777230`](https://github.com/bim-ba/ycli/commit/97772308617ad6de0f0692b8a9a8d290187b0ae7))
+
+- Run pydoclint in its own environment so main stays green
+  ([#177](https://github.com/bim-ba/ycli/pull/177),
+  [`037fe51`](https://github.com/bim-ba/ycli/commit/037fe518adde3b9155cd5d55f3555c2b68c594df))
+
+### Documentation
+
+- Add the Russian README and documentation site ([#176](https://github.com/bim-ba/ycli/pull/176),
+  [`48b3465`](https://github.com/bim-ba/ycli/commit/48b34659285c7f2ff6f18f763cf929dd80811ca9))
+
+- Enforce a Google-style docstring contract and run every example
+  ([#174](https://github.com/bim-ba/ycli/pull/174),
+  [`0173b4a`](https://github.com/bim-ba/ycli/commit/0173b4a4f6480b872f5271125570a4ce5cd904da))
+
+- Keep the key-set constraints in the CLI listing and correct four Returns texts
+  ([#174](https://github.com/bim-ba/ycli/pull/174),
+  [`0173b4a`](https://github.com/bim-ba/ycli/commit/0173b4a4f6480b872f5271125570a4ce5cd904da))
+
+- Note the doctest, docs-site and pydoclint conventions for agents
+  ([#179](https://github.com/bim-ba/ycli/pull/179),
+  [`e8f0ac9`](https://github.com/bim-ba/ycli/commit/e8f0ac934e92c2276699cb33c3077e4ec5a215da))
+
+- Publish a Diátaxis documentation site built with Zensical
+  ([#175](https://github.com/bim-ba/ycli/pull/175),
+  [`8e4f709`](https://github.com/bim-ba/ycli/commit/8e4f709afe551e89b1dc3b9f97f6f7b32721207e))
+
+- **readme**: Fix the DeepWiki badge, link the Yandex auth docs, drop the stale layout tree
+  ([#173](https://github.com/bim-ba/ycli/pull/173),
+  [`d03aa14`](https://github.com/bim-ba/ycli/commit/d03aa1416f6fbbba0a572f7ac5a41faba282a3f8))
+
+- **readme**: Fix the DeepWiki badge, link the Yandex docs, preview coverage as an SVG
+  ([#173](https://github.com/bim-ba/ycli/pull/173),
+  [`d03aa14`](https://github.com/bim-ba/ycli/commit/d03aa1416f6fbbba0a572f7ac5a41faba282a3f8))
+
+- **readme**: Preview coverage as an SVG and fold each service's tables
+  ([#173](https://github.com/bim-ba/ycli/pull/173),
+  [`d03aa14`](https://github.com/bim-ba/ycli/commit/d03aa1416f6fbbba0a572f7ac5a41faba282a3f8))
+
+### Testing
+
+- Load the contract cases on the first doctest only, so the live e2e run needs no mcp extra
+  ([#174](https://github.com/bim-ba/ycli/pull/174),
+  [`0173b4a`](https://github.com/bim-ba/ycli/commit/0173b4a4f6480b872f5271125570a4ce5cd904da))
+
+- **e2e**: Confirm deletes in the live runner ([#178](https://github.com/bim-ba/ycli/pull/178),
+  [`3dd6716`](https://github.com/bim-ba/ycli/commit/3dd6716f66dd9ee34fb6230df764366d092fbfcb))
+
+
 ## v0.36.2 (2026-10-02)
 
 ### Bug Fixes
