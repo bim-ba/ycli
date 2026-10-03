@@ -60,7 +60,10 @@ def caller_credentials() -> Credentials:
     if caller is not None:
         # The organization the server checked at start (MCPHTTPConfig), so both agree.
         organization_id = MCPHTTPConfig().organization_id  # ty: ignore[missing-argument]
-        return Credentials(oauth_token=SecretStr(caller.token), organization_id=organization_id)
+        # The caller's own token only: an IAM token in the server's environment is not theirs.
+        return Credentials(
+            oauth_token=SecretStr(caller.token), iam_token=None, organization_id=organization_id
+        )
     if _over_http():
         raise ToolError("Not signed in: this HTTP request carries no authenticated caller.")
     try:
@@ -68,7 +71,10 @@ def caller_credentials() -> Credentials:
     except ValidationError as exc:
         missing = missing_credentials(exc)
         if not missing:
-            raise
+            if exc.title != Credentials.__name__:
+                raise
+            # Two tokens at once: the error says which.
+            raise ToolError(f"Invalid configuration: {exc.errors()[0]['msg']}") from exc
         raise ToolError(
             f"Not signed in — {', '.join(missing)} "
             f"{'are' if len(missing) > 1 else 'is'} not set. Set them in the environment the "

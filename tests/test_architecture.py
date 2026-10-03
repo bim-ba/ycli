@@ -1012,7 +1012,7 @@ _LITERAL_DEFAULT_RE = re.compile(
 _LIMIT_CONSTANT_RE = re.compile(
     r"^_?(DEFAULT|MAX)_(?!\w*PAGE_SIZE\b)\w+\s*(:[^=\n]+)?=\s*\d", re.MULTILINE
 )
-_CREDENTIAL_ENV_RE = re.compile(r"YANDEX_ID_(OAUTH_TOKEN|ORGANIZATION_ID)\b")
+_CREDENTIAL_ENV_RE = re.compile(r"YANDEX_(ID_OAUTH_TOKEN|ID_ORGANIZATION_ID|CLOUD_IAM_TOKEN)\b")
 _TOKEN_RE = re.compile(r"YANDEX_ID_\w+\s*=\s*['\"]")
 _VERSION_RE = re.compile(r"__version__\s*=\s*['\"]\d")
 _ORG_HEADER_RE = re.compile(r"X-Org-I[dD]")
@@ -1132,6 +1132,7 @@ def test_arch5_guard_bites():
         "class Local(BaseSettings): ...",
         'hint = "check YANDEX_ID_OAUTH_TOKEN"',
         'missing = {"YANDEX_ID_ORGANIZATION_ID"}',
+        'hint = "or set YANDEX_CLOUD_IAM_TOKEN"',
     ):
         assert _single_source_offenders(rel, source), source
     # A comparison or a value read from the settings is not a literal default.

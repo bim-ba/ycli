@@ -9,7 +9,9 @@ Run ycli in a pipeline to comment on an issue after a deploy, move it along its 
 
 ## Credentials
 
-Store `YANDEX_ID_OAUTH_TOKEN` and `YANDEX_ID_ORGANIZATION_ID` as secrets of the pipeline and expose them as environment variables of the job. The token is a person's OAuth token (see [Authenticate](authenticate.md)): give the pipeline a token of an account that can do only what the pipeline does. Signing in as a service account is not in the CLI yet ([#201](https://github.com/bim-ba/ycli/issues/201)).
+Store `YANDEX_ID_OAUTH_TOKEN` and `YANDEX_ID_ORGANIZATION_ID` as secrets of the pipeline and expose them as environment variables of the job. The token is a person's OAuth token (see [Authenticate](authenticate.md)). The working path for a pipeline today is an account created for automation: add a user to the organization for it, give that user only what the pipeline does, and issue its OAuth token.
+
+A Yandex Cloud service account cannot stand in for that user. Yandex does not allow one for [Wiki](https://yandex.ru/support/wiki/en/api-ref/access) and [Forms](https://yandex.ru/support/forms/en/api-ref/access) at all, and for [Tracker](https://yandex.ru/support/tracker/en/api/access) only in a Yandex Cloud organization after a request to Yandex support. A ready IAM token of a user works in place of the OAuth token (`YANDEX_CLOUD_IAM_TOKEN`, see [Authenticate](authenticate.md#use-an-iam-token)), but it lives up to 12 hours, so it suits a job that issues one at its start, not a stored secret.
 
 ## GitHub Actions
 

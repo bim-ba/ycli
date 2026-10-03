@@ -101,3 +101,9 @@ def test_a_validation_error_unrelated_to_credentials_is_not_reworded(monkeypatch
     monkeypatch.setattr("ycli.yandex.mcp.Credentials", broken)
     with pytest.raises(ValidationError):
         caller_credentials()
+
+
+def test_two_tokens_at_once_are_named_to_the_agent(creds, monkeypatch):
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t1.secret")
+    with pytest.raises(ToolError, match=r"Invalid configuration: .* are both set"):
+        caller_credentials()

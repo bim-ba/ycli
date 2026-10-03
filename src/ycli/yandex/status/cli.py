@@ -68,6 +68,8 @@ def status(*, config: AppConfig) -> AuthReport | ExitWith:
         credentials = Credentials()  # ty: ignore[missing-argument]
     except ValidationError as exc:
         missing = ", ".join(missing_credentials(exc))
+        if not missing:  # two tokens at once: a configuration error, reported as one
+            raise
         typer.secho(f"not configured — missing {missing}", fg=typer.colors.RED, err=True)
         return ExitWith(AuthReport(configured=False), exit_code=ExitCode.AUTH)
 
@@ -88,11 +90,15 @@ def doctor(*, config: AppConfig) -> DoctorReport | ExitWith:
     out (asked from PyPI, without credentials). A check that cannot run after an earlier failure
     is skipped. Exits 0 unless a check failed.
     """
+    credentials, invalid = None, ""
     try:
         credentials = Credentials()  # ty: ignore[missing-argument]
-    except ValidationError:
-        credentials = None
-    report, exit_code = diagnose(credentials, credential_sources(), proxy_variables(), config)
+    except ValidationError as exc:
+        if not missing_credentials(exc):
+            invalid = exc.errors()[0]["msg"]
+    report, exit_code = diagnose(
+        credentials, credential_sources(), proxy_variables(), config, invalid=invalid
+    )
     return report if exit_code is ExitCode.OK else ExitWith(report, exit_code=exit_code)
 
 
@@ -149,7 +155,10 @@ def login(
         token = _device_flow(oauth_client, device_name, Console(stderr=True))
 
     organization_id = _resolve_organization_id(_visible_organizations(token, config))
-    credentials = Credentials(oauth_token=SecretStr(token), organization_id=organization_id)
+    # The token just obtained, whatever the environment holds.
+    credentials = Credentials(
+        oauth_token=SecretStr(token), iam_token=None, organization_id=organization_id
+    )
     report = build_report(credentials, config)
     _write_env_file(token, organization_id, report, assume_yes=assume_yes)
     return report

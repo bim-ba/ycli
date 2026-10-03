@@ -250,3 +250,71 @@ def test_the_proxy_variables_are_named_in_either_case(monkeypatch):
     monkeypatch.setenv("HTTPS_PROXY", "http://proxy:3128")
     monkeypatch.setenv("no_proxy", "localhost")
     assert proxy_variables() == ["HTTPS_PROXY", "no_proxy"]
+
+
+IAM = Credentials(oauth_token=None, iam_token=SecretStr("t1.secret"), organization_id="42")
+IAM_SOURCES = {"YANDEX_CLOUD_IAM_TOKEN": "environment", "YANDEX_ID_ORGANIZATION_ID": ".env file"}
+
+
+def _diagnose_iam(api, **replaced):
+    for url in (PYPI_URL, *PROBES.values()):
+        api.add("GET", url, **replaced.get(url, ANSWERS[url]))
+    report, exit_code = diagnose(IAM, IAM_SOURCES, [], AppConfig())
+    return {check.check: check for check in report.checks}, report, exit_code
+
+
+def test_an_iam_token_is_named_and_tested_by_the_services(api):
+    checks, report, exit_code = _diagnose_iam(api)
+    assert (report.ok, exit_code) == (True, ExitCode.OK)
+    assert checks["credentials"].detail.startswith("YANDEX_CLOUD_IAM_TOKEN: environment")
+    assert checks["token"].detail == "an IAM token (it lives up to 12 hours)"
+    assert checks["organization"].status == "ok"
+    assert checks["service:wiki"].status == "ok"
+    assert "t1.secret" not in report.model_dump_json()
+
+
+def test_an_expired_iam_token_says_to_issue_a_new_one(api):
+    checks, _, exit_code = _diagnose_iam(api, **{PROBES["tracker"]: {"status": 401, "json": {}}})
+    assert exit_code is ExitCode.AUTH
+    assert "yc iam create-token" in (checks["service:tracker"].fix or "")
+
+
+def test_two_tokens_at_once_fail_the_credentials_check_as_a_usage_error(api):
+    api.add("GET", PYPI_URL, **ANSWERS[PYPI_URL])
+    sources = {**SOURCES, "YANDEX_CLOUD_IAM_TOKEN": "environment"}
+    report, exit_code = diagnose(None, sources, [], AppConfig(), invalid="keep one of them")
+    assert exit_code is ExitCode.USAGE
+    assert (report.checks[0].status, report.checks[0].fix) == ("fail", "keep one of them")
+    assert report.checks[1].detail == "the credentials cannot be used"
+
+
+def test_the_command_reports_two_tokens_without_calling_yandex(creds, monkeypatch, api):
+    monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t1.secret")
+    api.add("GET", PYPI_URL, **ANSWERS[PYPI_URL])
+    result = runner.invoke(cli.app, ["-o", "json", "doctor"])
+    assert result.exit_code == 2
+    credentials = json.loads(result.stdout)["checks"][0]
+    assert "both set" in credentials["fix"]
+    assert "YANDEX_CLOUD_IAM_TOKEN: environment" in credentials["detail"]
+    assert [str(call.url) for call in api.calls] == [PYPI_URL]
+
+
+@pytest.mark.parametrize(
+    ("environment", "names"),
+    [
+        ({"YANDEX_CLOUD_IAM_TOKEN": "t"}, ["YANDEX_CLOUD_IAM_TOKEN", "YANDEX_ID_ORGANIZATION_ID"]),
+        ({"YANDEX_ID_OAUTH_TOKEN": "t"}, ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"]),
+        ({}, ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID"]),
+        (
+            {"YANDEX_ID_OAUTH_TOKEN": "t", "YANDEX_CLOUD_IAM_TOKEN": "t"},
+            ["YANDEX_ID_OAUTH_TOKEN", "YANDEX_CLOUD_IAM_TOKEN", "YANDEX_ID_ORGANIZATION_ID"],
+        ),
+    ],
+)
+def test_only_the_token_that_is_set_is_named(monkeypatch, tmp_path, environment, names):
+    monkeypatch.chdir(tmp_path)
+    for name in ("YANDEX_ID_OAUTH_TOKEN", "YCLI__AUTH__OAUTH_TOKEN", "YANDEX_CLOUD_IAM_TOKEN"):
+        monkeypatch.delenv(name, raising=False)
+    for name, value in environment.items():
+        monkeypatch.setenv(name, value)
+    assert list(credential_sources()) == names

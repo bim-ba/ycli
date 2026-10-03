@@ -33,16 +33,25 @@ from pydantic import (
     PositiveInt,
     SecretStr,
     ValidationError,
+    ValidationInfo,
+    field_validator,
 )
+from pydantic_core import ErrorDetails, PydanticCustomError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Yandex's own names for the credential variables; everything that names them imports these.
 OAUTH_TOKEN_ENV = "YANDEX_ID_OAUTH_TOKEN"
 ORGANIZATION_ID_ENV = "YANDEX_ID_ORGANIZATION_ID"
+# A ready IAM token (`yc iam create-token`), used in place of the OAuth token.
+IAM_TOKEN_ENV = "YANDEX_CLOUD_IAM_TOKEN"
 
 # pydantic-settings reports a missing field under its validation alias (the env var name), so a
 # ``ValidationError`` loc is already one of these strings.
 _CREDENTIAL_ENV_NAMES = frozenset({OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV})
+NOT_SET = "not set"
+# The error type of credentials with no token at all (the OAuth token is the one asked for).
+NO_TOKEN = "no_token"
+type CredentialKind = Literal["oauth", "iam"]
 
 type LogLevel = Annotated[
     Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
@@ -124,16 +133,54 @@ class AppConfig(_EnvSettings):
 
 
 class Credentials(_EnvSettings):
-    """Yandex 360 credentials — required; pydantic raises if either is absent or empty."""
+    """Yandex 360 credentials: one token and the organization; pydantic raises without them.
 
-    oauth_token: SecretStr = Field(
+    The token is an OAuth token or a ready IAM token, never both: two tokens would leave it
+    to chance which one a request carries. :attr:`kind` and :attr:`token` are the parsed result.
+
+    Examples:
+        >>> Credentials(oauth_token=None, iam_token="t1.x", organization_id="1").kind
+        'iam'
+    """
+
+    iam_token: SecretStr | None = Field(default=None, min_length=1, validation_alias=IAM_TOKEN_ENV)
+    oauth_token: SecretStr | None = Field(
+        default=None,
         min_length=1,
+        validate_default=True,  # so that no token at all is reported beside a missing organization
         validation_alias=AliasChoices(OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
     )
     organization_id: str = Field(
         min_length=1,
         validation_alias=AliasChoices(ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
     )
+
+    @field_validator("oauth_token", mode="after")
+    @classmethod
+    def _exactly_one_token(
+        cls, oauth_token: SecretStr | None, info: ValidationInfo
+    ) -> SecretStr | None:
+        iam_token = info.data.get("iam_token")  # declared first, so already parsed
+        if oauth_token is None and iam_token is None:
+            raise PydanticCustomError(NO_TOKEN, f"{OAUTH_TOKEN_ENV} is not set")
+        if oauth_token is not None and iam_token is not None:
+            raise PydanticCustomError(
+                "two_tokens",
+                f"{OAUTH_TOKEN_ENV} and {IAM_TOKEN_ENV} are both set: keep one of them",
+            )
+        return oauth_token
+
+    @property
+    def kind(self) -> CredentialKind:
+        """Which token this is: ``oauth`` or ``iam``."""
+        return "oauth" if self.oauth_token is not None else "iam"
+
+    @property
+    def token(self) -> SecretStr:
+        """The one token that is set."""
+        token = self.oauth_token or self.iam_token
+        assert token is not None  # _exactly_one_token
+        return token
 
 
 class OAuthAppConfig(_EnvSettings):
@@ -187,12 +234,15 @@ def missing_credentials(exc: Exception) -> list[str]:
     if not isinstance(exc, ValidationError):
         return []
     return [
-        name
-        for error in exc.errors()
-        if error.get("type") == "missing"
-        and error["loc"]
-        and (name := str(error["loc"][0])) in _CREDENTIAL_ENV_NAMES
+        name for error in exc.errors() if (name := _missing_name(error)) in _CREDENTIAL_ENV_NAMES
     ]
+
+
+def _missing_name(error: ErrorDetails) -> str:
+    """The credential variable ``error`` reports missing, or ``""``."""
+    if error.get("type") == NO_TOKEN:
+        return OAUTH_TOKEN_ENV
+    return str(error["loc"][0]) if error.get("type") == "missing" and error["loc"] else ""
 
 
 def credential_sources() -> dict[str, str]:
@@ -207,16 +257,23 @@ def credential_sources() -> dict[str, str]:
     in_file = dotenv_values(".env")
     names = {
         OAUTH_TOKEN_ENV: (OAUTH_TOKEN_ENV, "YCLI__AUTH__OAUTH_TOKEN"),
+        IAM_TOKEN_ENV: (IAM_TOKEN_ENV,),
         ORGANIZATION_ID_ENV: (ORGANIZATION_ID_ENV, "YCLI__AUTH__ORGANIZATION_ID"),
     }
-    return {
+    sources = {
         name: "environment"
         if any(os.environ.get(alias) for alias in aliases)
         else ".env file"
         if any(in_file.get(alias) for alias in aliases)
-        else "not set"
+        else NOT_SET
         for name, aliases in names.items()
     }
+    # One token is enough: the one that is not set is named only when neither is.
+    if sources[IAM_TOKEN_ENV] == NOT_SET:
+        del sources[IAM_TOKEN_ENV]
+    elif sources[OAUTH_TOKEN_ENV] == NOT_SET:
+        del sources[OAUTH_TOKEN_ENV]
+    return sources
 
 
 def proxy_variables() -> list[str]:

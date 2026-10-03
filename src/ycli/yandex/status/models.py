@@ -52,6 +52,9 @@ class AuthReport(APIModel):
     """Whether the credentials are set, whose they are, and which services accept them."""
 
     configured: bool
+    credential: Literal["oauth", "iam"] | None = Field(
+        default=None, description="Which token is in use; never its value."
+    )
     identity: Identity | None = None
     organization: OrganizationStatus | None = None
     services: list[ServiceAuthStatus] = Field(default_factory=list)
