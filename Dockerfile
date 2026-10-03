@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
-# Builds the MCP server image from this source tree: stage one installs the project (with the
-# `mcp` extra) and its locked dependencies into a virtual environment; stage two copies only that
-# environment onto a plain Python runtime. Both stages use the same Python so the venv's
-# interpreter link holds.
+# Builds the ycli image from this source tree: the whole CLI, which serves MCP over stdio when
+# run with no arguments (`docker run IMAGE tracker issues get KEY` runs that command instead).
+# Stage one installs the project (with the `mcp` extra) and its locked dependencies into a virtual
+# environment; stage two copies only that environment onto a plain Python runtime. Both stages use
+# the same Python so the venv's interpreter link holds.
 
 FROM ghcr.io/astral-sh/uv:0.12.22-python3.12-trixie-slim AS build
 # The locked dependency set CI tested, installed (not editable) into /opt/ycli. --frozen, not
