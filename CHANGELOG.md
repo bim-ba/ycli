@@ -9,6 +9,29 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.43.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.42.0
+  ([`f53e4a0`](https://github.com/bim-ba/ycli/commit/f53e4a03ff7c926f05f4c8e7c82643c184e68a45))
+
+### Documentation
+
+- The site lives at ycli.savaznatnov.dev ([#238](https://github.com/bim-ba/ycli/pull/238),
+  [`bfeeda6`](https://github.com/bim-ba/ycli/commit/bfeeda69fa4e8be5896557bb3e756ea364b86560))
+
+### Refactoring
+
+- **sdk**: Delete what nothing uses ([#236](https://github.com/bim-ba/ycli/pull/236),
+  [`ce474d6`](https://github.com/bim-ba/ycli/commit/ce474d6110dc0a13e72576bca51cf5071b874484))
+
+### Breaking Changes
+
+- **sdk**: Service.cli_app() is removed with no replacement; resolve Service.cli with
+  pkgutil.resolve_name.
+
+
 ## v0.42.0 (2026-10-03)
 
 ### Build System
