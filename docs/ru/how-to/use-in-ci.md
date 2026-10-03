@@ -25,10 +25,10 @@ jobs:
       YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
     steps:
       - uses: astral-sh/setup-uv@v10.2.0
-      - run: uvx yandex-cli@0.36.3 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
+      - run: uvx yandex-cli==0.36.3 tracker comments add TRACKER-1 --text "Deployed ${GITHUB_SHA::7}"
 ```
 
-`uvx yandex-cli@<version>` запускает указанную версию, ничего больше не устанавливая. Фиксируйте версию: конвейер не должен менять поведение при выходе нового релиза.
+`uvx yandex-cli==<version>` запускает указанную версию, ничего больше не устанавливая. Фиксируйте версию: конвейер не должен менять поведение при выходе нового релиза.
 
 Готовый GitHub Action запланирован: следите за [#210](https://github.com/bim-ba/ycli/issues/210).
 
