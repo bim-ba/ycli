@@ -10,6 +10,8 @@ edit_uri = "edit/main/docs/ru/"
 docs_dir = "docs/ru"
 site_dir = "site/ru"
 strict = true
+extra_css = ["assets/vendor/termynal/termynal.css"]
+extra_javascript = ["assets/vendor/termynal/termynal.js", "assets/javascripts/site.js"]
 nav = [
   { "Главная" = "index.md" },
   { "Обучение" = [
@@ -38,6 +40,7 @@ nav = [
 ]
 
 [project.theme]
+custom_dir = "docs/overrides"
 language = "ru"
 features = [
   "content.action.edit",
