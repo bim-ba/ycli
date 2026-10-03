@@ -1,7 +1,8 @@
 """Contract cases for Tracker ``/priorities`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.priorities.models import LocalizedName, PriorityCreate, PriorityUpdate
+from ycli.yandex.tracker.models import LocalizedName
+from ycli.yandex.tracker.priorities.models import PriorityCreate, PriorityUpdate
 
 CASES = [
     Case(

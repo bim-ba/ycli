@@ -3,9 +3,9 @@
 import json
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.tracker.models import LocalizedName
 from ycli.yandex.tracker.workflows.models import (
     IssueTypeResolutions,
-    LocalizedText,
     RefSelector,
     WorkflowActionInput,
     WorkflowActionUpdate,
@@ -108,17 +108,17 @@ CASES = [
                 queue="DESIGN",
                 type="VISUAL",
                 initial_action=WorkflowActionInput(
-                    id="open", name=LocalizedText(ru="Открыть", en="Open"), target="open"
+                    id="open", name=LocalizedName(ru="Открыть", en="Open"), target="open"
                 ),
                 steps=[
                     WorkflowStepInput(
                         status="open",
-                        description=LocalizedText(en="Issue is open"),
+                        description=LocalizedName(en="Issue is open"),
                         actions=[
                             WorkflowActionInput(
                                 id="start",
-                                name=LocalizedText(ru="Начать", en="Start"),
-                                description=LocalizedText(ru="Взять в работу"),
+                                name=LocalizedName(ru="Начать", en="Start"),
+                                description=LocalizedName(ru="Взять в работу"),
                                 target=3,
                                 screen={"fields": ["assignee"]},
                                 conditions=[{"type": "Role", "role": "assignee"}],
@@ -126,7 +126,7 @@ CASES = [
                             )
                         ],
                         meta_action=WorkflowActionInput(
-                            name=LocalizedText(ru="Авто", en="Auto"),
+                            name=LocalizedName(ru="Авто", en="Auto"),
                             target=RefSelector(key="inProgress"),
                         ),
                         status_type="NEW",
@@ -198,7 +198,7 @@ CASES = [
             WorkflowCreate(
                 name="Bare",
                 initial_action=WorkflowActionInput(
-                    name=LocalizedText(ru="Создать", en="Create"), target="new"
+                    name=LocalizedName(ru="Создать", en="Create"), target="new"
                 ),
                 steps=[WorkflowStepInput(status="new")],
             ),
@@ -241,7 +241,7 @@ CASES = [
                 name="QA process",
                 type="VISUAL",
                 initial_action=WorkflowActionInput(
-                    id="new", name=LocalizedText(ru="Создать", en="Create"), target="new"
+                    id="new", name=LocalizedName(ru="Создать", en="Create"), target="new"
                 ),
                 steps=[WorkflowStepInput(status="new", status_type="NEW")],
                 issue_type_resolutions=[
@@ -329,8 +329,8 @@ CASES = [
             "close",
             WorkflowActionUpdate(
                 id="finish",
-                name=LocalizedText(ru="Завершить", en="Complete"),
-                description=LocalizedText(en="Move issue to Closed"),
+                name=LocalizedName(ru="Завершить", en="Complete"),
+                description=LocalizedName(en="Move issue to Closed"),
                 target=RefSelector(id=8),
                 screen={"fields": ["resolution"]},
                 conditions=[{"type": "Role", "role": "author"}],

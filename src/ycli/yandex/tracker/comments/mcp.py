@@ -9,7 +9,7 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentCreate, CommentList, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentList, CommentUpdate
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
@@ -23,6 +23,7 @@ from ycli.yandex.tracker.dependencies import (
     app_config,
     tracker_client,
 )
+from ycli.yandex.tracker.models import CommentCreate
 
 mcp = FastMCP("tracker-comments")
 

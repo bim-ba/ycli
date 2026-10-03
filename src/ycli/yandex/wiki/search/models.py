@@ -11,9 +11,7 @@ from typing import Literal
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.access.models import (
-    UserIdentity,  # pydantic resolves field types at runtime
-)
+from ycli.yandex.wiki.models import UserIdentity
 
 #: What a search hit is.
 SearchDocumentType = Literal["page", "file"]

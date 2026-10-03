@@ -16,9 +16,8 @@ from ycli.yandex.tracker.fields.models import (
     FieldCreate,
     FieldList,
     FieldUpdate,
-    LocalizedName,
-    OptionsProviderInput,
 )
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
 
 app = typer.Typer(name="fields", help="Tracker global fields.", no_args_is_help=True)
 

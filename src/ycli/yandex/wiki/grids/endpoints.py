@@ -29,11 +29,11 @@ from ycli.yandex.wiki.grids.models import (
     ColumnSuggestion,
     ColumnUpdateResult,
     Grid,
-    GridCloneOperation,
     RevisionResult,
     RowsAddResult,
     RowUpdateResult,
 )
+from ycli.yandex.wiki.models import AsyncOperation
 
 
 def _grid(grid_id: str, tail: str = "") -> str:
@@ -102,8 +102,8 @@ def update_cells(grid_id: str, body: dict[str, Any]) -> Endpoint[CellsUpdateResu
     return Endpoint("POST", path, CellsUpdateResult, json=body, effect="idempotent_write")
 
 
-def clone_grid(grid_id: str, body: dict[str, Any]) -> Endpoint[GridCloneOperation]:
-    return Endpoint("POST", _grid(grid_id, "/clone"), GridCloneOperation, json=body)
+def clone_grid(grid_id: str, body: dict[str, Any]) -> Endpoint[AsyncOperation]:
+    return Endpoint("POST", _grid(grid_id, "/clone"), AsyncOperation, json=body)
 
 
 def suggest_column(grid_id: str, body: dict[str, Any]) -> Endpoint[ColumnSuggestion]:

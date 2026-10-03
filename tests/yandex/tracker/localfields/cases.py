@@ -1,12 +1,8 @@
 """Contract cases for Tracker ``/queues/{id}/localFields`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.localfields.models import (
-    LocalFieldCreate,
-    LocalFieldUpdate,
-    LocalizedName,
-    OptionsProviderInput,
-)
+from ycli.yandex.tracker.localfields.models import LocalFieldCreate, LocalFieldUpdate
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
 
 STRING_TYPE = "ru.yandex.startrek.core.fields.StringFieldType"
 

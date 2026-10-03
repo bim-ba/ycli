@@ -10,18 +10,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-
-
-class UploadSessionUserIdentity(APIModel):
-    """External identity of the user that owns an upload session (``user.identity``).
-
-    Examples:
-        >>> UploadSessionUserIdentity.model_validate({"uid": "42"}).uid
-        '42'
-    """
-
-    uid: str | None = Field(default=None, description="Yandex passport user id (uid).")
-    cloud_uid: str | None = Field(default=None, description="Yandex Cloud user id, if any.")
+from ycli.yandex.wiki.models import UserIdentity
 
 
 class UploadSessionUser(APIModel):
@@ -33,7 +22,7 @@ class UploadSessionUser(APIModel):
     """
 
     id: int | None = Field(default=None, description="Numeric identifier of the user.")
-    identity: UploadSessionUserIdentity | None = Field(
+    identity: UserIdentity | None = Field(
         default=None, description="External identity (passport / cloud uid) of the user."
     )
     username: str | None = Field(default=None, description="Login of the user.")
@@ -108,3 +97,6 @@ class AbortActiveUploadsResult(APIModel):
     status: str = Field(
         default="ok", description="Literal ``ok`` once every active session has been aborted."
     )
+
+
+UploadSessionUserIdentity = UserIdentity  # deprecated, removed in 0.38

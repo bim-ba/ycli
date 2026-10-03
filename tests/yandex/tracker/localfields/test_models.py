@@ -6,10 +6,9 @@ from ycli.yandex.tracker.localfields.models import (
     LocalFieldList,
     LocalFieldSchema,
     LocalFieldUpdate,
-    LocalizedName,
     OptionsProvider,
-    OptionsProviderInput,
 )
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
 
 
 def test_local_field_parses_full_payload():

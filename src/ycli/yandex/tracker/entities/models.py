@@ -19,62 +19,17 @@ from pydantic import AliasChoices, ConfigDict, Field, RootModel
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
 )
+from ycli.yandex.tracker import models as _shared
+from ycli.yandex.tracker.models import (
+    AttachmentMetadata,
+    KeyedReference,
+    Reference,
+    UserReference,
+)
 
 # --------------------------------------------------------------------------------------------
 # Shared reference blocks
 # --------------------------------------------------------------------------------------------
-
-
-class UserRef(APIModel):
-    """A user reference block (``author`` / ``lead`` / ``createdBy`` / an assignee).
-
-    Examples:
-        >>> UserRef.model_validate({"id": "11", "display": "Имя Фамилия"}).display
-        'Имя Фамилия'
-    """
-
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource address of the user."
-    )
-    id: str | None = Field(default=None, description="User identifier.")
-    display: str | None = Field(default=None, description="Display name of the user.")
-    passport_uid: int | None = Field(
-        default=None, alias="passportUid", description="Yandex 360 / Yandex ID account uid."
-    )
-    cloud_uid: str | None = Field(
-        default=None, alias="cloudUid", description="Yandex Cloud Organization user uid."
-    )
-
-
-class EntityRef(APIModel):
-    """A lightweight reference to another entity (``primary`` / ``secondary`` / a source).
-
-    Examples:
-        >>> EntityRef.model_validate({"id": "67f", "display": "My portfolio"}).display
-        'My portfolio'
-    """
-
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource address of the entity."
-    )
-    id: str | None = Field(default=None, description="Entity identifier.")
-    display: str | None = Field(default=None, description="Entity name.")
-
-
-class IssueQueueRef(APIModel):
-    """A queue whose issues belong to the entity (read-only ``issueQueues`` element).
-
-    Examples:
-        >>> IssueQueueRef.model_validate({"key": "DE", "display": "Data"}).key
-        'DE'
-    """
-
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource address of the queue."
-    )
-    id: str | None = Field(default=None, description="Queue identifier.")
-    key: str | None = Field(default=None, description="Queue key.")
-    display: str | None = Field(default=None, description="Queue display name.")
 
 
 class ParentEntity(APIModel):
@@ -85,11 +40,11 @@ class ParentEntity(APIModel):
         '67f'
     """
 
-    primary: EntityRef | None = Field(
+    primary: Reference | None = Field(
         default=None,
         description="Primary parent (portfolio for project/portfolio, parent goal for goal).",
     )
-    secondary: list[EntityRef] = Field(
+    secondary: list[Reference] = Field(
         default_factory=list,
         description="Additional portfolios (projects/portfolios only; empty for goals).",
     )
@@ -147,7 +102,7 @@ class KeyResultItem(APIModel):
     achieved: bool | None = Field(
         default=None, description="Whether the key result is marked achieved."
     )
-    assignee: UserRef | None = Field(default=None, description="Key result assignee.")
+    assignee: UserReference | None = Field(default=None, description="Key result assignee.")
 
 
 class ChecklistItem(APIModel):
@@ -164,7 +119,7 @@ class ChecklistItem(APIModel):
         default=None, alias="textHtml", description="Item text rendered to HTML."
     )
     checked: bool | None = Field(default=None, description="Whether the item is marked done.")
-    assignee: UserRef | None = Field(default=None, description="Item assignee.")
+    assignee: UserReference | None = Field(default=None, description="Item assignee.")
     deadline: Deadline | None = Field(default=None, description="Per-item deadline, if set.")
     checklist_item_type: str | None = Field(
         default=None, alias="checklistItemType", description="Item type, e.g. 'standard'."
@@ -184,19 +139,6 @@ class MetricItem(APIModel):
     url: str | None = Field(default=None, description="Link to the widget.")
 
 
-class AttachmentMetadata(APIModel):
-    """The ``metadata`` sub-object of an attachment (image dimensions for graphic files).
-
-    Examples:
-        >>> AttachmentMetadata.model_validate({"size": "236x295"}).size
-        '236x295'
-    """
-
-    size: str | None = Field(
-        default=None, description="Image dimensions in pixels (WIDTHxHEIGHT); graphic files only."
-    )
-
-
 class Attachment(APIModel):
     """A file attached to an entity (``…/attachments`` element and ``attachments get``).
 
@@ -214,7 +156,7 @@ class Attachment(APIModel):
     thumbnail: str | None = Field(
         default=None, description="Download URL for the preview thumbnail; graphic files only."
     )
-    created_by: UserRef | None = Field(
+    created_by: UserReference | None = Field(
         default=None, alias="createdBy", description="User who attached the file."
     )
     created_at: str | None = Field(
@@ -255,13 +197,13 @@ class EntityFields(APIModel):
 
     summary: str | None = Field(default=None, description="Entity name.")
     description: str | None = Field(default=None, description="Entity description.")
-    author: UserRef | None = Field(default=None, description="Author.")
-    lead: UserRef | None = Field(default=None, description="Responsible person.")
-    team_users: list[UserRef] = Field(
+    author: UserReference | None = Field(default=None, description="Author.")
+    lead: UserReference | None = Field(default=None, description="Responsible person.")
+    team_users: list[UserReference] = Field(
         default_factory=list, alias="teamUsers", description="Participants."
     )
-    clients: list[UserRef] = Field(default_factory=list, description="Clients.")
-    followers: list[UserRef] = Field(default_factory=list, description="Followers.")
+    clients: list[UserReference] = Field(default_factory=list, description="Clients.")
+    followers: list[UserReference] = Field(default_factory=list, description="Followers.")
     start: str | None = Field(
         default=None, description="Start date, YYYY-MM-DD (project/portfolio)."
     )
@@ -295,7 +237,7 @@ class EntityFields(APIModel):
         alias="entityStatus",
         description="Status key (e.g. draft/in_progress for projects; achieved for goals).",
     )
-    issue_queues: list[IssueQueueRef] = Field(
+    issue_queues: list[KeyedReference] = Field(
         default_factory=list,
         alias="issueQueues",
         description="Queues feeding the project (read-only; project only).",
@@ -336,7 +278,7 @@ class Entity(APIModel):
     entity_type: str | None = Field(
         default=None, alias="entityType", description="Entity type: project, portfolio or goal."
     )
-    created_by: UserRef | None = Field(
+    created_by: UserReference | None = Field(
         default=None, alias="createdBy", description="User who created the entity."
     )
     created_at: str | None = Field(
@@ -399,10 +341,10 @@ class Comment(APIModel):
         default=None, alias="longId", description="String (long) comment identifier."
     )
     text: str | None = Field(default=None, description="Comment text.")
-    created_by: UserRef | None = Field(
+    created_by: UserReference | None = Field(
         default=None, alias="createdBy", description="Comment author."
     )
-    updated_by: UserRef | None = Field(
+    updated_by: UserReference | None = Field(
         default=None, alias="updatedBy", description="User who last edited the comment."
     )
     created_at: str | None = Field(
@@ -411,7 +353,7 @@ class Comment(APIModel):
     updated_at: str | None = Field(
         default=None, alias="updatedAt", description="Last-edit timestamp."
     )
-    summonees: list[UserRef] = Field(
+    summonees: list[UserReference] = Field(
         default_factory=list, description="Users summoned in the comment."
     )
     version: int | None = Field(default=None, description="Comment version.")
@@ -530,7 +472,7 @@ class EntityEvent(APIModel):
     """
 
     id: str | None = Field(default=None, description="Event identifier.")
-    author: UserRef | None = Field(default=None, description="Event author.")
+    author: UserReference | None = Field(default=None, description="Event author.")
     date: str | None = Field(default=None, description="Event timestamp (YYYY-MM-DDThh:mm…).")
     transport: str | None = Field(default=None, description="Service field.")
     display: str | None = Field(default=None, description="Event display title.")
@@ -572,21 +514,6 @@ class EntityEventsResponse(APIModel):
 # --------------------------------------------------------------------------------------------
 
 
-class AclGroup(APIModel):
-    """A group principal in an ACL grant.
-
-    Examples:
-        >>> AclGroup.model_validate({"id": "1", "display": "Группа 1"}).display
-        'Группа 1'
-    """
-
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource address of the group."
-    )
-    id: str | None = Field(default=None, description="Group identifier.")
-    display: str | None = Field(default=None, description="Group display name.")
-
-
 class AclPrincipals(APIModel):
     """The users/groups/roles granted one access level (READ / WRITE / GRANT).
 
@@ -595,8 +522,10 @@ class AclPrincipals(APIModel):
         ['OWNER']
     """
 
-    users: list[UserRef] = Field(default_factory=list, description="Users granted this level.")
-    groups: list[AclGroup] = Field(default_factory=list, description="Groups granted this level.")
+    users: list[UserReference] = Field(
+        default_factory=list, description="Users granted this level."
+    )
+    groups: list[Reference] = Field(default_factory=list, description="Groups granted this level.")
     roles: list[str] = Field(default_factory=list, description="Roles granted this level.")
 
 
@@ -630,7 +559,7 @@ class ExtendedPermissions(APIModel):
     """
 
     acl: Acl | None = Field(default=None, description="Access-control lists by level.")
-    permission_sources: list[EntityRef] = Field(
+    permission_sources: list[Reference] = Field(
         default_factory=list,
         alias="permissionSources",
         description="Parent entities this entity inherits permissions from.",
@@ -659,7 +588,7 @@ class BulkChangeOperation(APIModel):
     self_url: str | None = Field(
         default=None, alias="self", description="API resource address of the operation."
     )
-    created_by: UserRef | None = Field(
+    created_by: UserReference | None = Field(
         default=None, alias="createdBy", description="User who started the operation."
     )
     created_at: str | None = Field(
@@ -819,26 +748,6 @@ class EntityUpdate(APIModel):
     fields: EntityFieldsInput | None = Field(default=None, description="Fields to change.")
     comment: str | None = Field(default=None, description="Comment to add with the change.")
     links: list[LinkInput] | None = Field(default=None, description="Links to add.")
-
-
-class CommentCreate(APIModel):
-    """Typed request body for ``POST …/comments`` (add a comment).
-
-    Examples:
-        >>> CommentCreate(text="Готово").model_dump(by_alias=True, exclude_none=True)
-        {'text': 'Готово'}
-    """
-
-    text: str = Field(description="Comment text (required).")
-    attachment_ids: list[str] | None = Field(
-        default=None, alias="attachmentIds", description="Temp-file ids to attach as files."
-    )
-    summonees: list[str] | None = Field(
-        default=None, description="User ids/logins to summon in the comment."
-    )
-    maillist_summonees: list[str] | None = Field(
-        default=None, alias="maillistSummonees", description="Mailing lists to summon."
-    )
 
 
 class CommentUpdate(APIModel):
@@ -1083,3 +992,10 @@ class ReportCreate(APIModel):
     """
 
     fields: ReportFieldsInput = Field(description="Report settings (summary + export parameters).")
+
+
+AclGroup = Reference  # deprecated, removed in 0.38
+EntityRef = Reference  # deprecated, removed in 0.38
+IssueQueueRef = KeyedReference  # deprecated, removed in 0.38
+UserRef = UserReference  # deprecated, removed in 0.38
+CommentCreate = _shared.CommentCreate  # deprecated, removed in 0.38

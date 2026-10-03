@@ -8,22 +8,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-
-
-class AttachmentMetadata(APIModel):
-    """The ``metadata`` sub-object of an attachment — extra file metadata.
-
-    Present for graphic files, where it carries the image's pixel dimensions.
-
-    Examples:
-        >>> AttachmentMetadata.model_validate({"size": "550x175"}).size
-        '550x175'
-    """
-
-    size: str | None = Field(
-        default=None,
-        description="Image dimensions in pixels (``WIDTHxHEIGHT``); graphic files only.",
-    )
+from ycli.yandex.tracker.models import AttachmentMetadata
 
 
 class Attachment(APIModel):

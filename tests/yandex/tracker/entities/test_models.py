@@ -11,7 +11,6 @@ from ycli.yandex.tracker.entities.models import (
     ChecklistItemsInput,
     ChecklistMove,
     Comment,
-    CommentCreate,
     CommentUpdate,
     DeadlineInput,
     Entity,
@@ -24,6 +23,7 @@ from ycli.yandex.tracker.entities.models import (
     Link,
     ParentEntityInput,
 )
+from ycli.yandex.tracker.models import CommentCreate
 
 # ---- read models -------------------------------------------------------------------------
 

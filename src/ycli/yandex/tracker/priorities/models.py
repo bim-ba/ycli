@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.models import LocalizedName
 
 
 class Priority(APIModel):
@@ -30,18 +31,6 @@ class PriorityList(RootModel[list[Priority]]):
         >>> PriorityList.model_validate([{"key": "normal"}]).root[0].key
         'normal'
     """
-
-
-class LocalizedName(APIModel):
-    """A localized display name (the ``name`` object) — Russian and/or English text.
-
-    Examples:
-        >>> LocalizedName(ru="Низкий", en="Low").model_dump(exclude_none=True)
-        {'ru': 'Низкий', 'en': 'Low'}
-    """
-
-    ru: str | None = Field(default=None, description="Name in Russian.")
-    en: str | None = Field(default=None, description="Name in English.")
 
 
 class PriorityCreate(APIModel):

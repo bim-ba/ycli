@@ -9,6 +9,7 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput, Reference
 
 
 class FieldSchema(APIModel):
@@ -46,23 +47,6 @@ class FieldProvider(APIModel):
         default_factory=list,
         description="Allowed field values; present only on an options provider.",
     )
-
-
-class FieldCategory(APIModel):
-    """The category a global field belongs to (the ``category`` object).
-
-    Examples:
-        >>> FieldCategory.model_validate({"id": "1", "display": "System"}).display
-        'System'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the category.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the field category.")
-    display: str | None = Field(default=None, description="Human-readable name of the category.")
 
 
 class CustomField(APIModel):
@@ -122,7 +106,7 @@ class CustomField(APIModel):
     order: int | None = Field(
         default=None, description="Position of the field in the organisation's list of fields."
     )
-    category: FieldCategory | None = Field(
+    category: Reference | None = Field(
         default=None, description="Object with information about the field's category."
     )
     type: str | None = Field(default=None, description="Type of the field.")
@@ -155,33 +139,6 @@ class FieldCategoryRecord(APIModel):
     version: int | None = Field(
         default=None, description="Version of the category; each change increments it."
     )
-
-
-class LocalizedName(APIModel):
-    """A localized display name (the ``name`` object) — Russian and/or English text.
-
-    Examples:
-        >>> LocalizedName(ru="Поле", en="Field").model_dump(exclude_none=True)
-        {'ru': 'Поле', 'en': 'Field'}
-    """
-
-    ru: str | None = Field(default=None, description="Name in Russian.")
-    en: str | None = Field(default=None, description="Name in English.")
-
-
-class OptionsProviderInput(APIModel):
-    """Typed ``optionsProvider`` block for a field create/edit body (a fixed drop-down).
-
-    Examples:
-        >>> OptionsProviderInput(type="FixedListOptionsProvider", values=["a", "b"]).model_dump()
-        {'type': 'FixedListOptionsProvider', 'values': ['a', 'b']}
-    """
-
-    type: str = Field(
-        description="Drop-down provider type, e.g. FixedListOptionsProvider or "
-        "FixedUserListOptionsProvider."
-    )
-    values: list[str] = Field(description="Allowed values offered by the drop-down.")
 
 
 class FieldCreate(APIModel):
@@ -269,3 +226,6 @@ class FieldCategoryUpdate(APIModel):
         default=None, description="New weight controlling the category's display order."
     )
     description: str | None = Field(default=None, description="New description of the category.")
+
+
+FieldCategory = Reference  # deprecated, removed in 0.38

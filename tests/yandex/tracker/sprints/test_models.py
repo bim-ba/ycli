@@ -1,9 +1,9 @@
 """Model tests for Tracker sprints — full fixture, board ref, ref-flattening, flat list."""
 
+from ycli.yandex.tracker.models import Reference
 from ycli.yandex.tracker.sprints.models import (
     Sprint,
     SprintBoardInput,
-    SprintBoardRef,
     SprintCreate,
     SprintList,
     SprintUpdate,
@@ -44,7 +44,7 @@ def test_sprint_parses_full_fixture_and_flattens_created_by():
 
 def test_sprint_board_ref_is_typed():
     sprint = Sprint.model_validate(SPRINT)
-    assert isinstance(sprint.board, SprintBoardRef)
+    assert isinstance(sprint.board, Reference)
     assert sprint.board.id == "3" and sprint.board.display == "My board"
 
 

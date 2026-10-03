@@ -20,15 +20,14 @@ from ycli.yandex.wiki.dependencies import (
     app_config,
     wiki_client,
 )
+from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.pages.models import (
     GridRefList,
     PageAppendContent,
     PageClone,
-    PageCloneOperation,
     PageDeleteResult,
     PageDetails,
     PageMove,
-    PageMoveOperation,
     PageRefList,
     PageRevisionList,
 )
@@ -221,7 +220,7 @@ def clone(
         ),
     ],
     client: WikiClient = Depends(wiki_client),
-) -> PageCloneOperation:
+) -> AsyncOperation:
     """Copy a page to a new address (``POST /pages/{id}/clone`` — asynchronous).
 
     Cloning leaves the original where it is; to give the page itself a new slug use
@@ -243,7 +242,7 @@ def move(
     ],
     dry_run: Annotated[bool, Field(description="Validate the move without applying it.")] = False,
     client: WikiClient = Depends(wiki_client),
-) -> PageMoveOperation:
+) -> AsyncOperation:
     """Move or rename pages (``POST /pages/move`` — asynchronous; undocumented by Yandex).
 
     The only way to give a page a new slug. The call returns a deferred operation reference —

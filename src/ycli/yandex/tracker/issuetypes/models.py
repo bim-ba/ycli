@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.models import LocalizedName
 
 
 class IssueType(APIModel):
@@ -30,18 +31,6 @@ class IssueTypeList(RootModel[list[IssueType]]):
         >>> IssueTypeList.model_validate([{"key": "bug"}]).root[0].key
         'bug'
     """
-
-
-class LocalizedName(APIModel):
-    """A localized display name (the ``name`` object) — Russian and/or English text.
-
-    Examples:
-        >>> LocalizedName(ru="Клиент", en="Customer").model_dump(exclude_none=True)
-        {'ru': 'Клиент', 'en': 'Customer'}
-    """
-
-    ru: str | None = Field(default=None, description="Name in Russian.")
-    en: str | None = Field(default=None, description="Name in English.")
 
 
 class IssueTypeCreate(APIModel):

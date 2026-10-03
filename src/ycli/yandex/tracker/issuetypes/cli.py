@@ -13,8 +13,8 @@ from ycli.yandex.tracker.issuetypes.models import (
     IssueTypeCreate,
     IssueTypeList,
     IssueTypeUpdate,
-    LocalizedName,
 )
+from ycli.yandex.tracker.models import LocalizedName
 
 app = typer.Typer(name="issuetypes", help="Tracker issue types.", no_args_is_help=True)
 

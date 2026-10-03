@@ -2,13 +2,13 @@
 
 import pytest
 
+from ycli.yandex.wiki.models import PageIdentity
 from ycli.yandex.wiki.operations.models import (
     CloneOperationStatus,
     GridCloneOperationStatus,
     MoveOperationStatus,
     OperationProgress,
     PageCloneResult,
-    PageSchema,
 )
 
 
@@ -33,7 +33,7 @@ def test_clone_status_none_is_not_terminal():
 
 
 def test_page_clone_result_parses_page():
-    result = PageCloneResult(page=PageSchema(id=1, slug="data/y"))
+    result = PageCloneResult(page=PageIdentity(id=1, slug="data/y"))
     assert result.page is not None and result.page.slug == "data/y"
 
 

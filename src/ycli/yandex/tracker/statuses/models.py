@@ -5,6 +5,7 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.tracker.models import LocalizedName
 
 
 class Status(APIModel):
@@ -43,18 +44,6 @@ class StatusList(RootModel[list[Status]]):
         >>> StatusList.model_validate([{"key": "open"}]).root[0].key
         'open'
     """
-
-
-class LocalizedName(APIModel):
-    """A localized display name (the ``name`` object) — Russian and/or English text.
-
-    Examples:
-        >>> LocalizedName(ru="Открыт", en="Open").model_dump(exclude_none=True)
-        {'ru': 'Открыт', 'en': 'Open'}
-    """
-
-    ru: str | None = Field(default=None, description="Name in Russian.")
-    en: str | None = Field(default=None, description="Name in English.")
 
 
 class StatusCreate(APIModel):

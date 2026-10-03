@@ -14,13 +14,11 @@ from ycli.yandex.wiki.grids.models import (
     ColumnUpdateResult,
     Grid,
     GridClone,
-    GridCloneOperation,
     GridCreate,
     GridList,
     GridRow,
     GridUpdate,
     NewColumnSchema,
-    PageIdentity,
     RowsAdd,
     RowsMove,
     RowsRemove,
@@ -28,6 +26,7 @@ from ycli.yandex.wiki.grids.models import (
     RowUpdateResult,
     UpdateCellSchema,
 )
+from ycli.yandex.wiki.models import AsyncOperation, PageIdentity
 
 
 def test_grid_create_dumps_page_by_slug():
@@ -200,14 +199,12 @@ def test_grid_row_defaults_empty():
 
 
 def test_grid_clone_operation_parses_identity():
-    op = GridCloneOperation.model_validate(
-        {"operation": {"type": "clone_inline_grid", "id": "task-1"}}
-    )
+    op = AsyncOperation.model_validate({"operation": {"type": "clone_inline_grid", "id": "task-1"}})
     assert op.operation is not None and op.operation.id == "task-1"
 
 
 def test_grid_operation_identity_accepts_a_move():
-    op = GridCloneOperation.model_validate({"operation": {"type": "move", "id": "task-2"}})
+    op = AsyncOperation.model_validate({"operation": {"type": "move", "id": "task-2"}})
     assert op.operation is not None and op.operation.type == "move"
 
 

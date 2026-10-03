@@ -11,17 +11,16 @@ from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.wiki.client import WikiClient
+from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.operations.models import CloneOperationStatus, MoveOperationStatus
 from ycli.yandex.wiki.pages.models import (
     GridRefList,
     PageAppendContent,
     PageAppendContentBody,
     PageClone,
-    PageCloneOperation,
     PageDeleteResult,
     PageDetails,
     PageMove,
-    PageMoveOperation,
     PageMoveStep,
     PageRefList,
     PageRevisionList,
@@ -174,7 +173,7 @@ def clone(
     ] = True,
     *,
     wiki: WikiClient,
-) -> PageCloneOperation | CloneOperationStatus:
+) -> AsyncOperation | CloneOperationStatus:
     """Copy a page to a new address (POST /pages/{id}/clone; async). --wait polls to completion."""
     body = PageClone(target=target, title=title or None, subscribe_me=subscribe_me).model_dump(
         exclude_none=True
@@ -217,7 +216,7 @@ def move(
     ] = True,
     *,
     wiki: WikiClient,
-) -> PageMoveOperation | MoveOperationStatus:
+) -> AsyncOperation | MoveOperationStatus:
     """Move or rename a page (POST /pages/move; async, undocumented by Yandex). --wait polls."""
     step = PageMoveStep(
         source=source,

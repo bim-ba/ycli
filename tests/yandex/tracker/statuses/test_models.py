@@ -1,12 +1,7 @@
 """Model-parse + Field-metadata coverage for the Tracker statuses models."""
 
-from ycli.yandex.tracker.statuses.models import (
-    LocalizedName,
-    Status,
-    StatusCreate,
-    StatusList,
-    StatusUpdate,
-)
+from ycli.yandex.tracker.models import LocalizedName
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
 
 
 def test_status_parses_every_field():

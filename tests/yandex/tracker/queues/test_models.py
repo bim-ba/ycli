@@ -1,5 +1,6 @@
 """TDD for the queues models — aliases, nested refs, and the flat QueueList."""
 
+from ycli.yandex.tracker.models import Reference, UserReference
 from ycli.yandex.tracker.queues.models import (
     IssueTypeConfig,
     IssueTypeConfigInput,
@@ -13,8 +14,6 @@ from ycli.yandex.tracker.queues.models import (
     QueuePermissionsUpdate,
     QueueTagList,
     QueueTagRemove,
-    QueueUser,
-    QueueVersion,
     QueueVersionCreate,
     QueueVersionInfo,
     QueueVersionInfoList,
@@ -90,8 +89,8 @@ def test_queue_serializes_by_alias_roundtrip():
 
 
 def test_nested_models_standalone():
-    assert QueueUser.model_validate({"display": "Ivan"}).display == "Ivan"
-    assert QueueVersion.model_validate({"id": "4", "display": "v4"}).display == "v4"
+    assert UserReference.model_validate({"display": "Ivan"}).display == "Ivan"
+    assert Reference.model_validate({"id": "4", "display": "v4"}).display == "v4"
     cfg = IssueTypeConfig.model_validate({"issueType": {"key": "bug"}})
     assert cfg.issue_type.key == "bug" and cfg.resolutions == []  # ty: ignore[unresolved-attribute]
 

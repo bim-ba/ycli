@@ -1,11 +1,8 @@
 """Contract cases for Tracker ``/resolutions`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.resolutions.models import (
-    LocalizedName,
-    ResolutionCreate,
-    ResolutionUpdate,
-)
+from ycli.yandex.tracker.models import LocalizedName
+from ycli.yandex.tracker.resolutions.models import ResolutionCreate, ResolutionUpdate
 
 CASES = [
     Case(

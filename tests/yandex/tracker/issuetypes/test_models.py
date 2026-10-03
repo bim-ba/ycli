@@ -5,8 +5,8 @@ from ycli.yandex.tracker.issuetypes.models import (
     IssueTypeCreate,
     IssueTypeList,
     IssueTypeUpdate,
-    LocalizedName,
 )
+from ycli.yandex.tracker.models import LocalizedName
 
 
 def test_issuetype_and_list_parse():

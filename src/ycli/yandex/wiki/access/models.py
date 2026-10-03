@@ -14,6 +14,7 @@ from typing import Any, Literal, Self
 from pydantic import Field, model_validator
 
 from ycli.yandex.models import APIModel
+from ycli.yandex.wiki.models import UserIdentity
 
 #: What a grant lets its holder do, weakest first.
 AccessRole = Literal["reader", "editor", "extra_editor", "author"]
@@ -21,18 +22,6 @@ AccessRole = Literal["reader", "editor", "extra_editor", "author"]
 GroupSource = Literal["dir", "cloud", "com", "staff"]
 #: Whether a grant also applies to the page's subpages.
 AccessInheritance = Literal["inherited", "not_inherited"]
-
-
-class UserIdentity(APIModel):
-    """A user by passport ``uid`` or ``cloud_uid`` (what ``wiki me get`` prints as ``identity``).
-
-    Examples:
-        >>> UserIdentity(uid="1000").model_dump(exclude_none=True)
-        {'uid': '1000'}
-    """
-
-    uid: str | None = Field(default=None, description="Passport uid of the user.")
-    cloud_uid: str | None = Field(default=None, description="Cloud uid of the user.")
 
 
 class GroupIdentity(APIModel):

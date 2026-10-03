@@ -1,7 +1,8 @@
 """Contract cases for Tracker ``/statuses`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.statuses.models import LocalizedName, StatusCreate, StatusUpdate
+from ycli.yandex.tracker.models import LocalizedName
+from ycli.yandex.tracker.statuses.models import StatusCreate, StatusUpdate
 
 CASES = [
     Case(

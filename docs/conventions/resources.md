@@ -24,6 +24,18 @@ class MyModel(APIModel): ...
 alias) and `serialize_by_alias=True` (every dump, CLI and MCP alike, keeps the API's field
 names).  Never use bare `pydantic.BaseModel` inside `ycli.yandex`.
 
+### One class per shape
+
+A shape that two or more resources of a service read (a reference with `self`, `id` and
+`display`; a localized name) is one class in the service's `models.py`
+(`ycli.yandex.tracker.models.Reference`), not a class per resource. A model used by one
+resource stays in that resource. `tests/test_model_shapes.py` fails when two models of a
+service have the same schema, unless the group is listed in `SAME_SHAPE` with its reason.
+
+A merged class keeps its old name as a plain assignment in the module that defined it
+(`BoardColumn = Reference  # deprecated, removed in 0.38`) for one minor release;
+`DEPRECATED` in the same test lists them, and nothing in the repository may import them.
+
 ---
 
 ## 2. List-model naming: `XList` is flat, `XResponse` is the envelope

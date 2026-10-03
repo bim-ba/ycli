@@ -1,4 +1,4 @@
-"""Pydantic models for Tracker agile boards (BoardColumn + Calendar + Board + BoardList)."""
+"""Pydantic models for Tracker agile boards (Reference + Calendar + Board + BoardList)."""
 
 from __future__ import annotations
 
@@ -10,23 +10,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-
-
-class BoardColumn(APIModel):
-    """One column of an agile board (``columns[]`` item) — a status bucket for cards.
-
-    Examples:
-        >>> BoardColumn.model_validate({"id": "1", "display": "Open"}).display
-        'Open'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns information about the column's task field.",
-    )
-    id: str | None = Field(default=None, description="Identifier of the column's task field.")
-    display: str | None = Field(default=None, description="Human-readable name of the column.")
+from ycli.yandex.tracker.models import Reference
 
 
 class Calendar(APIModel):
@@ -66,7 +50,7 @@ class Board(APIModel):
         description="Board version; every change to the board increments this number.",
     )
     name: str | None = Field(default=None, description="Name of the board.")
-    columns: list[BoardColumn] = Field(
+    columns: list[Reference] = Field(
         default_factory=list, description="Columns of the board, one status bucket per column."
     )
     created_at: str | None = Field(
@@ -194,3 +178,6 @@ class BoardUpdate(APIModel):
     columns: list[BoardColumnInput] | None = Field(
         default=None, description="Replacement status-backed columns of the board."
     )
+
+
+BoardColumn = Reference  # deprecated, removed in 0.38

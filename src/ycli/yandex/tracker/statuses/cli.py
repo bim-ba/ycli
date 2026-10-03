@@ -8,13 +8,8 @@ import typer
 
 from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.statuses.models import (
-    LocalizedName,
-    Status,
-    StatusCreate,
-    StatusList,
-    StatusUpdate,
-)
+from ycli.yandex.tracker.models import LocalizedName
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusList, StatusUpdate
 
 app = typer.Typer(name="statuses", help="Tracker issue statuses.", no_args_is_help=True)
 

@@ -13,85 +13,7 @@ from typing import Any
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-
-
-class QueueUser(APIModel):
-    """A user reference inside a queue (the ``lead`` owner or a ``teamUsers`` member).
-
-    Examples:
-        >>> QueueUser.model_validate({"id": "42", "display": "Ivan Ivanov"}).display
-        'Ivan Ivanov'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the user account.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the user account.")
-    display: str | None = Field(default=None, description="Display name of the user.")
-    passport_uid: int | None = Field(
-        default=None,
-        alias="passportUid",
-        description="Unique account identifier in Yandex 360 for Business and Yandex ID.",
-    )
-    cloud_uid: str | None = Field(
-        default=None,
-        alias="cloudUid",
-        description="Unique identifier of the user in Yandex Cloud Organization.",
-    )
-
-
-class QueueRef(APIModel):
-    """A keyed reference to a typed entity (issue type, priority, resolution, …).
-
-    Examples:
-        >>> QueueRef.model_validate({"key": "task", "display": "Task"}).key
-        'task'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the entity.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the entity.")
-    key: str | None = Field(default=None, description="Machine key of the entity (e.g. task, bug).")
-    display: str | None = Field(default=None, description="Human-readable name of the entity.")
-
-
-class QueueVersion(APIModel):
-    """A version defined on the queue (``versions`` item; has no ``key``).
-
-    Examples:
-        >>> QueueVersion.model_validate({"id": "4", "display": "My version"}).display
-        'My version'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the version.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the version.")
-    display: str | None = Field(default=None, description="Human-readable name of the version.")
-
-
-class WorkflowRef(APIModel):
-    """A workflow (life-cycle) reference used inside ``issueTypesConfig``.
-
-    Examples:
-        >>> WorkflowRef.model_validate({"id": "dev", "display": "dev"}).id
-        'dev'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the workflow.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the workflow.")
-    display: str | None = Field(default=None, description="Human-readable name of the workflow.")
+from ycli.yandex.tracker.models import KeyedReference, Reference, UserReference
 
 
 class IssueTypeConfig(APIModel):
@@ -106,13 +28,13 @@ class IssueTypeConfig(APIModel):
         'task'
     """
 
-    issue_type: QueueRef | None = Field(
+    issue_type: KeyedReference | None = Field(
         default=None, alias="issueType", description="The issue type this configuration applies to."
     )
-    workflow: WorkflowRef | None = Field(
+    workflow: Reference | None = Field(
         default=None, description="The life-cycle (workflow) bound to this issue type."
     )
-    resolutions: list[QueueRef] = Field(
+    resolutions: list[KeyedReference] = Field(
         default_factory=list,
         description="Resolutions that may be set when closing an issue of this type.",
     )
@@ -147,37 +69,37 @@ class Queue(APIModel):
     )
     name: str | None = Field(default=None, description="Human-readable name of the queue.")
     description: str | None = Field(default=None, description="Free-text description of the queue.")
-    lead: QueueUser | None = Field(default=None, description="The queue owner (lead).")
+    lead: UserReference | None = Field(default=None, description="The queue owner (lead).")
     assign_auto: bool | None = Field(
         default=None,
         alias="assignAuto",
         description="Whether new issues in the queue are auto-assigned (true) or not (false).",
     )
-    default_type: QueueRef | None = Field(
+    default_type: KeyedReference | None = Field(
         default=None,
         alias="defaultType",
         description="Issue type assigned to new issues by default.",
     )
-    default_priority: QueueRef | None = Field(
+    default_priority: KeyedReference | None = Field(
         default=None,
         alias="defaultPriority",
         description="Priority assigned to new issues by default.",
     )
-    team_users: list[QueueUser] = Field(
+    team_users: list[UserReference] = Field(
         default_factory=list,
         alias="teamUsers",
         description="Members of the queue team (present with expand=team).",
     )
-    issue_types: list[QueueRef] = Field(
+    issue_types: list[KeyedReference] = Field(
         default_factory=list,
         alias="issueTypes",
         description="Issue types available in the queue (present with expand=types).",
     )
-    versions: list[QueueVersion] = Field(
+    versions: list[Reference] = Field(
         default_factory=list,
         description="Versions defined on the queue (present with expand=versions).",
     )
-    workflows: dict[str, list[QueueRef]] = Field(
+    workflows: dict[str, list[KeyedReference]] = Field(
         default_factory=dict,
         description="Life-cycles keyed by workflow name, each mapping to its issue-type refs.",
     )
@@ -214,7 +136,7 @@ class QueueTagList(RootModel[list[str]]):
 class QueueVersionInfo(APIModel):
     """A queue version (``GET /queues/{id}/versions`` item, ``POST /versions/`` result).
 
-    Unlike the lean ``QueueVersion`` inside an ``expand=versions`` block, this carries the full
+    Unlike the lean ``Reference`` inside an ``expand=versions`` block, this carries the full
     version record — release/archive flags, date range and the owning queue reference.
 
     Examples:
@@ -229,7 +151,7 @@ class QueueVersionInfo(APIModel):
     )
     id: int | None = Field(default=None, description="Unique identifier of the version.")
     version: int | None = Field(default=None, description="Sequence number of the version.")
-    queue: QueueRef | None = Field(
+    queue: KeyedReference | None = Field(
         default=None, description="Reference to the queue this version belongs to."
     )
     name: str | None = Field(default=None, description="Human-readable name of the version.")
@@ -512,21 +434,6 @@ class QueueVersionUpdate(APIModel):
     )
 
 
-class AccessRef(APIModel):
-    """A group, role or component named in an access answer (``{self, id, display}``).
-
-    Examples:
-        >>> AccessRef.model_validate({"id": "queue-lead", "display": "Queue owner"}).id
-        'queue-lead'
-    """
-
-    self_url: str | None = Field(
-        default=None, alias="self", description="API resource URL of the group, role or component."
-    )
-    id: str | None = Field(default=None, description="Identifier of the group, role or component.")
-    display: str | None = Field(default=None, description="Display name.")
-
-
 class AccessHolders(APIModel):
     """Who holds one permission: users, groups and roles (an empty kind is left out by the API).
 
@@ -535,13 +442,13 @@ class AccessHolders(APIModel):
         '5'
     """
 
-    users: list[QueueUser] = Field(
+    users: list[UserReference] = Field(
         default_factory=list, description="Users holding the permission personally."
     )
-    groups: list[AccessRef] = Field(
+    groups: list[Reference] = Field(
         default_factory=list, description="Groups holding the permission."
     )
-    roles: list[AccessRef] = Field(
+    roles: list[Reference] = Field(
         default_factory=list, description="Roles (queue-lead, author, …) holding the permission."
     )
 
@@ -583,11 +490,11 @@ class QueueUserAccess(APIModel):
         '11'
     """
 
-    user: QueueUser | None = Field(default=None, description="The user the rights belong to.")
+    user: UserReference | None = Field(default=None, description="The user the rights belong to.")
     permissions: AccessPermissions | None = Field(
         default=None, description="Rights by kind, with who grants each (personal, group, role)."
     )
-    components: list[AccessRef] = Field(
+    components: list[Reference] = Field(
         default_factory=list, description="Components the user has access to."
     )
 
@@ -600,10 +507,17 @@ class QueueGroupAccess(APIModel):
         '5'
     """
 
-    group: AccessRef | None = Field(default=None, description="The group the rights belong to.")
+    group: Reference | None = Field(default=None, description="The group the rights belong to.")
     permissions: AccessPermissions | None = Field(
         default=None, description="Rights by kind, with who grants each."
     )
-    components: list[AccessRef] = Field(
+    components: list[Reference] = Field(
         default_factory=list, description="Components the group has access to."
     )
+
+
+AccessRef = Reference  # deprecated, removed in 0.38
+QueueRef = KeyedReference  # deprecated, removed in 0.38
+QueueUser = UserReference  # deprecated, removed in 0.38
+QueueVersion = Reference  # deprecated, removed in 0.38
+WorkflowRef = Reference  # deprecated, removed in 0.38

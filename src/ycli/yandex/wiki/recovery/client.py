@@ -8,13 +8,13 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.wiki.recovery import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.wiki.recovery.models import RecoveredPage
+    from ycli.yandex.wiki.models import PageIdentity
 
 
 class RecoveryClient(Resource):
     """Restore a deleted page by its recovery token."""
 
-    def restore(self, token: str) -> RecoveredPage:
+    def restore(self, token: str) -> PageIdentity:
         """``POST /recovery_tokens/{token}/recover`` → the restored page's ``{id, slug}``.
 
         Redeems a ``recovery_token`` returned by ``PagesClient.delete`` to undo the delete.

@@ -5,56 +5,8 @@ from __future__ import annotations
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.queues.models import (  # pydantic resolves field types at runtime
-    AccessPermissions,
-    AccessRef,
-    QueueUser,
-)
-
-
-class ComponentQueue(APIModel):
-    """The queue a component belongs to (the ``queue`` object).
-
-    Examples:
-        >>> ComponentQueue.model_validate({"key": "ORG", "display": "My queue"}).key
-        'ORG'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the queue.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the queue.")
-    key: str | None = Field(default=None, description="Key of the queue.")
-    display: str | None = Field(default=None, description="Human-readable name of the queue.")
-
-
-class ComponentLead(APIModel):
-    """The owner (lead) of a component (the ``lead`` object).
-
-    Examples:
-        >>> ComponentLead.model_validate({"id": "11", "display": "Ivan Ivanov"}).display
-        'Ivan Ivanov'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the user.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the user.")
-    display: str | None = Field(default=None, description="Display name of the user.")
-    cloud_uid: str | None = Field(
-        default=None,
-        alias="cloudUid",
-        description="Unique identifier of the user in Yandex Cloud Organization.",
-    )
-    passport_uid: int | None = Field(
-        default=None,
-        alias="passportUid",
-        description="Unique identifier of the account in Yandex 360 for Business and Yandex ID.",
-    )
+from ycli.yandex.tracker.models import KeyedReference, Reference, UserReference
+from ycli.yandex.tracker.queues.models import AccessPermissions
 
 
 class Component(APIModel):
@@ -76,11 +28,11 @@ class Component(APIModel):
         description="Version of the component; each change increments the version number.",
     )
     name: str | None = Field(default=None, description="Display name of the component.")
-    queue: ComponentQueue | None = Field(
+    queue: KeyedReference | None = Field(
         default=None, description="Object with information about the component's queue."
     )
     description: str | None = Field(default=None, description="Text description of the component.")
-    lead: ComponentLead | None = Field(
+    lead: UserReference | None = Field(
         default=None, description="Object with information about the component's owner."
     )
     assign_auto: bool | None = Field(
@@ -148,7 +100,7 @@ class ComponentUserAccess(APIModel):
         1
     """
 
-    user: QueueUser | None = Field(default=None, description="The user the rights belong to.")
+    user: UserReference | None = Field(default=None, description="The user the rights belong to.")
     component: Component | None = Field(default=None, description="The component.")
     permissions: AccessPermissions | None = Field(
         default=None,
@@ -164,9 +116,13 @@ class ComponentGroupAccess(APIModel):
         '5'
     """
 
-    group: AccessRef | None = Field(default=None, description="The group the rights belong to.")
+    group: Reference | None = Field(default=None, description="The group the rights belong to.")
     component: Component | None = Field(default=None, description="The component.")
     permissions: AccessPermissions | None = Field(
         default=None,
         description="Rights by kind (create, read, write, deny), with who grants each.",
     )
+
+
+ComponentLead = UserReference  # deprecated, removed in 0.38
+ComponentQueue = KeyedReference  # deprecated, removed in 0.38

@@ -1,7 +1,7 @@
 """Model-parse + Field-metadata coverage for the Tracker resolutions models."""
 
+from ycli.yandex.tracker.models import LocalizedName
 from ycli.yandex.tracker.resolutions.models import (
-    LocalizedName,
     Resolution,
     ResolutionCreate,
     ResolutionList,

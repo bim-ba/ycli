@@ -7,67 +7,7 @@ from typing import Any
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-
-
-class FilterFieldRef(APIModel):
-    """A reference to an issue field shown in the filter UI (``fields`` / ``groupBy`` item).
-
-    Examples:
-        >>> FilterFieldRef.model_validate({"id": "status", "display": "Status"}).id
-        'status'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the field.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the field.")
-    display: str | None = Field(default=None, description="Human-readable name of the field.")
-
-
-class FilterUser(APIModel):
-    """A user referenced by a filter's owner or permissions.
-
-    Examples:
-        >>> FilterUser.model_validate({"id": "1", "display": "Ivan"}).display
-        'Ivan'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the user.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the user.")
-    display: str | None = Field(default=None, description="Display name of the user.")
-    cloud_uid: str | None = Field(
-        default=None,
-        alias="cloudUid",
-        description="Unique identifier of the user in Yandex Cloud Organization.",
-    )
-    passport_uid: int | None = Field(
-        default=None,
-        alias="passportUid",
-        description="Unique identifier of the account in Yandex 360 for Business and Yandex ID.",
-    )
-
-
-class FilterGroup(APIModel):
-    """A group referenced by a filter's permissions.
-
-    Examples:
-        >>> FilterGroup.model_validate({"id": "5", "display": "Everyone"}).display
-        'Everyone'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the group.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the group.")
-    display: str | None = Field(default=None, description="Human-readable name of the group.")
+from ycli.yandex.tracker.models import Reference, UserReference
 
 
 class FilterPermissionEntry(APIModel):
@@ -78,10 +18,10 @@ class FilterPermissionEntry(APIModel):
         []
     """
 
-    users: list[FilterUser] = Field(
+    users: list[UserReference] = Field(
         default_factory=list, description="Users granted this permission level."
     )
-    groups: list[FilterGroup] = Field(
+    groups: list[Reference] = Field(
         default_factory=list, description="Groups granted this permission level."
     )
     roles: list[Any] = Field(
@@ -126,11 +66,11 @@ class Filter(APIModel):
     query: str | None = Field(
         default=None, description="Filtering conditions written in the Tracker query language."
     )
-    fields: list[FilterFieldRef] = Field(
+    fields: list[Reference] = Field(
         default_factory=list,
         description="Issue fields displayed in the Tracker UI when the filter is used.",
     )
-    group_by: FilterFieldRef | None = Field(
+    group_by: Reference | None = Field(
         default=None,
         alias="groupBy",
         description="Field used to group results in the Tracker UI.",
@@ -142,7 +82,7 @@ class Filter(APIModel):
     permissions: FilterPermissions | None = Field(
         default=None, description="Object with the filter's access rights."
     )
-    owner: FilterUser | None = Field(
+    owner: UserReference | None = Field(
         default=None, description="Object with information about the filter's owner."
     )
 
@@ -187,3 +127,8 @@ class FilterUpdate(APIModel):
     query: str | None = Field(
         default=None, description="New filtering conditions in the Tracker query language."
     )
+
+
+FilterFieldRef = Reference  # deprecated, removed in 0.38
+FilterGroup = Reference  # deprecated, removed in 0.38
+FilterUser = UserReference  # deprecated, removed in 0.38

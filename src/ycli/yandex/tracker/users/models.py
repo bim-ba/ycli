@@ -1,27 +1,11 @@
-"""Pydantic models for Tracker users (Group + User + UserList + relative-page envelope)."""
+"""Pydantic models for Tracker users (Reference + User + UserList + relative-page envelope)."""
 
 from __future__ import annotations
 
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-
-
-class Group(APIModel):
-    """A group a user belongs to (present only when ``expand=groups`` was requested).
-
-    Examples:
-        >>> Group.model_validate({"id": "5", "display": "Developers"}).display
-        'Developers'
-    """
-
-    self_url: str | None = Field(
-        default=None,
-        alias="self",
-        description="API resource URL that returns full information about the group.",
-    )
-    id: str | None = Field(default=None, description="Unique identifier of the group.")
-    display: str | None = Field(default=None, description="Human-readable name of the group.")
+from ycli.yandex.tracker.models import Reference
 
 
 class User(APIModel):
@@ -65,7 +49,7 @@ class User(APIModel):
     )
     display: str | None = Field(default=None, description="Display name of the user.")
     email: str | None = Field(default=None, description="Email address of the user.")
-    groups: list[Group] = Field(
+    groups: list[Reference] = Field(
         default_factory=list,
         description="Groups the user belongs to; populated only when expand=groups is requested.",
     )
@@ -134,3 +118,6 @@ class UsersRelativeResponse(APIModel):
         alias="hasNext",
         description="Whether further pages remain (true) or this is the last page (false).",
     )
+
+
+Group = Reference  # deprecated, removed in 0.38

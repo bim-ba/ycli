@@ -8,8 +8,8 @@ import typer
 
 from ycli.cli.aliases import deprecated_alias
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.models import LocalizedName
 from ycli.yandex.tracker.resolutions.models import (
-    LocalizedName,
     Resolution,
     ResolutionCreate,
     ResolutionList,
