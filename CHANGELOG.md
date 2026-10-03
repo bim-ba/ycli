@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.52.0 (2026-10-03)
+
+### Build System
+
+- Re-lock uv.lock for 0.51.0
+  ([`c92dc8d`](https://github.com/bim-ba/ycli/commit/c92dc8ded1d52d5e25fef2f82d78a15b3612e983))
+
+### Features
+
+- **auth**: Named profiles for several organizations
+  ([#256](https://github.com/bim-ba/ycli/pull/256),
+  [`0d44bbc`](https://github.com/bim-ba/ycli/commit/0d44bbc64d96adf67e560d659f4d30492e1a1e7e))
+
+
 ## v0.51.0 (2026-10-03)
 
 ### Bug Fixes
