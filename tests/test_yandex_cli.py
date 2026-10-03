@@ -186,5 +186,14 @@ def test_a_usage_error_wins_over_missing_credentials(monkeypatch, tmp_path):
     """Clients are built on first use, so a command's own argument check runs first (exit 2)."""
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
-    res = runner.invoke(cli.app, ["forms", "answers", "get"])
+    res = runner.invoke(cli.app, ["forms", "files", "delete"])
     assert res.exit_code == 2, res.output  # a credentials error would exit 1
+
+
+def test_a_check_the_sdk_makes_comes_after_signing_in(monkeypatch, tmp_path):
+    """The form of a request is checked by the client, and a client needs credentials first."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN")
+    res = runner.invoke(cli.app, ["forms", "answers", "get"])
+    assert res.exit_code == 1, res.output
+    assert "YANDEX_ID_OAUTH_TOKEN is not set" in str(res.exception)

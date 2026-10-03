@@ -19,6 +19,15 @@ class YandexError(Exception):
         self.url = url
 
 
+class YandexInvalidRequestError(YandexError):
+    """The request has a wrong form, found before anything is sent.
+
+    ycli checks only what the published schema shows without the server: which arguments go
+    together, a value's type or range. Whether a well-formed request makes sense is the API's
+    to say, and its answer comes back as it is.
+    """
+
+
 class YandexAuthError(YandexError):
     """401/403 — missing, invalid, or insufficient credentials."""
 

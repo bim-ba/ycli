@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Annotated
 
@@ -28,17 +27,27 @@ BodyFileArg = Annotated[
     Path,
     typer.Option(
         "--body-file",
+        exists=True,
+        dir_okay=False,
+        readable=True,
         help='JSON file with the integration body; "type" selects it: email, tracker, '
         "tracker_comment, wiki, jsonrpc, http or function.",
     ),
 ]
 FilePathArg = Annotated[
-    Path, typer.Argument(metavar="FILE_PATH", help="Local file to attach to every run.")
+    Path,
+    typer.Argument(
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        metavar="FILE_PATH",
+        help="Local file to attach to every run.",
+    ),
 ]
 
 
 def _body(body_file: Path) -> Subscription:
-    return SubscriptionAdapter.validate_python(json.loads(body_file.read_text(encoding="utf-8")))
+    return SubscriptionAdapter.validate_json(body_file.read_bytes())
 
 
 @app.command("list")

@@ -5,7 +5,6 @@ All three also reach MCP (``filling_get`` / ``filling_submit`` / ``filling_sugge
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Annotated
 
@@ -27,6 +26,9 @@ BodyFileArg = Annotated[
     Path,
     typer.Option(
         "--body-file",
+        exists=True,
+        dir_okay=False,
+        readable=True,
         help="JSON file: an answer map keyed by question slug (see `filling get` values).",
     ),
 ]
@@ -53,7 +55,7 @@ def submit(
     forms: FormsClient,
 ) -> SubmitResult:
     """Submit a form response from --body-file (POST …/form); --validate-only validates only."""
-    payload = SubmitBody.model_validate(json.loads(body_file.read_text(encoding="utf-8")))
+    payload = SubmitBody.model_validate_json(body_file.read_bytes())
     return forms.filling.submit(survey, payload, dry_run=validate_only, key=key)
 
 

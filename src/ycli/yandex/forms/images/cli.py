@@ -18,7 +18,14 @@ app = typer.Typer(name="images", help="Forms images.", no_args_is_help=True)
 # Module-level Annotated alias so ``Path`` is referenced at runtime (typer resolves annotations
 # via get_type_hints), keeping the import out of a TYPE_CHECKING block.
 ImagePathArg = Annotated[
-    Path, typer.Argument(metavar="IMAGE_PATH", help="Local image file to upload.")
+    Path,
+    typer.Argument(
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        metavar="IMAGE_PATH",
+        help="Local image file to upload.",
+    ),
 ]
 
 

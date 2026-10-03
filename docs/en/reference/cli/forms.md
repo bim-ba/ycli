@@ -410,7 +410,7 @@ $ ycli forms questions create [OPTIONS] SURVEY_ID
 * `--multiline / --no-multiline`: Multiline text (string type).
 * `--widget TEXT`: Enum widget: radio/checkbox/dropdown/stars/onerow.
 * `--option TEXT`: Enum option label (repeatable).
-* `--body-file PATH`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
+* `--body-file FILE`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -445,7 +445,7 @@ $ ycli forms questions update [OPTIONS] SURVEY_ID QUESTION_ID
 * `--multiline / --no-multiline`: Multiline text (string type).
 * `--widget TEXT`: Enum widget: radio/checkbox/dropdown/stars/onerow.
 * `--option TEXT`: Enum option label (repeatable).
-* `--body-file PATH`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
+* `--body-file FILE`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -623,7 +623,7 @@ $ ycli forms conditions question create [OPTIONS] SURVEY_ID QUESTION_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -651,7 +651,7 @@ $ ycli forms conditions question update [OPTIONS] SURVEY_ID QUESTION_ID CONDITIO
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -800,7 +800,7 @@ $ ycli forms conditions page create [OPTIONS] SURVEY_ID PAGE_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -828,7 +828,7 @@ $ ycli forms conditions page update [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -974,7 +974,7 @@ $ ycli forms conditions submit create [OPTIONS] SURVEY_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1001,7 +1001,7 @@ $ ycli forms conditions submit update [OPTIONS] SURVEY_ID CONDITION_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1148,7 +1148,7 @@ $ ycli forms conditions hook create [OPTIONS] SURVEY_ID HOOK_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1176,7 +1176,7 @@ $ ycli forms conditions hook update [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 
 * `--operator TEXT`: Boolean operator: and | or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
-* `--body-file PATH`: JSON file with the full {operator, items} group body.
+* `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2213,7 +2213,7 @@ $ ycli forms filling submit [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--body-file PATH`: JSON file: an answer map keyed by question slug (see `filling get` values).  [required]
+* `--body-file FILE`: JSON file: an answer map keyed by question slug (see `filling get` values).  [required]
 * `--validate-only`: Validate only — save nothing, fire no integrations.
 * `--key TEXT`: Personal-link fill key, when the form uses one.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -2483,7 +2483,7 @@ $ ycli forms subscriptions create [OPTIONS] SURVEY_ID HOOK_ID
 
 **Options**:
 
-* `--body-file PATH`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
+* `--body-file FILE`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2509,7 +2509,7 @@ $ ycli forms subscriptions update [OPTIONS] SURVEY_ID HOOK_ID SUBSCRIPTION_ID
 
 **Options**:
 
-* `--body-file PATH`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
+* `--body-file FILE`: JSON file with the integration body; "type" selects it: email, tracker, tracker_comment, wiki, jsonrpc, http or function.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.

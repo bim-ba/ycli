@@ -43,7 +43,13 @@ ItemOpt = Annotated[
 ]
 BodyFileOpt = Annotated[
     Path | None,
-    typer.Option("--body-file", help="JSON file with the full {operator, items} group body."),
+    typer.Option(
+        "--body-file",
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        help="JSON file with the full {operator, items} group body.",
+    ),
 ]
 
 
@@ -66,7 +72,7 @@ def _resolve_body[M: ConditionCreate](
 ) -> M:
     """The typed group body from ``--body-file`` JSON, or from ``--operator`` + ``--item``."""
     if body_file is not None:
-        return model_cls.model_validate(json.loads(body_file.read_text(encoding="utf-8")))
+        return model_cls.model_validate_json(body_file.read_bytes())
     if operator is None or not item:
         raise typer.BadParameter("pass --operator and at least one --item, or --body-file")
     return model_cls.model_validate(

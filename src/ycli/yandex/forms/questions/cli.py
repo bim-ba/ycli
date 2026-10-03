@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -115,8 +114,7 @@ def _resolve_body(
 ) -> QuestionCreate:
     """Pick the write body: a ``--body-file`` JSON validated through the union, else typed flags."""
     if body_file is not None:
-        data = json.loads(body_file.read_text(encoding="utf-8"))
-        return QuestionCreateAdapter.validate_python(data)
+        return QuestionCreateAdapter.validate_json(body_file.read_bytes())
     if type_ is None:
         raise typer.BadParameter("pass --type (with flags) or --body-file")
     return _build_from_flags(
@@ -163,6 +161,9 @@ BodyFileOpt = Annotated[
     Path | None,
     typer.Option(
         "--body-file",
+        exists=True,
+        dir_okay=False,
+        readable=True,
         help="JSON file with the full question body (validated through the typed union); "
         "use for matrix/series/suggest/payment/daterange.",
     ),
