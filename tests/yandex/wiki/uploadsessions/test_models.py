@@ -1,10 +1,10 @@
 """Model tests for the Wiki /upload_sessions resource."""
 
+from ycli.yandex.wiki.models import User
 from ycli.yandex.wiki.uploadsessions.models import (
     AbortActiveUploadsResult,
     UploadSession,
     UploadSessionCreate,
-    UploadSessionUser,
 )
 
 
@@ -30,7 +30,7 @@ def test_upload_session_parses_full_payload():
     )
     assert session.session_id == "s-1"
     assert session.file_size == 2048
-    assert isinstance(session.user, UploadSessionUser)
+    assert isinstance(session.user, User)
     assert session.user.identity is not None and session.user.identity.uid == "42"
     assert session.storage_type == "mds"
 

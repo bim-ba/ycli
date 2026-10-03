@@ -19,9 +19,10 @@ from pydantic import AliasChoices, ConfigDict, Field, RootModel
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime
     APIModel,
 )
-from ycli.yandex.tracker import models as _shared
 from ycli.yandex.tracker.models import (
     AttachmentMetadata,
+    Deadline,
+    DeadlineInput,
     KeyedReference,
     Reference,
     UserReference,
@@ -47,25 +48,6 @@ class ParentEntity(APIModel):
     secondary: list[Reference] = Field(
         default_factory=list,
         description="Additional portfolios (projects/portfolios only; empty for goals).",
-    )
-
-
-class Deadline(APIModel):
-    """A deadline block on a checklist item or key result.
-
-    Examples:
-        >>> Deadline.model_validate({"date": "2025-12-01", "deadlineType": "date"}).deadline_type
-        'date'
-    """
-
-    date: str | None = Field(
-        default=None, description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm."
-    )
-    deadline_type: str | None = Field(
-        default=None, alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
-    )
-    is_exceeded: bool | None = Field(
-        default=None, alias="isExceeded", description="Whether the deadline has already passed."
     )
 
 
@@ -613,20 +595,6 @@ class BulkChangeOperation(APIModel):
 # --------------------------------------------------------------------------------------------
 
 
-class DeadlineInput(APIModel):
-    """Typed ``deadline`` block for a checklist write body.
-
-    Examples:
-        >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000").model_dump(by_alias=True)
-        {'date': '2025-12-01T00:00:00.000+0000', 'deadlineType': 'date'}
-    """
-
-    date: str = Field(description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
-    deadline_type: str = Field(
-        default="date", alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
-    )
-
-
 class ParentEntityInput(APIModel):
     """Typed ``parentEntity`` block for a create/edit body (ids, not objects).
 
@@ -992,10 +960,3 @@ class ReportCreate(APIModel):
     """
 
     fields: ReportFieldsInput = Field(description="Report settings (summary + export parameters).")
-
-
-AclGroup = Reference  # deprecated, removed in 0.38
-EntityRef = Reference  # deprecated, removed in 0.38
-IssueQueueRef = KeyedReference  # deprecated, removed in 0.38
-UserRef = UserReference  # deprecated, removed in 0.38
-CommentCreate = _shared.CommentCreate  # deprecated, removed in 0.38

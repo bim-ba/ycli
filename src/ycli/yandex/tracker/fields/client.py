@@ -16,10 +16,10 @@ if TYPE_CHECKING:
         FieldCategoryCreate,
         FieldCategoryRecord,
         FieldCategoryUpdate,
-        FieldCreate,
         FieldList,
         FieldUpdate,
     )
+    from ycli.yandex.tracker.models import FieldCreate
 
 
 class FieldsClient(Resource):
@@ -62,8 +62,7 @@ class FieldsClient(Resource):
             The created field.
 
         Examples:
-            >>> from ycli.yandex.tracker.models import LocalizedName
-            >>> from ycli.yandex.tracker.fields.models import FieldCreate
+            >>> from ycli.yandex.tracker.models import FieldCreate, LocalizedName
             >>> tracker.fields.create(
             ...     FieldCreate(
             ...         name=LocalizedName(ru="Поле"),

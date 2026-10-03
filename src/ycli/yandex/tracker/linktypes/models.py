@@ -4,20 +4,7 @@ from __future__ import annotations
 
 from pydantic import RootModel
 
-from ycli.yandex.models import APIModel
-
-
-class LinkType(APIModel):
-    """A link type descriptor (``/linktypes`` item).
-
-    Examples:
-        >>> LinkType.model_validate({"id": "relates", "inward": "x", "outward": "y"}).id
-        'relates'
-    """
-
-    id: str | None = None
-    inward: str | None = None
-    outward: str | None = None
+from ycli.yandex.tracker.models import LinkType
 
 
 class LinkTypeList(RootModel[list[LinkType]]):

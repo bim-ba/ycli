@@ -8,7 +8,7 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, segment
-from ycli.yandex.forms.operations.models import OperationResult
+from ycli.yandex.forms.models import OperationResult
 
 
 def get_operation(operation_id: str) -> Endpoint[OperationResult]:

@@ -1,7 +1,4 @@
-"""Pydantic v2 models for Yandex Wiki /recovery_tokens responses (extra='ignore')."""
+"""The Wiki recovery resource has no model of its own.
 
-from __future__ import annotations
-
-from ycli.yandex.wiki.models import PageIdentity
-
-RecoveredPage = PageIdentity  # deprecated, removed in 0.38
+A restore answers with the page it brought back, a :class:`ycli.yandex.wiki.models.PageIdentity`.
+"""

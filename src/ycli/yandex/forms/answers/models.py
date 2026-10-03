@@ -96,10 +96,6 @@ class AnswersResponse(APIModel):
     next: Any = None
 
 
-#: Export-operation statuses at which polling stops — the export has finished (well or badly).
-EXPORT_TERMINAL_STATUSES = frozenset({"ok", "fail"})
-
-
 class AnswerExport(APIModel):
     """Typed request body for ``POST /v1/surveys/{id}/answers/export`` (start an async export).
 
@@ -135,41 +131,6 @@ class AnswerExport(APIModel):
     upload_files: bool | None = Field(
         default=None, description="Also export respondents' uploaded files to Yandex Disk."
     )
-
-
-class ExportResult(APIModel):
-    """An async answer-export operation — ``{id, status, message}``.
-
-    Returned both by the trigger (``POST …/answers/export`` → ``202``) and by the status read
-    (``GET …/answers/export-results?task_id=…``). ``status`` is one of ``ok``, ``fail``,
-    ``wait`` or ``not_running``; poll the status read until :attr:`is_terminal`, then
-    :attr:`is_ready` (``ok``) means the file can be downloaded. The same shape is exposed
-    generically by :class:`~ycli.yandex.forms.operations.models.OperationResult`.
-
-    Examples:
-        >>> ExportResult.model_validate({"id": "op-1", "status": "ok"}).is_ready
-        True
-    """
-
-    id: str | None = Field(
-        default=None,
-        description="Operation id — poll it via ``export-results`` or ``operations get``.",
-    )
-    status: str | None = Field(
-        default=None,
-        description="Operation status: one of ``ok``, ``fail``, ``wait``, ``not_running``.",
-    )
-    message: str | None = Field(default=None, description="Human-readable operation message.")
-
-    @property
-    def is_terminal(self) -> bool:
-        """``True`` once ``status`` is terminal (see :data:`EXPORT_TERMINAL_STATUSES`)."""
-        return self.status in EXPORT_TERMINAL_STATUSES
-
-    @property
-    def is_ready(self) -> bool:
-        """``True`` when the export finished successfully (``status == "ok"``); the file exists."""
-        return self.status == "ok"
 
 
 class AnswerIntegration(APIModel):

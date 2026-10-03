@@ -14,7 +14,7 @@ from typing import Any, Literal, Self
 from pydantic import Field, model_validator
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.models import UserIdentity
+from ycli.yandex.wiki.models import User, UserIdentity
 
 #: What a grant lets its holder do, weakest first.
 AccessRole = Literal["reader", "editor", "extra_editor", "author"]
@@ -36,22 +36,6 @@ class GroupIdentity(APIModel):
         description="Directory that owns the group: ``dir``, ``cloud``, ``com`` or ``staff``."
     )
     id: str = Field(description="Group id inside that directory.")
-
-
-class AccessUser(APIModel):
-    """A user in an access entry or as a page owner.
-
-    Examples:
-        >>> AccessUser.model_validate({"id": 7, "username": "ivan"}).username
-        'ivan'
-    """
-
-    id: int | None = Field(default=None, description="Wiki's numeric id of the user.")
-    identity: UserIdentity | None = Field(default=None, description="Passport and cloud uids.")
-    username: str | None = Field(default=None, description="Login of the user.")
-    display_name: str | None = Field(default=None, description="Name to show for the user.")
-    is_dismissed: bool | None = Field(default=None, description="Whether the user has left.")
-    affiliation: str | None = Field(default=None, description="Affiliation of the user.")
 
 
 class AccessGroup(APIModel):
@@ -84,7 +68,7 @@ class PageAccess(APIModel):
 
     id: str = Field(description="Id of the grant, the ``access_id`` of update and delete.")
     created_at: str | None = Field(default=None, description="ISO-8601 time of the grant.")
-    user: AccessUser | None = Field(default=None, description="The user, for a user grant.")
+    user: User | None = Field(default=None, description="The user, for a user grant.")
     group: AccessGroup | None = Field(default=None, description="The group, for a group grant.")
     role: AccessRole = Field(description="What the holder may do.")
     inheritance: AccessInheritance | None = Field(
@@ -184,5 +168,5 @@ class PageOwner(APIModel):
         'ivan'
     """
 
-    user: AccessUser | None = Field(default=None, description="The owning user.")
+    user: User | None = Field(default=None, description="The owning user.")
     group: AccessGroup | None = Field(default=None, description="The owning group (not in use).")

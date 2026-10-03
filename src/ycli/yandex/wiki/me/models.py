@@ -20,6 +20,3 @@ class Me(APIModel):
     home_cluster: str | None = None
     identity: UserIdentity | None = None
     org: Organization | None = None
-
-
-Identity = UserIdentity  # deprecated, removed in 0.38

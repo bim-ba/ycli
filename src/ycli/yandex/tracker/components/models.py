@@ -122,7 +122,3 @@ class ComponentGroupAccess(APIModel):
         default=None,
         description="Rights by kind (create, read, write, deny), with who grants each.",
     )
-
-
-ComponentLead = UserReference  # deprecated, removed in 0.38
-ComponentQueue = KeyedReference  # deprecated, removed in 0.38

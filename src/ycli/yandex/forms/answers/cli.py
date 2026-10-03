@@ -16,9 +16,9 @@ from ycli.yandex.forms.answers.models import (
     AnswerExport,
     AnswerIntegrationList,
     AnswersResponse,
-    ExportResult,
 )
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.forms.typedefs import AnswerIdArg, SurveyIdArg
 from ycli.yandex.models import Ack
 
@@ -62,8 +62,8 @@ def list_(
 
 
 def _finish_export(
-    forms: FormsClient, survey_id: str, op: ExportResult, wait: bool, output: str | None
-) -> ExportResult | BinaryResult:
+    forms: FormsClient, survey_id: str, op: OperationResult, wait: bool, output: str | None
+) -> OperationResult | BinaryResult:
     """The export operation, or (``--wait``) poll it to a terminal state and return the file.
 
     ``--no-wait`` prints the just-started ``{id, status}`` so the caller can poll later with
@@ -125,7 +125,7 @@ def export(
     ] = None,
     *,
     forms: FormsClient,
-) -> ExportResult | BinaryResult:
+) -> OperationResult | BinaryResult:
     """Export a form's answers (POST /answers/export) — async; --wait downloads the file."""
     body = AnswerExport(
         format=export_format,

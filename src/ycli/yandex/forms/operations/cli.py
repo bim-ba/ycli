@@ -7,7 +7,7 @@ from typing import Annotated
 import typer
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.operations.models import OperationResult
+from ycli.yandex.forms.models import OperationResult
 
 app = typer.Typer(name="operations", help="Forms async operations.", no_args_is_help=True)
 

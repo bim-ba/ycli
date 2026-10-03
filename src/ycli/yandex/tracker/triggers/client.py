@@ -68,10 +68,11 @@ class TriggersClient(Resource):
             The created trigger.
 
         Examples:
-            >>> from ycli.yandex.tracker.triggers.models import TriggerAction, TriggerCreate
+            >>> from ycli.yandex.tracker.models import AutomationAction
+            >>> from ycli.yandex.tracker.triggers.models import TriggerCreate
             >>> new_trigger = TriggerCreate(
             ...     name="Reopen on comment",
-            ...     actions=[TriggerAction(type="Transition", status={"key": "open"})],
+            ...     actions=[AutomationAction(type="Transition", status={"key": "open"})],
             ... )
             >>> tracker.triggers.create("ART", new_trigger).id
             17

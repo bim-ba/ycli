@@ -16,10 +16,8 @@ from typing import Literal
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki import models as _shared
 from ycli.yandex.wiki.models import PageIdentity
 
-OperationType = _shared.OperationType  # deprecated, removed in 0.38
 #: Lifecycle status of an async operation.
 OperationStatus = Literal["scheduled", "in_progress", "success", "failed"]
 #: Statuses at which an async operation has stopped running (poll terminates here).
@@ -169,6 +167,3 @@ class MoveOperationStatus(APIModel):
     def is_terminal(self) -> bool:
         """``True`` once ``status`` reached a terminal value (see :data:`TERMINAL_STATUSES`)."""
         return self.status in TERMINAL_STATUSES
-
-
-PageSchema = PageIdentity  # deprecated, removed in 0.38

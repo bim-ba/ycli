@@ -1,13 +1,8 @@
 """Contract cases for Tracker global ``/fields`` and their categories (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.fields.models import (
-    FieldCategoryCreate,
-    FieldCategoryUpdate,
-    FieldCreate,
-    FieldUpdate,
-)
-from ycli.yandex.tracker.models import LocalizedName, OptionsProviderInput
+from ycli.yandex.tracker.fields.models import FieldCategoryCreate, FieldCategoryUpdate, FieldUpdate
+from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
 
 STRING_TYPE = "ru.yandex.startrek.core.fields.StringFieldType"
 

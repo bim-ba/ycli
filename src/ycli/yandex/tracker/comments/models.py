@@ -8,7 +8,6 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-from ycli.yandex.tracker import models as _shared
 from ycli.yandex.tracker.models import Reference
 
 
@@ -52,7 +51,3 @@ class CommentUpdate(APIModel):
     """
 
     text: str = Field(description="Corrected comment text (YFM markdown supported).")
-
-
-CommentAttachment = Reference  # deprecated, removed in 0.38
-CommentCreate = _shared.CommentCreate  # deprecated, removed in 0.38

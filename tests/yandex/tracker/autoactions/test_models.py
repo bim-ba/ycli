@@ -2,7 +2,6 @@
 
 from ycli.yandex.tracker.autoactions.models import (
     Autoaction,
-    AutoactionAction,
     AutoactionCalendar,
     AutoactionCreate,
     AutoactionLogEntry,
@@ -10,6 +9,7 @@ from ycli.yandex.tracker.autoactions.models import (
     AutoactionRunEntry,
     AutoactionRunList,
 )
+from ycli.yandex.tracker.models import AutomationAction
 
 
 def test_autoaction_parses_full_payload():
@@ -40,7 +40,7 @@ def test_autoaction_create_serializes_aliases():
     body = AutoactionCreate(
         name="A",
         filter={"priority": ["critical"]},
-        actions=[AutoactionAction(type="Transition", status={"key": "needInfo"})],  # ty: ignore[unknown-argument]
+        actions=[AutomationAction(type="Transition", status={"key": "needInfo"})],  # ty: ignore[unknown-argument]
         enable_notifications=False,
         interval_millis=3600000,
         calendar=AutoactionCalendar(id=2),
@@ -57,7 +57,7 @@ def test_autoaction_create_serializes_aliases():
 
 def test_autoaction_create_with_query():
     body = AutoactionCreate(
-        name="A", query="Status: Open", actions=[AutoactionAction(type="Transition")]
+        name="A", query="Status: Open", actions=[AutomationAction(type="Transition")]
     ).model_dump(by_alias=True, exclude_none=True)
     assert body["query"] == "Status: Open"
 

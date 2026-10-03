@@ -21,10 +21,10 @@ from ycli.yandex.tracker.fields.models import (
     FieldCategoryCreate,
     FieldCategoryRecord,
     FieldCategoryUpdate,
-    FieldCreate,
     FieldList,
     FieldUpdate,
 )
+from ycli.yandex.tracker.models import FieldCreate
 
 mcp = FastMCP("tracker-fields")
 

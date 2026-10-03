@@ -11,31 +11,12 @@ from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
 from ycli.yandex.tracker.models import (
+    FieldSchema,
     KeyedReference,
     LocalizedName,
     OptionsProviderInput,
     Reference,
 )
-
-
-class LocalFieldSchema(APIModel):
-    """Value-type descriptor of a local field (the ``schema`` block).
-
-    Examples:
-        >>> LocalFieldSchema.model_validate({"type": "string", "required": False}).type
-        'string'
-    """
-
-    type: str | None = Field(
-        default=None,
-        description="Value type: 'string' for a single value, 'array' for multiple values.",
-    )
-    items: str | None = Field(
-        default=None, description="Element type of the values; present only for array fields."
-    )
-    required: bool | None = Field(
-        default=None, description="Whether the field must be filled in (true) or is optional."
-    )
 
 
 class OptionsProvider(APIModel):
@@ -97,7 +78,7 @@ class LocalField(APIModel):
     version: int | None = Field(
         default=None, description="Field version; incremented on every change to the field."
     )
-    field_schema: LocalFieldSchema | None = Field(
+    field_schema: FieldSchema | None = Field(
         default=None, alias="schema", description="Value-type descriptor of the field."
     )
     readonly: bool | None = Field(
@@ -136,38 +117,6 @@ class LocalFieldList(RootModel[list[LocalField]]):
     """
 
 
-class LocalFieldCreate(APIModel):
-    """Typed request body for ``POST /queues/{id}/localFields`` (create a local field).
-
-    Examples:
-        >>> LocalFieldCreate(
-        ...     name=LocalizedName(ru="Поле"), id="loc", category="1", type="StringFieldType"
-        ... ).model_dump(by_alias=True, exclude_none=True)
-        {'name': {'ru': 'Поле'}, 'id': 'loc', 'category': '1', 'type': 'StringFieldType'}
-    """
-
-    name: LocalizedName = Field(description="Localized display name of the new local field.")
-    id: str = Field(description="Identifier (key) of the new local field.")
-    category: str = Field(
-        description="Identifier of the field's category (from GET /fields/categories)."
-    )
-    type: str = Field(
-        description="Field type, e.g. ru.yandex.startrek.core.fields.StringFieldType."
-    )
-    options_provider: OptionsProviderInput | None = Field(
-        default=None,
-        serialization_alias="optionsProvider",
-        description="Fixed drop-down values, when the field is a limited-choice list.",
-    )
-    order: int | None = Field(
-        default=None, description="Position of the field in the organisation's list of fields."
-    )
-    description: str | None = Field(default=None, description="Description of the local field.")
-    readonly: bool | None = Field(
-        default=None, description="Whether the value is read-only (true) or editable (false)."
-    )
-
-
 class LocalFieldUpdate(APIModel):
     """Typed request body for ``PATCH /queues/{id}/localFields/{key}`` (edit a local field).
 
@@ -202,7 +151,3 @@ class LocalFieldUpdate(APIModel):
     hidden: bool | None = Field(
         default=None, description="Whether the field is fully hidden even when filled in."
     )
-
-
-FieldCategory = Reference  # deprecated, removed in 0.38
-FieldQueueRef = KeyedReference  # deprecated, removed in 0.38

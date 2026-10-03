@@ -46,16 +46,14 @@ class AutoactionsClient(Resource):
             The created autoaction.
 
         Examples:
-            >>> from ycli.yandex.tracker.autoactions.models import (
-            ...     AutoactionAction,
-            ...     AutoactionCreate,
-            ... )
+            >>> from ycli.yandex.tracker.autoactions.models import AutoactionCreate
+            >>> from ycli.yandex.tracker.models import AutomationAction
             >>> tracker.autoactions.create(
             ...     "OPS",
             ...     AutoactionCreate(
             ...         name="Stale sweep",
             ...         query="Status: Open",
-            ...         actions=[AutoactionAction(type="Transition")],
+            ...         actions=[AutomationAction(type="Transition")],
             ...     ),
             ... ).id
             10

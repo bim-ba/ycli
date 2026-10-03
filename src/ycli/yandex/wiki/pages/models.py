@@ -7,13 +7,8 @@ from typing import Literal
 from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki.access.models import (  # pydantic resolves field types at runtime
-    AccessUser,
-    PageAccessLists,
-    PageAccessPolicy,
-    PageOwner,
-)
-from ycli.yandex.wiki.models import AsyncOperation, OperationIdentity
+from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
+from ycli.yandex.wiki.models import User
 
 
 class PageAttributes(APIModel):
@@ -346,7 +341,7 @@ class PageRevision(APIModel):
     """
 
     id: int = Field(description="Revision id (the ``revision_id`` of ``GET /pages``).")
-    author: AccessUser | None = Field(default=None, description="Who saved the revision.")
+    author: User | None = Field(default=None, description="Who saved the revision.")
     created_at: str | None = Field(default=None, description="ISO-8601 time it was saved.")
     page_type: str | None = Field(
         default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
@@ -406,8 +401,3 @@ class BacklinksResponse(APIModel):
         default=None,
         description="Cursor for the next page; ``null`` when the listing is exhausted.",
     )
-
-
-PageCloneOperation = AsyncOperation  # deprecated, removed in 0.38
-PageCloneOperationIdentity = OperationIdentity  # deprecated, removed in 0.38
-PageMoveOperation = AsyncOperation  # deprecated, removed in 0.38

@@ -333,6 +333,3 @@ class WorkflowUpdate(APIModel):
         serialization_alias="issueTypeResolutions",
         description="New resolutions allowed per issue type.",
     )
-
-
-LocalizedText = LocalizedName  # deprecated, removed in 0.38

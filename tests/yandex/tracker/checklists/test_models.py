@@ -2,11 +2,11 @@
 
 from ycli.yandex.tracker.checklists.models import (
     Checklist,
-    ChecklistDeadlineInput,
     ChecklistItem,
     ChecklistItemCreate,
     ChecklistItemUpdate,
 )
+from ycli.yandex.tracker.models import DeadlineInput
 
 
 def test_item_flattens_assignee_and_parses_deadline():
@@ -39,7 +39,7 @@ def test_create_body_serializes_with_aliases():
         text="step 1",
         checked=True,
         assignee="sava",
-        deadline=ChecklistDeadlineInput(date="2021-05-09T00:00:00.000+0000"),
+        deadline=DeadlineInput(date="2021-05-09T00:00:00.000+0000"),
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {
         "text": "step 1",

@@ -2,7 +2,7 @@
 
 An autoaction periodically applies *actions* to every issue matching a *filter* (or a TQL
 ``query``). Like triggers, its actions are open ``type``-keyed objects, so
-:class:`AutoactionAction` pins the shared ``type`` and allows the rest (``extra="allow"``).
+:class:`AutomationAction` pins the shared ``type`` and allows the rest (``extra="allow"``).
 The two log endpoints return different shapes: ``/logs`` lists run summaries
 (:class:`AutoactionLogEntry`); ``/logs/{run_id}`` lists per-issue outcomes
 (:class:`AutoactionRunEntry`).
@@ -12,10 +12,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.models import KeyedReference
+from ycli.yandex.tracker.models import AutomationAction, KeyedReference
 
 
 class AutoactionCalendar(APIModel):
@@ -27,22 +27,6 @@ class AutoactionCalendar(APIModel):
     """
 
     id: int = Field(description="Identifier of the working calendar/schedule.")
-
-
-class AutoactionAction(APIModel):
-    """One autoaction action (a ``type``-keyed object; extra keys depend on the type).
-
-    ``type`` is one of Transition, Update, Event.comment-create, Webhook, CalculateFormula, … ;
-    the type-specific parameters (``status`` …) ride along as extra fields preserved verbatim.
-
-    Examples:
-        >>> AutoactionAction.model_validate({"type": "Transition", "status": {"key": "x"}}).type
-        'Transition'
-    """
-
-    model_config = ConfigDict(extra="allow", populate_by_name=True)
-
-    type: str = Field(description="Action type discriminator (e.g. Transition, Update, Webhook).")
 
 
 class Autoaction(APIModel):
@@ -81,7 +65,7 @@ class Autoaction(APIModel):
     query: str | None = Field(
         default=None, description="TQL query selecting the issues the autoaction runs on."
     )
-    actions: list[AutoactionAction] = Field(
+    actions: list[AutomationAction] = Field(
         default_factory=list, description="Actions applied to each matching issue."
     )
     enable_notifications: bool | None = Field(
@@ -116,7 +100,7 @@ class AutoactionCreate(APIModel):
 
     Examples:
         >>> AutoactionCreate(
-        ...     name="A", actions=[AutoactionAction(type="Transition")], query="Status: Open"
+        ...     name="A", actions=[AutomationAction(type="Transition")], query="Status: Open"
         ... ).name
         'A'
     """
@@ -126,7 +110,7 @@ class AutoactionCreate(APIModel):
         default=None, description="Field-based filter selecting the issues to act on."
     )
     query: str | None = Field(default=None, description="TQL query selecting the issues to act on.")
-    actions: list[AutoactionAction] = Field(description="Actions applied to each matching issue.")
+    actions: list[AutomationAction] = Field(description="Actions applied to each matching issue.")
     active: bool | None = Field(
         default=None, description="Whether the autoaction starts active (true) or disabled (false)."
     )
@@ -243,6 +227,3 @@ class AutoactionRunList(RootModel[list[AutoactionRunEntry]]):
         >>> AutoactionRunList.model_validate([{"id": 0}]).root[0].id
         0
     """
-
-
-AutoactionQueueRef = KeyedReference  # deprecated, removed in 0.38

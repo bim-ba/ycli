@@ -8,7 +8,7 @@ fields to it, whichever resource reads them.
 
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel
 
@@ -120,3 +120,118 @@ class OptionsProviderInput(APIModel):
         "FixedUserListOptionsProvider."
     )
     values: list[str] = Field(description="Allowed values offered by the drop-down.")
+
+
+class FieldCreate(APIModel):
+    """Typed request body for creating an issue field, global or local to a queue.
+
+    Examples:
+        >>> FieldCreate(
+        ...     name=LocalizedName(ru="Поле"), id="myField", category="1", type="StringFieldType"
+        ... ).model_dump(by_alias=True, exclude_none=True)
+        {'name': {'ru': 'Поле'}, 'id': 'myField', 'category': '1', 'type': 'StringFieldType'}
+    """
+
+    name: LocalizedName = Field(description="Localized display name of the new field.")
+    id: str = Field(description="Identifier (key) of the new field.")
+    category: str = Field(
+        description="Identifier of the field's category (from GET /fields/categories)."
+    )
+    type: str = Field(
+        description="Field type, e.g. ru.yandex.startrek.core.fields.StringFieldType."
+    )
+    options_provider: OptionsProviderInput | None = Field(
+        default=None,
+        serialization_alias="optionsProvider",
+        description="Fixed drop-down values, when the field is a limited-choice list.",
+    )
+    order: int | None = Field(
+        default=None, description="Position of the field in the organisation's list of fields."
+    )
+    description: str | None = Field(default=None, description="Description of the field.")
+    readonly: bool | None = Field(
+        default=None, description="Whether the value is read-only (true) or editable (false)."
+    )
+
+
+class FieldSchema(APIModel):
+    """Data-type descriptor of a field's value (the ``schema`` object).
+
+    Examples:
+        >>> FieldSchema.model_validate({"type": "array", "items": "string"}).type
+        'array'
+    """
+
+    type: str | None = Field(
+        default=None,
+        description="Value type: string for single-valued fields, array for multi-valued fields.",
+    )
+    items: str | None = Field(
+        default=None, description="Element type; present only on multi-valued (array) fields."
+    )
+    required: bool | None = Field(
+        default=None, description="Whether the field is mandatory (true) or optional (false)."
+    )
+
+
+class LinkType(APIModel):
+    """A link type: its id and its names in the inward and outward direction.
+
+    Examples:
+        >>> LinkType.model_validate({"id": "relates", "inward": "x", "outward": "y"}).id
+        'relates'
+    """
+
+    id: str | None = None
+    inward: str | None = None
+    outward: str | None = None
+
+
+class AutomationAction(APIModel):
+    """One action of a trigger or an autoaction (a ``type``-keyed object).
+
+    ``type`` is one of Transition, Update, Move, CreateComment, Webhook, CalculateFormula, … ;
+    the type-specific parameters (``status``, ``queue``, ``text`` …) ride along as extra fields
+    preserved verbatim.
+
+    Examples:
+        >>> AutomationAction.model_validate({"type": "Transition", "status": {"key": "x"}}).type
+        'Transition'
+    """
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    type: str = Field(description="Action type discriminator (e.g. Transition, Update, Webhook).")
+
+
+class Deadline(APIModel):
+    """A deadline block on a checklist item or key result.
+
+    Examples:
+        >>> Deadline.model_validate({"date": "2025-12-01", "deadlineType": "date"}).deadline_type
+        'date'
+    """
+
+    date: str | None = Field(
+        default=None, description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm."
+    )
+    deadline_type: str | None = Field(
+        default=None, alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
+    )
+    is_exceeded: bool | None = Field(
+        default=None, alias="isExceeded", description="Whether the deadline has already passed."
+    )
+
+
+class DeadlineInput(APIModel):
+    """Typed ``deadline`` block for a checklist item or key result write body.
+
+    Examples:
+        >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000").model_dump(by_alias=True)
+        {'date': '2025-12-01T00:00:00.000+0000', 'deadlineType': 'date'}
+    """
+
+    date: str = Field(description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+    deadline_type: str = Field(
+        default="date", alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
+    )

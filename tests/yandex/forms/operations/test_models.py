@@ -1,6 +1,6 @@
 """TDD for Forms operations models — OperationResult status flags."""
 
-from ycli.yandex.forms.operations.models import OperationResult
+from ycli.yandex.forms.models import OperationResult
 
 
 def test_operation_result_ok_is_terminal_and_ready():

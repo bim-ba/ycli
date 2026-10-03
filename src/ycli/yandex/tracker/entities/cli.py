@@ -31,7 +31,6 @@ from ycli.yandex.tracker.entities.models import (
     Comment,
     CommentList,
     CommentUpdate,
-    DeadlineInput,
     DirectPermissionsUpdate,
     Entity,
     EntityEventList,
@@ -46,7 +45,7 @@ from ycli.yandex.tracker.entities.models import (
     ReportFilter,
     ReportParameters,
 )
-from ycli.yandex.tracker.models import CommentCreate
+from ycli.yandex.tracker.models import CommentCreate, DeadlineInput
 
 
 class EntityType(enum.StrEnum):

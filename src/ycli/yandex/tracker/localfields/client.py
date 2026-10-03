@@ -11,12 +11,8 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.tracker.localfields import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.tracker.localfields.models import (
-        LocalField,
-        LocalFieldCreate,
-        LocalFieldList,
-        LocalFieldUpdate,
-    )
+    from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldList, LocalFieldUpdate
+    from ycli.yandex.tracker.models import FieldCreate
 
 
 class LocalFieldsClient(Resource):
@@ -58,8 +54,8 @@ class LocalFieldsClient(Resource):
         """
         return self._session.send(endpoints.get_local_field(queue_id, field_key))
 
-    def create(self, queue_id: str, body: LocalFieldCreate) -> LocalField:
-        """Create a local field in queue ``queue_id`` from a typed ``LocalFieldCreate`` body.
+    def create(self, queue_id: str, body: FieldCreate) -> LocalField:
+        """Create a local field in queue ``queue_id`` from a typed ``FieldCreate`` body.
 
         Args:
             queue_id: The queue's key or numeric id.
@@ -69,9 +65,8 @@ class LocalFieldsClient(Resource):
             The created local field.
 
         Examples:
-            >>> from ycli.yandex.tracker.models import LocalizedName
-            >>> from ycli.yandex.tracker.localfields.models import LocalFieldCreate
-            >>> new_field = LocalFieldCreate(
+            >>> from ycli.yandex.tracker.models import FieldCreate, LocalizedName
+            >>> new_field = FieldCreate(
             ...     name=LocalizedName(ru="Поле", en="Field"),
             ...     id="loc_new",
             ...     category="cat-3",

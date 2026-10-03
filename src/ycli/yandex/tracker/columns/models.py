@@ -70,6 +70,3 @@ class ColumnUpdate(APIModel):
         default=None,
         description="Replacement keys of the issue statuses whose cards appear in the column.",
     )
-
-
-ColumnStatus = KeyedReference  # deprecated, removed in 0.38

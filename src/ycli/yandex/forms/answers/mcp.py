@@ -17,7 +17,6 @@ from ycli.yandex.forms.answers.models import (
     AnswerExport,
     AnswerIntegrationList,
     AnswersResponse,
-    ExportResult,
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
@@ -30,6 +29,7 @@ from ycli.yandex.forms.dependencies import (
     app_config,
     forms_client,
 )
+from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.models import Ack
 
 mcp = FastMCP("forms-answers")
@@ -76,7 +76,7 @@ def export(
     survey_id: SurveyId,
     body: AnswerExport,
     client: FormsClient = Depends(forms_client),
-) -> ExportResult:
+) -> OperationResult:
     """Start an async export of a form's answers (csv/xlsx); returns the operation to poll.
 
     An empty ``body`` exports every answer as ``xlsx``. Poll the returned ``id`` with

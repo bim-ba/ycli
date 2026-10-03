@@ -118,6 +118,3 @@ class UsersRelativeResponse(APIModel):
         alias="hasNext",
         description="Whether further pages remain (true) or this is the last page (false).",
     )
-
-
-Group = Reference  # deprecated, removed in 0.38

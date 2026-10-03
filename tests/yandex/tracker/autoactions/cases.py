@@ -1,11 +1,8 @@
 """Contract cases for Tracker queue ``/autoactions`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.autoactions.models import (
-    AutoactionAction,
-    AutoactionCalendar,
-    AutoactionCreate,
-)
+from ycli.yandex.tracker.autoactions.models import AutoactionCalendar, AutoactionCreate
+from ycli.yandex.tracker.models import AutomationAction
 
 NEED_INFO = {"type": "Transition", "status": {"key": "needInfo"}}
 NOTIFY = {"type": "Webhook", "endpoint": "https://hooks.example.com/aa"}
@@ -32,8 +29,8 @@ CASES = [
                 query="Status: Open",
                 filter={"priority": "minor"},
                 actions=[
-                    AutoactionAction.model_validate(NEED_INFO),
-                    AutoactionAction.model_validate(NOTIFY),
+                    AutomationAction.model_validate(NEED_INFO),
+                    AutomationAction.model_validate(NOTIFY),
                 ],
                 active=False,
                 enable_notifications=True,

@@ -8,21 +8,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     APIModel,
     DisplayStr,
 )
-
-
-class RemoteLinkType(APIModel):
-    """The ``type`` sub-object of a remote link — the link-type and its directional names.
-
-    Examples:
-        >>> RemoteLinkType.model_validate({"id": "relates", "outward": "Relates"}).id
-        'relates'
-    """
-
-    id: str | None = Field(default=None, description="Link-type identifier, e.g. ``relates``.")
-    inward: str | None = Field(default=None, description="Link-type name in the inward direction.")
-    outward: str | None = Field(
-        default=None, description="Link-type name in the outward direction."
-    )
+from ycli.yandex.tracker.models import LinkType
 
 
 class RemoteApplication(APIModel):
@@ -67,7 +53,7 @@ class RemoteLink(APIModel):
         default=None, alias="self", description="API resource address of this remote link."
     )
     id: int | str | None = Field(default=None, description="Identifier of the remote link.")
-    type: RemoteLinkType | None = Field(default=None, description="The link type.")
+    type: LinkType | None = Field(default=None, description="The link type.")
     direction: str | None = Field(
         default=None, description="Link direction (``outward`` / ``inward``) for asymmetric types."
     )

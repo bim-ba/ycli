@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.answers import endpoints
@@ -13,8 +13,10 @@ from ycli.yandex.forms.answers.models import (
     AnswerIntegrationList,
     AnswersResponse,
     Column,
-    ExportResult,
 )
+
+if TYPE_CHECKING:
+    from ycli.yandex.forms.models import OperationResult
 
 
 class AnswersClient(Resource):
@@ -87,7 +89,7 @@ class AnswersClient(Resource):
         answers = list(self._session.iterate(replace(paged, items_of=items_of), limit=limit))
         return AnswersResponse(columns=columns, answers=answers, next=None)
 
-    def export(self, survey_id: str, body: dict[str, Any]) -> ExportResult:
+    def export(self, survey_id: str, body: dict[str, Any]) -> OperationResult:
         """``POST /surveys/{id}/answers/export`` — start an export → ``202`` with its operation.
 
         Build ``body`` from an ``AnswerExport``; poll :meth:`export_results` (or
@@ -108,7 +110,7 @@ class AnswersClient(Resource):
         """
         return self._session.send(endpoints.export_answers(survey_id, body))
 
-    def export_results(self, survey_id: str, task_id: str) -> ExportResult:
+    def export_results(self, survey_id: str, task_id: str) -> OperationResult:
         """``GET /surveys/{id}/answers/export-results?task_id=`` → the export's status.
 
         While running or failed it answers ``{id, status, message}``; once ready it redirects to

@@ -110,7 +110,3 @@ class MacroUpdate(APIModel):
         serialization_alias="issueUpdate",
         description="Replacement field→value object of issue changes the macro applies.",
     )
-
-
-MacroField = Reference  # deprecated, removed in 0.38
-MacroQueueRef = KeyedReference  # deprecated, removed in 0.38

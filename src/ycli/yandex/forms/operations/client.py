@@ -8,7 +8,7 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.operations import endpoints
 
 if TYPE_CHECKING:
-    from ycli.yandex.forms.operations.models import OperationResult
+    from ycli.yandex.forms.models import OperationResult
 
 
 class OperationsClient(Resource):

@@ -3,7 +3,7 @@
 A trigger fires configured *actions* on an issue when its *conditions* match. Both actions
 and conditions are open polymorphic objects keyed by a ``type`` discriminator (see the vendored
 ``triggers/actions.md`` and ``triggers/conditions.md`` catalogues): rather than enumerate every
-one of the ~40 shapes, :class:`TriggerAction`/:class:`TriggerCondition` pin the shared ``type``
+one of the ~40 shapes, :class:`AutomationAction`/:class:`TriggerCondition` pin the shared ``type``
 field and allow the rest (``extra="allow"``) so any documented shape round-trips unchanged.
 """
 
@@ -14,24 +14,7 @@ from typing import Any
 from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.tracker.models import KeyedReference
-
-
-class TriggerAction(APIModel):
-    """One trigger action (a ``type``-keyed object; extra keys depend on the type).
-
-    ``type`` is one of Transition, Update, Move, CreateComment, CreateChecklist, Webhook,
-    CalculateFormula, CreateIssue, … ; the type-specific parameters (``status``, ``queue``,
-    ``text``, ``endpoint`` …) ride along as extra fields preserved verbatim.
-
-    Examples:
-        >>> TriggerAction.model_validate({"type": "Transition", "status": {"key": "open"}}).type
-        'Transition'
-    """
-
-    model_config = ConfigDict(extra="allow", populate_by_name=True)
-
-    type: str = Field(description="Action type discriminator (e.g. Transition, Update, Webhook).")
+from ycli.yandex.tracker.models import AutomationAction, KeyedReference
 
 
 class TriggerCondition(APIModel):
@@ -77,7 +60,7 @@ class Trigger(APIModel):
     order: str | None = Field(
         default=None, description="Display weight controlling the trigger's order in the UI."
     )
-    actions: list[TriggerAction] = Field(
+    actions: list[AutomationAction] = Field(
         default_factory=list, description="Actions the trigger performs when it fires."
     )
     conditions: list[TriggerCondition] = Field(
@@ -104,12 +87,14 @@ class TriggerCreate(APIModel):
     """Typed request body for ``triggers.create`` (``POST /queues/{id}/triggers``).
 
     Examples:
-        >>> TriggerCreate(name="TriggerName", actions=[TriggerAction(type="Transition")]).name
+        >>> TriggerCreate(name="TriggerName", actions=[AutomationAction(type="Transition")]).name
         'TriggerName'
     """
 
     name: str = Field(description="Name of the new trigger.")
-    actions: list[TriggerAction] = Field(description="Actions the trigger performs when it fires.")
+    actions: list[AutomationAction] = Field(
+        description="Actions the trigger performs when it fires."
+    )
     conditions: list[TriggerCondition] | None = Field(
         default=None, description="Conditions under which the trigger fires (default: always)."
     )
@@ -129,7 +114,7 @@ class TriggerUpdate(APIModel):
     """
 
     name: str | None = Field(default=None, description="New name of the trigger.")
-    actions: list[TriggerAction] | None = Field(
+    actions: list[AutomationAction] | None = Field(
         default=None, description="Replacement actions the trigger performs."
     )
     conditions: list[TriggerCondition] | None = Field(
@@ -189,6 +174,3 @@ class WebhookLogList(RootModel[list[WebhookLogEntry]]):
         >>> WebhookLogList.model_validate([{"id": "x", "duration": 1}]).root[0].duration
         1
     """
-
-
-TriggerQueueRef = KeyedReference  # deprecated, removed in 0.38

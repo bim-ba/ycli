@@ -19,8 +19,7 @@ from typing import Any, Literal
 from pydantic import Field, RootModel, model_validator
 
 from ycli.yandex.models import APIModel
-from ycli.yandex.wiki import models as _shared
-from ycli.yandex.wiki.models import AsyncOperation, PageIdentity
+from ycli.yandex.wiki.models import PageIdentity
 
 #: Sort order of a column in the grid's default sort.
 SortDirection = Literal["asc", "desc"]
@@ -705,7 +704,3 @@ class GridList(RootModel[list[Grid]]):
     """
 
     root: list[Grid] = Field(default_factory=list)
-
-
-GridCloneOperation = AsyncOperation  # deprecated, removed in 0.38
-OperationIdentity = _shared.OperationIdentity  # deprecated, removed in 0.38
