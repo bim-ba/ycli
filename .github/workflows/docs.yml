@@ -31,6 +31,13 @@ jobs:
         with:
           python-version: "3.12"
       # Zensical's cache is still being reworked, so it recommends a clean build and no CI cache.
+      - name: Check the Compose example
+        env:
+          MCP_DOMAIN: mcp.example.com
+          YANDEX_ID_ORGANIZATION_ID: "1"
+          YANDEX_OAUTH_CLIENT_ID: client-id
+          YANDEX_OAUTH_CLIENT_SECRET: placeholder
+        run: docker compose --file docs/examples/compose.yaml config --quiet
       # English first: its --clean empties site/, then the Russian site lands in site/ru/.
       # --frozen, not --locked: a release tag carries the new version before uv.lock is re-locked.
       - name: Build

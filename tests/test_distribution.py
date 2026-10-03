@@ -30,6 +30,19 @@ _STAMPS = [
     ("mcpb/manifest.json", r'"version": "([^"]+)"', 1),
     ("mcpb/pyproject.toml", r'^version = "([^"]+)"', 1),
     ("mcpb/pyproject.toml", r"yandex-cli\[mcp\]==([^\"]+)\"", 1),
+    *(
+        stamp
+        for language in ("en", "ru")
+        for stamp in (
+            (f"docs/{language}/how-to/use-in-ci.md", r"yandex-cli==(\d[^ ]*) ", 1),
+            (f"docs/{language}/how-to/use-in-ci.md", r"ghcr\.io/bim-ba/ycli:(\d\S*)", 2),
+            (
+                f"docs/{language}/how-to/install-in-your-harness.md",
+                r"yandex-cli\[mcp\]==(\d[^']*)'",
+                1,
+            ),
+        )
+    ),
 ]
 
 

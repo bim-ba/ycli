@@ -123,3 +123,35 @@ def test_the_checks_bite(tmp_path):
     ]
     assert type_problems(tmp_path) == ["how-to/a.md: type 'tutorial', expected 'how-to'"]
     assert link_problems(tmp_path) == ["how-to/a.md: broken link missing.md"]
+
+
+def test_the_one_click_links_install_the_documented_server():
+    """The Cursor and VS Code links on the install page decode to the server its snippets show."""
+    import base64
+    import json
+    from urllib.parse import parse_qs, urlsplit
+
+    page = (ROOT / "docs/en/how-to/install-in-your-harness.md").read_text(encoding="utf-8")
+    command = {"command": "uvx", "args": ["--from", "yandex-cli[mcp]", "ycli", "mcp", "start"]}
+    variables = ("YANDEX_ID_OAUTH_TOKEN", "YANDEX_ID_ORGANIZATION_ID")
+
+    cursor = set(re.findall(r"\((cursor://[^)\s]+)\)", page))
+    assert len(cursor) == 1, "the matrix and the Cursor section must carry the same link"
+    query = parse_qs(urlsplit(cursor.pop()).query)
+    assert query["name"] == ["yandex-360"]
+    assert json.loads(base64.b64decode(query["config"][0])) == {
+        **command,
+        "env": {name: f"${{env:{name}}}" for name in variables},
+    }
+
+    vscode = set(
+        re.findall(r"\((https://insiders\.vscode\.dev/redirect/mcp/install[^)\s]+)\)", page)
+    )
+    assert len(vscode) == 1, "the matrix and the VS Code section must carry the same link"
+    query = parse_qs(urlsplit(vscode.pop()).query)
+    config = json.loads(query["config"][0])
+    inputs = {entry["id"] for entry in json.loads(query["inputs"][0])}
+    assert query["name"] == ["yandex-360"]
+    assert {key: config[key] for key in command} == command
+    assert {value[len("${input:") : -1] for value in config["env"].values()} == inputs
+    assert set(config["env"]) == set(variables)
