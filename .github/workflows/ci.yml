@@ -36,7 +36,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
       # Lint/format/imports/types are Python-version-independent — run them once (on 3.12)
       # instead of in every matrix leg. pytest stays in every leg (the only version-sensitive
-      # step). The required check `test (3.12)` still carries the lint gate.
+      # step). The required check `tests` still carries the lint gate, through the 3.12 leg.
       - name: Format check
         if: matrix.python-version == '3.12'
         run: uv run ruff format --check .

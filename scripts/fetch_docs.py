@@ -277,8 +277,8 @@ class _HttpClient:
         """GET with retry/backoff.
 
         Returns the response for any completed HTTP status (callers inspect ``status_code``);
-        returns None only when the request never completed — a network error, or a 5xx / 429 /
-        403 that persisted across every retry.
+        returns None only when the request never completed (a network error on every attempt).
+        A 5xx / 429 / 403 that outlasts the retries is returned like any other status.
         """
         for attempt in range(1, MAX_ATTEMPTS + 1):
             try:
@@ -294,7 +294,7 @@ class _HttpClient:
                 time.sleep(self.delay_seconds * attempt * (2 if rate_limited else 1))
                 continue
             return response
-        return None
+        raise AssertionError("the last attempt returns")
 
     def _get_json(self, url: str) -> dict | list | None:
         response = self._get(url)
