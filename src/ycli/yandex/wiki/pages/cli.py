@@ -248,6 +248,7 @@ def clone(
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
     *,
+    config: AppConfig,
     wiki: WikiClient,
 ) -> AsyncOperation | CloneOperationStatus:
     """Copy a page to a new address (POST /pages/{id}/clone; async). --wait polls to completion."""
@@ -259,6 +260,7 @@ def clone(
             lambda: wiki.operations.clone_get(task_id),
             lambda state: state.is_terminal,
             message="Waiting for page clone…",
+            max_wait_seconds=config.http.max_wait_seconds,
         )
         return status
     return operation
@@ -291,6 +293,7 @@ def move(
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
     *,
+    config: AppConfig,
     wiki: WikiClient,
 ) -> AsyncOperation | MoveOperationStatus:
     """Move or rename a page (POST /pages/move; async, undocumented by Yandex). --wait polls."""
@@ -310,6 +313,7 @@ def move(
             lambda: wiki.operations.move_get(task_id),
             lambda state: state.is_terminal,
             message="Waiting for page move…",
+            max_wait_seconds=config.http.max_wait_seconds,
         )
         return status
     return operation

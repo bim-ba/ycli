@@ -8,6 +8,7 @@ from typer.testing import CliRunner
 
 import ycli.cli.app as cli
 from tests.hosts import TRACKER_BASE as BASE
+from ycli.yandex.errors import YandexTimeoutError
 
 
 @pytest.fixture(autouse=True)
@@ -46,3 +47,17 @@ def test_wait_without_an_operation_id_prints_the_answer(api):
     assert res.exit_code == 0, res.output
     assert json.loads(res.stdout)["status"] == "FAILED"
     assert len(api.calls) == 1
+
+
+def test_wait_gives_up_after_the_configured_seconds(api, monkeypatch):
+    """``YCLI__HTTP__MAX_WAIT_SECONDS`` is how long ``--wait`` polls (#301)."""
+    slept: list[float] = []
+    monkeypatch.setattr(time, "sleep", slept.append)
+    monkeypatch.setenv("YCLI__HTTP__MAX_WAIT_SECONDS", "1")
+    api.add("POST", f"{BASE}/bulkchange/_update", json={"id": "1ab", "status": "CREATED"})
+    for _ in range(3):
+        api.add("GET", f"{BASE}/bulkchange/1ab", json={"id": "1ab", "status": "CREATED"})
+    res = CliRunner().invoke(cli.app, ["tracker", "bulk", "update", "--issue", "TEST-1"])
+    assert isinstance(res.exception, YandexTimeoutError)
+    assert str(res.exception) == "operation did not finish within 1 s"
+    assert slept == [0.5, 0.5]

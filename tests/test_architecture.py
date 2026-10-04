@@ -1294,7 +1294,8 @@ def test_arch4_stdout_guard_bites():
 
 # `timeout=30` as a keyword argument, or `timeout: float = 30.0` as an annotated default.
 _LITERAL_DEFAULT_RE = re.compile(
-    r"\b(timeout|timeout_seconds|retries|max_items|max_pages|max_retry_after_seconds)"
+    r"\b(timeout|timeout_seconds|retries|max_items|max_pages|max_retry_after_seconds|"
+    r"max_wait_seconds)"
     r"\s*(:[^=\n]+)?=\s*\d"
 )
 # `MAX_RETRY_AFTER_SECONDS = 60.0` at module level: a limit a user can run into, kept out of
@@ -1417,6 +1418,7 @@ def test_arch5_guard_bites():
         "def __init__(self, retries: int = 3) -> None: ...",
         "def items(max_items: int | None = 500) -> None: ...",
         "def iterate(paged, *, max_pages: int = 1000) -> None: ...",
+        "def poll(fetch, *, max_wait_seconds: float = 1380.0) -> None: ...",
         "DEFAULT_MAX_PAGES = 1000",
         "MAX_RETRY_AFTER_SECONDS = 60.0",
         "class Local(BaseSettings): ...",
