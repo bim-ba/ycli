@@ -30,9 +30,9 @@ class Attachment(APIModel):
     id: int | None = Field(
         default=None, description="Numeric id of the attachment (the ``file_id`` other calls take)."
     )
-    name: str | None = None
-    size: str | None = None
-    mimetype: str | None = None
+    name: str | None = Field(default=None, description="File name of the attachment.")
+    size: str | None = Field(default=None, description="Human-readable size, e.g. `0.00`.")
+    mimetype: str | None = Field(default=None, description="MIME type of the attachment.")
 
 
 class AttachmentCreate(RequestBody):
@@ -97,4 +97,6 @@ class AttachResponse(APIModel):
         7
     """
 
-    results: list[AttachedFile] = Field(default_factory=list)
+    results: list[AttachedFile] = Field(
+        default_factory=list, description="The files that were attached."
+    )

@@ -9,6 +9,50 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.66.2 (2026-10-04)
+
+### Bug Fixes
+
+- **models**: Every model field carries a description
+  ([#159](https://github.com/bim-ba/ycli/pull/159),
+  [`2524104`](https://github.com/bim-ba/ycli/commit/25241044f878447be55499e9b1f47acc06af9a59))
+
+### Build System
+
+- Re-lock uv.lock for 0.66.1
+  ([`a4d57de`](https://github.com/bim-ba/ycli/commit/a4d57de11085a3fa9c29bc8edfef5feaad2ebd53))
+
+
+## v0.66.1 (2026-10-04)
+
+### Bug Fixes
+
+- **api**: Eight operations carry the kind of action they really have
+  ([#303](https://github.com/bim-ba/ycli/pull/303),
+  [`e8ea7d8`](https://github.com/bim-ba/ycli/commit/e8ea7d84e82d89ad653c6c1899882484ed728618))
+
+### Build System
+
+- Re-lock uv.lock for 0.66.0
+  ([`074efae`](https://github.com/bim-ba/ycli/commit/074efaefe687bf3ef2f43f4bb3b1e67be8199a20))
+
+### Documentation
+
+- The agent instructions name nine invariants (ARCH-1..9)
+  ([#308](https://github.com/bim-ba/ycli/pull/308),
+  [`fd17fe5`](https://github.com/bim-ba/ycli/commit/fd17fe5014392eb9a8a95e66e4786266c98888f7))
+
+### Refactoring
+
+- A resource with no model of its own has no models.py
+  ([#234](https://github.com/bim-ba/ycli/pull/234),
+  [`8770055`](https://github.com/bim-ba/ycli/commit/8770055217a0ee820c3a444eee8ee8c6f094e718))
+
+- **sdk**: An endpoint function is named like the method that sends it
+  ([#306](https://github.com/bim-ba/ycli/pull/306),
+  [`b7ba294`](https://github.com/bim-ba/ycli/commit/b7ba294d27997071b45f8b37a60dac478f1b8f74))
+
+
 ## v0.66.0 (2026-10-04)
 
 ### Build System

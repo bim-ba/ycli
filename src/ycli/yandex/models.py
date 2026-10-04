@@ -14,7 +14,7 @@ import logging
 from functools import cache
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel, model_serializer
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, RootModel, model_serializer
 
 from ycli.yandex.errors import YandexNotFoundError
 
@@ -201,8 +201,8 @@ class Ack(APIModel):
     operation, so the two surfaces can never drift apart on wording again.
     """
 
-    ok: bool = True
-    detail: str = ""
+    ok: bool = Field(default=True, description="Whether the write succeeded.")
+    detail: str = Field(default="", description="What was done, e.g. `deleted board 5`.")
 
     @classmethod
     def deleted(

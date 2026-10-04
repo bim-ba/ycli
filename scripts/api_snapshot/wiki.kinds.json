@@ -17,7 +17,7 @@
 {"method": "GET", "base": "/v1", "path": "/operations/clone/{task_id}", "name": "wiki_async_operations_views_get_clone_operation_status_view", "verb": "get", "kind": "get", "aspect": "long-running", "by": "name"},
 {"method": "GET", "base": "/v1", "path": "/operations/clone_inline_grid/{task_id}", "name": "wiki_async_operations_views_get_clone_inline_grid_operation_status_view", "verb": "get", "kind": "get", "aspect": "long-running", "by": "name"},
 {"method": "GET", "base": "/v1", "path": "/operations/move/{task_id}", "name": "wiki_async_operations_views_get_move_operation_status_view", "verb": "get", "kind": "get", "aspect": "long-running", "by": "name"},
-{"method": "GET", "base": "/v1", "path": "/pages", "name": "wiki_api_v2_public_pages_page_details_view_get_page_details_view", "verb": "get", "kind": "list", "by": "name+shape"},
+{"method": "GET", "base": "/v1", "path": "/pages", "name": "wiki_api_v2_public_pages_page_details_view_get_page_details_view", "verb": "get", "kind": "get", "by": "hand", "why": "returns the one page at the required `slug` (PageFullDetailsSchema), not a listing"},
 {"method": "POST", "base": "/v1", "path": "/pages", "name": "wiki_api_b2b_v1_pages_page_create_view_create_page_view", "verb": "create", "kind": "create", "by": "name"},
 {"method": "GET", "base": "/v1", "path": "/pages/attachments/download_by_url", "name": "wiki_api_v2_public_pages_attachments_views_download_by_filename_slug_pair_view", "verb": "download", "kind": "get", "aspect": "file", "by": "name"},
 {"method": "GET", "base": "/v1", "path": "/pages/descendants", "name": "wiki_api_b2b_v1_pages_descendants_view_descendants_by_slug_view", "kind": "list", "by": "shape"},
@@ -52,7 +52,7 @@
 {"method": "POST", "base": "/v1", "path": "/upload_sessions/abort_active_uploads", "name": "wiki_api_v2_public_upload_sessions_views_abort_all_view", "verb": "abort", "kind": "state", "aspect": "file", "by": "name"},
 {"method": "GET", "base": "/v1", "path": "/upload_sessions/{session_id}", "name": "wiki_api_v2_public_upload_sessions_views_get_upload_session_view", "verb": "get", "kind": "get", "aspect": "file", "by": "name"},
 {"method": "POST", "base": "/v1", "path": "/upload_sessions/{session_id}/abort", "name": "wiki_api_v2_public_upload_sessions_views_abort_multipart_upload_view", "verb": "abort", "kind": "state", "aspect": "file", "by": "name"},
-{"method": "POST", "base": "/v1", "path": "/upload_sessions/{session_id}/finish", "name": "wiki_api_v2_public_upload_sessions_views_complete_multipart_upload_view", "verb": "upload", "kind": "create", "aspect": "file", "by": "name"},
+{"method": "POST", "base": "/v1", "path": "/upload_sessions/{session_id}/finish", "name": "wiki_api_v2_public_upload_sessions_views_complete_multipart_upload_view", "verb": "upload", "kind": "state", "aspect": "file", "by": "hand", "why": "completes an upload session; the name's `upload` is the object, and nothing is created"},
 {"method": "PUT", "base": "/v1", "path": "/upload_sessions/{session_id}/upload_part", "name": "wiki_api_v2_public_upload_sessions_views_upload_part_view", "verb": "upload", "kind": "create", "aspect": "file", "by": "name"},
 {"method": "GET", "base": "/v1", "path": "/users/me", "name": "wiki_api_b2b_v1_me_views_me_view", "kind": "get", "by": "shape"}
 ]

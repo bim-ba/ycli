@@ -24,9 +24,18 @@ class ChangeField(APIModel):
         'status'
     """
 
-    field: IDStr = None
-    from_: Any = Field(default=None, alias="from")
-    to: Any = None
+    field: IDStr = Field(
+        default=None, description="Identifier of the changed issue field, e.g. ``status``."
+    )
+    from_: Any = Field(
+        default=None,
+        alias="from",
+        description="Value before the change (string, object, array or null).",
+    )
+    to: Any = Field(
+        default=None,
+        description="Value after the change (string, object, array or null).",
+    )
 
 
 class ChangelogEntry(APIModel):
@@ -39,8 +48,16 @@ class ChangelogEntry(APIModel):
         'Сава'
     """
 
-    id: str | None = None
-    updated_at: str | None = Field(default=None, alias="updatedAt")
-    updated_by: DisplayStr = Field(default=None, alias="updatedBy")
-    type: str | None = None
-    fields: list[ChangeField] = Field(default_factory=list)
+    id: str | None = Field(default=None, description="Identifier of the change.")
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="When the issue was changed (ISO 8601)."
+    )
+    updated_by: DisplayStr = Field(
+        default=None, alias="updatedBy", description="Display name of the user who made the change."
+    )
+    type: str | None = Field(
+        default=None, description="Type of the change, e.g. ``IssueUpdated`` or ``IssueCreated``."
+    )
+    fields: list[ChangeField] = Field(
+        default_factory=list, description="The issue fields changed by this event."
+    )

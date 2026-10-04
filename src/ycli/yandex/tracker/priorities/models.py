@@ -20,12 +20,15 @@ class Priority(APIModel):
         'Normal'
     """
 
-    key: str | None = None
+    key: str | None = Field(default=None, description="Key of the priority, e.g. ``normal``.")
     name: str | LocalizedName | None = Field(
         default=None,
         description="Name in the caller's language, or in every language when not localized.",
     )
-    display: str | None = None
+    display: str | None = Field(
+        default=None,
+        description="Display name of the priority; null in the live v3 API, which uses ``name``.",
+    )
 
 
 class PriorityCreate(RequestBody):
