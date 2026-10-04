@@ -516,3 +516,38 @@ def test_the_acronym_check_bites():
         "a/models.py:UserIds",
         "a/models.py:ApiKey",
     ]
+
+
+def _alias_names(sources: dict[str, str]) -> dict[str, list[str]]:
+    """Each module-level ``X = Annotated[...]`` by its name: ``{"IDArg": ["a/cli.py", ...]}``."""
+    found: dict[str, list[str]] = {}
+    for path, source in sources.items():
+        for node in ast.parse(source).body:
+            if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Subscript)
+                and ast.unparse(node.value.value) == "Annotated"
+            ):
+                found.setdefault(node.targets[0].id, []).append(path)
+    return found
+
+
+def test_an_alias_name_means_one_thing():
+    """Section 7, "Names" (#301): two aliases that differ have different names."""
+    twice = {name: places for name, places in _alias_names(_sources()).items() if len(places) > 1}
+    assert twice == {}
+
+
+def test_the_alias_name_check_bites():
+    sources = {
+        "a/cli.py": 'ActionOpt = Annotated[str, typer.Option(help="Access action.")]\n',
+        "b/cli.py": (
+            'ActionOpt = Annotated[list[str], typer.Option(help="Trigger action.")]\n'
+            'KeyArg = Annotated[str, typer.Argument(help="Key.")]\n'
+        ),
+    }
+    names = _alias_names(sources)
+    assert {name: places for name, places in names.items() if len(places) > 1} == {
+        "ActionOpt": ["a/cli.py", "b/cli.py"]
+    }

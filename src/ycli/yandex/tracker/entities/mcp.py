@@ -54,7 +54,9 @@ from ycli.yandex.tracker.models import CommentCreate
 
 mcp = FastMCP("tracker-entities")
 
-TypeArg = Annotated[str, Field(description="Entity type: ``project``, ``portfolio`` or ``goal``.")]
+EntityTypeName = Annotated[
+    str, Field(description="Entity type: ``project``, ``portfolio`` or ``goal``.")
+]
 SearchTypeArg = Annotated[
     str,
     Field(
@@ -62,7 +64,7 @@ SearchTypeArg = Annotated[
         "(issue reports)."
     ),
 ]
-IDArg = Annotated[str, Field(description="Entity id (or shortId).")]
+EntityID = Annotated[str, Field(description="Entity id (or shortId).")]
 
 
 ChecklistItems = Annotated[
@@ -72,8 +74,8 @@ ChecklistItems = Annotated[
 
 @mcp.tool(name="entities_get", annotations={**RO, "title": "Get Tracker entity"})
 def get(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     fields: Annotated[
         str | None,
         Field(description="Comma-separated extra fields, e.g. ``keyResultItems,checklistItems``."),
@@ -119,8 +121,8 @@ def search(
     annotations={**RO, "title": "List Tracker entity history"},
 )
 def events_list(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     limit: Annotated[
         int | None, Field(ge=1, description="Max events (omitted: the configured cap).")
     ] = None,
@@ -156,7 +158,9 @@ def events_list(
     annotations={**RO, "title": "Get Tracker entity permissions"},
 )
 def permissions_get(
-    entity_type: TypeArg, entity_id: IDArg, client: TrackerClient = Depends(tracker_client)
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
+    client: TrackerClient = Depends(tracker_client),
 ) -> ExtendedPermissions:
     """An entity's access settings — the READ/WRITE/GRANT ACL plus inheritance sources.
 
@@ -172,7 +176,9 @@ def permissions_get(
     annotations={**RO, "title": "Get Tracker entity direct permissions"},
 )
 def direct_permissions_get(
-    entity_type: TypeArg, entity_id: IDArg, client: TrackerClient = Depends(tracker_client)
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
+    client: TrackerClient = Depends(tracker_client),
 ) -> ACL:
     """An entity's direct READ / WRITE / GRANT rights — the users, groups and roles holding each.
 
@@ -187,7 +193,9 @@ def direct_permissions_get(
     annotations={**RO, "title": "List Tracker entity comments"},
 )
 def comments_list(
-    entity_type: TypeArg, entity_id: IDArg, client: TrackerClient = Depends(tracker_client)
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
+    client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Comment]:
     """All comments on an entity — author, text, timestamps and summoned users."""
     return client.entities.comments_list(entity_type, entity_id)
@@ -198,8 +206,8 @@ def comments_list(
     annotations={**RO, "title": "Get Tracker entity comment"},
 )
 def comments_get(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     comment_id: Annotated[str, Field(description="Comment id (numeric id or longId).")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
@@ -209,7 +217,9 @@ def comments_get(
 
 @mcp.tool(name="entities_links_list", annotations={**RO, "title": "List Tracker entity links"})
 def links_list(
-    entity_type: TypeArg, entity_id: IDArg, client: TrackerClient = Depends(tracker_client)
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
+    client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Link]:
     """An entity's links to other entities — the link type and the linked entity's summary + id."""
     return client.entities.links_list(entity_type, entity_id)
@@ -220,7 +230,9 @@ def links_list(
     annotations={**RO, "title": "List Tracker entity attachments"},
 )
 def attachments_list(
-    entity_type: TypeArg, entity_id: IDArg, client: TrackerClient = Depends(tracker_client)
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
+    client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Attachment]:
     """Files attached to an entity — name, size, MIME type, uploader and download URL.
 
@@ -236,8 +248,8 @@ def attachments_list(
     annotations={**RO, "title": "Get Tracker entity attachment"},
 )
 def attachments_get(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     file_id: Annotated[str, Field(description="Attachment file id.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Attachment:
@@ -270,8 +282,8 @@ def bulk_status_get(
     annotations={**RO, "title": "List Tracker entity comments (relative)"},
 )
 def comments_relative_list(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     limit: Annotated[
         int | None, Field(ge=1, description="Max comments (omitted: the configured cap).")
     ] = None,
@@ -289,7 +301,7 @@ def comments_relative_list(
 
 @mcp.tool(name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"})
 def create(
-    entity_type: TypeArg,
+    entity_type: EntityTypeName,
     body: EntityCreate,
     fields: ReplyFields = None,
     client: TrackerClient = Depends(tracker_client),
@@ -303,8 +315,8 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity"},
 )
 def update(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: EntityUpdate,
     expand: Expand = None,
     fields: ReplyFields = None,
@@ -328,8 +340,8 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity"},
 )
 def delete(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     with_board: Annotated[
         bool | None, Field(description="Also delete the project's linked board.")
     ] = None,
@@ -349,8 +361,8 @@ def delete(
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity permissions"},
 )
 def set_permissions(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: PermissionsUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> ExtendedPermissions:
@@ -369,8 +381,8 @@ def set_permissions(
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity direct permissions"},
 )
 def set_direct_permissions(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: DirectPermissionsUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> ACL:
@@ -388,7 +400,9 @@ def set_direct_permissions(
     annotations={**WRITE, "title": "Bulk-update Tracker entities"},
 )
 def bulk_update(
-    entity_type: TypeArg, body: BulkChangeUpdate, client: TrackerClient = Depends(tracker_client)
+    entity_type: EntityTypeName,
+    body: BulkChangeUpdate,
+    client: TrackerClient = Depends(tracker_client),
 ) -> BulkChangeOperation:
     """Start an async bulk field update over many entities; returns the operation.
 
@@ -414,8 +428,8 @@ def create_report(body: ReportCreate, client: TrackerClient = Depends(tracker_cl
     annotations={**WRITE, "title": "Add Tracker entity comment"},
 )
 def comments_create(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: CommentCreate,
     expand: Expand = None,
     is_add_to_followers: AddToFollowers = None,
@@ -440,8 +454,8 @@ def comments_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity comment"},
 )
 def comments_update(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     comment_id: Annotated[str, Field(description="Comment id (from entities_comments_list).")],
     body: CommentUpdate,
     expand: Expand = None,
@@ -471,8 +485,8 @@ def comments_update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity comment"},
 )
 def comments_delete(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     comment_id: Annotated[str, Field(description="Comment id (from entities_comments_list).")],
     notify: Notify = None,
     notify_author: NotifyAuthor = None,
@@ -493,8 +507,8 @@ def comments_delete(
     annotations={**WRITE, "title": "Add Tracker entity checklist items"},
 )
 def checklists_create(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: ChecklistItems,
     expand: Expand = None,
     fields: ReplyFields = None,
@@ -522,8 +536,8 @@ def checklists_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist"},
 )
 def checklists_update(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: ChecklistItems,
     expand: Expand = None,
     fields: ReplyFields = None,
@@ -552,8 +566,8 @@ def checklists_update(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist item"},
 )
 def checklists_update_item(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     item_id: Annotated[str, Field(description="Checklist item id.")],
     body: ChecklistItemInput,
     expand: Expand = None,
@@ -583,8 +597,8 @@ def checklists_update_item(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity checklist"},
 )
 def checklists_delete(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     expand: Expand = None,
     fields: ReplyFields = None,
     notify: Notify = None,
@@ -610,8 +624,8 @@ def checklists_delete(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity checklist item"},
 )
 def checklists_delete_item(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     item_id: Annotated[str, Field(description="Checklist item id.")],
     expand: Expand = None,
     fields: ReplyFields = None,
@@ -639,8 +653,8 @@ def checklists_delete_item(
     annotations={**WRITE, "title": "Move Tracker entity checklist item"},
 )
 def checklists_move(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     item_id: Annotated[str, Field(description="Checklist item id to move.")],
     body: ChecklistMove,
     expand: Expand = None,
@@ -670,8 +684,8 @@ def checklists_move(
     annotations={**WRITE, "title": "Link Tracker entities"},
 )
 def links_create(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     body: LinkInput,
     client: TrackerClient = Depends(tracker_client),
 ) -> Ack:
@@ -688,8 +702,8 @@ def links_create(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity link"},
 )
 def links_delete(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     right: Annotated[str, Field(description="Id of the linked entity to unlink.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Ack:
@@ -707,8 +721,8 @@ def links_delete(
     annotations={**WRITE, "title": "Attach Tracker entity file"},
 )
 def attachments_attach(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     temp_file_id: Annotated[
         str, Field(description="Temporary file id from a prior POST /attachments upload.")
     ],
@@ -739,8 +753,8 @@ def attachments_attach(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity attachment"},
 )
 def attachments_delete(
-    entity_type: TypeArg,
-    entity_id: IDArg,
+    entity_type: EntityTypeName,
+    entity_id: EntityID,
     file_id: Annotated[
         str, Field(description="Attachment file id (from entities_attachments_list).")
     ],

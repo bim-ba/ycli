@@ -22,7 +22,7 @@ from ycli.yandex.models import GroupSource, ItemList
 
 app = typer.Typer(name="access", help="Forms survey permissions.", no_args_is_help=True)
 
-ActionOpt = Annotated[
+AccessActionOpt = Annotated[
     str, typer.Option(help="Action: change (edit, read answers) or submit (fill in).")
 ]
 UIDOpt = Annotated[str | None, typer.Option("--uid", help="User's Yandex ID uid.")]
@@ -59,7 +59,7 @@ def get(survey_id: SurveyIDArg, *, forms: FormsClient) -> ItemList[Permission]:
 @app.command("set")
 def set_(
     survey_id: SurveyIDArg,
-    action: ActionOpt,
+    action: AccessActionOpt,
     access: Annotated[str, values_option(AccessLevel, help="Level of access.")],
     *,
     forms: FormsClient,
@@ -72,7 +72,7 @@ def set_(
 @app.command()
 def grant(
     survey_id: SurveyIDArg,
-    action: ActionOpt,
+    action: AccessActionOpt,
     uid: UIDOpt = None,
     cloud_uid: CloudUIDOpt = None,
     group_src: GroupSrcOpt = None,
@@ -89,7 +89,7 @@ def grant(
 @app.command()
 def revoke(
     survey_id: SurveyIDArg,
-    action: ActionOpt,
+    action: AccessActionOpt,
     uid: UIDOpt = None,
     cloud_uid: CloudUIDOpt = None,
     group_src: GroupSrcOpt = None,

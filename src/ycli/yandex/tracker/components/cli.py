@@ -21,7 +21,7 @@ app = typer.Typer(name="components", help="Tracker components.", no_args_is_help
 ComponentIDArg = Annotated[
     int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
 ]
-FieldsOpt = Annotated[
+ComponentFieldsOpt = Annotated[
     str | None, typer.Option(help="Comma-separated fields to return, e.g. name,description,lead.")
 ]
 
@@ -95,7 +95,7 @@ def list_for_queue(
     queue_id: Annotated[
         str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
     ],
-    fields: FieldsOpt = None,
+    fields: ComponentFieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> ItemList[Component]:
@@ -105,7 +105,7 @@ def list_for_queue(
 
 @app.command()
 def get(
-    component_id: ComponentIDArg, fields: FieldsOpt = None, *, tracker: TrackerClient
+    component_id: ComponentIDArg, fields: ComponentFieldsOpt = None, *, tracker: TrackerClient
 ) -> Component:
     """Print component COMPONENT_ID (GET /components/{id})."""
     return tracker.components.get(component_id, fields=fields)

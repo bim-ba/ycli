@@ -18,7 +18,7 @@ from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="surveys", help="Forms surveys.", no_args_is_help=True)
 
-FieldOpt = Annotated[
+SurveyFieldOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Advanced key=value (JSON-coerced; repeatable)."),
 ]
@@ -104,7 +104,7 @@ def create(
     max_count: Annotated[
         int | None, typer.Option(help="Maximum number of responses (0: no cap).")
     ] = None,
-    field: FieldOpt = None,
+    field: SurveyFieldOpt = None,
     *,
     forms: FormsClient,
 ) -> Survey:
@@ -133,7 +133,7 @@ def update(
     max_count: Annotated[
         int | None, typer.Option(help="New response cap (0 removes the cap).")
     ] = None,
-    field: FieldOpt = None,
+    field: SurveyFieldOpt = None,
     *,
     forms: FormsClient,
 ) -> Survey:

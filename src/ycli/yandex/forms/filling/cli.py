@@ -22,7 +22,7 @@ app = typer.Typer(name="filling", help="Forms form filling.", no_args_is_help=Tr
 _KEY = typer.Option("--key", help="Personal-link fill key, when the form uses one.")
 # Module-level Annotated alias so ``Path`` is referenced at runtime (typer resolves annotations
 # via get_type_hints), keeping the import out of a TYPE_CHECKING block.
-BodyFileArg = Annotated[
+AnswersFileArg = Annotated[
     Path,
     typer.Option(
         "--body-file",
@@ -45,7 +45,7 @@ def get(
 @app.command()
 def submit(
     survey: SurveyIDArg,
-    body_file: BodyFileArg,
+    body_file: AnswersFileArg,
     validate_only: Annotated[
         bool,
         typer.Option("--validate-only", help="Validate only — save nothing, fire no integrations."),

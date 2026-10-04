@@ -17,7 +17,7 @@ app = typer.Typer(name="projects", help="Tracker projects (legacy API).", no_arg
 ProjectIDArg = Annotated[
     int, typer.Argument(metavar="PROJECT_ID", help="Numeric id of the project.")
 ]
-ExpandOpt = Annotated[str | None, typer.Option(help="Extra blocks to include, e.g. queues.")]
+ProjectExpandOpt = Annotated[str | None, typer.Option(help="Extra blocks to include, e.g. queues.")]
 StatusOpt = Annotated[str | None, values_option(ProjectStatus, help="Stage of the project.")]
 DescriptionOpt = Annotated[str | None, typer.Option(help="Description of the project.")]
 LeadOpt = Annotated[str | None, typer.Option(help="Login or id of the project's lead.")]
@@ -27,13 +27,15 @@ QueuesOpt = Annotated[str, typer.Option(help="Key of the queue whose issues go i
 
 
 @app.command("list")
-def list_(expand: ExpandOpt = None, *, tracker: TrackerClient) -> ItemList[Project]:
+def list_(expand: ProjectExpandOpt = None, *, tracker: TrackerClient) -> ItemList[Project]:
     """List the organization's projects (GET /projects)."""
     return tracker.projects.list(expand=expand)
 
 
 @app.command()
-def get(project_id: ProjectIDArg, expand: ExpandOpt = None, *, tracker: TrackerClient) -> Project:
+def get(
+    project_id: ProjectIDArg, expand: ProjectExpandOpt = None, *, tracker: TrackerClient
+) -> Project:
     """Print project PROJECT_ID (GET /projects/{id})."""
     return tracker.projects.get(project_id, expand=expand)
 
@@ -87,7 +89,7 @@ def update(
     status: StatusOpt = None,
     start_date: StartDateOpt = None,
     end_date: EndDateOpt = None,
-    expand: ExpandOpt = None,
+    expand: ProjectExpandOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Project:

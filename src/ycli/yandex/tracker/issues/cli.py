@@ -31,7 +31,7 @@ from ycli.yandex.tracker.typedefs import (
 
 app = typer.Typer(name="issues", help="Tracker issues.", no_args_is_help=True)
 
-FieldOpt = Annotated[
+IssueFieldOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Extra field key=value (JSON-coerced; repeatable)."),
 ]
@@ -134,7 +134,7 @@ def create(
         str | None, typer.Option(help='Markdown body — pass "$(cat file.md)".')
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
-    field: FieldOpt = None,
+    field: IssueFieldOpt = None,
     notify: NotifyOpt = None,
     *,
     tracker: TrackerClient,
@@ -166,7 +166,7 @@ def update(
         typer.Option(help='New markdown body — pass "$(cat file.md)"; "" clears it.'),
     ] = None,
     tag: Annotated[list[str] | None, typer.Option("--tag", help="Tag (repeatable).")] = None,
-    field: FieldOpt = None,
+    field: IssueFieldOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Issue:
