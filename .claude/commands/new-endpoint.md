@@ -26,6 +26,6 @@ Run the generator, then finish wiring the new resource:
    purpose — the new commands/tools change the CLI tree and MCP tool list (ARCH-6):
    `uv run python -m tests.snapshots --update`.
 
-The rules the result must meet are in `ARCHITECTURE.md` (ARCH-1..8) and
+The rules the result must meet are in `ARCHITECTURE.md` (ARCH-1..9) and
 `docs/conventions/resources.md`; the scaffold already meets them, and `uv run pytest` names the
 one a change breaks.
