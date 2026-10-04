@@ -21,7 +21,7 @@ Tracker, Wiki and Forms from a command line, an MCP server and Python: one tool,
 
 </div>
 
-- **A command line that scripts well.** JSON when piped, a `--jq` filter, `--dry-run` for every write, an exit code for each kind of failure.
+- **A command line that scripts well.** JSON when piped, ready for `jq`, `--dry-run` for every write, an exit code for each kind of failure.
 - **An MCP server agents can trust.** Every tool says whether it reads, writes or destroys; serve only reads, or a small everyday set.
 - **A typed Python SDK.** Pydantic models for every answer, and examples the test suite runs.
 - **Careful with your data.** A delete asks first, and your token goes only to Yandex's own hosts.
@@ -43,7 +43,6 @@ Writing Python? Add the SDK to your project: `uv add yandex-cli`.
 | Extra | Adds | Install |
 |---|---|---|
 | `mcp` | the MCP server, `ycli mcp start` | `uv tool install 'yandex-cli[mcp]'` |
-| `jq` | the built-in `--jq` filter (a pipe to the `jq` program needs no extra) | `uv tool install 'yandex-cli[mcp,jq]'` |
 | `service-account` | the SDK's `ServiceAccountAuth` for a Yandex Cloud service-account key | `uv add 'yandex-cli[service-account]'` |
 
 ### Connect your AI client

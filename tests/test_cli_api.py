@@ -36,11 +36,11 @@ def _exit_code(monkeypatch, *args: str) -> str | int | None:
 # --- reads, methods and fields -----------------------------------------------------------------
 
 
-def test_a_get_prints_the_json_answer_through_jq(api: MockAPI):
+def test_a_get_prints_the_json_answer(api: MockAPI):
     api.add("GET", ISSUE_URL, json={"key": "DE-1", "summary": "Fix", "n": 3})
-    result = _api("issues/DE-1", "--service", "tracker", "--jq", ".summary")
+    result = _api("issues/DE-1", "--service", "tracker")
     assert result.exit_code == 0, result.output
-    assert result.stdout == "Fix\n"
+    assert json.loads(result.stdout) == {"key": "DE-1", "summary": "Fix", "n": 3}
     assert [(call.method, str(call.url)) for call in api.calls] == [("GET", ISSUE_URL)]
     assert api.calls[0].headers["X-Org-Id"] == "o"  # the same transport as every command
     assert api.calls[0].headers["Authorization"] == "OAuth t"
@@ -254,9 +254,9 @@ def test_an_unreadable_input_is_a_usage_error(api: MockAPI, tmp_path):
 def test_a_full_url_of_a_service_infers_it(api: MockAPI, url, name):
     base = url.partition("?")[0]
     api.add("GET", base, json={"ok": name})
-    result = _api(url, "--jq", ".ok")
+    result = _api(url)
     assert result.exit_code == 0, result.output
-    assert result.stdout == f"{name}\n"
+    assert json.loads(result.stdout) == {"ok": name}
     assert str(api.calls[0].url) == url
 
 
@@ -335,11 +335,6 @@ def test_an_empty_body_prints_nothing(api: MockAPI):
 def test_json_that_is_not_json_prints_as_text(api: MockAPI):
     api.add("GET", f"{WIKI_BASE}/x", content=b"oops", headers={"Content-Type": "application/json"})
     assert _api("x", "--service", "wiki").stdout == "oops\n"
-
-
-def test_a_jq_over_text_is_a_usage_error(api: MockAPI):
-    api.add("GET", f"{WIKI_BASE}/x", content=b"hi", headers={"Content-Type": "text/plain"})
-    assert _api("x", "--service", "wiki", "--jq", ".a").exit_code == 2
 
 
 # --- writes: --dry-run and --yes ---------------------------------------------------------------
@@ -433,27 +428,19 @@ def test_paginate_prints_every_item_as_one_array(api: MockAPI):
     assert api.calls[0].url.params["slug"] == "x"
 
 
-def test_paginate_runs_jq_once_over_everything(api: MockAPI):
-    _two_wiki_pages(api)
-    result = _api("pages/descendants", "--service", "wiki", "--paginate", "--jq", "length")
-    assert result.stdout == "3\n"
-
-
 def test_paginate_stops_at_the_item_cap(api: MockAPI):
     _two_wiki_pages(api)
-    result = _api(
-        "pages/descendants", "--service", "wiki", "--paginate", "--limit", "2", "--jq", "length"
-    )
-    assert result.stdout == "2\n"
+    result = _api("pages/descendants", "--service", "wiki", "--paginate", "--limit", "2")
+    assert len(json.loads(result.stdout)) == 2
     assert len(api.calls) == 1
 
 
-@pytest.mark.parametrize(("extra", "count"), [([], "1\n"), (["--all"], "3\n")])
+@pytest.mark.parametrize(("extra", "count"), [([], 1), (["--all"], 3)])
 def test_paginate_all_ignores_the_configured_cap(api: MockAPI, monkeypatch, extra, count):
     monkeypatch.setenv("YCLI__HTTP__MAX_ITEMS", "1")
     _two_wiki_pages(api)
-    result = _api("pages/descendants", "--service", "wiki", "--paginate", *extra, "--jq", "length")
-    assert result.stdout == count
+    result = _api("pages/descendants", "--service", "wiki", "--paginate", *extra)
+    assert len(json.loads(result.stdout)) == count
 
 
 def test_paginate_follows_trackers_next_link(api: MockAPI):
@@ -465,8 +452,8 @@ def test_paginate_follows_trackers_next_link(api: MockAPI):
         headers={"Link": '<https://api.tracker.yandex.net/v3/queues?page=2&perPage=2>; rel="next"'},
     )
     api.add("GET", queues, json=[{"key": "C"}])
-    result = _api("queues", "--service", "tracker", "--paginate", "--jq", 'map(.key)|join(",")')
-    assert result.stdout == "A,B,C\n"
+    result = _api("queues", "--service", "tracker", "--paginate")
+    assert [queue["key"] for queue in json.loads(result.stdout)] == ["A", "B", "C"]
     assert [call.url.params.get("page") for call in api.calls] == [None, "2"]
 
 

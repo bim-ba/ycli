@@ -53,11 +53,10 @@ ycli --version
 ```bash
 ycli tracker issues get TEST-1
 ycli tracker issues get TEST-1 -o json | jq .summary
-ycli --jq .summary tracker issues get TEST-1
 ```
 
-В терминале первая команда печатает таблицу; если вывод передан по конвейеру, ycli печатает JSON.
-`--jq` фильтрует JSON без отдельного `jq`; для него нужен extra `jq` (`uv tool install 'yandex-cli[jq]'`).
+В терминале первая команда печатает таблицу; если вывод передан по конвейеру, ycli печатает JSON,
+а фильтрует его [jq](https://jqlang.org).
 
 ## 4. Та же задача из Python
 

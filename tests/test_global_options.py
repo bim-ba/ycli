@@ -13,7 +13,7 @@ from ycli.cli.context import AppContext
 from ycli.cli.formats import OutputFormat
 from ycli.cli.global_options import option_names
 from ycli.cli.inject import inject_dependencies
-from ycli.cli.typedefs import FormatOption, JqOption
+from ycli.cli.typedefs import FormatOption, YesOption
 
 runner = CliRunner()
 
@@ -44,29 +44,20 @@ def test_the_root_value_stands_when_the_leaf_gives_none(api):
     assert '"login":"alice"' in result.stdout
 
 
-@pytest.mark.parametrize(
-    "args",
-    [
-        ["--jq", ".login", "tracker", "me", "get"],
-        ["tracker", "me", "get", "--jq", ".login"],
-    ],
-)
-def test_jq_is_accepted_on_either_side_of_the_subcommand(api, args):
-    _issue(api)
-    result = runner.invoke(ycli_app, args)
-    assert result.stdout == "alice\n"
-
-
-def test_a_bad_combination_is_refused_before_the_command_runs(api):
-    result = runner.invoke(ycli_app, ["tracker", "me", "get", "-o", "yaml", "--jq", ".login"])
-    assert result.exit_code == 2
-    assert api.calls == []  # the check ran ahead of the request
+def test_the_removed_jq_option_is_refused_on_either_side(api):
+    """`--jq` is gone (#292): the JSON output is piped to the jq program instead."""
+    for args in (["--jq", ".login", "tracker", "me", "get"], ["tracker", "me", "get", "--jq", "."]):
+        result = runner.invoke(ycli_app, args)
+        assert result.exit_code == 2
+        assert "No such option" in result.output
+    assert api.calls == []
 
 
 def test_every_leaf_of_the_real_cli_lists_the_global_options():
     result = runner.invoke(ycli_app, ["tracker", "issues", "get", "--help"])
     assert "--format" in result.stdout
-    assert "--jq" in result.stdout
+    assert "--dry-run" in result.stdout
+    assert "--jq" not in result.stdout
 
 
 # --- a synthetic app: a command that owns one of the names keeps it -------------------------
@@ -74,13 +65,13 @@ def test_every_leaf_of_the_real_cli_lists_the_global_options():
 
 def _app() -> typer.Typer:
     calls: typer.Typer = typer.Typer(
-        result_callback=lambda result, output_format, jq: typer.echo(
-            f"{result} | {output_format} {jq}"
+        result_callback=lambda result, output_format, yes: typer.echo(
+            f"{result} | {output_format} {yes}"
         )
     )
 
     @calls.callback()
-    def root(output_format: FormatOption = OutputFormat.auto, jq: JqOption = None) -> None:
+    def root(output_format: FormatOption = OutputFormat.auto, yes: YesOption = False) -> None:
         """The root declares the aliases, as ycli's own root does."""
 
     @calls.command()
@@ -107,9 +98,9 @@ def test_a_command_that_declares_format_keeps_it_and_gets_no_short_o():
 
 
 def test_a_command_without_a_clash_gets_every_global_option():
-    result = runner.invoke(_app(), ["plain", "S-1", "--jq", ".x", "-o", "json"], obj=AppContext())
+    result = runner.invoke(_app(), ["plain", "S-1", "--yes", "-o", "json"], obj=AppContext())
     assert result.exit_code == 0, result.output
-    assert "| json .x" in result.stdout
+    assert "| json True" in result.stdout
 
 
 def test_injecting_twice_does_not_add_the_options_twice():

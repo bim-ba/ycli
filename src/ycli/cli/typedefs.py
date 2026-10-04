@@ -4,7 +4,7 @@ The ``limit`` / ``--all`` pair recurs on every paginated ``list`` command; defin
 :data:`LimitOption` / :data:`AllOption` ``Annotated`` aliases once keeps the caps consistent
 (pair with :meth:`ycli.settings.HTTPConfig.cap` to turn them into a concrete cap).
 
-The global options (``--format``, ``--jq``, ``--yes``, ``--dry-run``, ``--profile``) are declared
+The global options (``--format``, ``--yes``, ``--dry-run``, ``--profile``) are declared
 here too, once, and reused by the root callback and every leaf command (see
 :mod:`ycli.cli.global_options`).
 """
@@ -25,15 +25,6 @@ AllOption = Annotated[bool, typer.Option("--all", help="Fetch everything, ignori
 FormatOption = Annotated[
     OutputFormat | None,
     typer.Option("--format", "-o", help="Output format (auto = pretty on a TTY, JSON when piped)."),
-]
-JqOption = Annotated[
-    str | None,
-    typer.Option(
-        "--jq",
-        metavar="EXPR",
-        help="Filter the JSON result through a jq expression; strings print raw, like `jq -r`. "
-        "Needs the `jq` extra.",
-    ),
 ]
 YesOption = Annotated[
     bool,

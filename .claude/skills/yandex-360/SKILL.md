@@ -61,7 +61,7 @@ it for you.
 | **MCP server** | An LLM agent needs Yandex 360 tools | Run `ycli mcp start` (stdio; needs the `[mcp]` extra); read/write tools namespaced `tracker_*`, `wiki_*`, `forms_*`, plus `status_get` (`ycli mcp methods` lists them). `ycli mcp start --read-only` serves the reads-only view; `--toolsets core` (about 40 everyday tools) or `--toolsets tracker,wiki` narrows the set when a host caps tools per request (VS Code: 128) |
 | **Python SDK** | Programmatic use inside Python | `from ycli.yandex.tracker.client import TrackerClient` → `TrackerClient(oauth_token=…, organization_id=…)` |
 
-An endpoint no command wraps: `ycli api PATH --service tracker|wiki|forms` (`gh api`-style `-f`/`-F` fields, `--jq`, `--paginate` for Tracker and Wiki; CLI only).
+An endpoint no command wraps: `ycli api PATH --service tracker|wiki|forms` (`gh api`-style `-f`/`-F` fields, `--paginate` for Tracker and Wiki; CLI only).
 
 Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 
@@ -116,8 +116,8 @@ semantics, a service ycli does not wrap yet), read the official docs directly, a
   session must not write at all, run the server with `ycli mcp start --read-only`.
 - **CLI deletes ask first** — a command that deletes data prompts on a terminal and, without
   one (an agent's shell), exits 2 unless given `--yes`; confirm intent with the user before
-  adding it. `--dry-run` prints the write request instead of sending it, `--jq EXPR` filters
-  the JSON result, and the exit code says what failed (3 not found, 4 auth, 5 rate limited,
+  adding it. `--dry-run` prints the write request instead of sending it, the JSON result pipes
+  to `jq`, and the exit code says what failed (3 not found, 4 auth, 5 rate limited,
   6 transient).
 - **Binary payloads stay on the CLI/SDK** — attachment/export/keyset downloads are not
   MCP tools; fetch them with `ycli … download` commands.

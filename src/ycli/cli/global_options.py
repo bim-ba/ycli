@@ -21,8 +21,7 @@ from typing import TYPE_CHECKING, Any
 import typer
 from typer.models import ArgumentInfo, OptionInfo
 
-from ycli.cli.formats import OutputFormat
-from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, ProfileOption, YesOption
+from ycli.cli.typedefs import DryRunOption, FormatOption, ProfileOption, YesOption
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
@@ -30,7 +29,6 @@ if TYPE_CHECKING:
 # root callback parameter name -> (the option's alias, its default on a leaf: "not given")
 GLOBAL_OPTIONS: dict[str, tuple[Any, object]] = {
     "output_format": (FormatOption, None),
-    "jq": (JqOption, None),
     "yes": (YesOption, False),
     "dry_run": (DryRunOption, False),
     "profile": (ProfileOption, None),
@@ -114,7 +112,3 @@ def apply_leaf_values(arguments: dict[str, Any], root_params: MutableMapping[str
     for name, (_, default) in GLOBAL_OPTIONS.items():
         if (key := _PREFIX + name) in arguments and (value := arguments.pop(key)) != default:
             root_params[name] = value
-    if (expression := root_params.get("jq")) is not None:
-        from ycli.cli.output import check_jq
-
-        check_jq(expression, root_params.get("output_format") or OutputFormat.auto)

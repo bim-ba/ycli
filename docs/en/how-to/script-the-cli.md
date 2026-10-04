@@ -17,18 +17,16 @@ ycli wiki pages get onboarding -o json
 
 The keys are the API's own field names (`createdAt` in Tracker, `created_at` in Wiki), so the filters in Yandex's documentation work as they are.
 
-## Filter without jq
+## Filter the output
 
-`--jq EXPR` runs a [jq](https://jqlang.org) program over the JSON and prints like `jq -r`: a string bare, anything else as one compact JSON value per line.
+ycli has no filter of its own: pipe the JSON to [jq](https://jqlang.org).
 
 ```bash
-ycli --jq .summary tracker issues get TRACKER-1
-ycli --jq '.[].key' tracker issues search 'Queue: TEST'
+ycli tracker issues get TRACKER-1 -o json | jq -r .summary
+ycli tracker issues search 'Queue: TEST' -o json | jq -r '.[].key'
 ```
 
-It cannot be combined with `-o yaml` or `-o pretty`.
-
-`--jq` needs the `jq` extra: `uv tool install 'yandex-cli[jq]'`, or `'yandex-cli[mcp,jq]'` with the MCP server (the Docker image has it). Without the extra the flag exits with code 2 and says how to install it; a pipe to the `jq` program works either way.
+`-o json` makes the format explicit; without it a pipe gets JSON anyway.
 
 ## Delete without a prompt
 
@@ -40,7 +38,7 @@ ycli tracker boards delete 7 --yes
 
 ## Preview a write
 
-`--dry-run` sends no write and prints the request instead (method, URL, body, never the token), through the same `-o` and `--jq`, and exits 0. Reads still run, so a command that reads and then writes shows only its first write.
+`--dry-run` sends no write and prints the request instead (method, URL, body, never the token), through the same `-o`, and exits 0. Reads still run, so a command that reads and then writes shows only its first write.
 
 ```bash
 ycli tracker boards delete 7 --dry-run

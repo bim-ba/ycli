@@ -13,7 +13,7 @@ import typer
 from ycli.cli.exit_codes import exit_codes_summary
 from ycli.cli.formats import OutputFormat
 from ycli.cli.lazy import RootGroup, SubApp
-from ycli.cli.typedefs import DryRunOption, FormatOption, JqOption, ProfileOption, YesOption
+from ycli.cli.typedefs import DryRunOption, FormatOption, ProfileOption, YesOption
 from ycli.yandex.registry import SERVICES
 
 
@@ -42,7 +42,6 @@ class _Ycli(RootGroup):
 def _render(
     result: object,
     output_format: OutputFormat | None,
-    jq: str | None,
     yes: bool,
     dry_run: bool,
     profile: str | None,
@@ -52,7 +51,7 @@ def _render(
     """Print whatever the command returned; Click passes the root options alongside it."""
     from ycli.cli.output import render
 
-    render(result, output_format or OutputFormat.auto, jq)
+    render(result, output_format or OutputFormat.auto)
 
 
 app = typer.Typer(
@@ -80,7 +79,6 @@ def _version_callback(value: bool) -> None:
 def _main(
     ctx: typer.Context,
     output_format: FormatOption = OutputFormat.auto,
-    jq: JqOption = None,
     yes: YesOption = False,
     dry_run: DryRunOption = False,
     profile: ProfileOption = None,

@@ -27,7 +27,7 @@ The command, the tool an agent calls and the Python method are the same operatio
 
 -   :material-console: **A command line that scripts well**
 
-    JSON when piped, a `--jq` filter, `--dry-run` for every write, and an exit code for each kind of failure.
+    JSON when piped, ready for `jq`, `--dry-run` for every write, and an exit code for each kind of failure.
 
     [Script the CLI](how-to/script-the-cli.md)
 
