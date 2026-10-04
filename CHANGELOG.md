@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.60.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.59.0
+  ([`b9b7093`](https://github.com/bim-ba/ycli/commit/b9b70933f3574a6ef654610f1a531c1abfe1bba3))
+
+### Chores
+
+- **api**: Every listed operation has a kind of action and the API's own verb
+  ([#289](https://github.com/bim-ba/ycli/pull/289),
+  [`c3ea868`](https://github.com/bim-ba/ycli/commit/c3ea8681b0b1b386680a5ca4713d2f7287dd0256))
+
+### Features
+
+- **cli**: The --jq option is removed; pipe the JSON output to jq
+  ([#293](https://github.com/bim-ba/ycli/pull/293),
+  [`0f919e5`](https://github.com/bim-ba/ycli/commit/0f919e551238fa0d04df63ffc6aac8476ff8721d))
+
+### Breaking Changes
+
+- **cli**: `--jq EXPR` is no longer an option of any command, and the `yandex-cli[jq]` extra no
+  longer exists. Pipe the output instead: `ycli tracker issues get TRACKER-1 -o json | jq -r
+  .summary`.
+
+
 ## v0.59.0 (2026-10-04)
 
 ### Build System
