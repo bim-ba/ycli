@@ -8,10 +8,10 @@ from typing import Annotated
 import typer
 
 from ycli.cli.output import BinaryResult
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
-from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment
+from ycli.yandex.models import Ack, ItemList, SortDirection
+from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
@@ -28,11 +28,11 @@ def list_(
     limit: LimitOption = None,
     all_: AllOption = False,
     order_by: Annotated[
-        str | None, typer.Option("--order-by", help="Sort field: name, size or created_at.")
+        str | None, values_option(AttachmentOrder, "--order-by", help="Sort field.")
     ] = None,
     order_direction: Annotated[
         str | None,
-        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+        values_option(SortDirection, "--order-direction", help="Sort direction for --order-by."),
     ] = None,
     *,
     config: AppConfig,

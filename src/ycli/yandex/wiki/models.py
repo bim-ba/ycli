@@ -9,11 +9,15 @@ from pydantic import Field
 from ycli.yandex.models import APIModel
 
 #: Kind of deferred Wiki operation: the ``type`` of the reference a trigger returns.
-OperationType = Literal["move", "clone", "clone_inline_grid"]
+OperationType = Literal["move", "clone", "clone_inline_grid"] | str
 #: An end of a page's body.
-Location = Literal["top", "bottom"]
+Location = Literal["top", "bottom"] | str
+#: The side of a neighbouring page.
+OrderPosition = Literal["before", "after"] | str
 #: Who a page is open to: as its parent, every employee, or the listed users and groups.
-PageAccessType = Literal["inherited", "all_staff", "custom"]
+PageAccessType = Literal["inherited", "all_staff", "custom"] | str
+#: Whether a comment thread is settled.
+ResolveStatus = Literal["resolved", "unresolved"] | str
 
 
 class UserIdentity(APIModel):

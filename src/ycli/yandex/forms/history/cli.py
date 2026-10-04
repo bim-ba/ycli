@@ -6,12 +6,12 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.history.models import HistoryEvent
 from ycli.yandex.forms.typedefs import SurveyIdArg
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 
 app = typer.Typer(name="history", help="Forms change log.", no_args_is_help=True)
 
@@ -20,7 +20,7 @@ app = typer.Typer(name="history", help="Forms change log.", no_args_is_help=True
 def list_(
     survey_id: SurveyIdArg,
     ordering: Annotated[
-        str | None, typer.Option(help="desc (newest first, the API default) or asc.")
+        str | None, values_option(SortDirection, help="desc is newest first, the API default.")
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,

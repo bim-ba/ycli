@@ -19,7 +19,7 @@ from ycli.yandex.models import APIModel
 from ycli.yandex.wiki.models import PageIdentity
 
 #: Lifecycle status of an async operation.
-OperationStatus = Literal["scheduled", "in_progress", "success", "failed"]
+OperationStatus = Literal["scheduled", "in_progress", "success", "failed"] | str
 #: Statuses at which an async operation has stopped running (poll terminates here).
 TERMINAL_STATUSES = frozenset({"success", "failed"})
 

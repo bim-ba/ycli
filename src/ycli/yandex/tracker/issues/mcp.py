@@ -28,6 +28,7 @@ from ycli.yandex.tracker.issues.models import (
     IssueSearch,
     IssueUpdate,
     ScrollClear,
+    ScrollType,
     count_body,
     filter_body,
 )
@@ -90,10 +91,8 @@ def search(
     limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
     expand: Expand = None,
     scroll_type: Annotated[
-        str | None,
-        Field(
-            description="``sorted`` or ``unsorted``: scroll through the results (no 10 000 cap)."
-        ),
+        ScrollType | None,
+        Field(description="Scroll through the results (no 10 000 cap)."),
     ] = None,
     per_scroll: Annotated[
         int | None, Field(description="Issues per scroll page (1000 at most).")

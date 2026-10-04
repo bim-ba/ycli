@@ -9,6 +9,61 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.59.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.58.0
+  ([`e8d3ca6`](https://github.com/bim-ba/ycli/commit/e8d3ca69f00d9e04ceecc0454ab2fd5660b138ab))
+
+### Chores
+
+- **api**: A version is v1, v4.1, v3.0, v1beta, v2alpha or v1beta1
+  ([#287](https://github.com/bim-ba/ycli/pull/287),
+  [`6cb1d60`](https://github.com/bim-ba/ycli/commit/6cb1d6020b815726a371846badb71e02f8ec911d))
+
+- **api**: The snapshot lists six services whose reference is written by hand, and Disk's
+  documentation ([#282](https://github.com/bim-ba/ycli/pull/282),
+  [`86667b2`](https://github.com/bim-ba/ycli/commit/86667b2abaa12f995a218f3465da66a1e344a7ae))
+
+### Features
+
+- A set of values is the known values plus any string
+  ([#288](https://github.com/bim-ba/ycli/pull/288),
+  [`9dfc748`](https://github.com/bim-ba/ycli/commit/9dfc7484abc3a5f4f9f83f02f4a7481743bf8d77))
+
+### Refactoring
+
+- **sdk**: A request body is dumped by pydantic's own serializer
+  ([#281](https://github.com/bim-ba/ycli/pull/281),
+  [`dc50452`](https://github.com/bim-ba/ycli/commit/dc5045234fd91fc93be54759864dff73beeb1a06))
+
+### Testing
+
+- **e2e**: The sweep after a live run removes only what that run named
+  ([#285](https://github.com/bim-ba/ycli/pull/285),
+  [`5b7db55`](https://github.com/bim-ba/ycli/commit/5b7db55d77206fe9957018a15425fa3e7469255d))
+
+### Breaking Changes
+
+- A value outside a known set is sent to the API instead of being refused by ycli (CLI exit code 2,
+  an MCP tool error or a validation error before). In MCP input and output schemas such a field
+  changes from `enum` to `anyOf` of the `enum` and a string: 46 tools' input schemas and 60 tools'
+  output schemas. CLI options with a set show `TEXT` and "One of: ..." in the help instead of
+  `[a|b]`. The sets: AccessAction (forms/access), AccessLevel (forms/access), ExportFormat
+  (forms/answers), ExportUpload (forms/answers), AnswerFormat (forms/answers), ConditionOperatorType
+  (forms), ConditionItemKind (forms), ConditionComparison (forms), RunStatus (forms/notifications),
+  IntegrationType (forms/notifications), WidgetType (forms/questions), ModifyChoicesType
+  (forms/questions), ValidatorType (forms/questions), SortDirection (models), GroupSource (models),
+  ReportFormat (tracker/entities), ScrollType (tracker/issues), SprintStatus (tracker/sprints),
+  StatusType (tracker/statuses), AccessRole (wiki/access), AccessInheritance (wiki/access),
+  AttachmentOrder (wiki/attachments), ColumnType (wiki/grids), WidthUnits (wiki/grids),
+  ColumnPinType (wiki/grids), BGColor (wiki/grids), TextFormat (wiki/grids), TicketField
+  (wiki/grids), OperationType (wiki), Location (wiki), OrderPosition (wiki), PageAccessType (wiki),
+  ResolveStatus (wiki), OperationStatus (wiki/operations), GridOrder (wiki/pages), ResourceOrder
+  (wiki/resources), SearchDocumentType (wiki/search), SearchOrder (wiki/search)
+
+
 ## v0.58.0 (2026-10-04)
 
 ### Build System

@@ -15,6 +15,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerExport,
+    AnswerFormat,
     AnswerIntegration,
     AnswersResponse,
 )
@@ -28,7 +29,7 @@ from ycli.yandex.forms.dependencies import (
     forms_client,
 )
 from ycli.yandex.forms.models import OperationResult
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, ItemList, SortDirection
 
 mcp = FastMCP("forms-answers")
 
@@ -69,13 +70,14 @@ def list_(
         str | None, Field(description="ISO-8601: answers given at or before.")
     ] = None,
     ordering: Annotated[
-        str | None, Field(description="``asc`` (oldest first) or ``desc`` (the default).")
+        SortDirection | None,
+        Field(description="``asc`` is oldest first; the default is ``desc``."),
     ] = None,
     page_size: Annotated[
         int | None, Field(description="Answers per request (the API's default is 25).")
     ] = None,
     answer_format: Annotated[
-        str | None,
+        AnswerFormat | None,
         Field(
             description="``default`` (cells aligned to ``columns``) or ``raw`` (each answer's "
             "data as stored, with no ``columns``)."

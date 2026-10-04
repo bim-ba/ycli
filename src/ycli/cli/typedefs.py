@@ -11,7 +11,7 @@ here too, once, and reused by the root callback and every leaf command (see
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any, Literal, get_args, get_origin
 
 import typer
 
@@ -56,3 +56,54 @@ DryRunOption = Annotated[
         "and only the first write of a command is shown.",
     ),
 ]
+
+
+def known_values(value_set: Any) -> tuple[str, ...]:
+    """The values a soft set names: ``Literal["asc", "desc"] | str`` -> ``("asc", "desc")``.
+
+    Args:
+        value_set: A set of values as it is defined, ``Literal[...] | str``.
+
+    Returns:
+        The known values, in the order of the definition.
+
+    Examples:
+        >>> from typing import Literal
+        >>> known_values(Literal["asc", "desc"] | str)
+        ('asc', 'desc')
+    """
+    return tuple(
+        str(value)
+        for member in get_args(value_set)
+        if get_origin(member) is Literal
+        for value in get_args(member)
+    )
+
+
+def values_option(value_set: Any, *names: str, help: str) -> Any:  # noqa: A002
+    """A string option that knows a set's values: they are in its help and its completion.
+
+    Typer has no "one of these or any string" type, so the option stays a string: another
+    value goes to the API, which answers for it.
+
+    Args:
+        value_set: The set of values as it is defined, ``Literal[...] | str``.
+        *names: The option's names, as for ``typer.Option``.
+        help: What the option does, without the values.
+
+    Returns:
+        The ``typer.Option`` to put in ``Annotated[str | None, ...]``.
+
+    Examples:
+        >>> from typing import Literal
+        >>> values_option(Literal["asc", "desc"] | str, "--order", help="Sort direction.").help
+        'Sort direction. Known values: asc, desc.'
+    """
+    values = known_values(value_set)
+
+    def complete(incomplete: str) -> list[str]:
+        return [value for value in values if value.startswith(incomplete)]
+
+    return typer.Option(
+        *names, help=f"{help} Known values: {', '.join(values)}.", autocompletion=complete
+    )

@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
+
+#: What a listing of resources can be sorted by.
+ResourceOrder = Literal["name_title", "created_at"] | str
 
 
 class ResourceItem(APIModel):

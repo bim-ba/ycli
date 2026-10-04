@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.questions.models import (
     FORCE_IGNORED,
@@ -17,6 +18,7 @@ from ycli.yandex.forms.questions.models import (
     QuestionMoveResult,
     QuestionsResponse,
     QuestionValidator,
+    WidgetType,
 )
 from ycli.yandex.forms.typedefs import (
     QuestionIdArg,
@@ -28,7 +30,7 @@ app = typer.Typer(name="questions", help="Forms questions.", no_args_is_help=Tru
 
 
 # The question types the flags can build; the richer ones take ``--body-file``.
-_FLAG_TYPES = ("string", "boolean", "integer", "date", "enum")
+FlagQuestionType = Literal["string", "boolean", "integer", "date", "enum"]
 
 
 def _build_from_flags(
@@ -64,10 +66,6 @@ def _build_from_flags(
         ... ).multiline
         True
     """
-    if type_ not in _FLAG_TYPES:
-        raise typer.BadParameter(
-            f"--type {type_!r} has no typed flags; pass --body-file with a full JSON body"
-        )
     # The flags carry only the ``required`` rule, so they set the whole validators list:
     # --required sends [required], --no-required sends [] (clearing every rule), unset sends none.
     validators: list[QuestionValidator] | None = None
@@ -124,7 +122,8 @@ def _resolve_body(
 
 
 TypeOpt = Annotated[
-    str | None, typer.Option("--type", help="Question type: string/boolean/integer/date/enum.")
+    FlagQuestionType | None,
+    typer.Option("--type", help="Question type the flags can build; others take --body-file."),
 ]
 LabelOpt = Annotated[str | None, typer.Option(help="Question label / title.")]
 SlugOpt = Annotated[str | None, typer.Option(help="Stable machine slug.")]
@@ -144,7 +143,7 @@ MultilineOpt = Annotated[
     bool | None, typer.Option("--multiline/--no-multiline", help="Multiline text (string type).")
 ]
 WidgetOpt = Annotated[
-    str | None, typer.Option(help="Enum widget: radio/checkbox/dropdown/stars/onerow.")
+    str | None, values_option(WidgetType, help="How an enum question shows its options.")
 ]
 OptionOpt = Annotated[
     list[str] | None, typer.Option("--option", help="Enum option label (repeatable).")

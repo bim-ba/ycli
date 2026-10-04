@@ -62,18 +62,15 @@ def test_grid_update_default_sort_write_shape():
     assert body == {"revision": "3", "default_sort": [{"a": "asc"}, {"b": "desc"}]}
 
 
-def test_grid_update_default_sort_rejects_read_shape():
-    """The ``{slug, title, direction}`` READ shape must fail loudly, not get stripped to [{}]."""
-    with pytest.raises(ValidationError):
-        GridUpdate(
-            revision="3",
-            default_sort=[{"slug": "a", "direction": "asc"}],  # ty: ignore[invalid-argument-type]
-        )
-
-
-def test_grid_update_default_sort_rejects_bad_direction():
-    with pytest.raises(ValidationError):
-        GridUpdate(revision="3", default_sort=[{"a": "ascending"}])  # ty: ignore[invalid-argument-type]
+def test_grid_update_default_sort_is_sent_as_given():
+    """A direction outside the known set, or the shape a read returns, is the API's to refuse."""
+    body = GridUpdate.model_validate(
+        {"revision": "3", "default_sort": [{"a": "ascending"}, {"slug": "a", "direction": "asc"}]}
+    )
+    assert body.model_dump(exclude_none=True)["default_sort"] == [
+        {"a": "ascending"},
+        {"slug": "a", "direction": "asc"},
+    ]
 
 
 def test_rows_add_dumps_rows_and_revision():
@@ -109,9 +106,8 @@ def test_columns_add_nested_new_column_dump():
     }
 
 
-def test_new_column_rejects_bad_type():
-    with pytest.raises(ValidationError):
-        NewColumnSchema(title="C", type="bogus")  # ty: ignore[invalid-argument-type]
+def test_new_column_keeps_a_type_outside_the_known_set():
+    assert NewColumnSchema(title="C", type="bogus").type == "bogus"
 
 
 def test_new_column_derives_slug_from_title():
@@ -252,12 +248,14 @@ def test_column_update_needs_no_revision():
     assert ColumnUpdate(title="Lead").model_dump(exclude_none=True) == {"title": "Lead"}
 
 
-@pytest.mark.parametrize(
-    "field", [{"width_units": "em"}, {"pinned": "top"}, {"color": "teal"}, {"title": ""}]
-)
-def test_column_update_refuses_values_the_api_would_not(field):
+@pytest.mark.parametrize("field", [{"width_units": "em"}, {"pinned": "top"}, {"color": "teal"}])
+def test_column_update_keeps_a_value_outside_a_known_set(field):
+    assert ColumnUpdate.model_validate(field).model_dump(exclude_none=True) == field
+
+
+def test_column_update_refuses_an_empty_title():
     with pytest.raises(ValidationError):
-        ColumnUpdate.model_validate(field)
+        ColumnUpdate.model_validate({"title": ""})
 
 
 def test_column_update_result_carries_the_saved_column():
@@ -273,9 +271,8 @@ def test_row_update_dumps_pinned_and_colour():
     assert body == {"revision": "3", "pinned": False, "color": "mint"}
 
 
-def test_row_update_refuses_an_unknown_colour():
-    with pytest.raises(ValidationError):
-        RowUpdate.model_validate({"color": "teal"})
+def test_row_update_keeps_a_colour_outside_the_known_set():
+    assert RowUpdate.model_validate({"color": "teal"}).color == "teal"
 
 
 def test_row_update_result_is_a_bare_status():

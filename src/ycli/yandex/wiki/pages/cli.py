@@ -7,13 +7,14 @@ from typing import Annotated
 import typer
 
 from ycli.cli.progress import wait_for
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.models import AsyncOperation
+from ycli.yandex.wiki.models import AsyncOperation, Location, OrderPosition
 from ycli.yandex.wiki.operations.models import CloneOperationStatus, MoveOperationStatus
 from ycli.yandex.wiki.pages.models import (
+    GridOrder,
     GridRef,
     PageAppendContent,
     PageAppendContentBody,
@@ -132,11 +133,11 @@ def grids_list(
     limit: LimitOption = None,
     all_: AllOption = False,
     order_by: Annotated[
-        str | None, typer.Option("--order-by", help="Sort field: title or created_at.")
+        str | None, values_option(GridOrder, "--order-by", help="Sort field.")
     ] = None,
     order_direction: Annotated[
         str | None,
-        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+        values_option(SortDirection, "--order-direction", help="Sort direction for --order-by."),
     ] = None,
     *,
     config: AppConfig,
@@ -211,9 +212,7 @@ def delete(
 def append(
     page_id: PageIdArg,
     content: Annotated[str, typer.Option(help='YFM fragment to append — pass "$(cat file.md)".')],
-    location: Annotated[
-        str, typer.Option(help="Where in the body: top or bottom (default: bottom).")
-    ] = "bottom",
+    location: Annotated[str, values_option(Location, help="Where in the body.")] = "bottom",
     fields: ReplyFieldsOption = None,
     silent: SilentOption = False,
     *,
@@ -227,7 +226,7 @@ def append(
     """
     payload = PageAppendContent(
         content=content,
-        body=PageAppendContentBody(location=location),  # ty: ignore[invalid-argument-type]  # pydantic validates the top|bottom literal
+        body=PageAppendContentBody(location=location),
     )
     return wiki.pages.append(
         page_id=page_id,
@@ -273,7 +272,7 @@ def move(
         str | None, typer.Option("--next-to", help="Sibling slug to place the page next to.")
     ] = None,
     position: Annotated[
-        str | None, typer.Option("--position", help="before or after --next-to.")
+        str | None, values_option(OrderPosition, "--position", help="Which side of --next-to.")
     ] = None,
     copy_inherited_access: Annotated[
         bool,
@@ -299,7 +298,7 @@ def move(
         source=source,
         target=target,
         next_to_slug=next_to,
-        position=position,  # ty: ignore[invalid-argument-type]  # pydantic validates the before|after literal
+        position=position,
     )
     body = PageMove(operations=[step], copy_inherited_access=copy_inherited_access)
     operation = wiki.pages.move(body=body, dry_run=validate_only)

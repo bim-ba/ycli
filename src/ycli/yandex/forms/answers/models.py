@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
+
+#: The file an export of answers produces.
+ExportFormat = Literal["csv", "xlsx", "json"] | str
+#: Where the exported file goes: handed back, or saved to Yandex Disk.
+ExportUpload = Literal["default", "disk"] | str
+#: How a listing shows an answer: cells aligned to the columns, or its data as stored.
+AnswerFormat = Literal["default", "raw"] | str
 
 
 class Column(APIModel):
@@ -118,12 +125,11 @@ class AnswerExport(RequestBody):
         {'format': 'csv', 'limit': 100}
     """
 
-    format: str | None = Field(
-        default=None, description="Export format — ``csv`` or ``xlsx`` (API default ``xlsx``)."
+    format: ExportFormat | None = Field(
+        default=None, description="Export format (the API's default is ``xlsx``)."
     )
-    upload: str | None = Field(
-        default=None,
-        description="Where to upload the result — ``default`` or ``disk`` (Yandex Disk).",
+    upload: ExportUpload | None = Field(
+        default=None, description="Where the result goes; ``disk`` is Yandex Disk."
     )
     started_at: str | None = Field(
         default=None, description="ISO-8601 start of the answer date range (inclusive)."

@@ -94,6 +94,6 @@ def test_an_update_body_changes_something():
         PageAccessUpdate()
 
 
-def test_an_unknown_role_is_refused():
-    with pytest.raises(ValidationError):
-        PageAccessCreate.model_validate({"user": {"uid": "1"}, "role": "admin"})
+def test_a_role_outside_the_known_set_is_kept():
+    body = PageAccessCreate.model_validate({"user": {"uid": "1"}, "role": "admin"})
+    assert body.role == "admin"

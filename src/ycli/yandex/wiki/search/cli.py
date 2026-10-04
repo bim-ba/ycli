@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.models import UserIdentity
 from ycli.yandex.wiki.search.models import (
@@ -33,7 +34,7 @@ def _window(start: datetime | None, end: datetime | None) -> SearchDateRange | N
 def query(
     text: Annotated[str, typer.Argument(metavar="QUERY", help="Text to search for.")],
     type_: Annotated[
-        SearchDocumentType | None, typer.Option("--type", help="Only pages or only files.")
+        str | None, values_option(SearchDocumentType, "--type", help="Only pages or only files.")
     ] = None,
     cluster: Annotated[
         str | None, typer.Option(help="Only documents under this page slug, e.g. team/handbook.")
@@ -63,7 +64,8 @@ def query(
         bool, typer.Option("--show-obsolete", help="Also return obsolete documents.")
     ] = False,
     order_by: Annotated[
-        SearchOrder, typer.Option("--order-by", help="relevancy, creation_date or modified_date.")
+        str,
+        values_option(SearchOrder, "--order-by", help="What to sort the hits by."),
     ] = "relevancy",
     highlight: Annotated[
         bool, typer.Option("--highlight", help="Wrap matches in <em> tags.")

@@ -7,10 +7,10 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import RO, app_config, wiki_client
-from ycli.yandex.wiki.resources.models import ResourceItem
+from ycli.yandex.wiki.resources.models import ResourceItem, ResourceOrder
 
 mcp = FastMCP("wiki-resources")
 
@@ -25,11 +25,9 @@ def list_(
     types: Annotated[
         str | None, Field(description="Comma-separated kinds to include: ``attachment,grid``.")
     ] = None,
-    order_by: Annotated[
-        str | None, Field(description="Sort field: ``name_title`` or ``created_at``.")
-    ] = None,
+    order_by: Annotated[ResourceOrder | None, Field(description="Sort field.")] = None,
     order_direction: Annotated[
-        str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+        SortDirection | None, Field(description="Sort direction for ``order_by``.")
     ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),

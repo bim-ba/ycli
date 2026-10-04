@@ -167,24 +167,27 @@ class QuestionsResponse(APIModel):
 # Write bodies — the fully-typed discriminated union over the 12 question schemas.
 # --------------------------------------------------------------------------------------------
 
-WidgetType = Literal["radio", "checkbox", "dropdown", "stars", "onerow"]
-ModifyChoicesType = Literal["", "natural", "sort", "shuffle"]
-ValidatorType = Literal[
-    "required",
-    "min",
-    "max",
-    "email",
-    "url",
-    "phone",
-    "inn",
-    "decimal",
-    "russian",
-    "regexp",
-    "external",
-    "size",
-    "count",
-    "single",
-]
+WidgetType = Literal["radio", "checkbox", "dropdown", "stars", "onerow"] | str
+ModifyChoicesType = Literal["", "natural", "sort", "shuffle"] | str
+ValidatorType = (
+    Literal[
+        "required",
+        "min",
+        "max",
+        "email",
+        "url",
+        "phone",
+        "inn",
+        "decimal",
+        "russian",
+        "regexp",
+        "external",
+        "size",
+        "count",
+        "single",
+    ]
+    | str
+)
 
 
 class QuestionValidator(APIModel):

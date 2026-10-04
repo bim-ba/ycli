@@ -8,7 +8,17 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
-from ycli.yandex.wiki.models import Location, PageAccessType, PageIdentity, User, UserIdentity
+from ycli.yandex.wiki.models import (
+    Location,
+    OrderPosition,
+    PageAccessType,
+    PageIdentity,
+    User,
+    UserIdentity,
+)
+
+#: What a listing of a page's grids can be sorted by.
+GridOrder = Literal["title", "created_at"] | str
 
 
 class PageAttributes(APIModel):
@@ -89,7 +99,7 @@ class PageActuality(APIModel):
         'obsolete'
     """
 
-    status: Literal["possibly_obsolete", "unspecified", "actual", "obsolete"] | None = Field(
+    status: Literal["possibly_obsolete", "unspecified", "actual", "obsolete"] | str | None = Field(
         default=None,
         description="``actual``, ``obsolete``, ``possibly_obsolete``, ``unspecified``.",
     )
@@ -125,7 +135,7 @@ class RevisionPublication(APIModel):
         'published'
     """
 
-    status: Literal["pending_publication", "published"] | None = Field(
+    status: Literal["pending_publication", "published"] | str | None = Field(
         default=None, description="``pending_publication`` or ``published``."
     )
 
@@ -441,7 +451,7 @@ class PageMoveStep(RequestBody):
     next_to_slug: str | None = Field(
         default=None, description="Sibling page to place the moved page next to."
     )
-    position: Literal["before", "after"] | None = Field(
+    position: OrderPosition | None = Field(
         default=None, description="Put the moved page ``before`` or ``after`` ``next_to_slug``."
     )
 

@@ -6,9 +6,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
     Comment,
@@ -16,6 +16,7 @@ from ycli.yandex.wiki.comments.models import (
     CommentCreated,
     CommentDeleteResult,
 )
+from ycli.yandex.wiki.models import ResolveStatus
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
 
@@ -32,10 +33,10 @@ def list_(
     ] = None,
     order_direction: Annotated[
         str | None,
-        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+        values_option(SortDirection, "--order-direction", help="Sort direction for --order-by."),
     ] = None,
     status: Annotated[
-        str | None, typer.Option("--status", help="Only resolved or only unresolved comments.")
+        str | None, values_option(ResolveStatus, "--status", help="Only comments in this state.")
     ] = None,
     *,
     config: AppConfig,
