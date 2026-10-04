@@ -31,7 +31,7 @@ app = typer.Typer(name="queues", help="Tracker queues.", no_args_is_help=True)
 VersionIDArg = Annotated[
     int, typer.Argument(metavar="VERSION_ID", help="Numeric id of the queue version.")
 ]
-FieldsOpt = Annotated[
+QueueFieldsOpt = Annotated[
     str | None, typer.Option(help="Comma-separated fields to return, e.g. name,dueDate,released.")
 ]
 
@@ -201,7 +201,7 @@ def version_create(
 
 @app.command("version-get")
 def version_get(
-    version_id: VersionIDArg, fields: FieldsOpt = None, *, tracker: TrackerClient
+    version_id: VersionIDArg, fields: QueueFieldsOpt = None, *, tracker: TrackerClient
 ) -> QueueVersionInfo:
     """Print queue version VERSION_ID (GET /versions/{id})."""
     return tracker.queues.version_get(version_id, fields=fields)
@@ -218,7 +218,7 @@ def version_update(
     due_date: Annotated[
         str | None, typer.Option("--due-date", help="New version due date (YYYY-MM-DD).")
     ] = None,
-    fields: FieldsOpt = None,
+    fields: QueueFieldsOpt = None,
     *,
     tracker: TrackerClient,
 ) -> QueueVersionInfo:

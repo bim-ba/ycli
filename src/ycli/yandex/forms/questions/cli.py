@@ -143,10 +143,10 @@ MultilineOpt = Annotated[
 WidgetOpt = Annotated[
     str | None, values_option(WidgetType, help="How an enum question shows its options.")
 ]
-OptionOpt = Annotated[
+AnswerOptionOpt = Annotated[
     list[str] | None, typer.Option("--option", help="Enum option label (repeatable).")
 ]
-BodyFileOpt = Annotated[
+QuestionFileOpt = Annotated[
     Path | None,
     typer.Option(
         "--body-file",
@@ -191,8 +191,8 @@ def create(
     hidden: HiddenOpt = None,
     multiline: MultilineOpt = None,
     widget: WidgetOpt = None,
-    option: OptionOpt = None,
-    body_file: BodyFileOpt = None,
+    option: AnswerOptionOpt = None,
+    body_file: QuestionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Question:
@@ -226,8 +226,8 @@ def update(
     hidden: HiddenOpt = None,
     multiline: MultilineOpt = None,
     widget: WidgetOpt = None,
-    option: OptionOpt = None,
-    body_file: BodyFileOpt = None,
+    option: AnswerOptionOpt = None,
+    body_file: QuestionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Question:

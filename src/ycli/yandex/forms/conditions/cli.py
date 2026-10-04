@@ -15,7 +15,7 @@ from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
-from ycli.yandex.forms.typedefs import HookIDArg, PageIDArg, QuestionIDArg, SurveyIDArg
+from ycli.yandex.forms.typedefs import FormPageIDArg, HookIDArg, QuestionIDArg, SurveyIDArg
 from ycli.yandex.models import Ack
 
 app = typer.Typer(name="conditions", help="Forms display (show) conditions.", no_args_is_help=True)
@@ -46,7 +46,7 @@ ItemOpt = Annotated[
         help='Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).',
     ),
 ]
-BodyFileOpt = Annotated[
+ConditionFileOpt = Annotated[
     Path | None,
     typer.Option(
         "--body-file",
@@ -97,7 +97,7 @@ def question_create(
     question_id: QuestionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -113,7 +113,7 @@ def question_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -152,7 +152,7 @@ def question_set_operator(
 
 @page_app.command("list")
 def page_list(
-    survey_id: SurveyIDArg, page_id: PageIDArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, page_id: FormPageIDArg, *, forms: FormsClient
 ) -> ConditionsResponse:
     """List show conditions of page PAGE_ID (GET …/pages/{id}/conditions)."""
     return forms.conditions.page_list(survey_id, page_id)
@@ -160,7 +160,11 @@ def page_list(
 
 @page_app.command("get")
 def page_get(
-    survey_id: SurveyIDArg, page_id: PageIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
+    survey_id: SurveyIDArg,
+    page_id: FormPageIDArg,
+    condition_id: ConditionIDArg,
+    *,
+    forms: FormsClient,
 ) -> Condition:
     """Print one condition group (SURVEY_ID PAGE_ID CONDITION_ID)."""
     return forms.conditions.page_get(survey_id, page_id, condition_id)
@@ -169,10 +173,10 @@ def page_get(
 @page_app.command("create")
 def page_create(
     survey_id: SurveyIDArg,
-    page_id: PageIDArg,
+    page_id: FormPageIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -184,11 +188,11 @@ def page_create(
 @page_app.command("update")
 def page_update(
     survey_id: SurveyIDArg,
-    page_id: PageIDArg,
+    page_id: FormPageIDArg,
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -199,7 +203,11 @@ def page_update(
 
 @page_app.command("delete")
 def page_delete(
-    survey_id: SurveyIDArg, page_id: PageIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
+    survey_id: SurveyIDArg,
+    page_id: FormPageIDArg,
+    condition_id: ConditionIDArg,
+    *,
+    forms: FormsClient,
 ) -> Ack:
     """Delete condition group CONDITION_ID (DELETE — the API answers 200, no body)."""
     forms.conditions.page_delete(survey_id, page_id, condition_id)
@@ -208,7 +216,7 @@ def page_delete(
 
 @page_app.command("set-operator")
 def page_set_operator(
-    survey_id: SurveyIDArg, page_id: PageIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIDArg, page_id: FormPageIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the page's condition groups (collection PATCH)."""
     return forms.conditions.page_set_operator(survey_id, page_id, operator)
@@ -236,7 +244,7 @@ def submit_create(
     survey_id: SurveyIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -251,7 +259,7 @@ def submit_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -302,7 +310,7 @@ def hook_create(
     hook_id: HookIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -318,7 +326,7 @@ def hook_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: BodyFileOpt = None,
+    body_file: ConditionFileOpt = None,
     *,
     forms: FormsClient,
 ) -> Condition:

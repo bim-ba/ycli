@@ -43,7 +43,7 @@ RevisionID = Annotated[
 RaiseOnRedirect = Annotated[
     bool, Field(description="Fail if the page is a redirect instead of following it.")
 ]
-ReplyFields = Annotated[
+PageReplyFields = Annotated[
     str | None,
     Field(description="Extra blocks to include in the reply (CSV), e.g. ``content,attributes``."),
 ]
@@ -187,7 +187,7 @@ def create(
     ],
     title: Annotated[str, Field(description="Page title.")],
     content: Annotated[str, Field(description="Page body in YFM markdown.")],
-    fields: ReplyFields = None,
+    fields: PageReplyFields = None,
     is_silent: Silent = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
@@ -212,7 +212,7 @@ def update(
     page_id: Annotated[int, Field(description="Numeric id of the page to update.")],
     content: Annotated[str, Field(description="New page body in YFM markdown (full replace).")],
     title: Annotated[str | None, Field(description="New title (unchanged when omitted).")] = None,
-    fields: ReplyFields = None,
+    fields: PageReplyFields = None,
     is_silent: Silent = False,
     allow_merge: Annotated[
         bool,
@@ -263,7 +263,7 @@ def append(
             "optional ``body`` (top/bottom), ``section`` or ``anchor`` placement."
         ),
     ],
-    fields: ReplyFields = None,
+    fields: PageReplyFields = None,
     is_silent: Silent = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
