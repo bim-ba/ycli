@@ -65,11 +65,12 @@ jobs:
           # Pull requests run the smoke subset; nightly and manual runs run everything.
           MARKERS: ${{ github.event_name == 'pull_request' && 'live and smoke' || 'live' }}
           SELECT: ${{ inputs.select }}
+          YCLI_E2E_RUNS_FILE: ${{ runner.temp }}/e2e-runs
         run: uv run pytest e2e --no-cov -n 0 -p no:cacheprovider -m "$MARKERS" ${SELECT:+-k "$SELECT"}
-      # The concurrency group holds every other CI run back, so this run's leftovers can go now.
+      # Only what this run named: a run on a developer's machine may be using its own objects.
       - name: Janitor (leftovers of this run)
         if: always()
         env:
           YANDEX_ID_OAUTH_TOKEN: ${{ secrets.YANDEX_ID_OAUTH_TOKEN }}
           YANDEX_ID_ORGANIZATION_ID: ${{ secrets.YANDEX_ID_ORGANIZATION_ID }}
-        run: uv run python -m e2e.janitor --older-than 0s --max 200
+        run: uv run python -m e2e.janitor --older-than 0s --max 200 --runs-file "$RUNNER_TEMP/e2e-runs"

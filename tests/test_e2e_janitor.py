@@ -112,3 +112,31 @@ def test_parse_duration():
     assert parse_duration("0s") == 0
     with pytest.raises(argparse.ArgumentTypeError):
         parse_duration("6 hours")
+
+
+def test_a_run_removes_only_what_it_named_itself(capsys):
+    """Two live runs at once: the sweep after one must not delete the other's objects."""
+    organization = FakeOrganization(CLOSE)
+    assert sweep(organization, "Q", 0, 200, dry_run=False, now=NOW, runs=frozenset({FRESH})) == 0
+    assert organization.writes == [
+        ["tracker", "transitions", "execute", "Q-3", "close", "--field", "resolution=fixed"]
+    ]
+    assert "removed 1, 0 failed" in capsys.readouterr().out
+
+
+def test_the_runs_file_limits_the_command_to_its_runs(monkeypatch, tmp_path, capsys):
+    from e2e import janitor
+
+    organization = FakeOrganization(CLOSE)
+    monkeypatch.setattr(janitor, "CliDriver", lambda: organization)
+    monkeypatch.setattr(janitor.time, "time", lambda: NOW)
+    runs = tmp_path / "runs"
+    runs.write_text(f"{OLD}\n", encoding="utf-8")
+    assert janitor.main(["--older-than", "0s", "--queue", "Q", "--runs-file", str(runs)]) == 0
+    assert [write[3] for write in organization.writes] == ["Q-1", "11", "f1"]
+    # No scenario started: the file was never written, and nothing is touched.
+    organization.writes.clear()
+    missing = str(tmp_path / "absent")
+    assert janitor.main(["--older-than", "0s", "--queue", "Q", "--runs-file", missing]) == 0
+    assert organization.writes == []
+    assert "0 e2e- objects" in capsys.readouterr().out
