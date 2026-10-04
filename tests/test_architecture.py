@@ -575,6 +575,86 @@ def test_arch1_tool_function_check_bites():
     assert _misnamed_tool_functions({"import_task": "task"}, "import") == []
 
 
+def _misnamed_endpoint_functions(endpoints: str, client: str, resource: str) -> list[str]:
+    """Functions of an ``endpoints.py`` not named after the one client method that sends them.
+
+    ``endpoints`` and ``client`` are the two modules' source. A method that sends several
+    functions names each after itself: ``search`` and ``search_scroll``.
+    """
+    functions = [
+        node.name
+        for node in ast.parse(endpoints).body
+        if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+    ]
+    sends: dict[str, list[str]] = {}
+    for method in ast.walk(ast.parse(client)):
+        if isinstance(method, ast.FunctionDef):
+            for node in ast.walk(method):
+                if (
+                    isinstance(node, ast.Attribute)
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id == "endpoints"
+                    and node.attr in functions
+                    and node.attr not in sends.setdefault(method.name, [])
+                ):
+                    sends[method.name].append(node.attr)
+    problems = []
+    for function in functions:
+        methods = [method for method, sent in sends.items() if function in sent]
+        where = f"{resource}.endpoints.{function}"
+        if len(methods) != 1:
+            callers = ", ".join(methods) or "no method"
+            problems.append(f"{where}: sent by {callers}; one function per operation, one method")
+            continue
+        wanted = _python_name(methods[0])
+        alone = len(sends[methods[0]]) == 1
+        if function != wanted and (alone or not function.startswith(f"{methods[0]}_")):
+            problems.append(f"{where}: name it {wanted!r}, after the method that sends it")
+    return problems
+
+
+def test_arch1_endpoint_function_is_named_like_its_method():
+    """A function of ``endpoints.py`` has the name of the client method that sends it (ARCH-1).
+
+    ``boards.update`` sends ``endpoints.update``, so the request, the SDK method, the CLI
+    command and the tool are found under one word, and no function serves two operations.
+    """
+    problems = []
+    for directory in _resource_dirs():
+        problems += _misnamed_endpoint_functions(
+            (directory / "endpoints.py").read_text(encoding="utf-8"),
+            (directory / "client.py").read_text(encoding="utf-8"),
+            f"{directory.parent.name}.{directory.name}",
+        )
+    assert not problems, "\n  ".join(["an endpoint function is misnamed:", *problems])
+
+
+def test_arch1_endpoint_function_check_bites():
+    """Prove-it: the API's noun in a name, a shared function and an unsent one are reported."""
+    client = (
+        "class C:\n"
+        "    def list(self): return self.s.send(endpoints.list_boards())\n"
+        "    def get(self): return self.s.send(endpoints.get())\n"
+        "    def search(self): return self.s.send(endpoints.search() or endpoints.scroll())\n"
+        "    def a(self): return self.s.send(endpoints.shared())\n"
+        "    def b(self): return self.s.send(endpoints.shared())\n"
+    )
+    names = ("list_boards", "get", "search", "scroll", "shared", "unsent", "_private")
+    endpoints = "".join(f"def {name}(): ...\n" for name in names)
+    assert _misnamed_endpoint_functions(endpoints, client, "tracker.boards") == [
+        "tracker.boards.endpoints.list_boards: name it 'list_', after the method that sends it",
+        "tracker.boards.endpoints.scroll: name it 'search', after the method that sends it",
+        "tracker.boards.endpoints.shared: sent by a, b; one function per operation, one method",
+        "tracker.boards.endpoints.unsent: sent by no method; one function per operation, "
+        "one method",
+    ]
+    fixed = client.replace("list_boards", "list_").replace(
+        "endpoints.scroll", "endpoints.search_scroll"
+    )
+    renamed = endpoints.replace("list_boards", "list_").replace("def scroll", "def search_scroll")
+    assert _misnamed_endpoint_functions(renamed, fixed, "tracker.boards")[:-2] == []
+
+
 def test_arch1_sdk_method_equals_tool_name():
     """An SDK method is named like the MCP tool that serves it, verb included (ARCH-1, #229).
 
@@ -661,29 +741,29 @@ def test_arch1_name_parity_check_bites():
 # An endpoint may state an effect other than its method implies only here, with the reason:
 # a wrong label would also make the retry policy re-send a non-idempotent request.
 ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
-    "tracker/issues/endpoints.py:search_issues": "POST _search only reads",
-    "tracker/issues/endpoints.py:scroll_issues": "POST _search only reads",
-    "tracker/issues/endpoints.py:count_issues": "POST _count only reads",
-    "tracker/issues/endpoints.py:clear_scroll": "releasing a scroll twice is harmless",
-    "tracker/worklog/endpoints.py:search_worklog": "POST _search only reads",
-    "forms/files/endpoints.py:verify_files": "POST verify only reads upload statuses",
-    "tracker/entities/endpoints.py:search_entities": "POST _search only reads",
-    "tracker/links/endpoints.py:search_links": "POST _list only reads",
-    "tracker/gaps/endpoints.py:search_gaps": "POST _search only reads",
-    "tracker/queues/endpoints.py:remove_tag": "POST _remove strips the tag from every issue",
-    "wiki/pages/endpoints.py:update_page": "POST /pages/{id} replaces fields; a resend is a no-op",
-    "wiki/grids/endpoints.py:update_grid": "POST /grids/{id} replaces fields; a resend is a no-op",
-    "wiki/grids/endpoints.py:update_cells": "POST cells sets values; a resend is a no-op",
-    "wiki/grids/endpoints.py:suggest_column": "POST columns/suggest only reads (checks a slug)",
-    "wiki/grids/endpoints.py:update_column": "POST column/{slug} sets fields; a resend is a no-op",
-    "wiki/grids/endpoints.py:update_row": "POST rows/{id} sets pin and colour; a resend is a no-op",
-    "wiki/search/endpoints.py:search_pages": "POST /search only reads",
-    "wiki/access/endpoints.py:update_access": "POST access sets role; a resend is a no-op",
-    "wiki/uploadsessions/endpoints.py:abort_session": "POST abort discards uploaded parts",
-    "wiki/uploadsessions/endpoints.py:abort_all_sessions": "POST abort discards every upload",
-    "forms/access/endpoints.py:set_access": "POST sets an access level: sending twice converges",
-    "forms/access/endpoints.py:grant_access": "POST grants access: granting twice converges",
-    "forms/access/endpoints.py:revoke_access": "POST revokes access: it removes a permission",
+    "tracker/issues/endpoints.py:search": "POST _search only reads",
+    "tracker/issues/endpoints.py:search_scroll": "POST _search only reads",
+    "tracker/issues/endpoints.py:count": "POST _count only reads",
+    "tracker/issues/endpoints.py:scroll_clear": "releasing a scroll twice is harmless",
+    "tracker/worklog/endpoints.py:search": "POST _search only reads",
+    "forms/files/endpoints.py:verify": "POST verify only reads upload statuses",
+    "tracker/entities/endpoints.py:search": "POST _search only reads",
+    "tracker/links/endpoints.py:search": "POST _list only reads",
+    "tracker/gaps/endpoints.py:search": "POST _search only reads",
+    "tracker/queues/endpoints.py:tag_remove": "POST _remove strips the tag from every issue",
+    "wiki/pages/endpoints.py:update": "POST /pages/{id} replaces fields; a resend is a no-op",
+    "wiki/grids/endpoints.py:update": "POST /grids/{id} replaces fields; a resend is a no-op",
+    "wiki/grids/endpoints.py:cells_update": "POST cells sets values; a resend is a no-op",
+    "wiki/grids/endpoints.py:columns_suggest": "POST columns/suggest only reads (checks a slug)",
+    "wiki/grids/endpoints.py:columns_update": "POST column/{slug} sets fields; a resend is a no-op",
+    "wiki/grids/endpoints.py:rows_update": "POST rows/{id} sets pin and colour; resent, a no-op",
+    "wiki/search/endpoints.py:query": "POST /search only reads",
+    "wiki/access/endpoints.py:update": "POST access sets role; a resend is a no-op",
+    "wiki/uploadsessions/endpoints.py:abort": "POST abort discards uploaded parts",
+    "wiki/uploadsessions/endpoints.py:abort_all": "POST abort discards every upload",
+    "forms/access/endpoints.py:set_": "POST sets an access level: sending twice converges",
+    "forms/access/endpoints.py:grant": "POST grants access: granting twice converges",
+    "forms/access/endpoints.py:revoke": "POST revokes access: it removes a permission",
 }
 
 

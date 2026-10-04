@@ -31,7 +31,7 @@ class WorkflowsClient(Resource):
             >>> tracker.workflows.list().root[0].name
             'Design'
         """
-        return self._session.send(endpoints.list_workflows())
+        return self._session.send(endpoints.list_())
 
     def get(self, workflow_id: str) -> Workflow:
         """``GET /workflows/{workflow_id}`` → one workflow with its steps and actions.
@@ -46,7 +46,7 @@ class WorkflowsClient(Resource):
             >>> tracker.workflows.get("W21").version
             1
         """
-        return self._session.send(endpoints.get_workflow(workflow_id))
+        return self._session.send(endpoints.get(workflow_id))
 
     def for_queue(self, queue_id: str) -> QueueWorkflows:
         """``GET /queues/{queue_id}/workflows`` → workflow id → the issue types that use it.
@@ -61,7 +61,7 @@ class WorkflowsClient(Resource):
             >>> tracker.workflows.for_queue("WFQ").root["dev"][0].key
             'task'
         """
-        return self._session.send(endpoints.list_queue_workflows(queue_id))
+        return self._session.send(endpoints.for_queue(queue_id))
 
     def create(self, body: WorkflowCreate) -> Workflow:
         """``POST /workflows`` → create a workflow from a typed ``WorkflowCreate`` body.
@@ -90,7 +90,7 @@ class WorkflowsClient(Resource):
             >>> tracker.workflows.create(new_workflow).id
             'design-flow'
         """
-        return self._session.send(endpoints.create_workflow(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, workflow_id: str, body: WorkflowUpdate, *, version: int) -> Workflow:
         """``PATCH /workflows/{workflow_id}?version=`` → change the set fields of a workflow.
@@ -113,7 +113,7 @@ class WorkflowsClient(Resource):
             ... ).version
             4
         """
-        return self._session.send(endpoints.update_workflow(workflow_id, body, version=version))
+        return self._session.send(endpoints.update(workflow_id, body, version=version))
 
     def update_action(
         self,
@@ -161,4 +161,4 @@ class WorkflowsClient(Resource):
         Examples:
             >>> tracker.workflows.delete("W24")
         """
-        self._session.send(endpoints.delete_workflow(workflow_id))
+        self._session.send(endpoints.delete(workflow_id))

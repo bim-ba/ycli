@@ -28,7 +28,7 @@ class HooksClient(Resource):
             >>> forms.hooks.list("686d0a1b2c3d4e5f000000a0").root[0].name
             'CRM'
         """
-        return self._session.send(endpoints.list_hooks(survey_id))
+        return self._session.send(endpoints.list_(survey_id))
 
     def get(self, survey_id: str, hook_id: int) -> Hook:
         """``GET /surveys/{id}/hooks/{hook_id}`` → one :class:`Hook`.
@@ -44,7 +44,7 @@ class HooksClient(Resource):
             >>> forms.hooks.get("686d0a1b2c3d4e5f000000a0", 12).active
             False
         """
-        return self._session.send(endpoints.get_hook(survey_id, hook_id))
+        return self._session.send(endpoints.get(survey_id, hook_id))
 
     def create(self, survey_id: str, body: HookCreate) -> Hook:
         """``POST /surveys/{id}/hooks`` — create a group from a ``HookCreate``.
@@ -64,7 +64,7 @@ class HooksClient(Resource):
             ... ).id
             13
         """
-        return self._session.send(endpoints.create_hook(survey_id, body))
+        return self._session.send(endpoints.create(survey_id, body))
 
     def update(self, survey_id: str, hook_id: int, body: HookUpdate) -> Hook:
         """``PATCH /surveys/{id}/hooks/{hook_id}`` — only the keys in ``body`` change.
@@ -84,7 +84,7 @@ class HooksClient(Resource):
             ... ).name
             'CRM'
         """
-        return self._session.send(endpoints.update_hook(survey_id, hook_id, body))
+        return self._session.send(endpoints.update(survey_id, hook_id, body))
 
     def delete(self, survey_id: str, hook_id: int) -> None:
         """``DELETE /surveys/{id}/hooks/{hook_id}`` — the group and its integrations (200).
@@ -96,4 +96,4 @@ class HooksClient(Resource):
         Examples:
             >>> forms.hooks.delete("686d0a1b2c3d4e5f000000a0", 16)
         """
-        self._session.send(endpoints.delete_hook(survey_id, hook_id))
+        self._session.send(endpoints.delete(survey_id, hook_id))

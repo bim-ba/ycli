@@ -32,7 +32,7 @@ class ResolutionsClient(Resource):
             >>> tracker.resolutions.list().root[0].key
             'fixed'
         """
-        return self._session.send(endpoints.list_resolutions())
+        return self._session.send(endpoints.list_())
 
     def create(self, body: ResolutionCreate) -> Resolution:
         """Create a resolution from a typed ``ResolutionCreate`` body. Returns the ``Resolution``.
@@ -53,7 +53,7 @@ class ResolutionsClient(Resource):
             ... ).key
             'wontFix'
         """
-        return self._session.send(endpoints.create_resolution(body))
+        return self._session.send(endpoints.create(body))
 
     def update(
         self, resolution_id: str, body: ResolutionUpdate, *, version: int | None = None
@@ -78,4 +78,4 @@ class ResolutionsClient(Resource):
             ... ).version
             4
         """
-        return self._session.send(endpoints.update_resolution(resolution_id, body, version=version))
+        return self._session.send(endpoints.update(resolution_id, body, version=version))

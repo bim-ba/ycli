@@ -42,7 +42,7 @@ class SurveysClient(Resource):
             >>> forms.surveys.list(limit=500).root[0].name
             'Onboarding'
         """
-        paged = endpoints.list_surveys(
+        paged = endpoints.list_(
             name=name,
             published=published,
             ownership=ownership,
@@ -66,7 +66,7 @@ class SurveysClient(Resource):
             >>> forms.surveys.get("686d0a1b2c3d4e5f00000001").name
             'Onboarding'
         """
-        return self._session.send(endpoints.get_survey(survey_id))
+        return self._session.send(endpoints.get(survey_id))
 
     def create(self, body: SurveyCreate) -> Survey:
         """``POST /surveys`` — create a form from a ``SurveyCreate``.
@@ -84,7 +84,7 @@ class SurveysClient(Resource):
             ... ).id
             '686d0a1b2c3d4e5f00000001'
         """
-        return self._session.send(endpoints.create_survey(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, survey_id: str, body: SurveyUpdate) -> Survey:
         """``PATCH /surveys/{id}`` — only the keys present in ``body`` change (a ``SurveyUpdate``).
@@ -103,7 +103,7 @@ class SurveysClient(Resource):
             ... ).name
             'Onboarding'
         """
-        return self._session.send(endpoints.update_survey(survey_id, body))
+        return self._session.send(endpoints.update(survey_id, body))
 
     def delete(self, survey_id: str) -> Ack:
         """``DELETE /surveys/{id}`` (``204 No Content``) → an :class:`Ack`.
@@ -118,7 +118,7 @@ class SurveysClient(Resource):
             >>> forms.surveys.delete("686d0a1b2c3d4e5f00000003").ok
             True
         """
-        self._session.send(endpoints.delete_survey(survey_id))
+        self._session.send(endpoints.delete(survey_id))
         return Ack.deleted("survey", survey_id)
 
     def publish(self, survey_id: str) -> Ack:
@@ -137,7 +137,7 @@ class SurveysClient(Resource):
             >>> forms.surveys.publish("686d0a1b2c3d4e5f00000004").detail
             'published survey 686d0a1b2c3d4e5f00000004'
         """
-        self._session.send(endpoints.publish_survey(survey_id))
+        self._session.send(endpoints.publish(survey_id))
         return Ack.published("survey", survey_id)
 
     def unpublish(self, survey_id: str) -> Ack:
@@ -153,5 +153,5 @@ class SurveysClient(Resource):
             >>> forms.surveys.unpublish("686d0a1b2c3d4e5f00000005").detail
             'unpublished survey 686d0a1b2c3d4e5f00000005'
         """
-        self._session.send(endpoints.unpublish_survey(survey_id))
+        self._session.send(endpoints.unpublish(survey_id))
         return Ack.unpublished("survey", survey_id)

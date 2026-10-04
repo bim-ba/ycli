@@ -28,7 +28,7 @@ class IssueTypesClient(Resource):
             >>> tracker.issuetypes.list().root[0].key
             'bug'
         """
-        return self._session.send(endpoints.list_issue_types())
+        return self._session.send(endpoints.list_())
 
     def create(self, body: IssueTypeCreate) -> IssueType:
         """Create an issue type from a typed ``IssueTypeCreate`` body. Returns the ``IssueType``.
@@ -47,7 +47,7 @@ class IssueTypesClient(Resource):
             ... ).key
             'client'
         """
-        return self._session.send(endpoints.create_issue_type(body))
+        return self._session.send(endpoints.create(body))
 
     def update(
         self, issue_type_id: str, body: IssueTypeUpdate, *, version: int | None = None
@@ -75,4 +75,4 @@ class IssueTypesClient(Resource):
             ... ).key
             'client'
         """
-        return self._session.send(endpoints.update_issue_type(issue_type_id, body, version=version))
+        return self._session.send(endpoints.update(issue_type_id, body, version=version))

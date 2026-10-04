@@ -1,7 +1,7 @@
 """Forms ``/surveys/{id}/keysets`` operations, declared once (sans-IO).
 
 Examples:
-    >>> download_keyset("686d", 3).response_type
+    >>> download("686d", 3).response_type
     <class 'bytes'>
 """
 
@@ -16,25 +16,25 @@ def _keysets(survey_id: str) -> str:
     return f"surveys/{segment(survey_id)}/keysets"
 
 
-def list_keysets(survey_id: str) -> Endpoint[ItemList[Keyset]]:
+def list_(survey_id: str) -> Endpoint[ItemList[Keyset]]:
     return Endpoint("GET", _keysets(survey_id), ItemList[Keyset])
 
 
-def get_keyset(survey_id: str, keyset_id: int) -> Endpoint[Keyset]:
+def get(survey_id: str, keyset_id: int) -> Endpoint[Keyset]:
     return Endpoint("GET", f"{_keysets(survey_id)}/{segment(keyset_id)}", Keyset)
 
 
-def create_keyset(survey_id: str, body: KeysetCreate) -> Endpoint[Keyset]:
+def create(survey_id: str, body: KeysetCreate) -> Endpoint[Keyset]:
     return Endpoint("POST", _keysets(survey_id), Keyset, json=body)
 
 
-def update_keyset(survey_id: str, keyset_id: int, body: KeysetUpdate) -> Endpoint[Keyset]:
+def update(survey_id: str, keyset_id: int, body: KeysetUpdate) -> Endpoint[Keyset]:
     return Endpoint("PATCH", f"{_keysets(survey_id)}/{segment(keyset_id)}", Keyset, json=body)
 
 
-def delete_keyset(survey_id: str, keyset_id: int) -> Endpoint[None]:
+def delete(survey_id: str, keyset_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"{_keysets(survey_id)}/{segment(keyset_id)}")
 
 
-def download_keyset(survey_id: str, keyset_id: int) -> Endpoint[bytes]:
+def download(survey_id: str, keyset_id: int) -> Endpoint[bytes]:
     return Endpoint("GET", f"{_keysets(survey_id)}/{segment(keyset_id)}/download", bytes)

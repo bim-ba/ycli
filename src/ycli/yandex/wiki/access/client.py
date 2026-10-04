@@ -40,7 +40,7 @@ class AccessClient(Resource):
             >>> wiki.access.create(6001, body).id
             '5001'
         """
-        return self._session.send(endpoints.create_access(page_id, body))
+        return self._session.send(endpoints.create(page_id, body))
 
     def update(
         self,
@@ -73,9 +73,7 @@ class AccessClient(Resource):
             ... ).role
             'extra_editor'
         """
-        endpoint = endpoints.update_access(
-            page_id, access_id, body, prevent_selflock=prevent_selflock
-        )
+        endpoint = endpoints.update(page_id, access_id, body, prevent_selflock=prevent_selflock)
         return self._session.send(endpoint)
 
     def delete(self, page_id: int, access_id: str, *, prevent_selflock: bool = False) -> None:
@@ -89,9 +87,7 @@ class AccessClient(Resource):
         Examples:
             >>> wiki.access.delete(6005, "5005", prevent_selflock=True)
         """
-        self._session.send(
-            endpoints.delete_access(page_id, access_id, prevent_selflock=prevent_selflock)
-        )
+        self._session.send(endpoints.delete(page_id, access_id, prevent_selflock=prevent_selflock))
 
     def clear(self, page_id: int, *, prevent_selflock: bool = False) -> None:
         """``DELETE /pages/{id}/access`` — revoke every personal access but the owner's (``204``).
@@ -103,4 +99,4 @@ class AccessClient(Resource):
         Examples:
             >>> wiki.access.clear(6007, prevent_selflock=True)
         """
-        self._session.send(endpoints.clear_access(page_id, prevent_selflock=prevent_selflock))
+        self._session.send(endpoints.clear(page_id, prevent_selflock=prevent_selflock))

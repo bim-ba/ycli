@@ -34,7 +34,7 @@ class AutoactionsClient(Resource):
             >>> tracker.autoactions.get("DESIGN", 9).name
             'Nightly'
         """
-        return self._session.send(endpoints.get_autoaction(queue_id, action_id))
+        return self._session.send(endpoints.get(queue_id, action_id))
 
     def create(self, queue_id: str, body: AutoactionCreate) -> Autoaction:
         """Create an autoaction from a typed ``AutoactionCreate`` body. Returns the ``Autoaction``.
@@ -59,7 +59,7 @@ class AutoactionsClient(Resource):
             ... ).id
             10
         """
-        return self._session.send(endpoints.create_autoaction(queue_id, body))
+        return self._session.send(endpoints.create(queue_id, body))
 
     def logs_list(self, queue_id: str, action_id: int) -> ItemList[AutoactionLogEntry]:
         """``GET /queues/{queue_id}/autoactions/{action_id}/logs`` → per-run summaries.
@@ -75,7 +75,7 @@ class AutoactionsClient(Resource):
             >>> tracker.autoactions.logs_list("QA", 11).root[0].search_hits
             3
         """
-        return self._session.send(endpoints.list_run_logs(queue_id, action_id))
+        return self._session.send(endpoints.logs_list(queue_id, action_id))
 
     def logs_get(self, queue_id: str, action_id: int, run_id: str) -> ItemList[AutoactionRunEntry]:
         """``GET .../autoactions/{action_id}/logs/{run_id}`` → per-issue outcomes of one run.
@@ -92,4 +92,4 @@ class AutoactionsClient(Resource):
             >>> tracker.autoactions.logs_get("SUP", 12, "run-2").root[0].status.value
             'success'
         """
-        return self._session.send(endpoints.get_run_log(queue_id, action_id, run_id))
+        return self._session.send(endpoints.logs_get(queue_id, action_id, run_id))

@@ -79,7 +79,7 @@ class EntitiesClient(Resource):
             ... ).id
             '655f'
         """
-        return self._session.send(endpoints.create_entity(entity_type, body, fields=fields))
+        return self._session.send(endpoints.create(entity_type, body, fields=fields))
 
     def get(
         self,
@@ -109,7 +109,7 @@ class EntitiesClient(Resource):
             ... ).fields.summary
             'Ship'
         """
-        endpoint = endpoints.get_entity(entity_type, entity_id, expand=expand, fields=fields)
+        endpoint = endpoints.get(entity_type, entity_id, expand=expand, fields=fields)
         return self._session.send(endpoint)
 
     def update(
@@ -143,7 +143,7 @@ class EntitiesClient(Resource):
             '655f04'
         """
         return self._session.send(
-            endpoints.update_entity(entity_type, entity_id, body, expand=expand, fields=fields)
+            endpoints.update(entity_type, entity_id, body, expand=expand, fields=fields)
         )
 
     def delete(self, entity_type: str, entity_id: str, *, with_board: bool | None = None) -> None:
@@ -157,7 +157,7 @@ class EntitiesClient(Resource):
         Examples:
             >>> tracker.entities.delete("project", "655f07", with_board=True)
         """
-        self._session.send(endpoints.delete_entity(entity_type, entity_id, with_board=with_board))
+        self._session.send(endpoints.delete(entity_type, entity_id, with_board=with_board))
 
     def search(
         self,
@@ -190,7 +190,7 @@ class EntitiesClient(Resource):
             ... ).root[0].id
             '655f'
         """
-        endpoint = endpoints.search_entities(
+        endpoint = endpoints.search(
             entity_type, body or EntitySearch(), fields=fields, per_page=per_page, page=page
         )
         return ItemList[Entity](self._session.send(endpoint).values)
@@ -227,7 +227,7 @@ class EntitiesClient(Resource):
             >>> [event.id for event in tracker.entities.events_list("project", "655f13").root]
             ['e1', 'e2']
         """
-        paged = endpoints.list_events(
+        paged = endpoints.events_list(
             entity_type,
             entity_id,
             per_page=_page_size(limit),
@@ -253,7 +253,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.permissions_get("project", "655f15").acl.read.roles
             ['OWNER']
         """
-        return self._session.send(endpoints.get_permissions(entity_type, entity_id))
+        return self._session.send(endpoints.permissions_get(entity_type, entity_id))
 
     def set_permissions(
         self, entity_type: str, entity_id: str, body: PermissionsUpdate
@@ -300,7 +300,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.direct_permissions_get("project", "655f17").grant.roles
             ['AUTHOR', 'OWNER']
         """
-        return self._session.send(endpoints.get_direct_permissions(entity_type, entity_id))
+        return self._session.send(endpoints.direct_permissions_get(entity_type, entity_id))
 
     def set_direct_permissions(
         self, entity_type: str, entity_id: str, body: DirectPermissionsUpdate
@@ -362,7 +362,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.bulk_status_get("658").status
             'COMPLETE'
         """
-        return self._session.send(endpoints.get_bulk_status(operation_id))
+        return self._session.send(endpoints.bulk_status_get(operation_id))
 
     def create_report(self, body: ReportCreate) -> Entity:
         """``POST /entities/report/`` — build an issue report from a ``{fields: …}`` body.
@@ -418,7 +418,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.comments_list("project", "655f20").root[0].text
             'Готово'
         """
-        return self._session.send(endpoints.list_comments(entity_type, entity_id, expand=expand))
+        return self._session.send(endpoints.comments_list(entity_type, entity_id, expand=expand))
 
     def comments_relative_list(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
@@ -445,7 +445,7 @@ class EntitiesClient(Resource):
             ... ]
             [31, 32]
         """
-        paged = endpoints.list_comments_relative(entity_type, entity_id, per_page=_page_size(limit))
+        paged = endpoints.comments_relative_list(entity_type, entity_id, per_page=_page_size(limit))
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def comments_get(
@@ -466,7 +466,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.comments_get("project", "655f23", "23").text
             'hi'
         """
-        endpoint = endpoints.get_comment(entity_type, entity_id, comment_id, expand=expand)
+        endpoint = endpoints.comments_get(entity_type, entity_id, comment_id, expand=expand)
         return self._session.send(endpoint)
 
     def comments_create(
@@ -505,7 +505,7 @@ class EntitiesClient(Resource):
             22
         """
         return self._session.send(
-            endpoints.create_comment(
+            endpoints.comments_create(
                 entity_type,
                 entity_id,
                 body,
@@ -556,7 +556,7 @@ class EntitiesClient(Resource):
             ... ).text
             'Fixed typo'
         """
-        endpoint = endpoints.update_comment(
+        endpoint = endpoints.comments_update(
             entity_type,
             entity_id,
             comment_id,
@@ -592,7 +592,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.comments_delete("portfolio", "pf28", "28")
         """
         self._session.send(
-            endpoints.delete_comment(
+            endpoints.comments_delete(
                 entity_type, entity_id, comment_id, notify=notify, notify_author=notify_author
             )
         )
@@ -639,7 +639,7 @@ class EntitiesClient(Resource):
             '655f29'
         """
         return self._session.send(
-            endpoints.create_checklist_items(
+            endpoints.checklists_create(
                 entity_type,
                 entity_id,
                 body,
@@ -690,7 +690,7 @@ class EntitiesClient(Resource):
             'g30'
         """
         return self._session.send(
-            endpoints.update_checklist(
+            endpoints.checklists_update(
                 entity_type,
                 entity_id,
                 body,
@@ -740,7 +740,7 @@ class EntitiesClient(Resource):
             ... ).id
             'pf32'
         """
-        endpoint = endpoints.update_checklist_item(
+        endpoint = endpoints.checklists_update_item(
             entity_type,
             entity_id,
             item_id,
@@ -782,7 +782,7 @@ class EntitiesClient(Resource):
             '655f34'
         """
         return self._session.send(
-            endpoints.delete_checklist(
+            endpoints.checklists_delete(
                 entity_type,
                 entity_id,
                 expand=expand,
@@ -824,7 +824,7 @@ class EntitiesClient(Resource):
             'g35'
         """
         return self._session.send(
-            endpoints.delete_checklist_item(
+            endpoints.checklists_delete_item(
                 entity_type,
                 entity_id,
                 item_id,
@@ -873,7 +873,7 @@ class EntitiesClient(Resource):
             ... ).id
             'pf36'
         """
-        endpoint = endpoints.move_checklist_item(
+        endpoint = endpoints.checklists_move(
             entity_type,
             entity_id,
             item_id,
@@ -904,7 +904,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.links_list("project", "655f38").root[0].type
             'relates'
         """
-        return self._session.send(endpoints.list_links(entity_type, entity_id, fields=fields))
+        return self._session.send(endpoints.links_list(entity_type, entity_id, fields=fields))
 
     def links_create(self, entity_type: str, entity_id: str, body: LinkInput) -> None:
         """Create a link (``body`` is ``{relationship, entity}``). Raises on non-2xx.
@@ -922,7 +922,7 @@ class EntitiesClient(Resource):
             ...     LinkInput.model_validate({"relationship": "depends on", "entity": "pf41"}),
             ... )
         """
-        self._session.send(endpoints.create_link(entity_type, entity_id, body))
+        self._session.send(endpoints.links_create(entity_type, entity_id, body))
 
     def links_delete(self, entity_type: str, entity_id: str, right: str) -> None:
         """Delete the link to entity ``right``. Raises on non-2xx.
@@ -935,7 +935,7 @@ class EntitiesClient(Resource):
         Examples:
             >>> tracker.entities.links_delete("goal", "g42", "g43")
         """
-        self._session.send(endpoints.delete_link(entity_type, entity_id, right))
+        self._session.send(endpoints.links_delete(entity_type, entity_id, right))
 
     # ---- attachments ------------------------------------------------------------------------
 
@@ -953,7 +953,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.attachments_list("project", "655f44").root[0].name
             'Shops.csv'
         """
-        return self._session.send(endpoints.list_attachments(entity_type, entity_id))
+        return self._session.send(endpoints.attachments_list(entity_type, entity_id))
 
     def attachments_get(self, entity_type: str, entity_id: str, file_id: str) -> Attachment:
         """``GET …/attachments/{file_id}`` → one attachment's metadata (name, size, download URL).
@@ -970,7 +970,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.attachments_get("goal", "g45", "45").name
             'flowers.jpg'
         """
-        return self._session.send(endpoints.get_attachment(entity_type, entity_id, file_id))
+        return self._session.send(endpoints.attachments_get(entity_type, entity_id, file_id))
 
     def attachments_download(self, file_id: str, filename: str) -> bytes:
         r"""Download an attachment's raw bytes (a non-2xx answer raises a typed error).
@@ -989,7 +989,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.attachments_download("46", "flowers.jpg")[:4]
             b'\xff\xd8\xff\xe0'
         """
-        return self._session.send(endpoints.download_attachment(file_id, filename))
+        return self._session.send(endpoints.attachments_download(file_id, filename))
 
     def attachments_attach(
         self,
@@ -1026,7 +1026,7 @@ class EntitiesClient(Resource):
             'pf47'
         """
         return self._session.send(
-            endpoints.attach_file(
+            endpoints.attachments_attach(
                 entity_type,
                 entity_id,
                 temp_file_id,
@@ -1050,4 +1050,4 @@ class EntitiesClient(Resource):
         Examples:
             >>> tracker.entities.attachments_delete("project", "655f48", "48")
         """
-        self._session.send(endpoints.delete_attachment(entity_type, entity_id, file_id))
+        self._session.send(endpoints.attachments_delete(entity_type, entity_id, file_id))

@@ -1,7 +1,7 @@
 """Wiki ``/pages/{id}/comments``, declared once (sans-IO).
 
 Examples:
-    >>> delete_comment(7, 9).path
+    >>> delete(7, 9).path
     'pages/7/comments/9'
 """
 
@@ -18,7 +18,7 @@ from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import CursorPage
 
 
-def list_comments(
+def list_(
     page_id: int, *, order_by: str | None, order_direction: str | None, status_filter: str | None
 ) -> Paged[CursorPage[Comment], Comment]:
     path = f"pages/{segment(page_id)}/comments"
@@ -35,7 +35,7 @@ def list_comments(
     )
 
 
-def get_thread(page_id: int, comment_id: int) -> Paged[CursorPage[Comment], Comment]:
+def thread_get(page_id: int, comment_id: int) -> Paged[CursorPage[Comment], Comment]:
     path = f"pages/{segment(page_id)}/comments/{segment(comment_id)}/thread"
     return Paged(
         Endpoint("GET", path, CursorPage[Comment], params={"page_size": 100}),
@@ -44,10 +44,10 @@ def get_thread(page_id: int, comment_id: int) -> Paged[CursorPage[Comment], Comm
     )
 
 
-def create_comment(page_id: int, body: CommentCreate) -> Endpoint[CommentCreated]:
+def create(page_id: int, body: CommentCreate) -> Endpoint[CommentCreated]:
     return Endpoint("POST", f"pages/{segment(page_id)}/comments", CommentCreated, json=body)
 
 
-def delete_comment(page_id: int, comment_id: int) -> Endpoint[CommentDeleteResult]:
+def delete(page_id: int, comment_id: int) -> Endpoint[CommentDeleteResult]:
     path = f"pages/{segment(page_id)}/comments/{segment(comment_id)}"
     return Endpoint("DELETE", path, CommentDeleteResult)

@@ -1,7 +1,7 @@
 """Forms file-storage operations, declared once (sans-IO).
 
 Examples:
-    >>> verify_files("686d", [{"path": "a/b.pdf"}]).effect
+    >>> verify("686d", [{"path": "a/b.pdf"}]).effect
     'read'
 """
 
@@ -17,21 +17,21 @@ if TYPE_CHECKING:
     from ycli.yandex.forms.files.models import FileIn
 
 
-def upload_file(survey_id: str, *, filename: str, data: bytes) -> Endpoint[FileOut]:
+def upload(survey_id: str, *, filename: str, data: bytes) -> Endpoint[FileOut]:
     path = f"surveys/{segment(survey_id)}/files"
     return Endpoint("POST", path, FileOut, files={"file": (filename, data)})
 
 
-def verify_files(survey_id: str, body: ItemList[FileIn]) -> Endpoint[ItemList[FileOut]]:
+def verify(survey_id: str, body: ItemList[FileIn]) -> Endpoint[ItemList[FileOut]]:
     """``POST …/files/verify`` only reads the status of files already uploaded."""
     path = f"surveys/{segment(survey_id)}/files/verify"
     return Endpoint("POST", path, ItemList[FileOut], json=body, effect="read")
 
 
-def download_file(path: str, *, download: bool, file_hash: str | None) -> Endpoint[bytes]:
+def download(path: str, *, download: bool, file_hash: str | None) -> Endpoint[bytes]:
     params = {"path": path, "download": flag(download), "hash": file_hash}
     return Endpoint("GET", "files", bytes, params=params)
 
 
-def delete_file(body: FileIn) -> Endpoint[None]:
+def delete(body: FileIn) -> Endpoint[None]:
     return Endpoint("DELETE", "files", json=body)

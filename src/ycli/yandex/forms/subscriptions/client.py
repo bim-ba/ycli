@@ -35,7 +35,7 @@ class SubscriptionsClient(Resource):
             >>> forms.subscriptions.list("686d0a1b2c3d4e5f000000b0", 21).root[0].type
             'http'
         """
-        return self._session.send(endpoints.list_subscriptions(survey_id, hook_id))
+        return self._session.send(endpoints.list_(survey_id, hook_id))
 
     def get(self, survey_id: str, hook_id: int, subscription_id: int) -> Subscription:
         """``GET …/subscriptions/{subscription_id}`` → one integration, typed by ``type``.
@@ -52,7 +52,7 @@ class SubscriptionsClient(Resource):
             >>> forms.subscriptions.get("686d0a1b2c3d4e5f000000b0", 21, 4).type
             'tracker'
         """
-        return self._session.send(endpoints.get_subscription(survey_id, hook_id, subscription_id))
+        return self._session.send(endpoints.get(survey_id, hook_id, subscription_id))
 
     def create(self, survey_id: str, hook_id: int, body: Subscription) -> Subscription:
         """``POST …/subscriptions`` — add an integration to the hook → it, with its ``id``.
@@ -74,9 +74,7 @@ class SubscriptionsClient(Resource):
             ... ).id
             5
         """
-        return self._session.send(
-            endpoints.create_subscription(survey_id, hook_id, _without_id(body))
-        )
+        return self._session.send(endpoints.create(survey_id, hook_id, _without_id(body)))
 
     def update(
         self, survey_id: str, hook_id: int, subscription_id: int, body: Subscription
@@ -100,7 +98,7 @@ class SubscriptionsClient(Resource):
             False
         """
         return self._session.send(
-            endpoints.update_subscription(survey_id, hook_id, subscription_id, _without_id(body))
+            endpoints.update(survey_id, hook_id, subscription_id, _without_id(body))
         )
 
     def delete(self, survey_id: str, hook_id: int, subscription_id: int) -> None:
@@ -114,7 +112,7 @@ class SubscriptionsClient(Resource):
         Examples:
             >>> forms.subscriptions.delete("686d0a1b2c3d4e5f000000b0", 21, 8)
         """
-        self._session.send(endpoints.delete_subscription(survey_id, hook_id, subscription_id))
+        self._session.send(endpoints.delete(survey_id, hook_id, subscription_id))
 
     def attach(
         self, survey_id: str, hook_id: int, subscription_id: int, *, filename: str, data: bytes
@@ -141,5 +139,5 @@ class SubscriptionsClient(Resource):
             '/forms/terms.pdf'
         """
         return self._session.send(
-            endpoints.attach_file(survey_id, hook_id, subscription_id, filename=filename, data=data)
+            endpoints.attach(survey_id, hook_id, subscription_id, filename=filename, data=data)
         )

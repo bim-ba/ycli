@@ -35,7 +35,7 @@ class LocalFieldsClient(Resource):
             >>> tracker.localfields.list("ORG").root[0].key
             'loc_field_key'
         """
-        return self._session.send(endpoints.list_local_fields(queue_id))
+        return self._session.send(endpoints.list_(queue_id))
 
     def get(self, queue_id: str, field_key: str) -> LocalField:
         """``GET /queues/{queue_id}/localFields/{field_key}`` → one local field.
@@ -53,7 +53,7 @@ class LocalFieldsClient(Resource):
             >>> tracker.localfields.get("OPS", "deadline_note").name
             'Deadline note'
         """
-        return self._session.send(endpoints.get_local_field(queue_id, field_key))
+        return self._session.send(endpoints.get(queue_id, field_key))
 
     def create(self, queue_id: str, body: FieldCreate) -> LocalField:
         """Create a local field in queue ``queue_id`` from a typed ``FieldCreate`` body.
@@ -76,7 +76,7 @@ class LocalFieldsClient(Resource):
             >>> tracker.localfields.create("DEV", new_field).key
             'loc_new'
         """
-        return self._session.send(endpoints.create_local_field(queue_id, body))
+        return self._session.send(endpoints.create(queue_id, body))
 
     def update(self, queue_id: str, field_key: str, body: LocalFieldUpdate) -> LocalField:
         """Edit local field ``field_key`` of queue ``queue_id`` from a typed ``LocalFieldUpdate``.
@@ -97,4 +97,4 @@ class LocalFieldsClient(Resource):
             >>> tracker.localfields.update("SUP", "loc_edit", LocalFieldUpdate(order=102)).order
             102
         """
-        return self._session.send(endpoints.update_local_field(queue_id, field_key, body))
+        return self._session.send(endpoints.update(queue_id, field_key, body))
