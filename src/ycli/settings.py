@@ -46,6 +46,8 @@ from pydantic import (
 from pydantic_core import ErrorDetails, PydanticCustomError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from ycli.log import LogFormat
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -121,7 +123,7 @@ class LoggingConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     level: LogLevel = "WARNING"
-    format: Literal["text", "json"] = "text"
+    format: LogFormat = "text"
 
 
 class _EnvSettings(BaseSettings):

@@ -16,7 +16,7 @@ from ycli.yandex.forms.notifications.models import (
     NotificationFilter,
     NotificationStatus,
 )
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 
 mcp = FastMCP("forms-notifications")
 
@@ -56,7 +56,7 @@ def list_(
         IntegrationType | None, Field(description="Only runs of this integration type.")
     ] = None,
     ordering: Annotated[
-        Literal["asc", "desc"] | None,
+        SortDirection | None,
         Field(description="asc (oldest first, the API default) or desc."),
     ] = None,
     limit: Annotated[

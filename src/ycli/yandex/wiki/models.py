@@ -10,6 +10,10 @@ from ycli.yandex.models import APIModel
 
 #: Kind of deferred Wiki operation: the ``type`` of the reference a trigger returns.
 OperationType = Literal["move", "clone", "clone_inline_grid"]
+#: An end of a page's body.
+Location = Literal["top", "bottom"]
+#: Who a page is open to: as its parent, every employee, or the listed users and groups.
+PageAccessType = Literal["inherited", "all_staff", "custom"]
 
 
 class UserIdentity(APIModel):

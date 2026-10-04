@@ -5,7 +5,7 @@ group (hook). Each target has the same six tools: list, get, create, update (a f
 replacement), delete and set_operator (the operator BETWEEN the target's groups).
 """
 
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
@@ -21,7 +21,7 @@ from ycli.yandex.forms.dependencies import (
     SurveyId,
     forms_client,
 )
-from ycli.yandex.forms.models import Condition, ConditionsResponse
+from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
 from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-conditions")
@@ -33,7 +33,7 @@ ConditionId = Annotated[
     int, Field(description="Condition group id (integer) from the matching *_list tool.")
 ]
 Operator = Annotated[
-    Literal["and", "or"], Field(description="Boolean operator joining the condition groups.")
+    ConditionOperatorType, Field(description="Boolean operator joining the condition groups.")
 ]
 NewGroup = Annotated[
     ConditionCreate, Field(description="The new group: operator + at least one clause.")

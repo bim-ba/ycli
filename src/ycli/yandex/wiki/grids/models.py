@@ -18,11 +18,10 @@ from typing import Any, Literal
 
 from pydantic import Field, RootModel, model_validator
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, RequestBody, SortDirection
 from ycli.yandex.wiki.models import PageIdentity
 
 #: Sort order of a column in the grid's default sort.
-SortDirection = Literal["asc", "desc"]
 #: A column's value type.
 ColumnType = Literal[
     "string", "number", "date", "select", "staff", "checkbox", "ticket", "ticket_field"

@@ -287,3 +287,59 @@ def test_no_model_has_a_serializer_the_body_dump_would_skip():
     assert offenders == {}
     probe = 'class M(APIModel):\n    @field_serializer("at")\n    def _at(self, v): ...\n'
     assert _serializer_hooks(probe) == ["field_serializer"]
+
+
+def _literal_values(node: ast.AST) -> frozenset[str] | None:
+    """The values of a ``Literal[...]`` with two or more of them, else ``None``."""
+    if not (isinstance(node, ast.Subscript) and ast.unparse(node.value) == "Literal"):
+        return None
+    items = node.slice.elts if isinstance(node.slice, ast.Tuple) else [node.slice]
+    values = frozenset(str(item.value) for item in items if isinstance(item, ast.Constant))
+    return values if len(values) > 1 else None
+
+
+def _value_sets(sources: dict[str, str]) -> dict[frozenset[str], list[str]]:
+    """Every closed value set in ``sources`` (path -> text) with the places that define it."""
+    found: dict[frozenset[str], list[str]] = {}
+    for path, source in sources.items():
+        for node in ast.walk(ast.parse(source)):
+            values = _literal_values(node)
+            if isinstance(node, ast.ClassDef) and any(
+                ast.unparse(base).endswith("StrEnum") for base in node.bases
+            ):
+                members = [item for item in node.body if isinstance(item, ast.Assign)]
+                values = frozenset(
+                    str(member.value.value)
+                    for member in members
+                    if isinstance(member.value, ast.Constant)
+                )
+            if values:
+                found.setdefault(values, []).append(f"{path}:{getattr(node, 'lineno', 0)}")
+    return found
+
+
+def test_a_closed_value_set_is_defined_once():
+    """Section 1, "A field with a set of values" (#161): one definition per set, used by name."""
+    root = Path(ycli.__file__).parent
+    sources = {
+        str(path.relative_to(root)): path.read_text(encoding="utf-8") for path in root.rglob("*.py")
+    }
+    twice = {
+        ", ".join(sorted(values)): places
+        for values, places in _value_sets(sources).items()
+        if len(places) > 1
+    }
+    assert twice == {}
+
+
+def test_the_value_set_check_bites():
+    sources = {
+        "a/models.py": (
+            'Order = Literal["asc", "desc"]\nclass Kind(StrEnum):\n    A = "a"\n    B = "b"\n'
+        ),
+        "a/mcp.py": 'def list_(order: Literal["desc", "asc"] | None, one: Literal["x"]): ...\n',
+    }
+    sets = _value_sets(sources)
+    assert sets[frozenset({"asc", "desc"})] == ["a/models.py:1", "a/mcp.py:1"]
+    assert sets[frozenset({"a", "b"})] == ["a/models.py:2"]
+    assert frozenset({"x"}) not in sets

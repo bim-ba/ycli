@@ -1,6 +1,6 @@
 """Forms change-log FastMCP tool (a read)."""
 
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
@@ -10,7 +10,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, app_config, forms_client
 from ycli.yandex.forms.history.models import HistoryEvent
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 
 mcp = FastMCP("forms-history")
 
@@ -19,7 +19,7 @@ mcp = FastMCP("forms-history")
 def list_(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
     ordering: Annotated[
-        Literal["asc", "desc"] | None,
+        SortDirection | None,
         Field(description="desc (newest first, the API default) or asc."),
     ] = None,
     limit: Annotated[
