@@ -14,10 +14,8 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     forms_client,
 )
 from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
@@ -26,7 +24,7 @@ from ycli.yandex.models import Ack, ItemList
 mcp = FastMCP("forms-keysets")
 
 
-@mcp.tool(name="keysets_list", annotations={**RO, "title": "List Forms key sets"}, tags=TAGS)
+@mcp.tool(name="keysets_list", annotations={**RO, "title": "List Forms key sets"})
 def list_(
     survey_id: Annotated[
         str, Field(description="Form id (24-char hex), e.g. 6818ceffe010db4f59d11329.")
@@ -42,7 +40,7 @@ def list_(
     return client.keysets.list(survey_id)
 
 
-@mcp.tool(name="keysets_get", annotations={**RO, "title": "Get Forms key set"}, tags=TAGS)
+@mcp.tool(name="keysets_get", annotations={**RO, "title": "Get Forms key set"})
 def get(
     survey_id: Annotated[str, Field(description="Form id (24-char hex) the key set belongs to.")],
     keyset_id: Annotated[int, Field(description="Key set id (integer) from ``keysets_list``.")],
@@ -56,9 +54,7 @@ def get(
     return client.keysets.get(survey_id, keyset_id)
 
 
-@mcp.tool(
-    name="keysets_create", annotations={**WRITE, "title": "Create Forms key set"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="keysets_create", annotations={**WRITE, "title": "Create Forms key set"})
 def create(
     survey_id: Annotated[str, Field(description="Form id (24-char hex) to add the key set to.")],
     body: Annotated[
@@ -79,7 +75,6 @@ def create(
 @mcp.tool(
     name="keysets_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms key set"},
-    tags=WRITE_TAGS,
 )
 def update(
     survey_id: Annotated[str, Field(description="Form id (24-char hex) the key set belongs to.")],
@@ -101,7 +96,6 @@ def update(
 @mcp.tool(
     name="keysets_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms key set"},
-    tags=WRITE_TAGS,
 )
 def delete(
     survey_id: Annotated[str, Field(description="Form id (24-char hex) the key set belongs to.")],

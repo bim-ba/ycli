@@ -18,10 +18,8 @@ from ycli.yandex.tracker.components.models import (
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Version,
     tracker_client,
 )
@@ -29,7 +27,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-components")
 
 
-@mcp.tool(name="components_list", annotations={**RO, "title": "List Tracker components"}, tags=TAGS)
+@mcp.tool(name="components_list", annotations={**RO, "title": "List Tracker components"})
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Component]:
     """All components created by the organisation's users.
 
@@ -43,7 +41,6 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Component
 @mcp.tool(
     name="components_create",
     annotations={**WRITE, "title": "Create Tracker component"},
-    tags=WRITE_TAGS,
 )
 def create(body: ComponentCreate, client: TrackerClient = Depends(tracker_client)) -> Component:
     """Create a component in a queue (a sub-area for classifying its issues).
@@ -57,7 +54,6 @@ def create(body: ComponentCreate, client: TrackerClient = Depends(tracker_client
 @mcp.tool(
     name="components_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker component"},
-    tags=WRITE_TAGS,
 )
 def update(
     component_id: Annotated[
@@ -78,7 +74,6 @@ def update(
 @mcp.tool(
     name="components_list_for_queue",
     annotations={**RO, "title": "List components of a Tracker queue"},
-    tags=TAGS,
 )
 def list_for_queue(
     queue_id: Annotated[
@@ -94,7 +89,7 @@ def list_for_queue(
     return client.components.list_for_queue(queue_id, fields=fields)
 
 
-@mcp.tool(name="components_get", annotations={**RO, "title": "Get Tracker component"}, tags=TAGS)
+@mcp.tool(name="components_get", annotations={**RO, "title": "Get Tracker component"})
 def get(
     component_id: Annotated[
         int, Field(description="Numeric id of the component, from ``components_list``.")
@@ -112,7 +107,6 @@ def get(
 @mcp.tool(
     name="components_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker component"},
-    tags=WRITE_TAGS,
 )
 def delete(
     component_id: Annotated[
@@ -128,7 +122,6 @@ def delete(
 @mcp.tool(
     name="components_user_permissions_get",
     annotations={**RO, "title": "Get a user's rights on a Tracker component"},
-    tags=TAGS,
 )
 def user_permissions_get(
     component_id: Annotated[int, Field(description="Numeric id of the component.")],
@@ -142,7 +135,6 @@ def user_permissions_get(
 @mcp.tool(
     name="components_group_permissions_get",
     annotations={**RO, "title": "Get a group's rights on a Tracker component"},
-    tags=TAGS,
 )
 def group_permissions_get(
     component_id: Annotated[int, Field(description="Numeric id of the component.")],

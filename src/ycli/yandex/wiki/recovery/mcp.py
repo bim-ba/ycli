@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import WRITE, WRITE_TAGS, wiki_client
+from ycli.yandex.wiki.dependencies import WRITE, wiki_client
 from ycli.yandex.wiki.recovery.models import RecoveredPage
 
 mcp = FastMCP("wiki-recovery")
@@ -16,7 +16,6 @@ mcp = FastMCP("wiki-recovery")
 @mcp.tool(
     name="recovery_restore",
     annotations={**WRITE, "title": "Restore deleted Wiki page"},
-    tags=WRITE_TAGS,
 )
 def restore(
     token: Annotated[

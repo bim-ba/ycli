@@ -11,10 +11,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SprintId,
     Version,
     tracker_client,
@@ -24,7 +22,7 @@ from ycli.yandex.tracker.sprints.models import Sprint, SprintCreate, SprintUpdat
 mcp = FastMCP("tracker-sprints")
 
 
-@mcp.tool(name="sprints_list", annotations={**RO, "title": "List Tracker board sprints"}, tags=TAGS)
+@mcp.tool(name="sprints_list", annotations={**RO, "title": "List Tracker board sprints"})
 def list_(
     board_id: Annotated[
         int, Field(description="Numeric identifier of the board whose sprints to list.")
@@ -40,7 +38,7 @@ def list_(
     return client.sprints.list(board_id=board_id)
 
 
-@mcp.tool(name="sprints_get", annotations={**RO, "title": "Get Tracker sprint"}, tags=TAGS)
+@mcp.tool(name="sprints_get", annotations={**RO, "title": "Get Tracker sprint"})
 def get(
     sprint_id: Annotated[int, Field(description="Numeric identifier of the sprint.")],
     client: TrackerClient = Depends(tracker_client),
@@ -54,9 +52,7 @@ def get(
     return client.sprints.get(sprint_id=sprint_id)
 
 
-@mcp.tool(
-    name="sprints_create", annotations={**WRITE, "title": "Create Tracker sprint"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="sprints_create", annotations={**WRITE, "title": "Create Tracker sprint"})
 def create(body: SprintCreate, client: TrackerClient = Depends(tracker_client)) -> Sprint:
     """Create a sprint on an agile board; returns the new sprint.
 
@@ -69,7 +65,6 @@ def create(body: SprintCreate, client: TrackerClient = Depends(tracker_client)) 
 @mcp.tool(
     name="sprints_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker sprint"},
-    tags=WRITE_TAGS,
 )
 def update(
     sprint_id: SprintId,
@@ -89,7 +84,6 @@ def update(
 @mcp.tool(
     name="sprints_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker sprint"},
-    tags=WRITE_TAGS,
 )
 def delete(sprint_id: SprintId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Permanently delete a sprint (irreversible; its issues are not affected).
@@ -100,9 +94,7 @@ def delete(sprint_id: SprintId, client: TrackerClient = Depends(tracker_client))
     return Ack.deleted("sprint", sprint_id)
 
 
-@mcp.tool(
-    name="sprints_start", annotations={**WRITE, "title": "Start Tracker sprint"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="sprints_start", annotations={**WRITE, "title": "Start Tracker sprint"})
 def start(
     sprint_id: SprintId,
     version: Version = None,
@@ -119,7 +111,6 @@ def start(
 @mcp.tool(
     name="sprints_archive",
     annotations={**WRITE, "title": "Archive Tracker sprint"},
-    tags=WRITE_TAGS,
 )
 def archive(
     sprint_id: SprintId,

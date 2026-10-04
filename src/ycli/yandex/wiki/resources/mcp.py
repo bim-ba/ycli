@@ -9,13 +9,13 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import RO, TAGS, app_config, wiki_client
+from ycli.yandex.wiki.dependencies import RO, app_config, wiki_client
 from ycli.yandex.wiki.resources.models import ResourceItem
 
 mcp = FastMCP("wiki-resources")
 
 
-@mcp.tool(name="resources_list", annotations={**RO, "title": "List Wiki page resources"}, tags=TAGS)
+@mcp.tool(name="resources_list", annotations={**RO, "title": "List Wiki page resources"})
 def list_(
     page_id: Annotated[int, Field(description="Numeric page id whose resources to list.")],
     limit: Annotated[

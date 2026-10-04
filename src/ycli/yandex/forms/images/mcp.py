@@ -11,15 +11,13 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import WRITE, WRITE_TAGS, forms_client
+from ycli.yandex.forms.dependencies import WRITE, forms_client
 from ycli.yandex.forms.images.models import Image, ImageClone
 
 mcp = FastMCP("forms-images")
 
 
-@mcp.tool(
-    name="images_clone", annotations={**WRITE, "title": "Clone a Forms image"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="images_clone", annotations={**WRITE, "title": "Clone a Forms image"})
 def clone(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
     body: Annotated[ImageClone, Field(description="The image to copy and the clone's name.")],

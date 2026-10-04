@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, TAGS, WRITE, WRITE_TAGS, app_config, forms_client
+from ycli.yandex.forms.dependencies import RO, WRITE, app_config, forms_client
 from ycli.yandex.forms.notifications.models import (
     Notification,
     NotificationAction,
@@ -32,7 +32,6 @@ IntegrationType = Literal[
 @mcp.tool(
     name="notifications_list",
     annotations={**RO, "title": "List Forms integration runs"},
-    tags=TAGS,
 )
 def list_(
     survey_id: Annotated[
@@ -94,7 +93,6 @@ def list_(
 @mcp.tool(
     name="notifications_get",
     annotations={**RO, "title": "Get a Forms integration run"},
-    tags=TAGS,
 )
 def get(
     notification_id: NotificationId, client: FormsClient = Depends(forms_client)
@@ -106,7 +104,6 @@ def get(
 @mcp.tool(
     name="notifications_status_get",
     annotations={**RO, "title": "Get a Forms integration run state"},
-    tags=TAGS,
 )
 def status_get(
     notification_id: NotificationId, client: FormsClient = Depends(forms_client)
@@ -118,7 +115,6 @@ def status_get(
 @mcp.tool(
     name="notifications_restart",
     annotations={**WRITE, "title": "Restart a Forms integration run"},
-    tags=WRITE_TAGS,
 )
 def restart(
     notification_id: NotificationId, client: FormsClient = Depends(forms_client)
@@ -134,7 +130,6 @@ def restart(
 @mcp.tool(
     name="notifications_cancel",
     annotations={**WRITE, "title": "Cancel a Forms integration run"},
-    tags=WRITE_TAGS,
 )
 def cancel(
     notification_id: NotificationId, client: FormsClient = Depends(forms_client)
@@ -149,7 +144,6 @@ def cancel(
 @mcp.tool(
     name="notifications_errors_list",
     annotations={**RO, "title": "List a Forms survey's failed integration runs"},
-    tags=TAGS,
 )
 def errors_list(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],

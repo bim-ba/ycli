@@ -128,7 +128,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.{domain}.client import {domain_cls}Client
-from ycli.yandex.{domain}.dependencies import RO, TAGS, {domain}_client
+from ycli.yandex.{domain}.dependencies import RO, {domain}_client
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 mcp = FastMCP("{domain}-{resource}")
@@ -137,7 +137,6 @@ mcp = FastMCP("{domain}-{resource}")
 @mcp.tool(
     name="{resource}_get",
     annotations={{**RO, "title": "Get {domain} {resource}"}},
-    tags=TAGS,
     # The docstring below IS the client-facing description (the LLM\'s selector) —
     # required; do not pass description= to @mcp.tool.
     # The return type annotation IS the output schema (auto-derived by fastmcp) —

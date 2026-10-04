@@ -14,7 +14,7 @@ from fastmcp import FastMCP
 from fastmcp.server.transforms.search import BM25SearchTransform
 from pydantic import ValidationError
 
-from ycli.mcp.listing import LightListing, ServedWithTheirTools, UnknownToolError
+from ycli.mcp.listing import DerivedTags, LightListing, ServedWithTheirTools, UnknownToolError
 from ycli.mcp.profiles import STATUS_TOOL
 from ycli.mcp.selection import Selection
 from ycli.settings import (
@@ -85,6 +85,7 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     for service in mounted:
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
+    server.add_transform(DerivedTags())
 
     if not selection.serves_everything:
         server.enable(names=set(selection.listed_names()), only=True)

@@ -17,7 +17,6 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.comments.models import Comment
 from ycli.yandex.tracker.dependencies import (
     WRITE,
-    WRITE_TAGS,
     IssueKey,
     tracker_client,
 )
@@ -29,9 +28,7 @@ from ycli.yandex.tracker.worklog.models import Worklog
 mcp = FastMCP("tracker-import")
 
 
-@mcp.tool(
-    name="import_task", annotations={**WRITE, "title": "Import Tracker issue"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="import_task", annotations={**WRITE, "title": "Import Tracker issue"})
 def task(body: ImportTask, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """Import an issue preserving its original history (admin-only back-fill).
 
@@ -43,7 +40,6 @@ def task(body: ImportTask, client: TrackerClient = Depends(tracker_client)) -> I
 @mcp.tool(
     name="import_comment",
     annotations={**WRITE, "title": "Import Tracker issue comment"},
-    tags=WRITE_TAGS,
 )
 def comment(
     issue_key: IssueKey, body: ImportComment, client: TrackerClient = Depends(tracker_client)
@@ -55,9 +51,7 @@ def comment(
     return client.import_.comment(issue_key, body=body)
 
 
-@mcp.tool(
-    name="import_link", annotations={**WRITE, "title": "Import Tracker issue link"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="import_link", annotations={**WRITE, "title": "Import Tracker issue link"})
 def link(
     issue_key: IssueKey, body: ImportLink, client: TrackerClient = Depends(tracker_client)
 ) -> Link:
@@ -71,7 +65,6 @@ def link(
 @mcp.tool(
     name="import_worklog",
     annotations={**WRITE, "title": "Import Tracker worklog record"},
-    tags=WRITE_TAGS,
 )
 def worklog(
     issue_key: IssueKey, body: ImportWorklog, client: TrackerClient = Depends(tracker_client)
@@ -86,7 +79,6 @@ def worklog(
 @mcp.tool(
     name="import_file",
     annotations={**WRITE, "title": "Import Tracker issue attachment"},
-    tags=WRITE_TAGS,
 )
 def file(
     issue_key: IssueKey,

@@ -13,10 +13,8 @@ from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Slug,
     app_config,
     wiki_client,
@@ -56,7 +54,7 @@ OrderDirection = Annotated[
 ]
 
 
-@mcp.tool(name="pages_get", annotations={**RO, "title": "Get Wiki page"}, tags=TAGS)
+@mcp.tool(name="pages_get", annotations={**RO, "title": "Get Wiki page"})
 def get(
     slug: Slug,
     revision_id: RevisionId = None,
@@ -70,15 +68,13 @@ def get(
     return page.content or ""
 
 
-@mcp.tool(name="pages_meta", annotations={**RO, "title": "Get Wiki page metadata"}, tags=TAGS)
+@mcp.tool(name="pages_meta", annotations={**RO, "title": "Get Wiki page metadata"})
 def meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     """Page metadata for SLUG (attributes + owner)."""
     return client.pages.get(slug=slug, fields="attributes,owner")
 
 
-@mcp.tool(
-    name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"}, tags=TAGS
-)
+@mcp.tool(name="pages_descendants", annotations={**RO, "title": "List Wiki page descendants"})
 def descendants(
     slug: Slug,
     limit: Annotated[
@@ -99,7 +95,7 @@ def descendants(
     )
 
 
-@mcp.tool(name="pages_grids_list", annotations={**RO, "title": "List Wiki page grids"}, tags=TAGS)
+@mcp.tool(name="pages_grids_list", annotations={**RO, "title": "List Wiki page grids"})
 def grids_list(
     page_id: Annotated[int, Field(description="Numeric page id whose grids to list.")],
     limit: Annotated[
@@ -127,7 +123,7 @@ def grids_list(
     )
 
 
-@mcp.tool(name="pages_get_by_id", annotations={**RO, "title": "Get Wiki page by id"}, tags=TAGS)
+@mcp.tool(name="pages_get_by_id", annotations={**RO, "title": "Get Wiki page by id"})
 def get_by_id(
     page_id: Annotated[int, Field(description="Numeric page id to fetch.")],
     fields: Annotated[
@@ -159,7 +155,6 @@ def get_by_id(
 @mcp.tool(
     name="pages_descendants_by_id",
     annotations={**RO, "title": "List Wiki page descendants by id"},
-    tags=TAGS,
 )
 def descendants_by_id(
     page_id: Annotated[int, Field(description="Numeric page id whose subtree to list.")],
@@ -183,7 +178,7 @@ def descendants_by_id(
     )
 
 
-@mcp.tool(name="pages_create", annotations={**WRITE, "title": "Create Wiki page"}, tags=WRITE_TAGS)
+@mcp.tool(name="pages_create", annotations={**WRITE, "title": "Create Wiki page"})
 def create(
     slug: Annotated[
         str,
@@ -213,7 +208,6 @@ def create(
 @mcp.tool(
     name="pages_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki page"},
-    tags=WRITE_TAGS,
 )
 def update(
     page_id: Annotated[int, Field(description="Numeric id of the page to update.")],
@@ -242,9 +236,7 @@ def update(
     )
 
 
-@mcp.tool(
-    name="pages_delete", annotations={**DESTRUCTIVE, "title": "Delete Wiki page"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="pages_delete", annotations={**DESTRUCTIVE, "title": "Delete Wiki page"})
 def delete(
     page_id: Annotated[int, Field(description="Numeric id of the page to delete.")],
     recursive: Annotated[bool, Field(description="Also delete every page under it.")] = False,
@@ -262,7 +254,6 @@ def delete(
 @mcp.tool(
     name="pages_append",
     annotations={**WRITE, "title": "Append content to Wiki page"},
-    tags=WRITE_TAGS,
 )
 def append(
     page_id: Annotated[int, Field(description="Numeric id of the page to append to.")],
@@ -291,7 +282,7 @@ def append(
     )
 
 
-@mcp.tool(name="pages_clone", annotations={**WRITE, "title": "Clone Wiki page"}, tags=WRITE_TAGS)
+@mcp.tool(name="pages_clone", annotations={**WRITE, "title": "Clone Wiki page"})
 def clone(
     page_id: Annotated[int, Field(description="Numeric id of the page to copy.")],
     body: Annotated[
@@ -312,7 +303,7 @@ def clone(
     return client.pages.clone(page_id=page_id, body=body)
 
 
-@mcp.tool(name="pages_move", annotations={**WRITE, "title": "Move Wiki page"}, tags=WRITE_TAGS)
+@mcp.tool(name="pages_move", annotations={**WRITE, "title": "Move Wiki page"})
 def move(
     body: Annotated[
         PageMove,
@@ -340,7 +331,6 @@ def move(
 @mcp.tool(
     name="pages_revisions_list",
     annotations={**RO, "title": "List Wiki page revisions"},
-    tags=TAGS,
 )
 def revisions_list(
     page_id: Annotated[int, Field(description="Numeric page id whose revisions to list.")],
@@ -366,7 +356,6 @@ def revisions_list(
 @mcp.tool(
     name="pages_backlinks_list",
     annotations={**RO, "title": "List Wiki page backlinks"},
-    tags=TAGS,
 )
 def backlinks_list(
     page_id: Annotated[int, Field(description="Numeric id of the page that is linked to.")],

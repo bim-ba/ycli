@@ -13,10 +13,8 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SurveyId,
     forms_client,
 )
@@ -31,9 +29,7 @@ SubscriptionId = Annotated[
 ]
 
 
-@mcp.tool(
-    name="subscriptions_list", annotations={**RO, "title": "List Forms integrations"}, tags=TAGS
-)
+@mcp.tool(name="subscriptions_list", annotations={**RO, "title": "List Forms integrations"})
 def list_(
     survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)
 ) -> ItemList[Subscription]:
@@ -45,7 +41,7 @@ def list_(
     return client.subscriptions.list(survey_id, hook_id)
 
 
-@mcp.tool(name="subscriptions_get", annotations={**RO, "title": "Get Forms integration"}, tags=TAGS)
+@mcp.tool(name="subscriptions_get", annotations={**RO, "title": "Get Forms integration"})
 def get(
     survey_id: SurveyId,
     hook_id: HookId,
@@ -59,7 +55,6 @@ def get(
 @mcp.tool(
     name="subscriptions_create",
     annotations={**WRITE, "title": "Create Forms integration"},
-    tags=WRITE_TAGS,
 )
 def create(
     survey_id: SurveyId,
@@ -80,7 +75,6 @@ def create(
 @mcp.tool(
     name="subscriptions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration"},
-    tags=WRITE_TAGS,
 )
 def update(
     survey_id: SurveyId,
@@ -99,7 +93,6 @@ def update(
 @mcp.tool(
     name="subscriptions_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms integration"},
-    tags=WRITE_TAGS,
 )
 def delete(
     survey_id: SurveyId,

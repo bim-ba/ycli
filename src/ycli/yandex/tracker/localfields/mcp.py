@@ -10,10 +10,8 @@ from ycli.yandex.models import ItemList, require_found
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     QueueId,
     tracker_client,
 )
@@ -23,9 +21,7 @@ from ycli.yandex.tracker.models import FieldCreate
 mcp = FastMCP("tracker-localfields")
 
 
-@mcp.tool(
-    name="localfields_list", annotations={**RO, "title": "List Tracker local fields"}, tags=TAGS
-)
+@mcp.tool(name="localfields_list", annotations={**RO, "title": "List Tracker local fields"})
 def list_(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. ORG) or numeric queue id.")
@@ -41,7 +37,7 @@ def list_(
     return client.localfields.list(queue_id)
 
 
-@mcp.tool(name="localfields_get", annotations={**RO, "title": "Get Tracker local field"}, tags=TAGS)
+@mcp.tool(name="localfields_get", annotations={**RO, "title": "Get Tracker local field"})
 def get(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. ORG) or numeric queue id.")
@@ -69,7 +65,6 @@ def get(
 @mcp.tool(
     name="localfields_create",
     annotations={**WRITE, "title": "Create Tracker local field"},
-    tags=WRITE_TAGS,
 )
 def create(
     queue_id: QueueId, body: FieldCreate, client: TrackerClient = Depends(tracker_client)
@@ -86,7 +81,6 @@ def create(
 @mcp.tool(
     name="localfields_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker local field"},
-    tags=WRITE_TAGS,
 )
 def update(
     queue_id: QueueId,

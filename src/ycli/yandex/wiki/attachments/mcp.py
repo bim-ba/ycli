@@ -18,9 +18,7 @@ from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     PageId,
     app_config,
     wiki_client,
@@ -29,7 +27,7 @@ from ycli.yandex.wiki.dependencies import (
 mcp = FastMCP("wiki-attachments")
 
 
-@mcp.tool(name="attachments_list", annotations={**RO, "title": "List Wiki attachments"}, tags=TAGS)
+@mcp.tool(name="attachments_list", annotations={**RO, "title": "List Wiki attachments"})
 def list_(
     page_id: PageId,
     limit: Annotated[
@@ -61,7 +59,6 @@ def list_(
 @mcp.tool(
     name="attachments_get",
     annotations={**RO, "title": "Get Wiki attachment"},
-    tags=TAGS,
 )
 def get(
     page_id: Annotated[int, Field(description="Numeric id of the page the file is attached to.")],
@@ -80,7 +77,6 @@ def get(
 @mcp.tool(
     name="attachments_attach",
     annotations={**WRITE, "title": "Attach uploaded files to Wiki page"},
-    tags=WRITE_TAGS,
 )
 def attach(
     page_id: Annotated[int, Field(description="Numeric id of the page to attach to.")],
@@ -103,7 +99,6 @@ def attach(
 @mcp.tool(
     name="attachments_upload",
     annotations={**WRITE, "title": "Upload file to Wiki page"},
-    tags=WRITE_TAGS,
 )
 def upload(
     page_id: Annotated[int, Field(description="Numeric id of the page to attach the file to.")],
@@ -125,7 +120,6 @@ def upload(
 @mcp.tool(
     name="attachments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Wiki attachment"},
-    tags=WRITE_TAGS,
 )
 def delete(
     page_id: Annotated[int, Field(description="Numeric id of the page the file is attached to.")],

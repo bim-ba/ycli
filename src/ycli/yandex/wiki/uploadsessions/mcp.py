@@ -16,10 +16,8 @@ from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     wiki_client,
 )
 from ycli.yandex.wiki.uploadsessions.models import (
@@ -36,7 +34,6 @@ SessionIdParam = Annotated[str, Field(description="UUID4 of the upload session."
 @mcp.tool(
     name="uploadsessions_get",
     annotations={**RO, "title": "Get Wiki upload session"},
-    tags=TAGS,
 )
 def get(
     session_id: Annotated[str, Field(description="UUID4 of the upload session to inspect.")],
@@ -53,7 +50,6 @@ def get(
 @mcp.tool(
     name="uploadsessions_create",
     annotations={**WRITE, "title": "Create Wiki upload session"},
-    tags=WRITE_TAGS,
 )
 def create(
     body: Annotated[
@@ -74,7 +70,6 @@ def create(
 @mcp.tool(
     name="uploadsessions_upload_part",
     annotations={**WRITE_IDEMPOTENT, "title": "Upload Wiki file part"},
-    tags=WRITE_TAGS,
 )
 def upload_part(
     session_id: SessionIdParam,
@@ -96,7 +91,6 @@ def upload_part(
 @mcp.tool(
     name="uploadsessions_finish",
     annotations={**WRITE, "title": "Finish Wiki upload session"},
-    tags=WRITE_TAGS,
 )
 def finish(
     session_id: SessionIdParam,
@@ -113,7 +107,6 @@ def finish(
 @mcp.tool(
     name="uploadsessions_abort",
     annotations={**DESTRUCTIVE, "title": "Abort Wiki upload session"},
-    tags=WRITE_TAGS,
 )
 def abort(
     session_id: SessionIdParam,
@@ -130,7 +123,6 @@ def abort(
 @mcp.tool(
     name="uploadsessions_abort_all",
     annotations={**DESTRUCTIVE, "title": "Abort all Wiki upload sessions"},
-    tags=WRITE_TAGS,
 )
 def abort_all(
     client: WikiClient = Depends(wiki_client),

@@ -722,16 +722,51 @@ def test_arch3_effect_override_guard_bites():
 def test_arch3_write_tools_carry_write_tag():
     """`--read-only` hides writes by tag, so every write tool MUST carry the write tag.
 
-    `ycli mcp start --read-only` calls ``mcp.disable(tags={WRITE_TAG})``; if a write tool were
-    registered with the read ``TAGS`` (a copy-paste slip), it would leak through the reads-only
-    view. The hint↔tag correlation is checked here so the safety flag can't fail open — a mis-
-    tagged tool trips this even though its annotations are internally honest.
+    `ycli mcp start --read-only` calls ``mcp.disable(tags={WRITE_TAG})``. The tag is derived at
+    the root server (``DerivedTags``) from ``readOnlyHint``; this reads the served tools, so a
+    server built without that transform, or a tool with no annotations, fails here.
     """
     from ycli.yandex.mcp import WRITE_TAG
 
     tools = _mcp_tools()
     assert tools, "no MCP tools discovered"
     assert _write_tag_mismatches(tools, WRITE_TAG) == []
+
+
+def _tools_with_their_own_tags(source: str) -> list[str]:
+    """Functions of ``source`` whose ``@mcp.tool`` passes ``tags=``."""
+    return [
+        function.name
+        for function in ast.walk(ast.parse(source))
+        if isinstance(function, ast.FunctionDef)
+        for decorator in function.decorator_list
+        if isinstance(decorator, ast.Call)
+        and ast.unparse(decorator.func) == "mcp.tool"
+        and any(keyword.arg == "tags" for keyword in decorator.keywords)
+    ]
+
+
+def test_arch3_no_tool_states_its_tags_itself():
+    """A tool's tags are derived at the root from its name and ``readOnlyHint`` (#232).
+
+    A tool that passed ``tags=`` would state its service and its effect a second time, and the
+    two statements could disagree.
+    """
+    offenders = {
+        str(path.relative_to(SRC)): found
+        for path in SRC.rglob("mcp.py")
+        if (found := _tools_with_their_own_tags(path.read_text(encoding="utf-8")))
+    }
+    assert offenders == {}
+
+
+def test_arch3_own_tags_check_bites():
+    source = (
+        "@mcp.tool(name='a_get', annotations=RO, tags=TAGS)\ndef get(): ...\n"
+        "@mcp.tool(name='a_list', annotations=RO)\ndef list_(): ...\n"
+        "@mcp.prompt(name='digest', tags=TAGS)\ndef digest(): ...\n"
+    )
+    assert _tools_with_their_own_tags(source) == ["get"]
 
 
 def _write_tag_mismatches(tools, write_tag: str) -> list[str]:

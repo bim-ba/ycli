@@ -13,7 +13,6 @@ from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     wiki_client,
 )
 
@@ -27,9 +26,7 @@ _PREVENT_SELFLOCK = Field(
 )
 
 
-@mcp.tool(
-    name="access_create", annotations={**WRITE, "title": "Grant Wiki page access"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="access_create", annotations={**WRITE, "title": "Grant Wiki page access"})
 def create(
     page_id: Annotated[int, _PAGE_ID],
     body: Annotated[
@@ -53,7 +50,6 @@ def create(
 @mcp.tool(
     name="access_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki page access"},
-    tags=WRITE_TAGS,
 )
 def update(
     page_id: Annotated[int, _PAGE_ID],
@@ -80,7 +76,6 @@ def update(
 @mcp.tool(
     name="access_delete",
     annotations={**DESTRUCTIVE, "title": "Revoke Wiki page access"},
-    tags=WRITE_TAGS,
 )
 def delete(
     page_id: Annotated[int, _PAGE_ID],
@@ -99,7 +94,6 @@ def delete(
 @mcp.tool(
     name="access_clear",
     annotations={**DESTRUCTIVE, "title": "Clear Wiki page accesses"},
-    tags=WRITE_TAGS,
 )
 def clear(
     page_id: Annotated[int, _PAGE_ID],

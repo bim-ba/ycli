@@ -14,10 +14,8 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     BoardId,
     app_config,
     tracker_client,
@@ -26,7 +24,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-boards")
 
 
-@mcp.tool(name="boards_list", annotations={**RO, "title": "List Tracker boards"}, tags=TAGS)
+@mcp.tool(name="boards_list", annotations={**RO, "title": "List Tracker boards"})
 def list_(
     limit: Annotated[
         int | None,
@@ -45,7 +43,7 @@ def list_(
     return client.boards.list(limit=cap)
 
 
-@mcp.tool(name="boards_get", annotations={**RO, "title": "Get Tracker board"}, tags=TAGS)
+@mcp.tool(name="boards_get", annotations={**RO, "title": "Get Tracker board"})
 def get(
     board_id: Annotated[int, Field(description="Numeric identifier of the agile board.")],
     client: TrackerClient = Depends(tracker_client),
@@ -59,9 +57,7 @@ def get(
     return client.boards.get(board_id=board_id)
 
 
-@mcp.tool(
-    name="boards_create", annotations={**WRITE, "title": "Create Tracker board"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="boards_create", annotations={**WRITE, "title": "Create Tracker board"})
 def create(body: BoardCreate, client: TrackerClient = Depends(tracker_client)) -> Board:
     """Create an agile board; returns the new board with its id.
 
@@ -75,7 +71,6 @@ def create(body: BoardCreate, client: TrackerClient = Depends(tracker_client)) -
 @mcp.tool(
     name="boards_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board"},
-    tags=WRITE_TAGS,
 )
 def update(
     board_id: BoardId, body: BoardUpdate, client: TrackerClient = Depends(tracker_client)
@@ -91,7 +86,6 @@ def update(
 @mcp.tool(
     name="boards_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker board"},
-    tags=WRITE_TAGS,
 )
 def delete(board_id: BoardId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Permanently delete an agile board (irreversible; its issues are not affected).

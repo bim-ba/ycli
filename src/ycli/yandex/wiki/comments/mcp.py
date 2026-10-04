@@ -19,9 +19,7 @@ from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     PageId,
     app_config,
     wiki_client,
@@ -30,7 +28,7 @@ from ycli.yandex.wiki.dependencies import (
 mcp = FastMCP("wiki-comments")
 
 
-@mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"}, tags=TAGS)
+@mcp.tool(name="comments_list", annotations={**RO, "title": "List Wiki comments"})
 def list_(
     page_id: PageId,
     limit: Annotated[
@@ -61,9 +59,7 @@ def list_(
     )
 
 
-@mcp.tool(
-    name="comments_thread_list", annotations={**RO, "title": "List Wiki comment thread"}, tags=TAGS
-)
+@mcp.tool(name="comments_thread_list", annotations={**RO, "title": "List Wiki comment thread"})
 def thread_list(
     page_id: Annotated[int, Field(description="Numeric page id the comment lives on.")],
     comment_id: Annotated[int, Field(description="Root comment id whose reply thread to fetch.")],
@@ -88,7 +84,6 @@ def thread_list(
 @mcp.tool(
     name="comments_thread_get",
     annotations={**RO, "title": "Get Wiki comment thread from the server"},
-    tags=TAGS,
 )
 def thread_get(
     page_id: Annotated[int, Field(description="Numeric page id the comment lives on.")],
@@ -109,9 +104,7 @@ def thread_get(
     return client.comments.thread_get(page_id=page_id, comment_id=comment_id, limit=cap)
 
 
-@mcp.tool(
-    name="comments_create", annotations={**WRITE, "title": "Create Wiki comment"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="comments_create", annotations={**WRITE, "title": "Create Wiki comment"})
 def create(
     page_id: Annotated[int, Field(description="Numeric id of the page to comment on.")],
     body: Annotated[
@@ -134,7 +127,6 @@ def create(
 @mcp.tool(
     name="comments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Wiki comment"},
-    tags=WRITE_TAGS,
 )
 def delete(
     page_id: Annotated[int, Field(description="Numeric id of the page the comment lives on.")],

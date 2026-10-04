@@ -12,10 +12,8 @@ from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdat
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     BoardId,
     ColumnId,
     tracker_client,
@@ -24,7 +22,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-columns")
 
 
-@mcp.tool(name="columns_list", annotations={**RO, "title": "List Tracker board columns"}, tags=TAGS)
+@mcp.tool(name="columns_list", annotations={**RO, "title": "List Tracker board columns"})
 def list_(
     board_id: Annotated[
         int, Field(description="Numeric identifier of the board whose columns to list.")
@@ -40,7 +38,7 @@ def list_(
     return client.columns.list(board_id=board_id)
 
 
-@mcp.tool(name="columns_get", annotations={**RO, "title": "Get Tracker board column"}, tags=TAGS)
+@mcp.tool(name="columns_get", annotations={**RO, "title": "Get Tracker board column"})
 def get(
     board_id: Annotated[int, Field(description="Numeric identifier of the board.")],
     column_id: Annotated[int, Field(description="Numeric identifier of the column.")],
@@ -57,7 +55,6 @@ def get(
 @mcp.tool(
     name="columns_create",
     annotations={**WRITE, "title": "Create Tracker board column"},
-    tags=WRITE_TAGS,
 )
 def create(
     board_id: BoardId, body: ColumnCreate, client: TrackerClient = Depends(tracker_client)
@@ -73,7 +70,6 @@ def create(
 @mcp.tool(
     name="columns_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board column"},
-    tags=WRITE_TAGS,
 )
 def update(
     board_id: BoardId,
@@ -91,7 +87,6 @@ def update(
 @mcp.tool(
     name="columns_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker board column"},
-    tags=WRITE_TAGS,
 )
 def delete(
     board_id: BoardId, column_id: ColumnId, client: TrackerClient = Depends(tracker_client)

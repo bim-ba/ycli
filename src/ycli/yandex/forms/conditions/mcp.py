@@ -16,10 +16,8 @@ from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SurveyId,
     forms_client,
 )
@@ -61,7 +59,6 @@ def _found(result: Condition, condition_id: int, where: str) -> Condition:
 @mcp.tool(
     name="conditions_question_list",
     annotations={**RO, "title": "List Forms question show conditions"},
-    tags=TAGS,
 )
 def question_list(
     survey_id: SurveyId, question_id: QuestionId, client: FormsClient = Depends(forms_client)
@@ -77,7 +74,6 @@ def question_list(
 @mcp.tool(
     name="conditions_question_get",
     annotations={**RO, "title": "Get Forms question show condition"},
-    tags=TAGS,
 )
 def question_get(
     survey_id: SurveyId,
@@ -97,7 +93,6 @@ def question_get(
 @mcp.tool(
     name="conditions_question_create",
     annotations={**WRITE, "title": "Create Forms question show condition"},
-    tags=WRITE_TAGS,
 )
 def question_create(
     survey_id: SurveyId,
@@ -116,7 +111,6 @@ def question_create(
 @mcp.tool(
     name="conditions_question_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question show condition"},
-    tags=WRITE_TAGS,
 )
 def question_update(
     survey_id: SurveyId,
@@ -136,7 +130,6 @@ def question_update(
 @mcp.tool(
     name="conditions_question_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms question show condition"},
-    tags=WRITE_TAGS,
 )
 def question_delete(
     survey_id: SurveyId,
@@ -152,7 +145,6 @@ def question_delete(
 @mcp.tool(
     name="conditions_question_set_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms question conditions operator"},
-    tags=WRITE_TAGS,
 )
 def question_set_operator(
     survey_id: SurveyId,
@@ -173,7 +165,6 @@ def question_set_operator(
 @mcp.tool(
     name="conditions_page_list",
     annotations={**RO, "title": "List Forms page show conditions"},
-    tags=TAGS,
 )
 def page_list(
     survey_id: SurveyId, page_id: PageId, client: FormsClient = Depends(forms_client)
@@ -189,7 +180,6 @@ def page_list(
 @mcp.tool(
     name="conditions_page_get",
     annotations={**RO, "title": "Get Forms page show condition"},
-    tags=TAGS,
 )
 def page_get(
     survey_id: SurveyId,
@@ -205,7 +195,6 @@ def page_get(
 @mcp.tool(
     name="conditions_page_create",
     annotations={**WRITE, "title": "Create Forms page show condition"},
-    tags=WRITE_TAGS,
 )
 def page_create(
     survey_id: SurveyId,
@@ -224,7 +213,6 @@ def page_create(
 @mcp.tool(
     name="conditions_page_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms page show condition"},
-    tags=WRITE_TAGS,
 )
 def page_update(
     survey_id: SurveyId,
@@ -240,7 +228,6 @@ def page_update(
 @mcp.tool(
     name="conditions_page_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms page show condition"},
-    tags=WRITE_TAGS,
 )
 def page_delete(
     survey_id: SurveyId,
@@ -256,7 +243,6 @@ def page_delete(
 @mcp.tool(
     name="conditions_page_set_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms page conditions operator"},
-    tags=WRITE_TAGS,
 )
 def page_set_operator(
     survey_id: SurveyId,
@@ -274,7 +260,6 @@ def page_set_operator(
 @mcp.tool(
     name="conditions_submit_list",
     annotations={**RO, "title": "List Forms submit-button show conditions"},
-    tags=TAGS,
 )
 def submit_list(
     survey_id: SurveyId, client: FormsClient = Depends(forms_client)
@@ -289,7 +274,6 @@ def submit_list(
 @mcp.tool(
     name="conditions_submit_get",
     annotations={**RO, "title": "Get Forms submit-button show condition"},
-    tags=TAGS,
 )
 def submit_get(
     survey_id: SurveyId, condition_id: ConditionId, client: FormsClient = Depends(forms_client)
@@ -302,7 +286,6 @@ def submit_get(
 @mcp.tool(
     name="conditions_submit_create",
     annotations={**WRITE, "title": "Create Forms submit-button show condition"},
-    tags=WRITE_TAGS,
 )
 def submit_create(
     survey_id: SurveyId, body: NewGroup, client: FormsClient = Depends(forms_client)
@@ -314,7 +297,6 @@ def submit_create(
 @mcp.tool(
     name="conditions_submit_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms submit-button show condition"},
-    tags=WRITE_TAGS,
 )
 def submit_update(
     survey_id: SurveyId,
@@ -329,7 +311,6 @@ def submit_update(
 @mcp.tool(
     name="conditions_submit_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms submit-button show condition"},
-    tags=WRITE_TAGS,
 )
 def submit_delete(
     survey_id: SurveyId, condition_id: ConditionId, client: FormsClient = Depends(forms_client)
@@ -342,7 +323,6 @@ def submit_delete(
 @mcp.tool(
     name="conditions_submit_set_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms submit-button conditions operator"},
-    tags=WRITE_TAGS,
 )
 def submit_set_operator(
     survey_id: SurveyId, operator: Operator, client: FormsClient = Depends(forms_client)
@@ -357,7 +337,6 @@ def submit_set_operator(
 @mcp.tool(
     name="conditions_hook_list",
     annotations={**RO, "title": "List Forms integration-group conditions"},
-    tags=TAGS,
 )
 def hook_list(
     survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)
@@ -372,7 +351,6 @@ def hook_list(
 @mcp.tool(
     name="conditions_hook_get",
     annotations={**RO, "title": "Get Forms integration-group condition"},
-    tags=TAGS,
 )
 def hook_get(
     survey_id: SurveyId,
@@ -388,7 +366,6 @@ def hook_get(
 @mcp.tool(
     name="conditions_hook_create",
     annotations={**WRITE, "title": "Create Forms integration-group condition"},
-    tags=WRITE_TAGS,
 )
 def hook_create(
     survey_id: SurveyId,
@@ -403,7 +380,6 @@ def hook_create(
 @mcp.tool(
     name="conditions_hook_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration-group condition"},
-    tags=WRITE_TAGS,
 )
 def hook_update(
     survey_id: SurveyId,
@@ -419,7 +395,6 @@ def hook_update(
 @mcp.tool(
     name="conditions_hook_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms integration-group condition"},
-    tags=WRITE_TAGS,
 )
 def hook_delete(
     survey_id: SurveyId,
@@ -435,7 +410,6 @@ def hook_delete(
 @mcp.tool(
     name="conditions_hook_set_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms integration-group conditions operator"},
-    tags=WRITE_TAGS,
 )
 def hook_set_operator(
     survey_id: SurveyId,
