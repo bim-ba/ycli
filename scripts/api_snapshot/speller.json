@@ -1,0 +1,4 @@
+[
+{"method": "SOAP", "path": "/services/spellservice", "name": "checkText", "group": "services", "source": "wsdl", "request": ["text"], "response": ["SpellResult"]},
+{"method": "SOAP", "path": "/services/spellservice", "name": "checkTexts", "group": "services", "source": "wsdl", "request": ["text"], "response": ["ArrayOfSpellResult"]}
+]

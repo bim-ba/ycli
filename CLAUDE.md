@@ -88,7 +88,9 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   `tests/test_api_drift.py` compare it with what the contract cases send, and the weekly
   `api-drift` workflow opens an issue when Yandex changes it. A published operation is wrapped
   or listed with its reason in `NOT_WRAPPED`; every parameter or field that differs is fixed
-  or listed in `EXPLAINED` / `EXPLAINED_EVERYWHERE`.
+  or listed in `EXPLAINED` / `EXPLAINED_EVERYWHERE`. That holds for the services in the registry;
+  the snapshots of services ycli does not cover yet (Disk, Telemost, DataLens, Market, Direct,
+  Speller) are an inventory of names for #268: refreshed with the others, never compared.
 - **Branch → PR → explicit approval before merge — enforced.** `main` is protected by a
   repository ruleset (`Protect main — require CI`): the checks `tests` (the Python
   matrix gate, 3.12 up to the latest stable) · `gitleaks` · `rulesync` · `skills` · `package / smoke` are **required** before any merge, and `main` cannot be force-pushed or deleted.
