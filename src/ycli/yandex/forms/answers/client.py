@@ -41,7 +41,7 @@ class AnswersClient(Resource):
             >>> forms.answers.get(answer_id=2469549806).survey.name
             'Feedback'
         """
-        return self._session.send(endpoints.get_answer(answer_id=answer_id, answer_key=answer_key))
+        return self._session.send(endpoints.get(answer_id=answer_id, answer_key=answer_key))
 
     def list(
         self,
@@ -80,7 +80,7 @@ class AnswersClient(Resource):
             >>> len(forms.answers.list("686d0a1b2c3d4e5f00000030", limit=500).answers)
             2
         """
-        paged = endpoints.list_answers(
+        paged = endpoints.list_(
             survey_id,
             questions=questions,
             use_slugs=use_slugs,
@@ -121,7 +121,7 @@ class AnswersClient(Resource):
             ... ).id
             'op-77'
         """
-        return self._session.send(endpoints.export_answers(survey_id, body))
+        return self._session.send(endpoints.export(survey_id, body))
 
     def export_results(self, survey_id: str, task_id: str) -> OperationResult:
         """``GET /surveys/{id}/answers/export-results?task_id=`` → the export's status.
@@ -182,7 +182,7 @@ class AnswersClient(Resource):
             'success'
         """
         return self._session.send(
-            endpoints.list_answer_integrations(answer_id=answer_id, answer_key=answer_key)
+            endpoints.integrations_list(answer_id=answer_id, answer_key=answer_key)
         )
 
     def delete(self, survey_id: str, answer_id: int) -> None:
@@ -195,7 +195,7 @@ class AnswersClient(Resource):
         Examples:
             >>> forms.answers.delete("686d0a1b2c3d4e5f00000031", 2542485431)
         """
-        self._session.send(endpoints.delete_answer(survey_id, answer_id))
+        self._session.send(endpoints.delete(survey_id, answer_id))
 
     def restore(self, survey_id: str, answer_id: int) -> None:
         """``POST /surveys/{id}/answers/{answer_id}/restore`` — bring a deleted answer back.
@@ -207,4 +207,4 @@ class AnswersClient(Resource):
         Examples:
             >>> forms.answers.restore("686d0a1b2c3d4e5f00000032", 2542485498)
         """
-        self._session.send(endpoints.restore_answer(survey_id, answer_id))
+        self._session.send(endpoints.restore(survey_id, answer_id))

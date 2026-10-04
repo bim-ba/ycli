@@ -1,9 +1,9 @@
 """Forms ``/surveys`` operations, declared once (sans-IO).
 
 Examples:
-    >>> get_survey("686d").path
+    >>> get("686d").path
     'surveys/686d'
-    >>> publish_survey("686d").effect
+    >>> publish("686d").effect
     'write'
 """
 
@@ -16,7 +16,7 @@ from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveysRespon
 PAGE_SIZE = 100
 
 
-def list_surveys(
+def list_(
     *,
     name: str | None,
     published: bool | None,
@@ -43,25 +43,25 @@ def list_surveys(
     )
 
 
-def get_survey(survey_id: str) -> Endpoint[Survey]:
+def get(survey_id: str) -> Endpoint[Survey]:
     return Endpoint("GET", f"surveys/{segment(survey_id)}", Survey)
 
 
-def create_survey(body: SurveyCreate) -> Endpoint[Survey]:
+def create(body: SurveyCreate) -> Endpoint[Survey]:
     return Endpoint("POST", "surveys", Survey, json=body)
 
 
-def update_survey(survey_id: str, body: SurveyUpdate) -> Endpoint[Survey]:
+def update(survey_id: str, body: SurveyUpdate) -> Endpoint[Survey]:
     return Endpoint("PATCH", f"surveys/{segment(survey_id)}", Survey, json=body)
 
 
-def delete_survey(survey_id: str) -> Endpoint[None]:
+def delete(survey_id: str) -> Endpoint[None]:
     return Endpoint("DELETE", f"surveys/{segment(survey_id)}")
 
 
-def publish_survey(survey_id: str) -> Endpoint[None]:
+def publish(survey_id: str) -> Endpoint[None]:
     return Endpoint("POST", f"surveys/{segment(survey_id)}/publish")
 
 
-def unpublish_survey(survey_id: str) -> Endpoint[None]:
+def unpublish(survey_id: str) -> Endpoint[None]:
     return Endpoint("POST", f"surveys/{segment(survey_id)}/unpublish")

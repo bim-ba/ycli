@@ -40,7 +40,7 @@ class FilesClient(Resource):
             ... ).path
             'a/b/cv.txt'
         """
-        return self._session.send(endpoints.upload_file(survey_id, filename=filename, data=data))
+        return self._session.send(endpoints.upload(survey_id, filename=filename, data=data))
 
     def verify(self, survey_id: str, files: list[FileIn]) -> ItemList[FileOut]:
         """``POST …/files/verify`` (a read) → the upload status and access of each file.
@@ -62,7 +62,7 @@ class FilesClient(Resource):
             ... ).root[0].check_status
             'ready'
         """
-        return self._session.send(endpoints.verify_files(survey_id, ItemList[FileIn](list(files))))
+        return self._session.send(endpoints.verify(survey_id, ItemList[FileIn](list(files))))
 
     def download(self, path: str, *, download: bool = False, file_hash: str | None = None) -> bytes:
         """``GET /files?path=…`` → a stored file's raw bytes.
@@ -83,7 +83,7 @@ class FilesClient(Resource):
             >>> forms.files.download("a/b/cv.txt", download=True, file_hash="h4sh")
             b'resume bytes'
         """
-        endpoint = endpoints.download_file(path, download=download, file_hash=file_hash or None)
+        endpoint = endpoints.download(path, download=download, file_hash=file_hash or None)
         return self._session.send(endpoint)
 
     def delete(self, *, path: str | None = None, url: str | None = None) -> Ack:
@@ -100,7 +100,7 @@ class FilesClient(Resource):
             >>> forms.files.delete(path="a/b/cv.txt", url="https://forms.test/a/b/cv.txt").ok
             True
         """
-        self._session.send(endpoints.delete_file(FileIn(path=path, url=url)))
+        self._session.send(endpoints.delete(FileIn(path=path, url=url)))
         named = " ".join(
             f"{name}={value}" for name, value in (("path", path), ("url", url)) if value
         )

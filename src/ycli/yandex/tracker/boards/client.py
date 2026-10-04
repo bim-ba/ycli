@@ -29,7 +29,7 @@ class BoardsClient(Resource):
             ['Alpha', 'Beta', 'Gamma']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_boards(page_size=page_size)
+        paged = endpoints.list_(page_size=page_size)
         return ItemList[Board](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, board_id: int) -> Board:
@@ -45,7 +45,7 @@ class BoardsClient(Resource):
             >>> tracker.boards.get(31).name
             'Kanban'
         """
-        return self._session.send(endpoints.get_board(board_id))
+        return self._session.send(endpoints.get(board_id))
 
     def create(self, body: BoardCreate) -> Board:
         """Create an agile board from a typed ``BoardCreate`` body. Returns the new ``Board``.
@@ -63,7 +63,7 @@ class BoardsClient(Resource):
             >>> tracker.boards.create(BoardCreate(name="Release train", owner="alice")).id
             41
         """
-        return self._session.send(endpoints.create_board(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, board_id: int, body: BoardUpdate) -> Board:
         """Edit an agile board from a typed ``BoardUpdate`` body. Returns the updated ``Board``.
@@ -81,7 +81,7 @@ class BoardsClient(Resource):
             >>> tracker.boards.update(51, BoardUpdate(name="Renamed board")).name
             'Renamed board'
         """
-        return self._session.send(endpoints.update_board(board_id, body))
+        return self._session.send(endpoints.update(board_id, body))
 
     def delete(self, board_id: int) -> None:
         """``DELETE /boards/{board_id}`` — delete a board (``204``, empty body).
@@ -92,4 +92,4 @@ class BoardsClient(Resource):
         Examples:
             >>> tracker.boards.delete(61)
         """
-        self._session.send(endpoints.delete_board(board_id))
+        self._session.send(endpoints.delete(board_id))

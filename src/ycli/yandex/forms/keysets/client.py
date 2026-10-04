@@ -28,7 +28,7 @@ class KeysetsClient(Resource):
             >>> forms.keysets.list("686d0a1b2c3d4e5f00000020").root[0].name
             'Q1 invites'
         """
-        return self._session.send(endpoints.list_keysets(survey_id))
+        return self._session.send(endpoints.list_(survey_id))
 
     def get(self, survey_id: str, keyset_id: int) -> Keyset:
         """``GET /surveys/{id}/keysets/{keyset_id}`` → a single :class:`Keyset`.
@@ -44,7 +44,7 @@ class KeysetsClient(Resource):
             >>> forms.keysets.get("686d0a1b2c3d4e5f00000020", 3).id
             3
         """
-        return self._session.send(endpoints.get_keyset(survey_id, keyset_id))
+        return self._session.send(endpoints.get(survey_id, keyset_id))
 
     def create(self, survey_id: str, body: KeysetCreate) -> Keyset:
         """``POST /surveys/{id}/keysets`` — create a key set from a ``KeysetCreate``.
@@ -68,7 +68,7 @@ class KeysetsClient(Resource):
             ... ).id
             3
         """
-        return self._session.send(endpoints.create_keyset(survey_id, body))
+        return self._session.send(endpoints.create(survey_id, body))
 
     def update(self, survey_id: str, keyset_id: int, body: KeysetUpdate) -> Keyset:
         """``PATCH /surveys/{id}/keysets/{keyset_id}`` — replace a key set → the :class:`Keyset`.
@@ -95,7 +95,7 @@ class KeysetsClient(Resource):
             ... ).name
             'Q1 invites'
         """
-        return self._session.send(endpoints.update_keyset(survey_id, keyset_id, body))
+        return self._session.send(endpoints.update(survey_id, keyset_id, body))
 
     def delete(self, survey_id: str, keyset_id: int) -> None:
         """``DELETE /surveys/{id}/keysets/{keyset_id}`` — delete a key set (no body comes back).
@@ -107,7 +107,7 @@ class KeysetsClient(Resource):
         Examples:
             >>> forms.keysets.delete("686d0a1b2c3d4e5f00000020", 5)
         """
-        self._session.send(endpoints.delete_keyset(survey_id, keyset_id))
+        self._session.send(endpoints.delete(survey_id, keyset_id))
 
     def download(self, survey_id: str, keyset_id: int) -> bytes:
         """``GET /surveys/{id}/keysets/{keyset_id}/download`` → the key set's raw bytes.
@@ -125,4 +125,4 @@ class KeysetsClient(Resource):
             >>> forms.keysets.download("686d0a1b2c3d4e5f00000020", 6)[:5]
             b'key-1'
         """
-        return self._session.send(endpoints.download_keyset(survey_id, keyset_id))
+        return self._session.send(endpoints.download(survey_id, keyset_id))

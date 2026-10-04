@@ -28,7 +28,7 @@ class TransitionsClient(Resource):
             >>> tracker.transitions.list("DE-51").root[0].id
             'close'
         """
-        return self._session.send(endpoints.list_transitions(key))
+        return self._session.send(endpoints.list_(key))
 
     def execute(
         self, key: str, transition_id: str, body: TransitionExecute
@@ -56,4 +56,4 @@ class TransitionsClient(Resource):
             >>> result.root[0].id
             'reopen'
         """
-        return self._session.send(endpoints.execute_transition(key, transition_id, body))
+        return self._session.send(endpoints.execute(key, transition_id, body))

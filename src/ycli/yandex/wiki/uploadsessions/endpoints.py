@@ -7,7 +7,7 @@ so both aborts declare themselves destructive.
 Examples:
     >>> upload_part("s-1", part_number=2, data=b"x").params
     {'part_number': 2}
-    >>> abort_session("s-1").effect
+    >>> abort("s-1").effect
     'destructive'
 """
 
@@ -21,11 +21,11 @@ from ycli.yandex.wiki.uploadsessions.models import (
 )
 
 
-def create_session(body: UploadSessionCreate) -> Endpoint[UploadSession]:
+def create(body: UploadSessionCreate) -> Endpoint[UploadSession]:
     return Endpoint("POST", "upload_sessions", UploadSession, json=body)
 
 
-def get_session(session_id: str) -> Endpoint[UploadSession]:
+def get(session_id: str) -> Endpoint[UploadSession]:
     return Endpoint("GET", f"upload_sessions/{segment(session_id)}", UploadSession)
 
 
@@ -41,15 +41,15 @@ def upload_part(session_id: str, *, part_number: int, data: bytes) -> Endpoint[U
     )
 
 
-def finish_session(session_id: str) -> Endpoint[UploadSession]:
+def finish(session_id: str) -> Endpoint[UploadSession]:
     return Endpoint("POST", f"upload_sessions/{segment(session_id)}/finish", UploadSession)
 
 
-def abort_session(session_id: str) -> Endpoint[UploadSession]:
+def abort(session_id: str) -> Endpoint[UploadSession]:
     path = f"upload_sessions/{segment(session_id)}/abort"
     return Endpoint("POST", path, UploadSession, effect="destructive")
 
 
-def abort_all_sessions() -> Endpoint[AbortActiveUploadsResult]:
+def abort_all() -> Endpoint[AbortActiveUploadsResult]:
     path = "upload_sessions/abort_active_uploads"
     return Endpoint("POST", path, AbortActiveUploadsResult, effect="destructive")

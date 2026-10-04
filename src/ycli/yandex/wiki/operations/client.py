@@ -39,7 +39,7 @@ class OperationsClient(Resource):
             >>> wiki.operations.clone_get("task-5201").is_terminal
             True
         """
-        return self._session.send(endpoints.get_clone_status(task_id))
+        return self._session.send(endpoints.clone_get(task_id))
 
     def gridclone_get(self, task_id: str) -> GridCloneOperationStatus:
         """``GET /operations/clone_inline_grid/{task_id}`` → a grid-clone's status (poll to wait).
@@ -57,7 +57,7 @@ class OperationsClient(Resource):
             >>> wiki.operations.gridclone_get("task-5301").is_terminal
             False
         """
-        return self._session.send(endpoints.get_grid_clone_status(task_id))
+        return self._session.send(endpoints.gridclone_get(task_id))
 
     def move_get(self, task_id: str) -> MoveOperationStatus:
         """``GET /operations/move/{task_id}`` → a page-move's status (poll this to wait).
@@ -76,4 +76,4 @@ class OperationsClient(Resource):
             >>> wiki.operations.move_get("task-5401").result.page_count
             4
         """
-        return self._session.send(endpoints.get_move_status(task_id))
+        return self._session.send(endpoints.move_get(task_id))

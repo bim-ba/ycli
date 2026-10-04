@@ -24,4 +24,4 @@ class MeClient(Resource):
             >>> forms.me.get().email
             'ann@example.com'
         """
-        return self._session.send(endpoints.get_me())
+        return self._session.send(endpoints.get())

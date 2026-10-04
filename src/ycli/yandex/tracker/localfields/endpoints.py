@@ -1,7 +1,7 @@
 """Tracker ``/queues/{id}/localFields`` operations (per-queue fields), declared once (sans-IO).
 
 Examples:
-    >>> get_local_field("ORG", "loc_field_key").path
+    >>> get("ORG", "loc_field_key").path
     'queues/ORG/localFields/loc_field_key'
 """
 
@@ -21,21 +21,19 @@ def _local_fields(queue_id: str) -> str:
     return f"queues/{segment(queue_id)}/localFields"
 
 
-def list_local_fields(queue_id: str) -> Endpoint[ItemList[LocalField]]:
+def list_(queue_id: str) -> Endpoint[ItemList[LocalField]]:
     return Endpoint("GET", _local_fields(queue_id), ItemList[LocalField])
 
 
-def get_local_field(queue_id: str, field_key: str) -> Endpoint[LocalField]:
+def get(queue_id: str, field_key: str) -> Endpoint[LocalField]:
     return Endpoint("GET", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField)
 
 
-def create_local_field(queue_id: str, body: FieldCreate) -> Endpoint[LocalField]:
+def create(queue_id: str, body: FieldCreate) -> Endpoint[LocalField]:
     return Endpoint("POST", _local_fields(queue_id), LocalField, json=body)
 
 
-def update_local_field(
-    queue_id: str, field_key: str, body: LocalFieldUpdate
-) -> Endpoint[LocalField]:
+def update(queue_id: str, field_key: str, body: LocalFieldUpdate) -> Endpoint[LocalField]:
     """``PATCH …/localFields/{key}`` — unlike global fields, no ``?version=`` lock."""
     return Endpoint(
         "PATCH", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField, json=body

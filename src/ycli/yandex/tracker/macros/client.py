@@ -28,7 +28,7 @@ class MacrosClient(Resource):
             >>> tracker.macros.list("TEST").root[0].name
             'Close'
         """
-        return self._session.send(endpoints.list_macros(queue_id))
+        return self._session.send(endpoints.list_(queue_id))
 
     def get(self, queue_id: str, macro_id: int) -> Macro:
         """``GET /queues/{queue_id}/macros/{macro_id}`` → a single macro.
@@ -44,7 +44,7 @@ class MacrosClient(Resource):
             >>> tracker.macros.get("OPS", 4).name
             'Escalate'
         """
-        return self._session.send(endpoints.get_macro(queue_id, macro_id))
+        return self._session.send(endpoints.get(queue_id, macro_id))
 
     def create(self, queue_id: str, body: MacroCreate) -> Macro:
         """Create a macro from a typed ``MacroCreate`` body. Returns the created ``Macro``.
@@ -61,7 +61,7 @@ class MacrosClient(Resource):
             >>> tracker.macros.create("DEV", MacroCreate(name="Triage", body="Taking a look")).id
             5
         """
-        return self._session.send(endpoints.create_macro(queue_id, body))
+        return self._session.send(endpoints.create(queue_id, body))
 
     def update(self, queue_id: str, macro_id: int, body: MacroUpdate) -> Macro:
         """Edit a macro from a typed ``MacroUpdate`` body. Returns the updated ``Macro``.
@@ -81,7 +81,7 @@ class MacrosClient(Resource):
             >>> tracker.macros.update("QA", 6, MacroUpdate(name="Renamed")).name
             'Renamed'
         """
-        return self._session.send(endpoints.update_macro(queue_id, macro_id, body))
+        return self._session.send(endpoints.update(queue_id, macro_id, body))
 
     def delete(self, queue_id: str, macro_id: int) -> None:
         """``DELETE /queues/{queue_id}/macros/{macro_id}`` — delete a macro (``204``, empty body).
@@ -93,4 +93,4 @@ class MacrosClient(Resource):
         Examples:
             >>> tracker.macros.delete("SUP", 7)
         """
-        self._session.send(endpoints.delete_macro(queue_id, macro_id))
+        self._session.send(endpoints.delete(queue_id, macro_id))

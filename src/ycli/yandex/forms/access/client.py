@@ -28,7 +28,7 @@ class AccessClient(Resource):
             >>> forms.access.get("686d0a1b2c3d4e5f000000d0").root[0].access
             'restricted'
         """
-        return self._session.send(endpoints.get_access(survey_id))
+        return self._session.send(endpoints.get(survey_id))
 
     def set(self, survey_id: str, body: AccessUpdate) -> ItemList[Permission]:
         """``POST /surveys/{id}/access`` — set one action's level from a ``AccessUpdate``.
@@ -48,7 +48,7 @@ class AccessClient(Resource):
             ... ).root[1].access
             'common'
         """
-        return self._session.send(endpoints.set_access(survey_id, body))
+        return self._session.send(endpoints.set_(survey_id, body))
 
     def grant(self, survey_id: str, body: AccessGrant) -> ItemList[Permission]:
         """``POST /surveys/{id}/access/grant`` — add a user or group (a ``AccessGrant``).
@@ -70,7 +70,7 @@ class AccessClient(Resource):
             ... ).root[0].action
             'change'
         """
-        return self._session.send(endpoints.grant_access(survey_id, body))
+        return self._session.send(endpoints.grant(survey_id, body))
 
     def revoke(self, survey_id: str, body: AccessRevoke) -> ItemList[Permission]:
         """``POST /surveys/{id}/access/revoke`` — remove a user or group (``AccessRevoke``).
@@ -92,4 +92,4 @@ class AccessClient(Resource):
             ... ).root[1].action
             'submit'
         """
-        return self._session.send(endpoints.revoke_access(survey_id, body))
+        return self._session.send(endpoints.revoke(survey_id, body))

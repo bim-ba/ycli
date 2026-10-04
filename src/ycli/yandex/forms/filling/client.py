@@ -32,7 +32,7 @@ class FillingClient(Resource):
             >>> forms.filling.get("686d0a1b2c3d4e5f00000060", key="k-1").name
             'Feedback'
         """
-        return self._session.send(endpoints.get_form(survey, key=key))
+        return self._session.send(endpoints.get(survey, key=key))
 
     def submit(
         self, survey: str, body: SubmitBody, *, dry_run: bool = False, key: str | None = None
@@ -57,7 +57,7 @@ class FillingClient(Resource):
             >>> forms.filling.submit("686d0a1b2c3d4e5f00000060", body, key="k-2").answer_id
             99
         """
-        endpoint = endpoints.submit_form(survey, body, dry_run=dry_run, key=key or None)
+        endpoint = endpoints.submit(survey, body, dry_run=dry_run, key=key or None)
         return self._session.send(endpoint)
 
     def suggest(
