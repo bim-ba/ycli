@@ -72,7 +72,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
   learned on one surface works on the other.
 - **Check:** `test_arch1_four_surface_symmetry` (each `<domain>/<resource>/` has `endpoints.py`,
-  `client.py`, `cli.py`, `mcp.py`, `models.py`, `__init__.py`; `/new-endpoint` scaffolds them;
+  `client.py`, `cli.py`, `mcp.py`, `__init__.py`, and a `models.py` when it has a model of its
+  own: `test_arch1_a_models_file_defines_a_model`; `/new-endpoint` scaffolds them;
   every directory of a service is a resource except `<domain>/mcp/`, the service's MCP server,
   a name `/new-endpoint` refuses: `test_arch1_a_reserved_directory_is_not_a_resource`) and
   `test_arch1_operation_level_parity`, which reads which client method each surface actually

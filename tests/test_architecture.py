@@ -28,7 +28,8 @@ from ycli.yandex.registry import SERVICES
 SRC = Path(__file__).resolve().parent.parent / "src" / "ycli"
 YANDEX = SRC / "yandex"
 DOMAINS = tuple(service.name for service in SERVICES)
-CANONICAL = {"__init__.py", "endpoints.py", "client.py", "cli.py", "mcp.py", "models.py"}
+# `models.py` is not among them: a resource whose replies are shared models has none.
+CANONICAL = {"__init__.py", "endpoints.py", "client.py", "cli.py", "mcp.py"}
 # Directories of a service that are not resources, and why (scripts/new_endpoint.py refuses
 # them as a resource name).
 RESERVED_NAMES = {"mcp": "<domain>/mcp/ is the service's MCP server"}
@@ -73,6 +74,32 @@ def test_arch1_symmetry_check_bites(tmp_path):
     for name in CANONICAL - {"endpoints.py", "mcp.py"}:
         (tmp_path / name).touch()
     assert _missing_canonical(tmp_path) == ["endpoints.py", "mcp.py"]
+
+
+def _defines_nothing(source: str) -> bool:
+    """Whether a module holds only a docstring and imports: no class, function or assignment."""
+    return all(
+        isinstance(node, ast.Import | ast.ImportFrom)
+        or (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant))
+        for node in ast.parse(source).body
+    )
+
+
+def test_arch1_a_models_file_defines_a_model():
+    """A resource with no model of its own has no ``models.py``, rather than an empty one."""
+    empty = [
+        str(path.relative_to(SRC))
+        for directory in _resource_dirs()
+        if (path := directory / "models.py").is_file()
+        and _defines_nothing(path.read_text(encoding="utf-8"))
+    ]
+    assert empty == []
+
+
+def test_arch1_empty_models_check_bites():
+    assert _defines_nothing('"""No model of its own."""\n\nfrom __future__ import annotations\n')
+    assert not _defines_nothing('"""Models."""\n\nclass Board(APIModel): ...\n')
+    assert not _defines_nothing('"""Models."""\n\nBoardID = Annotated[int, Field()]\n')
 
 
 def _load_gen_coverage():
