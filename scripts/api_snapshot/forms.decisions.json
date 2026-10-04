@@ -1,0 +1,3 @@
+[
+{"method": "GET", "base": "/v1", "path": "/surveys/{survey_id}/suggest", "name": "events_b2b_v1_views_surveys_get_suggest_public_view", "kind": "search", "why": "suggests the values of a question by the text typed; the name says get"}
+]

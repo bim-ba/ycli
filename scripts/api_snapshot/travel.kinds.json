@@ -1,0 +1,21 @@
+[
+{"method": "GET", "path": "/feeds/hotels/temporary_url", "name": "feed-api", "kind": "get", "by": "shape"},
+{"method": "GET", "path": "/hotels/booking/offers/{offer_id}", "name": "booking-offers", "kind": "get", "by": "shape"},
+{"method": "GET", "path": "/hotels/booking/offers/{offer_id}/rate/estimate", "name": "booking-offers-rateEstimate", "kind": "get", "by": "shape"},
+{"method": "POST", "path": "/hotels/booking/orders", "name": "booking-createOrder", "verb": "create", "kind": "create", "by": "name"},
+{"method": "GET", "path": "/hotels/booking/orders/{order_id}", "name": "booking-getOrder", "verb": "get", "kind": "get", "by": "name"},
+{"method": "POST", "path": "/hotels/booking/orders/{order_id}/payment/cancel", "name": "booking-cancelPayment", "verb": "cancel", "kind": "state", "by": "name"},
+{"method": "POST", "path": "/hotels/booking/orders/{order_id}/payment/start", "name": "booking-startPayment", "verb": "start", "kind": "state", "by": "name"},
+{"method": "GET", "path": "/hotels/booking/orders/{order_id}/refund/calculate", "name": "booking-calculateRefund", "kind": "get", "by": "shape"},
+{"method": "POST", "path": "/hotels/booking/orders/{order_id}/refund/{token}/start", "name": "booking-startRefund", "verb": "start", "kind": "state", "by": "name"},
+{"method": "GET", "path": "/hotels/booking/orders/{order_id}/status", "name": "booking-getOrderStatus", "verb": "get", "kind": "get", "by": "name"},
+{"method": "GET", "path": "/hotels/hotel", "name": "hotel", "kind": "get", "by": "shape"},
+{"method": "GET", "path": "/hotels/hotel/images", "name": "hotel-images", "kind": "list", "aspect": "file", "by": "shape"},
+{"method": "GET", "path": "/hotels/hotel/offers", "name": "hotel-offers", "kind": "list", "by": "shape"},
+{"method": "GET", "path": "/hotels/hotel/reviews", "name": "hotel-reviews", "kind": "list", "by": "shape"},
+{"method": "GET", "path": "/hotels/search", "name": "search", "verb": "search", "kind": "search", "by": "name"},
+{"method": "GET", "path": "/hotels/selection", "name": "selection", "kind": "get", "by": "shape"},
+{"method": "GET", "path": "/hotels/suggest", "name": "suggest", "verb": "suggest", "kind": "search", "by": "name"},
+{"method": "GET", "path": "/hotels/top_offers", "name": "top-offers", "kind": "list", "by": "shape"},
+{"method": "GET", "path": "/reports/orders/by_created_date", "name": "report", "kind": "get", "aspect": "report", "by": "shape"}
+]

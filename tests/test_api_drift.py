@@ -522,6 +522,13 @@ def test_a_generated_reference_page_states_one_operation():
             "/v4",
             "/user/{user-id}/hosts/{host-id}",
         ),
+        # A placeholder of alternatives written with spaces is read whole.
+        (
+            "GET https://api.appmetrica.yandex.ru/logs/v1/export/clicks.{csv | json}\n",
+            "GET",
+            "/logs/v1",
+            "/export/clicks.{csv|json}",
+        ),
         # A request line with its Host header, which may carry a scheme.
         ("POST /token HTTP/1.1\nHost: https://oauth.yandex.ru/\n", "POST", "", "/token"),
         # A labelled method, then the address in a code span.
@@ -756,7 +763,8 @@ def test_the_compared_services_are_the_registry():
 
 
 def test_every_snapshot_file_is_a_listed_service():
-    files = {path.stem for path in api_surface.SNAPSHOTS.glob("*.json")}
+    # `<service>.json` is a snapshot; `<service>.kinds.json` and `.decisions.json` are step 2.
+    files = {path.stem for path in api_surface.SNAPSHOTS.glob("*.json") if "." not in path.stem}
     assert files == set(api_surface.LISTED)
 
 

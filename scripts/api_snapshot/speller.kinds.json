@@ -1,0 +1,4 @@
+[
+{"method": "SOAP", "path": "/services/spellservice", "name": "checkText", "verb": "check", "kind": "other", "by": "name"},
+{"method": "SOAP", "path": "/services/spellservice", "name": "checkTexts", "verb": "check", "kind": "other", "by": "name"}
+]

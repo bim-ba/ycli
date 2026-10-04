@@ -1,0 +1,6 @@
+[
+{"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/search-queries/popular", "name": "host-search-queries-popular", "kind": "list", "aspect": "report", "why": "`search` belongs to the object (search queries of a site): the operation lists them"},
+{"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/search-queries/{query-id}/history", "name": "host-search-queries-history", "kind": "list", "aspect": "report", "why": "`search` belongs to the object: the history of one search query"},
+{"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/search-urls/events/history", "name": "hosts-search-events-history", "kind": "list", "aspect": "report", "why": "`search` belongs to the object (pages in search): the history of their events"},
+{"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/search-urls/events/samples", "name": "hosts-search-events-samples", "kind": "list", "aspect": "report", "why": "`search` belongs to the object (pages in search): samples of their events"}
+]
