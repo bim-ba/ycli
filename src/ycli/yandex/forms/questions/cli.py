@@ -34,7 +34,7 @@ FlagQuestionType = Literal["string", "boolean", "integer", "date", "enum"]
 
 
 def _build_from_flags(
-    type_: str,
+    type_: str | None,
     *,
     label: str | None,
     slug: str | None,
@@ -105,8 +105,6 @@ def _resolve_body(
     """Pick the write body: a ``--body-file`` JSON validated through the union, else typed flags."""
     if body_file is not None:
         return QuestionCreateAdapter.validate_json(body_file.read_bytes())
-    if type_ is None:
-        raise typer.BadParameter("pass --type (with flags) or --body-file")
     return _build_from_flags(
         type_,
         label=label,
@@ -286,9 +284,8 @@ def move(
 ) -> QuestionMoveResult:
     """Move a question (POST …/questions/{id}/move) to another page / position.
 
-    ``--position`` without a page target would be silently ignored by the API (200, nothing
-    moves) — and ``QuestionMove`` now raises rather than guessing, so ``--page`` explicitly
-    defaults to 1 here when only ``--position`` is given.
+    ``--position`` without a page target is silently ignored by the API (200, nothing moves),
+    so ``--page`` defaults to 1 here when only ``--position`` is given.
     """
     target_page: int | None = page
     target_page_id = page_id

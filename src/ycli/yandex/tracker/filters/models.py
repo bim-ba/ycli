@@ -99,7 +99,7 @@ class FilterCreate(RequestBody):
     """
 
     name: str = Field(description="Display name of the new filter.")
-    filter: dict[str, Any] | None = Field(
+    filter: Any = Field(
         default=None, description="Filtering conditions as a field→condition mapping."
     )
     query: str | None = Field(
@@ -119,7 +119,7 @@ class FilterUpdate(RequestBody):
     """
 
     name: str | None = Field(default=None, description="New display name of the filter.")
-    filter: dict[str, Any] | None = Field(
+    filter: Any = Field(
         default=None, description="Replacement filtering conditions (replaces the whole object)."
     )
     query: str | None = Field(

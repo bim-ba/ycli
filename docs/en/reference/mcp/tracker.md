@@ -1572,7 +1572,7 @@ actions produce these; a trigger with no HTTP action returns an empty list.
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. DEV) or numeric queue id. |
 | `trigger_id` | integer | yes | Numeric identifier of the trigger. |
 | `issue_id` | string or null |  | Optional issue key/id to scope the logs to one issue. |
-| `limit` | integer or null |  | Max records (API default 10, max 100); 0 uses the API default. |
+| `limit` | integer or null |  | Max records (the API's default is 10, its maximum 100). |
 
 ## `tracker_triggers_create`
 

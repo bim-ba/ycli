@@ -468,9 +468,8 @@ $ ycli forms questions delete [OPTIONS] SURVEY_ID QUESTION_ID
 
 Move a question (POST …/questions/{id}/move) to another page / position.
 
-``--position`` without a page target would be silently ignored by the API (200, nothing
-moves) — and ``QuestionMove`` now raises rather than guessing, so ``--page`` explicitly
-defaults to 1 here when only ``--position`` is given.
+``--position`` without a page target is silently ignored by the API (200, nothing moves),
+so ``--page`` defaults to 1 here when only ``--position`` is given.
 
 **Usage**:
 
@@ -1384,7 +1383,7 @@ $ ycli forms answers [OPTIONS] COMMAND [ARGS]...
 
 ### `ycli forms answers get`
 
-Fetch one answer (GET /answers). Pass exactly one of --answer-id / --answer-key.
+Fetch one answer (GET /answers). The API takes one of --answer-id / --answer-key.
 
 The single-answer read is a flat query-param route, so no survey id is needed.
 
@@ -1468,7 +1467,7 @@ $ ycli forms answers export [OPTIONS] SURVEY_ID
 
 ### `ycli forms answers integrations-list`
 
-List the integration runs an answer triggered (exactly one of --answer-id / --answer-key).
+List the integration runs an answer triggered (one of --answer-id / --answer-key).
 
 **Usage**:
 

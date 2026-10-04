@@ -224,14 +224,12 @@ def search(
     tracker: TrackerClient,
 ) -> ItemList[Entity]:
     """Search entities of TYPE (POST /entities/TYPE/_search)."""
-    if order_asc and order_by is None:
-        raise typer.BadParameter("needs --order-by", param_hint="--order-asc")
     body = EntitySearch.model_validate(
         {
             "input": input_,
             "filter": parse_fields(filter_) or None,
             "orderBy": order_by,
-            "orderAsc": order_asc if order_by is not None else None,
+            "orderAsc": order_asc if order_by is not None or order_asc else None,
             "rootOnly": root_only or None,
         }
     )
@@ -320,8 +318,6 @@ def set_direct_permissions(
     tracker: TrackerClient,
 ) -> Acl:
     """Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant/--revoke."""
-    if grant is None and revoke is None:
-        raise typer.BadParameter("pass --grant and/or --revoke")
     body = DirectPermissionsUpdate(
         grant=AclInput.model_validate_json(grant) if grant is not None else None,
         revoke=AclInput.model_validate_json(revoke) if revoke is not None else None,

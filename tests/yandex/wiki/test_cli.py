@@ -29,12 +29,17 @@ def _refused(argv: list[str]) -> list[tuple[str, str]]:
 
 
 @pytest.mark.parametrize(
-    ("flags", "missing"),
-    [(["--created-from", "2026-01-01"], "to"), (["--modified-to", "2026-02-01"], "from")],
+    ("flags", "window"),
+    [
+        (["--created-from", "2026-01-01"], {"created_at": {"from": "2026-01-01T00:00:00"}}),
+        (["--modified-to", "2026-02-01"], {"modified_at": {"to": "2026-02-01T00:00:00"}}),
+    ],
 )
-def test_an_open_ended_search_window_names_the_missing_end(api, flags, missing):
-    assert _refused(["search", "query", "plan", *flags]) == [(missing, "missing")]
-    assert api.calls == []
+def test_an_open_ended_search_window_is_sent_as_given(api, flags, window):
+    api.add("POST", f"{BASE}/search", json={"results": []})
+    res = CliRunner().invoke(cli.app, ["wiki", "search", "query", "plan", *flags])
+    assert res.exit_code == 0, res.output
+    assert api.body()["filters"] == {**window, "show_obsolete": False}
 
 
 def test_a_group_grant_needs_both_its_directory_and_its_id(api):
@@ -43,16 +48,26 @@ def test_a_group_grant_needs_both_its_directory_and_its_id(api):
     assert api.calls == []
 
 
-def test_a_grant_names_a_user_or_a_group(api):
-    assert _refused(["access", "create", "1", "--role", "reader"]) == [("", "value_error")]
-    assert api.calls == []
+def test_a_grant_naming_no_one_is_sent_as_given(api):
+    api.add("POST", f"{BASE}/pages/1/access", json={"id": "5", "role": "reader"})
+    res = CliRunner().invoke(cli.app, ["wiki", "access", "create", "1", "--role", "reader"])
+    assert res.exit_code == 0, res.output
+    assert api.body() == {"role": "reader"}
 
 
-def test_grids_create_needs_a_page(api):
-    res = CliRunner().invoke(cli.app, ["wiki", "grids", "create", "--title", "R"])
-    assert res.exit_code != 0
-    assert "provide --page-slug or --page-id" in _plain(res.output)
-    assert api.calls == []
+@pytest.mark.parametrize(
+    ("flags", "page"),
+    [
+        ([], {}),
+        (["--page-slug", "data/x", "--page-id", "42"], {"id": 42, "slug": "data/x"}),
+    ],
+    ids=["neither", "both"],
+)
+def test_grids_create_sends_the_page_as_given(api, flags, page):
+    api.add("POST", f"{BASE}/grids", json={"id": GID})
+    res = CliRunner().invoke(cli.app, ["wiki", "grids", "create", "--title", "R", *flags])
+    assert res.exit_code == 0, res.output
+    assert api.body() == {"title": "R", "page": page}
 
 
 @pytest.mark.parametrize(
@@ -107,15 +122,18 @@ def test_move_without_an_operation_id_prints_the_trigger_reply(api):
 
 
 @pytest.mark.parametrize(
-    ("argv", "refused"),
+    ("flags", "sent"),
     [
-        (["grids", "columns", "suggest", GID], ("", "value_error")),
-        (["grids", "columns", "suggest", GID, "--title", "A", "--slug", "a"], ("", "value_error")),
+        ([], {}),
+        (["--title", "A", "--slug", "a"], {"title": "A", "slug": "a"}),
     ],
+    ids=["neither", "both"],
 )
-def test_undocumented_writes_refuse_what_the_api_would_before_sending(api, argv, refused):
-    assert _refused(argv) == [refused]
-    assert api.calls == []
+def test_a_column_suggestion_is_sent_with_the_fields_given(api, flags, sent):
+    api.add("POST", f"{BASE}/grids/{GID}/columns/suggest", json={"slug": "a", "occupied": False})
+    res = CliRunner().invoke(cli.app, ["wiki", "grids", "columns", "suggest", GID, *flags])
+    assert res.exit_code == 0, res.output
+    assert api.body() == sent
 
 
 @pytest.mark.parametrize(

@@ -112,11 +112,8 @@ def create(
     *,
     wiki: WikiClient,
 ) -> Grid:
-    """Create a grid on a page (POST /grids). Pass one of --page-slug / --page-id."""
-    if page_id is None and page_slug is None:
-        raise typer.BadParameter("provide --page-slug or --page-id")
-    page = PageIdentity(id=page_id) if page_id is not None else PageIdentity(slug=page_slug)
-    body = GridCreate(title=title, page=page)
+    """Create a grid on a page (POST /grids); name the page by --page-slug or --page-id."""
+    body = GridCreate(title=title, page=PageIdentity(id=page_id, slug=page_slug))
     return wiki.grids.create(body=body)
 
 
@@ -258,8 +255,7 @@ def columns_add(
         str,
         typer.Option(
             "--columns",
-            help='Columns as JSON, e.g. \'[{"title":"C","type":"string"}]\' '
-            "(slug derived from the title when omitted).",
+            help='Columns as JSON, e.g. \'[{"title":"C","type":"string","slug":"c"}]\'.',
         ),
     ],
     position: PositionOpt = None,
@@ -268,8 +264,7 @@ def columns_add(
 ) -> RevisionResult:
     """Add columns to a grid (POST /grids/{id}/columns).
 
-    The API requires a ``slug`` on every column; a column without one gets a slug derived from
-    its title (lowercased, non-alphanumeric runs collapsed to ``_``).
+    The API requires a ``slug`` on every column.
     """
     body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position)
     return wiki.grids.columns_add(grid_id, body=body)

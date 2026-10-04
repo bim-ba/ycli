@@ -107,10 +107,6 @@ def test_every_request_field_has_a_description():
             assert field.description, f"{name}.{field_name} is missing Field(description=…)"
 
 
-def test_an_action_name_in_english_only_is_refused_before_sending():
-    """Tracker answers 422 "action.name" for a name without its Russian text."""
-    import pytest
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError, match="Russian text"):
-        WorkflowActionInput.model_validate({"name": {"en": "Close"}, "target": "closed"})
+def test_an_action_name_in_english_only_is_kept_as_given():
+    action = WorkflowActionInput.model_validate({"name": {"en": "Close"}, "target": "closed"})
+    assert action.model_dump(exclude_none=True)["name"] == {"en": "Close"}

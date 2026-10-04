@@ -60,8 +60,6 @@ def verify(
     """Check upload status / access of already-uploaded files (POST …/files/verify)."""
     paths = path or []
     urls = url or []
-    if not paths and not urls:
-        raise typer.BadParameter("pass at least one --path (or --url)")
     if urls and len(urls) != len(paths):
         raise typer.BadParameter("--url count must match --path count")
     files = [
@@ -102,6 +100,4 @@ def delete(
     forms: FormsClient,
 ) -> Ack:
     """Delete a stored file by --path and/or --url (DELETE /files)."""
-    if path is None and url is None:
-        raise typer.BadParameter("pass --path and/or --url")
     return forms.files.delete(path=path, url=url)

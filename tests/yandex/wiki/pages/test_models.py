@@ -1,8 +1,5 @@
 """Property accessor on the PageDetails model — populated and None branches."""
 
-import pytest
-from pydantic import ValidationError
-
 from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
@@ -68,9 +65,8 @@ def test_append_content_full_nested_dump():
     }
 
 
-def test_append_content_rejects_empty_content():
-    with pytest.raises(ValidationError):
-        PageAppendContent(content="")
+def test_append_content_keeps_empty_content():
+    assert PageAppendContent(content="").model_dump(exclude_none=True) == {"content": ""}
 
 
 def test_append_content_body_keeps_a_location_outside_the_known_set():
@@ -84,9 +80,8 @@ def test_page_clone_dumps_only_set_fields():
     }
 
 
-def test_page_clone_rejects_empty_title():
-    with pytest.raises(ValidationError):
-        PageClone(target="data/y", title="")
+def test_page_clone_keeps_an_empty_title():
+    assert PageClone(target="data/y", title="").title == ""
 
 
 def test_page_clone_operation_parses_identity():
@@ -137,9 +132,8 @@ def test_a_move_always_states_whether_to_copy_inherited_access():
     }
 
 
-def test_a_move_needs_at_least_one_step():
-    with pytest.raises(ValidationError):
-        PageMove(operations=[])
+def test_a_move_with_no_step_is_kept():
+    assert PageMove(operations=[]).model_dump(exclude_none=True)["operations"] == []
 
 
 def test_a_move_step_keeps_a_position_outside_the_known_set():

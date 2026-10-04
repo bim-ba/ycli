@@ -56,7 +56,7 @@ Notable shared pieces:
   `ycli doctor` (`yandex/status/doctor.py`) is one too: it runs the probes of `auth status`
   in order and says what to fix; an agent has `status_get`
 
-## Invariants (ARCH-1..8)
+## Invariants (ARCH-1..9)
 
 Each rule states a principle; the mechanics live in its check, and every exception is an
 allowlist entry in code with its reason, never prose here. Tests are in
@@ -205,6 +205,21 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `ARCH8_LOCAL_RAISES` (a request refused before it is sent, a 2xx whose body is empty); `ARCH8_STATUSLESS_ERRORS` (a
   timeout or a lost connection has no status to map).
 
+### ARCH-9 — The API answers for its own rules
+- **Rule:** ycli refuses a request before sending it only where the request cannot be built,
+  and for limits of its own. A value's length or range, which arguments go together, a rule of
+  the service: all of that is sent as given, and the API's answer is shown as it is.
+- **Why:** a check copied from an API goes stale when the API changes, hides what the API
+  really says, and cannot be kept up for every service ycli wraps.
+- **Check:** `test_arch9_a_request_is_refused_only_where_it_cannot_be_built` (with a bite
+  test) reads the code of every service for a `raise` of a usage or request error, a pydantic
+  validator, a length or range constraint on a field, and a `min` / `max` on an option; each
+  one must be in `ARCH9_REFUSALS` with its reason.
+- **Exceptions:** `ARCH9_REFUSALS` — parsing ycli's own option syntax (JSON, `id=text`, paired
+  options) and the cap on fetched items. Not refusals of this kind, and not scanned: the
+  closed request bodies and required fields of a model (ARCH-8), the file an option names,
+  `ycli api` naming an unknown method, and missing credentials.
+
 ## Scope & limits of enforcement
 
 The checks are guardrails, not a proof; the `/arch-review` rubric and human review cover the
@@ -231,7 +246,7 @@ rest. Known blind spots:
 
 ## Resource conventions (models, naming, MCP imports)
 
-The conventions that ARCH-1..8 do not capture — `APIModel` inheritance, `ItemList[X]`/`XResponse`
+The conventions that ARCH-1..9 do not capture — `APIModel` inheritance, `ItemList[X]`/`XResponse`
 naming and the `dependencies` import path — are documented in
 [`docs/conventions/resources.md`](docs/conventions/resources.md).
 What each resource is tested with, and how, is in

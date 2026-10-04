@@ -20,11 +20,10 @@ class YandexError(Exception):
 
 
 class YandexInvalidRequestError(YandexError):
-    """The request has a wrong form, found before anything is sent.
+    """A request refused before it is sent, for a limit of ycli's own.
 
-    ycli checks only what the published schema shows without the server: which arguments go
-    together, a value's type or range. Whether a well-formed request makes sense is the API's
-    to say, and its answer comes back as it is.
+    What the API can check itself is not checked here (ARCH-9): the request goes out as given
+    and the API's answer comes back as it is.
     """
 
 

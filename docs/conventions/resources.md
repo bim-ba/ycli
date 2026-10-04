@@ -1,7 +1,7 @@
 # Resource conventions
 
 These rules fill the gap between the structural invariants in
-[`ARCHITECTURE.md`](../../ARCHITECTURE.md) (ARCH-1..8) and the per-file conventions
+[`ARCHITECTURE.md`](../../ARCHITECTURE.md) (ARCH-1..9) and the per-file conventions
 documented in [`skills-and-commands.md`](skills-and-commands.md).  They apply to every
 `yandex/<domain>/<resource>/` package, including the singleton `me` resources.
 
@@ -313,12 +313,14 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 carries `Field(description=…)`, which becomes the MCP schema text. Request bodies are typed
 models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 
-**What ycli checks.** The form of a request, as the published schema shows it without the
-server: field names, types, closed sets of values, which arguments go together. A client method
-that finds a wrong form raises `YandexInvalidRequestError` (`ycli.yandex.errors`) before anything
-is sent; the CLI prints it as a usage error (exit code 2), an MCP tool as a tool error, and
-neither surface repeats the check. Whether a well-formed request makes sense is the API's to
-say: its error is returned as it is.
+**What ycli checks.** Only what it needs to build the request: the names and types of a
+body's fields, a required field, the syntax of its own options (JSON, `key=value`), the file
+an option names, and limits of its own (`--limit`). Everything else is the API's to check: a
+value's length or range, a value outside a known set, which arguments go together, a rule of
+the service. ycli sends it as given and shows the API's answer; it does not fill in a value
+the caller left out to make a request pass. ARCH-9 keeps a list of the refusals that remain,
+each with its reason. A missing field of a request model is printed by one formatter
+(`ycli.cli.errors.format_cli_error`), so a command needs no check of its own to say it.
 
 **`cli.py`**:
 

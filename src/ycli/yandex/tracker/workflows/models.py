@@ -13,9 +13,9 @@ snake_case.
 
 from __future__ import annotations
 
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 
-from pydantic import AfterValidator, AliasChoices, Field, RootModel
+from pydantic import AliasChoices, Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import KeyedReference, LocalizedName, UserReference
@@ -116,29 +116,6 @@ class RefSelector(RequestBody):
     name: str | None = Field(default=None, description="Display name of the status or queue.")
 
 
-def _needs_russian(name: LocalizedName | None) -> LocalizedName | None:
-    """Tracker refuses an action name without its Russian text (422 "action.name: required").
-
-    Args:
-        name: The localized name, if any.
-
-    Returns:
-        ``name``, unchanged.
-
-    Raises:
-        ValueError: ``name`` has an English text but no Russian one.
-
-    Examples:
-        >>> _needs_russian(LocalizedName(en="Close"))
-        Traceback (most recent call last):
-        ...
-        ValueError: an action name needs its Russian text (ru): Tracker refuses it otherwise
-    """
-    if name is not None and name.en and not name.ru:
-        raise ValueError("an action name needs its Russian text (ru): Tracker refuses it otherwise")
-    return name
-
-
 class WorkflowActionInput(RequestBody):
     """An action in a request: ``name`` and ``target`` are required.
 
@@ -150,7 +127,7 @@ class WorkflowActionInput(RequestBody):
     """
 
     id: str | None = Field(default=None, description="Identifier of the action within its step.")
-    name: Annotated[LocalizedName, AfterValidator(_needs_russian)] = Field(
+    name: LocalizedName = Field(
         description="Name of the action in each language; the Russian text is required."
     )
     description: LocalizedName | None = Field(
@@ -184,7 +161,7 @@ class WorkflowActionUpdate(RequestBody):
     """
 
     id: str | None = Field(default=None, description="New identifier of the action.")
-    name: Annotated[LocalizedName, AfterValidator(_needs_russian)] = Field(
+    name: LocalizedName = Field(
         description="Name of the action (required by Tracker, with its Russian text)."
     )
     description: LocalizedName | None = Field(

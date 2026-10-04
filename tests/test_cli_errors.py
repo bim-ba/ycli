@@ -3,6 +3,7 @@
 import pytest
 from pydantic import BaseModel, ValidationError
 
+from tests.hosts import FORMS_BASE
 from ycli.cli.app import main
 from ycli.cli.errors import exit_code_for, format_cli_error
 from ycli.cli.exit_codes import ExitCode
@@ -69,14 +70,14 @@ def test_missing_single_credential_uses_singular_phrasing(monkeypatch, tmp_path)
     assert "YANDEX_ID_OAUTH_TOKEN" not in message  # the one that IS set is not named
 
 
-def test_non_credential_validation_error_falls_through_to_generic():
+def test_a_model_that_does_not_validate_is_printed_field_by_field():
     class _Model(BaseModel):
         count: int
 
     with pytest.raises(ValidationError) as exc_info:
         _Model(count="not-an-int")  # ty: ignore[invalid-argument-type]
     message = format_cli_error(exc_info.value)
-    assert message.startswith("Error:")  # unrelated validation error → generic message
+    assert message.startswith("Invalid data:\n  count: Input should be a valid integer")
     assert "auth login" not in message
 
 
@@ -179,17 +180,44 @@ def test_the_root_help_lists_the_exit_codes():
 
 
 @pytest.mark.parametrize(
-    "selectors",
-    [[], ["--answer-id", "7", "--answer-key", "k"], ["--answer-id", "0", "--answer-key", "k"]],
+    ("selectors", "sent"),
+    [
+        ([], {}),
+        (["--answer-id", "7", "--answer-key", "k"], {"answer_id": "7", "answer_key": "k"}),
+        (["--answer-id", "0", "--answer-key", "k"], {"answer_id": "0", "answer_key": "k"}),
+    ],
     ids=["neither", "both", "a zero id counts as given"],
 )
-@pytest.mark.parametrize("command", ["get", "integrations-list"])
-def test_a_request_of_the_wrong_form_is_a_usage_error_before_anything_is_sent(
-    api, monkeypatch, capsys, command, selectors
-):
-    monkeypatch.setattr("sys.argv", ["ycli", "forms", "answers", command, *selectors])
+def test_an_answer_selector_is_sent_as_given(api, monkeypatch, selectors, sent):
+    api.add("GET", f"{FORMS_BASE}/answers/integrations", json=[])
+    monkeypatch.setattr("sys.argv", ["ycli", "forms", "answers", "integrations-list", *selectors])
     with pytest.raises(SystemExit) as exited:
         main()
-    assert exited.value.code == ExitCode.USAGE
-    assert "Error: pass exactly one of answer_id or answer_key" in capsys.readouterr().err
+    assert exited.value.code == ExitCode.OK
+    assert dict(api.calls[0].url.params) == sent
+
+
+@pytest.mark.parametrize(
+    ("argv", "lines"),
+    [
+        (["forms", "questions", "create", "S", "--label", "x"], ["body: needs `type` to tell"]),
+        (
+            ["forms", "conditions", "submit", "create", "S"],
+            ["operator: is required", "items: is required"],
+        ),
+        (["tracker", "gaps", "create", "--user", "ann"], ["workflow: is required"]),
+    ],
+)
+def test_a_request_the_arguments_do_not_fill_names_the_missing_fields(
+    api, monkeypatch, capsys, argv, lines
+):
+    """One formatter says what is missing, so no command keeps a check of its own (#286)."""
+    monkeypatch.setattr("sys.argv", ["ycli", *argv])
+    with pytest.raises(SystemExit) as exited:
+        main()
+    assert exited.value.code == ExitCode.FAILURE
+    printed = capsys.readouterr().err
+    assert printed.startswith("Invalid data:")
+    assert all(line in printed for line in lines)
+    assert "pydantic" not in printed
     assert api.calls == []

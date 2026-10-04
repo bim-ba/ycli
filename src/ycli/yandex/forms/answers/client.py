@@ -6,7 +6,6 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
-from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.forms.answers import endpoints
 from ycli.yandex.forms.answers.models import (
     Answer,
@@ -22,21 +21,14 @@ if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
 
 
-def _one_selector(answer_id: int | None, answer_key: str | None) -> None:
-    """An answer is named by its id or by its key, never by both or neither."""
-    if (answer_id is None) == (answer_key is None):
-        raise YandexInvalidRequestError("pass exactly one of answer_id or answer_key")
-
-
 class AnswersClient(Resource):
     """Read answers, list them page by page, and export them."""
 
     def get(self, *, answer_id: int | None = None, answer_key: str | None = None) -> AnswerDetails:
         """``GET /answers?answer_id=…`` (or ``?answer_key=…``) → one full :class:`AnswerDetails`.
 
-        Exactly one selector: ``answer_id`` (the numeric id from a listing; needs form-edit
-        access) or ``answer_key`` (the answer's hash; works without form-edit access). Both or
-        neither is a :class:`~ycli.yandex.errors.YandexInvalidRequestError`.
+        The API takes one selector: ``answer_id`` (the numeric id from a listing; needs form-edit
+        access) or ``answer_key`` (the answer's hash; works without form-edit access).
 
         Args:
             answer_id: The numeric answer id.
@@ -49,7 +41,6 @@ class AnswersClient(Resource):
             >>> forms.answers.get(answer_id=2469549806).survey.name
             'Feedback'
         """
-        _one_selector(answer_id, answer_key)
         return self._session.send(endpoints.get_answer(answer_id=answer_id, answer_key=answer_key))
 
     def list(
@@ -177,7 +168,7 @@ class AnswersClient(Resource):
     ) -> ItemList[AnswerIntegration]:
         """``GET /answers/integrations`` → the integration runs one answer triggered.
 
-        Exactly one selector, as for :meth:`get`.
+        One selector, as for :meth:`get`.
 
         Args:
             answer_id: The numeric answer id.
@@ -190,7 +181,6 @@ class AnswersClient(Resource):
             >>> forms.answers.integrations_list(answer_id=2542485382).root[0].status
             'success'
         """
-        _one_selector(answer_id, answer_key)
         return self._session.send(
             endpoints.list_answer_integrations(answer_id=answer_id, answer_key=answer_key)
         )

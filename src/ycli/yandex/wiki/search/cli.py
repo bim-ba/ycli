@@ -23,11 +23,10 @@ app = typer.Typer(name="search", help="Wiki full-text search.", no_args_is_help=
 
 
 def _window(start: datetime | None, end: datetime | None) -> SearchDateRange | None:
-    """The window from ``--*-from`` / ``--*-to``; one end alone fails (the API needs both)."""
+    """The window from ``--*-from`` / ``--*-to``; ``None`` when neither is given."""
     if start is None and end is None:
         return None
-    given = {"from": start, "to": end}
-    return SearchDateRange.model_validate({key: value for key, value in given.items() if value})
+    return SearchDateRange.model_validate({"from": start, "to": end})
 
 
 @app.command()
@@ -70,16 +69,16 @@ def query(
     highlight: Annotated[
         bool, typer.Option("--highlight", help="Wrap matches in <em> tags.")
     ] = False,
-    limit: Annotated[int, typer.Option(min=1, max=50, help="Results per page.")] = 10,
+    limit: Annotated[int, typer.Option(help="Results per page.")] = 10,
     cursor: Annotated[
-        int, typer.Option(min=1, max=500, help="Result page to fetch, from 1 (see next_cursor).")
+        int, typer.Option(help="Result page to fetch, from 1 (see next_cursor).")
     ] = 1,
     *,
     wiki: WikiClient,
 ) -> SearchPage:
     """Search pages and files by text (POST /search); prints one page, --cursor picks which.
 
-    A date window needs both ends (--created-from with --created-to, likewise --modified-*).
+    The API has refused a date window with one end (400), so give both.
     """
     authors = [UserIdentity(uid=uid) for uid in author_uid or []] + [
         UserIdentity(cloud_uid=cloud_uid) for cloud_uid in author_cloud_uid or []

@@ -1,8 +1,5 @@
 """Wiki Comment author flattens to a bare scalar — populated and None branches."""
 
-import pytest
-from pydantic import ValidationError
-
 from ycli.yandex.wiki.comments.models import (
     Comment,
     CommentCreate,
@@ -34,9 +31,8 @@ def test_comment_create_keeps_supplied_placement_fields():
     }
 
 
-def test_comment_create_rejects_empty_body():
-    with pytest.raises(ValidationError):
-        CommentCreate(body="")
+def test_comment_create_keeps_an_empty_body():
+    assert CommentCreate(body="").model_dump(exclude_none=True) == {"body": ""}
 
 
 def test_comment_created_parses_id():
