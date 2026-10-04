@@ -7,26 +7,28 @@ code says ``date_from``/``date_to`` (the docs' JSON is accepted as is).
 
 from __future__ import annotations
 
-import enum
+from typing import Literal
 
 from pydantic import AliasChoices, Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
-
-class GapWorkflow(enum.StrEnum):
-    """The kinds of absence the API documents (``GET /v3/gaps/workflows`` is undocumented)."""
-
-    VACATION = "vacation"
-    PAID_DAY_OFF = "paid_day_off"
-    ILLNESS = "illness"
-    ABSENCE = "absence"
-    TRIP = "trip"
-    CONFERENCE_TRIP = "conference_trip"
-    CONFERENCE = "conference"
-    LEARNING = "learning"
-    MATERNITY = "maternity"
-    DUTY = "duty"
+#: The kinds of absence the API documents.
+GapWorkflow = (
+    Literal[
+        "vacation",
+        "paid_day_off",
+        "illness",
+        "absence",
+        "trip",
+        "conference_trip",
+        "conference",
+        "learning",
+        "maternity",
+        "duty",
+    ]
+    | str
+)
 
 
 class GapUser(APIModel):

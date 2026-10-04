@@ -538,14 +538,14 @@ Add reaction NAME to comment COMMENT_ID on issue KEY.
 **Usage**:
 
 ```console
-$ ycli tracker comments react [OPTIONS] KEY COMMENT_ID NAME:{LIKE|DISLIKE|LAUGH|HOORAY|CONFUSED|HEART|ROCKET|EYES|FIRE|OK|FACEPALM|CHECK}
+$ ycli tracker comments react [OPTIONS] KEY COMMENT_ID NAME
 ```
 
 **Arguments**:
 
 * `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `COMMENT_ID`: Comment id (numeric id or longId).  [required]
-* `NAME:{LIKE|DISLIKE|LAUGH|HOORAY|CONFUSED|HEART|ROCKET|EYES|FIRE|OK|FACEPALM|CHECK}`: Reaction name, e.g. LIKE, HEART, ROCKET.  [required]
+* `NAME`: Reaction name. Known values: LIKE, DISLIKE, LAUGH, HOORAY, CONFUSED, HEART, ROCKET, EYES, FIRE, OK, FACEPALM, CHECK.  [required]
 
 **Options**:
 
@@ -631,13 +631,13 @@ Link issue KEY to TARGET with RELATIONSHIP.
 **Usage**:
 
 ```console
-$ ycli tracker links add [OPTIONS] KEY RELATIONSHIP:{depends on|is dependent by|relates|duplicates|is duplicated by|subtask|parent} TARGET
+$ ycli tracker links add [OPTIONS] KEY RELATIONSHIP TARGET
 ```
 
 **Arguments**:
 
 * `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
-* `RELATIONSHIP:{depends on|is dependent by|relates|duplicates|is duplicated by|subtask|parent}`: Relationship verb.  [required]
+* `RELATIONSHIP`: Relationship verb. Known values: depends on, is dependent by, relates, duplicates, is duplicated by, subtask, parent.  [required]
 * `TARGET`: Target issue key, e.g. DATAENGINEERING-2.  [required]
 
 **Options**:
@@ -4178,7 +4178,7 @@ $ ycli tracker entities get [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4203,7 +4203,7 @@ $ ycli tracker entities create [OPTIONS] TYPE
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 
 **Options**:
 
@@ -4237,7 +4237,7 @@ $ ycli tracker entities update [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4274,7 +4274,7 @@ $ ycli tracker entities delete [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4298,7 +4298,7 @@ $ ycli tracker entities search [OPTIONS] TYPE
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 
 **Options**:
 
@@ -4326,7 +4326,7 @@ $ ycli tracker entities events-list [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4353,7 +4353,7 @@ $ ycli tracker entities permissions-get [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4380,7 +4380,7 @@ $ ycli tracker entities set-permissions [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4404,7 +4404,7 @@ $ ycli tracker entities direct-permissions-get [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4427,7 +4427,7 @@ $ ycli tracker entities set-direct-permissions [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4452,7 +4452,7 @@ $ ycli tracker entities bulk-update [OPTIONS] TYPE
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 
 **Options**:
 
@@ -4542,7 +4542,7 @@ $ ycli tracker entities comments list [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4567,7 +4567,7 @@ $ ycli tracker entities comments get [OPTIONS] TYPE ID COMMENT_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `COMMENT_ID`: Comment id.  [required]
 
@@ -4591,7 +4591,7 @@ $ ycli tracker entities comments create [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4620,7 +4620,7 @@ $ ycli tracker entities comments update [OPTIONS] TYPE ID COMMENT_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `COMMENT_ID`: Comment id.  [required]
 
@@ -4649,7 +4649,7 @@ $ ycli tracker entities comments delete [OPTIONS] TYPE ID COMMENT_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `COMMENT_ID`: Comment id.  [required]
 
@@ -4698,7 +4698,7 @@ $ ycli tracker entities checklists create [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4729,7 +4729,7 @@ $ ycli tracker entities checklists update [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4757,7 +4757,7 @@ $ ycli tracker entities checklists update-item [OPTIONS] TYPE ID ITEM_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
@@ -4789,7 +4789,7 @@ $ ycli tracker entities checklists delete-item [OPTIONS] TYPE ID ITEM_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
@@ -4817,7 +4817,7 @@ $ ycli tracker entities checklists delete [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4844,7 +4844,7 @@ $ ycli tracker entities checklists move [OPTIONS] TYPE ID ITEM_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
@@ -4893,7 +4893,7 @@ $ ycli tracker entities links list [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4916,7 +4916,7 @@ $ ycli tracker entities links create [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4941,7 +4941,7 @@ $ ycli tracker entities links delete [OPTIONS] TYPE ID RIGHT
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `RIGHT`: Id of the entity to unlink.  [required]
 
@@ -4987,7 +4987,7 @@ $ ycli tracker entities attachments list [OPTIONS] TYPE ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -5010,7 +5010,7 @@ $ ycli tracker entities attachments get [OPTIONS] TYPE ID FILE_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `FILE_ID`: Attachment file id.  [required]
 
@@ -5058,7 +5058,7 @@ $ ycli tracker entities attachments attach [OPTIONS] TYPE ID TEMP_FILE_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `TEMP_FILE_ID`: Temp file id.  [required]
 
@@ -5086,7 +5086,7 @@ $ ycli tracker entities attachments delete [OPTIONS] TYPE ID FILE_ID
 
 **Arguments**:
 
-* `TYPE`: Entity type: project, portfolio or goal (report: search only).  [required]
+* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `FILE_ID`: Attachment file id.  [required]
 
@@ -5396,7 +5396,7 @@ $ ycli tracker projects create [OPTIONS]
 * `--queues TEXT`: Key of the queue whose issues go into the project.  [required]
 * `--description TEXT`: Description of the project.
 * `--lead TEXT`: Login or id of the project's lead.
-* `--status [DRAFT|IN_PROGRESS|LAUNCHED|POSTPONED]`: Stage of the project.
+* `--status TEXT`: Stage of the project. Known values: DRAFT, IN_PROGRESS, LAUNCHED, POSTPONED.
 * `--start-date TEXT`: Start date (YYYY-MM-DD).
 * `--end-date TEXT`: End date (YYYY-MM-DD).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -5426,7 +5426,7 @@ $ ycli tracker projects update [OPTIONS] PROJECT_ID
 * `--name TEXT`: New name of the project.
 * `--description TEXT`: Description of the project.
 * `--lead TEXT`: Login or id of the project's lead.
-* `--status [DRAFT|IN_PROGRESS|LAUNCHED|POSTPONED]`: Stage of the project.
+* `--status TEXT`: Stage of the project. Known values: DRAFT, IN_PROGRESS, LAUNCHED, POSTPONED.
 * `--start-date TEXT`: Start date (YYYY-MM-DD).
 * `--end-date TEXT`: End date (YYYY-MM-DD).
 * `--expand TEXT`: Extra blocks to include, e.g. queues.
@@ -5493,7 +5493,7 @@ $ ycli tracker gaps create [OPTIONS]
 **Options**:
 
 * `--user TEXT`: Login or id of the absent user.
-* `--workflow [vacation|paid_day_off|illness|absence|trip|conference_trip|conference|learning|maternity|duty]`: Kind of absence.
+* `--workflow TEXT`: Kind of absence. Known values: vacation, paid_day_off, illness, absence, trip, conference_trip, conference, learning, maternity, duty.
 * `--from TEXT`: Start of the absence (ISO 8601).
 * `--to TEXT`: End of the absence (ISO 8601).
 * `--id TEXT`: Identifier of the absence (generated if omitted).

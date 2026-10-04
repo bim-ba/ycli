@@ -6,22 +6,15 @@ portfolios (``ycli tracker entities``); these models serve the older endpoints.
 
 from __future__ import annotations
 
-import enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import UserReference
 
-
-class ProjectStatus(enum.StrEnum):
-    """Stage of a project, as a request spells it (replies print it in lower case)."""
-
-    DRAFT = "DRAFT"
-    IN_PROGRESS = "IN_PROGRESS"
-    LAUNCHED = "LAUNCHED"
-    POSTPONED = "POSTPONED"
+#: The stage of a project, as a request spells it (replies print it in lower case).
+ProjectStatus = Literal["DRAFT", "IN_PROGRESS", "LAUNCHED", "POSTPONED"] | str
 
 
 class Project(APIModel):

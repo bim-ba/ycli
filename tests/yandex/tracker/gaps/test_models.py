@@ -10,7 +10,6 @@ from ycli.yandex.tracker.gaps.models import (
     GapInput,
     GapsCreate,
     GapSearchPage,
-    GapWorkflow,
     UserGaps,
 )
 
@@ -89,7 +88,7 @@ def test_request_uses_the_api_names_and_accepts_the_docs_json():
         "fullDay": True,
     }
     gap = GapInput.model_validate(docs_json)
-    assert gap.date_from.startswith("2026-07-10") and gap.workflow is GapWorkflow.TRIP
+    assert gap.date_from.startswith("2026-07-10") and gap.workflow == "trip"
     assert GapsCreate(gaps=[gap]).model_dump(by_alias=True, exclude_none=True, mode="json") == {
         "gaps": [docs_json]
     }
@@ -101,8 +100,7 @@ def test_request_limits_hold():
         GapsCreate.model_validate({"gaps": [gap] * 101})
     with pytest.raises(ValidationError):
         GapInput.model_validate({**gap, "id": "x" * 129})
-    with pytest.raises(ValidationError):
-        GapInput.model_validate({**gap, "workflow": "holiday"})
+    assert GapInput.model_validate({**gap, "workflow": "holiday"}).workflow == "holiday"
 
 
 def test_every_request_field_has_a_description():

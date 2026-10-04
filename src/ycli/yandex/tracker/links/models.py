@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import (
@@ -10,6 +12,20 @@ from ycli.yandex.models import (
     IdStr,
     KeyStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
+)
+
+#: The link verbs ``POST /issues/{key}/links`` documents.
+Relationship = (
+    Literal[
+        "depends on",
+        "is dependent by",
+        "relates",
+        "duplicates",
+        "is duplicated by",
+        "subtask",
+        "parent",
+    ]
+    | str
 )
 
 

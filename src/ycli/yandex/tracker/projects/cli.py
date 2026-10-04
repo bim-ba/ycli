@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectStatus, ProjectUpdate
@@ -17,7 +18,7 @@ ProjectIdArg = Annotated[
     int, typer.Argument(metavar="PROJECT_ID", help="Numeric id of the project.")
 ]
 ExpandOpt = Annotated[str | None, typer.Option(help="Extra blocks to include, e.g. queues.")]
-StatusOpt = Annotated[ProjectStatus | None, typer.Option(help="Stage of the project.")]
+StatusOpt = Annotated[str | None, values_option(ProjectStatus, help="Stage of the project.")]
 DescriptionOpt = Annotated[str | None, typer.Option(help="Description of the project.")]
 LeadOpt = Annotated[str | None, typer.Option(help="Login or id of the project's lead.")]
 StartDateOpt = Annotated[str | None, typer.Option("--start-date", help="Start date (YYYY-MM-DD).")]

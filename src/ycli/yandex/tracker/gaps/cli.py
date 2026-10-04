@@ -7,7 +7,7 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
@@ -19,7 +19,7 @@ app = typer.Typer(name="gaps", help="Tracker employee absences (admin).", no_arg
 @app.command()
 def create(
     user: Annotated[str | None, typer.Option(help="Login or id of the absent user.")] = None,
-    workflow: Annotated[GapWorkflow | None, typer.Option(help="Kind of absence.")] = None,
+    workflow: Annotated[str | None, values_option(GapWorkflow, help="Kind of absence.")] = None,
     date_from: Annotated[
         str | None, typer.Option("--from", help="Start of the absence (ISO 8601).")
     ] = None,

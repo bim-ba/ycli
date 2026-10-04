@@ -276,7 +276,7 @@ class WorkflowCreate(RequestBody):
         default=None,
         description="Queue to bind to: a key, an id or a ``{key|id|name}`` object; none = shared.",
     )
-    type: Literal["VISUAL"] | None = Field(
+    type: Literal["VISUAL"] | str | None = Field(
         default=None, description="Workflow type; ``VISUAL`` is the only one today."
     )
     initial_action: WorkflowActionInput = Field(
@@ -306,7 +306,7 @@ class WorkflowUpdate(RequestBody):
     """
 
     name: str | None = Field(default=None, description="New name of the workflow.")
-    type: Literal["VISUAL"] | None = Field(
+    type: Literal["VISUAL"] | str | None = Field(
         default=None, description="Workflow type; ``VISUAL`` is the only one today."
     )
     initial_action: WorkflowActionInput | None = Field(

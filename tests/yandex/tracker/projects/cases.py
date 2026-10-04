@@ -1,7 +1,7 @@
 """Contract cases for Tracker ``/projects`` (legacy Projects API v3; see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.projects.models import ProjectCreate, ProjectStatus, ProjectUpdate
+from ycli.yandex.tracker.projects.models import ProjectCreate, ProjectUpdate
 
 PROJECT = {
     "self": "https://api.tracker.yandex.net/v3/projects/9",
@@ -78,7 +78,7 @@ CASES = [
                 queues="LAUNCH",
                 description="Mobile app",
                 lead="ann",
-                status=ProjectStatus.IN_PROGRESS,
+                status="IN_PROGRESS",
                 start_date="2026-11-01",
                 end_date="2026-12-01",
             ),
@@ -157,7 +157,7 @@ CASES = [
                 name="Renamed",
                 description="Changed",
                 lead="bob",
-                status=ProjectStatus.POSTPONED,
+                status="POSTPONED",
                 start_date="2027-01-01",
                 end_date="2027-02-01",
             ),

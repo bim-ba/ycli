@@ -127,7 +127,7 @@ tracker comments add: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --t
 tracker comments delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT!
 tracker comments get: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT!
 tracker comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
-tracker comments react: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT! NAME:CHOICE!
+tracker comments react: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT! NAME:TEXT!
 tracker comments update: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False COMMENT_ID:TEXT! KEY:TEXT!
 tracker components create: --assign-auto:BOOLEAN --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --lead:TEXT --name:TEXT! --profile:TEXT --queue:TEXT! --yes:BOOLEAN=False
 tracker components delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMPONENT_ID:INTEGER!
@@ -139,38 +139,38 @@ tracker components update: --assign-auto:BOOLEAN --description:TEXT --dry-run:BO
 tracker components user-permissions-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMPONENT_ID:INTEGER! USER_ID:TEXT!
 tracker dashboards add-cycle-time-widget: --description:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --from-status:TEXT --mode:TEXT --profile:TEXT --query:TEXT --to-status:TEXT --yes:BOOLEAN=False DASHBOARD_ID:TEXT!
 tracker dashboards create: --dry-run:BOOLEAN=False --format:CHOICE --layout:TEXT --name:TEXT! --owner:TEXT --profile:TEXT --yes:BOOLEAN=False
-tracker entities attachments attach: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TEMP_FILE_ID:TEXT! TYPE_:CHOICE!
-tracker entities attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:CHOICE!
+tracker entities attachments attach: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TEMP_FILE_ID:TEXT! TYPE_:TEXT!
+tracker entities attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:TEXT!
 tracker entities attachments download: --dry-run:BOOLEAN=False --format:CHOICE --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILENAME:TEXT! FILE_ID:TEXT!
-tracker entities attachments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:CHOICE!
-tracker entities attachments list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities attachments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! FILE_ID:TEXT! TYPE_:TEXT!
+tracker entities attachments list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
 tracker entities bulk-status-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
-tracker entities bulk-update: --comment:TEXT --dry-run:BOOLEAN=False --entity:TEXT! --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False TYPE_:CHOICE!
-tracker entities checklists create: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists delete: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists delete-item: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists move: --before:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists update: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --item:TEXT! --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities checklists update-item: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments create: --add-to-followers:BOOLEAN --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --summon:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments delete: --dry-run:BOOLEAN=False --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities comments update: --add-to-followers:BOOLEAN --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities create: --author:TEXT --description:TEXT --dry-run:BOOLEAN=False --end:TEXT --field:TEXT --fields:TEXT --format:CHOICE --lead:TEXT --parent:TEXT --profile:TEXT --start:TEXT --status:TEXT --summary:TEXT! --tag:TEXT --team-user:TEXT --yes:BOOLEAN=False TYPE_:CHOICE!
+tracker entities bulk-update: --comment:TEXT --dry-run:BOOLEAN=False --entity:TEXT! --field:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False TYPE_:TEXT!
+tracker entities checklists create: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists delete: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists delete-item: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists move: --before:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists update: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --item:TEXT! --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities checklists update-item: --assignee:TEXT --checked:BOOLEAN --deadline:TEXT --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ITEM_ID:TEXT! TYPE_:TEXT!
+tracker entities comments create: --add-to-followers:BOOLEAN --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --summon:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities comments delete: --dry-run:BOOLEAN=False --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities comments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities comments update: --add-to-followers:BOOLEAN --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities create: --author:TEXT --description:TEXT --dry-run:BOOLEAN=False --end:TEXT --field:TEXT --fields:TEXT --format:CHOICE --lead:TEXT --parent:TEXT --profile:TEXT --start:TEXT --status:TEXT --summary:TEXT! --tag:TEXT --team-user:TEXT --yes:BOOLEAN=False TYPE_:TEXT!
 tracker entities create-report: --dry-run:BOOLEAN=False --field:TEXT --format:TEXT='xlsx' --profile:TEXT --query:TEXT! --summary:TEXT! --yes:BOOLEAN=False
-tracker entities delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --with-board:BOOLEAN=False --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities direct-permissions-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities events-list: --direction:TEXT --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER --new-events-on-top:BOOLEAN --profile:TEXT --selected:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities get: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities links create: --dry-run:BOOLEAN=False --entity:TEXT! --format:CHOICE --profile:TEXT --relationship:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities links delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! RIGHT:TEXT! TYPE_:CHOICE!
-tracker entities links list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities permissions-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities search: --dry-run:BOOLEAN=False --fields:TEXT --filter:TEXT --format:CHOICE --input:TEXT --order-asc:BOOLEAN=False --order-by:TEXT --profile:TEXT --root-only:BOOLEAN=False --yes:BOOLEAN=False TYPE_:CHOICE!
-tracker entities set-direct-permissions: --dry-run:BOOLEAN=False --format:CHOICE --grant:TEXT --profile:TEXT --revoke:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities set-permissions: --acl:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
-tracker entities update: --author:TEXT --comment:TEXT --description:TEXT --dry-run:BOOLEAN=False --end:TEXT --expand:TEXT --field:TEXT --fields:TEXT --format:CHOICE --lead:TEXT --parent:TEXT --profile:TEXT --start:TEXT --status:TEXT --summary:TEXT --tag:TEXT --team-user:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:CHOICE!
+tracker entities delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --with-board:BOOLEAN=False --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities direct-permissions-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities events-list: --direction:TEXT --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER --new-events-on-top:BOOLEAN --profile:TEXT --selected:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities get: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities links create: --dry-run:BOOLEAN=False --entity:TEXT! --format:CHOICE --profile:TEXT --relationship:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities links delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! RIGHT:TEXT! TYPE_:TEXT!
+tracker entities links list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities permissions-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities search: --dry-run:BOOLEAN=False --fields:TEXT --filter:TEXT --format:CHOICE --input:TEXT --order-asc:BOOLEAN=False --order-by:TEXT --profile:TEXT --root-only:BOOLEAN=False --yes:BOOLEAN=False TYPE_:TEXT!
+tracker entities set-direct-permissions: --dry-run:BOOLEAN=False --format:CHOICE --grant:TEXT --profile:TEXT --revoke:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities set-permissions: --acl:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
+tracker entities update: --author:TEXT --comment:TEXT --description:TEXT --dry-run:BOOLEAN=False --end:TEXT --expand:TEXT --field:TEXT --fields:TEXT --format:CHOICE --lead:TEXT --parent:TEXT --profile:TEXT --start:TEXT --status:TEXT --summary:TEXT --tag:TEXT --team-user:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! TYPE_:TEXT!
 tracker fields category-create: --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --name-en:TEXT --name-ru:TEXT --order:INTEGER! --profile:TEXT --yes:BOOLEAN=False
 tracker fields category-update: --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --name-en:TEXT --name-ru:TEXT --order:INTEGER --profile:TEXT --version:INTEGER --yes:BOOLEAN=False CATEGORY_ID:TEXT!
 tracker fields create: --category:TEXT! --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --id:TEXT! --name-en:TEXT --name-ru:TEXT --option:TEXT --options-type:TEXT='FixedListOptionsProvider' --order:INTEGER --profile:TEXT --readonly:BOOLEAN --type:TEXT! --yes:BOOLEAN=False
@@ -181,7 +181,7 @@ tracker filters create: --dry-run:BOOLEAN=False --filter:TEXT --format:CHOICE --
 tracker filters delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False FILTER_ID:TEXT!
 tracker filters get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False FILTER_ID:TEXT!
 tracker filters update: --dry-run:BOOLEAN=False --filter:TEXT --format:CHOICE --name:TEXT --profile:TEXT --query:TEXT --yes:BOOLEAN=False FILTER_ID:TEXT!
-tracker gaps create: --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --full-day:BOOLEAN --gap:TEXT --id:TEXT --profile:TEXT --to:TEXT --user:TEXT --work-in-absence:BOOLEAN --workflow:CHOICE --yes:BOOLEAN=False
+tracker gaps create: --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --full-day:BOOLEAN --gap:TEXT --id:TEXT --profile:TEXT --to:TEXT --user:TEXT --work-in-absence:BOOLEAN --workflow:TEXT --yes:BOOLEAN=False
 tracker gaps delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False GAP_IDS:TEXT!
 tracker gaps search: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --limit:INTEGER RANGE --profile:TEXT --to:TEXT --yes:BOOLEAN=False USERS:TEXT!
 tracker import comment: --created-at:TEXT! --created-by:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --text:TEXT! --yes:BOOLEAN=False KEY:TEXT!
@@ -202,7 +202,7 @@ tracker issues update: --description:TEXT --dry-run:BOOLEAN=False --field:TEXT -
 tracker issuetypes create: --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT! --name-en:TEXT --name-ru:TEXT --profile:TEXT --yes:BOOLEAN=False
 tracker issuetypes list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker issuetypes update: --dry-run:BOOLEAN=False --format:CHOICE --name-en:TEXT --name-ru:TEXT --profile:TEXT --version:INTEGER --yes:BOOLEAN=False ISSUE_TYPE_ID:TEXT!
-tracker links add: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! RELATIONSHIP:CHOICE! TARGET:TEXT!
+tracker links add: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! RELATIONSHIP:TEXT! TARGET:TEXT!
 tracker links delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! LINK_ID:TEXT!
 tracker links list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False KEY:TEXT!
 tracker links search: --all:BOOLEAN=False --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --type:TEXT --yes:BOOLEAN=False KEY:TEXT!
@@ -220,12 +220,12 @@ tracker me get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOO
 tracker priorities create: --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --key:TEXT! --name-en:TEXT --name-ru:TEXT --order:INTEGER --profile:TEXT --yes:BOOLEAN=False
 tracker priorities list: --dry-run:BOOLEAN=False --format:CHOICE --localized:BOOLEAN --profile:TEXT --yes:BOOLEAN=False
 tracker priorities update: --description:TEXT --dry-run:BOOLEAN=False --format:CHOICE --name-en:TEXT --name-ru:TEXT --profile:TEXT --version:INTEGER --yes:BOOLEAN=False PRIORITY_ID:TEXT!
-tracker projects create: --description:TEXT --dry-run:BOOLEAN=False --end-date:TEXT --format:CHOICE --lead:TEXT --name:TEXT! --profile:TEXT --queues:TEXT! --start-date:TEXT --status:CHOICE --yes:BOOLEAN=False
+tracker projects create: --description:TEXT --dry-run:BOOLEAN=False --end-date:TEXT --format:CHOICE --lead:TEXT --name:TEXT! --profile:TEXT --queues:TEXT! --start-date:TEXT --status:TEXT --yes:BOOLEAN=False
 tracker projects delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False PROJECT_ID:INTEGER!
 tracker projects get: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False PROJECT_ID:INTEGER!
 tracker projects list: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker projects queues: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False PROJECT_ID:INTEGER!
-tracker projects update: --description:TEXT --dry-run:BOOLEAN=False --end-date:TEXT --expand:TEXT --format:CHOICE --lead:TEXT --name:TEXT --profile:TEXT --queues:TEXT! --start-date:TEXT --status:CHOICE --version:INTEGER! --yes:BOOLEAN=False PROJECT_ID:INTEGER!
+tracker projects update: --description:TEXT --dry-run:BOOLEAN=False --end-date:TEXT --expand:TEXT --format:CHOICE --lead:TEXT --name:TEXT --profile:TEXT --queues:TEXT! --start-date:TEXT --status:TEXT --version:INTEGER! --yes:BOOLEAN=False PROJECT_ID:INTEGER!
 tracker queues create: --default-priority:TEXT! --default-type:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --issue-type-config:TEXT --key:TEXT! --lead:TEXT! --name:TEXT! --profile:TEXT --yes:BOOLEAN=False
 tracker queues delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker queues fields-list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
