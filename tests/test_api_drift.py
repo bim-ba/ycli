@@ -359,6 +359,9 @@ def test_fetch_reads_a_swagger_listing_and_its_resources(monkeypatch):
         {
             listing: json.dumps(SWAGGER_LISTING),
             f"{SWAGGER_LISTING['basePath']}/v1/disk/resources": json.dumps(SWAGGER_RESOURCE),
+            # The documentation, which adds nothing here.
+            api_surface.SOURCES["disk"].docs: "<loc>https://yandex.ru/dev/disk-api/doc/ru/x</loc>",
+            "https://yandex.ru/dev/disk-api/doc/ru/x.md": "---\nProse only.",
         },
     )
     get, patch = api_surface.fetch("disk")
@@ -466,6 +469,123 @@ def test_a_generated_reference_page_states_one_operation():
     # The folder Diplodoc generates into is not a group; the one above it is.
     (logs,) = api_surface.page_operations("logs/openapi/createLogRequest", text)
     assert (logs.name, logs.group) == ("createLogRequest", "logs")
+
+
+@pytest.mark.parametrize(
+    ("text", "method", "base", "path"),
+    [
+        # A line with the method and the full address; a placeholder may link to its description.
+        (
+            "```\nDELETE https://api.webmaster.yandex.net/v4/user/{[user-id](*user-id)}"
+            "/hosts/{[host-id](*host-id)}\n```",
+            "DELETE",
+            "/v4",
+            "/user/{user-id}/hosts/{host-id}",
+        ),
+        # A request line with its Host header, which may carry a scheme.
+        ("POST /token HTTP/1.1\nHost: https://oauth.yandex.ru/\n", "POST", "", "/token"),
+        # A labelled method, then the address in a code span.
+        (
+            "HTTP метод: `POST`\n\nURL: `https://botapi.messenger.yandex.net/bot/v1/messages/sendText/`\n",
+            "POST",
+            "/bot/v1",
+            "/messages/sendText",
+        ),
+        # ... or in a block, with the query spelled out below it.
+        (
+            "Метод: ##POST##.\n\n```\nhttps://cloud-api.yandex.net/v1/disk/resources/move\n"
+            " ? from=<x>\n```",
+            "POST",
+            "/v1",
+            "/disk/resources/move",
+        ),
+    ],
+)
+def test_a_handwritten_page_states_its_request_in_one_of_three_forms(text, method, base, path):
+    (operation,) = api_surface.page_operations("reference/the-page", f"---\n---\n{text}")
+    assert (operation.method, operation.base, operation.path) == (method, base, path)
+    assert (operation.name, operation.source) == ("the-page", "docs")
+    assert operation.group == api_surface.first_noun(path)
+
+
+def test_what_is_not_a_request_is_not_read_as_one():
+    text = (
+        "Метод: POST, see [the page](https://yandex.ru/dev/x/doc/ru/refund.md)\n\n"
+        "Метод: POST\n`https://oauth.yandex.ru/`\n\n"
+        "GET /only/an/example HTTP/1.1\n"
+    )
+    # A link into the documentation, a host alone, a request line with no Host header.
+    assert api_surface.page_operations("p", text) == []
+
+
+def test_an_example_on_the_page_folds_into_its_request_whatever_its_method():
+    text = (
+        "DELETE https://api.appmetrica.yandex.ru/management/v1/application/{id}/grant\n"
+        "GET /management/v1/application/1111/grant HTTP/1.1\nHost: api.appmetrica.yandex.ru\n"
+    )
+    (operation,) = api_surface.page_operations("access/delete", text)
+    assert (operation.method, operation.path) == ("DELETE", "/application/{id}/grant")
+
+
+def test_fetch_reads_a_sitemap_and_folds_examples_across_pages(monkeypatch):
+    source = api_surface.SOURCES["travel"]
+    root = source.url.rpartition("/")[0]
+    host = "https://whitelabel.travel.yandex-net.ru"
+    sitemap = "".join(
+        f"<url><loc>{root}/{page}</loc></url>"
+        for page in ("ru/", "ru/booking-getOrder", "ru/examples", "en/booking-getOrder")
+    )
+    asked = _serve(
+        monkeypatch,
+        {
+            source.url: sitemap,
+            f"{root}/ru/booking-getOrder.md": f"---\nGET {host}/v2/orders/{{order_id}}\n",
+            f"{root}/ru/examples.md": f"---\nGET {host}/v2/orders/12345\n",
+        },
+    )
+    (operation,) = api_surface.fetch("travel")
+    assert (operation.base, operation.path, operation.name) == (
+        "/v2",
+        "/orders/{order_id}",
+        "booking-getOrder",
+    )
+    # The landing page of the language and the other language are not asked.
+    assert len(asked) == 3
+
+
+def test_documentation_adds_what_a_specification_leaves_out(monkeypatch):
+    source = api_surface.SOURCES["disk"]
+    root = source.docs.rpartition("/")[0]
+    _serve(
+        monkeypatch,
+        {
+            source.url: json.dumps(SWAGGER_LISTING),
+            f"{SWAGGER_LISTING['basePath']}/v1/disk/resources": json.dumps(SWAGGER_RESOURCE),
+            source.docs: (
+                f"<loc>{root}/ru/reference/meta</loc><loc>{root}/ru/reference/shd-del</loc>"
+            ),
+            f"{root}/ru/reference/meta.md": (
+                "---\nMethod: ##GET##.\n\n```\nhttps://cloud-api.yandex.net/v1/disk/resources\n```"
+            ),
+            f"{root}/ru/reference/shd-del.md": (
+                "---\nMethod: ##DELETE##.\n\n```\nhttps://cloud-api.yandex.net/v1/disk/virtual-disks\n```"
+            ),
+        },
+    )
+    operations = api_surface.fetch("disk")
+    assert [(o.method, o.path, o.name, o.source) for o in operations] == [
+        # The specification's operation keeps the service's own name ...
+        ("GET", "/resources", "GetResource", "swagger"),
+        ("PATCH", "/resources", "UpdateResource", "swagger"),
+        # ... and the one only the documentation describes is added, marked as such.
+        ("DELETE", "/virtual-disks", "shd-del", "docs"),
+    ]
+    assert {operation.base for operation in operations} == {"/v1/disk"}
+
+
+def test_a_service_without_a_snapshot_says_why():
+    assert not set(api_surface.NOT_LISTED) & set(api_surface.LISTED)
+    assert all(api_surface.NOT_LISTED.values())
 
 
 def test_fetch_reads_the_pages_an_index_lists(monkeypatch):

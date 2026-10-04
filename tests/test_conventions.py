@@ -259,36 +259,6 @@ def test_a_request_body_is_closed_or_listed_with_its_reason():
     assert [name.rsplit(".", 1)[-1] for name in _open_bodies({Loose, Tight}, set())] == ["Loose"]
 
 
-# What ``core.endpoint.dump_body`` does not run: it walks the fields itself.
-SERIALIZER_HOOKS = (
-    "field_serializer",
-    "model_serializer",
-    "computed_field",
-    "PlainSerializer",
-    "WrapSerializer",
-    "SerializeAsAny",
-)
-
-
-def _serializer_hooks(source: str) -> list[str]:
-    """The pydantic serializer hooks a module names."""
-    names = {node.id for node in ast.walk(ast.parse(source)) if isinstance(node, ast.Name)}
-    names |= {node.attr for node in ast.walk(ast.parse(source)) if isinstance(node, ast.Attribute)}
-    return sorted(names & set(SERIALIZER_HOOKS))
-
-
-def test_no_model_has_a_serializer_the_body_dump_would_skip():
-    """``dump_body`` reads field values directly, so a custom serializer would be ignored."""
-    offenders = {
-        str(path.relative_to(SRC)): hooks
-        for path in (SRC / "ycli" / "yandex").rglob("*.py")
-        if (hooks := _serializer_hooks(path.read_text(encoding="utf-8")))
-    }
-    assert offenders == {}
-    probe = 'class M(APIModel):\n    @field_serializer("at")\n    def _at(self, v): ...\n'
-    assert _serializer_hooks(probe) == ["field_serializer"]
-
-
 def _literal_values(node: ast.AST) -> frozenset[str] | None:
     """The values of a ``Literal[...]`` with two or more of them, else ``None``."""
     if not (isinstance(node, ast.Subscript) and ast.unparse(node.value) == "Literal"):

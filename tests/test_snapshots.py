@@ -14,6 +14,7 @@ from fastmcp import Client, FastMCP
 from tests.snapshots._surface import (
     cli_signature,
     cli_signatures,
+    mcp_output_schemas,
     mcp_prompts_and_resources,
     mcp_signature,
     mcp_signatures,
@@ -29,6 +30,7 @@ HINT = "run `uv run python -m tests.snapshots --update` to accept the new surfac
         ("cli_signatures.txt", cli_signatures),
         ("mcp_signatures.txt", mcp_signatures),
         ("mcp_prompts_and_resources.txt", mcp_prompts_and_resources),
+        ("mcp_output_schemas.txt", mcp_output_schemas),
     ],
 )
 def test_public_surface_matches_snapshot(filename, current):
