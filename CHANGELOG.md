@@ -9,6 +9,35 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.67.1 (2026-10-04)
+
+### Bug Fixes
+
+- **wiki**: The texts say what a grid revision guards: a cell, not the whole grid
+  ([#300](https://github.com/bim-ba/ycli/pull/300),
+  [`b0454ac`](https://github.com/bim-ba/ycli/commit/b0454acef75f8389d5254993d90c5c1d223a4807))
+
+### Build System
+
+- Re-lock uv.lock for 0.67.0
+  ([`82280a7`](https://github.com/bim-ba/ycli/commit/82280a71d9bd9208242d2b1c52534c97a4902024))
+
+### Documentation
+
+- Design of files in git, one pull / diff / push for every service
+  ([#212](https://github.com/bim-ba/ycli/pull/212),
+  [`0648bd5`](https://github.com/bim-ba/ycli/commit/0648bd59c4c93fd4ce77f129d91c245ab7c5c878))
+
+- What the grid revision guards, in the design of files in git
+  ([#300](https://github.com/bim-ba/ycli/pull/300),
+  [`e570c1b`](https://github.com/bim-ba/ycli/commit/e570c1bbfde7bff10fce663b6c6eb05313c48afb))
+
+### Refactoring
+
+- The name of an alias means one thing ([#301](https://github.com/bim-ba/ycli/pull/301),
+  [`29a09c0`](https://github.com/bim-ba/ycli/commit/29a09c0aa69a89399cefa362a649ac108d3b98a7))
+
+
 ## v0.67.0 (2026-10-04)
 
 ### Build System
