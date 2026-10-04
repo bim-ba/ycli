@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.61.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.60.0
+  ([`a156ecc`](https://github.com/bim-ba/ycli/commit/a156ecc8a34fdb14983e6735119631c336eb63f1))
+
+### Features
+
+- **sdk**: A reply field with a set of values names its set
+  ([#294](https://github.com/bim-ba/ycli/pull/294),
+  [`c23aeee`](https://github.com/bim-ba/ycli/commit/c23aeee5c8e77eea951738abee3b5e05efa1e8de))
+
+
 ## v0.60.0 (2026-10-04)
 
 ### Build System

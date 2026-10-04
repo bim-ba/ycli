@@ -17,7 +17,7 @@ from typing import Annotated, Any, Literal
 from pydantic import Field, TypeAdapter, model_validator
 
 from ycli.yandex.forms.images.models import Image
-from ycli.yandex.forms.models import ConditionsResponse
+from ycli.yandex.forms.models import ConditionsResponse, FileCheckStatus
 from ycli.yandex.models import IGNORED_BY_API, APIModel, RequestBody, WarnsOnIgnored
 
 #: What happens to ``force`` of a question delete: the API takes the parameter and ignores it.
@@ -91,7 +91,7 @@ class Question(APIModel):
     account_id: str | None = Field(
         default=None, description="Wallet that receives the payment (payment questions)."
     )
-    widget: str | None = Field(
+    widget: WidgetType | None = Field(
         default=None,
         description="How the options are shown: radio, checkbox, dropdown, stars or onerow.",
     )
@@ -99,7 +99,7 @@ class Question(APIModel):
         default=None,
         description="Options of an enum question, or the sub-questions of a series.",
     )
-    modify_choices: str | None = Field(
+    modify_choices: ModifyChoicesType | None = Field(
         default=None, description="Order of the options: natural, sort or shuffle."
     )
     show_first: bool | None = Field(
@@ -222,7 +222,7 @@ class QuestionImage(RequestBody):
     links: dict[str, Any] | None = Field(
         default=None, description="Map of links to the rendered image sizes."
     )
-    check_status: str | None = Field(
+    check_status: FileCheckStatus | None = Field(
         default=None, description="Upload/scan status: check, ready, infected, error, deleted."
     )
 

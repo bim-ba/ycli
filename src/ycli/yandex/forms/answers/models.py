@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import Field
 
+from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.models import APIModel, RequestBody
 
 #: The file an export of answers produces.
@@ -164,11 +165,11 @@ class AnswerIntegration(APIModel):
     """
 
     id: int | None = Field(default=None, description="Integration id.")
-    status: str | None = Field(
+    status: RunStatus | None = Field(
         default=None, description="Run state: pending, success, error or canceled."
     )
     message: str | None = Field(default=None, description="Result message of the run.")
-    type: str | None = Field(
+    type: IntegrationType | None = Field(
         default=None,
         description="Integration type: email, tracker, wiki, jsonrpc, http, post, put or function.",
     )
