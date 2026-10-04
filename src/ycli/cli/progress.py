@@ -3,8 +3,8 @@
 This is *progress UI*, not data: a spinner renders to **stderr** and only when that stream
 is an interactive terminal, so piped/redirected **stdout** stays byte-clean (the ``auto`` and
 ``json`` machine formats are never touched — ARCH-4 keeps data rendering in ``output.py``; this
-module renders no model). On a non-terminal stderr the helper is a no-op context manager, so a
-caller wraps a blocking call unconditionally::
+module renders no model). Off a terminal Rich's status prints nothing, so a caller wraps a
+blocking call unconditionally::
 
     with spinner("Waiting for bulk change…"):
         result = poll(...)
@@ -12,7 +12,6 @@ caller wraps a blocking call unconditionally::
 
 from __future__ import annotations
 
-import contextlib
 import time
 from typing import TYPE_CHECKING
 
@@ -26,25 +25,18 @@ if TYPE_CHECKING:
     from rich.status import Status
 
 
-def spinner(
-    message: str, *, console: Console | None = None
-) -> Status | contextlib.AbstractContextManager[None]:
+def spinner(message: str, *, console: Console | None = None) -> Status:
     """A ``with``-able spinner: animate ``message`` on a terminal ``console``, else do nothing.
 
     Args:
         message: The status text shown beside the animated spinner.
-        console: The console to animate on (default: a fresh stderr console); the spinner
-            renders only when it ``is_terminal``.
+        console: The console to animate on (default: a fresh stderr console).
 
     Returns:
-        A :class:`rich.status.Status` when ``console`` is an interactive terminal (it animates
-        and clears itself on exit), otherwise a :func:`contextlib.nullcontext` that produces no
-        output at all — keeping a piped stream pristine.
+        A :class:`rich.status.Status`: it animates and clears itself on a terminal, and writes
+        nothing to a piped stream.
     """
-    console = console or Console(stderr=True)
-    if console.is_terminal:
-        return console.status(message)
-    return contextlib.nullcontext()
+    return (console or Console(stderr=True)).status(message)
 
 
 def wait_for[P](
