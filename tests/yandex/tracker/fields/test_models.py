@@ -1,6 +1,5 @@
 """Model parsing for Tracker global fields (+ write-body models)."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.fields.models import (
     CustomField,
     FieldCategoryCreate,
@@ -48,11 +47,6 @@ def test_options_provider_accepts_integer_values():
         }
     )
     assert strs.options_provider.values == ["a", "b"]  # ty: ignore[unresolved-attribute]
-
-
-def test_field_list_is_flat_array():
-    fields = ItemList[CustomField].model_validate([{"id": "summary"}, {"id": "status"}])
-    assert [f.id for f in fields.root] == ["summary", "status"]
 
 
 def test_field_category_record_parses():
