@@ -11,8 +11,8 @@ from fastmcp.dependencies import Depends
 from pydantic import Base64Bytes, Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList
-from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment
+from ycli.yandex.models import Ack, ItemList, SortDirection
+from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -33,11 +33,9 @@ def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max attachments to return; {LIMIT_CAP}")
     ] = None,
-    order_by: Annotated[
-        str | None, Field(description="Sort field: ``name``, ``size`` or ``created_at``.")
-    ] = None,
+    order_by: Annotated[AttachmentOrder | None, Field(description="Sort field.")] = None,
     order_direction: Annotated[
-        str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+        SortDirection | None, Field(description="Sort direction for ``order_by``.")
     ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),

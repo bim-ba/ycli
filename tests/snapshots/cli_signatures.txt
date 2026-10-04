@@ -67,12 +67,12 @@ forms notifications list: --all:BOOLEAN=False --answer-id:INTEGER --created-sinc
 forms notifications restart: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False NOTIFICATION_ID:INTEGER!
 forms notifications status-get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False NOTIFICATION_ID:INTEGER!
 forms operations get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False OPERATION_ID:TEXT!
-forms questions create: --body-file:FILE --comment:TEXT --dry-run:BOOLEAN=False --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT --multiline:BOOLEAN --option:TEXT --placeholder:TEXT --profile:TEXT --required:BOOLEAN --slug:TEXT --type:TEXT --widget:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
+forms questions create: --body-file:FILE --comment:TEXT --dry-run:BOOLEAN=False --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT --multiline:BOOLEAN --option:TEXT --placeholder:TEXT --profile:TEXT --required:BOOLEAN --slug:TEXT --type:CHOICE --widget:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms questions delete: --dry-run:BOOLEAN=False --force:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions get: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --with-slugs:BOOLEAN=False --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms questions list: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms questions move: --create-page:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --page-id:INTEGER --page:INTEGER --position:INTEGER --profile:TEXT --question:TEXT --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
-forms questions update: --body-file:FILE --comment:TEXT --dry-run:BOOLEAN=False --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT --multiline:BOOLEAN --option:TEXT --placeholder:TEXT --profile:TEXT --required:BOOLEAN --slug:TEXT --type:TEXT --widget:TEXT --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
+forms questions update: --body-file:FILE --comment:TEXT --dry-run:BOOLEAN=False --format:CHOICE --hidden:BOOLEAN --jq:TEXT --label:TEXT --multiline:BOOLEAN --option:TEXT --placeholder:TEXT --profile:TEXT --required:BOOLEAN --slug:TEXT --type:CHOICE --widget:TEXT --yes:BOOLEAN=False QUESTION_ID:TEXT! SURVEY_ID:TEXT!
 forms subscriptions attach: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_PATH:FILE! HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
 forms subscriptions create: --body-file:FILE! --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False HOOK_ID:INTEGER! SURVEY_ID:TEXT!
 forms subscriptions delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False HOOK_ID:INTEGER! SUBSCRIPTION_ID:INTEGER! SURVEY_ID:TEXT!
@@ -281,9 +281,9 @@ tracker worklog list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOIC
 tracker worklog search: --created-by:TEXT --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --jq:TEXT --profile:TEXT --to:TEXT --yes:BOOLEAN=False
 tracker worklog update: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False KEY:TEXT! RECORD_ID:TEXT!
 wiki access clear: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --prevent-selflock:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki access create: --dry-run:BOOLEAN=False --format:CHOICE --group-id:TEXT --group-src:CHOICE --inheritance:CHOICE --jq:TEXT --profile:TEXT --role:CHOICE! --user-cloud-uid:TEXT --user-uid:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
+wiki access create: --dry-run:BOOLEAN=False --format:CHOICE --group-id:TEXT --group-src:TEXT --inheritance:TEXT --jq:TEXT --profile:TEXT --role:TEXT! --user-cloud-uid:TEXT --user-uid:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki access delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --prevent-selflock:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!
-wiki access update: --dry-run:BOOLEAN=False --format:CHOICE --inheritance:CHOICE --jq:TEXT --prevent-selflock:BOOLEAN=False --profile:TEXT --role:CHOICE --yes:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!
+wiki access update: --dry-run:BOOLEAN=False --format:CHOICE --inheritance:TEXT --jq:TEXT --prevent-selflock:BOOLEAN=False --profile:TEXT --role:TEXT --yes:BOOLEAN=False ACCESS_ID:TEXT! PAGE_ID:INTEGER!
 wiki attachments attach: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --session:TEXT! --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki attachments delete: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
 wiki attachments download: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --output:TEXT --profile:TEXT --yes:BOOLEAN=False FILE_ID:INTEGER! PAGE_ID:INTEGER!
@@ -332,7 +332,7 @@ wiki pages revisions-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:
 wiki pages update: --allow-merge:BOOLEAN=False --content:TEXT! --dry-run:BOOLEAN=False --fields:TEXT --format:CHOICE --jq:TEXT --profile:TEXT --silent:BOOLEAN=False --title:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki recovery restore: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False TOKEN:TEXT!
 wiki resources list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --limit:INTEGER RANGE --order-by:TEXT --order-direction:TEXT --profile:TEXT --q:TEXT --types:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --dry-run:BOOLEAN=False --format:CHOICE --highlight:BOOLEAN=False --jq:TEXT --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:CHOICE='relevancy' --profile:TEXT --show-obsolete:BOOLEAN=False --type:CHOICE --yes:BOOLEAN=False TEXT:TEXT!
+wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --dry-run:BOOLEAN=False --format:CHOICE --highlight:BOOLEAN=False --jq:TEXT --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:TEXT='relevancy' --profile:TEXT --show-obsolete:BOOLEAN=False --type:TEXT --yes:BOOLEAN=False TEXT:TEXT!
 wiki uploadsessions abort: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False SESSION_ID:TEXT!
 wiki uploadsessions abort-all: --dry-run:BOOLEAN=False --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False
 wiki uploadsessions create: --dry-run:BOOLEAN=False --file-name:TEXT! --file-size:INTEGER! --format:CHOICE --jq:TEXT --profile:TEXT --yes:BOOLEAN=False

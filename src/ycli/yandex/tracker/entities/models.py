@@ -12,7 +12,7 @@ Every field carries ``Field(description=…)`` — those descriptions surface in
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import AliasChoices, ConfigDict, Field
 
@@ -32,6 +32,9 @@ from ycli.yandex.tracker.models import (
 # --------------------------------------------------------------------------------------------
 # Shared reference blocks
 # --------------------------------------------------------------------------------------------
+
+#: The file a report is exported to.
+ReportFormat = Literal["xlsx", "xml", "csv"] | str
 
 
 class ParentEntity(APIModel):
@@ -870,7 +873,7 @@ class ReportParameters(RequestBody):
     type: str = Field(
         default="issueFilterExport", description="Export type. Value: issueFilterExport."
     )
-    format: str = Field(default="xlsx", description="Export format: xlsx, xml or csv.")
+    format: ReportFormat = Field(default="xlsx", description="Export format.")
     filter: ReportFilter = Field(description="Issue filtering parameters for the report.")
     fields: list[str] = Field(description="Issue field keys to include as report columns.")
 

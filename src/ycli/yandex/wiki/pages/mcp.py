@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
@@ -21,6 +21,7 @@ from ycli.yandex.wiki.dependencies import (
 )
 from ycli.yandex.wiki.models import AsyncOperation
 from ycli.yandex.wiki.pages.models import (
+    GridOrder,
     GridRef,
     PageAppendContent,
     PageClone,
@@ -50,7 +51,7 @@ Silent = Annotated[bool, Field(description="Do not notify the page's subscribers
 IncludeSelf = Annotated[bool, Field(description="Also return the ancestor page itself.")]
 ShowAll = Annotated[bool, Field(description="The API's ``show_all`` flag.")]
 OrderDirection = Annotated[
-    str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+    SortDirection | None, Field(description="Sort direction for ``order_by``.")
 ]
 
 
@@ -101,9 +102,7 @@ def grids_list(
     limit: Annotated[
         int | None, Field(ge=1, description="Max grids (omitted: the configured cap).")
     ] = None,
-    order_by: Annotated[
-        str | None, Field(description="Sort field: ``title`` or ``created_at``.")
-    ] = None,
+    order_by: Annotated[GridOrder | None, Field(description="Sort field.")] = None,
     order_direction: OrderDirection = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),

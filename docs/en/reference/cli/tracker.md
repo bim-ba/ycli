@@ -228,7 +228,7 @@ $ ycli tracker issues search [OPTIONS] QUERY
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--expand TEXT`: Extra blocks to include in the reply.
-* `--scroll-type TEXT`: sorted or unsorted: scroll through the results (no 10 000 cap).
+* `--scroll-type TEXT`: Scroll through the results (no 10 000 cap). One of: sorted, unsorted.
 * `--per-scroll INTEGER`: Issues per scroll page (1000 at most).
 * `--scroll-ttl-millis INTEGER`: How long the scroll stays open, in milliseconds.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -965,7 +965,7 @@ $ ycli tracker changelog list [OPTIONS] KEY
 * `--all`: Fetch everything, ignoring the cap.
 * `--field TEXT`: Only changes of this field, e.g. status.
 * `--type TEXT`: Only changes of this type, e.g. IssueWorkflow.
-* `--sort TEXT`: Order of the changes: asc or desc.
+* `--sort TEXT`: Order of the changes. One of: asc, desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1598,7 +1598,7 @@ $ ycli tracker statuses create [OPTIONS]
 * `--key TEXT`: Key of the new status (Latin, lower-case start).  [required]
 * `--name-ru TEXT`: Status name in Russian.
 * `--name-en TEXT`: Status name in English.
-* `--type TEXT`: Status type: new/inProgress/paused/done/cancelled.  [default: new]
+* `--type TEXT`: Status type. One of: new, inProgress, paused, done, cancelled.  [default: new]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1625,7 +1625,7 @@ $ ycli tracker statuses update [OPTIONS] STATUS_ID
 * `--name-ru TEXT`: New status name in Russian.
 * `--name-en TEXT`: New status name in English.
 * `--description TEXT`: New status description.
-* `--type TEXT`: New status type.
+* `--type TEXT`: New status type. One of: new, inProgress, paused, done, cancelled.
 * `--order INTEGER`: New display-order weight.
 * `--version INTEGER`: Current version for the optimistic lock (?version=).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -3070,7 +3070,7 @@ $ ycli tracker sprints update [OPTIONS] SPRINT_ID
 * `--name TEXT`: New sprint name.
 * `--start-date TEXT`: New start date (YYYY-MM-DD).
 * `--end-date TEXT`: New end date (YYYY-MM-DD).
-* `--status TEXT`: New status: draft/in_progress/released/archived.
+* `--status TEXT`: New status. One of: draft, in_progress, released, archived.
 * `--version INTEGER`: Current sprint version for the optimistic lock (?version=).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -4656,7 +4656,7 @@ $ ycli tracker entities create-report [OPTIONS]
 
 * `--summary TEXT`: Report name (required).  [required]
 * `--query TEXT`: Issue filter in Tracker Query Language (required).  [required]
-* `--format TEXT`: Export format: xlsx, xml or csv.  [default: xlsx]
+* `--format TEXT`: Export format. One of: xlsx, xml, csv.  [default: xlsx]
 * `-F, --field TEXT`: Issue field key to include as a column (repeatable).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.

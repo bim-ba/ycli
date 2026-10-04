@@ -6,11 +6,11 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.resources.models import ResourceItem
+from ycli.yandex.wiki.resources.models import ResourceItem, ResourceOrder
 
 app = typer.Typer(
     name="resources", help="Wiki page resources (attachments + grids).", no_args_is_help=True
@@ -27,11 +27,11 @@ def list_(
         str | None, typer.Option("--types", help="Comma-separated kinds: attachment,grid.")
     ] = None,
     order_by: Annotated[
-        str | None, typer.Option("--order-by", help="Sort field: name_title or created_at.")
+        str | None, values_option(ResourceOrder, "--order-by", help="Sort field.")
     ] = None,
     order_direction: Annotated[
         str | None,
-        typer.Option("--order-direction", help="Sort direction for --order-by: asc or desc."),
+        values_option(SortDirection, "--order-direction", help="Sort direction for --order-by."),
     ] = None,
     *,
     config: AppConfig,

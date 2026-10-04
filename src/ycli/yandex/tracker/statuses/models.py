@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import LocalizedName
+
+#: The kind of an issue status: where in the life of an issue it stands.
+StatusType = Literal["new", "inProgress", "paused", "done", "cancelled"] | str
 
 
 class Status(APIModel):
@@ -51,7 +56,7 @@ class StatusCreate(RequestBody):
         description="Key of the new status: Latin letters, starting with a lower-case letter."
     )
     name: LocalizedName = Field(description="Localized display name of the status.")
-    type: str = Field(description="Status type: one of new, inProgress, paused, done, cancelled.")
+    type: StatusType = Field(description="Status type.")
 
 
 class StatusUpdate(RequestBody):
@@ -71,7 +76,7 @@ class StatusUpdate(RequestBody):
     order: int | None = Field(
         default=None, description="New weight controlling the status' display order."
     )
-    type: str | None = Field(
+    type: StatusType | None = Field(
         default=None,
-        description="New status type: one of new, inProgress, paused, done, cancelled.",
+        description="New status type.",
     )

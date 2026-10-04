@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import (
@@ -10,6 +12,9 @@ from ycli.yandex.models import (
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import Reference
+
+#: The stage of a sprint.
+SprintStatus = Literal["draft", "in_progress", "released", "archived"] | str
 
 
 class Sprint(APIModel):
@@ -132,7 +137,7 @@ class SprintUpdate(RequestBody):
         serialization_alias="endDate",
         description="New planned end date (YYYY-MM-DD).",
     )
-    status: str | None = Field(
+    status: SprintStatus | None = Field(
         default=None,
-        description="New sprint status: draft, in_progress, released or archived.",
+        description="New sprint status.",
     )

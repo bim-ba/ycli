@@ -125,9 +125,9 @@ def test_enum_question_models_items_widget_and_choices():
     assert [i.slug for i in q.items] == ["a", "b"] and q.items[0].correct is True
 
 
-def test_enum_rejects_invalid_widget():
-    with pytest.raises(ValidationError):
-        QuestionCreateAdapter.validate_python({"type": "enum", "widget": "slider"})
+def test_enum_keeps_a_widget_outside_the_known_set():
+    question = QuestionCreateAdapter.validate_python({"type": "enum", "widget": "slider"})
+    assert question.widget == "slider"
 
 
 def test_matrix_question_models_rows_and_columns():

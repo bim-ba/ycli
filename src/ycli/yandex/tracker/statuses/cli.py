@@ -6,10 +6,11 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.models import LocalizedName
-from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpdate
+from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusType, StatusUpdate
 
 app = typer.Typer(name="statuses", help="Tracker issue statuses.", no_args_is_help=True)
 
@@ -29,9 +30,7 @@ def create(
     name_en: Annotated[
         str | None, typer.Option("--name-en", help="Status name in English.")
     ] = None,
-    type_: Annotated[
-        str, typer.Option("--type", help="Status type: new/inProgress/paused/done/cancelled.")
-    ] = "new",
+    type_: Annotated[str, values_option(StatusType, "--type", help="Status type.")] = "new",
     *,
     tracker: TrackerClient,
 ) -> Status:
@@ -54,7 +53,9 @@ def update(
         str | None, typer.Option("--name-en", help="New status name in English.")
     ] = None,
     description: Annotated[str | None, typer.Option(help="New status description.")] = None,
-    type_: Annotated[str | None, typer.Option("--type", help="New status type.")] = None,
+    type_: Annotated[
+        str | None, values_option(StatusType, "--type", help="New status type.")
+    ] = None,
     order: Annotated[int | None, typer.Option(help="New display-order weight.")] = None,
     version: Annotated[
         int | None, typer.Option(help="Current version for the optimistic lock (?version=).")

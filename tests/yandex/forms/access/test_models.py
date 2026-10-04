@@ -1,8 +1,5 @@
 """Forms access models parse what the live API returns and shape the write bodies."""
 
-import pytest
-from pydantic import ValidationError
-
 from ycli.yandex.forms.access.models import (
     AccessGrant,
     AccessRevoke,
@@ -36,9 +33,9 @@ def test_permissions_parse_live_answer():
     assert submit.access == "common" and submit.users is None
 
 
-def test_access_update_refuses_an_unknown_level():
-    with pytest.raises(ValidationError):
-        AccessUpdate.model_validate({"action": "change", "access": "everyone"})
+def test_access_update_keeps_a_level_outside_the_known_set():
+    body = AccessUpdate.model_validate({"action": "change", "access": "everyone"})
+    assert body.access == "everyone"
 
 
 def test_grant_and_revoke_drop_the_principal_not_given():

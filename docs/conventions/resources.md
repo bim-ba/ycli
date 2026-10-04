@@ -49,14 +49,29 @@ release: no alias is kept. The commit that does it carries a `BREAKING CHANGE` f
 
 ### A field with a set of values
 
-A set Yandex adds to (a comment reaction, a page type) is a `str` with the values listed in
-its description: an unknown value must not fail the whole reply. A set that is closed by its
-meaning (`resolved` / `unresolved`, `asc` / `desc`) is a `Literal`.
+A set of values is the known values plus any string, and the definition itself says so:
 
-Each set has one definition, used by name: a set of one resource in its `models.py`, of
-several in the service's `models.py`, of several services in `ycli.yandex.models`
-(`SortDirection`, `GroupSource`). `test_a_closed_value_set_is_defined_once` fails on a second
-`Literal` or `StrEnum` with the same values.
+```python
+SortDirection = Literal["asc", "desc"] | str
+```
+
+It is the same on the way in and on the way out, in every service: a CLI option, an MCP tool
+parameter, a request-body field, a reply field. ycli does not refuse a value outside the set:
+it goes to the API, which answers for it, and in a reply it does not fail the parse. An IDE
+suggests the known values, and a tool's schema shows them (`anyOf` of the `enum` and a string).
+
+- **CLI.** Typer has no "one of these or any string" type, so the option is a string built by
+  `ycli.cli.typedefs.values_option(SortDirection, "--order", help="Sort direction.")`, which
+  takes the values for the help text and the completion from the definition. Do not list the
+  values by hand: `test_an_option_takes_the_values_it_names_from_the_definition_of_the_set`.
+- **One definition per set**, used by name: a set of one resource in its `models.py`, of
+  several in the service's `models.py`, of several services in `ycli.yandex.models`
+  (`SortDirection`, `GroupSource`). `test_a_closed_value_set_is_defined_once` fails on a second
+  `Literal` or `StrEnum` with the same values.
+- **Strict on purpose** (not sets of Yandex values): a discriminator field, by which pydantic
+  picks the class (`type` of a question or a subscription); `forms questions --type`, the five
+  types the flags can build; the sets ycli's own code branches on (`Method`, `Effect`, the log
+  level and format, `CredentialKind`); a `StrEnum` option that names a part of the address.
 
 ### A field the API ignores
 

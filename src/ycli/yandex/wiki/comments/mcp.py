@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.comments.models import (
     Comment,
@@ -24,6 +24,7 @@ from ycli.yandex.wiki.dependencies import (
     app_config,
     wiki_client,
 )
+from ycli.yandex.wiki.models import ResolveStatus
 
 mcp = FastMCP("wiki-comments")
 
@@ -36,10 +37,10 @@ def list_(
     ] = None,
     order_by: Annotated[str | None, Field(description="Sort field: ``created_at``.")] = None,
     order_direction: Annotated[
-        str | None, Field(description="Sort direction for ``order_by``: ``asc`` or ``desc``.")
+        SortDirection | None, Field(description="Sort direction for ``order_by``.")
     ] = None,
     status_filter: Annotated[
-        str | None, Field(description="Keep only ``resolved`` or only ``unresolved`` comments.")
+        ResolveStatus | None, Field(description="Keep only the comments in this state.")
     ] = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),

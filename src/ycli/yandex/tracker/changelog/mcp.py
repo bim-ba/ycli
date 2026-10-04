@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.tracker.changelog.models import ChangelogEntry
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
@@ -34,9 +34,7 @@ def list_(
     change_type: Annotated[
         str | None, Field(description="Keep the changes of this type, e.g. ``IssueWorkflow``.")
     ] = None,
-    sort: Annotated[
-        str | None, Field(description="Order of the changes: ``asc`` or ``desc``.")
-    ] = None,
+    sort: Annotated[SortDirection | None, Field(description="Order of the changes.")] = None,
     client: TrackerClient = Depends(tracker_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[ChangelogEntry]:

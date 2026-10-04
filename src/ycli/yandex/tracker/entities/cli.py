@@ -15,6 +15,7 @@ import typer
 
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
+from ycli.cli.typedefs import values_option
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
@@ -43,6 +44,7 @@ from ycli.yandex.tracker.entities.models import (
     ReportCreate,
     ReportFieldsInput,
     ReportFilter,
+    ReportFormat,
     ReportParameters,
 )
 from ycli.yandex.tracker.models import CommentCreate, DeadlineInput
@@ -370,7 +372,7 @@ def create_report(
     summary: Annotated[str, typer.Option(help="Report name (required).")],
     query: Annotated[str, typer.Option(help="Issue filter in Tracker Query Language (required).")],
     format_: Annotated[
-        str, typer.Option("--format", help="Export format: xlsx, xml or csv.")
+        str, values_option(ReportFormat, "--format", help="Export format.")
     ] = "xlsx",
     field: Annotated[
         list[str] | None,

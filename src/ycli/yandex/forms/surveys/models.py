@@ -58,7 +58,7 @@ class SurveyStyles(APIModel):
         default=None, description="Id of the design; in a request, the built-in template to apply."
     )
     name: str | None = Field(default=None, description="Name of the design.")
-    type: Literal["default", "custom"] | None = Field(
+    type: Literal["default", "custom"] | str | None = Field(
         default=None, description="``default`` (a built-in template) or ``custom``."
     )
     custom: dict[str, Any] | None = Field(
@@ -117,7 +117,7 @@ class SurveyQuiz(APIModel):
     show_correct: bool | None = Field(
         default=None, description="Whether to show the correct answers."
     )
-    calc_method: Literal["range", "scores"] | None = Field(
+    calc_method: Literal["range", "scores"] | str | None = Field(
         default=None, description="How points are counted: ``range`` or ``scores``."
     )
     pass_scores: float | None = Field(default=None, description="Points needed to pass.")
@@ -159,7 +159,7 @@ class SurveyFollower(APIModel):
     id: int | str | None = Field(
         default=None, description="Id of the user, or the address of the mailing list."
     )
-    type: Literal["user", "mail_list"] | None = Field(
+    type: Literal["user", "mail_list"] | str | None = Field(
         default=None, description="``user`` or ``mail_list``."
     )
     email: str | None = Field(default=None, description="Address of the user or the list.")
@@ -311,7 +311,7 @@ class SurveyCreate(WarnsOnIgnored):
     api_keys: list[SurveyApiKey] | None = Field(
         default=None, description="API keys the form's integrations use."
     )
-    follow: Literal["5m", "1h", "1d"] | None = Field(
+    follow: Literal["5m", "1h", "1d"] | str | None = Field(
         default=None, description="How often integration errors are mailed: 5m, 1h or 1d."
     )
     captcha: str | None = Field(

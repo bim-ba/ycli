@@ -6,6 +6,7 @@ import ast
 import asyncio
 import importlib
 import pkgutil
+import re
 from pathlib import Path
 from typing import Any, get_origin
 
@@ -313,3 +314,72 @@ def test_the_value_set_check_bites():
     assert sets[frozenset({"asc", "desc"})] == ["a/models.py:1", "a/mcp.py:1"]
     assert sets[frozenset({"a", "b"})] == ["a/models.py:2"]
     assert frozenset({"x"}) not in sets
+
+
+# An option that names a set's values by hand although the set has a definition to take them from.
+VALUES_WRITTEN_BY_HAND = {
+    "yandex/wiki/grids/cli.py:update.default_sort": "a JSON value; its help shows the shape",
+}
+
+
+def _options_naming_a_set_by_hand(
+    sources: dict[str, str], sets: dict[frozenset[str], list[str]]
+) -> list[str]:
+    """Plain ``str`` options and tool parameters whose text lists every value of a defined set."""
+    offenders = []
+    for path, source in sources.items():
+        if not path.endswith(("cli.py", "mcp.py")) and "/cli/" not in path:
+            continue
+        for function in ast.walk(ast.parse(source)):
+            if not isinstance(function, ast.FunctionDef):
+                continue
+            for argument in [*function.args.args, *function.args.kwonlyargs]:
+                if argument.annotation is None:
+                    continue
+                declared = ast.unparse(argument.annotation)
+                # A parameter typed with the set, or built from it, may explain its values.
+                plain = declared.removeprefix("Annotated[").split(",")[0].strip() in {
+                    "str",
+                    "str | None",
+                    "list[str]",
+                    "list[str] | None",
+                }
+                if not plain or "values_option(" in declared:
+                    continue
+                texts = [
+                    item.value
+                    for item in ast.walk(argument.annotation)
+                    if isinstance(item, ast.Constant) and isinstance(item.value, str)
+                ]
+                words = set(re.findall(r"[\w%]+", " ".join(texts)))
+                if any(values <= words for values in sets):
+                    offenders.append(f"{path}:{function.name}.{argument.arg}")
+    return offenders
+
+
+def test_an_option_takes_the_values_it_names_from_the_definition_of_the_set():
+    """Section 1 (#161, #278): ``values_option`` and the tool schema show a set's values.
+
+    A help text that lists them by hand goes stale when the set changes.
+    """
+    root = Path(ycli.__file__).parent
+    sources = {
+        str(path.relative_to(root)): path.read_text(encoding="utf-8") for path in root.rglob("*.py")
+    }
+    found = _options_naming_a_set_by_hand(sources, _value_sets(sources))
+    assert sorted(found) == sorted(VALUES_WRITTEN_BY_HAND)
+
+
+def test_the_hand_written_values_check_bites():
+    sources = {
+        "a/models.py": 'Order = Literal["asc", "desc"] | str\n',
+        "a/cli.py": (
+            "def list_(\n"
+            '    by_hand: Annotated[str | None, typer.Option(help="asc or desc.")] = None,\n'
+            '    taken: Annotated[str | None, values_option(Order, help="Order.")] = None,\n'
+            '    other: Annotated[str | None, typer.Option(help="Ascending names.")] = None,\n'
+            "): ...\n"
+        ),
+    }
+    found = _options_naming_a_set_by_hand(sources, _value_sets(sources))
+    assert found == ["a/cli.py:list_.by_hand"]

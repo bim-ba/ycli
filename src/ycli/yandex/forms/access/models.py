@@ -13,10 +13,10 @@ from typing import Literal
 from pydantic import Field
 
 from ycli.yandex.forms.models import UserIdentity, UserRef
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, GroupSource, RequestBody
 
-AccessAction = Literal["change", "submit"]
-AccessLevel = Literal["owner", "restricted", "common", "public"]
+AccessAction = Literal["change", "submit"] | str
+AccessLevel = Literal["owner", "restricted", "common", "public"] | str
 
 
 class GroupIdentity(APIModel):
@@ -27,7 +27,7 @@ class GroupIdentity(APIModel):
         'dir'
     """
 
-    src: str | None = Field(default=None, description="Group source: dir, cloud, com or staff.")
+    src: GroupSource | None = Field(default=None, description="Where the group is kept.")
     id: str | None = Field(default=None, description="Group id within its source.")
 
 

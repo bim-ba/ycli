@@ -6,8 +6,10 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.access.models import (
     AccessGrant,
+    AccessLevel,
     AccessRevoke,
     AccessUpdate,
     GroupIdentity,
@@ -16,7 +18,7 @@ from ycli.yandex.forms.access.models import (
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import UserIdentity
 from ycli.yandex.forms.typedefs import SurveyIdArg
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import GroupSource, ItemList
 
 app = typer.Typer(name="access", help="Forms survey permissions.", no_args_is_help=True)
 
@@ -26,13 +28,13 @@ ActionOpt = Annotated[
 UidOpt = Annotated[str | None, typer.Option("--uid", help="User's Yandex ID uid.")]
 CloudUidOpt = Annotated[str | None, typer.Option("--cloud-uid", help="User's Yandex Cloud uid.")]
 GroupSrcOpt = Annotated[
-    str | None, typer.Option("--group-src", help="Group source: dir, cloud, com or staff.")
+    str | None, values_option(GroupSource, "--group-src", help="Where the group is kept.")
 ]
 GroupIdOpt = Annotated[str | None, typer.Option("--group-id", help="Group id within its source.")]
 
 
 def _principal(
-    uid: str | None, cloud_uid: str | None, group_src: str | None, group_id: str | None
+    uid: str | None, cloud_uid: str | None, group_src: GroupSource | None, group_id: str | None
 ) -> tuple[UserIdentity | None, GroupIdentity | None]:
     """The user and the group the options name (``None`` for the one not given)."""
     user = (
@@ -58,7 +60,7 @@ def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[Permission]:
 def set_(
     survey_id: SurveyIdArg,
     action: ActionOpt,
-    access: Annotated[str, typer.Option(help="Level: owner, restricted, common or public.")],
+    access: Annotated[str, values_option(AccessLevel, help="Level of access.")],
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:
