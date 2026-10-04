@@ -1,32 +1,43 @@
-"""The API Yandex publishes for each service, reduced to the facts ycli compares itself with.
+"""The API Yandex publishes for each service, reduced to names.
 
-Wiki and Forms serve an OpenAPI document without authorization. Tracker's is closed (401), so
-its operations are read from the API reference: ``llms.txt`` lists the pages and each page's
+A surface is a list of operations: HTTP method, address (``base`` up to the version, then
+``path``), the service's own name for the operation and its group, query parameter names and
+the top-level field names of the request and response bodies. Names only, never Yandex's
+prose, so the snapshots under ``scripts/api_snapshot/`` can be committed.
+
+Two kinds of service live there. The ones ycli covers (:data:`SERVICES`, the registry's)
+are compared by ``scripts/api_drift.py`` with what ycli sends and with a fresh fetch. The others
+(:data:`LISTED`) are only listed: the inventory behind one system of names (issue #268).
+
+Where each surface is read from is in :data:`SOURCES`: an OpenAPI document (Wiki, Forms,
+Telemost, DataLens; Market's is split into files in a repository), a Swagger 1.2 listing (Disk),
+a WSDL per service (Direct, Speller). Tracker's OpenAPI document is closed (401), so its
+operations are read from the API reference: ``llms.txt`` lists the pages and each page's
 Markdown source states its request (``GET /v3/issues/{issue_id}``) and its query parameters.
-
-A surface is a list of operations: HTTP method, path template, query parameter names and the
-top-level field names of the request and response bodies. Names only, never Yandex's prose, so
-the snapshots under ``scripts/api_snapshot/`` can be committed. ``scripts/api_drift.py`` compares
-them with what ycli sends and with a fresh fetch.
 
 Examples:
     >>> shape("/v1/pages/{idx}/grids/")
     '/pages/{}/grids'
-    >>> openapi_operations({"paths": {"/v1/me": {"get": {}}}})
-    [Operation(method='GET', path='/me', query=(), request=(), response=(), page='')]
+    >>> [(o.base, o.path) for o in openapi_operations({"paths": {"/v1/me": {"get": {}}}})]
+    [('/v1', '/me')]
 """
 
 from __future__ import annotations
 
+import io
 import json
+import posixpath
 import re
+import tarfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
+from xml.etree import ElementTree
 
 import httpx2
 import stamina
+import yaml
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -38,7 +49,79 @@ OPENAPI_URLS = {
 }
 TRACKER_INDEX = "https://yandex.ru/support/tracker/en/llms.txt"
 TRACKER_PAGE = re.compile(r"https://yandex\.ru/support/tracker/en/(api/[^)\s]+)\.md")
+# The services ycli covers: compared with what ycli sends. A test keeps it equal to the registry.
 SERVICES = ("tracker", *OPENAPI_URLS)
+
+
+@dataclass(frozen=True)
+class Source:
+    """Where a service publishes its operations, and in which form.
+
+    ``url`` is the document (``openapi``, ``swagger``), the repository archive (``openapi-files``,
+    with ``root`` the document inside it) or a template with ``{service}`` (``wsdl``, one
+    document per name in ``parts``). ``rpc`` marks an API whose operations are all
+    ``POST /rpc/<name>``: the name is the operation's own.
+    """
+
+    kind: Literal["openapi", "openapi-files", "swagger", "wsdl", "docs"]
+    url: str
+    root: str = ""
+    parts: tuple[str, ...] = ()
+    rpc: bool = False
+
+
+# Direct publishes no list of its services: the docs index names 25 of these, and
+# ``dynamictextadtargets``, ``smartadtargets`` and ``vcards`` answer with a WSDL all the same.
+DIRECT_SERVICES = (
+    "adextensions",
+    "adgroups",
+    "adimages",
+    "ads",
+    "advideos",
+    "agencyclients",
+    "audiencetargets",
+    "bidmodifiers",
+    "bids",
+    "businesses",
+    "campaigns",
+    "changes",
+    "clients",
+    "creatives",
+    "dictionaries",
+    "dynamictextadtargets",
+    "feeds",
+    "keywordbids",
+    "keywords",
+    "keywordsresearch",
+    "leads",
+    "negativekeywordsharedsets",
+    "retargetinglists",
+    "sitelinks",
+    "smartadtargets",
+    "strategies",
+    "turbopages",
+    "vcards",
+)
+SOURCES: dict[str, Source] = {
+    "tracker": Source("docs", TRACKER_INDEX),
+    **{service: Source("openapi", url) for service, url in OPENAPI_URLS.items()},
+    "telemost": Source(
+        "openapi", "https://doc-static.yandex.net/dev/telemost/api-specification.yaml"
+    ),
+    "disk": Source("swagger", "https://cloud-api.yandex.net/v1/schema"),
+    "datalens": Source("openapi", "https://api.datalens.tech/json/", rpc=True),
+    "market": Source(
+        "openapi-files",
+        "https://codeload.github.com/yandex-market/yandex-market-partner-api/tar.gz/refs/heads/main",
+        root="openapi/openapi.yaml",
+    ),
+    "direct": Source(
+        "wsdl", "https://api.direct.yandex.com/v5/{service}?wsdl", parts=DIRECT_SERVICES
+    ),
+    "speller": Source("wsdl", "https://speller.yandex.net/services/spellservice?WSDL"),
+}
+# Every service with a snapshot: the covered ones, then the ones that are only listed.
+LISTED = tuple(SOURCES)
 
 USER_AGENT = "ycli-api-drift/1.0 (+https://github.com/bim-ba/ycli)"
 REQUEST_TIMEOUT_SECONDS = 30
@@ -48,6 +131,7 @@ FETCH_WORKERS = 8
 
 METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE")
 _VERSION_PREFIX = re.compile(r"^/v\d+(?=/)")
+_VERSION_SEGMENT = re.compile(r"v\d+")
 _PLACEHOLDER = re.compile(r"\{[^}]*\}|<[^>]*>")
 # A reference page states its request once, as the first line of a code block; later lines
 # that look the same are examples with literal keys.
@@ -66,7 +150,15 @@ _SUCCESS_CODES = ("200", "201", "202")
 
 @dataclass(frozen=True)
 class Operation:
-    """One published operation; ``page`` is the reference page it was read from (Tracker)."""
+    """One published operation.
+
+    The published address is ``base + path``: ``base`` ends with the version (``/v1``,
+    ``/directory/v1``) and is empty when the address has none. ``method`` is the HTTP method, or
+    ``SOAP`` for an operation of a WSDL, which ``name`` then tells apart. ``name`` is the
+    service's own name for the operation (``operationId``, a Swagger ``nickname``, a WSDL or
+    RPC operation, a reference page's slug), ``group`` its tag there, else the first noun of
+    the path. ``source`` says what it was read from; ``page`` is the reference page (Tracker).
+    """
 
     method: str
     path: str
@@ -74,6 +166,10 @@ class Operation:
     request: tuple[str, ...] = ()
     response: tuple[str, ...] = ()
     page: str = ""
+    base: str = ""
+    name: str = ""
+    group: str = ""
+    source: str = ""
 
     @property
     def key(self) -> tuple[str, str]:
@@ -90,6 +186,32 @@ def shape(path: str) -> str:
     """
     path = _VERSION_PREFIX.sub("", "/" + path.split("?", 1)[0].strip("/"))
     return _PLACEHOLDER.sub("{}", path)
+
+
+def split_version(published: str) -> tuple[str, str]:
+    """A published path as ``(base, path)``: ``base`` ends with the first version segment.
+
+    The trailing slash and a query string are dropped, as the comparison ignores them.
+
+    Examples:
+        >>> split_version("/directory/v1/org/{orgId}/users/")
+        ('/directory/v1', '/org/{orgId}/users')
+        >>> split_version("/rpc/getDashboard")
+        ('', '/rpc/getDashboard')
+    """
+    segments = published.split("?", 1)[0].strip("/").split("/")
+    cut = next((i + 1 for i, part in enumerate(segments) if _VERSION_SEGMENT.fullmatch(part)), 0)
+    return "/".join(["", *segments[:cut]]) if cut else "", "/" + "/".join(segments[cut:])
+
+
+def first_noun(path: str) -> str:
+    """The first segment of ``path`` that is not a placeholder: an operation's group by default.
+
+    Examples:
+        >>> first_noun("/{org_id}/users/{id}")
+        'users'
+    """
+    return next((part for part in path.strip("/").split("/") if not _PLACEHOLDER.search(part)), "")
 
 
 def _resolved(document: dict[str, Any], node: dict[str, Any]) -> dict[str, Any]:
@@ -130,10 +252,23 @@ def _json_schema(body: dict[str, Any] | None) -> dict[str, Any] | None:
     return next((media.get("schema") for kind, media in content.items() if "json" in kind), None)
 
 
-def openapi_operations(document: dict[str, Any]) -> list[Operation]:
-    """Every operation of an OpenAPI ``document``, sorted by path and method."""
+def openapi_operations(document: dict[str, Any], *, rpc: bool = False) -> list[Operation]:
+    """Every operation of an OpenAPI ``document``, sorted by path and method.
+
+    Args:
+        document: The parsed OpenAPI document.
+        rpc: Whether an operation without an ``operationId`` is named by its last path segment.
+
+    Returns:
+        The operations.
+    """
     operations = []
-    for path, item in document["paths"].items():
+    # A document may state its paths relative to its server (Telemost: `/v1/telemost-api`).
+    servers = document.get("servers") or [{}]
+    prefix = httpx2.URL(servers[0].get("url", "")).path.rstrip("/")
+    for published, item in document["paths"].items():
+        item = _resolved(document, item)
+        base, path = split_version(prefix + published)
         for method in METHODS:
             operation = item.get(method.lower())
             if operation is None:
@@ -147,7 +282,11 @@ def openapi_operations(document: dict[str, Any]) -> list[Operation]:
             operations.append(
                 Operation(
                     method=method,
-                    path=_VERSION_PREFIX.sub("", path).rstrip("/"),
+                    path=path,
+                    base=base,
+                    name=operation.get("operationId") or (path.rsplit("/", 1)[-1] if rpc else ""),
+                    group=next(iter(operation.get("tags", [])), "") or first_noun(path),
+                    source="openapi",
                     query=tuple(sorted(p["name"] for p in parameters if p["in"] == "query")),
                     request=field_names(
                         document, _json_schema(_resolved(document, operation["requestBody"]))
@@ -159,7 +298,168 @@ def openapi_operations(document: dict[str, Any]) -> list[Operation]:
                     ),
                 )
             )
-    return sorted(operations, key=lambda operation: (operation.path, operation.method))
+    return sorted(operations, key=_order)
+
+
+def _order(operation: Operation) -> tuple[str, str, str]:
+    """How a snapshot is sorted."""
+    return operation.path, operation.method, operation.name
+
+
+def joined_files(files: dict[str, str], root: str) -> dict[str, Any]:
+    """An OpenAPI document split into files, as one document with local references.
+
+    Every file becomes an entry of ``files`` in the result, and a reference to a file
+    (``$ref: ../components/schemas/x.yaml``, relative to the file that holds it) a reference to
+    that entry. Market publishes its specification this way.
+
+    Args:
+        files: The YAML text of each file, by its path in the repository.
+        root: The path of the root document.
+
+    Returns:
+        The root document with every file under ``files``.
+
+    Examples:
+        >>> files = {
+        ...     "api/a.yaml": "paths: {/v2/x: {$ref: paths/x.yaml}}",
+        ...     "api/paths/x.yaml": "get: {}",
+        ... }
+        >>> joined_files(files, "api/a.yaml")["paths"]
+        {'/v2/x': {'$ref': '#/files/api|paths|x.yaml'}}
+    """
+
+    def localised(node: Any, folder: str) -> Any:
+        if isinstance(node, dict):
+            return {
+                key: _file_reference(value, folder)
+                if key == "$ref" and isinstance(value, str)
+                else localised(value, folder)
+                for key, value in node.items()
+            }
+        if isinstance(node, list):
+            return [localised(item, folder) for item in node]
+        return node
+
+    parsed = {
+        path.replace("/", "|"): localised(yaml.safe_load(text), posixpath.dirname(path))
+        for path, text in files.items()
+    }
+    return {**parsed[root.replace("/", "|")], "files": parsed}
+
+
+def _file_reference(reference: str, folder: str) -> str:
+    """``reference`` to another file as a reference into ``files``; a local one unchanged."""
+    target, _, fragment = reference.partition("#")
+    if not target:
+        return reference
+    path = posixpath.normpath(posixpath.join(folder, target)).replace("/", "|")
+    return f"#/files/{path}{fragment}"
+
+
+def swagger_operations(resources: list[dict[str, Any]]) -> list[Operation]:
+    """Every operation of a Swagger 1.2 API, given the documents of its resources (Disk).
+
+    Args:
+        resources: The API declaration of each resource the listing names.
+
+    Returns:
+        The operations.
+    """
+    operations = []
+    for resource in resources:
+        models = resource.get("models", {})
+        for api in resource.get("apis", []):
+            base, path = split_version(api["path"])
+            for operation in api.get("operations", []):
+                parameters = operation.get("parameters", [])
+                bodies = [p.get("type", "") for p in parameters if p.get("paramType") == "body"]
+                operations.append(
+                    Operation(
+                        method=operation["method"].upper(),
+                        path=path,
+                        base=base,
+                        name=operation.get("nickname", ""),
+                        group=first_noun(path),
+                        source="swagger",
+                        query=tuple(
+                            sorted(p["name"] for p in parameters if p.get("paramType") == "query")
+                        ),
+                        request=_model_fields(models, *bodies),
+                        response=_model_fields(models, operation.get("type", "")),
+                    )
+                )
+    return _merged(operations)
+
+
+def _model_fields(models: dict[str, Any], *names: str) -> tuple[str, ...]:
+    """The property names of the Swagger models ``names``; a type that is no model has none."""
+    return tuple(
+        sorted({field for name in names for field in models.get(name, {}).get("properties", {})})
+    )
+
+
+_WSDL = "{http://schemas.xmlsoap.org/wsdl/}"
+_XSD = "{http://www.w3.org/2001/XMLSchema}"
+
+
+def wsdl_operations(text: str, *, address: str, group: str = "") -> list[Operation]:
+    """Every operation of a WSDL document: one ``SOAP`` row per operation of its port type.
+
+    The request and response fields are the element names of the operation's input and output
+    messages, read from the document's own schema.
+
+    Args:
+        text: The WSDL document.
+        address: The published path the operations are sent to.
+        group: The group of every operation; the first noun of ``address`` by default.
+
+    Returns:
+        The operations.
+    """
+    root = ElementTree.fromstring(text)
+    elements = {
+        element.get("name"): tuple(
+            sorted(
+                child.get("name", "")
+                for child in element.iter(f"{_XSD}element")
+                if child is not element
+            )
+        )
+        for element in root.iter(f"{_XSD}element")
+        if element.find(f"{_XSD}complexType") is not None
+    }
+    messages = {
+        message.get("name"): next(
+            (part.get("element", "").rpartition(":")[2] for part in message.iter(f"{_WSDL}part")),
+            "",
+        )
+        for message in root.iter(f"{_WSDL}message")
+    }
+
+    def fields(operation: ElementTree.Element, direction: str) -> tuple[str, ...]:
+        node = operation.find(f"{_WSDL}{direction}")
+        message = "" if node is None else node.get("message", "").rpartition(":")[2]
+        return elements.get(messages.get(message, ""), ())
+
+    base, path = split_version(address)
+    return sorted(
+        (
+            Operation(
+                method="SOAP",
+                path=path,
+                base=base,
+                name=operation.get("name", ""),
+                group=group or first_noun(path),
+                source="wsdl",
+                request=fields(operation, "input"),
+                response=fields(operation, "output"),
+            )
+            for port in root.iter(f"{_WSDL}portType")
+            for operation in port.iter(f"{_WSDL}operation")
+        ),
+        key=_order,
+    )
 
 
 def _stands_for(template: Operation, example: Operation) -> bool:
@@ -189,11 +489,17 @@ def tracker_operations(page: str, text: str) -> list[Operation]:
     found: dict[tuple[str, str], Operation] = {}
     for method, target in _TRACKER_REQUEST.findall(text):
         path, _, query = target.partition("?")
+        base, path = split_version(path)
+        slug = page.removesuffix(".md")
         line = Operation(
             method=method,
-            path=_VERSION_PREFIX.sub("", path).rstrip("/"),
+            path=path,
+            base=base,
+            name=slug.rsplit("/", 1)[-1],
+            group=first_noun(path),
+            source="docs",
             query=tuple(re.findall(r"(?:^|&)([A-Za-z_][\w.]*)=", query)),
-            page=page.removesuffix(".md"),
+            page=slug,
         )
         key = next((key for key, known in found.items() if _stands_for(known, line)), line.key)
         known = found.setdefault(key, line)
@@ -217,22 +523,82 @@ def _client() -> httpx2.Client:
     )
 
 
-def _text(client: httpx2.Client, url: str) -> str:
-    """The body of ``url``, asked again before giving up: a busy server answers 429 or 5xx."""
+def _response(client: httpx2.Client, url: str) -> httpx2.Response:
+    """The answer of ``url``, asked again before giving up: a busy server answers 429 or 5xx."""
     try:
         for attempt in stamina.retry_context(on=httpx2.HTTPStatusError, attempts=FETCH_ATTEMPTS):
             with attempt:
-                return client.get(url).raise_for_status().text
+                return client.get(url).raise_for_status()
     except httpx2.HTTPStatusError as error:
         raise SystemExit(f"api_surface: {url} answered {error.response.status_code}") from error
     raise AssertionError("stamina returns or raises inside the loop")
 
 
+def _text(client: httpx2.Client, url: str) -> str:
+    """The body of ``url`` as text."""
+    return _response(client, url).text
+
+
+def _yaml_files(archive: bytes, root: str) -> dict[str, str]:
+    """The YAML files beside ``root`` in a repository ``archive``, by their path in it."""
+    folder = posixpath.dirname(root) + "/"
+    files = {}
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
+        for member in tar:
+            # The archive wraps the repository in one directory named after the branch.
+            path = member.name.partition("/")[2]
+            if member.isfile() and path.startswith(folder) and path.endswith(".yaml"):
+                content = tar.extractfile(member)
+                assert content is not None  # a regular file
+                files[path] = content.read().decode("utf-8")
+    return files
+
+
+def _wsdl_service(client: httpx2.Client, source: Source) -> list[Operation]:
+    """The operations of a WSDL service: of its one document, or of one document per part."""
+    address = httpx2.URL(source.url.partition("?")[0]).path
+    if not source.parts:
+        return wsdl_operations(_text(client, source.url), address=address)
+    with ThreadPoolExecutor(FETCH_WORKERS) as pool:
+        texts = pool.map(lambda part: _text(client, source.url.format(service=part)), source.parts)
+        return sorted(
+            (
+                operation
+                for part, text in zip(source.parts, texts, strict=True)
+                for operation in wsdl_operations(
+                    text, address=address.format(service=part), group=part
+                )
+            ),
+            key=_order,
+        )
+
+
+def _bytes(client: httpx2.Client, url: str) -> bytes:
+    """The body of ``url`` as bytes (an archive)."""
+    return _response(client, url).content
+
+
 def fetch(service: str) -> list[Operation]:
     """The operations Yandex publishes for ``service`` right now (network)."""
+    source = SOURCES[service]
     with _client() as client:
-        if service in OPENAPI_URLS:
-            return openapi_operations(json.loads(_text(client, OPENAPI_URLS[service])))
+        if source.kind == "openapi":
+            # YAML reads JSON too: Telemost publishes YAML, the others JSON.
+            return openapi_operations(yaml.safe_load(_text(client, source.url)), rpc=source.rpc)
+        if source.kind == "openapi-files":
+            return openapi_operations(
+                joined_files(_yaml_files(_bytes(client, source.url), source.root), source.root)
+            )
+        if source.kind == "swagger":
+            listing = json.loads(_text(client, source.url))
+            return swagger_operations(
+                [
+                    json.loads(_text(client, listing["basePath"] + api["path"]))
+                    for api in listing["apis"]
+                ]
+            )
+        if source.kind == "wsdl":
+            return _wsdl_service(client, source)
         pages = sorted(
             set(TRACKER_PAGE.findall(_text(client, TRACKER_INDEX))) - TRACKER_PROSE_PAGES
         )
@@ -268,14 +634,29 @@ def _merged(operations: Iterable[Operation]) -> list[Operation]:
         first = merged.setdefault(operation.key, operation)
         query = tuple(sorted({*first.query, *operation.query}))
         merged[operation.key] = replace(first, query=query)
-    return sorted(merged.values(), key=lambda operation: (operation.path, operation.method))
+    return sorted(merged.values(), key=_order)
+
+
+# The order of a snapshot row: what identifies the operation first, its fields last.
+_COLUMNS = (
+    "method",
+    "base",
+    "path",
+    "name",
+    "group",
+    "source",
+    "page",
+    "query",
+    "request",
+    "response",
+)
 
 
 def dump(operations: list[Operation]) -> str:
     """The snapshot text of ``operations``: one JSON object per line, empty fields left out."""
     rows = [
-        json.dumps({name: value for name, value in asdict(operation).items() if value})
-        for operation in operations
+        json.dumps({name: row[name] for name in _COLUMNS if row[name]}, ensure_ascii=False)
+        for row in map(asdict, operations)
     ]
     return "[\n" + ",\n".join(rows) + "\n]\n"
 
@@ -291,6 +672,10 @@ def load(service: str) -> list[Operation]:
             request=tuple(row.get("request", ())),
             response=tuple(row.get("response", ())),
             page=row.get("page", ""),
+            base=row.get("base", ""),
+            name=row.get("name", ""),
+            group=row.get("group", ""),
+            source=row.get("source", ""),
         )
         for row in rows
     ]

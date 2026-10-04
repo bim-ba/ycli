@@ -8,7 +8,10 @@ runs against ``httpx2.MockTransport``.
 from __future__ import annotations
 
 import doctest
+import io
 import json
+import tarfile
+from dataclasses import replace
 
 import httpx2
 import pytest
@@ -17,6 +20,7 @@ from scripts.api_drift import Call, compare
 from scripts.api_surface import Operation
 
 from tests.contract import load_cases
+from ycli.yandex.registry import SERVICES
 
 OPENAPI = {
     "paths": {
@@ -106,8 +110,18 @@ def test_tracker_page_yields_its_request_and_query_parameters(table):
             "/queues/{queue_id}/tags",
             query=("expand", "perPage"),
             page="api/queues/get-tags",
+            base="/v3",
+            name="get-tags",
+            group="queues",
+            source="docs",
         )
     ]
+
+
+def _documented(operation: Operation, group: str) -> Operation:
+    """``operation`` as a Tracker reference page yields it: named by the page, grouped by path."""
+    name = operation.page.rsplit("/", 1)[-1]
+    return replace(operation, base="/v3", name=name, group=group, source="docs")
 
 
 def _query_cut(name: str) -> str:
@@ -118,7 +132,7 @@ def _query_cut(name: str) -> str:
 def test_tracker_page_drops_path_parameters_and_prose_pages_yield_nothing():
     text = f"PATCH /v3/filters/{{filter_id}}\n{_query_cut('filter_id')}"
     assert api_surface.tracker_operations("x", text) == [
-        Operation("PATCH", "/filters/{filter_id}", page="x")
+        _documented(Operation("PATCH", "/filters/{filter_id}", page="x"), "filters")
     ]
     assert api_surface.tracker_operations("api/access", "How to get a token.") == []
 
@@ -132,29 +146,35 @@ def test_tracker_page_with_several_requests_yields_each_and_folds_its_examples()
         "POST /v3/worklog/_search\n"
     )
     assert api_surface.tracker_operations("p", text) == [
-        Operation(
-            "GET",
-            "/queues/<queue_id>/triggers",
-            query=("expand", "id", "perPage", "version"),
-            page="p",
+        _documented(
+            Operation(
+                "GET",
+                "/queues/<queue_id>/triggers",
+                query=("expand", "id", "perPage", "version"),
+                page="p",
+            ),
+            "queues",
         ),
-        Operation("GET", "/queues/<queue_id>/triggers/_relative", query=("from",), page="p"),
-        Operation("POST", "/worklog/_search", page="p"),
+        _documented(
+            Operation("GET", "/queues/<queue_id>/triggers/_relative", query=("from",), page="p"),
+            "queues",
+        ),
+        _documented(Operation("POST", "/worklog/_search", page="p"), "worklog"),
     ]
 
 
-def _serve(monkeypatch, routes: dict[str, str | int]) -> list[str]:
+def _serve(monkeypatch, routes: dict[str, str | bytes | int]) -> list[str]:
     """Answer ``api_surface`` from ``routes`` (a body, or a status); returns the URLs asked."""
     asked: list[str] = []
 
     def handle(request: httpx2.Request) -> httpx2.Response:
         asked.append(str(request.url))
         answer = routes[str(request.url)]
-        return (
-            httpx2.Response(answer)
-            if isinstance(answer, int)
-            else httpx2.Response(200, text=answer)
-        )
+        if isinstance(answer, int):
+            return httpx2.Response(answer)
+        if isinstance(answer, bytes):
+            return httpx2.Response(200, content=answer)
+        return httpx2.Response(200, text=answer)
 
     monkeypatch.setattr(
         api_surface, "_client", lambda: httpx2.Client(transport=httpx2.MockTransport(handle))
@@ -187,9 +207,222 @@ def test_fetch_reads_tracker_pages_merging_twins_and_skipping_prose(monkeypatch)
     )
     # One operation, linked to the page that lists its parameters, not the first by name.
     assert api_surface.fetch("tracker") == [
-        Operation("POST", "/issues/_search", query=("expand", "scrollId"), page="api/search")
+        _documented(
+            Operation("POST", "/issues/_search", query=("expand", "scrollId"), page="api/search"),
+            "issues",
+        )
     ]
     assert f"{base}/common-format.md" not in asked
+
+
+@pytest.mark.parametrize(
+    ("published", "base", "path"),
+    [
+        ("/v1/pages/{idx}/", "/v1", "/pages/{idx}"),
+        ("/directory/v1/org/{orgId}/users", "/directory/v1", "/org/{orgId}/users"),
+        ("/json/v5/ads", "/json/v5", "/ads"),
+        ("/rpc/getDashboard", "", "/rpc/getDashboard"),
+        # The first version segment is the boundary; a later one stays in the path.
+        ("/v1/disk/v2/x?fields=a", "/v1", "/disk/v2/x"),
+        ("/v2beta/x", "", "/v2beta/x"),
+    ],
+)
+def test_a_published_address_splits_at_its_version(published, base, path):
+    assert api_surface.split_version(published) == (base, path)
+
+
+def test_an_openapi_operation_carries_its_own_name_and_group():
+    document = {
+        "servers": [{"url": "https://cloud-api.yandex.net/v1/telemost-api"}],
+        "paths": {
+            "/conferences/{id}": {
+                "get": {"operationId": "getConference", "tags": ["Conferences", "Other"]},
+                "delete": {},
+            }
+        },
+    }
+    delete, get = api_surface.openapi_operations(document)
+    # The paths of a document are relative to its server.
+    assert (get.base, get.path) == ("/v1", "/telemost-api/conferences/{id}")
+    assert (get.name, get.group, get.source) == ("getConference", "Conferences", "openapi")
+    # No operationId means no name; no tag means the first noun of the path.
+    assert (delete.name, delete.group) == ("", "telemost-api")
+
+
+def test_an_rpc_operation_is_named_by_its_path():
+    document = {"servers": [{"url": "/"}], "paths": {"/rpc/getDashboard": {"post": {}}}}
+    (operation,) = api_surface.openapi_operations(document, rpc=True)
+    assert (operation.base, operation.path, operation.name) == (
+        "",
+        "/rpc/getDashboard",
+        "getDashboard",
+    )
+
+
+MARKET_FILES = {
+    "openapi/openapi.yaml": "paths:\n  /v2/campaigns:\n    $ref: paths/v2_campaigns.yaml\n",
+    "openapi/paths/v2_campaigns.yaml": (
+        "get:\n  operationId: getCampaigns\n  tags: [campaigns, fbs]\n"
+        "  responses:\n    '200':\n      content:\n        application/json:\n"
+        "          schema:\n            $ref: ../components/schemas/campaigns.yaml#/Response\n"
+    ),
+    "openapi/components/schemas/campaigns.yaml": (
+        "Response:\n  properties:\n    campaigns: {}\n    pager:\n      $ref: '#/Pager'\n"
+    ),
+}
+
+
+def test_a_specification_split_into_files_reads_as_one_document():
+    (operation,) = api_surface.openapi_operations(
+        api_surface.joined_files(MARKET_FILES, "openapi/openapi.yaml")
+    )
+    assert (operation.method, operation.base, operation.path) == ("GET", "/v2", "/campaigns")
+    # The group is the first tag: the subject, before the fulfilment models.
+    assert (operation.name, operation.group) == ("getCampaigns", "campaigns")
+    assert operation.response == ("campaigns", "pager")
+
+
+def _archive(files: dict[str, str]) -> bytes:
+    """A repository archive as GitHub serves it: one top directory, then the files."""
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w:gz") as tar:
+        for path, text in {**files, "README.md": "not YAML", "docs/x.yaml": "elsewhere: 1"}.items():
+            data = text.encode()
+            member = tarfile.TarInfo(f"repository-main/{path}")
+            member.size = len(data)
+            tar.addfile(member, io.BytesIO(data))
+    return buffer.getvalue()
+
+
+def test_fetch_reads_a_specification_from_a_repository_archive(monkeypatch):
+    _serve(monkeypatch, {api_surface.SOURCES["market"].url: _archive(MARKET_FILES)})
+    assert [operation.name for operation in api_surface.fetch("market")] == ["getCampaigns"]
+
+
+SWAGGER_LISTING = {
+    "basePath": "https://cloud-api.yandex.net/v1/schema/resources",
+    "apis": [{"path": "/v1/disk/resources"}],
+}
+SWAGGER_RESOURCE = {
+    "apis": [
+        {
+            "path": "/v1/disk/resources",
+            "operations": [
+                {
+                    "method": "get",
+                    "nickname": "GetResource",
+                    "type": "Resource",
+                    "parameters": [
+                        {"name": "path", "paramType": "query"},
+                        {"name": "fields", "paramType": "query"},
+                    ],
+                },
+                {
+                    "method": "PATCH",
+                    "nickname": "UpdateResource",
+                    "type": "void",
+                    "parameters": [
+                        {"name": "path", "paramType": "query"},
+                        {"name": "body", "paramType": "body", "type": "ResourcePatch"},
+                    ],
+                },
+            ],
+        }
+    ],
+    "models": {
+        "Resource": {"properties": {"name": {}, "path": {}}},
+        "ResourcePatch": {"properties": {"custom_properties": {}}},
+    },
+}
+
+
+def test_fetch_reads_a_swagger_listing_and_its_resources(monkeypatch):
+    listing = api_surface.SOURCES["disk"].url
+    _serve(
+        monkeypatch,
+        {
+            listing: json.dumps(SWAGGER_LISTING),
+            f"{SWAGGER_LISTING['basePath']}/v1/disk/resources": json.dumps(SWAGGER_RESOURCE),
+        },
+    )
+    get, patch = api_surface.fetch("disk")
+    assert (get.method, get.base, get.path) == ("GET", "/v1", "/disk/resources")
+    assert (get.name, get.group, get.source) == ("GetResource", "disk", "swagger")
+    assert (get.query, get.response) == (("fields", "path"), ("name", "path"))
+    # A body parameter's model is the request; a type that is no model has no fields.
+    assert (patch.name, patch.request, patch.response) == (
+        "UpdateResource",
+        ("custom_properties",),
+        (),
+    )
+
+
+WSDL = """<?xml version="1.0"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns="urn:x">
+  <wsdl:types><xsd:schema>
+    <xsd:element name="SetRequest"><xsd:complexType><xsd:sequence>
+      <xsd:element name="Bids" type="ns:BidSetItem"/>
+    </xsd:sequence></xsd:complexType></xsd:element>
+    <xsd:element name="SetResponse"><xsd:complexType><xsd:sequence>
+      <xsd:element name="SetResults" type="ns:Result"/>
+    </xsd:sequence></xsd:complexType></xsd:element>
+  </xsd:schema></wsdl:types>
+  <wsdl:message name="SetOperationRequest">
+    <wsdl:part name="p" element="ns:SetRequest"/>
+  </wsdl:message>
+  <wsdl:message name="SetOperationResponse">
+    <wsdl:part name="p" element="ns:SetResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="BidsPort">
+    <wsdl:operation name="set">
+      <wsdl:input message="ns:SetOperationRequest"/>
+      <wsdl:output message="ns:SetOperationResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="get"/>
+  </wsdl:portType>
+  <wsdl:binding name="BidsSOAP"><wsdl:operation name="set"/></wsdl:binding>
+</wsdl:definitions>
+"""
+
+
+def test_a_wsdl_yields_one_soap_operation_per_port_operation():
+    get, set_ = api_surface.wsdl_operations(WSDL, address="/v5/bids", group="bids")
+    assert (set_.method, set_.base, set_.path, set_.name) == ("SOAP", "/v5", "/bids", "set")
+    assert (set_.group, set_.source) == ("bids", "wsdl")
+    assert (set_.request, set_.response) == (("Bids",), ("SetResults",))
+    # An operation without messages has no fields; the binding's copy of an operation is not one.
+    assert (get.name, get.request, get.response) == ("get", (), ())
+
+
+def test_fetch_reads_one_wsdl_per_part_or_a_single_one(monkeypatch):
+    direct = api_surface.SOURCES["direct"]
+    _serve(
+        monkeypatch,
+        {
+            **{direct.url.format(service=part): WSDL for part in direct.parts},
+            api_surface.SOURCES["speller"].url: WSDL,
+        },
+    )
+    operations = api_surface.fetch("direct")
+    assert len(operations) == 2 * len(direct.parts)
+    assert {operation.group for operation in operations} == set(direct.parts)
+    assert {(o.base, o.path) for o in operations if o.group == "vcards"} == {("/v5", "/vcards")}
+    speller = api_surface.fetch("speller")
+    assert {(o.base, o.path, o.group) for o in speller} == {
+        ("", "/services/spellservice", "services")
+    }
+
+
+def test_a_snapshot_keeps_a_name_that_is_not_ascii(monkeypatch, tmp_path):
+    """Forms tags its operations in Russian; the snapshot shows the tag as it is."""
+    monkeypatch.setattr(api_surface, "SNAPSHOTS", tmp_path)
+    operation = Operation(
+        "GET", "/answers", base="/v1", name="get", group="ответы", source="openapi"
+    )
+    (tmp_path / "forms.json").write_text(api_surface.dump([operation]), encoding="utf-8")
+    assert "ответы" in (tmp_path / "forms.json").read_text(encoding="utf-8")
+    assert api_surface.load("forms") == [operation]
 
 
 def test_fetch_refuses_a_page_that_is_not_a_reference_page(monkeypatch):
@@ -223,17 +456,60 @@ def test_fetch_fails_loudly(monkeypatch):
         api_surface.fetch("tracker")
 
 
-@pytest.mark.parametrize("service", api_surface.SERVICES)
+@pytest.mark.parametrize("service", api_surface.LISTED)
 def test_committed_snapshot_is_canonical(service):
-    """A snapshot is exactly what ``dump`` writes: sorted, one operation per method and path."""
+    """A snapshot is exactly what ``dump`` writes: sorted, one row per operation.
+
+    An operation is its method and path; several operations of a WSDL share both and differ
+    by name.
+    """
     operations = api_surface.load(service)
-    keys = [operation.key for operation in operations]
+    keys = [(*operation.key, operation.base, operation.name) for operation in operations]
     assert operations and len(keys) == len(set(keys))
+    if service in api_surface.SERVICES:  # the comparison matches by method and path alone
+        assert len({operation.key for operation in operations}) == len(operations)
     text = (api_surface.SNAPSHOTS / f"{service}.json").read_text(encoding="utf-8")
     assert text == api_surface.dump(operations)
     assert operations == sorted(
-        operations, key=lambda operation: (operation.path, operation.method)
+        operations, key=lambda operation: (operation.path, operation.method, operation.name)
     )
+    assert all(operation.source for operation in operations)
+
+
+def test_the_compared_services_are_the_registry():
+    """A service is compared with ycli once it is in the registry; nothing marks it by hand."""
+    assert set(api_surface.SERVICES) == {service.name for service in SERVICES}
+    assert set(api_surface.SERVICES) <= set(api_surface.LISTED)
+
+
+def test_every_snapshot_file_is_a_listed_service():
+    files = {path.stem for path in api_surface.SNAPSHOTS.glob("*.json")}
+    assert files == set(api_surface.LISTED)
+
+
+def _listed_only() -> list[str]:
+    """The listed services ycli does not cover: the ones outside the registry."""
+    covered = {service.name for service in SERVICES}
+    return [service for service in api_surface.LISTED if service not in covered]
+
+
+def test_a_listed_only_service_never_enters_the_gaps(capsys):
+    """Its operations are not "unwrapped": ycli does not cover the service at all yet."""
+    assert _listed_only()
+    assert api_drift.main([]) == 0
+    out = capsys.readouterr().out
+    for service in _listed_only():
+        assert f"{service}:" not in out, service
+    assert {drift.service for drift in api_drift.drifts()} == set(api_surface.SERVICES)
+
+
+def test_a_listed_only_service_that_is_compared_is_caught(monkeypatch, capsys):
+    """The probe: compared by mistake, Telemost would be reported as nine unwrapped operations."""
+    monkeypatch.setattr(api_surface, "SERVICES", (*api_surface.SERVICES, "telemost"))
+    with pytest.raises(AssertionError):
+        test_the_compared_services_are_the_registry()
+    with pytest.raises((AssertionError, SystemExit)):
+        test_a_listed_only_service_never_enters_the_gaps(capsys)
 
 
 def _call(operation: str, method: str, path: str, **parts) -> Call:
@@ -464,6 +740,27 @@ def test_refresh_rewrites_the_snapshots(monkeypatch, tmp_path):
     assert (tmp_path / "tracker.json").read_text(encoding="utf-8") == (
         '[\n{"method": "GET", "path": "/tracker"}\n]\n'
     )
+    # Every listed service is rewritten, the ones ycli does not cover yet included.
+    assert {path.stem for path in tmp_path.glob("*.json")} == set(api_surface.LISTED)
+
+
+def test_refresh_of_named_services_rewrites_only_those(monkeypatch, tmp_path):
+    monkeypatch.setattr(api_surface, "SNAPSHOTS", tmp_path)
+    monkeypatch.setattr(api_surface, "fetch", lambda service: [Operation("GET", f"/{service}")])
+    assert api_drift.main(["--refresh", "disk", "wiki"]) == 0
+    assert {path.stem for path in tmp_path.glob("*.json")} == {"disk", "wiki"}
+
+
+def test_live_mode_asks_only_the_services_ycli_covers(monkeypatch):
+    asked = []
+
+    def fetch(service: str) -> list[Operation]:
+        asked.append(service)
+        return api_surface.load(service)
+
+    monkeypatch.setattr(api_surface, "fetch", fetch)
+    assert api_drift.main(["--live"]) == 0
+    assert asked == list(api_surface.SERVICES)
 
 
 def test_default_mode_prints_the_gaps(capsys):
