@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.66.2 (2026-10-04)
+
+### Bug Fixes
+
+- **models**: Every model field carries a description
+  ([#159](https://github.com/bim-ba/ycli/pull/159),
+  [`2524104`](https://github.com/bim-ba/ycli/commit/25241044f878447be55499e9b1f47acc06af9a59))
+
+### Build System
+
+- Re-lock uv.lock for 0.66.1
+  ([`a4d57de`](https://github.com/bim-ba/ycli/commit/a4d57de11085a3fa9c29bc8edfef5feaad2ebd53))
+
+
 ## v0.66.1 (2026-10-04)
 
 ### Bug Fixes
