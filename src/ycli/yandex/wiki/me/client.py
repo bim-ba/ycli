@@ -24,4 +24,4 @@ class MeClient(Resource):
             >>> wiki.me.get().username
             'vera.petrova'
         """
-        return self._session.send(endpoints.get_me())
+        return self._session.send(endpoints.get())

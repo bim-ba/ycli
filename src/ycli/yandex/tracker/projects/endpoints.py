@@ -1,9 +1,9 @@
 """Tracker ``/projects`` operations (legacy Projects API v3), each declared once (sans-IO).
 
 Examples:
-    >>> get_project(1, expand="queues").params
+    >>> get(1, expand="queues").params
     {'expand': 'queues'}
-    >>> update_project(1, {"queues": "TEST"}, version=2).method
+    >>> update(1, {"queues": "TEST"}, version=2).method
     'PUT'
 """
 
@@ -15,25 +15,25 @@ from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectU
 from ycli.yandex.tracker.queues.models import Queue
 
 
-def list_projects(*, expand: str | None = None) -> Endpoint[ItemList[Project]]:
+def list_(*, expand: str | None = None) -> Endpoint[ItemList[Project]]:
     return Endpoint("GET", "projects", ItemList[Project], params={"expand": expand})
 
 
-def get_project(project_id: int, *, expand: str | None = None) -> Endpoint[Project]:
+def get(project_id: int, *, expand: str | None = None) -> Endpoint[Project]:
     return Endpoint("GET", f"projects/{segment(project_id)}", Project, params={"expand": expand})
 
 
-def list_project_queues(project_id: int, *, expand: str | None = None) -> Endpoint[ItemList[Queue]]:
+def queues(project_id: int, *, expand: str | None = None) -> Endpoint[ItemList[Queue]]:
     return Endpoint(
         "GET", f"projects/{segment(project_id)}/queues", ItemList[Queue], params={"expand": expand}
     )
 
 
-def create_project(body: ProjectCreate) -> Endpoint[Project]:
+def create(body: ProjectCreate) -> Endpoint[Project]:
     return Endpoint("POST", "projects", Project, json=body)
 
 
-def update_project(
+def update(
     project_id: int, body: ProjectUpdate, *, version: int, expand: str | None = None
 ) -> Endpoint[Project]:
     """``PUT /projects/{id}?version=`` — the lock is required; PUT sets, so it is idempotent."""
@@ -46,5 +46,5 @@ def update_project(
     )
 
 
-def delete_project(project_id: int) -> Endpoint[None]:
+def delete(project_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"projects/{segment(project_id)}")

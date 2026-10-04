@@ -40,7 +40,7 @@ class GapsClient(Resource):
             >>> tracker.gaps.create(GapsCreate(gaps=[gap])).gaps[0].id
             '68340a1f2b4c1a3d5e7f9011'
         """
-        return self._session.send(endpoints.create_gaps(body))
+        return self._session.send(endpoints.create(body))
 
     def search(
         self,
@@ -76,7 +76,7 @@ class GapsClient(Resource):
         """
         window = {"from": date_from, "to": date_to}
         body = {"users": list(users), **{name: value for name, value in window.items() if value}}
-        paged = endpoints.search_gaps(body)
+        paged = endpoints.search(body)
         return ItemList[UserGaps](list(self._session.iterate(paged, limit=limit)))
 
     def delete(self, gap_ids: Sequence[str]) -> None:
@@ -88,4 +88,4 @@ class GapsClient(Resource):
         Examples:
             >>> tracker.gaps.delete(["68340a1f2b4c1a3d5e7f9011", "68340a1f2b4c1a3d5e7f9012"])
         """
-        self._session.send(endpoints.delete_gaps(gap_ids))
+        self._session.send(endpoints.delete(gap_ids))

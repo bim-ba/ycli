@@ -40,7 +40,7 @@ class TriggersClient(Resource):
             ['First', 'Second']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_triggers(queue_id, page_size=page_size)
+        paged = endpoints.list_(queue_id, page_size=page_size)
         return ItemList[Trigger](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, queue_id: str, trigger_id: int) -> Trigger:
@@ -57,7 +57,7 @@ class TriggersClient(Resource):
             >>> tracker.triggers.get("DESIGN", 16).name
             'On comment'
         """
-        return self._session.send(endpoints.get_trigger(queue_id, trigger_id))
+        return self._session.send(endpoints.get(queue_id, trigger_id))
 
     def create(self, queue_id: str, body: TriggerCreate) -> Trigger:
         """Create a trigger from a typed ``TriggerCreate`` body. Returns the created ``Trigger``.
@@ -79,7 +79,7 @@ class TriggersClient(Resource):
             >>> tracker.triggers.create("ART", new_trigger).id
             17
         """
-        return self._session.send(endpoints.create_trigger(queue_id, body))
+        return self._session.send(endpoints.create(queue_id, body))
 
     def update(
         self, queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None = None
@@ -105,9 +105,7 @@ class TriggersClient(Resource):
             ... ).name
             'Renamed trigger'
         """
-        return self._session.send(
-            endpoints.update_trigger(queue_id, trigger_id, body, version=version)
-        )
+        return self._session.send(endpoints.update(queue_id, trigger_id, body, version=version))
 
     def webhook_log_list(
         self,
@@ -146,7 +144,7 @@ class TriggersClient(Resource):
             235
         """
         return self._session.send(
-            endpoints.list_webhook_log(
+            endpoints.webhook_log_list(
                 queue_id,
                 trigger_id,
                 issue_id=issue_id,

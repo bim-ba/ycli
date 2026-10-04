@@ -30,7 +30,7 @@ class UsersClient(Resource):
             >>> tracker.users.get("username", expand="groups").display
             'Ivan Ivanov'
         """
-        return self._session.send(endpoints.get_user(login_or_id, expand=expand))
+        return self._session.send(endpoints.get(login_or_id, expand=expand))
 
     def list(self, *, limit: int | None = None, expand: str | None = None) -> ItemList[User]:
         """All organisation users, draining the ``id=<last uid>`` relative cursor internally.
@@ -51,5 +51,5 @@ class UsersClient(Resource):
         """
         # A small cap needs no full page.
         per_page = min(endpoints.MAX_PAGE_SIZE, limit) if limit else endpoints.MAX_PAGE_SIZE
-        paged = endpoints.list_users(per_page=per_page, expand=expand)
+        paged = endpoints.list_(per_page=per_page, expand=expand)
         return ItemList[User](list(self._session.iterate(paged, limit=limit)))

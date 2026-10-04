@@ -3,7 +3,7 @@
 Examples:
     >>> update_action("W21", "inProgress", "close", {"target": "closed"}, version=2).path
     'workflows/W21/steps/inProgress/actions/close'
-    >>> delete_workflow("W21").effect
+    >>> delete("W21").effect
     'destructive'
 """
 
@@ -20,23 +20,23 @@ from ycli.yandex.tracker.workflows.models import (
 )
 
 
-def list_workflows() -> Endpoint[ItemList[Workflow]]:
+def list_() -> Endpoint[ItemList[Workflow]]:
     return Endpoint("GET", "workflows", ItemList[Workflow])
 
 
-def get_workflow(workflow_id: str) -> Endpoint[Workflow]:
+def get(workflow_id: str) -> Endpoint[Workflow]:
     return Endpoint("GET", f"workflows/{segment(workflow_id)}", Workflow)
 
 
-def list_queue_workflows(queue_id: str) -> Endpoint[QueueWorkflows]:
+def for_queue(queue_id: str) -> Endpoint[QueueWorkflows]:
     return Endpoint("GET", f"queues/{segment(queue_id)}/workflows", QueueWorkflows)
 
 
-def create_workflow(body: WorkflowCreate) -> Endpoint[Workflow]:
+def create(body: WorkflowCreate) -> Endpoint[Workflow]:
     return Endpoint("POST", "workflows", Workflow, json=body)
 
 
-def update_workflow(workflow_id: str, body: WorkflowUpdate, *, version: int) -> Endpoint[Workflow]:
+def update(workflow_id: str, body: WorkflowUpdate, *, version: int) -> Endpoint[Workflow]:
     """``PATCH /workflows/{id}?version=`` — the optimistic lock is required by the API."""
     return Endpoint(
         "PATCH",
@@ -55,5 +55,5 @@ def update_action(
     return Endpoint("PATCH", path, Workflow, json=body, params={"version": version})
 
 
-def delete_workflow(workflow_id: str) -> Endpoint[None]:
+def delete(workflow_id: str) -> Endpoint[None]:
     return Endpoint("DELETE", f"workflows/{segment(workflow_id)}")

@@ -43,7 +43,7 @@ class NotificationsClient(Resource):
             >>> [run.id for run in runs.root]
             [9001, 9002, 9003]
         """
-        paged = endpoints.list_notifications(filters or NotificationFilter())
+        paged = endpoints.list_(filters or NotificationFilter())
         return ItemList[Notification](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, notification_id: int) -> NotificationDetails:
@@ -59,7 +59,7 @@ class NotificationsClient(Resource):
             >>> forms.notifications.get(9100).error[0].name
             'detail'
         """
-        return self._session.send(endpoints.get_notification(notification_id))
+        return self._session.send(endpoints.get(notification_id))
 
     def status_get(self, notification_id: int) -> NotificationStatus:
         """``GET /notifications/{id}/status`` → just the run's state.
@@ -74,7 +74,7 @@ class NotificationsClient(Resource):
             >>> forms.notifications.status_get(9101).status
             'success'
         """
-        return self._session.send(endpoints.get_notification_status(notification_id))
+        return self._session.send(endpoints.status_get(notification_id))
 
     def restart(self, notification_id: int) -> NotificationAction:
         """``POST /notifications/{id}/restart`` — run the integration again for that answer.
@@ -94,7 +94,7 @@ class NotificationsClient(Resource):
             >>> forms.notifications.restart(9102).result.status
             'operation'
         """
-        return self._session.send(endpoints.restart_notification(notification_id))
+        return self._session.send(endpoints.restart(notification_id))
 
     def cancel(self, notification_id: int) -> NotificationAction:
         """``POST /notifications/{id}/cancel`` — stop a run that has not finished.
@@ -111,7 +111,7 @@ class NotificationsClient(Resource):
             >>> forms.notifications.cancel(9103).result.status
             'fail'
         """
-        return self._session.send(endpoints.cancel_notification(notification_id))
+        return self._session.send(endpoints.cancel(notification_id))
 
     def errors_list(self, survey_id: str) -> ItemList[int]:
         """``GET /surveys/{id}/show-errors`` → ids of the form's failed runs still shown.
@@ -128,4 +128,4 @@ class NotificationsClient(Resource):
             >>> forms.notifications.errors_list("686d0a1b2c3d4e5f000000f2").root
             [9001, 9003]
         """
-        return self._session.send(endpoints.list_failed_notifications(survey_id))
+        return self._session.send(endpoints.errors_list(survey_id))

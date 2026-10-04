@@ -56,7 +56,7 @@ class ImportClient(Resource):
             ... ).key
             'TEST-41'
         """
-        return self._session.send(endpoints.import_task(body))
+        return self._session.send(endpoints.task(body))
 
     def comment(self, issue_key: str, body: ImportComment) -> Comment:
         """``POST /issues/{issue_key}/comments/_import`` — import a comment; returns ``Comment``.
@@ -82,7 +82,7 @@ class ImportClient(Resource):
             ... ).text
             'Old comment'
         """
-        return self._session.send(endpoints.import_comment(issue_key, body))
+        return self._session.send(endpoints.comment(issue_key, body))
 
     def link(self, issue_key: str, body: ImportLink) -> Link:
         """``POST /issues/{issue_key}/links/_import`` — import an issue link. Returns the ``Link``.
@@ -109,7 +109,7 @@ class ImportClient(Resource):
             ... ).object.key
             'TEST-4'
         """
-        return self._session.send(endpoints.import_link(issue_key, body))
+        return self._session.send(endpoints.link(issue_key, body))
 
     def worklog(self, issue_key: str, body: ImportWorklog) -> ItemList[Worklog]:
         """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).
@@ -139,7 +139,7 @@ class ImportClient(Resource):
             ... ).root[0].duration
             'PT2H'
         """
-        return self._session.send(endpoints.import_worklog(issue_key, body))
+        return self._session.send(endpoints.worklog(issue_key, body))
 
     def file(
         self,
@@ -175,7 +175,7 @@ class ImportClient(Resource):
             ... ).name
             'renamed.png'
         """
-        endpoint = endpoints.import_file(
+        endpoint = endpoints.file(
             issue_key,
             filename=filename,
             created_at=created_at,
@@ -223,7 +223,7 @@ class ImportClient(Resource):
             ... ).name
             'scan.png'
         """
-        endpoint = endpoints.import_comment_file(
+        endpoint = endpoints.comment_file(
             issue_key,
             comment_id,
             filename=filename,

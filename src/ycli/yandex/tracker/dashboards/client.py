@@ -38,7 +38,7 @@ class DashboardsClient(Resource):
             ... ).id
             10
         """
-        return self._session.send(endpoints.create_dashboard(body))
+        return self._session.send(endpoints.create(body))
 
     def add_cycle_time_widget(self, dashboard_id: str, body: CycleTimeWidget) -> Widget:
         """``POST /dashboards/{dashboard_id}/widgets/cycleTime`` — add a cycle-time widget.

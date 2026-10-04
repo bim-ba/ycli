@@ -1,9 +1,9 @@
 """Forms ``/surveys/{id}/hooks/{hook_id}/subscriptions`` operations, declared once (sans-IO).
 
 Examples:
-    >>> list_subscriptions("686d", 11).path
+    >>> list_("686d", 11).path
     'surveys/686d/hooks/11/subscriptions'
-    >>> attach_file("686d", 11, 4, filename="a.pdf", data=b"x").files
+    >>> attach("686d", 11, 4, filename="a.pdf", data=b"x").files
     {'file': ('a.pdf', b'x')}
 """
 
@@ -29,32 +29,32 @@ def _subscriptions(survey_id: str, hook_id: int) -> str:
     return f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/subscriptions"
 
 
-def list_subscriptions(survey_id: str, hook_id: int) -> Endpoint[ItemList[Subscription]]:
+def list_(survey_id: str, hook_id: int) -> Endpoint[ItemList[Subscription]]:
     return Endpoint("GET", _subscriptions(survey_id, hook_id), ItemList[Subscription])
 
 
-def get_subscription(survey_id: str, hook_id: int, subscription_id: int) -> Endpoint[Subscription]:
+def get(survey_id: str, hook_id: int, subscription_id: int) -> Endpoint[Subscription]:
     path = f"{_subscriptions(survey_id, hook_id)}/{segment(subscription_id)}"
     return Endpoint("GET", path, parser=_subscription)
 
 
-def create_subscription(survey_id: str, hook_id: int, body: Subscription) -> Endpoint[Subscription]:
+def create(survey_id: str, hook_id: int, body: Subscription) -> Endpoint[Subscription]:
     path = _subscriptions(survey_id, hook_id)
     return Endpoint("POST", path, json=body, parser=_subscription)
 
 
-def update_subscription(
+def update(
     survey_id: str, hook_id: int, subscription_id: int, body: Subscription
 ) -> Endpoint[Subscription]:
     path = f"{_subscriptions(survey_id, hook_id)}/{segment(subscription_id)}"
     return Endpoint("PATCH", path, json=body, parser=_subscription)
 
 
-def delete_subscription(survey_id: str, hook_id: int, subscription_id: int) -> Endpoint[None]:
+def delete(survey_id: str, hook_id: int, subscription_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"{_subscriptions(survey_id, hook_id)}/{segment(subscription_id)}")
 
 
-def attach_file(
+def attach(
     survey_id: str, hook_id: int, subscription_id: int, *, filename: str, data: bytes
 ) -> Endpoint[FileOut]:
     path = f"{_subscriptions(survey_id, hook_id)}/{segment(subscription_id)}/attachment"

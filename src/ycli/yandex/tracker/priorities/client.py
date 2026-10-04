@@ -36,7 +36,7 @@ class PrioritiesClient(Resource):
             >>> tracker.priorities.list().root[0].key
             'normal'
         """
-        return self._session.send(endpoints.list_priorities(localized=localized))
+        return self._session.send(endpoints.list_(localized=localized))
 
     def create(self, body: PriorityCreate) -> Priority:
         """Create a priority from a typed ``PriorityCreate`` body. Returns the new ``Priority``.
@@ -55,7 +55,7 @@ class PrioritiesClient(Resource):
             ... ).key
             'one'
         """
-        return self._session.send(endpoints.create_priority(body))
+        return self._session.send(endpoints.create(body))
 
     def update(
         self, priority_id: str, body: PriorityUpdate, *, version: int | None = None
@@ -80,4 +80,4 @@ class PrioritiesClient(Resource):
             ... ).key
             'blocker'
         """
-        return self._session.send(endpoints.update_priority(priority_id, body, version=version))
+        return self._session.send(endpoints.update(priority_id, body, version=version))

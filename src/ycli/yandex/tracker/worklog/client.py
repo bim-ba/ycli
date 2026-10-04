@@ -36,7 +36,7 @@ class WorklogClient(Resource):
             ['PT1H', 'PT2H', 'PT3H']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_worklog(key, page_size=page_size)
+        paged = endpoints.list_(key, page_size=page_size)
         return ItemList[Worklog](list(self._session.iterate(paged, limit=limit)))
 
     def search(self, body: WorklogSearch) -> ItemList[Worklog]:
@@ -66,7 +66,7 @@ class WorklogClient(Resource):
             >>> found.root[0].duration
             'PT2H'
         """
-        return self._session.send(endpoints.search_worklog(body))
+        return self._session.send(endpoints.search(body))
 
     def global_list(
         self, created_by: str | None = None, created_at: Sequence[str] | str | None = None
@@ -89,7 +89,7 @@ class WorklogClient(Resource):
             ... ).root[0].duration
             'P3W'
         """
-        return self._session.send(endpoints.list_global_worklog(created_by, created_at))
+        return self._session.send(endpoints.global_list(created_by, created_at))
 
     def create(self, key: str, body: WorklogCreate) -> Worklog:
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.
@@ -109,7 +109,7 @@ class WorklogClient(Resource):
             ... ).duration
             'PT2H'
         """
-        return self._session.send(endpoints.create_worklog(key, body))
+        return self._session.send(endpoints.create(key, body))
 
     def update(self, key: str, record_id: int | str, body: WorklogUpdate) -> Worklog:
         """``PATCH /issues/{key}/worklog/{record_id}`` — edit an entry. Returns it.
@@ -129,7 +129,7 @@ class WorklogClient(Resource):
             ... ).duration
             'PT45M'
         """
-        return self._session.send(endpoints.update_worklog(key, record_id, body))
+        return self._session.send(endpoints.update(key, record_id, body))
 
     def delete(self, key: str, record_id: str) -> None:
         """Delete a worklog entry (``DELETE …/worklog/{id}`` → 204). Raises on non-2xx.
@@ -141,4 +141,4 @@ class WorklogClient(Resource):
         Examples:
             >>> tracker.worklog.delete("DE-68", "681")
         """
-        self._session.send(endpoints.delete_worklog(key, record_id))
+        self._session.send(endpoints.delete(key, record_id))

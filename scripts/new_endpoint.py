@@ -54,7 +54,7 @@ from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
-def get_item(item_id: str) -> Endpoint[{cls}]:
+def get(item_id: str) -> Endpoint[{cls}]:
     # FILL: the real path.
     return Endpoint("GET", f"FILL/{resource}/{{segment(item_id)}}", {cls})
 '''
@@ -87,7 +87,7 @@ class {cls}Client(Resource):
         Examples:
             >>> {domain}.{resource}.get("1")
         """
-        return self._session.send(endpoints.get_item(item_id))
+        return self._session.send(endpoints.get(item_id))
 '''
 
 CLI = '''"""{domain} /{resource} Typer commands — each returns its result; the root prints it."""

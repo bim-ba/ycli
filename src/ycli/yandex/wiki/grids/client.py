@@ -83,7 +83,7 @@ class GridsClient(Resource):
             '12'
         """
         return self._session.send(
-            endpoints.get_grid(
+            endpoints.get(
                 grid_id,
                 fields=fields,
                 row_filter=row_filter,
@@ -111,7 +111,7 @@ class GridsClient(Resource):
             >>> wiki.grids.create(body).title
             'Hiring plan'
         """
-        return self._session.send(endpoints.create_grid(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, grid_id: str, body: GridUpdate) -> RevisionResult:
         """``POST /grids/{id}`` — rename / re-sort (POST not PATCH). ``body`` carries ``revision``.
@@ -140,7 +140,7 @@ class GridsClient(Resource):
             >>> wiki.grids.update(grid_id, body).revision
             '13'
         """
-        return self._session.send(endpoints.update_grid(grid_id, body))
+        return self._session.send(endpoints.update(grid_id, body))
 
     def delete(self, grid_id: str) -> Ack:
         """``DELETE /grids/{id}`` → an :class:`Ack` (``204 No Content``).
@@ -158,7 +158,7 @@ class GridsClient(Resource):
             >>> wiki.grids.delete("0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a03").ok
             True
         """
-        self._session.send(endpoints.delete_grid(grid_id))
+        self._session.send(endpoints.delete(grid_id))
         return Ack.deleted("grid", grid_id)
 
     def rows_add(self, grid_id: str, body: RowsAdd) -> RowsAddResult:
@@ -180,7 +180,7 @@ class GridsClient(Resource):
             ... ).revision
             '14'
         """
-        return self._session.send(endpoints.add_rows(grid_id, body))
+        return self._session.send(endpoints.rows_add(grid_id, body))
 
     def rows_remove(self, grid_id: str, body: RowsRemove) -> RevisionResult:
         """``DELETE /grids/{id}/rows`` — delete rows by id. ``body`` is a ``RowsRemove``.
@@ -202,7 +202,7 @@ class GridsClient(Resource):
             ... ).revision
             '15'
         """
-        return self._session.send(endpoints.remove_rows(grid_id, body))
+        return self._session.send(endpoints.rows_remove(grid_id, body))
 
     def rows_move(self, grid_id: str, body: RowsMove) -> RevisionResult:
         """``POST /grids/{id}/rows/move`` — reorder rows. ``body`` is a ``RowsMove``.
@@ -223,7 +223,7 @@ class GridsClient(Resource):
             ... ).revision
             '16'
         """
-        return self._session.send(endpoints.move_rows(grid_id, body))
+        return self._session.send(endpoints.rows_move(grid_id, body))
 
     def columns_add(self, grid_id: str, body: ColumnsAdd) -> RevisionResult:
         """``POST /grids/{id}/columns`` — add columns. ``body`` is a ``ColumnsAdd``.
@@ -248,7 +248,7 @@ class GridsClient(Resource):
             ... ).revision
             '17'
         """
-        return self._session.send(endpoints.add_columns(grid_id, body))
+        return self._session.send(endpoints.columns_add(grid_id, body))
 
     def columns_remove(self, grid_id: str, body: ColumnsRemove) -> RevisionResult:
         """``DELETE /grids/{id}/columns`` — delete columns by slug. ``body`` is a ``ColumnsRemove``.
@@ -271,7 +271,7 @@ class GridsClient(Resource):
             >>> wiki.grids.columns_remove(grid_id, body).revision
             '18'
         """
-        return self._session.send(endpoints.remove_columns(grid_id, body))
+        return self._session.send(endpoints.columns_remove(grid_id, body))
 
     def columns_move(self, grid_id: str, body: ColumnsMove) -> RevisionResult:
         """``POST /grids/{id}/columns/move`` — reorder columns. ``body`` is a ``ColumnsMove`` dump.
@@ -292,7 +292,7 @@ class GridsClient(Resource):
             >>> wiki.grids.columns_move(grid_id, body).revision
             '19'
         """
-        return self._session.send(endpoints.move_columns(grid_id, body))
+        return self._session.send(endpoints.columns_move(grid_id, body))
 
     def cells_update(self, grid_id: str, body: CellsUpdate) -> CellsUpdateResult:
         """``POST /grids/{id}/cells`` — set individual cell values. ``body`` is a ``CellsUpdate``.
@@ -313,7 +313,7 @@ class GridsClient(Resource):
             ... ).revision
             '20'
         """
-        return self._session.send(endpoints.update_cells(grid_id, body))
+        return self._session.send(endpoints.cells_update(grid_id, body))
 
     def clone(self, grid_id: str, body: GridClone) -> AsyncOperation:
         """``POST /grids/{id}/clone`` — copy the grid onto another page (async trigger).
@@ -338,7 +338,7 @@ class GridsClient(Resource):
             >>> wiki.grids.clone(grid_id, body).operation.id
             'task-6201'
         """
-        return self._session.send(endpoints.clone_grid(grid_id, body))
+        return self._session.send(endpoints.clone(grid_id, body))
 
     def columns_suggest(self, grid_id: str, body: ColumnSuggest) -> ColumnSuggestion:
         """``POST /grids/{id}/columns/suggest`` — is a column slug free? (undocumented, may change).
@@ -362,7 +362,7 @@ class GridsClient(Resource):
             ... ).occupied
             False
         """
-        return self._session.send(endpoints.suggest_column(grid_id, body))
+        return self._session.send(endpoints.columns_suggest(grid_id, body))
 
     def columns_update(
         self, grid_id: str, column_slug: str, body: ColumnUpdate
@@ -390,7 +390,7 @@ class GridsClient(Resource):
             ... ).column.title
             'Stage 2'
         """
-        return self._session.send(endpoints.update_column(grid_id, column_slug, body))
+        return self._session.send(endpoints.columns_update(grid_id, column_slug, body))
 
     def rows_update(self, grid_id: str, row_id: str, body: RowUpdate) -> RowUpdateResult:
         """``POST /grids/{id}/rows/{row_id}`` — pin or colour one row (undocumented, may change).
@@ -415,4 +415,4 @@ class GridsClient(Resource):
             ... )
             RowUpdateResult(...)
         """
-        return self._session.send(endpoints.update_row(grid_id, row_id, body))
+        return self._session.send(endpoints.rows_update(grid_id, row_id, body))

@@ -1,9 +1,9 @@
 """Tracker queue ``/triggers`` operations, declared once (sans-IO).
 
 Examples:
-    >>> update_trigger("DESIGN", 16, {"active": False}, version=2).params
+    >>> update("DESIGN", 16, {"active": False}, version=2).params
     {'version': 2}
-    >>> list_webhook_log("DEV", 6, limit=100).path
+    >>> webhook_log_list("DEV", 6, limit=100).path
     'queues/DEV/triggers/6/webhooks/log'
 """
 
@@ -30,9 +30,7 @@ def _trigger_path(queue_id: str, trigger_id: int) -> str:
     return f"queues/{segment(queue_id)}/triggers/{segment(trigger_id)}"
 
 
-def list_triggers(
-    queue_id: str, *, page_size: int = PAGE_SIZE
-) -> Paged[ItemList[Trigger], Trigger]:
+def list_(queue_id: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Trigger], Trigger]:
     """``GET /queues/{id}/triggers``, ascending by id, each next page from ``id=<last id>``."""
     return Paged(
         Endpoint(
@@ -46,22 +44,22 @@ def list_triggers(
     )
 
 
-def get_trigger(queue_id: str, trigger_id: int) -> Endpoint[Trigger]:
+def get(queue_id: str, trigger_id: int) -> Endpoint[Trigger]:
     return Endpoint("GET", _trigger_path(queue_id, trigger_id), Trigger)
 
 
-def create_trigger(queue_id: str, body: TriggerCreate) -> Endpoint[Trigger]:
+def create(queue_id: str, body: TriggerCreate) -> Endpoint[Trigger]:
     return Endpoint("POST", f"queues/{segment(queue_id)}/triggers", Trigger, json=body)
 
 
-def update_trigger(
+def update(
     queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None
 ) -> Endpoint[Trigger]:
     path = _trigger_path(queue_id, trigger_id)
     return Endpoint("PATCH", path, Trigger, json=body, params={"version": version})
 
 
-def list_webhook_log(
+def webhook_log_list(
     queue_id: str,
     trigger_id: int,
     *,

@@ -37,7 +37,7 @@ class QuestionsClient(Resource):
             >>> forms.questions.get("686d0a1b2c3d4e5f00000010", "17").slug
             'name'
         """
-        endpoint = endpoints.get_question(survey_id, question_id, with_slugs=with_slugs)
+        endpoint = endpoints.get(survey_id, question_id, with_slugs=with_slugs)
         return self._session.send(endpoint)
 
     def list(self, survey_id: str) -> QuestionsResponse:
@@ -53,7 +53,7 @@ class QuestionsClient(Resource):
             >>> forms.questions.list("686d0a1b2c3d4e5f00000010").pages[0].items[0].slug
             'name'
         """
-        return self._session.send(endpoints.list_questions(survey_id))
+        return self._session.send(endpoints.list_(survey_id))
 
     def create(self, survey_id: str, body: QuestionCreate) -> Question:
         """``POST /surveys/{id}/questions`` — append a question from a typed body.
@@ -74,7 +74,7 @@ class QuestionsClient(Resource):
             >>> forms.questions.create("686d0a1b2c3d4e5f00000010", StringQuestion(label="Name")).id
             17
         """
-        return self._session.send(endpoints.create_question(survey_id, body))
+        return self._session.send(endpoints.create(survey_id, body))
 
     def update(self, survey_id: str, question_id: str, body: QuestionCreate) -> Question:
         """``PATCH /surveys/{id}/questions/{question_id}`` — replace a question's settings.
@@ -96,7 +96,7 @@ class QuestionsClient(Resource):
             ... ).label
             'Name'
         """
-        return self._session.send(endpoints.update_question(survey_id, question_id, body))
+        return self._session.send(endpoints.update(survey_id, question_id, body))
 
     def delete(self, survey_id: str, question_id: str, *, force: bool = False) -> Ack:
         """``DELETE /surveys/{id}/questions/{question_id}`` → an :class:`Ack`.
@@ -119,7 +119,7 @@ class QuestionsClient(Resource):
         """
         if force:
             warn_ignored("force", FORCE_IGNORED)
-        self._session.send(endpoints.delete_question(survey_id, question_id, force=force))
+        self._session.send(endpoints.delete(survey_id, question_id, force=force))
         return Ack.deleted("question", question_id, on=f"survey {survey_id}")
 
     def move(self, survey_id: str, question_id: str, body: QuestionMove) -> QuestionMoveResult:
@@ -143,4 +143,4 @@ class QuestionsClient(Resource):
             ... ).id
             20
         """
-        return self._session.send(endpoints.move_question(survey_id, question_id, body))
+        return self._session.send(endpoints.move(survey_id, question_id, body))
