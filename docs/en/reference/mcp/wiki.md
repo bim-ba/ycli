@@ -518,7 +518,7 @@ A single dynamic table (grid) by its UUID, with structure, rows and revision.
 Grids are the modern dynamic tables attached to a page; find a grid's id with
 ``pages_grids_list``. Use ``filter``/``only_cols``/``only_rows``/``sort`` to narrow large
 grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. The returned
-``revision`` is the optimistic-lock token any subsequent write (via the CLI/SDK) must echo.
+``revision`` is what any subsequent write must send back.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -536,8 +536,8 @@ grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. 
 Create an empty dynamic table (grid) as a resource of a page.
 
 A new grid has no rows or columns — add them afterwards with ``grids_columns_add`` and
-``grids_rows_add``. Returns the created grid; its ``revision`` seeds the optimistic lock
-every subsequent write must echo.
+``grids_rows_add``. Returns the created grid; every subsequent write sends its
+``revision`` back.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -555,7 +555,7 @@ a mismatch fails the write. Returns the grid's new ``revision``.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
-| `body` | object | yes | Editable fields (``title``, ``default_sort``) plus the required ``revision`` (optimistic lock). |
+| `body` | object | yes | Editable fields (``title``, ``default_sort``) plus the required ``revision``. |
 
 ## `wiki_grids_delete`
 

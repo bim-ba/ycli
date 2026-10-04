@@ -40,9 +40,10 @@ class GridsClient(Resource):
     Reads: :meth:`get`, :meth:`columns_suggest`. Writes: :meth:`create`, :meth:`update`,
     :meth:`delete`, the row/column add/remove/move calls, :meth:`cells_update`, the async
     :meth:`clone`, :meth:`columns_update` and :meth:`rows_update`.
-    Every mutating body carries a ``revision`` for optimistic locking except ``create`` (no prior
-    revision) and ``clone`` (a deferred trigger); ``columns_update`` and ``rows_update`` take one
-    but the API does not enforce it there.
+    Every mutating body carries the ``revision`` the edit is based on, except ``create`` (no
+    prior revision) and ``clone`` (a deferred trigger). The API refuses (409) only a cell
+    changed after that revision; a stale one passes for every other write (checked live on
+    2026-10-04).
 
     ``columns_suggest``, ``columns_update`` and ``rows_update`` call operations Yandex does not
     document (they are in the live OpenAPI only), so their contract may change without notice.
@@ -62,8 +63,8 @@ class GridsClient(Resource):
 
         ``fields`` adds optional blocks (``attributes``, ``user_permissions``); ``row_filter`` /
         ``only_cols`` / ``only_rows`` / ``sort`` narrow the returned rows and columns server-side;
-        ``revision`` loads a historical version. Read the ``revision`` off the result to drive any
-        subsequent write's optimistic lock.
+        ``revision`` loads a historical version. Read the ``revision`` off the result and send it
+        with the next write.
 
         Args:
             grid_id: The grid's id.

@@ -1202,7 +1202,7 @@ $ ycli wiki grids update [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--title TEXT`: New grid title.
 * `--default-sort TEXT`: New default sort as JSON in the write shape '[{"<column_slug>": "asc"|"desc"}]', e.g. '[{"priority": "desc"}]'.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1296,7 +1296,7 @@ $ ycli wiki grids rows add [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--rows TEXT`: Rows as JSON, e.g. '[{"name":"x"}]' (slug→value).  [required]
 * `--position INTEGER`: Zero-based target index.
 * `--after-row-id TEXT`: Insert after this row id.
@@ -1322,7 +1322,7 @@ $ ycli wiki grids rows remove [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--row-id TEXT`: Row id to delete (repeatable).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1346,7 +1346,7 @@ $ ycli wiki grids rows move [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--row-id TEXT`: Id of the first row to move.
 * `--after-row-id TEXT`: Move to just after this row id.
 * `--position INTEGER`: Zero-based target index.
@@ -1423,7 +1423,7 @@ $ ycli wiki grids columns add [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--columns TEXT`: Columns as JSON, e.g. '[{"title":"C","type":"string","slug":"c"}]'.  [required]
 * `--position INTEGER`: Zero-based target index.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1448,7 +1448,7 @@ $ ycli wiki grids columns remove [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--column-slug TEXT`: Column slug to delete (repeatable).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1472,7 +1472,7 @@ $ ycli wiki grids columns move [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--column-slug TEXT`: Slug of the first column to move.
 * `--position INTEGER`: Zero-based target index.
 * `--columns-count INTEGER`: How many consecutive columns to move.
@@ -1574,7 +1574,7 @@ $ ycli wiki grids cells update [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Current grid revision (optimistic lock).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--cells TEXT`: Cells as JSON, e.g. '[{"row_id":1,"column_slug":"name","value":"x"}]'.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
