@@ -30,4 +30,4 @@ class RecoveryClient(Resource):
             >>> wiki.recovery.restore("recovery-token-1").slug
             'eng/restored'
         """
-        return self._session.send(endpoints.restore_page(token))
+        return self._session.send(endpoints.restore(token))

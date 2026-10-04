@@ -34,7 +34,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.list().root[0].name
             'Backend'
         """
-        return self._session.send(endpoints.list_components())
+        return self._session.send(endpoints.list_())
 
     def create(self, body: ComponentCreate) -> Component:
         """Create a component from a typed ``ComponentCreate`` body. Returns the ``Component``.
@@ -50,7 +50,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.create(ComponentCreate(name="UI", queue="WEB")).id
             111175
         """
-        return self._session.send(endpoints.create_component(body))
+        return self._session.send(endpoints.create(body))
 
     def update(
         self, component_id: int, body: ComponentUpdate, *, version: int | None = None
@@ -73,7 +73,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.update(111175, ComponentUpdate(name="Web UI"), version=4).version
             5
         """
-        return self._session.send(endpoints.update_component(component_id, body, version=version))
+        return self._session.send(endpoints.update(component_id, body, version=version))
 
     def list_for_queue(self, queue_id: str, *, fields: str | None = None) -> ItemList[Component]:
         """``GET /queues/{queue_id}/components`` → the components of one queue.
@@ -94,7 +94,7 @@ class ComponentsClient(Resource):
             ... ].name
             'Frontend'
         """
-        return self._session.send(endpoints.list_queue_components(queue_id, fields=fields))
+        return self._session.send(endpoints.list_for_queue(queue_id, fields=fields))
 
     def get(self, component_id: int, *, fields: str | None = None) -> Component:
         """``GET /components/{component_id}`` → one component.
@@ -110,7 +110,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.get(125, fields="name,lead,assignAuto").name
             'Backend'
         """
-        return self._session.send(endpoints.get_component(component_id, fields=fields))
+        return self._session.send(endpoints.get(component_id, fields=fields))
 
     def delete(self, component_id: int) -> None:
         """``DELETE /components/{component_id}`` → 204; raises on non-2xx.
@@ -121,7 +121,7 @@ class ComponentsClient(Resource):
         Examples:
             >>> tracker.components.delete(127)
         """
-        self._session.send(endpoints.delete_component(component_id))
+        self._session.send(endpoints.delete(component_id))
 
     def user_permissions_get(self, component_id: int, user_id: str) -> ComponentUserAccess:
         """``GET /components/{id}/permissions/users/{user_id}`` → a user's rights on a component.
@@ -139,7 +139,7 @@ class ComponentsClient(Resource):
             >>> tracker.components.user_permissions_get(128, "dan").user.display
             'Dan'
         """
-        return self._session.send(endpoints.get_user_access(component_id, user_id))
+        return self._session.send(endpoints.user_permissions_get(component_id, user_id))
 
     def group_permissions_get(self, component_id: int, group_id: int) -> ComponentGroupAccess:
         """``GET /components/{id}/permissions/groups/{group_id}`` → a group's rights on it.
@@ -155,4 +155,4 @@ class ComponentsClient(Resource):
             >>> tracker.components.group_permissions_get(129, 88).group.display
             'Reviewers'
         """
-        return self._session.send(endpoints.get_group_access(component_id, group_id))
+        return self._session.send(endpoints.group_permissions_get(component_id, group_id))

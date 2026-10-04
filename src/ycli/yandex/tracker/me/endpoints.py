@@ -1,7 +1,7 @@
 """Tracker ``/myself``, declared once (sans-IO).
 
 Examples:
-    >>> get_me().path
+    >>> get().path
     'myself'
 """
 
@@ -11,5 +11,5 @@ from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.tracker.me.models import Me
 
 
-def get_me() -> Endpoint[Me]:
+def get() -> Endpoint[Me]:
     return Endpoint("GET", "myself", Me)

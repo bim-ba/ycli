@@ -28,7 +28,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.list(3).root[0].name
             'Sprint 1'
         """
-        return self._session.send(endpoints.list_sprints(board_id))
+        return self._session.send(endpoints.list_(board_id))
 
     def get(self, sprint_id: int) -> Sprint:
         """``GET /sprints/{sprint_id}`` → a single sprint.
@@ -43,7 +43,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.get(4402).status
             'in_progress'
         """
-        return self._session.send(endpoints.get_sprint(sprint_id))
+        return self._session.send(endpoints.get(sprint_id))
 
     def create(self, body: SprintCreate) -> Sprint:
         """Create a sprint from a typed ``SprintCreate`` body. Returns the created ``Sprint``.
@@ -65,7 +65,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.create(new_sprint).id
             4403
         """
-        return self._session.send(endpoints.create_sprint(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, sprint_id: int, body: SprintUpdate, *, version: int | None = None) -> Sprint:
         """Edit a sprint from a typed ``SprintUpdate`` body. Returns the updated ``Sprint``.
@@ -87,7 +87,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.update(4404, SprintUpdate(name="Updated"), version=5).name
             'Updated'
         """
-        return self._session.send(endpoints.update_sprint(sprint_id, body, version))
+        return self._session.send(endpoints.update(sprint_id, body, version))
 
     def delete(self, sprint_id: int) -> None:
         """``DELETE /sprints/{sprint_id}`` — delete a sprint (``204``, empty body).
@@ -98,7 +98,7 @@ class SprintsClient(Resource):
         Examples:
             >>> tracker.sprints.delete(4406)
         """
-        self._session.send(endpoints.delete_sprint(sprint_id))
+        self._session.send(endpoints.delete(sprint_id))
 
     def start(self, sprint_id: int, *, version: int | None = None) -> Sprint:
         """``POST /sprints/{sprint_id}/_start`` — start a sprint (status → in_progress).
@@ -117,7 +117,7 @@ class SprintsClient(Resource):
             >>> tracker.sprints.start(4407, version=6).status
             'in_progress'
         """
-        return self._session.send(endpoints.start_sprint(sprint_id, version))
+        return self._session.send(endpoints.start(sprint_id, version))
 
     def archive(self, sprint_id: int, *, version: int | None = None) -> Sprint:
         """``POST /sprints/{sprint_id}/_archive`` — archive a sprint (status → archived).
@@ -136,4 +136,4 @@ class SprintsClient(Resource):
             >>> tracker.sprints.archive(4409, version=7).status
             'archived'
         """
-        return self._session.send(endpoints.archive_sprint(sprint_id, version))
+        return self._session.send(endpoints.archive(sprint_id, version))

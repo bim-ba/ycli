@@ -35,7 +35,7 @@ class ProjectsClient(Resource):
             >>> tracker.projects.list(expand="queues").root[0].name
             'Project'
         """
-        return self._session.send(endpoints.list_projects(expand=expand))
+        return self._session.send(endpoints.list_(expand=expand))
 
     def get(self, project_id: int, *, expand: str | None = None) -> Project:
         """``GET /projects/{project_id}`` → one project.
@@ -51,7 +51,7 @@ class ProjectsClient(Resource):
             >>> tracker.projects.get(21, expand="queues").version
             1
         """
-        return self._session.send(endpoints.get_project(project_id, expand=expand))
+        return self._session.send(endpoints.get(project_id, expand=expand))
 
     def queues(self, project_id: int, *, expand: str | None = None) -> ItemList[Queue]:
         """``GET /projects/{project_id}/queues`` → the queues whose issues are in the project.
@@ -69,7 +69,7 @@ class ProjectsClient(Resource):
             >>> tracker.projects.queues(23, expand="components,versions").root[0].key
             'ORG'
         """
-        return self._session.send(endpoints.list_project_queues(project_id, expand=expand))
+        return self._session.send(endpoints.queues(project_id, expand=expand))
 
     def create(self, body: ProjectCreate) -> Project:
         """``POST /projects`` → create a project from a typed ``ProjectCreate`` body.
@@ -88,7 +88,7 @@ class ProjectsClient(Resource):
             >>> tracker.projects.create(ProjectCreate(name="Launch", queues="LAUNCH")).id
             '9'
         """
-        return self._session.send(endpoints.create_project(body))
+        return self._session.send(endpoints.create(body))
 
     def update(
         self, project_id: int, body: ProjectUpdate, *, version: int, expand: str | None = None
@@ -113,7 +113,7 @@ class ProjectsClient(Resource):
             6
         """
         return self._session.send(
-            endpoints.update_project(project_id, body, version=version, expand=expand)
+            endpoints.update(project_id, body, version=version, expand=expand)
         )
 
     def delete(self, project_id: int) -> None:
@@ -125,4 +125,4 @@ class ProjectsClient(Resource):
         Examples:
             >>> tracker.projects.delete(33)
         """
-        self._session.send(endpoints.delete_project(project_id))
+        self._session.send(endpoints.delete(project_id))

@@ -24,4 +24,4 @@ class MeClient(Resource):
             >>> tracker.me.get().login
             'alice'
         """
-        return self._session.send(endpoints.get_me())
+        return self._session.send(endpoints.get())

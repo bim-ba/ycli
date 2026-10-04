@@ -1,9 +1,9 @@
 """Tracker ``/issues`` operations, each declared once (sans-IO, shared by sync and async).
 
 Examples:
-    >>> get_issue("TEST-1", expand=None, fields=None).path
+    >>> get("TEST-1", expand=None, fields=None).path
     'issues/TEST-1'
-    >>> search_issues(IssueSearch(query="Queue: TEST"), expand=None).endpoint.effect
+    >>> search(IssueSearch(query="Queue: TEST"), expand=None).endpoint.effect
     'read'
 """
 
@@ -24,7 +24,7 @@ from ycli.yandex.tracker.issues.models import (
 SEARCH_PAGE_SIZE = 100
 
 
-def get_issue(
+def get(
     key: str,
     *,
     expand: str | None,
@@ -35,12 +35,12 @@ def get_issue(
     )
 
 
-def search_issues(
+def search(
     body: IssueSearch, *, expand: str | None, page_size: int = SEARCH_PAGE_SIZE
 ) -> Paged[ItemList[Issue], Issue]:
     """``POST /issues/_search`` with a ``filter`` or ``query`` body, paged by ``page``/``perPage``.
 
-    Page-number paging covers up to 10 000 results; :func:`scroll_issues` reads more.
+    Page-number paging covers up to 10 000 results; :func:`search_scroll` reads more.
     """
     endpoint = Endpoint(
         "POST",
@@ -53,7 +53,7 @@ def search_issues(
     return Paged(endpoint, PageNumberPagination(page_size=page_size), lambda page: page.root)
 
 
-def scroll_issues(
+def search_scroll(
     body: IssueSearch,
     *,
     expand: str | None,
@@ -78,11 +78,11 @@ def scroll_issues(
     return Paged(endpoint, ScrollPagination(), lambda page: page.root)
 
 
-def count_issues(body: IssueSearch) -> Endpoint[int]:
+def count(body: IssueSearch) -> Endpoint[int]:
     return Endpoint("POST", "issues/_count", int, json=body, effect="read")
 
 
-def create_issue(
+def create(
     body: IssueCreate,
     *,
     notify: bool | None,
@@ -90,11 +90,11 @@ def create_issue(
     return Endpoint("POST", "issues/", Issue, json=body, params={"notify": notify})
 
 
-def update_issue(key: str, body: IssueUpdate) -> Endpoint[Issue]:
+def update(key: str, body: IssueUpdate) -> Endpoint[Issue]:
     return Endpoint("PATCH", f"issues/{segment(key)}", Issue, json=body)
 
 
-def move_issue(
+def move(
     key: str,
     queue: str,
     *,
@@ -115,7 +115,7 @@ def move_issue(
     return Endpoint("POST", f"issues/{segment(key)}/_move", Issue, params=params)
 
 
-def suggest_issues(
+def suggest(
     text: str,
     *,
     queue: str | None,
@@ -135,6 +135,6 @@ def suggest_issues(
     return Endpoint("GET", "issues/_suggest", ItemList[Issue], params=params)
 
 
-def clear_scroll(body: ScrollClear) -> Endpoint[None]:
+def scroll_clear(body: ScrollClear) -> Endpoint[None]:
     """``POST /system/search/scroll/_clear`` — releasing a scroll is safe to repeat."""
     return Endpoint("POST", "system/search/scroll/_clear", json=body, effect="idempotent_write")

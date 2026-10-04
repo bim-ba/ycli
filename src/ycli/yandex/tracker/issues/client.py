@@ -42,7 +42,7 @@ class IssuesClient(Resource):
             >>> tracker.issues.get("DE-7").summary
             'Fix the login page'
         """
-        return self._session.send(endpoints.get_issue(key, expand=expand, fields=fields))
+        return self._session.send(endpoints.get(key, expand=expand, fields=fields))
 
     def search(
         self,
@@ -92,7 +92,7 @@ class IssuesClient(Resource):
         # A small cap needs no 100-issue page.
         page_size = min(limit, endpoints.SEARCH_PAGE_SIZE) if limit else endpoints.SEARCH_PAGE_SIZE
         if scroll_type is not None:
-            paged = endpoints.scroll_issues(
+            paged = endpoints.search_scroll(
                 body,
                 expand=expand,
                 scroll_type=scroll_type,
@@ -100,7 +100,7 @@ class IssuesClient(Resource):
                 scroll_ttl_millis=scroll_ttl_millis,
             )
         else:
-            paged = endpoints.search_issues(body, expand=expand, page_size=page_size)
+            paged = endpoints.search(body, expand=expand, page_size=page_size)
         return ItemList[Issue](list(self._session.iterate(paged, limit=limit)))
 
     def count(self, body: IssueSearch) -> int:
@@ -112,7 +112,7 @@ class IssuesClient(Resource):
         Returns:
             The number of matching issues.
         """
-        return self._session.send(endpoints.count_issues(body))
+        return self._session.send(endpoints.count(body))
 
     def create(
         self,
@@ -130,7 +130,7 @@ class IssuesClient(Resource):
         Returns:
             The created issue.
         """
-        return self._session.send(endpoints.create_issue(body, notify=notify))
+        return self._session.send(endpoints.create(body, notify=notify))
 
     def update(self, key: str, body: IssueUpdate) -> Issue:
         """``PATCH /issues/{key}`` — update fields; returns the updated ``Issue``.
@@ -142,7 +142,7 @@ class IssuesClient(Resource):
         Returns:
             The updated issue.
         """
-        return self._session.send(endpoints.update_issue(key, body))
+        return self._session.send(endpoints.update(key, body))
 
     def move(
         self,
@@ -175,7 +175,7 @@ class IssuesClient(Resource):
             The moved issue.
         """
         return self._session.send(
-            endpoints.move_issue(
+            endpoints.move(
                 key,
                 queue,
                 expand=expand,
@@ -211,7 +211,7 @@ class IssuesClient(Resource):
             The matching issues.
         """
         return self._session.send(
-            endpoints.suggest_issues(
+            endpoints.suggest(
                 text, queue=queue, full=full, fields=fields, expand=expand, embed=embed
             )
         )
@@ -222,4 +222,4 @@ class IssuesClient(Resource):
         Args:
             body: The scroll ids mapped to their scroll tokens.
         """
-        self._session.send(endpoints.clear_scroll(body))
+        self._session.send(endpoints.scroll_clear(body))

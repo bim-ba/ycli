@@ -46,7 +46,7 @@ class CommentsClient(Resource):
             >>> [comment.author for comment in wiki.comments.list(5501, limit=45).root]
             ['Vera', 'Ivan']
         """
-        paged = endpoints.list_comments(
+        paged = endpoints.list_(
             page_id, order_by=order_by, order_direction=order_direction, status_filter=status_filter
         )
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
@@ -157,7 +157,7 @@ class CommentsClient(Resource):
             >>> wiki.comments.thread_get(5508, 5512).root
             []
         """
-        paged = endpoints.get_thread(page_id, comment_id)
+        paged = endpoints.thread_get(page_id, comment_id)
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def create(self, page_id: int, body: CommentCreate) -> CommentCreated:
@@ -178,7 +178,7 @@ class CommentsClient(Resource):
             >>> wiki.comments.create(5505, CommentCreate.model_validate({"body": "Plain note"})).id
             5515
         """
-        return self._session.send(endpoints.create_comment(page_id, body))
+        return self._session.send(endpoints.create(page_id, body))
 
     def delete(self, page_id: int, comment_id: int) -> CommentDeleteResult:
         """``DELETE /pages/{id}/comments/{comment_id}`` → ``{comments_count}`` left on the page.
@@ -194,4 +194,4 @@ class CommentsClient(Resource):
             >>> wiki.comments.delete(5506, 5516).comments_count
             4
         """
-        return self._session.send(endpoints.delete_comment(page_id, comment_id))
+        return self._session.send(endpoints.delete(page_id, comment_id))

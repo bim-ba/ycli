@@ -25,4 +25,4 @@ class ApplicationsClient(Resource):
             >>> tracker.applications.list().root[0].id
             'my-application'
         """
-        return self._session.send(endpoints.list_applications())
+        return self._session.send(endpoints.list_())

@@ -41,7 +41,7 @@ class ChangelogClient(Resource):
             ['ch1', 'ch2', 'ch3']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_changelog(
+        paged = endpoints.list_(
             key, page_size=page_size, field=field, change_type=change_type, sort=sort
         )
         return ItemList[ChangelogEntry](list(self._session.iterate(paged, limit=limit)))

@@ -28,4 +28,4 @@ class VariablesClient(Resource):
             >>> forms.variables.list("686d0a1b2c3d4e5f000000c0").root[0].type
             'form.answer_url'
         """
-        return self._session.send(endpoints.list_variables(survey_id))
+        return self._session.send(endpoints.list_(survey_id))

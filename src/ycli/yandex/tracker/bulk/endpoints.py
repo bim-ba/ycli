@@ -4,9 +4,9 @@ Every trigger starts a new async operation, so even ``_update`` is a plain (non-
 write; the two reads poll it.
 
 Examples:
-    >>> update_bulk({"issues": ["TEST-1"]}, notify=None).effect
+    >>> update({"issues": ["TEST-1"]}, notify=None).effect
     'write'
-    >>> get_bulk("1ab2").path
+    >>> get("1ab2").path
     'bulkchange/1ab2'
 """
 
@@ -23,7 +23,7 @@ from ycli.yandex.tracker.bulk.models import (
 )
 
 
-def update_bulk(
+def update(
     body: BulkUpdate,
     *,
     notify: bool | None,
@@ -31,7 +31,7 @@ def update_bulk(
     return Endpoint("POST", "bulkchange/_update", BulkChange, json=body, params={"notify": notify})
 
 
-def move_bulk(
+def move(
     body: BulkMove,
     *,
     notify: bool | None,
@@ -39,7 +39,7 @@ def move_bulk(
     return Endpoint("POST", "bulkchange/_move", BulkChange, json=body, params={"notify": notify})
 
 
-def transition_bulk(
+def transition(
     body: BulkTransition,
     *,
     notify: bool | None,
@@ -49,9 +49,9 @@ def transition_bulk(
     )
 
 
-def get_bulk(bulk_id: str) -> Endpoint[BulkChange]:
+def get(bulk_id: str) -> Endpoint[BulkChange]:
     return Endpoint("GET", f"bulkchange/{segment(bulk_id)}", BulkChange)
 
 
-def list_bulk_issues(bulk_id: str) -> Endpoint[ItemList[BulkIssueResult]]:
+def issues_list(bulk_id: str) -> Endpoint[ItemList[BulkIssueResult]]:
     return Endpoint("GET", f"bulkchange/{segment(bulk_id)}/issues", ItemList[BulkIssueResult])

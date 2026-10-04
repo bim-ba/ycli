@@ -4,9 +4,9 @@
 it is sent only when set, because ``false`` is the API's default.
 
 Examples:
-    >>> delete_access(7, "9", prevent_selflock=True).params
+    >>> delete(7, "9", prevent_selflock=True).params
     {'prevent_selflock': True}
-    >>> update_access(7, "9", {"role": "reader"}, prevent_selflock=False).effect
+    >>> update(7, "9", {"role": "reader"}, prevent_selflock=False).effect
     'idempotent_write'
 """
 
@@ -20,11 +20,11 @@ def _selflock(prevent_selflock: bool) -> dict[str, bool | None]:
     return {"prevent_selflock": True if prevent_selflock else None}
 
 
-def create_access(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
+def create(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
     return Endpoint("POST", f"pages/{segment(page_id)}/access", PageAccess, json=body)
 
 
-def update_access(
+def update(
     page_id: int, access_id: str, body: PageAccessUpdate, *, prevent_selflock: bool
 ) -> Endpoint[PageAccess]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
@@ -38,12 +38,12 @@ def update_access(
     )
 
 
-def delete_access(page_id: int, access_id: str, *, prevent_selflock: bool) -> Endpoint[None]:
+def delete(page_id: int, access_id: str, *, prevent_selflock: bool) -> Endpoint[None]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
     return Endpoint("DELETE", path, params=_selflock(prevent_selflock))
 
 
-def clear_access(page_id: int, *, prevent_selflock: bool) -> Endpoint[None]:
+def clear(page_id: int, *, prevent_selflock: bool) -> Endpoint[None]:
     return Endpoint(
         "DELETE", f"pages/{segment(page_id)}/access", params=_selflock(prevent_selflock)
     )

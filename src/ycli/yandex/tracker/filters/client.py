@@ -27,7 +27,7 @@ class FiltersClient(Resource):
             >>> tracker.filters.get("12345").name
             'My open issues'
         """
-        return self._session.send(endpoints.get_filter(filter_id))
+        return self._session.send(endpoints.get(filter_id))
 
     def create(self, body: FilterCreate) -> Filter:
         """Create a saved filter from a typed ``FilterCreate`` body. Returns the ``Filter``.
@@ -43,7 +43,7 @@ class FiltersClient(Resource):
             >>> tracker.filters.create(FilterCreate(name="My open", filter={"status": "open"})).id
             12346
         """
-        return self._session.send(endpoints.create_filter(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, filter_id: str, body: FilterUpdate) -> Filter:
         """Edit filter ``filter_id`` from a typed ``FilterUpdate`` body. Returns the ``Filter``.
@@ -63,7 +63,7 @@ class FiltersClient(Resource):
             >>> tracker.filters.update("12347", FilterUpdate(name="Renamed")).name
             'Renamed'
         """
-        return self._session.send(endpoints.update_filter(filter_id, body))
+        return self._session.send(endpoints.update(filter_id, body))
 
     def delete(self, filter_id: str) -> None:
         """``DELETE /filters/{filter_id}`` → 204; raises on non-2xx.
@@ -77,4 +77,4 @@ class FiltersClient(Resource):
         Examples:
             >>> tracker.filters.delete("12349")
         """
-        self._session.send(endpoints.delete_filter(filter_id))
+        self._session.send(endpoints.delete(filter_id))

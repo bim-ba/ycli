@@ -3,11 +3,11 @@
 ``entity_type`` (project | portfolio | goal) is the first path segment of every entity route.
 
 Examples:
-    >>> get_entity("project", "655f", expand=None, fields="summary").params
+    >>> get("project", "655f", expand=None, fields="summary").params
     {'expand': None, 'fields': 'summary'}
-    >>> search_entities("goal", {}, fields=None, per_page=None, page=None).effect
+    >>> search("goal", {}, fields=None, per_page=None, page=None).effect
     'read'
-    >>> events = list_events(
+    >>> events = events_list(
     ...     "project", "655f", per_page=100, selected=None, new_events_on_top=None, direction=None
     ... )
     >>> events.endpoint.path
@@ -60,7 +60,7 @@ def _entity(entity_type: str, entity_id: str) -> str:
 # ---- core ----------------------------------------------------------------------------------
 
 
-def create_entity(
+def create(
     entity_type: str,
     body: EntityCreate,
     *,
@@ -71,14 +71,14 @@ def create_entity(
     )
 
 
-def get_entity(
+def get(
     entity_type: str, entity_id: str, *, expand: str | None, fields: str | None
 ) -> Endpoint[Entity]:
     params = {"expand": expand, "fields": fields}
     return Endpoint("GET", _entity(entity_type, entity_id), Entity, params=params)
 
 
-def update_entity(
+def update(
     entity_type: str,
     entity_id: str,
     body: EntityUpdate,
@@ -95,12 +95,12 @@ def update_entity(
     )
 
 
-def delete_entity(entity_type: str, entity_id: str, *, with_board: bool | None) -> Endpoint[None]:
+def delete(entity_type: str, entity_id: str, *, with_board: bool | None) -> Endpoint[None]:
     params = {"withBoard": with_board}
     return Endpoint("DELETE", _entity(entity_type, entity_id), params=params)
 
 
-def search_entities(
+def search(
     entity_type: str,
     body: EntitySearch,
     *,
@@ -119,7 +119,7 @@ def search_entities(
     )
 
 
-def list_events(
+def events_list(
     entity_type: str,
     entity_id: str,
     *,
@@ -146,7 +146,7 @@ def list_events(
     )
 
 
-def get_permissions(entity_type: str, entity_id: str) -> Endpoint[ExtendedPermissions]:
+def permissions_get(entity_type: str, entity_id: str) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
     return Endpoint("GET", path, ExtendedPermissions)
 
@@ -158,7 +158,7 @@ def set_permissions(
     return Endpoint("PATCH", path, ExtendedPermissions, json=body)
 
 
-def get_direct_permissions(entity_type: str, entity_id: str) -> Endpoint[ACL]:
+def direct_permissions_get(entity_type: str, entity_id: str) -> Endpoint[ACL]:
     return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", ACL)
 
 
@@ -174,7 +174,7 @@ def bulk_update(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChange
     return Endpoint("POST", path, BulkChangeOperation, json=body)
 
 
-def get_bulk_status(operation_id: str) -> Endpoint[BulkChangeOperation]:
+def bulk_status_get(operation_id: str) -> Endpoint[BulkChangeOperation]:
     return Endpoint("GET", f"bulkchange/{segment(operation_id)}", BulkChangeOperation)
 
 
@@ -185,14 +185,14 @@ def create_report(body: ReportCreate) -> Endpoint[Entity]:
 # ---- comments ------------------------------------------------------------------------------
 
 
-def list_comments(
+def comments_list(
     entity_type: str, entity_id: str, *, expand: str | None
 ) -> Endpoint[ItemList[Comment]]:
     path = f"{_entity(entity_type, entity_id)}/comments"
     return Endpoint("GET", path, ItemList[Comment], params={"expand": expand})
 
 
-def list_comments_relative(
+def comments_relative_list(
     entity_type: str, entity_id: str, *, per_page: int
 ) -> Paged[CommentsRelativeResponse, Comment]:
     """``GET …/comments/_relative``, each next page from the last comment's ``longId``."""
@@ -208,14 +208,14 @@ def list_comments_relative(
     )
 
 
-def get_comment(
+def comments_get(
     entity_type: str, entity_id: str, comment_id: str, *, expand: str | None
 ) -> Endpoint[Comment]:
     path = f"{_entity(entity_type, entity_id)}/comments/{segment(comment_id)}"
     return Endpoint("GET", path, Comment, params={"expand": expand})
 
 
-def create_comment(
+def comments_create(
     entity_type: str,
     entity_id: str,
     body: CommentCreate,
@@ -239,7 +239,7 @@ def create_comment(
     )
 
 
-def update_comment(
+def comments_update(
     entity_type: str,
     entity_id: str,
     comment_id: str,
@@ -265,7 +265,7 @@ def update_comment(
     )
 
 
-def delete_comment(
+def comments_delete(
     entity_type: str,
     entity_id: str,
     comment_id: str,
@@ -280,7 +280,7 @@ def delete_comment(
 # ---- checklists ----------------------------------------------------------------------------
 
 
-def create_checklist_items(
+def checklists_create(
     entity_type: str,
     entity_id: str,
     body: ItemList[ChecklistItemInput],
@@ -305,7 +305,7 @@ def create_checklist_items(
     )
 
 
-def update_checklist(
+def checklists_update(
     entity_type: str,
     entity_id: str,
     body: ItemList[ChecklistItemInput],
@@ -330,7 +330,7 @@ def update_checklist(
     )
 
 
-def update_checklist_item(
+def checklists_update_item(
     entity_type: str,
     entity_id: str,
     item_id: str,
@@ -356,7 +356,7 @@ def update_checklist_item(
     )
 
 
-def delete_checklist(
+def checklists_delete(
     entity_type: str,
     entity_id: str,
     *,
@@ -378,7 +378,7 @@ def delete_checklist(
     )
 
 
-def delete_checklist_item(
+def checklists_delete_item(
     entity_type: str,
     entity_id: str,
     item_id: str,
@@ -402,7 +402,7 @@ def delete_checklist_item(
     )
 
 
-def move_checklist_item(
+def checklists_move(
     entity_type: str,
     entity_id: str,
     item_id: str,
@@ -431,17 +431,17 @@ def move_checklist_item(
 # ---- links ---------------------------------------------------------------------------------
 
 
-def list_links(entity_type: str, entity_id: str, *, fields: str | None) -> Endpoint[ItemList[Link]]:
+def links_list(entity_type: str, entity_id: str, *, fields: str | None) -> Endpoint[ItemList[Link]]:
     path = f"{_entity(entity_type, entity_id)}/links"
     return Endpoint("GET", path, ItemList[Link], params={"fields": fields})
 
 
-def create_link(entity_type: str, entity_id: str, body: LinkInput) -> Endpoint[None]:
+def links_create(entity_type: str, entity_id: str, body: LinkInput) -> Endpoint[None]:
     """``POST …/links`` answers 200 with no body."""
     return Endpoint("POST", f"{_entity(entity_type, entity_id)}/links", json=body)
 
 
-def delete_link(entity_type: str, entity_id: str, right: str) -> Endpoint[None]:
+def links_delete(entity_type: str, entity_id: str, right: str) -> Endpoint[None]:
     path = f"{_entity(entity_type, entity_id)}/links"
     return Endpoint("DELETE", path, params={"right": right})
 
@@ -449,20 +449,20 @@ def delete_link(entity_type: str, entity_id: str, right: str) -> Endpoint[None]:
 # ---- attachments ---------------------------------------------------------------------------
 
 
-def list_attachments(entity_type: str, entity_id: str) -> Endpoint[ItemList[Attachment]]:
+def attachments_list(entity_type: str, entity_id: str) -> Endpoint[ItemList[Attachment]]:
     return Endpoint("GET", f"{_entity(entity_type, entity_id)}/attachments", ItemList[Attachment])
 
 
-def get_attachment(entity_type: str, entity_id: str, file_id: str) -> Endpoint[Attachment]:
+def attachments_get(entity_type: str, entity_id: str, file_id: str) -> Endpoint[Attachment]:
     path = f"{_entity(entity_type, entity_id)}/attachments/{segment(file_id)}"
     return Endpoint("GET", path, Attachment)
 
 
-def download_attachment(file_id: str, filename: str) -> Endpoint[bytes]:
+def attachments_download(file_id: str, filename: str) -> Endpoint[bytes]:
     return Endpoint("GET", f"attachments/{segment(file_id)}/{segment(filename)}", bytes)
 
 
-def attach_file(
+def attachments_attach(
     entity_type: str,
     entity_id: str,
     temp_file_id: str,
@@ -486,7 +486,7 @@ def attach_file(
     )
 
 
-def delete_attachment(entity_type: str, entity_id: str, file_id: str) -> Endpoint[None]:
+def attachments_delete(entity_type: str, entity_id: str, file_id: str) -> Endpoint[None]:
     """``DELETE …/attachments/{file_id}`` answers with an empty body."""
     path = f"{_entity(entity_type, entity_id)}/attachments/{segment(file_id)}"
     return Endpoint("DELETE", path)

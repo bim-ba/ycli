@@ -1,13 +1,13 @@
 """Forms display-condition operations, declared once (sans-IO).
 
-The four condition targets share one shape: a target path (a question, a page, the submit
-button, an integration group) under which the same six operations live. A ``*_target``
-function builds the target path; the six operation functions take it.
+The four condition targets (a question, a page, the submit button, an integration group) take
+the same six operations, and Yandex publishes each of the 24 on its own: one function per
+published operation, named like the client method that sends it.
 
 Examples:
-    >>> list_conditions(question_target("686d", "17")).path
+    >>> question_list("686d", "17").path
     'surveys/686d/questions/17/conditions'
-    >>> set_operator(submit_target("686d"), "or").json
+    >>> submit_set_operator("686d", "or").json
     {'operator': 'or'}
 """
 
@@ -22,42 +22,199 @@ if TYPE_CHECKING:
     from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 
 
-def question_target(survey_id: str, question_id: str) -> str:
-    return f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions"
+def question_list(survey_id: str, question_id: str) -> Endpoint[ConditionsResponse]:
+    return Endpoint(
+        "GET",
+        f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions",
+        ConditionsResponse,
+    )
 
 
-def page_target(survey_id: str, page_id: int) -> str:
-    return f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions"
+def question_get(survey_id: str, question_id: str, condition_id: int) -> Endpoint[Condition]:
+    return Endpoint(
+        "GET",
+        f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions/{segment(condition_id)}",
+        Condition,
+    )
 
 
-def submit_target(survey_id: str) -> str:
-    return f"surveys/{segment(survey_id)}/conditions"
+def question_create(survey_id: str, question_id: str, body: ConditionCreate) -> Endpoint[Condition]:
+    return Endpoint(
+        "POST",
+        f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions",
+        Condition,
+        json=body,
+    )
 
 
-def hook_target(survey_id: str, hook_id: int) -> str:
-    return f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions"
+def question_update(
+    survey_id: str, question_id: str, condition_id: int, body: ConditionUpdate
+) -> Endpoint[Condition]:
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions/{segment(condition_id)}",
+        Condition,
+        json=body,
+    )
 
 
-def list_conditions(target: str) -> Endpoint[ConditionsResponse]:
-    return Endpoint("GET", target, ConditionsResponse)
+def question_delete(survey_id: str, question_id: str, condition_id: int) -> Endpoint[None]:
+    return Endpoint(
+        "DELETE",
+        f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions/{segment(condition_id)}",
+    )
 
 
-def get_condition(target: str, condition_id: int) -> Endpoint[Condition]:
-    return Endpoint("GET", f"{target}/{segment(condition_id)}", Condition)
-
-
-def create_condition(target: str, body: ConditionCreate) -> Endpoint[Condition]:
-    return Endpoint("POST", target, Condition, json=body)
-
-
-def update_condition(target: str, condition_id: int, body: ConditionUpdate) -> Endpoint[Condition]:
-    return Endpoint("PATCH", f"{target}/{segment(condition_id)}", Condition, json=body)
-
-
-def delete_condition(target: str, condition_id: int) -> Endpoint[None]:
-    return Endpoint("DELETE", f"{target}/{segment(condition_id)}")
-
-
-def set_operator(target: str, operator: str) -> Endpoint[ConditionsResponse]:
+def question_set_operator(
+    survey_id: str, question_id: str, operator: str
+) -> Endpoint[ConditionsResponse]:
     """``PATCH`` on the collection sets the operator BETWEEN the groups."""
-    return Endpoint("PATCH", target, ConditionsResponse, json={"operator": operator})
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/questions/{segment(question_id)}/conditions",
+        ConditionsResponse,
+        json={"operator": operator},
+    )
+
+
+def page_list(survey_id: str, page_id: int) -> Endpoint[ConditionsResponse]:
+    return Endpoint(
+        "GET",
+        f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions",
+        ConditionsResponse,
+    )
+
+
+def page_get(survey_id: str, page_id: int, condition_id: int) -> Endpoint[Condition]:
+    return Endpoint(
+        "GET",
+        f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions/{segment(condition_id)}",
+        Condition,
+    )
+
+
+def page_create(survey_id: str, page_id: int, body: ConditionCreate) -> Endpoint[Condition]:
+    return Endpoint(
+        "POST",
+        f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions",
+        Condition,
+        json=body,
+    )
+
+
+def page_update(
+    survey_id: str, page_id: int, condition_id: int, body: ConditionUpdate
+) -> Endpoint[Condition]:
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions/{segment(condition_id)}",
+        Condition,
+        json=body,
+    )
+
+
+def page_delete(survey_id: str, page_id: int, condition_id: int) -> Endpoint[None]:
+    return Endpoint(
+        "DELETE",
+        f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions/{segment(condition_id)}",
+    )
+
+
+def page_set_operator(survey_id: str, page_id: int, operator: str) -> Endpoint[ConditionsResponse]:
+    """``PATCH`` on the collection sets the operator BETWEEN the groups."""
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/pages/{segment(page_id)}/conditions",
+        ConditionsResponse,
+        json={"operator": operator},
+    )
+
+
+def submit_list(survey_id: str) -> Endpoint[ConditionsResponse]:
+    return Endpoint("GET", f"surveys/{segment(survey_id)}/conditions", ConditionsResponse)
+
+
+def submit_get(survey_id: str, condition_id: int) -> Endpoint[Condition]:
+    return Endpoint(
+        "GET", f"surveys/{segment(survey_id)}/conditions/{segment(condition_id)}", Condition
+    )
+
+
+def submit_create(survey_id: str, body: ConditionCreate) -> Endpoint[Condition]:
+    return Endpoint("POST", f"surveys/{segment(survey_id)}/conditions", Condition, json=body)
+
+
+def submit_update(survey_id: str, condition_id: int, body: ConditionUpdate) -> Endpoint[Condition]:
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/conditions/{segment(condition_id)}",
+        Condition,
+        json=body,
+    )
+
+
+def submit_delete(survey_id: str, condition_id: int) -> Endpoint[None]:
+    return Endpoint("DELETE", f"surveys/{segment(survey_id)}/conditions/{segment(condition_id)}")
+
+
+def submit_set_operator(survey_id: str, operator: str) -> Endpoint[ConditionsResponse]:
+    """``PATCH`` on the collection sets the operator BETWEEN the groups."""
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/conditions",
+        ConditionsResponse,
+        json={"operator": operator},
+    )
+
+
+def hook_list(survey_id: str, hook_id: int) -> Endpoint[ConditionsResponse]:
+    return Endpoint(
+        "GET",
+        f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions",
+        ConditionsResponse,
+    )
+
+
+def hook_get(survey_id: str, hook_id: int, condition_id: int) -> Endpoint[Condition]:
+    return Endpoint(
+        "GET",
+        f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions/{segment(condition_id)}",
+        Condition,
+    )
+
+
+def hook_create(survey_id: str, hook_id: int, body: ConditionCreate) -> Endpoint[Condition]:
+    return Endpoint(
+        "POST",
+        f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions",
+        Condition,
+        json=body,
+    )
+
+
+def hook_update(
+    survey_id: str, hook_id: int, condition_id: int, body: ConditionUpdate
+) -> Endpoint[Condition]:
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions/{segment(condition_id)}",
+        Condition,
+        json=body,
+    )
+
+
+def hook_delete(survey_id: str, hook_id: int, condition_id: int) -> Endpoint[None]:
+    return Endpoint(
+        "DELETE",
+        f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions/{segment(condition_id)}",
+    )
+
+
+def hook_set_operator(survey_id: str, hook_id: int, operator: str) -> Endpoint[ConditionsResponse]:
+    """``PATCH`` on the collection sets the operator BETWEEN the groups."""
+    return Endpoint(
+        "PATCH",
+        f"surveys/{segment(survey_id)}/hooks/{segment(hook_id)}/conditions",
+        ConditionsResponse,
+        json={"operator": operator},
+    )

@@ -39,7 +39,7 @@ class UploadSessionsClient(Resource):
             >>> wiki.uploadsessions.create(body).status
             'not_started'
         """
-        return self._session.send(endpoints.create_session(body))
+        return self._session.send(endpoints.create(body))
 
     def get(self, session_id: str) -> UploadSession:
         """``GET /upload_sessions/{session_id}`` → the session's current state (poll ``status``).
@@ -55,7 +55,7 @@ class UploadSessionsClient(Resource):
             >>> wiki.uploadsessions.get(session_id).status
             'in_progress'
         """
-        return self._session.send(endpoints.get_session(session_id))
+        return self._session.send(endpoints.get(session_id))
 
     def upload_part(self, session_id: str, *, part_number: int, data: bytes) -> UploadSession:
         """Upload one file part as raw ``application/octet-stream`` bytes. Returns the session.
@@ -93,7 +93,7 @@ class UploadSessionsClient(Resource):
             >>> wiki.uploadsessions.finish(session_id).status
             'finished'
         """
-        return self._session.send(endpoints.finish_session(session_id))
+        return self._session.send(endpoints.finish(session_id))
 
     def abort(self, session_id: str) -> UploadSession:
         """``POST /upload_sessions/{session_id}/abort`` — cancel one in-progress session.
@@ -109,7 +109,7 @@ class UploadSessionsClient(Resource):
             >>> wiki.uploadsessions.abort(session_id).status
             'aborted'
         """
-        return self._session.send(endpoints.abort_session(session_id))
+        return self._session.send(endpoints.abort(session_id))
 
     def abort_all(self) -> AbortActiveUploadsResult:
         """``POST /upload_sessions/abort_active_uploads`` — cancel ALL active sessions (free quota).
@@ -121,4 +121,4 @@ class UploadSessionsClient(Resource):
             >>> wiki.uploadsessions.abort_all().status
             'ok'
         """
-        return self._session.send(endpoints.abort_all_sessions())
+        return self._session.send(endpoints.abort_all())
