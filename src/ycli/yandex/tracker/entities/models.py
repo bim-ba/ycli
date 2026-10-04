@@ -767,19 +767,6 @@ class ACLInput(RequestBody):
     )
 
 
-class ExtendedPermissionsUpdate(APIModel):
-    """Typed request body for ``PATCH …/extendedPermissions`` (set access settings).
-
-    Examples:
-        >>> ExtendedPermissionsUpdate(
-        ...     acl=ACLInput(read=ACLPrincipalsInput(roles=["OWNER"]))
-        ... ).model_dump(exclude_none=True)
-        {'acl': {'READ': {'roles': ['OWNER']}}}
-    """
-
-    acl: ACLInput = Field(description="Access-control lists to set, by level.")
-
-
 class DirectPermissionsUpdate(RequestBody):
     """Typed request body for ``PATCH …/permissions`` (grant and revoke direct rights).
 

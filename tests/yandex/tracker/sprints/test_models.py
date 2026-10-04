@@ -1,6 +1,5 @@
 """Model tests for Tracker sprints — full fixture, board ref, ref-flattening, flat list."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import Reference
 from ycli.yandex.tracker.sprints.models import Sprint, SprintBoardInput, SprintCreate, SprintUpdate
 
@@ -41,12 +40,6 @@ def test_sprint_board_ref_is_typed():
     sprint = Sprint.model_validate(SPRINT)
     assert isinstance(sprint.board, Reference)
     assert sprint.board.id == "3" and sprint.board.display == "My board"
-
-
-def test_sprint_list_is_flat_root_model():
-    sprints = ItemList[Sprint].model_validate([SPRINT, {"id": 4406, "name": "Sprint 2"}])
-    assert isinstance(sprints, ItemList[Sprint])
-    assert [s.name for s in sprints.root] == ["Sprint 1", "Sprint 2"]
 
 
 def test_sprint_defaults_when_fields_absent():

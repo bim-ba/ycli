@@ -18,7 +18,6 @@ from ycli.yandex.tracker.entities.models import (
     EntityFieldsInput,
     EntityUpdate,
     ExtendedPermissions,
-    ExtendedPermissionsUpdate,
     Link,
     ParentEntityInput,
 )
@@ -222,13 +221,6 @@ def test_checklist_move():
     }
 
 
-def test_extended_permissions_update():
-    body = ExtendedPermissionsUpdate(
-        acl=ACLInput(read=ACLPrincipalsInput(roles=["OWNER"], users=["11"]))
-    ).model_dump(by_alias=True, exclude_none=True)
-    assert body == {"acl": {"READ": {"users": ["11"], "roles": ["OWNER"]}}}
-
-
 def test_entity_fields_input_custom_key_survives_round_trip():
     """A custom (queue-local) fields.* key must not be silently dropped.
 
@@ -303,8 +295,6 @@ def test_direct_permissions_reply_parses_as_the_root_acl():
 
 def test_direct_permissions_update_sends_only_the_given_sides():
     from ycli.yandex.tracker.entities.models import (
-        ACLInput,
-        ACLPrincipalsInput,
         DirectPermissionsUpdate,
     )
 

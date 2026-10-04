@@ -1,8 +1,7 @@
 """Tracker data-import FastMCP tools (writes, ARCH-3 honest annotations).
 
 Every import endpoint is an admin-only WRITE that back-fills historical data (original
-``createdAt`` / ``createdBy`` are preserved). Tool names carry the ``import_<what>`` verb so
-the fail-closed ARCH-3 verb map classifies them as writes.
+``createdAt`` / ``createdBy`` are preserved).
 """
 
 from typing import Annotated
