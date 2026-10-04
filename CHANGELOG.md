@@ -9,6 +9,27 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.65.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.64.0
+  ([`2b52111`](https://github.com/bim-ba/ycli/commit/2b521113de7f0e3313c12ee9e32109c98a1bab76))
+
+### Refactoring
+
+- An acronym keeps its capitals in a name; an alias is defined once
+  ([#160](https://github.com/bim-ba/ycli/pull/160),
+  [`629ebae`](https://github.com/bim-ba/ycli/commit/629ebae701850ef16b26da0935c1970df5c76e55))
+
+### Breaking Changes
+
+- Nine public SDK names are renamed, with no alias for the old spelling: Acl -> ACL, AclInput ->
+  ACLInput, AclPrincipals -> ACLPrincipals, AclPrincipalsInput -> ACLPrincipalsInput,
+  HttpSubscription -> HTTPSubscription, JsonRpcSubscription -> JSONRPCSubscription, SurveyApiKey ->
+  SurveyAPIKey, RelativeIdPagination -> RelativeIDPagination, IdStr -> IDStr.
+
+
 ## v0.64.0 (2026-10-04)
 
 ### Bug Fixes
