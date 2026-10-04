@@ -9,6 +9,32 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.63.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.62.0
+  ([`94669c0`](https://github.com/bim-ba/ycli/commit/94669c023015d49870d31bfbff7c3a7a393b9dbc))
+
+### Features
+
+- Ycli refuses a request only where it cannot be built; the API answers for the rest
+  ([#297](https://github.com/bim-ba/ycli/pull/297),
+  [`f288e61`](https://github.com/bim-ba/ycli/commit/f288e61ab904d48454bbbf6d0d726286d0dfeb14))
+
+### Breaking Changes
+
+- Requests ycli refused before are now sent, and the API's own error (or its silent acceptance) is
+  what the caller sees: a value longer or shorter than a published limit, both or neither of
+  `answer_id` / `answer_key`, an incomplete option group, an empty list, a grant with both or
+  neither of user and group, a search window with one end, a non-object `--filter`. `wiki grids
+  columns add` no longer derives a column's `slug` from its title: give `slug`, the API requires it.
+  `forms questions move` sends a bare `position` from the SDK and MCP as given (the API answers 200
+  and moves nothing). `forms.answers.get` no longer raises `YandexInvalidRequestError`. A missing
+  field of a request model is a validation error (exit code 1) where the CLI printed a usage error
+  (exit code 2).
+
+
 ## v0.62.0 (2026-10-04)
 
 ### Build System
