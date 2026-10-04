@@ -1,0 +1,11 @@
+[
+{"method": "POST", "base": "/v1/telemost-api", "path": "/conferences", "kind": "create", "by": "shape"},
+{"method": "GET", "base": "/v1/telemost-api", "path": "/conferences/{id}", "kind": "get", "by": "shape"},
+{"method": "PATCH", "base": "/v1/telemost-api", "path": "/conferences/{id}", "kind": "update", "by": "shape"},
+{"method": "DELETE", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "kind": "remove", "aspect": "membership", "by": "hand", "why": "removes the cohosts named in the query from the set; the conference and the users stay"},
+{"method": "GET", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "kind": "list", "aspect": "membership", "by": "shape"},
+{"method": "PATCH", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "kind": "add", "aspect": "membership", "by": "hand", "why": "adds cohosts to the meeting's set; the specification names no operation, and PATCH alone reads as an update"},
+{"method": "PUT", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "kind": "replace", "aspect": "membership", "by": "shape"},
+{"method": "GET", "base": "/v1/telemost-api", "path": "/organizations/{org_id}/settings", "kind": "get", "by": "shape"},
+{"method": "PUT", "base": "/v1/telemost-api", "path": "/organizations/{org_id}/settings", "kind": "replace", "by": "shape"}
+]

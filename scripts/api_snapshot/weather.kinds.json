@@ -1,0 +1,6 @@
+[
+{"method": "GET", "base": "/v2", "path": "/forecast", "name": "forecast-rest", "kind": "get", "by": "shape"},
+{"method": "GET", "base": "/v1", "path": "/forecast", "name": "forecast-test-v1", "kind": "get", "by": "shape"},
+{"method": "GET", "base": "/v2", "path": "/informers", "name": "forecast-info", "verb": "info", "kind": "list", "by": "name+shape"},
+{"method": "GET", "base": "/v1", "path": "/informers", "name": "forecast-info-v1", "verb": "info", "kind": "list", "by": "name+shape"}
+]

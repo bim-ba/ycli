@@ -1,0 +1,3 @@
+[
+{"method": "GET", "base": "/v3", "path": "/issues/_suggest", "name": "get-suggest", "kind": "search", "why": "suggests issues by the text typed; the page's name says get"}
+]

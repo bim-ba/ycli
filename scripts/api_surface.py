@@ -214,6 +214,8 @@ _LABELLED_REQUEST = re.compile(
     re.MULTILINE,
 )
 # A placeholder written as a link to its description: ``{[user-id](*user-id)}``.
+# A placeholder of alternatives written with spaces: ``{csv | json}``.
+_SPACED_PLACEHOLDER = re.compile(r"\{\w+(?: ?\| ?\w+)+\}")
 _LINKED_PLACEHOLDER = re.compile(r"\{\[([^\]]+)\]\([^)]*\)\}")
 
 
@@ -630,6 +632,8 @@ def page_operations(page: str, text: str, prefix: str = "") -> list[Operation]:
     group = next((part for part in reversed(folder.split("/")) if part != "openapi"), "")
     # First, so that an address with such a placeholder is read whole.
     text = _LINKED_PLACEHOLDER.sub(r"{\1}", text)
+    # ... and so that a placeholder with spaces does not end one: `clicks.{csv | json}`.
+    text = _SPACED_PLACEHOLDER.sub(lambda found: found.group().replace(" ", ""), text)
     generated = _GENERATED_REQUEST.findall(text)
     written = [
         *_HOSTED_REQUEST.findall(text),
@@ -641,7 +645,8 @@ def page_operations(page: str, text: str, prefix: str = "") -> list[Operation]:
     ]
     operations: dict[tuple[str, str, str], Operation] = {}
     for method, address in generated or written:
-        address = address.split("?", 1)[0].rstrip(".,;")
+        # Emphasis inside an address is the page's markup: `/data.**csv**`.
+        address = address.split("?", 1)[0].rstrip(".,;").replace("*", "")
         if address.endswith(".md") or "/doc/" in address:
             continue  # a link to another page
         base, path = split_version(httpx2.URL(address).path, prefix)
