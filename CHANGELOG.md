@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.67.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.66.2
+  ([`d01cc8e`](https://github.com/bim-ba/ycli/commit/d01cc8e021a4f3cf1eddf0e504d5cb0bd7300e16))
+
+### Features
+
+- **cli**: How long --wait waits is a setting, http.max_wait_seconds
+  ([#301](https://github.com/bim-ba/ycli/pull/301),
+  [`3c3495f`](https://github.com/bim-ba/ycli/commit/3c3495f356996297310e6b4f7337c9e87fce109e))
+
+### Breaking Changes
+
+- **cli**: `ycli.yandex.polling.poll` no longer takes `attempts`; `max_wait_seconds` is required and
+  counts the seconds slept.
+
+
 ## v0.66.2 (2026-10-04)
 
 ### Bug Fixes
