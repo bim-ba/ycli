@@ -1,7 +1,7 @@
 """Tracker ``/linktypes``, declared once (sans-IO).
 
 Examples:
-    >>> list_link_types().path
+    >>> list_().path
     'linktypes'
 """
 
@@ -12,5 +12,5 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import LinkType
 
 
-def list_link_types() -> Endpoint[ItemList[LinkType]]:
+def list_() -> Endpoint[ItemList[LinkType]]:
     return Endpoint("GET", "linktypes", ItemList[LinkType])

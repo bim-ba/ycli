@@ -37,4 +37,4 @@ class SearchClient(Resource):
             >>> page.results[0].slug, page.next_cursor
             ('team/roadmap', '4')
         """
-        return self._session.send(endpoints.search_pages(body))
+        return self._session.send(endpoints.query(body))

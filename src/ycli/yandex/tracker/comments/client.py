@@ -42,7 +42,7 @@ class CommentsClient(Resource):
             ['first', 'second', 'third']
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
-        paged = endpoints.list_comments(key, page_size=page_size, expand=expand)
+        paged = endpoints.list_(key, page_size=page_size, expand=expand)
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, key: str, comment_id: int | str, *, expand: str | None = None) -> Comment:
@@ -63,7 +63,7 @@ class CommentsClient(Resource):
             >>> tracker.comments.get("DE-5", 9001, expand="attachments,html").text_html
             '<p>My <strong>first</strong> comment</p>'
         """
-        return self._session.send(endpoints.get_comment(key, comment_id, expand=expand))
+        return self._session.send(endpoints.get(key, comment_id, expand=expand))
 
     def add(self, key: str, body: CommentCreate) -> Comment:
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.
@@ -82,7 +82,7 @@ class CommentsClient(Resource):
             ... ).id
             141
         """
-        return self._session.send(endpoints.add_comment(key, body))
+        return self._session.send(endpoints.add(key, body))
 
     def update(self, key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
         """``PATCH /issues/{key}/comments/{comment_id}`` — edit a comment. Returns it.
@@ -102,7 +102,7 @@ class CommentsClient(Resource):
             ... ).text
             'fixed typo'
         """
-        return self._session.send(endpoints.update_comment(key, comment_id, body))
+        return self._session.send(endpoints.update(key, comment_id, body))
 
     def delete(self, key: str, comment_id: str) -> None:
         """Delete a comment (``DELETE …/comments/{id}`` → 204). Raises on non-2xx.
@@ -114,7 +114,7 @@ class CommentsClient(Resource):
         Examples:
             >>> tracker.comments.delete("DE-17", "171")
         """
-        self._session.send(endpoints.delete_comment(key, comment_id))
+        self._session.send(endpoints.delete(key, comment_id))
 
     def react(self, key: str, comment_id: int | str, name: str) -> Comment:
         """``POST …/comments/{comment_id}/reactions/{name}`` — add a reaction. Returns the comment.
@@ -133,4 +133,4 @@ class CommentsClient(Resource):
             >>> tracker.comments.react("DE-18", "181", "HEART").id
             181
         """
-        return self._session.send(endpoints.react_to_comment(key, comment_id, name))
+        return self._session.send(endpoints.react(key, comment_id, name))

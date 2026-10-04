@@ -33,7 +33,7 @@ class AttachmentsClient(Resource):
             >>> tracker.attachments.list("JUNE-2").root[0].name
             'picture.jpg'
         """
-        return self._session.send(endpoints.list_attachments(issue_key))
+        return self._session.send(endpoints.list_(issue_key))
 
     def download(self, issue_key: str, file_id: str, filename: str) -> bytes:
         """Download an attachment's raw bytes (a non-2xx answer raises a typed error).
@@ -53,7 +53,7 @@ class AttachmentsClient(Resource):
             >>> tracker.attachments.download("JUNE-3", "4159", "report.pdf")[:4]
             b'%PDF'
         """
-        return self._session.send(endpoints.download_attachment(issue_key, file_id, filename))
+        return self._session.send(endpoints.download(issue_key, file_id, filename))
 
     def download_thumbnail(self, issue_key: str, file_id: str) -> bytes:
         r"""Download a graphic attachment's preview-thumbnail bytes (a non-2xx answer raises).
@@ -89,7 +89,7 @@ class AttachmentsClient(Resource):
             >>> tracker.attachments.get("JUNE-5", "4161").mimetype
             'text/plain'
         """
-        return self._session.send(endpoints.get_attachment(issue_key, file_id))
+        return self._session.send(endpoints.get(issue_key, file_id))
 
     def delete(self, issue_key: str, file_id: str) -> None:
         """``DELETE /issues/{issue_key}/attachments/{file_id}`` → 204; raises on non-2xx.
@@ -101,7 +101,7 @@ class AttachmentsClient(Resource):
         Examples:
             >>> tracker.attachments.delete("JUNE-6", "4162")
         """
-        self._session.send(endpoints.delete_attachment(issue_key, file_id))
+        self._session.send(endpoints.delete(issue_key, file_id))
 
     def upload(
         self, issue_key: str, *, filename: str, data: bytes, rename_to: str | None = None
@@ -126,9 +126,7 @@ class AttachmentsClient(Resource):
             ... ).id
             '4161'
         """
-        endpoint = endpoints.upload_attachment(
-            issue_key, filename=filename, data=data, rename_to=rename_to
-        )
+        endpoint = endpoints.upload(issue_key, filename=filename, data=data, rename_to=rename_to)
         return self._session.send(endpoint)
 
     def upload_temp(
@@ -153,7 +151,5 @@ class AttachmentsClient(Resource):
             ... ).id
             '4170'
         """
-        endpoint = endpoints.upload_temp_attachment(
-            filename=filename, data=data, rename_to=rename_to
-        )
+        endpoint = endpoints.upload_temp(filename=filename, data=data, rename_to=rename_to)
         return self._session.send(endpoint)

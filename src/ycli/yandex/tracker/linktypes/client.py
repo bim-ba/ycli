@@ -25,4 +25,4 @@ class LinkTypesClient(Resource):
             >>> tracker.linktypes.list().root[0].id
             'relates'
         """
-        return self._session.send(endpoints.list_link_types())
+        return self._session.send(endpoints.list_())

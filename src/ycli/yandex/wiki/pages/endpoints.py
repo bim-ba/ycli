@@ -4,9 +4,9 @@ The API updates a page with ``POST /pages/{id}`` (``PATCH`` answers 405); sendin
 twice leaves the same page, so that endpoint declares itself an idempotent write.
 
 Examples:
-    >>> get_page("data/x", fields=None, revision_id=None, raise_on_redirect=False).params
+    >>> get("data/x", fields=None, revision_id=None, raise_on_redirect=False).params
     {'slug': 'data/x', 'fields': None, 'revision_id': None, 'raise_on_redirect': None}
-    >>> update_page(7, {"content": "# X"}, fields=None, is_silent=False, allow_merge=False).effect
+    >>> update(7, {"content": "# X"}, fields=None, is_silent=False, allow_merge=False).effect
     'idempotent_write'
 """
 
@@ -29,7 +29,7 @@ from ycli.yandex.wiki.pages.models import (
 )
 
 
-def get_page(
+def get(
     slug: str, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool
 ) -> Endpoint[PageDetails]:
     params = {
@@ -41,7 +41,7 @@ def get_page(
     return Endpoint("GET", "pages", PageDetails, params=params)
 
 
-def get_page_by_id(
+def get_by_id(
     page_id: int, *, fields: str | None, revision_id: int | None, raise_on_redirect: bool
 ) -> Endpoint[PageDetails]:
     params = {
@@ -52,7 +52,7 @@ def get_page_by_id(
     return Endpoint("GET", f"pages/{segment(page_id)}", PageDetails, params=params)
 
 
-def list_descendants(
+def descendants(
     slug: str, *, actuality: str | None, include_self: bool, show_all: bool
 ) -> Paged[CursorPage[PageRef], PageRef]:
     params = {
@@ -69,7 +69,7 @@ def list_descendants(
     )
 
 
-def list_descendants_by_id(
+def descendants_by_id(
     page_id: int, *, actuality: str | None, include_self: bool, show_all: bool
 ) -> Paged[CursorPage[PageRef], PageRef]:
     path = f"pages/{segment(page_id)}/descendants"
@@ -86,7 +86,7 @@ def list_descendants_by_id(
     )
 
 
-def list_grids(
+def grids_list(
     page_id: int, *, order_by: str | None, order_direction: str | None
 ) -> Paged[CursorPage[GridRef], GridRef]:
     params = {"page_size": 50, "order_by": order_by, "order_direction": order_direction}
@@ -97,12 +97,12 @@ def list_grids(
     )
 
 
-def create_page(body: PageCreate, *, fields: str | None, is_silent: bool) -> Endpoint[PageDetails]:
+def create(body: PageCreate, *, fields: str | None, is_silent: bool) -> Endpoint[PageDetails]:
     params = {"fields": fields, "is_silent": flag(is_silent)}
     return Endpoint("POST", "pages", PageDetails, params=params, json=body)
 
 
-def update_page(
+def update(
     page_id: int, body: PageUpdate, *, fields: str | None, is_silent: bool, allow_merge: bool
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}"
@@ -110,12 +110,12 @@ def update_page(
     return Endpoint("POST", path, PageDetails, params=params, json=body, effect="idempotent_write")
 
 
-def delete_page(page_id: int, *, recursive: bool) -> Endpoint[PageDeleteResult]:
+def delete(page_id: int, *, recursive: bool) -> Endpoint[PageDeleteResult]:
     params = {"recursive": flag(recursive)}
     return Endpoint("DELETE", f"pages/{segment(page_id)}", PageDeleteResult, params=params)
 
 
-def append_content(
+def append(
     page_id: int, body: PageAppendContent, *, fields: str | None, is_silent: bool
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}/append-content"
@@ -123,17 +123,17 @@ def append_content(
     return Endpoint("POST", path, PageDetails, params=params, json=body)
 
 
-def clone_page(page_id: int, body: PageClone) -> Endpoint[AsyncOperation]:
+def clone(page_id: int, body: PageClone) -> Endpoint[AsyncOperation]:
     return Endpoint("POST", f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
 
 
-def move_pages(body: PageMove, *, dry_run: bool) -> Endpoint[AsyncOperation]:
+def move(body: PageMove, *, dry_run: bool) -> Endpoint[AsyncOperation]:
     """``POST /pages/move`` (undocumented): a new address for pages; ``dry_run`` only validates."""
     params = {"dry_run": flag(dry_run)}
     return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)
 
 
-def list_revisions(
+def revisions_list(
     page_id: int, *, ids: str | None
 ) -> Paged[CursorPage[PageRevision], PageRevision]:
     """``GET /pages/{id}/revisions`` (undocumented): newest-first revisions, 50 a page at most."""
@@ -147,7 +147,7 @@ def list_revisions(
     )
 
 
-def list_backlinks(
+def backlinks_list(
     page_id: int, *, for_cluster: bool, show_all: bool
 ) -> Paged[CursorPage[PageRef], PageRef]:
     """``GET /pages/{id}/backlinks`` (undocumented): the pages that link to this one."""

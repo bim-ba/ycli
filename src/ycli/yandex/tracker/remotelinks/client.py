@@ -28,7 +28,7 @@ class RemoteLinksClient(Resource):
             >>> tracker.remotelinks.list("JUNE-2").root[0].object_key
             'TEST-17'
         """
-        return self._session.send(endpoints.list_remote_links(issue_key))
+        return self._session.send(endpoints.list_(issue_key))
 
     def create(
         self, issue_key: str, body: RemoteLinkCreate, backlink: str | None = None
@@ -60,7 +60,7 @@ class RemoteLinksClient(Resource):
             ... ).object_key
             'TEST-18'
         """
-        return self._session.send(endpoints.create_remote_link(issue_key, body, backlink))
+        return self._session.send(endpoints.create(issue_key, body, backlink))
 
     def delete(self, issue_key: str, link_id: str) -> None:
         """Delete an external link (``DELETE …/remotelinks/{link_id}`` → 204). Raises on non-2xx.
@@ -72,4 +72,4 @@ class RemoteLinksClient(Resource):
         Examples:
             >>> tracker.remotelinks.delete("JUNE-6", "55")
         """
-        self._session.send(endpoints.delete_remote_link(issue_key, link_id))
+        self._session.send(endpoints.delete(issue_key, link_id))

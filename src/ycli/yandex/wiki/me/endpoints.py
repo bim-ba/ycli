@@ -1,7 +1,7 @@
 """Wiki ``/users/me``, declared once (sans-IO).
 
 Examples:
-    >>> get_me().path
+    >>> get().path
     'users/me'
 """
 
@@ -11,5 +11,5 @@ from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.wiki.me.models import Me
 
 
-def get_me() -> Endpoint[Me]:
+def get() -> Endpoint[Me]:
     return Endpoint("GET", "users/me", Me)

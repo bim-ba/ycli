@@ -29,7 +29,7 @@ class LinksClient(Resource):
             >>> tracker.links.list("DE-41").root[0].object_key
             'DE-40'
         """
-        return self._session.send(endpoints.list_links(key))
+        return self._session.send(endpoints.list_(key))
 
     def search(
         self,
@@ -62,7 +62,7 @@ class LinksClient(Resource):
             >>> [link.id for link in found.root]
             [441, 442]
         """
-        paged = endpoints.search_links(key, link_types=link_types, fields=fields)
+        paged = endpoints.search(key, link_types=link_types, fields=fields)
         return ItemList[Link](list(self._session.iterate(paged, limit=limit)))
 
     def add(self, key: str, body: LinkCreate) -> Link:
@@ -85,7 +85,7 @@ class LinksClient(Resource):
             ... ).object_key
             'OPS-9'
         """
-        return self._session.send(endpoints.add_link(key, body))
+        return self._session.send(endpoints.add(key, body))
 
     def delete(self, key: str, link_id: str) -> None:
         """Delete a link (``DELETE …/links/{link_id}`` → 204). Raises on non-2xx.
@@ -97,4 +97,4 @@ class LinksClient(Resource):
         Examples:
             >>> tracker.links.delete("DE-43", "431")
         """
-        self._session.send(endpoints.delete_link(key, link_id))
+        self._session.send(endpoints.delete(key, link_id))

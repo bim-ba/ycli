@@ -52,7 +52,7 @@ class BulkClient(Resource):
             ... ).status
             'CREATED'
         """
-        return self._session.send(endpoints.update_bulk(body, notify=notify))
+        return self._session.send(endpoints.update(body, notify=notify))
 
     def move(
         self,
@@ -77,7 +77,7 @@ class BulkClient(Resource):
             ... ).id
             '2cd'
         """
-        return self._session.send(endpoints.move_bulk(body, notify=notify))
+        return self._session.send(endpoints.move(body, notify=notify))
 
     def transition(
         self,
@@ -102,7 +102,7 @@ class BulkClient(Resource):
             ... ).status
             'CREATED'
         """
-        return self._session.send(endpoints.transition_bulk(body, notify=notify))
+        return self._session.send(endpoints.transition(body, notify=notify))
 
     def get(self, bulk_id: str) -> BulkChange:
         """``GET /bulkchange/{bulk_id}`` → the operation's current status (poll this to wait).
@@ -117,7 +117,7 @@ class BulkClient(Resource):
             >>> tracker.bulk.get("4gh").is_terminal
             True
         """
-        return self._session.send(endpoints.get_bulk(bulk_id))
+        return self._session.send(endpoints.get(bulk_id))
 
     def issues_list(self, bulk_id: str) -> ItemList[BulkIssueResult]:
         """``GET /bulkchange/{bulk_id}/issues`` → issues for which the operation failed.
@@ -132,4 +132,4 @@ class BulkClient(Resource):
             >>> tracker.bulk.issues_list("5ij").root[0].issue
             'DE-9'
         """
-        return self._session.send(endpoints.list_bulk_issues(bulk_id))
+        return self._session.send(endpoints.issues_list(bulk_id))

@@ -1,9 +1,9 @@
 """Forms answers operations, declared once (sans-IO).
 
 Examples:
-    >>> get_answer(answer_id=7, answer_key=None).params
+    >>> get(answer_id=7, answer_key=None).params
     {'answer_id': 7, 'answer_key': None}
-    >>> export_answers("686d", {"format": "xlsx"}).effect
+    >>> export("686d", {"format": "xlsx"}).effect
     'write'
 """
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     import httpx2
 
 
-def get_answer(*, answer_id: int | None, answer_key: str | None) -> Endpoint[AnswerDetails]:
+def get(*, answer_id: int | None, answer_key: str | None) -> Endpoint[AnswerDetails]:
     """``GET /answers`` — a flat route keyed by query, not nested under ``/surveys/{id}``."""
     params = {"answer_id": answer_id, "answer_key": answer_key}
     return Endpoint("GET", "answers", AnswerDetails, params=params)
@@ -38,7 +38,7 @@ def _next_url(response: httpx2.Response) -> str | None:
     return following.get("next_url") if isinstance(following, dict) else None
 
 
-def list_answers(
+def list_(
     survey_id: str,
     *,
     questions: str | None,
@@ -70,7 +70,7 @@ def list_answers(
     )
 
 
-def export_answers(survey_id: str, body: AnswerExport) -> Endpoint[OperationResult]:
+def export(survey_id: str, body: AnswerExport) -> Endpoint[OperationResult]:
     return Endpoint(
         "POST", f"surveys/{segment(survey_id)}/answers/export", OperationResult, json=body
     )
@@ -96,18 +96,18 @@ def download_export(survey_id: str, task_id: str) -> Endpoint[bytes]:
     return Endpoint("GET", path, bytes, params={"task_id": task_id})
 
 
-def list_answer_integrations(
+def integrations_list(
     *, answer_id: int | None, answer_key: str | None
 ) -> Endpoint[ItemList[AnswerIntegration]]:
-    """``GET /answers/integrations`` — flat like :func:`get_answer`, keyed by query."""
+    """``GET /answers/integrations`` — flat like :func:`get`, keyed by query."""
     params = {"answer_id": answer_id, "answer_key": answer_key}
     return Endpoint("GET", "answers/integrations", ItemList[AnswerIntegration], params=params)
 
 
-def delete_answer(survey_id: str, answer_id: int) -> Endpoint[None]:
+def delete(survey_id: str, answer_id: int) -> Endpoint[None]:
     return Endpoint("DELETE", f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}")
 
 
-def restore_answer(survey_id: str, answer_id: int) -> Endpoint[None]:
+def restore(survey_id: str, answer_id: int) -> Endpoint[None]:
     path = f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}/restore"
     return Endpoint("POST", path)

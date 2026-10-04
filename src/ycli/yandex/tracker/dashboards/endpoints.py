@@ -16,7 +16,7 @@ from ycli.yandex.tracker.dashboards.models import (
 )
 
 
-def create_dashboard(body: DashboardCreate) -> Endpoint[Dashboard]:
+def create(body: DashboardCreate) -> Endpoint[Dashboard]:
     return Endpoint("POST", "dashboards/", Dashboard, json=body)
 
 

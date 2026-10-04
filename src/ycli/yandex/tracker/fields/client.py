@@ -35,7 +35,7 @@ class FieldsClient(Resource):
             >>> tracker.fields.list().root[0].id
             'ruName'
         """
-        return self._session.send(endpoints.list_fields())
+        return self._session.send(endpoints.list_())
 
     def get(self, field_id: str) -> CustomField:
         """``GET /fields/{field_id}`` → parameters of one issue field.
@@ -50,7 +50,7 @@ class FieldsClient(Resource):
             >>> tracker.fields.get("enName").id
             'enName'
         """
-        return self._session.send(endpoints.get_field(field_id))
+        return self._session.send(endpoints.get(field_id))
 
     def create(self, body: FieldCreate) -> CustomField:
         """Create a global field from a typed ``FieldCreate`` body. Returns the ``CustomField``.
@@ -73,7 +73,7 @@ class FieldsClient(Resource):
             ... ).id
             'myField'
         """
-        return self._session.send(endpoints.create_field(body))
+        return self._session.send(endpoints.create(body))
 
     def update(
         self, field_id: str, body: FieldUpdate, *, version: int | None = None
@@ -99,7 +99,7 @@ class FieldsClient(Resource):
             ... ).id
             'ruName'
         """
-        return self._session.send(endpoints.update_field(field_id, body, version=version))
+        return self._session.send(endpoints.update(field_id, body, version=version))
 
     def category_create(self, body: FieldCategoryCreate) -> FieldCategoryRecord:
         """Create a field category from a typed ``FieldCategoryCreate`` body.
@@ -118,7 +118,7 @@ class FieldsClient(Resource):
             ... ).id
             '604f99'
         """
-        return self._session.send(endpoints.create_category(body))
+        return self._session.send(endpoints.category_create(body))
 
     def category_update(
         self, category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
@@ -143,4 +143,4 @@ class FieldsClient(Resource):
             ... ).version
             2
         """
-        return self._session.send(endpoints.update_category(category_id, body, version=version))
+        return self._session.send(endpoints.category_update(category_id, body, version=version))

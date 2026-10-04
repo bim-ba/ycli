@@ -48,9 +48,7 @@ class AttachmentsClient(Resource):
             >>> [file.name for file in wiki.attachments.list(5601, limit=20).root]
             ['spec.pdf', 'logo.png']
         """
-        paged = endpoints.list_attachments(
-            page_id, order_by=order_by, order_direction=order_direction
-        )
+        paged = endpoints.list_(page_id, order_by=order_by, order_direction=order_direction)
         return ItemList[Attachment](list(self._session.iterate(paged, limit=limit)))
 
     def get(self, page_id: int, file_id: int) -> AttachedFile:
@@ -70,7 +68,7 @@ class AttachmentsClient(Resource):
             >>> wiki.attachments.get(5607, 5621).mimetype
             'image/png'
         """
-        return self._session.send(endpoints.get_attachment(page_id, file_id))
+        return self._session.send(endpoints.get(page_id, file_id))
 
     def preview(self, page_id: int, file_id: int) -> bytes:
         r"""``GET /pages/{id}/attachments/{file_id}/preview`` → the preview image's raw bytes.
@@ -91,7 +89,7 @@ class AttachmentsClient(Resource):
             >>> wiki.attachments.preview(5608, 5622)
             b'\x89PNG preview bytes'
         """
-        return self._session.send(endpoints.preview_attachment(page_id, file_id))
+        return self._session.send(endpoints.preview(page_id, file_id))
 
     def download(self, page_id: int, file_id: int) -> bytes:
         """``GET /pages/{id}/attachments/{file_id}/download`` → the file's raw bytes.
@@ -109,7 +107,7 @@ class AttachmentsClient(Resource):
             >>> wiki.attachments.download(5603, 5613)
             b'%PDF-1.7 spec'
         """
-        return self._session.send(endpoints.download_attachment(page_id, file_id))
+        return self._session.send(endpoints.download(page_id, file_id))
 
     def download_by_url(self, url: str) -> bytes:
         """``GET /pages/attachments/download_by_url?url=`` → the file's raw bytes.
@@ -141,7 +139,7 @@ class AttachmentsClient(Resource):
         Examples:
             >>> wiki.attachments.delete(5604, 5614)
         """
-        self._session.send(endpoints.delete_attachment(page_id, file_id))
+        self._session.send(endpoints.delete(page_id, file_id))
 
     def attach(self, page_id: int, session_ids: Sequence[str]) -> ItemList[AttachedFile]:
         """``POST /pages/{id}/attachments`` — attach file(s) from finished upload sessions.
@@ -161,7 +159,7 @@ class AttachmentsClient(Resource):
             'b.png'
         """
         body = AttachmentCreate(upload_sessions=list(session_ids))
-        response = self._session.send(endpoints.attach_files(page_id, body))
+        response = self._session.send(endpoints.attach(page_id, body))
         return ItemList[AttachedFile](response.results)
 
     def upload(

@@ -55,7 +55,7 @@ class QueuesClient(Resource):
             'TAIL'
         """
         return ItemList[Queue](
-            list(self._session.iterate(endpoints.list_queues(expand=expand), limit=limit))
+            list(self._session.iterate(endpoints.list_(expand=expand), limit=limit))
         )
 
     def get(self, queue_id: str, expand: str | None = None) -> Queue:
@@ -76,7 +76,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.get("TEST", expand="all").key
             'TEST'
         """
-        return self._session.send(endpoints.get_queue(queue_id, expand=expand))
+        return self._session.send(endpoints.get(queue_id, expand=expand))
 
     def tags_list(self, queue_id: str) -> ItemList[str]:
         """``GET /queues/{queue_id}/tags`` → the queue's tag names as a flat string array.
@@ -91,7 +91,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.tags_list("TAGQ").root
             ['tag1', 'tag2']
         """
-        return self._session.send(endpoints.list_tags(queue_id))
+        return self._session.send(endpoints.tags_list(queue_id))
 
     def versions_list(self, queue_id: str) -> ItemList[QueueVersionInfo]:
         """``GET /queues/{queue_id}/versions`` → the queue's versions.
@@ -106,7 +106,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.versions_list("VERQ").root[0].name
             'v0.1'
         """
-        return self._session.send(endpoints.list_versions(queue_id))
+        return self._session.send(endpoints.versions_list(queue_id))
 
     def fields_list(self, queue_id: str) -> ItemList[QueueField]:
         """``GET /queues/{queue_id}/fields`` → the queue's required/local fields.
@@ -121,7 +121,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.fields_list("FLDQ").root[0].id
             'myfield'
         """
-        return self._session.send(endpoints.list_fields(queue_id))
+        return self._session.send(endpoints.fields_list(queue_id))
 
     def create(self, body: QueueCreate) -> Queue:
         """Create a queue from a typed ``QueueCreate`` body. Returns the created ``Queue``.
@@ -144,7 +144,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.create(new_queue).key
             'DESIGN'
         """
-        return self._session.send(endpoints.create_queue(body))
+        return self._session.send(endpoints.create(body))
 
     def delete(self, queue_id: str) -> None:
         """``DELETE /queues/{queue_id}`` — delete a queue (``204``, empty body).
@@ -155,7 +155,7 @@ class QueuesClient(Resource):
         Examples:
             >>> tracker.queues.delete("GONE")
         """
-        self._session.send(endpoints.delete_queue(queue_id))
+        self._session.send(endpoints.delete(queue_id))
 
     def restore(self, queue_id: str) -> Queue:
         """``POST /queues/{queue_id}/_restore`` — restore a deleted queue (admin only).
@@ -172,7 +172,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.restore("BACK").key
             'BACK'
         """
-        return self._session.send(endpoints.restore_queue(queue_id))
+        return self._session.send(endpoints.restore(queue_id))
 
     def set_permissions(self, queue_id: str, body: QueuePermissionsUpdate) -> QueuePermissions:
         """Manage queue access from a typed ``QueuePermissionsUpdate`` body.
@@ -208,7 +208,7 @@ class QueuesClient(Resource):
             >>> from ycli.yandex.tracker.queues.models import QueueTagRemove
             >>> tracker.queues.tag_remove("TAGGED", QueueTagRemove(tag="obsolete"))
         """
-        self._session.send(endpoints.remove_tag(queue_id, body))
+        self._session.send(endpoints.tag_remove(queue_id, body))
 
     def version_create(self, body: QueueVersionCreate) -> QueueVersionInfo:
         """Create a queue version from a typed ``QueueVersionCreate`` body.
@@ -226,7 +226,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.version_create(QueueVersionCreate(queue="RELQ", name="v2.0")).name
             'v2.0'
         """
-        return self._session.send(endpoints.create_version(body))
+        return self._session.send(endpoints.version_create(body))
 
     def version_get(self, version_id: int, *, fields: str | None = None) -> QueueVersionInfo:
         """``GET /versions/{version_id}`` → one queue version.
@@ -244,7 +244,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.version_get(901, fields="name,dueDate,released").name
             'Release 1.0'
         """
-        return self._session.send(endpoints.get_version(version_id, fields=fields))
+        return self._session.send(endpoints.version_get(version_id, fields=fields))
 
     def version_update(
         self, version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
@@ -266,7 +266,7 @@ class QueuesClient(Resource):
             ... ).version
             2
         """
-        return self._session.send(endpoints.update_version(version_id, body, fields=fields))
+        return self._session.send(endpoints.version_update(version_id, body, fields=fields))
 
     def version_delete(self, version_id: int) -> None:
         """``DELETE /versions/{version_id}`` → 204; raises on non-2xx.
@@ -277,7 +277,7 @@ class QueuesClient(Resource):
         Examples:
             >>> tracker.queues.version_delete(905)
         """
-        self._session.send(endpoints.delete_version(version_id))
+        self._session.send(endpoints.version_delete(version_id))
 
     def user_permissions_get(self, queue_id: str, user_id: str) -> QueueUserAccess:
         """``GET /queues/{queue_id}/permissions/users/{user_id}`` → what a user may do in a queue.
@@ -295,7 +295,7 @@ class QueuesClient(Resource):
             >>> tracker.queues.user_permissions_get("PERMQ", "carol").user.display
             'Carol'
         """
-        return self._session.send(endpoints.get_user_access(queue_id, user_id))
+        return self._session.send(endpoints.user_permissions_get(queue_id, user_id))
 
     def group_permissions_get(self, queue_id: str, group_id: int) -> QueueGroupAccess:
         """``GET /queues/{queue_id}/permissions/groups/{group_id}`` → what a group may do.
@@ -311,4 +311,4 @@ class QueuesClient(Resource):
             >>> tracker.queues.group_permissions_get("PERMG", 77).group.display
             'Editors'
         """
-        return self._session.send(endpoints.get_group_access(queue_id, group_id))
+        return self._session.send(endpoints.group_permissions_get(queue_id, group_id))

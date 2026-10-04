@@ -1,9 +1,9 @@
 """Tracker ``/_import`` operations (admin-only back-fill), each declared once (sans-IO).
 
 Examples:
-    >>> import_worklog("TEST-1", {"duration": "PT1H"}).path
+    >>> worklog("TEST-1", {"duration": "PT1H"}).path
     'issues/TEST-1/worklogs/_import'
-    >>> import_file("JUNE-2", filename="a.png", created_at="t", created_by="11", data=b"").params
+    >>> file("JUNE-2", filename="a.png", created_at="t", created_by="11", data=b"").params
     {'filename': 'a.png', 'createdAt': 't', 'createdBy': '11'}
 """
 
@@ -28,25 +28,25 @@ if TYPE_CHECKING:
     )
 
 
-def import_task(body: ImportTask) -> Endpoint[Issue]:
+def task(body: ImportTask) -> Endpoint[Issue]:
     return Endpoint("POST", "issues/_import", Issue, json=body)
 
 
-def import_comment(issue_key: str, body: ImportComment) -> Endpoint[Comment]:
+def comment(issue_key: str, body: ImportComment) -> Endpoint[Comment]:
     return Endpoint("POST", f"issues/{segment(issue_key)}/comments/_import", Comment, json=body)
 
 
-def import_link(issue_key: str, body: ImportLink) -> Endpoint[Link]:
+def link(issue_key: str, body: ImportLink) -> Endpoint[Link]:
     return Endpoint("POST", f"issues/{segment(issue_key)}/links/_import", Link, json=body)
 
 
-def import_worklog(issue_key: str, body: ImportWorklog) -> Endpoint[ItemList[Worklog]]:
+def worklog(issue_key: str, body: ImportWorklog) -> Endpoint[ItemList[Worklog]]:
     """The live endpoint answers with a JSON array of the created record(s)."""
     path = f"issues/{segment(issue_key)}/worklogs/_import"
     return Endpoint("POST", path, ItemList[Worklog], json=body)
 
 
-def import_file(
+def file(
     issue_key: str, *, filename: str, created_at: str, created_by: str, data: bytes
 ) -> Endpoint[Attachment]:
     """Multipart upload; the API docs name no part, so it keeps the name ycli always sent."""
@@ -59,10 +59,10 @@ def import_file(
     )
 
 
-def import_comment_file(
+def comment_file(
     issue_key: str, comment_id: str, *, filename: str, created_at: str, created_by: str, data: bytes
 ) -> Endpoint[Attachment]:
-    """Multipart upload onto a comment; the part name is the one :func:`import_file` sends."""
+    """Multipart upload onto a comment; the part name is the one :func:`file` sends."""
     return Endpoint(
         "POST",
         f"issues/{segment(issue_key)}/comments/{segment(comment_id)}/attachments/_import",

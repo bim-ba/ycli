@@ -66,7 +66,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
   name: the CLI path (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name,
   the SDK method is that name without the service and resource (`tracker_boards_update` is
-  `tracker.boards.update`), and one verb per action (`update`, never `edit` or `modify`). A renamed CLI command
+  `tracker.boards.update`), and one verb per action (`update`, never `edit` or `modify`). The
+  function in `endpoints.py` that declares the request carries the method's name too, one function
+  per operation Yandex publishes. A renamed CLI command
   stops answering to its old name in the same release, and the changelog lists the old and the
   new name (the rule for models is in [`docs/conventions/resources.md`](docs/conventions/resources.md)).
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
@@ -89,6 +91,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch1_tool_function_is_named_like_its_tool` holds the Python function behind a tool to
   the tool's name without the resource (`grids_rows_add` is `def rows_add`; a builtin's name
   takes a trailing underscore, `list_`).
+  `test_arch1_endpoint_function_is_named_like_its_method` holds each function of
+  `endpoints.py` to the name of the one client method that sends it (`search` and
+  `search_scroll` where a method sends two), so nothing is shared between operations.
 - **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
   one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — a binary download is
   CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file

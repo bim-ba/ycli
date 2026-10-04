@@ -1,7 +1,7 @@
 """Tracker issue ``/changelog`` listing, declared once (sans-IO).
 
 Examples:
-    >>> paged = list_changelog("DE-1", field=None, change_type=None, sort=None, page_size=5)
+    >>> paged = list_("DE-1", field=None, change_type=None, sort=None, page_size=5)
     >>> paged.endpoint.path
     'issues/DE-1/changelog'
 """
@@ -20,7 +20,7 @@ def _entry_id(entry: ChangelogEntry) -> str | None:
     return entry.id
 
 
-def list_changelog(
+def list_(
     key: str,
     *,
     field: str | None,
