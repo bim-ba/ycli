@@ -10,10 +10,8 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SurveyId,
     forms_client,
 )
@@ -30,13 +28,13 @@ from ycli.yandex.models import IGNORED_BY_API, Ack, require_found
 mcp = FastMCP("forms-questions")
 
 
-@mcp.tool(name="questions_list", annotations={**RO, "title": "List Forms questions"}, tags=TAGS)
+@mcp.tool(name="questions_list", annotations={**RO, "title": "List Forms questions"})
 def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> QuestionsResponse:
     """A form's questions, grouped into pages (the {pages} envelope)."""
     return client.questions.list(survey_id)
 
 
-@mcp.tool(name="questions_get", annotations={**RO, "title": "Get Forms question"}, tags=TAGS)
+@mcp.tool(name="questions_get", annotations={**RO, "title": "Get Forms question"})
 def get(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
     question_id: Annotated[str, Field(description="Question id (integer) to fetch.")],
@@ -65,7 +63,6 @@ def get(
 @mcp.tool(
     name="questions_create",
     annotations={**WRITE, "title": "Create Forms question"},
-    tags=WRITE_TAGS,
 )
 def create(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) to add the question to.")],
@@ -87,7 +84,6 @@ def create(
 @mcp.tool(
     name="questions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question"},
-    tags=WRITE_TAGS,
 )
 def update(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
@@ -109,7 +105,6 @@ def update(
 @mcp.tool(
     name="questions_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms question"},
-    tags=WRITE_TAGS,
 )
 def delete(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
@@ -129,9 +124,7 @@ def delete(
     return client.questions.delete(survey_id, question_id, force=force)
 
 
-@mcp.tool(
-    name="questions_move", annotations={**WRITE, "title": "Move Forms question"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="questions_move", annotations={**WRITE, "title": "Move Forms question"})
 def move(
     survey_id: Annotated[str, Field(description="Form id (hex ObjectId) the question belongs to.")],
     question_id: Annotated[str, Field(description="Question id (integer) to reposition.")],

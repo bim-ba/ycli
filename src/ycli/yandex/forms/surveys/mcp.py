@@ -12,10 +12,8 @@ from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SurveyId,
     app_config,
     forms_client,
@@ -26,7 +24,7 @@ from ycli.yandex.models import Ack, ItemList, require_found
 mcp = FastMCP("forms-surveys")
 
 
-@mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"}, tags=TAGS)
+@mcp.tool(name="surveys_list", annotations={**RO, "title": "List Forms surveys"})
 def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max forms to return; {LIMIT_CAP}")
@@ -70,7 +68,7 @@ def list_(
     )
 
 
-@mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"}, tags=TAGS)
+@mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"})
 def get(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Survey:
     """One form's settings by id."""
     result = client.surveys.get(survey_id)
@@ -83,9 +81,7 @@ def get(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Sur
     )
 
 
-@mcp.tool(
-    name="surveys_create", annotations={**WRITE, "title": "Create Forms survey"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="surveys_create", annotations={**WRITE, "title": "Create Forms survey"})
 def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> Survey:
     """Create a new form from the given settings; returns the created ``Survey`` (note its ``id``).
 
@@ -98,7 +94,6 @@ def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> S
 @mcp.tool(
     name="surveys_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms survey"},
-    tags=WRITE_TAGS,
 )
 def update(
     survey_id: SurveyId, body: SurveyUpdate, client: FormsClient = Depends(forms_client)
@@ -113,7 +108,6 @@ def update(
 @mcp.tool(
     name="surveys_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms survey"},
-    tags=WRITE_TAGS,
 )
 def delete(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
     """Delete a form permanently — IRREVERSIBLE: its questions and collected answers are lost.
@@ -123,9 +117,7 @@ def delete(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> 
     return client.surveys.delete(survey_id)
 
 
-@mcp.tool(
-    name="surveys_publish", annotations={**WRITE, "title": "Publish Forms survey"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="surveys_publish", annotations={**WRITE, "title": "Publish Forms survey"})
 def publish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
     """Publish a form so respondents can fill it; fails if the form is blocked or at its cap.
 
@@ -138,7 +130,6 @@ def publish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) ->
 @mcp.tool(
     name="surveys_unpublish",
     annotations={**WRITE, "title": "Unpublish Forms survey"},
-    tags=WRITE_TAGS,
 )
 def unpublish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
     """Take a published form offline (respondents can no longer fill it); reversible via publish.

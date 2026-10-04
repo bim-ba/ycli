@@ -12,10 +12,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     QueueId,
     Version,
     app_config,
@@ -31,9 +29,7 @@ from ycli.yandex.tracker.triggers.models import (
 mcp = FastMCP("tracker-triggers")
 
 
-@mcp.tool(
-    name="triggers_list", annotations={**RO, "title": "List Tracker queue triggers"}, tags=TAGS
-)
+@mcp.tool(name="triggers_list", annotations={**RO, "title": "List Tracker queue triggers"})
 def list_(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. DESIGN) or numeric queue id.")
@@ -53,7 +49,7 @@ def list_(
     return client.triggers.list(queue_id, limit=cap)
 
 
-@mcp.tool(name="triggers_get", annotations={**RO, "title": "Get Tracker queue trigger"}, tags=TAGS)
+@mcp.tool(name="triggers_get", annotations={**RO, "title": "Get Tracker queue trigger"})
 def get(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. DESIGN) or numeric queue id.")
@@ -72,7 +68,6 @@ def get(
 @mcp.tool(
     name="triggers_webhook_log_list",
     annotations={**RO, "title": "List Tracker trigger webhook logs"},
-    tags=TAGS,
 )
 def webhook_log_list(
     queue_id: Annotated[
@@ -99,7 +94,6 @@ def webhook_log_list(
 @mcp.tool(
     name="triggers_create",
     annotations={**WRITE, "title": "Create Tracker queue trigger"},
-    tags=WRITE_TAGS,
 )
 def create(
     queue_id: QueueId,
@@ -119,7 +113,6 @@ def create(
 @mcp.tool(
     name="triggers_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue trigger"},
-    tags=WRITE_TAGS,
 )
 def update(
     queue_id: QueueId,

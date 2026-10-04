@@ -8,14 +8,14 @@ from pydantic import Field
 
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, TAGS, app_config, forms_client
+from ycli.yandex.forms.dependencies import RO, app_config, forms_client
 from ycli.yandex.forms.history.models import HistoryEvent
 from ycli.yandex.models import ItemList
 
 mcp = FastMCP("forms-history")
 
 
-@mcp.tool(name="history_list", annotations={**RO, "title": "List Forms change log"}, tags=TAGS)
+@mcp.tool(name="history_list", annotations={**RO, "title": "List Forms change log"})
 def list_(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
     ordering: Annotated[

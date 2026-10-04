@@ -12,10 +12,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Expand,
     IssueKey,
     Notify,
@@ -39,7 +37,7 @@ mcp = FastMCP("tracker-issues")
 _LIMIT = f"Max issues to return; {LIMIT_CAP}"
 
 
-@mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"}, tags=TAGS)
+@mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"})
 def get(
     key: IssueKey,
     expand: Expand = None,
@@ -57,7 +55,7 @@ def get(
     )
 
 
-@mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"}, tags=TAGS)
+@mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"})
 def list_(
     queue: Annotated[str | None, Field(description="Queue key, e.g. QUEUE.")] = None,
     status: Annotated[str | None, Field(description="Status key, e.g. open.")] = None,
@@ -86,9 +84,7 @@ def list_(
     return client.issues.search(body, limit=config.http.cap(limit))
 
 
-@mcp.tool(
-    name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"}, tags=TAGS
-)
+@mcp.tool(name="issues_search", annotations={**RO, "title": "Search Tracker issues (TQL)"})
 def search(
     query: Annotated[str, Field(description="TQL query, e.g. ``Queue: QUEUE Status: open``.")],
     limit: Annotated[int | None, Field(ge=1, description=_LIMIT)] = None,
@@ -123,7 +119,7 @@ def search(
     )
 
 
-@mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"}, tags=TAGS)
+@mcp.tool(name="issues_count", annotations={**RO, "title": "Count Tracker issues"})
 def count(
     query: Annotated[
         str | None, Field(description="TQL query; takes precedence over ``queue`` / ``status``.")
@@ -145,7 +141,6 @@ def count(
 @mcp.tool(
     name="issues_suggest",
     annotations={**RO, "title": "Suggest Tracker issues by title"},
-    tags=TAGS,
 )
 def suggest(
     text: Annotated[str, Field(description="Text fragment to match in issue summaries.")],
@@ -172,9 +167,7 @@ def suggest(
     )
 
 
-@mcp.tool(
-    name="issues_create", annotations={**WRITE, "title": "Create Tracker issue"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="issues_create", annotations={**WRITE, "title": "Create Tracker issue"})
 def create(
     body: IssueCreate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
 ) -> Issue:
@@ -185,7 +178,6 @@ def create(
 @mcp.tool(
     name="issues_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Tracker issue"},
-    tags=WRITE_TAGS,
 )
 def update(
     key: IssueKey, body: IssueUpdate, client: TrackerClient = Depends(tracker_client)
@@ -197,7 +189,7 @@ def update(
     return client.issues.update(key, body)
 
 
-@mcp.tool(name="issues_move", annotations={**WRITE, "title": "Move Tracker issue"}, tags=WRITE_TAGS)
+@mcp.tool(name="issues_move", annotations={**WRITE, "title": "Move Tracker issue"})
 def move(
     key: IssueKey,
     queue: Annotated[str, Field(description="Target queue key, e.g. NEW.")],
@@ -233,7 +225,6 @@ def move(
 @mcp.tool(
     name="issues_scroll_clear",
     annotations={**WRITE_IDEMPOTENT, "title": "Clear Tracker search scroll"},
-    tags=WRITE_TAGS,
 )
 def scroll_clear(body: ScrollClear, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Release the server resources of a scrolled issue search (harmless housekeeping).

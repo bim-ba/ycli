@@ -22,9 +22,7 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     SurveyId,
     app_config,
     forms_client,
@@ -35,7 +33,7 @@ from ycli.yandex.models import Ack, ItemList
 mcp = FastMCP("forms-answers")
 
 
-@mcp.tool(name="answers_get", annotations={**RO, "title": "Get Forms answer"}, tags=TAGS)
+@mcp.tool(name="answers_get", annotations={**RO, "title": "Get Forms answer"})
 def get(
     answer_id: Annotated[
         int | None,
@@ -55,7 +53,7 @@ def get(
     return client.answers.get(answer_id=answer_id, answer_key=answer_key)
 
 
-@mcp.tool(name="answers_list", annotations={**RO, "title": "List Forms answers"}, tags=TAGS)
+@mcp.tool(name="answers_list", annotations={**RO, "title": "List Forms answers"})
 def list_(
     survey_id: SurveyId,
     questions: Annotated[
@@ -104,9 +102,7 @@ def list_(
     )
 
 
-@mcp.tool(
-    name="answers_export", annotations={**WRITE, "title": "Export Forms answers"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="answers_export", annotations={**WRITE, "title": "Export Forms answers"})
 def export(
     survey_id: SurveyId,
     body: AnswerExport,
@@ -124,7 +120,6 @@ def export(
 @mcp.tool(
     name="answers_integrations_list",
     annotations={**RO, "title": "List Forms answer integrations"},
-    tags=TAGS,
 )
 def integrations_list(
     answer_id: Annotated[
@@ -148,7 +143,6 @@ def integrations_list(
 @mcp.tool(
     name="answers_delete",
     annotations={**DESTRUCTIVE, "title": "Delete a Forms answer"},
-    tags=WRITE_TAGS,
 )
 def delete(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],
@@ -163,7 +157,6 @@ def delete(
 @mcp.tool(
     name="answers_restore",
     annotations={**WRITE, "title": "Restore a deleted Forms answer"},
-    tags=WRITE_TAGS,
 )
 def restore(
     survey_id: Annotated[str, Field(description="Form id (24-char hex).")],

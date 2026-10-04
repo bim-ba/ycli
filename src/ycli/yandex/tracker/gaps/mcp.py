@@ -13,9 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     app_config,
     tracker_client,
 )
@@ -24,9 +22,7 @@ from ycli.yandex.tracker.gaps.models import GapCreated, GapsCreate, UserGaps
 mcp = FastMCP("tracker-gaps")
 
 
-@mcp.tool(
-    name="gaps_search", annotations={**RO, "title": "Search Tracker employee absences"}, tags=TAGS
-)
+@mcp.tool(name="gaps_search", annotations={**RO, "title": "Search Tracker employee absences"})
 def search(
     users: Annotated[
         list[str], Field(description="Logins or ids of the users to look up (up to 100).")
@@ -55,7 +51,6 @@ def search(
 @mcp.tool(
     name="gaps_create",
     annotations={**WRITE, "title": "Create Tracker employee absences"},
-    tags=WRITE_TAGS,
 )
 def create(body: GapsCreate, client: TrackerClient = Depends(tracker_client)) -> GapCreated:
     """Create up to 100 employee absences; needs Tracker administrator rights.
@@ -70,7 +65,6 @@ def create(body: GapsCreate, client: TrackerClient = Depends(tracker_client)) ->
 @mcp.tool(
     name="gaps_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker employee absences"},
-    tags=WRITE_TAGS,
 )
 def delete(
     gap_ids: Annotated[

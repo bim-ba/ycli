@@ -9,10 +9,9 @@ from ycli.yandex.status.models import AuthReport
 from ycli.yandex.status.reporter import build_report
 
 mcp = FastMCP("status")
-TAGS: set[str] = {"status"}
 
 
-@mcp.tool(name="get", annotations={**RO, "title": "Check Yandex 360 auth status"}, tags=TAGS)
+@mcp.tool(name="get", annotations={**RO, "title": "Check Yandex 360 auth status"})
 def get(config: AppConfig = Depends(app_config)) -> AuthReport:
     """Report whose token this is, its organization and which services accept it.
 

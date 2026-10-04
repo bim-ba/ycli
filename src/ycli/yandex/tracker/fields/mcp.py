@@ -10,10 +10,8 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Version,
     tracker_client,
 )
@@ -29,7 +27,7 @@ from ycli.yandex.tracker.models import FieldCreate
 mcp = FastMCP("tracker-fields")
 
 
-@mcp.tool(name="fields_list", annotations={**RO, "title": "List Tracker global fields"}, tags=TAGS)
+@mcp.tool(name="fields_list", annotations={**RO, "title": "List Tracker global fields"})
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[CustomField]:
     """All global (organisation-wide) issue fields, both standard and custom.
 
@@ -40,7 +38,7 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[CustomFie
     return client.fields.list()
 
 
-@mcp.tool(name="fields_get", annotations={**RO, "title": "Get Tracker field"}, tags=TAGS)
+@mcp.tool(name="fields_get", annotations={**RO, "title": "Get Tracker field"})
 def get(
     field_id: Annotated[
         str, Field(description="Identifier of the issue field, e.g. summary or a custom-field key.")
@@ -55,9 +53,7 @@ def get(
     return client.fields.get(field_id=field_id)
 
 
-@mcp.tool(
-    name="fields_create", annotations={**WRITE, "title": "Create Tracker field"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="fields_create", annotations={**WRITE, "title": "Create Tracker field"})
 def create(body: FieldCreate, client: TrackerClient = Depends(tracker_client)) -> CustomField:
     """Create an org-global custom issue field.
 
@@ -71,7 +67,6 @@ def create(body: FieldCreate, client: TrackerClient = Depends(tracker_client)) -
 @mcp.tool(
     name="fields_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field"},
-    tags=WRITE_TAGS,
 )
 def update(
     field_id: Annotated[
@@ -92,7 +87,6 @@ def update(
 @mcp.tool(
     name="fields_category_create",
     annotations={**WRITE, "title": "Create Tracker field category"},
-    tags=WRITE_TAGS,
 )
 def category_create(
     body: FieldCategoryCreate, client: TrackerClient = Depends(tracker_client)
@@ -108,7 +102,6 @@ def category_create(
 @mcp.tool(
     name="fields_category_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field category"},
-    tags=WRITE_TAGS,
 )
 def category_update(
     category_id: Annotated[str, Field(description="Identifier of the field category.")],

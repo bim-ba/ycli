@@ -10,10 +10,8 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Version,
     tracker_client,
 )
@@ -22,9 +20,7 @@ from ycli.yandex.tracker.issuetypes.models import IssueType, IssueTypeCreate, Is
 mcp = FastMCP("tracker-issuetypes")
 
 
-@mcp.tool(
-    name="issuetypes_list", annotations={**RO, "title": "List Tracker issue types"}, tags=TAGS
-)
+@mcp.tool(name="issuetypes_list", annotations={**RO, "title": "List Tracker issue types"})
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[IssueType]:
     """All available issue types (e.g. task, bug, epic)."""
     return client.issuetypes.list()
@@ -33,7 +29,6 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[IssueType
 @mcp.tool(
     name="issuetypes_create",
     annotations={**WRITE, "title": "Create Tracker issue type"},
-    tags=WRITE_TAGS,
 )
 def create(body: IssueTypeCreate, client: TrackerClient = Depends(tracker_client)) -> IssueType:
     """Create an org-global issue type (e.g. a new kind of task).
@@ -47,7 +42,6 @@ def create(body: IssueTypeCreate, client: TrackerClient = Depends(tracker_client
 @mcp.tool(
     name="issuetypes_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue type"},
-    tags=WRITE_TAGS,
 )
 def update(
     issue_type_id: Annotated[

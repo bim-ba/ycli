@@ -13,10 +13,8 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     IssueKey,
     WorklogRecordId,
     app_config,
@@ -32,7 +30,7 @@ from ycli.yandex.tracker.worklog.models import (
 mcp = FastMCP("tracker-worklog")
 
 
-@mcp.tool(name="worklog_list", annotations={**RO, "title": "List Tracker worklog"}, tags=TAGS)
+@mcp.tool(name="worklog_list", annotations={**RO, "title": "List Tracker worklog"})
 def list_(
     key: IssueKey,
     limit: Annotated[
@@ -54,7 +52,7 @@ def list_(
     return client.worklog.list(key, limit=cap)
 
 
-@mcp.tool(name="worklog_search", annotations={**RO, "title": "Search Tracker worklog"}, tags=TAGS)
+@mcp.tool(name="worklog_search", annotations={**RO, "title": "Search Tracker worklog"})
 def search(
     created_by: Annotated[
         str | None, Field(description="Login or id of the record author to filter by.")
@@ -84,7 +82,6 @@ def search(
 @mcp.tool(
     name="worklog_global_list",
     annotations={**RO, "title": "List Tracker org-wide worklog"},
-    tags=TAGS,
 )
 def global_list(
     created_by: Annotated[
@@ -106,7 +103,6 @@ def global_list(
 @mcp.tool(
     name="worklog_create",
     annotations={**WRITE, "title": "Add Tracker worklog record"},
-    tags=WRITE_TAGS,
 )
 def create(
     key: IssueKey, body: WorklogCreate, client: TrackerClient = Depends(tracker_client)
@@ -118,7 +114,6 @@ def create(
 @mcp.tool(
     name="worklog_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker worklog record"},
-    tags=WRITE_TAGS,
 )
 def update(
     key: IssueKey,
@@ -136,7 +131,6 @@ def update(
 @mcp.tool(
     name="worklog_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker worklog record"},
-    tags=WRITE_TAGS,
 )
 def delete(
     key: IssueKey, record_id: WorklogRecordId, client: TrackerClient = Depends(tracker_client)

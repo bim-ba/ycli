@@ -13,7 +13,7 @@ from ycli.yandex.tracker.dashboards.models import (
     DashboardCreate,
     Widget,
 )
-from ycli.yandex.tracker.dependencies import WRITE, WRITE_TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import WRITE, tracker_client
 
 mcp = FastMCP("tracker-dashboards")
 
@@ -21,7 +21,6 @@ mcp = FastMCP("tracker-dashboards")
 @mcp.tool(
     name="dashboards_create",
     annotations={**WRITE, "title": "Create Tracker dashboard"},
-    tags=WRITE_TAGS,
 )
 def create(body: DashboardCreate, client: TrackerClient = Depends(tracker_client)) -> Dashboard:
     """Create a personal Tracker dashboard; returns it with the id used to add widgets.
@@ -35,7 +34,6 @@ def create(body: DashboardCreate, client: TrackerClient = Depends(tracker_client
 @mcp.tool(
     name="dashboards_add_cycle_time_widget",
     annotations={**WRITE, "title": "Add Tracker cycle-time widget"},
-    tags=WRITE_TAGS,
 )
 def add_cycle_time_widget(
     dashboard_id: Annotated[str, Field(description="Id of the dashboard to add the widget to.")],

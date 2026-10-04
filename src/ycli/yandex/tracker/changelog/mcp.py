@@ -13,7 +13,6 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
     RO,
-    TAGS,
     IssueKey,
     app_config,
     tracker_client,
@@ -22,9 +21,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-changelog")
 
 
-@mcp.tool(
-    name="changelog_list", annotations={**RO, "title": "List Tracker issue changelog"}, tags=TAGS
-)
+@mcp.tool(name="changelog_list", annotations={**RO, "title": "List Tracker issue changelog"})
 def list_(
     key: IssueKey,
     limit: Annotated[

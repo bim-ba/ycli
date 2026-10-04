@@ -17,10 +17,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     ChecklistItemId,
     IssueKey,
     tracker_client,
@@ -29,9 +27,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-checklists")
 
 
-@mcp.tool(
-    name="checklists_get", annotations={**RO, "title": "Get Tracker issue checklist"}, tags=TAGS
-)
+@mcp.tool(name="checklists_get", annotations={**RO, "title": "Get Tracker issue checklist"})
 def get(
     key: Annotated[str, Field(description="Issue key, e.g. QUEUE-123.")],
     client: TrackerClient = Depends(tracker_client),
@@ -47,7 +43,6 @@ def get(
 @mcp.tool(
     name="checklists_create",
     annotations={**WRITE, "title": "Add Tracker checklist item"},
-    tags=WRITE_TAGS,
 )
 def create(
     key: IssueKey, body: ChecklistItemCreate, client: TrackerClient = Depends(tracker_client)
@@ -62,7 +57,6 @@ def create(
 @mcp.tool(
     name="checklists_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker checklist item"},
-    tags=WRITE_TAGS,
 )
 def update(
     key: IssueKey,
@@ -80,7 +74,6 @@ def update(
 @mcp.tool(
     name="checklists_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker checklist item"},
-    tags=WRITE_TAGS,
 )
 def delete(
     key: IssueKey, item_id: ChecklistItemId, client: TrackerClient = Depends(tracker_client)
@@ -95,7 +88,6 @@ def delete(
 @mcp.tool(
     name="checklists_clear",
     annotations={**DESTRUCTIVE, "title": "Clear Tracker issue checklist"},
-    tags=WRITE_TAGS,
 )
 def clear(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Checklist:
     """Permanently delete the ENTIRE checklist of a Tracker issue (all items, irreversible).

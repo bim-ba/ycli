@@ -11,9 +11,7 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SurveyId,
     forms_client,
 )
@@ -22,7 +20,7 @@ from ycli.yandex.models import ItemList
 mcp = FastMCP("forms-access")
 
 
-@mcp.tool(name="access_get", annotations={**RO, "title": "Get Forms survey access"}, tags=TAGS)
+@mcp.tool(name="access_get", annotations={**RO, "title": "Get Forms survey access"})
 def get(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> ItemList[Permission]:
     """Who may edit (``change``) and who may fill (``submit``) a form, one entry per action.
 
@@ -35,7 +33,6 @@ def get(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ite
 @mcp.tool(
     name="access_set",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms survey access level"},
-    tags=WRITE_TAGS,
 )
 def set_(
     survey_id: SurveyId,
@@ -49,7 +46,6 @@ def set_(
 @mcp.tool(
     name="access_grant",
     annotations={**WRITE_IDEMPOTENT, "title": "Grant Forms survey access"},
-    tags=WRITE_TAGS,
 )
 def grant(
     survey_id: SurveyId,
@@ -66,7 +62,6 @@ def grant(
 @mcp.tool(
     name="access_revoke",
     annotations={**DESTRUCTIVE, "title": "Revoke Forms survey access"},
-    tags=WRITE_TAGS,
 )
 def revoke(
     survey_id: SurveyId,

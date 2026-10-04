@@ -14,10 +14,8 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     CommentId,
     Expand,
     IssueKey,
@@ -29,9 +27,7 @@ from ycli.yandex.tracker.models import CommentCreate
 mcp = FastMCP("tracker-comments")
 
 
-@mcp.tool(
-    name="comments_list", annotations={**RO, "title": "List Tracker issue comments"}, tags=TAGS
-)
+@mcp.tool(name="comments_list", annotations={**RO, "title": "List Tracker issue comments"})
 def list_(
     key: IssueKey,
     limit: Annotated[
@@ -51,7 +47,7 @@ def list_(
     return client.comments.list(key, limit=cap, expand=expand)
 
 
-@mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"}, tags=TAGS)
+@mcp.tool(name="comments_get", annotations={**RO, "title": "Get Tracker issue comment"})
 def get(
     key: IssueKey,
     comment_id: Annotated[
@@ -70,7 +66,6 @@ def get(
 @mcp.tool(
     name="comments_add",
     annotations={**WRITE, "title": "Add Tracker issue comment"},
-    tags=WRITE_TAGS,
 )
 def add(
     key: IssueKey, body: CommentCreate, client: TrackerClient = Depends(tracker_client)
@@ -82,7 +77,6 @@ def add(
 @mcp.tool(
     name="comments_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker issue comment"},
-    tags=WRITE_TAGS,
 )
 def update(
     key: IssueKey,
@@ -100,7 +94,6 @@ def update(
 @mcp.tool(
     name="comments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue comment"},
-    tags=WRITE_TAGS,
 )
 def delete(
     key: IssueKey, comment_id: CommentId, client: TrackerClient = Depends(tracker_client)
@@ -116,7 +109,6 @@ def delete(
 @mcp.tool(
     name="comments_react",
     annotations={**WRITE, "title": "React to Tracker issue comment"},
-    tags=WRITE_TAGS,
 )
 def react(
     key: IssueKey,

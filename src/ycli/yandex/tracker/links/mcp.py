@@ -13,9 +13,7 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     IssueKey,
     app_config,
     tracker_client,
@@ -25,13 +23,13 @@ from ycli.yandex.tracker.links.models import Link, LinkCreate
 mcp = FastMCP("tracker-links")
 
 
-@mcp.tool(name="links_list", annotations={**RO, "title": "List Tracker issue links"}, tags=TAGS)
+@mcp.tool(name="links_list", annotations={**RO, "title": "List Tracker issue links"})
 def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> ItemList[Link]:
     """All links on a Tracker issue (linked issues, type, direction)."""
     return client.links.list(key)
 
 
-@mcp.tool(name="links_search", annotations={**RO, "title": "Search Tracker issue links"}, tags=TAGS)
+@mcp.tool(name="links_search", annotations={**RO, "title": "Search Tracker issue links"})
 def search(
     key: IssueKey,
     link_types: Annotated[
@@ -61,7 +59,7 @@ def search(
     return client.links.search(key, link_types=link_types, fields=fields, limit=cap)
 
 
-@mcp.tool(name="links_add", annotations={**WRITE, "title": "Link Tracker issues"}, tags=WRITE_TAGS)
+@mcp.tool(name="links_add", annotations={**WRITE, "title": "Link Tracker issues"})
 def add(key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker_client)) -> Link:
     """Link a Tracker issue to another issue; returns the created link."""
     return client.links.add(key, body)
@@ -70,7 +68,6 @@ def add(key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker
 @mcp.tool(
     name="links_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue link"},
-    tags=WRITE_TAGS,
 )
 def delete(
     key: IssueKey,

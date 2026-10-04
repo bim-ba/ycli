@@ -91,28 +91,26 @@ flattened. An envelope that carries data of its own is the public type: Forms co
 
 ---
 
-## 3. MCP annotation sets / tags / `<domain>_client` come from the domain `dependencies`
+## 3. MCP annotation sets / `<domain>_client` come from the domain `dependencies`
 
 Every `mcp.py` imports the annotation sets (`RO`, `WRITE`, `WRITE_IDEMPOTENT`,
-`DESTRUCTIVE`), the tag constants (`TAGS`, `WRITE_TAGS`), and the domain client provider
-from the domain's `dependencies` module — not from the shared `ycli.yandex.mcp`:
+`DESTRUCTIVE`) and the domain client provider from the domain's `dependencies` module — not
+from the shared `ycli.yandex.mcp`:
 
 ```python
 # src/ycli/yandex/tracker/issues/mcp.py
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     tracker_client,
 )
 ```
 
 The `dependencies` module re-exports the annotation sets (from `ycli.yandex.mcp`) in its
-`__all__` and defines the domain tags (`TAGS = {"<domain>"}`,
-`WRITE_TAGS = TAGS | {WRITE_TAG}`), so import-linter and IDEs resolve the canonical source
-correctly.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import, and
+`__all__`, so import-linter and IDEs resolve the canonical source correctly. It also defines
+the domain tags (`TAGS`, `WRITE_TAGS`) for the prompts and resources of the service, which
+have no annotations to derive them from.  The scaffold (`scripts/new_endpoint.py`) generates this single-line import, and
 an import-linter contract forbids a resource `mcp.py` from importing `ycli.yandex.mcp`.
 
 ### Why `<domain>_client` is a per-request provider
@@ -149,7 +147,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
 | parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueId`, `Version`, `SurveyId`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
 | `annotations` | `@mcp.tool(annotations={**<SET>, "title": "…"})` | `<SET>` matches the verb class exactly: `RO` for reads, `WRITE` for additive creates, `WRITE_IDEMPOTENT` for PATCH-style edits, `DESTRUCTIVE` for delete/clear/abort — plus an imperative title. Explicit because the MCP-spec default for an unannotated tool is `destructiveHint=true` |
-| `tags` | `@mcp.tool(tags=…)` | `TAGS` for reads, `WRITE_TAGS` for writes — the `write` tag is what `ycli mcp start --read-only` disables wholesale |
+| `tags` | never passed | The root server derives them (`ycli.mcp.listing.DerivedTags`): the service from the tool's name, `write` when `readOnlyHint` is not true — the tag `ycli mcp start --read-only` disables wholesale. A tool that passes `tags=` fails `test_arch3_no_tool_states_its_tags_itself` |
 
 ### Prohibited
 
@@ -166,7 +164,6 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 @mcp.tool(
     name="issues_get",
     annotations={**RO, "title": "Get Tracker issue"},
-    tags=TAGS,
 )
 def get(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Issue:
     """A single Tracker issue by key."""  # ← this IS the description
@@ -179,7 +176,6 @@ def get(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Issue
 @mcp.tool(
     name="comments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue comment"},
-    tags=WRITE_TAGS,
 )
 def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Permanently delete one comment from a Tracker issue (irreversible)."""
@@ -201,7 +197,6 @@ the HTTP call:
 @mcp.tool(
     name="bulk_update",
     annotations={**WRITE, "title": "Bulk-update issues"},
-    tags=WRITE_TAGS,
 )
 def update(body: BulkUpdate, client: TrackerClient = Depends(tracker_client)) -> BulkChange:
     """Start an async bulk field update over many Tracker issues; returns the operation."""

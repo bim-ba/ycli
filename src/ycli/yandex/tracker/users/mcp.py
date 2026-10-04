@@ -9,13 +9,13 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, TAGS, app_config, tracker_client
+from ycli.yandex.tracker.dependencies import LIMIT_CAP, RO, app_config, tracker_client
 from ycli.yandex.tracker.users.models import User
 
 mcp = FastMCP("tracker-users")
 
 
-@mcp.tool(name="users_get", annotations={**RO, "title": "Get Tracker user"}, tags=TAGS)
+@mcp.tool(name="users_get", annotations={**RO, "title": "Get Tracker user"})
 def get(
     login_or_id: Annotated[
         str,
@@ -36,7 +36,7 @@ def get(
     return client.users.get(login_or_id=login_or_id, expand=expand)
 
 
-@mcp.tool(name="users_list", annotations={**RO, "title": "List Tracker users"}, tags=TAGS)
+@mcp.tool(name="users_list", annotations={**RO, "title": "List Tracker users"})
 def list_(
     limit: Annotated[
         int | None,

@@ -14,14 +14,18 @@ from typing import TYPE_CHECKING, Any
 from fastmcp.server.transforms import Transform
 from fastmcp.server.transforms.visibility import is_enabled
 
-from ycli.yandex.mcp import NEEDS_TOOLS, REPEATS_TOOL
+from ycli.yandex.mcp import NEEDS_TOOLS, REPEATS_TOOL, WRITE_TAG
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Sequence
 
     from fastmcp.prompts.base import Prompt
     from fastmcp.resources.template import ResourceTemplate
-    from fastmcp.server.transforms import GetPromptNext, GetResourceTemplateNext
+    from fastmcp.server.transforms import (
+        GetPromptNext,
+        GetResourceTemplateNext,
+        GetToolNext,
+    )
     from fastmcp.tools.base import Tool
     from fastmcp.utilities.versions import VersionSpec
 
@@ -112,6 +116,34 @@ class LightListing(Transform):
             )
             for tool in tools
         ]
+
+
+class DerivedTags(Transform):
+    """Tags every tool with its service and, when it is not read-only, with ``write``.
+
+    The visibility filters match tags, and a tool already states both facts: its service is the
+    namespace it is mounted under, its effect is ``readOnlyHint``. Deriving the tags here keeps
+    one statement of each, so the two cannot disagree. It must be the first transform: the
+    filters added after it read what it wrote.
+    """
+
+    @staticmethod
+    def _tagged(tool: Tool) -> Tool:
+        # A tool with no annotations counts as a write: hidden by ``--read-only``, never leaked.
+        reads = tool.annotations is not None and tool.annotations.read_only_hint is True
+        tags = {tool.name.partition("_")[0]} | (set() if reads else {WRITE_TAG})
+        return tool.model_copy(update={"tags": tool.tags | tags})
+
+    async def list_tools(self, tools: Sequence[Tool]) -> Sequence[Tool]:
+        """The tools, each with its derived tags."""
+        return [self._tagged(tool) for tool in tools]
+
+    async def get_tool(
+        self, name: str, call_next: GetToolNext, *, version: VersionSpec | None = None
+    ) -> Tool | None:
+        """The tool ``name`` with its derived tags."""
+        tool = await call_next(name, version=version)
+        return None if tool is None else self._tagged(tool)
 
 
 class UnknownToolError(ValueError):

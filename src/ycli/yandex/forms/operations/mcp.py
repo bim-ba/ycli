@@ -7,14 +7,14 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, TAGS, forms_client
+from ycli.yandex.forms.dependencies import RO, forms_client
 from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.models import require_found
 
 mcp = FastMCP("forms-operations")
 
 
-@mcp.tool(name="operations_get", annotations={**RO, "title": "Get Forms operation"}, tags=TAGS)
+@mcp.tool(name="operations_get", annotations={**RO, "title": "Get Forms operation"})
 def get(
     operation_id: Annotated[
         str,

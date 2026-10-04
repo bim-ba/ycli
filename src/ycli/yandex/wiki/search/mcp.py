@@ -7,13 +7,13 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import RO, TAGS, wiki_client
+from ycli.yandex.wiki.dependencies import RO, wiki_client
 from ycli.yandex.wiki.search.models import SearchFilters, SearchOrder, SearchPage, SearchRequest
 
 mcp = FastMCP("wiki-search")
 
 
-@mcp.tool(name="search_query", annotations={**RO, "title": "Search Wiki"}, tags=TAGS)
+@mcp.tool(name="search_query", annotations={**RO, "title": "Search Wiki"})
 def query(
     text: Annotated[str, Field(min_length=1, description="Text to search for.")],
     filters: Annotated[

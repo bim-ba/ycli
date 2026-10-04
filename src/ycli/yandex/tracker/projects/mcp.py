@@ -11,10 +11,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     tracker_client,
 )
 from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
@@ -26,7 +24,7 @@ ProjectId = Annotated[int, Field(description="Numeric id of the project, from ``
 Expand = Annotated[str | None, Field(description="Extra blocks to include, e.g. ``queues``.")]
 
 
-@mcp.tool(name="projects_list", annotations={**RO, "title": "List Tracker projects"}, tags=TAGS)
+@mcp.tool(name="projects_list", annotations={**RO, "title": "List Tracker projects"})
 def list_(
     expand: Expand = None, client: TrackerClient = Depends(tracker_client)
 ) -> ItemList[Project]:
@@ -37,7 +35,7 @@ def list_(
     return client.projects.list(expand=expand)
 
 
-@mcp.tool(name="projects_get", annotations={**RO, "title": "Get Tracker project"}, tags=TAGS)
+@mcp.tool(name="projects_get", annotations={**RO, "title": "Get Tracker project"})
 def get(
     project_id: ProjectId, expand: Expand = None, client: TrackerClient = Depends(tracker_client)
 ) -> Project:
@@ -48,7 +46,6 @@ def get(
 @mcp.tool(
     name="projects_queues",
     annotations={**RO, "title": "List queues of a Tracker project"},
-    tags=TAGS,
 )
 def queues(
     project_id: ProjectId,
@@ -65,7 +62,6 @@ def queues(
 @mcp.tool(
     name="projects_create",
     annotations={**WRITE, "title": "Create Tracker project"},
-    tags=WRITE_TAGS,
 )
 def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client)) -> Project:
     """Create a project (legacy Projects API).
@@ -79,7 +75,6 @@ def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client))
 @mcp.tool(
     name="projects_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker project"},
-    tags=WRITE_TAGS,
 )
 def update(
     project_id: ProjectId,
@@ -100,7 +95,6 @@ def update(
 @mcp.tool(
     name="projects_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker project"},
-    tags=WRITE_TAGS,
 )
 def delete(project_id: ProjectId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a project (irreversible). Returns an acknowledgement."""
