@@ -27,6 +27,14 @@ class YandexInvalidRequestError(YandexError):
     """
 
 
+class YandexUnexpectedReplyError(YandexError):
+    """The API answered, but its reply does not fit the model ycli reads it into.
+
+    The request was sent and may have taken effect; what failed is reading the answer. It is
+    told apart from a request that the arguments given cannot build, which is never sent.
+    """
+
+
 class YandexAuthError(YandexError):
     """401/403 — missing, invalid, or insufficient credentials."""
 

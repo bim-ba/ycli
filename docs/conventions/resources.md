@@ -320,7 +320,9 @@ value's length or range, a value outside a known set, which arguments go togethe
 the service. ycli sends it as given and shows the API's answer; it does not fill in a value
 the caller left out to make a request pass. ARCH-9 keeps a list of the refusals that remain,
 each with its reason. A missing field of a request model is printed by one formatter
-(`ycli.cli.errors.format_cli_error`), so a command needs no check of its own to say it.
+(`ycli.cli.errors.format_cli_error`, exit code 2: nothing was sent), so a command needs no
+check of its own to say it. A reply that does not fit its model is another error,
+`YandexUnexpectedReplyError`: the request went out, and the exit code is 1.
 
 **`cli.py`**:
 

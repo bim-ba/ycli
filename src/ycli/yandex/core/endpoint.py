@@ -23,10 +23,10 @@ from functools import cache
 from typing import TYPE_CHECKING, Any, Literal, cast
 from urllib.parse import quote, unquote
 
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, ValidationError
 from pydantic_core import to_jsonable_python
 
-from ycli.yandex.errors import YandexClientError
+from ycli.yandex.errors import YandexClientError, YandexUnexpectedReplyError
 from ycli.yandex.models import WIRE
 
 if TYPE_CHECKING:
@@ -209,7 +209,17 @@ class Endpoint[T]:
             return cast("T", None)
         if self.response_type is bytes:
             return cast("T", response.content)
-        return _adapter(self.response_type).validate_json(response.content)
+        try:
+            return _adapter(self.response_type).validate_json(response.content)
+        except ValidationError as exc:
+            fields = "; ".join(
+                f"{'.'.join(str(part) for part in error['loc']) or 'reply'}: {error['msg']}"
+                for error in exc.errors()
+            )
+            raise YandexUnexpectedReplyError(
+                f"the reply to {self.method} {self.path} does not fit what ycli expects ({fields})",
+                url=str(response.url),
+            ) from exc
 
 
 @dataclass(frozen=True, slots=True)
