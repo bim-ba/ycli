@@ -9,6 +9,31 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.57.0 (2026-10-04)
+
+### Bug Fixes
+
+- **sdk**: A wrong request form is one typed error, and a file option checks its file
+  ([#271](https://github.com/bim-ba/ycli/pull/271),
+  [`e3deae5`](https://github.com/bim-ba/ycli/commit/e3deae52f9f3b3272f5ae1bd075b46c607eeb8c8))
+
+### Build System
+
+- Re-lock uv.lock for 0.56.0
+  ([`832e65a`](https://github.com/bim-ba/ycli/commit/832e65a8db96807b05bb5825e46a9e911962e92f))
+
+### Documentation
+
+- The Russian menu links the MCP prompts and resources page
+  ([#270](https://github.com/bim-ba/ycli/pull/270),
+  [`7e4d096`](https://github.com/bim-ba/ycli/commit/7e4d096410968a41211bcfac91d62ea020bf1c46))
+
+### Breaking Changes
+
+- **sdk**: Forms.answers.get, forms.answers.integrations_list and tracker.issues.search raise
+  YandexInvalidRequestError instead of ValueError for a request of the wrong form.
+
+
 ## v0.56.0 (2026-10-03)
 
 ### Build System
