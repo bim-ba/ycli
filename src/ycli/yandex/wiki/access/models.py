@@ -13,13 +13,12 @@ from typing import Any, Literal, Self
 
 from pydantic import Field, model_validator
 
-from ycli.yandex.models import APIModel, RequestBody
-from ycli.yandex.wiki.models import User, UserIdentity
+from ycli.yandex.models import APIModel, GroupSource, RequestBody
+from ycli.yandex.wiki.models import PageAccessType, User, UserIdentity
 
 #: What a grant lets its holder do, weakest first.
 AccessRole = Literal["reader", "editor", "extra_editor", "author"]
 #: The directory that owns a group.
-GroupSource = Literal["dir", "cloud", "com", "staff"]
 #: Whether a grant also applies to the page's subpages.
 AccessInheritance = Literal["inherited", "not_inherited"]
 
@@ -130,7 +129,7 @@ class PageAccessPolicy(APIModel):
         'custom'
     """
 
-    access_type: Literal["inherited", "all_staff", "custom"] = Field(
+    access_type: PageAccessType = Field(
         description="``inherited`` from the parent, ``all_staff``, or ``custom`` (grants only)."
     )
     inherited_access_type: Literal["all_staff", "custom"] | None = Field(

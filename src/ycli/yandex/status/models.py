@@ -6,6 +6,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from ycli.settings import CredentialKind
 from ycli.yandex.models import APIModel
 
 
@@ -52,7 +53,7 @@ class AuthReport(APIModel):
     """Whether the credentials are set, whose they are, and which services accept them."""
 
     configured: bool
-    credential: Literal["oauth", "iam"] | None = Field(
+    credential: CredentialKind | None = Field(
         default=None, description="Which token is in use; never its value."
     )
     profile: str | None = Field(
@@ -75,7 +76,7 @@ class SavedProfile(APIModel):
     organization_id: str | None = Field(
         default=None, description="`null` when the profile's file cannot be used."
     )
-    credential: Literal["oauth", "iam"] | None = Field(
+    credential: CredentialKind | None = Field(
         default=None, description="Which token the profile holds; never its value."
     )
     active: bool = Field(

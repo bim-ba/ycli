@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.access.models import PageAccessLists, PageAccessPolicy, PageOwner
-from ycli.yandex.wiki.models import PageIdentity, User, UserIdentity
+from ycli.yandex.wiki.models import Location, PageAccessType, PageIdentity, User, UserIdentity
 
 
 class PageAttributes(APIModel):
@@ -245,7 +245,7 @@ class PageAccessPolicyUpdate(RequestBody):
         'all_staff'
     """
 
-    access_type: Literal["inherited", "all_staff", "custom"] = Field(
+    access_type: PageAccessType = Field(
         description="``inherited`` (as the parent), ``all_staff`` or ``custom``."
     )
     all_staff_role: str | None = Field(
@@ -342,7 +342,7 @@ class PageAppendContentBody(RequestBody):
         'bottom'
     """
 
-    location: Literal["top", "bottom"] | None = Field(
+    location: Location | None = Field(
         default=None,
         description="Anchor the appended content at the ``top`` or ``bottom`` of the page body.",
     )
@@ -357,7 +357,7 @@ class PageAppendContentSection(RequestBody):
     """
 
     id: int | None = Field(default=None, description="Target section id to append relative to.")
-    location: Literal["top", "bottom"] | None = Field(
+    location: Location | None = Field(
         default=None,
         description="Place the content at the ``top`` or ``bottom`` of that section.",
     )

@@ -55,6 +55,11 @@ A set Yandex adds to (a comment reaction, a page type) is a `str` with the value
 its description: an unknown value must not fail the whole reply. A set that is closed by its
 meaning (`resolved` / `unresolved`, `asc` / `desc`) is a `Literal`.
 
+Each set has one definition, used by name: a set of one resource in its `models.py`, of
+several in the service's `models.py`, of several services in `ycli.yandex.models`
+(`SortDirection`, `GroupSource`). `test_a_closed_value_set_is_defined_once` fails on a second
+`Literal` or `StrEnum` with the same values.
+
 ### A field the API ignores
 
 A request field or parameter that the API accepts and does nothing with stays in ycli. Its

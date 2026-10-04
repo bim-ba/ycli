@@ -11,11 +11,16 @@ about its output is that it keeps the API's field names.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Annotated, Any, ClassVar
+from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel
 
 from ycli.yandex.errors import YandexNotFoundError
+
+#: The order of a sorted listing.
+SortDirection = Literal["asc", "desc"]
+#: Where a group is kept: the organization's directory, the cloud, Yandex ID or the staff list.
+GroupSource = Literal["dir", "cloud", "com", "staff"]
 
 if TYPE_CHECKING:
     from collections.abc import Callable
