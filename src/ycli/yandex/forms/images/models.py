@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
+from ycli.yandex.forms.models import FileCheckStatus
 from ycli.yandex.models import APIModel, RequestBody
+
+#: How strictly an uploaded image is scanned.
+FileCheckMode = Literal["strict", "loose"] | str
 
 
 class Image(APIModel):
@@ -30,11 +34,11 @@ class Image(APIModel):
         default_factory=dict, description="Map of image size → URL for each rendered variant."
     )
     name: str | None = Field(default=None, description="Original image file name.")
-    check_status: str | None = Field(
+    check_status: FileCheckStatus | None = Field(
         default=None,
         description="Virus/upload scan status — one of: check, ready, infected, error, deleted.",
     )
-    check_mode: str | None = Field(
+    check_mode: FileCheckMode | None = Field(
         default=None, description="Scan mode: strict or loose (reported on clone)."
     )
 

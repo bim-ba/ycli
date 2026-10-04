@@ -52,7 +52,7 @@ class Permission(APIModel):
         'common'
     """
 
-    access: str | None = Field(
+    access: AccessLevel | None = Field(
         default=None, description="Access level: owner, restricted, common or public."
     )
     action: str | None = Field(
