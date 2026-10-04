@@ -9,6 +9,30 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.62.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.61.0
+  ([`60f9cc4`](https://github.com/bim-ba/ycli/commit/60f9cc441c10cf32f126e7f33578076f2c0fd252))
+
+### Features
+
+- The five Tracker sets left strict take any string too
+  ([#295](https://github.com/bim-ba/ycli/pull/295),
+  [`6544dd4`](https://github.com/bim-ba/ycli/commit/6544dd45c06c9b829f9f238e0f33132fbfcd97f4))
+
+### Breaking Changes
+
+- A value outside these sets is sent to the API instead of being refused: the entity type, the link
+  relationship, the reaction name (CLI: usage error before), the project status and the kind of
+  absence (also refused by the SDK and the MCP tools before, as `ProjectStatus` and `GapWorkflow`
+  typed request-body fields), and a workflow layout `type`. `ProjectStatus`, `GapWorkflow`,
+  `EntityType`, `Relationship` and `Reaction` are no longer enum classes: `ProjectStatus.DRAFT`
+  becomes the string "DRAFT". `EntityType`, `Relationship` and `Reaction` moved from the resource's
+  `cli.py` to its `models.py`.
+
+
 ## v0.61.0 (2026-10-04)
 
 ### Build System
