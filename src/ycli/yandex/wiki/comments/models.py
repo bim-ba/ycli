@@ -29,13 +29,15 @@ class Comment(APIModel):
         'ok'
     """
 
-    id: int | None = None
+    id: int | None = Field(default=None, description="Numeric id of the comment.")
     parent_id: int | None = Field(
         default=None, description="Id of the comment this one replies to; ``None`` on a root."
     )
-    created_at: str | None = None
-    author: DisplayNameStr = None
-    content: str | None = Field(default=None, validation_alias="body")
+    created_at: str | None = Field(default=None, description="ISO-8601 creation timestamp.")
+    author: DisplayNameStr = Field(default=None, description="Name to show for the author.")
+    content: str | None = Field(
+        default=None, validation_alias="body", description="Text of the comment."
+    )
 
 
 class CommentCreate(RequestBody):

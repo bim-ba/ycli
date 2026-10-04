@@ -187,18 +187,22 @@ class Survey(APIModel):
         444
     """
 
-    id: str | None = None
-    name: str | None = None
-    dir_id: str | None = None
-    collab_id: str | None = None
-    created: str | None = None
-    modified: str | None = None
-    language: str | None = None
-    is_published: bool | None = None
-    is_public: bool | None = None
-    is_banned: bool | None = None
-    answers: int | None = None
-    is_favourite: bool | None = None
+    id: str | None = Field(default=None, description="Form id, a 24-character hex string.")
+    name: str | None = Field(default=None, description="Form name (title).")
+    dir_id: str | None = Field(default=None, description="Id of the Yandex 360 organization.")
+    collab_id: str | None = Field(default=None, description="Id of the meta-organization.")
+    created: str | None = Field(default=None, description="When the form was created (ISO 8601).")
+    modified: str | None = Field(
+        default=None, description="When the form was last modified (ISO 8601)."
+    )
+    language: str | None = Field(default=None, description="Language the form was created in.")
+    is_published: bool | None = Field(default=None, description="Whether the form is published.")
+    is_public: bool | None = Field(default=None, description="Whether the form is public.")
+    is_banned: bool | None = Field(default=None, description="Whether the form is banned.")
+    answers: int | None = Field(default=None, description="Number of responses to the form.")
+    is_favourite: bool | None = Field(
+        default=None, description="Whether the form is in the caller's favourites."
+    )
     hashed_id: str | None = Field(default=None, description="Form id with a hash.")
     author: UserRef | None = Field(default=None, description="Who created the form.")
     need_auth: bool | None = Field(
@@ -259,8 +263,10 @@ class SurveysResponse(APIModel):
         'a'
     """
 
-    links: dict[str, Any] = Field(default_factory=dict)
-    result: list[Survey] = Field(default_factory=list)
+    links: dict[str, Any] = Field(
+        default_factory=dict, description="Links to other pages of the listing, e.g. `next`."
+    )
+    result: list[Survey] = Field(default_factory=list, description="Forms on this page.")
 
 
 class SurveyCreate(WarnsOnIgnored):

@@ -19,9 +19,12 @@ class IssueType(APIModel):
         'Task'
     """
 
-    key: str | None = None
-    name: str | None = None
-    display: str | None = None
+    key: str | None = Field(default=None, description="Key of the issue type, e.g. ``task``.")
+    name: str | None = Field(default=None, description="Display name of the issue type.")
+    display: str | None = Field(
+        default=None,
+        description="Display name of the issue type; null in the live v3 API, which uses ``name``.",
+    )
 
 
 class IssueTypeCreate(RequestBody):

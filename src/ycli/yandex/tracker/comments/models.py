@@ -41,18 +41,42 @@ class Comment(APIModel):
         2238
     """
 
-    id: int | str | None = None
-    long_id: str | None = Field(default=None, alias="longId")
-    created_at: str | None = Field(default=None, alias="createdAt")
-    created_by: DisplayStr = Field(default=None, alias="createdBy")
-    updated_at: str | None = Field(default=None, alias="updatedAt")
-    updated_by: DisplayStr = Field(default=None, alias="updatedBy")
-    text: str | None = None
-    text_html: str | None = Field(default=None, alias="textHtml")
-    attachments: list[Reference] | None = None
-    version: int | None = None
-    type: str | None = None
-    transport: str | None = None
+    id: int | str | None = Field(default=None, description="Comment identifier.")
+    long_id: str | None = Field(
+        default=None, alias="longId", description="Comment identifier as a string."
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="When the comment was created (ISO 8601)."
+    )
+    created_by: DisplayStr = Field(
+        default=None, alias="createdBy", description="Display name of the comment author."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="When the comment was last updated (ISO 8601)."
+    )
+    updated_by: DisplayStr = Field(
+        default=None,
+        alias="updatedBy",
+        description="Display name of the user who last updated the comment.",
+    )
+    text: str | None = Field(default=None, description="Comment text.")
+    text_html: str | None = Field(
+        default=None, alias="textHtml", description="Comment text as HTML markup."
+    )
+    attachments: list[Reference] | None = Field(
+        default=None, description="Files attached to the comment."
+    )
+    version: int | None = Field(
+        default=None, description="Comment version; every edit increments it."
+    )
+    type: str | None = Field(
+        default=None,
+        description="Comment type: ``standard``, ``incoming`` or ``outcoming``.",
+    )
+    transport: str | None = Field(
+        default=None,
+        description="How the comment was added: ``internal`` (Tracker interface) or ``email``.",
+    )
 
 
 class CommentUpdate(RequestBody):

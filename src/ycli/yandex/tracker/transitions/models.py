@@ -15,8 +15,8 @@ class StatusRef(APIModel):
         'closed'
     """
 
-    key: str | None = None
-    display: str | None = None
+    key: str | None = Field(default=None, description="Key of the target status.")
+    display: str | None = Field(default=None, description="Display name of the target status.")
 
 
 class Transition(APIModel):
@@ -35,9 +35,14 @@ class Transition(APIModel):
         'Closed'
     """
 
-    id: str | None = None
-    display: str | None = None  # present on the GET list response
-    to: StatusRef | None = None  # present on the POST _execute response (the target status)
+    id: str | None = Field(default=None, description="Transition identifier, e.g. ``close``.")
+    display: str | None = Field(
+        default=None,
+        description="Display name of the transition, as on the Tracker button.",
+    )  # present on the GET list response
+    to: StatusRef | None = Field(
+        default=None, description="Status the transition leads to; present on the execute response."
+    )  # present on the POST _execute response (the target status)
 
 
 class TransitionExecute(APIModel):

@@ -32,10 +32,14 @@ class PageAttributes(APIModel):
         3
     """
 
-    created_at: str | None = None
-    modified_at: str | None = None
-    comments_count: int | None = None
-    is_draft: bool | None = None
+    created_at: str | None = Field(
+        default=None, description="When the page was created (ISO 8601)."
+    )
+    modified_at: str | None = Field(
+        default=None, description="When the page was last modified (ISO 8601)."
+    )
+    comments_count: int | None = Field(default=None, description="Number of comments on the page.")
+    is_draft: bool | None = Field(default=None, description="Whether the page is a draft.")
 
 
 class PageRef(APIModel):
@@ -46,8 +50,8 @@ class PageRef(APIModel):
         'data/a'
     """
 
-    id: int
-    slug: str
+    id: int = Field(description="Numeric id of the page.")
+    slug: str = Field(description="Slug of the page, e.g. ``data/a``.")
 
 
 class PageSummary(PageRef):
@@ -182,13 +186,19 @@ class PageDetails(APIModel):
         'ivan'
     """
 
-    id: int
-    slug: str
-    title: str
-    page_type: str | None = None
-    content: str | None = None
+    id: int = Field(description="Numeric id of the page.")
+    slug: str = Field(description="Slug of the page, e.g. ``data/x``.")
+    title: str = Field(description="Title of the page.")
+    page_type: str | None = Field(
+        default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
+    )
+    content: str | None = Field(
+        default=None, description="Content of the page as a string (``fields=content``)."
+    )
     owner: PageOwner | None = Field(default=None, description="Owner (``fields=owner``).")
-    attributes: PageAttributes | None = None
+    attributes: PageAttributes | None = Field(
+        default=None, description="Timestamps, comment count, draft flag (``fields=attributes``)."
+    )
     access_policy: PageAccessPolicy | None = Field(
         default=None, description="Who may open the page (``fields=access_policy``)."
     )

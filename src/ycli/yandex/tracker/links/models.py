@@ -37,8 +37,8 @@ class LinkObject(APIModel):
         'DE-2'
     """
 
-    key: str | None = None
-    display: str | None = None
+    key: str | None = Field(default=None, description="Key of the linked issue.")
+    display: str | None = Field(default=None, description="Display name of the linked issue.")
 
 
 class Link(APIModel):
@@ -51,16 +51,33 @@ class Link(APIModel):
         'relates'
     """
 
-    id: int | str | None = None
-    type: IDStr = None
-    direction: str | None = None
-    object: LinkObject | None = None
-    created_by: DisplayStr = Field(default=None, alias="createdBy")
-    updated_by: DisplayStr = Field(default=None, alias="updatedBy")
-    created_at: str | None = Field(default=None, alias="createdAt")
-    updated_at: str | None = Field(default=None, alias="updatedAt")
-    assignee: DisplayStr = None
-    status: KeyStr = None
+    id: int | str | None = Field(default=None, description="Link identifier.")
+    type: IDStr = Field(default=None, description="Identifier of the link type, e.g. ``relates``.")
+    direction: str | None = Field(
+        default=None,
+        description="Link direction relative to the requested issue: ``outward`` or ``inward``.",
+    )
+    object: LinkObject | None = Field(default=None, description="The linked issue.")
+    created_by: DisplayStr = Field(
+        default=None,
+        alias="createdBy",
+        description="Display name of the user who created the link.",
+    )
+    updated_by: DisplayStr = Field(
+        default=None,
+        alias="updatedBy",
+        description="Display name of the user who last changed the linked issue.",
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="When the link was created (ISO 8601)."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="When the link was last changed (ISO 8601)."
+    )
+    assignee: DisplayStr = Field(
+        default=None, description="Display name of the linked issue's assignee."
+    )
+    status: KeyStr = Field(default=None, description="Key of the linked issue's status.")
 
     @property
     def object_key(self) -> str | None:

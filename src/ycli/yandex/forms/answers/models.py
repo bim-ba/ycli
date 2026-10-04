@@ -25,11 +25,11 @@ class Column(APIModel):
         'T'
     """
 
-    id: int | None = None
-    slug: str | None = None
-    type: str | None = None
-    text: str | None = None
-    has_scores: bool | None = None
+    id: int | None = Field(default=None, description="Id of the column.")
+    slug: str | None = Field(default=None, description="Slug of the column.")
+    type: str | None = Field(default=None, description="Question type of the column.")
+    text: str | None = Field(default=None, description="Heading of the column, the question text.")
+    has_scores: bool | None = Field(default=None, description="Whether the column has quiz scores.")
 
 
 class Answer(APIModel):
@@ -45,8 +45,10 @@ class Answer(APIModel):
         [{'value': 'x'}]
     """
 
-    id: int | None = None
-    created: str | None = None
+    id: int | None = Field(default=None, description="Id of the answer.")
+    created: str | None = Field(
+        default=None, description="When the answer was submitted (ISO 8601)."
+    )
     uid: str | None = Field(
         default=None, description="Passport uid of the respondent (the ``raw`` format only)."
     )
@@ -109,9 +111,13 @@ class AnswersResponse(APIModel):
         []
     """
 
-    columns: list[Column] = Field(default_factory=list)
-    answers: list[Answer] = Field(default_factory=list)
-    next: Any = None
+    columns: list[Column] = Field(default_factory=list, description="Columns of the table.")
+    answers: list[Answer] = Field(
+        default_factory=list, description="Answers on this page, cells aligned to `columns`."
+    )
+    next: Any = Field(
+        default=None, description='`{"next_url": …}` for the next page, `null` on the last.'
+    )
 
 
 class AnswerExport(RequestBody):

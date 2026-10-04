@@ -15,9 +15,9 @@ class User(APIModel):
         'e@x'
     """
 
-    id: int | None = None
-    uid: str | None = None
-    cloud_uid: str | None = None
+    id: int | None = Field(default=None, description="Forms' numeric id of the user.")
+    uid: str | None = Field(default=None, description="Passport uid of the user.")
+    cloud_uid: str | None = Field(default=None, description="Cloud uid of the user.")
     login: str | None = Field(default=None, description="Login of the user.")
     display: str | None = Field(default=None, description="Name to show for the user.")
-    email: str | None = None
+    email: str | None = Field(default=None, description="Email of the user.")

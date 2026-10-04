@@ -9,7 +9,7 @@ What a resource ships with, which test catches what, and how the suite stays hon
 |---|---|---|
 | Contract | the SDK, CLI and MCP reach each operation with the same requests (method, path, query, body), carrying the credentials; MCP hints match the strongest effect sent; the SDK keeps what the API returned; the CLI prints the SDK result and MCP returns the same data | one `Case` per way of reaching an operation in `tests/yandex/<domain>/<resource>/cases.py`, all driven by `tests/test_contract.py` |
 | Registry & architecture | parity, layers, effects, one output path, single sources, DI, typed boundaries | `tests/test_architecture.py`, import-linter, signature snapshots — small and hand-written |
-| Models | fixtures parse into the models; field descriptions | `test_models.py` per resource |
+| Models | fixtures parse into the models | `test_models.py` in a resource whose models have something to prove (aliases, unions, validators, a live reply); a resource that only reuses a shared model has none. That every field is described is checked once for all models (`tests/test_conventions.py::test_every_model_field_has_a_description`) |
 | Unit | logic only: validators, auth flows, paginators, error mapping, settings | by hand, next to the code it covers (`tests/yandex/core/`, `tests/yandex/test_settings.py`) |
 | Special behaviour | errors, multi-step flows (`--wait` polling), guards that refuse a request, paging quirks of one API | by hand, only where a contract case cannot reach |
 | Live e2e | the real API accepts what ycli sends and reaches the expected state | YAML scenarios in `e2e/` run against the test organization, outside the coverage gate; see [`e2e/README.md`](../../e2e/README.md) |

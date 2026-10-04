@@ -95,8 +95,8 @@ class _IAMToken(BaseModel):
 
     model_config = ConfigDict(validate_by_name=True)
 
-    token: SecretStr = Field(alias="iamToken")
-    expires_at: datetime = Field(alias="expiresAt")
+    token: SecretStr = Field(alias="iamToken", description="IAM token to send as the bearer.")
+    expires_at: datetime = Field(alias="expiresAt", description="When the token stops working.")
 
 
 class ServiceAccountAuth(httpx2.Auth):
