@@ -13,11 +13,16 @@ Two questions, one per mode:
   differs from the snapshots; ``.github/workflows/api-drift.yml`` runs it weekly and keeps one
   issue open while they differ. ``--refresh`` rewrites the snapshots.
 
+Both questions are asked of the services ycli covers. ``scripts/api_snapshot/`` also lists
+the operations of services ycli does not cover yet (the inventory of issue #268): they are
+refreshed, never compared.
+
 Usage::
 
     python scripts/api_drift.py                    # print the gaps (offline)
     python scripts/api_drift.py --live             # print what Yandex changed since the snapshot
-    python scripts/api_drift.py --refresh          # fetch and rewrite the snapshots
+    python scripts/api_drift.py --refresh          # fetch and rewrite every snapshot
+    python scripts/api_drift.py --refresh disk     # ... or the named ones
 
 Kill criterion: if Tracker ever publishes its OpenAPI document, the reference-page parser in
 ``api_surface`` goes; if Yandex stops publishing Wiki's and Forms', this whole check does.
@@ -655,22 +660,31 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument(
         "--live", action="store_true", help="print how the live API differs from the snapshots"
     )
-    group.add_argument("--refresh", action="store_true", help="fetch and rewrite the snapshots")
+    group.add_argument(
+        "--refresh",
+        nargs="*",
+        metavar="SERVICE",
+        choices=api_surface.LISTED,
+        help="fetch and rewrite the snapshots: of the named services, or of every listed one",
+    )
     args = parser.parse_args(argv)
 
-    if not (args.live or args.refresh):
+    if args.refresh is not None:
+        # Every snapshot: the services ycli covers and the ones that are only listed.
+        for service in args.refresh or api_surface.LISTED:
+            path = api_surface.SNAPSHOTS / f"{service}.json"
+            path.write_text(api_surface.dump(api_surface.fetch(service)), encoding="utf-8")
+        return 0
+    if not args.live:
         try:
             print(gaps_text(drifts()))
         except ValueError as error:
             raise SystemExit(f"api_drift: {error}") from error
         return 0
     report = []
+    # Only the services ycli covers: a change in a listed-only API is not ycli's drift.
     for service in api_surface.SERVICES:
-        live = api_surface.fetch(service)
-        if args.refresh:
-            path = api_surface.SNAPSHOTS / f"{service}.json"
-            path.write_text(api_surface.dump(live), encoding="utf-8")
-        elif lines := changes(api_surface.load(service), live):
+        if lines := changes(api_surface.load(service), api_surface.fetch(service)):
             report += [f"### {service.capitalize()}", "", *lines, ""]
     print("\n".join(report), end="")
     return 0
