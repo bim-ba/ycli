@@ -1,11 +1,11 @@
 [
-{"method": "POST", "base": "/v1", "path": "/telemost-api/conferences", "group": "Conferences", "source": "openapi", "request": ["access_level", "cohosts", "live_stream", "waiting_room_level"]},
-{"method": "GET", "base": "/v1", "path": "/telemost-api/conferences/{id}", "group": "Conferences", "source": "openapi"},
-{"method": "PATCH", "base": "/v1", "path": "/telemost-api/conferences/{id}", "group": "Conferences", "source": "openapi", "request": ["access_level", "live_stream", "waiting_room_level"]},
-{"method": "DELETE", "base": "/v1", "path": "/telemost-api/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "query": ["cohost_emails"]},
-{"method": "GET", "base": "/v1", "path": "/telemost-api/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "query": ["limit", "offset"]},
-{"method": "PATCH", "base": "/v1", "path": "/telemost-api/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "request": ["cohosts"]},
-{"method": "PUT", "base": "/v1", "path": "/telemost-api/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "request": ["cohosts"]},
-{"method": "GET", "base": "/v1", "path": "/telemost-api/organizations/{org_id}/settings", "group": "Conference settings", "source": "openapi"},
-{"method": "PUT", "base": "/v1", "path": "/telemost-api/organizations/{org_id}/settings", "group": "Conference settings", "source": "openapi", "request": ["cloud_recording_allowed_roles", "cloud_recording_email_receivers", "summarization_allowed_roles", "summarization_email_receivers", "waiting_room_level_adhoc", "waiting_room_level_calendar"]}
+{"method": "POST", "base": "/v1/telemost-api", "path": "/conferences", "group": "Conferences", "source": "openapi", "request": ["access_level", "cohosts", "live_stream", "waiting_room_level"]},
+{"method": "GET", "base": "/v1/telemost-api", "path": "/conferences/{id}", "group": "Conferences", "source": "openapi"},
+{"method": "PATCH", "base": "/v1/telemost-api", "path": "/conferences/{id}", "group": "Conferences", "source": "openapi", "request": ["access_level", "live_stream", "waiting_room_level"]},
+{"method": "DELETE", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "query": ["cohost_emails"]},
+{"method": "GET", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "query": ["limit", "offset"]},
+{"method": "PATCH", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "request": ["cohosts"]},
+{"method": "PUT", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "group": "Conference Cohosts", "source": "openapi", "request": ["cohosts"]},
+{"method": "GET", "base": "/v1/telemost-api", "path": "/organizations/{org_id}/settings", "group": "Conference settings", "source": "openapi"},
+{"method": "PUT", "base": "/v1/telemost-api", "path": "/organizations/{org_id}/settings", "group": "Conference settings", "source": "openapi", "request": ["cloud_recording_allowed_roles", "cloud_recording_email_receivers", "summarization_allowed_roles", "summarization_email_receivers", "waiting_room_level_adhoc", "waiting_room_level_calendar"]}
 ]
