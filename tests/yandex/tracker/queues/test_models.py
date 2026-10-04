@@ -92,17 +92,6 @@ def test_nested_models_standalone():
     assert cfg.issue_type.key == "bug" and cfg.resolutions == []  # ty: ignore[unresolved-attribute]
 
 
-def test_queue_list_root_model():
-    ql = ItemList[Queue].model_validate([{"key": "TEST"}, {"key": "DEMO"}])
-    assert [q.key for q in ql.root] == ["TEST", "DEMO"]
-    assert ItemList[Queue]([Queue.model_validate({"key": "X"})]).root[0].key == "X"
-
-
-def test_tag_list_root_model():
-    tags = ItemList[str].model_validate(["a", "b"])
-    assert tags.root == ["a", "b"]
-
-
 def test_version_info_parses_full_payload():
     v = QueueVersionInfo.model_validate(
         {

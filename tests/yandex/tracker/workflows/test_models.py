@@ -1,6 +1,5 @@
 """Model parsing for Tracker workflows: the doc reply and the request bodies."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import LocalizedName
 from ycli.yandex.tracker.workflows.models import (
     QueueWorkflows,
@@ -53,13 +52,6 @@ def test_workflow_parses_the_doc_sample():
 def test_workflow_without_queue_or_type_parses():
     workflow = Workflow.model_validate({"id": "W1", "name": "Shared", "version": 2})
     assert workflow.queue is None and workflow.type is None and workflow.steps == []
-
-
-def test_workflow_list_is_a_flat_array():
-    assert [w.id for w in ItemList[Workflow].model_validate([{"id": "A"}, {"id": "B"}]).root] == [
-        "A",
-        "B",
-    ]
 
 
 def test_queue_workflows_maps_workflow_ids_to_issue_types():

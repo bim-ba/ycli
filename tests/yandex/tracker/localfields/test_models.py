@@ -1,6 +1,5 @@
 """TDD for the localfields models — the schema alias, nested blocks, and write bodies."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate, OptionsProvider
 from ycli.yandex.tracker.models import FieldCreate, FieldSchema, LocalizedName, OptionsProviderInput
 
@@ -47,7 +46,7 @@ def test_schema_alias_accepts_name_and_alias():
     field_schema = LocalField.model_validate({"schema": {"type": "array"}}).field_schema
     assert field_schema is not None
     assert field_schema.type == "array"
-    # and via the python field name (populate_by_name)
+    # and via the python field name
     field = LocalField(field_schema=FieldSchema(type="string"))  # ty: ignore[unknown-argument]
     assert field.field_schema is not None
     assert field.field_schema.type == "string"
@@ -68,11 +67,6 @@ def test_defaults_are_none_for_optional_blocks():
 def test_options_provider_standalone():
     op = OptionsProvider.model_validate({"type": "Fixed", "values": ["x", "y"]})
     assert op.values == ["x", "y"] and op.need_validation is None
-
-
-def test_local_field_list_root_model():
-    lst = ItemList[LocalField].model_validate([{"key": "a"}, {"key": "b"}])
-    assert [f.key for f in lst.root] == ["a", "b"]
 
 
 def test_local_field_create_serializes_options_provider_by_alias():

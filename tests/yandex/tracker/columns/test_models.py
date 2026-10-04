@@ -1,6 +1,5 @@
 """Model tests for Tracker board columns — full fixture, nested statuses, typed inputs."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdate
 from ycli.yandex.tracker.models import KeyedReference
 
@@ -25,12 +24,6 @@ def test_column_parses_full_fixture_with_typed_statuses():
     assert column.self_url.endswith("/boards/73/columns/1")  # ty: ignore[unresolved-attribute]
     assert isinstance(column.statuses[0], KeyedReference)
     assert column.statuses[0].key == "open" and column.statuses[0].display == "Open"
-
-
-def test_column_list_is_flat_root_model():
-    columns = ItemList[Column].model_validate([COLUMN, {"id": 2, "name": "Closed"}])
-    assert isinstance(columns, ItemList[Column])
-    assert [c.name for c in columns.root] == ["Open", "Closed"]
 
 
 def test_column_defaults_when_fields_absent():

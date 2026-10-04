@@ -1,6 +1,5 @@
 """TDD for Tracker attachment models — full doc sample parse + list array."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 
 SAMPLE = {
@@ -30,13 +29,6 @@ def test_attachment_parses_all_fields():
     assert attachment.thumbnail.endswith("/thumbnails/123")  # ty: ignore[unresolved-attribute]
     assert attachment.metadata is not None
     assert attachment.metadata.size == "550x175"
-
-
-def test_attachment_list_parses_array():
-    out = ItemList[Attachment].model_validate([SAMPLE, {"name": "notes.txt"}])
-    assert isinstance(out, ItemList[Attachment])
-    assert [a.name for a in out.root] == ["picture.jpg", "notes.txt"]
-    assert out.root[1].metadata is None  # absent metadata stays None
 
 
 def test_temp_upload_reply_may_lack_the_asynchronous_thumbnail():

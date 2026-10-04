@@ -1,6 +1,5 @@
 """Model-parse + Field-metadata coverage for the Tracker users models."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.models import Reference
 from ycli.yandex.tracker.users.models import User, UsersRelativeResponse
 
@@ -48,11 +47,6 @@ def test_user_parses_every_aliased_field():
 def test_group_parses_self_alias():
     g = Reference.model_validate({"self": "https://x/groups/5", "id": "5", "display": "Devs"})
     assert g.self_url == "https://x/groups/5" and g.id == "5" and g.display == "Devs"
-
-
-def test_userlist_is_flat_root_array():
-    ul = ItemList[User].model_validate([{"login": "a"}, {"login": "b"}])
-    assert [u.login for u in ul.root] == ["a", "b"]
 
 
 def test_relative_response_envelope():

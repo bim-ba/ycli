@@ -252,7 +252,7 @@ class Survey(APIModel):
 class SurveysResponse(APIModel):
     """Envelope for ``GET /v1/surveys`` — ``{links, result:[Survey]}``.
 
-    Internal per-page parse type used by ``SurveysClient._list_page``.
+    The per-page parse type of the surveys listing.
 
     Examples:
         >>> SurveysResponse.model_validate({"result": [{"id": "a"}]}).result[0].id
