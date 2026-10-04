@@ -10,10 +10,8 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Version,
     tracker_client,
 )
@@ -22,7 +20,7 @@ from ycli.yandex.tracker.statuses.models import Status, StatusCreate, StatusUpda
 mcp = FastMCP("tracker-statuses")
 
 
-@mcp.tool(name="statuses_list", annotations={**RO, "title": "List Tracker statuses"}, tags=TAGS)
+@mcp.tool(name="statuses_list", annotations={**RO, "title": "List Tracker statuses"})
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Status]:
     """Every issue status configured in the organisation's workflows.
 
@@ -33,9 +31,7 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Status]:
     return client.statuses.list()
 
 
-@mcp.tool(
-    name="statuses_create", annotations={**WRITE, "title": "Create Tracker status"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="statuses_create", annotations={**WRITE, "title": "Create Tracker status"})
 def create(body: StatusCreate, client: TrackerClient = Depends(tracker_client)) -> Status:
     """Create an org-global issue status for use in workflows.
 
@@ -49,7 +45,6 @@ def create(body: StatusCreate, client: TrackerClient = Depends(tracker_client)) 
 @mcp.tool(
     name="statuses_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker status"},
-    tags=WRITE_TAGS,
 )
 def update(
     status_id: Annotated[str, Field(description="Status id or key, from ``statuses_list``.")],

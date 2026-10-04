@@ -19,10 +19,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     AddToFollowers,
     Expand,
     Notify,
@@ -72,7 +70,7 @@ ChecklistItems = Annotated[
 ]
 
 
-@mcp.tool(name="entities_get", annotations={**RO, "title": "Get Tracker entity"}, tags=TAGS)
+@mcp.tool(name="entities_get", annotations={**RO, "title": "Get Tracker entity"})
 def get(
     entity_type: TypeArg,
     entity_id: IdArg,
@@ -93,7 +91,7 @@ def get(
     return client.entities.get(entity_type, entity_id, expand=expand, fields=fields)
 
 
-@mcp.tool(name="entities_search", annotations={**RO, "title": "Search Tracker entities"}, tags=TAGS)
+@mcp.tool(name="entities_search", annotations={**RO, "title": "Search Tracker entities"})
 def search(
     entity_type: SearchTypeArg,
     input_text: Annotated[
@@ -119,7 +117,6 @@ def search(
 @mcp.tool(
     name="entities_events_list",
     annotations={**RO, "title": "List Tracker entity history"},
-    tags=TAGS,
 )
 def events_list(
     entity_type: TypeArg,
@@ -157,7 +154,6 @@ def events_list(
 @mcp.tool(
     name="entities_permissions_get",
     annotations={**RO, "title": "Get Tracker entity permissions"},
-    tags=TAGS,
 )
 def permissions_get(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
@@ -174,7 +170,6 @@ def permissions_get(
 @mcp.tool(
     name="entities_direct_permissions_get",
     annotations={**RO, "title": "Get Tracker entity direct permissions"},
-    tags=TAGS,
 )
 def direct_permissions_get(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
@@ -190,7 +185,6 @@ def direct_permissions_get(
 @mcp.tool(
     name="entities_comments_list",
     annotations={**RO, "title": "List Tracker entity comments"},
-    tags=TAGS,
 )
 def comments_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
@@ -202,7 +196,6 @@ def comments_list(
 @mcp.tool(
     name="entities_comments_get",
     annotations={**RO, "title": "Get Tracker entity comment"},
-    tags=TAGS,
 )
 def comments_get(
     entity_type: TypeArg,
@@ -214,9 +207,7 @@ def comments_get(
     return client.entities.comments_get(entity_type, entity_id, comment_id)
 
 
-@mcp.tool(
-    name="entities_links_list", annotations={**RO, "title": "List Tracker entity links"}, tags=TAGS
-)
+@mcp.tool(name="entities_links_list", annotations={**RO, "title": "List Tracker entity links"})
 def links_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
 ) -> ItemList[Link]:
@@ -227,7 +218,6 @@ def links_list(
 @mcp.tool(
     name="entities_attachments_list",
     annotations={**RO, "title": "List Tracker entity attachments"},
-    tags=TAGS,
 )
 def attachments_list(
     entity_type: TypeArg, entity_id: IdArg, client: TrackerClient = Depends(tracker_client)
@@ -244,7 +234,6 @@ def attachments_list(
 @mcp.tool(
     name="entities_attachments_get",
     annotations={**RO, "title": "Get Tracker entity attachment"},
-    tags=TAGS,
 )
 def attachments_get(
     entity_type: TypeArg,
@@ -262,7 +251,6 @@ def attachments_get(
 @mcp.tool(
     name="entities_bulk_status_get",
     annotations={**RO, "title": "Get Tracker entity bulk-change status"},
-    tags=TAGS,
 )
 def bulk_status_get(
     operation_id: Annotated[
@@ -280,7 +268,6 @@ def bulk_status_get(
 @mcp.tool(
     name="entities_comments_relative_list",
     annotations={**RO, "title": "List Tracker entity comments (relative)"},
-    tags=TAGS,
 )
 def comments_relative_list(
     entity_type: TypeArg,
@@ -300,9 +287,7 @@ def comments_relative_list(
     return client.entities.comments_relative_list(entity_type, entity_id, limit=cap)
 
 
-@mcp.tool(
-    name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="entities_create", annotations={**WRITE, "title": "Create Tracker entity"})
 def create(
     entity_type: TypeArg,
     body: EntityCreate,
@@ -316,7 +301,6 @@ def create(
 @mcp.tool(
     name="entities_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity"},
-    tags=WRITE_TAGS,
 )
 def update(
     entity_type: TypeArg,
@@ -342,7 +326,6 @@ def update(
 @mcp.tool(
     name="entities_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity"},
-    tags=WRITE_TAGS,
 )
 def delete(
     entity_type: TypeArg,
@@ -364,7 +347,6 @@ def delete(
 @mcp.tool(
     name="entities_set_permissions",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity permissions"},
-    tags=WRITE_TAGS,
 )
 def set_permissions(
     entity_type: TypeArg,
@@ -385,7 +367,6 @@ def set_permissions(
 @mcp.tool(
     name="entities_set_direct_permissions",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker entity direct permissions"},
-    tags=WRITE_TAGS,
 )
 def set_direct_permissions(
     entity_type: TypeArg,
@@ -405,7 +386,6 @@ def set_direct_permissions(
 @mcp.tool(
     name="entities_bulk_update",
     annotations={**WRITE, "title": "Bulk-update Tracker entities"},
-    tags=WRITE_TAGS,
 )
 def bulk_update(
     entity_type: TypeArg, body: BulkChangeUpdate, client: TrackerClient = Depends(tracker_client)
@@ -420,7 +400,6 @@ def bulk_update(
 @mcp.tool(
     name="entities_create_report",
     annotations={**WRITE, "title": "Create Tracker entity report"},
-    tags=WRITE_TAGS,
 )
 def create_report(body: ReportCreate, client: TrackerClient = Depends(tracker_client)) -> Entity:
     """Request a report over Tracker entities (``POST /entities/report/``).
@@ -433,7 +412,6 @@ def create_report(body: ReportCreate, client: TrackerClient = Depends(tracker_cl
 @mcp.tool(
     name="entities_comments_create",
     annotations={**WRITE, "title": "Add Tracker entity comment"},
-    tags=WRITE_TAGS,
 )
 def comments_create(
     entity_type: TypeArg,
@@ -460,7 +438,6 @@ def comments_create(
 @mcp.tool(
     name="entities_comments_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity comment"},
-    tags=WRITE_TAGS,
 )
 def comments_update(
     entity_type: TypeArg,
@@ -492,7 +469,6 @@ def comments_update(
 @mcp.tool(
     name="entities_comments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity comment"},
-    tags=WRITE_TAGS,
 )
 def comments_delete(
     entity_type: TypeArg,
@@ -515,7 +491,6 @@ def comments_delete(
 @mcp.tool(
     name="entities_checklists_create",
     annotations={**WRITE, "title": "Add Tracker entity checklist items"},
-    tags=WRITE_TAGS,
 )
 def checklists_create(
     entity_type: TypeArg,
@@ -545,7 +520,6 @@ def checklists_create(
 @mcp.tool(
     name="entities_checklists_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist"},
-    tags=WRITE_TAGS,
 )
 def checklists_update(
     entity_type: TypeArg,
@@ -576,7 +550,6 @@ def checklists_update(
 @mcp.tool(
     name="entities_checklists_update_item",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist item"},
-    tags=WRITE_TAGS,
 )
 def checklists_update_item(
     entity_type: TypeArg,
@@ -608,7 +581,6 @@ def checklists_update_item(
 @mcp.tool(
     name="entities_checklists_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity checklist"},
-    tags=WRITE_TAGS,
 )
 def checklists_delete(
     entity_type: TypeArg,
@@ -636,7 +608,6 @@ def checklists_delete(
 @mcp.tool(
     name="entities_checklists_delete_item",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity checklist item"},
-    tags=WRITE_TAGS,
 )
 def checklists_delete_item(
     entity_type: TypeArg,
@@ -666,7 +637,6 @@ def checklists_delete_item(
 @mcp.tool(
     name="entities_checklists_move",
     annotations={**WRITE, "title": "Move Tracker entity checklist item"},
-    tags=WRITE_TAGS,
 )
 def checklists_move(
     entity_type: TypeArg,
@@ -698,7 +668,6 @@ def checklists_move(
 @mcp.tool(
     name="entities_links_create",
     annotations={**WRITE, "title": "Link Tracker entities"},
-    tags=WRITE_TAGS,
 )
 def links_create(
     entity_type: TypeArg,
@@ -717,7 +686,6 @@ def links_create(
 @mcp.tool(
     name="entities_links_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity link"},
-    tags=WRITE_TAGS,
 )
 def links_delete(
     entity_type: TypeArg,
@@ -737,7 +705,6 @@ def links_delete(
 @mcp.tool(
     name="entities_attachments_attach",
     annotations={**WRITE, "title": "Attach Tracker entity file"},
-    tags=WRITE_TAGS,
 )
 def attachments_attach(
     entity_type: TypeArg,
@@ -770,7 +737,6 @@ def attachments_attach(
 @mcp.tool(
     name="entities_attachments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity attachment"},
-    tags=WRITE_TAGS,
 )
 def attachments_delete(
     entity_type: TypeArg,

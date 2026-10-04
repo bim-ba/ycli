@@ -21,9 +21,7 @@ from ycli.yandex.tracker.bulk.models import (
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     Notify,
     tracker_client,
 )
@@ -31,7 +29,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-bulk")
 
 
-@mcp.tool(name="bulk_get", annotations={**RO, "title": "Get Tracker bulk-change status"}, tags=TAGS)
+@mcp.tool(name="bulk_get", annotations={**RO, "title": "Get Tracker bulk-change status"})
 def get(
     bulk_id: Annotated[
         str, Field(description="Bulk-change operation id, e.g. ``1ab23cd4e5678901``.")
@@ -50,7 +48,6 @@ def get(
 @mcp.tool(
     name="bulk_issues_list",
     annotations={**RO, "title": "List Tracker bulk-change failed issues"},
-    tags=TAGS,
 )
 def issues_list(
     bulk_id: Annotated[str, Field(description="Bulk-change operation id to inspect.")],
@@ -68,7 +65,6 @@ def issues_list(
 @mcp.tool(
     name="bulk_update",
     annotations={**WRITE, "title": "Bulk-update Tracker issues"},
-    tags=WRITE_TAGS,
 )
 def update(
     body: BulkUpdate, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
@@ -81,9 +77,7 @@ def update(
     return client.bulk.update(body, notify=notify)
 
 
-@mcp.tool(
-    name="bulk_move", annotations={**WRITE, "title": "Bulk-move Tracker issues"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="bulk_move", annotations={**WRITE, "title": "Bulk-move Tracker issues"})
 def move(
     body: BulkMove, notify: Notify = None, client: TrackerClient = Depends(tracker_client)
 ) -> BulkChange:
@@ -97,7 +91,6 @@ def move(
 @mcp.tool(
     name="bulk_transition",
     annotations={**WRITE, "title": "Bulk-transition Tracker issues"},
-    tags=WRITE_TAGS,
 )
 def transition(
     body: BulkTransition, notify: Notify = None, client: TrackerClient = Depends(tracker_client)

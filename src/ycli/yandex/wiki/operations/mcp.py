@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.dependencies import RO, TAGS, wiki_client
+from ycli.yandex.wiki.dependencies import RO, wiki_client
 from ycli.yandex.wiki.operations.models import (
     CloneOperationStatus,
     GridCloneOperationStatus,
@@ -20,7 +20,6 @@ mcp = FastMCP("wiki-operations")
 @mcp.tool(
     name="operations_clone_get",
     annotations={**RO, "title": "Get Wiki page-clone status"},
-    tags=TAGS,
 )
 def clone_get(
     task_id: Annotated[str, Field(description="Task id from a page-clone trigger (operation.id).")],
@@ -38,7 +37,6 @@ def clone_get(
 @mcp.tool(
     name="operations_gridclone_get",
     annotations={**RO, "title": "Get Wiki grid-clone status"},
-    tags=TAGS,
 )
 def gridclone_get(
     task_id: Annotated[str, Field(description="Task id from a grid-clone trigger (operation.id).")],
@@ -56,7 +54,6 @@ def gridclone_get(
 @mcp.tool(
     name="operations_move_get",
     annotations={**RO, "title": "Get Wiki page-move status"},
-    tags=TAGS,
 )
 def move_get(
     task_id: Annotated[str, Field(description="Task id from a page-move trigger (operation.id).")],

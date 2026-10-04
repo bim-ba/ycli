@@ -16,9 +16,7 @@ from ycli.yandex.tracker.autoactions.models import (
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     QueueId,
     tracker_client,
 )
@@ -26,9 +24,7 @@ from ycli.yandex.tracker.dependencies import (
 mcp = FastMCP("tracker-autoactions")
 
 
-@mcp.tool(
-    name="autoactions_get", annotations={**RO, "title": "Get Tracker queue autoaction"}, tags=TAGS
-)
+@mcp.tool(name="autoactions_get", annotations={**RO, "title": "Get Tracker queue autoaction"})
 def get(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. DESIGN) or numeric queue id.")
@@ -48,7 +44,6 @@ def get(
 @mcp.tool(
     name="autoactions_logs_list",
     annotations={**RO, "title": "List Tracker autoaction runs"},
-    tags=TAGS,
 )
 def logs_list(
     queue_id: Annotated[
@@ -68,7 +63,6 @@ def logs_list(
 @mcp.tool(
     name="autoactions_logs_get",
     annotations={**RO, "title": "Get Tracker autoaction run"},
-    tags=TAGS,
 )
 def logs_get(
     queue_id: Annotated[
@@ -89,7 +83,6 @@ def logs_get(
 @mcp.tool(
     name="autoactions_create",
     annotations={**WRITE, "title": "Create Tracker queue autoaction"},
-    tags=WRITE_TAGS,
 )
 def create(
     queue_id: QueueId, body: AutoactionCreate, client: TrackerClient = Depends(tracker_client)

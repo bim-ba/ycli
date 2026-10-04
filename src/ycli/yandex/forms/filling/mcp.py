@@ -11,14 +11,14 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import RO, TAGS, WRITE, WRITE_TAGS, forms_client
+from ycli.yandex.forms.dependencies import RO, WRITE, forms_client
 from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.models import ItemList, require_found
 
 mcp = FastMCP("forms-filling")
 
 
-@mcp.tool(name="filling_get", annotations={**RO, "title": "Get Forms fillable form"}, tags=TAGS)
+@mcp.tool(name="filling_get", annotations={**RO, "title": "Get Forms fillable form"})
 def get(
     survey: Annotated[
         str,
@@ -51,7 +51,6 @@ def get(
 @mcp.tool(
     name="filling_suggest",
     annotations={**RO, "title": "Get Forms fill suggestions"},
-    tags=TAGS,
 )
 def suggest(
     survey: Annotated[str, Field(description="Form id or slug.")],
@@ -79,7 +78,6 @@ def suggest(
 @mcp.tool(
     name="filling_submit",
     annotations={**WRITE, "title": "Submit Forms response"},
-    tags=WRITE_TAGS,
 )
 def submit(
     survey: Annotated[str, Field(description="Form id or slug of a published form.")],

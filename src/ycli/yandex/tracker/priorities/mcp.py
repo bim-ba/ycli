@@ -10,10 +10,8 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Version,
     tracker_client,
 )
@@ -22,7 +20,7 @@ from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, Prio
 mcp = FastMCP("tracker-priorities")
 
 
-@mcp.tool(name="priorities_list", annotations={**RO, "title": "List Tracker priorities"}, tags=TAGS)
+@mcp.tool(name="priorities_list", annotations={**RO, "title": "List Tracker priorities"})
 def list_(
     localized: Annotated[
         bool | None,
@@ -37,7 +35,6 @@ def list_(
 @mcp.tool(
     name="priorities_create",
     annotations={**WRITE, "title": "Create Tracker priority"},
-    tags=WRITE_TAGS,
 )
 def create(body: PriorityCreate, client: TrackerClient = Depends(tracker_client)) -> Priority:
     """Create an org-global issue priority.
@@ -51,7 +48,6 @@ def create(body: PriorityCreate, client: TrackerClient = Depends(tracker_client)
 @mcp.tool(
     name="priorities_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker priority"},
-    tags=WRITE_TAGS,
 )
 def update(
     priority_id: Annotated[str, Field(description="Priority id or key, from ``priorities_list``.")],

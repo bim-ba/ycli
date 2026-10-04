@@ -11,10 +11,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     MacroId,
     QueueId,
     tracker_client,
@@ -24,7 +22,7 @@ from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
 mcp = FastMCP("tracker-macros")
 
 
-@mcp.tool(name="macros_list", annotations={**RO, "title": "List Tracker queue macros"}, tags=TAGS)
+@mcp.tool(name="macros_list", annotations={**RO, "title": "List Tracker queue macros"})
 def list_(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
@@ -39,7 +37,7 @@ def list_(
     return client.macros.list(queue_id)
 
 
-@mcp.tool(name="macros_get", annotations={**RO, "title": "Get Tracker queue macro"}, tags=TAGS)
+@mcp.tool(name="macros_get", annotations={**RO, "title": "Get Tracker queue macro"})
 def get(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
@@ -58,7 +56,6 @@ def get(
 @mcp.tool(
     name="macros_create",
     annotations={**WRITE, "title": "Create Tracker queue macro"},
-    tags=WRITE_TAGS,
 )
 def create(
     queue_id: QueueId, body: MacroCreate, client: TrackerClient = Depends(tracker_client)
@@ -74,7 +71,6 @@ def create(
 @mcp.tool(
     name="macros_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue macro"},
-    tags=WRITE_TAGS,
 )
 def update(
     queue_id: QueueId,
@@ -92,7 +88,6 @@ def update(
 @mcp.tool(
     name="macros_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue macro"},
-    tags=WRITE_TAGS,
 )
 def delete(
     queue_id: QueueId, macro_id: MacroId, client: TrackerClient = Depends(tracker_client)

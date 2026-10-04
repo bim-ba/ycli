@@ -10,10 +10,8 @@ from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     SurveyId,
     forms_client,
 )
@@ -25,9 +23,7 @@ mcp = FastMCP("forms-hooks")
 HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]
 
 
-@mcp.tool(
-    name="hooks_list", annotations={**RO, "title": "List Forms integration groups"}, tags=TAGS
-)
+@mcp.tool(name="hooks_list", annotations={**RO, "title": "List Forms integration groups"})
 def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> ItemList[Hook]:
     """A form's integration groups, each with its conditions and integrations.
 
@@ -38,7 +34,7 @@ def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> I
     return client.hooks.list(survey_id)
 
 
-@mcp.tool(name="hooks_get", annotations={**RO, "title": "Get Forms integration group"}, tags=TAGS)
+@mcp.tool(name="hooks_get", annotations={**RO, "title": "Get Forms integration group"})
 def get(survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)) -> Hook:
     """One integration group by id, with its conditions and integrations."""
     result = client.hooks.get(survey_id, hook_id)
@@ -53,7 +49,6 @@ def get(survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(form
 @mcp.tool(
     name="hooks_create",
     annotations={**WRITE, "title": "Create Forms integration group"},
-    tags=WRITE_TAGS,
 )
 def create(
     survey_id: SurveyId,
@@ -71,7 +66,6 @@ def create(
 @mcp.tool(
     name="hooks_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration group"},
-    tags=WRITE_TAGS,
 )
 def update(
     survey_id: SurveyId,
@@ -86,7 +80,6 @@ def update(
 @mcp.tool(
     name="hooks_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms integration group"},
-    tags=WRITE_TAGS,
 )
 def delete(
     survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)

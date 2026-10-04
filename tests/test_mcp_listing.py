@@ -4,10 +4,14 @@ import json
 
 import pytest
 from fastmcp import Client
+from fastmcp.tools import Tool
+from fastmcp.utilities.versions import VersionSpec
+from mcp.types import ToolAnnotations
 
 from tests.full_server import mcp
 from tests.hosts import TRACKER_BASE
-from ycli.mcp.listing import strip_examples
+from ycli.mcp.listing import DerivedTags, strip_examples
+from ycli.yandex.mcp import DESTRUCTIVE, RO, WRITE, WRITE_TAG
 from ycli.yandex.tracker.mcp.server import mcp as tracker_mcp
 
 
@@ -64,4 +68,45 @@ async def test_a_listing_keeps_what_else_a_client_reads():
     light = {tool.name: tool for tool in await mcp.list_tools()}["tracker_issues_get"]
     assert light.parameters == raw.parameters
     assert light.annotations == raw.annotations
-    assert light.tags == raw.tags
+    assert light.tags == {"tracker"}  # derived at the root; the tool itself states none
+    assert raw.tags == set()
+
+
+def _tool(name: str, hints: dict[str, bool] | None) -> Tool:
+    def probe() -> str:
+        """Probe."""
+        return ""
+
+    annotations = None if hints is None else ToolAnnotations.model_validate(hints)
+    return Tool.from_function(probe, name=name, annotations=annotations)
+
+
+@pytest.mark.parametrize(
+    ("name", "hints", "tags"),
+    [
+        ("tracker_issues_get", RO, {"tracker"}),
+        ("wiki_pages_update", WRITE, {"wiki", WRITE_TAG}),
+        ("forms_surveys_delete", DESTRUCTIVE, {"forms", WRITE_TAG}),
+        ("status_get", RO, {"status"}),
+        # No annotations: counted as a write, so ``--read-only`` hides it.
+        ("tracker_unannotated", None, {"tracker", WRITE_TAG}),
+    ],
+)
+async def test_tags_are_derived_from_the_name_and_the_read_only_hint(name, hints, tags):
+    tool = _tool(name, hints)
+    [listed] = await DerivedTags().list_tools([tool])
+    assert listed.tags == tags
+
+    async def held(name: str, *, version: VersionSpec | None = None) -> Tool | None:
+        return tool
+
+    found = await DerivedTags().get_tool(name, held)
+    assert found is not None
+    assert found.tags == tags
+
+
+async def test_a_tool_the_server_does_not_hold_stays_absent():
+    async def nothing(name: str, *, version: VersionSpec | None = None) -> Tool | None:
+        return None
+
+    assert await DerivedTags().get_tool("tracker_ghost", nothing) is None

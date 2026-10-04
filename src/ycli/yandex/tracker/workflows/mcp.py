@@ -11,10 +11,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     tracker_client,
 )
 from ycli.yandex.tracker.workflows.models import (
@@ -34,7 +32,7 @@ Version = Annotated[
 ]
 
 
-@mcp.tool(name="workflows_list", annotations={**RO, "title": "List Tracker workflows"}, tags=TAGS)
+@mcp.tool(name="workflows_list", annotations={**RO, "title": "List Tracker workflows"})
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Workflow]:
     """Every workflow of the organization (deleted ones excluded) with its steps and actions.
 
@@ -44,7 +42,7 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Workflow]
     return client.workflows.list()
 
 
-@mcp.tool(name="workflows_get", annotations={**RO, "title": "Get Tracker workflow"}, tags=TAGS)
+@mcp.tool(name="workflows_get", annotations={**RO, "title": "Get Tracker workflow"})
 def get(workflow_id: WorkflowId, client: TrackerClient = Depends(tracker_client)) -> Workflow:
     """One workflow with its steps, initial action, queue binding and ``version``.
 
@@ -56,7 +54,6 @@ def get(workflow_id: WorkflowId, client: TrackerClient = Depends(tracker_client)
 @mcp.tool(
     name="workflows_for_queue",
     annotations={**RO, "title": "List workflows of a Tracker queue"},
-    tags=TAGS,
 )
 def for_queue(
     queue_id: Annotated[
@@ -71,7 +68,6 @@ def for_queue(
 @mcp.tool(
     name="workflows_create",
     annotations={**WRITE, "title": "Create Tracker workflow"},
-    tags=WRITE_TAGS,
 )
 def create(body: WorkflowCreate, client: TrackerClient = Depends(tracker_client)) -> Workflow:
     """Create a workflow; returns it with its generated id and version.
@@ -86,7 +82,6 @@ def create(body: WorkflowCreate, client: TrackerClient = Depends(tracker_client)
 @mcp.tool(
     name="workflows_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow"},
-    tags=WRITE_TAGS,
 )
 def update(
     workflow_id: WorkflowId,
@@ -105,7 +100,6 @@ def update(
 @mcp.tool(
     name="workflows_update_action",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow action"},
-    tags=WRITE_TAGS,
 )
 def update_action(
     workflow_id: WorkflowId,
@@ -125,7 +119,6 @@ def update_action(
 @mcp.tool(
     name="workflows_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker workflow"},
-    tags=WRITE_TAGS,
 )
 def delete(workflow_id: WorkflowId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a workflow (irreversible). Returns an acknowledgement."""

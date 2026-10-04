@@ -6,7 +6,7 @@ from fastmcp.dependencies import Depends
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.applications.models import Application
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.dependencies import RO, TAGS, tracker_client
+from ycli.yandex.tracker.dependencies import RO, tracker_client
 
 mcp = FastMCP("tracker-applications")
 
@@ -14,7 +14,6 @@ mcp = FastMCP("tracker-applications")
 @mcp.tool(
     name="applications_list",
     annotations={**RO, "title": "List Tracker external applications"},
-    tags=TAGS,
 )
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Application]:
     """External applications that Tracker issues can be linked to via external links.

@@ -15,10 +15,8 @@ from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     wiki_client,
 )
 from ycli.yandex.wiki.grids.models import (
@@ -50,7 +48,7 @@ mcp = FastMCP("wiki-grids")
 GridIdParam = Annotated[str, Field(description="The grid's permanent UUID4 id.")]
 
 
-@mcp.tool(name="grids_get", annotations={**RO, "title": "Get Wiki grid"}, tags=TAGS)
+@mcp.tool(name="grids_get", annotations={**RO, "title": "Get Wiki grid"})
 def get(
     grid_id: Annotated[str, Field(description="The grid's permanent UUID4 id.")],
     fields: Annotated[
@@ -84,7 +82,7 @@ def get(
     )
 
 
-@mcp.tool(name="grids_create", annotations={**WRITE, "title": "Create Wiki grid"}, tags=WRITE_TAGS)
+@mcp.tool(name="grids_create", annotations={**WRITE, "title": "Create Wiki grid"})
 def create(
     body: Annotated[
         GridCreate,
@@ -104,7 +102,6 @@ def create(
 @mcp.tool(
     name="grids_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid"},
-    tags=WRITE_TAGS,
 )
 def update(
     grid_id: GridIdParam,
@@ -125,9 +122,7 @@ def update(
     return client.grids.update(grid_id, body=body)
 
 
-@mcp.tool(
-    name="grids_delete", annotations={**DESTRUCTIVE, "title": "Delete Wiki grid"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="grids_delete", annotations={**DESTRUCTIVE, "title": "Delete Wiki grid"})
 def delete(
     grid_id: GridIdParam,
     client: WikiClient = Depends(wiki_client),
@@ -140,9 +135,7 @@ def delete(
     return client.grids.delete(grid_id)
 
 
-@mcp.tool(
-    name="grids_rows_add", annotations={**WRITE, "title": "Add Wiki grid rows"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="grids_rows_add", annotations={**WRITE, "title": "Add Wiki grid rows"})
 def rows_add(
     grid_id: GridIdParam,
     body: Annotated[
@@ -165,7 +158,6 @@ def rows_add(
 @mcp.tool(
     name="grids_rows_remove",
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid rows"},
-    tags=WRITE_TAGS,
 )
 def rows_remove(
     grid_id: GridIdParam,
@@ -183,9 +175,7 @@ def rows_remove(
     return client.grids.rows_remove(grid_id, body=body)
 
 
-@mcp.tool(
-    name="grids_rows_move", annotations={**WRITE, "title": "Move Wiki grid rows"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="grids_rows_move", annotations={**WRITE, "title": "Move Wiki grid rows"})
 def rows_move(
     grid_id: GridIdParam,
     body: Annotated[
@@ -207,7 +197,6 @@ def rows_move(
 @mcp.tool(
     name="grids_columns_add",
     annotations={**WRITE, "title": "Add Wiki grid columns"},
-    tags=WRITE_TAGS,
 )
 def columns_add(
     grid_id: GridIdParam,
@@ -232,7 +221,6 @@ def columns_add(
 @mcp.tool(
     name="grids_columns_remove",
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid columns"},
-    tags=WRITE_TAGS,
 )
 def columns_remove(
     grid_id: GridIdParam,
@@ -253,7 +241,6 @@ def columns_remove(
 @mcp.tool(
     name="grids_columns_move",
     annotations={**WRITE, "title": "Move Wiki grid columns"},
-    tags=WRITE_TAGS,
 )
 def columns_move(
     grid_id: GridIdParam,
@@ -276,7 +263,6 @@ def columns_move(
 @mcp.tool(
     name="grids_cells_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid cells"},
-    tags=WRITE_TAGS,
 )
 def cells_update(
     grid_id: GridIdParam,
@@ -297,7 +283,7 @@ def cells_update(
     return client.grids.cells_update(grid_id, body=body)
 
 
-@mcp.tool(name="grids_clone", annotations={**WRITE, "title": "Clone Wiki grid"}, tags=WRITE_TAGS)
+@mcp.tool(name="grids_clone", annotations={**WRITE, "title": "Clone Wiki grid"})
 def clone(
     grid_id: GridIdParam,
     body: Annotated[
@@ -321,7 +307,6 @@ def clone(
 @mcp.tool(
     name="grids_columns_suggest",
     annotations={**RO, "title": "Suggest Wiki grid column slug"},
-    tags=TAGS,
 )
 def columns_suggest(
     grid_id: GridIdParam,
@@ -342,7 +327,6 @@ def columns_suggest(
 @mcp.tool(
     name="grids_columns_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid column"},
-    tags=WRITE_TAGS,
 )
 def columns_update(
     grid_id: GridIdParam,
@@ -369,7 +353,6 @@ def columns_update(
 @mcp.tool(
     name="grids_rows_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid row"},
-    tags=WRITE_TAGS,
 )
 def rows_update(
     grid_id: GridIdParam,

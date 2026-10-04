@@ -13,10 +13,8 @@ from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     LIMIT_CAP,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Expand,
     QueueId,
     app_config,
@@ -39,7 +37,7 @@ from ycli.yandex.tracker.queues.models import (
 mcp = FastMCP("tracker-queues")
 
 
-@mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"}, tags=TAGS)
+@mcp.tool(name="queues_list", annotations={**RO, "title": "List Tracker queues"})
 def list_(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max queues to return; {LIMIT_CAP}")
@@ -58,7 +56,7 @@ def list_(
     return client.queues.list(limit=cap, expand=expand)
 
 
-@mcp.tool(name="queues_get", annotations={**RO, "title": "Get Tracker queue"}, tags=TAGS)
+@mcp.tool(name="queues_get", annotations={**RO, "title": "Get Tracker queue"})
 def get(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
@@ -88,9 +86,7 @@ def get(
     )
 
 
-@mcp.tool(
-    name="queues_tags_list", annotations={**RO, "title": "List Tracker queue tags"}, tags=TAGS
-)
+@mcp.tool(name="queues_tags_list", annotations={**RO, "title": "List Tracker queue tags"})
 def tags_list(
     queue_id: Annotated[
         str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
@@ -108,7 +104,6 @@ def tags_list(
 @mcp.tool(
     name="queues_versions_list",
     annotations={**RO, "title": "List Tracker queue versions"},
-    tags=TAGS,
 )
 def versions_list(
     queue_id: Annotated[
@@ -127,7 +122,6 @@ def versions_list(
 @mcp.tool(
     name="queues_fields_list",
     annotations={**RO, "title": "List Tracker queue required fields"},
-    tags=TAGS,
 )
 def fields_list(
     queue_id: Annotated[
@@ -143,9 +137,7 @@ def fields_list(
     return client.queues.fields_list(queue_id)
 
 
-@mcp.tool(
-    name="queues_create", annotations={**WRITE, "title": "Create Tracker queue"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="queues_create", annotations={**WRITE, "title": "Create Tracker queue"})
 def create(body: QueueCreate, client: TrackerClient = Depends(tracker_client)) -> Queue:
     """Create a Tracker queue (the container issues live in; its key prefixes issue keys).
 
@@ -159,7 +151,6 @@ def create(body: QueueCreate, client: TrackerClient = Depends(tracker_client)) -
 @mcp.tool(
     name="queues_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue"},
-    tags=WRITE_TAGS,
 )
 def delete(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a Tracker queue WITH ALL ITS ISSUES (recoverable via ``queues_restore``).
@@ -171,9 +162,7 @@ def delete(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -
     return Ack.deleted("queue", queue_id)
 
 
-@mcp.tool(
-    name="queues_restore", annotations={**WRITE, "title": "Restore Tracker queue"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="queues_restore", annotations={**WRITE, "title": "Restore Tracker queue"})
 def restore(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -> Queue:
     """Restore a previously deleted Tracker queue (and its issues) from the recycle bin.
 
@@ -185,7 +174,6 @@ def restore(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) 
 @mcp.tool(
     name="queues_set_permissions",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker queue permissions"},
-    tags=WRITE_TAGS,
 )
 def set_permissions(
     queue_id: QueueId, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
@@ -201,7 +189,6 @@ def set_permissions(
 @mcp.tool(
     name="queues_tag_remove",
     annotations={**DESTRUCTIVE, "title": "Remove Tracker queue tag"},
-    tags=WRITE_TAGS,
 )
 def tag_remove(
     queue_id: QueueId, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
@@ -218,7 +205,6 @@ def tag_remove(
 @mcp.tool(
     name="queues_version_create",
     annotations={**WRITE, "title": "Create Tracker queue version"},
-    tags=WRITE_TAGS,
 )
 def version_create(
     body: QueueVersionCreate, client: TrackerClient = Depends(tracker_client)
@@ -231,9 +217,7 @@ def version_create(
     return client.queues.version_create(body)
 
 
-@mcp.tool(
-    name="queues_version_get", annotations={**RO, "title": "Get Tracker queue version"}, tags=TAGS
-)
+@mcp.tool(name="queues_version_get", annotations={**RO, "title": "Get Tracker queue version"})
 def version_get(
     version_id: Annotated[
         int, Field(description="Numeric id of the version, from ``queues_versions_list``.")
@@ -251,7 +235,6 @@ def version_get(
 @mcp.tool(
     name="queues_version_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue version"},
-    tags=WRITE_TAGS,
 )
 def version_update(
     version_id: Annotated[
@@ -270,7 +253,6 @@ def version_update(
 @mcp.tool(
     name="queues_version_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue version"},
-    tags=WRITE_TAGS,
 )
 def version_delete(
     version_id: Annotated[
@@ -286,7 +268,6 @@ def version_delete(
 @mcp.tool(
     name="queues_user_permissions_get",
     annotations={**RO, "title": "Get a user's rights in a Tracker queue"},
-    tags=TAGS,
 )
 def user_permissions_get(
     queue_id: Annotated[
@@ -306,7 +287,6 @@ def user_permissions_get(
 @mcp.tool(
     name="queues_group_permissions_get",
     annotations={**RO, "title": "Get a group's rights in a Tracker queue"},
-    tags=TAGS,
 )
 def group_permissions_get(
     queue_id: Annotated[

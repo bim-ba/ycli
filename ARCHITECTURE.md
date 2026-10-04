@@ -113,14 +113,17 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-3 — Honest effects
 - **Rule:** what an operation does to the server (read, write, idempotent write, destructive) is
-  declared once, and MCP annotations, the `write` tag and `--read-only` agree with it.
+  declared once, and MCP annotations, the `write` tag and `--read-only` agree with it. A tool
+  states its annotations only: the root server derives its tags, the service from the name and
+  `write` from `readOnlyHint`.
 - **Why:** agents and their hosts decide what to auto-approve from these hints; the MCP default
   for an unannotated tool is "destructive".
 - **Check:** the contract test (`tests/test_contract.py`, one case per way of reaching an
   operation, fail-closed both ways) runs every tool and compares its hints with the strongest
   effect of the endpoints it sends; `test_arch3_effect_overrides_are_listed` keeps every
   `effect=` that differs from the method in `ARCH3_EFFECT_OVERRIDES`;
-  `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete. `status_get`, the one
+  `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
+  and `test_arch3_no_tool_states_its_tags_itself` keeps a second statement out. `status_get`, the one
   tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
   A prompt and a resource follow their tools (`tests/test_mcp_prompts_resources.py`): a
   prompt lists the tools its text names, all of them exist, and one write among them means

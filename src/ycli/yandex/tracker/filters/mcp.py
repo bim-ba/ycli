@@ -11,10 +11,8 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     tracker_client,
 )
 from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdate
@@ -22,7 +20,7 @@ from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdat
 mcp = FastMCP("tracker-filters")
 
 
-@mcp.tool(name="filters_get", annotations={**RO, "title": "Get Tracker filter"}, tags=TAGS)
+@mcp.tool(name="filters_get", annotations={**RO, "title": "Get Tracker filter"})
 def get(
     filter_id: Annotated[
         str, Field(description="Numeric identifier of the saved filter, e.g. 12345.")
@@ -38,9 +36,7 @@ def get(
     return client.filters.get(filter_id=filter_id)
 
 
-@mcp.tool(
-    name="filters_create", annotations={**WRITE, "title": "Create Tracker filter"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="filters_create", annotations={**WRITE, "title": "Create Tracker filter"})
 def create(body: FilterCreate, client: TrackerClient = Depends(tracker_client)) -> Filter:
     """Create a saved issue filter owned by the calling user.
 
@@ -53,7 +49,6 @@ def create(body: FilterCreate, client: TrackerClient = Depends(tracker_client)) 
 @mcp.tool(
     name="filters_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker filter"},
-    tags=WRITE_TAGS,
 )
 def update(
     filter_id: Annotated[
@@ -72,7 +67,6 @@ def update(
 @mcp.tool(
     name="filters_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker filter"},
-    tags=WRITE_TAGS,
 )
 def delete(
     filter_id: Annotated[

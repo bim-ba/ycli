@@ -12,7 +12,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.yandex.forms.client import FormsClient
-from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, TAGS, WRITE_TAGS, forms_client
+from ycli.yandex.forms.dependencies import DESTRUCTIVE, RO, forms_client
 from ycli.yandex.forms.files.models import FileIn
 from ycli.yandex.forms.models import FileOut
 from ycli.yandex.models import Ack, ItemList
@@ -20,7 +20,7 @@ from ycli.yandex.models import Ack, ItemList
 mcp = FastMCP("forms-files")
 
 
-@mcp.tool(name="files_verify", annotations={**RO, "title": "Verify Forms files"}, tags=TAGS)
+@mcp.tool(name="files_verify", annotations={**RO, "title": "Verify Forms files"})
 def verify(
     survey_id: Annotated[str, Field(description="Form id (24-char hex) the files belong to.")],
     files: Annotated[
@@ -38,9 +38,7 @@ def verify(
     return client.files.verify(survey_id, files)
 
 
-@mcp.tool(
-    name="files_delete", annotations={**DESTRUCTIVE, "title": "Delete Forms file"}, tags=WRITE_TAGS
-)
+@mcp.tool(name="files_delete", annotations={**DESTRUCTIVE, "title": "Delete Forms file"})
 def delete(
     path: Annotated[
         str | None, Field(description="File download path (from the upload response).")

@@ -11,9 +11,7 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     IssueKey,
     tracker_client,
 )
@@ -25,7 +23,6 @@ mcp = FastMCP("tracker-remotelinks")
 @mcp.tool(
     name="remotelinks_list",
     annotations={**RO, "title": "List Tracker issue remote links"},
-    tags=TAGS,
 )
 def list_(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
@@ -43,7 +40,6 @@ def list_(
 @mcp.tool(
     name="remotelinks_create",
     annotations={**WRITE, "title": "Create Tracker issue remote link"},
-    tags=WRITE_TAGS,
 )
 def create(
     issue_key: IssueKey,
@@ -65,7 +61,6 @@ def create(
 @mcp.tool(
     name="remotelinks_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue remote link"},
-    tags=WRITE_TAGS,
 )
 def delete(
     issue_key: IssueKey,

@@ -10,9 +10,7 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     IssueKey,
     tracker_client,
 )
@@ -24,7 +22,6 @@ mcp = FastMCP("tracker-transitions")
 @mcp.tool(
     name="transitions_list",
     annotations={**RO, "title": "List Tracker issue transitions"},
-    tags=TAGS,
 )
 def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> ItemList[Transition]:
     """Available workflow transitions for a Tracker issue."""
@@ -34,7 +31,6 @@ def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Ite
 @mcp.tool(
     name="transitions_execute",
     annotations={**WRITE, "title": "Execute Tracker issue transition"},
-    tags=WRITE_TAGS,
 )
 def execute(
     key: IssueKey,

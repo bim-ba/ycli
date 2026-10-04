@@ -16,9 +16,7 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
     RO,
-    TAGS,
     WRITE,
-    WRITE_TAGS,
     tracker_client,
 )
 
@@ -28,7 +26,6 @@ mcp = FastMCP("tracker-attachments")
 @mcp.tool(
     name="attachments_list",
     annotations={**RO, "title": "List Tracker issue attachments"},
-    tags=TAGS,
 )
 def list_(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
@@ -47,7 +44,6 @@ def list_(
 @mcp.tool(
     name="attachments_get",
     annotations={**RO, "title": "Get Tracker attachment metadata"},
-    tags=TAGS,
 )
 def get(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
@@ -64,7 +60,6 @@ def get(
 @mcp.tool(
     name="attachments_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue attachment"},
-    tags=WRITE_TAGS,
 )
 def delete(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
@@ -82,7 +77,6 @@ def delete(
 @mcp.tool(
     name="attachments_upload",
     annotations={**WRITE, "title": "Attach file to Tracker issue"},
-    tags=WRITE_TAGS,
 )
 def upload(
     issue_key: Annotated[str, Field(description="Issue key or id, e.g. ``JUNE-2``.")],
@@ -104,7 +98,6 @@ def upload(
 @mcp.tool(
     name="attachments_upload_temp",
     annotations={**WRITE, "title": "Upload temporary Tracker file"},
-    tags=WRITE_TAGS,
 )
 def upload_temp(
     file_name: Annotated[str, Field(description="Name of the file being uploaded.")],

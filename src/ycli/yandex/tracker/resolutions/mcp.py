@@ -10,10 +10,8 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
-    TAGS,
     WRITE,
     WRITE_IDEMPOTENT,
-    WRITE_TAGS,
     Version,
     tracker_client,
 )
@@ -22,9 +20,7 @@ from ycli.yandex.tracker.resolutions.models import Resolution, ResolutionCreate,
 mcp = FastMCP("tracker-resolutions")
 
 
-@mcp.tool(
-    name="resolutions_list", annotations={**RO, "title": "List Tracker resolutions"}, tags=TAGS
-)
+@mcp.tool(name="resolutions_list", annotations={**RO, "title": "List Tracker resolutions"})
 def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Resolution]:
     """Every issue resolution configured in the organisation.
 
@@ -38,7 +34,6 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Resolutio
 @mcp.tool(
     name="resolutions_create",
     annotations={**WRITE, "title": "Create Tracker resolution"},
-    tags=WRITE_TAGS,
 )
 def create(body: ResolutionCreate, client: TrackerClient = Depends(tracker_client)) -> Resolution:
     """Create an org-global issue resolution (a close-out reason such as fixed/duplicate).
@@ -52,7 +47,6 @@ def create(body: ResolutionCreate, client: TrackerClient = Depends(tracker_clien
 @mcp.tool(
     name="resolutions_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker resolution"},
-    tags=WRITE_TAGS,
 )
 def update(
     resolution_id: Annotated[
