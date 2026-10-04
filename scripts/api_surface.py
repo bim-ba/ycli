@@ -11,8 +11,10 @@ are compared by ``scripts/api_drift.py`` with what ycli sends and with a fresh f
 
 Where each surface is read from is in :data:`SOURCES`: an OpenAPI document (Wiki, Forms,
 Telemost, DataLens; Market's is split into files in a repository), a Swagger 1.2 listing (Disk),
-a WSDL per service (Direct, Speller). Tracker's OpenAPI document is closed (401), so its
-operations are read from the API reference: ``llms.txt`` lists the pages and each page's
+a WSDL per service (Direct, Speller), or the reference pages an index lists (api360,
+Metrika, Audience, AdMetrica: Diplodoc generates them from an OpenAPI document that is not
+published itself). Tracker's OpenAPI document is closed (401), so its operations are read from
+the API reference too: ``llms.txt`` lists the pages and each page's
 Markdown source states its request (``GET /v3/issues/{issue_id}``) and its query parameters.
 
 Examples:
@@ -68,6 +70,10 @@ class Source:
     root: str = ""
     parts: tuple[str, ...] = ()
     rpc: bool = False
+    # The service's own prefix after the version (``/disk``): part of ``base`` (#276).
+    prefix: str = ""
+    # The JSON address of a WSDL service, a template with ``{service}`` (#276).
+    address: str = ""
 
 
 # Direct publishes no list of its services: the docs index names 25 of these, and
@@ -108,17 +114,27 @@ SOURCES: dict[str, Source] = {
     "telemost": Source(
         "openapi", "https://doc-static.yandex.net/dev/telemost/api-specification.yaml"
     ),
-    "disk": Source("swagger", "https://cloud-api.yandex.net/v1/schema"),
+    "disk": Source("swagger", "https://cloud-api.yandex.net/v1/schema", prefix="/disk"),
     "datalens": Source("openapi", "https://api.datalens.tech/json/", rpc=True),
     "market": Source(
         "openapi-files",
         "https://codeload.github.com/yandex-market/yandex-market-partner-api/tar.gz/refs/heads/main",
         root="openapi/openapi.yaml",
     ),
+    # Every operation of a WSDL is also taken as JSON, by name, at `/json/v5/<service>`: the
+    # docs say so for the whole API; it was not checked operation by operation.
     "direct": Source(
-        "wsdl", "https://api.direct.yandex.com/v5/{service}?wsdl", parts=DIRECT_SERVICES
+        "wsdl",
+        "https://api.direct.yandex.com/v5/{service}?wsdl",
+        parts=DIRECT_SERVICES,
+        address="/json/v5/{service}",
     ),
     "speller": Source("wsdl", "https://speller.yandex.net/services/spellservice?WSDL"),
+    # No specification is published for these: the index lists the reference pages.
+    "api360": Source("docs", "https://yandex.ru/dev/api360/doc/ru/llms.txt", prefix="/api360"),
+    "metrika": Source("docs", "https://yandex.ru/dev/metrika/ru/llms.txt"),
+    "audience": Source("docs", "https://yandex.ru/dev/audience/ru/llms.txt"),
+    "admetrica": Source("docs", "https://yandex.ru/dev/admetrica/doc/ru/llms.txt"),
 }
 # Every service with a snapshot: the covered ones, then the ones that are only listed.
 LISTED = tuple(SOURCES)
@@ -146,6 +162,12 @@ _TRACKER_YFM_ROW = re.compile(r"^\|\|[ \t]*`?([A-Za-z_][\w.]*)`?[ \t]*\|", re.MU
 # Pages of the reference that explain the API and whose request lines are only examples.
 TRACKER_PROSE_PAGES = frozenset({"api/common-format"})
 _SUCCESS_CODES = ("200", "201", "202")
+# A page of an index: ``[title](https://…/page.md)``.
+_INDEX_PAGE = re.compile(r"\]\((https?://[^)\s]+)\.md\)")
+# A reference page Diplodoc generated from an OpenAPI document: the method, then the address.
+_GENERATED_REQUEST = re.compile(
+    rf"^({'|'.join(METHODS)})\s*\{{\.openapi__method\}}\s*\n+```[^\n]*\n(\S+)", re.MULTILINE
+)
 
 
 @dataclass(frozen=True)
@@ -153,8 +175,9 @@ class Operation:
     """One published operation.
 
     The published address is ``base + path``: ``base`` ends with the version (``/v1``,
-    ``/directory/v1``) and is empty when the address has none. ``method`` is the HTTP method, or
-    ``SOAP`` for an operation of a WSDL, which ``name`` then tells apart. ``name`` is the
+    ``/directory/v1``, ``/v1/disk`` with the service's own prefix) and is empty when the address
+    has none. ``method`` is the HTTP method, or ``SOAP`` for an operation of a WSDL with no JSON
+    address; operations that share an address are told apart by ``name``. ``name`` is the
     service's own name for the operation (``operationId``, a Swagger ``nickname``, a WSDL or
     RPC operation, a reference page's slug), ``group`` its tag there, else the first noun of
     the path. ``source`` says what it was read from; ``page`` is the reference page (Tracker).
@@ -188,19 +211,33 @@ def shape(path: str) -> str:
     return _PLACEHOLDER.sub("{}", path)
 
 
-def split_version(published: str) -> tuple[str, str]:
+def split_version(published: str, prefix: str = "") -> tuple[str, str]:
     """A published path as ``(base, path)``: ``base`` ends with the first version segment.
 
-    The trailing slash and a query string are dropped, as the comparison ignores them.
+    A service whose name follows the version (``/v1/disk/…``) has that name in ``base`` too:
+    ``prefix`` says what it is, and an address that does not continue with it keeps the plain
+    base. The trailing slash and a query string are dropped, as the comparison ignores them.
+
+    Args:
+        published: The path as the service publishes it.
+        prefix: The service's own prefix after the version, ``/disk``.
+
+    Returns:
+        The base and the rest of the path; the rest is ``/`` for the service's root.
 
     Examples:
         >>> split_version("/directory/v1/org/{orgId}/users/")
         ('/directory/v1', '/org/{orgId}/users')
+        >>> split_version("/v1/disk/trash/resources", "/disk")
+        ('/v1/disk', '/trash/resources')
         >>> split_version("/rpc/getDashboard")
         ('', '/rpc/getDashboard')
     """
     segments = published.split("?", 1)[0].strip("/").split("/")
     cut = next((i + 1 for i, part in enumerate(segments) if _VERSION_SEGMENT.fullmatch(part)), 0)
+    own = prefix.strip("/").split("/") if prefix.strip("/") else []
+    if cut and own and segments[cut : cut + len(own)] == own:
+        cut += len(own)
     return "/".join(["", *segments[:cut]]) if cut else "", "/" + "/".join(segments[cut:])
 
 
@@ -265,10 +302,12 @@ def openapi_operations(document: dict[str, Any], *, rpc: bool = False) -> list[O
     operations = []
     # A document may state its paths relative to its server (Telemost: `/v1/telemost-api`).
     servers = document.get("servers") or [{}]
-    prefix = httpx2.URL(servers[0].get("url", "")).path.rstrip("/")
+    server = httpx2.URL(servers[0].get("url", "")).path.rstrip("/")
+    # What follows the version in the server's address is the service's own prefix.
+    prefix = split_version(server)[1] if split_version(server)[0] else ""
     for published, item in document["paths"].items():
         item = _resolved(document, item)
-        base, path = split_version(prefix + published)
+        base, path = split_version(server + published, prefix)
         for method in METHODS:
             operation = item.get(method.lower())
             if operation is None:
@@ -357,11 +396,12 @@ def _file_reference(reference: str, folder: str) -> str:
     return f"#/files/{path}{fragment}"
 
 
-def swagger_operations(resources: list[dict[str, Any]]) -> list[Operation]:
+def swagger_operations(resources: list[dict[str, Any]], prefix: str = "") -> list[Operation]:
     """Every operation of a Swagger 1.2 API, given the documents of its resources (Disk).
 
     Args:
         resources: The API declaration of each resource the listing names.
+        prefix: The service's own prefix after the version, part of ``base``.
 
     Returns:
         The operations.
@@ -370,7 +410,7 @@ def swagger_operations(resources: list[dict[str, Any]]) -> list[Operation]:
     for resource in resources:
         models = resource.get("models", {})
         for api in resource.get("apis", []):
-            base, path = split_version(api["path"])
+            base, path = split_version(api["path"], prefix)
             for operation in api.get("operations", []):
                 parameters = operation.get("parameters", [])
                 bodies = [p.get("type", "") for p in parameters if p.get("paramType") == "body"]
@@ -403,8 +443,10 @@ _WSDL = "{http://schemas.xmlsoap.org/wsdl/}"
 _XSD = "{http://www.w3.org/2001/XMLSchema}"
 
 
-def wsdl_operations(text: str, *, address: str, group: str = "") -> list[Operation]:
-    """Every operation of a WSDL document: one ``SOAP`` row per operation of its port type.
+def wsdl_operations(
+    text: str, *, address: str, group: str = "", method: str = "SOAP"
+) -> list[Operation]:
+    """Every operation of a WSDL document: one row per operation of its port type.
 
     The request and response fields are the element names of the operation's input and output
     messages, read from the document's own schema.
@@ -413,6 +455,8 @@ def wsdl_operations(text: str, *, address: str, group: str = "") -> list[Operati
         text: The WSDL document.
         address: The published path the operations are sent to.
         group: The group of every operation; the first noun of ``address`` by default.
+        method: ``SOAP``, or ``POST`` when ``address`` is the service's JSON address, which
+            takes the same operations by name.
 
     Returns:
         The operations.
@@ -446,7 +490,7 @@ def wsdl_operations(text: str, *, address: str, group: str = "") -> list[Operati
     return sorted(
         (
             Operation(
-                method="SOAP",
+                method=method,
                 path=path,
                 base=base,
                 name=operation.get("name", ""),
@@ -514,6 +558,62 @@ def tracker_operations(page: str, text: str) -> list[Operation]:
     return list(found.values())
 
 
+def page_operations(page: str, text: str, prefix: str = "") -> list[Operation]:
+    """The operations a reference ``page`` of a docs-only service documents.
+
+    A page Diplodoc generated from an OpenAPI document states one operation: its method and its
+    full address. The page's slug is the operation's own name there (``DomainService_Delete``)
+    and its directory the group (the tag the page was generated under).
+
+    Args:
+        page: The page's path under the index, without ``.md``.
+        text: The page's Markdown source.
+        prefix: The service's own prefix after the version, part of ``base``.
+
+    Returns:
+        The operations; none for a page that documents no request.
+    """
+    folder, _, slug = page.rpartition("/")
+    # `logs/openapi/<page>`: the folder Diplodoc generates into is not a tag.
+    group = next((part for part in reversed(folder.split("/")) if part != "openapi"), "")
+    operations = []
+    for method, address in _GENERATED_REQUEST.findall(text):
+        base, path = split_version(httpx2.URL(address).path, prefix)
+        operations.append(
+            Operation(
+                method=method,
+                path=path,
+                base=base,
+                name=slug,
+                group=group,
+                source="docs",
+                page=page,
+            )
+        )
+    return operations
+
+
+def _docs_service(client: httpx2.Client, source: Source) -> list[Operation]:
+    """The operations of a docs-only service: of every page its index lists."""
+    root = source.url.rpartition("/")[0] + "/"
+    urls = sorted(
+        url for url in set(_INDEX_PAGE.findall(_text(client, source.url))) if url.startswith(root)
+    )
+    if not urls:
+        raise SystemExit(f"api_surface: {source.url} lists no page")
+    with ThreadPoolExecutor(FETCH_WORKERS) as pool:
+        texts = pool.map(lambda url: _text(client, f"{url}.md"), urls)
+        return _merged(
+            operation
+            for url, text in zip(urls, texts, strict=True)
+            for operation in page_operations(
+                url.removeprefix(root),
+                _reference_page(url.removeprefix(root), text),
+                source.prefix,
+            )
+        )
+
+
 def _client() -> httpx2.Client:
     return httpx2.Client(
         headers={"User-Agent": USER_AGENT},
@@ -556,9 +656,12 @@ def _yaml_files(archive: bytes, root: str) -> dict[str, str]:
 
 def _wsdl_service(client: httpx2.Client, source: Source) -> list[Operation]:
     """The operations of a WSDL service: of its one document, or of one document per part."""
-    address = httpx2.URL(source.url.partition("?")[0]).path
     if not source.parts:
+        address = httpx2.URL(source.url.partition("?")[0]).path
         return wsdl_operations(_text(client, source.url), address=address)
+    # A service with a JSON address is listed by it: that is the call ycli would make.
+    address = source.address or httpx2.URL(source.url.partition("?")[0]).path
+    method = "POST" if source.address else "SOAP"
     with ThreadPoolExecutor(FETCH_WORKERS) as pool:
         texts = pool.map(lambda part: _text(client, source.url.format(service=part)), source.parts)
         return sorted(
@@ -566,7 +669,7 @@ def _wsdl_service(client: httpx2.Client, source: Source) -> list[Operation]:
                 operation
                 for part, text in zip(source.parts, texts, strict=True)
                 for operation in wsdl_operations(
-                    text, address=address.format(service=part), group=part
+                    text, address=address.format(service=part), group=part, method=method
                 )
             ),
             key=_order,
@@ -595,10 +698,13 @@ def fetch(service: str) -> list[Operation]:
                 [
                     json.loads(_text(client, listing["basePath"] + api["path"]))
                     for api in listing["apis"]
-                ]
+                ],
+                source.prefix,
             )
         if source.kind == "wsdl":
             return _wsdl_service(client, source)
+        if service != "tracker":
+            return _docs_service(client, source)
         pages = sorted(
             set(TRACKER_PAGE.findall(_text(client, TRACKER_INDEX))) - TRACKER_PROSE_PAGES
         )
@@ -629,11 +735,12 @@ def _reference_page(page: str, text: str) -> str:
 
 def _merged(operations: Iterable[Operation]) -> list[Operation]:
     """``operations`` with one entry per method and path, kept from the first page that has it."""
-    merged: dict[tuple[str, str], Operation] = {}
+    merged: dict[tuple[str, str, str], Operation] = {}
     for operation in operations:
-        first = merged.setdefault(operation.key, operation)
+        key = (operation.base, *operation.key)
+        first = merged.setdefault(key, operation)
         query = tuple(sorted({*first.query, *operation.query}))
-        merged[operation.key] = replace(first, query=query)
+        merged[key] = replace(first, query=query)
     return sorted(merged.values(), key=_order)
 
 
