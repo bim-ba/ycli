@@ -2,7 +2,7 @@
   "mcpServers": {
     "yandex-360": {
       "command": "uvx",
-      "args": ["--from", "yandex-cli[mcp]==0.58.0", "ycli", "mcp", "start"],
+      "args": ["--from", "yandex-cli[mcp]==0.59.0", "ycli", "mcp", "start"],
       "env": {
         "YANDEX_ID_OAUTH_TOKEN": "${YANDEX_ID_OAUTH_TOKEN}",
         "YANDEX_ID_ORGANIZATION_ID": "${YANDEX_ID_ORGANIZATION_ID}"
