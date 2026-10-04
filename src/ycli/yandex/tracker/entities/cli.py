@@ -8,14 +8,13 @@ download (``attachments download``) returns a ``BinaryResult``.
 
 from __future__ import annotations
 
-import enum
 from typing import Annotated, Any
 
 import typer
 
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
-from ycli.cli.typedefs import values_option
+from ycli.cli.typedefs import values_argument, values_option
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
@@ -35,6 +34,7 @@ from ycli.yandex.tracker.entities.models import (
     EntityEvent,
     EntityFieldsInput,
     EntitySearch,
+    EntityType,
     EntityUpdate,
     ExtendedPermissions,
     Link,
@@ -56,25 +56,12 @@ from ycli.yandex.tracker.typedefs import (
     ReplyFieldsOpt,
 )
 
-
-class EntityType(enum.StrEnum):
-    """The three entity types the Entities API unifies, plus issue reports (search only)."""
-
-    project = "project"
-    portfolio = "portfolio"
-    goal = "goal"
-    report = "report"  # documented for search only (issue reports)
-
-
 app = typer.Typer(
     name="entities", help="Tracker projects, portfolios and goals.", no_args_is_help=True
 )
 
 TypeArg = Annotated[
-    EntityType,
-    typer.Argument(
-        metavar="TYPE", help="Entity type: project, portfolio or goal (report: search only)."
-    ),
+    str, values_argument(EntityType, metavar="TYPE", help="Entity type (report: search only).")
 ]
 IdArg = Annotated[str, typer.Argument(metavar="ID", help="Entity id (or shortId).")]
 FieldOpt = Annotated[
@@ -130,7 +117,7 @@ def get(
     tracker: TrackerClient,
 ) -> Entity:
     """Print a single entity (project/portfolio/goal) by ID."""
-    return tracker.entities.get(type_.value, entity_id, expand=expand, fields=fields)
+    return tracker.entities.get(type_, entity_id, expand=expand, fields=fields)
 
 
 @app.command()
@@ -162,7 +149,7 @@ def create(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = EntityCreate.model_validate({"fields": fields_body})
-    return tracker.entities.create(type_.value, body=body, fields=fields)
+    return tracker.entities.create(type_, body=body, fields=fields)
 
 
 @app.command()
@@ -195,7 +182,7 @@ def update(
         summary, description, lead, author, status, start, end, parent, team_user, tag, field
     )
     body = EntityUpdate.model_validate({"fields": fields_body or None, "comment": comment})
-    return tracker.entities.update(type_.value, entity_id, body=body, expand=expand, fields=fields)
+    return tracker.entities.update(type_, entity_id, body=body, expand=expand, fields=fields)
 
 
 @app.command()
@@ -209,8 +196,8 @@ def delete(
     tracker: TrackerClient,
 ) -> Ack:
     """Delete entity ID (DELETE /entities/TYPE/ID)."""
-    tracker.entities.delete(type_.value, entity_id, with_board=with_board or None)
-    return Ack.deleted(type_.value, entity_id)
+    tracker.entities.delete(type_, entity_id, with_board=with_board or None)
+    return Ack.deleted(type_, entity_id)
 
 
 @app.command()
@@ -248,7 +235,7 @@ def search(
             "rootOnly": root_only or None,
         }
     )
-    return tracker.entities.search(type_.value, body, fields=fields)
+    return tracker.entities.search(type_, body, fields=fields)
 
 
 @app.command()
@@ -269,7 +256,7 @@ def events_list(
 ) -> ItemList[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
     return tracker.entities.events_list(
-        type_.value,
+        type_,
         entity_id,
         limit=limit,
         selected=selected,
@@ -283,7 +270,7 @@ def permissions_get(
     type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient
 ) -> ExtendedPermissions:
     """Print an entity's access settings (GET …/extendedPermissions)."""
-    return tracker.entities.permissions_get(type_.value, entity_id)
+    return tracker.entities.permissions_get(type_, entity_id)
 
 
 @app.command("set-permissions")
@@ -308,13 +295,13 @@ def set_permissions(
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
     """
     body = PermissionsUpdate.model_validate({"acl": parse_fields(field)})
-    return tracker.entities.set_permissions(type_.value, entity_id, body=body)
+    return tracker.entities.set_permissions(type_, entity_id, body=body)
 
 
 @app.command("direct-permissions-get")
 def direct_permissions_get(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> Acl:
     """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
-    return tracker.entities.direct_permissions_get(type_.value, entity_id)
+    return tracker.entities.direct_permissions_get(type_, entity_id)
 
 
 @app.command("set-direct-permissions")
@@ -339,7 +326,7 @@ def set_direct_permissions(
         grant=AclInput.model_validate_json(grant) if grant is not None else None,
         revoke=AclInput.model_validate_json(revoke) if revoke is not None else None,
     )
-    return tracker.entities.set_direct_permissions(type_.value, entity_id, body)
+    return tracker.entities.set_direct_permissions(type_, entity_id, body)
 
 
 @app.command()
@@ -354,7 +341,7 @@ def bulk_update(
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
     values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment)
     body = BulkChangeUpdate.model_validate({"metaEntities": entity, "values": values})
-    return tracker.entities.bulk_update(type_.value, body=body)
+    return tracker.entities.bulk_update(type_, body=body)
 
 
 @app.command("bulk-status-get")
@@ -418,8 +405,8 @@ def comments_list(
 ) -> ItemList[Comment]:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
     if all_:
-        return tracker.entities.comments_relative_list(type_.value, entity_id, limit=limit)
-    return tracker.entities.comments_list(type_.value, entity_id)
+        return tracker.entities.comments_relative_list(type_, entity_id, limit=limit)
+    return tracker.entities.comments_list(type_, entity_id)
 
 
 @comments_app.command("get")
@@ -427,7 +414,7 @@ def comments_get(
     type_: TypeArg, entity_id: IdArg, comment_id: CommentIdArg, *, tracker: TrackerClient
 ) -> Comment:
     """Get one comment on an entity (GET …/comments/COMMENT_ID)."""
-    return tracker.entities.comments_get(type_.value, entity_id, comment_id)
+    return tracker.entities.comments_get(type_, entity_id, comment_id)
 
 
 @comments_app.command("create")
@@ -448,7 +435,7 @@ def comments_create(
     """Add a comment to an entity (POST …/comments)."""
     body = CommentCreate(text=text, summonees=summon or None)
     return tracker.entities.comments_create(
-        type_.value,
+        type_,
         entity_id,
         body=body,
         expand=expand,
@@ -474,7 +461,7 @@ def comments_update(
     """Edit a comment on an entity (PATCH …/comments/COMMENT_ID)."""
     body = CommentUpdate(text=text)
     return tracker.entities.comments_update(
-        type_.value,
+        type_,
         entity_id,
         comment_id,
         body=body,
@@ -497,9 +484,9 @@ def comments_delete(
 ) -> Ack:
     """Delete a comment from an entity (DELETE …/comments/COMMENT_ID)."""
     tracker.entities.comments_delete(
-        type_.value, entity_id, comment_id, notify=notify, notify_author=notify_author
+        type_, entity_id, comment_id, notify=notify, notify_author=notify_author
     )
-    return Ack.deleted("comment", comment_id, on=f"{type_.value} {entity_id}")
+    return Ack.deleted("comment", comment_id, on=f"{type_} {entity_id}")
 
 
 # --------------------------------------------------------------------------------------------
@@ -546,7 +533,7 @@ def checklists_create(
     """Add checklist items to an entity (POST …/checklistItems)."""
     items = ItemList[ChecklistItemInput]([ChecklistItemInput(text=t) for t in text])
     return tracker.entities.checklists_create(
-        type_.value,
+        type_,
         entity_id,
         body=items,
         expand=expand,
@@ -584,7 +571,7 @@ def checklists_update(
         inputs.append(ChecklistItemInput(id=item_id, text=text))
     items = ItemList[ChecklistItemInput](inputs)
     return tracker.entities.checklists_update(
-        type_.value,
+        type_,
         entity_id,
         body=items,
         expand=expand,
@@ -617,7 +604,7 @@ def checklists_update_item(
     """Edit a single checklist item (PATCH …/checklistItems/ITEM_ID)."""
     body = _item_input(text, checked, assignee, deadline)
     return tracker.entities.checklists_update_item(
-        type_.value,
+        type_,
         entity_id,
         item_id,
         body=body,
@@ -642,7 +629,7 @@ def checklists_delete_item(
 ) -> Entity:
     """Remove one checklist item (DELETE …/checklistItems/ITEM_ID)."""
     return tracker.entities.checklists_delete_item(
-        type_.value,
+        type_,
         entity_id,
         item_id,
         expand=expand,
@@ -665,7 +652,7 @@ def checklists_delete(
 ) -> Entity:
     """Clear the whole checklist (DELETE …/checklistItems)."""
     return tracker.entities.checklists_delete(
-        type_.value,
+        type_,
         entity_id,
         expand=expand,
         fields=fields,
@@ -692,7 +679,7 @@ def checklists_move(
     """Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move)."""
     body = ChecklistMove(before=before)
     return tracker.entities.checklists_move(
-        type_.value,
+        type_,
         entity_id,
         item_id,
         body=body,
@@ -714,7 +701,7 @@ app.add_typer(links_app)
 @links_app.command("list")
 def links_list(type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient) -> ItemList[Link]:
     """List an entity's links to other entities (GET …/links)."""
-    return tracker.entities.links_list(type_.value, entity_id)
+    return tracker.entities.links_list(type_, entity_id)
 
 
 @links_app.command("create")
@@ -728,8 +715,8 @@ def links_create(
 ) -> Ack:
     """Create a link between entities (POST …/links)."""
     body = LinkInput(relationship=relationship, entity=entity)
-    tracker.entities.links_create(type_.value, entity_id, body=body)
-    return Ack.linked(type_.value, entity_id, entity, relationship)
+    tracker.entities.links_create(type_, entity_id, body=body)
+    return Ack.linked(type_, entity_id, entity, relationship)
 
 
 @links_app.command("delete")
@@ -741,8 +728,8 @@ def links_delete(
     tracker: TrackerClient,
 ) -> Ack:
     """Delete a link (DELETE …/links?right=RIGHT)."""
-    tracker.entities.links_delete(type_.value, entity_id, right)
-    return Ack.unlinked(type_.value, entity_id, right)
+    tracker.entities.links_delete(type_, entity_id, right)
+    return Ack.unlinked(type_, entity_id, right)
 
 
 # --------------------------------------------------------------------------------------------
@@ -760,7 +747,7 @@ def attachments_list(
     type_: TypeArg, entity_id: IdArg, *, tracker: TrackerClient
 ) -> ItemList[Attachment]:
     """List files attached to an entity (GET …/attachments)."""
-    return tracker.entities.attachments_list(type_.value, entity_id)
+    return tracker.entities.attachments_list(type_, entity_id)
 
 
 @attachments_app.command("get")
@@ -768,7 +755,7 @@ def attachments_get(
     type_: TypeArg, entity_id: IdArg, file_id: FileIdArg, *, tracker: TrackerClient
 ) -> Attachment:
     """Get one attachment's metadata (GET …/attachments/FILE_ID)."""
-    return tracker.entities.attachments_get(type_.value, entity_id, file_id)
+    return tracker.entities.attachments_get(type_, entity_id, file_id)
 
 
 @attachments_app.command("download")
@@ -800,7 +787,7 @@ def attachments_attach(
 ) -> Entity:
     """Attach a previously uploaded temp file to an entity (POST …/attachments/TEMP_FILE_ID)."""
     return tracker.entities.attachments_attach(
-        type_.value,
+        type_,
         entity_id,
         temp_file_id,
         expand=expand,
@@ -815,5 +802,5 @@ def attachments_delete(
     type_: TypeArg, entity_id: IdArg, file_id: FileIdArg, *, tracker: TrackerClient
 ) -> Ack:
     """Detach a file from an entity (DELETE …/attachments/FILE_ID; empty response body)."""
-    tracker.entities.attachments_delete(type_.value, entity_id, file_id)
-    return Ack.deleted("attachment", file_id, on=f"{type_.value} {entity_id}")
+    tracker.entities.attachments_delete(type_, entity_id, file_id)
+    return Ack.deleted("attachment", file_id, on=f"{type_} {entity_id}")

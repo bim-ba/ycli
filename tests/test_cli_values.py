@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from ycli.cli.typedefs import known_values, values_option
+from ycli.cli.typedefs import known_values, values_argument, values_option
 
 Order = Literal["asc", "ascending", "desc"] | str
 
@@ -17,3 +17,10 @@ def test_the_option_names_the_values_and_completes_them():
     assert option.help == "Sort direction. Known values: asc, ascending, desc."
     assert option.autocompletion("a") == ["asc", "ascending"]
     assert option.autocompletion("x") == []
+
+
+def test_an_argument_names_the_values_and_completes_them():
+    argument = values_argument(Order, metavar="ORDER", help="Sort direction.")
+    assert argument.help == "Sort direction. Known values: asc, ascending, desc."
+    assert argument.metavar == "ORDER"
+    assert argument.autocompletion("d") == ["desc"]

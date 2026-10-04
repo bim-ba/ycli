@@ -36,6 +36,9 @@ from ycli.yandex.tracker.models import (
 #: The file a report is exported to.
 ReportFormat = Literal["xlsx", "xml", "csv"] | str
 
+#: The entity types the Entities API unifies; ``report`` is documented for search only.
+EntityType = Literal["project", "portfolio", "goal", "report"] | str
+
 
 class ParentEntity(APIModel):
     """The ``parentEntity`` block — the portfolio(s) / parent goal an entity belongs to.

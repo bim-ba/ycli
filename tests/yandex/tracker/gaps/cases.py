@@ -1,7 +1,7 @@
 """Contract cases for Tracker ``/gaps`` (employee absences; see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
-from ycli.yandex.tracker.gaps.models import GapInput, GapsCreate, GapWorkflow
+from ycli.yandex.tracker.gaps.models import GapInput, GapsCreate
 
 USER = {
     "self": "https://api.tracker.yandex.net/v3/users/1234567890123456",
@@ -45,7 +45,7 @@ CASES = [
                     GapInput(
                         id="68340a1f2b4c1a3d5e7f9011",
                         user="ann",
-                        workflow=GapWorkflow.VACATION,
+                        workflow="vacation",
                         date_from="2026-07-01T00:00:00.000Z",
                         date_to="2026-07-15T00:00:00.000Z",
                         full_day=True,
@@ -53,7 +53,7 @@ CASES = [
                     ),
                     GapInput(
                         user="bob",
-                        workflow=GapWorkflow.TRIP,
+                        workflow="trip",
                         date_from="2026-07-10T00:00:00.000Z",
                         date_to="2026-07-20T00:00:00.000Z",
                     ),
@@ -128,7 +128,7 @@ CASES = [
                 gaps=[
                     GapInput(
                         user="cy",
-                        workflow=GapWorkflow.DUTY,
+                        workflow="duty",
                         date_from="2026-08-01T00:00:00.000Z",
                         date_to="2026-08-02T00:00:00.000Z",
                     )

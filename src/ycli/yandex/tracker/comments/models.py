@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import (
@@ -10,6 +12,25 @@ from ycli.yandex.models import (
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
 from ycli.yandex.tracker.models import Reference
+
+#: The reaction names ``POST …/comments/{id}/reactions/{name}`` documents.
+Reaction = (
+    Literal[
+        "LIKE",
+        "DISLIKE",
+        "LAUGH",
+        "HOORAY",
+        "CONFUSED",
+        "HEART",
+        "ROCKET",
+        "EYES",
+        "FIRE",
+        "OK",
+        "FACEPALM",
+        "CHECK",
+    ]
+    | str
+)
 
 
 class Comment(APIModel):

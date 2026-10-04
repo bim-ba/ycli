@@ -33,7 +33,7 @@ class GapsClient(Resource):
             >>> from ycli.yandex.tracker.gaps.models import GapInput, GapsCreate, GapWorkflow
             >>> gap = GapInput(
             ...     user="ann",
-            ...     workflow=GapWorkflow.VACATION,
+            ...     workflow="vacation",
             ...     date_from="2026-07-01T00:00:00.000Z",
             ...     date_to="2026-07-15T00:00:00.000Z",
             ... )

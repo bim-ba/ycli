@@ -98,3 +98,29 @@ def values_option(value_set: Any, *names: str, help: str) -> Any:  # noqa: A002
     return typer.Option(
         *names, help=f"{help} Known values: {', '.join(values)}.", autocompletion=complete
     )
+
+
+def values_argument(value_set: Any, *, help: str, metavar: str | None = None) -> Any:  # noqa: A002
+    """A string argument that knows a set's values, as :func:`values_option` does for an option.
+
+    Args:
+        value_set: The set of values as it is defined, ``Literal[...] | str``.
+        help: What the argument is, without the values.
+        metavar: The name shown in the usage line, as for ``typer.Argument``.
+
+    Returns:
+        The ``typer.Argument`` to put in ``Annotated[str, ...]``.
+
+    Examples:
+        >>> from typing import Literal
+        >>> values_argument(Literal["like", "heart"] | str, help="Reaction name.").help
+        'Reaction name. Known values: like, heart.'
+    """
+    values = known_values(value_set)
+
+    def complete(incomplete: str) -> list[str]:
+        return [value for value in values if value.startswith(incomplete)]
+
+    return typer.Argument(
+        metavar=metavar, help=f"{help} Known values: {', '.join(values)}.", autocompletion=complete
+    )

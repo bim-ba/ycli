@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import enum
 from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_argument
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, Reaction
 from ycli.yandex.tracker.models import CommentCreate
 from ycli.yandex.tracker.typedefs import (
     ExpandOpt,
@@ -23,23 +22,6 @@ app = typer.Typer(name="comments", help="Tracker issue comments.", no_args_is_he
 CommentIdArg = Annotated[
     str, typer.Argument(metavar="COMMENT_ID", help="Comment id (numeric id or longId).")
 ]
-
-
-class Reaction(enum.StrEnum):
-    """Reaction names accepted by ``POST …/comments/{id}/reactions/{name}``."""
-
-    LIKE = "LIKE"
-    DISLIKE = "DISLIKE"
-    LAUGH = "LAUGH"
-    HOORAY = "HOORAY"
-    CONFUSED = "CONFUSED"
-    HEART = "HEART"
-    ROCKET = "ROCKET"
-    EYES = "EYES"
-    FIRE = "FIRE"
-    OK = "OK"
-    FACEPALM = "FACEPALM"
-    CHECK = "CHECK"
 
 
 @app.command("list")
@@ -107,9 +89,9 @@ def delete(key: KeyArg, comment_id: CommentIdArg, *, tracker: TrackerClient) -> 
 def react(
     key: KeyArg,
     comment_id: CommentIdArg,
-    name: Annotated[Reaction, typer.Argument(help="Reaction name, e.g. LIKE, HEART, ROCKET.")],
+    name: Annotated[str, values_argument(Reaction, help="Reaction name.")],
     *,
     tracker: TrackerClient,
 ) -> Comment:
     """Add reaction NAME to comment COMMENT_ID on issue KEY."""
-    return tracker.comments.react(key, comment_id, name.value)
+    return tracker.comments.react(key, comment_id, name)

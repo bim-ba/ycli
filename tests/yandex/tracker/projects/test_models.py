@@ -1,7 +1,7 @@
 """Model parsing for Tracker projects: the doc reply and the request bodies."""
 
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectStatus, ProjectUpdate
+from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
 
 
 def test_project_parses_the_doc_sample():
@@ -40,7 +40,7 @@ def test_project_list_is_a_flat_array():
 
 def test_request_bodies_use_api_names_and_drop_unset_fields():
     created = ProjectCreate(
-        name="N", queues="Q", status=ProjectStatus.DRAFT, start_date="2026-01-01"
+        name="N", queues="Q", status="DRAFT", start_date="2026-01-01"
     ).model_dump(by_alias=True, exclude_none=True, mode="json")
     assert created == {"name": "N", "queues": "Q", "status": "DRAFT", "startDate": "2026-01-01"}
     assert ProjectUpdate(queues="Q", end_date="2026-02-02").model_dump(
