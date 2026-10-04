@@ -17,10 +17,9 @@ from ycli.yandex.wiki.comments.models import (
     CommentDeleteResult,
 )
 from ycli.yandex.wiki.models import ResolveStatus
+from ycli.yandex.wiki.typedefs import PageIDArg
 
 app = typer.Typer(name="comments", help="Wiki page comments.", no_args_is_help=True)
-
-PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")]
 
 
 @app.command("list")
@@ -93,7 +92,7 @@ def thread_get(
 
 @app.command()
 def create(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     body: Annotated[str, typer.Option(help="Comment text.")],
     inline_text: Annotated[
         str | None, typer.Option("--inline-text", help="Page fragment to pin the comment to.")
@@ -119,7 +118,7 @@ def create(
 
 @app.command()
 def delete(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     comment_id: Annotated[int, typer.Argument(metavar="COMMENT_ID", help="Comment id to delete.")],
     *,
     wiki: WikiClient,

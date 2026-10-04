@@ -17,7 +17,7 @@ from ycli.yandex.tracker.dashboards.models import (
 
 app = typer.Typer(name="dashboards", help="Tracker dashboards.", no_args_is_help=True)
 
-DashboardIdArg = Annotated[str, typer.Argument(metavar="DASHBOARD_ID", help="Target dashboard id.")]
+DashboardIDArg = Annotated[str, typer.Argument(metavar="DASHBOARD_ID", help="Target dashboard id.")]
 
 
 @app.command()
@@ -41,7 +41,7 @@ def create(
 
 @app.command()
 def add_cycle_time_widget(
-    dashboard_id: DashboardIdArg,
+    dashboard_id: DashboardIDArg,
     description: Annotated[str, typer.Option(help="Widget name.")],
     query: Annotated[
         str | None, typer.Option(help="Query-language filter selecting issues.")

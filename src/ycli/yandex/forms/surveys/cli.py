@@ -12,7 +12,7 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.surveys.models import Survey, SurveyCreate, SurveyUpdate
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,
+    SurveyIDArg,
 )
 from ycli.yandex.models import Ack, ItemList
 
@@ -87,7 +87,7 @@ def list_(
 
 
 @app.command()
-def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> Survey:
+def get(survey_id: SurveyIDArg, *, forms: FormsClient) -> Survey:
     """Print one form's settings for SURVEY_ID."""
     return forms.surveys.get(survey_id)
 
@@ -122,7 +122,7 @@ def create(
 
 @app.command()
 def update(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     name: Annotated[str | None, typer.Option(help="New form name.")] = None,
     language: LanguageOpt = None,
     published: PublishedOpt = None,
@@ -150,18 +150,18 @@ def update(
 
 
 @app.command()
-def delete(survey_id: SurveyIdArg, *, forms: FormsClient) -> Ack:
+def delete(survey_id: SurveyIDArg, *, forms: FormsClient) -> Ack:
     """Delete form SURVEY_ID (DELETE /surveys/{id})."""
     return forms.surveys.delete(survey_id)
 
 
 @app.command()
-def publish(survey_id: SurveyIdArg, *, forms: FormsClient) -> Ack:
+def publish(survey_id: SurveyIDArg, *, forms: FormsClient) -> Ack:
     """Publish form SURVEY_ID (POST /surveys/{id}/publish)."""
     return forms.surveys.publish(survey_id)
 
 
 @app.command()
-def unpublish(survey_id: SurveyIdArg, *, forms: FormsClient) -> Ack:
+def unpublish(survey_id: SurveyIDArg, *, forms: FormsClient) -> Ack:
     """Unpublish form SURVEY_ID (POST /surveys/{id}/unpublish)."""
     return forms.surveys.unpublish(survey_id)

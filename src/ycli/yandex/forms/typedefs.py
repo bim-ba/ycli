@@ -6,29 +6,29 @@ from typing import Annotated
 
 import typer
 
-SurveyIdArg = Annotated[
+SurveyIDArg = Annotated[
     str, typer.Argument(metavar="SURVEY_ID", help="Form id, e.g. 6818ceffe010db4f59d11329.")
 ]
 
-QuestionIdArg = Annotated[
+QuestionIDArg = Annotated[
     str, typer.Argument(metavar="QUESTION_ID", help="Question id (integer), e.g. 17.")
 ]
 
-PageIdArg = Annotated[
+PageIDArg = Annotated[
     int, typer.Argument(metavar="PAGE_ID", help="Page id (integer), from `questions list`.")
 ]
 
-HookIdArg = Annotated[
+HookIDArg = Annotated[
     int, typer.Argument(metavar="HOOK_ID", help="Integration group (hook) id (integer).")
 ]
 
-NotificationIdArg = Annotated[
+NotificationIDArg = Annotated[
     int,
     typer.Argument(
         metavar="NOTIFICATION_ID", help="Notification id (integer), from `notifications list`."
     ),
 ]
 
-AnswerIdArg = Annotated[
+AnswerIDArg = Annotated[
     int, typer.Argument(metavar="ANSWER_ID", help="Answer id (integer), from `answers get`.")
 ]

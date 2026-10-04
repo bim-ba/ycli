@@ -15,7 +15,8 @@ from ycli.yandex.forms.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    SurveyId,
+    HookID,
+    SurveyID,
     forms_client,
 )
 from ycli.yandex.forms.subscriptions.models import Subscription
@@ -23,15 +24,14 @@ from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-subscriptions")
 
-HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]
-SubscriptionId = Annotated[
+SubscriptionID = Annotated[
     int, Field(description="Integration id (integer) from subscriptions_list.")
 ]
 
 
 @mcp.tool(name="subscriptions_list", annotations={**RO, "title": "List Forms integrations"})
 def list_(
-    survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, hook_id: HookID, client: FormsClient = Depends(forms_client)
 ) -> ItemList[Subscription]:
     """Every integration of an integration group (hook), each tagged by ``type``.
 
@@ -43,9 +43,9 @@ def list_(
 
 @mcp.tool(name="subscriptions_get", annotations={**RO, "title": "Get Forms integration"})
 def get(
-    survey_id: SurveyId,
-    hook_id: HookId,
-    subscription_id: SubscriptionId,
+    survey_id: SurveyID,
+    hook_id: HookID,
+    subscription_id: SubscriptionID,
     client: FormsClient = Depends(forms_client),
 ) -> Subscription:
     """One integration of a hook by id, with its type-specific settings."""
@@ -57,8 +57,8 @@ def get(
     annotations={**WRITE, "title": "Create Forms integration"},
 )
 def create(
-    survey_id: SurveyId,
-    hook_id: HookId,
+    survey_id: SurveyID,
+    hook_id: HookID,
     body: Annotated[
         Subscription, Field(description="The integration; ``type`` selects its schema.")
     ],
@@ -77,9 +77,9 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration"},
 )
 def update(
-    survey_id: SurveyId,
-    hook_id: HookId,
-    subscription_id: SubscriptionId,
+    survey_id: SurveyID,
+    hook_id: HookID,
+    subscription_id: SubscriptionID,
     body: Annotated[
         Subscription,
         Field(description="Fields to change; ``type`` must match the integration's type."),
@@ -95,9 +95,9 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Forms integration"},
 )
 def delete(
-    survey_id: SurveyId,
-    hook_id: HookId,
-    subscription_id: SubscriptionId,
+    survey_id: SurveyID,
+    hook_id: HookID,
+    subscription_id: SubscriptionID,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
     """Delete one integration from a hook; the hook's other integrations stay."""

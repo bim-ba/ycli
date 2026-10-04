@@ -21,7 +21,7 @@ from ycli.yandex.models import ItemList, SortDirection
 
 mcp = FastMCP("forms-notifications")
 
-NotificationId = Annotated[
+NotificationID = Annotated[
     int, Field(description="Notification id (integer) from notifications_list.")
 ]
 
@@ -94,7 +94,7 @@ def list_(
     annotations={**RO, "title": "Get a Forms integration run"},
 )
 def get(
-    notification_id: NotificationId, client: FormsClient = Depends(forms_client)
+    notification_id: NotificationID, client: FormsClient = Depends(forms_client)
 ) -> NotificationDetails:
     """One integration run with what the integration was given, answered and failed with."""
     return client.notifications.get(notification_id)
@@ -105,7 +105,7 @@ def get(
     annotations={**RO, "title": "Get a Forms integration run state"},
 )
 def status_get(
-    notification_id: NotificationId, client: FormsClient = Depends(forms_client)
+    notification_id: NotificationID, client: FormsClient = Depends(forms_client)
 ) -> NotificationStatus:
     """The state of one integration run: pending, success, error or canceled."""
     return client.notifications.status_get(notification_id)
@@ -116,7 +116,7 @@ def status_get(
     annotations={**WRITE, "title": "Restart a Forms integration run"},
 )
 def restart(
-    notification_id: NotificationId, client: FormsClient = Depends(forms_client)
+    notification_id: NotificationID, client: FormsClient = Depends(forms_client)
 ) -> NotificationAction:
     """Run the integration again for that answer.
 
@@ -131,7 +131,7 @@ def restart(
     annotations={**WRITE, "title": "Cancel a Forms integration run"},
 )
 def cancel(
-    notification_id: NotificationId, client: FormsClient = Depends(forms_client)
+    notification_id: NotificationID, client: FormsClient = Depends(forms_client)
 ) -> NotificationAction:
     """Stop an integration run that has not finished.
 

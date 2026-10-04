@@ -13,7 +13,7 @@ from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities import endpoints
 from ycli.yandex.tracker.entities.models import (
-    Acl,
+    ACL,
     Attachment,
     BulkChangeOperation,
     BulkChangeUpdate,
@@ -284,7 +284,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.set_permissions(entity_type, entity_id, body))
 
-    def direct_permissions_get(self, entity_type: str, entity_id: str) -> Acl:
+    def direct_permissions_get(self, entity_type: str, entity_id: str) -> ACL:
         """``GET …/permissions`` → the direct READ / WRITE / GRANT rights, without inheritance.
 
         :meth:`permissions_get` is the extended view (``acl`` plus where rights are inherited from).
@@ -304,7 +304,7 @@ class EntitiesClient(Resource):
 
     def set_direct_permissions(
         self, entity_type: str, entity_id: str, body: DirectPermissionsUpdate
-    ) -> Acl:
+    ) -> ACL:
         """``PATCH …/permissions`` — grant and revoke direct rights. Returns the resulting rights.
 
         Args:
@@ -316,8 +316,8 @@ class EntitiesClient(Resource):
             The resulting direct rights.
 
         Examples:
-            >>> from ycli.yandex.tracker.entities.models import AclInput, AclPrincipalsInput
-            >>> grant = AclInput(read=AclPrincipalsInput(users=["ann"]))
+            >>> from ycli.yandex.tracker.entities.models import ACLInput, ACLPrincipalsInput
+            >>> grant = ACLInput(read=ACLPrincipalsInput(users=["ann"]))
             >>> update = DirectPermissionsUpdate(grant=grant)
             >>> tracker.entities.set_direct_permissions("goal", "g18", update).read.users[0].display
             'Ann'

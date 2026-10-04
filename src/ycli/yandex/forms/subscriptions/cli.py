@@ -13,14 +13,14 @@ import typer
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import FileOut
 from ycli.yandex.forms.subscriptions.models import Subscription, SubscriptionAdapter
-from ycli.yandex.forms.typedefs import HookIdArg, SurveyIdArg
+from ycli.yandex.forms.typedefs import HookIDArg, SurveyIDArg
 from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(
     name="subscriptions", help="Forms integrations of an integration group.", no_args_is_help=True
 )
 
-SubscriptionIdArg = Annotated[
+SubscriptionIDArg = Annotated[
     int, typer.Argument(metavar="SUBSCRIPTION_ID", help="Integration id (integer).")
 ]
 BodyFileArg = Annotated[
@@ -52,7 +52,7 @@ def _body(body_file: Path) -> Subscription:
 
 @app.command("list")
 def list_(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, hook_id: HookIDArg, *, forms: FormsClient
 ) -> ItemList[Subscription]:
     """List the integrations of hook HOOK_ID (GET …/hooks/{id}/subscriptions)."""
     return forms.subscriptions.list(survey_id, hook_id)
@@ -60,9 +60,9 @@ def list_(
 
 @app.command()
 def get(
-    survey_id: SurveyIdArg,
-    hook_id: HookIdArg,
-    subscription_id: SubscriptionIdArg,
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
+    subscription_id: SubscriptionIDArg,
     *,
     forms: FormsClient,
 ) -> Subscription:
@@ -72,7 +72,7 @@ def get(
 
 @app.command()
 def create(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, body_file: BodyFileArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, hook_id: HookIDArg, body_file: BodyFileArg, *, forms: FormsClient
 ) -> Subscription:
     """Add an integration to hook HOOK_ID from a JSON body (POST …/subscriptions)."""
     return forms.subscriptions.create(survey_id, hook_id, _body(body_file))
@@ -80,9 +80,9 @@ def create(
 
 @app.command()
 def update(
-    survey_id: SurveyIdArg,
-    hook_id: HookIdArg,
-    subscription_id: SubscriptionIdArg,
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
+    subscription_id: SubscriptionIDArg,
     body_file: BodyFileArg,
     *,
     forms: FormsClient,
@@ -93,9 +93,9 @@ def update(
 
 @app.command()
 def delete(
-    survey_id: SurveyIdArg,
-    hook_id: HookIdArg,
-    subscription_id: SubscriptionIdArg,
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
+    subscription_id: SubscriptionIDArg,
     *,
     forms: FormsClient,
 ) -> Ack:
@@ -106,9 +106,9 @@ def delete(
 
 @app.command()
 def attach(
-    survey_id: SurveyIdArg,
-    hook_id: HookIdArg,
-    subscription_id: SubscriptionIdArg,
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
+    subscription_id: SubscriptionIDArg,
     file_path: FilePathArg,
     *,
     forms: FormsClient,

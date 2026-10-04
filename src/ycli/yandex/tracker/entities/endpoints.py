@@ -19,10 +19,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
-    Acl,
+    ACL,
     Attachment,
     BulkChangeOperation,
     BulkChangeUpdate,
@@ -141,7 +141,7 @@ def list_events(
                 "direction": direction,
             },
         ),
-        RelativeIdPagination(id_of=lambda event: event.id, id_param="from"),
+        RelativeIDPagination(id_of=lambda event: event.id, id_param="from"),
         lambda page: page.events,
     )
 
@@ -158,14 +158,14 @@ def set_permissions(
     return Endpoint("PATCH", path, ExtendedPermissions, json=body)
 
 
-def get_direct_permissions(entity_type: str, entity_id: str) -> Endpoint[Acl]:
-    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", Acl)
+def get_direct_permissions(entity_type: str, entity_id: str) -> Endpoint[ACL]:
+    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", ACL)
 
 
 def set_direct_permissions(
     entity_type: str, entity_id: str, body: DirectPermissionsUpdate
-) -> Endpoint[Acl]:
-    return Endpoint("PATCH", f"{_entity(entity_type, entity_id)}/permissions", Acl, json=body)
+) -> Endpoint[ACL]:
+    return Endpoint("PATCH", f"{_entity(entity_type, entity_id)}/permissions", ACL, json=body)
 
 
 def bulk_update(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChangeOperation]:
@@ -203,7 +203,7 @@ def list_comments_relative(
             CommentsRelativeResponse,
             params={"perPage": per_page},
         ),
-        RelativeIdPagination(id_of=lambda comment: comment.long_id, id_param="from"),
+        RelativeIDPagination(id_of=lambda comment: comment.long_id, id_param="from"),
         lambda page: page.comments,
     )
 

@@ -10,7 +10,7 @@ import typer
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.images.models import Image, ImageClone
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,
+    SurveyIDArg,
 )
 
 app = typer.Typer(name="images", help="Forms images.", no_args_is_help=True)
@@ -30,14 +30,14 @@ ImagePathArg = Annotated[
 
 
 @app.command()
-def upload(survey_id: SurveyIdArg, image_path: ImagePathArg, *, forms: FormsClient) -> Image:
+def upload(survey_id: SurveyIDArg, image_path: ImagePathArg, *, forms: FormsClient) -> Image:
     """Upload an image to add to a form (POST …/images); returns the image id and links."""
     return forms.images.upload(survey_id, filename=image_path.name, data=image_path.read_bytes())
 
 
 @app.command()
 def clone(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     image_id: Annotated[
         int | None, typer.Option("--image-id", help="Id of the image to clone.")
     ] = None,

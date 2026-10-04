@@ -28,7 +28,7 @@ from ycli.yandex.wiki.uploadsessions.models import (
 
 mcp = FastMCP("wiki-uploadsessions")
 
-SessionIdParam = Annotated[str, Field(description="UUID4 of the upload session.")]
+SessionIDParam = Annotated[str, Field(description="UUID4 of the upload session.")]
 
 
 @mcp.tool(
@@ -72,7 +72,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Upload Wiki file part"},
 )
 def upload_part(
-    session_id: SessionIdParam,
+    session_id: SessionIDParam,
     part_number: Annotated[
         int, Field(description="1-based part index (1 for the first part, +1 for each next).")
     ],
@@ -93,7 +93,7 @@ def upload_part(
     annotations={**WRITE, "title": "Finish Wiki upload session"},
 )
 def finish(
-    session_id: SessionIdParam,
+    session_id: SessionIDParam,
     client: WikiClient = Depends(wiki_client),
 ) -> UploadSession:
     """Close an upload session after its last part — step 3 of the upload pipeline.
@@ -109,7 +109,7 @@ def finish(
     annotations={**DESTRUCTIVE, "title": "Abort Wiki upload session"},
 )
 def abort(
-    session_id: SessionIdParam,
+    session_id: SessionIDParam,
     client: WikiClient = Depends(wiki_client),
 ) -> UploadSession:
     """Cancel one in-progress upload session, discarding its uploaded parts.

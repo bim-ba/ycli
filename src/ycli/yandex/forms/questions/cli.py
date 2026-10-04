@@ -21,8 +21,8 @@ from ycli.yandex.forms.questions.models import (
     WidgetType,
 )
 from ycli.yandex.forms.typedefs import (
-    QuestionIdArg,
-    SurveyIdArg,
+    QuestionIDArg,
+    SurveyIDArg,
 )
 from ycli.yandex.models import IGNORED_BY_API, Ack
 
@@ -160,15 +160,15 @@ BodyFileOpt = Annotated[
 
 
 @app.command("list")
-def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> QuestionsResponse:
+def list_(survey_id: SurveyIDArg, *, forms: FormsClient) -> QuestionsResponse:
     """List a form's questions (the {pages} envelope)."""
     return forms.questions.list(survey_id)
 
 
 @app.command()
 def get(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
     with_slugs: Annotated[
         bool, typer.Option("--with-slugs", help="Refer to other questions by slug, not id.")
     ] = False,
@@ -181,7 +181,7 @@ def get(
 
 @app.command()
 def create(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     type_: TypeOpt = None,
     label: LabelOpt = None,
     slug: SlugOpt = None,
@@ -215,8 +215,8 @@ def create(
 
 @app.command()
 def update(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
     type_: TypeOpt = None,
     label: LabelOpt = None,
     slug: SlugOpt = None,
@@ -250,8 +250,8 @@ def update(
 
 @app.command()
 def delete(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
     force: Annotated[bool, typer.Option("--force", help=IGNORED_BY_API + FORCE_IGNORED)] = False,
     *,
     forms: FormsClient,
@@ -262,8 +262,8 @@ def delete(
 
 @app.command()
 def move(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
     page: Annotated[
         int | None,
         typer.Option(

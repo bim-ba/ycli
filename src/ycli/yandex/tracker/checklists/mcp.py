@@ -19,7 +19,7 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    ChecklistItemId,
+    ChecklistItemID,
     IssueKey,
     tracker_client,
 )
@@ -60,7 +60,7 @@ def create(
 )
 def update(
     key: IssueKey,
-    item_id: ChecklistItemId,
+    item_id: ChecklistItemID,
     body: ChecklistItemUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Checklist:
@@ -76,7 +76,7 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker checklist item"},
 )
 def delete(
-    key: IssueKey, item_id: ChecklistItemId, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey, item_id: ChecklistItemID, client: TrackerClient = Depends(tracker_client)
 ) -> Checklist:
     """Permanently remove one item from a Tracker issue's checklist (irreversible).
 

@@ -163,7 +163,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 | `name` | `@mcp.tool(name=…)` | `snake_case`, `<resource>[_<subresource>]_<verb>`, usually verb last (a few keep the API's own phrase, e.g. `tracker_queues_set_permissions`); `edit`/`modify` are `update`. Prefixed with the service it is the CLI path of the same operation (`tracker_boards_update` = `ycli tracker boards update`, ARCH-1 `test_arch1_cli_path_equals_mcp_name`) |
 | description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
-| parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueId`, `Version`, `SurveyId`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
+| parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueID`, `Version`, `SurveyID`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
 | `annotations` | `@mcp.tool(annotations={**<SET>, "title": "…"})` | `<SET>` matches the verb class exactly: `RO` for reads, `WRITE` for additive creates, `WRITE_IDEMPOTENT` for PATCH-style edits, `DESTRUCTIVE` for delete/clear/abort — plus an imperative title. Explicit because the MCP-spec default for an unannotated tool is `destructiveHint=true` |
 | `tags` | never passed | The root server derives them (`ycli.mcp.listing.DerivedTags`): the service from the tool's name, `write` when `readOnlyHint` is not true — the tag `ycli mcp start --read-only` disables wholesale. A tool that passes `tags=` fails `test_arch3_no_tool_states_its_tags_itself` |
 
@@ -349,7 +349,22 @@ check of its own to say it. A reply that does not fit its model is another error
 
 ---
 
-## 7. Where these rules are enforced
+## 7. Names
+
+- **An acronym keeps its capitals inside a CapWords name** (PEP 8): `QueueID`, `HTTPSubscription`,
+  `JSONRPCSubscription`, `SurveyAPIKey`, `ACL`; a plural adds a lower-case `s` (`UserIDs`). The
+  list is `ACRONYMS` in `tests/test_conventions.py`. A name that has a spelling of its own keeps
+  it and is recorded with its reason in `OWN_SPELLINGS` (`OAuth`). A snake_case name is all
+  lower case as before (`queue_id`, `api_key`).
+- **An `Annotated` alias is defined once.** The same text in two modules is one alias: it moves
+  to the nearest shared module (`<domain>/typedefs.py` for CLI options and arguments,
+  `<domain>/dependencies.py` for MCP parameters, `ycli/cli/typedefs.py` across domains) and is
+  imported by name. Two aliases that share a name but differ in help, type or requiredness are
+  different things and stay apart.
+
+---
+
+## 8. Where these rules are enforced
 
 | Rule | Enforced by |
 |---|---|
@@ -360,3 +375,5 @@ check of its own to say it. A reply that does not fit its model is another error
 | Serialization confinement | `tests/test_architecture.py` ARCH-4 |
 | Discriminated MCP output unions | `tests/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |
+| Acronyms keep their capitals in a CapWords name | `tests/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
+| An `Annotated` alias is defined once | `tests/test_conventions.py::test_an_annotated_alias_is_defined_once` |

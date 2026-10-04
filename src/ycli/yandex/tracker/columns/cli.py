@@ -9,28 +9,28 @@ import typer
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.columns.models import Column, ColumnCreate, ColumnUpdate
+from ycli.yandex.tracker.typedefs import BoardIDArg
 
 app = typer.Typer(name="columns", help="Tracker agile board columns.", no_args_is_help=True)
 
-BoardIdArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")]
-ColumnIdArg = Annotated[int, typer.Argument(metavar="COLUMN_ID", help="Numeric column identifier.")]
+ColumnIDArg = Annotated[int, typer.Argument(metavar="COLUMN_ID", help="Numeric column identifier.")]
 
 
 @app.command("list")
-def list_(board_id: BoardIdArg, *, tracker: TrackerClient) -> ItemList[Column]:
+def list_(board_id: BoardIDArg, *, tracker: TrackerClient) -> ItemList[Column]:
     """List all columns on board BOARD_ID."""
     return tracker.columns.list(board_id=board_id)
 
 
 @app.command()
-def get(board_id: BoardIdArg, column_id: ColumnIdArg, *, tracker: TrackerClient) -> Column:
+def get(board_id: BoardIDArg, column_id: ColumnIDArg, *, tracker: TrackerClient) -> Column:
     """Get one column COLUMN_ID on board BOARD_ID."""
     return tracker.columns.get(board_id=board_id, column_id=column_id)
 
 
 @app.command()
 def create(
-    board_id: BoardIdArg,
+    board_id: BoardIDArg,
     name: Annotated[str, typer.Option(help="Name of the new column.")],
     status: Annotated[
         list[str], typer.Option("--status", help="Status key for the column (repeatable).")
@@ -45,8 +45,8 @@ def create(
 
 @app.command()
 def update(
-    board_id: BoardIdArg,
-    column_id: ColumnIdArg,
+    board_id: BoardIDArg,
+    column_id: ColumnIDArg,
     name: Annotated[str | None, typer.Option(help="New column name.")] = None,
     status: Annotated[
         list[str] | None,
@@ -61,7 +61,7 @@ def update(
 
 
 @app.command()
-def delete(board_id: BoardIdArg, column_id: ColumnIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(board_id: BoardIDArg, column_id: ColumnIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete column COLUMN_ID on board BOARD_ID (DELETE /boards/{board_id}/columns/{column_id})."""
     tracker.columns.delete(board_id=board_id, column_id=column_id)
     return Ack.deleted("column", column_id, on=f"board {board_id}")

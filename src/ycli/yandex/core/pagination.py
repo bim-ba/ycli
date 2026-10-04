@@ -209,7 +209,7 @@ class NextURLPagination(Pagination):
 
 
 @dataclass(frozen=True)
-class RelativeIdPagination(Pagination):
+class RelativeIDPagination(Pagination):
     """``?id=<last item's id>`` (Tracker ``_relative`` listings, worklog)."""
 
     id_of: Callable[[Any], str | None]

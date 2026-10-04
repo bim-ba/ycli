@@ -22,20 +22,20 @@ tracker_client = client_provider(TrackerClient)
 
 # Parameter types shared by many tools: one description, reused, so no tool lists a bare id.
 IssueKey = Annotated[str, Field(description="Issue key, e.g. QUEUE-123.")]
-QueueId = Annotated[
+QueueID = Annotated[
     str, Field(description="Queue key (case-sensitive, e.g. TEST) or numeric queue id.")
 ]
-BoardId = Annotated[int, Field(description="Numeric identifier of the agile board.")]
-ColumnId = Annotated[int, Field(description="Numeric identifier of the board column.")]
-SprintId = Annotated[int, Field(description="Numeric identifier of the sprint.")]
-MacroId = Annotated[
+BoardID = Annotated[int, Field(description="Numeric identifier of the agile board.")]
+ColumnID = Annotated[int, Field(description="Numeric identifier of the board column.")]
+SprintID = Annotated[int, Field(description="Numeric identifier of the sprint.")]
+MacroID = Annotated[
     int, Field(description="Numeric identifier of the macro, from ``macros_list``.")
 ]
-CommentId = Annotated[
+CommentID = Annotated[
     str, Field(description="Comment id (numeric ``id`` or ``longId``), from ``comments_list``.")
 ]
-ChecklistItemId = Annotated[str, Field(description="Checklist item id, from ``checklists_get``.")]
-WorklogRecordId = Annotated[str, Field(description="Worklog record id, from ``worklog_list``.")]
+ChecklistItemID = Annotated[str, Field(description="Checklist item id, from ``checklists_get``.")]
+WorklogRecordID = Annotated[str, Field(description="Worklog record id, from ``worklog_list``.")]
 # The parameters most write operations share: what the reply carries and who is notified.
 Expand = Annotated[str | None, Field(description="Extra blocks to include in the reply.")]
 ReplyFields = Annotated[
@@ -66,16 +66,16 @@ __all__ = [
     "WRITE",
     "WRITE_IDEMPOTENT",
     "WRITE_TAGS",
-    "BoardId",
-    "ChecklistItemId",
-    "ColumnId",
-    "CommentId",
+    "BoardID",
+    "ChecklistItemID",
+    "ColumnID",
+    "CommentID",
     "IssueKey",
-    "MacroId",
-    "QueueId",
-    "SprintId",
+    "MacroID",
+    "QueueID",
+    "SprintID",
     "Version",
-    "WorklogRecordId",
+    "WorklogRecordID",
     "app_config",
     "tracker_client",
 ]

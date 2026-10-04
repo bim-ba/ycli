@@ -9,7 +9,7 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.changelog.models import ChangelogEntry
 
@@ -36,6 +36,6 @@ def list_changelog(
             ItemList[ChangelogEntry],
             params={"perPage": page_size, "field": field, "type": change_type, "sort": sort},
         ),
-        RelativeIdPagination(id_of=_entry_id),
+        RelativeIDPagination(id_of=_entry_id),
         lambda page: page.root,
     )

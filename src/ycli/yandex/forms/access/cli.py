@@ -17,7 +17,7 @@ from ycli.yandex.forms.access.models import (
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import UserIdentity
-from ycli.yandex.forms.typedefs import SurveyIdArg
+from ycli.yandex.forms.typedefs import SurveyIDArg
 from ycli.yandex.models import GroupSource, ItemList
 
 app = typer.Typer(name="access", help="Forms survey permissions.", no_args_is_help=True)
@@ -25,12 +25,12 @@ app = typer.Typer(name="access", help="Forms survey permissions.", no_args_is_he
 ActionOpt = Annotated[
     str, typer.Option(help="Action: change (edit, read answers) or submit (fill in).")
 ]
-UidOpt = Annotated[str | None, typer.Option("--uid", help="User's Yandex ID uid.")]
-CloudUidOpt = Annotated[str | None, typer.Option("--cloud-uid", help="User's Yandex Cloud uid.")]
+UIDOpt = Annotated[str | None, typer.Option("--uid", help="User's Yandex ID uid.")]
+CloudUIDOpt = Annotated[str | None, typer.Option("--cloud-uid", help="User's Yandex Cloud uid.")]
 GroupSrcOpt = Annotated[
     str | None, values_option(GroupSource, "--group-src", help="Where the group is kept.")
 ]
-GroupIdOpt = Annotated[str | None, typer.Option("--group-id", help="Group id within its source.")]
+GroupIDOpt = Annotated[str | None, typer.Option("--group-id", help="Group id within its source.")]
 
 
 def _principal(
@@ -51,14 +51,14 @@ def _principal(
 
 
 @app.command()
-def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[Permission]:
+def get(survey_id: SurveyIDArg, *, forms: FormsClient) -> ItemList[Permission]:
     """Print who may edit and who may fill form SURVEY_ID (one entry per action)."""
     return forms.access.get(survey_id)
 
 
 @app.command("set")
 def set_(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     action: ActionOpt,
     access: Annotated[str, values_option(AccessLevel, help="Level of access.")],
     *,
@@ -71,12 +71,12 @@ def set_(
 
 @app.command()
 def grant(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     action: ActionOpt,
-    uid: UidOpt = None,
-    cloud_uid: CloudUidOpt = None,
+    uid: UIDOpt = None,
+    cloud_uid: CloudUIDOpt = None,
     group_src: GroupSrcOpt = None,
-    group_id: GroupIdOpt = None,
+    group_id: GroupIDOpt = None,
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:
@@ -88,12 +88,12 @@ def grant(
 
 @app.command()
 def revoke(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     action: ActionOpt,
-    uid: UidOpt = None,
-    cloud_uid: CloudUidOpt = None,
+    uid: UIDOpt = None,
+    cloud_uid: CloudUIDOpt = None,
     group_src: GroupSrcOpt = None,
-    group_id: GroupIdOpt = None,
+    group_id: GroupIDOpt = None,
     *,
     forms: FormsClient,
 ) -> ItemList[Permission]:

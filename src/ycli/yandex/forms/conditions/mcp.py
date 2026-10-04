@@ -18,7 +18,8 @@ from ycli.yandex.forms.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    SurveyId,
+    HookID,
+    SurveyID,
     forms_client,
 )
 from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
@@ -26,10 +27,9 @@ from ycli.yandex.models import Ack, require_found
 
 mcp = FastMCP("forms-conditions")
 
-QuestionId = Annotated[str, Field(description="Question id (integer) from questions_list.")]
-PageId = Annotated[int, Field(description="Page id (integer) from questions_list pages.")]
-HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]
-ConditionId = Annotated[
+QuestionID = Annotated[str, Field(description="Question id (integer) from questions_list.")]
+PageID = Annotated[int, Field(description="Page id (integer) from questions_list pages.")]
+ConditionID = Annotated[
     int, Field(description="Condition group id (integer) from the matching *_list tool.")
 ]
 Operator = Annotated[
@@ -61,7 +61,7 @@ def _found(result: Condition, condition_id: int, where: str) -> Condition:
     annotations={**RO, "title": "List Forms question show conditions"},
 )
 def question_list(
-    survey_id: SurveyId, question_id: QuestionId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, question_id: QuestionID, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """A question's show conditions: the ``{operator, items}`` envelope of condition groups.
 
@@ -76,9 +76,9 @@ def question_list(
     annotations={**RO, "title": "Get Forms question show condition"},
 )
 def question_get(
-    survey_id: SurveyId,
-    question_id: QuestionId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    question_id: QuestionID,
+    condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """One condition group of a question by id — its ``operator`` and clause ``items``.
@@ -95,8 +95,8 @@ def question_get(
     annotations={**WRITE, "title": "Create Forms question show condition"},
 )
 def question_create(
-    survey_id: SurveyId,
-    question_id: QuestionId,
+    survey_id: SurveyID,
+    question_id: QuestionID,
     body: NewGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -113,9 +113,9 @@ def question_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms question show condition"},
 )
 def question_update(
-    survey_id: SurveyId,
-    question_id: QuestionId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    question_id: QuestionID,
+    condition_id: ConditionID,
     body: ReplacementGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -132,9 +132,9 @@ def question_update(
     annotations={**DESTRUCTIVE, "title": "Delete Forms question show condition"},
 )
 def question_delete(
-    survey_id: SurveyId,
-    question_id: QuestionId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    question_id: QuestionID,
+    condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
     """Delete one condition group from a question; the other groups stay untouched."""
@@ -147,8 +147,8 @@ def question_delete(
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms question conditions operator"},
 )
 def question_set_operator(
-    survey_id: SurveyId,
-    question_id: QuestionId,
+    survey_id: SurveyID,
+    question_id: QuestionID,
     operator: Operator,
     client: FormsClient = Depends(forms_client),
 ) -> ConditionsResponse:
@@ -167,7 +167,7 @@ def question_set_operator(
     annotations={**RO, "title": "List Forms page show conditions"},
 )
 def page_list(
-    survey_id: SurveyId, page_id: PageId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, page_id: PageID, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """A page's show conditions: the ``{operator, items}`` envelope of condition groups.
 
@@ -182,9 +182,9 @@ def page_list(
     annotations={**RO, "title": "Get Forms page show condition"},
 )
 def page_get(
-    survey_id: SurveyId,
-    page_id: PageId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    page_id: PageID,
+    condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """One condition group of a page by id — its ``operator`` and clause ``items``."""
@@ -197,8 +197,8 @@ def page_get(
     annotations={**WRITE, "title": "Create Forms page show condition"},
 )
 def page_create(
-    survey_id: SurveyId,
-    page_id: PageId,
+    survey_id: SurveyID,
+    page_id: PageID,
     body: NewGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -215,9 +215,9 @@ def page_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms page show condition"},
 )
 def page_update(
-    survey_id: SurveyId,
-    page_id: PageId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    page_id: PageID,
+    condition_id: ConditionID,
     body: ReplacementGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -230,9 +230,9 @@ def page_update(
     annotations={**DESTRUCTIVE, "title": "Delete Forms page show condition"},
 )
 def page_delete(
-    survey_id: SurveyId,
-    page_id: PageId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    page_id: PageID,
+    condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
     """Delete one condition group from a page; the other groups stay untouched."""
@@ -245,8 +245,8 @@ def page_delete(
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms page conditions operator"},
 )
 def page_set_operator(
-    survey_id: SurveyId,
-    page_id: PageId,
+    survey_id: SurveyID,
+    page_id: PageID,
     operator: Operator,
     client: FormsClient = Depends(forms_client),
 ) -> ConditionsResponse:
@@ -262,7 +262,7 @@ def page_set_operator(
     annotations={**RO, "title": "List Forms submit-button show conditions"},
 )
 def submit_list(
-    survey_id: SurveyId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """The submit button's show conditions: the ``{operator, items}`` envelope of groups.
 
@@ -276,7 +276,7 @@ def submit_list(
     annotations={**RO, "title": "Get Forms submit-button show condition"},
 )
 def submit_get(
-    survey_id: SurveyId, condition_id: ConditionId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, condition_id: ConditionID, client: FormsClient = Depends(forms_client)
 ) -> Condition:
     """One condition group of the submit button by id — its ``operator`` and clauses."""
     result = client.conditions.submit_get(survey_id, condition_id)
@@ -288,7 +288,7 @@ def submit_get(
     annotations={**WRITE, "title": "Create Forms submit-button show condition"},
 )
 def submit_create(
-    survey_id: SurveyId, body: NewGroup, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, body: NewGroup, client: FormsClient = Depends(forms_client)
 ) -> Condition:
     """Add a condition group gating the form's submit button; returns it with its ``id``."""
     return client.conditions.submit_create(survey_id, body)
@@ -299,8 +299,8 @@ def submit_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms submit-button show condition"},
 )
 def submit_update(
-    survey_id: SurveyId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    condition_id: ConditionID,
     body: ReplacementGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -313,7 +313,7 @@ def submit_update(
     annotations={**DESTRUCTIVE, "title": "Delete Forms submit-button show condition"},
 )
 def submit_delete(
-    survey_id: SurveyId, condition_id: ConditionId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, condition_id: ConditionID, client: FormsClient = Depends(forms_client)
 ) -> Ack:
     """Delete one condition group from the submit button; the other groups stay untouched."""
     client.conditions.submit_delete(survey_id, condition_id)
@@ -325,7 +325,7 @@ def submit_delete(
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms submit-button conditions operator"},
 )
 def submit_set_operator(
-    survey_id: SurveyId, operator: Operator, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, operator: Operator, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """Set the boolean operator BETWEEN the submit button's condition groups."""
     return client.conditions.submit_set_operator(survey_id, operator)
@@ -339,7 +339,7 @@ def submit_set_operator(
     annotations={**RO, "title": "List Forms integration-group conditions"},
 )
 def hook_list(
-    survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, hook_id: HookID, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """An integration group's conditions: the ``{operator, items}`` envelope of groups.
 
@@ -353,9 +353,9 @@ def hook_list(
     annotations={**RO, "title": "Get Forms integration-group condition"},
 )
 def hook_get(
-    survey_id: SurveyId,
-    hook_id: HookId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    hook_id: HookID,
+    condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
     """One condition group of an integration group by id — its ``operator`` and clauses."""
@@ -368,8 +368,8 @@ def hook_get(
     annotations={**WRITE, "title": "Create Forms integration-group condition"},
 )
 def hook_create(
-    survey_id: SurveyId,
-    hook_id: HookId,
+    survey_id: SurveyID,
+    hook_id: HookID,
     body: NewGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -382,9 +382,9 @@ def hook_create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration-group condition"},
 )
 def hook_update(
-    survey_id: SurveyId,
-    hook_id: HookId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    hook_id: HookID,
+    condition_id: ConditionID,
     body: ReplacementGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -397,9 +397,9 @@ def hook_update(
     annotations={**DESTRUCTIVE, "title": "Delete Forms integration-group condition"},
 )
 def hook_delete(
-    survey_id: SurveyId,
-    hook_id: HookId,
-    condition_id: ConditionId,
+    survey_id: SurveyID,
+    hook_id: HookID,
+    condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
     """Delete one condition group from an integration group; the others stay untouched."""
@@ -412,8 +412,8 @@ def hook_delete(
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms integration-group conditions operator"},
 )
 def hook_set_operator(
-    survey_id: SurveyId,
-    hook_id: HookId,
+    survey_id: SurveyID,
+    hook_id: HookID,
     operator: Operator,
     client: FormsClient = Depends(forms_client),
 ) -> ConditionsResponse:

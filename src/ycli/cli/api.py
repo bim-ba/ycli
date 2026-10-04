@@ -17,7 +17,7 @@ from urllib.parse import parse_qs, urlsplit
 
 import typer
 
-from ycli.cli.api_response import ApiResponse
+from ycli.cli.api_response import APIResponse
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
 from ycli.cli.typedefs import AllOption, LimitOption
@@ -106,7 +106,7 @@ def api(
     *,
     context: typer.Context,
     config: AppConfig,
-) -> ApiResponse | str | BinaryResult | None:
+) -> APIResponse | str | BinaryResult | None:
     """Call any endpoint of Tracker, Wiki or Forms, authenticated like every other command.
 
     ycli api issues/DE-1 --service tracker -o json | jq -r .summary
@@ -135,7 +135,7 @@ def api(
         items = client.iterate(
             Paged(endpoint, pagination, _results), limit=config.http.cap(limit, all_=all_)
         )
-        return ApiResponse(list(items))
+        return APIResponse(list(items))
     return client.send(endpoint)
 
 
@@ -306,14 +306,14 @@ def _query(fields: Mapping[str, Any]) -> dict[str, Any]:
     return flat
 
 
-def _decode(response: httpx2.Response) -> ApiResponse | str | BinaryResult | None:
+def _decode(response: httpx2.Response) -> APIResponse | str | BinaryResult | None:
     """What a response prints as: JSON through the output path, text as text, the rest as bytes."""
     if not response.content:
         return None
     content_type = response.headers.get("content-type", "")
     if "json" in content_type:
         with contextlib.suppress(ValueError):  # declared JSON that is not: print it as text
-            return ApiResponse(response.json())
+            return APIResponse(response.json())
     if "json" in content_type or content_type.startswith("text/"):
         return response.text
     return BinaryResult(response.content)
@@ -321,7 +321,7 @@ def _decode(response: httpx2.Response) -> ApiResponse | str | BinaryResult | Non
 
 def _results(page: object) -> Sequence[object]:
     """The items of one page: a Tracker listing's array, or a Wiki listing's ``results``."""
-    root = page.root if isinstance(page, ApiResponse) else None
+    root = page.root if isinstance(page, APIResponse) else None
     if isinstance(root, list):
         return root
     if isinstance(root, dict) and isinstance(root.get("results"), list):

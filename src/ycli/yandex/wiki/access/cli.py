@@ -19,6 +19,7 @@ from ycli.yandex.wiki.access.models import (
 )
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.models import UserIdentity
+from ycli.yandex.wiki.typedefs import PageIDArg
 
 app = typer.Typer(
     name="access",
@@ -27,8 +28,7 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")]
-AccessIdArg = Annotated[str, typer.Argument(metavar="ACCESS_ID", help="Id of the access entry.")]
+AccessIDArg = Annotated[str, typer.Argument(metavar="ACCESS_ID", help="Id of the access entry.")]
 InheritanceOption = Annotated[
     str | None,
     values_option(
@@ -48,7 +48,7 @@ PreventSelflockOption = Annotated[
 
 @app.command()
 def create(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     role: Annotated[
         str,
         values_option(AccessRole, help="Role to grant."),
@@ -96,8 +96,8 @@ def create(
 
 @app.command()
 def update(
-    page_id: PageIdArg,
-    access_id: AccessIdArg,
+    page_id: PageIDArg,
+    access_id: AccessIDArg,
     role: Annotated[
         str | None,
         values_option(AccessRole, help="New role."),
@@ -119,8 +119,8 @@ def update(
 
 @app.command()
 def delete(
-    page_id: PageIdArg,
-    access_id: AccessIdArg,
+    page_id: PageIDArg,
+    access_id: AccessIDArg,
     prevent_selflock: PreventSelflockOption = False,
     *,
     wiki: WikiClient,
@@ -132,7 +132,7 @@ def delete(
 
 @app.command()
 def clear(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     prevent_selflock: PreventSelflockOption = False,
     *,
     wiki: WikiClient,

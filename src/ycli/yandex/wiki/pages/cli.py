@@ -28,12 +28,12 @@ from ycli.yandex.wiki.pages.models import (
     PageRevision,
     PageUpdate,
 )
+from ycli.yandex.wiki.typedefs import PageIDArg
 
 app = typer.Typer(name="pages", help="Wiki pages.", no_args_is_help=True)
 
 SlugArg = Annotated[str, typer.Argument(metavar="SLUG", help="Wiki page slug.")]
-PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")]
-RevisionIdOption = Annotated[
+RevisionIDOption = Annotated[
     int | None,
     typer.Option("--revision-id", help="Show this past revision (ids from `revisions-list`)."),
 ]
@@ -59,7 +59,7 @@ def get(
     fields: Annotated[
         str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
     ] = "content",
-    revision_id: RevisionIdOption = None,
+    revision_id: RevisionIDOption = None,
     raise_on_redirect: RaiseOnRedirectOption = False,
     *,
     wiki: WikiClient,
@@ -91,11 +91,11 @@ def descendants(
 
 @app.command("get-by-id")
 def get_by_id(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     fields: Annotated[
         str, typer.Option(help="Comma-separated fields, e.g. content,attributes.")
     ] = "content",
-    revision_id: RevisionIdOption = None,
+    revision_id: RevisionIDOption = None,
     raise_on_redirect: RaiseOnRedirectOption = False,
     *,
     wiki: WikiClient,
@@ -111,7 +111,7 @@ def get_by_id(
 
 @app.command("descendants-by-id")
 def descendants_by_id(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
     include_self: IncludeSelfOption = False,
@@ -129,7 +129,7 @@ def descendants_by_id(
 
 @app.command()
 def grids_list(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
     order_by: Annotated[
@@ -197,7 +197,7 @@ def update(
 
 @app.command()
 def delete(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     recursive: Annotated[
         bool, typer.Option("--recursive", help="Also delete every page under it.")
     ] = False,
@@ -210,7 +210,7 @@ def delete(
 
 @app.command()
 def append(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     content: Annotated[str, typer.Option(help='YFM fragment to append — pass "$(cat file.md)".')],
     location: Annotated[str, values_option(Location, help="Where in the body.")] = "bottom",
     fields: ReplyFieldsOption = None,
@@ -238,7 +238,7 @@ def append(
 
 @app.command()
 def clone(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     target: Annotated[str, typer.Option("--target", help="Destination slug for the copy.")],
     title: Annotated[str | None, typer.Option(help="Title of the copy, if renaming.")] = None,
     subscribe_me: Annotated[
@@ -317,7 +317,7 @@ def move(
 
 @app.command()
 def revisions_list(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     ids: Annotated[
         str | None, typer.Option("--ids", help="Only these revision ids (comma separated).")
     ] = None,
@@ -334,7 +334,7 @@ def revisions_list(
 
 @app.command()
 def backlinks_list(
-    page_id: PageIdArg,
+    page_id: PageIDArg,
     for_cluster: Annotated[
         bool, typer.Option("--for-cluster", help="Links to the page's whole subtree.")
     ] = False,

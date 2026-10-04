@@ -36,3 +36,15 @@ AddToFollowersOpt = Annotated[
         help="Add the comment's author to the followers (the API adds by default).",
     ),
 ]
+QueueIDArg = Annotated[
+    str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
+]
+BoardIDArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")]
+ItemIDArg = Annotated[str, typer.Argument(metavar="ITEM_ID", help="Checklist item id.")]
+OptionsTypeOpt = Annotated[
+    str, typer.Option("--options-type", help="Drop-down provider type for --option values.")
+]
+OptionOpt = Annotated[
+    list[str] | None,
+    typer.Option("--option", help="Allowed drop-down value (repeatable)."),
+]

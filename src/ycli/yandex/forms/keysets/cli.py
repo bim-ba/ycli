@@ -7,37 +7,34 @@ from typing import Annotated
 import typer
 
 from ycli.cli.output import BinaryResult
+from ycli.cli.typedefs import OutputOption
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.keysets.models import Keyset, KeysetCreate, KeysetUpdate
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,
+    SurveyIDArg,
 )
 from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="keysets", help="Forms personal-link key sets.", no_args_is_help=True)
 
-KeysetIdArg = Annotated[int, typer.Argument(metavar="KEYSET_ID", help="Key set id (integer).")]
-OutputOption = Annotated[
-    str | None,
-    typer.Option("--output", help="Write bytes to this path; omit / '-' streams to stdout."),
-]
+KeysetIDArg = Annotated[int, typer.Argument(metavar="KEYSET_ID", help="Key set id (integer).")]
 
 
 @app.command("list")
-def list_(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[Keyset]:
+def list_(survey_id: SurveyIDArg, *, forms: FormsClient) -> ItemList[Keyset]:
     """List key sets on form SURVEY_ID (GET /surveys/{id}/keysets)."""
     return forms.keysets.list(survey_id)
 
 
 @app.command()
-def get(survey_id: SurveyIdArg, keyset_id: KeysetIdArg, *, forms: FormsClient) -> Keyset:
+def get(survey_id: SurveyIDArg, keyset_id: KeysetIDArg, *, forms: FormsClient) -> Keyset:
     """Print one key set (SURVEY_ID KEYSET_ID)."""
     return forms.keysets.get(survey_id, keyset_id)
 
 
 @app.command()
 def create(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     name: Annotated[str, typer.Option(help="Key set name.")],
     total: Annotated[int, typer.Option(help="Number of keys to generate.")],
     enabled: Annotated[
@@ -60,8 +57,8 @@ def create(
 
 @app.command()
 def update(
-    survey_id: SurveyIdArg,
-    keyset_id: KeysetIdArg,
+    survey_id: SurveyIDArg,
+    keyset_id: KeysetIDArg,
     name: Annotated[str, typer.Option(help="Key set name (required — replaces the record).")],
     total: Annotated[int, typer.Option(help="Number of keys (required — replaces the record).")],
     enabled: Annotated[bool, typer.Option("--enabled/--disabled", help="Active flag (required).")],
@@ -77,7 +74,7 @@ def update(
 
 
 @app.command()
-def delete(survey_id: SurveyIdArg, keyset_id: KeysetIdArg, *, forms: FormsClient) -> Ack:
+def delete(survey_id: SurveyIDArg, keyset_id: KeysetIDArg, *, forms: FormsClient) -> Ack:
     """Delete key set KEYSET_ID on SURVEY_ID (DELETE /surveys/{id}/keysets/{keyset_id})."""
     forms.keysets.delete(survey_id, keyset_id)
     return Ack.deleted("keyset", keyset_id, from_=f"survey {survey_id}")
@@ -85,8 +82,8 @@ def delete(survey_id: SurveyIdArg, keyset_id: KeysetIdArg, *, forms: FormsClient
 
 @app.command()
 def download(
-    survey_id: SurveyIdArg,
-    keyset_id: KeysetIdArg,
+    survey_id: SurveyIDArg,
+    keyset_id: KeysetIDArg,
     output: OutputOption = None,
     *,
     forms: FormsClient,

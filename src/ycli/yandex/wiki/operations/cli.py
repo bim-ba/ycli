@@ -19,24 +19,24 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-TaskIdArg = Annotated[
+TaskIDArg = Annotated[
     str, typer.Argument(metavar="TASK_ID", help="Operation task id (from a clone or move trigger).")
 ]
 
 
 @app.command()
-def clone_get(task_id: TaskIdArg, *, wiki: WikiClient) -> CloneOperationStatus:
+def clone_get(task_id: TaskIDArg, *, wiki: WikiClient) -> CloneOperationStatus:
     """Print a page-clone operation's status (GET /operations/clone/{task_id})."""
     return wiki.operations.clone_get(task_id)
 
 
 @app.command()
-def gridclone_get(task_id: TaskIdArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
+def gridclone_get(task_id: TaskIDArg, *, wiki: WikiClient) -> GridCloneOperationStatus:
     """Print a grid-clone operation's status (GET /operations/clone_inline_grid/{task_id})."""
     return wiki.operations.gridclone_get(task_id)
 
 
 @app.command("move-get")
-def move_get(task_id: TaskIdArg, *, wiki: WikiClient) -> MoveOperationStatus:
+def move_get(task_id: TaskIDArg, *, wiki: WikiClient) -> MoveOperationStatus:
     """Print a page-move operation's status (GET /operations/move/{task_id}); undocumented API."""
     return wiki.operations.move_get(task_id)

@@ -16,12 +16,12 @@ from ycli.yandex.tracker.checklists.models import (
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.models import DeadlineInput
 from ycli.yandex.tracker.typedefs import (
+    ItemIDArg,
     KeyArg,
 )
 
 app = typer.Typer(name="checklists", help="Tracker issue checklists.", no_args_is_help=True)
 
-ItemIdArg = Annotated[str, typer.Argument(metavar="ITEM_ID", help="Checklist item id.")]
 TextOpt = Annotated[str | None, typer.Option(help="Item text.")]
 CheckedOpt = Annotated[bool | None, typer.Option("--checked/--no-checked", help="Done flag.")]
 AssigneeOpt = Annotated[str | None, typer.Option(help="Assignee login or id.")]
@@ -59,7 +59,7 @@ def create(
 @app.command()
 def update(
     key: KeyArg,
-    item_id: ItemIdArg,
+    item_id: ItemIDArg,
     text: TextOpt = None,
     checked: CheckedOpt = None,
     assignee: AssigneeOpt = None,
@@ -78,7 +78,7 @@ def update(
 
 
 @app.command()
-def delete(key: KeyArg, item_id: ItemIdArg, *, tracker: TrackerClient) -> Checklist:
+def delete(key: KeyArg, item_id: ItemIDArg, *, tracker: TrackerClient) -> Checklist:
     """Delete checklist item ITEM_ID from issue KEY."""
     return tracker.checklists.delete(key, item_id)
 

@@ -14,8 +14,8 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    BoardId,
-    ColumnId,
+    BoardID,
+    ColumnID,
     tracker_client,
 )
 
@@ -57,7 +57,7 @@ def get(
     annotations={**WRITE, "title": "Create Tracker board column"},
 )
 def create(
-    board_id: BoardId, body: ColumnCreate, client: TrackerClient = Depends(tracker_client)
+    board_id: BoardID, body: ColumnCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Column:
     """Add a column to an agile board; returns the new column.
 
@@ -72,8 +72,8 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board column"},
 )
 def update(
-    board_id: BoardId,
-    column_id: ColumnId,
+    board_id: BoardID,
+    column_id: ColumnID,
     body: ColumnUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Column:
@@ -89,7 +89,7 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker board column"},
 )
 def delete(
-    board_id: BoardId, column_id: ColumnId, client: TrackerClient = Depends(tracker_client)
+    board_id: BoardID, column_id: ColumnID, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Permanently remove a column from an agile board (irreversible).
 

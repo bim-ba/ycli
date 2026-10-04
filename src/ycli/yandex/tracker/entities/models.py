@@ -458,11 +458,11 @@ class EntityEventsResponse(APIModel):
 # --------------------------------------------------------------------------------------------
 
 
-class AclPrincipals(APIModel):
+class ACLPrincipals(APIModel):
     """The users/groups/roles granted one access level (READ / WRITE / GRANT).
 
     Examples:
-        >>> AclPrincipals.model_validate({"roles": ["OWNER"]}).roles
+        >>> ACLPrincipals.model_validate({"roles": ["OWNER"]}).roles
         ['OWNER']
     """
 
@@ -473,21 +473,21 @@ class AclPrincipals(APIModel):
     roles: list[str] = Field(default_factory=list, description="Roles granted this level.")
 
 
-class Acl(APIModel):
+class ACL(APIModel):
     """The ``acl`` block — READ / WRITE / GRANT principal sets.
 
     Examples:
-        >>> Acl.model_validate({"READ": {"roles": ["OWNER"]}}).read.roles
+        >>> ACL.model_validate({"READ": {"roles": ["OWNER"]}}).read.roles
         ['OWNER']
     """
 
-    read: AclPrincipals | None = Field(
+    read: ACLPrincipals | None = Field(
         default=None, alias="READ", description="Principals with READ access."
     )
-    write: AclPrincipals | None = Field(
+    write: ACLPrincipals | None = Field(
         default=None, alias="WRITE", description="Principals with WRITE access."
     )
-    grant: AclPrincipals | None = Field(
+    grant: ACLPrincipals | None = Field(
         default=None, alias="GRANT", description="Principals with GRANT (admin) access."
     )
 
@@ -502,7 +502,7 @@ class ExtendedPermissions(APIModel):
         ['OWNER']
     """
 
-    acl: Acl | None = Field(default=None, description="Access-control lists by level.")
+    acl: ACL | None = Field(default=None, description="Access-control lists by level.")
     permission_sources: list[Reference] = Field(
         default_factory=list,
         alias="permissionSources",
@@ -726,11 +726,11 @@ class ChecklistMove(RequestBody):
     )
 
 
-class AclPrincipalsInput(RequestBody):
+class ACLPrincipalsInput(RequestBody):
     """The users/groups/roles for one access level in a permissions-set body.
 
     Examples:
-        >>> AclPrincipalsInput(roles=["OWNER"]).model_dump(exclude_none=True)
+        >>> ACLPrincipalsInput(roles=["OWNER"]).model_dump(exclude_none=True)
         {'roles': ['OWNER']}
     """
 
@@ -739,27 +739,27 @@ class AclPrincipalsInput(RequestBody):
     roles: list[str] | None = Field(default=None, description="Roles to grant this level.")
 
 
-class AclInput(RequestBody):
+class ACLInput(RequestBody):
     """The ``acl`` block for a permissions-set body (READ / WRITE / GRANT principal sets).
 
     Examples:
-        >>> AclInput(read=AclPrincipalsInput(roles=["OWNER"])).model_dump(exclude_none=True)
+        >>> ACLInput(read=ACLPrincipalsInput(roles=["OWNER"])).model_dump(exclude_none=True)
         {'READ': {'roles': ['OWNER']}}
     """
 
-    read: AclPrincipalsInput | None = Field(
+    read: ACLPrincipalsInput | None = Field(
         default=None,
         validation_alias=AliasChoices("READ", "read"),
         serialization_alias="READ",
         description="Principals to grant READ.",
     )
-    write: AclPrincipalsInput | None = Field(
+    write: ACLPrincipalsInput | None = Field(
         default=None,
         validation_alias=AliasChoices("WRITE", "write"),
         serialization_alias="WRITE",
         description="Principals to grant WRITE.",
     )
-    grant: AclPrincipalsInput | None = Field(
+    grant: ACLPrincipalsInput | None = Field(
         default=None,
         validation_alias=AliasChoices("GRANT", "grant"),
         serialization_alias="GRANT",
@@ -772,12 +772,12 @@ class ExtendedPermissionsUpdate(APIModel):
 
     Examples:
         >>> ExtendedPermissionsUpdate(
-        ...     acl=AclInput(read=AclPrincipalsInput(roles=["OWNER"]))
+        ...     acl=ACLInput(read=ACLPrincipalsInput(roles=["OWNER"]))
         ... ).model_dump(exclude_none=True)
         {'acl': {'READ': {'roles': ['OWNER']}}}
     """
 
-    acl: AclInput = Field(description="Access-control lists to set, by level.")
+    acl: ACLInput = Field(description="Access-control lists to set, by level.")
 
 
 class DirectPermissionsUpdate(RequestBody):
@@ -788,13 +788,13 @@ class DirectPermissionsUpdate(RequestBody):
 
     Examples:
         >>> DirectPermissionsUpdate(
-        ...     grant=AclInput(read=AclPrincipalsInput(users=["ann"]))
+        ...     grant=ACLInput(read=ACLPrincipalsInput(users=["ann"]))
         ... ).model_dump(exclude_none=True)
         {'grant': {'READ': {'users': ['ann']}}}
     """
 
-    grant: AclInput | None = Field(default=None, description="Rights to add, by access level.")
-    revoke: AclInput | None = Field(
+    grant: ACLInput | None = Field(default=None, description="Rights to add, by access level.")
+    revoke: ACLInput | None = Field(
         default=None, description="Rights to remove, by access level (same shape as ``grant``)."
     )
 

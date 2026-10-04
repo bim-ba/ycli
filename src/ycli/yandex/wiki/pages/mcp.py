@@ -36,7 +36,7 @@ from ycli.yandex.wiki.pages.models import (
 
 mcp = FastMCP("wiki-pages")
 
-RevisionId = Annotated[
+RevisionID = Annotated[
     int | None,
     Field(description="Show this past revision (an id from ``pages_revisions_list``)."),
 ]
@@ -58,7 +58,7 @@ OrderDirection = Annotated[
 @mcp.tool(name="pages_get", annotations={**RO, "title": "Get Wiki page"})
 def get(
     slug: Slug,
-    revision_id: RevisionId = None,
+    revision_id: RevisionID = None,
     raise_on_redirect: RaiseOnRedirect = False,
     client: WikiClient = Depends(wiki_client),
 ) -> str:
@@ -132,7 +132,7 @@ def get_by_id(
             "Omitted = id/slug/title only."
         ),
     ] = None,
-    revision_id: RevisionId = None,
+    revision_id: RevisionID = None,
     raise_on_redirect: RaiseOnRedirect = False,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:

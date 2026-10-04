@@ -19,7 +19,7 @@ from ycli.yandex.wiki.dependencies import (
     LIMIT_CAP,
     RO,
     WRITE,
-    PageId,
+    PageID,
     app_config,
     wiki_client,
 )
@@ -29,7 +29,7 @@ mcp = FastMCP("wiki-attachments")
 
 @mcp.tool(name="attachments_list", annotations={**RO, "title": "List Wiki attachments"})
 def list_(
-    page_id: PageId,
+    page_id: PageID,
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max attachments to return; {LIMIT_CAP}")
     ] = None,

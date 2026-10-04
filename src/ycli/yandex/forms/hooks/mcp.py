@@ -12,7 +12,8 @@ from ycli.yandex.forms.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    SurveyId,
+    HookID,
+    SurveyID,
     forms_client,
 )
 from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
@@ -20,11 +21,9 @@ from ycli.yandex.models import Ack, ItemList, require_found
 
 mcp = FastMCP("forms-hooks")
 
-HookId = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]
-
 
 @mcp.tool(name="hooks_list", annotations={**RO, "title": "List Forms integration groups"})
-def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> ItemList[Hook]:
+def list_(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> ItemList[Hook]:
     """A form's integration groups, each with its conditions and integrations.
 
     An integration group (hook) runs its active integrations on every new answer that matches
@@ -35,7 +34,7 @@ def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> I
 
 
 @mcp.tool(name="hooks_get", annotations={**RO, "title": "Get Forms integration group"})
-def get(survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)) -> Hook:
+def get(survey_id: SurveyID, hook_id: HookID, client: FormsClient = Depends(forms_client)) -> Hook:
     """One integration group by id, with its conditions and integrations."""
     result = client.hooks.get(survey_id, hook_id)
     return require_found(
@@ -51,7 +50,7 @@ def get(survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(form
     annotations={**WRITE, "title": "Create Forms integration group"},
 )
 def create(
-    survey_id: SurveyId,
+    survey_id: SurveyID,
     body: Annotated[HookCreate, Field(description="Group name and active flag (both optional).")],
     client: FormsClient = Depends(forms_client),
 ) -> Hook:
@@ -68,8 +67,8 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms integration group"},
 )
 def update(
-    survey_id: SurveyId,
-    hook_id: HookId,
+    survey_id: SurveyID,
+    hook_id: HookID,
     body: Annotated[HookUpdate, Field(description="Fields to change; unset ones stay.")],
     client: FormsClient = Depends(forms_client),
 ) -> Hook:
@@ -82,7 +81,7 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Forms integration group"},
 )
 def delete(
-    survey_id: SurveyId, hook_id: HookId, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, hook_id: HookID, client: FormsClient = Depends(forms_client)
 ) -> Ack:
     """Delete an integration group together with its integrations and conditions."""
     client.hooks.delete(survey_id, hook_id)

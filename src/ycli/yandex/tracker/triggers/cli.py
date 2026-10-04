@@ -17,13 +17,11 @@ from ycli.yandex.tracker.triggers.models import (
     TriggerUpdate,
     WebhookLogEntry,
 )
+from ycli.yandex.tracker.typedefs import QueueIDArg
 
 app = typer.Typer(name="triggers", help="Tracker queue triggers.", no_args_is_help=True)
 
-QueueIdArg = Annotated[
-    str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
-]
-TriggerIdArg = Annotated[
+TriggerIDArg = Annotated[
     int, typer.Argument(metavar="TRIGGER_ID", help="Numeric trigger identifier.")
 ]
 ActionOpt = Annotated[
@@ -38,7 +36,7 @@ ConditionOpt = Annotated[
 
 @app.command("list")
 def list_(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
     *,
@@ -51,14 +49,14 @@ def list_(
 
 
 @app.command()
-def get(queue_id: QueueIdArg, trigger_id: TriggerIdArg, *, tracker: TrackerClient) -> Trigger:
+def get(queue_id: QueueIDArg, trigger_id: TriggerIDArg, *, tracker: TrackerClient) -> Trigger:
     """Get trigger TRIGGER_ID of QUEUE_ID."""
     return tracker.triggers.get(queue_id, trigger_id)
 
 
 @app.command()
 def create(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     name: Annotated[str, typer.Option(help="Name of the new trigger.")],
     action: ActionOpt = None,
     condition: ConditionOpt = None,
@@ -84,8 +82,8 @@ def create(
 
 @app.command()
 def update(
-    queue_id: QueueIdArg,
-    trigger_id: TriggerIdArg,
+    queue_id: QueueIDArg,
+    trigger_id: TriggerIDArg,
     name: Annotated[str | None, typer.Option(help="New name of the trigger.")] = None,
     action: ActionOpt = None,
     condition: ConditionOpt = None,
@@ -110,8 +108,8 @@ def update(
 
 @app.command("webhook-log-list")
 def webhook_log_list(
-    queue_id: QueueIdArg,
-    trigger_id: TriggerIdArg,
+    queue_id: QueueIDArg,
+    trigger_id: TriggerIDArg,
     issue_id: Annotated[
         str | None, typer.Option("--issue-id", help="Scope the logs to one issue key/id.")
     ] = None,

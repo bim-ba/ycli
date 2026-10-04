@@ -66,11 +66,11 @@ class SubscriptionsClient(Resource):
             The created integration, with its ``id``.
 
         Examples:
-            >>> from ycli.yandex.forms.subscriptions.models import HttpSubscription
+            >>> from ycli.yandex.forms.subscriptions.models import HTTPSubscription
             >>> forms.subscriptions.create(
             ...     "686d0a1b2c3d4e5f000000b0",
             ...     21,
-            ...     HttpSubscription(url="https://example.com/hook", active=False),
+            ...     HTTPSubscription(url="https://example.com/hook", active=False),
             ... ).id
             5
         """
@@ -93,9 +93,9 @@ class SubscriptionsClient(Resource):
             The updated integration.
 
         Examples:
-            >>> from ycli.yandex.forms.subscriptions.models import HttpSubscription
+            >>> from ycli.yandex.forms.subscriptions.models import HTTPSubscription
             >>> forms.subscriptions.update(
-            ...     "686d0a1b2c3d4e5f000000b0", 21, 6, HttpSubscription(active=False)
+            ...     "686d0a1b2c3d4e5f000000b0", 21, 6, HTTPSubscription(active=False)
             ... ).active
             False
         """

@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
 
@@ -37,7 +37,7 @@ def list_comments(
             ItemList[Comment],
             params={"perPage": page_size, "expand": expand},
         ),
-        RelativeIdPagination(id_of=_comment_id),
+        RelativeIDPagination(id_of=_comment_id),
         lambda page: page.root,
     )
 

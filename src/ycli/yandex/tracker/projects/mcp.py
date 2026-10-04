@@ -20,7 +20,7 @@ from ycli.yandex.tracker.queues.models import Queue
 
 mcp = FastMCP("tracker-projects")
 
-ProjectId = Annotated[int, Field(description="Numeric id of the project, from ``projects_list``.")]
+ProjectID = Annotated[int, Field(description="Numeric id of the project, from ``projects_list``.")]
 Expand = Annotated[str | None, Field(description="Extra blocks to include, e.g. ``queues``.")]
 
 
@@ -37,7 +37,7 @@ def list_(
 
 @mcp.tool(name="projects_get", annotations={**RO, "title": "Get Tracker project"})
 def get(
-    project_id: ProjectId, expand: Expand = None, client: TrackerClient = Depends(tracker_client)
+    project_id: ProjectID, expand: Expand = None, client: TrackerClient = Depends(tracker_client)
 ) -> Project:
     """One project: name, lead, stage, dates and ``version`` (needed to edit it)."""
     return client.projects.get(project_id, expand=expand)
@@ -48,7 +48,7 @@ def get(
     annotations={**RO, "title": "List queues of a Tracker project"},
 )
 def queues(
-    project_id: ProjectId,
+    project_id: ProjectID,
     expand: Annotated[
         str | None,
         Field(description="Extra queue blocks, e.g. ``all`` or ``components,versions``."),
@@ -77,7 +77,7 @@ def create(body: ProjectCreate, client: TrackerClient = Depends(tracker_client))
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker project"},
 )
 def update(
-    project_id: ProjectId,
+    project_id: ProjectID,
     body: ProjectUpdate,
     version: Annotated[
         int, Field(description="Current version of the project, from ``projects_get``.")
@@ -96,7 +96,7 @@ def update(
     name="projects_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker project"},
 )
-def delete(project_id: ProjectId, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(project_id: ProjectID, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a project (irreversible). Returns an acknowledgement."""
     client.projects.delete(project_id)
     return Ack.deleted("project", project_id)

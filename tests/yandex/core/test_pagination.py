@@ -10,7 +10,7 @@ from ycli.yandex.core.pagination import (
     NextURLPagination,
     OffsetLimitPagination,
     PageNumberPagination,
-    RelativeIdPagination,
+    RelativeIDPagination,
     ScrollPagination,
 )
 
@@ -126,12 +126,12 @@ def test_scroll_follows_the_header_and_stops_without_it_or_without_items():
 
 @pytest.mark.parametrize("items", [[], [{"id": None}]])
 def test_relative_id_stops_without_a_last_id(items):
-    pagination = RelativeIdPagination(id_of=lambda item: item["id"])
+    pagination = RelativeIDPagination(id_of=lambda item: item["id"])
     assert pagination.next(_request(), httpx2.Response(200), items) is None
 
 
 def test_relative_id_advances_and_stops_on_repeat():
-    pagination = RelativeIdPagination(id_of=lambda item: item["id"])
+    pagination = RelativeIDPagination(id_of=lambda item: item["id"])
     following = pagination.next(_request(), httpx2.Response(200), [{"id": "1"}, {"id": "9"}])
     assert following is not None
     assert following.url.params["id"] == "9"

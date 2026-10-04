@@ -24,14 +24,11 @@ from ycli.yandex.tracker.queues.models import (
     QueueVersionInfo,
     QueueVersionUpdate,
 )
-from ycli.yandex.tracker.typedefs import ExpandOpt
+from ycli.yandex.tracker.typedefs import ExpandOpt, QueueIDArg
 
 app = typer.Typer(name="queues", help="Tracker queues.", no_args_is_help=True)
 
-QueueIdArg = Annotated[
-    str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
-]
-VersionIdArg = Annotated[
+VersionIDArg = Annotated[
     int, typer.Argument(metavar="VERSION_ID", help="Numeric id of the queue version.")
 ]
 FieldsOpt = Annotated[
@@ -67,19 +64,19 @@ def get(
 
 
 @app.command()
-def tags_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[str]:
+def tags_list(queue_id: QueueIDArg, *, tracker: TrackerClient) -> ItemList[str]:
     """List the tags added to QUEUE_ID."""
     return tracker.queues.tags_list(queue_id)
 
 
 @app.command()
-def versions_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueVersionInfo]:
+def versions_list(queue_id: QueueIDArg, *, tracker: TrackerClient) -> ItemList[QueueVersionInfo]:
     """List the versions defined on QUEUE_ID."""
     return tracker.queues.versions_list(queue_id)
 
 
 @app.command()
-def fields_list(queue_id: QueueIdArg, *, tracker: TrackerClient) -> ItemList[QueueField]:
+def fields_list(queue_id: QueueIDArg, *, tracker: TrackerClient) -> ItemList[QueueField]:
     """List the required/local fields of QUEUE_ID."""
     return tracker.queues.fields_list(queue_id)
 
@@ -121,21 +118,21 @@ def create(
 
 
 @app.command()
-def delete(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(queue_id: QueueIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete QUEUE_ID (DELETE /queues/{queue_id})."""
     tracker.queues.delete(queue_id)
     return Ack.deleted("queue", queue_id)
 
 
 @app.command()
-def restore(queue_id: QueueIdArg, *, tracker: TrackerClient) -> Queue:
+def restore(queue_id: QueueIDArg, *, tracker: TrackerClient) -> Queue:
     """Restore a deleted QUEUE_ID (POST /queues/{queue_id}/_restore; admin only)."""
     return tracker.queues.restore(queue_id)
 
 
 @app.command()
 def set_permissions(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     create: Annotated[
         str | None, typer.Option(help="Create-issue permission scope as a JSON object.")
     ] = None,
@@ -167,7 +164,7 @@ def set_permissions(
 
 @app.command("tag-remove")
 def tag_remove(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     tag: Annotated[str, typer.Argument(help="Name of the tag to remove.")],
     *,
     tracker: TrackerClient,
@@ -204,7 +201,7 @@ def version_create(
 
 @app.command("version-get")
 def version_get(
-    version_id: VersionIdArg, fields: FieldsOpt = None, *, tracker: TrackerClient
+    version_id: VersionIDArg, fields: FieldsOpt = None, *, tracker: TrackerClient
 ) -> QueueVersionInfo:
     """Print queue version VERSION_ID (GET /versions/{id})."""
     return tracker.queues.version_get(version_id, fields=fields)
@@ -212,7 +209,7 @@ def version_get(
 
 @app.command("version-update")
 def version_update(
-    version_id: VersionIdArg,
+    version_id: VersionIDArg,
     name: Annotated[str | None, typer.Option(help="New name of the version.")] = None,
     description: Annotated[str | None, typer.Option(help="New description of the version.")] = None,
     start_date: Annotated[
@@ -236,7 +233,7 @@ def version_update(
 
 
 @app.command("version-delete")
-def version_delete(version_id: VersionIdArg, *, tracker: TrackerClient) -> Ack:
+def version_delete(version_id: VersionIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete queue version VERSION_ID (DELETE /versions/{id})."""
     tracker.queues.version_delete(version_id)
     return Ack.deleted("version", version_id)
@@ -244,7 +241,7 @@ def version_delete(version_id: VersionIdArg, *, tracker: TrackerClient) -> Ack:
 
 @app.command("user-permissions-get")
 def user_permissions_get(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     user_id: Annotated[
         str, typer.Argument(metavar="USER", help="Login or numeric uid of the user.")
     ],
@@ -257,7 +254,7 @@ def user_permissions_get(
 
 @app.command("group-permissions-get")
 def group_permissions_get(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     group_id: Annotated[int, typer.Argument(metavar="GROUP_ID", help="Numeric id of the group.")],
     *,
     tracker: TrackerClient,

@@ -8,7 +8,7 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.tracker.users.models import User, UsersRelativeResponse
 
 # The largest page /users/_relative serves.
@@ -37,6 +37,6 @@ def list_users(
             UsersRelativeResponse,
             params={"perPage": per_page, "expand": expand},
         ),
-        RelativeIdPagination(id_of=_uid),
+        RelativeIDPagination(id_of=_uid),
         lambda page: page.users,
     )

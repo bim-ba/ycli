@@ -135,11 +135,11 @@ class SurveyQuiz(APIModel):
     )
 
 
-class SurveyApiKey(RequestBody):
+class SurveyAPIKey(RequestBody):
     """An API key a form's integrations use (``api_keys`` item of a request).
 
     Examples:
-        >>> SurveyApiKey(name="crm", value="secret").name
+        >>> SurveyAPIKey(name="crm", value="secret").name
         'crm'
     """
 
@@ -311,7 +311,7 @@ class SurveyCreate(WarnsOnIgnored):
     auto_publication: SurveyAutoPublication | None = Field(
         default=None, description="When the form publishes and unpublishes itself."
     )
-    api_keys: list[SurveyApiKey] | None = Field(
+    api_keys: list[SurveyAPIKey] | None = Field(
         default=None, description="API keys the form's integrations use."
     )
     follow: Literal["5m", "1h", "1d"] | str | None = Field(

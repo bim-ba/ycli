@@ -21,7 +21,7 @@ from ycli.yandex.forms.answers.models import (
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import OperationResult
-from ycli.yandex.forms.typedefs import AnswerIdArg, SurveyIdArg
+from ycli.yandex.forms.typedefs import AnswerIDArg, SurveyIDArg
 from ycli.yandex.models import Ack, ItemList, SortDirection
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
@@ -49,7 +49,7 @@ def get(
 
 @app.command("list")
 def list_(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
     questions: Annotated[
@@ -121,7 +121,7 @@ def _finish_export(
 
 @app.command()
 def export(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     export_format: Annotated[
         str, values_option(ExportFormat, "--format", help="Export format.")
     ] = "xlsx",
@@ -193,14 +193,14 @@ def integrations_list(
 
 
 @app.command()
-def delete(survey_id: SurveyIdArg, answer_id: AnswerIdArg, *, forms: FormsClient) -> Ack:
+def delete(survey_id: SurveyIDArg, answer_id: AnswerIDArg, *, forms: FormsClient) -> Ack:
     """Delete an answer (DELETE /surveys/{id}/answers/{answer_id}); `answers restore` undoes it."""
     forms.answers.delete(survey_id, answer_id)
     return Ack.deleted("answer", answer_id, from_=f"survey {survey_id}")
 
 
 @app.command()
-def restore(survey_id: SurveyIdArg, answer_id: AnswerIdArg, *, forms: FormsClient) -> Ack:
+def restore(survey_id: SurveyIDArg, answer_id: AnswerIDArg, *, forms: FormsClient) -> Ack:
     """Bring a deleted answer back (POST /surveys/{id}/answers/{answer_id}/restore)."""
     forms.answers.restore(survey_id, answer_id)
     return Ack.restored("answer", answer_id, in_=f"survey {survey_id}")

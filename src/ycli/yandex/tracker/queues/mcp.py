@@ -16,7 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     Expand,
-    QueueId,
+    QueueID,
     app_config,
     tracker_client,
 )
@@ -152,7 +152,7 @@ def create(body: QueueCreate, client: TrackerClient = Depends(tracker_client)) -
     name="queues_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue"},
 )
-def delete(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(queue_id: QueueID, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a Tracker queue WITH ALL ITS ISSUES (recoverable via ``queues_restore``).
 
     The queue moves to the recycle bin and can be restored for a limited time. Returns an
@@ -163,7 +163,7 @@ def delete(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -
 
 
 @mcp.tool(name="queues_restore", annotations={**WRITE, "title": "Restore Tracker queue"})
-def restore(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) -> Queue:
+def restore(queue_id: QueueID, client: TrackerClient = Depends(tracker_client)) -> Queue:
     """Restore a previously deleted Tracker queue (and its issues) from the recycle bin.
 
     Returns the restored queue.
@@ -176,7 +176,7 @@ def restore(queue_id: QueueId, client: TrackerClient = Depends(tracker_client)) 
     annotations={**WRITE_IDEMPOTENT, "title": "Set Tracker queue permissions"},
 )
 def set_permissions(
-    queue_id: QueueId, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueID, body: QueuePermissionsUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> QueuePermissions:
     """Replace access rules on a Tracker queue (grant/revoke read/write/create/grant rights).
 
@@ -191,7 +191,7 @@ def set_permissions(
     annotations={**DESTRUCTIVE, "title": "Remove Tracker queue tag"},
 )
 def tag_remove(
-    queue_id: QueueId, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueID, body: QueueTagRemove, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Remove a tag from EVERY issue of a queue (irreversible; the tag disappears queue-wide).
 

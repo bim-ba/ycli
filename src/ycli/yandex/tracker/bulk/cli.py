@@ -26,7 +26,7 @@ from ycli.yandex.tracker.client import TrackerClient
 
 app = typer.Typer(name="bulk", help="Tracker async bulk changes.", no_args_is_help=True)
 
-BulkIdArg = Annotated[
+BulkIDArg = Annotated[
     str, typer.Argument(metavar="BULK_ID", help="Bulk-change operation id from a trigger.")
 ]
 
@@ -140,12 +140,12 @@ def transition(
 
 
 @app.command()
-def get(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> BulkChange:
+def get(bulk_id: BulkIDArg, *, tracker: TrackerClient) -> BulkChange:
     """Print the current status of bulk-change BULK_ID (GET /bulkchange/{id})."""
     return tracker.bulk.get(bulk_id)
 
 
 @app.command()
-def issues_list(bulk_id: BulkIdArg, *, tracker: TrackerClient) -> ItemList[BulkIssueResult]:
+def issues_list(bulk_id: BulkIDArg, *, tracker: TrackerClient) -> ItemList[BulkIssueResult]:
     """List issues that a bulk change failed on (GET /bulkchange/{id}/issues)."""
     return tracker.bulk.issues_list(bulk_id)

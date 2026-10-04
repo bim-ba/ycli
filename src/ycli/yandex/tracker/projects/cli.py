@@ -14,7 +14,7 @@ from ycli.yandex.tracker.queues.models import Queue
 
 app = typer.Typer(name="projects", help="Tracker projects (legacy API).", no_args_is_help=True)
 
-ProjectIdArg = Annotated[
+ProjectIDArg = Annotated[
     int, typer.Argument(metavar="PROJECT_ID", help="Numeric id of the project.")
 ]
 ExpandOpt = Annotated[str | None, typer.Option(help="Extra blocks to include, e.g. queues.")]
@@ -33,14 +33,14 @@ def list_(expand: ExpandOpt = None, *, tracker: TrackerClient) -> ItemList[Proje
 
 
 @app.command()
-def get(project_id: ProjectIdArg, expand: ExpandOpt = None, *, tracker: TrackerClient) -> Project:
+def get(project_id: ProjectIDArg, expand: ExpandOpt = None, *, tracker: TrackerClient) -> Project:
     """Print project PROJECT_ID (GET /projects/{id})."""
     return tracker.projects.get(project_id, expand=expand)
 
 
 @app.command()
 def queues(
-    project_id: ProjectIdArg,
+    project_id: ProjectIDArg,
     expand: Annotated[
         str | None, typer.Option(help="Extra queue blocks, e.g. all or components,versions.")
     ] = None,
@@ -78,7 +78,7 @@ def create(
 
 @app.command()
 def update(
-    project_id: ProjectIdArg,
+    project_id: ProjectIDArg,
     version: Annotated[int, typer.Option(help="Current version of the project (required).")],
     queues: QueuesOpt,
     name: Annotated[str | None, typer.Option(help="New name of the project.")] = None,
@@ -105,7 +105,7 @@ def update(
 
 
 @app.command()
-def delete(project_id: ProjectIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(project_id: ProjectIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete project PROJECT_ID (DELETE /projects/{id})."""
     tracker.projects.delete(project_id)
     return Ack.deleted("project", project_id)

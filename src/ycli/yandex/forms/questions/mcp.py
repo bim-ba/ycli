@@ -12,7 +12,7 @@ from ycli.yandex.forms.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    SurveyId,
+    SurveyID,
     forms_client,
 )
 from ycli.yandex.forms.questions.models import (
@@ -29,7 +29,7 @@ mcp = FastMCP("forms-questions")
 
 
 @mcp.tool(name="questions_list", annotations={**RO, "title": "List Forms questions"})
-def list_(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> QuestionsResponse:
+def list_(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> QuestionsResponse:
     """A form's questions, grouped into pages (the {pages} envelope)."""
     return client.questions.list(survey_id)
 

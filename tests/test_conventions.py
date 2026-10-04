@@ -180,8 +180,8 @@ BODY_AND_REPLY = {
     "ycli.yandex.forms.subscriptions.models.AttachmentQuestions",
     "ycli.yandex.forms.subscriptions.models.EmailSubscription",
     "ycli.yandex.forms.subscriptions.models.FunctionSubscription",
-    "ycli.yandex.forms.subscriptions.models.HttpSubscription",
-    "ycli.yandex.forms.subscriptions.models.JsonRpcSubscription",
+    "ycli.yandex.forms.subscriptions.models.HTTPSubscription",
+    "ycli.yandex.forms.subscriptions.models.JSONRPCSubscription",
     "ycli.yandex.forms.subscriptions.models.StaticAttachment",
     "ycli.yandex.forms.subscriptions.models.SubscriptionAttachments",
     "ycli.yandex.forms.subscriptions.models.SubscriptionHeader",
@@ -289,12 +289,17 @@ def _value_sets(sources: dict[str, str]) -> dict[frozenset[str], list[str]]:
     return found
 
 
-def test_a_closed_value_set_is_defined_once():
-    """Section 1, "A field with a set of values" (#161): one definition per set, used by name."""
+def _sources() -> dict[str, str]:
+    """Every module of the package by its path under ``src/ycli``: ``{"cli/app.py": "..."}``."""
     root = Path(ycli.__file__).parent
-    sources = {
+    return {
         str(path.relative_to(root)): path.read_text(encoding="utf-8") for path in root.rglob("*.py")
     }
+
+
+def test_a_closed_value_set_is_defined_once():
+    """Section 1, "A field with a set of values" (#161): one definition per set, used by name."""
+    sources = _sources()
     twice = {
         ", ".join(sorted(values)): places
         for values, places in _value_sets(sources).items()
@@ -362,10 +367,7 @@ def test_an_option_takes_the_values_it_names_from_the_definition_of_the_set():
 
     A help text that lists them by hand goes stale when the set changes.
     """
-    root = Path(ycli.__file__).parent
-    sources = {
-        str(path.relative_to(root)): path.read_text(encoding="utf-8") for path in root.rglob("*.py")
-    }
+    sources = _sources()
     found = _options_naming_a_set_by_hand(sources, _value_sets(sources))
     assert sorted(found) == sorted(VALUES_WRITTEN_BY_HAND)
 
@@ -383,3 +385,104 @@ def test_the_hand_written_values_check_bites():
     }
     found = _options_naming_a_set_by_hand(sources, _value_sets(sources))
     assert found == ["a/cli.py:list_.by_hand"]
+
+
+def _annotated_aliases(sources: dict[str, str]) -> dict[str, list[str]]:
+    """Each module-level ``X = Annotated[...]`` by its text: ``{text: ["a/cli.py:X", ...]}``."""
+    found: dict[str, list[str]] = {}
+    for path, source in sources.items():
+        for node in ast.parse(source).body:
+            if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Subscript)
+                and ast.unparse(node.value.value) == "Annotated"
+            ):
+                found.setdefault(ast.unparse(node.value), []).append(f"{path}:{node.targets[0].id}")
+    return found
+
+
+def test_an_annotated_alias_is_defined_once():
+    """Section 7, "Names" (#160): the same alias text lives in one module and is imported."""
+    twice = {
+        text: places for text, places in _annotated_aliases(_sources()).items() if len(places) > 1
+    }
+    assert twice == {}
+
+
+def test_the_alias_check_bites():
+    sources = {
+        "a/cli.py": 'IDArg = Annotated[int, typer.Argument(help="Id.")]\n',
+        "b/cli.py": (
+            "IDArg = Annotated[\n    int,\n    typer.Argument(help='Id.'),\n]\n"
+            'KeyArg = Annotated[str, typer.Argument(help="Key.")]\n'
+        ),
+    }
+    aliases = _annotated_aliases(sources)
+    assert [places for places in aliases.values() if len(places) > 1] == [
+        ["a/cli.py:IDArg", "b/cli.py:IDArg"]
+    ]
+
+
+# Written in capitals inside a CapWords name: `QueueID`, never `QueueId` (PEP 8).
+ACRONYMS = frozenset(
+    {
+        *("ID", "UID", "URL", "API", "HTTP", "JSON", "RPC", "YAML", "ACL", "HTML"),
+        *("CSV", "XLSX", "XML", "TQL", "MCP", "CLI", "SDK", "IAM", "JWT", "YFM"),
+    }
+)
+# A name with a spelling of its own, and where that spelling comes from.
+OWN_SPELLINGS = {"OAuth": "the protocol's own name (RFC 6749)"}
+_NAME_WORD = re.compile(r"[A-Z][a-z0-9]+|[A-Z]+(?![a-z])")
+
+
+def _misspelled_acronyms(sources: dict[str, str]) -> list[str]:
+    """CapWords names that lower an acronym (``PageId``) or respell ``OWN_SPELLINGS``."""
+    offenders = []
+    for path, source in sources.items():
+        for node in ast.walk(ast.parse(source)):
+            if isinstance(node, ast.ClassDef):
+                names = [node.name]
+            elif isinstance(node, ast.Assign):
+                names = [target.id for target in node.targets if isinstance(target, ast.Name)]
+            elif isinstance(node, ast.AnnAssign | ast.TypeAlias):
+                target = node.target if isinstance(node, ast.AnnAssign) else node.name
+                names = [target.id] if isinstance(target, ast.Name) else []
+            else:
+                continue
+            for name in names:
+                if not re.fullmatch(r"_?[A-Z][A-Za-z0-9]*", name) or name.isupper():
+                    continue
+                lowered = any(
+                    word != word.upper() and word.upper().removesuffix("S") in ACRONYMS
+                    for word in _NAME_WORD.findall(name)
+                )
+                respelled = any(
+                    spelling.lower() in name.lower() and spelling not in name
+                    for spelling in OWN_SPELLINGS
+                )
+                if lowered or respelled:
+                    offenders.append(f"{path}:{name}")
+    return offenders
+
+
+def test_an_acronym_keeps_its_capitals_in_a_name():
+    """Section 7, "Names" (#160): `QueueID`, `HTTPSubscription`, `OAuth`."""
+    assert _misspelled_acronyms(_sources()) == []
+
+
+def test_the_acronym_check_bites():
+    sources = {
+        "a/models.py": (
+            "class PageId: ...\nclass JsonRpcCall: ...\nclass OauthClient: ...\n"
+            "class PageID: ...\nclass UserIDs: ...\nclass OAuthClient: ...\nclass Idea: ...\n"
+            "UserIds = Annotated[str, Field()]\nMAX_ID = 1\nitem_id: int = 1\ntype ApiKey = str\n"
+        )
+    }
+    assert _misspelled_acronyms(sources) == [
+        "a/models.py:PageId",
+        "a/models.py:JsonRpcCall",
+        "a/models.py:OauthClient",
+        "a/models.py:UserIds",
+        "a/models.py:ApiKey",
+    ]

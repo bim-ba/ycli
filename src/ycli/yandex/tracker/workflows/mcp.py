@@ -25,7 +25,7 @@ from ycli.yandex.tracker.workflows.models import (
 
 mcp = FastMCP("tracker-workflows")
 
-WorkflowId = Annotated[str, Field(description="Workflow id, from ``workflows_list``.")]
+WorkflowID = Annotated[str, Field(description="Workflow id, from ``workflows_list``.")]
 Version = Annotated[
     int,
     Field(description="Current version of the workflow (optimistic lock), from ``workflows_get``."),
@@ -43,7 +43,7 @@ def list_(client: TrackerClient = Depends(tracker_client)) -> ItemList[Workflow]
 
 
 @mcp.tool(name="workflows_get", annotations={**RO, "title": "Get Tracker workflow"})
-def get(workflow_id: WorkflowId, client: TrackerClient = Depends(tracker_client)) -> Workflow:
+def get(workflow_id: WorkflowID, client: TrackerClient = Depends(tracker_client)) -> Workflow:
     """One workflow with its steps, initial action, queue binding and ``version``.
 
     A step is a status with the transitions leaving it; ``version`` is needed to edit the workflow.
@@ -84,7 +84,7 @@ def create(body: WorkflowCreate, client: TrackerClient = Depends(tracker_client)
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow"},
 )
 def update(
-    workflow_id: WorkflowId,
+    workflow_id: WorkflowID,
     body: WorkflowUpdate,
     version: Version,
     client: TrackerClient = Depends(tracker_client),
@@ -102,7 +102,7 @@ def update(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker workflow action"},
 )
 def update_action(
-    workflow_id: WorkflowId,
+    workflow_id: WorkflowID,
     status: Annotated[str, Field(description="Key of the step (status) the action leaves.")],
     action_id: Annotated[str, Field(description="Id of the action within that step.")],
     body: WorkflowActionUpdate,
@@ -120,7 +120,7 @@ def update_action(
     name="workflows_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker workflow"},
 )
-def delete(workflow_id: WorkflowId, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(workflow_id: WorkflowID, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Delete a workflow (irreversible). Returns an acknowledgement."""
     client.workflows.delete(workflow_id)
     return Ack.deleted("workflow", workflow_id)

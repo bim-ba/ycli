@@ -19,7 +19,7 @@ from ycli.yandex.tracker.sprints.models import (
 
 app = typer.Typer(name="sprints", help="Tracker board sprints.", no_args_is_help=True)
 
-SprintIdArg = Annotated[int, typer.Argument(metavar="SPRINT_ID", help="Numeric sprint identifier.")]
+SprintIDArg = Annotated[int, typer.Argument(metavar="SPRINT_ID", help="Numeric sprint identifier.")]
 VersionOpt = Annotated[
     int | None, typer.Option(help="Current sprint version for the optimistic lock (?version=).")
 ]
@@ -36,7 +36,7 @@ def list_(
 
 
 @app.command()
-def get(sprint_id: SprintIdArg, *, tracker: TrackerClient) -> Sprint:
+def get(sprint_id: SprintIDArg, *, tracker: TrackerClient) -> Sprint:
     """Get one sprint by SPRINT_ID."""
     return tracker.sprints.get(sprint_id=sprint_id)
 
@@ -62,7 +62,7 @@ def create(
 
 @app.command()
 def update(
-    sprint_id: SprintIdArg,
+    sprint_id: SprintIDArg,
     name: Annotated[str | None, typer.Option(help="New sprint name.")] = None,
     start_date: Annotated[str | None, typer.Option(help="New start date (YYYY-MM-DD).")] = None,
     end_date: Annotated[str | None, typer.Option(help="New end date (YYYY-MM-DD).")] = None,
@@ -82,21 +82,21 @@ def update(
 
 
 @app.command()
-def delete(sprint_id: SprintIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(sprint_id: SprintIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete a sprint SPRINT_ID (DELETE /sprints/{sprint_id})."""
     tracker.sprints.delete(sprint_id=sprint_id)
     return Ack.deleted("sprint", sprint_id)
 
 
 @app.command()
-def start(sprint_id: SprintIdArg, version: VersionOpt = None, *, tracker: TrackerClient) -> Sprint:
+def start(sprint_id: SprintIDArg, version: VersionOpt = None, *, tracker: TrackerClient) -> Sprint:
     """Start a sprint SPRINT_ID (POST /sprints/{id}/_start?version=; status → in_progress)."""
     return tracker.sprints.start(sprint_id=sprint_id, version=version)
 
 
 @app.command()
 def archive(
-    sprint_id: SprintIdArg, version: VersionOpt = None, *, tracker: TrackerClient
+    sprint_id: SprintIDArg, version: VersionOpt = None, *, tracker: TrackerClient
 ) -> Sprint:
     """Archive a sprint SPRINT_ID (POST /sprints/{id}/_archive?version=; status → archived)."""
     return tracker.sprints.archive(sprint_id=sprint_id, version=version)
