@@ -21,12 +21,14 @@ from ycli.yandex.tracker.queues.models import Queue
 mcp = FastMCP("tracker-projects")
 
 ProjectID = Annotated[int, Field(description="Numeric id of the project, from ``projects_list``.")]
-Expand = Annotated[str | None, Field(description="Extra blocks to include, e.g. ``queues``.")]
+ProjectExpand = Annotated[
+    str | None, Field(description="Extra blocks to include, e.g. ``queues``.")
+]
 
 
 @mcp.tool(name="projects_list", annotations={**RO, "title": "List Tracker projects"})
 def list_(
-    expand: Expand = None, client: TrackerClient = Depends(tracker_client)
+    expand: ProjectExpand = None, client: TrackerClient = Depends(tracker_client)
 ) -> ItemList[Project]:
     """Every project of the organization (the legacy Projects API).
 
@@ -37,7 +39,9 @@ def list_(
 
 @mcp.tool(name="projects_get", annotations={**RO, "title": "Get Tracker project"})
 def get(
-    project_id: ProjectID, expand: Expand = None, client: TrackerClient = Depends(tracker_client)
+    project_id: ProjectID,
+    expand: ProjectExpand = None,
+    client: TrackerClient = Depends(tracker_client),
 ) -> Project:
     """One project: name, lead, stage, dates and ``version`` (needed to edit it)."""
     return client.projects.get(project_id, expand=expand)
@@ -82,7 +86,7 @@ def update(
     version: Annotated[
         int, Field(description="Current version of the project, from ``projects_get``.")
     ],
-    expand: Expand = None,
+    expand: ProjectExpand = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Project:
     """Edit a project; ``queues`` is required on every edit, other fields change when set.

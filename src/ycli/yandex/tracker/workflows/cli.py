@@ -26,7 +26,7 @@ app = typer.Typer(name="workflows", help="Tracker workflows.", no_args_is_help=T
 WorkflowIDArg = Annotated[
     str, typer.Argument(metavar="WORKFLOW_ID", help="Workflow id, e.g. quickStartV2PresetWorkflow.")
 ]
-VersionOpt = Annotated[
+WorkflowVersionOpt = Annotated[
     int,
     typer.Option(help="Current version of the workflow (optimistic lock); see `workflows get`."),
 ]
@@ -125,7 +125,7 @@ def create(
 @app.command()
 def update(
     workflow_id: WorkflowIDArg,
-    version: VersionOpt,
+    version: WorkflowVersionOpt,
     name: Annotated[str | None, typer.Option(help="New name of the workflow.")] = None,
     initial_action: Annotated[
         str | None, typer.Option("--initial-action", help="New initial action as a JSON object.")
@@ -163,7 +163,7 @@ def update_action(
         str, typer.Argument(metavar="STATUS", help="Key of the step the action leaves.")
     ],
     action_id: Annotated[str, typer.Argument(metavar="ACTION_ID", help="Id of the action.")],
-    version: VersionOpt,
+    version: WorkflowVersionOpt,
     action: Annotated[
         str,
         typer.Option(

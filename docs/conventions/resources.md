@@ -361,8 +361,10 @@ check of its own to say it. A reply that does not fit its model is another error
 - **An `Annotated` alias is defined once.** The same text in two modules is one alias: it moves
   to the nearest shared module (`<domain>/typedefs.py` for CLI options and arguments,
   `<domain>/dependencies.py` for MCP parameters, `ycli/cli/typedefs.py` across domains) and is
-  imported by name. Two aliases that share a name but differ in help, type or requiredness are
-  different things and stay apart.
+  imported by name.
+- **An alias name means one thing.** Two aliases that differ in help, type or requiredness are
+  different things and carry different names: the shared one keeps the plain name (`ExpandOpt`,
+  `PageID`), the one of a single resource says whose it is (`ProjectExpandOpt`, `FormPageID`).
 
 ---
 
@@ -380,3 +382,4 @@ check of its own to say it. A reply that does not fit its model is another error
 | Acronyms keep their capitals in a CapWords name | `tests/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
 | An `Annotated` alias is defined once | `tests/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/test_conventions.py::test_every_model_field_has_a_description` |
+| An alias name means one thing | `tests/test_conventions.py::test_an_alias_name_means_one_thing` |

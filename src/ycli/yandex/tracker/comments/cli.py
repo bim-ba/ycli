@@ -19,7 +19,7 @@ from ycli.yandex.tracker.typedefs import (
 
 app = typer.Typer(name="comments", help="Tracker issue comments.", no_args_is_help=True)
 
-CommentIDArg = Annotated[
+IssueCommentIDArg = Annotated[
     str, typer.Argument(metavar="COMMENT_ID", help="Comment id (numeric id or longId).")
 ]
 
@@ -42,7 +42,7 @@ def list_(
 @app.command()
 def get(
     key: KeyArg,
-    comment_id: CommentIDArg,
+    comment_id: IssueCommentIDArg,
     expand: Annotated[
         str | None, typer.Option(help="Extra fields: attachments, html or all (comma-separated).")
     ] = None,
@@ -68,7 +68,7 @@ def add(
 @app.command()
 def update(
     key: KeyArg,
-    comment_id: CommentIDArg,
+    comment_id: IssueCommentIDArg,
     text: Annotated[str, typer.Option(help="New comment text (YFM markdown supported).")],
     *,
     tracker: TrackerClient,
@@ -79,7 +79,7 @@ def update(
 
 
 @app.command()
-def delete(key: KeyArg, comment_id: CommentIDArg, *, tracker: TrackerClient) -> Ack:
+def delete(key: KeyArg, comment_id: IssueCommentIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete comment COMMENT_ID from issue KEY."""
     tracker.comments.delete(key, comment_id)
     return Ack.deleted("comment", comment_id, on=key)
@@ -88,7 +88,7 @@ def delete(key: KeyArg, comment_id: CommentIDArg, *, tracker: TrackerClient) -> 
 @app.command()
 def react(
     key: KeyArg,
-    comment_id: CommentIDArg,
+    comment_id: IssueCommentIDArg,
     name: Annotated[str, values_argument(Reaction, help="Reaction name.")],
     *,
     tracker: TrackerClient,
