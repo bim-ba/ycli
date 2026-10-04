@@ -31,9 +31,7 @@ Two lists hold what is open on purpose, each entry with its reason: `OPEN_BODIES
 `scripts/api_drift.py` (an issue takes custom fields; the drift comparison skips only these
 bodies) and `BODY_AND_REPLY` in `tests/test_conventions.py` (a model that both builds a body
 and reads a reply stays open, so a key it does not declare, nested in a body, reaches the API;
-its declared fields are still compared with the published ones). A model must not carry a pydantic serializer (`field_serializer`,
-`model_serializer`, `computed_field`, …): `core.endpoint.dump_body` reads field values itself
-and would skip it.
+its declared fields are still compared with the published ones).
 
 ### One class per shape
 
@@ -192,8 +190,14 @@ def delete(key: str, comment_id: str, client: TrackerClient = Depends(tracker_cl
 
 A request body is the resource's pydantic request model in every layer: the MCP tool takes
 it as its `body` parameter, the CLI command builds it from its options, the client method and
-the endpoint builder take it as it is, and `Endpoint` dumps it once (`core.endpoint.dump_body`:
-API field names, unset fields left out). Nothing in between dumps it, so the three surfaces
+the endpoint builder take it as it is, and `Endpoint` dumps it once (`Endpoint.body`: API field
+names, unset fields left out). The dump is pydantic's own: `APIModel` carries one wrap
+serializer that, for a request body (`model_dump(context=WIRE)`), leaves out an optional field
+that is `None`, keeps a required field that is `None`, and keeps a key the model does not
+declare as it was given. The serializer has no return annotation on purpose: with one, pydantic
+replaces the model's schema with that type and every MCP output schema loses its fields
+(`tests/snapshots/mcp_output_schemas.txt` would change). A model may carry pydantic
+serializers of its own. Nothing in between dumps it, so the three surfaces
 send the same JSON. In an MCP tool the model is the input schema: an agent sees the field
 names, types and aliases instead of an opaque `object`, and a malformed payload fails before
 the HTTP call:

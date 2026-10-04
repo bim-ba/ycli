@@ -23,10 +23,11 @@ from functools import cache
 from typing import TYPE_CHECKING, Any, Literal, cast
 from urllib.parse import quote, unquote
 
-from pydantic import BaseModel, RootModel, TypeAdapter
+from pydantic import TypeAdapter
 from pydantic_core import to_jsonable_python
 
 from ycli.yandex.errors import YandexClientError
+from ycli.yandex.models import WIRE
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
@@ -120,48 +121,6 @@ def check_path(raw_path: str) -> None:
         raise YandexClientError(f"refusing a path that leaves its endpoint: {raw_path}")
 
 
-def dump_body(value: Any) -> Any:
-    """A request body as JSON data: models dumped under the API's field names, unset left out.
-
-    A ``None`` is an absence and is dropped, except where the caller could only have meant it:
-    in a field with no default (``page`` of a redirect: ``null`` removes the redirect) and in a
-    field the model does not declare (Tracker clears a field given as ``assignee=null``).
-
-    Args:
-        value: A request model, or JSON data that may hold request models.
-
-    Returns:
-        Plain JSON data.
-
-    Examples:
-        >>> from pydantic import BaseModel
-        >>> class Redirect(BaseModel):
-        ...     page: str | None
-        ...     note: str | None = None
-        >>> dump_body(Redirect(page=None))
-        {'page': None}
-        >>> dump_body([Redirect(page="a/b", note="moved")])
-        [{'page': 'a/b', 'note': 'moved'}]
-    """
-    if isinstance(value, RootModel):
-        return dump_body(value.root)
-    if isinstance(value, BaseModel):
-        dumped = {}
-        for name, field in type(value).model_fields.items():
-            item = getattr(value, name)
-            if item is None and not field.is_required():
-                continue
-            dumped[field.serialization_alias or field.alias or name] = dump_body(item)
-        for name, item in (value.model_extra or {}).items():
-            dumped[name] = dump_body(item)
-        return dumped
-    if isinstance(value, dict):
-        return {key: dump_body(item) for key, item in value.items()}
-    if isinstance(value, list | tuple):
-        return [dump_body(item) for item in value]
-    return to_jsonable_python(value)
-
-
 @cache
 def _adapter(response_type: Any) -> TypeAdapter[Any]:
     """One TypeAdapter per response type: building it is the expensive part of parsing."""
@@ -215,15 +174,18 @@ class Endpoint[T]:
     def body(self) -> Any:
         """The JSON the request carries: ``json`` itself, or the dump of a request model.
 
+        A model is dumped as a request body (``ycli.yandex.models.WIRE``): under the API's field
+        names, without the optional fields left unset.
+
         Examples:
-            >>> from pydantic import BaseModel
-            >>> class Rename(BaseModel):
+            >>> from ycli.yandex.models import RequestBody
+            >>> class Rename(RequestBody):
             ...     name: str
             ...     note: str | None = None
             >>> Endpoint("PATCH", "boards/7", json=Rename(name="Sprint")).body
             {'name': 'Sprint'}
         """
-        return dump_body(self.json)
+        return to_jsonable_python(self.json, context=WIRE)
 
     def request(self, client: httpx2.Client | httpx2.AsyncClient) -> httpx2.Request:
         """A native request built by ``client``: its base URL and default headers apply."""
