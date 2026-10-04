@@ -400,7 +400,7 @@ $ ycli forms questions create [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--type TEXT`: Question type: string/boolean/integer/date/enum.
+* `--type [string|boolean|integer|date|enum]`: Question type the flags can build; others take --body-file.
 * `--label TEXT`: Question label / title.
 * `--slug TEXT`: Stable machine slug.
 * `--comment TEXT`: Question hint / helper text.
@@ -408,7 +408,7 @@ $ ycli forms questions create [OPTIONS] SURVEY_ID
 * `--required / --no-required`: Answer required or not (sets the whole validators list: [required] or []).
 * `--hidden / --no-hidden`: Hide until conditions match.
 * `--multiline / --no-multiline`: Multiline text (string type).
-* `--widget TEXT`: Enum widget: radio/checkbox/dropdown/stars/onerow.
+* `--widget TEXT`: How an enum question shows its options. Known values: radio, checkbox, dropdown, stars, onerow.
 * `--option TEXT`: Enum option label (repeatable).
 * `--body-file FILE`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -435,7 +435,7 @@ $ ycli forms questions update [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--type TEXT`: Question type: string/boolean/integer/date/enum.
+* `--type [string|boolean|integer|date|enum]`: Question type the flags can build; others take --body-file.
 * `--label TEXT`: Question label / title.
 * `--slug TEXT`: Stable machine slug.
 * `--comment TEXT`: Question hint / helper text.
@@ -443,7 +443,7 @@ $ ycli forms questions update [OPTIONS] SURVEY_ID QUESTION_ID
 * `--required / --no-required`: Answer required or not (sets the whole validators list: [required] or []).
 * `--hidden / --no-hidden`: Hide until conditions match.
 * `--multiline / --no-multiline`: Multiline text (string type).
-* `--widget TEXT`: Enum widget: radio/checkbox/dropdown/stars/onerow.
+* `--widget TEXT`: How an enum question shows its options. Known values: radio, checkbox, dropdown, stars, onerow.
 * `--option TEXT`: Enum option label (repeatable).
 * `--body-file FILE`: JSON file with the full question body (validated through the typed union); use for matrix/series/suggest/payment/daterange.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -621,7 +621,7 @@ $ ycli forms conditions question create [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -649,7 +649,7 @@ $ ycli forms conditions question update [OPTIONS] SURVEY_ID QUESTION_ID CONDITIO
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -701,7 +701,7 @@ $ ycli forms conditions question set-operator [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.  [required]
+* `--operator TEXT`: Boolean operator. Known values: and, or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -798,7 +798,7 @@ $ ycli forms conditions page create [OPTIONS] SURVEY_ID PAGE_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -826,7 +826,7 @@ $ ycli forms conditions page update [OPTIONS] SURVEY_ID PAGE_ID CONDITION_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -878,7 +878,7 @@ $ ycli forms conditions page set-operator [OPTIONS] SURVEY_ID PAGE_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.  [required]
+* `--operator TEXT`: Boolean operator. Known values: and, or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -972,7 +972,7 @@ $ ycli forms conditions submit create [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -999,7 +999,7 @@ $ ycli forms conditions submit update [OPTIONS] SURVEY_ID CONDITION_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1049,7 +1049,7 @@ $ ycli forms conditions submit set-operator [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.  [required]
+* `--operator TEXT`: Boolean operator. Known values: and, or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1146,7 +1146,7 @@ $ ycli forms conditions hook create [OPTIONS] SURVEY_ID HOOK_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1174,7 +1174,7 @@ $ ycli forms conditions hook update [OPTIONS] SURVEY_ID HOOK_ID CONDITION_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.
+* `--operator TEXT`: Boolean operator. Known values: and, or.
 * `--item TEXT`: Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).
 * `--body-file FILE`: JSON file with the full {operator, items} group body.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1226,7 +1226,7 @@ $ ycli forms conditions hook set-operator [OPTIONS] SURVEY_ID HOOK_ID
 
 **Options**:
 
-* `--operator TEXT`: Boolean operator: and | or.  [required]
+* `--operator TEXT`: Boolean operator. Known values: and, or.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1295,7 +1295,7 @@ $ ycli forms access set [OPTIONS] SURVEY_ID
 **Options**:
 
 * `--action TEXT`: Action: change (edit, read answers) or submit (fill in).  [required]
-* `--access TEXT`: Level: owner, restricted, common or public.  [required]
+* `--access TEXT`: Level of access. Known values: owner, restricted, common, public.  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1322,7 +1322,7 @@ $ ycli forms access grant [OPTIONS] SURVEY_ID
 * `--action TEXT`: Action: change (edit, read answers) or submit (fill in).  [required]
 * `--uid TEXT`: User's Yandex ID uid.
 * `--cloud-uid TEXT`: User's Yandex Cloud uid.
-* `--group-src TEXT`: Group source: dir, cloud, com or staff.
+* `--group-src TEXT`: Where the group is kept. Known values: dir, cloud, com, staff.
 * `--group-id TEXT`: Group id within its source.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -1350,7 +1350,7 @@ $ ycli forms access revoke [OPTIONS] SURVEY_ID
 * `--action TEXT`: Action: change (edit, read answers) or submit (fill in).  [required]
 * `--uid TEXT`: User's Yandex ID uid.
 * `--cloud-uid TEXT`: User's Yandex Cloud uid.
-* `--group-src TEXT`: Group source: dir, cloud, com or staff.
+* `--group-src TEXT`: Where the group is kept. Known values: dir, cloud, com, staff.
 * `--group-id TEXT`: Group id within its source.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -1393,7 +1393,7 @@ $ ycli forms history list [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--ordering TEXT`: desc (newest first, the API default) or asc.
+* `--ordering TEXT`: desc is newest first, the API default. Known values: asc, desc.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1471,9 +1471,9 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 * `--use-slugs`: Name questions and options by slug, not id.
 * `--date-from TEXT`: ISO-8601: answers given at or after.
 * `--date-to TEXT`: ISO-8601: answers given at or before.
-* `--ordering TEXT`: asc (oldest first) or desc (the default).
+* `--ordering TEXT`: asc is oldest first; the default is desc. Known values: asc, desc.
 * `--page-size INTEGER`: Answers per request (the API's default is 25).
-* `--answer-format TEXT`: default (cells by column) or raw (as stored).
+* `--answer-format TEXT`: default is cells by column, raw is as stored. Known values: default, raw.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1497,8 +1497,8 @@ $ ycli forms answers export [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--format TEXT`: Export format: csv or xlsx.  [default: xlsx]
-* `--upload TEXT`: Where to upload the result: default or disk (Yandex Disk).  [default: default]
+* `--format TEXT`: Export format. Known values: csv, xlsx, json.  [default: xlsx]
+* `--upload TEXT`: Where the result goes; disk is Yandex Disk. Known values: default, disk.  [default: default]
 * `--started-at TEXT`: ISO-8601 start of the answer range (inclusive).
 * `--finished-at TEXT`: ISO-8601 end of the answer range (inclusive).
 * `--limit INTEGER`: Max answers to export (default: all).
@@ -1838,14 +1838,14 @@ $ ycli forms notifications list [OPTIONS]
 * `--hook-id INTEGER`: Only this integration group.
 * `--subscription-id INTEGER`: Only this integration.
 * `--answer-id INTEGER`: Only runs for this answer.
-* `--status TEXT`: pending, success, error or canceled (repeatable).
+* `--status TEXT`: Only runs in this state (repeatable). Known values: pending, success, error, canceled.
 * `--created-since TEXT`: ISO-8601: queued at or after.
 * `--created-until TEXT`: ISO-8601: queued at or before.
 * `--finished-since TEXT`: ISO-8601: ended at or after.
 * `--finished-until TEXT`: ISO-8601: ended at or before.
 * `--visible / --no-visible`: Only shown (or only hidden) runs.
-* `--type TEXT`: email, tracker, tracker_comment, wiki, jsonrpc, http or function.
-* `--ordering TEXT`: asc (oldest first, the default) or desc.
+* `--type TEXT`: Only runs of this kind of integration. Known values: email, tracker, tracker_comment, wiki, jsonrpc, post, put, http, function.
+* `--ordering TEXT`: asc is oldest first, the default. Known values: asc, desc.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).

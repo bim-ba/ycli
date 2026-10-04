@@ -19,9 +19,9 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel, model_se
 from ycli.yandex.errors import YandexNotFoundError
 
 #: The order of a sorted listing.
-SortDirection = Literal["asc", "desc"]
+SortDirection = Literal["asc", "desc"] | str
 #: Where a group is kept: the organization's directory, the cloud, Yandex ID or the staff list.
-GroupSource = Literal["dir", "cloud", "com", "staff"]
+GroupSource = Literal["dir", "cloud", "com", "staff"] | str
 
 if TYPE_CHECKING:
     from collections.abc import Callable

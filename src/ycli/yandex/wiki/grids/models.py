@@ -23,63 +23,70 @@ from ycli.yandex.wiki.models import PageIdentity
 
 #: Sort order of a column in the grid's default sort.
 #: A column's value type.
-ColumnType = Literal[
-    "string", "number", "date", "select", "staff", "checkbox", "ticket", "ticket_field"
-]
+ColumnType = (
+    Literal["string", "number", "date", "select", "staff", "checkbox", "ticket", "ticket_field"]
+    | str
+)
 #: Unit a column width is expressed in.
-WidthUnits = Literal["%", "px"]
+WidthUnits = Literal["%", "px"] | str
 #: Edge a column is pinned to.
-ColumnPinType = Literal["left", "right"]
+ColumnPinType = Literal["left", "right"] | str
 #: Background colour of a column or row.
-BGColor = Literal[
-    "blue",
-    "yellow",
-    "pink",
-    "red",
-    "green",
-    "mint",
-    "grey",
-    "orange",
-    "magenta",
-    "purple",
-    "copper",
-    "ocean",
-]
+BGColor = (
+    Literal[
+        "blue",
+        "yellow",
+        "pink",
+        "red",
+        "green",
+        "mint",
+        "grey",
+        "orange",
+        "magenta",
+        "purple",
+        "copper",
+        "ocean",
+    ]
+    | str
+)
 #: Rich-text format of a text column / grid body.
-TextFormat = Literal["yfm", "wom", "plain"]
+TextFormat = Literal["yfm", "wom", "plain"] | str
 #: Tracker issue field a ``ticket_field`` column mirrors.
-TicketField = Literal[
-    "assignee",
-    "components",
-    "created_at",
-    "deadline",
-    "description",
-    "end",
-    "estimation",
-    "fixversions",
-    "followers",
-    "last_comment_updated_at",
-    "original_estimation",
-    "parent",
-    "pending_reply_from",
-    "priority",
-    "project",
-    "queue",
-    "reporter",
-    "resolution",
-    "resolved_at",
-    "sprint",
-    "start",
-    "status",
-    "status_start_time",
-    "status_type",
-    "storypoints",
-    "subject",
-    "tags",
-    "type",
-    "updated_at",
-    "votes",
-]
+TicketField = (
+    Literal[
+        "assignee",
+        "components",
+        "created_at",
+        "deadline",
+        "description",
+        "end",
+        "estimation",
+        "fixversions",
+        "followers",
+        "last_comment_updated_at",
+        "original_estimation",
+        "parent",
+        "pending_reply_from",
+        "priority",
+        "project",
+        "queue",
+        "reporter",
+        "resolution",
+        "resolved_at",
+        "sprint",
+        "start",
+        "status",
+        "status_start_time",
+        "status_type",
+        "storypoints",
+        "subject",
+        "tags",
+        "type",
+        "updated_at",
+        "votes",
+    ]
+    | str
+)
 
 
 class ColumnSortSchema(APIModel):
@@ -106,7 +113,7 @@ class ColumnSortWrite(RootModel[dict[str, SortDirection]]):
     The write shape differs from the read shape: reads return ``[{slug, title, direction}]``
     (:class:`ColumnSortSchema`), but ``POST /grids/{id}`` accepts only a list of single-key
     ``column_slug → direction`` mappings and rejects the read shape with a 400
-    (``type_error.enum``). Values are validated against :data:`SortDirection`.
+    (``type_error.enum``).
 
     Examples:
         >>> ColumnSortWrite({"priority": "desc"}).model_dump()

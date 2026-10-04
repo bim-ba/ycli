@@ -6,18 +6,20 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.notifications.models import (
+    IntegrationType,
     Notification,
     NotificationAction,
     NotificationDetails,
     NotificationFilter,
     NotificationStatus,
+    RunStatus,
 )
 from ycli.yandex.forms.typedefs import NotificationIdArg, SurveyIdArg
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 
 app = typer.Typer(
     name="notifications", help="Forms integration runs (notifications).", no_args_is_help=True
@@ -34,7 +36,7 @@ def list_(
     answer_id: Annotated[int | None, typer.Option(help="Only runs for this answer.")] = None,
     status: Annotated[
         list[str] | None,
-        typer.Option("--status", help="pending, success, error or canceled (repeatable)."),
+        values_option(RunStatus, "--status", help="Only runs in this state (repeatable)."),
     ] = None,
     created_since: Annotated[str | None, typer.Option(help="ISO-8601: queued at or after.")] = None,
     created_until: Annotated[
@@ -50,13 +52,10 @@ def list_(
     ] = None,
     integration_type: Annotated[
         str | None,
-        typer.Option(
-            "--type",
-            help="email, tracker, tracker_comment, wiki, jsonrpc, http or function.",
-        ),
+        values_option(IntegrationType, "--type", help="Only runs of this kind of integration."),
     ] = None,
     ordering: Annotated[
-        str | None, typer.Option(help="asc (oldest first, the default) or desc.")
+        str | None, values_option(SortDirection, help="asc is oldest first, the default.")
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,

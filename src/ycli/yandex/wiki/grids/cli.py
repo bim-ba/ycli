@@ -14,11 +14,14 @@ from typing import Annotated
 import typer
 
 from ycli.cli.progress import wait_for
+from ycli.cli.typedefs import values_option
 from ycli.yandex.models import Ack
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.grids.models import (
+    BGColor,
     CellsUpdate,
     CellsUpdateResult,
+    ColumnPinType,
     ColumnsAdd,
     ColumnsMove,
     ColumnsRemove,
@@ -37,6 +40,7 @@ from ycli.yandex.wiki.grids.models import (
     RowsRemove,
     RowUpdate,
     RowUpdateResult,
+    WidthUnits,
 )
 from ycli.yandex.wiki.models import AsyncOperation, PageIdentity
 from ycli.yandex.wiki.operations.models import GridCloneOperationStatus
@@ -338,7 +342,7 @@ def rows_update(
         bool | None, typer.Option("--pinned/--no-pinned", help="Pin or unpin the row.")
     ] = None,
     color: Annotated[
-        str | None, typer.Option("--color", help="Row background colour, e.g. mint.")
+        str | None, values_option(BGColor, "--color", help="Row background colour.")
     ] = None,
     *,
     wiki: WikiClient,
@@ -347,7 +351,7 @@ def rows_update(
     body = RowUpdate(
         revision=revision,
         pinned=pinned,
-        color=color,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
+        color=color,
     )
     return wiki.grids.rows_update(grid_id, row_id, body=body)
 
@@ -382,9 +386,15 @@ def columns_update(
         bool | None, typer.Option("--required/--no-required", help="Whether a value is mandatory.")
     ] = None,
     width: Annotated[int | None, typer.Option("--width", help="Column width.")] = None,
-    width_units: Annotated[str | None, typer.Option("--width-units", help="% or px.")] = None,
-    pinned: Annotated[str | None, typer.Option("--pinned", help="left or right.")] = None,
-    color: Annotated[str | None, typer.Option("--color", help="Column background colour.")] = None,
+    width_units: Annotated[
+        str | None, values_option(WidthUnits, "--width-units", help="Unit of --width.")
+    ] = None,
+    pinned: Annotated[
+        str | None, values_option(ColumnPinType, "--pinned", help="The edge to pin the column to.")
+    ] = None,
+    color: Annotated[
+        str | None, values_option(BGColor, "--color", help="Column background colour.")
+    ] = None,
     select_options: Annotated[
         list[str] | None,
         typer.Option("--select-option", help="Allowed choice of a select column (repeatable)."),
@@ -402,9 +412,9 @@ def columns_update(
         description=description,
         required=required,
         width=width,
-        width_units=width_units,  # ty: ignore[invalid-argument-type]  # pydantic validates the unit literal
-        pinned=pinned,  # ty: ignore[invalid-argument-type]  # pydantic validates the edge literal
-        color=color,  # ty: ignore[invalid-argument-type]  # pydantic validates the colour literal
+        width_units=width_units,
+        pinned=pinned,
+        color=color,
         select_options=select_options,
     )
     return wiki.grids.columns_update(grid_id, column_slug, body=body)

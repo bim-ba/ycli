@@ -6,9 +6,16 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.sprints.models import Sprint, SprintBoardInput, SprintCreate, SprintUpdate
+from ycli.yandex.tracker.sprints.models import (
+    Sprint,
+    SprintBoardInput,
+    SprintCreate,
+    SprintStatus,
+    SprintUpdate,
+)
 
 app = typer.Typer(name="sprints", help="Tracker board sprints.", no_args_is_help=True)
 
@@ -59,9 +66,7 @@ def update(
     name: Annotated[str | None, typer.Option(help="New sprint name.")] = None,
     start_date: Annotated[str | None, typer.Option(help="New start date (YYYY-MM-DD).")] = None,
     end_date: Annotated[str | None, typer.Option(help="New end date (YYYY-MM-DD).")] = None,
-    status: Annotated[
-        str | None, typer.Option(help="New status: draft/in_progress/released/archived.")
-    ] = None,
+    status: Annotated[str | None, values_option(SprintStatus, help="New status.")] = None,
     version: VersionOpt = None,
     *,
     tracker: TrackerClient,

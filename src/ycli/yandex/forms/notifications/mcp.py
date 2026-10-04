@@ -1,6 +1,6 @@
 """Forms notifications FastMCP tools (reads + restart and cancel, honest hints)."""
 
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
@@ -10,11 +10,13 @@ from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, WRITE, app_config, forms_client
 from ycli.yandex.forms.notifications.models import (
+    IntegrationType,
     Notification,
     NotificationAction,
     NotificationDetails,
     NotificationFilter,
     NotificationStatus,
+    RunStatus,
 )
 from ycli.yandex.models import ItemList, SortDirection
 
@@ -22,10 +24,6 @@ mcp = FastMCP("forms-notifications")
 
 NotificationId = Annotated[
     int, Field(description="Notification id (integer) from notifications_list.")
-]
-Status = Literal["pending", "success", "error", "canceled"]
-IntegrationType = Literal[
-    "email", "tracker", "tracker_comment", "wiki", "jsonrpc", "post", "put", "http", "function"
 ]
 
 
@@ -40,7 +38,9 @@ def list_(
     hook_id: Annotated[int | None, Field(description="Only this integration group.")] = None,
     subscription_id: Annotated[int | None, Field(description="Only this integration.")] = None,
     answer_id: Annotated[int | None, Field(description="Only runs for this answer.")] = None,
-    status: Annotated[list[Status] | None, Field(description="Only runs in these states.")] = None,
+    status: Annotated[
+        list[RunStatus] | None, Field(description="Only runs in these states.")
+    ] = None,
     created_since: Annotated[str | None, Field(description="ISO-8601: queued at or after.")] = None,
     created_until: Annotated[
         str | None, Field(description="ISO-8601: queued at or before.")

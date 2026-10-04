@@ -262,8 +262,8 @@ $ ycli wiki pages grids-list [OPTIONS] PAGE_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--order-by TEXT`: Sort field: title or created_at.
-* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
+* `--order-by TEXT`: Sort field. Known values: title, created_at.
+* `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -368,7 +368,7 @@ $ ycli wiki pages append [OPTIONS] PAGE_ID
 **Options**:
 
 * `--content TEXT`: YFM fragment to append — pass "$(cat file.md)".  [required]
-* `--location TEXT`: Where in the body: top or bottom (default: bottom).  [default: bottom]
+* `--location TEXT`: Where in the body. Known values: top, bottom.  [default: bottom]
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
 * `--silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -423,7 +423,7 @@ $ ycli wiki pages move [OPTIONS] SOURCE TARGET
 **Options**:
 
 * `--next-to TEXT`: Sibling slug to place the page next to.
-* `--position TEXT`: before or after --next-to.
+* `--position TEXT`: Which side of --next-to. Known values: before, after.
 * `--copy-inherited-access / --no-copy-inherited-access`: Copy accesses inherited from the old parent (the API needs an explicit choice).  [default: no-copy-inherited-access]
 * `--validate-only`: Validate the move without applying it (nothing to wait for).
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
@@ -527,12 +527,12 @@ $ ycli wiki access create [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--role [reader|editor|extra_editor|author]`: Role to grant: reader, editor, extra_editor or author.  [required]
+* `--role TEXT`: Role to grant. Known values: reader, editor, extra_editor, author.  [required]
 * `--user-uid TEXT`: Passport uid of the user to grant.
 * `--user-cloud-uid TEXT`: Cloud uid of the user to grant.
-* `--group-src [dir|cloud|com|staff]`: Directory of the group to grant: dir, cloud, com, staff.
+* `--group-src TEXT`: Where the group is kept. Known values: dir, cloud, com, staff.
 * `--group-id TEXT`: Id of the group to grant in that directory.
-* `--inheritance [inherited|not_inherited]`: Whether the access also covers subpages: inherited or not_inherited.
+* `--inheritance TEXT`: Whether the access also covers subpages. Known values: inherited, not_inherited.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -557,8 +557,8 @@ $ ycli wiki access update [OPTIONS] PAGE_ID ACCESS_ID
 
 **Options**:
 
-* `--role [reader|editor|extra_editor|author]`: New role: reader, editor, extra_editor or author.
-* `--inheritance [inherited|not_inherited]`: Whether the access also covers subpages: inherited or not_inherited.
+* `--role TEXT`: New role. Known values: reader, editor, extra_editor, author.
+* `--inheritance TEXT`: Whether the access also covers subpages. Known values: inherited, not_inherited.
 * `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
@@ -657,8 +657,8 @@ $ ycli wiki comments list [OPTIONS] PAGE_ID
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--order-by TEXT`: Sort field: created_at.
-* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
-* `--status TEXT`: Only resolved or only unresolved comments.
+* `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
+* `--status TEXT`: Only comments in this state. Known values: resolved, unresolved.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -818,8 +818,8 @@ $ ycli wiki attachments list [OPTIONS] PAGE_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--order-by TEXT`: Sort field: name, size or created_at.
-* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
+* `--order-by TEXT`: Sort field. Known values: name, size, created_at.
+* `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1038,8 +1038,8 @@ $ ycli wiki resources list [OPTIONS] PAGE_ID
 * `--all`: Fetch everything, ignoring the cap.
 * `--q TEXT`: Title search filter.
 * `--types TEXT`: Comma-separated kinds: attachment,grid.
-* `--order-by TEXT`: Sort field: name_title or created_at.
-* `--order-direction TEXT`: Sort direction for --order-by: asc or desc.
+* `--order-by TEXT`: Sort field. Known values: name_title, created_at.
+* `--order-direction TEXT`: Sort direction for --order-by. Known values: asc, desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1124,7 +1124,7 @@ $ ycli wiki search query [OPTIONS] QUERY
 
 **Options**:
 
-* `--type [page|file]`: Only pages or only files.
+* `--type TEXT`: Only pages or only files. Known values: page, file.
 * `--cluster TEXT`: Only documents under this page slug, e.g. team/handbook.
 * `--author-uid TEXT`: Only documents by this passport uid (repeatable).
 * `--author-cloud-uid TEXT`: Only documents by this cloud uid (repeatable).
@@ -1133,7 +1133,7 @@ $ ycli wiki search query [OPTIONS] QUERY
 * `--modified-from [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified from (with --modified-to).
 * `--modified-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified until (with --modified-from).
 * `--show-obsolete`: Also return obsolete documents.
-* `--order-by [relevancy|creation_date|modified_date]`: relevancy, creation_date or modified_date.  [default: relevancy]
+* `--order-by TEXT`: What to sort the hits by. Known values: relevancy, creation_date, modified_date.  [default: relevancy]
 * `--highlight`: Wrap matches in <em> tags.
 * `--limit INTEGER RANGE`: Results per page.  [default: 10; 1<=x<=50]
 * `--cursor INTEGER RANGE`: Result page to fetch, from 1 (see next_cursor).  [default: 1; 1<=x<=500]
@@ -1419,7 +1419,7 @@ $ ycli wiki grids rows update [OPTIONS] GRID_ID ROW_ID
 
 * `--revision TEXT`: Grid revision (this endpoint does not enforce it).
 * `--pinned / --no-pinned`: Pin or unpin the row.
-* `--color TEXT`: Row background colour, e.g. mint.
+* `--color TEXT`: Row background colour. Known values: blue, yellow, pink, red, green, mint, grey, orange, magenta, purple, copper, ocean.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1579,9 +1579,9 @@ $ ycli wiki grids columns update [OPTIONS] GRID_ID COLUMN_SLUG
 * `--description TEXT`: New description.
 * `--required / --no-required`: Whether a value is mandatory.
 * `--width INTEGER`: Column width.
-* `--width-units TEXT`: % or px.
-* `--pinned TEXT`: left or right.
-* `--color TEXT`: Column background colour.
+* `--width-units TEXT`: Unit of --width. Known values: %, px.
+* `--pinned TEXT`: The edge to pin the column to. Known values: left, right.
+* `--color TEXT`: Column background colour. Known values: blue, yellow, pink, red, green, mint, grey, orange, magenta, purple, copper, ocean.
 * `--select-option TEXT`: Allowed choice of a select column (repeatable).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.

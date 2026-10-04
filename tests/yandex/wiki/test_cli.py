@@ -55,14 +55,6 @@ def test_grids_create_needs_a_page(api):
     assert api.calls == []
 
 
-def test_grids_update_refuses_the_read_shape_of_default_sort(api):
-    """The ``{slug, direction}`` read shape is a 400 live, so it fails before sending."""
-    argv = ["wiki", "grids", "update", GID, "--revision", "3", "--default-sort"]
-    res = CliRunner().invoke(cli.app, [*argv, '[{"slug": "a", "direction": "asc"}]'])
-    assert res.exit_code != 0
-    assert api.calls == []
-
-
 @pytest.mark.parametrize(
     ("argv", "trigger", "status_path", "status"),
     [
@@ -117,16 +109,6 @@ def test_move_without_an_operation_id_prints_the_trigger_reply(api):
 @pytest.mark.parametrize(
     ("argv", "refused"),
     [
-        (
-            ["pages", "move", "a", "b", "--next-to", "c", "--position", "inside"],
-            ("position", "literal_error"),
-        ),
-        (["grids", "rows", "update", GID, "1", "--color", "teal"], ("color", "literal_error")),
-        (["grids", "columns", "update", GID, "c", "--pinned", "top"], ("pinned", "literal_error")),
-        (
-            ["grids", "columns", "update", GID, "c", "--width-units", "em"],
-            ("width_units", "literal_error"),
-        ),
         (["grids", "columns", "suggest", GID], ("", "value_error")),
         (["grids", "columns", "suggest", GID, "--title", "A", "--slug", "a"], ("", "value_error")),
     ],
@@ -134,6 +116,42 @@ def test_move_without_an_operation_id_prints_the_trigger_reply(api):
 def test_undocumented_writes_refuse_what_the_api_would_before_sending(api, argv, refused):
     assert _refused(argv) == [refused]
     assert api.calls == []
+
+
+@pytest.mark.parametrize(
+    ("argv", "path", "sent"),
+    [
+        (
+            ["attachments", "list", "7", "--order-by", "weight", "--order-direction", "up"],
+            "pages/7/attachments",
+            {"order_by": "weight", "order_direction": "up"},
+        ),
+        (
+            ["comments", "list", "7", "--status", "open"],
+            "pages/7/comments",
+            {"status_filter": "open"},
+        ),
+        (
+            ["resources", "list", "7", "--order-by", "name"],
+            "pages/7/resources",
+            {"order_by": "name"},
+        ),
+    ],
+)
+def test_a_value_outside_a_known_set_is_sent_as_given(api, argv, path, sent):
+    """A set names the values Yandex publishes; another one is the API's to refuse (#278)."""
+    api.add("GET", f"{BASE}/{path}", json={"results": []})
+    result = CliRunner().invoke(cli.app, ["wiki", *argv])
+    assert result.exit_code == 0, result.output
+    query = dict(api.calls[-1].url.params)
+    assert {name: query[name] for name in sent} == sent
+
+
+def test_an_option_shows_the_values_of_its_set():
+    result = CliRunner().invoke(cli.app, ["wiki", "attachments", "list", "--help"])
+    help_text = " ".join(result.output.replace("│", " ").split())
+    assert "Known values: name, size, created_at." in help_text
+    assert "Known values: asc, desc." in help_text
 
 
 def test_clone_without_an_operation_id_prints_the_trigger_reply(api):

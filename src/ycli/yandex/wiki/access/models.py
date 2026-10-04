@@ -17,10 +17,10 @@ from ycli.yandex.models import APIModel, GroupSource, RequestBody
 from ycli.yandex.wiki.models import PageAccessType, User, UserIdentity
 
 #: What a grant lets its holder do, weakest first.
-AccessRole = Literal["reader", "editor", "extra_editor", "author"]
+AccessRole = Literal["reader", "editor", "extra_editor", "author"] | str
 #: The directory that owns a group.
 #: Whether a grant also applies to the page's subpages.
-AccessInheritance = Literal["inherited", "not_inherited"]
+AccessInheritance = Literal["inherited", "not_inherited"] | str
 
 
 class GroupIdentity(APIModel):
@@ -48,7 +48,7 @@ class AccessGroup(APIModel):
     id: str | None = Field(default=None, description="Group id (dir_id outside, staff_id inside).")
     identity: GroupIdentity | None = Field(default=None, description="Directory and id.")
     name: str | None = Field(default=None, description="Name of the group.")
-    type: Literal["wiki", "service", "servicerole", "group", "department"] | None = Field(
+    type: Literal["wiki", "service", "servicerole", "group", "department"] | str | None = Field(
         default=None, description="Kind of group."
     )
     metadata: dict[str, Any] | None = Field(
@@ -132,10 +132,10 @@ class PageAccessPolicy(APIModel):
     access_type: PageAccessType = Field(
         description="``inherited`` from the parent, ``all_staff``, or ``custom`` (grants only)."
     )
-    inherited_access_type: Literal["all_staff", "custom"] | None = Field(
+    inherited_access_type: Literal["all_staff", "custom"] | str | None = Field(
         default=None, description="The type inherited from the parent page."
     )
-    all_staff_role: Literal["reader", "editor", "extra_editor"] | None = Field(
+    all_staff_role: Literal["reader", "editor", "extra_editor"] | str | None = Field(
         default=None, description="Role every employee holds under ``all_staff``."
     )
     has_external: bool | None = Field(

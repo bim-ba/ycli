@@ -314,7 +314,7 @@ class HttpSubscription(_SubscriptionBase):
 
     type: Literal["http"] = Field(default="http", description="Discriminator: http.")
     url: str | None = Field(default=None, description="Request URL (max 255).")
-    method: Literal["get", "post", "patch", "put", "delete"] | None = Field(
+    method: Literal["get", "post", "patch", "put", "delete"] | str | None = Field(
         default=None, description="HTTP method: get, post, patch, put or delete."
     )
     body: str | None = Field(default=None, description="Request body; may embed variables.")

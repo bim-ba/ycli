@@ -11,6 +11,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
@@ -32,8 +33,12 @@ app.add_typer(hook_app)
 ConditionIdArg = Annotated[
     int, typer.Argument(metavar="CONDITION_ID", help="Condition group id (integer).")
 ]
-OperatorOpt = Annotated[str | None, typer.Option("--operator", help="Boolean operator: and | or.")]
-JoinOperatorOpt = Annotated[str, typer.Option("--operator", help="Boolean operator: and | or.")]
+OperatorOpt = Annotated[
+    str | None, values_option(ConditionOperatorType, "--operator", help="Boolean operator.")
+]
+JoinOperatorOpt = Annotated[
+    str, values_option(ConditionOperatorType, "--operator", help="Boolean operator.")
+]
 ItemOpt = Annotated[
     list[str] | None,
     typer.Option(
@@ -53,20 +58,6 @@ BodyFileOpt = Annotated[
 ]
 
 
-def _validated_operator(operator: str) -> ConditionOperatorType:
-    """Reject anything but the two API operators with a clean usage error.
-
-    Examples:
-        >>> _validated_operator("or")
-        'or'
-    """
-    if operator == "and":
-        return "and"
-    if operator == "or":
-        return "or"
-    raise typer.BadParameter("--operator must be 'and' or 'or'")
-
-
 def _resolve_body[M: ConditionCreate](
     model_cls: type[M], operator: str | None, item: list[str] | None, body_file: Path | None
 ) -> M:
@@ -75,9 +66,7 @@ def _resolve_body[M: ConditionCreate](
         return model_cls.model_validate_json(body_file.read_bytes())
     if operator is None or not item:
         raise typer.BadParameter("pass --operator and at least one --item, or --body-file")
-    return model_cls.model_validate(
-        {"operator": _validated_operator(operator), "items": [json.loads(c) for c in item]}
-    )
+    return model_cls.model_validate({"operator": operator, "items": [json.loads(c) for c in item]})
 
 
 # --- question ---
@@ -156,9 +145,7 @@ def question_set_operator(
     forms: FormsClient,
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the question's condition groups (collection PATCH)."""
-    return forms.conditions.question_set_operator(
-        survey_id, question_id, _validated_operator(operator)
-    )
+    return forms.conditions.question_set_operator(survey_id, question_id, operator)
 
 
 # --- page ---
@@ -225,7 +212,7 @@ def page_set_operator(
     survey_id: SurveyIdArg, page_id: PageIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the page's condition groups (collection PATCH)."""
-    return forms.conditions.page_set_operator(survey_id, page_id, _validated_operator(operator))
+    return forms.conditions.page_set_operator(survey_id, page_id, operator)
 
 
 # --- submit ---
@@ -288,7 +275,7 @@ def submit_set_operator(
     survey_id: SurveyIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the submit button's condition groups (collection PATCH)."""
-    return forms.conditions.submit_set_operator(survey_id, _validated_operator(operator))
+    return forms.conditions.submit_set_operator(survey_id, operator)
 
 
 # --- hook ---
@@ -355,4 +342,4 @@ def hook_set_operator(
     survey_id: SurveyIdArg, hook_id: HookIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the integration group's condition groups (collection PATCH)."""
-    return forms.conditions.hook_set_operator(survey_id, hook_id, _validated_operator(operator))
+    return forms.conditions.hook_set_operator(survey_id, hook_id, operator)

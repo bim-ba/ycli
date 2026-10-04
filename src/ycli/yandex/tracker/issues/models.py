@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ConfigDict, Field, RootModel
 
@@ -11,6 +11,9 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     DisplayStr,
     KeyStr,
 )
+
+#: How a scrolled search orders its results.
+ScrollType = Literal["sorted", "unsorted"] | str
 
 
 class Issue(APIModel):

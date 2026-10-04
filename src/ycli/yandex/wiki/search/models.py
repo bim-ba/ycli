@@ -14,9 +14,9 @@ from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import UserIdentity
 
 #: What a search hit is.
-SearchDocumentType = Literal["page", "file"]
+SearchDocumentType = Literal["page", "file"] | str
 #: How hits are sorted.
-SearchOrder = Literal["relevancy", "creation_date", "modified_date"]
+SearchOrder = Literal["relevancy", "creation_date", "modified_date"] | str
 
 
 class SearchDateRange(RequestBody):

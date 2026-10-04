@@ -6,9 +6,9 @@ from typing import Annotated
 
 import typer
 
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
-from ycli.yandex.models import ItemList
+from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.tracker.changelog.models import ChangelogEntry
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
@@ -29,7 +29,7 @@ def list_(
     change_type: Annotated[
         str | None, typer.Option("--type", help="Only changes of this type, e.g. IssueWorkflow.")
     ] = None,
-    sort: Annotated[str | None, typer.Option(help="Order of the changes: asc or desc.")] = None,
+    sort: Annotated[str | None, values_option(SortDirection, help="Order of the changes.")] = None,
     *,
     config: AppConfig,
     tracker: TrackerClient,

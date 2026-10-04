@@ -6,6 +6,7 @@ from typing import Annotated
 
 import typer
 
+from ycli.cli.typedefs import values_option
 from ycli.yandex.models import Ack
 from ycli.yandex.wiki.access.models import (
     AccessInheritance,
@@ -29,8 +30,11 @@ app = typer.Typer(
 PageIdArg = Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")]
 AccessIdArg = Annotated[str, typer.Argument(metavar="ACCESS_ID", help="Id of the access entry.")]
 InheritanceOption = Annotated[
-    AccessInheritance | None,
-    typer.Option(help="Whether the access also covers subpages: inherited or not_inherited."),
+    str | None,
+    values_option(
+        AccessInheritance,
+        help="Whether the access also covers subpages.",
+    ),
 ]
 PreventSelflockOption = Annotated[
     bool,
@@ -46,7 +50,8 @@ PreventSelflockOption = Annotated[
 def create(
     page_id: PageIdArg,
     role: Annotated[
-        AccessRole, typer.Option(help="Role to grant: reader, editor, extra_editor or author.")
+        str,
+        values_option(AccessRole, help="Role to grant."),
     ],
     user_uid: Annotated[
         str | None, typer.Option("--user-uid", help="Passport uid of the user to grant.")
@@ -55,9 +60,11 @@ def create(
         str | None, typer.Option("--user-cloud-uid", help="Cloud uid of the user to grant.")
     ] = None,
     group_src: Annotated[
-        GroupSource | None,
-        typer.Option(
-            "--group-src", help="Directory of the group to grant: dir, cloud, com, staff."
+        str | None,
+        values_option(
+            GroupSource,
+            "--group-src",
+            help="Where the group is kept.",
         ),
     ] = None,
     group_id: Annotated[
@@ -92,8 +99,8 @@ def update(
     page_id: PageIdArg,
     access_id: AccessIdArg,
     role: Annotated[
-        AccessRole | None,
-        typer.Option(help="New role: reader, editor, extra_editor or author."),
+        str | None,
+        values_option(AccessRole, help="New role."),
     ] = None,
     inheritance: InheritanceOption = None,
     prevent_selflock: PreventSelflockOption = False,

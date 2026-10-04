@@ -84,9 +84,9 @@ class OperationResult(APIModel):
         return self.status == "ok"
 
 
-ConditionOperatorType = Literal["and", "or"]
-ConditionItemKind = Literal["question", "language", "origin", "quiz"]
-ConditionComparison = Literal["eq", "neq", "lt", "gt"]
+ConditionOperatorType = Literal["and", "or"] | str
+ConditionItemKind = Literal["question", "language", "origin", "quiz"] | str
+ConditionComparison = Literal["eq", "neq", "lt", "gt"] | str
 
 
 class ConditionItem(APIModel):

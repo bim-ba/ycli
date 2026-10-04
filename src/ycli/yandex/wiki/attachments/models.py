@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.wiki.models import User
+
+#: What a listing of attachments can be sorted by.
+AttachmentOrder = Literal["name", "size", "created_at"] | str
 
 
 class Attachment(APIModel):

@@ -8,18 +8,21 @@ import typer
 
 from ycli.cli.output import BinaryResult
 from ycli.cli.progress import wait_for
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.forms.answers.models import (
     AnswerDetails,
     AnswerExport,
+    AnswerFormat,
     AnswerIntegration,
     AnswersResponse,
+    ExportFormat,
+    ExportUpload,
 )
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.models import OperationResult
 from ycli.yandex.forms.typedefs import AnswerIdArg, SurveyIdArg
-from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.models import Ack, ItemList, SortDirection
 
 app = typer.Typer(name="answers", help="Forms answers.", no_args_is_help=True)
 
@@ -62,14 +65,16 @@ def list_(
         str | None, typer.Option(help="ISO-8601: answers given at or before.")
     ] = None,
     ordering: Annotated[
-        str | None, typer.Option(help="asc (oldest first) or desc (the default).")
+        str | None, values_option(SortDirection, help="asc is oldest first; the default is desc.")
     ] = None,
     page_size: Annotated[
         int | None, typer.Option(help="Answers per request (the API's default is 25).")
     ] = None,
     answer_format: Annotated[
         str | None,
-        typer.Option("--answer-format", help="default (cells by column) or raw (as stored)."),
+        values_option(
+            AnswerFormat, "--answer-format", help="default is cells by column, raw is as stored."
+        ),
     ] = None,
     *,
     config: AppConfig,
@@ -118,10 +123,10 @@ def _finish_export(
 def export(
     survey_id: SurveyIdArg,
     export_format: Annotated[
-        str, typer.Option("--format", help="Export format: csv or xlsx.")
+        str, values_option(ExportFormat, "--format", help="Export format.")
     ] = "xlsx",
     upload: Annotated[
-        str, typer.Option(help="Where to upload the result: default or disk (Yandex Disk).")
+        str, values_option(ExportUpload, help="Where the result goes; disk is Yandex Disk.")
     ] = "default",
     started_at: Annotated[
         str | None, typer.Option(help="ISO-8601 start of the answer range (inclusive).")

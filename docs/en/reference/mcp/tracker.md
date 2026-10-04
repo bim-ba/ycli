@@ -59,7 +59,7 @@ query or raise ``limit``.
 | `query` | string | yes | TQL query, e.g. ``Queue: QUEUE Status: open``. |
 | `limit` | integer or null |  | Max issues to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `expand` | string or null |  | Extra blocks to include in the reply. |
-| `scroll_type` | string or null |  | ``sorted`` or ``unsorted``: scroll through the results (no 10 000 cap). |
+| `scroll_type` | `sorted` · `unsorted` or string or null |  | Scroll through the results (no 10 000 cap). |
 | `per_scroll` | integer or null |  | Issues per scroll page (1000 at most). |
 | `scroll_ttl_millis` | integer or null |  | How long the scroll stays open, in milliseconds. |
 
@@ -408,7 +408,7 @@ is given.
 | `limit` | integer or null |  | Max changes to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `field` | string or null |  | Keep the changes of this field, e.g. ``status``. |
 | `change_type` | string or null |  | Keep the changes of this type, e.g. ``IssueWorkflow``. |
-| `sort` | string or null |  | Order of the changes: ``asc`` or ``desc``. |
+| `sort` | `asc` · `desc` or string or null |  | Order of the changes. |
 
 ## `tracker_checklists_get`
 

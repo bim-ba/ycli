@@ -73,9 +73,8 @@ def test_append_content_rejects_empty_content():
         PageAppendContent(content="")
 
 
-def test_append_content_body_rejects_invalid_location():
-    with pytest.raises(ValidationError):
-        PageAppendContentBody(location="middle")  # ty: ignore[invalid-argument-type]
+def test_append_content_body_keeps_a_location_outside_the_known_set():
+    assert PageAppendContentBody(location="middle").location == "middle"
 
 
 def test_page_clone_dumps_only_set_fields():
@@ -143,9 +142,9 @@ def test_a_move_needs_at_least_one_step():
         PageMove(operations=[])
 
 
-def test_a_move_step_refuses_an_unknown_position():
-    with pytest.raises(ValidationError):
-        PageMoveStep.model_validate({"source": "a", "target": "b", "position": "inside"})
+def test_a_move_step_keeps_a_position_outside_the_known_set():
+    step = PageMoveStep.model_validate({"source": "a", "target": "b", "position": "inside"})
+    assert step.position == "inside"
 
 
 def test_a_move_reply_names_the_task_to_poll():

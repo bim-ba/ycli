@@ -66,8 +66,8 @@ unless ``limit`` is given. Reads a page's numeric id — pair with
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id whose grids to list. |
 | `limit` | integer or null |  | Max grids (omitted: the configured cap). |
-| `order_by` | string or null |  | Sort field: ``title`` or ``created_at``. |
-| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `order_by` | `title` · `created_at` or string or null |  | Sort field. |
+| `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 
 ## `wiki_pages_get_by_id`
 
@@ -310,8 +310,8 @@ Capped at the configured item cap unless ``limit`` is given. Pair with
 | `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
 | `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `order_by` | string or null |  | Sort field: ``created_at``. |
-| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
-| `status_filter` | string or null |  | Keep only ``resolved`` or only ``unresolved`` comments. |
+| `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
+| `status_filter` | `resolved` · `unresolved` or string or null |  | Keep only the comments in this state. |
 
 ## `wiki_comments_thread_list`
 
@@ -389,8 +389,8 @@ downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP p
 |---|---|:---:|---|
 | `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
 | `limit` | integer or null |  | Max attachments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
-| `order_by` | string or null |  | Sort field: ``name``, ``size`` or ``created_at``. |
-| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `order_by` | `name` · `size` · `created_at` or string or null |  | Sort field. |
+| `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 
 ## `wiki_attachments_get`
 
@@ -471,8 +471,8 @@ unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,
 | `limit` | integer or null |  | Max resources (omitted: the configured cap). |
 | `q` | string or null |  | Optional title search filter. |
 | `types` | string or null |  | Comma-separated kinds to include: ``attachment,grid``. |
-| `order_by` | string or null |  | Sort field: ``name_title`` or ``created_at``. |
-| `order_direction` | string or null |  | Sort direction for ``order_by``: ``asc`` or ``desc``. |
+| `order_by` | `name_title` · `created_at` or string or null |  | Sort field. |
+| `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 
 ## `wiki_recovery_restore`
 
@@ -504,7 +504,7 @@ empty page. A new page can take seconds to appear in the index.
 |---|---|:---:|---|
 | `text` | string | yes | Text to search for. |
 | `filters` | object or null |  | Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and ``show_obsolete``. |
-| `order_by` | `relevancy` · `creation_date` · `modified_date` |  | How to sort the hits. |
+| `order_by` | `relevancy` · `creation_date` · `modified_date` or string |  | How to sort the hits. |
 | `highlight` | boolean |  | Wrap the matches in ``<em>`` tags in title and content. |
 | `limit` | integer |  | Hits per page. |
 | `cursor` | integer |  | Number of the result page to fetch, from 1. |

@@ -7,7 +7,7 @@ from typing import Annotated
 import typer
 
 from ycli.cli.fields import parse_fields
-from ycli.cli.typedefs import AllOption, LimitOption
+from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
@@ -17,6 +17,7 @@ from ycli.yandex.tracker.issues.models import (
     IssueSearch,
     IssueUpdate,
     ScrollClear,
+    ScrollType,
     count_body,
     filter_body,
 )
@@ -80,7 +81,7 @@ def search(
     expand: ExpandOpt = None,
     scroll_type: Annotated[
         str | None,
-        typer.Option(help="sorted or unsorted: scroll through the results (no 10 000 cap)."),
+        values_option(ScrollType, help="Scroll through the results (no 10 000 cap)."),
     ] = None,
     per_scroll: Annotated[
         int | None, typer.Option(help="Issues per scroll page (1000 at most).")

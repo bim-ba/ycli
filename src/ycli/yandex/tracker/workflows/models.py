@@ -227,7 +227,7 @@ class WorkflowStepInput(RequestBody):
         serialization_alias="metaAction",
         description="Meta action of the step, run automatically.",
     )
-    status_type: Literal["NEW", "IN_PROGRESS", "PAUSED", "DONE", "CANCELLED"] | None = Field(
+    status_type: Literal["NEW", "IN_PROGRESS", "PAUSED", "DONE", "CANCELLED"] | str | None = Field(
         default=None,
         validation_alias=AliasChoices("statusType", "status_type"),
         serialization_alias="statusType",

@@ -282,7 +282,7 @@ Group-internal operators are untouched — change those via ``conditions_questio
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `question_id` | string | yes | Question id (integer) from questions_list. |
-| `operator` | `and` · `or` | yes | Boolean operator joining the condition groups. |
+| `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
 
 ## `forms_conditions_page_list`
 
@@ -360,7 +360,7 @@ Set the boolean operator BETWEEN a page's condition groups; returns the envelope
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `page_id` | integer | yes | Page id (integer) from questions_list pages. |
-| `operator` | `and` · `or` | yes | Boolean operator joining the condition groups. |
+| `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
 
 ## `forms_conditions_submit_list`
 
@@ -428,7 +428,7 @@ Set the boolean operator BETWEEN the submit button's condition groups.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
-| `operator` | `and` · `or` | yes | Boolean operator joining the condition groups. |
+| `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
 
 ## `forms_conditions_hook_list`
 
@@ -502,7 +502,7 @@ Set the boolean operator BETWEEN an integration group's condition groups.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
-| `operator` | `and` · `or` | yes | Boolean operator joining the condition groups. |
+| `operator` | `and` · `or` or string | yes | Boolean operator joining the condition groups. |
 
 ## `forms_access_get`
 
@@ -563,7 +563,7 @@ Capped at the configured item cap unless ``limit`` is given.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex). |
-| `ordering` | `asc` · `desc` or null |  | desc (newest first, the API default) or asc. |
+| `ordering` | `asc` · `desc` or string or null |  | desc (newest first, the API default) or asc. |
 | `limit` | integer or null |  | Most events to return (omitted: the configured cap). |
 
 ## `forms_answers_get`
@@ -596,9 +596,9 @@ in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
 | `use_slugs` | boolean |  | Name questions and options by slug instead of id. |
 | `date_from` | string or null |  | ISO-8601: answers given at or after. |
 | `date_to` | string or null |  | ISO-8601: answers given at or before. |
-| `ordering` | string or null |  | ``asc`` (oldest first) or ``desc`` (the default). |
+| `ordering` | `asc` · `desc` or string or null |  | ``asc`` is oldest first; the default is ``desc``. |
 | `page_size` | integer or null |  | Answers per request (the API's default is 25). |
-| `answer_format` | string or null |  | ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's data as stored, with no ``columns``). |
+| `answer_format` | `default` · `raw` or string or null |  | ``default`` (cells aligned to ``columns``) or ``raw`` (each answer's data as stored, with no ``columns``). |
 
 ## `forms_answers_export`
 
@@ -752,14 +752,14 @@ response and error with ``notifications_get``.
 | `hook_id` | integer or null |  | Only this integration group. |
 | `subscription_id` | integer or null |  | Only this integration. |
 | `answer_id` | integer or null |  | Only runs for this answer. |
-| `status` | array of `pending` · `success` · `error` · `canceled` or null |  | Only runs in these states. |
+| `status` | array of `pending` · `success` · `error` · `canceled` or string or null |  | Only runs in these states. |
 | `created_since` | string or null |  | ISO-8601: queued at or after. |
 | `created_until` | string or null |  | ISO-8601: queued at or before. |
 | `finished_since` | string or null |  | ISO-8601: ended at or after. |
 | `finished_until` | string or null |  | ISO-8601: ended at or before. |
 | `visible` | boolean or null |  | True: only shown runs; false: only hidden ones. |
-| `integration_type` | `email` · `tracker` · `tracker_comment` · `wiki` · `jsonrpc` · `post` · `put` · `http` · `function` or null |  | Only runs of this integration type. |
-| `ordering` | `asc` · `desc` or null |  | asc (oldest first, the API default) or desc. |
+| `integration_type` | `email` · `tracker` · `tracker_comment` · `wiki` · `jsonrpc` · `post` · `put` · `http` · `function` or string or null |  | Only runs of this integration type. |
+| `ordering` | `asc` · `desc` or string or null |  | asc (oldest first, the API default) or desc. |
 | `limit` | integer or null |  | Most runs to return (omitted: the configured cap). |
 
 ## `forms_notifications_get`

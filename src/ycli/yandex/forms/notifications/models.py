@@ -6,11 +6,21 @@ integration finishes, then ``success``, ``error`` or ``canceled``.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field
 
-from ycli.yandex.models import APIModel, RequestBody
+from ycli.yandex.models import APIModel, RequestBody, SortDirection
+
+#: The state of one run of an integration.
+RunStatus = Literal["pending", "success", "error", "canceled"] | str
+#: The kind of integration a run belongs to.
+IntegrationType = (
+    Literal[
+        "email", "tracker", "tracker_comment", "wiki", "jsonrpc", "post", "put", "http", "function"
+    ]
+    | str
+)
 
 
 class Notification(APIModel):
@@ -170,7 +180,7 @@ class NotificationFilter(RequestBody):
     hook_id: int | None = Field(default=None, description="Only runs of this integration group.")
     subscription_id: int | None = Field(default=None, description="Only runs of this integration.")
     answer_id: int | None = Field(default=None, description="Only runs triggered by this answer.")
-    status: list[str] | None = Field(
+    status: list[RunStatus] | None = Field(
         default=None,
         description="Only runs in any of these states: pending, success, error, canceled.",
     )
@@ -189,10 +199,10 @@ class NotificationFilter(RequestBody):
     visible: bool | None = Field(
         default=None, description="Only visible (``True``) or only hidden (``False``) runs."
     )
-    integration_type: str | None = Field(
+    integration_type: IntegrationType | None = Field(
         default=None, serialization_alias="type", description="Only runs of this integration type."
     )
-    ordering: str | None = Field(
+    ordering: SortDirection | None = Field(
         default=None, description="``asc`` (oldest first, the API's default) or ``desc``."
     )
 
