@@ -119,7 +119,7 @@ engine, the protocol did not hold and each service gets a plain function per com
 | `proof` | What happens | Atomic | Kinds |
 |---|---|---|---|
 | `sent` | The request carries the version from the file; the server refuses a stale one | yes | Tracker objects that take `?version=` |
-| `checked` | `push` reads the object first and compares its version with the one in the file | no: an edit landing between the read and the write is overwritten | Wiki pages (the update request has no version field), Wiki grids until their `revision` is shown to hold |
+| `checked` | `push` reads the object first and compares its version with the one in the file | no: an edit landing between the read and the write is overwritten | Wiki pages (the update request has no version field), the title, columns and rows of a Wiki grid (its `revision` guards cells only) |
 | `none` | The object has no version; `push` reads it and compares its content with the file's | no | objects whose replies carry no version |
 
 On a mismatch `push` writes nothing for that file and prints the difference between the version
@@ -134,7 +134,7 @@ The table comes from an experiment on the test organization (4 October 2026, rec
 |---|---|---|
 | Tracker component (`?version=`) | `412 Precondition Failed` | `428 Precondition Required` |
 | Wiki page | `200`, the text is overwritten; a `revision_id` in the body is ignored and `allow_merge=false` changes nothing | the same |
-| Wiki grid (`revision` in the body) | `200` for a change of the title: the stale revision was accepted; rows were not tried | n/a |
+| Wiki grid (`revision` in the body) | `409 CELL_UPDATE_CONFLICT` for a cell changed after that revision; `200` for a new title, added columns, added and removed rows | n/a |
 | Forms survey | `200`: the API has no version | the same |
 
 ### What each command does to one file
@@ -372,7 +372,7 @@ published API allows; each needs its own short design before it is built.
 | Service | Kind | Format | Proof | Notes |
 |---|---|---|---|---|
 | Wiki | page | Markdown | `checked` | worked above |
-| Wiki | grid | CSV for rows, YAML for the structure | `checked` | every grid write takes `revision`, but a stale one was accepted for the title; rows to be tried before `sent` |
+| Wiki | grid | CSV for rows, YAML for the structure | `sent` for a cell, `checked` for the rest | the API merges: a stale `revision` is refused only for a cell changed after it |
 | Tracker | queue | YAML | n/a | read only: no update operation |
 | Tracker | trigger | YAML | `sent` | worked above; no delete |
 | Tracker | component | YAML | `sent` | |
