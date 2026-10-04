@@ -17,7 +17,7 @@ from ycli.yandex.forms.notifications.models import (
     NotificationFilter,
     NotificationStatus,
 )
-from ycli.yandex.forms.typedefs import NotificationIdArg, SurveyIdArg
+from ycli.yandex.forms.typedefs import NotificationIDArg, SurveyIDArg
 from ycli.yandex.models import ItemList, SortDirection
 
 app = typer.Typer(
@@ -84,30 +84,30 @@ def list_(
 
 
 @app.command()
-def get(notification_id: NotificationIdArg, *, forms: FormsClient) -> NotificationDetails:
+def get(notification_id: NotificationIDArg, *, forms: FormsClient) -> NotificationDetails:
     """Print one run with its context, response and error."""
     return forms.notifications.get(notification_id)
 
 
 @app.command()
-def status_get(notification_id: NotificationIdArg, *, forms: FormsClient) -> NotificationStatus:
+def status_get(notification_id: NotificationIDArg, *, forms: FormsClient) -> NotificationStatus:
     """Print a run's state only (pending, success, error or canceled)."""
     return forms.notifications.status_get(notification_id)
 
 
 @app.command()
-def restart(notification_id: NotificationIdArg, *, forms: FormsClient) -> NotificationAction:
+def restart(notification_id: NotificationIDArg, *, forms: FormsClient) -> NotificationAction:
     """Run the integration again for that answer (POST /notifications/{id}/restart)."""
     return forms.notifications.restart(notification_id)
 
 
 @app.command()
-def cancel(notification_id: NotificationIdArg, *, forms: FormsClient) -> NotificationAction:
+def cancel(notification_id: NotificationIDArg, *, forms: FormsClient) -> NotificationAction:
     """Stop a run that has not finished (POST /notifications/{id}/cancel)."""
     return forms.notifications.cancel(notification_id)
 
 
 @app.command()
-def errors_list(survey_id: SurveyIdArg, *, forms: FormsClient) -> ItemList[int]:
+def errors_list(survey_id: SurveyIDArg, *, forms: FormsClient) -> ItemList[int]:
     """List the ids of form SURVEY_ID's failed runs; read each with `notifications get`."""
     return forms.notifications.errors_list(survey_id)

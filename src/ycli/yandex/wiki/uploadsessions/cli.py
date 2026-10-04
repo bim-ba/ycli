@@ -24,7 +24,7 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
-SessionIdArg = Annotated[
+SessionIDArg = Annotated[
     str, typer.Argument(metavar="SESSION_ID", help="UUID4 of the upload session.")
 ]
 
@@ -42,14 +42,14 @@ def create(
 
 
 @app.command()
-def get(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
+def get(session_id: SessionIDArg, *, wiki: WikiClient) -> UploadSession:
     """Get an upload session's current state (GET /upload_sessions/{session_id})."""
     return wiki.uploadsessions.get(session_id=session_id)
 
 
 @app.command("upload-part")
 def upload_part(
-    session_id: SessionIdArg,
+    session_id: SessionIDArg,
     file_path: Annotated[
         Path,
         typer.Argument(
@@ -72,13 +72,13 @@ def upload_part(
 
 
 @app.command()
-def finish(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
+def finish(session_id: SessionIDArg, *, wiki: WikiClient) -> UploadSession:
     """Finish an upload session (POST /upload_sessions/{session_id}/finish)."""
     return wiki.uploadsessions.finish(session_id=session_id)
 
 
 @app.command()
-def abort(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
+def abort(session_id: SessionIDArg, *, wiki: WikiClient) -> UploadSession:
     """Abort one upload session (POST /upload_sessions/{session_id}/abort)."""
     return wiki.uploadsessions.abort(session_id=session_id)
 

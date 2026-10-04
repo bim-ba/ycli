@@ -289,11 +289,11 @@ class WikiSubscription(_SubscriptionBase):
     )
 
 
-class JsonRpcSubscription(_SubscriptionBase):
+class JSONRPCSubscription(_SubscriptionBase):
     """Call a JSON-RPC method.
 
     Examples:
-        >>> JsonRpcSubscription(method="answers.add").type
+        >>> JSONRPCSubscription(method="answers.add").type
         'jsonrpc'
     """
 
@@ -304,11 +304,11 @@ class JsonRpcSubscription(_SubscriptionBase):
     headers: list[SubscriptionHeader] | None = Field(default=None, description="HTTP headers.")
 
 
-class HttpSubscription(_SubscriptionBase):
+class HTTPSubscription(_SubscriptionBase):
     """Send an HTTP request.
 
     Examples:
-        >>> HttpSubscription(url="https://example.com/hook", method="post").method
+        >>> HTTPSubscription(url="https://example.com/hook", method="post").method
         'post'
     """
 
@@ -341,8 +341,8 @@ Subscription = Annotated[
     | TrackerSubscription
     | TrackerCommentSubscription
     | WikiSubscription
-    | JsonRpcSubscription
-    | HttpSubscription
+    | JSONRPCSubscription
+    | HTTPSubscription
     | FunctionSubscription,
     Field(discriminator="type"),
 ]

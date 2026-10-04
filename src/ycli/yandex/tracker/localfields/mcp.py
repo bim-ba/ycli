@@ -12,7 +12,7 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    QueueId,
+    QueueID,
     tracker_client,
 )
 from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
@@ -67,7 +67,7 @@ def get(
     annotations={**WRITE, "title": "Create Tracker local field"},
 )
 def create(
-    queue_id: QueueId, body: FieldCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueID, body: FieldCreate, client: TrackerClient = Depends(tracker_client)
 ) -> LocalField:
     """Create a custom field scoped to one queue (a local field).
 
@@ -83,7 +83,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker local field"},
 )
 def update(
-    queue_id: QueueId,
+    queue_id: QueueID,
     field_key: Annotated[
         str, Field(description="Key of the queue-local field, from ``localfields_list``.")
     ],

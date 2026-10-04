@@ -13,7 +13,7 @@ import typer
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,
+    SurveyIDArg,
 )
 from ycli.yandex.models import ItemList
 
@@ -36,7 +36,7 @@ BodyFileArg = Annotated[
 
 @app.command()
 def get(
-    survey: SurveyIdArg, key: Annotated[str | None, _KEY] = None, *, forms: FormsClient
+    survey: SurveyIDArg, key: Annotated[str | None, _KEY] = None, *, forms: FormsClient
 ) -> FillableForm:
     """Print the fillable-form settings for SURVEY (GET …/form) — pages, conditions, values."""
     return forms.filling.get(survey, key=key)
@@ -44,7 +44,7 @@ def get(
 
 @app.command()
 def submit(
-    survey: SurveyIdArg,
+    survey: SurveyIDArg,
     body_file: BodyFileArg,
     validate_only: Annotated[
         bool,
@@ -61,7 +61,7 @@ def submit(
 
 @app.command()
 def suggest(
-    survey: SurveyIdArg,
+    survey: SurveyIDArg,
     question: Annotated[
         str | None, typer.Option(help="Question slug the suggestion is for.")
     ] = None,

@@ -11,10 +11,9 @@ from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.typedefs import BoardIDArg
 
 app = typer.Typer(name="boards", help="Tracker agile boards.", no_args_is_help=True)
-
-BoardIdArg = Annotated[int, typer.Argument(metavar="BOARD_ID", help="Numeric board identifier.")]
 
 
 @app.command("list")
@@ -27,7 +26,7 @@ def list_(
 
 
 @app.command()
-def get(board_id: BoardIdArg, *, tracker: TrackerClient) -> Board:
+def get(board_id: BoardIDArg, *, tracker: TrackerClient) -> Board:
     """Get one agile board by BOARD_ID."""
     return tracker.boards.get(board_id=board_id)
 
@@ -61,7 +60,7 @@ def create(
 
 @app.command()
 def update(
-    board_id: BoardIdArg,
+    board_id: BoardIDArg,
     name: Annotated[str | None, typer.Option(help="New board name.")] = None,
     backlog: Annotated[
         bool | None, typer.Option("--backlog/--no-backlog", help="Enable the board backlog.")
@@ -82,7 +81,7 @@ def update(
 
 
 @app.command()
-def delete(board_id: BoardIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(board_id: BoardIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete an agile board BOARD_ID (DELETE /boards/{board_id})."""
     tracker.boards.delete(board_id=board_id)
     return Ack.deleted("board", board_id)

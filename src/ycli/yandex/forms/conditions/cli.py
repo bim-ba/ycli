@@ -15,7 +15,7 @@ from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
 from ycli.yandex.forms.models import Condition, ConditionOperatorType, ConditionsResponse
-from ycli.yandex.forms.typedefs import HookIdArg, PageIdArg, QuestionIdArg, SurveyIdArg
+from ycli.yandex.forms.typedefs import HookIDArg, PageIDArg, QuestionIDArg, SurveyIDArg
 from ycli.yandex.models import Ack
 
 app = typer.Typer(name="conditions", help="Forms display (show) conditions.", no_args_is_help=True)
@@ -30,7 +30,7 @@ app.add_typer(page_app)
 app.add_typer(submit_app)
 app.add_typer(hook_app)
 
-ConditionIdArg = Annotated[
+ConditionIDArg = Annotated[
     int, typer.Argument(metavar="CONDITION_ID", help="Condition group id (integer).")
 ]
 OperatorOpt = Annotated[
@@ -73,7 +73,7 @@ def _resolve_body[M: ConditionCreate](
 
 @question_app.command("list")
 def question_list(
-    survey_id: SurveyIdArg, question_id: QuestionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, question_id: QuestionIDArg, *, forms: FormsClient
 ) -> ConditionsResponse:
     """List show conditions of question QUESTION_ID (GET …/questions/{id}/conditions)."""
     return forms.conditions.question_list(survey_id, question_id)
@@ -81,9 +81,9 @@ def question_list(
 
 @question_app.command("get")
 def question_get(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
-    condition_id: ConditionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
+    condition_id: ConditionIDArg,
     *,
     forms: FormsClient,
 ) -> Condition:
@@ -93,8 +93,8 @@ def question_get(
 
 @question_app.command("create")
 def question_create(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -108,9 +108,9 @@ def question_create(
 
 @question_app.command("update")
 def question_update(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
-    condition_id: ConditionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
+    condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -124,9 +124,9 @@ def question_update(
 
 @question_app.command("delete")
 def question_delete(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
-    condition_id: ConditionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
+    condition_id: ConditionIDArg,
     *,
     forms: FormsClient,
 ) -> Ack:
@@ -137,8 +137,8 @@ def question_delete(
 
 @question_app.command("set-operator")
 def question_set_operator(
-    survey_id: SurveyIdArg,
-    question_id: QuestionIdArg,
+    survey_id: SurveyIDArg,
+    question_id: QuestionIDArg,
     operator: JoinOperatorOpt,
     *,
     forms: FormsClient,
@@ -152,7 +152,7 @@ def question_set_operator(
 
 @page_app.command("list")
 def page_list(
-    survey_id: SurveyIdArg, page_id: PageIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, page_id: PageIDArg, *, forms: FormsClient
 ) -> ConditionsResponse:
     """List show conditions of page PAGE_ID (GET …/pages/{id}/conditions)."""
     return forms.conditions.page_list(survey_id, page_id)
@@ -160,7 +160,7 @@ def page_list(
 
 @page_app.command("get")
 def page_get(
-    survey_id: SurveyIdArg, page_id: PageIdArg, condition_id: ConditionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, page_id: PageIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
 ) -> Condition:
     """Print one condition group (SURVEY_ID PAGE_ID CONDITION_ID)."""
     return forms.conditions.page_get(survey_id, page_id, condition_id)
@@ -168,8 +168,8 @@ def page_get(
 
 @page_app.command("create")
 def page_create(
-    survey_id: SurveyIdArg,
-    page_id: PageIdArg,
+    survey_id: SurveyIDArg,
+    page_id: PageIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -183,9 +183,9 @@ def page_create(
 
 @page_app.command("update")
 def page_update(
-    survey_id: SurveyIdArg,
-    page_id: PageIdArg,
-    condition_id: ConditionIdArg,
+    survey_id: SurveyIDArg,
+    page_id: PageIDArg,
+    condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -199,7 +199,7 @@ def page_update(
 
 @page_app.command("delete")
 def page_delete(
-    survey_id: SurveyIdArg, page_id: PageIdArg, condition_id: ConditionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, page_id: PageIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
 ) -> Ack:
     """Delete condition group CONDITION_ID (DELETE — the API answers 200, no body)."""
     forms.conditions.page_delete(survey_id, page_id, condition_id)
@@ -208,7 +208,7 @@ def page_delete(
 
 @page_app.command("set-operator")
 def page_set_operator(
-    survey_id: SurveyIdArg, page_id: PageIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIDArg, page_id: PageIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the page's condition groups (collection PATCH)."""
     return forms.conditions.page_set_operator(survey_id, page_id, operator)
@@ -218,14 +218,14 @@ def page_set_operator(
 
 
 @submit_app.command("list")
-def submit_list(survey_id: SurveyIdArg, *, forms: FormsClient) -> ConditionsResponse:
+def submit_list(survey_id: SurveyIDArg, *, forms: FormsClient) -> ConditionsResponse:
     """List show conditions of the submit button (GET /surveys/{id}/conditions)."""
     return forms.conditions.submit_list(survey_id)
 
 
 @submit_app.command("get")
 def submit_get(
-    survey_id: SurveyIdArg, condition_id: ConditionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
 ) -> Condition:
     """Print one condition group (SURVEY_ID CONDITION_ID)."""
     return forms.conditions.submit_get(survey_id, condition_id)
@@ -233,7 +233,7 @@ def submit_get(
 
 @submit_app.command("create")
 def submit_create(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -247,8 +247,8 @@ def submit_create(
 
 @submit_app.command("update")
 def submit_update(
-    survey_id: SurveyIdArg,
-    condition_id: ConditionIdArg,
+    survey_id: SurveyIDArg,
+    condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -262,7 +262,7 @@ def submit_update(
 
 @submit_app.command("delete")
 def submit_delete(
-    survey_id: SurveyIdArg, condition_id: ConditionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
 ) -> Ack:
     """Delete condition group CONDITION_ID (DELETE — the API answers 200, no body)."""
     forms.conditions.submit_delete(survey_id, condition_id)
@@ -271,7 +271,7 @@ def submit_delete(
 
 @submit_app.command("set-operator")
 def submit_set_operator(
-    survey_id: SurveyIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the submit button's condition groups (collection PATCH)."""
     return forms.conditions.submit_set_operator(survey_id, operator)
@@ -282,7 +282,7 @@ def submit_set_operator(
 
 @hook_app.command("list")
 def hook_list(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, hook_id: HookIDArg, *, forms: FormsClient
 ) -> ConditionsResponse:
     """List the conditions of integration group HOOK_ID (GET …/hooks/{id}/conditions)."""
     return forms.conditions.hook_list(survey_id, hook_id)
@@ -290,7 +290,7 @@ def hook_list(
 
 @hook_app.command("get")
 def hook_get(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, condition_id: ConditionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, hook_id: HookIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
 ) -> Condition:
     """Print one condition group (SURVEY_ID HOOK_ID CONDITION_ID)."""
     return forms.conditions.hook_get(survey_id, hook_id, condition_id)
@@ -298,8 +298,8 @@ def hook_get(
 
 @hook_app.command("create")
 def hook_create(
-    survey_id: SurveyIdArg,
-    hook_id: HookIdArg,
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -313,9 +313,9 @@ def hook_create(
 
 @hook_app.command("update")
 def hook_update(
-    survey_id: SurveyIdArg,
-    hook_id: HookIdArg,
-    condition_id: ConditionIdArg,
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
+    condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
     body_file: BodyFileOpt = None,
@@ -329,7 +329,7 @@ def hook_update(
 
 @hook_app.command("delete")
 def hook_delete(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, condition_id: ConditionIdArg, *, forms: FormsClient
+    survey_id: SurveyIDArg, hook_id: HookIDArg, condition_id: ConditionIDArg, *, forms: FormsClient
 ) -> Ack:
     """Delete condition group CONDITION_ID (DELETE — the API answers 200, no body)."""
     forms.conditions.hook_delete(survey_id, hook_id, condition_id)
@@ -338,7 +338,7 @@ def hook_delete(
 
 @hook_app.command("set-operator")
 def hook_set_operator(
-    survey_id: SurveyIdArg, hook_id: HookIdArg, operator: JoinOperatorOpt, *, forms: FormsClient
+    survey_id: SurveyIDArg, hook_id: HookIDArg, operator: JoinOperatorOpt, *, forms: FormsClient
 ) -> ConditionsResponse:
     """Set the operator BETWEEN the integration group's condition groups (collection PATCH)."""
     return forms.conditions.hook_set_operator(survey_id, hook_id, operator)

@@ -16,7 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    BoardId,
+    BoardID,
     app_config,
     tracker_client,
 )
@@ -73,7 +73,7 @@ def create(body: BoardCreate, client: TrackerClient = Depends(tracker_client)) -
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker board"},
 )
 def update(
-    board_id: BoardId, body: BoardUpdate, client: TrackerClient = Depends(tracker_client)
+    board_id: BoardID, body: BoardUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> Board:
     """Edit an agile board; only the fields set in ``body`` are changed.
 
@@ -87,7 +87,7 @@ def update(
     name="boards_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker board"},
 )
-def delete(board_id: BoardId, client: TrackerClient = Depends(tracker_client)) -> Ack:
+def delete(board_id: BoardID, client: TrackerClient = Depends(tracker_client)) -> Ack:
     """Permanently delete an agile board (irreversible; its issues are not affected).
 
     Returns an acknowledgement on success.

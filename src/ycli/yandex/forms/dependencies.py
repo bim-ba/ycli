@@ -20,7 +20,7 @@ TAGS: set[str] = {"forms"}
 WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
 forms_client = client_provider(FormsClient)
 
-SurveyId = Annotated[str, Field(description="Form id (24-char hex), from ``surveys_list``.")]
+SurveyID = Annotated[str, Field(description="Form id (24-char hex), from ``surveys_list``.")]
 
 __all__ = [
     "DESTRUCTIVE",
@@ -30,7 +30,8 @@ __all__ = [
     "WRITE",
     "WRITE_IDEMPOTENT",
     "WRITE_TAGS",
-    "SurveyId",
+    "SurveyID",
     "app_config",
     "forms_client",
 ]
+HookID = Annotated[int, Field(description="Integration group id (integer) from hooks_list.")]

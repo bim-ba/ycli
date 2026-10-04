@@ -23,7 +23,7 @@ from ycli.yandex.tracker.workflows.models import (
 
 app = typer.Typer(name="workflows", help="Tracker workflows.", no_args_is_help=True)
 
-WorkflowIdArg = Annotated[
+WorkflowIDArg = Annotated[
     str, typer.Argument(metavar="WORKFLOW_ID", help="Workflow id, e.g. quickStartV2PresetWorkflow.")
 ]
 VersionOpt = Annotated[
@@ -66,7 +66,7 @@ def list_(*, tracker: TrackerClient) -> ItemList[Workflow]:
 
 
 @app.command()
-def get(workflow_id: WorkflowIdArg, *, tracker: TrackerClient) -> Workflow:
+def get(workflow_id: WorkflowIDArg, *, tracker: TrackerClient) -> Workflow:
     """Print workflow WORKFLOW_ID with its steps and actions."""
     return tracker.workflows.get(workflow_id)
 
@@ -124,7 +124,7 @@ def create(
 
 @app.command()
 def update(
-    workflow_id: WorkflowIdArg,
+    workflow_id: WorkflowIDArg,
     version: VersionOpt,
     name: Annotated[str | None, typer.Option(help="New name of the workflow.")] = None,
     initial_action: Annotated[
@@ -158,7 +158,7 @@ def update(
 
 @app.command("update-action")
 def update_action(
-    workflow_id: WorkflowIdArg,
+    workflow_id: WorkflowIDArg,
     status: Annotated[
         str, typer.Argument(metavar="STATUS", help="Key of the step the action leaves.")
     ],
@@ -181,7 +181,7 @@ def update_action(
 
 
 @app.command()
-def delete(workflow_id: WorkflowIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(workflow_id: WorkflowIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete workflow WORKFLOW_ID (DELETE /workflows/{id})."""
     tracker.workflows.delete(workflow_id)
     return Ack.deleted("workflow", workflow_id)

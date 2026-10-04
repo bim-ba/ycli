@@ -10,7 +10,7 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.triggers.models import (
     Trigger,
@@ -41,7 +41,7 @@ def list_triggers(
             ItemList[Trigger],
             params={"perPage": page_size},
         ),
-        RelativeIdPagination(id_of=_trigger_id),
+        RelativeIDPagination(id_of=_trigger_id),
         lambda page: page.root,
     )
 

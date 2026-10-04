@@ -14,7 +14,7 @@ from ycli.yandex.forms.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    SurveyId,
+    SurveyID,
     app_config,
     forms_client,
 )
@@ -69,7 +69,7 @@ def list_(
 
 
 @mcp.tool(name="surveys_get", annotations={**RO, "title": "Get Forms survey"})
-def get(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Survey:
+def get(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> Survey:
     """One form's settings by id."""
     result = client.surveys.get(survey_id)
     # A 404 deserializes into an all-None Survey (lenient model) rather than raising;
@@ -96,7 +96,7 @@ def create(body: SurveyCreate, client: FormsClient = Depends(forms_client)) -> S
     annotations={**WRITE_IDEMPOTENT, "title": "Modify Forms survey"},
 )
 def update(
-    survey_id: SurveyId, body: SurveyUpdate, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, body: SurveyUpdate, client: FormsClient = Depends(forms_client)
 ) -> Survey:
     """Patch a form's settings — only the fields set in ``body`` change; returns the ``Survey``.
 
@@ -109,7 +109,7 @@ def update(
     name="surveys_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Forms survey"},
 )
-def delete(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
+def delete(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> Ack:
     """Delete a form permanently — IRREVERSIBLE: its questions and collected answers are lost.
 
     The API answers ``204 No Content``; the returned record confirms the accepted action.
@@ -118,7 +118,7 @@ def delete(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> 
 
 
 @mcp.tool(name="surveys_publish", annotations={**WRITE, "title": "Publish Forms survey"})
-def publish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
+def publish(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> Ack:
     """Publish a form so respondents can fill it; fails if the form is blocked or at its cap.
 
     The API answers a bare ``200 OK``; the returned record confirms the accepted action.
@@ -131,7 +131,7 @@ def publish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) ->
     name="surveys_unpublish",
     annotations={**WRITE, "title": "Unpublish Forms survey"},
 )
-def unpublish(survey_id: SurveyId, client: FormsClient = Depends(forms_client)) -> Ack:
+def unpublish(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> Ack:
     """Take a published form offline (respondents can no longer fill it); reversible via publish.
 
     The API answers a bare ``200 OK``; the returned record confirms the accepted action.

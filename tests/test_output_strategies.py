@@ -7,11 +7,11 @@ from rich.console import Console
 
 from ycli.cli.output import (
     AutoStrategy,
-    JsonStrategy,
+    JSONStrategy,
     OutputFormat,
     PrettyStrategy,
     SerializationStrategy,
-    YamlStrategy,
+    YAMLStrategy,
 )
 
 
@@ -31,13 +31,13 @@ def _console(*, terminal: bool) -> tuple[Console, StringIO]:
 
 def test_json_strategy_emits_pristine_json_when_piped():
     console, buf = _console(terminal=False)
-    JsonStrategy().render(_Row(key="ABC-1", name="x"), console)
+    JSONStrategy().render(_Row(key="ABC-1", name="x"), console)
     assert buf.getvalue().strip() == '{"key":"ABC-1","name":"x"}'
 
 
 def test_yaml_strategy_emits_yaml():
     console, buf = _console(terminal=False)
-    YamlStrategy().render(_Row(key="ABC-1", name="x"), console)
+    YAMLStrategy().render(_Row(key="ABC-1", name="x"), console)
     assert "key: ABC-1" in buf.getvalue()
 
 
@@ -64,8 +64,8 @@ def test_auto_strategy_is_json_when_piped():
 
 
 def test_from_format_maps_each_choice():
-    assert isinstance(SerializationStrategy.from_format(OutputFormat.json), JsonStrategy)
-    assert isinstance(SerializationStrategy.from_format(OutputFormat.yaml), YamlStrategy)
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.json), JSONStrategy)
+    assert isinstance(SerializationStrategy.from_format(OutputFormat.yaml), YAMLStrategy)
     assert isinstance(SerializationStrategy.from_format(OutputFormat.pretty), PrettyStrategy)
     assert isinstance(SerializationStrategy.from_format(OutputFormat.auto), AutoStrategy)
 

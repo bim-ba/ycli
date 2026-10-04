@@ -22,7 +22,7 @@ from ycli.yandex.tracker.worklog.models import (
 
 app = typer.Typer(name="worklog", help="Tracker issue worklog.", no_args_is_help=True)
 
-RecordIdArg = Annotated[
+RecordIDArg = Annotated[
     str, typer.Argument(metavar="RECORD_ID", help="Worklog record id to edit/delete.")
 ]
 
@@ -112,7 +112,7 @@ def create(
 @app.command()
 def update(
     key: KeyArg,
-    record_id: RecordIdArg,
+    record_id: RecordIDArg,
     duration: Annotated[str | None, typer.Option(help="New time spent, ISO-8601 duration.")] = None,
     comment: Annotated[str | None, typer.Option(help="New note for the time report.")] = None,
     *,
@@ -124,7 +124,7 @@ def update(
 
 
 @app.command()
-def delete(key: KeyArg, record_id: RecordIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(key: KeyArg, record_id: RecordIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete worklog RECORD_ID from issue KEY."""
     tracker.worklog.delete(key, record_id)
     return Ack.deleted("worklog", record_id, on=key)

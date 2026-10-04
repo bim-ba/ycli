@@ -1,7 +1,7 @@
 """Forms integration-group (hook) models parse what the live API returns."""
 
 from ycli.yandex.forms.hooks.models import Hook, HookCreate, HookUpdate
-from ycli.yandex.forms.subscriptions.models import HttpSubscription
+from ycli.yandex.forms.subscriptions.models import HTTPSubscription
 from ycli.yandex.models import ItemList
 
 # As GET /surveys/{id}/hooks/{hook_id} answered on the test organization (2026-10-02).
@@ -26,7 +26,7 @@ LIVE = {
 def test_hook_parses_live_answer_with_typed_subscriptions():
     hook = Hook.model_validate(LIVE)
     assert hook.id == 18746511 and hook.active is False and hook.conditions is None
-    assert isinstance(hook.subscriptions[0], HttpSubscription)
+    assert isinstance(hook.subscriptions[0], HTTPSubscription)
     assert hook.subscriptions[0].method == "post"
 
 

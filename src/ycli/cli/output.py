@@ -48,14 +48,14 @@ class SerializationStrategy(ABC):
     def from_format(cls, output_format: OutputFormat) -> SerializationStrategy:
         """Resolve a CLI ``--format`` choice to its strategy (no module-level registry)."""
         return {
-            OutputFormat.json: JsonStrategy,
-            OutputFormat.yaml: YamlStrategy,
+            OutputFormat.json: JSONStrategy,
+            OutputFormat.yaml: YAMLStrategy,
             OutputFormat.pretty: PrettyStrategy,
             OutputFormat.auto: AutoStrategy,
         }[output_format]()
 
 
-class JsonStrategy(SerializationStrategy):
+class JSONStrategy(SerializationStrategy):
     """``--format json``: highlighted on a terminal, one pristine line on a pipe."""
 
     def render(self, result: BaseModel, console: Console) -> None:
@@ -67,7 +67,7 @@ class JsonStrategy(SerializationStrategy):
             console.file.write(text + "\n")  # pristine, unwrapped JSON for pipes
 
 
-class YamlStrategy(SerializationStrategy):
+class YAMLStrategy(SerializationStrategy):
     """``--format yaml``: the model as block YAML."""
 
     def render(self, result: BaseModel, console: Console) -> None:
@@ -80,7 +80,7 @@ class PrettyStrategy(SerializationStrategy):
     """Render a model as a readable rich table — recursively, by structure, model-agnostic.
 
     Presentation only — the model layer already flattens API wrappers to scalars (see
-    ``ycli.yandex.models`` ``KeyStr``/``IdStr``/``DisplayStr``), so this just lays data out:
+    ``ycli.yandex.models`` ``KeyStr``/``IDStr``/``DisplayStr``), so this just lays data out:
     - a scalar renders as its text; a ``None`` / empty object / empty list field is *omitted*
       from the table (the data is unchanged — JSON/YAML still carry it);
     - an object becomes a key/value table; a *nested* object is flattened into dotted keys
@@ -168,7 +168,7 @@ class AutoStrategy(SerializationStrategy):
 
     def render(self, result: BaseModel, console: Console) -> None:
         """Print ``result`` with the strategy that fits ``console``."""
-        (PrettyStrategy() if console.is_terminal else JsonStrategy()).render(result, console)
+        (PrettyStrategy() if console.is_terminal else JSONStrategy()).render(result, console)
 
 
 @dataclass(frozen=True)

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from ycli.cli.output import BinaryResult
+from ycli.cli.typedefs import FilePathArg
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
@@ -20,16 +20,6 @@ _OUTPUT = typer.Option("--output", "-O", help="Write to this path; omit or '-' f
 _RENAME_TO = typer.Option("--rename-to", help="Store the file under this name instead of its own.")
 # Module-level Annotated alias so ``Path`` is referenced at runtime (typer resolves annotations
 # via get_type_hints), keeping the import out of a TYPE_CHECKING block.
-FilePathArg = Annotated[
-    Path,
-    typer.Argument(
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        metavar="FILE_PATH",
-        help="Local file to upload.",
-    ),
-]
 
 
 @app.command("list")

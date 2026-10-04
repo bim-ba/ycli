@@ -6,8 +6,8 @@ from pydantic import ValidationError
 from ycli.yandex.forms.subscriptions.models import (
     EmailSubscription,
     FunctionSubscription,
-    HttpSubscription,
-    JsonRpcSubscription,
+    HTTPSubscription,
+    JSONRPCSubscription,
     Subscription,
     SubscriptionAdapter,
     TrackerCommentSubscription,
@@ -26,8 +26,8 @@ from ycli.yandex.models import ItemList
         ({"type": "tracker", "queue": "SUP"}, TrackerSubscription),
         ({"type": "tracker_comment", "issue": "SUP-1"}, TrackerCommentSubscription),
         ({"type": "wiki", "supertag": "team/answers"}, WikiSubscription),
-        ({"type": "jsonrpc", "method": "answers.add"}, JsonRpcSubscription),
-        ({"type": "http", "url": "https://example.com"}, HttpSubscription),
+        ({"type": "jsonrpc", "method": "answers.add"}, JSONRPCSubscription),
+        ({"type": "http", "url": "https://example.com"}, HTTPSubscription),
         ({"type": "function", "function_id": "d4e1"}, FunctionSubscription),
     ],
 )
@@ -69,7 +69,7 @@ def test_live_http_subscription_and_rich_members_parse():
 
 
 def test_a_member_dumps_its_type_tag():
-    assert HttpSubscription(active=False).model_dump(exclude_none=True) == {
+    assert HTTPSubscription(active=False).model_dump(exclude_none=True) == {
         "type": "http",
         "active": False,
     }

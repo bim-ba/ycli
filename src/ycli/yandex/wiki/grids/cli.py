@@ -55,7 +55,7 @@ app.add_typer(rows_app)
 app.add_typer(columns_app)
 app.add_typer(cells_app)
 
-GridIdArg = Annotated[str, typer.Argument(metavar="GRID_ID", help="Grid UUID.")]
+GridIDArg = Annotated[str, typer.Argument(metavar="GRID_ID", help="Grid UUID.")]
 RevisionOpt = Annotated[
     str, typer.Option("--revision", help="Current grid revision (optimistic lock).")
 ]
@@ -68,7 +68,7 @@ PositionOpt = Annotated[int | None, typer.Option("--position", help="Zero-based 
 
 @app.command()
 def get(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     fields: Annotated[
         str | None, typer.Option(help="Extra blocks, e.g. attributes,user_permissions.")
     ] = None,
@@ -119,7 +119,7 @@ def create(
 
 @app.command()
 def update(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     title: Annotated[str | None, typer.Option(help="New grid title.")] = None,
     default_sort: Annotated[
@@ -147,14 +147,14 @@ def update(
 
 
 @app.command()
-def delete(grid_id: GridIdArg, *, wiki: WikiClient) -> Ack:
+def delete(grid_id: GridIDArg, *, wiki: WikiClient) -> Ack:
     """Delete a grid (DELETE /grids/{id})."""
     return wiki.grids.delete(grid_id)
 
 
 @app.command()
 def clone(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     target: Annotated[
         str, typer.Option("--target", help="Destination page slug (created if absent).")
     ],
@@ -184,7 +184,7 @@ def clone(
 
 @rows_app.command("add")
 def rows_add(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     rows: Annotated[
         str, typer.Option("--rows", help='Rows as JSON, e.g. \'[{"name":"x"}]\' (slug→value).')
@@ -208,7 +208,7 @@ def rows_add(
 
 @rows_app.command("remove")
 def rows_remove(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     row_id: Annotated[list[str], typer.Option("--row-id", help="Row id to delete (repeatable).")],
     *,
@@ -221,7 +221,7 @@ def rows_remove(
 
 @rows_app.command("move")
 def rows_move(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     row_id: Annotated[
         str | None, typer.Option("--row-id", help="Id of the first row to move.")
@@ -249,7 +249,7 @@ def rows_move(
 
 @columns_app.command("add")
 def columns_add(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     columns: Annotated[
         str,
@@ -272,7 +272,7 @@ def columns_add(
 
 @columns_app.command("remove")
 def columns_remove(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     column_slug: Annotated[
         list[str], typer.Option("--column-slug", help="Column slug to delete (repeatable).")
@@ -287,7 +287,7 @@ def columns_remove(
 
 @columns_app.command("move")
 def columns_move(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     column_slug: Annotated[
         str | None, typer.Option("--column-slug", help="Slug of the first column to move.")
@@ -311,7 +311,7 @@ def columns_move(
 
 @cells_app.command("update")
 def cells_update(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     revision: RevisionOpt,
     cells: Annotated[
         str,
@@ -330,7 +330,7 @@ def cells_update(
 
 @rows_app.command("update")
 def rows_update(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     row_id: Annotated[str, typer.Argument(metavar="ROW_ID", help="Id of the row to update.")],
     revision: OptionalRevisionOpt = None,
     pinned: Annotated[
@@ -353,7 +353,7 @@ def rows_update(
 
 @columns_app.command("suggest")
 def columns_suggest(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     title: Annotated[
         str | None, typer.Option("--title", help="Title to turn into a slug and check.")
     ] = None,
@@ -368,7 +368,7 @@ def columns_suggest(
 
 @columns_app.command("update")
 def columns_update(
-    grid_id: GridIdArg,
+    grid_id: GridIDArg,
     column_slug: Annotated[
         str, typer.Argument(metavar="COLUMN_SLUG", help="Slug of the column to edit.")
     ],

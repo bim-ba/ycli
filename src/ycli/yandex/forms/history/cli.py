@@ -10,7 +10,7 @@ from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.history.models import HistoryEvent
-from ycli.yandex.forms.typedefs import SurveyIdArg
+from ycli.yandex.forms.typedefs import SurveyIDArg
 from ycli.yandex.models import ItemList, SortDirection
 
 app = typer.Typer(name="history", help="Forms change log.", no_args_is_help=True)
@@ -18,7 +18,7 @@ app = typer.Typer(name="history", help="Forms change log.", no_args_is_help=True
 
 @app.command("list")
 def list_(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     ordering: Annotated[
         str | None, values_option(SortDirection, help="desc is newest first, the API default.")
     ] = None,

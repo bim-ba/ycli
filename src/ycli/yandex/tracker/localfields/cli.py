@@ -10,17 +10,11 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.localfields.models import LocalField, LocalFieldUpdate
 from ycli.yandex.tracker.models import FieldCreate, LocalizedName, OptionsProviderInput
+from ycli.yandex.tracker.typedefs import OptionOpt, OptionsTypeOpt
 
 app = typer.Typer(name="localfields", help="Tracker per-queue local fields.", no_args_is_help=True)
 
 QueueArg = Annotated[str, typer.Argument(help="Queue key (case-sensitive) or numeric id.")]
-OptionOpt = Annotated[
-    list[str] | None,
-    typer.Option("--option", help="Allowed drop-down value (repeatable)."),
-]
-OptionsTypeOpt = Annotated[
-    str, typer.Option("--options-type", help="Drop-down provider type for --option values.")
-]
 
 
 def _options_provider(values: list[str] | None, provider_type: str) -> OptionsProviderInput | None:

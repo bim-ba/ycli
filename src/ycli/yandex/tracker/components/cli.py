@@ -18,7 +18,7 @@ from ycli.yandex.tracker.components.models import (
 
 app = typer.Typer(name="components", help="Tracker components.", no_args_is_help=True)
 
-ComponentIdArg = Annotated[
+ComponentIDArg = Annotated[
     int, typer.Argument(metavar="COMPONENT_ID", help="Numeric id of the component.")
 ]
 FieldsOpt = Annotated[
@@ -105,14 +105,14 @@ def list_for_queue(
 
 @app.command()
 def get(
-    component_id: ComponentIdArg, fields: FieldsOpt = None, *, tracker: TrackerClient
+    component_id: ComponentIDArg, fields: FieldsOpt = None, *, tracker: TrackerClient
 ) -> Component:
     """Print component COMPONENT_ID (GET /components/{id})."""
     return tracker.components.get(component_id, fields=fields)
 
 
 @app.command()
-def delete(component_id: ComponentIdArg, *, tracker: TrackerClient) -> Ack:
+def delete(component_id: ComponentIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete component COMPONENT_ID (DELETE /components/{id})."""
     tracker.components.delete(component_id)
     return Ack.deleted("component", component_id)
@@ -120,7 +120,7 @@ def delete(component_id: ComponentIdArg, *, tracker: TrackerClient) -> Ack:
 
 @app.command("user-permissions-get")
 def user_permissions_get(
-    component_id: ComponentIdArg,
+    component_id: ComponentIDArg,
     user_id: Annotated[
         str, typer.Argument(metavar="USER", help="Login or numeric uid of the user.")
     ],
@@ -133,7 +133,7 @@ def user_permissions_get(
 
 @app.command("group-permissions-get")
 def group_permissions_get(
-    component_id: ComponentIdArg,
+    component_id: ComponentIDArg,
     group_id: Annotated[int, typer.Argument(metavar="GROUP_ID", help="Numeric id of the group.")],
     *,
     tracker: TrackerClient,

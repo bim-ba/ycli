@@ -6,17 +6,17 @@ also ship as MCP tools (``files_verify`` / ``files_delete``).
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from ycli.cli.output import BinaryResult
+from ycli.cli.typedefs import FilePathArg
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.files.models import FileIn
 from ycli.yandex.forms.models import FileOut
 from ycli.yandex.forms.typedefs import (
-    SurveyIdArg,
+    SurveyIDArg,
 )
 from ycli.yandex.models import Ack, ItemList
 
@@ -26,27 +26,17 @@ _PATH = typer.Option("--path", help="File download path (from an upload response
 _URL = typer.Option("--url", help="File download URL (from an upload response).")
 # Module-level Annotated alias so ``Path`` is referenced at runtime (typer resolves annotations
 # via get_type_hints), keeping the import out of a TYPE_CHECKING block.
-FilePathArg = Annotated[
-    Path,
-    typer.Argument(
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        metavar="FILE_PATH",
-        help="Local file to upload.",
-    ),
-]
 
 
 @app.command()
-def upload(survey_id: SurveyIdArg, file_path: FilePathArg, *, forms: FormsClient) -> FileOut:
+def upload(survey_id: SurveyIDArg, file_path: FilePathArg, *, forms: FormsClient) -> FileOut:
     """Upload a file for form filling (POST …/files) — needs external storage on the form."""
     return forms.files.upload(survey_id, filename=file_path.name, data=file_path.read_bytes())
 
 
 @app.command()
 def verify(
-    survey_id: SurveyIdArg,
+    survey_id: SurveyIDArg,
     path: Annotated[
         list[str] | None, typer.Option("--path", help="File path to check (repeatable).")
     ] = None,

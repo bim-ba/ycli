@@ -4,7 +4,7 @@ A command declares what it needs as keyword-only parameters typed with an inject
 (any SDK domain client, or :class:`~ycli.settings.AppConfig`)::
 
     @app.command()
-    def get(survey_id: SurveyIdArg, *, forms: FormsClient) -> Survey:
+    def get(survey_id: SurveyIDArg, *, forms: FormsClient) -> Survey:
         return forms.surveys.get(survey_id)
 
 :func:`inject_dependencies` rewrites each such command so Typer never sees those parameters

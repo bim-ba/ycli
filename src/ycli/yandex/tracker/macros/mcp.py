@@ -13,8 +13,8 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    MacroId,
-    QueueId,
+    MacroID,
+    QueueID,
     tracker_client,
 )
 from ycli.yandex.tracker.macros.models import Macro, MacroCreate, MacroUpdate
@@ -58,7 +58,7 @@ def get(
     annotations={**WRITE, "title": "Create Tracker queue macro"},
 )
 def create(
-    queue_id: QueueId, body: MacroCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueID, body: MacroCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Macro:
     """Create a macro on a queue (a canned comment plus field updates applied on demand).
 
@@ -73,8 +73,8 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue macro"},
 )
 def update(
-    queue_id: QueueId,
-    macro_id: MacroId,
+    queue_id: QueueID,
+    macro_id: MacroID,
     body: MacroUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Macro:
@@ -90,7 +90,7 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker queue macro"},
 )
 def delete(
-    queue_id: QueueId, macro_id: MacroId, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueID, macro_id: MacroID, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Permanently delete a macro from a queue (irreversible).
 

@@ -16,26 +16,24 @@ from ycli.yandex.tracker.autoactions.models import (
     AutoactionRunEntry,
 )
 from ycli.yandex.tracker.client import TrackerClient
+from ycli.yandex.tracker.typedefs import QueueIDArg
 
 app = typer.Typer(name="autoactions", help="Tracker queue autoactions.", no_args_is_help=True)
 
-QueueIdArg = Annotated[
-    str, typer.Argument(metavar="QUEUE_ID", help="Queue key (case-sensitive) or numeric id.")
-]
-ActionIdArg = Annotated[
+ActionIDArg = Annotated[
     int, typer.Argument(metavar="ACTION_ID", help="Numeric autoaction identifier.")
 ]
 
 
 @app.command()
-def get(queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient) -> Autoaction:
+def get(queue_id: QueueIDArg, action_id: ActionIDArg, *, tracker: TrackerClient) -> Autoaction:
     """Get autoaction ACTION_ID of QUEUE_ID."""
     return tracker.autoactions.get(queue_id, action_id)
 
 
 @app.command()
 def create(
-    queue_id: QueueIdArg,
+    queue_id: QueueIDArg,
     name: Annotated[str, typer.Option(help="Name of the new autoaction.")],
     query: Annotated[
         str | None, typer.Option(help="TQL query selecting the issues to act on.")
@@ -83,7 +81,7 @@ def create(
 
 @app.command()
 def logs_list(
-    queue_id: QueueIdArg, action_id: ActionIdArg, *, tracker: TrackerClient
+    queue_id: QueueIDArg, action_id: ActionIDArg, *, tracker: TrackerClient
 ) -> ItemList[AutoactionLogEntry]:
     """List the run summaries of autoaction ACTION_ID."""
     return tracker.autoactions.logs_list(queue_id, action_id)
@@ -91,8 +89,8 @@ def logs_list(
 
 @app.command("logs-get")
 def logs_get(
-    queue_id: QueueIdArg,
-    action_id: ActionIdArg,
+    queue_id: QueueIDArg,
+    action_id: ActionIDArg,
     run_id: Annotated[str, typer.Argument(metavar="RUN_ID", help="Autoaction run identifier.")],
     *,
     tracker: TrackerClient,

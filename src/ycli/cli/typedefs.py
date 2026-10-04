@@ -11,6 +11,7 @@ here too, once, and reused by the root callback and every leaf command (see
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Annotated, Any, Literal, get_args, get_origin
 
 import typer
@@ -124,3 +125,19 @@ def values_argument(value_set: Any, *, help: str, metavar: str | None = None) ->
     return typer.Argument(
         metavar=metavar, help=f"{help} Known values: {', '.join(values)}.", autocompletion=complete
     )
+
+
+OutputOption = Annotated[
+    str | None,
+    typer.Option("--output", help="Write bytes to this path; omit / '-' streams to stdout."),
+]
+FilePathArg = Annotated[
+    Path,
+    typer.Argument(
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        metavar="FILE_PATH",
+        help="Local file to upload.",
+    ),
+]

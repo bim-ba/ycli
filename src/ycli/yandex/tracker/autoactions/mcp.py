@@ -17,7 +17,7 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
-    QueueId,
+    QueueID,
     tracker_client,
 )
 
@@ -85,7 +85,7 @@ def logs_get(
     annotations={**WRITE, "title": "Create Tracker queue autoaction"},
 )
 def create(
-    queue_id: QueueId, body: AutoactionCreate, client: TrackerClient = Depends(tracker_client)
+    queue_id: QueueID, body: AutoactionCreate, client: TrackerClient = Depends(tracker_client)
 ) -> Autoaction:
     """Create an autoaction on a queue — actions applied on a schedule to matching issues.
 

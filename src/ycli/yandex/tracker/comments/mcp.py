@@ -16,7 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    CommentId,
+    CommentID,
     Expand,
     IssueKey,
     app_config,
@@ -80,7 +80,7 @@ def add(
 )
 def update(
     key: IssueKey,
-    comment_id: CommentId,
+    comment_id: CommentID,
     body: CommentUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Comment:
@@ -96,7 +96,7 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker issue comment"},
 )
 def delete(
-    key: IssueKey, comment_id: CommentId, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey, comment_id: CommentID, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Permanently delete one comment from a Tracker issue (irreversible).
 
@@ -112,7 +112,7 @@ def delete(
 )
 def react(
     key: IssueKey,
-    comment_id: CommentId,
+    comment_id: CommentID,
     name: Annotated[
         str, Field(description="Reaction name, e.g. ``like``, ``dislike`` or ``fire``.")
     ],

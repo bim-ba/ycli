@@ -2,8 +2,8 @@
 
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
-    AclInput,
-    AclPrincipalsInput,
+    ACLInput,
+    ACLPrincipalsInput,
     Attachment,
     BulkChangeOperation,
     BulkChangeUpdate,
@@ -224,7 +224,7 @@ def test_checklist_move():
 
 def test_extended_permissions_update():
     body = ExtendedPermissionsUpdate(
-        acl=AclInput(read=AclPrincipalsInput(roles=["OWNER"], users=["11"]))
+        acl=ACLInput(read=ACLPrincipalsInput(roles=["OWNER"], users=["11"]))
     ).model_dump(by_alias=True, exclude_none=True)
     assert body == {"acl": {"READ": {"users": ["11"], "roles": ["OWNER"]}}}
 
@@ -282,9 +282,9 @@ def test_bulk_change_update():
 
 
 def test_direct_permissions_reply_parses_as_the_root_acl():
-    from ycli.yandex.tracker.entities.models import Acl
+    from ycli.yandex.tracker.entities.models import ACL
 
-    acl = Acl.model_validate(
+    acl = ACL.model_validate(
         {
             "READ": {"users": [], "groups": [], "roles": []},
             "GRANT": {"users": [], "groups": [], "roles": ["AUTHOR", "OWNER"]},
@@ -303,12 +303,12 @@ def test_direct_permissions_reply_parses_as_the_root_acl():
 
 def test_direct_permissions_update_sends_only_the_given_sides():
     from ycli.yandex.tracker.entities.models import (
-        AclInput,
-        AclPrincipalsInput,
+        ACLInput,
+        ACLPrincipalsInput,
         DirectPermissionsUpdate,
     )
 
-    update = DirectPermissionsUpdate(grant=AclInput(read=AclPrincipalsInput(users=["ann"])))
+    update = DirectPermissionsUpdate(grant=ACLInput(read=ACLPrincipalsInput(users=["ann"])))
     assert update.model_dump(by_alias=True, exclude_none=True) == {
         "grant": {"READ": {"users": ["ann"]}}
     }

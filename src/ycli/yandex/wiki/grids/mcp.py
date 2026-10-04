@@ -45,7 +45,7 @@ from ycli.yandex.wiki.models import AsyncOperation
 
 mcp = FastMCP("wiki-grids")
 
-GridIdParam = Annotated[str, Field(description="The grid's permanent UUID4 id.")]
+GridIDParam = Annotated[str, Field(description="The grid's permanent UUID4 id.")]
 
 
 @mcp.tool(name="grids_get", annotations={**RO, "title": "Get Wiki grid"})
@@ -104,7 +104,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid"},
 )
 def update(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         GridUpdate,
         Field(
@@ -124,7 +124,7 @@ def update(
 
 @mcp.tool(name="grids_delete", annotations={**DESTRUCTIVE, "title": "Delete Wiki grid"})
 def delete(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     client: WikiClient = Depends(wiki_client),
 ) -> Ack:
     """Delete a grid — irreversible (grids have NO recovery token, unlike pages).
@@ -137,7 +137,7 @@ def delete(
 
 @mcp.tool(name="grids_rows_add", annotations={**WRITE, "title": "Add Wiki grid rows"})
 def rows_add(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         RowsAdd,
         Field(
@@ -160,7 +160,7 @@ def rows_add(
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid rows"},
 )
 def rows_remove(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         RowsRemove,
         Field(description="``row_ids`` to delete (at least one) + the current ``revision``."),
@@ -177,7 +177,7 @@ def rows_remove(
 
 @mcp.tool(name="grids_rows_move", annotations={**WRITE, "title": "Move Wiki grid rows"})
 def rows_move(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         RowsMove,
         Field(
@@ -199,7 +199,7 @@ def rows_move(
     annotations={**WRITE, "title": "Add Wiki grid columns"},
 )
 def columns_add(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         ColumnsAdd,
         Field(
@@ -223,7 +223,7 @@ def columns_add(
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid columns"},
 )
 def columns_remove(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         ColumnsRemove,
         Field(description="``column_slugs`` to delete + the current ``revision``."),
@@ -243,7 +243,7 @@ def columns_remove(
     annotations={**WRITE, "title": "Move Wiki grid columns"},
 )
 def columns_move(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         ColumnsMove,
         Field(
@@ -265,7 +265,7 @@ def columns_move(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid cells"},
 )
 def cells_update(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         CellsUpdate,
         Field(
@@ -285,7 +285,7 @@ def cells_update(
 
 @mcp.tool(name="grids_clone", annotations={**WRITE, "title": "Clone Wiki grid"})
 def clone(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         GridClone,
         Field(
@@ -309,7 +309,7 @@ def clone(
     annotations={**RO, "title": "Suggest Wiki grid column slug"},
 )
 def columns_suggest(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     body: Annotated[
         ColumnSuggest,
         Field(description="``slug`` to check, or a ``title`` to turn into a slug and check."),
@@ -329,7 +329,7 @@ def columns_suggest(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid column"},
 )
 def columns_update(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     column_slug: Annotated[str, Field(description="Slug of the column to edit.")],
     body: Annotated[
         ColumnUpdate,
@@ -355,7 +355,7 @@ def columns_update(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Wiki grid row"},
 )
 def rows_update(
-    grid_id: GridIdParam,
+    grid_id: GridIDParam,
     row_id: Annotated[str, Field(description="Id of the row to pin or colour.")],
     body: Annotated[
         RowUpdate,

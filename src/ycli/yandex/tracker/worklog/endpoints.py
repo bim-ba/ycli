@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogSearch, WorklogUpdate
 
@@ -35,7 +35,7 @@ def list_worklog(key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Work
             ItemList[Worklog],
             params={"perPage": page_size},
         ),
-        RelativeIdPagination(id_of=_record_id),
+        RelativeIDPagination(id_of=_record_id),
         lambda page: page.root,
     )
 

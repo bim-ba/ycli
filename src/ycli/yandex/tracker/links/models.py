@@ -9,7 +9,7 @@ from pydantic import Field
 from ycli.yandex.models import (
     APIModel,
     DisplayStr,
-    IdStr,
+    IDStr,
     KeyStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
@@ -52,7 +52,7 @@ class Link(APIModel):
     """
 
     id: int | str | None = None
-    type: IdStr = None
+    type: IDStr = None
     direction: str | None = None
     object: LinkObject | None = None
     created_by: DisplayStr = Field(default=None, alias="createdBy")

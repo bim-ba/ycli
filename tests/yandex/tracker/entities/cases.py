@@ -3,8 +3,8 @@
 from tests.contract import Case, Reply, Sent, with_query
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
-    AclInput,
-    AclPrincipalsInput,
+    ACLInput,
+    ACLPrincipalsInput,
     BulkChangeUpdate,
     ChecklistItemInput,
     ChecklistMove,
@@ -1482,11 +1482,11 @@ CASES = [
             "goal",
             "g18",
             DirectPermissionsUpdate(
-                grant=AclInput(
-                    read=AclPrincipalsInput(users=["ann"], groups=["7"]),
-                    write=AclPrincipalsInput(roles=["MEMBER"]),
+                grant=ACLInput(
+                    read=ACLPrincipalsInput(users=["ann"], groups=["7"]),
+                    write=ACLPrincipalsInput(roles=["MEMBER"]),
                 ),
-                revoke=AclInput(grant=AclPrincipalsInput(users=["bob"], roles=["OWNER"])),
+                revoke=ACLInput(grant=ACLPrincipalsInput(users=["bob"], roles=["OWNER"])),
             ),
         ),
         cli=[
@@ -1547,7 +1547,7 @@ CASES = [
         args=(
             "portfolio",
             "pf19",
-            DirectPermissionsUpdate(revoke=AclInput(read=AclPrincipalsInput(groups=["9"]))),
+            DirectPermissionsUpdate(revoke=ACLInput(read=ACLPrincipalsInput(groups=["9"]))),
         ),
         cli=[
             "tracker",

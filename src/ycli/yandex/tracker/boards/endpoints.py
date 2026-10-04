@@ -10,7 +10,7 @@ Examples:
 from __future__ import annotations
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
-from ycli.yandex.core.pagination import RelativeIdPagination
+from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.boards.models import Board, BoardCreate, BoardUpdate
 
@@ -25,7 +25,7 @@ def list_boards(*, page_size: int = PAGE_SIZE) -> Paged[ItemList[Board], Board]:
     """``GET /boards/_paginate``: ascending ids, each next page from ``id=<last board id>``."""
     return Paged(
         Endpoint("GET", "boards/_paginate", ItemList[Board], params={"perPage": page_size}),
-        RelativeIdPagination(id_of=_board_id),
+        RelativeIDPagination(id_of=_board_id),
         lambda page: page.root,
     )
 

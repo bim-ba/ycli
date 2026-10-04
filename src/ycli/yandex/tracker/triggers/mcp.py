@@ -14,7 +14,7 @@ from ycli.yandex.tracker.dependencies import (
     RO,
     WRITE,
     WRITE_IDEMPOTENT,
-    QueueId,
+    QueueID,
     Version,
     app_config,
     tracker_client,
@@ -96,7 +96,7 @@ def webhook_log_list(
     annotations={**WRITE, "title": "Create Tracker queue trigger"},
 )
 def create(
-    queue_id: QueueId,
+    queue_id: QueueID,
     body: Annotated[
         TriggerCreate, Field(description="Trigger name, actions and optional conditions.")
     ],
@@ -115,7 +115,7 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker queue trigger"},
 )
 def update(
-    queue_id: QueueId,
+    queue_id: QueueID,
     trigger_id: Annotated[int, Field(description="Numeric trigger id, from ``triggers_list``.")],
     body: Annotated[TriggerUpdate, Field(description="Fields to change; unset ones stay.")],
     version: Version = None,

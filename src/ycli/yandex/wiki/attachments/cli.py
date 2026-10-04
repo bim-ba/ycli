@@ -8,18 +8,13 @@ from typing import Annotated
 import typer
 
 from ycli.cli.output import BinaryResult
-from ycli.cli.typedefs import AllOption, LimitOption, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, OutputOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList, SortDirection
 from ycli.yandex.wiki.attachments.models import AttachedFile, Attachment, AttachmentOrder
 from ycli.yandex.wiki.client import WikiClient
 
 app = typer.Typer(name="attachments", help="Wiki page attachments.", no_args_is_help=True)
-
-OutputOption = Annotated[
-    str | None,
-    typer.Option("--output", help="Write bytes to this path; omit / '-' streams to stdout."),
-]
 
 
 @app.command("list")

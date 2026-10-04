@@ -16,7 +16,7 @@ from ycli.yandex.tracker.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     IssueKey,
-    WorklogRecordId,
+    WorklogRecordID,
     app_config,
     tracker_client,
 )
@@ -117,7 +117,7 @@ def create(
 )
 def update(
     key: IssueKey,
-    record_id: WorklogRecordId,
+    record_id: WorklogRecordID,
     body: WorklogUpdate,
     client: TrackerClient = Depends(tracker_client),
 ) -> Worklog:
@@ -133,7 +133,7 @@ def update(
     annotations={**DESTRUCTIVE, "title": "Delete Tracker worklog record"},
 )
 def delete(
-    key: IssueKey, record_id: WorklogRecordId, client: TrackerClient = Depends(tracker_client)
+    key: IssueKey, record_id: WorklogRecordID, client: TrackerClient = Depends(tracker_client)
 ) -> Ack:
     """Permanently delete a worklog record from a Tracker issue (irreversible).
 
