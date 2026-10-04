@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.66.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.65.0
+  ([`4cbea2a`](https://github.com/bim-ba/ycli/commit/4cbea2a5875f53d27d250ab49a2ce0747f5ab44b))
+
+### Refactoring
+
+- Code and tests that nothing uses are deleted ([#234](https://github.com/bim-ba/ycli/pull/234),
+  [`d9ebfea`](https://github.com/bim-ba/ycli/commit/d9ebfeae8fa061ab435c3322e776436519fe7efc))
+
+### Breaking Changes
+
+- Two public SDK names are removed, neither was reachable from a client operation:
+  ycli.yandex.core.pagination.HeaderCursorPagination and
+  ycli.yandex.tracker.entities.models.ExtendedPermissionsUpdate.
+
+
 ## v0.65.0 (2026-10-04)
 
 ### Build System
