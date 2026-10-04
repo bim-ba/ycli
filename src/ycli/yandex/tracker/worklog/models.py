@@ -23,12 +23,18 @@ class Worklog(APIModel):
         'X'
     """
 
-    id: int | str | None = None
-    created_at: str | None = Field(default=None, alias="createdAt")
-    created_by: DisplayStr = Field(default=None, alias="createdBy")
-    duration: str | None = None
-    start: str | None = None
-    comment: str | None = None
+    id: int | str | None = Field(default=None, description="Worklog record identifier.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="When the record was created (ISO 8601)."
+    )
+    created_by: DisplayStr = Field(
+        default=None, alias="createdBy", description="Display name of the record author."
+    )
+    duration: str | None = Field(
+        default=None, description="Time spent as an ISO-8601 duration, e.g. ``PT2H``."
+    )
+    start: str | None = Field(default=None, description="When the work started (ISO 8601).")
+    comment: str | None = Field(default=None, description="Note saved with the record.")
 
 
 def _now() -> str:

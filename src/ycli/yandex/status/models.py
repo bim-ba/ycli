@@ -22,12 +22,20 @@ class Identity(APIModel):
         'ivan'
     """
 
-    id: str
-    login: str
-    client_id: str | None = None
-    display_name: str | None = None
-    real_name: str | None = None
-    default_email: str | None = None
+    id: str = Field(description="Yandex ID of the user.")
+    login: str = Field(description="Yandex login of the user.")
+    client_id: str | None = Field(
+        default=None, description="Id of the OAuth app the token was issued to."
+    )
+    display_name: str | None = Field(
+        default=None, description="Name to show for the user (needs `login:info`)."
+    )
+    real_name: str | None = Field(
+        default=None, description="Real name of the user (needs `login:info`)."
+    )
+    default_email: str | None = Field(
+        default=None, description="Default email address of the user (needs `login:email`)."
+    )
 
 
 class OrganizationStatus(APIModel):
@@ -36,32 +44,40 @@ class OrganizationStatus(APIModel):
     ``detail`` says why the name is unknown (the token lacks ``directory:read_organization``).
     """
 
-    id: str
-    name: str | None = None
-    detail: str = ""
+    id: str = Field(description="Id of the organization.")
+    name: str | None = Field(
+        default=None, description="Name of the organization; `null` when it could not be read."
+    )
+    detail: str = Field(default="", description="Why the name is unknown; empty when it was read.")
 
 
 class ServiceAuthStatus(APIModel):
     """One service's probe: whether the token works there, or why not."""
 
-    service: str
-    valid: bool = False
-    detail: str = ""
+    service: str = Field(description="Service probed, e.g. `tracker`.")
+    valid: bool = Field(default=False, description="Whether the token works in the service.")
+    detail: str = Field(default="", description="Why the probe failed; empty when it passed.")
 
 
 class AuthReport(APIModel):
     """Whether the credentials are set, whose they are, and which services accept them."""
 
-    configured: bool
+    configured: bool = Field(description="Whether a credential is set.")
     credential: CredentialKind | None = Field(
         default=None, description="Which token is in use; never its value."
     )
     profile: str | None = Field(
         default=None, description="The named profile the credentials come from, if any."
     )
-    identity: Identity | None = None
-    organization: OrganizationStatus | None = None
-    services: list[ServiceAuthStatus] = Field(default_factory=list)
+    identity: Identity | None = Field(
+        default=None, description="Who owns the token; `null` when it could not be read."
+    )
+    organization: OrganizationStatus | None = Field(
+        default=None, description="The configured organization."
+    )
+    services: list[ServiceAuthStatus] = Field(
+        default_factory=list, description="One probe per service, in the order they ran."
+    )
 
 
 class SavedProfile(APIModel):
@@ -72,7 +88,7 @@ class SavedProfile(APIModel):
         False
     """
 
-    name: str
+    name: str = Field(description="Name of the profile.")
     organization_id: str | None = Field(
         default=None, description="`null` when the profile's file cannot be used."
     )

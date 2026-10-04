@@ -119,7 +119,9 @@ class ColumnSortWrite(RootModel[dict[str, SortDirection]]):
         {'priority': 'desc'}
     """
 
-    root: dict[str, SortDirection]
+    root: dict[str, SortDirection] = Field(
+        description="Column slug mapped to the sort direction, ``asc`` or ``desc``."
+    )
 
 
 class ColumnSchema(APIModel):

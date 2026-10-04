@@ -377,3 +377,4 @@ check of its own to say it. A reply that does not fit its model is another error
 | MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |
 | Acronyms keep their capitals in a CapWords name | `tests/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
 | An `Annotated` alias is defined once | `tests/test_conventions.py::test_an_annotated_alias_is_defined_once` |
+| Every model field carries a description | `tests/test_conventions.py::test_every_model_field_has_a_description` |

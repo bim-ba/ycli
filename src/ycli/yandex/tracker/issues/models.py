@@ -24,19 +24,23 @@ class Issue(APIModel):
         'task'
     """
 
-    key: str | None = None
-    summary: str | None = None
-    type: KeyStr = None
-    status: KeyStr = None
-    priority: KeyStr = None
-    epic: KeyStr = None
-    parent: KeyStr = None
-    queue: KeyStr = None
-    assignee: DisplayStr = None
-    tags: list[str] = Field(default_factory=list)
-    description: str | None = None
-    created_at: str | None = Field(default=None, alias="createdAt")
-    created_by: DisplayStr = Field(default=None, alias="createdBy")
+    key: str | None = Field(default=None, description="Issue key, e.g. ``TEST-1``.")
+    summary: str | None = Field(default=None, description="Issue title.")
+    type: KeyStr = Field(default=None, description="Key of the issue type, e.g. ``task``.")
+    status: KeyStr = Field(default=None, description="Key of the current status.")
+    priority: KeyStr = Field(default=None, description="Key of the priority.")
+    epic: KeyStr = Field(default=None, description="Key of the epic the issue belongs to.")
+    parent: KeyStr = Field(default=None, description="Key of the parent issue.")
+    queue: KeyStr = Field(default=None, description="Key of the queue the issue belongs to.")
+    assignee: DisplayStr = Field(default=None, description="Display name of the assignee.")
+    tags: list[str] = Field(default_factory=list, description="Tags set on the issue.")
+    description: str | None = Field(default=None, description="Issue description (YFM markdown).")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="When the issue was created (ISO 8601)."
+    )
+    created_by: DisplayStr = Field(
+        default=None, alias="createdBy", description="Display name of the issue author."
+    )
 
 
 class IssueCreate(APIModel):

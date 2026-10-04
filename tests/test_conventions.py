@@ -109,6 +109,36 @@ def test_no_resource_defines_a_list_class_of_its_own():
     assert _own_list_classes(_models()) == []
 
 
+def _undescribed_fields(models: list[type[BaseModel]]) -> list[str]:
+    """``module.Class.field`` for each field a model declares without a description."""
+    return sorted(
+        f"{_name(cls)}.{name}"
+        for cls in models
+        if not issubclass(cls, RootModel)
+        for name, field in cls.model_fields.items()
+        if name in cls.__annotations__ and not (field.description or "").strip()
+    )
+
+
+def test_every_model_field_has_a_description():
+    """Section 6, ``models.py``: the description is the text of the MCP schema and the docs."""
+    assert _undescribed_fields(_models()) == []
+
+
+def test_the_field_description_check_bites():
+    class Parent(APIModel):
+        described: int = Field(default=0, description="Fine.")
+
+    class Child(Parent):
+        bare: int = 0
+        blank: int = Field(default=0, description=" ")
+
+    assert [name.rsplit(".", 1)[-1] for name in _undescribed_fields([Parent, Child])] == [
+        "bare",
+        "blank",
+    ]
+
+
 def test_the_model_checks_bite():
     class Bare(BaseModel):
         value: int = 0

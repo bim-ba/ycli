@@ -1428,7 +1428,7 @@ ARCH8_ERROR_MAPPERS = {
     Path("yandex/core/auth.py"): "the IAM token exchange outside the sessions",
     Path("yandex/status/client.py"): (
         "the OAuth login flow: a 400/401 with an OAuth error code is a device-flow polling "
-        "state (RFC 6749 §5.2), so it cannot use the transport's raise-on-4xx hook"
+        "state (RFC 6749 §5.2), not a failure for the session to raise"
     ),
 }
 # Functions that raise a status-carrying YandexError with no response to map, and why.

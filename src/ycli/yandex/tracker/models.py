@@ -182,9 +182,13 @@ class LinkType(APIModel):
         'relates'
     """
 
-    id: str | None = None
-    inward: str | None = None
-    outward: str | None = None
+    id: str | None = Field(default=None, description="Link type identifier, e.g. ``relates``.")
+    inward: str | None = Field(
+        default=None, description="Name of the link as seen from the linked issue."
+    )
+    outward: str | None = Field(
+        default=None, description="Name of the link as seen from the requested issue."
+    )
 
 
 class AutomationAction(APIModel):
