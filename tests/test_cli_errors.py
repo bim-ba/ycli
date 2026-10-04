@@ -3,7 +3,7 @@
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from tests.hosts import FORMS_BASE
+from tests.hosts import FORMS_BASE, TRACKER_BASE
 from ycli.cli.app import main
 from ycli.cli.errors import exit_code_for, format_cli_error
 from ycli.cli.exit_codes import ExitCode
@@ -17,6 +17,7 @@ from ycli.yandex.errors import (
     YandexRateLimitError,
     YandexServerError,
     YandexTimeoutError,
+    YandexUnexpectedReplyError,
 )
 
 
@@ -77,7 +78,9 @@ def test_a_model_that_does_not_validate_is_printed_field_by_field():
     with pytest.raises(ValidationError) as exc_info:
         _Model(count="not-an-int")  # ty: ignore[invalid-argument-type]
     message = format_cli_error(exc_info.value)
-    assert message.startswith("Invalid data:\n  count: Input should be a valid integer")
+    assert message.startswith(
+        "The request cannot be built:\n  count: Input should be a valid integer"
+    )
     assert "auth login" not in message
 
 
@@ -137,6 +140,7 @@ def test_an_invalid_configuration_exits_as_a_usage_error(monkeypatch):
         (YandexTimeoutError("polled too long"), ExitCode.TRANSIENT),
         (YandexConnectionError("no route"), ExitCode.TRANSIENT),
         (YandexClientError("400", status=400), ExitCode.FAILURE),
+        (YandexUnexpectedReplyError("the reply does not fit"), ExitCode.FAILURE),
         (YandexInvalidRequestError("pass exactly one of a or b"), ExitCode.USAGE),
         (RuntimeError("anything unmapped"), ExitCode.FAILURE),
     ],
@@ -145,13 +149,13 @@ def test_every_error_kind_has_its_exit_code(error, code):
     assert exit_code_for(error) == code
 
 
-def test_a_non_credential_validation_error_is_a_plain_failure():
+def test_a_request_model_that_does_not_validate_is_a_usage_error():
     class _Model(BaseModel):
         count: int
 
     with pytest.raises(ValidationError) as exc_info:
         _Model(count="not-an-int")  # ty: ignore[invalid-argument-type]
-    assert exit_code_for(exc_info.value) == ExitCode.FAILURE
+    assert exit_code_for(exc_info.value) == ExitCode.USAGE
 
 
 @pytest.mark.parametrize(
@@ -215,9 +219,23 @@ def test_a_request_the_arguments_do_not_fill_names_the_missing_fields(
     monkeypatch.setattr("sys.argv", ["ycli", *argv])
     with pytest.raises(SystemExit) as exited:
         main()
-    assert exited.value.code == ExitCode.FAILURE
+    assert exited.value.code == ExitCode.USAGE
     printed = capsys.readouterr().err
-    assert printed.startswith("Invalid data:")
+    assert printed.startswith("The request cannot be built:")
     assert all(line in printed for line in lines)
     assert "pydantic" not in printed
     assert api.calls == []
+
+
+def test_a_reply_that_does_not_fit_its_model_is_a_failure_not_a_usage_error(
+    api, monkeypatch, capsys
+):
+    """The request went out; what failed is reading the answer, so the exit code is not 2."""
+    api.add("GET", f"{TRACKER_BASE}/queues/", json={"not": "a list"})
+    monkeypatch.setattr("sys.argv", ["ycli", "tracker", "queues", "list"])
+    with pytest.raises(SystemExit) as exited:
+        main()
+    assert exited.value.code == ExitCode.FAILURE
+    printed = capsys.readouterr().err
+    assert "the reply to GET queues/ does not fit what ycli expects" in printed
+    assert len(api.calls) == 1

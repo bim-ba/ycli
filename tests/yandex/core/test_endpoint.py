@@ -14,7 +14,7 @@ from ycli.yandex.core.endpoint import (
     check_path,
     segment,
 )
-from ycli.yandex.errors import YandexClientError
+from ycli.yandex.errors import YandexClientError, YandexUnexpectedReplyError
 from ycli.yandex.models import APIModel, RequestBody
 
 
@@ -188,3 +188,14 @@ def test_an_ordinary_dump_keeps_every_field():
         "sortBy": None,
         "fullPath": None,
     }
+
+
+def test_a_reply_that_does_not_fit_the_model_is_a_typed_error():
+    response = httpx2.Response(
+        200, json={"items": "x"}, request=httpx2.Request("GET", "https://api.example/v1/things")
+    )
+    with pytest.raises(YandexUnexpectedReplyError) as caught:
+        Endpoint("GET", "things", list[int]).parse(response)
+    assert "the reply to GET things does not fit what ycli expects" in str(caught.value)
+    assert caught.value.url == "https://api.example/v1/things"
+    assert caught.value.status is None

@@ -101,8 +101,7 @@ def format_cli_error(exc: Exception) -> str:
     if isinstance(exc, ProfileError):
         return f"Invalid configuration:\n  {exc}"
     if isinstance(exc, ValidationError):
-        # A request model the arguments do not fill, or a reply that does not parse.
-        return "Invalid data:\n" + "\n".join(map(_field_error, exc.errors()))
+        return "The request cannot be built:\n" + "\n".join(map(_field_error, exc.errors()))
     message = f"Error: {exc}"
     if isinstance(exc, YandexAuthError):
         return message + (_PERMISSION_HINT if exc.status == HTTPStatus.FORBIDDEN else _AUTH_HINT)
@@ -130,7 +129,8 @@ def exit_code_for(exc: Exception) -> ExitCode:
     """
     if missing_credentials(exc) or isinstance(exc, YandexAuthError):
         return ExitCode.AUTH
-    if _is_invalid_configuration(exc) or isinstance(exc, (ProfileError, YandexInvalidRequestError)):
+    # A bad setting, or a request the arguments given cannot build: nothing was sent.
+    if isinstance(exc, (ValidationError, ProfileError, YandexInvalidRequestError)):
         return ExitCode.USAGE
     if isinstance(exc, YandexNotFoundError):
         return ExitCode.NOT_FOUND

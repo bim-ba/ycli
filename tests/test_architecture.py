@@ -1442,6 +1442,7 @@ ARCH8_STATUSLESS_ERRORS = {
     "YandexTimeoutError": "a local polling deadline (polling.poll)",
     "YandexConnectionError": "no HTTP response at all",
     "YandexInvalidRequestError": "a request of the wrong form, found before anything is sent",
+    "YandexUnexpectedReplyError": "a reply that does not fit its model; no status is mapped",
 }
 
 
