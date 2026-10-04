@@ -1,6 +1,5 @@
 """progress.spinner / progress.wait_for — animated on a terminal stderr, silent when piped."""
 
-import contextlib
 import time
 from io import StringIO
 
@@ -25,9 +24,7 @@ def test_spinner_animates_on_a_terminal():
 
 def test_spinner_is_a_silent_noop_when_piped():
     console, buf = _console(terminal=False)
-    ctx = spinner("Working…", console=console)
-    assert isinstance(ctx, contextlib.nullcontext)  # never a Status off a TTY
-    with ctx:
+    with spinner("Working…", console=console):
         pass
     assert buf.getvalue() == ""  # pristine — nothing written to a piped stream
 

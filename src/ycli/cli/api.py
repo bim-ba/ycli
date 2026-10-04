@@ -129,15 +129,46 @@ def api(
         _check_paginate(target, pagination, verb)
     elif limit is not None or all_:
         raise typer.BadParameter("--limit and --all need --paginate.", param_hint="--limit")
+    endpoint = _endpoint(verb, relative, fields, content, _headers(header))
+    client = context.find_root().obj.resolve(target.client_class())
+    if paginate and pagination is not None:
+        items = client.iterate(
+            Paged(endpoint, pagination, _results), limit=config.http.cap(limit, all_=all_)
+        )
+        return ApiResponse(list(items))
+    return client.send(endpoint)
+
+
+def _endpoint(
+    verb: str,
+    relative: str,
+    fields: dict[str, Any],
+    content: bytes | None,
+    headers: dict[str, str],
+) -> Endpoint[Any]:
+    """The call as an endpoint: fields in the query of a read or beside a raw body, else as JSON.
+
+    Args:
+        verb: The HTTP method, upper case.
+        relative: The path under the service's base URL, with its own query if it has one.
+        fields: The ``-F`` / ``-f`` fields.
+        content: The raw body of ``--input``, if any.
+        headers: The ``-H`` headers; a JSON content type is added for a raw body without one.
+
+    Returns:
+        The endpoint, decoding its reply as ``ycli api`` prints it.
+
+    Raises:
+        typer.BadParameter: ``verb`` is not an HTTP method the core sends.
+    """
     in_query = verb in _QUERY_METHODS or content is not None
     # httpx replaces a path's own query with ``params``, so the two are merged here.
     path_only, _, own_query = relative.partition("?")
     params = parse_qs(own_query, keep_blank_values=True) | (_query(fields) if in_query else {})
-    headers = _headers(header)
     if content is not None and not any(name.lower() == "content-type" for name in headers):
         headers["Content-Type"] = "application/json"
     try:
-        endpoint = Endpoint(
+        return Endpoint(
             cast("Method", verb),
             path_only,
             params=params,
@@ -148,13 +179,6 @@ def api(
         )
     except ValueError as exc:  # an unknown method
         raise typer.BadParameter(str(exc), param_hint="--method") from exc
-    client = context.find_root().obj.resolve(target.client_class())
-    if paginate and pagination is not None:
-        items = client.iterate(
-            Paged(endpoint, pagination, _results), limit=config.http.cap(limit, all_=all_)
-        )
-        return ApiResponse(list(items))
-    return client.send(endpoint)
 
 
 def _resolve_target(path: str, service_name: str | None) -> tuple[Service, str]:

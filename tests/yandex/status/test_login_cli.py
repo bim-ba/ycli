@@ -135,6 +135,23 @@ def test_device_flow_pending_then_success(monkeypatch, api):
     assert res.exit_code == 0, res.output
 
 
+def test_device_flow_stops_when_the_code_expires(monkeypatch, api):
+    """The server may answer ``authorization_pending`` for ever; the code's lifetime ends it."""
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
+    monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
+    _stub_device_code(api)  # expires_in 300, interval 5
+    api.add("POST", TOKEN_URL, json={"error": "authorization_pending"}, status=400)
+    clock = iter(range(0, 10_000, 100))
+    monkeypatch.setattr("time.monotonic", lambda: next(clock))
+
+    res = runner.invoke(cli.app, ["auth", "login", "--yes"])
+
+    assert res.exit_code == 1
+    assert "The code expired" in res.output
+    polls = [call for call in api.calls if str(call.url) == TOKEN_URL]
+    assert len(polls) == 3  # at 100, 200 and 300 seconds; the deadline was set at 0
+
+
 @pytest.mark.parametrize("error", ["invalid_client", "expired_token", "access_denied"])
 def test_device_flow_terminal_error(api, monkeypatch, error):
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
@@ -290,6 +307,7 @@ class _FakeOAuth:
             user_code="ABCD-EFGH",
             device_code="dev-1",
             interval=0,
+            expires_in=None,
         )
 
     def poll_token(self, device_code):
