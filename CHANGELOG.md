@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.64.0 (2026-10-04)
+
+### Bug Fixes
+
+- **sdk**: A reply that does not parse and a request that cannot be built are told apart
+  ([#298](https://github.com/bim-ba/ycli/pull/298),
+  [`ecb3029`](https://github.com/bim-ba/ycli/commit/ecb30295e67e643cf4ecc096854628e9e8e56ac0))
+
+### Build System
+
+- Re-lock uv.lock for 0.63.0
+  ([`533d8b3`](https://github.com/bim-ba/ycli/commit/533d8b3c18a8e1f554bca5f60812b3d996792a96))
+
+### Breaking Changes
+
+- **sdk**: A reply that does not parse raises YandexUnexpectedReplyError, a YandexError, instead of
+  pydantic.ValidationError.
+
+
 ## v0.63.0 (2026-10-04)
 
 ### Build System
