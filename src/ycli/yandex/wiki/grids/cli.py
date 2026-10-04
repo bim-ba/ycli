@@ -15,6 +15,7 @@ import typer
 
 from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import values_option
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack
 from ycli.yandex.wiki.client import WikiClient
 from ycli.yandex.wiki.grids.models import (
@@ -166,6 +167,7 @@ def clone(
         bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
     ] = True,
     *,
+    config: AppConfig,
     wiki: WikiClient,
 ) -> AsyncOperation | GridCloneOperationStatus:
     """Copy a grid onto another page (POST /grids/{id}/clone; async). --wait polls to completion."""
@@ -177,6 +179,7 @@ def clone(
             lambda: wiki.operations.gridclone_get(task_id),
             lambda state: state.is_terminal,
             message="Waiting for grid clone…",
+            max_wait_seconds=config.http.max_wait_seconds,
         )
         return status
     return operation

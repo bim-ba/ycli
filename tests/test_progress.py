@@ -38,6 +38,7 @@ def test_wait_for_polls_to_done_and_keeps_a_piped_stream_pristine(monkeypatch):
         lambda: next(statuses),
         lambda status: status == "done",
         message="Waiting…",
+        max_wait_seconds=60,
         console=console,
     )
     assert result == "done"
@@ -55,6 +56,7 @@ def test_wait_for_animates_on_a_terminal(monkeypatch):
         lambda: next(statuses),
         lambda status: status == "done",
         message="Waiting…",
+        max_wait_seconds=60,
         console=console,
     )
     assert result == "done"  # the Status spinner path is exercised end-to-end (enter/exit)

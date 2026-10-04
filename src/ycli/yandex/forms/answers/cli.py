@@ -96,7 +96,12 @@ def list_(
 
 
 def _finish_export(
-    forms: FormsClient, survey_id: str, op: OperationResult, wait: bool, output: str | None
+    forms: FormsClient,
+    config: AppConfig,
+    survey_id: str,
+    op: OperationResult,
+    wait: bool,
+    output: str | None,
 ) -> OperationResult | BinaryResult:
     """The export operation, or (``--wait``) poll it to a terminal state and return the file.
 
@@ -113,6 +118,7 @@ def _finish_export(
         lambda: forms.answers.export_results(survey_id, task_id),
         lambda result: result.is_terminal,
         message="Waiting for answers export…",
+        max_wait_seconds=config.http.max_wait_seconds,
     )
     if final.is_ready:
         return BinaryResult(forms.answers.download_export(survey_id, task_id), output)
@@ -158,6 +164,7 @@ def export(
         ),
     ] = None,
     *,
+    config: AppConfig,
     forms: FormsClient,
 ) -> OperationResult | BinaryResult:
     """Export a form's answers (POST /answers/export) — async; --wait downloads the file."""
@@ -172,7 +179,7 @@ def export(
         upload_files=upload_files,
     )
     op = forms.answers.export(survey_id, body=body)
-    return _finish_export(forms, survey_id, op, wait, output)
+    return _finish_export(forms, config, survey_id, op, wait, output)
 
 
 @app.command()

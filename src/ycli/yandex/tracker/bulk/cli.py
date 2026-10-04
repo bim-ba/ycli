@@ -14,6 +14,7 @@ import typer
 
 from ycli.cli.fields import parse_fields
 from ycli.cli.progress import wait_for
+from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import (
     BulkChange,
@@ -53,7 +54,7 @@ def _issues(issue: list[str] | None, query: str | None) -> list[str] | str:
     return query if query is not None else (issue or [])
 
 
-def _finish(tracker: TrackerClient, bulk: BulkChange, wait: bool) -> BulkChange:
+def _finish(tracker: TrackerClient, config: AppConfig, bulk: BulkChange, wait: bool) -> BulkChange:
     """``bulk`` — after polling it to a terminal status first when ``wait`` is set.
 
     The wait is default-on and potentially minutes long, so it goes through the shared
@@ -66,6 +67,7 @@ def _finish(tracker: TrackerClient, bulk: BulkChange, wait: bool) -> BulkChange:
             lambda: tracker.bulk.get(bulk_id),
             lambda change: change.is_terminal,
             message="Waiting for bulk change…",
+            max_wait_seconds=config.http.max_wait_seconds,
         )
     return bulk
 
@@ -78,13 +80,14 @@ def update(
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
 ) -> BulkChange:
     """Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value."""
     body = BulkUpdate(
         issues=_issues(issue, query), values=parse_fields(field), notify=notify or None
     )
-    return _finish(tracker, tracker.bulk.update(body=body, notify=notify or None), wait)
+    return _finish(tracker, config, tracker.bulk.update(body=body, notify=notify or None), wait)
 
 
 @app.command()
@@ -102,6 +105,7 @@ def move(
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
 ) -> BulkChange:
     """Mass-move issues to another QUEUE (POST /bulkchange/_move)."""
@@ -113,7 +117,7 @@ def move(
         initialStatus=initial_status or None,
         notify=notify or None,
     )
-    return _finish(tracker, tracker.bulk.move(body=body, notify=notify or None), wait)
+    return _finish(tracker, config, tracker.bulk.move(body=body, notify=notify or None), wait)
 
 
 @app.command()
@@ -127,6 +131,7 @@ def transition(
     notify: NotifyOpt = False,
     wait: WaitOpt = True,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
 ) -> BulkChange:
     """Mass status transition (POST /bulkchange/_transition). -F resolution=fixed for close."""
@@ -136,7 +141,7 @@ def transition(
         values=parse_fields(field) or None,
         notify=notify or None,
     )
-    return _finish(tracker, tracker.bulk.transition(body=body, notify=notify or None), wait)
+    return _finish(tracker, config, tracker.bulk.transition(body=body, notify=notify or None), wait)
 
 
 @app.command()
