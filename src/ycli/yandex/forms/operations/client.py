@@ -30,4 +30,4 @@ class OperationsClient(Resource):
             >>> forms.operations.get("op-4a1b").is_terminal
             True
         """
-        return self._session.send(endpoints.get_operation(operation_id))
+        return self._session.send(endpoints.get(operation_id))

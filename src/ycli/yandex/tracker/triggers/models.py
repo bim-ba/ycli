@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 from ycli.yandex.tracker.models import AutomationAction, KeyedReference
@@ -30,8 +30,6 @@ class TriggerCondition(APIModel):
         ... ).conditions[0].type
         'Event.comment-create'
     """
-
-    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     type: str = Field(description="Condition type, or the And/Or operator for a group.")
     conditions: list[TriggerCondition] | None = Field(

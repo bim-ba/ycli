@@ -33,7 +33,7 @@ class ImagesClient(Resource):
             ... ).id
             7
         """
-        return self._session.send(endpoints.upload_image(survey_id, filename=filename, data=data))
+        return self._session.send(endpoints.upload(survey_id, filename=filename, data=data))
 
     def clone(self, survey_id: str, body: ImageClone) -> Image:
         """``POST /surveys/{id}/images/clone`` — copy an existing image into the form.
@@ -56,4 +56,4 @@ class ImagesClient(Resource):
             ... ).id
             8
         """
-        return self._session.send(endpoints.clone_image(survey_id, body))
+        return self._session.send(endpoints.clone(survey_id, body))

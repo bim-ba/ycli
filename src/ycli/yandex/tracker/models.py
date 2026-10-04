@@ -8,7 +8,7 @@ fields to it, whichever resource reads them.
 
 from __future__ import annotations
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
@@ -202,8 +202,6 @@ class AutomationAction(APIModel):
         >>> AutomationAction.model_validate({"type": "Transition", "status": {"key": "x"}}).type
         'Transition'
     """
-
-    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     type: str = Field(description="Action type discriminator (e.g. Transition, Update, Webhook).")
 

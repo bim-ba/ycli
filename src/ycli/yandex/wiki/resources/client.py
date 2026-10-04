@@ -44,7 +44,7 @@ class ResourcesClient(Resource):
             >>> [resource.type for resource in found.root]
             ['attachment', 'grid']
         """
-        paged = endpoints.list_resources(
+        paged = endpoints.list_(
             page_id, q=q, types=types, order_by=order_by, order_direction=order_direction
         )
         return ItemList[ResourceItem](list(self._session.iterate(paged, limit=limit)))

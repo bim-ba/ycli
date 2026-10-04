@@ -1,7 +1,7 @@
 """Tracker ``/applications``, declared once (sans-IO).
 
 Examples:
-    >>> list_applications().path
+    >>> list_().path
     'applications'
 """
 
@@ -12,5 +12,5 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.applications.models import Application
 
 
-def list_applications() -> Endpoint[ItemList[Application]]:
+def list_() -> Endpoint[ItemList[Application]]:
     return Endpoint("GET", "applications", ItemList[Application])

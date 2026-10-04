@@ -5,7 +5,7 @@ twice leaves the same grid, so those two endpoints declare themselves idempotent
 columns are removed by a ``DELETE`` whose ids travel in the JSON body.
 
 Examples:
-    >>> get_grid(
+    >>> get(
     ...     "g-1",
     ...     fields=None,
     ...     row_filter="[a] ~ b",
@@ -15,7 +15,7 @@ Examples:
     ...     sort=None,
     ... ).params["filter"]
     '[a] ~ b'
-    >>> update_cells("g-1", {"revision": "3", "cells": []}).effect
+    >>> cells_update("g-1", {"revision": "3", "cells": []}).effect
     'idempotent_write'
 """
 
@@ -51,7 +51,7 @@ def _grid(grid_id: str, tail: str = "") -> str:
     return f"grids/{segment(grid_id)}{tail}"
 
 
-def get_grid(
+def get(
     grid_id: str,
     *,
     fields: str | None,
@@ -72,58 +72,58 @@ def get_grid(
     return Endpoint("GET", _grid(grid_id), Grid, params=params)
 
 
-def create_grid(body: GridCreate) -> Endpoint[Grid]:
+def create(body: GridCreate) -> Endpoint[Grid]:
     return Endpoint("POST", "grids", Grid, json=body)
 
 
-def update_grid(grid_id: str, body: GridUpdate) -> Endpoint[RevisionResult]:
+def update(grid_id: str, body: GridUpdate) -> Endpoint[RevisionResult]:
     return Endpoint("POST", _grid(grid_id), RevisionResult, json=body, effect="idempotent_write")
 
 
-def delete_grid(grid_id: str) -> Endpoint[None]:
+def delete(grid_id: str) -> Endpoint[None]:
     return Endpoint("DELETE", _grid(grid_id))
 
 
-def add_rows(grid_id: str, body: RowsAdd) -> Endpoint[RowsAddResult]:
+def rows_add(grid_id: str, body: RowsAdd) -> Endpoint[RowsAddResult]:
     return Endpoint("POST", _grid(grid_id, "/rows"), RowsAddResult, json=body)
 
 
-def remove_rows(grid_id: str, body: RowsRemove) -> Endpoint[RevisionResult]:
+def rows_remove(grid_id: str, body: RowsRemove) -> Endpoint[RevisionResult]:
     return Endpoint("DELETE", _grid(grid_id, "/rows"), RevisionResult, json=body)
 
 
-def move_rows(grid_id: str, body: RowsMove) -> Endpoint[RevisionResult]:
+def rows_move(grid_id: str, body: RowsMove) -> Endpoint[RevisionResult]:
     return Endpoint("POST", _grid(grid_id, "/rows/move"), RevisionResult, json=body)
 
 
-def add_columns(grid_id: str, body: ColumnsAdd) -> Endpoint[RevisionResult]:
+def columns_add(grid_id: str, body: ColumnsAdd) -> Endpoint[RevisionResult]:
     return Endpoint("POST", _grid(grid_id, "/columns"), RevisionResult, json=body)
 
 
-def remove_columns(grid_id: str, body: ColumnsRemove) -> Endpoint[RevisionResult]:
+def columns_remove(grid_id: str, body: ColumnsRemove) -> Endpoint[RevisionResult]:
     return Endpoint("DELETE", _grid(grid_id, "/columns"), RevisionResult, json=body)
 
 
-def move_columns(grid_id: str, body: ColumnsMove) -> Endpoint[RevisionResult]:
+def columns_move(grid_id: str, body: ColumnsMove) -> Endpoint[RevisionResult]:
     return Endpoint("POST", _grid(grid_id, "/columns/move"), RevisionResult, json=body)
 
 
-def update_cells(grid_id: str, body: CellsUpdate) -> Endpoint[CellsUpdateResult]:
+def cells_update(grid_id: str, body: CellsUpdate) -> Endpoint[CellsUpdateResult]:
     path = _grid(grid_id, "/cells")
     return Endpoint("POST", path, CellsUpdateResult, json=body, effect="idempotent_write")
 
 
-def clone_grid(grid_id: str, body: GridClone) -> Endpoint[AsyncOperation]:
+def clone(grid_id: str, body: GridClone) -> Endpoint[AsyncOperation]:
     return Endpoint("POST", _grid(grid_id, "/clone"), AsyncOperation, json=body)
 
 
-def suggest_column(grid_id: str, body: ColumnSuggest) -> Endpoint[ColumnSuggestion]:
+def columns_suggest(grid_id: str, body: ColumnSuggest) -> Endpoint[ColumnSuggestion]:
     """``POST /grids/{id}/columns/suggest`` (undocumented): checks a slug, changes nothing."""
     path = _grid(grid_id, "/columns/suggest")
     return Endpoint("POST", path, ColumnSuggestion, json=body, effect="read")
 
 
-def update_column(
+def columns_update(
     grid_id: str, column_slug: str, body: ColumnUpdate
 ) -> Endpoint[ColumnUpdateResult]:
     """``POST /grids/{id}/column/{slug}`` (undocumented; the path says ``column``, singular)."""
@@ -131,7 +131,7 @@ def update_column(
     return Endpoint("POST", path, ColumnUpdateResult, json=body, effect="idempotent_write")
 
 
-def update_row(grid_id: str, row_id: str, body: RowUpdate) -> Endpoint[RowUpdateResult]:
+def rows_update(grid_id: str, row_id: str, body: RowUpdate) -> Endpoint[RowUpdateResult]:
     """``POST /grids/{id}/rows/{row_id}`` (undocumented): pin or colour one row."""
     path = _grid(grid_id, f"/rows/{segment(row_id)}")
     return Endpoint("POST", path, RowUpdateResult, json=body, effect="idempotent_write")

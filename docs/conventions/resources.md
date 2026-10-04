@@ -292,8 +292,10 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 `/new-endpoint` (`scripts/new_endpoint.py`) generates a new resource on the httpx2 core;
 `tracker/issues/` and the Forms resources are worked examples.
 
-**`endpoints.py`** — sans-IO declarations: one function per operation returning an `Endpoint`
-(or a `Paged` listing with its core `Pagination`); every caller-supplied path part goes through
+**`endpoints.py`** — sans-IO declarations: one function per operation Yandex publishes, returning
+an `Endpoint` (or a `Paged` listing with its core `Pagination`) and named like the client method
+that sends it (`boards.update` sends `endpoints.update`; a builtin's name takes an underscore,
+`list_`; a method that sends several names each after itself, `search` and `search_scroll`); every caller-supplied path part goes through
 `segment()`; `effect=` only where the method misleads, listed in `ARCH3_EFFECT_OVERRIDES`.
 
 **`client.py`** — HTTP only (ARCH-2):

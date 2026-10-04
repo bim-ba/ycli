@@ -31,5 +31,5 @@ class HistoryClient(Resource):
             >>> [event.model for event in events.root]
             ['servicesurveyhooksubscription', 'surveyhook']
         """
-        paged = endpoints.list_history(survey_id, ordering=ordering)
+        paged = endpoints.list_(survey_id, ordering=ordering)
         return ItemList[HistoryEvent](list(self._session.iterate(paged, limit=limit)))

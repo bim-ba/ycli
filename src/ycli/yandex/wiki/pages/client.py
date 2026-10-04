@@ -59,7 +59,7 @@ class PagesClient(Resource):
             >>> wiki.pages.get_by_id(4101, fields="content,breadcrumbs").content
             '# Arch'
         """
-        endpoint = endpoints.get_page_by_id(
+        endpoint = endpoints.get_by_id(
             page_id, fields=fields, revision_id=revision_id, raise_on_redirect=raise_on_redirect
         )
         return self._session.send(endpoint)
@@ -89,7 +89,7 @@ class PagesClient(Resource):
             >>> wiki.pages.get("team/handbook", fields="content,attributes").content
             '# Handbook'
         """
-        endpoint = endpoints.get_page(
+        endpoint = endpoints.get(
             slug, fields=fields, revision_id=revision_id, raise_on_redirect=raise_on_redirect
         )
         return self._session.send(endpoint)
@@ -121,7 +121,7 @@ class PagesClient(Resource):
             >>> [ref.slug for ref in wiki.pages.descendants("eng", limit=40).root]
             ['eng/a', 'eng/b']
         """
-        paged = endpoints.list_descendants(
+        paged = endpoints.descendants(
             slug, actuality=actuality, include_self=include_self, show_all=show_all
         )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
@@ -153,7 +153,7 @@ class PagesClient(Resource):
             >>> [ref.slug for ref in wiki.pages.descendants_by_id(4210, limit=35).root]
             ['sales/a', 'sales/b']
         """
-        paged = endpoints.list_descendants_by_id(
+        paged = endpoints.descendants_by_id(
             page_id, actuality=actuality, include_self=include_self, show_all=show_all
         )
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))
@@ -184,7 +184,7 @@ class PagesClient(Resource):
             >>> [grid.title for grid in wiki.pages.grids_list(4301, limit=30).root]
             ['Roadmap', 'Budget']
         """
-        paged = endpoints.list_grids(page_id, order_by=order_by, order_direction=order_direction)
+        paged = endpoints.grids_list(page_id, order_by=order_by, order_direction=order_direction)
         return ItemList[GridRef](list(self._session.iterate(paged, limit=limit)))
 
     def create(
@@ -208,7 +208,7 @@ class PagesClient(Resource):
             >>> wiki.pages.create(body).id
             4401
         """
-        return self._session.send(endpoints.create_page(body, fields=fields, is_silent=is_silent))
+        return self._session.send(endpoints.create(body, fields=fields, is_silent=is_silent))
 
     def update(
         self,
@@ -237,7 +237,7 @@ class PagesClient(Resource):
             >>> wiki.pages.update(4403, PageUpdate.model_validate({"content": "# Body only"})).id
             4403
         """
-        endpoint = endpoints.update_page(
+        endpoint = endpoints.update(
             page_id, body, fields=fields, is_silent=is_silent, allow_merge=allow_merge
         )
         return self._session.send(endpoint)
@@ -259,7 +259,7 @@ class PagesClient(Resource):
             >>> wiki.pages.delete(4501).recovery_token
             'recovery-token-2'
         """
-        return self._session.send(endpoints.delete_page(page_id, recursive=recursive))
+        return self._session.send(endpoints.delete(page_id, recursive=recursive))
 
     def append(
         self,
@@ -292,7 +292,7 @@ class PagesClient(Resource):
             >>> wiki.pages.append(4602, body).slug
             'eng/footer'
         """
-        endpoint = endpoints.append_content(page_id, body, fields=fields, is_silent=is_silent)
+        endpoint = endpoints.append(page_id, body, fields=fields, is_silent=is_silent)
         return self._session.send(endpoint)
 
     def clone(self, page_id: int, body: PageClone) -> AsyncOperation:
@@ -317,7 +317,7 @@ class PagesClient(Resource):
             >>> wiki.pages.clone(4701, body).operation.id
             'task-4701'
         """
-        return self._session.send(endpoints.clone_page(page_id, body))
+        return self._session.send(endpoints.clone(page_id, body))
 
     def move(self, body: PageMove, *, dry_run: bool = False) -> AsyncOperation:
         """``POST /pages/move`` — give pages new addresses (async; undocumented, may change).
@@ -348,7 +348,7 @@ class PagesClient(Resource):
             >>> wiki.pages.move(body, dry_run=True).operation.id
             'mv-6101'
         """
-        return self._session.send(endpoints.move_pages(body, dry_run=dry_run))
+        return self._session.send(endpoints.move(body, dry_run=dry_run))
 
     def revisions_list(
         self,
@@ -376,7 +376,7 @@ class PagesClient(Resource):
             >>> [revision.id for revision in revisions.root]
             [7003, 7002]
         """
-        paged = endpoints.list_revisions(page_id, ids=ids)
+        paged = endpoints.revisions_list(page_id, ids=ids)
         return ItemList[PageRevision](list(self._session.iterate(paged, limit=limit)))
 
     def backlinks_list(
@@ -408,5 +408,5 @@ class PagesClient(Resource):
             >>> [ref.slug for ref in refs.root]
             ['eng/linker-a', 'eng/linker-b']
         """
-        paged = endpoints.list_backlinks(page_id, for_cluster=for_cluster, show_all=show_all)
+        paged = endpoints.backlinks_list(page_id, for_cluster=for_cluster, show_all=show_all)
         return ItemList[PageRef](list(self._session.iterate(paged, limit=limit)))

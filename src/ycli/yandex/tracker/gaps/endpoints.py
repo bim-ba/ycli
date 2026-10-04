@@ -1,9 +1,9 @@
 """Tracker ``/gaps`` operations (employee absences; admin-only), each declared once (sans-IO).
 
 Examples:
-    >>> delete_gaps(["g1", "g2"]).params
+    >>> delete(["g1", "g2"]).params
     {'gapIds': 'g1,g2'}
-    >>> search_gaps({"users": ["ann"]}).endpoint.effect
+    >>> search({"users": ["ann"]}).endpoint.effect
     'read'
 """
 
@@ -22,11 +22,11 @@ if TYPE_CHECKING:
 PAGE_SIZE = 50
 
 
-def create_gaps(body: GapsCreate) -> Endpoint[GapCreated]:
+def create(body: GapsCreate) -> Endpoint[GapCreated]:
     return Endpoint("POST", "gaps", GapCreated, json=body)
 
 
-def search_gaps(body: dict[str, Any]) -> Paged[GapSearchPage, UserGaps]:
+def search(body: dict[str, Any]) -> Paged[GapSearchPage, UserGaps]:
     """``POST /gaps/_search`` only reads; pages of users, each next page from ``page=``."""
     return Paged(
         Endpoint("POST", "gaps/_search", GapSearchPage, json=body, effect="read"),
@@ -35,6 +35,6 @@ def search_gaps(body: dict[str, Any]) -> Paged[GapSearchPage, UserGaps]:
     )
 
 
-def delete_gaps(gap_ids: Sequence[str]) -> Endpoint[None]:
+def delete(gap_ids: Sequence[str]) -> Endpoint[None]:
     """``DELETE /gaps?gapIds=a,b`` — ids the API does not know are ignored."""
     return Endpoint("DELETE", "gaps", params={"gapIds": ",".join(gap_ids)})

@@ -1,7 +1,7 @@
 """Forms form-filling operations, declared once (sans-IO).
 
 Examples:
-    >>> submit_form("686d", {"name": "Ann"}, dry_run=True, key=None).params
+    >>> submit("686d", {"name": "Ann"}, dry_run=True, key=None).params
     {'dry_run': 'true', 'key': None}
 """
 
@@ -12,11 +12,11 @@ from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitRes
 from ycli.yandex.models import ItemList
 
 
-def get_form(survey: str, *, key: str | None) -> Endpoint[FillableForm]:
+def get(survey: str, *, key: str | None) -> Endpoint[FillableForm]:
     return Endpoint("GET", f"surveys/{segment(survey)}/form", FillableForm, params={"key": key})
 
 
-def submit_form(
+def submit(
     survey: str, body: SubmitBody, *, dry_run: bool, key: str | None
 ) -> Endpoint[SubmitResult]:
     params = {"dry_run": flag(dry_run), "key": key}

@@ -1,7 +1,7 @@
 """Wiki ``/pages/{id}/resources``, declared once (sans-IO).
 
 Examples:
-    >>> paged = list_resources(7, q=None, types="grid", order_by=None, order_direction=None)
+    >>> paged = list_(7, q=None, types="grid", order_by=None, order_direction=None)
     >>> paged.endpoint.params["page_size"]
     100
 """
@@ -14,7 +14,7 @@ from ycli.yandex.wiki.models import CursorPage
 from ycli.yandex.wiki.resources.models import ResourceItem
 
 
-def list_resources(
+def list_(
     page_id: int,
     *,
     q: str | None,

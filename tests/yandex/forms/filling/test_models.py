@@ -7,7 +7,6 @@ from ycli.yandex.forms.filling.models import (
     SubmitResult,
     Suggestion,
 )
-from ycli.yandex.models import ItemList
 
 
 def test_fillable_form_defaults_and_nested_texts():
@@ -48,8 +47,3 @@ def test_suggestion_preserves_layer_extras():
     )
     dumped = s.model_dump()
     assert dumped["login"] == "ann" and dumped["email"] == "a@x"
-
-
-def test_suggestion_list_is_flat_root():
-    sl = ItemList[Suggestion].model_validate([{"layer": "gender", "id": "m", "text": "Male"}])
-    assert sl.root[0].text == "Male"

@@ -1,6 +1,5 @@
 """TDD for Tracker remote-link models — full doc sample parse + typed create body."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.remotelinks.models import RemoteLink, RemoteLinkCreate
 
 SAMPLE = {
@@ -47,12 +46,6 @@ def test_remote_link_parses_all_fields():
 
 def test_object_key_is_none_without_object():
     assert RemoteLink.model_validate({"id": 1}).object_key is None
-
-
-def test_remote_link_list_parses_array():
-    out = ItemList[RemoteLink].model_validate([SAMPLE, {"direction": "inward"}])
-    assert isinstance(out, ItemList[RemoteLink])
-    assert [link.direction for link in out.root] == ["outward", "inward"]
 
 
 def test_create_body_defaults_relationship():

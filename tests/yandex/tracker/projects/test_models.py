@@ -1,6 +1,5 @@
 """Model parsing for Tracker projects: the doc reply and the request bodies."""
 
-from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.projects.models import Project, ProjectCreate, ProjectUpdate
 
 
@@ -29,13 +28,6 @@ def test_project_parses_the_doc_sample():
 def test_project_from_a_fresh_organization_has_no_lead_or_dates():
     project = Project.model_validate({"id": "1", "version": 2, "key": "K", "status": "draft"})
     assert project.lead is None and project.start_date is None and project.queues is None
-
-
-def test_project_list_is_a_flat_array():
-    assert [p.id for p in ItemList[Project].model_validate([{"id": "1"}, {"id": "2"}]).root] == [
-        "1",
-        "2",
-    ]
 
 
 def test_request_bodies_use_api_names_and_drop_unset_fields():

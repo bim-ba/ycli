@@ -1,8 +1,8 @@
 [
-{"method": "GET", "base": "/v1", "path": "/answers", "name": "events_b2b_v1_views_answers_get_answer_public_view", "verb": "get", "kind": "list", "by": "name+shape"},
+{"method": "GET", "base": "/v1", "path": "/answers", "name": "events_b2b_v1_views_answers_get_answer_public_view", "verb": "get", "kind": "get", "by": "hand", "why": "returns the one answer named by `answer_id` or `answer_key` (AnswerOut), not a listing"},
 {"method": "GET", "base": "/v1", "path": "/answers/integrations", "name": "events_b2b_v1_views_answers_get_integrations_public_view", "verb": "get", "kind": "list", "by": "name+shape"},
 {"method": "DELETE", "base": "/v1", "path": "/files", "name": "events_b2b_v1_views_files_delete_file_public_view", "verb": "delete", "kind": "delete", "aspect": "file", "by": "name"},
-{"method": "GET", "base": "/v1", "path": "/files", "name": "events_b2b_v1_views_files_get_file_public_view", "verb": "get", "kind": "list", "aspect": "file", "by": "name+shape"},
+{"method": "GET", "base": "/v1", "path": "/files", "name": "events_b2b_v1_views_files_get_file_public_view", "verb": "get", "kind": "get", "aspect": "file", "by": "hand", "why": "returns the one file at the required `path`, not a listing"},
 {"method": "GET", "base": "/v1", "path": "/notifications", "name": "events_b2b_v1_views_notifications_get_notifications_public_view", "verb": "get", "kind": "list", "by": "name+shape"},
 {"method": "GET", "base": "/v1", "path": "/notifications/{notification_id}", "name": "events_b2b_v1_views_notifications_get_notification_public_view", "verb": "get", "kind": "get", "by": "name"},
 {"method": "POST", "base": "/v1", "path": "/notifications/{notification_id}/cancel", "name": "events_b2b_v1_views_notifications_cancel_notification_public_view", "verb": "cancel", "kind": "state", "by": "name"},

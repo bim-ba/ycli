@@ -1,7 +1,7 @@
 """Forms ``/surveys/{id}/history`` operation, declared once (sans-IO).
 
 Examples:
-    >>> list_history("686d", ordering="asc").endpoint.params
+    >>> list_("686d", ordering="asc").endpoint.params
     {'ordering': 'asc', 'limit': 100}
 """
 
@@ -24,7 +24,7 @@ def _iteration_key(response: httpx2.Response) -> str | None:
     return None if key is None else str(key)
 
 
-def list_history(survey_id: str, *, ordering: str | None) -> Paged[HistoryPage, HistoryEvent]:
+def list_(survey_id: str, *, ordering: str | None) -> Paged[HistoryPage, HistoryEvent]:
     """``GET /surveys/{id}/history``, paged by sending back the ``iteration_key`` cursor."""
     params = {"ordering": ordering, "limit": PAGE_SIZE}
     return Paged(

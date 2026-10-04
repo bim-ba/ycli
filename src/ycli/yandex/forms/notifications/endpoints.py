@@ -1,10 +1,10 @@
 """Forms ``/notifications`` operations, declared once (sans-IO).
 
 Examples:
-    >>> restart_notification(7).path
+    >>> restart(7).path
     'notifications/7/restart'
     >>> filters = NotificationFilter(survey_id="686d", status=["error"])
-    >>> list_notifications(filters).endpoint.params["status"]
+    >>> list_(filters).endpoint.params["status"]
     ['error']
 """
 
@@ -34,7 +34,7 @@ def _next_link(response: httpx2.Response) -> str | None:
     return response.json().get("links", {}).get("next")
 
 
-def list_notifications(filters: NotificationFilter) -> Paged[NotificationPage, Notification]:
+def list_(filters: NotificationFilter) -> Paged[NotificationPage, Notification]:
     """``GET /notifications``, paged by the ``links.next`` link.
 
     The link is a host-relative path that ends in a slash, so only its query (the ``id`` cursor
@@ -48,23 +48,23 @@ def list_notifications(filters: NotificationFilter) -> Paged[NotificationPage, N
     )
 
 
-def get_notification(notification_id: int) -> Endpoint[NotificationDetails]:
+def get(notification_id: int) -> Endpoint[NotificationDetails]:
     return Endpoint("GET", f"notifications/{segment(notification_id)}", NotificationDetails)
 
 
-def get_notification_status(notification_id: int) -> Endpoint[NotificationStatus]:
+def status_get(notification_id: int) -> Endpoint[NotificationStatus]:
     return Endpoint("GET", f"notifications/{segment(notification_id)}/status", NotificationStatus)
 
 
-def restart_notification(notification_id: int) -> Endpoint[NotificationAction]:
+def restart(notification_id: int) -> Endpoint[NotificationAction]:
     path = f"notifications/{segment(notification_id)}/restart"
     return Endpoint("POST", path, NotificationAction)
 
 
-def cancel_notification(notification_id: int) -> Endpoint[NotificationAction]:
+def cancel(notification_id: int) -> Endpoint[NotificationAction]:
     path = f"notifications/{segment(notification_id)}/cancel"
     return Endpoint("POST", path, NotificationAction)
 
 
-def list_failed_notifications(survey_id: str) -> Endpoint[ItemList[int]]:
+def errors_list(survey_id: str) -> Endpoint[ItemList[int]]:
     return Endpoint("GET", f"surveys/{segment(survey_id)}/show-errors", ItemList[int])

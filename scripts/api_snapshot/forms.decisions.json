@@ -1,3 +1,5 @@
 [
+{"method": "GET", "base": "/v1", "path": "/answers", "name": "events_b2b_v1_views_answers_get_answer_public_view", "kind": "get", "why": "returns the one answer named by `answer_id` or `answer_key` (AnswerOut), not a listing"},
+{"method": "GET", "base": "/v1", "path": "/files", "name": "events_b2b_v1_views_files_get_file_public_view", "kind": "get", "why": "returns the one file at the required `path`, not a listing"},
 {"method": "GET", "base": "/v1", "path": "/surveys/{survey_id}/suggest", "name": "events_b2b_v1_views_surveys_get_suggest_public_view", "kind": "search", "why": "suggests the values of a question by the text typed; the name says get"}
 ]

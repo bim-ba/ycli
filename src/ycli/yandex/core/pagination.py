@@ -148,18 +148,6 @@ class CursorPagination(Pagination):
         return _with_params(request, {self.cursor_param: cursor})
 
 
-def _scroll_id(response: httpx2.Response) -> str | None:
-    return response.headers.get("X-Scroll-Id")
-
-
-@dataclass(frozen=True)
-class HeaderCursorPagination(CursorPagination):
-    """A cursor sent in a response header (Tracker scroll: ``X-Scroll-Id`` → ``?scrollId=``)."""
-
-    cursor_of: Callable[[httpx2.Response], str | None] = _scroll_id
-    cursor_param: str = "scrollId"
-
-
 @dataclass(frozen=True)
 class LinkHeaderPagination(Pagination):
     """RFC 8288 ``Link: <…>; rel="next"`` (Tracker relative pagination).

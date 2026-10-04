@@ -28,7 +28,7 @@ class StatusesClient(Resource):
             >>> tracker.statuses.list().root[0].key
             'open'
         """
-        return self._session.send(endpoints.list_statuses())
+        return self._session.send(endpoints.list_())
 
     def create(self, body: StatusCreate) -> Status:
         """Create an issue status from a typed ``StatusCreate`` body. Returns the new ``Status``.
@@ -49,7 +49,7 @@ class StatusesClient(Resource):
             ... ).key
             'pause'
         """
-        return self._session.send(endpoints.create_status(body))
+        return self._session.send(endpoints.create(body))
 
     def update(self, status_id: str, body: StatusUpdate, *, version: int | None = None) -> Status:
         """Edit status ``status_id`` from a typed ``StatusUpdate`` body. Returns the ``Status``.
@@ -72,4 +72,4 @@ class StatusesClient(Resource):
             ... ).version
             6
         """
-        return self._session.send(endpoints.update_status(status_id, body, version=version))
+        return self._session.send(endpoints.update(status_id, body, version=version))
