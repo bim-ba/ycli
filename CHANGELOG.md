@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.57.1 (2026-10-04)
+
+### Bug Fixes
+
+- **cli**: The sign-in wait ends when the code expires, and a question flag of the wrong type is
+  refused ([#274](https://github.com/bim-ba/ycli/pull/274),
+  [`23e5fd3`](https://github.com/bim-ba/ycli/commit/23e5fd34240fa3d1510e531bdb6bf6c660d538e7))
+
+### Build System
+
+- Re-lock uv.lock for 0.57.0
+  ([`4ff1622`](https://github.com/bim-ba/ycli/commit/4ff1622f41028c9abb85ccb2358416dcf156dddb))
+
+### Documentation
+
+- A robots.txt that names both sitemaps ([#273](https://github.com/bim-ba/ycli/pull/273),
+  [`b069b44`](https://github.com/bim-ba/ycli/commit/b069b441b3474d2272f948195702e2fd7fb120c7))
+
+
 ## v0.57.0 (2026-10-04)
 
 ### Bug Fixes
