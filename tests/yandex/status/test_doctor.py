@@ -66,7 +66,6 @@ def test_everything_in_order_is_all_ok_in_the_order_it_ran(api):
         "service:wiki",
         "service:forms",
         "extra:mcp",
-        "extra:jq",
         "version",
     ]
     assert {check.status for check in report.checks} == {"ok"}

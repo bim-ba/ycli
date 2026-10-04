@@ -10,7 +10,7 @@ from pydantic import RootModel
 class ApiResponse(RootModel[Any]):
     """The decoded JSON body of a raw call: an object, an array or a scalar.
 
-    A model, so ``--format`` and ``--jq`` treat it like every other result.
+    A model, so ``--format`` treats it like every other result.
 
     Examples:
         >>> ApiResponse({"key": "DE-1"}).model_dump()

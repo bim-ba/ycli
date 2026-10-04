@@ -2,7 +2,7 @@
 
 Modelled on ``gh api``: the method defaults to GET (POST once fields or ``--input`` are given),
 ``-f``/``-F`` build the query string of a GET or the JSON body of a write, and the answer prints
-through the normal output path, so ``-o``, ``--jq``, ``--yes`` and ``--dry-run`` work as they do
+through the normal output path, so ``-o``, ``--yes`` and ``--dry-run`` work as they do
 everywhere. The request is an :class:`~ycli.yandex.core.endpoint.Endpoint` sent through the
 service's own client, so its effect follows the method: a ``DELETE`` asks for ``--yes``.
 """
@@ -109,7 +109,7 @@ def api(
 ) -> ApiResponse | str | BinaryResult | None:
     """Call any endpoint of Tracker, Wiki or Forms, authenticated like every other command.
 
-    ycli api issues/DE-1 --service tracker --jq .summary
+    ycli api issues/DE-1 --service tracker -o json | jq -r .summary
 
     ycli api issues/DE-1/comments --service tracker -F text=@note.md   (POST)
 

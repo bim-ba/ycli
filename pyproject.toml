@@ -46,9 +46,6 @@ mcp = [
 service-account = [
     "pyjwt[crypto]>=2.15.1",
 ]
-jq = [
-    "jq>=1.12 ; platform_machine == 'AMD64' or sys_platform != 'win32'",
-]
 
 [project.scripts]
 yandex-cli = "ycli.cli.app:main"

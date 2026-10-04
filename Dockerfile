@@ -15,7 +15,7 @@ COPY pyproject.toml uv.lock README.md LICENSE CHANGELOG.md ./
 COPY src ./src
 # guide.md in the package links to the plugin's skills.
 COPY plugins ./plugins
-RUN uv sync --frozen --no-dev --extra mcp --extra jq --no-editable --no-cache
+RUN uv sync --frozen --no-dev --extra mcp --no-editable --no-cache
 
 FROM python:3.12-slim-trixie
 LABEL org.opencontainers.image.title="ycli" \

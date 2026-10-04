@@ -138,10 +138,8 @@ def test_a_dry_run_shows_the_body_of_a_write(api):
 
 
 def test_a_dry_run_goes_through_the_normal_output_path(api):
-    result = runner.invoke(
-        app, ["--dry-run", "--jq", ".method", "tracker", "boards", "delete", "7"]
-    )
-    assert result.stdout == "DELETE\n"
+    result = runner.invoke(app, ["--dry-run", "-o", "yaml", "tracker", "boards", "delete", "7"])
+    assert "method: DELETE\n" in result.stdout
 
 
 def test_a_read_still_runs_under_dry_run(api):

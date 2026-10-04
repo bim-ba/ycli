@@ -33,7 +33,7 @@ NO_CONNECTION = "no connection"
 NOT_CONFIGURED = "the credentials are not set"
 IAM_LIFETIME = "an IAM token lives up to 12 hours"
 # The extras a person may be missing: the module each one installs, and what it adds.
-EXTRAS = {"mcp": ("fastmcp", "the MCP server"), "jq": ("jq", "the `--jq` filter")}
+EXTRAS = {"mcp": ("fastmcp", "the MCP server")}
 
 
 class _Diagnosis:

@@ -45,7 +45,6 @@ $ ycli mcp start [OPTIONS]
 * `--host TEXT`: HTTP only: listen address (YCLI__MCP__HOST).
 * `--port INTEGER`: HTTP only: listen port (YCLI__MCP__PORT).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -73,7 +72,6 @@ $ ycli mcp methods [OPTIONS]
 * `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get stays.
 * `--kind [tools|prompts|resources]`: What to list: tools (default), prompts, or resources (addresses and templates).  [default: tools]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
-* `--jq EXPR`: Filter the JSON result through a jq expression; strings print raw, like `jq -r`. Needs the `jq` extra.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
