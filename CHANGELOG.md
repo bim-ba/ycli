@@ -9,6 +9,38 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.58.0 (2026-10-04)
+
+### Build System
+
+- Re-lock uv.lock for 0.57.1
+  ([`5bd7453`](https://github.com/bim-ba/ycli/commit/5bd7453315284d7681b7c5ed8407e0a511022157))
+
+### Chores
+
+- **api**: The snapshot lists api360, Metrika, Audience and AdMetrica; a service's own prefix is
+  part of base ([#280](https://github.com/bim-ba/ycli/pull/280),
+  [`ab9edaa`](https://github.com/bim-ba/ycli/commit/ab9edaa0e24c7f5ea5cf04b08565dfbf6ecd7641))
+
+- **api**: The snapshot lists six more Yandex APIs, with each operation's own name
+  ([#275](https://github.com/bim-ba/ycli/pull/275),
+  [`8ecb9e7`](https://github.com/bim-ba/ycli/commit/8ecb9e7f30bfb91dcdb989cd9682823f6eb3a345))
+
+### Refactoring
+
+- **mcp**: A tool's tags are derived from its name and its read-only hint
+  ([#277](https://github.com/bim-ba/ycli/pull/277),
+  [`d9063eb`](https://github.com/bim-ba/ycli/commit/d9063eb2d80cfe4a70048dd66e6d3a5a5f86a20a))
+
+- **sdk**: A closed set of values is defined once ([#279](https://github.com/bim-ba/ycli/pull/279),
+  [`ab51c0f`](https://github.com/bim-ba/ycli/commit/ab51c0fa548fb446b8ab299f78c9d312453dd09d))
+
+### Breaking Changes
+
+- **sdk**: SortDirection and GroupSource are imported from ycli.yandex.models, no longer from
+  ycli.yandex.wiki.grids.models and ycli.yandex.wiki.access.models.
+
+
 ## v0.57.1 (2026-10-04)
 
 ### Bug Fixes
