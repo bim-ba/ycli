@@ -3,26 +3,20 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
 import typer
 
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.questions.models import (
     FORCE_IGNORED,
-    BooleanQuestion,
-    DateQuestion,
-    EnumQuestion,
-    IntegerQuestion,
     Question,
     QuestionCreate,
     QuestionCreateAdapter,
-    QuestionEnumItem,
     QuestionMove,
     QuestionMoveResult,
     QuestionsResponse,
     QuestionValidator,
-    StringQuestion,
 )
 from ycli.yandex.forms.typedefs import (
     QuestionIdArg,
@@ -31,6 +25,10 @@ from ycli.yandex.forms.typedefs import (
 from ycli.yandex.models import IGNORED_BY_API, Ack
 
 app = typer.Typer(name="questions", help="Forms questions.", no_args_is_help=True)
+
+
+# The question types the flags can build; the richer ones take ``--body-file``.
+_FLAG_TYPES = ("string", "boolean", "integer", "date", "enum")
 
 
 def _build_from_flags(
@@ -66,36 +64,30 @@ def _build_from_flags(
         ... ).multiline
         True
     """
-    common: dict[str, Any] = {
-        "label": label,
-        "slug": slug,
-        "comment": comment,
-        "placeholder": placeholder,
-        "hidden": hidden,
-    }
+    if type_ not in _FLAG_TYPES:
+        raise typer.BadParameter(
+            f"--type {type_!r} has no typed flags; pass --body-file with a full JSON body"
+        )
     # The flags carry only the ``required`` rule, so they set the whole validators list:
     # --required sends [required], --no-required sends [] (clearing every rule), unset sends none.
     validators: list[QuestionValidator] | None = None
     if required is not None:
         validators = [QuestionValidator(type="required")] if required else []
-    if type_ == "string":
-        return StringQuestion(**common, multiline=multiline, validators=validators)
-    if type_ == "boolean":
-        return BooleanQuestion(**common, validators=validators)
-    if type_ == "integer":
-        return IntegerQuestion(**common, validators=validators)
-    if type_ == "date":
-        return DateQuestion(**common, validators=validators)
-    if type_ == "enum":
-        items = [QuestionEnumItem(label=text) for text in options or []]
-        return EnumQuestion(
-            **common,
-            widget=widget,  # ty: ignore[invalid-argument-type]  # pydantic validates the widget literal
-            items=items or None,
-            validators=validators,
-        )
-    raise typer.BadParameter(
-        f"--type {type_!r} has no typed flags; pass --body-file with a full JSON body"
+    given = {
+        "type": type_,
+        "label": label,
+        "slug": slug,
+        "comment": comment,
+        "placeholder": placeholder,
+        "hidden": hidden,
+        "multiline": multiline,
+        "widget": widget,
+        "items": [{"label": text} for text in options] if options else None,
+        "validators": validators,
+    }
+    # The union picks the class by ``type`` and refuses a flag that type does not take.
+    return QuestionCreateAdapter.validate_python(
+        {name: value for name, value in given.items() if value is not None}
     )
 
 

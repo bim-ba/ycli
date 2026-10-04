@@ -259,15 +259,23 @@ def _device_flow(oauth_client: OAuthClient, device_name: str | None, console: Co
     # A static line, not a spinner: a live redraw drops the selection while the user copies
     # the code above.
     console.print("Waiting for you to confirm in the browser… (Ctrl+C to cancel)")
+    # The code lives for ``expires_in`` seconds; past that, no answer can turn into a token.
+    deadline = None if device.expires_in is None else time.monotonic() + device.expires_in
     while True:
         result: TokenPollResult = oauth_client.poll_token(device.device_code)
         if result.token is not None:
             return result.token.access_token
-        if result.pending:
-            time.sleep(device.interval)
-            continue
-        typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
-        raise typer.Exit(1)
+        if not result.pending:
+            typer.secho(f"Authorization failed: {result.error}", fg=typer.colors.RED, err=True)
+            raise typer.Exit(1)
+        if deadline is not None and time.monotonic() >= deadline:
+            typer.secho(
+                "The code expired before it was confirmed. Run `ycli auth login` again.",
+                fg=typer.colors.RED,
+                err=True,
+            )
+            raise typer.Exit(1)
+        time.sleep(device.interval)
 
 
 def _visible_organizations(token: str, config: AppConfig) -> list[Organization]:
