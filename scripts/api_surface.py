@@ -13,7 +13,9 @@ Where each surface is read from is in :data:`SOURCES`: an OpenAPI document (Wiki
 Telemost, DataLens; Market's is split into files in a repository), a Swagger 1.2 listing (Disk),
 a WSDL per service (Direct, Speller), or the reference pages an index lists (api360,
 Metrika, Audience, AdMetrica: Diplodoc generates them from an OpenAPI document that is not
-published itself). Tracker's OpenAPI document is closed (401), so its operations are read from
+published itself; Webmaster, AppMetrica, Messenger, Yandex ID, Weather, Travel partners: written
+by hand). Disk's schema is narrower than its documentation, which adds the rest. Tracker's
+OpenAPI document is closed (401), so its operations are read from
 the API reference too: ``llms.txt`` lists the pages and each page's
 Markdown source states its request (``GET /v3/issues/{issue_id}``) and its query parameters.
 
@@ -74,6 +76,8 @@ class Source:
     prefix: str = ""
     # The JSON address of a WSDL service, a template with ``{service}`` (#276).
     address: str = ""
+    # The index of the reference pages that add what the specification leaves out (Disk).
+    docs: str = ""
 
 
 # Direct publishes no list of its services: the docs index names 25 of these, and
@@ -114,7 +118,12 @@ SOURCES: dict[str, Source] = {
     "telemost": Source(
         "openapi", "https://doc-static.yandex.net/dev/telemost/api-specification.yaml"
     ),
-    "disk": Source("swagger", "https://cloud-api.yandex.net/v1/schema", prefix="/disk"),
+    "disk": Source(
+        "swagger",
+        "https://cloud-api.yandex.net/v1/schema",
+        prefix="/disk",
+        docs="https://yandex.ru/dev/disk-api/doc/sitemap.xml",
+    ),
     "datalens": Source("openapi", "https://api.datalens.tech/json/", rpc=True),
     "market": Source(
         "openapi-files",
@@ -135,9 +144,24 @@ SOURCES: dict[str, Source] = {
     "metrika": Source("docs", "https://yandex.ru/dev/metrika/ru/llms.txt"),
     "audience": Source("docs", "https://yandex.ru/dev/audience/ru/llms.txt"),
     "admetrica": Source("docs", "https://yandex.ru/dev/admetrica/doc/ru/llms.txt"),
+    "webmaster": Source("docs", "https://yandex.ru/dev/webmaster/doc/ru/llms.txt"),
+    "appmetrica": Source("docs", "https://appmetrica.yandex.ru/docs/ru/llms.txt"),
+    "messenger": Source("docs", "https://yandex.ru/dev/messenger/doc/ru/llms.txt"),
+    "id": Source("docs", "https://yandex.ru/dev/id/doc/ru/llms.txt"),
+    "weather": Source("docs", "https://yandex.ru/dev/weather/doc/ru/llms.txt"),
+    "travel": Source("docs", "https://yandex.ru/dev/travel-partners-api/doc/sitemap.xml"),
 }
 # Every service with a snapshot: the covered ones, then the ones that are only listed.
 LISTED = tuple(SOURCES)
+# The services of the roadmap with no snapshot, and why a script cannot read their operations.
+NOT_LISTED = {
+    "rasp": "a page shows the address alone, with no method, and the version is `v3.0`",
+    "maps": "no index of reference pages was found (Geocoder, Geosuggest, Router, Static)",
+    "direct-reports": "Direct's `reports` has no WSDL and its page states no request line",
+    "calendar": "CalDAV, a protocol: no HTTP operations to name",
+    "contacts": "CardDAV, a protocol: no HTTP operations to name",
+    "mail": "IMAP and SMTP, protocols: no HTTP operations to name",
+}
 
 USER_AGENT = "ycli-api-drift/1.0 (+https://github.com/bim-ba/ycli)"
 REQUEST_TIMEOUT_SECONDS = 30
@@ -164,10 +188,31 @@ TRACKER_PROSE_PAGES = frozenset({"api/common-format"})
 _SUCCESS_CODES = ("200", "201", "202")
 # A page of an index: ``[title](https://…/page.md)``.
 _INDEX_PAGE = re.compile(r"\]\((https?://[^)\s]+)\.md\)")
+# A page of a sitemap.
+_SITEMAP_PAGE = re.compile(r"<loc>([^<\s]+)</loc>")
+_METHOD = "|".join(METHODS)
+_ADDRESS = r"https?://[^\s`<\"')]+"
 # A reference page Diplodoc generated from an OpenAPI document: the method, then the address.
 _GENERATED_REQUEST = re.compile(
-    rf"^({'|'.join(METHODS)})\s*\{{\.openapi__method\}}\s*\n+```[^\n]*\n(\S+)", re.MULTILINE
+    rf"^({_METHOD})\s*\{{\.openapi__method\}}\s*\n+```[^\n]*\n(\S+)", re.MULTILINE
 )
+# The forms a page written by hand states its request in.
+# ``GET https://host/path`` on a line of its own (Webmaster, AppMetrica, Weather):
+_HOSTED_REQUEST = re.compile(rf"^[ \t>]*({_METHOD})[ \t]+({_ADDRESS})", re.MULTILINE)
+# ``POST /token`` followed by its ``Host:`` header (Yandex ID):
+_HEADER_REQUEST = re.compile(
+    rf"^[ \t>]*({_METHOD})[ \t]+(/[^\s`<\"']*)[^\n]*\n[ \t>]*Host:[ \t]*(?:https?://)?([^\s/]+)",
+    re.MULTILINE,
+)
+# A labelled method, then the address in a code span or a block within a few lines
+# (Messenger: ``HTTP метод: `POST```, ``URL: `https://…```; Disk: ``Метод: ##POST##.``):
+_LABELLED_REQUEST = re.compile(
+    rf"^(?:HTTP[ -]метод|Метод|HTTP method|Method)[^\n]{{0,12}}?[`#*]*\b({_METHOD})\b[^\n]*\n"
+    rf"(?:[^\n]*\n){{0,4}}?(?:URL:[ \t]*`|[ \t]*)({_ADDRESS})",
+    re.MULTILINE,
+)
+# A placeholder written as a link to its description: ``{[user-id](*user-id)}``.
+_LINKED_PLACEHOLDER = re.compile(r"\{\[([^\]]+)\]\([^)]*\)\}")
 
 
 @dataclass(frozen=True)
@@ -565,6 +610,11 @@ def page_operations(page: str, text: str, prefix: str = "") -> list[Operation]:
     full address. The page's slug is the operation's own name there (``DomainService_Delete``)
     and its directory the group (the tag the page was generated under).
 
+    A page written by hand states its request in one of three forms (a line with the method
+    and the full address, a request line with its ``Host`` header, a labelled method followed
+    by the address); the group is then the first noun of the path. An address that is only a
+    host, or a link into the documentation, is not a request.
+
     Args:
         page: The page's path under the index, without ``.md``.
         text: The page's Markdown source.
@@ -576,42 +626,97 @@ def page_operations(page: str, text: str, prefix: str = "") -> list[Operation]:
     folder, _, slug = page.rpartition("/")
     # `logs/openapi/<page>`: the folder Diplodoc generates into is not a tag.
     group = next((part for part in reversed(folder.split("/")) if part != "openapi"), "")
-    operations = []
-    for method, address in _GENERATED_REQUEST.findall(text):
+    # First, so that an address with such a placeholder is read whole.
+    text = _LINKED_PLACEHOLDER.sub(r"{\1}", text)
+    generated = _GENERATED_REQUEST.findall(text)
+    written = [
+        *_HOSTED_REQUEST.findall(text),
+        *(
+            (method, f"https://{host}{path}")
+            for method, path, host in _HEADER_REQUEST.findall(text)
+        ),
+        *_LABELLED_REQUEST.findall(text),
+    ]
+    operations: dict[tuple[str, str, str], Operation] = {}
+    for method, address in generated or written:
+        address = address.split("?", 1)[0].rstrip(".,;")
+        if address.endswith(".md") or "/doc/" in address:
+            continue  # a link to another page
         base, path = split_version(httpx2.URL(address).path, prefix)
-        operations.append(
+        if not base and path == "/":
+            continue  # a host alone
+        operations.setdefault(
+            (method, base, path),
             Operation(
                 method=method,
                 path=path,
                 base=base,
                 name=slug,
-                group=group,
+                group=group if generated else first_noun(path),
                 source="docs",
                 page=page,
-            )
+            ),
         )
-    return operations
+    found = list(operations.values())
+    # An example on the same page may even use another method than the request it shows.
+    return [
+        operation
+        for operation in found
+        if not any(
+            other.base == operation.base
+            and _stands_for(replace(other, method=operation.method), operation)
+            for other in found
+            if other is not operation
+        )
+    ]
 
 
-def _docs_service(client: httpx2.Client, source: Source) -> list[Operation]:
-    """The operations of a docs-only service: of every page its index lists."""
-    root = source.url.rpartition("/")[0] + "/"
-    urls = sorted(
-        url for url in set(_INDEX_PAGE.findall(_text(client, source.url))) if url.startswith(root)
-    )
+def _docs_service(client: httpx2.Client, index: str, prefix: str) -> list[Operation]:
+    """The operations of the reference pages ``index`` lists (an ``llms.txt`` or a sitemap).
+
+    A sitemap lists every language: the Russian pages are read, as an ``llms.txt`` is per
+    language. An example of a request with a literal key folds into the request it is an
+    example of (``/application/1111`` into ``/application/{id}``).
+    """
+    listing = _text(client, index)
+    if index.endswith(".xml"):
+        root = index.rpartition("/")[0] + "/ru/"
+        found = set(_SITEMAP_PAGE.findall(listing))
+    else:
+        root = index.rpartition("/")[0] + "/"
+        found = set(_INDEX_PAGE.findall(listing))
+    # The root of a sitemap's language is its landing page, not a page with a source.
+    urls = sorted(url for url in found if url.startswith(root) and url != root)
     if not urls:
-        raise SystemExit(f"api_surface: {source.url} lists no page")
+        raise SystemExit(f"api_surface: {index} lists no page")
     with ThreadPoolExecutor(FETCH_WORKERS) as pool:
         texts = pool.map(lambda url: _text(client, f"{url}.md"), urls)
-        return _merged(
+        operations = _merged(
             operation
             for url, text in zip(urls, texts, strict=True)
             for operation in page_operations(
-                url.removeprefix(root),
-                _reference_page(url.removeprefix(root), text),
-                source.prefix,
+                url.removeprefix(root), _reference_page(url.removeprefix(root), text), prefix
             )
         )
+    return [
+        operation
+        for operation in operations
+        if not any(
+            other.base == operation.base and _stands_for(other, operation)
+            for other in operations
+            if other is not operation
+        )
+    ]
+
+
+def _supplemented(published: list[Operation], documented: list[Operation]) -> list[Operation]:
+    """A specification's operations, and the ones only the documentation describes (#268).
+
+    The specification wins where both have an operation: its name is the service's own.
+    """
+    known = {(operation.base, *operation.key) for operation in published}
+    extra = [o for o in documented if (o.base, *o.key) not in known]
+    return sorted([*published, *extra], key=_order)
 
 
 def _client() -> httpx2.Client:
@@ -694,17 +799,20 @@ def fetch(service: str) -> list[Operation]:
             )
         if source.kind == "swagger":
             listing = json.loads(_text(client, source.url))
-            return swagger_operations(
+            published = swagger_operations(
                 [
                     json.loads(_text(client, listing["basePath"] + api["path"]))
                     for api in listing["apis"]
                 ],
                 source.prefix,
             )
+            if not source.docs:
+                return published
+            return _supplemented(published, _docs_service(client, source.docs, source.prefix))
         if source.kind == "wsdl":
             return _wsdl_service(client, source)
         if service != "tracker":
-            return _docs_service(client, source)
+            return _docs_service(client, source.url, source.prefix)
         pages = sorted(
             set(TRACKER_PAGE.findall(_text(client, TRACKER_INDEX))) - TRACKER_PROSE_PAGES
         )

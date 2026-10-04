@@ -1,0 +1,6 @@
+[
+{"method": "POST", "path": "/device/code", "name": "screen-code-oauth", "group": "device", "source": "docs", "page": "codes/screen-code-oauth"},
+{"method": "GET", "path": "/info", "name": "user-information", "group": "info", "source": "docs", "page": "user-information"},
+{"method": "POST", "path": "/revoke_token", "name": "token-invalidate", "group": "revoke_token", "source": "docs", "page": "tokens/token-invalidate"},
+{"method": "POST", "path": "/token", "name": "code-url", "group": "token", "source": "docs", "page": "codes/code-url"}
+]

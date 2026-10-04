@@ -1,0 +1,21 @@
+[
+{"method": "GET", "path": "/feeds/hotels/temporary_url", "name": "feed-api", "group": "feeds", "source": "docs", "page": "feed-api"},
+{"method": "GET", "path": "/hotels/booking/offers/{offer_id}", "name": "booking-offers", "group": "hotels", "source": "docs", "page": "booking-offers"},
+{"method": "GET", "path": "/hotels/booking/offers/{offer_id}/rate/estimate", "name": "booking-offers-rateEstimate", "group": "hotels", "source": "docs", "page": "booking-offers-rateEstimate"},
+{"method": "POST", "path": "/hotels/booking/orders", "name": "booking-createOrder", "group": "hotels", "source": "docs", "page": "booking-createOrder"},
+{"method": "GET", "path": "/hotels/booking/orders/{order_id}", "name": "booking-getOrder", "group": "hotels", "source": "docs", "page": "booking-getOrder"},
+{"method": "POST", "path": "/hotels/booking/orders/{order_id}/payment/cancel", "name": "booking-cancelPayment", "group": "hotels", "source": "docs", "page": "booking-cancelPayment"},
+{"method": "POST", "path": "/hotels/booking/orders/{order_id}/payment/start", "name": "booking-startPayment", "group": "hotels", "source": "docs", "page": "booking-startPayment"},
+{"method": "GET", "path": "/hotels/booking/orders/{order_id}/refund/calculate", "name": "booking-calculateRefund", "group": "hotels", "source": "docs", "page": "booking-calculateRefund"},
+{"method": "POST", "path": "/hotels/booking/orders/{order_id}/refund/{token}/start", "name": "booking-startRefund", "group": "hotels", "source": "docs", "page": "booking-startRefund"},
+{"method": "GET", "path": "/hotels/booking/orders/{order_id}/status", "name": "booking-getOrderStatus", "group": "hotels", "source": "docs", "page": "booking-getOrderStatus"},
+{"method": "GET", "path": "/hotels/hotel", "name": "hotel", "group": "hotels", "source": "docs", "page": "hotel"},
+{"method": "GET", "path": "/hotels/hotel/images", "name": "hotel-images", "group": "hotels", "source": "docs", "page": "hotel-images"},
+{"method": "GET", "path": "/hotels/hotel/offers", "name": "hotel-offers", "group": "hotels", "source": "docs", "page": "hotel-offers"},
+{"method": "GET", "path": "/hotels/hotel/reviews", "name": "hotel-reviews", "group": "hotels", "source": "docs", "page": "hotel-reviews"},
+{"method": "GET", "path": "/hotels/search", "name": "search", "group": "hotels", "source": "docs", "page": "search"},
+{"method": "GET", "path": "/hotels/selection", "name": "selection", "group": "hotels", "source": "docs", "page": "selection"},
+{"method": "GET", "path": "/hotels/suggest", "name": "suggest", "group": "hotels", "source": "docs", "page": "suggest"},
+{"method": "GET", "path": "/hotels/top_offers", "name": "top-offers", "group": "hotels", "source": "docs", "page": "top-offers"},
+{"method": "GET", "path": "/reports/orders/by_created_date", "name": "report", "group": "reports", "source": "docs", "page": "report"}
+]

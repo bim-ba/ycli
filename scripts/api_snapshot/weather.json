@@ -1,0 +1,6 @@
+[
+{"method": "GET", "base": "/v2", "path": "/forecast", "name": "forecast-rest", "group": "forecast", "source": "docs", "page": "concepts/forecast-rest"},
+{"method": "GET", "base": "/v1", "path": "/forecast", "name": "forecast-test-v1", "group": "forecast", "source": "docs", "page": "concepts/forecast-test-v1"},
+{"method": "GET", "base": "/v2", "path": "/informers", "name": "forecast-info", "group": "informers", "source": "docs", "page": "concepts/forecast-info"},
+{"method": "GET", "base": "/v1", "path": "/informers", "name": "forecast-info-v1", "group": "informers", "source": "docs", "page": "concepts/forecast-info-v1"}
+]
