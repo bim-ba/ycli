@@ -14,6 +14,6 @@ def test_the_known_values_come_from_the_definition():
 
 def test_the_option_names_the_values_and_completes_them():
     option = values_option(Order, "--order", help="Sort direction.")
-    assert option.help == "Sort direction. One of: asc, ascending, desc."
+    assert option.help == "Sort direction. Known values: asc, ascending, desc."
     assert option.autocompletion("a") == ["asc", "ascending"]
     assert option.autocompletion("x") == []

@@ -150,8 +150,8 @@ def test_a_value_outside_a_known_set_is_sent_as_given(api, argv, path, sent):
 def test_an_option_shows_the_values_of_its_set():
     result = CliRunner().invoke(cli.app, ["wiki", "attachments", "list", "--help"])
     help_text = " ".join(result.output.replace("│", " ").split())
-    assert "One of: name, size, created_at." in help_text
-    assert "One of: asc, desc." in help_text
+    assert "Known values: name, size, created_at." in help_text
+    assert "Known values: asc, desc." in help_text
 
 
 def test_clone_without_an_operation_id_prints_the_trigger_reply(api):

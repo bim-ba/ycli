@@ -97,7 +97,7 @@ def values_option(value_set: Any, *names: str, help: str) -> Any:  # noqa: A002
     Examples:
         >>> from typing import Literal
         >>> values_option(Literal["asc", "desc"] | str, "--order", help="Sort direction.").help
-        'Sort direction. One of: asc, desc.'
+        'Sort direction. Known values: asc, desc.'
     """
     values = known_values(value_set)
 
@@ -105,5 +105,5 @@ def values_option(value_set: Any, *names: str, help: str) -> Any:  # noqa: A002
         return [value for value in values if value.startswith(incomplete)]
 
     return typer.Option(
-        *names, help=f"{help} One of: {', '.join(values)}.", autocompletion=complete
+        *names, help=f"{help} Known values: {', '.join(values)}.", autocompletion=complete
     )
