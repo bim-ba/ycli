@@ -155,7 +155,7 @@ SOURCES: dict[str, Source] = {
 LISTED = tuple(SOURCES)
 # The services of the roadmap with no snapshot, and why a script cannot read their operations.
 NOT_LISTED = {
-    "rasp": "a page shows the address alone, with no method, and the version is `v3.0`",
+    "rasp": "a page shows the address alone, with no method",
     "maps": "no index of reference pages was found (Geocoder, Geosuggest, Router, Static)",
     "direct-reports": "Direct's `reports` has no WSDL and its page states no request line",
     "calendar": "CalDAV, a protocol: no HTTP operations to name",
@@ -171,7 +171,9 @@ FETCH_WORKERS = 8
 
 METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE")
 _VERSION_PREFIX = re.compile(r"^/v\d+(?=/)")
-_VERSION_SEGMENT = re.compile(r"v\d+")
+# A version as Yandex APIs write it: `v1`, `v4.1`, `v3.0`, `v1beta`, `v2alpha`, `v1beta1` (#283).
+# A word that only starts with `v` (`virtual-disks`, `versions`, `vcards`) is not one.
+_VERSION_SEGMENT = re.compile(r"v\d+(?:\.\d+)?(?:(?:alpha|beta)\d*)?")
 _PLACEHOLDER = re.compile(r"\{[^}]*\}|<[^>]*>")
 # A reference page states its request once, as the first line of a code block; later lines
 # that look the same are examples with literal keys.

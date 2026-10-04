@@ -46,7 +46,9 @@
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/search-urls/in-search/history", "name": "hosts-indexing-insearch-history", "group": "user", "source": "docs", "page": "reference/hosts-indexing-insearch-history"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/search-urls/in-search/samples", "name": "hosts-indexing-insearch-samples", "group": "user", "source": "docs", "page": "reference/hosts-indexing-insearch-samples"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/sitemaps", "name": "host-sitemaps-get", "group": "user", "source": "docs", "page": "reference/host-sitemaps-get"},
+{"method": "GET", "base": "/v4.1", "path": "/user/{user-id}/hosts/{host-id}/sitemaps/recrawl", "name": "host-priority-limit-sitemap-get", "group": "user", "source": "docs", "page": "reference/host-priority-limit-sitemap-get"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/sitemaps/{sitemap-id}", "name": "host-sitemaps-sitemap-id-get", "group": "user", "source": "docs", "page": "reference/host-sitemaps-sitemap-id-get"},
+{"method": "POST", "base": "/v4.1", "path": "/user/{user-id}/hosts/{host-id}/sitemaps/{sitemap_id}/recrawl", "name": "host-priority-re-crawl-initiation-sitemap", "group": "user", "source": "docs", "page": "reference/host-priority-re-crawl-initiation-sitemap"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/sqi-history", "name": "sqi-history", "group": "user", "source": "docs", "page": "reference/sqi-history"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/summary", "name": "host-id-summary", "group": "user", "source": "docs", "page": "reference/host-id-summary"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/user-added-sitemaps", "name": "host-user-added-sitemaps-get", "group": "user", "source": "docs", "page": "reference/host-user-added-sitemaps-get"},
@@ -54,7 +56,5 @@
 {"method": "DELETE", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/user-added-sitemaps/{sitemap-id}", "name": "host-user-added-sitemaps-sitemap-id-delete", "group": "user", "source": "docs", "page": "reference/host-user-added-sitemaps-sitemap-id-delete"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/user-added-sitemaps/{sitemap-id}", "name": "host-user-added-sitemaps-sitemap-id-get", "group": "user", "source": "docs", "page": "reference/host-user-added-sitemaps-sitemap-id-get"},
 {"method": "GET", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/verification", "name": "host-verification-get", "group": "user", "source": "docs", "page": "reference/host-verification-get"},
-{"method": "POST", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/verification", "name": "host-verification-post", "group": "user", "source": "docs", "page": "reference/host-verification-post"},
-{"method": "GET", "path": "/v4.1/user/{user-id}/hosts/{host-id}/sitemaps/recrawl", "name": "host-priority-limit-sitemap-get", "group": "v4.1", "source": "docs", "page": "reference/host-priority-limit-sitemap-get"},
-{"method": "POST", "path": "/v4.1/user/{user-id}/hosts/{host-id}/sitemaps/{sitemap_id}/recrawl", "name": "host-priority-re-crawl-initiation-sitemap", "group": "v4.1", "source": "docs", "page": "reference/host-priority-re-crawl-initiation-sitemap"}
+{"method": "POST", "base": "/v4", "path": "/user/{user-id}/hosts/{host-id}/verification", "name": "host-verification-post", "group": "user", "source": "docs", "page": "reference/host-verification-post"}
 ]

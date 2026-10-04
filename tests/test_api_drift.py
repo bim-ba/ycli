@@ -10,6 +10,7 @@ from __future__ import annotations
 import doctest
 import io
 import json
+import re
 import tarfile
 from dataclasses import replace
 
@@ -224,11 +225,50 @@ def test_fetch_reads_tracker_pages_merging_twins_and_skipping_prose(monkeypatch)
         ("/rpc/getDashboard", "", "/rpc/getDashboard"),
         # The first version segment is the boundary; a later one stays in the path.
         ("/v1/disk/v2/x?fields=a", "/v1", "/disk/v2/x"),
-        ("/v2beta/x", "", "/v2beta/x"),
+        # Every way Yandex APIs write a version (#283).
+        ("/v4.1/user/{user-id}/hosts", "/v4.1", "/user/{user-id}/hosts"),
+        ("/v3.0/search", "/v3.0", "/search"),
+        ("/v2beta/x", "/v2beta", "/x"),
+        ("/v2alpha/x", "/v2alpha", "/x"),
+        ("/api/v1beta1/x", "/api/v1beta1", "/x"),
+        # A word that only starts with `v` is not a version.
+        ("/virtual-disks/{id}", "", "/virtual-disks/{id}"),
+        ("/versions/v", "", "/versions/v"),
+        ("/vcards", "", "/vcards"),
+        ("/v2ray/x", "", "/v2ray/x"),
+        ("/v1.x/y", "", "/v1.x/y"),
     ],
 )
 def test_a_published_address_splits_at_its_version(published, base, path):
     assert api_surface.split_version(published) == (base, path)
+
+
+def _v_segments() -> tuple[set[str], set[str]]:
+    """Across every snapshot: the `v…` segments of a base, and those left in a path."""
+    in_base: set[str] = set()
+    in_path: set[str] = set()
+    for service in api_surface.LISTED:
+        for operation in api_surface.load(service):
+            in_base |= {part for part in operation.base.split("/") if part.startswith("v")}
+            in_path |= {part for part in operation.path.split("/") if part.startswith("v")}
+    return in_base, in_path
+
+
+def test_only_a_version_ends_a_base_in_every_snapshot():
+    """A word that starts with `v` stays in the path; a version never does."""
+    in_base, in_path = _v_segments()
+    assert in_base and all(api_surface._VERSION_SEGMENT.fullmatch(part) for part in in_base)
+    assert {"virtual-disks", "vcards"} <= in_path
+    assert not {part for part in in_path if api_surface._VERSION_SEGMENT.fullmatch(part)}
+
+
+def test_a_looser_version_rule_would_swallow_words(monkeypatch):
+    """The probe: were any `v…` segment a version, the snapshots' words would become bases."""
+    monkeypatch.setattr(api_surface, "_VERSION_SEGMENT", re.compile(r"v.*"))
+    _, in_path = _v_segments()
+    assert {part for part in in_path if api_surface._VERSION_SEGMENT.fullmatch(part)}
+    assert api_surface.split_version("/v1/disk/virtual-disks")[0] == "/v1"
+    assert api_surface.split_version("/virtual-disks/x") == ("/virtual-disks", "/x")
 
 
 @pytest.mark.parametrize(
