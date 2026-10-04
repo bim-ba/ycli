@@ -1076,7 +1076,7 @@ $ ycli wiki search [OPTIONS] COMMAND [ARGS]...
 
 Search pages and files by text (POST /search); prints one page, --cursor picks which.
 
-A date window needs both ends (--created-from with --created-to, likewise --modified-*).
+The API has refused a date window with one end (400), so give both.
 
 **Usage**:
 
@@ -1101,8 +1101,8 @@ $ ycli wiki search query [OPTIONS] QUERY
 * `--show-obsolete`: Also return obsolete documents.
 * `--order-by TEXT`: What to sort the hits by. Known values: relevancy, creation_date, modified_date.  [default: relevancy]
 * `--highlight`: Wrap matches in <em> tags.
-* `--limit INTEGER RANGE`: Results per page.  [default: 10; 1<=x<=50]
-* `--cursor INTEGER RANGE`: Result page to fetch, from 1 (see next_cursor).  [default: 1; 1<=x<=500]
+* `--limit INTEGER`: Results per page.  [default: 10]
+* `--cursor INTEGER`: Result page to fetch, from 1 (see next_cursor).  [default: 1]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1126,7 +1126,7 @@ $ ycli wiki grids [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `get`: Fetch a grid by GRID_ID (GET /grids/{id});...
-* `create`: Create a grid on a page (POST /grids).
+* `create`: Create a grid on a page (POST /grids);...
 * `update`: Rename / re-sort a grid (POST /grids/{id};...
 * `delete`: Delete a grid (DELETE /grids/{id}).
 * `clone`: Copy a grid onto another page (POST...
@@ -1164,7 +1164,7 @@ $ ycli wiki grids get [OPTIONS] GRID_ID
 
 ### `ycli wiki grids create`
 
-Create a grid on a page (POST /grids). Pass one of --page-slug / --page-id.
+Create a grid on a page (POST /grids); name the page by --page-slug or --page-id.
 
 **Usage**:
 
@@ -1409,8 +1409,7 @@ $ ycli wiki grids columns [OPTIONS] COMMAND [ARGS]...
 
 Add columns to a grid (POST /grids/{id}/columns).
 
-The API requires a ``slug`` on every column; a column without one gets a slug derived from
-its title (lowercased, non-alphanumeric runs collapsed to ``_``).
+The API requires a ``slug`` on every column.
 
 **Usage**:
 
@@ -1425,7 +1424,7 @@ $ ycli wiki grids columns add [OPTIONS] GRID_ID
 **Options**:
 
 * `--revision TEXT`: Current grid revision (optimistic lock).  [required]
-* `--columns TEXT`: Columns as JSON, e.g. '[{"title":"C","type":"string"}]' (slug derived from the title when omitted).  [required]
+* `--columns TEXT`: Columns as JSON, e.g. '[{"title":"C","type":"string","slug":"c"}]'.  [required]
 * `--position INTEGER`: Zero-based target index.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

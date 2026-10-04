@@ -64,9 +64,8 @@ def _resolve_body[M: ConditionCreate](
     """The typed group body from ``--body-file`` JSON, or from ``--operator`` + ``--item``."""
     if body_file is not None:
         return model_cls.model_validate_json(body_file.read_bytes())
-    if operator is None or not item:
-        raise typer.BadParameter("pass --operator and at least one --item, or --body-file")
-    return model_cls.model_validate({"operator": operator, "items": [json.loads(c) for c in item]})
+    given = {"operator": operator, "items": [json.loads(c) for c in item] if item else None}
+    return model_cls.model_validate({k: v for k, v in given.items() if v is not None})
 
 
 # --- question ---

@@ -47,7 +47,7 @@ class HookCreate(RequestBody):
         {'name': 'CRM', 'active': False}
     """
 
-    name: str | None = Field(default=None, max_length=100, description="Group name (max 100).")
+    name: str | None = Field(default=None, description="Group name (max 100).")
     active: bool | None = Field(default=None, description="Whether the group's integrations run.")
 
 

@@ -1,7 +1,6 @@
 """Model behaviour for grids — typed write bodies dump correctly; reads parse; validation bites."""
 
 import pytest
-from pydantic import ValidationError
 
 from ycli.yandex.models import ItemList
 from ycli.yandex.wiki.grids.models import (
@@ -41,9 +40,9 @@ def test_grid_create_dumps_page_by_id():
     assert body == {"title": "Roadmap", "page": {"id": 42}}
 
 
-def test_grid_create_rejects_empty_title():
-    with pytest.raises(ValidationError):
-        GridCreate(title="", page=PageIdentity(slug="data/x"))
+def test_grid_create_keeps_an_empty_title():
+    body = GridCreate(title="", page=PageIdentity(slug="data/x")).model_dump(exclude_none=True)
+    assert body == {"title": "", "page": {"slug": "data/x"}}
 
 
 def test_grid_update_dumps_only_set_fields():
@@ -83,9 +82,9 @@ def test_rows_add_dumps_rows_and_revision():
     }
 
 
-def test_rows_remove_requires_at_least_one_id():
-    with pytest.raises(ValidationError):
-        RowsRemove(revision="3", row_ids=[])
+def test_rows_remove_keeps_an_empty_list_of_ids():
+    body = RowsRemove(revision="3", row_ids=[]).model_dump(exclude_none=True)
+    assert body == {"revision": "3", "row_ids": []}
 
 
 def test_rows_move_dumps_selected_fields():
@@ -97,9 +96,9 @@ def test_rows_move_dumps_selected_fields():
 
 
 def test_columns_add_nested_new_column_dump():
-    body = ColumnsAdd(revision="3", columns=[NewColumnSchema(title="C", type="string")]).model_dump(
-        exclude_none=True
-    )
+    body = ColumnsAdd(
+        revision="3", columns=[NewColumnSchema(title="C", type="string", slug="c")]
+    ).model_dump(exclude_none=True)
     assert body == {
         "revision": "3",
         "columns": [{"title": "C", "type": "string", "slug": "c", "required": False}],
@@ -110,31 +109,24 @@ def test_new_column_keeps_a_type_outside_the_known_set():
     assert NewColumnSchema(title="C", type="bogus").type == "bogus"
 
 
-def test_new_column_derives_slug_from_title():
-    """The live API rejects a slug-less column, so ``slug`` defaults from the title.
-
-    The default is lowercased, with non-word runs collapsed to ``_`` and edge underscores
-    stripped.
-    """
-    assert NewColumnSchema(title="Count", type="number").slug == "count"
-    assert NewColumnSchema(title="My Col! (v2)", type="string").slug == "my_col_v2"
-
-
-def test_new_column_derives_unicode_slug_from_cyrillic_title():
-    """A Cyrillic title (the Wiki's primary audience) derives a Cyrillic slug, not an error."""
-    assert NewColumnSchema(title="Количество", type="number").slug == "количество"
-    assert NewColumnSchema(title="Дата начала", type="date").slug == "дата_начала"
+def test_new_column_without_a_slug_is_sent_without_one():
+    """The API's answer to a slug-less column is shown as it comes; no slug is derived."""
+    column = NewColumnSchema(title="Count", type="number")
+    assert column.slug is None
+    assert column.model_dump(exclude_none=True) == {
+        "title": "Count",
+        "type": "number",
+        "required": False,
+    }
 
 
 def test_new_column_keeps_explicit_slug():
     assert NewColumnSchema(title="Count", type="number", slug="cnt").slug == "cnt"
 
 
-def test_new_column_underivable_title_needs_explicit_slug():
-    """A title with no word characters at all cannot yield a slug — clear error, not a 400 later."""
-    with pytest.raises(ValidationError, match="pass an explicit slug"):
-        NewColumnSchema(title="!!! ---", type="number")
-    assert NewColumnSchema(title="!!! ---", type="number", slug="count").slug == "count"
+def test_new_column_keeps_a_title_of_any_length():
+    assert NewColumnSchema(title="x" * 256, type="number").title == "x" * 256
+    assert NewColumnSchema(title="", type="number").title == ""
 
 
 def test_columns_add_always_serializes_required():
@@ -172,9 +164,9 @@ def test_grid_clone_defaults_with_data_false():
     }
 
 
-def test_grid_clone_rejects_empty_title():
-    with pytest.raises(ValidationError):
-        GridClone(target="data/y", title="")
+def test_grid_clone_keeps_an_empty_title():
+    body = GridClone(target="data/y", title="").model_dump(exclude_none=True)
+    assert body == {"target": "data/y", "title": "", "with_data": False}
 
 
 def test_grid_parses_structure_and_rows():
@@ -213,16 +205,13 @@ def test_column_suggest_dumps_only_what_was_given():
     assert ColumnSuggest(slug="due").model_dump(exclude_none=True) == {"slug": "due"}
 
 
-def test_column_suggest_refuses_an_empty_title():
-    with pytest.raises(ValidationError):
-        ColumnSuggest(title="")
+def test_column_suggest_keeps_an_empty_title():
+    assert ColumnSuggest(title="").model_dump(exclude_none=True) == {"title": ""}
 
 
-@pytest.mark.parametrize("fields", [{}, {"title": "Due", "slug": "due"}])
-def test_column_suggest_needs_exactly_one_of_title_and_slug(fields):
-    """The API answers 400 for neither and for both, so the model refuses before sending."""
-    with pytest.raises(ValidationError, match="exactly one"):
-        ColumnSuggest.model_validate(fields)
+@pytest.mark.parametrize("fields", [{}, {"title": "Due", "slug": "due"}], ids=["neither", "both"])
+def test_column_suggest_is_sent_with_the_fields_given(fields):
+    assert ColumnSuggest.model_validate(fields).model_dump(exclude_none=True) == fields
 
 
 def test_column_suggestion_parses_a_taken_slug():
@@ -253,9 +242,8 @@ def test_column_update_keeps_a_value_outside_a_known_set(field):
     assert ColumnUpdate.model_validate(field).model_dump(exclude_none=True) == field
 
 
-def test_column_update_refuses_an_empty_title():
-    with pytest.raises(ValidationError):
-        ColumnUpdate.model_validate({"title": ""})
+def test_column_update_keeps_an_empty_title():
+    assert ColumnUpdate.model_validate({"title": ""}).model_dump(exclude_none=True) == {"title": ""}
 
 
 def test_column_update_result_carries_the_saved_column():

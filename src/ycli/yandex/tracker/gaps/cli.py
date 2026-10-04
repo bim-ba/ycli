@@ -48,27 +48,24 @@ def create(
     Example: --user ann --workflow trip --from 2026-07-10T00:00Z --to 2026-07-20T00:00Z
     """
     gaps = []
-    if user is not None or workflow is not None or date_from is not None or date_to is not None:
-        if user is None or workflow is None or date_from is None or date_to is None:
-            raise typer.BadParameter("--user, --workflow, --from and --to go together")
-        gaps.append(
-            GapInput(
-                id=gap_id,
-                user=user,
-                workflow=workflow,
-                date_from=date_from,
-                date_to=date_to,
-                full_day=full_day,
-                work_in_absence=work_in_absence,
-            )
-        )
+    named = {
+        "id": gap_id,
+        "user": user,
+        "workflow": workflow,
+        "date_from": date_from,
+        "date_to": date_to,
+        "full_day": full_day,
+        "work_in_absence": work_in_absence,
+    }
+    # The flags describe one absence; --full-day and --work-in-absence alone describe none.
+    if any(named[name] is not None for name in ("id", "user", "workflow", "date_from", "date_to")):
+        given = {name: value for name, value in named.items() if value is not None}
+        gaps.append(GapInput.model_validate(given))
     for raw in gap or []:
         try:
             gaps.append(GapInput.model_validate(json.loads(raw)))
         except json.JSONDecodeError as exc:
             raise typer.BadParameter(f"--gap must be valid JSON: {exc}") from exc
-    if not gaps:
-        raise typer.BadParameter("give an absence: --user/--workflow/--from/--to or --gap")
     return tracker.gaps.create(GapsCreate(gaps=gaps))
 
 

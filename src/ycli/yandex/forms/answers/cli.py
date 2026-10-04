@@ -40,7 +40,7 @@ def get(
     *,
     forms: FormsClient,
 ) -> AnswerDetails:
-    """Fetch one answer (GET /answers). Pass exactly one of --answer-id / --answer-key.
+    """Fetch one answer (GET /answers). The API takes one of --answer-id / --answer-key.
 
     The single-answer read is a flat query-param route, so no survey id is needed.
     """
@@ -188,7 +188,7 @@ def integrations_list(
     *,
     forms: FormsClient,
 ) -> ItemList[AnswerIntegration]:
-    """List the integration runs an answer triggered (exactly one of --answer-id / --answer-key)."""
+    """List the integration runs an answer triggered (one of --answer-id / --answer-key)."""
     return forms.answers.integrations_list(answer_id=answer_id, answer_key=answer_key)
 
 

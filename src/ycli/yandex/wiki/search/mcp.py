@@ -15,7 +15,7 @@ mcp = FastMCP("wiki-search")
 
 @mcp.tool(name="search_query", annotations={**RO, "title": "Search Wiki"})
 def query(
-    text: Annotated[str, Field(min_length=1, description="Text to search for.")],
+    text: Annotated[str, Field(description="Text to search for.")],
     filters: Annotated[
         SearchFilters | None,
         Field(
@@ -28,10 +28,8 @@ def query(
     highlight: Annotated[
         bool, Field(description="Wrap the matches in ``<em>`` tags in title and content.")
     ] = False,
-    limit: Annotated[int, Field(ge=1, le=50, description="Hits per page.")] = 10,
-    cursor: Annotated[
-        int, Field(ge=1, le=500, description="Number of the result page to fetch, from 1.")
-    ] = 1,
+    limit: Annotated[int, Field(description="Hits per page.")] = 10,
+    cursor: Annotated[int, Field(description="Number of the result page to fetch, from 1.")] = 1,
     client: WikiClient = Depends(wiki_client),
 ) -> SearchPage:
     """Full-text search over wiki pages and files; returns one page of hits.

@@ -148,7 +148,6 @@ class GapInput(RequestBody):
 
     id: str | None = Field(
         default=None,
-        max_length=128,
         description="Identifier of the absence (up to 128 characters); generated if omitted.",
     )
     user: str = Field(description="Login or id of the absent user.")
@@ -192,4 +191,4 @@ class GapsCreate(RequestBody):
         'trip'
     """
 
-    gaps: list[GapInput] = Field(max_length=100, description="The absences to create (up to 100).")
+    gaps: list[GapInput] = Field(description="The absences to create (up to 100).")

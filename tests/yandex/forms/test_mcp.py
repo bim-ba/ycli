@@ -52,18 +52,11 @@ async def test_an_empty_answer_is_an_error(api, tool, arguments, url):
             await client.call_tool(tool, arguments)
 
 
-@pytest.mark.parametrize(
-    ("tool", "arguments"),
-    [
-        ("forms_answers_get", {}),
-        ("forms_answers_get", {"answer_id": 1, "answer_key": "k"}),
-        ("forms_answers_integrations_list", {}),
-        ("forms_answers_integrations_list", {"answer_id": 1, "answer_key": "k"}),
-        ("forms_questions_move", {"survey_id": SID, "question_id": "1", "body": {"position": 2}}),
-    ],
-)
-async def test_invalid_arguments_send_nothing(api, tool, arguments):
+async def test_a_question_move_with_a_bare_position_is_sent_as_given(api):
+    api.add("POST", f"{BASE}/surveys/{SID}/questions/1/move", json={"id": "1"})
     async with Client(mcp) as client:
-        with pytest.raises(ToolError):
-            await client.call_tool(tool, arguments)
-    assert api.calls == []
+        await client.call_tool(
+            "forms_questions_move",
+            {"survey_id": SID, "question_id": "1", "body": {"position": 2}},
+        )
+    assert api.body() == {"position": 2}

@@ -13,10 +13,9 @@ Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bod
 
 from __future__ import annotations
 
-import re
 from typing import Any, Literal
 
-from pydantic import Field, RootModel, model_validator
+from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody, SortDirection
 from ycli.yandex.wiki.models import PageIdentity
@@ -306,26 +305,20 @@ class NewColumnSchema(RequestBody):
 
     ``title`` and ``type`` are required; the remaining fields shape a specific column type
     (``select_options`` for ``select``, ``ticket_field`` for ``ticket_field``, …). The live API
-    requires a ``slug`` on every column (400 ``value_error.missing`` without one), so when
-    ``slug`` is omitted it is derived from ``title``: lowercased, with every run of non-word
-    characters collapsed to a single ``_`` and edge underscores stripped (``"Owner"`` →
-    ``"owner"``, ``"My Col!"`` → ``"my_col"``). The derivation is Unicode-aware, so a Cyrillic
-    title yields a Cyrillic slug (``"Владелец"`` → ``"владелец"``); only a title with no word
-    characters at all (pure punctuation) needs an explicit ``slug``.
+    requires a ``slug`` on every column (400 ``value_error.missing`` without one).
 
     Examples:
-        >>> NewColumnSchema(title="Owner", type="staff", multiple=True).model_dump(
+        >>> NewColumnSchema(title="Owner", type="staff", slug="owner", multiple=True).model_dump(
         ...     exclude_none=True
         ... )
         {'title': 'Owner', 'type': 'staff', 'slug': 'owner', 'required': False, 'multiple': True}
     """
 
-    title: str = Field(min_length=1, max_length=255, description="Column header (non-empty).")
+    title: str = Field(description="Column header (non-empty).")
     type: ColumnType = Field(description="Value type of the new column.")
     slug: str | None = Field(
         default=None,
-        description="Machine slug of the column — required by the API; derived from ``title`` "
-        "when omitted (lowercased, non-``a-z0-9`` runs collapsed to ``_``).",
+        description="Machine slug of the column; the API requires it.",
     )
     required: bool = Field(
         default=False,
@@ -351,27 +344,7 @@ class NewColumnSchema(RequestBody):
     mark_rows: bool | None = Field(
         default=None, description="For ``checkbox`` columns: mark the row done when ticked."
     )
-    description: str | None = Field(
-        default=None, max_length=1024, description="Free-text column description."
-    )
-
-    @model_validator(mode="after")
-    def _derive_slug_from_title(self) -> NewColumnSchema:
-        r"""Default ``slug`` from ``title`` — the live API rejects slug-less columns (400).
-
-        ``\W+`` is Unicode-aware, so a Cyrillic title (the Wiki's primary audience) derives a
-        Cyrillic slug rather than collapsing to empty; only a title with no word characters at
-        all (pure punctuation) needs an explicit slug.
-        """
-        if self.slug is None:
-            derived = re.sub(r"\W+", "_", self.title.lower()).strip("_")
-            if not derived:
-                raise ValueError(
-                    f"cannot derive a column slug from title {self.title!r} "
-                    "(no word characters); pass an explicit slug"
-                )
-            self.slug = derived
-        return self
+    description: str | None = Field(default=None, description="Free-text column description.")
 
 
 class GridCreate(RequestBody):
@@ -387,7 +360,7 @@ class GridCreate(RequestBody):
         {'title': 'Roadmap', 'page': {'slug': 'data/x'}}
     """
 
-    title: str = Field(min_length=1, max_length=255, description="Title of the new grid.")
+    title: str = Field(description="Title of the new grid.")
     page: PageIdentity = Field(description="Page the grid is created under (by id or slug).")
 
 
@@ -407,9 +380,7 @@ class GridUpdate(RequestBody):
     """
 
     revision: str = Field(description="Current grid revision (optimistic lock).")
-    title: str | None = Field(
-        default=None, min_length=1, max_length=255, description="New grid title."
-    )
+    title: str | None = Field(default=None, description="New grid title.")
     default_sort: list[ColumnSortWrite] | None = Field(
         default=None,
         description='New default row sort — write shape ``[{"<column_slug>": "asc"|"desc"}]``.',
@@ -446,9 +417,7 @@ class RowsRemove(RequestBody):
     """
 
     revision: str = Field(description="Current grid revision (optimistic lock).")
-    row_ids: list[str] = Field(
-        min_length=1, description="Ids of the rows to delete (at least one)."
-    )
+    row_ids: list[str] = Field(description="Ids of the rows to delete (at least one).")
 
 
 class RowsMove(RequestBody):
@@ -475,7 +444,7 @@ class ColumnsAdd(RequestBody):
 
     Examples:
         >>> ColumnsAdd(
-        ...     revision="3", columns=[NewColumnSchema(title="C", type="string")]
+        ...     revision="3", columns=[NewColumnSchema(title="C", type="string", slug="c")]
         ... ).model_dump(exclude_none=True)["columns"]
         [{'title': 'C', 'type': 'string', 'slug': 'c', 'required': False}]
     """
@@ -554,18 +523,9 @@ class ColumnSuggest(RequestBody):
 
     title: str | None = Field(
         default=None,
-        min_length=1,
-        max_length=255,
         description="Column title to turn into a slug and check.",
     )
     slug: str | None = Field(default=None, description="Column slug to check.")
-
-    @model_validator(mode="after")
-    def _exactly_one_of_title_and_slug(self) -> ColumnSuggest:
-        """The API answers 400 unless exactly one of ``title`` and ``slug`` is given."""
-        if (self.title is None) == (self.slug is None):
-            raise ValueError("give exactly one of title and slug")
-        return self
 
 
 class ColumnSuggestion(APIModel):
@@ -604,12 +564,8 @@ class ColumnUpdate(RequestBody):
     revision: str | None = Field(
         default=None, description="Grid revision; this endpoint accepts a stale or missing one."
     )
-    title: str | None = Field(
-        default=None, min_length=1, max_length=255, description="New column header."
-    )
-    description: str | None = Field(
-        default=None, max_length=1024, description="New free-text column description."
-    )
+    title: str | None = Field(default=None, description="New column header.")
+    description: str | None = Field(default=None, description="New free-text column description.")
     required: bool | None = Field(default=None, description="Whether a value is mandatory.")
     width: int | None = Field(default=None, description="Column width in ``width_units``.")
     width_units: WidthUnits | None = Field(default=None, description="Unit of ``width``.")
@@ -695,7 +651,5 @@ class GridClone(RequestBody):
     """
 
     target: str = Field(description="Slug of the page to copy the grid onto (created if absent).")
-    title: str | None = Field(
-        default=None, min_length=1, max_length=255, description="Title of the copy, if renaming."
-    )
+    title: str | None = Field(default=None, description="Title of the copy, if renaming.")
     with_data: bool = Field(default=False, description="Copy the rows too, not just the structure.")

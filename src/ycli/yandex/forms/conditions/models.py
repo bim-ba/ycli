@@ -42,7 +42,6 @@ class ConditionItemWrite(RequestBody):
     )
     value: str | None = Field(
         default=None,
-        max_length=100,
         description="Value the clause compares against (string, max 100 chars).",
     )
 
@@ -64,9 +63,7 @@ class ConditionCreate(RequestBody):
     operator: ConditionOperatorType = Field(
         description="Boolean operator joining the clauses within the group: and / or."
     )
-    items: list[ConditionItemWrite] = Field(
-        min_length=1, description="Clauses of the group (at least one)."
-    )
+    items: list[ConditionItemWrite] = Field(description="Clauses of the group (at least one).")
 
 
 class ConditionUpdate(ConditionCreate):

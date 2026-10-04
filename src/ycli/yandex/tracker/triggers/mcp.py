@@ -79,7 +79,7 @@ def webhook_log_list(
     ] = None,
     limit: Annotated[
         int | None,
-        Field(ge=1, description="Max records (API default 10, max 100); 0 uses the API default."),
+        Field(description="Max records (the API's default is 10, its maximum 100)."),
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[WebhookLogEntry]:

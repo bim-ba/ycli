@@ -1,7 +1,4 @@
-"""Wiki page access models — the shapes the live API returned, and the bodies they refuse."""
-
-import pytest
-from pydantic import ValidationError
+"""Wiki page access models — the shapes the live API returned, and the bodies sent to it."""
 
 from ycli.yandex.wiki.access.models import (
     PageAccess,
@@ -78,20 +75,21 @@ def test_an_owner_without_a_user_is_allowed():
     assert PageOwner.model_validate({"user": None, "group": None}).user is None
 
 
-def test_a_create_body_names_exactly_one_grantee():
+def test_a_create_body_is_kept_with_both_grantees_or_none():
     body = PageAccessCreate.model_validate({"user": {"uid": "1"}, "role": "reader"})
     assert body.model_dump(exclude_none=True) == {"user": {"uid": "1"}, "role": "reader"}
-    for grantees in ({}, {"user": {"uid": "1"}, "group": {"src": "dir", "id": "2"}}):
-        with pytest.raises(ValidationError, match="exactly one of user and group"):
-            PageAccessCreate.model_validate({**grantees, "role": "reader"})
+    both = {"user": {"uid": "1"}, "group": {"src": "dir", "id": "2"}, "role": "reader"}
+    assert PageAccessCreate.model_validate(both).model_dump(exclude_none=True) == both
+    assert PageAccessCreate.model_validate({"role": "reader"}).model_dump(exclude_none=True) == {
+        "role": "reader"
+    }
 
 
-def test_an_update_body_changes_something():
+def test_an_update_body_with_nothing_to_change_is_kept_empty():
     assert PageAccessUpdate(inheritance="inherited").model_dump(exclude_none=True) == {
         "inheritance": "inherited"
     }
-    with pytest.raises(ValidationError, match="a role, an inheritance or both"):
-        PageAccessUpdate()
+    assert PageAccessUpdate().model_dump(exclude_none=True) == {}
 
 
 def test_a_role_outside_the_known_set_is_kept():

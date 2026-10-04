@@ -20,18 +20,22 @@ SearchOrder = Literal["relevancy", "creation_date", "modified_date"] | str
 
 
 class SearchDateRange(RequestBody):
-    """A time window for ``created_at`` / ``modified_at``; both ends are required.
+    """A time window for ``created_at`` / ``modified_at``.
 
-    The spec calls both ends optional, but the live API answers an open-ended window with
-    ``400 SEARCH_BAD_REQUEST``, so a missing end fails here instead.
+    The spec calls both ends optional; the live API has answered an open-ended window with
+    ``400 SEARCH_BAD_REQUEST``.
 
     Examples:
         >>> SearchDateRange(start="2026-01-01", end="2026-02-01").model_dump(mode="json")
         {'from': '2026-01-01T00:00:00', 'to': '2026-02-01T00:00:00'}
     """
 
-    start: datetime = Field(alias="from", description="Start of the window (ISO 8601).")
-    end: datetime = Field(alias="to", description="End of the window (ISO 8601).")
+    start: datetime | None = Field(
+        default=None, alias="from", description="Start of the window (ISO 8601)."
+    )
+    end: datetime | None = Field(
+        default=None, alias="to", description="End of the window (ISO 8601)."
+    )
 
 
 class SearchFilters(RequestBody):
@@ -48,8 +52,6 @@ class SearchFilters(RequestBody):
     )
     cluster: str | None = Field(
         default=None,
-        min_length=1,
-        max_length=255,
         description="Only documents under this page slug, e.g. ``team/handbook``.",
     )
     created_at: SearchDateRange | None = Field(
@@ -71,10 +73,10 @@ class SearchRequest(RequestBody):
         {'query': 'roadmap', 'cursor': 1, 'limit': 5, 'order_by': 'relevancy', 'highlight': False}
     """
 
-    query: str = Field(min_length=1, description="Text to search for.")
+    query: str = Field(description="Text to search for.")
     filters: SearchFilters | None = Field(default=None, description="Narrow the search.")
-    cursor: int = Field(default=1, ge=1, le=500, description="Number of the result page, from 1.")
-    limit: int = Field(default=10, ge=1, le=50, description="Results per page.")
+    cursor: int = Field(default=1, description="Number of the result page, from 1.")
+    limit: int = Field(default=10, description="Results per page.")
     order_by: SearchOrder = Field(default="relevancy", description="How to sort the results.")
     highlight: bool = Field(
         default=False, description="Wrap the matches in ``<em>`` tags in title and content."

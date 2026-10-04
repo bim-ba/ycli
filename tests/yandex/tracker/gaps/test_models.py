@@ -1,8 +1,5 @@
 """Model parsing for Tracker gaps: the doc replies and the request bodies."""
 
-import pytest
-from pydantic import ValidationError
-
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.gaps.models import (
     Gap,
@@ -94,13 +91,15 @@ def test_request_uses_the_api_names_and_accepts_the_docs_json():
     }
 
 
-def test_request_limits_hold():
+def test_a_request_beyond_the_api_limits_is_kept_as_given():
     gap = {"user": "u", "workflow": "trip", "date_from": "a", "date_to": "b"}
-    with pytest.raises(ValidationError):
-        GapsCreate.model_validate({"gaps": [gap] * 101})
-    with pytest.raises(ValidationError):
-        GapInput.model_validate({**gap, "id": "x" * 129})
-    assert GapInput.model_validate({**gap, "workflow": "holiday"}).workflow == "holiday"
+    assert len(GapsCreate.model_validate({"gaps": [gap] * 101}).gaps) == 101
+    assert GapInput.model_validate({**gap, "id": "x" * 129}).id == "x" * 129
+
+
+def test_an_absence_of_a_workflow_outside_the_known_set_is_kept():
+    gap = {"user": "u", "workflow": "holiday", "date_from": "a", "date_to": "b"}
+    assert GapInput.model_validate(gap).workflow == "holiday"
 
 
 def test_every_request_field_has_a_description():

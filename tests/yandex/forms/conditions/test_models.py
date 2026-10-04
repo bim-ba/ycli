@@ -39,18 +39,25 @@ def test_condition_item_write_requires_type_and_condition():
         ConditionItemWrite.model_validate({})
 
 
-def test_condition_item_write_caps_value_at_100():
-    ok = ConditionItemWrite(type="question", condition="eq", value="x" * 100)
-    assert ok.value == "x" * 100
-    with pytest.raises(ValidationError):
-        ConditionItemWrite(type="question", condition="eq", value="x" * 101)
+def test_condition_item_write_keeps_a_value_of_any_length():
+    item = ConditionItemWrite(type="question", condition="eq", value="x" * 101)
+    assert item.value == "x" * 101
 
 
-def test_condition_create_requires_operator_and_nonempty_items():
-    with pytest.raises(ValidationError):
-        ConditionCreate(operator="and", items=[])
-    with pytest.raises(ValidationError):
+def test_condition_create_requires_operator_and_items():
+    with pytest.raises(ValidationError) as no_operator:
         ConditionCreate.model_validate({"items": [{"type": "language", "condition": "eq"}]})
+    assert [(e["type"], e["loc"]) for e in no_operator.value.errors()] == [
+        ("missing", ("operator",))
+    ]
+    with pytest.raises(ValidationError) as no_items:
+        ConditionCreate.model_validate({"operator": "and"})
+    assert [(e["type"], e["loc"]) for e in no_items.value.errors()] == [("missing", ("items",))]
+
+
+def test_condition_create_keeps_an_empty_list_of_items():
+    body = ConditionCreate(operator="and", items=[]).model_dump(by_alias=True, exclude_none=True)
+    assert body == {"operator": "and", "items": []}
 
 
 def test_condition_create_dump_drops_unset_clause_fields():

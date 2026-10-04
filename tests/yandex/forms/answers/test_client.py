@@ -1,32 +1,29 @@
 """AnswersClient behaviour the contract table cannot reach: paging quirks, export status, guards."""
 
-import pytest
 from fastmcp import Client
-from fastmcp.exceptions import ToolError
 
 from tests.full_server import mcp
 from tests.hosts import FORMS_BASE as BASE
-from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.forms.client import FormsClient
 
 SID = "686d0a1b2c3d4e5f00000030"
 ANSWERS = f"{BASE}/surveys/{SID}/answers"
 
 
-def test_get_needs_exactly_one_selector():
-    with (
-        FormsClient(oauth_token="t", organization_id="o") as client,
-        pytest.raises(YandexInvalidRequestError),
-    ):
-        client.answers.get(answer_id=1, answer_key="k")
-
-
-def test_integrations_list_needs_exactly_one_selector():
+def test_get_sends_both_selectors_as_given(api):
+    api.add("GET", f"{BASE}/answers", json={"id": 1})
     with FormsClient(oauth_token="t", organization_id="o") as client:
-        with pytest.raises(YandexInvalidRequestError):
-            client.answers.integrations_list()
-        with pytest.raises(YandexInvalidRequestError):
-            client.answers.integrations_list(answer_id=1, answer_key="k")
+        client.answers.get(answer_id=1, answer_key="k")
+    assert dict(api.calls[0].url.params) == {"answer_id": "1", "answer_key": "k"}
+
+
+def test_integrations_list_sends_the_selectors_it_is_given_and_none_when_given_none(api):
+    api.add("GET", f"{BASE}/answers/integrations", json=[])
+    with FormsClient(oauth_token="t", organization_id="o") as client:
+        client.answers.integrations_list()
+        client.answers.integrations_list(answer_id=1, answer_key="k")
+    assert dict(api.calls[0].url.params) == {}
+    assert dict(api.calls[1].url.params) == {"answer_id": "1", "answer_key": "k"}
 
 
 def test_list_all_carries_the_dead_v3_cursor_onto_v1(api):
@@ -56,8 +53,8 @@ def test_export_results_reports_a_redirect_to_the_file_as_ready_without_followin
     assert len(api.calls) == 1
 
 
-async def test_a_tool_reports_the_wrong_form_as_a_tool_error(api):
+async def test_a_tool_sends_no_selector_as_given(api):
+    api.add("GET", f"{BASE}/answers", json={"id": 1})
     async with Client(mcp) as client:
-        with pytest.raises(ToolError, match="exactly one of answer_id or answer_key"):
-            await client.call_tool("forms_answers_get", {})
-    assert api.calls == []
+        await client.call_tool("forms_answers_get", {})
+    assert dict(api.calls[0].url.params) == {}

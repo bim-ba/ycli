@@ -46,7 +46,7 @@ def get(
     ] = None,
     client: FormsClient = Depends(forms_client),
 ) -> AnswerDetails:
-    """One full form response by ``answer_id`` or ``answer_key`` (exactly one required).
+    """One full form response by ``answer_id`` or ``answer_key`` (the API takes one of them).
 
     A flat query-param route (``GET /v1/answers``) — no survey id needed. Each ``data``
     item is a self-describing question record (``{id, label, type, value, …}``).
@@ -134,7 +134,7 @@ def integrations_list(
     ] = None,
     client: FormsClient = Depends(forms_client),
 ) -> ItemList[AnswerIntegration]:
-    """The integration runs one answer triggered, by ``answer_id`` or ``answer_key`` (exactly one).
+    """The integration runs one answer triggered, by ``answer_id`` or ``answer_key`` (one of them).
 
     Each entry has the run's ``status`` and the field of its ``type`` (``issue_key``, ``link``,
     ``to_address``, ``url``, ...); ``notifications_get`` has the full run.

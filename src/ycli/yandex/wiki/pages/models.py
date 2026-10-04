@@ -314,7 +314,7 @@ class PageCreate(RequestBody):
     """
 
     slug: str = Field(description="Address of the page, e.g. ``data/x``.")
-    title: str = Field(min_length=1, max_length=255, description="Title of the page.")
+    title: str = Field(description="Title of the page.")
     content: str | None = Field(default=None, description="Body of the page in YFM markdown.")
     access_policy: PageAccessPolicyUpdate | None = Field(
         default=None, description="Who may open the page."
@@ -331,9 +331,7 @@ class PageUpdate(RequestBody):
         'Renamed'
     """
 
-    title: str | None = Field(
-        default=None, min_length=1, max_length=255, description="New title of the page."
-    )
+    title: str | None = Field(default=None, description="New title of the page.")
     content: str | None = Field(default=None, description="New body, replacing the whole one.")
     redirect: PageRedirectUpdate | None = Field(
         default=None, description="Make the page a redirect, or remove its redirect."
@@ -407,7 +405,7 @@ class PageAppendContent(RequestBody):
         {'content': '## More', 'body': {'location': 'bottom'}}
     """
 
-    content: str = Field(min_length=1, description="YFM fragment to append (non-empty).")
+    content: str = Field(description="YFM fragment to append (non-empty).")
     body: PageAppendContentBody | None = Field(
         default=None, description="Append at the top/bottom of the whole page body."
     )
@@ -431,9 +429,7 @@ class PageClone(RequestBody):
     """
 
     target: str = Field(description="Slug of the page's new address after the copy.")
-    title: str | None = Field(
-        default=None, min_length=1, max_length=255, description="Title of the copy, if renaming."
-    )
+    title: str | None = Field(default=None, description="Title of the copy, if renaming.")
     subscribe_me: bool = Field(
         default=False, description="Subscribe the caller to changes on the copy."
     )
@@ -474,9 +470,7 @@ class PageMove(RequestBody):
         True
     """
 
-    operations: list[PageMoveStep] = Field(
-        min_length=1, description="Moves to run, in order (at least one)."
-    )
+    operations: list[PageMoveStep] = Field(description="Moves to run, in order (at least one).")
     copy_inherited_access: bool = Field(
         default=False,
         description="Copy the accesses a page inherited from its old parent when it moves. The "

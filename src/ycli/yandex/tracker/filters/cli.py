@@ -14,16 +14,14 @@ from ycli.yandex.tracker.filters.models import Filter, FilterCreate, FilterUpdat
 app = typer.Typer(name="filters", help="Tracker saved filters.", no_args_is_help=True)
 
 
-def _parse_filter(raw: str | None) -> dict[str, Any] | None:
-    """Parse a ``--filter`` JSON object string into a dict, or return None when empty."""
+def _parse_filter(raw: str | None) -> Any:
+    """Parse the ``--filter`` JSON; ``None`` when the option is not given."""
     if raw is None:
         return None
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise typer.BadParameter(f"--filter must be valid JSON: {exc}") from exc
-    if not isinstance(parsed, dict):
-        raise typer.BadParameter("--filter must be a JSON object.")
     return parsed
 
 

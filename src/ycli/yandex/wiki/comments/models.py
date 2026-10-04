@@ -50,7 +50,7 @@ class CommentCreate(RequestBody):
         {'body': 'LGTM', 'parent_id': 7}
     """
 
-    body: str = Field(min_length=1, description="The comment text (non-empty).")
+    body: str = Field(description="The comment text (non-empty).")
     inline_text: str | None = Field(
         default=None, description="Page fragment this comment is pinned to (inline comment)."
     )

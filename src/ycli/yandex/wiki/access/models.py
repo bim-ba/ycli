@@ -9,9 +9,9 @@ Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bod
 
 from __future__ import annotations
 
-from typing import Any, Literal, Self
+from typing import Any, Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, GroupSource, RequestBody
 from ycli.yandex.wiki.models import PageAccessType, User, UserIdentity
@@ -78,7 +78,7 @@ class PageAccess(APIModel):
 class PageAccessCreate(RequestBody):
     """Typed body for ``POST /pages/{id}/access`` — grant a user or a group a role on a page.
 
-    Name exactly one of ``user`` and ``group``.
+    The API takes one of ``user`` and ``group``.
 
     Examples:
         >>> PageAccessCreate(user=UserIdentity(uid="1000"), role="editor").model_dump(
@@ -94,12 +94,6 @@ class PageAccessCreate(RequestBody):
         default=None, description="Whether the grant also covers subpages."
     )
 
-    @model_validator(mode="after")
-    def _one_grantee(self) -> Self:
-        if (self.user is None) == (self.group is None):
-            raise ValueError("name exactly one of user and group")
-        return self
-
 
 class PageAccessUpdate(RequestBody):
     """Typed body for ``POST /pages/{id}/access/{access_id}`` — change a grant's role or reach.
@@ -113,12 +107,6 @@ class PageAccessUpdate(RequestBody):
     inheritance: AccessInheritance | None = Field(
         default=None, description="Whether the grant also covers subpages."
     )
-
-    @model_validator(mode="after")
-    def _something_to_change(self) -> Self:
-        if self.role is None and self.inheritance is None:
-            raise ValueError("give a role, an inheritance or both")
-        return self
 
 
 class PageAccessPolicy(APIModel):

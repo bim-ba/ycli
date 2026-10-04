@@ -332,7 +332,7 @@ wiki pages revisions-list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:
 wiki pages update: --allow-merge:BOOLEAN=False --content:TEXT! --dry-run:BOOLEAN=False --fields:TEXT --format:CHOICE --profile:TEXT --silent:BOOLEAN=False --title:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
 wiki recovery restore: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False TOKEN:TEXT!
 wiki resources list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --order-by:TEXT --order-direction:TEXT --profile:TEXT --q:TEXT --types:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!
-wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER RANGE=1 --dry-run:BOOLEAN=False --format:CHOICE --highlight:BOOLEAN=False --limit:INTEGER RANGE=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:TEXT='relevancy' --profile:TEXT --show-obsolete:BOOLEAN=False --type:TEXT --yes:BOOLEAN=False TEXT:TEXT!
+wiki search query: --author-cloud-uid:TEXT --author-uid:TEXT --cluster:TEXT --created-from:DATETIME --created-to:DATETIME --cursor:INTEGER=1 --dry-run:BOOLEAN=False --format:CHOICE --highlight:BOOLEAN=False --limit:INTEGER=10 --modified-from:DATETIME --modified-to:DATETIME --order-by:TEXT='relevancy' --profile:TEXT --show-obsolete:BOOLEAN=False --type:TEXT --yes:BOOLEAN=False TEXT:TEXT!
 wiki uploadsessions abort: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SESSION_ID:TEXT!
 wiki uploadsessions abort-all: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 wiki uploadsessions create: --dry-run:BOOLEAN=False --file-name:TEXT! --file-size:INTEGER! --format:CHOICE --profile:TEXT --yes:BOOLEAN=False

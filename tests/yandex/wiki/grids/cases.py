@@ -31,7 +31,7 @@ def _revision(value: str) -> Reply:
 
 ROWS = [{"name": "Launch", "owner": "vera"}, {"name": "Review", "owner": "ivan"}]
 COLUMNS = [
-    {"title": "Due Date", "type": "date"},
+    {"title": "Due Date", "type": "date", "slug": "due_date"},
     {"title": "Stage", "type": "select", "slug": "stage", "required": True,
      "select_options": ["todo", "done"]},
 ]  # fmt: skip
