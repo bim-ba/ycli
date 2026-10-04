@@ -10,17 +10,11 @@ from typing import Any, Literal
 
 from pydantic import Field
 
+from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.models import APIModel, RequestBody, SortDirection
 
-#: The state of one run of an integration.
-RunStatus = Literal["pending", "success", "error", "canceled"] | str
-#: The kind of integration a run belongs to.
-IntegrationType = (
-    Literal[
-        "email", "tracker", "tracker_comment", "wiki", "jsonrpc", "post", "put", "http", "function"
-    ]
-    | str
-)
+#: How a field of an integration run is displayed.
+NotificationFieldType = Literal["text", "textarea", "code", "json", "xml", "url"] | str
 
 
 class Notification(APIModel):
@@ -32,7 +26,7 @@ class Notification(APIModel):
     """
 
     id: int | None = Field(default=None, description="Notification id (integer).")
-    status: str | None = Field(
+    status: RunStatus | None = Field(
         default=None, description="Run state: pending, success, error or canceled."
     )
     created: str | None = Field(default=None, description="ISO-8601 time the run was queued.")
@@ -44,7 +38,7 @@ class Notification(APIModel):
     subscription_id: int | None = Field(default=None, description="Integration id.")
     answer_id: int | None = Field(default=None, description="Id of the answer that triggered it.")
     user_id: int | None = Field(default=None, description="Id of the user who answered.")
-    type: str | None = Field(
+    type: IntegrationType | None = Field(
         default=None,
         description="Integration type: email, tracker, tracker_comment, wiki, jsonrpc, http or "
         "function.",
@@ -62,7 +56,7 @@ class NotificationField(APIModel):
 
     name: str | None = Field(default=None, description="Field name.")
     value: str | None = Field(default=None, description="Field value.")
-    type: str | None = Field(
+    type: NotificationFieldType | None = Field(
         default=None, description="Display type: text, textarea, code, json, xml or url."
     )
 
@@ -122,7 +116,7 @@ class NotificationStatus(APIModel):
     """
 
     id: int | None = Field(default=None, description="Notification id.")
-    status: str | None = Field(
+    status: RunStatus | None = Field(
         default=None, description="Run state: pending, success, error or canceled."
     )
 

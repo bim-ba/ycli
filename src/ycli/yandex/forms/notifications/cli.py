@@ -9,14 +9,13 @@ import typer
 from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
+from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.forms.notifications.models import (
-    IntegrationType,
     Notification,
     NotificationAction,
     NotificationDetails,
     NotificationFilter,
     NotificationStatus,
-    RunStatus,
 )
 from ycli.yandex.forms.typedefs import NotificationIdArg, SurveyIdArg
 from ycli.yandex.models import ItemList, SortDirection

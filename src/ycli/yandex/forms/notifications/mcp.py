@@ -9,14 +9,13 @@ from pydantic import Field
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import RO, WRITE, app_config, forms_client
+from ycli.yandex.forms.models import IntegrationType, RunStatus
 from ycli.yandex.forms.notifications.models import (
-    IntegrationType,
     Notification,
     NotificationAction,
     NotificationDetails,
     NotificationFilter,
     NotificationStatus,
-    RunStatus,
 )
 from ycli.yandex.models import ItemList, SortDirection
 

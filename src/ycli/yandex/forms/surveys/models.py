@@ -7,8 +7,11 @@ from typing import Any, Literal
 from pydantic import Field
 
 from ycli.yandex.forms.images.models import Image
-from ycli.yandex.forms.models import UserRef
+from ycli.yandex.forms.models import QuizShowFormat, UserRef
 from ycli.yandex.models import IGNORED_BY_API, APIModel, RequestBody, WarnsOnIgnored
+
+#: The captcha a form asks before it is submitted.
+CaptchaType = Literal["std", "ocr", "nbg"] | str
 
 
 class SurveyTexts(APIModel):
@@ -110,7 +113,7 @@ class SurveyQuiz(APIModel):
     """
 
     show_results: bool | None = Field(default=None, description="Whether to show the result.")
-    show_format: str | None = Field(
+    show_format: QuizShowFormat | None = Field(
         default=None,
         description="How the result is shown: score_with_total, score, percent, text or off.",
     )
@@ -222,7 +225,7 @@ class Survey(APIModel):
     followers: list[SurveyFollower] | None = Field(
         default=None, description="Who is told about integration errors."
     )
-    captcha: str | None = Field(
+    captcha: CaptchaType | None = Field(
         default=None, description="Captcha asked before submission: std, ocr or nbg."
     )
     metric: int | None = Field(default=None, description="Yandex Metrica counter.")
@@ -314,7 +317,7 @@ class SurveyCreate(WarnsOnIgnored):
     follow: Literal["5m", "1h", "1d"] | str | None = Field(
         default=None, description="How often integration errors are mailed: 5m, 1h or 1d."
     )
-    captcha: str | None = Field(
+    captcha: CaptchaType | None = Field(
         default=None, description="Captcha asked before submission: std, ocr or nbg."
     )
     metric: int | None = Field(default=None, description="Yandex Metrica counter.")

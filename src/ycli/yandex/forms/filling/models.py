@@ -18,6 +18,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from ycli.yandex.forms.models import QuizShowFormat
 from ycli.yandex.models import APIModel
 
 
@@ -128,7 +129,7 @@ class SubmitQuizResult(APIModel):
         7.0
     """
 
-    show_format: str | None = Field(
+    show_format: QuizShowFormat | None = Field(
         default=None, description="How the result is shown: score, percent or score_with_total."
     )
     scores: float | None = Field(default=None, description="Points scored, or the percentage.")

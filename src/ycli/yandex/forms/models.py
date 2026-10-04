@@ -11,6 +11,20 @@ from ycli.yandex.models import APIModel
 #: Statuses at which a background operation has stopped running.
 TERMINAL_STATUSES = frozenset({"ok", "fail"})
 
+#: How a quiz result is shown to the respondent.
+QuizShowFormat = Literal["score_with_total", "score", "percent", "text", "off"] | str
+#: Where the virus scan of an uploaded file stands.
+FileCheckStatus = Literal["check", "ready", "infected", "error", "deleted"] | str
+#: The state of one run of an integration.
+RunStatus = Literal["pending", "success", "error", "canceled"] | str
+#: The kind of integration a run belongs to.
+IntegrationType = (
+    Literal[
+        "email", "tracker", "tracker_comment", "wiki", "jsonrpc", "post", "put", "http", "function"
+    ]
+    | str
+)
+
 
 class UserIdentity(APIModel):
     """A user by Yandex ID ``uid`` or Yandex Cloud ``cloud_uid``.
@@ -141,7 +155,7 @@ class ConditionsResponse(APIModel):
         1
     """
 
-    operator: str | None = Field(
+    operator: ConditionOperatorType | None = Field(
         default=None, description="Boolean operator joining the condition groups: and / or."
     )
     items: list[Condition] = Field(
@@ -169,7 +183,7 @@ class FileOut(APIModel):
     )
     size: int | None = Field(default=None, description="File size in bytes.")
     url: str | None = Field(default=None, description="File download URL.")
-    check_status: str | None = Field(
+    check_status: FileCheckStatus | None = Field(
         default=None,
         description="Virus/upload scan status — one of: check, ready, infected, error, deleted.",
     )

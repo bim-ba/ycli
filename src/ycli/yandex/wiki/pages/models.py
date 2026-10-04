@@ -20,6 +20,9 @@ from ycli.yandex.wiki.models import (
 #: What a listing of a page's grids can be sorted by.
 GridOrder = Literal["title", "created_at"] | str
 
+#: The kind of a Wiki page.
+PageType = Literal["page", "grid", "cloud_page", "wysiwyg", "template"] | str
+
 
 class PageAttributes(APIModel):
     """Optional page metadata (``fields=attributes``) — timestamps, draft flag.
@@ -56,7 +59,7 @@ class PageSummary(PageRef):
     """
 
     title: str | None = Field(default=None, description="Title of the page.")
-    page_type: str | None = Field(
+    page_type: PageType | None = Field(
         default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
     )
 
@@ -153,7 +156,7 @@ class PageRevision(APIModel):
     id: int = Field(description="Revision id (the ``revision_id`` of ``GET /pages``).")
     author: User | None = Field(default=None, description="Who saved the revision.")
     created_at: str | None = Field(default=None, description="ISO-8601 time it was saved.")
-    page_type: str | None = Field(
+    page_type: PageType | None = Field(
         default=None, description="Kind of page: page, grid, cloud_page, wysiwyg or template."
     )
     revision_draft: RevisionDraft | None = Field(
