@@ -11,6 +11,7 @@ from ycli.yandex.errors import (
     YandexAuthError,
     YandexClientError,
     YandexConnectionError,
+    YandexInvalidRequestError,
     YandexNotFoundError,
     YandexRateLimitError,
     YandexServerError,
@@ -135,6 +136,7 @@ def test_an_invalid_configuration_exits_as_a_usage_error(monkeypatch):
         (YandexTimeoutError("polled too long"), ExitCode.TRANSIENT),
         (YandexConnectionError("no route"), ExitCode.TRANSIENT),
         (YandexClientError("400", status=400), ExitCode.FAILURE),
+        (YandexInvalidRequestError("pass exactly one of a or b"), ExitCode.USAGE),
         (RuntimeError("anything unmapped"), ExitCode.FAILURE),
     ],
 )
@@ -174,3 +176,20 @@ def test_the_root_help_lists_the_exit_codes():
     help_text = " ".join(CliRunner().invoke(app, ["--help"]).stdout.split())
     assert "Exit codes: 0 ok" in help_text
     assert "6 transient" in help_text
+
+
+@pytest.mark.parametrize(
+    "selectors",
+    [[], ["--answer-id", "7", "--answer-key", "k"], ["--answer-id", "0", "--answer-key", "k"]],
+    ids=["neither", "both", "a zero id counts as given"],
+)
+@pytest.mark.parametrize("command", ["get", "integrations-list"])
+def test_a_request_of_the_wrong_form_is_a_usage_error_before_anything_is_sent(
+    api, monkeypatch, capsys, command, selectors
+):
+    monkeypatch.setattr("sys.argv", ["ycli", "forms", "answers", command, *selectors])
+    with pytest.raises(SystemExit) as exited:
+        main()
+    assert exited.value.code == ExitCode.USAGE
+    assert "Error: pass exactly one of answer_id or answer_key" in capsys.readouterr().err
+    assert api.calls == []

@@ -13,10 +13,6 @@ SID = "686d0a1b2c3d4e5f00000070"
 @pytest.mark.parametrize(
     ("argv", "message"),
     [
-        (["answers", "get"], "exactly one of --answer-id / --answer-key"),
-        (["answers", "get", "--answer-id", "1", "--answer-key", "k"], "exactly one"),
-        (["answers", "integrations-list"], "exactly one of --answer-id / --answer-key"),
-        (["answers", "integrations-list", "--answer-id", "1", "--answer-key", "k"], "exactly one"),
         (["files", "verify", SID], "at least one --path"),
         (["files", "verify", SID, "--path", "a", "--url", "u", "--url", "v"], "count must match"),
         (["files", "delete"], "--path and/or --url"),

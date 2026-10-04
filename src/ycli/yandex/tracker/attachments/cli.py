@@ -20,7 +20,16 @@ _OUTPUT = typer.Option("--output", "-O", help="Write to this path; omit or '-' f
 _RENAME_TO = typer.Option("--rename-to", help="Store the file under this name instead of its own.")
 # Module-level Annotated alias so ``Path`` is referenced at runtime (typer resolves annotations
 # via get_type_hints), keeping the import out of a TYPE_CHECKING block.
-FilePathArg = Annotated[Path, typer.Argument(metavar="FILE_PATH", help="Local file to upload.")]
+FilePathArg = Annotated[
+    Path,
+    typer.Argument(
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        metavar="FILE_PATH",
+        help="Local file to upload.",
+    ),
+]
 
 
 @app.command("list")

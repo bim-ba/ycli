@@ -6,6 +6,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.resource import Resource
+from ycli.yandex.errors import YandexInvalidRequestError
 from ycli.yandex.forms.answers import endpoints
 from ycli.yandex.forms.answers.models import (
     Answer,
@@ -21,6 +22,12 @@ if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
 
 
+def _one_selector(answer_id: int | None, answer_key: str | None) -> None:
+    """An answer is named by its id or by its key, never by both or neither."""
+    if (answer_id is None) == (answer_key is None):
+        raise YandexInvalidRequestError("pass exactly one of answer_id or answer_key")
+
+
 class AnswersClient(Resource):
     """Read answers, list them page by page, and export them."""
 
@@ -28,7 +35,8 @@ class AnswersClient(Resource):
         """``GET /answers?answer_id=…`` (or ``?answer_key=…``) → one full :class:`AnswerDetails`.
 
         Exactly one selector: ``answer_id`` (the numeric id from a listing; needs form-edit
-        access) or ``answer_key`` (the answer's hash; works without form-edit access).
+        access) or ``answer_key`` (the answer's hash; works without form-edit access). Both or
+        neither is a :class:`~ycli.yandex.errors.YandexInvalidRequestError`.
 
         Args:
             answer_id: The numeric answer id.
@@ -37,15 +45,11 @@ class AnswersClient(Resource):
         Returns:
             The full answer.
 
-        Raises:
-            ValueError: If both or neither of ``answer_id`` and ``answer_key`` are given.
-
         Examples:
             >>> forms.answers.get(answer_id=2469549806).survey.name
             'Feedback'
         """
-        if (answer_id is None) == (answer_key is None):
-            raise ValueError("pass exactly one of answer_id or answer_key")
+        _one_selector(answer_id, answer_key)
         return self._session.send(endpoints.get_answer(answer_id=answer_id, answer_key=answer_key))
 
     def list(
@@ -182,15 +186,11 @@ class AnswersClient(Resource):
         Returns:
             The integration runs the answer triggered.
 
-        Raises:
-            ValueError: If both or neither of ``answer_id`` and ``answer_key`` are given.
-
         Examples:
             >>> forms.answers.integrations_list(answer_id=2542485382).root[0].status
             'success'
         """
-        if (answer_id is None) == (answer_key is None):
-            raise ValueError("pass exactly one of answer_id or answer_key")
+        _one_selector(answer_id, answer_key)
         return self._session.send(
             endpoints.list_answer_integrations(answer_id=answer_id, answer_key=answer_key)
         )

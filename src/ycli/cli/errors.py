@@ -28,6 +28,7 @@ from ycli.settings import (
 from ycli.yandex.errors import (
     YandexAuthError,
     YandexConnectionError,
+    YandexInvalidRequestError,
     YandexNotFoundError,
     YandexRateLimitError,
     YandexServerError,
@@ -99,7 +100,7 @@ def exit_code_for(exc: Exception) -> ExitCode:
     """
     if missing_credentials(exc) or isinstance(exc, YandexAuthError):
         return ExitCode.AUTH
-    if _is_invalid_configuration(exc) or isinstance(exc, ProfileError):
+    if _is_invalid_configuration(exc) or isinstance(exc, (ProfileError, YandexInvalidRequestError)):
         return ExitCode.USAGE
     if isinstance(exc, YandexNotFoundError):
         return ExitCode.NOT_FOUND

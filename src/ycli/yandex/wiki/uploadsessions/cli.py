@@ -51,7 +51,14 @@ def get(session_id: SessionIdArg, *, wiki: WikiClient) -> UploadSession:
 def upload_part(
     session_id: SessionIdArg,
     file_path: Annotated[
-        str, typer.Argument(metavar="FILE_PATH", help="Path to the file part's bytes to upload.")
+        Path,
+        typer.Argument(
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            metavar="FILE_PATH",
+            help="Path to the file part's bytes to upload.",
+        ),
     ],
     part_number: Annotated[
         int, typer.Option(help="1-based part index (1 for the first part, +1 per next part).")
@@ -60,7 +67,7 @@ def upload_part(
     wiki: WikiClient,
 ) -> UploadSession:
     """Upload one octet-stream part from FILE_PATH (PUT .../{session_id}/upload_part)."""
-    data = Path(file_path).read_bytes()
+    data = file_path.read_bytes()
     return wiki.uploadsessions.upload_part(session_id, part_number=part_number, data=data)
 
 

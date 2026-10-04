@@ -130,17 +130,23 @@ def attach(
 def upload(
     page_id: Annotated[int, typer.Argument(metavar="PAGE_ID", help="Numeric page id.")],
     file_path: Annotated[
-        str, typer.Argument(metavar="FILE_PATH", help="Path to the local file to upload + attach.")
+        Path,
+        typer.Argument(
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            metavar="FILE_PATH",
+            help="Path to the local file to upload + attach.",
+        ),
     ],
     *,
     wiki: WikiClient,
 ) -> ItemList[AttachedFile]:
     """Upload a local file and attach it to a page in one step (create→upload→finish→attach)."""
-    path = Path(file_path)
     result = wiki.attachments.upload(
         wiki.uploadsessions,
         page_id,
-        file_name=path.name,
-        data=path.read_bytes(),
+        file_name=file_path.name,
+        data=file_path.read_bytes(),
     )
     return result
