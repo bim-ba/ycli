@@ -167,11 +167,12 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-6 — The public surface is versioned
 - **Rule:** the CLI tree, MCP tool names and both surfaces' parameters (name, type, default,
-  required), and the MCP prompts (with their arguments) and resource addresses, change only on
-  purpose.
+  required), the MCP prompts (with their arguments) and resource addresses, and what each MCP
+  tool returns (its output schema) change only on purpose.
 - **Why:** scripts and agents depend on them; a silent rename or new required parameter breaks
   them.
-- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures,mcp_prompts_and_resources}.txt`;
+- **Check:** `tests/test_snapshots.py` against `tests/snapshots/{cli_signatures,mcp_signatures,mcp_prompts_and_resources,mcp_output_schemas}.txt`
+  (the last holds a digest of each tool's output schema);
   accept a change with `uv run python -m tests.snapshots --update`.
 - **Exceptions:** none. Fields nested inside an MCP `body` model are not snapshotted.
 
@@ -190,7 +191,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
 ### ARCH-8 — Typed boundaries
 - **Rule:** data crosses a boundary as a parsed model: a request body is a typed request
   model from the MCP tool and the CLI command down to the endpoint, which dumps it once
-  (`core.endpoint.dump_body`), and a non-2xx answer becomes a typed `YandexError` in one place
+  (`Endpoint.body`, through the serializer of `APIModel`), and a non-2xx answer becomes a typed `YandexError` in one place
   (`errors.error_for_status`).
 - **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
 - **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` (no `body: dict` in an MCP tool, a

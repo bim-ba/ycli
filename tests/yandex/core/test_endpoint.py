@@ -6,16 +6,16 @@ from typing import Any
 
 import httpx2
 import pytest
-from pydantic import BaseModel, ConfigDict, Field, RootModel
+from pydantic import BaseModel, Field, RootModel
 
 from ycli.yandex.core.endpoint import (
     ENDPOINT_EXTENSION,
     Endpoint,
     check_path,
-    dump_body,
     segment,
 )
 from ycli.yandex.errors import YandexClientError
+from ycli.yandex.models import APIModel, RequestBody
 
 
 class _Item(BaseModel):
@@ -126,31 +126,65 @@ def test_bytes_and_a_parser_read_a_non_json_body():
     assert Endpoint("GET", "x", parser=lambda r: len(r.content)).parse(response) == 4
 
 
-class _Step(BaseModel):
+class _Step(RequestBody):
     target: str | None  # no default: the caller had to give it, so a null is a value
     note: str | None = None
     at: datetime | None = None
     sort_by: str | None = Field(default=None, serialization_alias="sortBy")
+    path: str | None = Field(default=None, alias="fullPath")
 
 
-class _Open(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
+class _Open(APIModel):
     summary: str | None = None
+    steps: list[_Step] | None = None
 
 
-def test_a_body_is_dumped_once_with_the_nulls_a_caller_can_mean():
-    step = _Step(target=None, at=datetime(2026, 10, 4, tzinfo=UTC), sort_by="name")
-    assert dump_body(step) == {
-        "target": None,
+def _body(value: Any) -> Any:
+    return Endpoint("POST", "moves", json=value).body
+
+
+def test_an_optional_field_left_unset_is_not_sent():
+    assert _body(_Step(target="c")) == {"target": "c"}
+    step = _Step.model_validate(
+        {"target": "c", "at": datetime(2026, 10, 4, tzinfo=UTC), "sort_by": "name", "path": "a/b"}
+    )
+    assert _body(step) == {
+        "target": "c",
         "at": "2026-10-04T00:00:00Z",
         "sortBy": "name",
+        "fullPath": "a/b",
     }
+
+
+def test_a_required_field_given_as_null_is_sent():
+    assert _body(_Step(target=None)) == {"target": None}
+
+
+def test_a_key_the_model_does_not_declare_is_sent_as_given():
     cleared = _Open.model_validate({"summary": None, "assignee": None, "sprint": 7})
-    assert dump_body(cleared) == {"assignee": None, "sprint": 7}
-    assert dump_body(RootModel[list[_Step]]([_Step(target="a")])) == [{"target": "a"}]
-    assert dump_body({"steps": (_Step(target="b", note="x"),), "dry": True}) == {
+    assert _body(cleared) == {"assignee": None, "sprint": 7}
+
+
+def test_the_rules_hold_for_models_nested_in_a_body():
+    nested = _Open(summary="x", steps=[_Step(target=None), _Step(target="a", note="n")])
+    assert _body(nested) == {
+        "summary": "x",
+        "steps": [{"target": None}, {"target": "a", "note": "n"}],
+    }
+    assert _body(RootModel[list[_Step]]([_Step(target="a")])) == [{"target": "a"}]
+    assert _body({"steps": (_Step(target="b", note="x"),), "dry": True, "left": None}) == {
         "steps": [{"target": "b", "note": "x"}],
         "dry": True,
+        "left": None,
     }
-    assert Endpoint("POST", "moves", json=_Step(target="c")).body == {"target": "c"}
+
+
+def test_an_ordinary_dump_keeps_every_field():
+    """Only a request body drops what was left unset: output shows the nulls of a reply."""
+    assert _Step(target="c").model_dump() == {
+        "target": "c",
+        "note": None,
+        "at": None,
+        "sortBy": None,
+        "fullPath": None,
+    }

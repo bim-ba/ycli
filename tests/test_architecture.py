@@ -921,7 +921,7 @@ def _dumps(source: str, module_label: str) -> list[str]:
 def test_arch8_a_request_body_is_dumped_only_by_the_endpoint():
     """The MCP tool, the client and the endpoint builder hand the model on, undumped.
 
-    ``Endpoint`` dumps it once (``core.endpoint.dump_body``), so every surface sends the same
+    ``Endpoint`` dumps it once (``Endpoint.body``), so every surface sends the same
     JSON. A CLI command may dump a model to merge ``--field`` values into it before it builds
     the request model.
     """
