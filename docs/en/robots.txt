@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ycli.savaznatnov.dev/sitemap.xml
+Sitemap: https://ycli.savaznatnov.dev/ru/sitemap.xml
