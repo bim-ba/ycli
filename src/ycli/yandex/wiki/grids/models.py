@@ -1,8 +1,11 @@
 """Pydantic v2 models for Yandex Wiki dynamic tables (``/grids``) — reads + typed write bodies.
 
 Grids are the modern dynamic tables attached to a page. Every mutating call carries a
-``revision`` string for optimistic locking: read the grid, send its current ``revision`` with the
-write, and the API rejects the write (409) if another edit landed first — so ``revision`` threads
+``revision`` string, the revision the edit is based on: read the grid and send its
+``revision`` with the write. The API merges rather than locks (checked live on 2026-10-04):
+it answers 409 ``CELL_UPDATE_CONFLICT`` only when a cell being written was changed after
+that revision, and accepts a stale one for a new title, added columns, and added or removed
+rows. ``revision`` threads
 through :class:`GridUpdate`, the row/column add/remove/move bodies and :class:`CellsUpdate`. The
 two exceptions are :class:`GridCreate` (a brand-new grid has no prior revision) and
 :class:`GridClone` (an async trigger). Clone is deferred: it returns a :class:`AsyncOperation`
@@ -215,7 +218,7 @@ class GridAttributes(APIModel):
 class Grid(APIModel):
     """A full dynamic table (``POST /grids`` / ``GET /grids/{id}``) — structure, rows, revision.
 
-    ``revision`` is the optimistic-lock token: pass it back on the next write. ``attributes`` and
+    ``revision`` is what the next write is based on: pass it back with it. ``attributes`` and
     ``user_permissions`` are only present when requested via ``fields=``.
 
     Examples:
@@ -251,7 +254,7 @@ class Grid(APIModel):
 class RevisionResult(APIModel):
     """The common ``{revision}`` reply of a grid write (update / remove / move / columns add).
 
-    Carries the grid's new optimistic-lock token; feed it to the next write.
+    Carries the grid's new revision; feed it to the next write.
 
     Examples:
         >>> RevisionResult.model_validate({"revision": "4"}).revision
@@ -369,7 +372,7 @@ class GridCreate(RequestBody):
 class GridUpdate(RequestBody):
     """Typed body for ``POST /grids/{id}`` — rename or re-sort a grid (POST, not PATCH).
 
-    ``revision`` is required (optimistic lock); ``title`` and ``default_sort`` are the editable
+    ``revision`` is required; ``title`` and ``default_sort`` are the editable
     fields. ``default_sort`` takes the API's *write* shape — a list of single-key
     ``{"<column_slug>": "asc"|"desc"}`` mappings (:class:`ColumnSortWrite`), **not** the
     ``{slug, title, direction}`` read shape a grid ``get`` returns.
@@ -381,7 +384,7 @@ class GridUpdate(RequestBody):
         {'revision': '3', 'default_sort': [{'col': 'asc'}]}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     title: str | None = Field(default=None, description="New grid title.")
     default_sort: list[ColumnSortWrite] | None = Field(
         default=None,
@@ -400,7 +403,7 @@ class RowsAdd(RequestBody):
         {'revision': '3', 'rows': [{'name': 'x'}]}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     rows: list[dict[str, Any]] = Field(
         description="Rows to insert; each maps a column slug to its cell value."
     )
@@ -418,7 +421,7 @@ class RowsRemove(RequestBody):
         {'revision': '3', 'row_ids': ['r1']}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     row_ids: list[str] = Field(description="Ids of the rows to delete (at least one).")
 
 
@@ -430,7 +433,7 @@ class RowsMove(RequestBody):
         {'revision': '3', 'row_id': 'r1', 'position': 0}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     row_id: str | None = Field(default=None, description="Id of the first row to move.")
     after_row_id: str | None = Field(
         default=None, description="Move to just after this row id (alternative to ``position``)."
@@ -451,7 +454,7 @@ class ColumnsAdd(RequestBody):
         [{'title': 'C', 'type': 'string', 'slug': 'c', 'required': False}]
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     columns: list[NewColumnSchema] = Field(description="Columns to add (in order).")
     position: int | None = Field(default=None, description="Zero-based index to insert at.")
 
@@ -464,7 +467,7 @@ class ColumnsRemove(RequestBody):
         {'revision': '3', 'column_slugs': ['name']}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     column_slugs: list[str] = Field(description="Slugs of the columns to delete.")
 
 
@@ -476,7 +479,7 @@ class ColumnsMove(RequestBody):
         {'revision': '3', 'column_slug': 'name', 'position': 0}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     column_slug: str | None = Field(default=None, description="Slug of the first column to move.")
     position: int | None = Field(default=None, description="Zero-based destination index.")
     columns_count: int | None = Field(
@@ -507,7 +510,7 @@ class CellsUpdate(RequestBody):
         {'revision': '3', 'cells': [{'row_id': 1, 'column_slug': 'name', 'value': 'x'}]}
     """
 
-    revision: str = Field(description="Current grid revision (optimistic lock).")
+    revision: str = Field(description="Grid revision the edit is based on.")
     cells: list[UpdateCellSchema] = Field(description="The cells to update.")
 
 

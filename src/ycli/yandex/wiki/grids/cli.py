@@ -2,8 +2,8 @@
 
 Structured bodies (rows, columns, cells, default-sort) are passed as JSON strings and parsed
 into the typed request models before sending. Every mutating call takes ``--revision`` (the
-optimistic-lock token read off ``grids get``) except ``create``. ``clone`` is asynchronous:
-``--wait`` (default) polls the ``operations`` resource to a terminal state.
+revision read off ``grids get``, which the edit is based on) except ``create``. ``clone`` is
+asynchronous: ``--wait`` (default) polls the ``operations`` resource to a terminal state.
 """
 
 from __future__ import annotations
@@ -57,9 +57,7 @@ app.add_typer(columns_app)
 app.add_typer(cells_app)
 
 GridIDArg = Annotated[str, typer.Argument(metavar="GRID_ID", help="Grid UUID.")]
-RevisionOpt = Annotated[
-    str, typer.Option("--revision", help="Current grid revision (optimistic lock).")
-]
+RevisionOpt = Annotated[str, typer.Option("--revision", help="Grid revision the edit is based on.")]
 OptionalRevisionOpt = Annotated[
     str | None,
     typer.Option("--revision", help="Grid revision (this endpoint does not enforce it)."),

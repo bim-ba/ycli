@@ -174,7 +174,7 @@ Confirm the published body starts at the `# H1`, not at `---` (which would mean 
 
 Attachment/keyset-style **downloads** (`attachments download`, `download-by-url`, `preview ¹`) are CLI/SDK-only — MCP excludes raw binary payloads (uploads are the exception: the wiki MCP upload tools take base64 input).
 
-**Grid writes are optimistic-locked:** every grid mutation takes `--revision` (read the current revision from `grids get` first; each write bumps it).
+**Every grid write takes `--revision`** (read it from `grids get` first; each write bumps it). It is the revision the edit is based on, not a lock: the API answers 409 `CELL_UPDATE_CONFLICT` only for a cell changed after that revision, and accepts a stale one for a new title, added columns, and added or removed rows (checked live on 2026-10-04). Re-read the grid before a write that must not run over someone else's.
 
 Live-verified gotchas for these writes:
 
@@ -194,7 +194,7 @@ Yandex's live OpenAPI (<https://api.wiki.yandex.net/v1/openapi.json>) has 9 oper
 - **`pages backlinks-list` lags a few seconds** behind the page that holds the link. `--for-cluster` also reports links to the page's descendants; plain lists links to the page only.
 - **`attachments preview` returns an image only for an attachment with `has_preview: true`.** For one without (a text file, say) the API answers `200 image/png` whose body is the *base64 text* of a 1-pixel PNG, not the PNG; `attachments get` shows `has_preview`. A fresh upload reports `has_preview: false` for a few seconds.
 - **`grids columns suggest` takes exactly one of `--title` and `--slug`** (400 for neither or both) and changes nothing. The server writes slugs with hyphens (`Due date` → `due-date`), where `grids columns add` derives them with underscores.
-- **`grids columns update` and `grids rows update` do not enforce `--revision`**: a stale or missing one is accepted, and every call, even one that changes nothing, moves the grid's revision on. A column's `type` and `slug` cannot change. `rows update` answers an empty object (printed as `{"status": null}`), not the new revision; read that from `grids get`.
+- **`grids columns update` and `grids rows update` also take a missing `--revision`**: a stale or missing one is accepted, and every call, even one that changes nothing, moves the grid's revision on. A column's `type` and `slug` cannot change. `rows update` answers an empty object (printed as `{"status": null}`), not the new revision; read that from `grids get`.
 
 ---
 

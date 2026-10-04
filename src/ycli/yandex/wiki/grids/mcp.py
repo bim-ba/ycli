@@ -1,7 +1,8 @@
 """Wiki /grids FastMCP tools — full read/write mirror of the grids SDK surface.
 
 Every write except ``grids_create`` and ``grids_clone`` carries the grid's current
-``revision`` (optimistic lock) — read it off ``grids_get`` or the previous write's reply.
+``revision`` — read it off ``grids_get`` or the previous write's reply. The API refuses
+(409) only a cell changed after that revision; every other write passes with a stale one.
 """
 
 from typing import Annotated
@@ -70,7 +71,7 @@ def get(
     Grids are the modern dynamic tables attached to a page; find a grid's id with
     ``pages_grids_list``. Use ``filter``/``only_cols``/``only_rows``/``sort`` to narrow large
     grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. The returned
-    ``revision`` is the optimistic-lock token any subsequent write (via the CLI/SDK) must echo.
+    ``revision`` is what any subsequent write must send back.
     """
     return client.grids.get(
         grid_id,
@@ -93,8 +94,8 @@ def create(
     """Create an empty dynamic table (grid) as a resource of a page.
 
     A new grid has no rows or columns — add them afterwards with ``grids_columns_add`` and
-    ``grids_rows_add``. Returns the created grid; its ``revision`` seeds the optimistic lock
-    every subsequent write must echo.
+    ``grids_rows_add``. Returns the created grid; every subsequent write sends its
+    ``revision`` back.
     """
     return client.grids.create(body=body)
 
@@ -109,7 +110,7 @@ def update(
         GridUpdate,
         Field(
             description="Editable fields (``title``, ``default_sort``) plus the required "
-            "``revision`` (optimistic lock)."
+            "``revision``."
         ),
     ],
     client: WikiClient = Depends(wiki_client),
