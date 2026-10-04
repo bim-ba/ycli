@@ -45,6 +45,10 @@ uv run python -m e2e.janitor --older-than 6h --max 200 --dry-run   # list only
 uv run python -m e2e.janitor --older-than 6h --max 200
 ```
 
+In CI the sweep after the scenarios takes `--runs-file`: each scenario appends its run name to
+the file named by `YCLI_E2E_RUNS_FILE`, and only objects those runs named are removed, so a run
+started meanwhile on a developer's machine keeps its own.
+
 Objects starting with `e2e-` but without a run stamp are reported and left alone.
 
 ## CI

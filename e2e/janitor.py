@@ -13,6 +13,7 @@ import re
 import sys
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from e2e.runner import CliDriver, Driver, ScenarioError, run_json
@@ -111,10 +112,23 @@ def remove(driver: Driver, leftover: Leftover) -> str:
 
 
 def sweep(
-    driver: Driver, queue: str, older_than_seconds: int, maximum: int, dry_run: bool, now: float
+    driver: Driver,
+    queue: str,
+    older_than_seconds: int,
+    maximum: int,
+    dry_run: bool,
+    now: float,
+    runs: frozenset[str] | None = None,
 ) -> int:
-    """Touch at most ``maximum`` stale leftovers; print each. Returns the process exit code."""
+    """Touch at most ``maximum`` stale leftovers; print each. Returns the process exit code.
+
+    ``runs`` keeps the sweep to the objects those runs named (``e2e-1759370000-ab12``): a live
+    run cleaning up after itself must not delete what another run, started meanwhile on a
+    developer's machine, is still using.
+    """
     leftovers = find_leftovers(driver, queue)
+    if runs is not None:
+        leftovers = [item for item in leftovers if item.name.startswith(tuple(runs))]
     cutoff = now - older_than_seconds
     stale = [item for item in leftovers if (item.started_at or now) <= cutoff]
     unnamed = [item for item in leftovers if item.started_at is None]
@@ -149,7 +163,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--max", type=int, default=200, dest="maximum")
     parser.add_argument("--queue", default=sandbox_queue())
     parser.add_argument("--dry-run", action="store_true", help="List, touch nothing.")
+    parser.add_argument(
+        "--runs-file",
+        type=Path,
+        help="Touch only what the runs listed in this file named (one run name per line).",
+    )
     arguments = parser.parse_args(argv)
+    runs = None
+    if arguments.runs_file is not None:
+        # No file: no scenario started, so there is nothing of this run to remove.
+        listed = arguments.runs_file.read_text().split() if arguments.runs_file.exists() else []
+        runs = frozenset(listed)
     return sweep(
         CliDriver(),
         arguments.queue,
@@ -157,6 +181,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         arguments.maximum,
         arguments.dry_run,
         time.time(),
+        runs,
     )
 
 

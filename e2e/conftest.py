@@ -5,11 +5,15 @@ from __future__ import annotations
 import os
 import secrets
 import time
+from pathlib import Path
 
 import pytest
 
 from e2e.runner import CREDENTIAL_VARIABLES
 from e2e.settings import sandbox_queue
+
+# A file every scenario appends its run name to, when set (see ``e2e/janitor.py --runs-file``).
+RUNS_FILE_ENV = "YCLI_E2E_RUNS_FILE"
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -42,4 +46,8 @@ def variables() -> dict[str, str]:
     The janitor reads the age back from the stamp, so it needs no per-object metadata call.
     """
     run = f"e2e-{int(time.time())}-{secrets.token_hex(2)}"
+    # The janitor of this run removes only what the runs listed here named.
+    if runs_file := os.environ.get(RUNS_FILE_ENV):
+        with Path(runs_file).open("a", encoding="utf-8") as listed:
+            listed.write(f"{run}\n")
     return {"RUN": run, "QUEUE": sandbox_queue()}
