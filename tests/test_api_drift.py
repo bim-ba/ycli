@@ -231,6 +231,21 @@ def test_a_published_address_splits_at_its_version(published, base, path):
     assert api_surface.split_version(published) == (base, path)
 
 
+@pytest.mark.parametrize(
+    ("published", "base", "path"),
+    [
+        ("/v1/disk/trash/resources", "/v1/disk", "/trash/resources"),
+        # The root of the service, and an address of the same host outside the service.
+        ("/v1/disk", "/v1/disk", "/"),
+        ("/v1/data/admin/settings", "/v1", "/data/admin/settings"),
+        # Without a version there is no base for a prefix to join.
+        ("/disk/resources", "", "/disk/resources"),
+    ],
+)
+def test_the_services_own_prefix_belongs_to_the_base(published, base, path):
+    assert api_surface.split_version(published, "/disk") == (base, path)
+
+
 def test_an_openapi_operation_carries_its_own_name_and_group():
     document = {
         "servers": [{"url": "https://cloud-api.yandex.net/v1/telemost-api"}],
@@ -242,11 +257,12 @@ def test_an_openapi_operation_carries_its_own_name_and_group():
         },
     }
     delete, get = api_surface.openapi_operations(document)
-    # The paths of a document are relative to its server.
-    assert (get.base, get.path) == ("/v1", "/telemost-api/conferences/{id}")
+    # The paths of a document are relative to its server, and the service's own name after
+    # the version belongs to the base (#276).
+    assert (get.base, get.path) == ("/v1/telemost-api", "/conferences/{id}")
     assert (get.name, get.group, get.source) == ("getConference", "Conferences", "openapi")
     # No operationId means no name; no tag means the first noun of the path.
-    assert (delete.name, delete.group) == ("", "telemost-api")
+    assert (delete.name, delete.group) == ("", "conferences")
 
 
 def test_an_rpc_operation_is_named_by_its_path():
@@ -346,8 +362,8 @@ def test_fetch_reads_a_swagger_listing_and_its_resources(monkeypatch):
         },
     )
     get, patch = api_surface.fetch("disk")
-    assert (get.method, get.base, get.path) == ("GET", "/v1", "/disk/resources")
-    assert (get.name, get.group, get.source) == ("GetResource", "disk", "swagger")
+    assert (get.method, get.base, get.path) == ("GET", "/v1/disk", "/resources")
+    assert (get.name, get.group, get.source) == ("GetResource", "resources", "swagger")
     assert (get.query, get.response) == (("fields", "path"), ("name", "path"))
     # A body parameter's model is the request; a type that is no model has no fields.
     assert (patch.name, patch.request, patch.response) == (
@@ -407,11 +423,108 @@ def test_fetch_reads_one_wsdl_per_part_or_a_single_one(monkeypatch):
     operations = api_surface.fetch("direct")
     assert len(operations) == 2 * len(direct.parts)
     assert {operation.group for operation in operations} == set(direct.parts)
-    assert {(o.base, o.path) for o in operations if o.group == "vcards"} == {("/v5", "/vcards")}
-    speller = api_surface.fetch("speller")
-    assert {(o.base, o.path, o.group) for o in speller} == {
-        ("", "/services/spellservice", "services")
+    # Direct is listed by its JSON address, which takes the WSDL's operations by name (#276).
+    assert {(o.method, o.base, o.path) for o in operations if o.group == "vcards"} == {
+        ("POST", "/json/v5", "/vcards")
     }
+    speller = api_surface.fetch("speller")
+    assert {(o.method, o.base, o.path, o.group) for o in speller} == {
+        ("SOAP", "", "/services/spellservice", "services")
+    }
+
+
+def _generated(method: str, address: str) -> str:
+    """A reference page as Diplodoc generates it from an OpenAPI document."""
+    return (
+        "---\ntitle: x\n---\n# Title\n\n## Request\n\n"
+        f'<div class="openapi__request">\n\n{method} {{.openapi__method}}\n'
+        f"```text translate=no\n{address}\n```\n\n</div>\n"
+    )
+
+
+def test_a_generated_reference_page_states_one_operation():
+    text = _generated(
+        "DELETE", "https://api360.yandex.net/directory/v1/org/{orgId}/domains/{domain}"
+    )
+    assert api_surface.page_operations("ref/DomainService/DomainService_Delete", text) == [
+        Operation(
+            "DELETE",
+            "/org/{orgId}/domains/{domain}",
+            base="/directory/v1",
+            name="DomainService_Delete",
+            group="DomainService",
+            source="docs",
+            page="ref/DomainService/DomainService_Delete",
+        )
+    ]
+    assert api_surface.page_operations("access", "---\nHow to get a token.") == []
+    newer = _generated(
+        "GET", "https://cloud-api.yandex.net/v1/api360/directory/org/{org_id}/groups"
+    )
+    (group,) = api_surface.page_operations("directory/get-groups", newer, "/api360")
+    assert (group.base, group.path) == ("/v1/api360", "/directory/org/{org_id}/groups")
+    # The folder Diplodoc generates into is not a group; the one above it is.
+    (logs,) = api_surface.page_operations("logs/openapi/createLogRequest", text)
+    assert (logs.name, logs.group) == ("createLogRequest", "logs")
+
+
+def test_fetch_reads_the_pages_an_index_lists(monkeypatch):
+    source = api_surface.SOURCES["audience"]
+    root = source.url.rpartition("/")[0]
+    index = "\n".join(
+        [
+            f"- [Segments]({root}/ref/openapi/segments/getSegments.md)",
+            f"- [The same, linked twice]({root}/ref/openapi/segments/getSegments.md)",
+            f"- [Delete]({root}/ref/openapi/segments/deleteSegment.md)",
+            f"- [Prose]({root}/intro.md)",
+            "- [Another product](https://yandex.ru/dev/metrika/ru/intro.md)",
+        ]
+    )
+    host = "https://api-audience.yandex.ru"
+    asked = _serve(
+        monkeypatch,
+        {
+            source.url: index,
+            f"{root}/ref/openapi/segments/getSegments.md": _generated(
+                "GET", f"{host}/v1/management/segments"
+            ),
+            f"{root}/ref/openapi/segments/deleteSegment.md": _generated(
+                "DELETE", f"{host}/v1/management/segment/{{segmentId}}"
+            ),
+            f"{root}/intro.md": "---\nProse only.",
+        },
+    )
+    delete, get = api_surface.fetch("audience")
+    assert (get.method, get.base, get.path) == ("GET", "/v1", "/management/segments")
+    assert (get.name, get.group, get.page) == (
+        "getSegments",
+        "segments",
+        "ref/openapi/segments/getSegments",
+    )
+    assert (delete.name, delete.path) == ("deleteSegment", "/management/segment/{segmentId}")
+    # A page of another product is not this service's, and a page is asked once.
+    assert len(asked) == 4
+
+
+def test_fetch_of_a_docs_service_fails_loudly(monkeypatch):
+    source = api_surface.SOURCES["admetrica"]
+    root = source.url.rpartition("/")[0]
+    _serve(monkeypatch, {source.url: "nothing here"})
+    with pytest.raises(SystemExit, match="lists no page"):
+        api_surface.fetch("admetrica")
+    _serve(
+        monkeypatch,
+        {source.url: f"- [x]({root}/get.md)", f"{root}/get.md": "<html>Are you a robot?</html>"},
+    )
+    with pytest.raises(SystemExit, match="get is not a reference page"):
+        api_surface.fetch("admetrica")
+
+
+def test_one_path_under_two_bases_is_two_operations():
+    """Metrika serves `/counters` under `/management/v1` and under `/stat/v1`-like bases."""
+    first = Operation("GET", "/counters", base="/management/v1", source="docs")
+    second = Operation("GET", "/counters", base="/export/v1", source="docs")
+    assert len(api_surface._merged([first, second, first])) == 2
 
 
 def test_a_snapshot_keeps_a_name_that_is_not_ascii(monkeypatch, tmp_path):
