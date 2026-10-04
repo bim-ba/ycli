@@ -24,7 +24,7 @@ app = typer.Typer(name="triggers", help="Tracker queue triggers.", no_args_is_he
 TriggerIDArg = Annotated[
     int, typer.Argument(metavar="TRIGGER_ID", help="Numeric trigger identifier.")
 ]
-ActionOpt = Annotated[
+TriggerActionOpt = Annotated[
     list[str] | None,
     typer.Option("--action", help="Trigger action as a JSON object (repeatable)."),
 ]
@@ -58,7 +58,7 @@ def get(queue_id: QueueIDArg, trigger_id: TriggerIDArg, *, tracker: TrackerClien
 def create(
     queue_id: QueueIDArg,
     name: Annotated[str, typer.Option(help="Name of the new trigger.")],
-    action: ActionOpt = None,
+    action: TriggerActionOpt = None,
     condition: ConditionOpt = None,
     active: Annotated[
         bool | None, typer.Option("--active/--inactive", help="Start active or disabled.")
@@ -85,7 +85,7 @@ def update(
     queue_id: QueueIDArg,
     trigger_id: TriggerIDArg,
     name: Annotated[str | None, typer.Option(help="New name of the trigger.")] = None,
-    action: ActionOpt = None,
+    action: TriggerActionOpt = None,
     condition: ConditionOpt = None,
     active: Annotated[
         bool | None, typer.Option("--active/--inactive", help="Activate or disable the trigger.")

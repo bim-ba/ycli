@@ -26,7 +26,7 @@ from ycli.yandex.tracker.workflows.models import (
 mcp = FastMCP("tracker-workflows")
 
 WorkflowID = Annotated[str, Field(description="Workflow id, from ``workflows_list``.")]
-Version = Annotated[
+WorkflowVersion = Annotated[
     int,
     Field(description="Current version of the workflow (optimistic lock), from ``workflows_get``."),
 ]
@@ -86,7 +86,7 @@ def create(body: WorkflowCreate, client: TrackerClient = Depends(tracker_client)
 def update(
     workflow_id: WorkflowID,
     body: WorkflowUpdate,
-    version: Version,
+    version: WorkflowVersion,
     client: TrackerClient = Depends(tracker_client),
 ) -> Workflow:
     """Edit a workflow.
@@ -106,7 +106,7 @@ def update_action(
     status: Annotated[str, Field(description="Key of the step (status) the action leaves.")],
     action_id: Annotated[str, Field(description="Id of the action within that step.")],
     body: WorkflowActionUpdate,
-    version: Version,
+    version: WorkflowVersion,
     client: TrackerClient = Depends(tracker_client),
 ) -> Workflow:
     """Edit one action (transition) of a workflow step; only the fields set in ``body`` change.

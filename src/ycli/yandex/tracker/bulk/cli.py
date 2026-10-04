@@ -43,7 +43,7 @@ ValueOpt = Annotated[
     list[str] | None,
     typer.Option("--field", "-F", help="Field to set, key=value (JSON-coerced; repeatable)."),
 ]
-NotifyOpt = Annotated[bool, typer.Option("--notify/--no-notify", help="Notify affected users.")]
+BulkNotifyOpt = Annotated[bool, typer.Option("--notify/--no-notify", help="Notify affected users.")]
 WaitOpt = Annotated[
     bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
 ]
@@ -77,7 +77,7 @@ def update(
     issue: IssueOpt = None,
     query: QueryOpt = None,
     field: ValueOpt = None,
-    notify: NotifyOpt = False,
+    notify: BulkNotifyOpt = False,
     wait: WaitOpt = True,
     *,
     config: AppConfig,
@@ -102,7 +102,7 @@ def move(
     initial_status: Annotated[
         bool, typer.Option("--initial-status", help="Reset each issue's status to the initial one.")
     ] = False,
-    notify: NotifyOpt = False,
+    notify: BulkNotifyOpt = False,
     wait: WaitOpt = True,
     *,
     config: AppConfig,
@@ -128,7 +128,7 @@ def transition(
     issue: IssueOpt = None,
     query: QueryOpt = None,
     field: ValueOpt = None,
-    notify: NotifyOpt = False,
+    notify: BulkNotifyOpt = False,
     wait: WaitOpt = True,
     *,
     config: AppConfig,

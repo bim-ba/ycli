@@ -23,7 +23,7 @@ app = typer.Typer(
 SubscriptionIDArg = Annotated[
     int, typer.Argument(metavar="SUBSCRIPTION_ID", help="Integration id (integer).")
 ]
-BodyFileArg = Annotated[
+SubscriptionFileArg = Annotated[
     Path,
     typer.Option(
         "--body-file",
@@ -34,7 +34,7 @@ BodyFileArg = Annotated[
         "tracker_comment, wiki, jsonrpc, http or function.",
     ),
 ]
-FilePathArg = Annotated[
+AttachedFilePathArg = Annotated[
     Path,
     typer.Argument(
         exists=True,
@@ -72,7 +72,11 @@ def get(
 
 @app.command()
 def create(
-    survey_id: SurveyIDArg, hook_id: HookIDArg, body_file: BodyFileArg, *, forms: FormsClient
+    survey_id: SurveyIDArg,
+    hook_id: HookIDArg,
+    body_file: SubscriptionFileArg,
+    *,
+    forms: FormsClient,
 ) -> Subscription:
     """Add an integration to hook HOOK_ID from a JSON body (POST …/subscriptions)."""
     return forms.subscriptions.create(survey_id, hook_id, _body(body_file))
@@ -83,7 +87,7 @@ def update(
     survey_id: SurveyIDArg,
     hook_id: HookIDArg,
     subscription_id: SubscriptionIDArg,
-    body_file: BodyFileArg,
+    body_file: SubscriptionFileArg,
     *,
     forms: FormsClient,
 ) -> Subscription:
@@ -109,7 +113,7 @@ def attach(
     survey_id: SurveyIDArg,
     hook_id: HookIDArg,
     subscription_id: SubscriptionIDArg,
-    file_path: FilePathArg,
+    file_path: AttachedFilePathArg,
     *,
     forms: FormsClient,
 ) -> FileOut:

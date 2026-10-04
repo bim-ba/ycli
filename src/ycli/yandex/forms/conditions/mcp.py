@@ -28,7 +28,7 @@ from ycli.yandex.models import Ack, require_found
 mcp = FastMCP("forms-conditions")
 
 QuestionID = Annotated[str, Field(description="Question id (integer) from questions_list.")]
-PageID = Annotated[int, Field(description="Page id (integer) from questions_list pages.")]
+FormPageID = Annotated[int, Field(description="Page id (integer) from questions_list pages.")]
 ConditionID = Annotated[
     int, Field(description="Condition group id (integer) from the matching *_list tool.")
 ]
@@ -167,7 +167,7 @@ def question_set_operator(
     annotations={**RO, "title": "List Forms page show conditions"},
 )
 def page_list(
-    survey_id: SurveyID, page_id: PageID, client: FormsClient = Depends(forms_client)
+    survey_id: SurveyID, page_id: FormPageID, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """A page's show conditions: the ``{operator, items}`` envelope of condition groups.
 
@@ -183,7 +183,7 @@ def page_list(
 )
 def page_get(
     survey_id: SurveyID,
-    page_id: PageID,
+    page_id: FormPageID,
     condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -198,7 +198,7 @@ def page_get(
 )
 def page_create(
     survey_id: SurveyID,
-    page_id: PageID,
+    page_id: FormPageID,
     body: NewGroup,
     client: FormsClient = Depends(forms_client),
 ) -> Condition:
@@ -216,7 +216,7 @@ def page_create(
 )
 def page_update(
     survey_id: SurveyID,
-    page_id: PageID,
+    page_id: FormPageID,
     condition_id: ConditionID,
     body: ReplacementGroup,
     client: FormsClient = Depends(forms_client),
@@ -231,7 +231,7 @@ def page_update(
 )
 def page_delete(
     survey_id: SurveyID,
-    page_id: PageID,
+    page_id: FormPageID,
     condition_id: ConditionID,
     client: FormsClient = Depends(forms_client),
 ) -> Ack:
@@ -246,7 +246,7 @@ def page_delete(
 )
 def page_set_operator(
     survey_id: SurveyID,
-    page_id: PageID,
+    page_id: FormPageID,
     operator: Operator,
     client: FormsClient = Depends(forms_client),
 ) -> ConditionsResponse:

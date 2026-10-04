@@ -14,7 +14,7 @@ QuestionIDArg = Annotated[
     str, typer.Argument(metavar="QUESTION_ID", help="Question id (integer), e.g. 17.")
 ]
 
-PageIDArg = Annotated[
+FormPageIDArg = Annotated[
     int, typer.Argument(metavar="PAGE_ID", help="Page id (integer), from `questions list`.")
 ]
 

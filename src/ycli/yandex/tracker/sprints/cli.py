@@ -20,7 +20,7 @@ from ycli.yandex.tracker.sprints.models import (
 app = typer.Typer(name="sprints", help="Tracker board sprints.", no_args_is_help=True)
 
 SprintIDArg = Annotated[int, typer.Argument(metavar="SPRINT_ID", help="Numeric sprint identifier.")]
-VersionOpt = Annotated[
+SprintVersionOpt = Annotated[
     int | None, typer.Option(help="Current sprint version for the optimistic lock (?version=).")
 ]
 
@@ -67,7 +67,7 @@ def update(
     start_date: Annotated[str | None, typer.Option(help="New start date (YYYY-MM-DD).")] = None,
     end_date: Annotated[str | None, typer.Option(help="New end date (YYYY-MM-DD).")] = None,
     status: Annotated[str | None, values_option(SprintStatus, help="New status.")] = None,
-    version: VersionOpt = None,
+    version: SprintVersionOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Sprint:
@@ -89,14 +89,16 @@ def delete(sprint_id: SprintIDArg, *, tracker: TrackerClient) -> Ack:
 
 
 @app.command()
-def start(sprint_id: SprintIDArg, version: VersionOpt = None, *, tracker: TrackerClient) -> Sprint:
+def start(
+    sprint_id: SprintIDArg, version: SprintVersionOpt = None, *, tracker: TrackerClient
+) -> Sprint:
     """Start a sprint SPRINT_ID (POST /sprints/{id}/_start?version=; status → in_progress)."""
     return tracker.sprints.start(sprint_id=sprint_id, version=version)
 
 
 @app.command()
 def archive(
-    sprint_id: SprintIDArg, version: VersionOpt = None, *, tracker: TrackerClient
+    sprint_id: SprintIDArg, version: SprintVersionOpt = None, *, tracker: TrackerClient
 ) -> Sprint:
     """Archive a sprint SPRINT_ID (POST /sprints/{id}/_archive?version=; status → archived)."""
     return tracker.sprints.archive(sprint_id=sprint_id, version=version)
