@@ -7,6 +7,7 @@ from pathlib import Path
 
 from tests.snapshots._surface import (
     cli_signatures,
+    mcp_output_schemas,
     mcp_prompts_and_resources,
     mcp_signatures,
 )
@@ -16,6 +17,7 @@ FILES = {
     HERE / "cli_signatures.txt": cli_signatures,
     HERE / "mcp_signatures.txt": mcp_signatures,
     HERE / "mcp_prompts_and_resources.txt": mcp_prompts_and_resources,
+    HERE / "mcp_output_schemas.txt": mcp_output_schemas,
 }
 
 

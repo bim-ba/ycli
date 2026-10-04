@@ -11,9 +11,10 @@ about its output is that it keeps the API's field names.
 from __future__ import annotations
 
 import logging
+from functools import cache
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel
+from pydantic import BaseModel, BeforeValidator, ConfigDict, RootModel, model_serializer
 
 from ycli.yandex.errors import YandexNotFoundError
 
@@ -86,6 +87,42 @@ class APIModel(BaseModel):
     """
 
     model_config = ConfigDict(extra="allow", validate_by_name=True, serialize_by_alias=True)
+
+    # No return annotation, on purpose: with one, pydantic replaces the model's serialization
+    # schema with that type, and every MCP output schema loses its fields
+    # (``tests/snapshots/mcp_output_schemas.txt`` would change).
+    @model_serializer(mode="wrap")
+    def _as_sent(self, handler, info):  # noqa: ANN001, ANN202
+        """The usual dump; as a request body (``WIRE``), without the fields left unset.
+
+        A ``None`` is an absence and is dropped, except where the caller could only have meant
+        it: in a field with no default (``page`` of a redirect: ``null`` removes the redirect)
+        and in a key the model does not declare (Tracker clears a field given as
+        ``assignee=null``).
+        """
+        data = handler(self)
+        if not (info.context or {}).get("wire"):
+            return data
+        optional = _optional_keys(type(self))
+        return {
+            key: value for key, value in data.items() if value is not None or key not in optional
+        }
+
+
+#: The serialization context of a request body: ``body.model_dump(context=WIRE)``.
+WIRE: dict[str, Any] = {"wire": True}
+
+
+@cache
+def _optional_keys(model: type[BaseModel]) -> frozenset[str]:
+    """The keys a dump of ``model`` may hold for its fields that have a default."""
+    return frozenset(
+        key
+        for name, field in model.model_fields.items()
+        if not field.is_required()
+        for key in (name, field.alias, field.serialization_alias)
+        if key
+    )
 
 
 class RequestBody(APIModel):

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 from typing import Any
 
 import typer
 import typer.main
 from fastmcp import Client
 
-from tests.full_server import mcp
+from tests.full_server import mcp, tools_with_output_schemas
 from ycli.cli.app import app
 from ycli.cli.lazy import LazyGroup
 
@@ -127,3 +129,18 @@ def mcp_prompts_and_resources() -> list[str]:
         return [*sorted(prompts), *sorted([*resources, *templates])]
 
     return asyncio.run(go())
+
+
+def mcp_output_schemas() -> list[str]:
+    """``<tool> <sha256 of its output schema>`` per tool: any change to what a tool returns.
+
+    The listing drops output schemas (``LightListing``), so they are read from the server.
+    """
+    tools = asyncio.run(tools_with_output_schemas())
+    return [
+        f"{tool.name} "
+        + hashlib.sha256(
+            json.dumps(tool.output_schema, sort_keys=True, ensure_ascii=False).encode()
+        ).hexdigest()[:16]
+        for tool in sorted(tools, key=lambda tool: tool.name)
+    ]
