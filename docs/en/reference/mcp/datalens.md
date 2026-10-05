@@ -7,10 +7,158 @@ generated: true
 
 # Datalens MCP tools
 
-1 tools.
+14 tools.
 
 ## `datalens_tenant_details_get`
 
 *Get the DataLens instance* · read-only
 
 The DataLens instance the credentials reach (a safe auth probe).
+
+## `datalens_collections_get`
+
+*Get DataLens collection* · read-only
+
+One collection by id: its title, description and parent.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_collections_list_by_ids`
+
+*List DataLens collections by id* · read-only
+
+The collections with these ids; an id the caller cannot see is left out.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_ids` | array of string | yes | Collection ids. |
+
+## `datalens_collections_content_list`
+
+*List the content of a DataLens collection* · read-only
+
+What a collection holds: collections, workbooks and entries, auto-paginated.
+
+Start here to find a workbook: list the root, then descend. Capped at the configured item
+cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string or null |  | Collection id; `null` lists the root. |
+| `limit` | integer or null |  | Max items to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `filter_string` | string or null |  | Keep the items whose title has this text. |
+| `order_field` | `title` · `createdAt` · `updatedAt` or string or null |  | What to sort by. |
+| `order_direction` | `asc` · `desc` or string or null |  | Sort direction. |
+| `only_my` | boolean or null |  | Keep only what the caller created. |
+| `mode` | `all` · `onlyCollections` · `onlyWorkbooks` · `onlyEntries` or string or null |  | Which kinds of items to list. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_collections_breadcrumbs_list`
+
+*List the path of a DataLens collection* · read-only
+
+The collections from the root down to this one.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_collections_permissions_get_root`
+
+*Get DataLens root permissions* · read-only
+
+Whether the caller may create a collection and a workbook in the root.
+
+## `datalens_collections_access_bindings_list`
+
+*List the roles on a DataLens collection* · read-only
+
+Who has which role on a collection, auto-paginated.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+| `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
+
+## `datalens_collections_create`
+
+*Create DataLens collection* · write
+
+Create a collection in another one, or in the root when no parent is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `title` | string | yes | Title of the collection. |
+| `parent_id` | string or null |  | The collection to put it in; the root when left out. |
+| `description` | string or null |  | Description of the collection. |
+
+## `datalens_collections_update`
+
+*Update DataLens collection* · idempotent write
+
+Change a collection's title or description; what is not given stays as it is.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+| `title` | string or null |  | New title. |
+| `description` | string or null |  | New description. |
+
+## `datalens_collections_move`
+
+*Move DataLens collection* · write
+
+Move a collection into another one, or into the root when no parent is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+| `parent_id` | string or null |  | The collection to put it in; the root when left out. |
+| `title` | string or null |  | New title to give it on the way. |
+
+## `datalens_collections_move_bulk`
+
+*Move DataLens collections* · write
+
+Move several collections into another one, or into the root when none is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_ids` | array of string | yes | Collection ids. |
+| `parent_id` | string or null |  | The collection to put it in; the root when left out. |
+
+## `datalens_collections_delete`
+
+*Delete DataLens collection* · destructive write
+
+Delete a collection with everything it holds: nested collections, workbooks, entries.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+
+## `datalens_collections_delete_bulk`
+
+*Delete DataLens collections* · destructive write
+
+Delete several collections with everything they hold.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_ids` | array of string | yes | Collection ids. |
+
+## `datalens_collections_access_bindings_update`
+
+*Change the roles on a DataLens collection* · write
+
+Give or take away roles on a collection; the roles not named stay as they are.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `collection_id` | string | yes | Collection id. |
+| `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |

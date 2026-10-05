@@ -284,6 +284,12 @@ body: Annotated[Subscription, OverBudget(SUBSCRIPTION, "The integration; ``type`
 
 The listing then shows the parameter as a free-form object whose description names the definition to read, and the `schema_get(service, name)` tool serves that definition and each one it refers to, one per call. The value is still validated by the model: the tool receives a typed body, and a call with a wrong field is refused with the field's path. The address is `module:name` of the model or of the named union; `schema_get` keeps no map of its own and reads the addresses from the listing. Within a service a name means one definition: two bodies may share one, and two different definitions under one name stop the index (`test_one_name_is_one_definition_within_a_service`). The SDK and the CLI do not change. `test_every_tool_lists_a_schema_within_the_budget` names the tool and the parameter to mark; a mark that is no longer needed is not checked for.
 
+### An RPC operation: the fields of its request are its arguments
+
+Where an API has no addresses and every operation is `POST /rpc/<name>` with all its fields in one object (DataLens), the method takes the top-level fields of that object as its arguments, under one name in the SDK, the CLI and MCP (#371): `datalens.collections.update(collection_id, title=…)`, `--title`, `title`. There is no `body` parameter. A nested value stays a generated model (`deltas: list[AccessBindingDelta]`). The request layer builds the generated request from the arguments, so the body is typed all the way down. `test_an_rpc_method_takes_the_fields_of_its_request_as_arguments` holds the arguments equal to the fields; the pager's own fields are not arguments.
+
+A parent that is not given is the root (#379): `parent_id: str | None = None` on every surface, for reads and for writes alike. The API requires the field and takes `null` for the root, and ycli sends that `null`.
+
 ### `Ack` for bodyless write responses
 
 MCP tools must expose an output schema and a CLI command's return value is what gets printed —

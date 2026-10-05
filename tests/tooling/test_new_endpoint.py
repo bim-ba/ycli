@@ -134,3 +134,9 @@ def test_a_reserved_name_is_refused_as_a_resource(monkeypatch, capsys):
         module.main()
     assert refused.value.code == 2
     assert "'mcp' is reserved" in capsys.readouterr().err
+
+
+def test_the_scaffold_names_the_services_client_class_as_it_is(tmp_path):
+    """``DataLensClient``, not the service's name capitalized."""
+    target = _load_scaffolder().scaffold("datalens", "probe", root=tmp_path)
+    assert "import DataLensClient" in (target / "cli.py").read_text(encoding="utf-8")

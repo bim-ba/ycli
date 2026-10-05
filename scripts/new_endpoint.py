@@ -169,7 +169,12 @@ def scaffold(domain: str, resource: str, root: Path = ROOT) -> Path:
         "domain": domain,
         "resource": resource,
         "cls": _cls(resource),
-        "domain_cls": _cls(domain),
+        # The client's own class name: ``DataLensClient`` is not ``Datalens`` capitalized.
+        "domain_cls": next(
+            service.client.rpartition(":")[2].removesuffix("Client")
+            for service in SERVICES
+            if service.name == domain
+        ),
     }
     for filename, template in (
         ("__init__.py", INIT),

@@ -1,18 +1,22 @@
 ---
 name: yandex-360-datalens
 description: >-
-  Use when reading Yandex DataLens through ycli — which DataLens instance the
-  credentials reach, and how to sign in to it — via the `ycli datalens` CLI, the
-  `datalens_*` MCP tools, or the DataLensClient SDK.
+  Use when reading or changing Yandex DataLens through ycli — collections and
+  what they hold, creating, moving and deleting them, the roles on them, which
+  DataLens instance the credentials reach, and how to sign in to it — via the
+  `ycli datalens` CLI, the `datalens_*` MCP tools, or the DataLensClient SDK.
 ---
 # Yandex 360 DataLens
 
 Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or the `DataLensClient` SDK.
 
-**In progress.** ycli wraps DataLens section by section. Today it wraps one operation: the details of the DataLens instance. Workbooks, connections, datasets, charts and dashboards are not wrapped yet; this skill grows with each section.
+**In progress.** ycli wraps DataLens section by section. Today it wraps collections (the folders that hold workbooks), reads and writes, and the details of the DataLens instance. Workbooks, connections, datasets, charts and dashboards are not wrapped yet; this skill grows with each section.
 
 ## When to use
 
+- Finding a collection or a workbook: listing the root and descending
+- Creating, renaming, moving or deleting collections
+- Seeing or changing who has which role on a collection
 - Checking that the credentials reach DataLens, and which instance they reach
 - Setting up the credentials DataLens needs, which differ from Tracker, Wiki and Forms
 
@@ -26,7 +30,7 @@ Drive Yandex DataLens via `ycli` through the CLI, the `datalens_*` MCP tools, or
 ## Surfaces
 
 - **CLI** — `uv run ycli datalens <group> <cmd>`
-- **MCP** — `datalens_*` tools. Reads carry `readOnlyHint=True`.
+- **MCP** — `datalens_*` tools, reads and writes. Write tools carry honest annotations (`readOnlyHint=False`, explicit `destructiveHint`); `ycli mcp start --read-only` hides them.
 - **SDK** — `from ycli.yandex.datalens.client import DataLensClient` → `DataLensClient(auth=IAMTokenAuth(SecretStr(…)), cloud_organization_id=…)` (`IAMTokenAuth` from `ycli.yandex.core.auth`)
 
 ---
@@ -58,3 +62,40 @@ DataLens differs from the other services in both credentials:
 |-----------|-----|----------|
 | Auth probe (the DataLens instance) | `uv run ycli datalens tenant details-get` | `datalens_tenant_details_get` |
 | Probe only this service | `uv run ycli datalens auth status` | — |
+| What the root holds | `uv run ycli datalens collections content-list` | `datalens_collections_content_list` |
+| What a collection holds | `uv run ycli datalens collections content-list <collection_id> [--mode onlyWorkbooks] [--all]` | `datalens_collections_content_list` |
+| One collection | `uv run ycli datalens collections get <collection_id>` | `datalens_collections_get` |
+| Several collections by id | `uv run ycli datalens collections list-by-ids <id> <id>…` | `datalens_collections_list_by_ids` |
+| Path from the root | `uv run ycli datalens collections breadcrumbs-list <collection_id>` | `datalens_collections_breadcrumbs_list` |
+| What you may create in the root | `uv run ycli datalens collections permissions-get-root` | `datalens_collections_permissions_get_root` |
+| Who has which role | `uv run ycli datalens collections access-bindings-list <collection_id> [--get-inherited-bindings]` | `datalens_collections_access_bindings_list` |
+
+**Content is mixed.** `content-list` returns collections, workbooks and entries in one list; `entity` says which (`collection`, `workbook`, `entry`). The root has no id: leave the id out (MCP: `collection_id` null).
+
+---
+
+## 3. Writing
+
+An operation takes the fields of its request as arguments, under one name on every surface: `--parent-id` in the CLI, `parent_id` in a tool and in the SDK.
+
+| Operation | CLI | MCP tool |
+|-----------|-----|----------|
+| Create a collection | `uv run ycli datalens collections create --title … [--parent-id <id>] [--description …]` | `datalens_collections_create` |
+| Rename or describe | `uv run ycli datalens collections update <collection_id> [--title …] [--description …]` | `datalens_collections_update` |
+| Move one | `uv run ycli datalens collections move <collection_id> [--parent-id <id>] [--title …]` | `datalens_collections_move` |
+| Move several | `uv run ycli datalens collections move-bulk <id> <id>… [--parent-id <id>]` | `datalens_collections_move_bulk` |
+| Delete one | `uv run ycli datalens collections delete <collection_id>` | `datalens_collections_delete` |
+| Delete several | `uv run ycli datalens collections delete-bulk <id> <id>…` | `datalens_collections_delete_bulk` |
+| Give or take away roles | `uv run ycli datalens collections access-bindings-update <collection_id> --delta '<json>'…` | `datalens_collections_access_bindings_update` |
+
+**No parent is the root.** Leave `--parent-id` / `parent_id` out to create in the root or to move there: `move <collection_id>` with no parent moves the collection to the root.
+
+**Deleting a collection deletes what it holds**: nested collections, workbooks and their entries. The reply lists the deleted collections.
+
+**Roles change by deltas.** `access-bindings-update` does not replace the list: each delta adds or removes one role of one subject, and the roles it does not name stay.
+
+```json
+{"action": "ADD", "accessBinding": {"roleId": "datalens.collections.viewer", "subject": {"id": "<user id>", "type": "userAccount"}}}
+```
+
+`action` is `ADD` or `REMOVE`; subject `type` is one of `userAccount`, `federatedUser`, `serviceAccount`, `group`, `invitee`, `system`. It answers with an operation; `done` says whether it has been applied.

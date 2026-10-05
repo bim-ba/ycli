@@ -64,12 +64,13 @@ MCP_SIGNATURES = ROOT / "tests" / "snapshots" / "mcp_signatures.txt"
 # The vendored api-ref under references/ is git-ignored, so the links live here, not there.
 COVERAGE_URLS = ROOT / "scripts" / "coverage_urls.toml"
 # Tracker moved its reference from `api-ref/` to `api/` (the old URLs answer 301); Wiki and
-# Forms still serve `api-ref/`. DataLens is documented with Yandex Cloud, a page an operation.
+# Forms still serve `api-ref/`. DataLens is documented with Yandex Cloud, a page an operation
+# in a directory a section; the snapshot holds each operation's page (`_snapshot_links`).
 API_DOCS = {
     "tracker": "https://yandex.ru/support/tracker/en/api/{path}",
     "wiki": "https://yandex.ru/support/wiki/en/api-ref/{path}",
     "forms": "https://yandex.ru/support/forms/en/api-ref/{path}",
-    "datalens": "https://yandex.cloud/en/docs/datalens/openapi-ref/{path}",
+    "datalens": "https://yandex.cloud/en/docs/datalens/api-ref/{path}",
 }
 # A service as a heading names it, and as the Russian README does (nominative, genitive).
 TITLES = {
@@ -135,6 +136,7 @@ FORMS_CATEGORIES: list[tuple[str, list[str]]] = [
 ]
 DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Organization", ["tenant"]),
+    ("Collections & workbooks", ["collections"]),
 ]
 
 
@@ -241,9 +243,32 @@ def _mcp_tools(slug: str, display: str, tools: list[str]) -> list[str]:
     return [tool for tool in tools if tool.startswith(prefix)]
 
 
+def _snapshot_links(service: str) -> dict[str, dict]:
+    """The link map of a service whose snapshot holds each operation's reference page.
+
+    An SDK operation links to the page of the operation it sends; its resource links to the
+    section those pages lie in. An operation without a page stays plain text.
+    """
+    pages = {found.path: found.page for found in api_surface.load(service) if found.page}
+    links: dict[str, dict] = {}
+    for call in api_drift.calls():
+        domain, resource, operation = call.operation.split(".")
+        page = pages.get(call.path)
+        if domain == service and page:
+            entry = links.setdefault(_display_name(resource), {"operations": {}})
+            entry["operations"][operation] = page
+            entry["resource"] = page.rpartition("/")[0] + "/"
+    return links
+
+
 def _load_link_map() -> dict[str, dict[str, dict]]:
-    """The committed doc-link map, keyed ``domain → resource → {resource, operations}``."""
-    return tomllib.loads(COVERAGE_URLS.read_text(encoding="utf-8"))
+    """The doc-link map, keyed ``domain → resource → {resource, operations}``.
+
+    Committed for the services whose pages are found by hand (``coverage_urls.toml``); read
+    from the snapshot for DataLens, whose refresh lists the pages there are.
+    """
+    committed = tomllib.loads(COVERAGE_URLS.read_text(encoding="utf-8"))
+    return {**committed, "datalens": _snapshot_links("datalens")}
 
 
 def _doc_url(slug: str, path: str) -> str:
@@ -437,7 +462,8 @@ def _render_not_covered(drift: api_drift.Drift) -> list[str]:
     lines = ["", f"**Not covered** ({len(missing)})", ""]
     for operation in missing:
         why = reasons.get(operation)
-        lines.append(f"- {NOT_COVERED} {_published(operation)}" + (f": {why}" if why else ""))
+        published = _published(drift.service, operation)
+        lines.append(f"- {NOT_COVERED} {published}" + (f": {why}" if why else ""))
     return lines
 
 
@@ -520,7 +546,11 @@ PUBLISHED = {
     "forms": f"[OpenAPI]({api_surface.OPENAPI_URLS['forms']})",
     "datalens": f"[OpenAPI]({api_surface.SOURCES['datalens'].url})",
 }
-TRACKER_DOCS = "https://yandex.ru/support/tracker/en/"
+# Where the page of a published operation lies, for the services whose snapshot names it.
+REFERENCE = {
+    "tracker": "https://yandex.ru/support/tracker/en/",
+    "datalens": API_DOCS["datalens"].format(path=""),
+}
 # How each kind of difference reads in the table, in the order they are listed.
 DIFFERENCES = {
     "missing_query": "query parameters ycli cannot send",
@@ -536,10 +566,10 @@ def _names(names: tuple[str, ...]) -> str:
     return ", ".join(f"`{name}`" for name in names)
 
 
-def _published(operation: api_surface.Operation) -> str:
+def _published(service: str, operation: api_surface.Operation) -> str:
     """A published operation as ``METHOD /path``, linked to its reference page if it has one."""
     label = f"`{operation.method} {operation.path}`"
-    return _link(label, TRACKER_DOCS + operation.page if operation.page else None)
+    return _link(label, REFERENCE[service] + operation.page if operation.page else None)
 
 
 def _sdk(operations: tuple[str, ...]) -> str:
@@ -591,10 +621,15 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
         ]
         if drift.not_wrapped:
             lines += ["", "**Published, not wrapped**", ""]
-            lines += [f"- {_published(operation)}" for operation in drift.not_wrapped]
+            lines += [
+                f"- {_published(drift.service, operation)}" for operation in drift.not_wrapped
+            ]
         if drift.excluded:
             lines += ["", "**Not wrapped on purpose**", "", "| Operation | Why |", "|---|---|"]
-            lines += [f"| {_published(operation)} | {why} |" for operation, why in drift.excluded]
+            lines += [
+                f"| {_published(drift.service, operation)} | {why} |"
+                for operation, why in drift.excluded
+            ]
         if drift.unpublished:
             lines += [
                 "",
@@ -624,7 +659,8 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
                 why = "<br>".join(api_drift.reasons(drift.service, gap))
                 anchor = f'<a id="{api_drift.anchor(drift.service, gap)}"></a>'
                 lines.append(
-                    f"| {anchor}{_published(gap.published)} | {_sdk(gap.operations)} "
+                    f"| {anchor}{_published(drift.service, gap.published)} "
+                    f"| {_sdk(gap.operations)} "
                     f"| {differences} | {why} |"
                 )
         lines += ["", "</details>"]
