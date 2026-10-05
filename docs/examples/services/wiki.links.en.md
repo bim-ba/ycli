@@ -1,0 +1,4 @@
+- [CLI commands](../reference/cli/wiki.md)
+- [MCP tools](../reference/mcp/wiki.md)
+- [Python SDK](../reference/sdk/wiki.md)
+- [Guide for an agent](../reference/mcp/prompts-and-resources.md#guides): the MCP resource `ycli://wiki/guide`

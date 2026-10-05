@@ -1,0 +1,4 @@
+- [CLI commands](../reference/cli/tracker.md)
+- [MCP tools](../reference/mcp/tracker.md)
+- [Python SDK](../reference/sdk/tracker.md)
+- [Guide for an agent](../reference/mcp/prompts-and-resources.md#guides): the MCP resource `ycli://tracker/guide`

@@ -14,6 +14,12 @@ extra_css = ["assets/vendor/termynal/termynal.css"]
 extra_javascript = ["assets/vendor/termynal/termynal.js", "assets/javascripts/site.js"]
 nav = [
   { "Home" = "index.md" },
+  { "Services" = [
+    "services/tracker.md",
+    "services/wiki.md",
+    "services/forms.md",
+    "services/datalens.md",
+  ] },
   { "Tutorials" = [
     "tutorials/first-steps.md",
   ] },
@@ -158,6 +164,7 @@ The full reference is large, one page per service, and is left out of llms-full.
 """
 
 [project.plugins.llmstxt.sections]
+"Services" = ["services/*.md"]
 "Tutorials" = ["tutorials/*.md"]
 "How-to guides" = ["how-to/*.md"]
 "Reference" = ["reference/configuration.md", "reference/openapi.md", "reference/cli/index.md", "reference/cli/api.md", "reference/cli/auth.md", "reference/cli/doctor.md", "reference/cli/mcp.md"]

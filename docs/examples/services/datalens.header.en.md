@@ -1,0 +1,7 @@
+# :bar_chart: DataLens
+
+Workbooks, connections, datasets, charts, dashboards.
+
+`1 of 141 operations` · CLI · MCP · Python <mark>in progress</mark>
+
+ycli wraps DataLens section by section: 1 of the 141 operations Yandex publishes so far.
