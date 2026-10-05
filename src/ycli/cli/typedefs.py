@@ -38,6 +38,28 @@ ProfileOption = Annotated[
         ".env's are then not read. `ycli auth profiles` lists them.",
     ),
 ]
+FieldOption = Annotated[
+    list[str] | None,
+    typer.Option(
+        "--field",
+        "-F",
+        help="Set any field of the request body: key=value, key[sub]=value for a nested one "
+        "(JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list "
+        "replaces the one below it.",
+    ),
+]
+BodyFileOption = Annotated[
+    Path | None,
+    typer.Option(
+        "--body-file",
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        help="A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and "
+        "the command's flags win over it. Objects merge; a list is replaced, not added to. "
+        "YAML guesses types (no, 1.10): quote a value meant as text.",
+    ),
+]
 DryRunOption = Annotated[
     bool,
     typer.Option(

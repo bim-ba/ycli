@@ -42,8 +42,9 @@ class DomainClient(ABC):
     defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so there is no second copy of
     them here; ``transport`` replaces the network (tests); ``before_send`` is called once per
     endpoint, before its first attempt, with its effect and request (a surface's seam to confirm
-    or refuse a write; ``None`` for none, as the SDK and the MCP server leave it). Leaving a
-    ``with`` block, or :meth:`close`, closes the connection pool.
+    or refuse a write; ``None`` for none, as the SDK and the MCP server leave it). What it
+    returns is sent instead of the request; returning ``None`` sends the request unchanged.
+    Leaving a ``with`` block, or :meth:`close`, closes the connection pool.
     """
 
     profile: ClassVar[ServiceProfile]

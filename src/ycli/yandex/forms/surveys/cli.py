@@ -4,7 +4,6 @@ from typing import Annotated, Any
 
 import typer
 
-from ycli.cli.fields import parse_fields
 from ycli.cli.typedefs import AllOption, LimitOption
 from ycli.settings import AppConfig
 from ycli.yandex.forms.client import FormsClient
@@ -16,15 +15,10 @@ from ycli.yandex.models import Ack, ItemList
 
 app = typer.Typer(name="surveys", help="Forms surveys.", no_args_is_help=True)
 
-SurveyFieldOpt = Annotated[
-    list[str] | None,
-    typer.Option("--field", "-F", help="Advanced key=value (JSON-coerced; repeatable)."),
-]
 
-
-def _given(named: dict[str, Any], field: list[str] | None) -> dict[str, Any]:
-    """The options that were given, then whatever ``--field`` adds or overrides."""
-    return {name: value for name, value in named.items() if value is not None} | parse_fields(field)
+def _given(named: dict[str, Any]) -> dict[str, Any]:
+    """The options that were given."""
+    return {name: value for name, value in named.items() if value is not None}
 
 
 def _body_help(field: str) -> str:
@@ -104,11 +98,10 @@ def create(
     max_count: Annotated[
         int | None, typer.Option(help="Maximum number of responses (0: no cap).")
     ] = None,
-    field: SurveyFieldOpt = None,
     *,
     forms: FormsClient,
 ) -> Survey:
-    """Create a form (POST /surveys). Advanced keys via --field; returns the created form."""
+    """Create a form (POST /surveys); returns the created form."""
     named = {
         "name": name,
         "language": language,
@@ -117,7 +110,7 @@ def create(
         "need_auth": need_auth,
         "max_count": max_count,
     }
-    return forms.surveys.create(body=SurveyCreate.model_validate(_given(named, field)))
+    return forms.surveys.create(body=SurveyCreate.model_validate(_given(named)))
 
 
 @app.command()
@@ -133,7 +126,6 @@ def update(
     max_count: Annotated[
         int | None, typer.Option(help="New response cap (0 removes the cap).")
     ] = None,
-    field: SurveyFieldOpt = None,
     *,
     forms: FormsClient,
 ) -> Survey:
@@ -146,7 +138,7 @@ def update(
         "need_auth": need_auth,
         "max_count": max_count,
     }
-    return forms.surveys.update(survey_id, body=SurveyUpdate.model_validate(_given(named, field)))
+    return forms.surveys.update(survey_id, body=SurveyUpdate.model_validate(_given(named)))
 
 
 @app.command()

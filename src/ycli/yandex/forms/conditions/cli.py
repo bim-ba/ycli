@@ -4,11 +4,11 @@ The conditions belong to a question, a page, the submit button or an integration
 """
 
 import json
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
+from ycli.cli.body_fields import CallerFields
 from ycli.cli.typedefs import values_option
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.conditions.models import ConditionCreate, ConditionUpdate
@@ -44,26 +44,15 @@ ItemOpt = Annotated[
         help='Condition clause as JSON: {"type", "condition", "question"?, "value"?} (repeatable).',
     ),
 ]
-ConditionFileOpt = Annotated[
-    Path | None,
-    typer.Option(
-        "--body-file",
-        exists=True,
-        dir_okay=False,
-        readable=True,
-        help="JSON file with the full {operator, items} group body.",
-    ),
-]
 
 
 def _resolve_body[M: ConditionCreate](
-    model_cls: type[M], operator: str | None, item: list[str] | None, body_file: Path | None
+    model_cls: type[M], operator: str | None, item: list[str] | None, caller: CallerFields
 ) -> M:
-    """The typed group body from ``--body-file`` JSON, or from ``--operator`` + ``--item``."""
-    if body_file is not None:
-        return model_cls.model_validate_json(body_file.read_bytes())
+    """The typed group body: ``--operator`` and ``--item`` over ``-F`` over ``--body-file``."""
     given = {"operator": operator, "items": [json.loads(c) for c in item] if item else None}
-    return model_cls.model_validate({k: v for k, v in given.items() if v is not None})
+    flags = {name: value for name, value in given.items() if value is not None}
+    return model_cls.model_validate(caller.over(flags))
 
 
 # --- question ---
@@ -95,12 +84,12 @@ def question_create(
     question_id: QuestionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Create a condition group on the question (POST …/conditions)."""
-    body = _resolve_body(ConditionCreate, operator, item, body_file)
+    body = _resolve_body(ConditionCreate, operator, item, caller)
     return forms.conditions.question_create(survey_id, question_id, body)
 
 
@@ -111,12 +100,12 @@ def question_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
-    body = _resolve_body(ConditionUpdate, operator, item, body_file)
+    body = _resolve_body(ConditionUpdate, operator, item, caller)
     return forms.conditions.question_update(survey_id, question_id, condition_id, body)
 
 
@@ -174,12 +163,12 @@ def page_create(
     page_id: FormPageIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Create a condition group on the page (POST …/conditions)."""
-    body = _resolve_body(ConditionCreate, operator, item, body_file)
+    body = _resolve_body(ConditionCreate, operator, item, caller)
     return forms.conditions.page_create(survey_id, page_id, body)
 
 
@@ -190,12 +179,12 @@ def page_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
-    body = _resolve_body(ConditionUpdate, operator, item, body_file)
+    body = _resolve_body(ConditionUpdate, operator, item, caller)
     return forms.conditions.page_update(survey_id, page_id, condition_id, body)
 
 
@@ -242,12 +231,12 @@ def submit_create(
     survey_id: SurveyIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Create a condition group on the submit button (POST …/conditions)."""
-    body = _resolve_body(ConditionCreate, operator, item, body_file)
+    body = _resolve_body(ConditionCreate, operator, item, caller)
     return forms.conditions.submit_create(survey_id, body)
 
 
@@ -257,12 +246,12 @@ def submit_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
-    body = _resolve_body(ConditionUpdate, operator, item, body_file)
+    body = _resolve_body(ConditionUpdate, operator, item, caller)
     return forms.conditions.submit_update(survey_id, condition_id, body)
 
 
@@ -308,12 +297,12 @@ def hook_create(
     hook_id: HookIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Create a condition group on the integration group (POST …/conditions)."""
-    body = _resolve_body(ConditionCreate, operator, item, body_file)
+    body = _resolve_body(ConditionCreate, operator, item, caller)
     return forms.conditions.hook_create(survey_id, hook_id, body)
 
 
@@ -324,12 +313,12 @@ def hook_update(
     condition_id: ConditionIDArg,
     operator: OperatorOpt = None,
     item: ItemOpt = None,
-    body_file: ConditionFileOpt = None,
     *,
+    caller: CallerFields,
     forms: FormsClient,
 ) -> Condition:
     """Replace condition group CONDITION_ID (PATCH — the API takes the FULL group, no partial)."""
-    body = _resolve_body(ConditionUpdate, operator, item, body_file)
+    body = _resolve_body(ConditionUpdate, operator, item, caller)
     return forms.conditions.hook_update(survey_id, hook_id, condition_id, body)
 
 
