@@ -821,8 +821,8 @@ $ ycli datalens entrylocks [OPTIONS] COMMAND [ARGS]...
 
 Lock an entry for editing; keep the token the reply holds, releasing the lock takes it.
 
-One field can be given without JSON: -F 'data[duration]=300000'. An entry that is
-already locked answers 423 with who holds the lock and until when.
+--data is required; -F adds a field it does not name (-F 'data[force]=true'). An entry
+that is already locked answers 423 with who holds the lock and until when.
 
 **Usage**:
 
