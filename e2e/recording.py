@@ -174,6 +174,9 @@ class Recorder:
         self.reads_only = True
         try:
             for arguments in commands:
+                # A second lock over the transport's: under --dry-run the product itself
+                # holds a write and shows its plan. A read is sent as usual, a POST that
+                # reads too: both locks go by the effect of the endpoint, not the method.
                 completed = driver.run(["--dry-run", *arguments])
                 if completed.exit_code != 0:
                     reason = scrub_excerpt(completed.stderr or completed.stdout)
