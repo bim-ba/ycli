@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from importlib.resources import files
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from fastmcp.exceptions import ToolError
 from fastmcp.server.dependencies import get_access_token, get_http_request
@@ -54,6 +54,54 @@ REPEATS_TOOL = "ycli_repeats_tool"
 # The tail of every listing tool's `limit` description. It names the setting, not its value,
 # so the text stays true when HTTPConfig.max_items or the environment changes the cap.
 LIMIT_CAP = "omitted means the configured cap (YCLI__HTTP__MAX_ITEMS)."
+# The most a tool's input schema may weigh, as ``len(json.dumps(schema))`` of what the server
+# lists. A client reads every tool's schema before the first call, and some cut a large one
+# short; a body that would take a tool over the budget is declared with :class:`OverBudget`.
+SCHEMA_BUDGET_BYTES = 32_768
+# The key of a parameter's schema that names the model to read with ``schema_get``.
+SCHEMA_ADDRESS = "x-ycli-schema"
+
+
+class OverBudget:
+    """Marks a tool parameter whose schema would take the tool over ``SCHEMA_BUDGET_BYTES``.
+
+    ``body: Annotated[Subscription, OverBudget(SUBSCRIPTION, "The integration.")]`` lists the
+    parameter as a free-form object and says where its schema is; the value is still
+    validated by the model, so the tool receives a typed body and a call
+    with a wrong field is refused with the field's path. ``address`` is ``module:name`` of the
+    model or the named union, as the service registry writes addresses; the ``schema_get`` tool
+    serves it, one definition at a time. The description is given here, not in a ``Field``:
+    what the marker writes is the whole of the parameter's schema.
+
+    Examples:
+        >>> from typing import Annotated
+        >>> from pydantic import TypeAdapter
+        >>> from ycli.yandex.status.models import Check
+        >>> marked = Annotated[Check, OverBudget("ycli.yandex.status.models:Check", "A check.")]
+        >>> schema = TypeAdapter(marked).json_schema()
+        >>> schema["type"], schema["x-ycli-schema"]
+        ('object', 'ycli.yandex.status.models:Check')
+        >>> schema["description"].startswith("A check. Its schema is not listed here")
+        True
+    """
+
+    def __init__(self, address: str, description: str) -> None:
+        self.address = address
+        self.description = description
+
+    def __get_pydantic_json_schema__(self, core_schema: object, handler: object) -> dict[str, Any]:
+        """The parameter as the listing shows it: free-form, with the address of its schema."""
+        name = self.address.rpartition(":")[2]
+        service = self.address.split(".")[2]
+        return {
+            "type": "object",
+            "description": (
+                f"{self.description} Its schema is not listed here: read `{name}` with "
+                f'schema_get(service="{service}", name="{name}"), then the definitions it '
+                "refers to."
+            ),
+            SCHEMA_ADDRESS: self.address,
+        }
 
 
 def guide(package: str) -> str:

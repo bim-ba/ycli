@@ -16,6 +16,7 @@ from ycli.yandex.forms.dependencies import (
     WRITE,
     WRITE_IDEMPOTENT,
     HookID,
+    OverBudget,
     SurveyID,
     forms_client,
 )
@@ -23,6 +24,9 @@ from ycli.yandex.forms.subscriptions.models import Subscription
 from ycli.yandex.models import Ack, ItemList
 
 mcp = FastMCP("forms-subscriptions")
+
+# The body is a union of seven integrations: listed whole it takes a tool over the budget.
+SUBSCRIPTION = "ycli.yandex.forms.subscriptions.models:Subscription"
 
 SubscriptionID = Annotated[
     int, Field(description="Integration id (integer) from subscriptions_list.")
@@ -60,7 +64,8 @@ def create(
     survey_id: SurveyID,
     hook_id: HookID,
     body: Annotated[
-        Subscription, Field(description="The integration; ``type`` selects its schema.")
+        Subscription,
+        OverBudget(SUBSCRIPTION, "The integration; ``type`` selects its schema."),
     ],
     client: FormsClient = Depends(forms_client),
 ) -> Subscription:
@@ -82,7 +87,7 @@ def update(
     subscription_id: SubscriptionID,
     body: Annotated[
         Subscription,
-        Field(description="Fields to change; ``type`` must match the integration's type."),
+        OverBudget(SUBSCRIPTION, "Fields to change; ``type`` must match the integration's type."),
     ],
     client: FormsClient = Depends(forms_client),
 ) -> Subscription:
