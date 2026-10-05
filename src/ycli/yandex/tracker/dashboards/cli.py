@@ -40,7 +40,7 @@ def create(
 
 
 @app.command()
-def add_cycle_time_widget(
+def widgets_create_cycle_time(
     dashboard_id: DashboardIDArg,
     description: Annotated[str, typer.Option(help="Widget name.")],
     query: Annotated[
@@ -66,4 +66,4 @@ def add_cycle_time_widget(
         toStatuses=[{"key": s} for s in to_status] if to_status else None,
         mode=mode,
     )
-    return tracker.dashboards.add_cycle_time_widget(dashboard_id, body=body)
+    return tracker.dashboards.widgets_create_cycle_time(dashboard_id, body=body)

@@ -270,7 +270,7 @@ CASES = [
         exchanges=[(Sent("DELETE", f"grids/{G3}"), Reply(status=204))],
     ),
     Case(
-        "wiki.grids.rows_add",
+        "wiki.grids.rows_create",
         args=(
             G1,
             RowsAdd.model_validate(
@@ -281,7 +281,7 @@ CASES = [
             "wiki",
             "grids",
             "rows",
-            "add",
+            "create",
             G1,
             "--revision",
             "13",
@@ -293,7 +293,7 @@ CASES = [
             "r9",
         ],
         mcp=(
-            "wiki_grids_rows_add",
+            "wiki_grids_rows_create",
             {
                 "grid_id": G1,
                 "body": {"revision": "13", "rows": ROWS, "position": 2, "after_row_id": "r9"},
@@ -311,9 +311,19 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.rows_add",
+        "wiki.grids.rows_create",
         args=(G2, RowsAdd.model_validate({"revision": "5", "rows": [{"name": "Solo"}]})),
-        cli=["wiki", "grids", "rows", "add", G2, "--revision", "5", "--rows", '[{"name": "Solo"}]'],
+        cli=[
+            "wiki",
+            "grids",
+            "rows",
+            "create",
+            G2,
+            "--revision",
+            "5",
+            "--rows",
+            '[{"name": "Solo"}]',
+        ],
         mcp=None,
         exchanges=[
             (
@@ -325,13 +335,13 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.rows_remove",
+        "wiki.grids.rows_delete",
         args=(G1, RowsRemove.model_validate({"revision": "14", "row_ids": ["r1", "r2"]})),
         cli=[
             "wiki",
             "grids",
             "rows",
-            "remove",
+            "delete",
             G1,
             "--revision",
             "14",
@@ -341,7 +351,7 @@ CASES = [
             "r2",
         ],
         mcp=(
-            "wiki_grids_rows_remove",
+            "wiki_grids_rows_delete",
             {"grid_id": G1, "body": {"revision": "14", "row_ids": ["r1", "r2"]}},
         ),
         exchanges=[
@@ -422,7 +432,7 @@ CASES = [
         exchanges=[(Sent("POST", f"grids/{G2}/rows/move", json={"revision": "6"}), _revision("7"))],
     ),
     Case(
-        "wiki.grids.columns_add",
+        "wiki.grids.columns_create",
         args=(
             G1,
             ColumnsAdd.model_validate({"revision": "16", "columns": COLUMNS_SENT, "position": 1}),
@@ -431,7 +441,7 @@ CASES = [
             "wiki",
             "grids",
             "columns",
-            "add",
+            "create",
             G1,
             "--revision",
             "16",
@@ -441,7 +451,7 @@ CASES = [
             "1",
         ],
         mcp=(
-            "wiki_grids_columns_add",
+            "wiki_grids_columns_create",
             {"grid_id": G1, "body": {"revision": "16", "columns": COLUMNS, "position": 1}},
         ),
         exchanges=[
@@ -456,7 +466,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.grids.columns_remove",
+        "wiki.grids.columns_delete",
         args=(
             G1,
             ColumnsRemove.model_validate({"revision": "17", "column_slugs": ["stage", "due_date"]}),
@@ -465,7 +475,7 @@ CASES = [
             "wiki",
             "grids",
             "columns",
-            "remove",
+            "delete",
             G1,
             "--revision",
             "17",
@@ -475,7 +485,7 @@ CASES = [
             "due_date",
         ],
         mcp=(
-            "wiki_grids_columns_remove",
+            "wiki_grids_columns_delete",
             {"grid_id": G1, "body": {"revision": "17", "column_slugs": ["stage", "due_date"]}},
         ),
         exchanges=[

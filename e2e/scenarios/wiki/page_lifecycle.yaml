@@ -10,7 +10,7 @@ steps:
       id: id
     cleanup: wiki pages delete ${id}
   - id: listed
-    run: wiki pages descendants "" --all
+    run: wiki pages descendants-list "" --all
     expect:
       "length([?slug == '${RUN}'])": 1
   - id: update
@@ -27,7 +27,7 @@ steps:
     save:
       token: recovery_token
   - id: restore
-    run: wiki recovery restore ${token}
+    run: wiki recovery recover ${token}
     expect:
       slug: ${RUN}
   - id: read-restored
@@ -39,6 +39,6 @@ steps:
     run: wiki pages delete ${id}
     disarms: [create]
   - id: gone
-    run: wiki pages descendants "" --all
+    run: wiki pages descendants-list "" --all
     expect:
       "length([?slug == '${RUN}'])": 0

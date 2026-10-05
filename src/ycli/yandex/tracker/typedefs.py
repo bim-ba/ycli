@@ -48,3 +48,9 @@ OptionOpt = Annotated[
     list[str] | None,
     typer.Option("--option", help="Allowed drop-down value (repeatable)."),
 ]
+ImportCreatedAtOpt = Annotated[
+    str, typer.Option("--created-at", help="Original creation time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+]
+ImportCreatedByOpt = Annotated[
+    str, typer.Option("--created-by", help="Login or id of the original author.")
+]

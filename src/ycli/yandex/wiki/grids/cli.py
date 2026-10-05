@@ -174,7 +174,7 @@ def clone(
     if wait and operation.operation is not None and operation.operation.id is not None:
         task_id = operation.operation.id
         status = wait_for(
-            lambda: wiki.operations.gridclone_get(task_id),
+            lambda: wiki.operations.clone_inline_grid_get(task_id),
             lambda state: state.is_terminal,
             message="Waiting for grid clone…",
             max_wait_seconds=config.http.max_wait_seconds,
@@ -183,8 +183,8 @@ def clone(
     return operation
 
 
-@rows_app.command("add")
-def rows_add(
+@rows_app.command("create")
+def rows_create(
     grid_id: GridIDArg,
     revision: RevisionOpt,
     rows: Annotated[
@@ -204,11 +204,11 @@ def rows_add(
         position=position,
         after_row_id=after_row_id,
     )
-    return wiki.grids.rows_add(grid_id, body=body)
+    return wiki.grids.rows_create(grid_id, body=body)
 
 
-@rows_app.command("remove")
-def rows_remove(
+@rows_app.command("delete")
+def rows_delete(
     grid_id: GridIDArg,
     revision: RevisionOpt,
     row_id: Annotated[list[str], typer.Option("--row-id", help="Row id to delete (repeatable).")],
@@ -217,7 +217,7 @@ def rows_remove(
 ) -> RevisionResult:
     """Delete rows from a grid by id (DELETE /grids/{id}/rows)."""
     body = RowsRemove(revision=revision, row_ids=row_id)
-    return wiki.grids.rows_remove(grid_id, body=body)
+    return wiki.grids.rows_delete(grid_id, body=body)
 
 
 @rows_app.command("move")
@@ -248,8 +248,8 @@ def rows_move(
     return wiki.grids.rows_move(grid_id, body=body)
 
 
-@columns_app.command("add")
-def columns_add(
+@columns_app.command("create")
+def columns_create(
     grid_id: GridIDArg,
     revision: RevisionOpt,
     columns: Annotated[
@@ -268,11 +268,11 @@ def columns_add(
     The API requires a ``slug`` on every column.
     """
     body = ColumnsAdd(revision=revision, columns=json.loads(columns), position=position)
-    return wiki.grids.columns_add(grid_id, body=body)
+    return wiki.grids.columns_create(grid_id, body=body)
 
 
-@columns_app.command("remove")
-def columns_remove(
+@columns_app.command("delete")
+def columns_delete(
     grid_id: GridIDArg,
     revision: RevisionOpt,
     column_slug: Annotated[
@@ -283,7 +283,7 @@ def columns_remove(
 ) -> RevisionResult:
     """Delete columns from a grid by slug (DELETE /grids/{id}/columns)."""
     body = ColumnsRemove(revision=revision, column_slugs=column_slug)
-    return wiki.grids.columns_remove(grid_id, body=body)
+    return wiki.grids.columns_delete(grid_id, body=body)
 
 
 @columns_app.command("move")

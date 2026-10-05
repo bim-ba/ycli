@@ -816,7 +816,7 @@ def test_compare_reports_every_kind_of_difference(monkeypatch):
     monkeypatch.setitem(api_drift.NOT_WRAPPED, ("wiki", "GET", "/legacy"), "replaced")
     sent = [
         _call("wiki.pages.get", "GET", "/pages/7", query=("fields", "raw"), response=("id", "x")),
-        _call("wiki.pages.descendants", "GET", "/pages/descendants", query=("cursor",)),
+        _call("wiki.pages.descendants_list", "GET", "/pages/descendants", query=("cursor",)),
         _call("wiki.pages.create", "POST", "/pages", response=("id", "slug")),
         _call("wiki.pages.purge", "POST", "/pages/7/purge"),
     ]
@@ -873,7 +873,7 @@ def test_replaying_the_cases_yields_what_each_operation_sends():
     # `fields` is declared on the endpoint even when a case leaves it out; `slug` is always sent.
     assert (get.method, get.path) == ("GET", "/pages") and {"slug", "fields"} <= get.query
     assert get.response is not None and "id" in get.response
-    descendants = by_operation["wiki.pages.descendants"]
+    descendants = by_operation["wiki.pages.descendants_list"]
     # The pager reads the envelope, and its cursor counts though the case has one page.
     assert descendants.response is None and "cursor" in descendants.query
 

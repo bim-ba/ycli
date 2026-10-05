@@ -26,6 +26,8 @@ from ycli.yandex.wiki.pages.models import (
     PageRef,
     PageRevision,
     PageUpdate,
+    SearchPage,
+    SearchRequest,
 )
 
 
@@ -52,7 +54,7 @@ def get_by_id(
     return Endpoint("GET", f"pages/{segment(page_id)}", PageDetails, params=params)
 
 
-def descendants(
+def descendants_list(
     slug: str, *, actuality: str | None, include_self: bool, show_all: bool
 ) -> Paged[CursorPage[PageRef], PageRef]:
     params = {
@@ -69,7 +71,7 @@ def descendants(
     )
 
 
-def descendants_by_id(
+def descendants_list_by_id(
     page_id: int, *, actuality: str | None, include_self: bool, show_all: bool
 ) -> Paged[CursorPage[PageRef], PageRef]:
     path = f"pages/{segment(page_id)}/descendants"
@@ -161,3 +163,8 @@ def backlinks_list(
         WIKI_CURSOR,
         lambda page: page.results,
     )
+
+
+def search(body: SearchRequest) -> Endpoint[SearchPage]:
+    """``POST /search`` only reads: one page of full-text hits."""
+    return Endpoint("POST", "search", SearchPage, json=body, effect="read")

@@ -53,7 +53,7 @@ class ProjectsClient(Resource):
         """
         return self._session.send(endpoints.get(project_id, expand=expand))
 
-    def queues(self, project_id: int, *, expand: str | None = None) -> ItemList[Queue]:
+    def queues_list(self, project_id: int, *, expand: str | None = None) -> ItemList[Queue]:
         """``GET /projects/{project_id}/queues`` → the queues whose issues are in the project.
 
         ``expand`` takes the same blocks as :meth:`QueuesClient.get` (``all``, ``components``, …).
@@ -66,10 +66,10 @@ class ProjectsClient(Resource):
             The project's queues.
 
         Examples:
-            >>> tracker.projects.queues(23, expand="components,versions").root[0].key
+            >>> tracker.projects.queues_list(23, expand="components,versions").root[0].key
             'ORG'
         """
-        return self._session.send(endpoints.queues(project_id, expand=expand))
+        return self._session.send(endpoints.queues_list(project_id, expand=expand))
 
     def create(self, body: ProjectCreate) -> Project:
         """``POST /projects`` → create a project from a typed ``ProjectCreate`` body.

@@ -249,7 +249,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.fields.category_create",
+        "tracker.fields.categories_create",
         args=(
             FieldCategoryCreate(
                 name=LocalizedName(ru="Своя", en="Own"), order=400, description="Custom category"
@@ -258,7 +258,7 @@ CASES = [
         cli=[
             "tracker",
             "fields",
-            "category-create",
+            "categories-create",
             "--name-ru",
             "Своя",
             "--name-en",
@@ -269,7 +269,7 @@ CASES = [
             "Custom category",
         ],
         mcp=(
-            "tracker_fields_category_create",
+            "tracker_fields_categories_create",
             {
                 "body": {
                     "name": {"ru": "Своя", "en": "Own"},
@@ -294,7 +294,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.fields.category_update",
+        "tracker.fields.categories_update",
         args=(
             "604f99",
             FieldCategoryUpdate(
@@ -305,7 +305,7 @@ CASES = [
         cli=[
             "tracker",
             "fields",
-            "category-update",
+            "categories-update",
             "604f99",
             "--name-en",
             "Renamed",
@@ -317,7 +317,7 @@ CASES = [
             "1",
         ],
         mcp=(
-            "tracker_fields_category_update",
+            "tracker_fields_categories_update",
             {
                 "category_id": "604f99",
                 "body": {
@@ -341,9 +341,9 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.fields.category_update",
+        "tracker.fields.categories_update",
         args=("cat-9", FieldCategoryUpdate(order=600)),
-        cli=["tracker", "fields", "category-update", "cat-9", "--order", "600"],
+        cli=["tracker", "fields", "categories-update", "cat-9", "--order", "600"],
         mcp=None,
         exchanges=[
             (

@@ -121,7 +121,7 @@ class ConditionsClient(Resource):
         """
         self._session.send(endpoints.question_delete(survey_id, question_id, condition_id))
 
-    def question_set_operator(
+    def question_update_operator(
         self, survey_id: str, question_id: str, operator: ConditionOperatorType
     ) -> ConditionsResponse:
         """``PATCH …/questions/{question_id}/conditions`` — the operator BETWEEN groups.
@@ -135,12 +135,14 @@ class ConditionsClient(Resource):
             The target's operator and condition groups.
 
         Examples:
-            >>> forms.conditions.question_set_operator(
+            >>> forms.conditions.question_update_operator(
             ...     "686d0a1b2c3d4e5f00000090", "17", "or"
             ... ).operator
             'or'
         """
-        return self._session.send(endpoints.question_set_operator(survey_id, question_id, operator))
+        return self._session.send(
+            endpoints.question_update_operator(survey_id, question_id, operator)
+        )
 
     # --- page family: when a page is shown ---
 
@@ -241,7 +243,7 @@ class ConditionsClient(Resource):
         """
         self._session.send(endpoints.page_delete(survey_id, page_id, condition_id))
 
-    def page_set_operator(
+    def page_update_operator(
         self, survey_id: str, page_id: int, operator: ConditionOperatorType
     ) -> ConditionsResponse:
         """``PATCH …/pages/{page_id}/conditions`` — the operator BETWEEN groups.
@@ -255,10 +257,10 @@ class ConditionsClient(Resource):
             The target's operator and condition groups.
 
         Examples:
-            >>> forms.conditions.page_set_operator("686d0a1b2c3d4e5f00000090", 3, "or").operator
+            >>> forms.conditions.page_update_operator("686d0a1b2c3d4e5f00000090", 3, "or").operator
             'or'
         """
-        return self._session.send(endpoints.page_set_operator(survey_id, page_id, operator))
+        return self._session.send(endpoints.page_update_operator(survey_id, page_id, operator))
 
     # --- submit family: when the form's Submit button is shown (right on the survey) ---
 
@@ -352,7 +354,7 @@ class ConditionsClient(Resource):
         """
         self._session.send(endpoints.submit_delete(survey_id, condition_id))
 
-    def submit_set_operator(
+    def submit_update_operator(
         self, survey_id: str, operator: ConditionOperatorType
     ) -> ConditionsResponse:
         """``PATCH /surveys/{id}/conditions`` — the operator BETWEEN groups.
@@ -365,10 +367,10 @@ class ConditionsClient(Resource):
             The target's operator and condition groups.
 
         Examples:
-            >>> forms.conditions.submit_set_operator("686d0a1b2c3d4e5f00000090", "or").operator
+            >>> forms.conditions.submit_update_operator("686d0a1b2c3d4e5f00000090", "or").operator
             'or'
         """
-        return self._session.send(endpoints.submit_set_operator(survey_id, operator))
+        return self._session.send(endpoints.submit_update_operator(survey_id, operator))
 
     # --- hook family: when an integration group (hook) fires ---
 
@@ -469,7 +471,7 @@ class ConditionsClient(Resource):
         """
         self._session.send(endpoints.hook_delete(survey_id, hook_id, condition_id))
 
-    def hook_set_operator(
+    def hook_update_operator(
         self, survey_id: str, hook_id: int, operator: ConditionOperatorType
     ) -> ConditionsResponse:
         """``PATCH …/hooks/{hook_id}/conditions`` — the operator BETWEEN groups.
@@ -483,7 +485,7 @@ class ConditionsClient(Resource):
             The target's operator and condition groups.
 
         Examples:
-            >>> forms.conditions.hook_set_operator("686d0a1b2c3d4e5f00000090", 11, "or").operator
+            >>> forms.conditions.hook_update_operator("686d0a1b2c3d4e5f00000090", 11, "or").operator
             'or'
         """
-        return self._session.send(endpoints.hook_set_operator(survey_id, hook_id, operator))
+        return self._session.send(endpoints.hook_update_operator(survey_id, hook_id, operator))

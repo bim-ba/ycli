@@ -2,7 +2,7 @@
 
 Four targets carry condition groups: a question, a page, the submit button and an integration
 group (hook). Each target has the same six tools: list, get, create, update (a full
-replacement), delete and set_operator (the operator BETWEEN the target's groups).
+replacement), delete and update_operator (the operator BETWEEN the target's groups).
 """
 
 from typing import Annotated
@@ -132,10 +132,10 @@ def question_delete(
 
 
 @mcp.tool(
-    name="conditions_question_set_operator",
+    name="conditions_question_update_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms question conditions operator"},
 )
-def question_set_operator(
+def question_update_operator(
     survey_id: SurveyID,
     question_id: QuestionID,
     operator: Operator,
@@ -145,7 +145,7 @@ def question_set_operator(
 
     Group-internal operators are untouched — change those via ``conditions_question_update``.
     """
-    return client.conditions.question_set_operator(survey_id, question_id, operator)
+    return client.conditions.question_update_operator(survey_id, question_id, operator)
 
 
 # --- page family ---
@@ -229,17 +229,17 @@ def page_delete(
 
 
 @mcp.tool(
-    name="conditions_page_set_operator",
+    name="conditions_page_update_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms page conditions operator"},
 )
-def page_set_operator(
+def page_update_operator(
     survey_id: SurveyID,
     page_id: FormPageID,
     operator: Operator,
     client: FormsClient = Depends(forms_client),
 ) -> ConditionsResponse:
     """Set the boolean operator BETWEEN a page's condition groups; returns the envelope."""
-    return client.conditions.page_set_operator(survey_id, page_id, operator)
+    return client.conditions.page_update_operator(survey_id, page_id, operator)
 
 
 # --- submit family (conditions of the form's Submit button, right on the survey) ---
@@ -308,14 +308,14 @@ def submit_delete(
 
 
 @mcp.tool(
-    name="conditions_submit_set_operator",
+    name="conditions_submit_update_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms submit-button conditions operator"},
 )
-def submit_set_operator(
+def submit_update_operator(
     survey_id: SurveyID, operator: Operator, client: FormsClient = Depends(forms_client)
 ) -> ConditionsResponse:
     """Set the boolean operator BETWEEN the submit button's condition groups."""
-    return client.conditions.submit_set_operator(survey_id, operator)
+    return client.conditions.submit_update_operator(survey_id, operator)
 
 
 # --- hook family (conditions that gate an integration group) ---
@@ -394,14 +394,14 @@ def hook_delete(
 
 
 @mcp.tool(
-    name="conditions_hook_set_operator",
+    name="conditions_hook_update_operator",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms integration-group conditions operator"},
 )
-def hook_set_operator(
+def hook_update_operator(
     survey_id: SurveyID,
     hook_id: HookID,
     operator: Operator,
     client: FormsClient = Depends(forms_client),
 ) -> ConditionsResponse:
     """Set the boolean operator BETWEEN an integration group's condition groups."""
-    return client.conditions.hook_set_operator(survey_id, hook_id, operator)
+    return client.conditions.hook_update_operator(survey_id, hook_id, operator)

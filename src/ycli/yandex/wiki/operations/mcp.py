@@ -29,16 +29,16 @@ def clone_get(
 
     ``pages clone`` (a CLI/SDK write) returns an ``operation.id``; pass it here and re-read until
     ``status`` is ``success`` or ``failed``. On ``success`` the ``result.page`` names the clone.
-    The sibling ``operations_gridclone_get`` polls inline-grid clones instead.
+    The sibling ``operations_clone_inline_grid_get`` polls inline-grid clones instead.
     """
     return client.operations.clone_get(task_id)
 
 
 @mcp.tool(
-    name="operations_gridclone_get",
+    name="operations_clone_inline_grid_get",
     annotations={**RO, "title": "Get Wiki grid-clone status"},
 )
-def gridclone_get(
+def clone_inline_grid_get(
     task_id: Annotated[str, Field(description="Task id from a grid-clone trigger (operation.id).")],
     client: WikiClient = Depends(wiki_client),
 ) -> GridCloneOperationStatus:
@@ -48,7 +48,7 @@ def gridclone_get(
     ``status`` is ``success`` or ``failed``. On ``success`` the ``result.grid_id`` names the copy.
     The sibling ``operations_clone_get`` polls page clones instead.
     """
-    return client.operations.gridclone_get(task_id)
+    return client.operations.clone_inline_grid_get(task_id)
 
 
 @mcp.tool(

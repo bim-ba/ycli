@@ -32,10 +32,10 @@ def create(body: DashboardCreate, client: TrackerClient = Depends(tracker_client
 
 
 @mcp.tool(
-    name="dashboards_add_cycle_time_widget",
+    name="dashboards_widgets_create_cycle_time",
     annotations={**WRITE, "title": "Add Tracker cycle-time widget"},
 )
-def add_cycle_time_widget(
+def widgets_create_cycle_time(
     dashboard_id: Annotated[str, Field(description="Id of the dashboard to add the widget to.")],
     body: CycleTimeWidget,
     client: TrackerClient = Depends(tracker_client),
@@ -44,4 +44,4 @@ def add_cycle_time_widget(
 
     Get ``dashboard_id`` from ``dashboards_create``.
     """
-    return client.dashboards.add_cycle_time_widget(dashboard_id, body)
+    return client.dashboards.widgets_create_cycle_time(dashboard_id, body)

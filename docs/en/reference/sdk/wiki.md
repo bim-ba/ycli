@@ -39,10 +39,6 @@ Examples use a client built as `wiki = WikiClient(oauth_token="…", organizatio
 
 ::: ycli.yandex.wiki.recovery.client.RecoveryClient
 
-## search
-
-::: ycli.yandex.wiki.search.client.SearchClient
-
 ## grids
 
 ::: ycli.yandex.wiki.grids.client.GridsClient

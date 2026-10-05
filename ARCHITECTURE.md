@@ -64,11 +64,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
 
 ### ARCH-1 — Surface parity
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
-  name: the CLI path (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name,
-  the SDK method is that name without the service and resource (`tracker_boards_update` is
-  `tracker.boards.update`), and one verb per action (`update`, never `edit` or `modify`). The
-  function in `endpoints.py` that declares the request carries the method's name too, one function
-  per operation Yandex publishes. A renamed CLI command
+  name, on every surface and in `endpoints.py`. How that name is formed is stated once, in
+  [Naming an operation](docs/conventions/resources.md#7-naming-an-operation). A renamed CLI command
   stops answering to its old name in the same release, and the changelog lists the old and the
   new name (the rule for models is in [`docs/conventions/resources.md`](docs/conventions/resources.md)).
 - **Why:** one operation behaves the same however a person or an agent reaches it, and a name
@@ -79,17 +76,21 @@ allowlist entry in code with its reason, never prose here. Tests are in
   every directory of a service is a resource except `<domain>/mcp/`, the service's MCP server,
   a name `/new-endpoint` refuses: `test_arch1_a_reserved_directory_is_not_a_resource`) and
   `test_arch1_operation_level_parity`, which reads which client method each surface actually
-  calls, so a command may be named differently from its operation.
+  calls.
   `test_arch1_every_resource_is_served` reads the running surfaces instead of the source: each
   resource directory is wired into its domain client, is a group of the built CLI tree and
   serves MCP tools from the mounted server, and nothing is served without a directory.
   `test_arch1_cli_path_equals_mcp_name` pairs each MCP tool with the CLI command that calls the
-  same client operations and fails when their names differ or either uses a synonym verb.
+  same client operations and fails when their names differ or either uses a synonym of a
+  standard verb (`add`, `remove`, `edit`, `modify`, `patch`, `query`).
   `test_arch1_sdk_method_equals_tool_name` holds the SDK method to the name of a tool that
   calls it (of the CLI command when no tool does; an operation reached only as a step of
   another has no name to match), and the endpoint builders and tool functions to the verbs.
+  `test_arch1_a_get_returns_one_object` reads the signature: a method named `get` does not
+  return a list of items. The choice of the verb, the parts and their order is not a test:
+  `/arch-review` holds new names to the convention.
   `test_arch1_tool_function_is_named_like_its_tool` holds the Python function behind a tool to
-  the tool's name without the resource (`grids_rows_add` is `def rows_add`; a builtin's name
+  the tool's name without the resource (`grids_rows_create` is `def rows_create`; a builtin's name
   takes a trailing underscore, `list_`).
   `test_arch1_endpoint_function_is_named_like_its_method` holds each function of
   `endpoints.py` to the name of the one client method that sends it (`search` and

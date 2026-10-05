@@ -85,10 +85,10 @@ def update(
 
 
 @mcp.tool(
-    name="fields_category_create",
+    name="fields_categories_create",
     annotations={**WRITE, "title": "Create Tracker field category"},
 )
-def category_create(
+def categories_create(
     body: FieldCategoryCreate, client: TrackerClient = Depends(tracker_client)
 ) -> FieldCategoryRecord:
     """Create a field category (a grouping bucket for issue fields in the UI).
@@ -96,14 +96,14 @@ def category_create(
     Required: ``name`` (ru/en display names) and ``order`` (display weight). CAUTION:
     org-global and not deletable via the API.
     """
-    return client.fields.category_create(body)
+    return client.fields.categories_create(body)
 
 
 @mcp.tool(
-    name="fields_category_update",
+    name="fields_categories_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker field category"},
 )
-def category_update(
+def categories_update(
     category_id: Annotated[str, Field(description="Identifier of the field category.")],
     body: FieldCategoryUpdate,
     version: Version = None,
@@ -113,4 +113,4 @@ def category_update(
 
     Pass ``version`` to guard against concurrent edits (optimistic locking).
     """
-    return client.fields.category_update(category_id, body, version=version)
+    return client.fields.categories_update(category_id, body, version=version)

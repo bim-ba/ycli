@@ -93,8 +93,8 @@ def create(
 ) -> Grid:
     """Create an empty dynamic table (grid) as a resource of a page.
 
-    A new grid has no rows or columns — add them afterwards with ``grids_columns_add`` and
-    ``grids_rows_add``. Returns the created grid; every subsequent write sends its
+    A new grid has no rows or columns — add them afterwards with ``grids_columns_create`` and
+    ``grids_rows_create``. Returns the created grid; every subsequent write sends its
     ``revision`` back.
     """
     return client.grids.create(body=body)
@@ -136,8 +136,8 @@ def delete(
     return client.grids.delete(grid_id)
 
 
-@mcp.tool(name="grids_rows_add", annotations={**WRITE, "title": "Add Wiki grid rows"})
-def rows_add(
+@mcp.tool(name="grids_rows_create", annotations={**WRITE, "title": "Add Wiki grid rows"})
+def rows_create(
     grid_id: GridIDParam,
     body: Annotated[
         RowsAdd,
@@ -153,14 +153,14 @@ def rows_add(
     Column slugs come from ``grids_get``'s structure block. Returns the created rows plus
     the grid's new ``revision``.
     """
-    return client.grids.rows_add(grid_id, body=body)
+    return client.grids.rows_create(grid_id, body=body)
 
 
 @mcp.tool(
-    name="grids_rows_remove",
+    name="grids_rows_delete",
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid rows"},
 )
-def rows_remove(
+def rows_delete(
     grid_id: GridIDParam,
     body: Annotated[
         RowsRemove,
@@ -173,7 +173,7 @@ def rows_remove(
     A rare DELETE-with-body: ids and revision travel in the JSON body. Find row ids with
     ``grids_get``. Returns the grid's new ``revision``.
     """
-    return client.grids.rows_remove(grid_id, body=body)
+    return client.grids.rows_delete(grid_id, body=body)
 
 
 @mcp.tool(name="grids_rows_move", annotations={**WRITE, "title": "Move Wiki grid rows"})
@@ -196,10 +196,10 @@ def rows_move(
 
 
 @mcp.tool(
-    name="grids_columns_add",
+    name="grids_columns_create",
     annotations={**WRITE, "title": "Add Wiki grid columns"},
 )
-def columns_add(
+def columns_create(
     grid_id: GridIDParam,
     body: Annotated[
         ColumnsAdd,
@@ -216,14 +216,14 @@ def columns_add(
     ``staff``, ``date``, ``checkbox``, ``ticket_field``, …); type-specific fields such as
     ``select_options`` shape it further. Returns the grid's new ``revision``.
     """
-    return client.grids.columns_add(grid_id, body=body)
+    return client.grids.columns_create(grid_id, body=body)
 
 
 @mcp.tool(
-    name="grids_columns_remove",
+    name="grids_columns_delete",
     annotations={**DESTRUCTIVE, "title": "Remove Wiki grid columns"},
 )
-def columns_remove(
+def columns_delete(
     grid_id: GridIDParam,
     body: Annotated[
         ColumnsRemove,
@@ -236,7 +236,7 @@ def columns_remove(
     A rare DELETE-with-body: slugs and revision travel in the JSON body. Returns the grid's
     new ``revision``.
     """
-    return client.grids.columns_remove(grid_id, body=body)
+    return client.grids.columns_delete(grid_id, body=body)
 
 
 @mcp.tool(
@@ -299,7 +299,7 @@ def clone(
     """Copy a grid onto another page (``POST /grids/{id}/clone`` — asynchronous).
 
     ``body.with_data=true`` copies the rows as well as the structure. Returns a deferred
-    operation reference — poll ``operations_gridclone_get`` with the returned
+    operation reference — poll ``operations_clone_inline_grid_get`` with the returned
     ``operation.id`` until it reaches a terminal status.
     """
     return client.grids.clone(grid_id, body=body)

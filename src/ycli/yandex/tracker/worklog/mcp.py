@@ -21,6 +21,7 @@ from ycli.yandex.tracker.dependencies import (
     tracker_client,
 )
 from ycli.yandex.tracker.worklog.models import (
+    ImportWorklog,
     Worklog,
     WorklogCreate,
     WorklogSearch,
@@ -80,10 +81,10 @@ def search(
 
 
 @mcp.tool(
-    name="worklog_global_list",
+    name="worklog_list_global",
     annotations={**RO, "title": "List Tracker org-wide worklog"},
 )
-def global_list(
+def list_global(
     created_by: Annotated[
         str | None, Field(description="Login or id of the record author to filter by.")
     ] = None,
@@ -97,7 +98,7 @@ def global_list(
     A lighter sibling of ``worklog_search`` (which takes a time *range*); both filters are
     optional.
     """
-    return client.worklog.global_list(created_by=created_by, created_at=created_at)
+    return client.worklog.list_global(created_by=created_by, created_at=created_at)
 
 
 @mcp.tool(
@@ -141,3 +142,17 @@ def delete(
     """
     client.worklog.delete(key, record_id)
     return Ack.deleted("worklog", record_id, on=key)
+
+
+@mcp.tool(
+    name="worklog_import",
+    annotations={**WRITE, "title": "Import Tracker worklog record"},
+)
+def import_(
+    issue_key: IssueKey, body: ImportWorklog, client: TrackerClient = Depends(tracker_client)
+) -> ItemList[Worklog]:
+    """Import a worklog record preserving its original author and timestamps (admin-only).
+
+    Returns the imported record(s) — the endpoint answers with a JSON array.
+    """
+    return client.worklog.import_(issue_key, body=body)

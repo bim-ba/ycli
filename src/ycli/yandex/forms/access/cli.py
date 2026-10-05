@@ -50,14 +50,14 @@ def _principal(
     return user, group
 
 
-@app.command()
-def get(survey_id: SurveyIDArg, *, forms: FormsClient) -> ItemList[Permission]:
+@app.command("list")
+def list_(survey_id: SurveyIDArg, *, forms: FormsClient) -> ItemList[Permission]:
     """Print who may edit and who may fill form SURVEY_ID (one entry per action)."""
-    return forms.access.get(survey_id)
+    return forms.access.list(survey_id)
 
 
-@app.command("set")
-def set_(
+@app.command("update")
+def update(
     survey_id: SurveyIDArg,
     action: AccessActionOpt,
     access: Annotated[str, values_option(AccessLevel, help="Level of access.")],
@@ -66,7 +66,7 @@ def set_(
 ) -> ItemList[Permission]:
     """Set the access level of one action on form SURVEY_ID (POST …/access)."""
     body = AccessUpdate.model_validate({"action": action, "access": access})
-    return forms.access.set(survey_id, body)
+    return forms.access.update(survey_id, body)
 
 
 @app.command()

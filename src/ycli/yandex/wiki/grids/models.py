@@ -252,7 +252,7 @@ class Grid(APIModel):
 
 
 class RevisionResult(APIModel):
-    """The common ``{revision}`` reply of a grid write (update / remove / move / columns add).
+    """The common ``{revision}`` reply of a grid write (update / delete / move / columns create).
 
     Carries the grid's new revision; feed it to the next write.
 
@@ -306,7 +306,7 @@ class CellsUpdateResult(APIModel):
 
 
 class NewColumnSchema(RequestBody):
-    """Typed body for one new column in a ``columns add`` request.
+    """Typed body for one new column in a ``columns create`` request.
 
     ``title`` and ``type`` are required; the remaining fields shape a specific column type
     (``select_options`` for ``select``, ``ticket_field`` for ``ticket_field``, …). The live API

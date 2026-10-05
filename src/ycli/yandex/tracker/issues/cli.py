@@ -7,11 +7,14 @@ from typing import Annotated
 import typer
 
 from ycli.cli.fields import parse_fields
+from ycli.cli.progress import wait_for
 from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
+from ycli.yandex.tracker.bulk.models import BulkChange, BulkMove, BulkTransition, BulkUpdate
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.issues.models import (
+    ImportTask,
     Issue,
     IssueCreate,
     IssueSearch,
@@ -23,6 +26,8 @@ from ycli.yandex.tracker.issues.models import (
 )
 from ycli.yandex.tracker.typedefs import (
     ExpandOpt,
+    ImportCreatedAtOpt,
+    ImportCreatedByOpt,
     KeyArg,
     NotifyAuthorOpt,
     NotifyOpt,
@@ -264,3 +269,148 @@ def scroll_clear(
     """
     tracker.issues.scroll_clear(ScrollClear(parse_fields(pair)))
     return Ack.cleared("search scroll resources")
+
+
+BulkIssueOpt = Annotated[
+    list[str] | None,
+    typer.Option("--issue", help="Issue key to include (repeatable; omit when using --query)."),
+]
+BulkQueryOpt = Annotated[
+    str | None,
+    typer.Option("--query", help="Query-language filter selecting issues (instead of --issue)."),
+]
+BulkValueOpt = Annotated[
+    list[str] | None,
+    typer.Option("--field", "-F", help="Field to set, key=value (JSON-coerced; repeatable)."),
+]
+BulkNotifyOpt = Annotated[bool, typer.Option("--notify/--no-notify", help="Notify affected users.")]
+BulkWaitOpt = Annotated[
+    bool, typer.Option("--wait/--no-wait", help="Poll to a terminal status before printing.")
+]
+
+
+def _bulk_issues(issue: list[str] | None, query: str | None) -> list[str] | str:
+    """The ``issues`` body value: the query string when given, else the collected keys."""
+    return query if query is not None else (issue or [])
+
+
+def _bulk_finish(
+    tracker: TrackerClient, config: AppConfig, bulk: BulkChange, wait: bool
+) -> BulkChange:
+    """``bulk`` — after polling it to a terminal status first when ``wait`` is set.
+
+    The wait is default-on and potentially minutes long, so it goes through the shared
+    :func:`ycli.cli.progress.wait_for` — a stderr spinner on a terminal, byte-clean
+    silence when piped.
+    """
+    if wait and bulk.id is not None:
+        bulk_id = bulk.id  # narrowed to str — the poll re-reads this operation
+        bulk = wait_for(
+            lambda: tracker.bulk.get(bulk_id),
+            lambda change: change.is_terminal,
+            message="Waiting for bulk change…",
+            max_wait_seconds=config.http.max_wait_seconds,
+        )
+    return bulk
+
+
+@app.command("update-bulk")
+def update_bulk(
+    issue: BulkIssueOpt = None,
+    query: BulkQueryOpt = None,
+    field: BulkValueOpt = None,
+    notify: BulkNotifyOpt = False,
+    wait: BulkWaitOpt = True,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> BulkChange:
+    """Mass-edit issues (POST /bulkchange/_update). Set fields with repeated -F key=value."""
+    body = BulkUpdate(
+        issues=_bulk_issues(issue, query), values=parse_fields(field), notify=notify or None
+    )
+    started = tracker.issues.update_bulk(body=body, notify=notify or None)
+    return _bulk_finish(tracker, config, started, wait)
+
+
+@app.command("move-bulk")
+def move_bulk(
+    queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. CHECK.")],
+    issue: BulkIssueOpt = None,
+    query: BulkQueryOpt = None,
+    field: BulkValueOpt = None,
+    move_all_fields: Annotated[
+        bool, typer.Option("--move-all-fields", help="Carry versions/components/projects across.")
+    ] = False,
+    initial_status: Annotated[
+        bool, typer.Option("--initial-status", help="Reset each issue's status to the initial one.")
+    ] = False,
+    notify: BulkNotifyOpt = False,
+    wait: BulkWaitOpt = True,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> BulkChange:
+    """Mass-move issues to another QUEUE (POST /bulkchange/_move)."""
+    body = BulkMove(
+        queue=queue,
+        issues=_bulk_issues(issue, query),
+        values=parse_fields(field) or None,
+        moveAllFields=move_all_fields or None,
+        initialStatus=initial_status or None,
+        notify=notify or None,
+    )
+    started = tracker.issues.move_bulk(body=body, notify=notify or None)
+    return _bulk_finish(tracker, config, started, wait)
+
+
+@app.command("transition-bulk")
+def transition_bulk(
+    transition: Annotated[
+        str, typer.Argument(metavar="TRANSITION", help="Transition id, e.g. close.")
+    ],
+    issue: BulkIssueOpt = None,
+    query: BulkQueryOpt = None,
+    field: BulkValueOpt = None,
+    notify: BulkNotifyOpt = False,
+    wait: BulkWaitOpt = True,
+    *,
+    config: AppConfig,
+    tracker: TrackerClient,
+) -> BulkChange:
+    """Mass status transition (POST /bulkchange/_transition). -F resolution=fixed for close."""
+    body = BulkTransition(
+        transition=transition,
+        issues=_bulk_issues(issue, query),
+        values=parse_fields(field) or None,
+        notify=notify or None,
+    )
+    started = tracker.issues.transition_bulk(body=body, notify=notify or None)
+    return _bulk_finish(tracker, config, started, wait)
+
+
+@app.command("import")
+def import_(
+    queue: Annotated[str, typer.Option(help="Target queue key.")],
+    summary: Annotated[str, typer.Option(help="Issue title.")],
+    created_at: ImportCreatedAtOpt,
+    created_by: ImportCreatedByOpt,
+    key: Annotated[
+        str | None, typer.Option(help="Explicit issue key (must belong to the queue).")
+    ] = None,
+    description: Annotated[str | None, typer.Option(help="Issue description (YFM).")] = None,
+    assignee: Annotated[str | None, typer.Option(help="Assignee login or id.")] = None,
+    *,
+    tracker: TrackerClient,
+) -> Issue:
+    """Import an issue preserving its history (POST /issues/_import)."""
+    body = ImportTask(
+        queue=queue,
+        summary=summary,
+        createdAt=created_at,
+        createdBy=created_by,
+        key=key,
+        description=description,
+        assignee=assignee,
+    )
+    return tracker.issues.import_(body=body)

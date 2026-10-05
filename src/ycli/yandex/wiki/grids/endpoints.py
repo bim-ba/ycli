@@ -84,11 +84,11 @@ def delete(grid_id: str) -> Endpoint[None]:
     return Endpoint("DELETE", _grid(grid_id))
 
 
-def rows_add(grid_id: str, body: RowsAdd) -> Endpoint[RowsAddResult]:
+def rows_create(grid_id: str, body: RowsAdd) -> Endpoint[RowsAddResult]:
     return Endpoint("POST", _grid(grid_id, "/rows"), RowsAddResult, json=body)
 
 
-def rows_remove(grid_id: str, body: RowsRemove) -> Endpoint[RevisionResult]:
+def rows_delete(grid_id: str, body: RowsRemove) -> Endpoint[RevisionResult]:
     return Endpoint("DELETE", _grid(grid_id, "/rows"), RevisionResult, json=body)
 
 
@@ -96,11 +96,11 @@ def rows_move(grid_id: str, body: RowsMove) -> Endpoint[RevisionResult]:
     return Endpoint("POST", _grid(grid_id, "/rows/move"), RevisionResult, json=body)
 
 
-def columns_add(grid_id: str, body: ColumnsAdd) -> Endpoint[RevisionResult]:
+def columns_create(grid_id: str, body: ColumnsAdd) -> Endpoint[RevisionResult]:
     return Endpoint("POST", _grid(grid_id, "/columns"), RevisionResult, json=body)
 
 
-def columns_remove(grid_id: str, body: ColumnsRemove) -> Endpoint[RevisionResult]:
+def columns_delete(grid_id: str, body: ColumnsRemove) -> Endpoint[RevisionResult]:
     return Endpoint("DELETE", _grid(grid_id, "/columns"), RevisionResult, json=body)
 
 

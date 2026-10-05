@@ -21,7 +21,9 @@ WRITE_TAGS: set[str] = TAGS | {WRITE_TAG}
 wiki_client = client_provider(WikiClient)
 
 Slug = Annotated[str, Field(description="Wiki page slug (its path), e.g. ``users/something/abc``.")]
-PageID = Annotated[int, Field(description="Numeric page id, from ``pages_meta`` or a page ref.")]
+PageID = Annotated[
+    int, Field(description="Numeric page id, from ``pages_get_meta`` or a page ref.")
+]
 
 __all__ = [
     "DESTRUCTIVE",

@@ -1,7 +1,7 @@
 """`tracker entities` commands — projects / portfolios / goals and their sub-resources.
 
 Core verbs live on the top-level app (``get``/``create``/``update``/``delete``/``search``/
-``events-list``/``permissions-get``/``set-permissions``/``bulk-update``); comments, checklists,
+``events-list``/``permissions-get``/``permissions-update``/``update-bulk``); comments, checklists,
 links and attachments are nested sub-apps. Commands return their results; the one binary
 download (``attachments download``) returns a ``BinaryResult``.
 """
@@ -272,8 +272,8 @@ def permissions_get(
     return tracker.entities.permissions_get(type_, entity_id)
 
 
-@app.command("set-permissions")
-def set_permissions(
+@app.command("permissions-update")
+def permissions_update(
     type_: EntityTypeArg,
     entity_id: EntityIDArg,
     field: Annotated[
@@ -294,19 +294,19 @@ def set_permissions(
     ``--acl 'grant={"READ":{"users":["8000000000000002"]}}'``.
     """
     body = PermissionsUpdate.model_validate({"acl": parse_fields(field)})
-    return tracker.entities.set_permissions(type_, entity_id, body=body)
+    return tracker.entities.permissions_update(type_, entity_id, body=body)
 
 
-@app.command("direct-permissions-get")
-def direct_permissions_get(
+@app.command("permissions-get-direct")
+def permissions_get_direct(
     type_: EntityTypeArg, entity_id: EntityIDArg, *, tracker: TrackerClient
 ) -> ACL:
     """Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permissions)."""
-    return tracker.entities.direct_permissions_get(type_, entity_id)
+    return tracker.entities.permissions_get_direct(type_, entity_id)
 
 
-@app.command("set-direct-permissions")
-def set_direct_permissions(
+@app.command("permissions-update-direct")
+def permissions_update_direct(
     type_: EntityTypeArg,
     entity_id: EntityIDArg,
     grant: Annotated[
@@ -325,11 +325,11 @@ def set_direct_permissions(
         grant=ACLInput.model_validate_json(grant) if grant is not None else None,
         revoke=ACLInput.model_validate_json(revoke) if revoke is not None else None,
     )
-    return tracker.entities.set_direct_permissions(type_, entity_id, body)
+    return tracker.entities.permissions_update_direct(type_, entity_id, body)
 
 
 @app.command()
-def bulk_update(
+def update_bulk(
     type_: EntityTypeArg,
     entity: Annotated[list[str], typer.Option("--entity", help="Entity id (repeatable).")],
     comment: Annotated[str | None, typer.Option(help="Comment to add to every entity.")] = None,
@@ -340,21 +340,21 @@ def bulk_update(
     """Mass-edit entities (POST …/bulkchange/_update) — returns the async operation handle."""
     values = BulkChangeValues(fields=parse_fields(field) or None, comment=comment)
     body = BulkChangeUpdate.model_validate({"metaEntities": entity, "values": values})
-    return tracker.entities.bulk_update(type_, body=body)
+    return tracker.entities.update_bulk(type_, body=body)
 
 
-@app.command("bulk-status-get")
-def bulk_status_get(
+@app.command("bulk-get")
+def bulk_get(
     operation_id: Annotated[str, typer.Argument(metavar="OPERATION_ID", help="Bulk-change id.")],
     *,
     tracker: TrackerClient,
 ) -> BulkChangeOperation:
     """Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID)."""
-    return tracker.entities.bulk_status_get(operation_id)
+    return tracker.entities.bulk_get(operation_id)
 
 
-@app.command("create-report")
-def create_report(
+@app.command("reports-create")
+def reports_create(
     summary: Annotated[str, typer.Option(help="Report name (required).")],
     query: Annotated[str, typer.Option(help="Issue filter in Tracker Query Language (required).")],
     format_: Annotated[
@@ -376,7 +376,7 @@ def create_report(
             ),
         )
     )
-    return tracker.entities.create_report(body=body)
+    return tracker.entities.reports_create(body=body)
 
 
 # --------------------------------------------------------------------------------------------
@@ -404,7 +404,7 @@ def comments_list(
 ) -> ItemList[Comment]:
     """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
     if all_:
-        return tracker.entities.comments_relative_list(type_, entity_id, limit=limit)
+        return tracker.entities.comments_list_relative(type_, entity_id, limit=limit)
     return tracker.entities.comments_list(type_, entity_id)
 
 

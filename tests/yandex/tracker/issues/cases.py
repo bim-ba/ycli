@@ -1,6 +1,8 @@
 """Contract cases for Tracker ``/issues`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from tests.yandex.tracker.issues.bulk_cases import BULK_CASES
+from tests.yandex.tracker.issues.import_cases import IMPORT_CASES
 from ycli.yandex.tracker.issues.models import IssueCreate, IssueSearch, IssueUpdate, ScrollClear
 
 ISSUE = {"key": "DE-7", "summary": "Fix the login page"}
@@ -384,3 +386,5 @@ CASES += [
         effect="read",
     ),
 ]
+CASES += BULK_CASES
+CASES += IMPORT_CASES

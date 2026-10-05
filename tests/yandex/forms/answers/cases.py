@@ -207,7 +207,7 @@ CASES = [
         ],
     ),
     Case(
-        "forms.answers.export_results",
+        "forms.answers.export_results_get",
         args=(SID, "op-77"),
         cli=None,
         mcp=None,

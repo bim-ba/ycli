@@ -44,11 +44,11 @@ def update(
     )
 
 
-def category_create(body: FieldCategoryCreate) -> Endpoint[FieldCategoryRecord]:
+def categories_create(body: FieldCategoryCreate) -> Endpoint[FieldCategoryRecord]:
     return Endpoint("POST", "fields/categories", FieldCategoryRecord, json=body)
 
 
-def category_update(
+def categories_update(
     category_id: str, body: FieldCategoryUpdate, *, version: int | None = None
 ) -> Endpoint[FieldCategoryRecord]:
     return Endpoint(

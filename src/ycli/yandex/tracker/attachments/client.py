@@ -55,7 +55,7 @@ class AttachmentsClient(Resource):
         """
         return self._session.send(endpoints.download(issue_key, file_id, filename))
 
-    def download_thumbnail(self, issue_key: str, file_id: str) -> bytes:
+    def thumbnails_download(self, issue_key: str, file_id: str) -> bytes:
         r"""Download a graphic attachment's preview-thumbnail bytes (a non-2xx answer raises).
 
         Only graphic files have a thumbnail; CLI/SDK-only, like :meth:`download`.
@@ -68,10 +68,10 @@ class AttachmentsClient(Resource):
             The thumbnail's raw bytes.
 
         Examples:
-            >>> tracker.attachments.download_thumbnail("JUNE-4", "4160")[:4]
+            >>> tracker.attachments.thumbnails_download("JUNE-4", "4160")[:4]
             b'\x89PNG'
         """
-        return self._session.send(endpoints.download_thumbnail(issue_key, file_id))
+        return self._session.send(endpoints.thumbnails_download(issue_key, file_id))
 
     def get(self, issue_key: str, file_id: str) -> Attachment:
         """``GET /issues/{issue_key}/attachments/{file_id}`` → the attachment's metadata.
@@ -152,4 +152,96 @@ class AttachmentsClient(Resource):
             '4170'
         """
         endpoint = endpoints.upload_temp(filename=filename, data=data, rename_to=rename_to)
+        return self._session.send(endpoint)
+
+    def import_(
+        self,
+        issue_key: str,
+        *,
+        filename: str,
+        created_at: str,
+        created_by: str,
+        data: bytes,
+    ) -> Attachment:
+        """Import a file (multipart/form-data) preserving its ``createdAt`` / ``createdBy``.
+
+        ``data`` are the raw file bytes; ``filename`` / ``created_at`` / ``created_by`` become
+        query parameters. Returns the created ``Attachment``.
+
+        Args:
+            issue_key: The issue's key.
+            filename: The attachment's file name.
+            created_at: The source creation time.
+            created_by: The source author.
+            data: The raw file bytes.
+
+        Returns:
+            The created attachment.
+
+        Examples:
+            >>> tracker.attachments.import_(
+            ...     "JUNE-5",
+            ...     filename="renamed.png",
+            ...     created_at="2022-05-06T07:08:09.000+0000",
+            ...     created_by="16",
+            ...     data=b"PNGDATA",
+            ... ).name
+            'renamed.png'
+        """
+        endpoint = endpoints.import_(
+            issue_key,
+            filename=filename,
+            created_at=created_at,
+            created_by=created_by,
+            data=data,
+        )
+        return self._session.send(endpoint)
+
+    def import_for_comment(
+        self,
+        issue_key: str,
+        comment_id: str,
+        *,
+        filename: str,
+        created_at: str,
+        created_by: str,
+        data: bytes,
+    ) -> Attachment:
+        """Import a file onto a comment, preserving its ``createdAt`` / ``createdBy``.
+
+        ``POST /issues/{issue_key}/comments/{comment_id}/attachments/_import`` (multipart);
+        ``created_at`` must fall between the comment's creation and its last update (for a
+        comment never edited, exactly its ``createdAt``), else Tracker answers 422. Returns the
+        created ``Attachment``.
+
+        Args:
+            issue_key: The issue's key.
+            comment_id: The comment's id.
+            filename: The attachment's file name.
+            created_at: The source creation time.
+            created_by: The source author.
+            data: The raw file bytes.
+
+        Returns:
+            The created attachment.
+
+        Examples:
+            >>> tracker.attachments.import_for_comment(
+            ...     "JUNE-7",
+            ...     "2238",
+            ...     filename="scan.png",
+            ...     created_at="2024-07-08T09:10:11.000+0000",
+            ...     created_by="18",
+            ...     data=b"PNGDATA",
+            ... ).name
+            'scan.png'
+        """
+        endpoint = endpoints.import_for_comment(
+            issue_key,
+            comment_id,
+            filename=filename,
+            created_at=created_at,
+            created_by=created_by,
+            data=data,
+        )
         return self._session.send(endpoint)

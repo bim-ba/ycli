@@ -255,7 +255,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.permissions_get(entity_type, entity_id))
 
-    def set_permissions(
+    def permissions_update(
         self, entity_type: str, entity_id: str, body: PermissionsUpdate
     ) -> ExtendedPermissions:
         """``PATCH …/extendedPermissions`` — set access settings. Returns the new settings.
@@ -273,7 +273,7 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import PermissionsUpdate
-            >>> tracker.entities.set_permissions(
+            >>> tracker.entities.permissions_update(
             ...     "portfolio",
             ...     "pf16",
             ...     PermissionsUpdate.model_validate(
@@ -282,9 +282,9 @@ class EntitiesClient(Resource):
             ... ).acl.read.users[0].id
             '8000000000000002'
         """
-        return self._session.send(endpoints.set_permissions(entity_type, entity_id, body))
+        return self._session.send(endpoints.permissions_update(entity_type, entity_id, body))
 
-    def direct_permissions_get(self, entity_type: str, entity_id: str) -> ACL:
+    def permissions_get_direct(self, entity_type: str, entity_id: str) -> ACL:
         """``GET …/permissions`` → the direct READ / WRITE / GRANT rights, without inheritance.
 
         :meth:`permissions_get` is the extended view (``acl`` plus where rights are inherited from).
@@ -297,12 +297,12 @@ class EntitiesClient(Resource):
             The entity's direct rights.
 
         Examples:
-            >>> tracker.entities.direct_permissions_get("project", "655f17").grant.roles
+            >>> tracker.entities.permissions_get_direct("project", "655f17").grant.roles
             ['AUTHOR', 'OWNER']
         """
-        return self._session.send(endpoints.direct_permissions_get(entity_type, entity_id))
+        return self._session.send(endpoints.permissions_get_direct(entity_type, entity_id))
 
-    def set_direct_permissions(
+    def permissions_update_direct(
         self, entity_type: str, entity_id: str, body: DirectPermissionsUpdate
     ) -> ACL:
         """``PATCH …/permissions`` — grant and revoke direct rights. Returns the resulting rights.
@@ -319,16 +319,18 @@ class EntitiesClient(Resource):
             >>> from ycli.yandex.tracker.entities.models import ACLInput, ACLPrincipalsInput
             >>> grant = ACLInput(read=ACLPrincipalsInput(users=["ann"]))
             >>> update = DirectPermissionsUpdate(grant=grant)
-            >>> tracker.entities.set_direct_permissions("goal", "g18", update).read.users[0].display
+            >>> tracker.entities.permissions_update_direct("goal", "g18", update).read.users[
+            ...     0
+            ... ].display
             'Ann'
         """
-        return self._session.send(endpoints.set_direct_permissions(entity_type, entity_id, body))
+        return self._session.send(endpoints.permissions_update_direct(entity_type, entity_id, body))
 
-    def bulk_update(self, entity_type: str, body: BulkChangeUpdate) -> BulkChangeOperation:
+    def update_bulk(self, entity_type: str, body: BulkChangeUpdate) -> BulkChangeOperation:
         """``POST …/bulkchange/_update`` — mass-edit entities (async). Returns the operation.
 
         The response is a handle whose ``status`` starts at ``CREATED``; poll
-        :meth:`bulk_status_get` with ``id`` until it reaches a terminal status.
+        :meth:`bulk_get` with ``id`` until it reaches a terminal status.
 
         Args:
             entity_type: The entity type (``project``, ``portfolio`` or ``goal``).
@@ -339,7 +341,7 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import BulkChangeUpdate
-            >>> tracker.entities.bulk_update(
+            >>> tracker.entities.update_bulk(
             ...     "project",
             ...     BulkChangeUpdate.model_validate(
             ...         {"metaEntities": ["655f17"], "values": {"comment": "Handed over"}}
@@ -347,9 +349,9 @@ class EntitiesClient(Resource):
             ... ).status
             'CREATED'
         """
-        return self._session.send(endpoints.bulk_update(entity_type, body))
+        return self._session.send(endpoints.update_bulk(entity_type, body))
 
-    def bulk_status_get(self, operation_id: str) -> BulkChangeOperation:
+    def bulk_get(self, operation_id: str) -> BulkChangeOperation:
         """``GET /bulkchange/{operation_id}`` → the current bulk-change operation status.
 
         Args:
@@ -359,12 +361,12 @@ class EntitiesClient(Resource):
             The operation with its current status.
 
         Examples:
-            >>> tracker.entities.bulk_status_get("658").status
+            >>> tracker.entities.bulk_get("658").status
             'COMPLETE'
         """
-        return self._session.send(endpoints.bulk_status_get(operation_id))
+        return self._session.send(endpoints.bulk_get(operation_id))
 
-    def create_report(self, body: ReportCreate) -> Entity:
+    def reports_create(self, body: ReportCreate) -> Entity:
         """``POST /entities/report/`` — build an issue report from a ``{fields: …}`` body.
 
         The body carries the report name plus export ``parameters`` (type/format, the issue
@@ -378,7 +380,7 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import ReportCreate
-            >>> tracker.entities.create_report(
+            >>> tracker.entities.reports_create(
             ...     ReportCreate.model_validate(
             ...         {
             ...             "fields": {
@@ -395,7 +397,7 @@ class EntitiesClient(Resource):
             ... ).entity_type
             'report'
         """
-        return self._session.send(endpoints.create_report(body))
+        return self._session.send(endpoints.reports_create(body))
 
     # ---- comments ---------------------------------------------------------------------------
 
@@ -420,7 +422,7 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.comments_list(entity_type, entity_id, expand=expand))
 
-    def comments_relative_list(
+    def comments_list_relative(
         self, entity_type: str, entity_id: str, *, limit: int | None = None
     ) -> ItemList[Comment]:
         """``GET …/comments/_relative`` → flat ``ItemList[Comment]``, draining ``from=<longId>``.
@@ -439,13 +441,13 @@ class EntitiesClient(Resource):
         Examples:
             >>> [
             ...     c.id
-            ...     for c in tracker.entities.comments_relative_list(
+            ...     for c in tracker.entities.comments_list_relative(
             ...         "portfolio", "pf22", limit=10
             ...     ).root
             ... ]
             [31, 32]
         """
-        paged = endpoints.comments_relative_list(entity_type, entity_id, per_page=_page_size(limit))
+        paged = endpoints.comments_list_relative(entity_type, entity_id, per_page=_page_size(limit))
         return ItemList[Comment](list(self._session.iterate(paged, limit=limit)))
 
     def comments_get(

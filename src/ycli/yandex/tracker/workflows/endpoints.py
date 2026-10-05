@@ -1,7 +1,7 @@
 """Tracker ``/workflows`` operations, each declared once (sans-IO).
 
 Examples:
-    >>> update_action("W21", "inProgress", "close", {"target": "closed"}, version=2).path
+    >>> actions_update("W21", "inProgress", "close", {"target": "closed"}, version=2).path
     'workflows/W21/steps/inProgress/actions/close'
     >>> delete("W21").effect
     'destructive'
@@ -28,7 +28,7 @@ def get(workflow_id: str) -> Endpoint[Workflow]:
     return Endpoint("GET", f"workflows/{segment(workflow_id)}", Workflow)
 
 
-def for_queue(queue_id: str) -> Endpoint[QueueWorkflows]:
+def list_for_queue(queue_id: str) -> Endpoint[QueueWorkflows]:
     return Endpoint("GET", f"queues/{segment(queue_id)}/workflows", QueueWorkflows)
 
 
@@ -47,7 +47,7 @@ def update(workflow_id: str, body: WorkflowUpdate, *, version: int) -> Endpoint[
     )
 
 
-def update_action(
+def actions_update(
     workflow_id: str, status: str, action_id: str, body: WorkflowActionUpdate, *, version: int
 ) -> Endpoint[Workflow]:
     """``PATCH /workflows/{id}/steps/{status}/actions/{action}?version=`` — one action only."""

@@ -88,3 +88,28 @@ class CommentUpdate(RequestBody):
     """
 
     text: str = Field(description="Corrected comment text (YFM markdown supported).")
+
+
+class ImportComment(RequestBody):
+    """Typed body for ``POST /issues/{key}/comments/_import`` — import one comment with history.
+
+    Examples:
+        >>> ImportComment(
+        ...     text="Test", created_at="2017-08-29T12:34:41.740+0000", created_by="11"
+        ... ).model_dump(exclude_none=True)  # doctest: +NORMALIZE_WHITESPACE
+        {'text': 'Test', 'createdAt': '2017-08-29T12:34:41.740+0000', 'createdBy': '11'}
+    """
+
+    text: str = Field(description="Comment text (max 512000 characters).")
+    created_at: str = Field(alias="createdAt", description="Original comment creation time.")
+    created_by: str = Field(alias="createdBy", description="Login or id of the comment author.")
+    updated_at: str | None = Field(
+        default=None,
+        alias="updatedAt",
+        description="Original last-edit time (only together with ``updated_by``).",
+    )
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="Login or id of the last editor (only together with ``updated_at``).",
+    )

@@ -1,6 +1,7 @@
 """Contract cases for Tracker issue ``/comments`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from tests.yandex.tracker.comments.import_cases import IMPORT_CASES
 from ycli.yandex.tracker.comments.models import CommentUpdate
 from ycli.yandex.tracker.models import CommentCreate
 
@@ -54,10 +55,10 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.comments.add",
+        "tracker.comments.create",
         args=("DE-14", CommentCreate.model_validate({"text": "Готово ✅"})),
-        cli=["tracker", "comments", "add", "DE-14", "--text", "Готово ✅"],
-        mcp=("tracker_comments_add", {"key": "DE-14", "body": {"text": "Готово ✅"}}),
+        cli=["tracker", "comments", "create", "DE-14", "--text", "Готово ✅"],
+        mcp=("tracker_comments_create", {"key": "DE-14", "body": {"text": "Готово ✅"}}),
         exchanges=[
             (
                 Sent("POST", "issues/DE-14/comments/", json={"text": "Готово ✅"}),
@@ -67,7 +68,7 @@ CASES = [
     ),
     # Summonees and attachments are MCP/SDK-only fields of the body.
     Case(
-        "tracker.comments.add",
+        "tracker.comments.create",
         args=(
             "DE-15",
             CommentCreate.model_validate(
@@ -81,7 +82,7 @@ CASES = [
         ),
         cli=None,
         mcp=(
-            "tracker_comments_add",
+            "tracker_comments_create",
             {
                 "key": "DE-15",
                 "body": {
@@ -131,10 +132,13 @@ CASES = [
         exchanges=[(Sent("DELETE", "issues/DE-17/comments/171"), Reply(status=204))],
     ),
     Case(
-        "tracker.comments.react",
+        "tracker.comments.reactions_create",
         args=("DE-18", "181", "HEART"),
-        cli=["tracker", "comments", "react", "DE-18", "181", "HEART"],
-        mcp=("tracker_comments_react", {"key": "DE-18", "comment_id": "181", "name": "HEART"}),
+        cli=["tracker", "comments", "reactions-create", "DE-18", "181", "HEART"],
+        mcp=(
+            "tracker_comments_reactions_create",
+            {"key": "DE-18", "comment_id": "181", "name": "HEART"},
+        ),
         exchanges=[
             (
                 Sent("POST", "issues/DE-18/comments/181/reactions/HEART"),
@@ -196,3 +200,4 @@ CASES += [
         params={"expand": "attachments"},
     ),
 ]
+CASES += IMPORT_CASES

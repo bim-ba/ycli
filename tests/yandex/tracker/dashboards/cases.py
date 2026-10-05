@@ -38,7 +38,7 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.dashboards.add_cycle_time_widget",
+        "tracker.dashboards.widgets_create_cycle_time",
         args=(
             "11",
             CycleTimeWidget.model_validate(
@@ -54,7 +54,7 @@ CASES = [
         cli=[
             "tracker",
             "dashboards",
-            "add-cycle-time-widget",
+            "widgets-create-cycle-time",
             "11",
             "--description",
             "Cycle time",
@@ -68,7 +68,7 @@ CASES = [
             "common-lines",
         ],
         mcp=(
-            "tracker_dashboards_add_cycle_time_widget",
+            "tracker_dashboards_widgets_create_cycle_time",
             {
                 "dashboard_id": "11",
                 "body": {
@@ -99,12 +99,12 @@ CASES = [
     ),
     # Only the required options: the CLI leaves every optional key out of the body.
     Case(
-        "tracker.dashboards.add_cycle_time_widget",
+        "tracker.dashboards.widgets_create_cycle_time",
         args=("12", CycleTimeWidget.model_validate({"description": "Bare widget"})),
         cli=[
             "tracker",
             "dashboards",
-            "add-cycle-time-widget",
+            "widgets-create-cycle-time",
             "12",
             "--description",
             "Bare widget",

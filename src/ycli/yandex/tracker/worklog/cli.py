@@ -11,9 +11,12 @@ from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
+    ImportCreatedAtOpt,
+    ImportCreatedByOpt,
     KeyArg,
 )
 from ycli.yandex.tracker.worklog.models import (
+    ImportWorklog,
     Worklog,
     WorklogCreate,
     WorklogSearch,
@@ -64,8 +67,8 @@ def search(
     return tracker.worklog.search(body=body)
 
 
-@app.command("global-list")
-def global_list(
+@app.command("list-global")
+def list_global(
     created_by: Annotated[
         str | None, typer.Option("--created-by", help="Author login or id.")
     ] = None,
@@ -84,7 +87,7 @@ def global_list(
         for prefix, value in (("from", created_from), ("to", created_to))
         if value
     ]
-    return tracker.worklog.global_list(created_by=created_by, created_at=created_at or None)
+    return tracker.worklog.list_global(created_by=created_by, created_at=created_at or None)
 
 
 @app.command()
@@ -128,3 +131,27 @@ def delete(key: KeyArg, record_id: RecordIDArg, *, tracker: TrackerClient) -> Ac
     """Delete worklog RECORD_ID from issue KEY."""
     tracker.worklog.delete(key, record_id)
     return Ack.deleted("worklog", record_id, on=key)
+
+
+@app.command("import")
+def import_(
+    key: KeyArg,
+    duration: Annotated[str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT1H).")],
+    created_at: ImportCreatedAtOpt,
+    created_by: ImportCreatedByOpt,
+    start: Annotated[str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")],
+    comment: Annotated[
+        str | None, typer.Option(help="Optional note saved in the time report.")
+    ] = None,
+    *,
+    tracker: TrackerClient,
+) -> ItemList[Worklog]:
+    """Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import)."""
+    body = ImportWorklog(
+        duration=duration,
+        createdAt=created_at,
+        createdBy=created_by,
+        start=start,
+        comment=comment,
+    )
+    return tracker.worklog.import_(key, body=body)

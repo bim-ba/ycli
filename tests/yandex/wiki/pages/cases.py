@@ -1,6 +1,7 @@
 """Contract cases for Wiki ``/pages`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from tests.yandex.wiki.pages.search_cases import SEARCH_CASES
 from ycli.yandex.wiki.pages.models import (
     PageAppendContent,
     PageClone,
@@ -123,7 +124,7 @@ CASES = [
         args=("team/roadmap",),
         kwargs={"fields": "attributes,owner"},
         cli=None,
-        mcp=("wiki_pages_meta", {"slug": "team/roadmap"}),
+        mcp=("wiki_pages_get_meta", {"slug": "team/roadmap"}),
         exchanges=[
             (
                 Sent("GET", "pages", {"slug": "team/roadmap", "fields": "attributes,owner"}),
@@ -188,11 +189,11 @@ CASES = [
         exchanges=[(Sent("GET", "pages/4103"), Reply(json=_page(4103, "eng/qa")))],
     ),
     Case(
-        "wiki.pages.descendants",
+        "wiki.pages.descendants_list",
         args=("eng",),
         kwargs={"limit": 40},
-        cli=["wiki", "pages", "descendants", "eng", "--limit", "40"],
-        mcp=("wiki_pages_descendants", {"slug": "eng", "limit": 40}),
+        cli=["wiki", "pages", "descendants-list", "eng", "--limit", "40"],
+        mcp=("wiki_pages_descendants_list", {"slug": "eng", "limit": 40}),
         exchanges=[
             (
                 Sent("GET", "pages/descendants", {"slug": "eng", "page_size": "100"}),
@@ -209,9 +210,9 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.descendants",
+        "wiki.pages.descendants_list",
         args=("ops",),
-        cli=["wiki", "pages", "descendants", "ops", "--all"],
+        cli=["wiki", "pages", "descendants-list", "ops", "--all"],
         mcp=None,
         exchanges=[
             (
@@ -221,7 +222,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.descendants",
+        "wiki.pages.descendants_list",
         args=("hr",),
         kwargs={"limit": 7, "actuality": "actual"},
         cli=None,
@@ -238,11 +239,11 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.descendants_by_id",
+        "wiki.pages.descendants_list_by_id",
         args=(4210,),
         kwargs={"limit": 35},
-        cli=["wiki", "pages", "descendants-by-id", "4210", "--limit", "35"],
-        mcp=("wiki_pages_descendants_by_id", {"page_id": 4210, "limit": 35}),
+        cli=["wiki", "pages", "descendants-list-by-id", "4210", "--limit", "35"],
+        mcp=("wiki_pages_descendants_list_by_id", {"page_id": 4210, "limit": 35}),
         exchanges=[
             (
                 Sent("GET", "pages/4210/descendants", {"page_size": "100"}),
@@ -255,7 +256,7 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.descendants_by_id",
+        "wiki.pages.descendants_list_by_id",
         args=(4220,),
         kwargs={"limit": 9, "actuality": "deleted"},
         cli=None,
@@ -916,13 +917,13 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.descendants",
+        "wiki.pages.descendants_list",
         args=("ops",),
         kwargs={"limit": 21, "include_self": True, "show_all": True},
         cli=[
             "wiki",
             "pages",
-            "descendants",
+            "descendants-list",
             "ops",
             "--limit",
             "21",
@@ -930,7 +931,7 @@ CASES = [
             "--show-all",
         ],
         mcp=(
-            "wiki_pages_descendants",
+            "wiki_pages_descendants_list",
             {"slug": "ops", "limit": 21, "include_self": True, "show_all": True},
         ),
         exchanges=[
@@ -945,13 +946,13 @@ CASES = [
         ],
     ),
     Case(
-        "wiki.pages.descendants_by_id",
+        "wiki.pages.descendants_list_by_id",
         args=(4240,),
         kwargs={"limit": 22, "include_self": True, "show_all": True},
         cli=[
             "wiki",
             "pages",
-            "descendants-by-id",
+            "descendants-list-by-id",
             "4240",
             "--limit",
             "22",
@@ -959,7 +960,7 @@ CASES = [
             "--show-all",
         ],
         mcp=(
-            "wiki_pages_descendants_by_id",
+            "wiki_pages_descendants_list_by_id",
             {"page_id": 4240, "limit": 22, "include_self": True, "show_all": True},
         ),
         exchanges=[
@@ -1142,3 +1143,4 @@ CASES = [
         ],
     ),
 ]
+CASES += SEARCH_CASES

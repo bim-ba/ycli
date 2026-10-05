@@ -37,7 +37,7 @@ def get(page_id: int, file_id: int) -> Endpoint[AttachedFile]:
     return Endpoint("GET", f"pages/{segment(page_id)}/attachments/{segment(file_id)}", AttachedFile)
 
 
-def preview(page_id: int, file_id: int) -> Endpoint[bytes]:
+def preview_download(page_id: int, file_id: int) -> Endpoint[bytes]:
     """``GET …/{file_id}/preview`` (undocumented): the preview image; base64 text if none."""
     path = f"pages/{segment(page_id)}/attachments/{segment(file_id)}/preview"
     return Endpoint("GET", path, bytes)

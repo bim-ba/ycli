@@ -23,7 +23,7 @@ def get(project_id: int, *, expand: str | None = None) -> Endpoint[Project]:
     return Endpoint("GET", f"projects/{segment(project_id)}", Project, params={"expand": expand})
 
 
-def queues(project_id: int, *, expand: str | None = None) -> Endpoint[ItemList[Queue]]:
+def queues_list(project_id: int, *, expand: str | None = None) -> Endpoint[ItemList[Queue]]:
     return Endpoint(
         "GET", f"projects/{segment(project_id)}/queues", ItemList[Queue], params={"expand": expand}
     )

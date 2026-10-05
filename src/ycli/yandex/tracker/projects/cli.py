@@ -41,7 +41,7 @@ def get(
 
 
 @app.command()
-def queues(
+def queues_list(
     project_id: ProjectIDArg,
     expand: Annotated[
         str | None, typer.Option(help="Extra queue blocks, e.g. all or components,versions.")
@@ -50,7 +50,7 @@ def queues(
     tracker: TrackerClient,
 ) -> ItemList[Queue]:
     """List the queues of project PROJECT_ID (GET /projects/{id}/queues)."""
-    return tracker.projects.queues(project_id, expand=expand)
+    return tracker.projects.queues_list(project_id, expand=expand)
 
 
 @app.command()

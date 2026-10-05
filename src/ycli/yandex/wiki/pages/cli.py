@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Annotated
 
 import typer
@@ -11,7 +12,7 @@ from ycli.cli.typedefs import AllOption, LimitOption, values_option
 from ycli.settings import AppConfig
 from ycli.yandex.models import ItemList, SortDirection
 from ycli.yandex.wiki.client import WikiClient
-from ycli.yandex.wiki.models import AsyncOperation, Location, OrderPosition
+from ycli.yandex.wiki.models import AsyncOperation, Location, OrderPosition, UserIdentity
 from ycli.yandex.wiki.operations.models import CloneOperationStatus, MoveOperationStatus
 from ycli.yandex.wiki.pages.models import (
     GridOrder,
@@ -27,6 +28,12 @@ from ycli.yandex.wiki.pages.models import (
     PageRef,
     PageRevision,
     PageUpdate,
+    SearchDateRange,
+    SearchDocumentType,
+    SearchFilters,
+    SearchOrder,
+    SearchPage,
+    SearchRequest,
 )
 from ycli.yandex.wiki.typedefs import PageIDArg
 
@@ -72,7 +79,7 @@ def get(
 
 
 @app.command()
-def descendants(
+def descendants_list(
     slug: SlugArg,
     limit: LimitOption = None,
     all_: AllOption = False,
@@ -84,7 +91,7 @@ def descendants(
 ) -> ItemList[PageRef]:
     """Print descendant slugs under SLUG (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.descendants(
+    return wiki.pages.descendants_list(
         slug=slug, limit=cap, include_self=include_self, show_all=show_all
     )
 
@@ -109,8 +116,8 @@ def get_by_id(
     )
 
 
-@app.command("descendants-by-id")
-def descendants_by_id(
+@app.command("descendants-list-by-id")
+def descendants_list_by_id(
     page_id: PageIDArg,
     limit: LimitOption = None,
     all_: AllOption = False,
@@ -122,7 +129,7 @@ def descendants_by_id(
 ) -> ItemList[PageRef]:
     """Print descendant slugs under a numeric PAGE_ID (auto-paginated; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return wiki.pages.descendants_by_id(
+    return wiki.pages.descendants_list_by_id(
         page_id=page_id, limit=cap, include_self=include_self, show_all=show_all
     )
 
@@ -356,3 +363,83 @@ def backlinks_list(
     return wiki.pages.backlinks_list(
         page_id=page_id, for_cluster=for_cluster, show_all=show_all, limit=cap
     )
+
+
+def _window(start: datetime | None, end: datetime | None) -> SearchDateRange | None:
+    """The window from ``--*-from`` / ``--*-to``; ``None`` when neither is given."""
+    if start is None and end is None:
+        return None
+    return SearchDateRange.model_validate({"from": start, "to": end})
+
+
+@app.command("search")
+def search(
+    text: Annotated[str, typer.Argument(metavar="QUERY", help="Text to search for.")],
+    type_: Annotated[
+        str | None, values_option(SearchDocumentType, "--type", help="Only pages or only files.")
+    ] = None,
+    cluster: Annotated[
+        str | None, typer.Option(help="Only documents under this page slug, e.g. team/handbook.")
+    ] = None,
+    author_uid: Annotated[
+        list[str] | None,
+        typer.Option("--author-uid", help="Only documents by this passport uid (repeatable)."),
+    ] = None,
+    author_cloud_uid: Annotated[
+        list[str] | None,
+        typer.Option("--author-cloud-uid", help="Only documents by this cloud uid (repeatable)."),
+    ] = None,
+    created_from: Annotated[
+        datetime | None, typer.Option("--created-from", help="Created from (with --created-to).")
+    ] = None,
+    created_to: Annotated[
+        datetime | None, typer.Option("--created-to", help="Created until (with --created-from).")
+    ] = None,
+    modified_from: Annotated[
+        datetime | None, typer.Option("--modified-from", help="Modified from (with --modified-to).")
+    ] = None,
+    modified_to: Annotated[
+        datetime | None,
+        typer.Option("--modified-to", help="Modified until (with --modified-from)."),
+    ] = None,
+    show_obsolete: Annotated[
+        bool, typer.Option("--show-obsolete", help="Also return obsolete documents.")
+    ] = False,
+    order_by: Annotated[
+        str,
+        values_option(SearchOrder, "--order-by", help="What to sort the hits by."),
+    ] = "relevancy",
+    highlight: Annotated[
+        bool, typer.Option("--highlight", help="Wrap matches in <em> tags.")
+    ] = False,
+    limit: Annotated[int, typer.Option(help="Results per page.")] = 10,
+    cursor: Annotated[
+        int, typer.Option(help="Result page to fetch, from 1 (see next_cursor).")
+    ] = 1,
+    *,
+    wiki: WikiClient,
+) -> SearchPage:
+    """Search pages and files by text (POST /search); prints one page, --cursor picks which.
+
+    The API has refused a date window with one end (400), so give both.
+    """
+    authors = [UserIdentity(uid=uid) for uid in author_uid or []] + [
+        UserIdentity(cloud_uid=cloud_uid) for cloud_uid in author_cloud_uid or []
+    ]
+    filters = SearchFilters(
+        type=type_,
+        authors=authors or None,
+        cluster=cluster,
+        created_at=_window(created_from, created_to),
+        modified_at=_window(modified_from, modified_to),
+        show_obsolete=show_obsolete,
+    )
+    request = SearchRequest(
+        query=text,
+        filters=filters if filters.model_dump(exclude_defaults=True) else None,
+        cursor=cursor,
+        limit=limit,
+        order_by=order_by,
+        highlight=highlight,
+    )
+    return wiki.pages.search(request)

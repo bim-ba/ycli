@@ -17,7 +17,7 @@ steps:
       summary: ${RUN} lifecycle edited
       "contains(tags, 'e2e')": true
   - id: comment
-    run: tracker comments add ${key} --text "comment from ${RUN}"
+    run: tracker comments create ${key} --text "comment from ${RUN}"
     expect:
       text: comment from ${RUN}
   - id: comment-is-listed

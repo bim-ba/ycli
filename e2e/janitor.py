@@ -54,7 +54,7 @@ def parse_duration(text: str) -> int:
 def find_leftovers(driver: Driver, queue: str) -> list[Leftover]:
     """Every run-named object still alive: open issues in ``queue``, root pages, surveys."""
     issues = run_json(driver, ["tracker", "issues", "list", "--queue", queue, "--all"])
-    pages = run_json(driver, ["wiki", "pages", "descendants", "", "--all"])
+    pages = run_json(driver, ["wiki", "pages", "descendants-list", "", "--all"])
     surveys = run_json(driver, ["forms", "surveys", "list", "--all"])
     return [
         *(

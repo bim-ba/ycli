@@ -20,27 +20,27 @@ from ycli.yandex.models import ItemList
 mcp = FastMCP("forms-access")
 
 
-@mcp.tool(name="access_get", annotations={**RO, "title": "Get Forms survey access"})
-def get(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> ItemList[Permission]:
+@mcp.tool(name="access_list", annotations={**RO, "title": "Get Forms survey access"})
+def list_(survey_id: SurveyID, client: FormsClient = Depends(forms_client)) -> ItemList[Permission]:
     """Who may edit (``change``) and who may fill (``submit``) a form, one entry per action.
 
     ``access`` is owner, restricted (the listed ``users``/``groups``), common (the whole
     organization) or public (anyone with the link).
     """
-    return client.access.get(survey_id)
+    return client.access.list(survey_id)
 
 
 @mcp.tool(
-    name="access_set",
+    name="access_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Set Forms survey access level"},
 )
-def set_(
+def update(
     survey_id: SurveyID,
     body: Annotated[AccessUpdate, Field(description="The action and its new access level.")],
     client: FormsClient = Depends(forms_client),
 ) -> ItemList[Permission]:
     """Set the access level of one action (change or submit); returns every permission."""
-    return client.access.set(survey_id, body)
+    return client.access.update(survey_id, body)
 
 
 @mcp.tool(

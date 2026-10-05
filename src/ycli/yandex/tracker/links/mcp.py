@@ -18,7 +18,7 @@ from ycli.yandex.tracker.dependencies import (
     app_config,
     tracker_client,
 )
-from ycli.yandex.tracker.links.models import Link, LinkCreate
+from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate
 
 mcp = FastMCP("tracker-links")
 
@@ -29,15 +29,15 @@ def list_(key: IssueKey, client: TrackerClient = Depends(tracker_client)) -> Ite
     return client.links.list(key)
 
 
-@mcp.tool(name="links_search", annotations={**RO, "title": "Search Tracker issue links"})
-def search(
+@mcp.tool(name="links_list_filtered", annotations={**RO, "title": "Search Tracker issue links"})
+def list_filtered(
     key: IssueKey,
     link_types: Annotated[
         list[str] | None,
         Field(
             description=(
                 "Keep only links with these relationships, e.g. ``relates`` or "
-                "``is subtask for`` (the phrases of ``links_add``, not linktypes ids)."
+                "``is subtask for`` (the phrases of ``links_create``, not linktypes ids)."
             )
         ),
     ] = None,
@@ -56,13 +56,15 @@ def search(
     or fields matter; it carries each link's author, dates, assignee and status.
     """
     cap = config.http.cap(limit)
-    return client.links.search(key, link_types=link_types, fields=fields, limit=cap)
+    return client.links.list_filtered(key, link_types=link_types, fields=fields, limit=cap)
 
 
-@mcp.tool(name="links_add", annotations={**WRITE, "title": "Link Tracker issues"})
-def add(key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker_client)) -> Link:
+@mcp.tool(name="links_create", annotations={**WRITE, "title": "Link Tracker issues"})
+def create(
+    key: IssueKey, body: LinkCreate, client: TrackerClient = Depends(tracker_client)
+) -> Link:
     """Link a Tracker issue to another issue; returns the created link."""
-    return client.links.add(key, body)
+    return client.links.create(key, body)
 
 
 @mcp.tool(
@@ -80,3 +82,14 @@ def delete(
     """
     client.links.delete(key, link_id)
     return Ack.deleted("link", link_id, on=key)
+
+
+@mcp.tool(name="links_import", annotations={**WRITE, "title": "Import Tracker issue link"})
+def import_(
+    issue_key: IssueKey, body: ImportLink, client: TrackerClient = Depends(tracker_client)
+) -> Link:
+    """Import an issue link preserving its original creation metadata (admin-only).
+
+    Returns the imported link.
+    """
+    return client.links.import_(issue_key, body=body)

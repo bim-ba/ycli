@@ -83,7 +83,7 @@ def _export_status(response: httpx2.Response) -> OperationResult:
     return OperationResult.model_validate_json(response.content)
 
 
-def export_results(survey_id: str, task_id: str) -> Endpoint[OperationResult]:
+def export_results_get(survey_id: str, task_id: str) -> Endpoint[OperationResult]:
     path = f"surveys/{segment(survey_id)}/answers/export-results"
     params = {"task_id": task_id}
     return Endpoint(

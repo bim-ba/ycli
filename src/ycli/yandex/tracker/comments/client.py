@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.comments import endpoints
-from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment
 
 if TYPE_CHECKING:
     from ycli.yandex.tracker.models import CommentCreate
@@ -65,7 +65,7 @@ class CommentsClient(Resource):
         """
         return self._session.send(endpoints.get(key, comment_id, expand=expand))
 
-    def add(self, key: str, body: CommentCreate) -> Comment:
+    def create(self, key: str, body: CommentCreate) -> Comment:
         """``POST /issues/{key}/comments/`` — add a comment. Returns it.
 
         Args:
@@ -77,12 +77,12 @@ class CommentsClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.models import CommentCreate
-            >>> tracker.comments.add(
+            >>> tracker.comments.create(
             ...     "DE-14", CommentCreate.model_validate({"text": "Готово ✅"})
             ... ).id
             141
         """
-        return self._session.send(endpoints.add(key, body))
+        return self._session.send(endpoints.create(key, body))
 
     def update(self, key: str, comment_id: int | str, body: CommentUpdate) -> Comment:
         """``PATCH /issues/{key}/comments/{comment_id}`` — edit a comment. Returns it.
@@ -116,7 +116,7 @@ class CommentsClient(Resource):
         """
         self._session.send(endpoints.delete(key, comment_id))
 
-    def react(self, key: str, comment_id: int | str, name: str) -> Comment:
+    def reactions_create(self, key: str, comment_id: int | str, name: str) -> Comment:
         """``POST …/comments/{comment_id}/reactions/{name}`` — add a reaction. Returns the comment.
 
         ``name`` is an uppercase reaction key (LIKE, DISLIKE, HEART, ROCKET, FIRE, …).
@@ -130,7 +130,33 @@ class CommentsClient(Resource):
             The comment the reaction was added to.
 
         Examples:
-            >>> tracker.comments.react("DE-18", "181", "HEART").id
+            >>> tracker.comments.reactions_create("DE-18", "181", "HEART").id
             181
         """
-        return self._session.send(endpoints.react(key, comment_id, name))
+        return self._session.send(endpoints.reactions_create(key, comment_id, name))
+
+    def import_(self, issue_key: str, body: ImportComment) -> Comment:
+        """``POST /issues/{issue_key}/comments/_import`` — import a comment; returns ``Comment``.
+
+        Args:
+            issue_key: The issue's key.
+            body: The comment fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The imported comment.
+
+        Examples:
+            >>> from ycli.yandex.tracker.comments.models import ImportComment
+            >>> tracker.comments.import_(
+            ...     "TEST-2",
+            ...     ImportComment.model_validate(
+            ...         {
+            ...             "text": "Old comment",
+            ...             "createdAt": "2019-02-03T04:05:06.000+0000",
+            ...             "createdBy": "13",
+            ...         }
+            ...     ),
+            ... ).text
+            'Old comment'
+        """
+        return self._session.send(endpoints.import_(issue_key, body))

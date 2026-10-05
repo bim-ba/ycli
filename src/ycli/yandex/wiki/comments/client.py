@@ -135,6 +135,7 @@ class CommentsClient(Resource):
         walk(root)
         return ItemList[Comment](thread)
 
+    # violation(naming): the thread of one comment is one object, its comments are the list
     def thread_get(
         self, page_id: int, comment_id: int, *, limit: int | None = None
     ) -> ItemList[Comment]:

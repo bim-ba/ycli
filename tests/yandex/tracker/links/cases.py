@@ -1,6 +1,7 @@
 """Contract cases for Tracker issue ``/links`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from tests.yandex.tracker.links.import_cases import IMPORT_CASES
 from ycli.yandex.tracker.links.models import LinkCreate
 
 CASES = [
@@ -17,14 +18,14 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.links.add",
+        "tracker.links.create",
         args=(
             "DE-42",
             LinkCreate.model_validate({"relationship": "is dependent by", "issue": "OPS-9"}),
         ),
-        cli=["tracker", "links", "add", "DE-42", "is dependent by", "OPS-9"],
+        cli=["tracker", "links", "create", "DE-42", "is dependent by", "OPS-9"],
         mcp=(
-            "tracker_links_add",
+            "tracker_links_create",
             {"key": "DE-42", "body": {"relationship": "is dependent by", "issue": "OPS-9"}},
         ),
         exchanges=[
@@ -46,13 +47,13 @@ CASES = [
         exchanges=[(Sent("DELETE", "issues/DE-43/links/431"), Reply(status=204))],
     ),
     Case(
-        "tracker.links.search",
+        "tracker.links.list_filtered",
         args=("DE-44",),
         kwargs={"link_types": ["relates", "subtask"], "fields": ["id", "type"]},
         cli=[
             "tracker",
             "links",
-            "search",
+            "list-filtered",
             "DE-44",
             "--type",
             "relates",
@@ -64,7 +65,7 @@ CASES = [
             "type",
         ],
         mcp=(
-            "tracker_links_search",
+            "tracker_links_list_filtered",
             {"key": "DE-44", "link_types": ["relates", "subtask"], "fields": ["id", "type"]},
         ),
         exchanges=[
@@ -96,11 +97,11 @@ CASES = [
     ),
     # No filters: an empty body, one page; --limit stops the walk, --all lifts the cap.
     Case(
-        "tracker.links.search",
+        "tracker.links.list_filtered",
         args=("DE-45",),
         kwargs={"limit": 1},
-        cli=["tracker", "links", "search", "DE-45", "--limit", "1"],
-        mcp=("tracker_links_search", {"key": "DE-45", "limit": 1}),
+        cli=["tracker", "links", "list-filtered", "DE-45", "--limit", "1"],
+        mcp=("tracker_links_list_filtered", {"key": "DE-45", "limit": 1}),
         exchanges=[
             (
                 Sent("POST", "issues/DE-45/links/_list", {"page": "1", "perPage": "50"}, {}),
@@ -137,10 +138,10 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.links.search",
+        "tracker.links.list_filtered",
         args=("DE-46",),
         kwargs={"limit": None},
-        cli=["tracker", "links", "search", "DE-46", "--all"],
+        cli=["tracker", "links", "list-filtered", "DE-46", "--all"],
         mcp=None,
         exchanges=[
             (
@@ -151,3 +152,4 @@ CASES = [
         effect="read",
     ),
 ]
+CASES += IMPORT_CASES

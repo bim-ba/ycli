@@ -294,7 +294,7 @@ CASES = [
         exchanges=[(Sent("POST", "queues/BACK/_restore"), Reply(json={"id": "8", "key": "BACK"}))],
     ),
     Case(
-        "tracker.queues.set_permissions",
+        "tracker.queues.permissions_update",
         args=(
             "PERM",
             QueuePermissionsUpdate(
@@ -307,7 +307,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "set-permissions",
+            "permissions-update",
             "PERM",
             "--create",
             '{"roles": ["author"]}',
@@ -319,7 +319,7 @@ CASES = [
             '{"roles": {"remove": ["follower"]}}',
         ],
         mcp=(
-            "tracker_queues_set_permissions",
+            "tracker_queues_permissions_update",
             {
                 "queue_id": "PERM",
                 "body": {
@@ -348,7 +348,7 @@ CASES = [
     ),
     # Only the scopes passed are sent.
     Case(
-        "tracker.queues.set_permissions",
+        "tracker.queues.permissions_update",
         args=(
             "ONE",
             QueuePermissionsUpdate(
@@ -358,7 +358,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "set-permissions",
+            "permissions-update",
             "ONE",
             "--grant",
             '{"roles": {"add": ["author"]}}',
@@ -376,10 +376,10 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.queues.tag_remove",
+        "tracker.queues.tags_delete",
         args=("TAGGED", QueueTagRemove(tag="obsolete")),
-        cli=["tracker", "queues", "tag-remove", "TAGGED", "obsolete"],
-        mcp=("tracker_queues_tag_remove", {"queue_id": "TAGGED", "body": {"tag": "obsolete"}}),
+        cli=["tracker", "queues", "tags-delete", "TAGGED", "obsolete"],
+        mcp=("tracker_queues_tags_delete", {"queue_id": "TAGGED", "body": {"tag": "obsolete"}}),
         exchanges=[
             (
                 Sent("POST", "queues/TAGGED/tags/_remove", json={"tag": "obsolete"}),
@@ -389,7 +389,7 @@ CASES = [
         effect="destructive",
     ),
     Case(
-        "tracker.queues.version_create",
+        "tracker.queues.versions_create",
         args=(
             QueueVersionCreate(
                 queue="RELQ",
@@ -402,7 +402,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "version-create",
+            "versions-create",
             "--queue",
             "RELQ",
             "--name",
@@ -415,7 +415,7 @@ CASES = [
             "2023-12-31",
         ],
         mcp=(
-            "tracker_queues_version_create",
+            "tracker_queues_versions_create",
             {
                 "body": {
                     "queue": "RELQ",
@@ -445,9 +445,9 @@ CASES = [
     ),
     # Empty optional options are left out of the body.
     Case(
-        "tracker.queues.version_create",
+        "tracker.queues.versions_create",
         args=(QueueVersionCreate(queue="BARE", name="v0.1"),),
-        cli=["tracker", "queues", "version-create", "--queue", "BARE", "--name", "v0.1"],
+        cli=["tracker", "queues", "versions-create", "--queue", "BARE", "--name", "v0.1"],
         mcp=None,
         exchanges=[
             (
@@ -457,12 +457,12 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.queues.version_get",
+        "tracker.queues.versions_get",
         args=(901,),
         kwargs={"fields": "name,dueDate,released"},
-        cli=["tracker", "queues", "version-get", "901", "--fields", "name,dueDate,released"],
+        cli=["tracker", "queues", "versions-get", "901", "--fields", "name,dueDate,released"],
         mcp=(
-            "tracker_queues_version_get",
+            "tracker_queues_versions_get",
             {"version_id": 901, "fields": "name,dueDate,released"},
         ),
         exchanges=[
@@ -486,14 +486,14 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.queues.version_get",
+        "tracker.queues.versions_get",
         args=(902,),
-        cli=["tracker", "queues", "version-get", "902"],
+        cli=["tracker", "queues", "versions-get", "902"],
         mcp=None,
         exchanges=[(Sent("GET", "versions/902"), Reply(json={"id": 902, "name": "Plain"}))],
     ),
     Case(
-        "tracker.queues.version_update",
+        "tracker.queues.versions_update",
         args=(
             903,
             QueueVersionUpdate(
@@ -507,7 +507,7 @@ CASES = [
         cli=[
             "tracker",
             "queues",
-            "version-update",
+            "versions-update",
             "903",
             "--name",
             "Release 1.1",
@@ -521,7 +521,7 @@ CASES = [
             "name,description",
         ],
         mcp=(
-            "tracker_queues_version_update",
+            "tracker_queues_versions_update",
             {
                 "version_id": 903,
                 "body": {
@@ -552,9 +552,9 @@ CASES = [
     ),
     # Only the supplied fields are sent, and no ?version= lock goes with a version edit.
     Case(
-        "tracker.queues.version_update",
+        "tracker.queues.versions_update",
         args=(904, QueueVersionUpdate(due_date="2027-01-31")),
-        cli=["tracker", "queues", "version-update", "904", "--due-date", "2027-01-31"],
+        cli=["tracker", "queues", "versions-update", "904", "--due-date", "2027-01-31"],
         mcp=None,
         exchanges=[
             (
@@ -564,10 +564,10 @@ CASES = [
         ],
     ),
     Case(
-        "tracker.queues.version_delete",
+        "tracker.queues.versions_delete",
         args=(905,),
-        cli=["tracker", "queues", "version-delete", "905"],
-        mcp=("tracker_queues_version_delete", {"version_id": 905}),
+        cli=["tracker", "queues", "versions-delete", "905"],
+        mcp=("tracker_queues_versions_delete", {"version_id": 905}),
         exchanges=[(Sent("DELETE", "versions/905"), Reply(status=204))],
     ),
     Case(

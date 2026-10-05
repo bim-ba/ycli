@@ -30,10 +30,10 @@ DeadlineOpt = Annotated[
 ]
 
 
-@app.command()
-def get(key: KeyArg, *, tracker: TrackerClient) -> ItemList[ChecklistItem]:
+@app.command("list")
+def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[ChecklistItem]:
     """List the checklist items on issue KEY."""
-    return tracker.checklists.get(key)
+    return tracker.checklists.list(key)
 
 
 @app.command()

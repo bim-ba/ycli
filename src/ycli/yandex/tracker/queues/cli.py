@@ -131,7 +131,7 @@ def restore(queue_id: QueueIDArg, *, tracker: TrackerClient) -> Queue:
 
 
 @app.command()
-def set_permissions(
+def permissions_update(
     queue_id: QueueIDArg,
     create: Annotated[
         str | None, typer.Option(help="Create-issue permission scope as a JSON object.")
@@ -159,23 +159,23 @@ def set_permissions(
         read=json.loads(read) if read is not None else None,
         grant=json.loads(grant) if grant is not None else None,
     )
-    return tracker.queues.set_permissions(queue_id, body)
+    return tracker.queues.permissions_update(queue_id, body)
 
 
-@app.command("tag-remove")
-def tag_remove(
+@app.command("tags-delete")
+def tags_delete(
     queue_id: QueueIDArg,
     tag: Annotated[str, typer.Argument(help="Name of the tag to remove.")],
     *,
     tracker: TrackerClient,
 ) -> Ack:
     """Remove TAG from QUEUE_ID (POST /queues/{queue_id}/tags/_remove; admin only)."""
-    tracker.queues.tag_remove(queue_id, QueueTagRemove(tag=tag))
+    tracker.queues.tags_delete(queue_id, QueueTagRemove(tag=tag))
     return Ack.removed("tag", tag, from_=f"queue {queue_id}")
 
 
-@app.command("version-create")
-def version_create(
+@app.command("versions-create")
+def versions_create(
     queue: Annotated[str, typer.Option(help="Key of the queue to create the version in.")],
     name: Annotated[str, typer.Option(help="Name of the new version.")],
     description: Annotated[str | None, typer.Option(help="Description of the version.")] = None,
@@ -196,19 +196,19 @@ def version_create(
         start_date=start_date,
         due_date=due_date,
     )
-    return tracker.queues.version_create(body)
+    return tracker.queues.versions_create(body)
 
 
-@app.command("version-get")
-def version_get(
+@app.command("versions-get")
+def versions_get(
     version_id: VersionIDArg, fields: QueueFieldsOpt = None, *, tracker: TrackerClient
 ) -> QueueVersionInfo:
     """Print queue version VERSION_ID (GET /versions/{id})."""
-    return tracker.queues.version_get(version_id, fields=fields)
+    return tracker.queues.versions_get(version_id, fields=fields)
 
 
-@app.command("version-update")
-def version_update(
+@app.command("versions-update")
+def versions_update(
     version_id: VersionIDArg,
     name: Annotated[str | None, typer.Option(help="New name of the version.")] = None,
     description: Annotated[str | None, typer.Option(help="New description of the version.")] = None,
@@ -229,13 +229,13 @@ def version_update(
         start_date=start_date,
         due_date=due_date,
     )
-    return tracker.queues.version_update(version_id, body, fields=fields)
+    return tracker.queues.versions_update(version_id, body, fields=fields)
 
 
-@app.command("version-delete")
-def version_delete(version_id: VersionIDArg, *, tracker: TrackerClient) -> Ack:
+@app.command("versions-delete")
+def versions_delete(version_id: VersionIDArg, *, tracker: TrackerClient) -> Ack:
     """Delete queue version VERSION_ID (DELETE /versions/{id})."""
-    tracker.queues.version_delete(version_id)
+    tracker.queues.versions_delete(version_id)
     return Ack.deleted("version", version_id)
 
 

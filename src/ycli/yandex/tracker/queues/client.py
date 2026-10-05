@@ -174,7 +174,7 @@ class QueuesClient(Resource):
         """
         return self._session.send(endpoints.restore(queue_id))
 
-    def set_permissions(self, queue_id: str, body: QueuePermissionsUpdate) -> QueuePermissions:
+    def permissions_update(self, queue_id: str, body: QueuePermissionsUpdate) -> QueuePermissions:
         """Manage queue access from a typed ``QueuePermissionsUpdate`` body.
 
         Returns the queue's effective ``QueuePermissions`` after the change.
@@ -192,12 +192,12 @@ class QueuesClient(Resource):
             ...     QueuePermissionsUpdate,
             ... )
             >>> change = QueuePermissionsUpdate(create=QueuePermissionScope(roles=["author"]))
-            >>> tracker.queues.set_permissions("PERM", change).version
+            >>> tracker.queues.permissions_update("PERM", change).version
             11
         """
-        return self._session.send(endpoints.set_permissions(queue_id, body))
+        return self._session.send(endpoints.permissions_update(queue_id, body))
 
-    def tag_remove(self, queue_id: str, body: QueueTagRemove) -> None:
+    def tags_delete(self, queue_id: str, body: QueueTagRemove) -> None:
         """Remove a tag from a queue (admin only; ``204``, empty body).
 
         Args:
@@ -206,11 +206,11 @@ class QueuesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.queues.models import QueueTagRemove
-            >>> tracker.queues.tag_remove("TAGGED", QueueTagRemove(tag="obsolete"))
+            >>> tracker.queues.tags_delete("TAGGED", QueueTagRemove(tag="obsolete"))
         """
-        self._session.send(endpoints.tag_remove(queue_id, body))
+        self._session.send(endpoints.tags_delete(queue_id, body))
 
-    def version_create(self, body: QueueVersionCreate) -> QueueVersionInfo:
+    def versions_create(self, body: QueueVersionCreate) -> QueueVersionInfo:
         """Create a queue version from a typed ``QueueVersionCreate`` body.
 
         Returns the created ``QueueVersionInfo``.
@@ -223,12 +223,12 @@ class QueuesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.queues.models import QueueVersionCreate
-            >>> tracker.queues.version_create(QueueVersionCreate(queue="RELQ", name="v2.0")).name
+            >>> tracker.queues.versions_create(QueueVersionCreate(queue="RELQ", name="v2.0")).name
             'v2.0'
         """
-        return self._session.send(endpoints.version_create(body))
+        return self._session.send(endpoints.versions_create(body))
 
-    def version_get(self, version_id: int, *, fields: str | None = None) -> QueueVersionInfo:
+    def versions_get(self, version_id: int, *, fields: str | None = None) -> QueueVersionInfo:
         """``GET /versions/{version_id}`` → one queue version.
 
         ``fields_list`` is a comma list of the fields to return (``name,dueDate,released``, …).
@@ -241,12 +241,12 @@ class QueuesClient(Resource):
             The version.
 
         Examples:
-            >>> tracker.queues.version_get(901, fields="name,dueDate,released").name
+            >>> tracker.queues.versions_get(901, fields="name,dueDate,released").name
             'Release 1.0'
         """
-        return self._session.send(endpoints.version_get(version_id, fields=fields))
+        return self._session.send(endpoints.versions_get(version_id, fields=fields))
 
-    def version_update(
+    def versions_update(
         self, version_id: int, body: QueueVersionUpdate, *, fields: str | None = None
     ) -> QueueVersionInfo:
         """``PATCH /versions/{version_id}`` → change the set fields of a version.
@@ -261,23 +261,23 @@ class QueuesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.queues.models import QueueVersionUpdate
-            >>> tracker.queues.version_update(
+            >>> tracker.queues.versions_update(
             ...     903, QueueVersionUpdate(name="Release 1.1"), fields="name,description"
             ... ).version
             2
         """
-        return self._session.send(endpoints.version_update(version_id, body, fields=fields))
+        return self._session.send(endpoints.versions_update(version_id, body, fields=fields))
 
-    def version_delete(self, version_id: int) -> None:
+    def versions_delete(self, version_id: int) -> None:
         """``DELETE /versions/{version_id}`` → 204; raises on non-2xx.
 
         Args:
             version_id: The version's id.
 
         Examples:
-            >>> tracker.queues.version_delete(905)
+            >>> tracker.queues.versions_delete(905)
         """
-        self._session.send(endpoints.version_delete(version_id))
+        self._session.send(endpoints.versions_delete(version_id))
 
     def user_permissions_get(self, queue_id: str, user_id: str) -> QueueUserAccess:
         """``GET /queues/{queue_id}/permissions/users/{user_id}`` → what a user may do in a queue.

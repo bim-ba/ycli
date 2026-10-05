@@ -14,10 +14,10 @@ mcp = FastMCP("wiki-recovery")
 
 
 @mcp.tool(
-    name="recovery_restore",
+    name="recovery_recover",
     annotations={**WRITE, "title": "Restore deleted Wiki page"},
 )
-def restore(
+def recover(
     token: Annotated[
         str, Field(description="UUID4 ``recovery_token`` returned by ``pages_delete``.")
     ],
@@ -30,4 +30,4 @@ def restore(
     came back (the page and those under it). No request body; the token in
     the path is the whole request.
     """
-    return client.recovery.restore(token)
+    return client.recovery.recover(token)

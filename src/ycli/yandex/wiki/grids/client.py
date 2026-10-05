@@ -162,7 +162,7 @@ class GridsClient(Resource):
         self._session.send(endpoints.delete(grid_id))
         return Ack.deleted("grid", grid_id)
 
-    def rows_add(self, grid_id: str, body: RowsAdd) -> RowsAddResult:
+    def rows_create(self, grid_id: str, body: RowsAdd) -> RowsAddResult:
         """``POST /grids/{id}/rows`` — insert rows. ``body`` is a ``RowsAdd`` (+ revision).
 
         Args:
@@ -176,14 +176,14 @@ class GridsClient(Resource):
             >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
             >>> rows = [{"name": "Launch", "owner": "vera"}]
             >>> from ycli.yandex.wiki.grids.models import RowsAdd
-            >>> wiki.grids.rows_add(
+            >>> wiki.grids.rows_create(
             ...     grid_id, RowsAdd.model_validate({"revision": "13", "rows": rows})
             ... ).revision
             '14'
         """
-        return self._session.send(endpoints.rows_add(grid_id, body))
+        return self._session.send(endpoints.rows_create(grid_id, body))
 
-    def rows_remove(self, grid_id: str, body: RowsRemove) -> RevisionResult:
+    def rows_delete(self, grid_id: str, body: RowsRemove) -> RevisionResult:
         """``DELETE /grids/{id}/rows`` — delete rows by id. ``body`` is a ``RowsRemove``.
 
         A rare DELETE-with-body: ``row_ids`` + ``revision`` travel in the JSON body.
@@ -198,12 +198,12 @@ class GridsClient(Resource):
         Examples:
             >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
             >>> from ycli.yandex.wiki.grids.models import RowsRemove
-            >>> wiki.grids.rows_remove(
+            >>> wiki.grids.rows_delete(
             ...     grid_id, RowsRemove.model_validate({"revision": "14", "row_ids": ["r1", "r2"]})
             ... ).revision
             '15'
         """
-        return self._session.send(endpoints.rows_remove(grid_id, body))
+        return self._session.send(endpoints.rows_delete(grid_id, body))
 
     def rows_move(self, grid_id: str, body: RowsMove) -> RevisionResult:
         """``POST /grids/{id}/rows/move`` — reorder rows. ``body`` is a ``RowsMove``.
@@ -226,7 +226,7 @@ class GridsClient(Resource):
         """
         return self._session.send(endpoints.rows_move(grid_id, body))
 
-    def columns_add(self, grid_id: str, body: ColumnsAdd) -> RevisionResult:
+    def columns_create(self, grid_id: str, body: ColumnsAdd) -> RevisionResult:
         """``POST /grids/{id}/columns`` — add columns. ``body`` is a ``ColumnsAdd``.
 
         The API requires a ``slug`` on every column (400 ``value_error.missing`` without one);
@@ -244,14 +244,14 @@ class GridsClient(Resource):
             >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
             >>> columns = [{"title": "Due Date", "type": "date", "slug": "due_date"}]
             >>> from ycli.yandex.wiki.grids.models import ColumnsAdd
-            >>> wiki.grids.columns_add(
+            >>> wiki.grids.columns_create(
             ...     grid_id, ColumnsAdd.model_validate({"revision": "16", "columns": columns})
             ... ).revision
             '17'
         """
-        return self._session.send(endpoints.columns_add(grid_id, body))
+        return self._session.send(endpoints.columns_create(grid_id, body))
 
-    def columns_remove(self, grid_id: str, body: ColumnsRemove) -> RevisionResult:
+    def columns_delete(self, grid_id: str, body: ColumnsRemove) -> RevisionResult:
         """``DELETE /grids/{id}/columns`` — delete columns by slug. ``body`` is a ``ColumnsRemove``.
 
         A rare DELETE-with-body: ``column_slugs`` + ``revision`` travel in the JSON body.
@@ -269,10 +269,10 @@ class GridsClient(Resource):
             >>> body = ColumnsRemove.model_validate(
             ...     {"revision": "17", "column_slugs": ["stage", "due_date"]}
             ... )
-            >>> wiki.grids.columns_remove(grid_id, body).revision
+            >>> wiki.grids.columns_delete(grid_id, body).revision
             '18'
         """
-        return self._session.send(endpoints.columns_remove(grid_id, body))
+        return self._session.send(endpoints.columns_delete(grid_id, body))
 
     def columns_move(self, grid_id: str, body: ColumnsMove) -> RevisionResult:
         """``POST /grids/{id}/columns/move`` — reorder columns. ``body`` is a ``ColumnsMove`` dump.
@@ -320,8 +320,8 @@ class GridsClient(Resource):
         """``POST /grids/{id}/clone`` — copy the grid onto another page (async trigger).
 
         Returns a :class:`~ycli.yandex.wiki.models.AsyncOperation`; poll its
-        ``operation.id`` via ``OperationsClient.gridclone_get`` until terminal. ``body`` is a
-        ``GridClone`` (``{target, title?, with_data}``).
+        ``operation.id`` via ``OperationsClient.clone_inline_grid_get`` until terminal. ``body``
+        is a ``GridClone`` (``{target, title?, with_data}``).
 
         Args:
             grid_id: The grid's id.

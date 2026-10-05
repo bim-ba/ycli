@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class ChecklistsClient(Resource):
     """Get, add, update and delete an issue's checklist items, or clear the whole checklist."""
 
-    def get(self, key: str) -> ItemList[ChecklistItem]:
+    def list(self, key: str) -> ItemList[ChecklistItem]:
         """``GET /issues/{key}/checklistItems`` → the issue's checklist items.
 
         Args:
@@ -36,10 +36,10 @@ class ChecklistsClient(Resource):
             The issue's checklist items.
 
         Examples:
-            >>> tracker.checklists.get("DE-31").root[0].text
+            >>> tracker.checklists.list("DE-31").root[0].text
             'Review the PR'
         """
-        return self._session.send(endpoints.get(key))
+        return self._session.send(endpoints.list_(key))
 
     def create(self, key: str, body: ChecklistItemCreate) -> Checklist:
         """``POST /issues/{key}/checklistItems`` — add an item. Returns the issue wrapper.

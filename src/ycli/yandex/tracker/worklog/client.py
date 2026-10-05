@@ -7,7 +7,13 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog import endpoints
-from ycli.yandex.tracker.worklog.models import Worklog, WorklogCreate, WorklogSearch, WorklogUpdate
+from ycli.yandex.tracker.worklog.models import (
+    ImportWorklog,
+    Worklog,
+    WorklogCreate,
+    WorklogSearch,
+    WorklogUpdate,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -68,7 +74,7 @@ class WorklogClient(Resource):
         """
         return self._session.send(endpoints.search(body))
 
-    def global_list(
+    def list_global(
         self, created_by: str | None = None, created_at: Sequence[str] | str | None = None
     ) -> ItemList[Worklog]:
         """``GET /worklog?createdBy=…&createdAt=from:…&createdAt=to:…`` → org-wide worklog.
@@ -84,12 +90,12 @@ class WorklogClient(Resource):
             The organisation's matching worklog entries.
 
         Examples:
-            >>> tracker.worklog.global_list(
+            >>> tracker.worklog.list_global(
             ...     created_by="alice", created_at=["from:2019-01-01", "to:2019-02-01"]
             ... ).root[0].duration
             'P3W'
         """
-        return self._session.send(endpoints.global_list(created_by, created_at))
+        return self._session.send(endpoints.list_global(created_by, created_at))
 
     def create(self, key: str, body: WorklogCreate) -> Worklog:
         """``POST /issues/{key}/worklog`` — log time spent. Returns the created entry.
@@ -142,3 +148,33 @@ class WorklogClient(Resource):
             >>> tracker.worklog.delete("DE-68", "681")
         """
         self._session.send(endpoints.delete(key, record_id))
+
+    def import_(self, issue_key: str, body: ImportWorklog) -> ItemList[Worklog]:
+        """``POST /issues/{issue_key}/worklogs/_import`` — import a worklog (note plural path).
+
+        Returns a ``ItemList[Worklog]`` — the live endpoint answers with a JSON **array** of the
+        created worklog record(s), not a single object.
+
+        Args:
+            issue_key: The issue's key.
+            body: The worklog fields, including the source ``createdAt`` and ``createdBy``.
+
+        Returns:
+            The created worklog record(s).
+
+        Examples:
+            >>> from ycli.yandex.tracker.worklog.models import ImportWorklog
+            >>> tracker.worklog.import_(
+            ...     "TEST-5",
+            ...     ImportWorklog.model_validate(
+            ...         {
+            ...             "duration": "PT2H",
+            ...             "createdAt": "2021-04-05T06:07:08.000+0000",
+            ...             "createdBy": "15",
+            ...             "start": "2021-04-05T09:00:00.000+0000",
+            ...         }
+            ...     ),
+            ... ).root[0].duration
+            'PT2H'
+        """
+        return self._session.send(endpoints.import_(issue_key, body))

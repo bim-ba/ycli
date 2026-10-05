@@ -1,14 +1,14 @@
 === "CLI"
 
     ```bash
-    ycli tracker comments add DE-14 --text 'Готово ✅'
+    ycli tracker comments create DE-14 --text 'Готово ✅'
     ```
 
 === "MCP"
 
     ```json
     {
-      "name": "tracker_comments_add",
+      "name": "tracker_comments_create",
       "arguments": {
         "key": "DE-14",
         "body": {
@@ -21,5 +21,5 @@
 === "SDK"
 
     ```python
-    tracker.comments.add("DE-14", CommentCreate(text="Готово ✅"))
+    tracker.comments.create("DE-14", CommentCreate(text="Готово ✅"))
     ```

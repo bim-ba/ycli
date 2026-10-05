@@ -1,7 +1,7 @@
 """Tracker issue ``/attachments`` operations, each declared once (sans-IO).
 
 Examples:
-    >>> download_thumbnail("JUNE-2", "4159").path
+    >>> thumbnails_download("JUNE-2", "4159").path
     'issues/JUNE-2/thumbnails/4159'
     >>> upload_temp(filename="a.txt", data=b"", rename_to="b.txt").params
     {'filename': 'b.txt'}
@@ -23,7 +23,7 @@ def download(issue_key: str, file_id: str, filename: str) -> Endpoint[bytes]:
     return Endpoint("GET", path, bytes)
 
 
-def download_thumbnail(issue_key: str, file_id: str) -> Endpoint[bytes]:
+def thumbnails_download(issue_key: str, file_id: str) -> Endpoint[bytes]:
     return Endpoint("GET", f"issues/{segment(issue_key)}/thumbnails/{segment(file_id)}", bytes)
 
 
@@ -58,4 +58,30 @@ def upload_temp(*, filename: str, data: bytes, rename_to: str | None) -> Endpoin
         Attachment,
         params={"filename": rename_to},
         files={"file": (filename, data)},
+    )
+
+
+def import_(
+    issue_key: str, *, filename: str, created_at: str, created_by: str, data: bytes
+) -> Endpoint[Attachment]:
+    """Multipart upload; the API docs name no part, so it keeps the name ycli always sent."""
+    return Endpoint(
+        "POST",
+        f"issues/{segment(issue_key)}/attachments/_import",
+        Attachment,
+        params={"filename": filename, "createdAt": created_at, "createdBy": created_by},
+        files={"file_data": ("file_data", data)},
+    )
+
+
+def import_for_comment(
+    issue_key: str, comment_id: str, *, filename: str, created_at: str, created_by: str, data: bytes
+) -> Endpoint[Attachment]:
+    """Multipart upload onto a comment; the part name is the one :func:`import_` sends."""
+    return Endpoint(
+        "POST",
+        f"issues/{segment(issue_key)}/comments/{segment(comment_id)}/attachments/_import",
+        Attachment,
+        params={"filename": filename, "createdAt": created_at, "createdBy": created_by},
+        files={"file_data": ("file_data", data)},
     )

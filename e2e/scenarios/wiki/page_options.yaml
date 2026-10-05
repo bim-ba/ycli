@@ -16,12 +16,12 @@ steps:
     expect:
       slug: ${RUN}/child
   - id: with-self
-    run: wiki pages descendants ${RUN} --include-self --show-all --all
+    run: wiki pages descendants-list ${RUN} --include-self --show-all --all
     expect:
       "length(@)": 2
       "contains([].slug, '${RUN}')": true
   - id: with-self-by-id
-    run: wiki pages descendants-by-id ${id} --include-self --all
+    run: wiki pages descendants-list-by-id ${id} --include-self --all
     expect:
       "length(@)": 2
   - id: update
@@ -76,13 +76,13 @@ steps:
     save:
       token: recovery_token
   - id: restore
-    run: wiki recovery restore ${token}
+    run: wiki recovery recover ${token}
     expect:
       slug: ${RUN}
       pages_count: 2
   - id: delete-again
     run: wiki pages delete ${id} --recursive
   - id: gone
-    run: wiki pages descendants "" --all
+    run: wiki pages descendants-list "" --all
     expect:
       "length([?starts_with(slug, '${RUN}')])": 0

@@ -14,7 +14,7 @@ steps:
     expect:
       summary: ${RUN} options
   - id: comment
-    run: tracker comments add ${key} --text "comment from ${RUN}"
+    run: tracker comments create ${key} --text "comment from ${RUN}"
   - id: comments
     run: tracker comments list ${key} --expand attachments
     expect:

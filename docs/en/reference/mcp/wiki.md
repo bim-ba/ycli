@@ -27,7 +27,7 @@ The page's markdown body for SLUG.
 | `revision_id` | integer or null |  | Show this past revision (an id from ``pages_revisions_list``). |
 | `raise_on_redirect` | boolean |  | Fail if the page is a redirect instead of following it. |
 
-## `wiki_pages_meta`
+## `wiki_pages_get_meta`
 
 *Get Wiki page metadata* · read-only
 
@@ -37,7 +37,7 @@ Page metadata for SLUG (attributes + owner).
 |---|---|:---:|---|
 | `slug` | string | yes | Wiki page slug (its path), e.g. ``users/something/abc``. |
 
-## `wiki_pages_descendants`
+## `wiki_pages_descendants_list`
 
 *List Wiki page descendants* · read-only
 
@@ -60,7 +60,7 @@ Dynamic tables (grids) attached to a page id, auto-paginated (drains ``next_curs
 
 Each grid ref is a UUID ``id`` + ``title`` + ``created_at``. Capped at the configured item cap
 unless ``limit`` is given. Reads a page's numeric id — pair with
-``pages_meta`` / ``pages_descendants`` (whose refs carry the ids) to find one.
+``pages_get_meta`` / ``pages_descendants_list`` (whose refs carry the ids) to find one.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -73,7 +73,7 @@ unless ``limit`` is given. Reads a page's numeric id — pair with
 
 *Get Wiki page by id* · read-only
 
-A single page by its numeric id — the id-based twin of ``pages_get``/``pages_meta``.
+A single page by its numeric id — the id-based twin of ``pages_get``/``pages_get_meta``.
 
 Use it when you hold a numeric page id (e.g. from a descendants listing or a write's
 response) instead of the slug. ``fields`` follows the standard Wiki selector rules:
@@ -87,13 +87,13 @@ without it the response carries id/slug/title only; ask for ``content`` or
 | `revision_id` | integer or null |  | Show this past revision (an id from ``pages_revisions_list``). |
 | `raise_on_redirect` | boolean |  | Fail if the page is a redirect instead of following it. |
 
-## `wiki_pages_descendants_by_id`
+## `wiki_pages_descendants_list_by_id`
 
 *List Wiki page descendants by id* · read-only
 
 All descendant page refs under a numeric page id, auto-paginated.
 
-The id-based twin of ``pages_descendants``. Capped at the configured item cap
+The id-based twin of ``pages_descendants_list``. Capped at the configured item cap
 unless ``limit`` is given; each ref carries the child's numeric ``id`` and permanent
 ``slug``.
 
@@ -148,7 +148,7 @@ handles that quirk. Repeating the same call yields the same page state (idempote
 Delete a wiki page by numeric id (``DELETE /pages/{id}``).
 
 KEEP the returned ``recovery_token`` — it is the only handle to undo the delete
-(redeem it with ``recovery_restore``). Deleting removes the page's descendants'
+(redeem it with ``recovery_recover``). Deleting removes the page's descendants'
 anchor too, so double-check the id (``pages_get_by_id``) before calling.
 
 | Parameter | Type | Required | Description |
@@ -238,6 +238,26 @@ may change it.
 | `show_all` | boolean |  | The API's ``show_all`` flag (undocumented; no effect seen live). |
 | `limit` | integer or null |  | Max refs (omitted: the configured cap). |
 
+## `wiki_pages_search`
+
+*Search Wiki* · read-only
+
+Full-text search over wiki pages and files; returns one page of hits.
+
+Each hit has the page ``slug`` (read it with ``pages_get``), ``title``, a ``content``
+snippet, the ``type`` and ``modified_at``. For the next page pass ``next_cursor`` back as
+``cursor``; stop at the first page without hits, because ``next_cursor`` stays set after an
+empty page. A new page can take seconds to appear in the index.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `text` | string | yes | Text to search for. |
+| `filters` | object or null |  | Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and ``show_obsolete``. |
+| `order_by` | `relevancy` · `creation_date` · `modified_date` or string |  | How to sort the hits. |
+| `highlight` | boolean |  | Wrap the matches in ``<em>`` tags in title and content. |
+| `limit` | integer |  | Hits per page. |
+| `cursor` | integer |  | Number of the result page to fetch, from 1. |
+
 ## `wiki_access_create`
 
 *Grant Wiki page access* · write
@@ -303,11 +323,11 @@ entries are not kept.
 Comments on a page id, auto-paginated (drains the ``next_cursor`` internally).
 
 Capped at the configured item cap unless ``limit`` is given. Pair with
-``pages_meta`` (its ``attributes.comments_count`` tells you how many exist).
+``pages_get_meta`` (its ``attributes.comments_count`` tells you how many exist).
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
+| `page_id` | integer | yes | Numeric page id, from ``pages_get_meta`` or a page ref. |
 | `limit` | integer or null |  | Max comments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `order_by` | string or null |  | Sort field: ``created_at``. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
@@ -387,7 +407,7 @@ downloading an attachment's bytes is CLI/SDK-only (binary blobs are not an MCP p
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `page_id` | integer | yes | Numeric page id, from ``pages_meta`` or a page ref. |
+| `page_id` | integer | yes | Numeric page id, from ``pages_get_meta`` or a page ref. |
 | `limit` | integer or null |  | Max attachments to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `order_by` | `name` · `size` · `created_at` or string or null |  | Sort field. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
@@ -474,7 +494,7 @@ unless ``limit`` is given; narrow with ``q`` (title) or ``types`` (``attachment,
 | `order_by` | `name_title` · `created_at` or string or null |  | Sort field. |
 | `order_direction` | `asc` · `desc` or string or null |  | Sort direction for ``order_by``. |
 
-## `wiki_recovery_restore`
+## `wiki_recovery_recover`
 
 *Restore deleted Wiki page* · write
 
@@ -488,26 +508,6 @@ the path is the whole request.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `token` | string | yes | UUID4 ``recovery_token`` returned by ``pages_delete``. |
-
-## `wiki_search_query`
-
-*Search Wiki* · read-only
-
-Full-text search over wiki pages and files; returns one page of hits.
-
-Each hit has the page ``slug`` (read it with ``pages_get``), ``title``, a ``content``
-snippet, the ``type`` and ``modified_at``. For the next page pass ``next_cursor`` back as
-``cursor``; stop at the first page without hits, because ``next_cursor`` stays set after an
-empty page. A new page can take seconds to appear in the index.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `text` | string | yes | Text to search for. |
-| `filters` | object or null |  | Narrow the search by ``type``, ``authors``, ``cluster`` (a page slug), ``created_at`` / ``modified_at`` (a window with both ``from`` and ``to``) and ``show_obsolete``. |
-| `order_by` | `relevancy` · `creation_date` · `modified_date` or string |  | How to sort the hits. |
-| `highlight` | boolean |  | Wrap the matches in ``<em>`` tags in title and content. |
-| `limit` | integer |  | Hits per page. |
-| `cursor` | integer |  | Number of the result page to fetch, from 1. |
 
 ## `wiki_grids_get`
 
@@ -535,8 +535,8 @@ grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. 
 
 Create an empty dynamic table (grid) as a resource of a page.
 
-A new grid has no rows or columns — add them afterwards with ``grids_columns_add`` and
-``grids_rows_add``. Returns the created grid; every subsequent write sends its
+A new grid has no rows or columns — add them afterwards with ``grids_columns_create`` and
+``grids_rows_create``. Returns the created grid; every subsequent write sends its
 ``revision`` back.
 
 | Parameter | Type | Required | Description |
@@ -570,7 +570,7 @@ result is a typed acknowledgement.
 |---|---|:---:|---|
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 
-## `wiki_grids_rows_add`
+## `wiki_grids_rows_create`
 
 *Add Wiki grid rows* · write
 
@@ -584,7 +584,7 @@ the grid's new ``revision``.
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``rows`` (each maps column slug → cell value) + ``revision``; optional ``position`` / ``after_row_id`` placement. |
 
-## `wiki_grids_rows_remove`
+## `wiki_grids_rows_delete`
 
 *Remove Wiki grid rows* · destructive write
 
@@ -611,7 +611,7 @@ Returns the grid's new ``revision``.
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``row_id`` (first row to move) + destination (``position`` or ``after_row_id``) + optional ``rows_count`` + the current ``revision``. |
 
-## `wiki_grids_columns_add`
+## `wiki_grids_columns_create`
 
 *Add Wiki grid columns* · write
 
@@ -626,7 +626,7 @@ Each column needs a ``title`` and a ``type`` (``string``, ``number``, ``select``
 | `grid_id` | string | yes | The grid's permanent UUID4 id. |
 | `body` | object | yes | ``columns`` (each needs ``title`` + ``type``) + the current ``revision``; optional ``position``. |
 
-## `wiki_grids_columns_remove`
+## `wiki_grids_columns_delete`
 
 *Remove Wiki grid columns* · destructive write
 
@@ -674,7 +674,7 @@ plus the grid's new ``revision``.
 Copy a grid onto another page (``POST /grids/{id}/clone`` — asynchronous).
 
 ``body.with_data=true`` copies the rows as well as the structure. Returns a deferred
-operation reference — poll ``operations_gridclone_get`` with the returned
+operation reference — poll ``operations_clone_inline_grid_get`` with the returned
 ``operation.id`` until it reaches a terminal status.
 
 | Parameter | Type | Required | Description |
@@ -738,13 +738,13 @@ Status of an async page-clone operation — poll it until it finishes.
 
 ``pages clone`` (a CLI/SDK write) returns an ``operation.id``; pass it here and re-read until
 ``status`` is ``success`` or ``failed``. On ``success`` the ``result.page`` names the clone.
-The sibling ``operations_gridclone_get`` polls inline-grid clones instead.
+The sibling ``operations_clone_inline_grid_get`` polls inline-grid clones instead.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `task_id` | string | yes | Task id from a page-clone trigger (operation.id). |
 
-## `wiki_operations_gridclone_get`
+## `wiki_operations_clone_inline_grid_get`
 
 *Get Wiki grid-clone status* · read-only
 

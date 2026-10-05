@@ -10,8 +10,10 @@ from ycli.cli.typedefs import AllOption, LimitOption, values_argument
 from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.links.models import Link, LinkCreate, Relationship
+from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate, Relationship
 from ycli.yandex.tracker.typedefs import (
+    ImportCreatedAtOpt,
+    ImportCreatedByOpt,
     KeyArg,
 )
 
@@ -25,7 +27,7 @@ def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[Link]:
 
 
 @app.command()
-def search(
+def list_filtered(
     key: KeyArg,
     link_type: Annotated[
         list[str] | None,
@@ -46,11 +48,11 @@ def search(
 ) -> ItemList[Link]:
     """List links of issue KEY, filtered and paged (POST …/links/_list; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.links.search(key, link_types=link_type, fields=field, limit=cap)
+    return tracker.links.list_filtered(key, link_types=link_type, fields=field, limit=cap)
 
 
 @app.command()
-def add(
+def create(
     key: KeyArg,
     relationship: Annotated[str, values_argument(Relationship, help="Relationship verb.")],
     target: Annotated[str, typer.Argument(help="Target issue key, e.g. DATAENGINEERING-2.")],
@@ -59,7 +61,7 @@ def add(
 ) -> Link:
     """Link issue KEY to TARGET with RELATIONSHIP."""
     body = LinkCreate(relationship=relationship, issue=target)
-    return tracker.links.add(key, body=body)
+    return tracker.links.create(key, body=body)
 
 
 @app.command()
@@ -72,3 +74,20 @@ def delete(
     """Delete link LINK_ID from issue KEY."""
     tracker.links.delete(key, link_id)
     return Ack.deleted("link", link_id, on=key)
+
+
+@app.command("import")
+def import_(
+    key: KeyArg,
+    relationship: Annotated[str, typer.Option(help="Link type, e.g. relates.")],
+    issue: Annotated[str, typer.Option(help="Key or id of the issue to link to.")],
+    created_at: ImportCreatedAtOpt,
+    created_by: ImportCreatedByOpt,
+    *,
+    tracker: TrackerClient,
+) -> Link:
+    """Import a link on issue KEY (POST /issues/{key}/links/_import)."""
+    body = ImportLink(
+        relationship=relationship, issue=issue, createdAt=created_at, createdBy=created_by
+    )
+    return tracker.links.import_(key, body=body)

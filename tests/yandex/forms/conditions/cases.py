@@ -111,10 +111,10 @@ def _family(
             exchanges=[(Sent("DELETE", f"{path}/{base + 6}"), Reply())],
         ),
         Case(
-            f"forms.conditions.{family}_set_operator",
+            f"forms.conditions.{family}_update_operator",
             args=(SID, *owner_sdk, "and"),
-            cli=[*cli, "set-operator", SID, *owner_cli, "--operator", "and"],
-            mcp=(f"{tool}set_operator", {"survey_id": SID, **owner_mcp, "operator": "and"}),
+            cli=[*cli, "update-operator", SID, *owner_cli, "--operator", "and"],
+            mcp=(f"{tool}update_operator", {"survey_id": SID, **owner_mcp, "operator": "and"}),
             exchanges=[
                 (Sent("PATCH", path, json={"operator": "and"}), Reply(json=_envelope(base + 7)))
             ],

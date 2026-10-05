@@ -48,10 +48,10 @@ def get(
 
 
 @mcp.tool(
-    name="projects_queues",
+    name="projects_queues_list",
     annotations={**RO, "title": "List queues of a Tracker project"},
 )
-def queues(
+def queues_list(
     project_id: ProjectID,
     expand: Annotated[
         str | None,
@@ -60,7 +60,7 @@ def queues(
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Queue]:
     """The queues whose issues belong to a project."""
-    return client.projects.queues(project_id, expand=expand)
+    return client.projects.queues_list(project_id, expand=expand)
 
 
 @mcp.tool(

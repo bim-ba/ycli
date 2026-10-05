@@ -22,7 +22,7 @@ from ycli.yandex.tracker.checklists.models import (
 )
 
 
-def get(key: str) -> Endpoint[ItemList[ChecklistItem]]:
+def list_(key: str) -> Endpoint[ItemList[ChecklistItem]]:
     return Endpoint("GET", f"issues/{segment(key)}/checklistItems", ItemList[ChecklistItem])
 
 

@@ -152,6 +152,58 @@ Release the server resources of a scrolled issue search (harmless housekeeping).
 |---|---|:---:|---|
 | `body` | object | yes | A bare ``{scrollId: scrollToken}`` mapping — body for ``POST …/scroll/_clear``. Each entry releases the server resources of one scrolled ``issues.search`` response. |
 
+## `tracker_issues_update_bulk`
+
+*Bulk-update Tracker issues* · write
+
+Start an async bulk field update over many Tracker issues; returns the operation.
+
+Poll the returned operation id with ``bulk_get`` and inspect failures with
+``bulk_issues_list``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object | yes | Typed request body for ``POST /bulkchange/_update`` (mass-edit issues). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+
+## `tracker_issues_move_bulk`
+
+*Bulk-move Tracker issues* · write
+
+Start an async bulk move of many Tracker issues to another queue; returns the operation.
+
+Poll with ``bulk_get``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object | yes | Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+
+## `tracker_issues_transition_bulk`
+
+*Bulk-transition Tracker issues* · write
+
+Start an async bulk status transition over many Tracker issues; returns the operation.
+
+Poll with ``bulk_get``.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object | yes | Typed request body for ``POST /bulkchange/_transition`` (mass status transition). |
+| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
+
+## `tracker_issues_import`
+
+*Import Tracker issue* · write
+
+Import an issue preserving its original history (admin-only back-fill).
+
+Returns the imported issue.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `body` | object | yes | Typed body for ``POST /issues/_import`` — import one issue, preserving its history. |
+
 ## `tracker_comments_list`
 
 *List Tracker issue comments* · read-only
@@ -179,7 +231,7 @@ One comment of a Tracker issue: text, author, edit history and, on request, atta
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `expand` | string or null |  | Extra fields: ``attachments``, ``html`` or ``all`` (comma-separated). |
 
-## `tracker_comments_add`
+## `tracker_comments_create`
 
 *Add Tracker issue comment* · write
 
@@ -217,7 +269,7 @@ Get ``comment_id`` from ``comments_list``. Returns an acknowledgement on success
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 
-## `tracker_comments_react`
+## `tracker_comments_reactions_create`
 
 *React to Tracker issue comment* · write
 
@@ -232,6 +284,19 @@ with its updated reactions.
 | `comment_id` | string | yes | Comment id (numeric ``id`` or ``longId``), from ``comments_list``. |
 | `name` | string | yes | Reaction name, e.g. ``like``, ``dislike`` or ``fire``. |
 
+## `tracker_comments_import`
+
+*Import Tracker issue comment* · write
+
+Import a comment onto an issue preserving its original author and timestamp (admin-only).
+
+Returns the imported comment.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `body` | object | yes | Typed body for ``POST /issues/{key}/comments/_import`` — import one comment with history. |
+
 ## `tracker_links_list`
 
 *List Tracker issue links* · read-only
@@ -242,7 +307,7 @@ All links on a Tracker issue (linked issues, type, direction).
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 
-## `tracker_links_search`
+## `tracker_links_list_filtered`
 
 *Search Tracker issue links* · read-only
 
@@ -254,11 +319,11 @@ or fields matter; it carries each link's author, dates, assignee and status.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `link_types` | array of string or null |  | Keep only links with these relationships, e.g. ``relates`` or ``is subtask for`` (the phrases of ``links_add``, not linktypes ids). |
+| `link_types` | array of string or null |  | Keep only links with these relationships, e.g. ``relates`` or ``is subtask for`` (the phrases of ``links_create``, not linktypes ids). |
 | `fields` | array of string or null |  | Fields to include in each link; all when omitted. |
 | `limit` | integer or null |  | Max links to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 
-## `tracker_links_add`
+## `tracker_links_create`
 
 *Link Tracker issues* · write
 
@@ -281,6 +346,19 @@ Get ``link_id`` from ``links_list``. Returns an acknowledgement on success.
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_id` | string | yes | Link id, from ``links_list``. |
+
+## `tracker_links_import`
+
+*Import Tracker issue link* · write
+
+Import an issue link preserving its original creation metadata (admin-only).
+
+Returns the imported link.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `body` | object | yes | Typed body for ``POST /issues/{key}/links/_import`` — import one issue link with history. |
 
 ## `tracker_transitions_list`
 
@@ -341,7 +419,7 @@ all are optional.
 | `created_from` | string or null |  | Start of the creation-time range (``YYYY-MM-DDThh:mm:ss``). |
 | `created_to` | string or null |  | End of the creation-time range (``YYYY-MM-DDThh:mm:ss``). |
 
-## `tracker_worklog_global_list`
+## `tracker_worklog_list_global`
 
 *List Tracker org-wide worklog* · read-only
 
@@ -393,6 +471,19 @@ Get ``record_id`` from ``worklog_list``. Returns an acknowledgement on success.
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `record_id` | string | yes | Worklog record id, from ``worklog_list``. |
 
+## `tracker_worklog_import`
+
+*Import Tracker worklog record* · write
+
+Import a worklog record preserving its original author and timestamps (admin-only).
+
+Returns the imported record(s) — the endpoint answers with a JSON array.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `body` | object | yes | Typed body for ``POST /issues/{key}/worklogs/_import`` — import one worklog with history. |
+
 ## `tracker_changelog_list`
 
 *List Tracker issue changelog* · read-only
@@ -410,7 +501,7 @@ is given.
 | `change_type` | string or null |  | Keep the changes of this type, e.g. ``IssueWorkflow``. |
 | `sort` | `asc` · `desc` or string or null |  | Order of the changes. |
 
-## `tracker_checklists_get`
+## `tracker_checklists_list`
 
 *Get Tracker issue checklist* · read-only
 
@@ -442,12 +533,12 @@ Returns the issue with its full checklist.
 
 Edit one checklist item on a Tracker issue (text, checked state, assignee, deadline).
 
-Get ``item_id`` from ``checklists_get``. Returns the issue with its updated checklist.
+Get ``item_id`` from ``checklists_list``. Returns the issue with its updated checklist.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `item_id` | string | yes | Checklist item id, from ``checklists_get``. |
+| `item_id` | string | yes | Checklist item id, from ``checklists_list``. |
 | `body` | object | yes | Typed request body for ``PATCH /issues/{key}/checklistItems/{item_id}`` (edit an item). |
 
 ## `tracker_checklists_delete`
@@ -456,12 +547,12 @@ Get ``item_id`` from ``checklists_get``. Returns the issue with its updated chec
 
 Permanently remove one item from a Tracker issue's checklist (irreversible).
 
-Get ``item_id`` from ``checklists_get``. Returns the issue with its remaining checklist.
+Get ``item_id`` from ``checklists_list``. Returns the issue with its remaining checklist.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `item_id` | string | yes | Checklist item id, from ``checklists_get``. |
+| `item_id` | string | yes | Checklist item id, from ``checklists_list``. |
 
 ## `tracker_checklists_clear`
 
@@ -765,7 +856,7 @@ enumerates every queue; pass one of its ``key`` values here.
 Every tag name that has been added to the queue, as a flat string array.
 
 These are the tags selectable on the queue's issues (the ``tags`` field). Remove one
-everywhere with ``queues_tag_remove``.
+everywhere with ``queues_tags_delete``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -778,7 +869,7 @@ everywhere with ``queues_tag_remove``.
 The queue's versions — release milestones issues can be assigned to.
 
 Each item carries the version's name, date range and released/archived flags. Create one
-with ``queues_version_create``.
+with ``queues_versions_create``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -836,7 +927,7 @@ Returns the restored queue.
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
 
-## `tracker_queues_set_permissions`
+## `tracker_queues_permissions_update`
 
 *Set Tracker queue permissions* · idempotent write
 
@@ -848,9 +939,9 @@ unchanged. Returns the resulting permission set.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
-| `body` | object | yes | Typed request body for ``queues.set_permissions`` (``PATCH /queues/{id}/permissions``). Set at least one category. Each names the users/groups/roles the permission applies to. |
+| `body` | object | yes | Typed request body for ``queues.permissions_update`` (``PATCH /queues/{id}/permissions``). Set at least one category. Each names the users/groups/roles the permission applies to. |
 
-## `tracker_queues_tag_remove`
+## `tracker_queues_tags_delete`
 
 *Remove Tracker queue tag* · destructive write
 
@@ -862,9 +953,9 @@ acknowledgement on success.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `queue_id` | string | yes | Queue key (case-sensitive, e.g. TEST) or numeric queue id. |
-| `body` | object | yes | Typed request body for ``queues.tag_remove`` (``POST /queues/{id}/tags/_remove``). |
+| `body` | object | yes | Typed request body for ``queues.tags_delete`` (``POST /queues/{id}/tags/_remove``). |
 
-## `tracker_queues_version_create`
+## `tracker_queues_versions_create`
 
 *Create Tracker queue version* · write
 
@@ -875,9 +966,9 @@ Required: ``queue`` (the queue key) and ``name``; optional ``description``,
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``queues.version_create`` (``POST /versions/``). |
+| `body` | object | yes | Typed request body for ``queues.versions_create`` (``POST /versions/``). |
 
-## `tracker_queues_version_get`
+## `tracker_queues_versions_get`
 
 *Get Tracker queue version* · read-only
 
@@ -888,7 +979,7 @@ One queue version: name, description, dates and its released/archived flags.
 | `version_id` | integer | yes | Numeric id of the version, from ``queues_versions_list``. |
 | `fields` | string or null |  | Comma-separated fields to return, e.g. ``name,dueDate,released``. |
 
-## `tracker_queues_version_update`
+## `tracker_queues_versions_update`
 
 *Edit Tracker queue version* · idempotent write
 
@@ -900,7 +991,7 @@ Edit a queue version; only the fields set in ``body`` change. Returns the versio
 | `body` | object | yes | Typed request body for ``queues.version_edit`` (``PATCH /versions/{id}``). Only the fields that are set are sent, so omitted fields stay unchanged. |
 | `fields` | string or null |  | Comma-separated fields to return in the reply. |
 
-## `tracker_queues_version_delete`
+## `tracker_queues_versions_delete`
 
 *Delete Tracker queue version* · destructive write
 
@@ -917,7 +1008,7 @@ Permanently delete a queue version (irreversible). Returns an acknowledgement.
 What one user may do in a queue (create, read, write, grant, deny) and why.
 
 Each right lists who grants it: the user personally, a group or a role. To change rights
-use ``queues_set_permissions``.
+use ``queues_permissions_update``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -1044,7 +1135,7 @@ updated field definition.
 | `body` | object | yes | Typed request body for ``PATCH /fields/{id}?version=`` (rename and/or change options). Rename and change-options share one PATCH, so this one body covers both ``name`` and ``optionsProvider``; only the fields that are set are sent. |
 | `version` | integer or null |  | Current version of the object (optimistic lock), from its get/list tool. |
 
-## `tracker_fields_category_create`
+## `tracker_fields_categories_create`
 
 *Create Tracker field category* · write
 
@@ -1057,7 +1148,7 @@ org-global and not deletable via the API.
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /fields/categories`` (create a field category). |
 
-## `tracker_fields_category_update`
+## `tracker_fields_categories_update`
 
 *Edit Tracker field category* · idempotent write
 
@@ -1461,6 +1552,24 @@ once. The file travels as base64 in the request, so keep it small.
 | `data` | string | yes | The file's bytes, base64-encoded. |
 | `rename_to` | string or null |  | Store the file under this name instead of ``file_name``. |
 
+## `tracker_attachments_import`
+
+*Import Tracker issue attachment* · write
+
+Import a text-file attachment onto an issue preserving its original metadata (admin-only).
+
+``data`` is the file content as text (UTF-8-encoded on upload) — for binary files use the
+CLI (``ycli tracker attachments import``), which reads raw bytes from disk. ``created_at`` uses
+``YYYY-MM-DDThh:mm:ss.sss±hhmm``. Returns the imported attachment.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
+| `filename` | string | yes | Name the imported file gets on the issue. |
+| `created_at` | string | yes | Original creation time, ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. |
+| `created_by` | string | yes | Login or id of the user to record as the file's author. |
+| `data` | string | yes | File content as UTF-8 text (binary files: use the CLI). |
+
 ## `tracker_macros_list`
 
 *List Tracker queue macros* · read-only
@@ -1667,7 +1776,7 @@ deleted (it can be disabled in the UI).
 
 *Get Tracker bulk-change status* · read-only
 
-Current status of an async bulk-change operation (update/move/transition).
+Current status of an async bulk-change operation (``issues_update_bulk`` and its kin).
 
 ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; ``totalIssues`` /
 ``totalCompletedIssues`` show progress. Poll this after a bulk trigger returns an id;
@@ -1690,46 +1799,6 @@ listed here.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `bulk_id` | string | yes | Bulk-change operation id to inspect. |
-
-## `tracker_bulk_update`
-
-*Bulk-update Tracker issues* · write
-
-Start an async bulk field update over many Tracker issues; returns the operation.
-
-Poll the returned operation id with ``bulk_get`` and inspect failures with
-``bulk_issues_list``.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``POST /bulkchange/_update`` (mass-edit issues). |
-| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
-
-## `tracker_bulk_move`
-
-*Bulk-move Tracker issues* · write
-
-Start an async bulk move of many Tracker issues to another queue; returns the operation.
-
-Poll with ``bulk_get``.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``POST /bulkchange/_move`` (mass-move issues to another queue). |
-| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
-
-## `tracker_bulk_transition`
-
-*Bulk-transition Tracker issues* · write
-
-Start an async bulk status transition over many Tracker issues; returns the operation.
-
-Poll with ``bulk_get``.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `body` | object | yes | Typed request body for ``POST /bulkchange/_transition`` (mass status transition). |
-| `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 
 ## `tracker_remotelinks_list`
 
@@ -1773,75 +1842,6 @@ Get ``link_id`` from ``remotelinks_list``. Returns an acknowledgement on success
 | `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
 | `link_id` | string | yes | Remote link id, from ``remotelinks_list``. |
 
-## `tracker_import_task`
-
-*Import Tracker issue* · write
-
-Import an issue preserving its original history (admin-only back-fill).
-
-Returns the imported issue.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `body` | object | yes | Typed body for ``POST /issues/_import`` — import one issue, preserving its history. |
-
-## `tracker_import_comment`
-
-*Import Tracker issue comment* · write
-
-Import a comment onto an issue preserving its original author and timestamp (admin-only).
-
-Returns the imported comment.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `body` | object | yes | Typed body for ``POST /issues/{key}/comments/_import`` — import one comment with history. |
-
-## `tracker_import_link`
-
-*Import Tracker issue link* · write
-
-Import an issue link preserving its original creation metadata (admin-only).
-
-Returns the imported link.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `body` | object | yes | Typed body for ``POST /issues/{key}/links/_import`` — import one issue link with history. |
-
-## `tracker_import_worklog`
-
-*Import Tracker worklog record* · write
-
-Import a worklog record preserving its original author and timestamps (admin-only).
-
-Returns the imported record(s) — the endpoint answers with a JSON array.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `body` | object | yes | Typed body for ``POST /issues/{key}/worklogs/_import`` — import one worklog with history. |
-
-## `tracker_import_file`
-
-*Import Tracker issue attachment* · write
-
-Import a text-file attachment onto an issue preserving its original metadata (admin-only).
-
-``data`` is the file content as text (UTF-8-encoded on upload) — for binary files use the
-CLI (``ycli tracker import file``), which reads raw bytes from disk. ``created_at`` uses
-``YYYY-MM-DDThh:mm:ss.sss±hhmm``. Returns the imported attachment.
-
-| Parameter | Type | Required | Description |
-|---|---|:---:|---|
-| `issue_key` | string | yes | Issue key, e.g. QUEUE-123. |
-| `filename` | string | yes | Name the imported file gets on the issue. |
-| `created_at` | string | yes | Original creation time, ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. |
-| `created_by` | string | yes | Login or id of the user to record as the file's author. |
-| `data` | string | yes | File content as UTF-8 text (binary files: use the CLI). |
-
 ## `tracker_dashboards_create`
 
 *Create Tracker dashboard* · write
@@ -1855,7 +1855,7 @@ until removed in the UI.
 |---|---|:---:|---|
 | `body` | object | yes | Typed request body for ``POST /dashboards/`` (create a dashboard). |
 
-## `tracker_dashboards_add_cycle_time_widget`
+## `tracker_dashboards_widgets_create_cycle_time`
 
 *Add Tracker cycle-time widget* · write
 
@@ -1930,21 +1930,21 @@ An entity's access settings — the READ/WRITE/GRANT ACL plus inheritance source
 
 ``acl`` lists the users, groups and roles granted each level; ``permissionSources`` names the
 parent entities this one inherits permissions from. Change them with
-``entities_set_permissions``.
+``entities_permissions_update``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `entity_id` | string | yes | Entity id (or shortId). |
 
-## `tracker_entities_direct_permissions_get`
+## `tracker_entities_permissions_get_direct`
 
 *Get Tracker entity direct permissions* · read-only
 
 An entity's direct READ / WRITE / GRANT rights — the users, groups and roles holding each.
 
 Unlike ``entities_permissions_get`` this leaves out inheritance (``permissionSources``).
-Change the rights with ``entities_set_direct_permissions``.
+Change the rights with ``entities_permissions_update_direct``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -2014,19 +2014,19 @@ Downloading the raw bytes is CLI/SDK-only (``tracker entities attachments downlo
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `file_id` | string | yes | Attachment file id. |
 
-## `tracker_entities_bulk_status_get`
+## `tracker_entities_bulk_get`
 
 *Get Tracker entity bulk-change status* · read-only
 
-Current status of an async entity bulk-change operation started by ``entities_bulk_update``.
+Current status of an async entity bulk-change operation started by ``entities_update_bulk``.
 
 ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; poll until it settles.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
-| `operation_id` | string | yes | Operation id returned by entities_bulk_update. |
+| `operation_id` | string | yes | Operation id returned by entities_update_bulk. |
 
-## `tracker_entities_comments_relative_list`
+## `tracker_entities_comments_list_relative`
 
 *List Tracker entity comments (relative)* · read-only
 
@@ -2084,7 +2084,7 @@ acknowledgement on success.
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `with_board` | boolean or null |  | Also delete the project's linked board. |
 
-## `tracker_entities_set_permissions`
+## `tracker_entities_permissions_update`
 
 *Set Tracker entity permissions* · idempotent write
 
@@ -2101,7 +2101,7 @@ ACL first with ``entities_permissions_get``.
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | Typed request body for ``PATCH …/extendedPermissions``: rights to grant and to revoke. |
 
-## `tracker_entities_set_direct_permissions`
+## `tracker_entities_permissions_update_direct`
 
 *Set Tracker entity direct permissions* · idempotent write
 
@@ -2109,7 +2109,7 @@ Grant and revoke an entity's direct rights; the rest stay as they are.
 
 ``grant`` and ``revoke`` each map READ / WRITE / GRANT to ``users`` (logins or ids),
 ``groups`` (ids) and ``roles`` (AUTHOR, OWNER, CLIENT, FOLLOWER, MEMBER). Returns the
-resulting rights. Read them first with ``entities_direct_permissions_get``.
+resulting rights. Read them first with ``entities_permissions_get_direct``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -2117,20 +2117,20 @@ resulting rights. Read them first with ``entities_direct_permissions_get``.
 | `entity_id` | string | yes | Entity id (or shortId). |
 | `body` | object | yes | Typed request body for ``PATCH …/permissions`` (grant and revoke direct rights). Each side maps an access level (READ / WRITE / GRANT) to users, groups and roles; the API adds or removes exactly those and keeps the rest. ``permissionSources`` is refused (400). |
 
-## `tracker_entities_bulk_update`
+## `tracker_entities_update_bulk`
 
 *Bulk-update Tracker entities* · write
 
 Start an async bulk field update over many entities; returns the operation.
 
-Poll the returned operation id with ``entities_bulk_status_get``.
+Poll the returned operation id with ``entities_bulk_get``.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio`` or ``goal``. |
 | `body` | object | yes | Typed request body for ``POST …/bulkchange/_update`` (mass-edit entities). |
 
-## `tracker_entities_create_report`
+## `tracker_entities_reports_create`
 
 *Create Tracker entity report* · write
 
@@ -2372,7 +2372,7 @@ The API answers with an empty body; returns an acknowledgement on success.
 Every workflow of the organization (deleted ones excluded) with its steps and actions.
 
 A workflow is the status graph an issue type follows. Use ``workflows_get`` for one by id
-and ``workflows_for_queue`` to see which workflow each issue type of a queue uses.
+and ``workflows_list_for_queue`` to see which workflow each issue type of a queue uses.
 
 ## `tracker_workflows_get`
 
@@ -2386,7 +2386,7 @@ A step is a status with the transitions leaving it; ``version`` is needed to edi
 |---|---|:---:|---|
 | `workflow_id` | string | yes | Workflow id, from ``workflows_list``. |
 
-## `tracker_workflows_for_queue`
+## `tracker_workflows_list_for_queue`
 
 *List workflows of a Tracker queue* · read-only
 
@@ -2425,7 +2425,7 @@ list. Returns the workflow with its incremented version.
 | `body` | object | yes | Typed request body for ``workflows.edit`` (``PATCH /workflows/{id}``). Only the fields that are set change; a given ``steps`` list replaces the whole step list. |
 | `version` | integer | yes | Current version of the workflow (optimistic lock), from ``workflows_get``. |
 
-## `tracker_workflows_update_action`
+## `tracker_workflows_actions_update`
 
 *Edit Tracker workflow action* · idempotent write
 
@@ -2474,7 +2474,7 @@ One project: name, lead, stage, dates and ``version`` (needed to edit it).
 | `project_id` | integer | yes | Numeric id of the project, from ``projects_list``. |
 | `expand` | string or null |  | Extra blocks to include, e.g. ``queues``. |
 
-## `tracker_projects_queues`
+## `tracker_projects_queues_list`
 
 *List queues of a Tracker project* · read-only
 

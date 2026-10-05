@@ -1,7 +1,7 @@
 """Tracker issue ``/comments`` operations, declared once (sans-IO).
 
 Examples:
-    >>> react("DE-1", 2238, "LIKE").path
+    >>> reactions_create("DE-1", 2238, "LIKE").path
     'issues/DE-1/comments/2238/reactions/LIKE'
     >>> list_("DE-1", expand=None, page_size=10).endpoint.params
     {'perPage': 10, 'expand': None}
@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
-from ycli.yandex.tracker.comments.models import Comment, CommentUpdate
+from ycli.yandex.tracker.comments.models import Comment, CommentUpdate, ImportComment
 
 if TYPE_CHECKING:
     from ycli.yandex.tracker.models import CommentCreate
@@ -47,7 +47,7 @@ def get(key: str, comment_id: int | str, *, expand: str | None = None) -> Endpoi
     return Endpoint("GET", path, Comment, params={"expand": expand})
 
 
-def add(key: str, body: CommentCreate) -> Endpoint[Comment]:
+def create(key: str, body: CommentCreate) -> Endpoint[Comment]:
     return Endpoint("POST", f"issues/{segment(key)}/comments/", Comment, json=body)
 
 
@@ -60,6 +60,10 @@ def delete(key: str, comment_id: int | str) -> Endpoint[None]:
     return Endpoint("DELETE", f"issues/{segment(key)}/comments/{segment(comment_id)}")
 
 
-def react(key: str, comment_id: int | str, name: str) -> Endpoint[Comment]:
+def reactions_create(key: str, comment_id: int | str, name: str) -> Endpoint[Comment]:
     path = f"issues/{segment(key)}/comments/{segment(comment_id)}/reactions/{segment(name)}"
     return Endpoint("POST", path, Comment)
+
+
+def import_(issue_key: str, body: ImportComment) -> Endpoint[Comment]:
+    return Endpoint("POST", f"issues/{segment(issue_key)}/comments/_import", Comment, json=body)

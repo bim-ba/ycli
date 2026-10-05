@@ -152,7 +152,7 @@ def _wrapped_ops_in_source(source: str, resource_attr: str) -> set[str]:
     Structural, not name-based: the CLI and MCP wrappers reference the client operation
     directly (``app_ctx.tracker.issues.get(…)`` / ``client.issues.get(…)``), so this sees the
     real coverage even where the surface command/tool is *named* differently from the op
-    (``issues.search`` → CLI ``issues list``; ``pages.get`` → MCP ``pages_meta``). A same-named
+    (``issues.search`` → CLI ``issues list``; ``pages.get`` → MCP ``pages_get_meta``). A same-named
     method on some other object (``other.get(…)``) or a bare-name call does not count.
     """
     wrapped: set[str] = set()
@@ -188,11 +188,11 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     # Binary download — the CLI returns the raw bytes as a BinaryResult (file or stdout); bytes
     # are not a model and can't round-trip an MCP tool result, so these stay CLI-only.
     "tracker.attachments.download": "binary download — CLI-only (bytes)",
-    "tracker.attachments.download_thumbnail": "binary download — CLI-only (bytes)",
+    "tracker.attachments.thumbnails_download": "binary download — CLI-only (bytes)",
     "tracker.entities.attachments_download": "binary download — CLI-only (bytes)",
     "wiki.attachments.download": "binary download — CLI-only (bytes)",
     "wiki.attachments.download_by_url": "binary download — CLI-only (bytes)",
-    "wiki.attachments.preview": "binary download — CLI-only (bytes)",
+    "wiki.attachments.preview_download": "binary download — CLI-only (bytes)",
     "forms.answers.download_export": "binary download — CLI-only (bytes)",
     "forms.files.download": "binary download — CLI-only (bytes)",
     "forms.keysets.download": "binary download — CLI-only (bytes)",
@@ -200,12 +200,12 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     "forms.files.upload": "binary upload — CLI-only (bytes)",
     "forms.images.upload": "binary upload — CLI-only (bytes)",
     "forms.subscriptions.attach": "binary upload — CLI-only (bytes)",
-    # Multipart import of a comment's file (admin-only back-fill); the MCP `import_file` tool
+    # Multipart import of a comment's file (admin-only back-fill); the MCP `attachments_import` tool
     # already takes text for an issue, and a comment file needs raw bytes from disk.
-    "tracker.import_.comment_file": "binary upload — CLI-only (bytes)",
+    "tracker.attachments.import_for_comment": "binary upload — CLI-only (bytes)",
     # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
     # exposes the one-shot `export` submit instead of the polling wrapper.
-    "forms.answers.export_results": "CLI-only export poll helper",
+    "forms.answers.export_results_get": "CLI-only export poll helper",
 }
 
 
@@ -404,15 +404,22 @@ def test_arch1_served_check_bites():
 # (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name. An MCP tool may differ
 # from the CLI command that reaches the same operation only here (tool name -> reason).
 ARCH1_NAME_EXCEPTIONS: dict[str, str] = {
-    "wiki_pages_meta": "one CLI command, `wiki pages get --fields`, where MCP serves the body "
-    "(`wiki_pages_get`) and the metadata (`wiki_pages_meta`) as two tools with fixed fields",
-    "tracker_entities_comments_relative_list": "one CLI command, `tracker entities comments "
+    "wiki_pages_get_meta": "one CLI command, `wiki pages get --fields`, where MCP serves the body "
+    "(`wiki_pages_get`) and the metadata (`wiki_pages_get_meta`) as two tools with fixed fields",
+    "tracker_entities_comments_list_relative": "one CLI command, `tracker entities comments "
     "list --relative`, where MCP serves the relative-id page walk as its own tool",
 }
 
 
-# One verb per action (#104): the synonym on the left is never a command or tool word.
-ARCH1_SYNONYM_VERBS: dict[str, str] = {"edit": "update", "modify": "update"}
+# One verb per action (#104, #268): the synonym on the left is never a word of a name.
+ARCH1_SYNONYM_VERBS: dict[str, str] = {
+    "add": "create",
+    "remove": "delete",
+    "edit": "update",
+    "modify": "update",
+    "patch": "update",
+    "query": "search",
+}
 
 
 def _synonym_verbs(names: set[str]) -> list[str]:
@@ -423,6 +430,53 @@ def _synonym_verbs(names: set[str]) -> list[str]:
         for word in name.split("_")
         if word in ARCH1_SYNONYM_VERBS
     ]
+
+
+def _gets_returning_a_list(methods: dict[str, str]) -> list[str]:
+    """Operations named exactly ``get`` (name -> return annotation) that return a list of items."""
+    return [
+        f"{operation}: returns a list of items, name it 'list'"
+        for operation, returns in sorted(methods.items())
+        if operation.rsplit(".", 1)[-1] == "get" and returns.startswith("ItemList[")
+    ]
+
+
+def _return_annotations() -> dict[str, str]:
+    """``domain.resource.op`` -> the return annotation its client method states, as written."""
+    found = {}
+    for slug, client in _clients().items():
+        for attr, resource in sorted(vars(client).items()):
+            for name in sorted(n for n in vars(type(resource)) if not n.startswith("_")):
+                annotation = inspect.get_annotations(getattr(type(resource), name)).get("return")
+                if isinstance(annotation, str):
+                    found[f"{slug}.{attr}.{name}"] = annotation
+    return found
+
+
+def test_arch1_a_get_returns_one_object():
+    """A method named ``get`` returns one object; a list of items is ``list`` (ARCH-1, #268).
+
+    The other naming rules are a convention a reviewer holds (docs/conventions/resources.md,
+    "Naming an operation"); this one a machine reads off the signature.
+    """
+    methods = _return_annotations()
+    assert "tracker.queues.get" in methods and methods["tracker.queues.list"].startswith(
+        "ItemList["
+    )
+    problems = _gets_returning_a_list(methods)
+    assert not problems, "\n  ".join(["rename these operations:", *problems])
+
+
+def test_arch1_get_check_bites():
+    """Prove-it: a ``get`` that returns a list is reported; a part before the verb is not."""
+    assert _gets_returning_a_list(
+        {
+            "forms.access.get": "ItemList[Permission]",
+            "tracker.autoactions.logs_get": "ItemList[AutoactionRunEntry]",
+            "tracker.queues.list": "ItemList[Queue]",
+            "tracker.queues.get": "Queue",
+        }
+    ) == ["forms.access.get: returns a list of items, name it 'list'"]
 
 
 def _function_operations(function: object) -> frozenset[str]:
@@ -544,8 +598,11 @@ def _sdk_name_mismatches(
                 {name: ops for name, ops in cli.items() if name.startswith(prefix)},
             )
         ]
+        # A keyword or a builtin cannot name a function: `import` is `import_`, as `list_` is.
+        bare = method.removesuffix("_")
+        reserved = keyword.iskeyword(bare) or hasattr(builtins, bare)
         names = served[0] or served[1]
-        if names and method not in names:
+        if names and (bare if reserved else method) not in names:
             problems.append(f"{operation}: the surfaces call it {sorted(names)}")
     return problems
 
@@ -578,7 +635,7 @@ def _misnamed_tool_functions(functions: dict[str, str], resource: str) -> list[s
 def test_arch1_tool_function_is_named_like_its_tool():
     """The function behind a tool has the tool's name, without the resource (ARCH-1).
 
-    ``grids_rows_add`` is ``def rows_add`` in ``wiki/grids/mcp.py``, so the SDK method, the
+    ``grids_rows_create`` is ``def rows_create`` in ``wiki/grids/mcp.py``, so the SDK method, the
     tool and its function are found under one word.
     """
     problems = []
@@ -721,15 +778,14 @@ def test_arch1_sdk_name_check_bites():
     search = frozenset({"tracker.issues.search"})
     two = {"tracker_issues_list": search, "tracker_issues_search": search}
     assert _sdk_name_mismatches(set(search), {}, two) == []
-    assert _sdk_name_mismatches({"forms.answers.export_results"}, {}, {}) == []
-    assert (
-        _sdk_name_mismatches(
-            {"tracker.import_.task"},
-            {},
-            {"tracker_import_task": frozenset({"tracker.import_.task"})},
-        )
-        == []
-    )
+    assert _sdk_name_mismatches({"forms.answers.export_results_get"}, {}, {}) == []
+    # A keyword takes an underscore in the method and none in the tool; no other word may.
+    imported = frozenset({"tracker.issues.import_"})
+    assert _sdk_name_mismatches(set(imported), {}, {"tracker_issues_import": imported}) == []
+    padded = frozenset({"tracker.boards.update_"})
+    assert _sdk_name_mismatches(set(padded), {}, {"tracker_boards_update": padded}) == [
+        "tracker.boards.update_: the surfaces call it ['update']"
+    ]
 
 
 def test_arch1_name_parity_check_bites():
@@ -775,20 +831,20 @@ ARCH3_EFFECT_OVERRIDES: dict[str, str] = {
     "tracker/worklog/endpoints.py:search": "POST _search only reads",
     "forms/files/endpoints.py:verify": "POST verify only reads upload statuses",
     "tracker/entities/endpoints.py:search": "POST _search only reads",
-    "tracker/links/endpoints.py:search": "POST _list only reads",
+    "tracker/links/endpoints.py:list_filtered": "POST _list only reads",
     "tracker/gaps/endpoints.py:search": "POST _search only reads",
-    "tracker/queues/endpoints.py:tag_remove": "POST _remove strips the tag from every issue",
+    "tracker/queues/endpoints.py:tags_delete": "POST _remove strips the tag from every issue",
     "wiki/pages/endpoints.py:update": "POST /pages/{id} replaces fields; a resend is a no-op",
     "wiki/grids/endpoints.py:update": "POST /grids/{id} replaces fields; a resend is a no-op",
     "wiki/grids/endpoints.py:cells_update": "POST cells sets values; a resend is a no-op",
     "wiki/grids/endpoints.py:columns_suggest": "POST columns/suggest only reads (checks a slug)",
     "wiki/grids/endpoints.py:columns_update": "POST column/{slug} sets fields; a resend is a no-op",
     "wiki/grids/endpoints.py:rows_update": "POST rows/{id} sets pin and colour; resent, a no-op",
-    "wiki/search/endpoints.py:query": "POST /search only reads",
+    "wiki/pages/endpoints.py:search": "POST /search only reads",
     "wiki/access/endpoints.py:update": "POST access sets role; a resend is a no-op",
     "wiki/uploadsessions/endpoints.py:abort": "POST abort discards uploaded parts",
     "wiki/uploadsessions/endpoints.py:abort_all": "POST abort discards every upload",
-    "forms/access/endpoints.py:set_": "POST sets an access level: sending twice converges",
+    "forms/access/endpoints.py:update": "POST sets an access level: sending twice converges",
     "forms/access/endpoints.py:grant": "POST grants access: granting twice converges",
     "forms/access/endpoints.py:revoke": "POST revokes access: it removes a permission",
 }
