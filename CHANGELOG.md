@@ -9,6 +9,41 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.68.0 (2026-10-05)
+
+### Bug Fixes
+
+- **mcp**: A tool returns what the API answered instead of judging an empty reply
+  ([#314](https://github.com/bim-ba/ycli/pull/314),
+  [`a74872f`](https://github.com/bim-ba/ycli/commit/a74872f6beac1c2efed099cbbc25f9e334b3d0b6))
+
+### Build System
+
+- Re-lock uv.lock for 0.67.1
+  ([`50c3bc8`](https://github.com/bim-ba/ycli/commit/50c3bc8b17ed06583d0f8b848dfddd1bae1805dc))
+
+### Chores
+
+- **api**: The kind-of-action markup of published operations is deleted
+  ([#313](https://github.com/bim-ba/ycli/pull/313),
+  [`826ec69`](https://github.com/bim-ba/ycli/commit/826ec693e940dba67a1d18d47689d68f9d8a8f43))
+
+### Testing
+
+- The per-resource model tests that covered nothing of their own are deleted
+  ([#319](https://github.com/bim-ba/ycli/pull/319),
+  [`609d3ef`](https://github.com/bim-ba/ycli/commit/609d3efdf88430779d6948bf2cbfe4eebd3ad5e7))
+
+### Breaking Changes
+
+- **mcp**: `ycli.yandex.models.require_found` is removed, and these tools return the API's reply
+  instead of raising on an empty one: tracker_issues_get, tracker_queues_get,
+  tracker_localfields_get, tracker_me_get, wiki_me_get, forms_me_get, forms_surveys_get,
+  forms_questions_get, forms_operations_get, forms_filling_get, forms_hooks_get,
+  forms_conditions_question_get, forms_conditions_page_get, forms_conditions_submit_get,
+  forms_conditions_hook_get.
+
+
 ## v0.67.1 (2026-10-04)
 
 ### Bug Fixes
