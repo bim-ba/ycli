@@ -1,0 +1,16 @@
+{
+  "body": {
+    "answers": [],
+    "columns": [
+      {
+        "has_scores": false,
+        "id": 1,
+        "slug": "<slug>",
+        "text": "<text>",
+        "type": "<type>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

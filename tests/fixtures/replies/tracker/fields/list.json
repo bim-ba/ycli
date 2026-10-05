@@ -1,0 +1,417 @@
+{
+  "body": [
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": true,
+      "optionsProvider": {
+        "type": "<type>"
+      },
+      "order": 1,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": true,
+      "schema": {
+        "required": true,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": true,
+      "suggestProvider": {
+        "type": "<type>"
+      },
+      "type": "<type>",
+      "version": 1
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 1,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": false,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 2
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "description": "<description>",
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 2,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": false,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 4
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 4,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": true,
+      "schema": {
+        "required": true,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": true,
+      "suggestProvider": {
+        "type": "<type>"
+      },
+      "type": "<type>",
+      "version": 6
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 5,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": true,
+      "schema": {
+        "items": "<items>",
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 7
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "hidden": true,
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 8,
+      "readonly": false,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 10
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": true,
+      "optionsProvider": {
+        "type": "<type>"
+      },
+      "order": 22,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": false,
+      "schema": {
+        "items": "<items>",
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": true,
+      "suggestProvider": {
+        "type": "<type>"
+      },
+      "type": "<type>",
+      "version": 23
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 47,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": true,
+      "schema": {
+        "items": "<items>",
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": true,
+      "suggestProvider": {
+        "type": "<type>"
+      },
+      "type": "<type>",
+      "version": 47
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "hidden": true,
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 49,
+      "readonly": true,
+      "schema": {
+        "items": "<items>",
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 49
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": true,
+      "optionsProvider": {
+        "type": "<type>"
+      },
+      "order": 56,
+      "readonly": true,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": true,
+      "suggestProvider": {
+        "type": "<type>"
+      },
+      "type": "<type>",
+      "version": 56
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 59,
+      "readonly": false,
+      "schema": {
+        "items": "<items>",
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 59
+    },
+    {
+      "<unknown-1>": "<unknown-1>",
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 63,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": false,
+      "schema": {
+        "items": "<items>",
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": true,
+      "suggestProvider": {
+        "type": "<type>"
+      },
+      "type": "<type>",
+      "version": 63
+    },
+    {
+      "<unknown-1>": "<unknown-1>",
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 64,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": true,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 64
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": true,
+      "optionsProvider": {
+        "needValidation": true,
+        "type": "<type>",
+        "values": [
+          0
+        ]
+      },
+      "order": 66,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": false,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 66
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": false,
+      "order": 67,
+      "readonly": false,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 67
+    },
+    {
+      "category": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": "<id>",
+      "key": "<key>",
+      "name": "<name>",
+      "options": true,
+      "optionsProvider": {
+        "type": "<type>"
+      },
+      "order": 68,
+      "queryProvider": {
+        "type": "<type>"
+      },
+      "readonly": true,
+      "schema": {
+        "required": false,
+        "type": "<type>"
+      },
+      "self": "<self>",
+      "suggest": false,
+      "type": "<type>",
+      "version": 68
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 3
+}

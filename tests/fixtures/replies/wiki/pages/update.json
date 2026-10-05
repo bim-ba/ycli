@@ -1,0 +1,11 @@
+{
+  "body": {
+    "active_revision": null,
+    "id": 1,
+    "page_type": "<page_type>",
+    "slug": "<slug>",
+    "title": "<title>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

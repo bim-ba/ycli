@@ -20,6 +20,17 @@ steps:
     run: tracker comments create ${key} --text "comment from ${RUN}"
     expect:
       text: comment from ${RUN}
+    save:
+      comment: id
+    reads:
+      - tracker comments get ${key} ${comment}
+      - tracker attachments list ${key}
+      - tracker checklists list ${key}
+      - tracker links list ${key}
+      - tracker links list-filtered ${key}
+      - tracker remotelinks list ${key}
+      - tracker transitions list ${key}
+      - tracker worklog list ${key}
   - id: comment-is-listed
     run: tracker comments list ${key}
     expect:

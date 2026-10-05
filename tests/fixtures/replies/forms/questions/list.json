@@ -1,0 +1,21 @@
+{
+  "body": {
+    "pages": [
+      {
+        "id": 1,
+        "items": [
+          {
+            "hidden": false,
+            "id": 2,
+            "label": "<label>",
+            "multiline": false,
+            "slug": "<slug>",
+            "type": "<type>"
+          }
+        ]
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

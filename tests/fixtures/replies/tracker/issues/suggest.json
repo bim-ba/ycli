@@ -1,0 +1,14 @@
+{
+  "body": [
+    {
+      "favorite": false,
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>",
+      "summary": "<summary>",
+      "version": 1
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 4
+}

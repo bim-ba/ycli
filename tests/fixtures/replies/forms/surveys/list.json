@@ -1,0 +1,22 @@
+{
+  "body": {
+    "links": {},
+    "result": [
+      {
+        "answers": 0,
+        "collab_id": "<collab_id>",
+        "created": "<created>",
+        "dir_id": "<dir_id>",
+        "id": "<id>",
+        "is_favourite": false,
+        "is_public": false,
+        "is_published": false,
+        "language": "<language>",
+        "modified": "<modified>",
+        "name": "<name>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

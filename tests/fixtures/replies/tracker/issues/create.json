@@ -1,0 +1,62 @@
+{
+  "body": {
+    "<unknown-1>": "<unknown-1>",
+    "<unknown-2>": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>"
+    },
+    "<unknown-3>": 0,
+    "<unknown-4>": 0,
+    "<unknown-5>": 0,
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 3,
+      "self": "<self>"
+    },
+    "description": "<description>",
+    "favorite": false,
+    "id": "<id>",
+    "key": "<key>",
+    "priority": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "queue": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "self": "<self>",
+    "status": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "summary": "<summary>",
+    "type": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "updatedAt": "<updatedAt>",
+    "updatedBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 2,
+      "self": "<self>"
+    },
+    "version": 1
+  },
+  "status": 201,
+  "unknown_keys": 11
+}

@@ -1,0 +1,119 @@
+{
+  "body": [
+    {
+      "<unknown-1>": false,
+      "<unknown-2>": false,
+      "<unknown-3>": false,
+      "<unknown-4>": true,
+      "<unknown-5>": true,
+      "<unknown-6>": "<unknown-6>",
+      "<unknown-7>": false,
+      "<unknown-8>": "<unknown-8>",
+      "<unknown-9>": false,
+      "assignAuto": false,
+      "defaultPriority": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "defaultType": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "denyVoting": false,
+      "id": 1,
+      "key": "<key>",
+      "lead": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 3,
+        "self": "<self>"
+      },
+      "name": "<name>",
+      "self": "<self>",
+      "version": 2
+    },
+    {
+      "<unknown-1>": false,
+      "<unknown-2>": false,
+      "<unknown-3>": false,
+      "<unknown-4>": true,
+      "<unknown-5>": true,
+      "<unknown-6>": "<unknown-6>",
+      "<unknown-7>": false,
+      "<unknown-8>": "<unknown-8>",
+      "<unknown-9>": false,
+      "assignAuto": false,
+      "defaultPriority": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "defaultType": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "deleted": true,
+      "denyVoting": false,
+      "id": 4,
+      "key": "<key>",
+      "lead": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 6,
+        "self": "<self>"
+      },
+      "name": "<name>",
+      "self": "<self>",
+      "version": 5
+    },
+    {
+      "<unknown-1>": false,
+      "<unknown-2>": false,
+      "<unknown-3>": false,
+      "<unknown-4>": true,
+      "<unknown-5>": true,
+      "<unknown-6>": "<unknown-6>",
+      "<unknown-7>": false,
+      "<unknown-8>": "<unknown-8>",
+      "<unknown-9>": false,
+      "assignAuto": false,
+      "defaultPriority": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "defaultType": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "denyVoting": false,
+      "description": "<description>",
+      "id": 22,
+      "key": "<key>",
+      "lead": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 24,
+        "self": "<self>"
+      },
+      "name": "<name>",
+      "self": "<self>",
+      "version": 23
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 10
+}
