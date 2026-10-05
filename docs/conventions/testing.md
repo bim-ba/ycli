@@ -23,7 +23,7 @@ tested once, in `tests/yandex/core/`, not per resource.
 
 - **Fail-closed coverage.** Every operation, CLI command and MCP tool of a resource on the core
   needs a case, and every operation must be reached by at least one CLI and one MCP case unless
-  `ARCH1_SURFACE_ASYMMETRIES` lists it. A case of an operation that does not exist fails too.
+  its client method is marked `# violation(arch-1)`. A case of an operation that does not exist fails too.
 - **Distinct values.** Give every case its own ids and fully populated bodies, with every option
   set to a non-default value. A value shared by two parameters, or an option left at its
   default, lets a surface that swaps or drops it pass.

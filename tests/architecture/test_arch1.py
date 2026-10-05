@@ -10,14 +10,11 @@ import importlib
 import inspect
 import keyword
 import textwrap
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-from tests.architecture.scanners import DOMAINS, SRC, YANDEX, _mcp_tools
+from tests.architecture.scanners import DOMAINS, SRC, YANDEX, _mcp_tools, violation_markers
 from tests.snapshots._surface import cli_leaves
 from ycli.yandex.registry import SERVICES
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 # `models.py` is not among them: a resource whose replies are shared models has none.
 CANONICAL = {"__init__.py", "endpoints.py", "client.py", "cli.py", "mcp.py"}
@@ -170,34 +167,41 @@ def _surface_gaps(sdk_ops: set[str], cli_ops: set[str], mcp_ops: set[str]) -> se
     return {op for op in sdk_ops if not (op in cli_ops and op in mcp_ops)}
 
 
-# ARCH-1 operation-level parity (D2). Every public client operation is wrapped on BOTH the CLI
-# and the MCP surface, EXCEPT the intentional asymmetries frozen here (id -> reason). The gap
-# set is computed structurally (which client op each surface actually calls), so it survives the
-# surfaces naming a command/tool differently from the op. Regenerate and edit this map in the
-# same PR when a genuine asymmetry is added or resolved.
-ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
-    # Binary download — the CLI returns the raw bytes as a BinaryResult (file or stdout); bytes
-    # are not a model and can't round-trip an MCP tool result, so these stay CLI-only.
-    "tracker.attachments.download": "binary download — CLI-only (bytes)",
-    "tracker.attachments.thumbnails_download": "binary download — CLI-only (bytes)",
-    "tracker.entities.attachments_download": "binary download — CLI-only (bytes)",
-    "wiki.attachments.download": "binary download — CLI-only (bytes)",
-    "wiki.attachments.download_by_url": "binary download — CLI-only (bytes)",
-    "wiki.attachments.previews_download": "binary download — CLI-only (bytes)",
-    "forms.answers.export_download": "binary download — CLI-only (bytes)",
-    "forms.files.download": "binary download — CLI-only (bytes)",
-    "forms.keysets.download": "binary download — CLI-only (bytes)",
-    # Binary upload — the CLI streams a local file; no MCP tool by design.
-    "forms.files.upload": "binary upload — CLI-only (bytes)",
-    "forms.images.upload": "binary upload — CLI-only (bytes)",
-    "forms.subscriptions.attach": "binary upload — CLI-only (bytes)",
-    # Multipart import of a comment's file (admin-only back-fill); the MCP `attachments_import` tool
-    # already takes text for an issue, and a comment file needs raw bytes from disk.
-    "tracker.attachments.import_for_comment": "binary upload — CLI-only (bytes)",
-    # CLI-only helper: the `answers export` command drives the export poll loop; the MCP surface
-    # exposes the one-shot `export` submit instead of the polling wrapper.
-    "forms.answers.export_results_get": "CLI-only export poll helper",
-}
+def _first_line(function: object) -> tuple[Path, int]:
+    """The file and the first line of a function's definition (its first decorator, if any)."""
+    function = inspect.unwrap(function)  # ty: ignore[invalid-argument-type]
+    return Path(inspect.getsourcefile(function)), function.__code__.co_firstlineno  # ty: ignore
+
+
+@functools.cache
+def _markers() -> dict[tuple[Path, int], int]:
+    """Every ``# violation(arch-1)`` of the services: (file, the line it explains) -> its line."""
+    return {
+        (path, line): marker
+        for path in sorted(YANDEX.rglob("*.py"))
+        for line, marker in violation_markers(path.read_text(encoding="utf-8"), "arch-1").items()
+    }
+
+
+def _is_marked(function: object) -> bool:
+    return _first_line(function) in _markers()
+
+
+def _operation_methods():
+    """Yield ``(domain.resource.op, the client method)`` for every client operation."""
+    for slug, attr, sdk_ops in _resource_operations():
+        resource = type(getattr(_clients()[slug], attr))
+        for op in sorted(sdk_ops):
+            yield f"{slug}.{attr}.{op}", getattr(resource, op)
+
+
+def surface_asymmetries() -> set[str]:
+    """The client operations marked as served by one surface only, ``domain.resource.op``.
+
+    ARCH-1 operation-level parity (D2): every public client operation is wrapped on BOTH the CLI
+    and the MCP surface, except the methods with ``# violation(arch-1): <reason>`` above them.
+    """
+    return {operation for operation, method in _operation_methods() if _is_marked(method)}
 
 
 def test_arch1_operation_level_parity():
@@ -206,7 +210,7 @@ def test_arch1_operation_level_parity():
     Strengthens the four-file existence check: a client method with no CLI command *and* no MCP
     tool — or one wrapped on only one surface — is caught. Coverage is read structurally from
     each surface's calls into the client, so a command/tool named differently from the op still
-    counts. Intentional asymmetries are frozen in ``ARCH1_SURFACE_ASYMMETRIES``.
+    counts. An intentional asymmetry is marked above the client method (``surface_asymmetries``).
     """
     gaps: dict[str, tuple[bool, bool]] = {}
     for slug, attr, sdk_ops in _resource_operations():
@@ -215,13 +219,14 @@ def test_arch1_operation_level_parity():
         mcp_ops = _wrapped_ops(rdir / "mcp.py", attr)
         for op in _surface_gaps(sdk_ops, cli_ops, mcp_ops):
             gaps[f"{slug}.{attr}.{op}"] = (op in cli_ops, op in mcp_ops)
-    unexpected = sorted(set(gaps) - set(ARCH1_SURFACE_ASYMMETRIES))
-    resolved = sorted(set(ARCH1_SURFACE_ASYMMETRIES) - set(gaps))
+    marked = surface_asymmetries()
+    unexpected = sorted(set(gaps) - marked)
+    resolved = sorted(marked - set(gaps))
     assert not unexpected and not resolved, (
         "operation-level surface parity drifted. Every client op must be wrapped on BOTH the "
-        "CLI and MCP surfaces, or listed in ARCH1_SURFACE_ASYMMETRIES with a reason.\n"
-        f"  newly unwrapped (wrap on both surfaces, or allowlist with a reason): {unexpected}\n"
-        f"  now wrapped (remove from the allowlist): {resolved}"
+        "CLI and MCP surfaces, or have `# violation(arch-1): <reason>` above the client method.\n"
+        f"  newly unwrapped (wrap on both surfaces, or mark with a reason): {unexpected}\n"
+        f"  now wrapped (remove the marker): {resolved}"
     )
 
 
@@ -337,10 +342,11 @@ def test_arch1_every_resource_is_served():
     """
     on_disk = {f"{d.parent.name}.{d.name}" for d in _resource_dirs()}
     operations = {f"{slug}.{attr}": ops for slug, attr, ops in _resource_operations()}
+    asymmetries = surface_asymmetries()
     cli_only = {
         resource
         for resource, ops in operations.items()
-        if ops and all(f"{resource}.{op}" in ARCH1_SURFACE_ASYMMETRIES for op in ops)
+        if ops and all(f"{resource}.{op}" in asymmetries for op in ops)
     }
     # status_* belongs to no resource: `status/` is a cross-cutting surface (see ARCHITECTURE.md).
     tools = {tool.name for tool in _mcp_tools() if not tool.name.startswith("status_")}
@@ -385,11 +391,8 @@ def test_arch1_served_check_bites():
 
 # ARCH-1 name parity (#104). An operation served on both surfaces has one name: the CLI path
 # (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name. An MCP tool may differ
-# from the CLI command that reaches the same operation only here (tool name -> reason).
-ARCH1_NAME_EXCEPTIONS: dict[str, str] = {
-    "tracker_entities_comments_list_relative": "one CLI command, `tracker entities comments "
-    "list --relative`, where MCP serves the relative-id page walk as its own tool",
-}
+# from the CLI command that reaches the same operation only with `# violation(arch-1): <reason>`
+# above its definition.
 
 
 # One verb per action (#104, #268): the synonym on the left is never a word of a name.
@@ -484,22 +487,64 @@ def _cli_commands_by_name() -> dict[str, frozenset[str]]:
     return out
 
 
-def _mcp_tools_by_name() -> dict[str, frozenset[str]]:
-    """Served MCP resource tools by name, with the operations they call.
+def _mcp_tool_functions():
+    """Yield ``(tool name, its function)`` for every served MCP resource tool.
 
     Read from each resource's own server (the root server holds proxies, with no function to
     read).
     """
-    out: dict[str, frozenset[str]] = {}
     for directory in _resource_dirs():
         domain = directory.parent.name
         server = importlib.import_module(f"ycli.yandex.{domain}.{directory.name}.mcp").mcp
         for tool in asyncio.run(server.list_tools()):
-            function = asyncio.run(server.get_tool(tool.name)).fn
-            out[f"{domain}_{tool.name}"] = frozenset(
-                op for op in _function_operations(function) if op.startswith(f"{domain}.")
-            )
-    return out
+            yield f"{domain}_{tool.name}", asyncio.run(server.get_tool(tool.name)).fn
+
+
+def _mcp_tools_by_name() -> dict[str, frozenset[str]]:
+    """Served MCP resource tools by name, with the operations they call."""
+    return {
+        name: frozenset(
+            op for op in _function_operations(function) if op.startswith(name.split("_")[0] + ".")
+        )
+        for name, function in _mcp_tool_functions()
+    }
+
+
+def _name_exceptions() -> set[str]:
+    """The tools marked as named apart from their CLI command."""
+    return {name for name, function in _mcp_tool_functions() if _is_marked(function)}
+
+
+def _stray_markers(
+    markers: dict[tuple[Path, int], int], definitions: set[tuple[Path, int]]
+) -> list[str]:
+    """Markers that stand above neither a client operation nor a tool."""
+    return [
+        f"{path.relative_to(SRC)}:{marker}: violation(arch-1) is above no operation or tool"
+        for (path, line), marker in sorted(markers.items())
+        if (path, line) not in definitions
+    ]
+
+
+def test_arch1_a_marker_stands_above_an_operation_or_a_tool():
+    """A ``# violation(arch-1)`` stands above a client method or a tool, nowhere else.
+
+    Whether a marked method or tool still needs its marker is held by
+    ``test_arch1_operation_level_parity`` and ``test_arch1_cli_path_equals_mcp_name``.
+    """
+    definitions = {_first_line(method) for _, method in _operation_methods()}
+    definitions |= {_first_line(function) for _, function in _mcp_tool_functions()}
+    assert _stray_markers(_markers(), definitions) == []
+    assert surface_asymmetries() and _name_exceptions()  # the markers are found where they stand
+
+
+def test_arch1_stray_marker_check_bites():
+    """Prove-it: a marker above something else is reported; one above a definition is not."""
+    client = SRC / "yandex/tracker/boards/client.py"
+    markers = {(client, 10): 9, (client, 40): 39}
+    assert _stray_markers(markers, {(client, 10)}) == [
+        "yandex/tracker/boards/client.py:39: violation(arch-1) is above no operation or tool"
+    ]
 
 
 def _counterparts(cli: dict[str, frozenset[str]], operations: frozenset[str]) -> set[str]:
@@ -530,7 +575,7 @@ def _name_mismatches(
         if counterparts and tool not in counterparts and tool not in exceptions:
             problems.append(f"{tool}: the CLI serves it as {sorted(counterparts)}")
     problems += [
-        f"{tool}: listed in ARCH1_NAME_EXCEPTIONS but no longer needed"
+        f"{tool}: marked `# violation(arch-1)` but no longer needs it"
         for tool in sorted(exceptions)
         if tool not in tools or tool in _counterparts(cli, tools[tool])
     ]
@@ -548,12 +593,12 @@ def test_arch1_cli_path_equals_mcp_name():
     served = {tool.name for tool in _mcp_tools()} - {"status_get"}
     assert set(tools) == served, sorted(set(tools) ^ served)
     cli = _cli_commands_by_name()
-    problems = _name_mismatches(cli, tools, set(ARCH1_NAME_EXCEPTIONS))
+    problems = _name_mismatches(cli, tools, _name_exceptions())
     problems += _synonym_verbs(set(cli) | set(tools))
     assert not problems, (
         "a CLI command and an MCP tool serve the same operation under different names; rename "
-        "the CLI command or the tool, or list the "
-        "tool in ARCH1_NAME_EXCEPTIONS with a reason:\n  " + "\n  ".join(problems)
+        "the CLI command or the tool, or put `# violation(arch-1): <reason>` above the "
+        "tool:\n  " + "\n  ".join(problems)
     )
 
 
@@ -799,4 +844,4 @@ def test_arch1_name_parity_check_bites():
     assert _name_mismatches(renamed, {"tracker_boards_update": op}, {"tracker_boards_update"}) == []
     assert _name_mismatches(
         {"tracker_boards_update": op}, {"tracker_boards_update": op}, {"tracker_boards_update"}
-    ) == ["tracker_boards_update: listed in ARCH1_NAME_EXCEPTIONS but no longer needed"]
+    ) == ["tracker_boards_update: marked `# violation(arch-1)` but no longer needs it"]

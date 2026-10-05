@@ -123,6 +123,7 @@ class AnswersClient(Resource):
         """
         return self._session.send(endpoints.export(survey_id, body))
 
+    # violation(arch-1): CLI-only, the poll step of `answers export`; MCP serves `export` itself
     def export_results_get(self, survey_id: str, task_id: str) -> OperationResult:
         """``GET /surveys/{id}/answers/export-results?task_id=`` → the export's status.
 
@@ -142,6 +143,7 @@ class AnswersClient(Resource):
         """
         return self._session.send(endpoints.export_results_get(survey_id, task_id))
 
+    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def export_download(self, survey_id: str, task_id: str) -> bytes:
         """The exported file's raw bytes, once :meth:`export_results_get` reports it ready.
 

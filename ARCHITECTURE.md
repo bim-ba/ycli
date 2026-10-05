@@ -98,11 +98,11 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_an_empty_reply_is_answered_the_same_by_the_cli_and_mcp` (`tests/test_contract.py`)
   replays every contract case with an empty object for a reply: the command and the tool
   return the same data or both fail, so neither judges a reply the other shows as it is.
-- **Exceptions:** `ARCH1_NAME_EXCEPTIONS` — a tool with no CLI command of its own name because
-  one command serves several tools; `ARCH1_SURFACE_ASYMMETRIES` — a binary download is
+- **Exceptions:** `# violation(arch-1): <reason>` above a tool — it has no CLI command of its own
+  name because one command serves several tools; the same marker above a client method — a binary download is
   CLI-only (bytes do not round-trip an MCP result), and so is an upload that reads a file
   from disk (the other uploads are MCP tools that take base64), plus a few SDK-internal primitives; a
-  resource whose every operation is listed there serves no MCP tool. `status/` and the `ycli.mcp` server package are
+  resource whose every operation is marked so serves no MCP tool. `status/` and the `ycli.mcp` server package are
   cross-cutting surfaces, not resources; `ARCH1_NON_RESOURCE_CLI_GROUPS` lists the CLI group every
   service mounts that is no resource (`<service> auth`, built once from the registry).
 

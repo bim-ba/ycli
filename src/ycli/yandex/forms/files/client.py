@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 class FilesClient(Resource):
     """The files attached while filling a form."""
 
+    # violation(arch-1): CLI-only, the file is read from disk as raw bytes
     def upload(self, survey_id: str, *, filename: str, data: bytes) -> FileOut:
         """Upload a file for form filling (multipart field ``file``) → :class:`FileOut`.
 
@@ -64,6 +65,7 @@ class FilesClient(Resource):
         """
         return self._session.send(endpoints.verify(survey_id, ItemList[FileIn](list(files))))
 
+    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def download(self, path: str, *, download: bool = False, file_hash: str | None = None) -> bytes:
         """``GET /files?path=…`` → a stored file's raw bytes.
 

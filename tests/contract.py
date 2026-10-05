@@ -104,7 +104,7 @@ class Case:
 
     ``operation`` is ``<domain>.<resource>.<method>`` on the SDK client. ``cli`` is the argv after
     ``ycli`` and ``mcp`` the tool name and arguments; either is ``None`` only for an operation
-    listed in ``ARCH1_SURFACE_ASYMMETRIES`` or reached on that surface by another case.
+    marked ``# violation(arch-1)`` or reached on that surface by another case.
     ``effect`` defaults to the strongest one the requests' methods imply; state it for a ``POST``
     that only reads. ``output`` is what the SDK must return, as the CLI prints it; state it for a
     result the client makes up itself (an ``Ack``) or one a limit cuts short, since a parsed reply
