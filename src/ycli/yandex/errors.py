@@ -6,6 +6,7 @@ Kept free of any HTTP library so cli/mcp may import it under ARCH-2. The core se
 
 import json
 from http import HTTPStatus
+from typing import cast
 
 
 class YandexError(Exception):
@@ -96,12 +97,31 @@ def _error_item(item: object) -> str:
     return f"{code}: {item.get('msg')}" if code else str(item.get("msg"))
 
 
+def _field_errors(details: object) -> str:
+    """The fields a DataLens validation error names: ``collectionId: Too big; title: ...``.
+
+    ``details`` is ``{"details": [{"path": ["a", 0, "b"], "message": ...}]}``; an item without
+    a path reads as its message alone, and any other shape as ``""``.
+    """
+    items = details.get("details") if isinstance(details, dict) else None
+    found: list[str] = []
+    for item in items if isinstance(items, list) else []:
+        entry = cast("dict[str, object]", item) if isinstance(item, dict) else {}
+        message, path = entry.get("message"), entry.get("path")
+        if isinstance(message, str):
+            where = ".".join(map(str, path)) if isinstance(path, list) else ""
+            found.append(f"{where}: {message}" if where else message)
+    return "; ".join(found)
+
+
 def describe_error_body(body: str) -> str:
     """The human-readable line from a Yandex error body, or a raw snippet as a fallback.
 
     Tracker answers ``{"errorMessages": [...]}``, Wiki ``{"message": [...] or "...",
     "error_code": ...}``, Forms ``{"detail": ...}`` or a bare list of ``{"loc", "error_code",
-    "msg"}`` items; anything else is cut to 300 characters.
+    "msg"}`` items, DataLens ``{"code": ..., "message": ..., "details": {"details": [{"path",
+    "message"}]}}``, whose items say which field is wrong; anything else is cut to 300
+    characters.
 
     Args:
         body: The response body text.
@@ -116,6 +136,11 @@ def describe_error_body(body: str) -> str:
         'NOT_FOUND: No page.'
         >>> describe_error_body('[{"loc": [], "error_code": "disabled", "msg": "Blocked"}]')
         'disabled: Blocked'
+        >>> describe_error_body(
+        ...     '{"code": "VALIDATION_ERROR", "message": "Validation error", "details": '
+        ...     '{"details": [{"path": ["collectionId"], "message": "Too big"}]}}'
+        ... )
+        'VALIDATION_ERROR: Validation error (collectionId: Too big)'
     """
     try:
         data = json.loads(body)
@@ -132,7 +157,9 @@ def describe_error_body(body: str) -> str:
                 text = value
             else:
                 continue
-            code = data.get("error_code")
+            if fields := _field_errors(data.get("details")):
+                text = f"{text} ({fields})"
+            code = data.get("error_code") or data.get("code")
             return f"{code}: {text}" if isinstance(code, str) else text
     return body[:300].replace("\n", " ").strip()
 
