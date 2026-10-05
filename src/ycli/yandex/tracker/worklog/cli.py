@@ -71,10 +71,10 @@ def list_global(
         str | None, typer.Option("--created-by", help="Author login or id.")
     ] = None,
     created_from: Annotated[
-        str | None, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
+        str | None, typer.Option("--created-from", help="Range start, YYYY-MM-DDThh:mm:ss.")
     ] = None,
     created_to: Annotated[
-        str | None, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")
+        str | None, typer.Option("--created-to", help="Range end, YYYY-MM-DDThh:mm:ss.")
     ] = None,
     *,
     tracker: TrackerClient,

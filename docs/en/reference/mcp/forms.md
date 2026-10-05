@@ -584,14 +584,15 @@ item is a self-describing question record (``{id, label, type, value, …}``).
 
 *List Forms answers* · read-only
 
-A form's responses, capped at config.http.max_items (drains pages via the next cursor).
+A form's responses, at most ``limit`` (drains pages via the next cursor).
 
 Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
-in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
+in the merged result.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
+| `limit` | integer or null |  | Max answers to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
 | `questions` | string or null |  | Comma-separated question ids to return answers for. |
 | `use_slugs` | boolean or null |  | Name questions and options by slug instead of id. |
 | `date_from` | string or null |  | ISO-8601: answers given at or after. |

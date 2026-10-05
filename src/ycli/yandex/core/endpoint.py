@@ -197,13 +197,13 @@ class Endpoint[T]:
 
     def parse(self, response: httpx2.Response) -> T:
         """The response body as ``response_type`` (``None`` when the endpoint ignores it)."""
-        if self.parser is not None:
-            return self.parser(response)
-        if self.response_type is None:
+        if self.parser is None and self.response_type is None:
             return cast("T", None)
-        if self.response_type is bytes:
+        if self.parser is None and self.response_type is bytes:
             return cast("T", response.content)
         try:
+            if self.parser is not None:
+                return self.parser(response)
             return _adapter(self.response_type).validate_json(response.content)
         except ValidationError as exc:
             fields = "; ".join(

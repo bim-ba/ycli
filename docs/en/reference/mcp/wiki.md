@@ -516,7 +516,7 @@ the path is the whole request.
 A single dynamic table (grid) by its UUID, with structure, rows and revision.
 
 Grids are the modern dynamic tables attached to a page; find a grid's id with
-``pages_grids_list``. Use ``filter``/``only_cols``/``only_rows``/``sort`` to narrow large
+``pages_grids_list``. Use ``row_filter``/``only_cols``/``only_rows``/``sort`` to narrow large
 grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. The returned
 ``revision`` is what any subsequent write must send back.
 
@@ -527,6 +527,7 @@ grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. 
 | `row_filter` | string or null |  | Server-side row filter, e.g. ``[slug] ~ wiki``. |
 | `only_cols` | string or null |  | Return only these column slugs (CSV). |
 | `only_rows` | string or null |  | Return only these row ids (CSV). |
+| `revision` | string or null |  | Load this past revision instead of the current one. |
 | `sort` | string or null |  | Row sort, e.g. ``slug,-slug2``. |
 
 ## `wiki_grids_create`

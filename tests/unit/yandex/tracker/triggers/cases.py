@@ -193,12 +193,22 @@ CASES = [
             "DEV-5",
             "--limit",
             "100",
-            "--from",
+            "--date-from",
             "2026-01-01T00:00:00.000+0300",
-            "--to",
+            "--date-to",
             "2026-02-01T00:00:00.000+0300",
         ],
-        mcp=None,
+        mcp=(
+            "tracker_triggers_webhook_log_list",
+            {
+                "queue_id": "DEV",
+                "trigger_id": 6,
+                "issue_id": "DEV-5",
+                "limit": 100,
+                "date_from": "2026-01-01T00:00:00.000+0300",
+                "date_to": "2026-02-01T00:00:00.000+0300",
+            },
+        ),
         exchanges=[
             (
                 Sent(

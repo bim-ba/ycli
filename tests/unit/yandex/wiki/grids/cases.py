@@ -90,7 +90,18 @@ CASES = [
             "--sort",
             "-name",
         ],
-        mcp=None,
+        mcp=(
+            "wiki_grids_get",
+            {
+                "grid_id": G1,
+                "fields": "attributes,user_permissions",
+                "row_filter": "[owner] ~ vera",
+                "only_cols": "name,owner",
+                "only_rows": "r1,r2",
+                "revision": "9",
+                "sort": "-name",
+            },
+        ),
         exchanges=[
             (
                 Sent(

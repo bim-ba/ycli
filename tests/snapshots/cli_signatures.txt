@@ -154,11 +154,11 @@ tracker entities checklists update: --dry-run:BOOLEAN=False --expand:TEXT --fiel
 tracker entities comments create: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --is-add-to-followers:BOOLEAN --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --summon:TEXT --text:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities comments delete: --dry-run:BOOLEAN=False --format:CHOICE --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities comments get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
-tracker entities comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
+tracker entities comments list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities comments update: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --is-add-to-followers:BOOLEAN --notify-author:BOOLEAN --notify:BOOLEAN --profile:TEXT --text:TEXT! --yes:BOOLEAN=False COMMENT_ID:TEXT! ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities create: --author:TEXT --description:TEXT --dry-run:BOOLEAN=False --end:TEXT --field:TEXT --fields:TEXT --format:CHOICE --lead:TEXT --parent:TEXT --profile:TEXT --start:TEXT --status:TEXT --summary:TEXT! --tag:TEXT --team-user:TEXT --yes:BOOLEAN=False ENTITY_TYPE:TEXT!
 tracker entities delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --with-board:BOOLEAN --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
-tracker entities events-list: --direction:TEXT --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER --new-events-on-top:BOOLEAN --profile:TEXT --selected:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
+tracker entities events-list: --all:BOOLEAN=False --direction:TEXT --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --new-events-on-top:BOOLEAN --profile:TEXT --selected:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities get: --dry-run:BOOLEAN=False --expand:TEXT --fields:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities links create: --dry-run:BOOLEAN=False --entity:TEXT! --format:CHOICE --profile:TEXT --relationship:TEXT! --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT!
 tracker entities links delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ENTITY_ID:TEXT! ENTITY_TYPE:TEXT! RIGHT:TEXT!
@@ -263,7 +263,7 @@ tracker triggers create: --action:TEXT --active:BOOLEAN --condition:TEXT --dry-r
 tracker triggers get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
 tracker triggers list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT!
 tracker triggers update: --action:TEXT --active:BOOLEAN --condition:TEXT --dry-run:BOOLEAN=False --format:CHOICE --name:TEXT --profile:TEXT --version:INTEGER --yes:BOOLEAN=False QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
-tracker triggers webhook-log-list: --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --issue-id:TEXT --limit:INTEGER --profile:TEXT --to:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
+tracker triggers webhook-log-list: --date-from:TEXT --date-to:TEXT --dry-run:BOOLEAN=False --format:CHOICE --issue-id:TEXT --limit:INTEGER --profile:TEXT --yes:BOOLEAN=False QUEUE_ID:TEXT! TRIGGER_ID:INTEGER!
 tracker users get: --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False LOGIN_OR_ID:TEXT!
 tracker users list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --expand:TEXT --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False
 tracker workflows actions-update: --action:TEXT! --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --version:INTEGER! --yes:BOOLEAN=False ACTION_ID:TEXT! STATUS:TEXT! WORKFLOW_ID:TEXT!
@@ -277,7 +277,7 @@ tracker worklog create: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT! 
 tracker worklog delete: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! RECORD_ID:TEXT!
 tracker worklog import: --comment:TEXT --created-at:TEXT! --created-by:TEXT! --dry-run:BOOLEAN=False --duration:TEXT! --format:CHOICE --profile:TEXT --start:TEXT! --yes:BOOLEAN=False ISSUE_KEY:TEXT!
 tracker worklog list: --all:BOOLEAN=False --dry-run:BOOLEAN=False --format:CHOICE --limit:INTEGER RANGE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT!
-tracker worklog list-global: --created-by:TEXT --dry-run:BOOLEAN=False --format:CHOICE --from:TEXT --profile:TEXT --to:TEXT --yes:BOOLEAN=False
+tracker worklog list-global: --created-by:TEXT --created-from:TEXT --created-to:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker worklog search: --created-by:TEXT --created-from:TEXT --created-to:TEXT --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 tracker worklog update: --comment:TEXT --dry-run:BOOLEAN=False --duration:TEXT --format:CHOICE --profile:TEXT --yes:BOOLEAN=False ISSUE_KEY:TEXT! RECORD_ID:TEXT!
 wiki access clear: --dry-run:BOOLEAN=False --format:CHOICE --prevent-selflock:BOOLEAN --profile:TEXT --yes:BOOLEAN=False PAGE_ID:INTEGER!

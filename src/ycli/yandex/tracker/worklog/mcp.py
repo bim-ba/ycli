@@ -88,17 +88,24 @@ def list_global(
     created_by: Annotated[
         str | None, Field(description="Login or id of the record author to filter by.")
     ] = None,
-    created_at: Annotated[
-        str | None, Field(description="Creation timestamp to filter by (``YYYY-MM-DDThh:mm:ss``).")
+    created_from: Annotated[
+        str | None, Field(description="Start of the creation-time range (``YYYY-MM-DDThh:mm:ss``).")
+    ] = None,
+    created_to: Annotated[
+        str | None, Field(description="End of the creation-time range (``YYYY-MM-DDThh:mm:ss``).")
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Worklog]:
-    """Org-wide worklog entries via ``GET /worklog`` query filters (author / exact timestamp).
+    """Org-wide worklog entries via ``GET /worklog`` query filters (author, creation time).
 
-    A lighter sibling of ``worklog_search`` (which takes a time *range*); both filters are
-    optional.
+    A lighter sibling of ``worklog_search``; every filter is optional.
     """
-    return client.worklog.list_global(created_by=created_by, created_at=created_at)
+    created_at = [
+        f"{prefix}:{value}"
+        for prefix, value in (("from", created_from), ("to", created_to))
+        if value is not None
+    ]
+    return client.worklog.list_global(created_by=created_by, created_at=created_at or None)
 
 
 @mcp.tool(
