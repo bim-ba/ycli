@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-14 tools.
+26 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -161,4 +161,154 @@ Give or take away roles on a collection; the roles not named stay as they are.
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `collection_id` | string | yes | Collection id. |
+| `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |
+
+## `datalens_workbooks_get`
+
+*Get DataLens workbook* · read-only
+
+One workbook by id: its title, description and collection.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_workbooks_list`
+
+*List DataLens workbooks* · read-only
+
+The workbooks of one collection (the root by default), auto-paginated.
+
+It does not descend into nested collections: ``collections_content_list`` shows what a
+collection holds. Capped at the configured item cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `limit` | integer or null |  | Max workbooks to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `collection_id` | string or null |  | Collection to list; the root when left out. |
+| `filter_string` | string or null |  | Keep the workbooks whose title has this text. |
+| `order_field` | `title` · `createdAt` · `updatedAt` or string or null |  | What to sort by. |
+| `order_direction` | `asc` · `desc` or string or null |  | Sort direction. |
+| `only_my` | boolean or null |  | Keep only what the caller created. |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+
+## `datalens_workbooks_list_by_ids`
+
+*List DataLens workbooks by id* · read-only
+
+The workbooks with these ids; an id the caller cannot see is left out.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_ids` | array of string | yes | Workbook ids. |
+
+## `datalens_workbooks_access_bindings_list`
+
+*List the roles on a DataLens workbook* · read-only
+
+Who has which role on a workbook, auto-paginated.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+| `limit` | integer or null |  | Max subjects to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `get_inherited_bindings` | boolean or null |  | Also list the roles inherited from above. |
+
+## `datalens_workbooks_entries_list`
+
+*List the entries of a DataLens workbook* · read-only
+
+What a workbook holds: connections, datasets, charts and dashboards, auto-paginated.
+
+``scope`` says the kind of each entry; its id opens it with the tools of that kind. Capped
+at the configured item cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+| `limit` | integer or null |  | Max entries to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `include_permissions_info` | boolean or null |  | Also say what the caller may do with it. |
+| `only_my` | boolean or null |  | Keep only what the caller created. |
+| `created_by` | string or null |  | Keep only what this user created. |
+| `scope` | array of `dash` · `report` · `widget` · `dataset` · `folder` · `connection` · `compute` · `artifact` · `sql_query` or string or null |  | Keep only these kinds of entries. |
+| `order_by` | object or null |  | What to sort by and in which direction. |
+| `filters` | object or null |  | Keep the entries whose name has a text. |
+
+## `datalens_workbooks_create`
+
+*Create DataLens workbook* · write
+
+Create a workbook in a collection, or in the root when no collection is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `title` | string | yes | Title of the workbook. |
+| `collection_id` | string or null |  | The collection to put the workbook in; the root when left out. |
+| `description` | string or null |  | Description of the workbook. |
+
+## `datalens_workbooks_update`
+
+*Update DataLens workbook* · idempotent write
+
+Change a workbook's title or description; what is not given stays as it is.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+| `title` | string or null |  | New title. |
+| `description` | string or null |  | New description. |
+
+## `datalens_workbooks_move`
+
+*Move DataLens workbook* · write
+
+Move a workbook into a collection, or into the root when no collection is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+| `collection_id` | string or null |  | The collection to put the workbook in; the root when left out. |
+| `title` | string or null |  | New title to give it on the way. |
+
+## `datalens_workbooks_move_bulk`
+
+*Move DataLens workbooks* · write
+
+Move several workbooks into a collection, or into the root when none is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_ids` | array of string | yes | Workbook ids. |
+| `collection_id` | string or null |  | The collection to put the workbook in; the root when left out. |
+
+## `datalens_workbooks_delete`
+
+*Delete DataLens workbook* · destructive write
+
+Delete a workbook with everything it holds: connections, datasets, charts, dashboards.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
+
+## `datalens_workbooks_delete_bulk`
+
+*Delete DataLens workbooks* · destructive write
+
+Delete several workbooks with everything they hold.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_ids` | array of string | yes | Workbook ids. |
+
+## `datalens_workbooks_access_bindings_update`
+
+*Change the roles on a DataLens workbook* · write
+
+Give or take away roles on a workbook; the roles not named stay as they are.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `workbook_id` | string | yes | Workbook id. |
 | `deltas` | array of object | yes | The roles to add (`ADD`) and remove. |

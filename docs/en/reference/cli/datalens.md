@@ -24,6 +24,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `auth`: Check that the token works for datalens.
 * `tenant`: The DataLens instance.
 * `collections`: DataLens collections.
+* `workbooks`: DataLens workbooks.
 
 ## `ycli datalens auth`
 
@@ -445,6 +446,344 @@ $ ycli datalens collections access-bindings-update [OPTIONS] COLLECTION_ID
 **Arguments**:
 
 * `COLLECTION_ID`: Collection id.  [required]
+
+**Options**:
+
+* `--delta TEXT`: A role to add or remove, as a JSON object of the API docs: {"action": "ADD", "accessBinding": {"roleId": ..., "subject": {"id": ..., "type": ...}}} (repeatable).  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens workbooks`
+
+DataLens workbooks.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `get`: Print one workbook.
+* `list`: List the workbooks of a collection...
+* `list-by-ids`: Print the workbooks with these ids.
+* `access-bindings-list`: List who has which role on a workbook...
+* `entries-list`: List what a workbook holds: connections,...
+* `create`: Create a workbook in --collection-id, or...
+* `update`: Change a workbook's title or description.
+* `move`: Move a workbook into --collection-id, or...
+* `move-bulk`: Move several workbooks into...
+* `delete`: Delete a workbook with everything it holds.
+* `delete-bulk`: Delete several workbooks with everything...
+* `access-bindings-update`: Give or take away roles on a workbook; the...
+
+### `ycli datalens workbooks get`
+
+Print one workbook.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks get [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `--include-permissions-info`: Also say what you may do with it.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks list`
+
+List the workbooks of a collection (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks list [OPTIONS]
+```
+
+**Options**:
+
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `--collection-id TEXT`: Collection to list; the root when left out.
+* `--filter-string TEXT`: Keep the titles that have this.
+* `--order-field TEXT`: What to sort by. Known values: title, createdAt, updatedAt.
+* `--order-direction TEXT`: Sort direction. Known values: asc, desc.
+* `--only-my`: Keep only what you created.
+* `--include-permissions-info`: Also say what you may do with it.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks list-by-ids`
+
+Print the workbooks with these ids.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks list-by-ids [OPTIONS] WORKBOOK_ID...
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID...`: Workbook ids.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks access-bindings-list`
+
+List who has which role on a workbook (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks access-bindings-list [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `--get-inherited-bindings`: Also list the inherited roles.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks entries-list`
+
+List what a workbook holds: connections, datasets, charts, dashboards (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks entries-list [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `--include-permissions-info`: Also say what you may do with it.
+* `--only-my`: Keep only what you created.
+* `--created-by TEXT`: Keep only what this user created.
+* `--scope TEXT`: Keep only this kind of entry (repeatable). Known values: dash, report, widget, dataset, folder, connection, compute, artifact, sql_query.
+* `--order-by TEXT`: What to sort by, as a JSON object: {"field": "name", "direction": "asc"}.
+* `--filters TEXT`: A filter, as a JSON object: {"name": "sales"}.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks create`
+
+Create a workbook in --collection-id, or in the root.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks create [OPTIONS]
+```
+
+**Options**:
+
+* `--title TEXT`: Title of the workbook.  [required]
+* `--collection-id TEXT`: The collection to put it in; the root when left out.
+* `--description TEXT`: Description of the workbook.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks update`
+
+Change a workbook's title or description.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks update [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `--title TEXT`: New title.
+* `--description TEXT`: New description.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks move`
+
+Move a workbook into --collection-id, or into the root.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks move [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `--collection-id TEXT`: The collection to put it in; the root when left out.
+* `--title TEXT`: New title to give it on the way.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks move-bulk`
+
+Move several workbooks into --collection-id, or into the root.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks move-bulk [OPTIONS] WORKBOOK_ID...
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID...`: Workbook ids.  [required]
+
+**Options**:
+
+* `--collection-id TEXT`: The collection to put it in; the root when left out.
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks delete`
+
+Delete a workbook with everything it holds.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks delete [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks delete-bulk`
+
+Delete several workbooks with everything they hold.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks delete-bulk [OPTIONS] WORKBOOK_ID...
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID...`: Workbook ids.  [required]
+
+**Options**:
+
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+### `ycli datalens workbooks access-bindings-update`
+
+Give or take away roles on a workbook; the roles not named stay as they are.
+
+**Usage**:
+
+```console
+$ ycli datalens workbooks access-bindings-update [OPTIONS] WORKBOOK_ID
+```
+
+**Arguments**:
+
+* `WORKBOOK_ID`: Workbook id.  [required]
 
 **Options**:
 

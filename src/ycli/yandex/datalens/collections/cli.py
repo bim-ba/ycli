@@ -24,15 +24,12 @@ from ycli.yandex.datalens.models import (
     OrderField,
     SubjectWithBindings,
 )
+from ycli.yandex.datalens.typedefs import DeltaOption, PermissionsOption
 from ycli.yandex.models import ItemList, SortDirection
 
 app = typer.Typer(name="collections", help="DataLens collections.", no_args_is_help=True)
 
 CollectionIDArg = Annotated[str, typer.Argument(metavar="COLLECTION_ID", help="Collection id.")]
-PermissionsOption = Annotated[
-    bool | None,
-    typer.Option("--include-permissions-info", help="Also say what you may do with it."),
-]
 
 
 @app.command()
@@ -223,14 +220,7 @@ def delete_bulk(
 @app.command("access-bindings-update")
 def access_bindings_update(
     collection_id: CollectionIDArg,
-    deltas: Annotated[
-        list[str],
-        typer.Option(
-            "--delta",
-            help='A role to add or remove, as a JSON object of the API docs: {"action": "ADD", '
-            '"accessBinding": {"roleId": ..., "subject": {"id": ..., "type": ...}}} (repeatable).',
-        ),
-    ],
+    deltas: DeltaOption,
     *,
     datalens: DataLensClient,
 ) -> Operation:

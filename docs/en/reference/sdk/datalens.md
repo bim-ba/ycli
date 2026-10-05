@@ -18,3 +18,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## collections
 
 ::: ycli.yandex.datalens.collections.client.CollectionsClient
+
+## workbooks
+
+::: ycli.yandex.datalens.workbooks.client.WorkbooksClient
