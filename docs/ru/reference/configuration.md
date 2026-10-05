@@ -13,8 +13,11 @@ ycli читает настройки из окружения или из фай�
 | Переменная | Значение |
 |---|---|
 | `YANDEX_ID_OAUTH_TOKEN` | OAuth-токен Яндекса с доступом к Трекеру, Вики и Формам (запасное имя — `YCLI__AUTH__OAUTH_TOKEN`) |
-| `YANDEX_CLOUD_IAM_TOKEN` | готовый IAM-токен вместо OAuth-токена; живёт до 12 часов. Задать оба токена сразу — ошибка (код возврата 2) |
+| `YANDEX_CLOUD_IAM_TOKEN` | готовый IAM-токен вместо OAuth-токена; живёт до 12 часов. Способ входа задаётся ровно один: второй — ошибка (код возврата 2) |
+| `YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_FILE` | путь к авторизованному ключу сервисного аккаунта (`yc iam key create --output key.json`) вместо токена; ycli обменивает его на IAM-токены и обновляет их. Нужен extra `service-account` |
+| `YANDEX_CLOUD_SERVICE_ACCOUNT_KEY` | тот же ключ текстом JSON — для хранилища секретов, которое выдаёт значения, а не файлы |
 | `YANDEX_ID_ORGANIZATION_ID` | идентификатор организации Яндекс 360, передаётся как `X-Org-Id` (запасное имя — `YCLI__AUTH__ORGANIZATION_ID`) |
+| `YANDEX_CLOUD_ORGANIZATION_ID` | идентификатор организации Yandex Cloud, передаётся как `X-Cloud-Org-Id`. Нужна одна организация любого вида; если заданы обе, Трекер, Вики и Формы получают организацию Яндекс 360 |
 | `YCLI_PROFILE` | имя сохранённого профиля, из которого берутся токен и организация вместо переменных выше; опция `--profile` важнее (см. [Аутентификация](../how-to/authenticate.md#keep-several-organizations)) |
 | `YANDEX_OAUTH_CLIENT_ID` | идентификатор вашего OAuth-приложения, для `ycli auth login` |
 | `YANDEX_OAUTH_CLIENT_SECRET` | секрет вашего OAuth-приложения: включает device flow в `ycli auth login` |

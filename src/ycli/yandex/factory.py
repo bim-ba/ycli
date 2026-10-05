@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 from ycli.settings import CredentialKind
 
 if TYPE_CHECKING:
+    import httpx2
+
     from ycli.settings import AppConfig, Credentials
     from ycli.yandex.base import DomainClient
     from ycli.yandex.core.session import BeforeSend
@@ -28,7 +30,7 @@ def build_client[C: DomainClient](
 
     Args:
         client_cls: The domain client class to build.
-        credentials: The token (OAuth or IAM) and the organization id.
+        credentials: The way to sign in and the organization of either kind.
         config: The HTTP settings.
         before_send: The client's per-endpoint hook.
 
@@ -44,12 +46,21 @@ def build_client[C: DomainClient](
         'alice'
     """
     # Imported here: httpx2 costs ~0.2 s, paid only once a client is built.
-    from ycli.yandex.core.auth import IAMTokenAuth, OAuthTokenAuth
+    from ycli.yandex.core.auth import IAMTokenAuth, OAuthTokenAuth, ServiceAccountAuth
 
-    scheme = IAMTokenAuth if credentials.kind is CredentialKind.IAM else OAuthTokenAuth
+    auth: httpx2.Auth
+    if credentials.service_account_key_file is not None:
+        auth = ServiceAccountAuth.from_key_file(credentials.service_account_key_file)
+    elif credentials.service_account_key is not None:
+        auth = ServiceAccountAuth.from_key(credentials.service_account_key.get_secret_value())
+    elif credentials.kind is CredentialKind.IAM:
+        auth = IAMTokenAuth(credentials.token)
+    else:
+        auth = OAuthTokenAuth(credentials.token)
     return client_cls(
-        auth=scheme(credentials.token),
+        auth=auth,
         organization_id=credentials.organization_id,
+        cloud_organization_id=credentials.cloud_organization_id,
         http=config.http,
         before_send=before_send,
     )

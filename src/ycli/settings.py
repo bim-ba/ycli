@@ -24,7 +24,8 @@ from __future__ import annotations
 import enum
 import os
 import re
-from typing import TYPE_CHECKING, Annotated, Self
+from pathlib import Path
+from typing import Annotated, Self
 
 from dotenv import dotenv_values
 from platformdirs import user_config_path
@@ -49,14 +50,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from ycli.log import LogFormat, LogLevel
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 # Yandex's own names for the credential variables; everything that names them imports these.
 OAUTH_TOKEN_ENV = "YANDEX_ID_OAUTH_TOKEN"
 ORGANIZATION_ID_ENV = "YANDEX_ID_ORGANIZATION_ID"
 # A ready IAM token (`yc iam create-token`), used in place of the OAuth token.
 IAM_TOKEN_ENV = "YANDEX_CLOUD_IAM_TOKEN"
+# A service account's authorized key (`yc iam key create`): the file, or its JSON itself.
+SERVICE_ACCOUNT_KEY_FILE_ENV = "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_FILE"
+SERVICE_ACCOUNT_KEY_ENV = "YANDEX_CLOUD_SERVICE_ACCOUNT_KEY"
+# A Yandex Cloud organization, where a service does not live in a Yandex 360 one.
+CLOUD_ORGANIZATION_ID_ENV = "YANDEX_CLOUD_ORGANIZATION_ID"
 # The profile to use when ``--profile`` is not given.
 PROFILE_ENV = "YCLI_PROFILE"
 # Every name a credential is read under: Yandex's own first, then ycli's fallback.
@@ -69,9 +72,28 @@ _PROFILE_SUFFIX = ".env"
 # pydantic-settings reports a missing field under its validation alias (the env var name), so a
 # ``ValidationError`` loc is already one of these strings.
 _CREDENTIAL_ENV_NAMES = frozenset({OAUTH_TOKEN_ENV, ORGANIZATION_ID_ENV})
+# Every credential variable, in the order a report names them: the ways to sign in, then the
+# organizations.
+_CREDENTIAL_NAMES = (
+    OAUTH_TOKEN_ENV,
+    IAM_TOKEN_ENV,
+    SERVICE_ACCOUNT_KEY_FILE_ENV,
+    SERVICE_ACCOUNT_KEY_ENV,
+    ORGANIZATION_ID_ENV,
+    CLOUD_ORGANIZATION_ID_ENV,
+)
+# The ways to sign in, by the variable that carries each: exactly one is set.
+_SIGN_IN_ENV_NAMES = {
+    "oauth_token": OAUTH_TOKEN_ENV,
+    "iam_token": IAM_TOKEN_ENV,
+    "service_account_key_file": SERVICE_ACCOUNT_KEY_FILE_ENV,
+    "service_account_key": SERVICE_ACCOUNT_KEY_ENV,
+}
 NOT_SET = "not set"
 # The error type of credentials with no token at all (the OAuth token is the one asked for).
 NO_TOKEN = "no_token"
+# The error type of credentials that name no organization of either kind.
+NO_ORGANIZATION = "no_organization"
 
 
 class CredentialKind(enum.StrEnum):
@@ -79,6 +101,14 @@ class CredentialKind(enum.StrEnum):
 
     OAUTH = "oauth"
     IAM = "iam"
+    SERVICE_ACCOUNT = "service_account"
+
+
+class OrganizationKind(enum.StrEnum):
+    """Where an organization lives: Yandex 360 or Yandex Cloud."""
+
+    YANDEX_360 = "360"
+    CLOUD = "cloud"
 
 
 # `YCLI__LOGGING__LEVEL=debug` is read as DEBUG.
@@ -224,10 +254,13 @@ def name_profile(name: str) -> None:
 
 
 class Credentials(_EnvSettings):
-    """Yandex 360 credentials: one token and the organization; pydantic raises without them.
+    """Yandex credentials: one way to sign in and an organization; pydantic raises without them.
 
-    The token is an OAuth token or a ready IAM token, never both: two tokens would leave it
-    to chance which one a request carries. :attr:`kind` and :attr:`token` are the parsed result.
+    The way to sign in is an OAuth token, a ready IAM token or a service account's key, exactly
+    one: two would leave it to chance which a request carries. The organization is a Yandex 360
+    one, a Yandex Cloud one, or both: a service takes the kind it lives in
+    (:meth:`ycli.yandex.core.profile.ServiceProfile.headers_for`). :attr:`kind` is the parsed
+    result.
 
     Examples:
         >>> Credentials(oauth_token=None, iam_token="t1.x", organization_id="1").kind
@@ -235,14 +268,25 @@ class Credentials(_EnvSettings):
     """
 
     iam_token: SecretStr | None = Field(default=None, min_length=1, validation_alias=IAM_TOKEN_ENV)
+    service_account_key_file: Path | None = Field(
+        default=None, validation_alias=SERVICE_ACCOUNT_KEY_FILE_ENV
+    )
+    service_account_key: SecretStr | None = Field(
+        default=None, min_length=1, validation_alias=SERVICE_ACCOUNT_KEY_ENV
+    )
+    cloud_organization_id: str | None = Field(
+        default=None, min_length=1, validation_alias=CLOUD_ORGANIZATION_ID_ENV
+    )
     oauth_token: SecretStr | None = Field(
         default=None,
         min_length=1,
         validate_default=True,  # so that no token at all is reported beside a missing organization
         validation_alias=AliasChoices(*_OAUTH_TOKEN_NAMES),
     )
-    organization_id: str = Field(
+    organization_id: str | None = Field(
+        default=None,
         min_length=1,
+        validate_default=True,  # so that no organization at all is reported
         validation_alias=AliasChoices(*_ORGANIZATION_ID_NAMES),
     )
 
@@ -250,18 +294,28 @@ class Credentials(_EnvSettings):
 
     @field_validator("oauth_token", mode="after")
     @classmethod
-    def _exactly_one_token(
+    def _exactly_one_way_to_sign_in(
         cls, oauth_token: SecretStr | None, info: ValidationInfo
     ) -> SecretStr | None:
-        iam_token = info.data.get("iam_token")  # declared first, so already parsed
-        if oauth_token is None and iam_token is None:
+        # The other three are declared first, so they are already parsed.
+        given = {**info.data, "oauth_token": oauth_token}
+        names = [env for field, env in _SIGN_IN_ENV_NAMES.items() if given.get(field) is not None]
+        if not names:
             raise PydanticCustomError(NO_TOKEN, f"{OAUTH_TOKEN_ENV} is not set")
-        if oauth_token is not None and iam_token is not None:
+        if len(names) > 1:
             raise PydanticCustomError(
                 "two_tokens",
-                f"{OAUTH_TOKEN_ENV} and {IAM_TOKEN_ENV} are both set: keep one of them",
+                "{names} are both set: keep one of them",
+                {"names": " and ".join(names)},
             )
         return oauth_token
+
+    @field_validator("organization_id", mode="after")
+    @classmethod
+    def _an_organization(cls, organization_id: str | None, info: ValidationInfo) -> str | None:
+        if organization_id is None and info.data.get("cloud_organization_id") is None:
+            raise PydanticCustomError(NO_ORGANIZATION, f"{ORGANIZATION_ID_ENV} is not set")
+        return organization_id
 
     @classmethod
     def load(cls, profile: str | None = None) -> Self:
@@ -274,7 +328,7 @@ class Credentials(_EnvSettings):
             The credentials of the active profile, or of the environment when none is named.
         """
         name = active_profile(profile)
-        return cls() if name is None else cls.from_profile(name)  # ty: ignore[missing-argument]
+        return cls() if name is None else cls.from_profile(name)
 
     @classmethod
     def from_profile(cls, name: str) -> Self:
@@ -301,13 +355,21 @@ class Credentials(_EnvSettings):
                 f"profile {name!r} not found in {path.parent} (saved profiles: {saved})"
             )
         saved_values = dotenv_values(path)
-        oauth_token, iam_token = saved_values.get(OAUTH_TOKEN_ENV), saved_values.get(IAM_TOKEN_ENV)
+
+        def secret(name: str) -> SecretStr | None:
+            value = saved_values.get(name)
+            return SecretStr(value) if value else None
+
+        key_file = saved_values.get(SERVICE_ACCOUNT_KEY_FILE_ENV)
         try:
             # Every field is passed, so nothing falls through to the environment.
             credentials = cls(
-                oauth_token=SecretStr(oauth_token) if oauth_token else None,
-                iam_token=SecretStr(iam_token) if iam_token else None,
-                organization_id=saved_values.get(ORGANIZATION_ID_ENV) or "",
+                oauth_token=secret(OAUTH_TOKEN_ENV),
+                iam_token=secret(IAM_TOKEN_ENV),
+                service_account_key_file=Path(key_file) if key_file else None,
+                service_account_key=secret(SERVICE_ACCOUNT_KEY_ENV),
+                organization_id=saved_values.get(ORGANIZATION_ID_ENV) or None,
+                cloud_organization_id=saved_values.get(CLOUD_ORGANIZATION_ID_ENV) or None,
             )
         except ValidationError as exc:
             problems = "; ".join(
@@ -327,14 +389,24 @@ class Credentials(_EnvSettings):
 
     @property
     def kind(self) -> CredentialKind:
-        """Which token this is: ``oauth`` or ``iam``."""
-        return CredentialKind.OAUTH if self.oauth_token is not None else CredentialKind.IAM
+        """Which way to sign in this is: ``oauth``, ``iam`` or ``service_account``."""
+        if self.oauth_token is not None:
+            return CredentialKind.OAUTH
+        return CredentialKind.IAM if self.iam_token is not None else CredentialKind.SERVICE_ACCOUNT
+
+    @property
+    def organization(self) -> tuple[str, OrganizationKind]:
+        """The organization to show first: the Yandex 360 one when set, else the Cloud one."""
+        if self.organization_id is not None:
+            return self.organization_id, OrganizationKind.YANDEX_360
+        assert self.cloud_organization_id is not None  # _an_organization
+        return self.cloud_organization_id, OrganizationKind.CLOUD
 
     @property
     def token(self) -> SecretStr:
-        """The one token that is set."""
+        """The OAuth or IAM token; a service account has a key instead (see :attr:`kind`)."""
         token = self.oauth_token or self.iam_token
-        assert token is not None  # _exactly_one_token
+        assert token is not None  # the caller asks only for the token kinds
         return token
 
 
@@ -397,6 +469,8 @@ def _missing_name(error: ErrorDetails) -> str:
     """The credential variable ``error`` reports missing, or ``""``."""
     if error.get("type") == NO_TOKEN:
         return OAUTH_TOKEN_ENV
+    if error.get("type") == NO_ORGANIZATION:
+        return ORGANIZATION_ID_ENV
     return str(error["loc"][0]) if error.get("type") == "missing" and error["loc"] else ""
 
 
@@ -416,11 +490,8 @@ def credential_sources(profile: str | None = None) -> dict[str, str]:
     if profile is not None:
         return _profile_sources(profile)
     in_file = dotenv_values(".env")
-    names = {
-        OAUTH_TOKEN_ENV: _OAUTH_TOKEN_NAMES,
-        IAM_TOKEN_ENV: (IAM_TOKEN_ENV,),
-        ORGANIZATION_ID_ENV: _ORGANIZATION_ID_NAMES,
-    }
+    aliases_of = {OAUTH_TOKEN_ENV: _OAUTH_TOKEN_NAMES, ORGANIZATION_ID_ENV: _ORGANIZATION_ID_NAMES}
+    names = {name: aliases_of.get(name, (name,)) for name in _CREDENTIAL_NAMES}
     sources = {
         name: "environment"
         if any(os.environ.get(alias) for alias in aliases)
@@ -429,7 +500,7 @@ def credential_sources(profile: str | None = None) -> dict[str, str]:
         else NOT_SET
         for name, aliases in names.items()
     }
-    return _one_token(sources)
+    return _named_once(sources)
 
 
 def _profile_sources(profile: str) -> dict[str, str]:
@@ -438,20 +509,25 @@ def _profile_sources(profile: str) -> dict[str, str]:
         saved_values = dotenv_values(profile_path(profile))
     except ProfileError:
         saved_values = {}
-    return _one_token(
+    return _named_once(
         {
             name: f"profile {profile}" if saved_values.get(name) else NOT_SET
-            for name in (OAUTH_TOKEN_ENV, IAM_TOKEN_ENV, ORGANIZATION_ID_ENV)
+            for name in _CREDENTIAL_NAMES
         }
     )
 
 
-def _one_token(sources: dict[str, str]) -> dict[str, str]:
-    """One token is enough: the one that is not set is named only when neither is."""
-    if sources[IAM_TOKEN_ENV] == NOT_SET:
-        del sources[IAM_TOKEN_ENV]
-    elif sources[OAUTH_TOKEN_ENV] == NOT_SET:
-        del sources[OAUTH_TOKEN_ENV]
+def _named_once(sources: dict[str, str]) -> dict[str, str]:
+    """One way to sign in and one organization are enough: an unset alternative is left out.
+
+    ``YANDEX_ID_OAUTH_TOKEN`` and ``YANDEX_ID_ORGANIZATION_ID`` stand for their groups when
+    nothing of the group is set, so that the report always says what is missing.
+    """
+    for group in (_CREDENTIAL_NAMES[:4], _CREDENTIAL_NAMES[4:]):
+        some_set = any(sources[name] != NOT_SET for name in group)
+        for name in group[1:] if not some_set else group:
+            if sources[name] == NOT_SET:
+                del sources[name]
     return sources
 
 
