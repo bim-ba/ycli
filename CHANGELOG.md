@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.82.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.81.2
+  ([`7178ce5`](https://github.com/bim-ba/ycli/commit/7178ce5fad94968c0e91e8170b9913f8294b2212))
+
+### Features
+
+- **mcp**: A tool lists at most 32 KB of schema; a larger body is read with schema_get
+  ([#365](https://github.com/bim-ba/ycli/pull/365),
+  [`ebc0d7a`](https://github.com/bim-ba/ycli/commit/ebc0d7ad062102cb9681326acd489481eac058e6))
+
+
 ## v0.81.2 (2026-10-05)
 
 ### Bug Fixes
