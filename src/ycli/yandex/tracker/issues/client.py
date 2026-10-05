@@ -97,6 +97,8 @@ class IssuesClient(Resource):
             'DE-7'
         """
         if limit is not None and limit < 1:
+            # violation(arch-9): limit is ycli's own cap on the issues it fetches, not a field of
+            # the API
             raise YandexInvalidRequestError(
                 f"limit must be a positive number of issues or None, got {limit}"
             )

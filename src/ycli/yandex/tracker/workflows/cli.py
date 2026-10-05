@@ -52,6 +52,8 @@ def _json(raw: str, option: str) -> Any:
     try:
         return json.loads(raw)
     except json.JSONDecodeError as exc:
+        # violation(arch-9): an option that takes JSON; text that does not parse gives no value for
+        # the body
         raise typer.BadParameter(f"{option} must be valid JSON: {exc}") from exc
 
 

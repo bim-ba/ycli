@@ -4,30 +4,8 @@ from __future__ import annotations
 
 import ast
 
-from tests.architecture.scanners import DOMAINS, SRC, YANDEX
+from tests.architecture.scanners import DOMAINS, SRC, YANDEX, violation_markers
 
-# ARCH-9: every place where a service's code refuses a request before it is sent, with the
-# reason the request cannot be built without the check, or the limit of ycli's own it guards.
-ARCH9_REFUSALS: dict[str, str] = {
-    "yandex/forms/files/cli.py:verify: raises typer.BadParameter": (
-        "--url values pair with --path values by position; unequal counts give no pairs"
-    ),
-    "yandex/tracker/entities/cli.py:checklists_update: raises typer.BadParameter": (
-        "--item is ycli's own id=text syntax; without the = there is no id to send"
-    ),
-    "yandex/tracker/filters/cli.py:_parse_filter: raises typer.BadParameter": (
-        "--filter is JSON; text that does not parse gives no value for the body"
-    ),
-    "yandex/tracker/gaps/cli.py:create: raises typer.BadParameter": (
-        "--gap is JSON; text that does not parse gives no absence to send"
-    ),
-    "yandex/tracker/workflows/cli.py:_json: raises typer.BadParameter": (
-        "an option that takes JSON; text that does not parse gives no value for the body"
-    ),
-    "yandex/tracker/issues/client.py:search: raises YandexInvalidRequestError": (
-        "limit is ycli's own cap on the issues it fetches, not a field of the API"
-    ),
-}
 _ARCH9_RAISES = {"typer.BadParameter", "YandexInvalidRequestError", "ValueError", "TypeError"}
 _ARCH9_VALIDATORS = {"model_validator", "field_validator"}
 _ARCH9_WRAPPERS = {"AfterValidator", "BeforeValidator", "PlainValidator", "WrapValidator"}
@@ -45,20 +23,20 @@ _ARCH9_CONSTRAINTS = {
 }
 
 
-def _refusals(path: str, source: str) -> list[str]:
+def _refusals(path: str, source: str) -> list[tuple[int, str]]:
     """Where ``source`` refuses or constrains a request: raises, validators, field limits.
 
-    A ``ge`` on a ``limit`` that goes into ``HTTPConfig.cap`` is ycli's own item cap and is
-    not reported; a ``limit`` sent to the API is.
+    Each one with the line it starts on. A ``ge`` on a ``limit`` that goes into
+    ``HTTPConfig.cap`` is ycli's own item cap and is not reported; a ``limit`` sent to the API is.
     """
-    found: set[str] = set()
+    found: set[tuple[int, str]] = set()
     own_cap: set[int] = set()
 
     def visit(node: ast.AST, owner: str) -> None:
         if isinstance(node, ast.FunctionDef):
             decorators = {ast.unparse(item).split("(")[0] for item in node.decorator_list}
             if decorators & _ARCH9_VALIDATORS:
-                found.add(f"{path}:{owner}.{node.name}: validator")
+                found.add((node.lineno, f"{path}:{owner}.{node.name}: validator"))
             if "cap(limit" in ast.unparse(node):
                 for argument in [*node.args.args, *node.args.kwonlyargs]:
                     if argument.arg == "limit" and argument.annotation is not None:
@@ -68,14 +46,14 @@ def _refusals(path: str, source: str) -> list[str]:
         if isinstance(node, ast.Raise) and node.exc is not None:
             raised = ast.unparse(node.exc).split("(")[0]
             if raised in _ARCH9_RAISES:
-                found.add(f"{path}:{owner}: raises {raised}")
+                found.add((node.lineno, f"{path}:{owner}: raises {raised}"))
         if isinstance(node, ast.Call):
             called = ast.unparse(node.func)
             if called in _ARCH9_WRAPPERS:
-                found.add(f"{path}:{owner}: {called}")
+                found.add((node.lineno, f"{path}:{owner}: {called}"))
             if called in {"Field", "typer.Option", "typer.Argument"} and id(node) not in own_cap:
                 found.update(
-                    f"{path}:{owner}: {keyword.arg}"
+                    (node.lineno, f"{path}:{owner}: {keyword.arg}")
                     for keyword in node.keywords
                     if keyword.arg in _ARCH9_CONSTRAINTS
                 )
@@ -86,8 +64,20 @@ def _refusals(path: str, source: str) -> list[str]:
     return sorted(found)
 
 
+def _unexplained(path: str, source: str) -> list[str]:
+    """Refusals of ``source`` with no ``# violation(arch-9)`` above them, and markers above none."""
+    markers = violation_markers(source, "arch-9")
+    refusals = _refusals(path, source)
+    lines = {line for line, _ in refusals}
+    return [text for line, text in refusals if line not in markers] + [
+        f"{path}:{marker}: violation(arch-9) marks no refusal"
+        for line, marker in sorted(markers.items())
+        if line not in lines
+    ]
+
+
 def test_arch9_a_request_is_refused_only_where_it_cannot_be_built():
-    """ARCH-9: a service's code refuses before sending only what is listed with its reason.
+    """ARCH-9: a service's code refuses before sending only where a marker gives the reason.
 
     Everything the API can check itself (a value's length or range, which arguments go
     together, a rule of the service) is sent as given, and the API's answer is shown.
@@ -96,9 +86,9 @@ def test_arch9_a_request_is_refused_only_where_it_cannot_be_built():
         finding
         for domain in DOMAINS
         for path in sorted((YANDEX / domain).rglob("*.py"))
-        for finding in _refusals(str(path.relative_to(SRC)), path.read_text(encoding="utf-8"))
+        for finding in _unexplained(str(path.relative_to(SRC)), path.read_text(encoding="utf-8"))
     ]
-    assert sorted(found) == sorted(ARCH9_REFUSALS)
+    assert found == []
 
 
 def test_arch9_refusal_check_bites():
@@ -119,12 +109,28 @@ def test_arch9_refusal_check_bites():
         "def log(limit: Annotated[int | None, Field(ge=1)] = None):\n"
         "    return client.log(limit=limit)\n"
     )
-    assert _refusals("a/cli.py", source) == [
-        "a/cli.py:Body._both: validator",
-        "a/cli.py:Body: AfterValidator",
+    assert [text for _, text in _refusals("a/cli.py", source)] == [
         "a/cli.py:Body: max_length",
+        "a/cli.py:Body: AfterValidator",
+        "a/cli.py:Body._both: validator",
         "a/cli.py:create: max",
         "a/cli.py:create: min",
         "a/cli.py:create: raises typer.BadParameter",
         "a/cli.py:log: ge",
     ]
+
+
+def test_arch9_a_marker_and_a_refusal_go_together():
+    """Prove-it, both sides: a refusal with no marker, and a marker above no refusal."""
+    marked = (
+        "def create(raw):\n"
+        "    if not raw:\n"
+        "        # violation(arch-9): the option is JSON; text that does not parse\n"
+        "        # gives no value to send\n"
+        "        raise typer.BadParameter('not JSON')\n"
+    )
+    assert _unexplained("a/cli.py", marked) == []
+    unmarked = marked.replace("violation(arch-9)", "violation(naming)")
+    assert _unexplained("a/cli.py", unmarked) == ["a/cli.py:create: raises typer.BadParameter"]
+    stale = marked.replace("raise typer.BadParameter('not JSON')", "return None")
+    assert _unexplained("a/cli.py", stale) == ["a/cli.py:3: violation(arch-9) marks no refusal"]

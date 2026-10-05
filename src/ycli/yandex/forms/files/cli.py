@@ -51,6 +51,8 @@ def verify(
     paths = path or []
     urls = url or []
     if urls and len(urls) != len(paths):
+        # violation(arch-9): --url values pair with --path values by position; unequal counts give
+        # no pairs
         raise typer.BadParameter("--url count must match --path count")
     files = [
         FileIn(path=p or None, url=(urls[index] if index < len(urls) else None) or None)

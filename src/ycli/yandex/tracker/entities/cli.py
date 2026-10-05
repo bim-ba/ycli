@@ -569,6 +569,8 @@ def checklists_update(
     for raw in item:
         item_id, separator, text = raw.partition("=")
         if not separator:
+            # violation(arch-9): --item is ycli's own id=text syntax; without the = there is no id
+            # to send
             raise typer.BadParameter(f"must be id=text, got {raw!r}", param_hint="--item")
         inputs.append(ChecklistItemInput(id=item_id, text=text))
     items = ItemList[ChecklistItemInput](inputs)

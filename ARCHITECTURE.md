@@ -58,7 +58,7 @@ Notable shared pieces:
 
 ## Invariants (ARCH-1..9)
 
-Each rule states a principle; the mechanics live in its check, and every exception is an
+Each rule states a principle; the mechanics live in its check, and every exception is a marker or an
 allowlist entry in code with its reason, never prose here. Tests are in
 `tests/architecture/` unless named otherwise.
 
@@ -223,14 +223,15 @@ allowlist entry in code with its reason, never prose here. Tests are in
   the service: all of that is sent as given, and the API's answer is shown as it is.
 - **Why:** a check copied from an API goes stale when the API changes, hides what the API
   really says, and cannot be kept up for every service ycli wraps.
-- **Check:** `test_arch9_a_request_is_refused_only_where_it_cannot_be_built` (with a bite
-  test) reads the code of every service for a `raise` of a usage or request error, a pydantic
+- **Check:** `test_arch9_a_request_is_refused_only_where_it_cannot_be_built` (with bite
+  tests) reads the code of every service for a `raise` of a usage or request error, a pydantic
   validator, a length or range constraint on a field, and a `min` / `max` on an option; each
-  one must be in `ARCH9_REFUSALS` with its reason.
-- **Exceptions:** `ARCH9_REFUSALS` — parsing ycli's own option syntax (JSON, `id=text`, paired
-  options) and the cap on fetched items. Not refusals of this kind, and not scanned: the
-  closed request bodies and required fields of a model (ARCH-8), the file an option names,
-  `ycli api` naming an unknown method, and missing credentials.
+  one must have `# violation(arch-9): <reason>` on the line above it, and each such marker must
+  stand above one of them.
+- **Exceptions:** the `# violation(arch-9)` markers in the code — parsing ycli's own option
+  syntax (JSON, `id=text`, paired options) and the cap on fetched items. Not refusals of this
+  kind, and not scanned: the closed request bodies and required fields of a model (ARCH-8), the
+  file an option names, `ycli api` naming an unknown method, and missing credentials.
 
 ## Scope & limits of enforcement
 
