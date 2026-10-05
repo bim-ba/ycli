@@ -15,7 +15,8 @@ from fastmcp.server.transforms.search import BM25SearchTransform
 from pydantic import ValidationError
 
 from ycli.mcp.listing import DerivedTags, LightListing, ServedWithTheirTools, UnknownToolError
-from ycli.mcp.profiles import STATUS_TOOL
+from ycli.mcp.profiles import ALWAYS_SERVED
+from ycli.mcp.schemas import schema_server
 from ycli.mcp.selection import Selection
 from ycli.settings import (
     OAUTH_TOKEN_ENV,
@@ -72,6 +73,7 @@ def build_server(selection: Selection, auth: AuthProvider | None = None) -> Fast
     for service in mounted:
         server.mount(service.mcp_server(), namespace=service.name)
     server.mount(status_mcp, namespace="status")
+    server.mount(schema_server(server.list_tools), namespace="schema")
     server.add_transform(DerivedTags())
     _apply_selection(server, selection)
     return server
@@ -106,7 +108,7 @@ def _apply_selection(server: FastMCP, selection: Selection) -> None:
     server.enable(components={"prompt", "resource", "template"})
     server.add_transform(ServedWithTheirTools(server.list_tools))
     if selection.tool_search:
-        server.add_transform(BM25SearchTransform(always_visible=[STATUS_TOOL]))
+        server.add_transform(BM25SearchTransform(always_visible=[*ALWAYS_SERVED]))
     server.add_transform(LightListing())  # last, so it slims the search tools and their results too
 
 
@@ -126,7 +128,7 @@ async def check_tool_names(selection: Selection) -> None:
     Examples:
         >>> asyncio.run(check_tool_names(Selection(tools=("wiki_pages_get",))))
     """
-    requested = {*selection.tools, *selection.exclude_tools} - {STATUS_TOOL}
+    requested = {*selection.tools, *selection.exclude_tools} - {*ALWAYS_SERVED}
     if not requested:
         return
     mounted = selection.services()

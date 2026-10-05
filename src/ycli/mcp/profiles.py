@@ -1,6 +1,7 @@
 """The curated ``core`` toolset: the tools an everyday Tracker / Wiki / Forms session uses.
 
-``--toolsets core`` serves these (plus ``status_get``) instead of a whole service, so a host
+``--toolsets core`` serves these (with ``status_get`` and ``schema_get``) instead of a whole
+service, so a host
 that caps a request at 128 tools (VS Code does) or charges tokens per listed tool stays small.
 Selection rule: read and edit the work items people touch daily and nothing that administers
 the workspace.
@@ -20,12 +21,15 @@ Examples:
     True
 """
 
-# The one always-served tool: the auth probe an agent needs to explain a failing call.
+# The always-served tools: the auth probe an agent needs to explain a failing call, and the
+# reader of the schemas a tool does not list (a body over the schema budget).
 STATUS_TOOL = "status_get"
+SCHEMA_TOOL = "schema_get"
+ALWAYS_SERVED = (STATUS_TOOL, SCHEMA_TOOL)
 
 CORE_TOOLS: frozenset[str] = frozenset(
     {
-        STATUS_TOOL,
+        *ALWAYS_SERVED,
         # Tracker
         "tracker_me_get",
         "tracker_issues_get",

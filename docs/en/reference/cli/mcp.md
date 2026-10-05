@@ -36,11 +36,11 @@ $ ycli mcp start [OPTIONS]
 
 **Options**:
 
-* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, datalens, core, all (core = a curated everyday profile; all = every service, the default). status_get is always served.  [default: all]
+* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, datalens, core, all (core = a curated everyday profile; all = every service, the default). status_get and schema_get are always served.  [default: all]
 * `--tools TEXT`: Comma-separated extra tool names to serve beyond the toolsets.
 * `--exclude-tools TEXT`: Comma-separated tool names to hide.
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.
-* `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get stays.
+* `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get and schema_get stay.
 * `--transport [stdio|http]`: stdio (default): one local client, credentials from the environment or from --profile. http: Streamable HTTP for many users, each signed in through Yandex ID (needs YCLI__MCP__BASE_URL and your Yandex OAuth app; see https://ycli.savaznatnov.dev/how-to/self-host-over-http/).  [default: stdio]
 * `--host TEXT`: HTTP only: listen address (YCLI__MCP__HOST).
 * `--port INTEGER`: HTTP only: listen port (YCLI__MCP__PORT).
@@ -67,11 +67,11 @@ $ ycli mcp methods [OPTIONS]
 
 **Options**:
 
-* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, datalens, core, all (core = a curated everyday profile; all = every service, the default). status_get is always served.  [default: all]
+* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, datalens, core, all (core = a curated everyday profile; all = every service, the default). status_get and schema_get are always served.  [default: all]
 * `--tools TEXT`: Comma-separated extra tool names to serve beyond the toolsets.
 * `--exclude-tools TEXT`: Comma-separated tool names to hide.
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.
-* `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get stays.
+* `--tool-search`: List a search tool and a call proxy instead of the tools (BM25); status_get and schema_get stay.
 * `--kind [tools|prompts|resources]`: What to list: tools (default), prompts, or resources (addresses and templates).  [default: tools]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

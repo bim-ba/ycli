@@ -11,7 +11,7 @@ Examples:
 
 from dataclasses import dataclass
 
-from ycli.mcp.profiles import CORE_TOOLS, STATUS_TOOL
+from ycli.mcp.profiles import ALWAYS_SERVED, CORE_TOOLS
 from ycli.yandex.registry import SERVICES
 
 ALL = "all"
@@ -64,10 +64,11 @@ class Selection:
                 f"unknown toolset(s) {', '.join(unknown) or '(none given)'}; "
                 f"valid: {', '.join(TOOLSET_NAMES)}"
             )
-        if STATUS_TOOL in self.exclude_tools:
-            raise ValueError(f"{STATUS_TOOL} is always served and cannot be excluded")
+        for name in ALWAYS_SERVED:
+            if name in self.exclude_tools:
+                raise ValueError(f"{name} is always served and cannot be excluded")
         for name in (*self.tools, *self.exclude_tools):
-            if name != STATUS_TOOL and _service_of(name) is None:
+            if name not in ALWAYS_SERVED and _service_of(name) is None:
                 raise ValueError(f"unknown tool {name!r}: tool names start with a service name")
 
     @property
@@ -98,6 +99,6 @@ class Selection:
         return tuple(service.name for service in SERVICES if service.name in self.toolsets)
 
     def listed_names(self) -> frozenset[str]:
-        """Tool names served by name: ``status_get``, the ``core`` profile and ``tools``."""
+        """Tool names served by name: the always-served ones, the ``core`` profile, ``tools``."""
         core = CORE_TOOLS if CORE in self.toolsets else frozenset()
-        return frozenset({STATUS_TOOL, *self.tools}) | core
+        return frozenset({*ALWAYS_SERVED, *self.tools}) | core

@@ -14,6 +14,7 @@ from pathlib import Path
 
 from tests.architecture.scanners import DOMAINS, SRC, YANDEX, _mcp_tools, violation_markers
 from tests.snapshots._surface import cli_leaves
+from ycli.mcp.profiles import ALWAYS_SERVED
 from ycli.yandex.registry import SERVICES
 
 # `models.py` is not among them: a resource whose replies are shared models has none.
@@ -353,8 +354,8 @@ def test_arch1_every_resource_is_served():
         for resource, ops in operations.items()
         if ops and all(f"{resource}.{op}" in asymmetries for op in ops)
     }
-    # status_* belongs to no resource: `status/` is a cross-cutting surface (see ARCHITECTURE.md).
-    tools = {tool.name for tool in _mcp_tools() if not tool.name.startswith("status_")}
+    # status_* and schema_* belong to no resource: cross-cutting surfaces (see ARCHITECTURE.md).
+    tools = {tool.name for tool in _mcp_tools() if not tool.name.startswith(("status_", "schema_"))}
     cli_groups = _served_cli_groups() - {
         f"{domain}.{group}" for domain in DOMAINS for group in ARCH1_NON_RESOURCE_CLI_GROUPS
     }
@@ -592,10 +593,11 @@ def test_arch1_cli_path_equals_mcp_name():
 
     The CLI path with spaces and hyphens as ``_`` is the MCP tool name, verb last (``update``,
     never ``edit`` or ``modify``). The tools read are those of the resource servers; the root
-    server must serve exactly them (plus ``status_get``), so a tool cannot hide from this check.
+    server must serve exactly them (plus the always-served two), so a tool cannot hide from
+    this check.
     """
     tools = _mcp_tools_by_name()
-    served = {tool.name for tool in _mcp_tools()} - {"status_get"}
+    served = {tool.name for tool in _mcp_tools()} - {*ALWAYS_SERVED}
     assert set(tools) == served, sorted(set(tools) ^ served)
     cli = _cli_commands_by_name()
     problems = _name_mismatches(cli, tools, _name_exceptions())
