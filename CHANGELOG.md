@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.72.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.71.0
+  ([`cb656e3`](https://github.com/bim-ba/ycli/commit/cb656e3f3e858127125628b6587d1df7cf344254))
+
+### Refactoring
+
+- The key of an issue is `issue_key` on every surface (#328)
+  ([#328](https://github.com/bim-ba/ycli/pull/328),
+  [`8e17e2f`](https://github.com/bim-ba/ycli/commit/8e17e2f640eded801a2c11a304bf0ca20e88d47e))
+
+### Breaking Changes
+
+- The argument `key` is renamed to `issue_key` in these SDK methods, in the `endpoints` functions of
+  the same names and in their MCP tools (`tracker_<resource>_<method>`):
+
+
 ## v0.71.0 (2026-10-05)
 
 ### Build System
