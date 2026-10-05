@@ -6,16 +6,18 @@ its shape — keys, types, nesting — and that shape is what a fixture is compa
 
 What stays, by the position of the value in the model of the reply:
 
-- a key the model of that position reads, and a key that is public already (a field of
-  another model of ycli, a name the service publishes);
+- a key the model of that position reads; where a model reads the object, also a key that
+  is public already (a field of another model of ycli, a name the service publishes);
 - a string that the model lists as a ``Literal`` or an enum value at that position;
 - a boolean, ``null``, and a small number under a key that does not name an identifier.
 
 Everything else is replaced: a string by ``<key>``, a date by one constant, an identifier or a
-large number by 1, 2, 3…, a key of a map (``dict[str, X]``: its keys are data) by ``<key-N>``,
-any other key nothing public knows by ``<unknown-N>``. That such a key is there is the sign
-that the API grew a field; its name goes only to whoever records, in :attr:`Scrubbed.unknown_keys`.
-A list keeps one item per distinct shape.
+large number by 1, a key of a map (``dict[str, X]``: its keys are data) by ``<key-N>``,
+any other key by ``<unknown-N>``. That such a key is there is the sign that the API grew a
+field; its name goes only to whoever records, in :attr:`Scrubbed.unknown_keys`. An object no
+model reads keeps no name at all, so a file does not change when ycli learns a name elsewhere.
+A list keeps one item per distinct shape. Placeholders are numbered and items ordered by what
+they are, not by the order of the reply: the same reply gives the same file.
 """
 
 from __future__ import annotations
@@ -45,11 +47,6 @@ class Scrubbed:
     # The paths, with their real names, of the keys the model of their position does not know:
     # for the eyes of whoever records, never for a file in the repository.
     unknown_keys: list[str] = field(default_factory=list)
-    _numbers: int = 0
-
-    def next_number(self) -> int:
-        self._numbers += 1
-        return self._numbers
 
 
 def scrub(body: Any, annotation: Any = Any, public: frozenset[str] = frozenset()) -> Scrubbed:
@@ -57,7 +54,8 @@ def scrub(body: Any, annotation: Any = Any, public: frozenset[str] = frozenset()
 
     ``public`` is every key that is public already: a field name of some model of ycli, or a
     name the service publishes. A key the model of its position does not know is kept under
-    its name only when it is one of them, and becomes ``<unknown-N>`` otherwise.
+    its name only when it is one of them, and becomes ``<unknown-N>`` otherwise; in an object
+    no model reads, every key does.
 
     Examples:
         >>> class Status(BaseModel):
@@ -66,9 +64,9 @@ def scrub(body: Any, annotation: Any = Any, public: frozenset[str] = frozenset()
         >>> scrub(
         ...     {"key": "open", "display": "Открыт", "votes": 3}, Status, frozenset({"votes"})
         ... ).body
-        {'key': 'open', 'display': '<display>', 'votes': 3}
+        {'display': '<display>', 'key': 'open', 'votes': 3}
         >>> scrub({"key": "mine", "ivansField": 77123456}, Status).body
-        {'key': '<key>', '<unknown-1>': 1}
+        {'<unknown-1>': 1, 'key': '<key>'}
     """
     result = Scrubbed()
     result.body = _scrub(body, annotation, "reply", "", result, public)
@@ -125,6 +123,10 @@ def _item_annotation(members: list[Any]) -> Any:
     return Any
 
 
+def _text(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True)
+
+
 def _shape(value: Any) -> str:
     """The keys and types of ``value`` without its values: what two list items are compared by."""
     if isinstance(value, dict):
@@ -145,8 +147,11 @@ def _scrub(
         kept: dict[str, Any] = {}
         for entry in value:
             scrubbed = _scrub(entry, item, key, f"{path}[]", result, public)
-            kept.setdefault(_shape(scrubbed), scrubbed)
-        return list(kept.values())
+            shape = _shape(scrubbed)
+            # Of the items of one shape, the first by its text, not by the order of the reply:
+            # the same items must give the same file.
+            kept[shape] = min(kept.get(shape, scrubbed), scrubbed, key=_text)
+        return [kept[shape] for shape in sorted(kept)]
     if isinstance(value, bool) or value is None:
         return value
     if isinstance(value, int | float):
@@ -155,7 +160,7 @@ def _scrub(
         )
         if literal or (not _IDENTIFIER_KEY.search(key) and abs(value) < SMALL_NUMBER):
             return value
-        return result.next_number() if isinstance(value, int) else float(result.next_number())
+        return 1 if isinstance(value, int) else 1.0
     if value in _allowed_strings(members):
         return value
     if datetime.datetime in members:
@@ -177,7 +182,7 @@ def _scrub_object(
             f"<key-{number}>": _scrub(
                 entry, item, f"key-{number}", f"{path}.<key-{number}>", result, public
             )
-            for number, entry in enumerate(value.values(), start=1)
+            for number, (_, entry) in enumerate(sorted(value.items()), start=1)
         }
     # A union of models: the one that knows the most of these keys reads the object. With no
     # model at all, no key is known.
@@ -185,13 +190,17 @@ def _scrub_object(
     fields = max(known, key=lambda names: len(names.keys() & value.keys()))
     scrubbed: dict[str, Any] = {}
     unknown = 0
-    for name, entry in value.items():
+    # In the order of the names, not of the reply: the numbers must not move when the API
+    # sends the same keys in another order.
+    for name, entry in sorted(value.items()):
         kept = name
         if name not in fields:
             if models:
                 result.unknown_keys.append(f"{path}.{name}".lstrip("."))
-            if name not in public:
-                # Not a name anything public knows: only that the key is there reaches the file.
+            if not models or name not in public:
+                # Only that the key is there reaches the file. Where a model reads the object
+                # a public name may stay; where none does, a file would otherwise change
+                # whenever ycli learns a name somewhere else.
                 unknown += 1
                 kept = f"<unknown-{unknown}>"
         key = name if kept == name else kept.strip("<>")

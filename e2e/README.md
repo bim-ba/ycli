@@ -50,12 +50,12 @@ The repository is public, so a reply is scrubbed before it is written (`scrub.py
 
 | In the reply | In the file |
 |---|---|
-| a key the model of that position reads, or a name that is public already (a field of another model, a name in `scripts/api_snapshot/`) | kept |
-| any other key | `<unknown-N>`; a key of a map (`dict[str, X]`) becomes `<key-N>` |
+| a key the model of that position reads; in an object a model reads, also a name that is public already (a field of another model, a name in `scripts/api_snapshot/`) | kept |
+| any other key, and every key of an object no model reads | `<unknown-N>`, numbered in the order of the names; a key of a map (`dict[str, X]`) becomes `<key-N>` |
 | a string the model lists as a `Literal` or enum value there | kept |
 | any other string | `<key>`; a date becomes one constant |
 | a boolean, `null`, a number below 100 000 under a key that names no identifier | kept |
-| any other number | 1, 2, 3… |
+| any other number | 1 |
 | a list | one item per distinct shape |
 
 A fixture also counts the keys its model does not know (`unknown_keys`); the offline check fails when a model stops knowing a key it knew. Their names, and the reads that failed, go to the file `--record-report` names (outside the repository); the terminal shows numbers only.

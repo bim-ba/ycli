@@ -6,14 +6,14 @@
       "key": "<key>",
       "name": "<name>",
       "self": "<self>",
-      "version": 2
+      "version": 1
     },
     {
-      "id": 43,
+      "id": 1,
       "key": "<key>",
       "name": "<name>",
       "self": "<self>",
-      "version": 44
+      "version": 1
     }
   ],
   "status": 200,

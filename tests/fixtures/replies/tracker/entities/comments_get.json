@@ -5,7 +5,7 @@
       "cloudUid": "<cloudUid>",
       "display": "<display>",
       "id": "<id>",
-      "passportUid": 2,
+      "passportUid": 1,
       "self": "<self>"
     },
     "id": 1,
@@ -19,10 +19,10 @@
       "cloudUid": "<cloudUid>",
       "display": "<display>",
       "id": "<id>",
-      "passportUid": 3,
+      "passportUid": 1,
       "self": "<self>"
     },
-    "version": 4
+    "version": 1
   },
   "status": 200,
   "unknown_keys": 0

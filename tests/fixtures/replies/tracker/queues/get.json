@@ -1,15 +1,15 @@
 {
   "body": {
-    "<unknown-10>": false,
-    "<unknown-1>": false,
-    "<unknown-2>": false,
-    "<unknown-3>": false,
+    "<unknown-10>": "<unknown-10>",
+    "<unknown-1>": true,
+    "<unknown-2>": true,
+    "<unknown-3>": "<unknown-3>",
     "<unknown-4>": true,
-    "<unknown-5>": true,
-    "<unknown-6>": true,
-    "<unknown-7>": "<unknown-7>",
+    "<unknown-5>": false,
+    "<unknown-6>": false,
+    "<unknown-7>": false,
     "<unknown-8>": false,
-    "<unknown-9>": "<unknown-9>",
+    "<unknown-9>": false,
     "assignAuto": false,
     "defaultPriority": {
       "display": "<display>",
@@ -62,12 +62,12 @@
       "cloudUid": "<cloudUid>",
       "display": "<display>",
       "id": "<id>",
-      "passportUid": 3,
+      "passportUid": 1,
       "self": "<self>"
     },
     "name": "<name>",
     "self": "<self>",
-    "version": 2,
+    "version": 1,
     "workflows": {
       "<key-1>": [
         {

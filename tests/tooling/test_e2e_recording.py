@@ -210,8 +210,8 @@ def test_a_value_stays_only_where_the_model_lists_it():
         "order": 7,
         "votes": 3,
         "id": 1,
-        "big": 2,
-        "ratio": 3.0,
+        "big": 1,
+        "ratio": 1.0,
         "done": True,
         "gone": None,
     }
@@ -231,12 +231,15 @@ def test_a_list_keeps_one_item_of_each_shape_and_a_map_loses_its_keys():
     assert scrubbed.body == {
         "name": "<name>",
         "statuses": [
-            {"key": "open", "display": "<display>"},
             {"key": "<key>", "display": "<display>", "since": DATE_TIME},
+            {"key": "closed", "display": "<display>"},
         ],
-        "counts": {"<key-1>": 3, "<key-2>": 5},
+        # Numbered in the order of the names: anna, then ivan.
+        "counts": {"<key-1>": 5, "<key-2>": 3},
     }
     assert scrubbed.unknown_keys == []
+    again = scrub({**reply, "statuses": reply["statuses"][::-1]}, _Board)
+    assert again.body == scrubbed.body  # the order of the reply does not reach the file
 
 
 def test_an_unknown_key_keeps_its_name_only_when_the_name_is_public():
@@ -245,15 +248,19 @@ def test_an_unknown_key_keeps_its_name_only_when_the_name_is_public():
     assert scrubbed.body == {
         "name": "<name>",
         "published": "<published>",
-        "<unknown-1>": {"published": 1, "<unknown-1>": "<unknown-1>"},
+        # Inside it no model reads anything, so even a public name does not stay.
+        "<unknown-1>": {"<unknown-1>": "<unknown-1>", "<unknown-2>": 1},
     }
     # Only a position that has a model can say a key is unknown to it.
-    assert scrubbed.unknown_keys == ["published", "ivansField"]
+    assert scrubbed.unknown_keys == ["ivansField", "published"]
 
 
-def test_a_reply_with_no_model_keeps_public_names_only():
-    assert scrub({"name": "x", "ivan": [1, 2]}, public=frozenset({"name"})).body == {
-        "name": "<name>",
+def test_a_reply_with_no_model_keeps_no_name():
+    """Otherwise the file would change whenever ycli learns a name somewhere else."""
+    reply = {"name": "x", "ivan": [1, 2]}
+    assert scrub(reply, public=frozenset({"name"})).body == {
         "<unknown-1>": [1],
+        "<unknown-2>": "<unknown-2>",
     }
+    assert scrub(reply, public=frozenset({"name"})).body == scrub(reply).body
     assert json.loads(json.dumps(scrub("text").body)) == "<reply>"
