@@ -19,7 +19,7 @@ The authenticated Yandex Tracker user (a safe auth probe).
 
 *Get Tracker issue* · read-only
 
-A single Tracker issue by key (raises if not found).
+A single Tracker issue by key.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -747,7 +747,7 @@ queue key (e.g. TEST) you pass to ``queues_get`` and use as an issue prefix (TES
 
 *Get Tracker queue* · read-only
 
-One queue's settings and configuration by key or id (raises if not found).
+One queue's settings and configuration by key or id.
 
 Returns the queue's owner, default type/priority, and — when ``expand`` is set — its issue
 types, versions, team, workflows and per-type resolution config. Sibling ``queues_list``
@@ -955,9 +955,8 @@ they exist only inside the given queue. Pass a ``key`` from ``queues_list`` as `
 
 One local field's full definition (type, options, category) by queue and field key.
 
-Raises if the field is not found. Returns the value schema, allowed-values provider and
-category of the field. Use ``localfields_list`` first to discover the ``field_key`` values
-available in a queue.
+Returns the value schema, allowed-values provider and category of the field. Use
+``localfields_list`` first to discover the ``field_key`` values available in a queue.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|

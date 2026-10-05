@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList, require_found
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     LIMIT_CAP,
@@ -45,15 +45,8 @@ def get(
     fields: ReplyFields = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Issue:
-    """A single Tracker issue by key (raises if not found)."""
-    result = client.issues.get(key, expand=expand, fields=fields)
-    # The core session already raises on a 404; this guard only fires for a 2xx with an empty
-    # body (key=None), e.g. missing permissions answered with a blank object instead of a 403.
-    return require_found(
-        result,
-        sentinel=lambda r: r.key is None,
-        message=f"issue {key!r} not found (got empty response — check key or permissions)",
-    )
+    """A single Tracker issue by key."""
+    return client.issues.get(key, expand=expand, fields=fields)
 
 
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"})

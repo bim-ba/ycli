@@ -7,7 +7,7 @@ from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from ycli.settings import AppConfig
-from ycli.yandex.models import Ack, ItemList, require_found
+from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     DESTRUCTIVE,
@@ -72,18 +72,13 @@ def get(
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Queue:
-    """One queue's settings and configuration by key or id (raises if not found).
+    """One queue's settings and configuration by key or id.
 
     Returns the queue's owner, default type/priority, and — when ``expand`` is set — its issue
     types, versions, team, workflows and per-type resolution config. Sibling ``queues_list``
     enumerates every queue; pass one of its ``key`` values here.
     """
-    result = client.queues.get(queue_id, expand=expand)
-    return require_found(
-        result,
-        sentinel=lambda r: r.key is None and r.id is None,
-        message=f"queue {queue_id!r} not found (got empty response — check key/id or permissions)",
-    )
+    return client.queues.get(queue_id, expand=expand)
 
 
 @mcp.tool(name="queues_tags_list", annotations={**RO, "title": "List Tracker queue tags"})

@@ -23,7 +23,7 @@ from ycli.yandex.forms.questions.models import (
     QuestionMoveResult,
     QuestionsResponse,
 )
-from ycli.yandex.models import IGNORED_BY_API, Ack, require_found
+from ycli.yandex.models import IGNORED_BY_API, Ack
 
 mcp = FastMCP("forms-questions")
 
@@ -49,15 +49,7 @@ def get(
     question keyed by ``question_id`` (take it from an item's ``id`` in ``questions_list``).
     Type-specific detail (validators, options, conditions) comes in the fields of its type.
     """
-    result = client.questions.get(survey_id, question_id, with_slugs=with_slugs)
-    # A 404 / empty body deserializes into an all-None Question (lenient model) rather than
-    # raising; turn that into a clean not-found error instead of a phantom empty object.
-    return require_found(
-        result,
-        sentinel=lambda r: r.id is None,
-        message=f"question {question_id!r} not found in survey {survey_id!r} "
-        "(empty response — check ids or permissions)",
-    )
+    return client.questions.get(survey_id, question_id, with_slugs=with_slugs)
 
 
 @mcp.tool(

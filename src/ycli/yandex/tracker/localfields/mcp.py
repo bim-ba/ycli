@@ -6,7 +6,7 @@ from fastmcp import FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
-from ycli.yandex.models import ItemList, require_found
+from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.dependencies import (
     RO,
@@ -49,17 +49,10 @@ def get(
 ) -> LocalField:
     """One local field's full definition (type, options, category) by queue and field key.
 
-    Raises if the field is not found. Returns the value schema, allowed-values provider and
-    category of the field. Use ``localfields_list`` first to discover the ``field_key`` values
-    available in a queue.
+    Returns the value schema, allowed-values provider and category of the field. Use
+    ``localfields_list`` first to discover the ``field_key`` values available in a queue.
     """
-    result = client.localfields.get(queue_id, field_key)
-    return require_found(
-        result,
-        sentinel=lambda r: r.key is None and r.id is None,
-        message=f"local field {field_key!r} not found in queue {queue_id!r} "
-        "(got empty response — check keys or permissions)",
-    )
+    return client.localfields.get(queue_id, field_key)
 
 
 @mcp.tool(
