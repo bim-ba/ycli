@@ -894,11 +894,12 @@ def test_no_service_has_an_unexplained_difference_or_a_stale_reason():
     """A difference with the published API is fixed or carries its reason (#196).
 
     A refreshed snapshot that gains a parameter or a field fails here until ycli sends or reads
-    it, or the difference is listed in ``EXPLAINED`` / ``EXPLAINED_EVERYWHERE``; a listed
-    difference that is gone fails as well.
+    it, or the difference is listed in ``EXPLAINED`` / ``EXPLAINED_EVERYWHERE``, or the body
+    field carries the ``IGNORED_BY_API`` mark; a reason or a mark whose difference is gone fails
+    as well.
     """
     bare, stale = api_drift.unexplained(
-        api_drift.drifts(), api_drift.EXPLAINED, api_drift.EXPLAINED_EVERYWHERE
+        api_drift.drifts(), api_drift.explained(), api_drift.EXPLAINED_EVERYWHERE
     )
     assert not bare, "differs from the published API with no reason:\n" + "\n".join(bare)
     assert not stale, "explains a difference that is gone:\n" + "\n".join(stale)
@@ -937,26 +938,34 @@ def test_the_explained_check_bites_in_both_directions():
 
 
 # A marked field the comparison cannot see: its name is published for another question type.
-MARKED_BUT_PUBLISHED = {
-    ("forms", "POST", "/surveys/{}/questions", "items"),
-    ("forms", "PATCH", "/surveys/{}/questions/{}", "items"),
-}
+def test_a_field_the_api_ignores_is_explained_by_its_mark():
+    """The ``IGNORED_BY_API`` mark of a body field is the one statement that the API ignores it.
 
-
-def test_a_field_the_api_ignores_says_so_where_it_is_declared():
-    """An ``IGNORED`` reason and the ``IGNORED_BY_API`` mark of a body field go together.
-
-    The reason keeps the comparison green; the mark is what a caller reads in ``--help``, in
-    the MCP input schema and on the site, and what makes setting the field log a warning.
+    The mark is what a caller reads in ``--help``, in the MCP input schema and on the site, and
+    what makes setting the field log a warning; the comparison takes its reason from the same
+    mark. Both directions on the real code: with the marks every difference is explained and
+    none is stale; without them the marked fields are differences with no reason; and a mark on
+    a field that makes no difference is stale unless ``IGNORED_THOUGH_PUBLISHED`` names it.
     """
-    explained = {
-        (service, method, path, name)
-        for (service, method, path, kind, name), why in api_drift.EXPLAINED.items()
-        if why == api_drift.IGNORED and kind == "unknown_request"
+    drifts = api_drift.drifts()
+    marks = api_drift.ignored_marks()
+    assert marks >= api_drift.IGNORED_THOUGH_PUBLISHED
+    bare, _ = api_drift.unexplained(drifts, api_drift.EXPLAINED, api_drift.EXPLAINED_EVERYWHERE)
+    assert sorted(bare) == sorted(
+        " ".join((service, method, path, "unknown_request", name))
+        for service, method, path, name in marks - api_drift.IGNORED_THOUGH_PUBLISHED
+    )
+    every_mark = {
+        (service, method, path, "unknown_request", name): api_drift.IGNORED
+        for service, method, path, name in marks
     }
-    marked = api_drift.ignored_marks()
-    assert explained - marked == set(), "explained as ignored, not marked in the body model"
-    assert marked - explained == MARKED_BUT_PUBLISHED, "marked in the body model, not explained"
+    _, stale = api_drift.unexplained(
+        drifts, {**every_mark, **api_drift.EXPLAINED}, api_drift.EXPLAINED_EVERYWHERE
+    )
+    assert sorted(stale) == sorted(
+        " ".join((service, method, path, "unknown_request", name))
+        for service, method, path, name in api_drift.IGNORED_THOUGH_PUBLISHED
+    )
 
 
 def test_the_ignored_mark_warns_when_the_field_is_set(caplog):

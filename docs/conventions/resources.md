@@ -83,9 +83,11 @@ suggests the known values, and a tool's schema shows them (`anyOf` of the `enum`
 A request field or parameter that the API accepts and does nothing with stays in ycli. Its
 description begins with `IGNORED_BY_API` (`ycli.yandex.models`), so the CLI help, the MCP
 input schema and the reference say so; its body model inherits `WarnsOnIgnored`, so setting
-it logs a warning (a reply carrying the same name is read silently); `scripts/api_drift.py`
-lists it in `EXPLAINED` with the `IGNORED` reason, and `tests/tooling/test_api_drift.py` fails when
-one of the two is missing.
+it logs a warning (a reply carrying the same name is read silently). The comparison with the
+published API (`scripts/api_drift.py`) takes its reason from the same mark, so nothing else
+lists the field; `tests/tooling/test_api_drift.py` fails on a mark that explains no difference. A
+query parameter has no model to carry the mark: it is listed in `EXPLAINED` with the `IGNORED`
+reason.
 
 ---
 
