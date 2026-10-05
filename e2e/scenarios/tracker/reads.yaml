@@ -1,0 +1,33 @@
+# Read-only: one cheap read every night, and the reads of the organization's own lists and of
+# the sandbox queue for a recording run (`pytest e2e --record`). Nothing here names an object
+# the run did not make, except the queue it writes to.
+name: tracker/reads
+steps:
+  - id: me
+    run: tracker me get
+    expect:
+      "login != null": true
+    reads:
+      - tracker applications list
+      - tracker boards list
+      - tracker components list
+      - tracker fields list
+      - tracker fields get summary
+      - tracker issuetypes list
+      - tracker linktypes list
+      - tracker projects list
+      - tracker resolutions list
+      - tracker statuses list
+      - tracker users list
+      - tracker workflows list
+      - tracker queues get ${QUEUE} --expand all
+      - tracker queues fields-list ${QUEUE}
+      - tracker queues tags-list ${QUEUE}
+      - tracker queues versions-list ${QUEUE}
+      - tracker components list-for-queue ${QUEUE}
+      - tracker localfields list ${QUEUE}
+      - tracker macros list ${QUEUE}
+      - tracker triggers list ${QUEUE}
+      - tracker workflows list-for-queue ${QUEUE}
+      - tracker worklog search --created-from 2026-01-01T00:00:00 --created-to 2026-01-02T00:00:00
+      - tracker worklog list-global

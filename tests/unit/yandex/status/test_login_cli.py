@@ -32,7 +32,6 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def _isolated_env(monkeypatch, tmp_path):
     """No repo .env, no real credentials, no browser launch."""
-    monkeypatch.chdir(tmp_path)
     for var in (
         "YANDEX_OAUTH_CLIENT_ID",
         "YANDEX_OAUTH_CLIENT_SECRET",

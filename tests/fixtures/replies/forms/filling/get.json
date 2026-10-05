@@ -1,0 +1,32 @@
+{
+  "body": {
+    "footer": false,
+    "id": "<id>",
+    "iframe": false,
+    "name": "<name>",
+    "org": {
+      "collab_id": "<collab_id>",
+      "dir_id": "<dir_id>"
+    },
+    "pages": [
+      {
+        "<key-1>": [
+          {
+            "hidden": false,
+            "id": "<id>",
+            "label": "<label>",
+            "multiline": false,
+            "type": "<type>"
+          }
+        ]
+      }
+    ],
+    "texts": {
+      "back": "<back>",
+      "next": "<next>",
+      "submit": "<submit>"
+    }
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

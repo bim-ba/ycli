@@ -229,7 +229,6 @@ def test_doctor_reports_a_profile_that_cannot_be_used(creds, api):
 
 def _sign_in(monkeypatch, api, tmp_path):
     """A device-flow login that succeeds, run from an empty directory."""
-    monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_ID", "app-id")
     monkeypatch.setenv("YANDEX_OAUTH_CLIENT_SECRET", "app-secret")
     monkeypatch.setattr(webbrowser, "open", lambda *args, **kwargs: False)

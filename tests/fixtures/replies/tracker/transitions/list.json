@@ -1,0 +1,33 @@
+{
+  "body": [
+    {
+      "display": "<display>",
+      "id": "<id>",
+      "self": "<self>",
+      "to": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      }
+    },
+    {
+      "display": "<display>",
+      "id": "<id>",
+      "screen": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "self": "<self>",
+      "to": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      }
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 4
+}

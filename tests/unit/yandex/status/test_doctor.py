@@ -211,11 +211,10 @@ def test_pypi_gets_no_credentials_and_no_organization(api):
 
 
 def test_the_command_prints_the_report_and_exits_by_the_first_failure(
-    monkeypatch, tmp_path, api, profiles_directory
+    monkeypatch, api, profiles_directory
 ):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
-    monkeypatch.chdir(tmp_path)
     api.add("GET", PYPI_URL, **ANSWERS[PYPI_URL])
     result = runner.invoke(cli.app, ["-o", "json", "doctor"])
     assert result.exit_code == 4
@@ -248,7 +247,6 @@ def test_the_command_exits_0_when_every_check_passes(creds, api):
 def test_a_credential_is_traced_to_the_environment_or_the_env_file(
     monkeypatch, tmp_path, environment, file, source
 ):
-    monkeypatch.chdir(tmp_path)
     for name in ("YANDEX_ID_OAUTH_TOKEN", "YCLI__AUTH__OAUTH_TOKEN"):
         monkeypatch.delenv(name, raising=False)
     for name, value in environment.items():
@@ -326,8 +324,7 @@ def test_the_command_reports_two_tokens_without_calling_yandex(creds, monkeypatc
         ),
     ],
 )
-def test_only_the_token_that_is_set_is_named(monkeypatch, tmp_path, environment, names):
-    monkeypatch.chdir(tmp_path)
+def test_only_the_token_that_is_set_is_named(monkeypatch, environment, names):
     for name in ("YANDEX_ID_OAUTH_TOKEN", "YCLI__AUTH__OAUTH_TOKEN", "YANDEX_CLOUD_IAM_TOKEN"):
         monkeypatch.delenv(name, raising=False)
     for name, value in environment.items():

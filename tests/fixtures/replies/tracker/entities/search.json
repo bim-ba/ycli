@@ -1,0 +1,26 @@
+{
+  "body": {
+    "hits": 1,
+    "pages": 1,
+    "values": [
+      {
+        "createdAt": "<createdAt>",
+        "createdBy": {
+          "cloudUid": "<cloudUid>",
+          "display": "<display>",
+          "id": "<id>",
+          "passportUid": 3,
+          "self": "<self>"
+        },
+        "entityType": "<entityType>",
+        "id": "<id>",
+        "self": "<self>",
+        "shortId": 2,
+        "updatedAt": "<updatedAt>",
+        "version": 1
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

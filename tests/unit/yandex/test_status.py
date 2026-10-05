@@ -55,7 +55,6 @@ def stubbed(api, monkeypatch):
 def _no_credentials(monkeypatch, tmp_path):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
-    monkeypatch.chdir(tmp_path)
 
 
 def test_missing_env_reports_not_configured(monkeypatch, tmp_path):

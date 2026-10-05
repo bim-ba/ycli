@@ -24,7 +24,7 @@ import jmespath
 import jmespath.functions
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from e2e.models import Scenario, Step
 
@@ -132,8 +132,15 @@ def run_json(driver: Driver, arguments: Sequence[str]) -> Any:
     return json.loads(completed.stdout) if completed.stdout.strip() else None
 
 
-def run_scenario(scenario: Scenario, driver: Driver, variables: dict[str, str]) -> None:
+def run_scenario(
+    scenario: Scenario,
+    driver: Driver,
+    variables: dict[str, str],
+    read: Callable[[Driver, Sequence[Sequence[str]]], None] | None = None,
+) -> None:
     """Run every step in order, then the registered cleanups last-in-first-out.
+
+    ``read`` is given the reads of each step right after it; without it they are not run.
 
     Cleanups run whatever happens; a cleanup failure never replaces the step failure that came
     first, and fails the scenario only when every step passed (the janitor is the backstop).
@@ -147,6 +154,8 @@ def run_scenario(scenario: Scenario, driver: Driver, variables: dict[str, str]) 
                 cleanups[step.id] = render_command(step.cleanup, variables)
             for target in step.disarms:
                 cleanups.pop(target, None)
+            if read is not None and step.reads:
+                read(driver, [render_command(command, variables) for command in step.reads])
     except BaseException:
         _clean_up(cleanups, driver)
         raise

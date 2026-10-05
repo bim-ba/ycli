@@ -1,0 +1,12 @@
+{
+  "body": {
+    "hidden": false,
+    "id": 1,
+    "label": "<label>",
+    "multiline": false,
+    "slug": "<slug>",
+    "type": "<type>"
+  },
+  "status": 201,
+  "unknown_keys": 0
+}

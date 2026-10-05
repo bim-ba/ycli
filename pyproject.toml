@@ -1,6 +1,6 @@
 [project]
 name = "yandex-cli"
-version = "0.81.1"
+version = "0.82.0"
 description = "Interact with Yandex 360 services (Wiki, Tracker, Forms, …) from a CLI, an MCP server, or a Python SDK."
 readme = "README.md"
 license = "MIT"
@@ -279,12 +279,13 @@ source_modules = [
 ]
 forbidden_modules = ["fastmcp"]
 allow_indirect_imports = true
-# The server, its listing transforms and its HTTP sign-in. `ycli.mcp.cli` and the package __init__ must stay free
+# The server, its listing transforms, its HTTP sign-in and its `schema_get` tool. `ycli.mcp.cli` and the package __init__ must stay free
 # of fastmcp: the base install loads `ycli mcp` without the extra.
 ignore_imports = [
     "ycli.mcp.server -> fastmcp",
     "ycli.mcp.listing -> fastmcp",
     "ycli.mcp.http_auth -> fastmcp",
+    "ycli.mcp.schemas -> fastmcp",
 ]
 
 [[tool.importlinter.contracts]]

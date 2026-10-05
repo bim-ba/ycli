@@ -5,7 +5,7 @@
 <text class="label" x="0" y="66" font-size="15">operations</text>
 <text class="value" x="253.333" y="40" font-size="36" font-weight="600">61</text>
 <text class="label" x="253.333" y="66" font-size="15">resources</text>
-<text class="value" x="506.667" y="40" font-size="36" font-weight="600">323</text>
+<text class="value" x="506.667" y="40" font-size="36" font-weight="600">324</text>
 <text class="label" x="506.667" y="66" font-size="15">MCP tools</text>
 <text class="value" x="0" y="128" font-size="15" font-weight="600">Tracker</text>
 <path class="bar" d="M90,112H506Q510,112 510,116V130Q510,134 506,134H90Z"/>

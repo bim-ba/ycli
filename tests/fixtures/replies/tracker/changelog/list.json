@@ -1,0 +1,42 @@
+{
+  "body": [
+    {
+      "fields": [
+        {
+          "field": {
+            "display": "<display>",
+            "id": "<id>",
+            "self": "<self>"
+          },
+          "from": null,
+          "to": {
+            "display": "<display>",
+            "id": "<id>",
+            "key": "<key>",
+            "self": "<self>"
+          }
+        }
+      ],
+      "id": "<id>",
+      "issue": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "self": "<self>",
+      "transport": "<transport>",
+      "type": "<type>",
+      "updatedAt": "<updatedAt>",
+      "updatedBy": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 1,
+        "self": "<self>"
+      }
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 3
+}

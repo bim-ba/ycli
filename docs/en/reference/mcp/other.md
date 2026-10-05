@@ -20,3 +20,18 @@ Report whose token this is, its organization and which services accept it.
 the configured id and, when the token has the ``directory:read_organization`` scope
 (API 360), its name. ``services`` has one probe each, with ``valid`` and, on failure,
 ``detail``.
+
+## `schema_get`
+
+*Read the schema of a tool's body* · read-only
+
+Read one definition of a body that its tool lists as a free-form object.
+
+Such a parameter says in its description which definition to start from. The answer
+refers to others as ``#/$defs/<name>``: read those with this tool too, only the ones the
+task needs.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `service` | string | yes | The service of the tool, e.g. `forms`. |
+| `name` | string | yes | The definition to read, as the tool's parameter names it. |

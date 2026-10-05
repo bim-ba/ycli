@@ -1,0 +1,40 @@
+{
+  "body": [
+    {
+      "assignAuto": false,
+      "id": 1,
+      "name": "<name>",
+      "queue": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "self": "<self>",
+      "version": 2
+    },
+    {
+      "assignAuto": false,
+      "description": "<description>",
+      "id": 3,
+      "lead": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 5,
+        "self": "<self>"
+      },
+      "name": "<name>",
+      "queue": {
+        "display": "<display>",
+        "id": "<id>",
+        "key": "<key>",
+        "self": "<self>"
+      },
+      "self": "<self>",
+      "version": 4
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 0
+}

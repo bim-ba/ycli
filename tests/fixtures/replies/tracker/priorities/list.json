@@ -1,0 +1,29 @@
+{
+  "body": [
+    {
+      "description": "<description>",
+      "id": 1,
+      "key": "<key>",
+      "name": {
+        "en": "<en>",
+        "ru": "<ru>"
+      },
+      "order": 10,
+      "self": "<self>",
+      "version": 2
+    },
+    {
+      "id": 15,
+      "key": "<key>",
+      "name": {
+        "en": "<en>",
+        "ru": "<ru>"
+      },
+      "order": 55,
+      "self": "<self>",
+      "version": 16
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 5
+}

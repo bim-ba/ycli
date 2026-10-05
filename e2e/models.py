@@ -14,6 +14,10 @@ class Step(BaseModel):
     name to a JMESPath expression whose value later steps use as ``${name}``. ``cleanup`` is a
     command registered once the step succeeds and run last-in-first-out when the scenario ends;
     ``disarms`` names earlier steps whose cleanup this step already performed.
+
+    ``reads`` are commands that only read, run right after the step, while what it made still
+    exists, and only by a run that records replies (``pytest e2e --record``): each adds the
+    reply of one more operation, and none may change the server.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -27,6 +31,7 @@ class Step(BaseModel):
     save: dict[str, str] = Field(default_factory=dict)
     cleanup: str | None = None
     disarms: tuple[str, ...] = ()
+    reads: tuple[str, ...] = ()
 
 
 class Scenario(BaseModel):
@@ -55,10 +60,10 @@ class Scenario(BaseModel):
         return self
 
     def commands(self) -> list[str]:
-        """Every command template the scenario can run: each step's ``run`` and ``cleanup``."""
+        """Every command template the scenario can run: ``run``, ``cleanup`` and the reads."""
         return [
             command
             for step in self.steps
-            for command in (step.run, step.cleanup)
+            for command in (step.run, step.cleanup, *step.reads)
             if command is not None
         ]

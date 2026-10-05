@@ -1,0 +1,252 @@
+{
+  "body": [
+    {
+      "autoFilterSettings": {
+        "<unknown-1>": {
+          "<unknown-1>": {
+            "<unknown-1>": [
+              {
+                "<unknown-1>": "<unknown-1>",
+                "<unknown-2>": "<unknown-2>",
+                "<unknown-3>": false,
+                "<unknown-4>": true,
+                "<unknown-5>": {
+                  "en": "<en>",
+                  "ru": "<ru>"
+                },
+                "custom": false,
+                "display": "<display>",
+                "hidden": false,
+                "id": "<id>",
+                "key": "<key>",
+                "name": "<name>",
+                "options": true,
+                "order": 1,
+                "readonly": true,
+                "required": true,
+                "schema": {
+                  "required": true,
+                  "type": "<type>"
+                },
+                "suggest": true,
+                "type": "<type>",
+                "value": [
+                  {
+                    "<unknown-1>": false,
+                    "fixed": {
+                      "display": "<display>",
+                      "id": "<id>",
+                      "key": "<key>"
+                    }
+                  }
+                ]
+              }
+            ],
+            "<unknown-2>": [
+              {
+                "<unknown-1>": "<unknown-1>",
+                "<unknown-2>": "<unknown-2>",
+                "<unknown-3>": false,
+                "<unknown-4>": true,
+                "<unknown-5>": {
+                  "en": "<en>",
+                  "ru": "<ru>"
+                },
+                "custom": false,
+                "display": "<display>",
+                "hidden": false,
+                "id": "<id>",
+                "key": "<key>",
+                "name": "<name>",
+                "options": true,
+                "order": 1,
+                "readonly": true,
+                "required": true,
+                "schema": {
+                  "required": true,
+                  "type": "<type>"
+                },
+                "suggest": true,
+                "type": "<type>"
+              }
+            ]
+          }
+        },
+        "<unknown-2>": {
+          "<unknown-1>": false,
+          "<unknown-2>": "<unknown-2>",
+          "statuses": [
+            {
+              "description": "<description>",
+              "id": "<id>",
+              "key": "<key>",
+              "name": "<name>",
+              "order": 800,
+              "shortId": 6,
+              "type": "<type>",
+              "version": 5
+            }
+          ]
+        },
+        "<unknown-3>": {
+          "<unknown-1>": false,
+          "<unknown-2>": "<unknown-2>",
+          "statuses": [
+            {
+              "description": "<description>",
+              "id": "<id>",
+              "key": "<key>",
+              "name": "<name>",
+              "order": 800,
+              "shortId": 8,
+              "type": "<type>",
+              "version": 7
+            }
+          ]
+        },
+        "<unknown-4>": {
+          "<unknown-1>": {
+            "<unknown-1>": [
+              {
+                "<unknown-1>": "<unknown-1>",
+                "<unknown-2>": "<unknown-2>",
+                "<unknown-3>": false,
+                "<unknown-4>": true,
+                "<unknown-5>": {
+                  "en": "<en>",
+                  "ru": "<ru>"
+                },
+                "custom": false,
+                "display": "<display>",
+                "hidden": false,
+                "id": "<id>",
+                "key": "<key>",
+                "name": "<name>",
+                "options": true,
+                "order": 1,
+                "readonly": true,
+                "required": true,
+                "schema": {
+                  "required": true,
+                  "type": "<type>"
+                },
+                "suggest": true,
+                "type": "<type>",
+                "value": [
+                  {
+                    "<unknown-1>": false,
+                    "fixed": {
+                      "display": "<display>",
+                      "id": "<id>",
+                      "key": "<key>"
+                    }
+                  }
+                ]
+              }
+            ],
+            "<unknown-2>": [
+              {
+                "<unknown-1>": "<unknown-1>",
+                "<unknown-2>": "<unknown-2>",
+                "<unknown-3>": false,
+                "<unknown-4>": true,
+                "<unknown-5>": {
+                  "en": "<en>",
+                  "ru": "<ru>"
+                },
+                "custom": false,
+                "display": "<display>",
+                "hidden": false,
+                "id": "<id>",
+                "key": "<key>",
+                "name": "<name>",
+                "options": true,
+                "order": 1,
+                "readonly": true,
+                "required": true,
+                "schema": {
+                  "required": true,
+                  "type": "<type>"
+                },
+                "suggest": true,
+                "type": "<type>"
+              }
+            ]
+          }
+        }
+      },
+      "calendar": {
+        "id": 4
+      },
+      "columns": [
+        {
+          "display": "<display>",
+          "id": "<id>",
+          "self": "<self>"
+        }
+      ],
+      "country": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "createdAt": "<createdAt>",
+      "createdBy": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 3,
+        "self": "<self>"
+      },
+      "estimateBy": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": 1,
+      "name": "<name>",
+      "self": "<self>",
+      "updatedAt": "<updatedAt>",
+      "useRanking": false,
+      "version": 2
+    },
+    {
+      "calendar": {
+        "id": 12
+      },
+      "columns": [
+        {
+          "display": "<display>",
+          "id": "<id>",
+          "self": "<self>"
+        }
+      ],
+      "country": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "createdAt": "<createdAt>",
+      "createdBy": {
+        "cloudUid": "<cloudUid>",
+        "display": "<display>",
+        "id": "<id>",
+        "passportUid": 11,
+        "self": "<self>"
+      },
+      "estimateBy": {
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
+      },
+      "id": 9,
+      "name": "<name>",
+      "self": "<self>",
+      "updatedAt": "<updatedAt>",
+      "useRanking": false,
+      "version": 10
+    }
+  ],
+  "status": 200,
+  "unknown_keys": 0
+}

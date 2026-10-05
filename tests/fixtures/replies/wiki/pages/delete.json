@@ -1,0 +1,7 @@
+{
+  "body": {
+    "recovery_token": "<recovery_token>"
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

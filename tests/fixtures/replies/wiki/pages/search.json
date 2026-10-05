@@ -1,0 +1,18 @@
+{
+  "body": {
+    "next_cursor": null,
+    "prev_cursor": null,
+    "results": [
+      {
+        "content": "<content>",
+        "modified_at": "<modified_at>",
+        "slug": "<slug>",
+        "title": "<title>",
+        "type": "page",
+        "url": "<url>"
+      }
+    ]
+  },
+  "status": 200,
+  "unknown_keys": 0
+}

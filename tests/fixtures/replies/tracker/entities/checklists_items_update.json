@@ -1,0 +1,35 @@
+{
+  "body": {
+    "createdAt": "<createdAt>",
+    "createdBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 3,
+      "self": "<self>"
+    },
+    "entityType": "<entityType>",
+    "fields": {
+      "checklistItems": [
+        {
+          "checked": false,
+          "checklistItemType": "<checklistItemType>",
+          "deadline": {
+            "date": "<date>",
+            "deadlineType": "<deadlineType>",
+            "isExceeded": false
+          },
+          "id": "<id>",
+          "text": "<text>"
+        }
+      ]
+    },
+    "id": "<id>",
+    "self": "<self>",
+    "shortId": 2,
+    "updatedAt": "<updatedAt>",
+    "version": 1
+  },
+  "status": 200,
+  "unknown_keys": 0
+}
