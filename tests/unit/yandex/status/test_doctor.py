@@ -10,6 +10,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
+from tests.unit.yandex.datalens.tenant.cases import TENANT
 from ycli.cli import app as cli
 from ycli.cli.exit_codes import ExitCode
 from ycli.settings import AppConfig, Credentials, credential_sources, proxy_variables
@@ -25,6 +26,7 @@ PROBES = {
     "wiki": "https://api.wiki.yandex.net/v1/users/me",
     "forms": "https://api.forms.yandex.net/v1/users/me",
 }
+DATALENS_PROBE = "https://api.datalens.tech/rpc/getTenantDetails"
 CREDENTIALS = Credentials(oauth_token=SecretStr("y0_secret-value"), organization_id="42")
 SOURCES = {"YANDEX_ID_OAUTH_TOKEN": "environment", "YANDEX_ID_ORGANIZATION_ID": ".env file"}
 PYPI_URL = "https://pypi.org/pypi/yandex-cli/json"
@@ -69,10 +71,17 @@ def test_everything_in_order_is_all_ok_in_the_order_it_ran(api):
         "service:tracker",
         "service:wiki",
         "service:forms",
+        "service:datalens",
         "extra:mcp",
         "version",
     ]
-    assert {check.status for check in report.checks} == {"ok"}
+    # A service the credentials cannot reach is skipped with what it needs: not a failure.
+    datalens = checks.pop("service:datalens")
+    assert (datalens.status, datalens.detail) == (
+        "skipped",
+        "not configured: it needs a Yandex Cloud organization: set YANDEX_CLOUD_ORGANIZATION_ID",
+    )
+    assert {check.status for check in checks.values()} == {"ok"}
     assert checks["credentials"].detail == (
         "YANDEX_ID_OAUTH_TOKEN: environment; YANDEX_ID_ORGANIZATION_ID: .env file"
     )
@@ -340,9 +349,11 @@ def test_a_cloud_organization_is_named_with_why_it_has_no_name(api):
         organization_id=None,
         cloud_organization_id="b1g",
     )
+    api.add("POST", DATALENS_PROBE, json=TENANT)
     checks, _, exit_code = _checks(api, iam)
     assert exit_code is ExitCode.OK
     assert checks["organization"].detail == f"b1g, {CLOUD_ORGANIZATION}"
+    assert checks["service:datalens"].status == "ok"
     probes = [call for call in api.calls if str(call.url) in PROBES.values()]
     assert [call.headers.get("X-Cloud-Org-Id") for call in probes] == ["b1g"] * len(PROBES)
 

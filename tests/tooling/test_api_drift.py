@@ -784,6 +784,30 @@ def test_a_listed_only_service_never_enters_the_gaps(capsys):
     assert {drift.service for drift in api_drift.drifts()} == set(api_surface.SERVICES)
 
 
+def test_a_service_wrapped_by_sections_is_compared_in_the_sections_begun():
+    """A section counts from its first wrapped operation; the ones not begun are only listed.
+
+    Both sides: in a begun section an operation without a wrapper is missing, as anywhere; a
+    service that is not wrapped by sections has every unwrapped operation missing.
+    """
+    published = [
+        Operation("POST", "/rpc/getWorkbook", name="getWorkbook", group="Workbook"),
+        Operation("POST", "/rpc/deleteWorkbook", name="deleteWorkbook", group="Workbook"),
+        Operation("POST", "/rpc/getDashboard", name="getDashboard", group="Dashboard"),
+    ]
+    sent = [Call("datalens.workbooks.get", "POST", "/rpc/getWorkbook", frozenset(), None)]
+    assert "datalens" in api_surface.BY_SECTION
+    by_section = compare("datalens", published, sent)
+    assert [operation.name for operation in by_section.not_wrapped] == ["deleteWorkbook"]
+    assert [operation.name for operation in by_section.pending] == ["getDashboard"]
+    whole = compare("forms", published, sent)
+    assert [operation.name for operation in whole.not_wrapped] == ["deleteWorkbook", "getDashboard"]
+    assert whole.pending == ()
+    assert by_section.wrapped == whole.wrapped == 1
+    # Nothing wrapped yet: no section is begun, so nothing is missing.
+    assert compare("datalens", published, []).not_wrapped == ()
+
+
 def test_a_listed_only_service_that_is_compared_is_caught(monkeypatch, capsys):
     """The probe: compared by mistake, Telemost would be reported as nine unwrapped operations."""
     monkeypatch.setattr(api_surface, "SERVICES", (*api_surface.SERVICES, "telemost"))

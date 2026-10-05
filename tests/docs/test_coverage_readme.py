@@ -17,14 +17,20 @@ from scripts import api_drift, api_surface
 
 ROOT = Path(__file__).resolve().parents[2]
 HINT = "run `uv run python scripts/gen_coverage.py --write` to regenerate the README tables"
-DOCS_BASE = "https://yandex.ru/support/"
 LINK = re.compile(r"\[[^\]]+\]\((https?://[^)]+)\)")
 # The published-API summary links each OpenAPI document, the one link outside the reference.
-OPENAPI_URLS = frozenset(api_surface.OPENAPI_URLS.values())
+OPENAPI_URLS = frozenset(
+    source.url for source in api_surface.SOURCES.values() if source.kind == "openapi"
+)
 
-# The one resource/operation with no public API-reference page. Pinned so a *new* gap
+# The resources and operations with no public API-reference page. Pinned so a *new* gap
 # (e.g. a resource added without a doc link) fails loudly instead of slipping in silently.
-EXPECTED_LINK_GAPS = ("tracker.linktypes", "tracker.linktypes.list")
+EXPECTED_LINK_GAPS = (
+    "datalens.tenant",
+    "datalens.tenant.details_get",
+    "tracker.linktypes",
+    "tracker.linktypes.list",
+)
 
 
 def _load_generator():
@@ -60,9 +66,7 @@ def test_generated_doc_links_are_well_formed():
     for url in urls:
         if url in OPENAPI_URLS:
             continue
-        assert url.startswith(DOCS_BASE), url
-        domain = url.removeprefix(DOCS_BASE).split("/")[0]
-        assert f"/{domain}/en/{gen.API_SECTION[domain]}/" in url, url
+        assert any(url.startswith(docs.format(path="")) for docs in gen.API_DOCS.values()), url
         assert not url.endswith(".md"), url
         assert " " not in url and "|" not in url, url
 
@@ -110,7 +114,7 @@ def test_link_stats_totals_are_consistent():
     assert stats.linked_resources <= stats.resources
     # The vast majority of operations deep-link to their own endpoint page.
     assert stats.specific_ops > stats.fallback_ops + stats.plain_ops
-    assert stats.plain_ops == 1 and stats.linked_resources == stats.resources - 1
+    assert stats.plain_ops == 2 and stats.linked_resources == stats.resources - 2
 
 
 def test_link_map_keys_reference_real_resources_and_operations():
@@ -138,7 +142,7 @@ def test_check_mode_surfaces_link_gaps_on_stderr(capsys):
     assert gen.main(["--check"]) == 0
     err = capsys.readouterr().err
     assert "operations → their own page" in err
-    assert "Gaps (no public link): tracker.linktypes" in err
+    assert "Gaps (no public link): datalens.tenant" in err
 
 
 def test_the_russian_readme_carries_the_same_totals():

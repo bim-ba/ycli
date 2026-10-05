@@ -29,6 +29,7 @@ from ycli.yandex.errors import (
     YandexAuthError,
     YandexConnectionError,
     YandexInvalidRequestError,
+    YandexNotConfiguredError,
     YandexNotFoundError,
     YandexRateLimitError,
     YandexServerError,
@@ -130,7 +131,10 @@ def exit_code_for(exc: Exception) -> ExitCode:
     if missing_credentials(exc) or isinstance(exc, YandexAuthError):
         return ExitCode.AUTH
     # A bad setting, or a request the arguments given cannot build: nothing was sent.
-    if isinstance(exc, (ValidationError, ProfileError, YandexInvalidRequestError)):
+    if isinstance(
+        exc,
+        (ValidationError, ProfileError, YandexInvalidRequestError, YandexNotConfiguredError),
+    ):
         return ExitCode.USAGE
     if isinstance(exc, YandexNotFoundError):
         return ExitCode.NOT_FOUND

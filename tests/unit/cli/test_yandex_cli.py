@@ -85,7 +85,7 @@ def test_mcp_start_passes_every_selection_flag(monkeypatch):
 @pytest.mark.parametrize(
     ("flag", "message"),
     [
-        ("--toolsets=nope", "valid: tracker, wiki, forms, core, all"),
+        ("--toolsets=nope", "valid: tracker, wiki, forms, datalens, core, all"),
         ("--exclude-tools=status_get", "always served"),
         ("--tools=nope_thing", "unknown tool"),
         ("--tools=tracker_issues_gett", "tracker_issues_gett"),

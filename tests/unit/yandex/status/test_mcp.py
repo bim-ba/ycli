@@ -30,7 +30,9 @@ async def test_status_get_reports_the_owner_the_organization_and_every_service(a
         "tracker": True,
         "wiki": True,
         "forms": True,
+        "datalens": False,
     }
+    assert report.services[-1].configured is False
 
 
 async def test_status_get_marks_invalid_on_401(api, monkeypatch):

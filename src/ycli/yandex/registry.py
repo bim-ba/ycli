@@ -7,16 +7,21 @@ registry imports none of them: a command loads only the service it runs.
 
 Examples:
     >>> [service.name for service in SERVICES]
-    ['tracker', 'wiki', 'forms']
+    ['tracker', 'wiki', 'forms', 'datalens']
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ycli.yandex import forms, tracker, wiki
+from ycli.yandex import datalens, forms, tracker, wiki
 
 if TYPE_CHECKING:
     from ycli.yandex.service import Service
 
-SERVICES: tuple[Service, ...] = (tracker.SERVICE, wiki.SERVICE, forms.SERVICE)
+SERVICES: tuple[Service, ...] = (
+    tracker.SERVICE,
+    wiki.SERVICE,
+    forms.SERVICE,
+    datalens.SERVICE,
+)

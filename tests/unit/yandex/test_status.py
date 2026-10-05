@@ -13,6 +13,7 @@ import ycli.cli.app as cli
 from ycli.cli.errors import exit_code_for, format_cli_error
 from ycli.cli.exit_codes import ExitCode
 from ycli.settings import missing_credentials
+from ycli.yandex.errors import YandexNotConfiguredError
 
 ID_URL = "https://login.yandex.ru/info"
 ORG_URL = "https://api360.yandex.net/directory/v1/org"
@@ -91,7 +92,14 @@ def test_status_reports_the_owner_the_organization_and_every_service(stubbed):
         ("tracker", True),
         ("wiki", True),
         ("forms", True),
+        ("datalens", False),
     ]
+    assert report["services"][-1] == {
+        "service": "datalens",
+        "valid": False,
+        "configured": False,
+        "detail": "needs a Yandex Cloud organization: set YANDEX_CLOUD_ORGANIZATION_ID",
+    }
 
 
 @pytest.mark.parametrize("service", PROBES)
@@ -104,7 +112,7 @@ def test_one_service_failing_sets_a_nonzero_exit_and_names_it(stubbed, service, 
     by_name = {s["service"]: s for s in json.loads(res.stdout)["services"]}
     assert by_name[service]["valid"] is False
     assert by_name[service]["detail"]
-    assert all(s["valid"] for name, s in by_name.items() if name != service)
+    assert all(s["valid"] for name, s in by_name.items() if name != service and s["configured"])
 
 
 def test_a_token_without_the_directory_scope_is_still_a_success(stubbed):
@@ -122,7 +130,12 @@ def test_a_service_auth_status_probes_only_that_service(stubbed, api, service):
     stubbed()
     res = runner.invoke(cli.app, ["--format", "json", service, "auth", "status"])
     assert res.exit_code == 0, res.output
-    assert json.loads(res.stdout) == {"service": service, "valid": True, "detail": ""}
+    assert json.loads(res.stdout) == {
+        "service": service,
+        "valid": True,
+        "configured": True,
+        "detail": "",
+    }
     assert [str(call.url) for call in api.calls] == [PROBES[service]]
 
 
@@ -134,6 +147,7 @@ def test_a_rejected_token_fails_that_services_auth_status(stubbed, service):
     assert json.loads(res.stdout) == {
         "service": service,
         "valid": False,
+        "configured": True,
         "detail": "token invalid or expired",
     }
 
@@ -160,3 +174,17 @@ def test_two_tokens_at_once_are_a_configuration_error_not_a_status(creds, monkey
         "  YANDEX_ID_OAUTH_TOKEN and YANDEX_CLOUD_IAM_TOKEN are both set: keep one of them"
     )
     assert exit_code_for(res.exception) is ExitCode.USAGE
+
+
+def test_a_command_of_a_service_that_is_not_configured_says_what_to_set(stubbed, api):
+    """The same text `auth status` shows, a usage error, and nothing sent."""
+    stubbed()
+    for arguments in (["datalens", "tenant", "details-get"], ["datalens", "auth", "status"]):
+        res = runner.invoke(cli.app, arguments)
+        assert isinstance(res.exception, YandexNotConfiguredError)
+        assert format_cli_error(res.exception) == (
+            "Error: DataLens is not configured: it needs a Yandex Cloud organization: "
+            "set YANDEX_CLOUD_ORGANIZATION_ID"
+        )
+        assert exit_code_for(res.exception) is ExitCode.USAGE
+    assert api.calls == []

@@ -218,7 +218,8 @@ async def test_a_guide_is_the_plugins_skill_byte_for_byte(uri, package, skill):
     [
         (Selection(), set(GUIDES)),
         (Selection(toolsets=("wiki",)), {"ycli://guide", "ycli://wiki/guide"}),
-        (Selection(toolsets=(CORE,), read_only=True), set(GUIDES)),
+        # The core set names no DataLens tool yet, so it does not mount the service.
+        (Selection(toolsets=(CORE,), read_only=True), set(GUIDES) - {"ycli://datalens/guide"}),
     ],
 )
 async def test_a_guide_is_offered_for_every_mounted_service(selection, guides):

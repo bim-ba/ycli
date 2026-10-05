@@ -35,6 +35,7 @@ nav = [
       "reference/cli/tracker.md",
       "reference/cli/wiki.md",
       "reference/cli/forms.md",
+      "reference/cli/datalens.md",
       "reference/cli/auth.md",
       "reference/cli/mcp.md",
       "reference/cli/api.md",
@@ -44,6 +45,7 @@ nav = [
       "reference/mcp/tracker.md",
       "reference/mcp/wiki.md",
       "reference/mcp/forms.md",
+      "reference/mcp/datalens.md",
       "reference/mcp/other.md",
       "reference/mcp/prompts-and-resources.md",
     ] },
@@ -51,6 +53,7 @@ nav = [
       "reference/sdk/tracker.md",
       "reference/sdk/wiki.md",
       "reference/sdk/forms.md",
+      "reference/sdk/datalens.md",
     ] },
     "reference/openapi.md",
   ] },
@@ -149,9 +152,9 @@ ycli drives Yandex Tracker, Wiki and Forms from a command line, an MCP server fo
 
 The full reference is large, one page per service, and is left out of llms-full.txt:
 
-- CLI commands: https://ycli.savaznatnov.dev/reference/cli/tracker/ , https://ycli.savaznatnov.dev/reference/cli/wiki/ , https://ycli.savaznatnov.dev/reference/cli/forms/
-- MCP tools: https://ycli.savaznatnov.dev/reference/mcp/tracker/ , https://ycli.savaznatnov.dev/reference/mcp/wiki/ , https://ycli.savaznatnov.dev/reference/mcp/forms/
-- Python SDK: https://ycli.savaznatnov.dev/reference/sdk/tracker/ , https://ycli.savaznatnov.dev/reference/sdk/wiki/ , https://ycli.savaznatnov.dev/reference/sdk/forms/
+- CLI commands: https://ycli.savaznatnov.dev/reference/cli/tracker/ , https://ycli.savaznatnov.dev/reference/cli/wiki/ , https://ycli.savaznatnov.dev/reference/cli/forms/ , https://ycli.savaznatnov.dev/reference/cli/datalens/
+- MCP tools: https://ycli.savaznatnov.dev/reference/mcp/tracker/ , https://ycli.savaznatnov.dev/reference/mcp/wiki/ , https://ycli.savaznatnov.dev/reference/mcp/forms/ , https://ycli.savaznatnov.dev/reference/mcp/datalens/
+- Python SDK: https://ycli.savaznatnov.dev/reference/sdk/tracker/ , https://ycli.savaznatnov.dev/reference/sdk/wiki/ , https://ycli.savaznatnov.dev/reference/sdk/forms/ , https://ycli.savaznatnov.dev/reference/sdk/datalens/
 """
 
 [project.plugins.llmstxt.sections]

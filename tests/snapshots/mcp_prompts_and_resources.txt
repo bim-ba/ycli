@@ -3,6 +3,7 @@ prompt tracker_issue_brief(issue_key!)
 prompt tracker_queue_digest(queue!)
 prompt tracker_sprint_review(board!, sprint!)
 prompt wiki_page_from_issue(issue_key!, parent_slug!)
+resource ycli://datalens/guide
 resource ycli://forms/guide
 resource ycli://forms/survey/{survey_id}
 resource ycli://guide

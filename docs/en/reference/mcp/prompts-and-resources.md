@@ -63,6 +63,7 @@ Arguments: `issue_key`, `parent_slug`. Tools: `tracker_comments_list`, `tracker_
 
 | Address | Content |
 |---|---|
+| `ycli://datalens/guide` | How to work with Yandex DataLens through these tools: how to sign in, and what is wrapped. |
 | `ycli://forms/guide` | How to work with Yandex Forms through these tools: what to call for what, and the traps. |
 | `ycli://guide` | Where to start with Yandex 360 through ycli: access, and which service guide to read. |
 | `ycli://tracker/guide` | How to work with Yandex Tracker through these tools: what to call for what, and the traps. |

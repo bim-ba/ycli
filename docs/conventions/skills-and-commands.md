@@ -12,7 +12,8 @@ this; it is the spec the architecture review and any future authoring pass check
 
 - **Plugin skills** live in `plugins/yandex-360/skills/<name>/SKILL.md`. Names are
   `yandex-360` (the umbrella entry point) and `yandex-360-<domain>` per service —
-  `yandex-360-tracker`, `yandex-360-wiki`, `yandex-360-forms`. A new domain skill follows
+  `yandex-360-tracker`, `yandex-360-wiki`, `yandex-360-forms`, `yandex-360-datalens`. A new
+  domain skill follows
   the same `yandex-360-<domain>` pattern.
 - **Repo slash-commands** live in `.rulesync/commands/<name>.md` (generated to
   `.claude/commands/` and `.opencode/commands/`). Names are kebab-case `verb-noun` — the

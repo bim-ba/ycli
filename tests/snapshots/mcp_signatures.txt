@@ -1,3 +1,4 @@
+datalens_tenant_details_get()
 forms_access_grant(body:object!, survey_id:string!)
 forms_access_list(survey_id:string!)
 forms_access_revoke(body:object!, survey_id:string!)

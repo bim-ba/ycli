@@ -58,7 +58,9 @@ def _doctest_clients(
         "ycli.yandex.core.session.default_transport", _contract_api().copy().transport
     )
     clients = {
-        service.name: service.client_class()(oauth_token="token", organization_id="org")
+        service.name: service.client_class()(
+            oauth_token="token", organization_id="org", cloud_organization_id="cloud-org"
+        )
         for service in SERVICES
     }
     request.node.dtest.globs.update(clients)
