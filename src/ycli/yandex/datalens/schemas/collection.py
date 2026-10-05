@@ -88,11 +88,7 @@ class GetCollectionArgs(RequestBody):
 
 class GetCollectionsByIdsArgs(RequestBody):
     collection_ids: list[str] = Field(
-        ...,
-        alias="collectionIds",
-        description="IDs of the collections to retrieve.",
-        max_length=1000,
-        min_length=1,
+        ..., alias="collectionIds", description="IDs of the collections to retrieve."
     )
 
 

@@ -56,14 +56,9 @@ class DashColorByThemeV2(APIModel):
 class DashControlSourceDatasetV2(APIModel):
     """Dataset control source."""
 
-    dataset_id: str = Field(
-        ..., alias="datasetId", description="Source dataset identifier.", min_length=1
-    )
+    dataset_id: str = Field(..., alias="datasetId", description="Source dataset identifier.")
     dataset_field_id: str = Field(
-        ...,
-        alias="datasetFieldId",
-        description="Source dataset field identifier.",
-        min_length=1,
+        ..., alias="datasetFieldId", description="Source dataset field identifier."
     )
     field_type: (
         Literal[
@@ -99,13 +94,11 @@ class DashControlSourceDatasetV2(APIModel):
 class DashControlSourceExternalV2(APIModel):
     """External control source."""
 
-    chart_id: str = Field(
-        ..., alias="chartId", description="Source chart identifier.", min_length=1
-    )
+    chart_id: str = Field(..., alias="chartId", description="Source chart identifier.")
 
 
 class DashLayoutItemV2(APIModel):
-    i: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    i: str = Field(..., description="Dashboard item identifier.")
     h: float = Field(..., description="Item height in grid units.")
     w: float = Field(..., description="Item width in grid units.")
     x: float = Field(..., description="Horizontal grid position.")
@@ -114,8 +107,8 @@ class DashLayoutItemV2(APIModel):
 
 
 class DashConnectionV2(APIModel):
-    from_: str = Field(..., alias="from", description="Source widget identifier.", min_length=1)
-    to: str = Field(..., description="Target widget identifier.", min_length=1)
+    from_: str = Field(..., alias="from", description="Source widget identifier.")
+    to: str = Field(..., description="Target widget identifier.")
     kind: Literal["ignore"] = Field(..., description="Connection type.")
 
 
@@ -661,10 +654,7 @@ class DashControlSourceManualV2(APIModel):
     """Manual control source."""
 
     field_name: str = Field(
-        ...,
-        alias="fieldName",
-        description="Parameter name for the manual control.",
-        min_length=1,
+        ..., alias="fieldName", description="Parameter name for the manual control."
     )
     acceptable_values: (
         list[DashControlSourceManualV2AcceptableValuesVariant1Item]

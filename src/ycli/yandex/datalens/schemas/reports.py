@@ -73,8 +73,8 @@ class ReportTabItemV2Variant2DataBackgroundSettings(APIModel):
 
 
 class ReportTabItemV2Variant3DataTabsItem(APIModel):
-    id: str = Field(..., description="Widget tab identifier.", min_length=1)
-    title: str = Field(..., description="Widget tab title.", min_length=1)
+    id: str = Field(..., description="Widget tab identifier.")
+    title: str = Field(..., description="Widget tab title.")
     description: str | None = Field(default=None, description="Widget tab description.")
     hint: str | None = Field(default=None, description="Widget tab hint.")
     enable_hint: bool | None = Field(
@@ -87,7 +87,7 @@ class ReportTabItemV2Variant3DataTabsItem(APIModel):
         alias="enableDescription",
         description="Whether the widget tab description is enabled.",
     )
-    chart_id: str = Field(..., alias="chartId", description="Chart identifier.", min_length=1)
+    chart_id: str = Field(..., alias="chartId", description="Chart identifier.")
     is_default: bool | None = Field(
         default=None,
         alias="isDefault",
@@ -122,7 +122,7 @@ class ReportTabItemV2Variant4DataBackgroundSettings(APIModel):
 class ReportTabItemV2Variant5Data(APIModel):
     """Control item data."""
 
-    title: str = Field(..., description="Control title.", min_length=1)
+    title: str = Field(..., description="Control title.")
     source_type: Literal["external"] = Field(
         ..., alias="sourceType", description="External control source type."
     )
@@ -138,21 +138,13 @@ class ReportTabItemV2Variant7DataBackgroundSettings(APIModel):
 
 
 class ReportDataV2SlidesItem(APIModel):
-    id: str = Field(..., description="Slide identifier.", min_length=1)
-
-
-class DefaultItemItem(RootModel[str]):
-    root: str = Field(..., min_length=1)
-
-
-class DefaultItem(RootModel[list[DefaultItemItem]]):
-    root: list[DefaultItemItem] = Field(..., min_length=2)
+    id: str = Field(..., description="Slide identifier.")
 
 
 class ReportDataV2SlideGroupsItemAliases(APIModel):
     """Field aliases used in the slide group."""
 
-    default: list[DefaultItem] | None = Field(
+    default: list[list[str]] | None = Field(
         default=None, description="Groups of field names treated as the same parameter."
     )
 
@@ -274,7 +266,7 @@ class ReportTabItemV2Variant4Data(APIModel):
 
 
 class ReportTabItemV2Variant5(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -288,8 +280,8 @@ class ReportTabItemV2Variant5(APIModel):
 
 
 class ReportTabItemV2Variant6DataGroupItemVariant1(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
-    id: str = Field(..., description="Control identifier.", min_length=1)
+    title: str = Field(..., description="Control title.")
+    id: str = Field(..., description="Control identifier.")
     namespace: Literal["default"] = Field(..., description="Control namespace.")
     defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
         default=None,
@@ -306,8 +298,8 @@ class ReportTabItemV2Variant6DataGroupItemVariant1(APIModel):
 
 
 class ReportTabItemV2Variant6DataGroupItemVariant2(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
-    id: str = Field(..., description="Control identifier.", min_length=1)
+    title: str = Field(..., description="Control title.")
+    id: str = Field(..., description="Control identifier.")
     namespace: Literal["default"] = Field(..., description="Control namespace.")
     defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
         default=None,
@@ -327,7 +319,7 @@ class ReportTabItemV2Variant7Data(APIModel):
     """Insight widget item data."""
 
     title: str | None = Field(default=None, description="Neuro widget title.")
-    prompt: str = Field(..., description="Prompt used to generate the widget.", min_length=1)
+    prompt: str = Field(..., description="Prompt used to generate the widget.")
     hide_title: bool = Field(
         ..., alias="hideTitle", description="Whether to hide the insight widget title."
     )
@@ -342,12 +334,7 @@ class ReportTabItemV2Variant7Data(APIModel):
         alias="hideActions",
         description="Whether to hide insight widget actions.",
     )
-    widget_tab_id: str = Field(
-        ...,
-        alias="widgetTabId",
-        description="Neuro widget tab identifier.",
-        min_length=1,
-    )
+    widget_tab_id: str = Field(..., alias="widgetTabId", description="Neuro widget tab identifier.")
 
 
 class ReportDataV2VisualSettings(APIModel):
@@ -457,7 +444,7 @@ class ReportDataV2SlideSettingsValue(APIModel):
 
 
 class ReportTabItemV2Variant1(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -492,7 +479,7 @@ class ReportTabItemV2Variant2Data(APIModel):
 
 
 class ReportTabItemV2Variant3(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -503,7 +490,7 @@ class ReportTabItemV2Variant3(APIModel):
 
 
 class ReportTabItemV2Variant4(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -546,7 +533,7 @@ class ReportTabItemV2Variant6Data(APIModel):
 
 
 class ReportTabItemV2Variant7(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -557,7 +544,7 @@ class ReportTabItemV2Variant7(APIModel):
 
 
 class ReportTabItemV2Variant2(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -568,7 +555,7 @@ class ReportTabItemV2Variant2(APIModel):
 
 
 class ReportTabItemV2Variant6(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -613,9 +600,9 @@ class ReportDataV2SlideGroupsItem(APIModel):
 
 
 class ReportDataV2(APIModel):
-    counter: int = Field(..., description="Counter used to generate item identifiers.", ge=1)
-    salt: str = Field(..., description="Salt used to generate item identifiers.", min_length=1)
-    slides: list[ReportDataV2SlidesItem] = Field(..., description="Report slides.", min_length=1)
+    counter: int = Field(..., description="Counter used to generate item identifiers.")
+    salt: str = Field(..., description="Salt used to generate item identifiers.")
+    slides: list[ReportDataV2SlidesItem] = Field(..., description="Report slides.")
     slide_groups: list[ReportDataV2SlideGroupsItem] = Field(
         ..., alias="slideGroups", description="Slide groups in the report."
     )

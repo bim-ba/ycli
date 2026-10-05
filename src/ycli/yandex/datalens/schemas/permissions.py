@@ -45,22 +45,16 @@ class GetPermissionsBulkArgs(RequestBody):
         default=None,
         alias="entryIds",
         description="Identifiers of the entries to check permissions for.",
-        max_length=1000,
-        min_length=1,
     )
     workbook_ids: list[str] | None = Field(
         default=None,
         alias="workbookIds",
         description="Identifiers of the workbooks to check permissions for.",
-        max_length=1000,
-        min_length=1,
     )
     collection_ids: list[str] | None = Field(
         default=None,
         alias="collectionIds",
         description="Identifiers of the collections to check permissions for.",
-        max_length=1000,
-        min_length=1,
     )
 
 

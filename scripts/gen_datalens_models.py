@@ -9,10 +9,10 @@ public names; nothing else imports from the generated layer.
 The pipeline has two steps of ycli's own around ``datamodel-code-generator``:
 
 1. :func:`prepare` rewrites the specification so that the generator's output follows ycli's
-   rules (docs/conventions/resources.md, "Generated models"): no directive to the generator and
-   no default survives, a reply is read as it comes, a set of values is open, only the envelope
-   of a request refuses an unknown field, every object has a name made from its place, and each
-   schema an operation reaches has a module.
+   rules (docs/conventions/resources.md, "Generated models"): no directive to the generator, no
+   default and no limit on a value survives, a reply is read as it comes, a set of values is
+   open, only the envelope of a request refuses an unknown field, every object has a name made
+   from its place, and each schema an operation reaches has a module.
 2. :func:`finish` gives a request envelope the ``RequestBody`` base and each file its header.
 
 Then ruff formats the result as it formats the rest of the package, and :func:`foreign`
@@ -141,16 +141,42 @@ def _target(spec: dict[str, Any], schema: dict[str, Any]) -> dict[str, Any] | No
     return spec["components"]["schemas"].get(ref.removeprefix(_REF))
 
 
+# A limit on a value: its length, its range, its pattern, how many items it holds.
+_LIMITS = frozenset(
+    {
+        "minLength",
+        "maxLength",
+        "pattern",
+        "minimum",
+        "maximum",
+        "exclusiveMinimum",
+        "exclusiveMaximum",
+        "multipleOf",
+        "minItems",
+        "maxItems",
+        "uniqueItems",
+        "minProperties",
+        "maxProperties",
+    }
+)
+
+
 def _plain(spec: dict[str, Any]) -> None:
-    """Drop what must not reach the generated code: generator directives and defaults.
+    """Drop what must not reach the generated code: directives, defaults and limits.
 
     A key that begins with ``x-`` or ``custom`` can tell the generator to import a module or to
     inherit from a class of its choosing; the document is downloaded, so none is honoured. A
     ``default`` would be sent with a body whose caller never set the field: what is not given is
-    ``None`` and stays out of the request (conventions, "ycli sends what the caller gave").
+    ``None`` and stays out of the request (conventions, "ycli sends what the caller gave"). A
+    limit on a value is the API's rule to enforce, and its answer says more than a copy of the
+    rule that goes stale (ARCH-9).
     """
     for schema in list(_every_schema(spec)):
-        for key in [key for key in schema if key.startswith(("x-", "custom")) or key == "default"]:
+        for key in [
+            key
+            for key in schema
+            if key.startswith(("x-", "custom")) or key == "default" or key in _LIMITS
+        ]:
             del schema[key]
 
 

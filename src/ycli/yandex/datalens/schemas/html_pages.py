@@ -174,7 +174,7 @@ class UpdateHtmlPageArgsVariant2(APIModel):
 
 
 class CreateHtmlPageArgs(EntryLocationIdentifiers):
-    content: str = Field(..., description="HTML content of the page.", max_length=10485760)
+    content: str = Field(..., description="HTML content of the page.")
     annotation: CreateHtmlPageArgsAnnotation | None = None
 
 
@@ -388,7 +388,7 @@ class UpdateHtmlPageResultEntry(APIModel):
 
 class UpdateHtmlPageArgsVariant1(APIModel):
     entry_id: str = Field(..., alias="entryId", description="ID of the HTML page to update.")
-    content: str = Field(..., description="New HTML content of the page.", max_length=10485760)
+    content: str = Field(..., description="New HTML content of the page.")
     annotation: UpdateHtmlPageArgsVariant1Annotation | None = None
     mode: Literal["save", "publish"] | str | None = Field(
         default=None, description="HTML page update mode."

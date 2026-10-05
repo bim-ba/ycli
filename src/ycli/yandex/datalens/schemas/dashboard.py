@@ -110,8 +110,8 @@ class DashTabItemV2Variant3DataBackgroundSettingsColor(APIModel):
 
 
 class DashTabItemV2Variant3DataTabsItem(APIModel):
-    id: str = Field(..., description="Widget tab identifier.", min_length=1)
-    title: str = Field(..., description="Widget tab title.", min_length=1)
+    id: str = Field(..., description="Widget tab identifier.")
+    title: str = Field(..., description="Widget tab title.")
     description: str | None = Field(default=None, description="Widget tab description.")
     hint: str | None = Field(default=None, description="Widget tab hint.")
     enable_hint: bool | None = Field(
@@ -124,7 +124,7 @@ class DashTabItemV2Variant3DataTabsItem(APIModel):
         alias="enableDescription",
         description="Whether the widget tab description is enabled.",
     )
-    chart_id: str = Field(..., alias="chartId", description="Chart identifier.", min_length=1)
+    chart_id: str = Field(..., alias="chartId", description="Chart identifier.")
     is_default: bool | None = Field(
         default=None,
         alias="isDefault",
@@ -152,10 +152,6 @@ class DashTabItemV2Variant4DataBackgroundSettingsColor(APIModel):
     dark: str | None = Field(default=None, description="Color for the dark theme.")
 
 
-class WidgetTabId(RootModel[str]):
-    root: str = Field(..., min_length=1)
-
-
 class DashTabItemV2Variant5DataBackgroundSettingsColor(APIModel):
     """Widget background color by theme in hex."""
 
@@ -163,18 +159,10 @@ class DashTabItemV2Variant5DataBackgroundSettingsColor(APIModel):
     dark: str | None = Field(default=None, description="Color for the dark theme.")
 
 
-class DefaultItemItem(RootModel[str]):
-    root: str = Field(..., min_length=1)
-
-
-class DefaultItem(RootModel[list[DefaultItemItem]]):
-    root: list[DefaultItemItem] = Field(..., min_length=2)
-
-
 class DashTabV2Aliases(APIModel):
     """Field aliases used on the tab."""
 
-    default: list[DefaultItem] | None = Field(
+    default: list[list[str]] | None = Field(
         default=None, description="Groups of field names treated as the same parameter."
     )
 
@@ -198,14 +186,6 @@ class DashboardV2Annotation(APIModel):
     """Annotation of the dashboard."""
 
     description: str | None = Field(default=None, description="Description of the entry.")
-
-
-class AutoupdateInterval(RootModel[float]):
-    root: float = Field(..., description="Automatic refresh interval in seconds.", ge=30.0)
-
-
-class MaxConcurrentRequests(RootModel[float]):
-    root: float = Field(..., description="Maximum number of concurrent requests.", ge=1.0)
 
 
 class DashboardV2DataSettingsBackgroundSettings(APIModel):
@@ -241,7 +221,7 @@ class DashDataV2SettingsWidgetsSettingsBackgroundSettings(APIModel):
 
 
 class DashControlV2Variant1(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
+    title: str = Field(..., description="Control title.")
     impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
         default=None,
         alias="impactType",
@@ -270,7 +250,7 @@ class DashControlV2Variant1(APIModel):
 
 
 class DashControlV2Variant2(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
+    title: str = Field(..., description="Control title.")
     impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
         default=None,
         alias="impactType",
@@ -299,7 +279,7 @@ class DashControlV2Variant2(APIModel):
 
 
 class DashControlV2Variant3(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
+    title: str = Field(..., description="Control title.")
     impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
         default=None,
         alias="impactType",
@@ -328,7 +308,7 @@ class DashControlV2Variant3(APIModel):
 
 
 class DashGroupControlItemV2Variant1(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
+    title: str = Field(..., description="Control title.")
     impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
         default=None,
         alias="impactType",
@@ -339,7 +319,7 @@ class DashGroupControlItemV2Variant1(APIModel):
         alias="impactTabsIds",
         description="Identifiers of the tabs where the control is displayed when 'impactType' is 'currentTab' or 'selectedTabs'.",
     )
-    id: str = Field(..., description="Control identifier.", min_length=1)
+    id: str = Field(..., description="Control identifier.")
     namespace: Literal["default"] = Field(..., description="Control namespace.")
     defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
         default=None,
@@ -356,7 +336,7 @@ class DashGroupControlItemV2Variant1(APIModel):
 
 
 class DashGroupControlItemV2Variant2(APIModel):
-    title: str = Field(..., description="Control title.", min_length=1)
+    title: str = Field(..., description="Control title.")
     impact_type: Literal["allTabs", "currentTab", "selectedTabs", "asGroup"] | str | None = Field(
         default=None,
         alias="impactType",
@@ -367,7 +347,7 @@ class DashGroupControlItemV2Variant2(APIModel):
         alias="impactTabsIds",
         description="Identifiers of the tabs where the control is displayed when 'impactType' is 'currentTab' or 'selectedTabs'.",
     )
-    id: str = Field(..., description="Control identifier.", min_length=1)
+    id: str = Field(..., description="Control identifier.")
     namespace: Literal["default"] = Field(..., description="Control namespace.")
     defaults: dict[str, shared.DashStringDefaultValueV2] | None = Field(
         default=None,
@@ -450,7 +430,7 @@ class DashControlV2(
 
 
 class DashTabControlItemV2(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -517,7 +497,7 @@ class DashGroupControlV2(APIModel):
 
 
 class DashTabGroupControlItemV2(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -618,15 +598,13 @@ class DashTabItemV2Variant4Data(APIModel):
 class DashTabItemV2Variant5Data(APIModel):
     """Neuro widget item data."""
 
-    widget_tab_ids: list[WidgetTabId] = Field(
+    widget_tab_ids: list[str] = Field(
         ...,
         alias="widgetTabIds",
         description="Neuro widget tab identifiers, one per analyzed chart.",
-        max_length=5,
-        min_length=1,
     )
     title: str | None = Field(default=None, description="Neuro widget title.")
-    prompt: str = Field(..., description="Prompt used to generate the widget.", min_length=1)
+    prompt: str = Field(..., description="Prompt used to generate the widget.")
     hide_title: bool = Field(
         ..., alias="hideTitle", description="Whether to hide the insight widget title."
     )
@@ -646,12 +624,12 @@ class DashTabItemV2Variant5Data(APIModel):
 class DashboardV2DataSettings(APIModel):
     """Dashboard settings."""
 
-    autoupdate_interval: AutoupdateInterval | None = Field(
+    autoupdate_interval: float | None = Field(
         ...,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
-    max_concurrent_requests: MaxConcurrentRequests | None = Field(
+    max_concurrent_requests: float | None = Field(
         ...,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
@@ -719,12 +697,12 @@ class DashboardV2DataSettings(APIModel):
 class DashDataV2Settings(APIModel):
     """Dashboard settings."""
 
-    autoupdate_interval: AutoupdateInterval | None = Field(
+    autoupdate_interval: float | None = Field(
         ...,
         alias="autoupdateInterval",
         description="Automatic refresh interval in seconds.",
     )
-    max_concurrent_requests: MaxConcurrentRequests | None = Field(
+    max_concurrent_requests: float | None = Field(
         ...,
         alias="maxConcurrentRequests",
         description="Maximum number of concurrent requests.",
@@ -790,7 +768,7 @@ class DashDataV2Settings(APIModel):
 
 
 class DashTabItemV2Variant1(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -801,7 +779,7 @@ class DashTabItemV2Variant1(APIModel):
 
 
 class DashTabItemV2Variant2(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -812,7 +790,7 @@ class DashTabItemV2Variant2(APIModel):
 
 
 class DashTabItemV2Variant3(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -823,7 +801,7 @@ class DashTabItemV2Variant3(APIModel):
 
 
 class DashTabItemV2Variant4(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -834,7 +812,7 @@ class DashTabItemV2Variant4(APIModel):
 
 
 class DashTabItemV2Variant5(APIModel):
-    id: str = Field(..., description="Dashboard item identifier.", min_length=1)
+    id: str = Field(..., description="Dashboard item identifier.")
     namespace: Literal["default"] = Field(..., description="Item namespace.")
     order_id: float | None = Field(default=None, alias="orderId", description="Current item order.")
     default_order_id: float | None = Field(
@@ -867,8 +845,8 @@ class DashTabItemV2(
 
 
 class DashTabV2(APIModel):
-    id: str = Field(..., description="Tab identifier.", min_length=1)
-    title: str = Field(..., description="Tab title.", min_length=1)
+    id: str = Field(..., description="Tab identifier.")
+    title: str = Field(..., description="Tab title.")
     hidden: bool | None = Field(default=None, description="Whether the tab is hidden.")
     items: list[DashTabItemV2] = Field(..., description="Items displayed on the tab.")
     layout: list[shared.DashLayoutItemV2] = Field(..., description="Item layout on the tab.")
@@ -885,9 +863,9 @@ class DashTabV2(APIModel):
 
 
 class DashDataV2(APIModel):
-    counter: int = Field(..., description="Counter used to generate item identifiers.", ge=1)
-    salt: str = Field(..., description="Salt used to generate item identifiers.", min_length=1)
-    tabs: list[DashTabV2] = Field(..., description="Dashboard tabs.", min_length=1)
+    counter: int = Field(..., description="Counter used to generate item identifiers.")
+    salt: str = Field(..., description="Salt used to generate item identifiers.")
+    tabs: list[DashTabV2] = Field(..., description="Dashboard tabs.")
     settings: DashDataV2Settings
     support_description: str | None = Field(
         default=None,
@@ -914,9 +892,9 @@ class CreateDashboardV2Args(RequestBody):
 class DashboardV2Data(APIModel):
     """Versioned data of the dashboard."""
 
-    counter: int = Field(..., description="Counter used to generate item identifiers.", ge=1)
-    salt: str = Field(..., description="Salt used to generate item identifiers.", min_length=1)
-    tabs: list[DashTabV2] = Field(..., description="Dashboard tabs.", min_length=1)
+    counter: int = Field(..., description="Counter used to generate item identifiers.")
+    salt: str = Field(..., description="Salt used to generate item identifiers.")
+    tabs: list[DashTabV2] = Field(..., description="Dashboard tabs.")
     settings: DashboardV2DataSettings
     support_description: str | None = Field(
         default=None,

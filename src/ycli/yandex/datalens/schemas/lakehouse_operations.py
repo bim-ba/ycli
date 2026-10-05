@@ -9,9 +9,5 @@ from ycli.yandex.models import RequestBody
 
 class GetLakehouseOperationArgs(RequestBody):
     operation_id: str = Field(
-        ...,
-        alias="operationId",
-        description="ID of the operation to return.",
-        max_length=50,
-        min_length=1,
+        ..., alias="operationId", description="ID of the operation to return."
     )

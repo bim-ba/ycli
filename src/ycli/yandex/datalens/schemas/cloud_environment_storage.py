@@ -16,13 +16,10 @@ class CreateBucketDownloadUrlArgs(RequestBody):
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment that owns the storage bucket.",
-        max_length=50,
-        min_length=1,
     )
     path: str = Field(
         ...,
         description="Path of the object in the storage bucket. Must not exceed 1024 UTF-8 bytes or contain control characters.",
-        min_length=1,
     )
 
 
@@ -35,21 +32,16 @@ class CreateBucketUploadUrlArgs(RequestBody):
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment that owns the storage bucket.",
-        max_length=50,
-        min_length=1,
     )
     path: str = Field(
         ...,
         description="Path of the object in the storage bucket. Must not exceed 1024 UTF-8 bytes or contain control characters.",
-        min_length=1,
     )
-    size: str = Field(..., description="Size of the object in bytes.", pattern="^(?:0|[1-9]\\d*)$")
+    size: str = Field(..., description="Size of the object in bytes.")
     content_md5: str = Field(
         ...,
         alias="contentMd5",
         description="Base64-encoded 16-byte MD5 digest of the object content.",
-        max_length=24,
-        min_length=24,
     )
 
 
@@ -58,13 +50,10 @@ class GetBucketObjectMetadataArgs(RequestBody):
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment that owns the storage bucket.",
-        max_length=50,
-        min_length=1,
     )
     path: str = Field(
         ...,
         description="Path of the object in the storage bucket. Must not exceed 1024 UTF-8 bytes or contain control characters.",
-        min_length=1,
     )
 
 
@@ -80,8 +69,6 @@ class ListBucketObjectsArgs(RequestBody):
         ...,
         alias="cloudEnvironmentId",
         description="ID of the cloud environment that owns the storage bucket.",
-        max_length=50,
-        min_length=1,
     )
     prefix: str | None = Field(
         default=None,
@@ -91,8 +78,6 @@ class ListBucketObjectsArgs(RequestBody):
         default=None,
         alias="pageSize",
         description="Maximum number of objects to return. The default is 1000.",
-        ge=0,
-        le=1000,
     )
     page_token: str | None = Field(
         default=None,

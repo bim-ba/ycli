@@ -10,15 +10,11 @@ from ycli.yandex.models import APIModel, RequestBody
 
 
 class GetChartDataArgs(RequestBody):
-    chart_id: str = Field(..., alias="chartId", description="Saved chart ID.", min_length=1)
+    chart_id: str = Field(..., alias="chartId", description="Saved chart ID.")
     params: dict[str, str | list[str]] | None = Field(
         default=None,
         description="Chart parameters, including table pagination. Saved chart settings apply.",
     )
-
-
-class Column(RootModel[str]):
-    root: str = Field(..., min_length=1)
 
 
 class GetWizardChartDataResultResultsItemSchemaItem(APIModel):
@@ -64,7 +60,7 @@ class GetEditorChartDataResultResultsItemSchemaItem(APIModel):
 
 
 class GetDatasetDataRequestFiltersItem(APIModel):
-    guid: str = Field(..., description="Dataset field GUID.", min_length=1)
+    guid: str = Field(..., description="Dataset field GUID.")
     operation: (
         Literal[
             "in",
@@ -102,18 +98,18 @@ class GetDatasetDataRequestFiltersItem(APIModel):
 
 
 class GetDatasetDataRequestParamsItem(APIModel):
-    guid: str = Field(..., description="Dataset parameter GUID.", min_length=1)
+    guid: str = Field(..., description="Dataset parameter GUID.")
     value: str | float | bool = Field(..., description="Parameter value.")
 
 
 class GetDatasetDataRequestSortItem(APIModel):
-    guid: str = Field(..., description="Dataset field GUID.", min_length=1)
+    guid: str = Field(..., description="Dataset field GUID.")
     direction: Literal["asc", "desc"] | str = Field(..., description="Sort direction.")
 
 
 class GetDatasetDataResponseSchemaItem(APIModel):
     name: str = Field(..., description="Dataset field name.")
-    guid: str = Field(..., description="Dataset field GUID.", min_length=1)
+    guid: str = Field(..., description="Dataset field GUID.")
     type: (
         Literal[
             "date",
@@ -142,11 +138,9 @@ class GetDatasetDataResponseSchemaItem(APIModel):
 
 
 class GetDatasetDataRequest(RequestBody):
-    dataset_id: str = Field(..., alias="datasetId", description="Dataset ID.", min_length=1)
-    workbook_id: str | None = Field(
-        default=None, alias="workbookId", description="Workbook ID.", min_length=1
-    )
-    columns: list[Column] = Field(..., description="Dataset field GUIDs to return.", min_length=1)
+    dataset_id: str = Field(..., alias="datasetId", description="Dataset ID.")
+    workbook_id: str | None = Field(default=None, alias="workbookId", description="Workbook ID.")
+    columns: list[str] = Field(..., description="Dataset field GUIDs to return.")
     filters: list[GetDatasetDataRequestFiltersItem] | None = Field(
         default=None, description="Filters to apply."
     )
@@ -160,13 +154,10 @@ class GetDatasetDataRequest(RequestBody):
     limit: int | None = Field(
         default=None,
         description="Maximum number of rows to return. Defaults to 100. Without sort, the selected rows and their order are not guaranteed.",
-        ge=1,
-        le=100000,
     )
     offset: int | None = Field(
         default=None,
         description="Number of rows to skip. Values greater than zero require a non-empty sort.",
-        ge=0,
     )
 
 
