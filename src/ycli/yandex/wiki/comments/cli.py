@@ -34,8 +34,9 @@ def list_(
         str | None,
         values_option(SortDirection, "--order-direction", help="Sort direction for --order-by."),
     ] = None,
-    status: Annotated[
-        str | None, values_option(ResolveStatus, "--status", help="Only comments in this state.")
+    status_filter: Annotated[
+        str | None,
+        values_option(ResolveStatus, "--status-filter", help="Only comments in this state."),
     ] = None,
     *,
     config: AppConfig,
@@ -48,7 +49,7 @@ def list_(
         limit=cap,
         order_by=order_by,
         order_direction=order_direction,
-        status_filter=status,
+        status_filter=status_filter,
     )
 
 

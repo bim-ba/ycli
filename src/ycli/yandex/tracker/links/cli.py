@@ -14,6 +14,7 @@ from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate, Relat
 from ycli.yandex.tracker.typedefs import (
     ImportCreatedAtOpt,
     ImportCreatedByOpt,
+    IssueKeyArg,
     KeyArg,
 )
 
@@ -29,16 +30,16 @@ def list_(key: KeyArg, *, tracker: TrackerClient) -> ItemList[Link]:
 @app.command()
 def list_filtered(
     key: KeyArg,
-    link_type: Annotated[
+    link_types: Annotated[
         list[str] | None,
         typer.Option(
-            "--type",
+            "--link-types",
             help="Keep only links with this relationship, e.g. relates (repeatable).",
         ),
     ] = None,
-    field: Annotated[
+    fields: Annotated[
         list[str] | None,
-        typer.Option("--field", help="Field to include in each link (repeatable)."),
+        typer.Option("--fields", help="Field to include in each link (repeatable)."),
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,
@@ -48,7 +49,7 @@ def list_filtered(
 ) -> ItemList[Link]:
     """List links of issue KEY, filtered and paged (POST …/links/_list; --all for everything)."""
     cap = config.http.cap(limit, all_=all_)
-    return tracker.links.list_filtered(key, link_types=link_type, fields=field, limit=cap)
+    return tracker.links.list_filtered(key, link_types=link_types, fields=fields, limit=cap)
 
 
 @app.command()
@@ -78,7 +79,7 @@ def delete(
 
 @app.command("import")
 def import_(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     relationship: Annotated[str, typer.Option(help="Link type, e.g. relates.")],
     issue: Annotated[str, typer.Option(help="Key or id of the issue to link to.")],
     created_at: ImportCreatedAtOpt,
@@ -86,8 +87,8 @@ def import_(
     *,
     tracker: TrackerClient,
 ) -> Link:
-    """Import a link on issue KEY (POST /issues/{key}/links/_import)."""
+    """Import a link on issue ISSUE_KEY (POST /issues/{issue_key}/links/_import)."""
     body = ImportLink(
         relationship=relationship, issue=issue, createdAt=created_at, createdBy=created_by
     )
-    return tracker.links.import_(key, body=body)
+    return tracker.links.import_(issue_key, body=body)

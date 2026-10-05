@@ -21,7 +21,7 @@ CASES = [
     Case(
         "forms.filling.submit",
         args=(SID, SubmitBody.model_validate({"name": "Ann", "rating": 5})),
-        kwargs={"dry_run": True, "key": "k-2"},
+        kwargs={"validate_only": True, "key": "k-2"},
         cli=[
             "forms",
             "filling",
@@ -35,7 +35,12 @@ CASES = [
         ],
         mcp=(
             "forms_filling_submit",
-            {"survey": SID, "body": {"name": "Ann", "rating": 5}, "dry_run": True, "key": "k-2"},
+            {
+                "survey": SID,
+                "body": {"name": "Ann", "rating": 5},
+                "validate_only": True,
+                "key": "k-2",
+            },
         ),
         exchanges=[
             (
@@ -62,7 +67,7 @@ CASES = [
             "city",
             "--text",
             "Ber",
-            "--id",
+            "--suggest-id",
             "1,2",
             "--parent-id",
             "de",

@@ -197,14 +197,14 @@ Move or rename pages (``POST /pages/move`` — asynchronous; undocumented by Yan
 The only way to give a page a new slug. The call returns a deferred operation reference —
 poll ``operations_move_get`` with the returned ``operation.id`` until it reaches a terminal
 status. A page moves with its subtree and links to the old address may stop working, so try
-``dry_run=true`` first: it validates the request, applies nothing, and its operation id
+``validate_only=true`` first: it validates the request, applies nothing, and its operation id
 cannot be polled. Yandex does not document this operation (it is in the live OpenAPI only)
 and may change it.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `body` | object | yes | Move spec: ``operations`` (each ``source`` slug and new ``target`` slug, optionally ``next_to_slug`` with ``position`` before/after) and optional ``copy_inherited_access``. |
-| `dry_run` | boolean |  | Validate the move without applying it. |
+| `validate_only` | boolean |  | Validate the move without applying it. |
 
 ## `wiki_pages_revisions_list`
 

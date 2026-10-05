@@ -21,10 +21,10 @@ def create(
     user: Annotated[str | None, typer.Option(help="Login or id of the absent user.")] = None,
     workflow: Annotated[str | None, values_option(GapWorkflow, help="Kind of absence.")] = None,
     date_from: Annotated[
-        str | None, typer.Option("--from", help="Start of the absence (ISO 8601).")
+        str | None, typer.Option("--date-from", help="Start of the absence (ISO 8601).")
     ] = None,
     date_to: Annotated[
-        str | None, typer.Option("--to", help="End of the absence (ISO 8601).")
+        str | None, typer.Option("--date-to", help="End of the absence (ISO 8601).")
     ] = None,
     gap_id: Annotated[
         str | None, typer.Option("--id", help="Identifier of the absence (generated if omitted).")
@@ -75,10 +75,10 @@ def search(
         list[str], typer.Argument(metavar="USER...", help="Logins or ids (up to 100).")
     ],
     date_from: Annotated[
-        str | None, typer.Option("--from", help="Window start (ISO 8601); default: now.")
+        str | None, typer.Option("--date-from", help="Window start (ISO 8601); default: now.")
     ] = None,
     date_to: Annotated[
-        str | None, typer.Option("--to", help="Window end (ISO 8601); must be after --from.")
+        str | None, typer.Option("--date-to", help="Window end (ISO 8601); must be after --from.")
     ] = None,
     limit: LimitOption = None,
     all_: AllOption = False,

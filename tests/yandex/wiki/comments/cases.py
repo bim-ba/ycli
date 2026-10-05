@@ -164,7 +164,7 @@ CASES = [
             "created_at",
             "--order-direction",
             "desc",
-            "--status",
+            "--status-filter",
             "unresolved",
         ],
         mcp=(

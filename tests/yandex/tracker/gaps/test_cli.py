@@ -7,7 +7,7 @@ from typer.testing import CliRunner
 import ycli.cli.app as cli
 from tests.hosts import TRACKER_BASE as BASE
 
-WINDOW = ["--from", "2026-07-01T00:00Z", "--to", "2026-07-02T00:00Z"]
+WINDOW = ["--date-from", "2026-07-01T00:00Z", "--date-to", "2026-07-02T00:00Z"]
 
 
 def test_a_malformed_gap_is_a_usage_error(api):
@@ -21,7 +21,7 @@ def test_a_malformed_gap_is_a_usage_error(api):
     [
         (["--user", "ann", *WINDOW], {"workflow"}),
         (["--workflow", "trip", *WINDOW], {"user"}),
-        (["--user", "ann", "--workflow", "trip", "--from", "2026-07-01T00:00Z"], {"to"}),
+        (["--user", "ann", "--workflow", "trip", "--date-from", "2026-07-01T00:00Z"], {"to"}),
     ],
     ids=["no workflow", "no user", "no end"],
 )

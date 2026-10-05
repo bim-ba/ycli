@@ -13,6 +13,7 @@ from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.typedefs import (
     ImportCreatedAtOpt,
     ImportCreatedByOpt,
+    IssueKeyArg,
     KeyArg,
 )
 from ycli.yandex.tracker.worklog.models import (
@@ -50,10 +51,10 @@ def search(
         str | None, typer.Option("--created-by", help="Author login or id.")
     ] = None,
     created_from: Annotated[
-        str | None, typer.Option("--from", help="Range start, YYYY-MM-DDThh:mm:ss.")
+        str | None, typer.Option("--created-from", help="Range start, YYYY-MM-DDThh:mm:ss.")
     ] = None,
     created_to: Annotated[
-        str | None, typer.Option("--to", help="Range end, YYYY-MM-DDThh:mm:ss.")
+        str | None, typer.Option("--created-to", help="Range end, YYYY-MM-DDThh:mm:ss.")
     ] = None,
     *,
     tracker: TrackerClient,
@@ -135,7 +136,7 @@ def delete(key: KeyArg, record_id: RecordIDArg, *, tracker: TrackerClient) -> Ac
 
 @app.command("import")
 def import_(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     duration: Annotated[str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT1H).")],
     created_at: ImportCreatedAtOpt,
     created_by: ImportCreatedByOpt,
@@ -146,7 +147,7 @@ def import_(
     *,
     tracker: TrackerClient,
 ) -> ItemList[Worklog]:
-    """Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import)."""
+    """Import a worklog onto issue ISSUE_KEY (POST /issues/{issue_key}/worklogs/_import)."""
     body = ImportWorklog(
         duration=duration,
         createdAt=created_at,
@@ -154,4 +155,4 @@ def import_(
         start=start,
         comment=comment,
     )
-    return tracker.worklog.import_(key, body=body)
+    return tracker.worklog.import_(issue_key, body=body)

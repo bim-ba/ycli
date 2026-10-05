@@ -12,7 +12,7 @@ from ycli.cli.typedefs import FilePathArg
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.typedefs import ImportCreatedAtOpt, ImportCreatedByOpt, KeyArg
+from ycli.yandex.tracker.typedefs import ImportCreatedAtOpt, ImportCreatedByOpt, IssueKeyArg
 
 app = typer.Typer(name="attachments", help="Tracker issue attachments.", no_args_is_help=True)
 
@@ -110,7 +110,7 @@ def upload_temp(
 
 @app.command("import")
 def import_(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     path: Annotated[
         Path,
         typer.Argument(exists=True, dir_okay=False, readable=True, help="Local file to attach."),
@@ -123,9 +123,9 @@ def import_(
     *,
     tracker: TrackerClient,
 ) -> Attachment:
-    """Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import)."""
+    """Import a file attachment onto issue ISSUE_KEY (POST …/attachments/_import)."""
     return tracker.attachments.import_(
-        key,
+        issue_key,
         filename=path.name if filename is None else filename,
         created_at=created_at,
         created_by=created_by,
@@ -135,7 +135,7 @@ def import_(
 
 @app.command("import-for-comment")
 def import_for_comment(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     comment_id: Annotated[str, typer.Argument(metavar="COMMENT_ID", help="Id of the comment.")],
     path: Annotated[
         Path,
@@ -149,9 +149,9 @@ def import_for_comment(
     *,
     tracker: TrackerClient,
 ) -> Attachment:
-    """Import a file onto comment COMMENT_ID of issue KEY (…/comments/{id}/attachments/_import)."""
+    """Import a file onto comment COMMENT_ID of issue ISSUE_KEY (…/comments/{id}/…/_import)."""
     return tracker.attachments.import_for_comment(
-        key,
+        issue_key,
         comment_id,
         filename=path.name if filename is None else filename,
         created_at=created_at,

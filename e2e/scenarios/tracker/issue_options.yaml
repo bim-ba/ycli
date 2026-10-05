@@ -20,7 +20,7 @@ steps:
     expect:
       "length(@)": 1
   - id: changelog
-    run: tracker changelog list ${key} --type IssueCreated --sort desc
+    run: tracker changelog list ${key} --change-type IssueCreated --sort desc
     expect:
       "length(@)": 1
   - id: scroll
@@ -57,7 +57,7 @@ steps:
     expect:
       "length(fields.checklistItems)": 1
   - id: entity-comment
-    run: tracker entities comments create project ${project} --text "note ${RUN}" --no-add-to-followers --no-notify --expand html
+    run: tracker entities comments create project ${project} --text "note ${RUN}" --no-is-add-to-followers --no-notify --expand html
     expect:
       text: note ${RUN}
     save:

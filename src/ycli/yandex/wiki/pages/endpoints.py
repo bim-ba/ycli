@@ -129,9 +129,9 @@ def clone(page_id: int, body: PageClone) -> Endpoint[AsyncOperation]:
     return Endpoint("POST", f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
 
 
-def move(body: PageMove, *, dry_run: bool) -> Endpoint[AsyncOperation]:
-    """``POST /pages/move`` (undocumented): a new address for pages; ``dry_run`` only validates."""
-    params = {"dry_run": flag(dry_run)}
+def move(body: PageMove, *, validate_only: bool) -> Endpoint[AsyncOperation]:
+    """``POST /pages/move`` (undocumented): a new address for pages, or only a check of one."""
+    params = {"dry_run": flag(validate_only)}
     return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)
 
 

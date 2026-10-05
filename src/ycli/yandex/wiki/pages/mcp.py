@@ -67,6 +67,7 @@ def get(
     client: WikiClient = Depends(wiki_client),
 ) -> str:
     """The page's markdown body for SLUG."""
+    # violation(arch-9): the API returns a page without its text unless asked; `get` shows the text
     page = client.pages.get(
         slug=slug, fields="content", revision_id=revision_id, raise_on_redirect=raise_on_redirect
     )
@@ -76,6 +77,7 @@ def get(
 @mcp.tool(name="pages_get_meta", annotations={**RO, "title": "Get Wiki page metadata"})
 def get_meta(slug: Slug, client: WikiClient = Depends(wiki_client)) -> PageDetails:
     """Page metadata for SLUG (attributes + owner)."""
+    # violation(arch-9): the API returns neither block unless asked; `get-meta` is those two
     return client.pages.get(slug=slug, fields="attributes,owner")
 
 
@@ -316,7 +318,9 @@ def move(
             "``copy_inherited_access``."
         ),
     ],
-    dry_run: Annotated[bool, Field(description="Validate the move without applying it.")] = False,
+    validate_only: Annotated[
+        bool, Field(description="Validate the move without applying it.")
+    ] = False,
     client: WikiClient = Depends(wiki_client),
 ) -> AsyncOperation:
     """Move or rename pages (``POST /pages/move`` — asynchronous; undocumented by Yandex).
@@ -324,11 +328,11 @@ def move(
     The only way to give a page a new slug. The call returns a deferred operation reference —
     poll ``operations_move_get`` with the returned ``operation.id`` until it reaches a terminal
     status. A page moves with its subtree and links to the old address may stop working, so try
-    ``dry_run=true`` first: it validates the request, applies nothing, and its operation id
+    ``validate_only=true`` first: it validates the request, applies nothing, and its operation id
     cannot be polled. Yandex does not document this operation (it is in the live OpenAPI only)
     and may change it.
     """
-    return client.pages.move(body=body, dry_run=dry_run)
+    return client.pages.move(body=body, validate_only=validate_only)
 
 
 @mcp.tool(

@@ -371,7 +371,7 @@ CASES = [
             "entities",
             "search",
             "project",
-            "--input",
+            "--input-text",
             "Q4",
             "--filter",
             "entityStatus=in_progress",
@@ -413,7 +413,7 @@ CASES = [
             "entities",
             "search",
             "goal",
-            "--input",
+            "--input-text",
             "Revenue",
             "--fields",
             "entityStatus",
@@ -1595,7 +1595,7 @@ _REPLY_AND_NOTICE_SENT = {
     "notifyAuthor": "true",
 }
 _COMMENT = {"expand": "html", "is_add_to_followers": False, "notify": False, "notify_author": True}
-_COMMENT_CLI = ["--expand", "html", "--no-add-to-followers", "--no-notify", "--notify-author"]
+_COMMENT_CLI = ["--expand", "html", "--no-is-add-to-followers", "--no-notify", "--notify-author"]
 _COMMENT_SENT = {
     "expand": "html",
     "isAddToFollowers": "false",

@@ -7,6 +7,9 @@ from typing import Annotated
 import typer
 
 KeyArg = Annotated[str, typer.Argument(metavar="KEY", help="Issue key, e.g. DATAENGINEERING-1.")]
+IssueKeyArg = Annotated[
+    str, typer.Argument(metavar="ISSUE_KEY", help="Issue key, e.g. DATAENGINEERING-1.")
+]
 
 # The parameters most write operations share: what the reply carries and who is notified.
 ExpandOpt = Annotated[
@@ -32,7 +35,7 @@ NotifyAuthorOpt = Annotated[
 AddToFollowersOpt = Annotated[
     bool | None,
     typer.Option(
-        "--add-to-followers/--no-add-to-followers",
+        "--is-add-to-followers/--no-is-add-to-followers",
         help="Add the comment's author to the followers (the API adds by default).",
     ),
 ]

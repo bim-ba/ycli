@@ -199,7 +199,7 @@ $ ycli tracker issues list [OPTIONS]
 * `--status TEXT`: Status key.
 * `--assignee TEXT`: Assignee login.
 * `--epic TEXT`: Epic key.
-* `--type TEXT`: Issue type key.
+* `--issue-type TEXT`: Issue type key.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -518,7 +518,7 @@ $ ycli tracker comments [OPTIONS] COMMAND [ARGS]...
 * `update`: Edit comment COMMENT_ID on issue KEY.
 * `delete`: Delete comment COMMENT_ID from issue KEY.
 * `reactions-create`: Add reaction NAME to comment COMMENT_ID on...
-* `import`: Import a comment onto issue KEY (POST...
+* `import`: Import a comment onto issue ISSUE_KEY...
 
 ### `ycli tracker comments list`
 
@@ -665,17 +665,17 @@ $ ycli tracker comments reactions-create [OPTIONS] KEY COMMENT_ID NAME
 
 ### `ycli tracker comments import`
 
-Import a comment onto issue KEY (POST /issues/{key}/comments/_import).
+Import a comment onto issue ISSUE_KEY (POST /issues/{issue_key}/comments/_import).
 
 **Usage**:
 
 ```console
-$ ycli tracker comments import [OPTIONS] KEY
+$ ycli tracker comments import [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -708,7 +708,7 @@ $ ycli tracker links [OPTIONS] COMMAND [ARGS]...
 * `list-filtered`: List links of issue KEY, filtered and...
 * `create`: Link issue KEY to TARGET with RELATIONSHIP.
 * `delete`: Delete link LINK_ID from issue KEY.
-* `import`: Import a link on issue KEY (POST...
+* `import`: Import a link on issue ISSUE_KEY (POST...
 
 ### `ycli tracker links list`
 
@@ -748,8 +748,8 @@ $ ycli tracker links list-filtered [OPTIONS] KEY
 
 **Options**:
 
-* `--type TEXT`: Keep only links with this relationship, e.g. relates (repeatable).
-* `--field TEXT`: Field to include in each link (repeatable).
+* `--link-types TEXT`: Keep only links with this relationship, e.g. relates (repeatable).
+* `--fields TEXT`: Field to include in each link (repeatable).
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -807,17 +807,17 @@ $ ycli tracker links delete [OPTIONS] KEY LINK_ID
 
 ### `ycli tracker links import`
 
-Import a link on issue KEY (POST /issues/{key}/links/_import).
+Import a link on issue ISSUE_KEY (POST /issues/{issue_key}/links/_import).
 
 **Usage**:
 
 ```console
-$ ycli tracker links import [OPTIONS] KEY
+$ ycli tracker links import [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -918,7 +918,7 @@ $ ycli tracker worklog [OPTIONS] COMMAND [ARGS]...
 * `create`: Log time spent on issue KEY (POST...
 * `update`: Edit worklog RECORD_ID on issue KEY — only...
 * `delete`: Delete worklog RECORD_ID from issue KEY.
-* `import`: Import a worklog onto issue KEY (POST...
+* `import`: Import a worklog onto issue ISSUE_KEY...
 
 ### `ycli tracker worklog list`
 
@@ -957,8 +957,8 @@ $ ycli tracker worklog search [OPTIONS]
 **Options**:
 
 * `--created-by TEXT`: Author login or id.
-* `--from TEXT`: Range start, YYYY-MM-DDThh:mm:ss.
-* `--to TEXT`: Range end, YYYY-MM-DDThh:mm:ss.
+* `--created-from TEXT`: Range start, YYYY-MM-DDThh:mm:ss.
+* `--created-to TEXT`: Range end, YYYY-MM-DDThh:mm:ss.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1061,17 +1061,17 @@ $ ycli tracker worklog delete [OPTIONS] KEY RECORD_ID
 
 ### `ycli tracker worklog import`
 
-Import a worklog onto issue KEY (POST /issues/{key}/worklogs/_import).
+Import a worklog onto issue ISSUE_KEY (POST /issues/{issue_key}/worklogs/_import).
 
 **Usage**:
 
 ```console
-$ ycli tracker worklog import [OPTIONS] KEY
+$ ycli tracker worklog import [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -1123,7 +1123,7 @@ $ ycli tracker changelog list [OPTIONS] KEY
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--field TEXT`: Only changes of this field, e.g. status.
-* `--type TEXT`: Only changes of this type, e.g. IssueWorkflow.
+* `--change-type TEXT`: Only changes of this type, e.g. IssueWorkflow.
 * `--sort TEXT`: Order of the changes. Known values: asc, desc.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -3255,7 +3255,7 @@ $ ycli tracker attachments [OPTIONS] COMMAND [ARGS]...
 * `delete`: Delete an attachment from an issue (DELETE...
 * `upload`: Attach a local file to an issue (POST...
 * `upload-temp`: Upload a temporary file (POST...
-* `import`: Import a file attachment onto issue KEY...
+* `import`: Import a file attachment onto issue...
 * `import-for-comment`: Import a file onto comment COMMENT_ID of...
 
 ### `ycli tracker attachments list`
@@ -3424,17 +3424,17 @@ $ ycli tracker attachments upload-temp [OPTIONS] FILE_PATH
 
 ### `ycli tracker attachments import`
 
-Import a file attachment onto issue KEY (POST /issues/{key}/attachments/_import).
+Import a file attachment onto issue ISSUE_KEY (POST …/attachments/_import).
 
 **Usage**:
 
 ```console
-$ ycli tracker attachments import [OPTIONS] KEY PATH
+$ ycli tracker attachments import [OPTIONS] ISSUE_KEY PATH
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `PATH`: Local file to attach.  [required]
 
 **Options**:
@@ -3450,17 +3450,17 @@ $ ycli tracker attachments import [OPTIONS] KEY PATH
 
 ### `ycli tracker attachments import-for-comment`
 
-Import a file onto comment COMMENT_ID of issue KEY (…/comments/{id}/attachments/_import).
+Import a file onto comment COMMENT_ID of issue ISSUE_KEY (…/comments/{id}/…/_import).
 
 **Usage**:
 
 ```console
-$ ycli tracker attachments import-for-comment [OPTIONS] KEY COMMENT_ID PATH
+$ ycli tracker attachments import-for-comment [OPTIONS] ISSUE_KEY COMMENT_ID PATH
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `COMMENT_ID`: Id of the comment.  [required]
 * `PATH`: Local file to attach.  [required]
 
@@ -3972,23 +3972,23 @@ $ ycli tracker remotelinks [OPTIONS] COMMAND [ARGS]...
 
 **Commands**:
 
-* `list`: List external links on issue KEY (GET...
-* `create`: Add an external link to issue KEY (POST...
+* `list`: List external links on issue ISSUE_KEY...
+* `create`: Add an external link to issue ISSUE_KEY...
 * `delete`: Delete external link LINK_ID from issue...
 
 ### `ycli tracker remotelinks list`
 
-List external links on issue KEY (GET /issues/{key}/remotelinks).
+List external links on issue ISSUE_KEY (GET /issues/{issue_key}/remotelinks).
 
 **Usage**:
 
 ```console
-$ ycli tracker remotelinks list [OPTIONS] KEY
+$ ycli tracker remotelinks list [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -4000,17 +4000,17 @@ $ ycli tracker remotelinks list [OPTIONS] KEY
 
 ### `ycli tracker remotelinks create`
 
-Add an external link to issue KEY (POST /issues/{key}/remotelinks).
+Add an external link to issue ISSUE_KEY (POST /issues/{issue_key}/remotelinks).
 
 **Usage**:
 
 ```console
-$ ycli tracker remotelinks create [OPTIONS] KEY
+$ ycli tracker remotelinks create [OPTIONS] ISSUE_KEY
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 
 **Options**:
 
@@ -4026,17 +4026,17 @@ $ ycli tracker remotelinks create [OPTIONS] KEY
 
 ### `ycli tracker remotelinks delete`
 
-Delete external link LINK_ID from issue KEY (DELETE /issues/{key}/remotelinks/{id}).
+Delete external link LINK_ID from issue ISSUE_KEY (DELETE …/remotelinks/{id}).
 
 **Usage**:
 
 ```console
-$ ycli tracker remotelinks delete [OPTIONS] KEY LINK_ID
+$ ycli tracker remotelinks delete [OPTIONS] ISSUE_KEY LINK_ID
 ```
 
 **Arguments**:
 
-* `KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
+* `ISSUE_KEY`: Issue key, e.g. DATAENGINEERING-1.  [required]
 * `LINK_ID`: Remote-link id to delete.  [required]
 
 **Options**:
@@ -4131,10 +4131,10 @@ $ ycli tracker entities [OPTIONS] COMMAND [ARGS]...
 **Commands**:
 
 * `get`: Print a single entity...
-* `create`: Create an entity (POST /entities/TYPE).
-* `update`: Edit entity ID (PATCH /entities/TYPE/ID) —...
-* `delete`: Delete entity ID (DELETE /entities/TYPE/ID).
-* `search`: Search entities of TYPE (POST...
+* `create`: Create an entity (POST...
+* `update`: Edit entity ID (PATCH...
+* `delete`: Delete entity ID (DELETE...
+* `search`: Search entities of ENTITY_TYPE (POST...
 * `events-list`: Print an entity's event history (GET...
 * `permissions-get`: Print an entity's access settings (GET...
 * `permissions-update`: Set an entity's access settings (PATCH...
@@ -4155,12 +4155,12 @@ Print a single entity (project/portfolio/goal) by ID.
 **Usage**:
 
 ```console
-$ ycli tracker entities get [OPTIONS] TYPE ID
+$ ycli tracker entities get [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4175,17 +4175,17 @@ $ ycli tracker entities get [OPTIONS] TYPE ID
 
 ### `ycli tracker entities create`
 
-Create an entity (POST /entities/TYPE). summary is required; other fields optional.
+Create an entity (POST /entities/ENTITY_TYPE). summary is required; other fields optional.
 
 **Usage**:
 
 ```console
-$ ycli tracker entities create [OPTIONS] TYPE
+$ ycli tracker entities create [OPTIONS] ENTITY_TYPE
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 
 **Options**:
 
@@ -4209,17 +4209,17 @@ $ ycli tracker entities create [OPTIONS] TYPE
 
 ### `ycli tracker entities update`
 
-Edit entity ID (PATCH /entities/TYPE/ID) — only supplied fields are sent.
+Edit entity ID (PATCH /entities/ENTITY_TYPE/ID) — only supplied fields are sent.
 
 **Usage**:
 
 ```console
-$ ycli tracker entities update [OPTIONS] TYPE ID
+$ ycli tracker entities update [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4246,17 +4246,17 @@ $ ycli tracker entities update [OPTIONS] TYPE ID
 
 ### `ycli tracker entities delete`
 
-Delete entity ID (DELETE /entities/TYPE/ID).
+Delete entity ID (DELETE /entities/ENTITY_TYPE/ID).
 
 **Usage**:
 
 ```console
-$ ycli tracker entities delete [OPTIONS] TYPE ID
+$ ycli tracker entities delete [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4270,21 +4270,21 @@ $ ycli tracker entities delete [OPTIONS] TYPE ID
 
 ### `ycli tracker entities search`
 
-Search entities of TYPE (POST /entities/TYPE/_search).
+Search entities of ENTITY_TYPE (POST /entities/ENTITY_TYPE/_search).
 
 **Usage**:
 
 ```console
-$ ycli tracker entities search [OPTIONS] TYPE
+$ ycli tracker entities search [OPTIONS] ENTITY_TYPE
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 
 **Options**:
 
-* `--input TEXT`: Substring in the entity name.
+* `--input-text TEXT`: Substring in the entity name.
 * `--filter TEXT`: Filter key=value (JSON-coerced; repeatable).
 * `--order-by TEXT`: Field key to sort by.
 * `--order-asc`: Sort ascending.
@@ -4303,12 +4303,12 @@ Print an entity's event history (GET …/events/_relative, auto-paginated).
 **Usage**:
 
 ```console
-$ ycli tracker entities events-list [OPTIONS] TYPE ID
+$ ycli tracker entities events-list [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4330,12 +4330,12 @@ Print an entity's access settings (GET …/extendedPermissions).
 **Usage**:
 
 ```console
-$ ycli tracker entities permissions-get [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-get [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4357,12 +4357,12 @@ The API accepts only ``grant`` / ``revoke`` actions, each mapping an access leve
 **Usage**:
 
 ```console
-$ ycli tracker entities permissions-update [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-update [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4381,12 +4381,12 @@ Print an entity's direct READ/WRITE/GRANT rights, no inheritance (GET …/permis
 **Usage**:
 
 ```console
-$ ycli tracker entities permissions-get-direct [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-get-direct [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4404,12 +4404,12 @@ Grant and revoke an entity's direct rights (PATCH …/permissions); pass --grant
 **Usage**:
 
 ```console
-$ ycli tracker entities permissions-update-direct [OPTIONS] TYPE ID
+$ ycli tracker entities permissions-update-direct [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4429,12 +4429,12 @@ Mass-edit entities (POST …/bulkchange/_update) — returns the async operation
 **Usage**:
 
 ```console
-$ ycli tracker entities update-bulk [OPTIONS] TYPE
+$ ycli tracker entities update-bulk [OPTIONS] ENTITY_TYPE
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 
 **Options**:
 
@@ -4519,12 +4519,12 @@ List comments on an entity (GET …/comments; --all uses …/comments/_relative)
 **Usage**:
 
 ```console
-$ ycli tracker entities comments list [OPTIONS] TYPE ID
+$ ycli tracker entities comments list [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4544,12 +4544,12 @@ Get one comment on an entity (GET …/comments/COMMENT_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities comments get [OPTIONS] TYPE ID COMMENT_ID
+$ ycli tracker entities comments get [OPTIONS] ENTITY_TYPE ID COMMENT_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `COMMENT_ID`: Comment id.  [required]
 
@@ -4568,12 +4568,12 @@ Add a comment to an entity (POST …/comments).
 **Usage**:
 
 ```console
-$ ycli tracker entities comments create [OPTIONS] TYPE ID
+$ ycli tracker entities comments create [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4581,7 +4581,7 @@ $ ycli tracker entities comments create [OPTIONS] TYPE ID
 * `--text TEXT`: Comment text — pass "$(cat note.md)" for markdown.  [required]
 * `--summon TEXT`: User to summon (repeatable).
 * `--expand TEXT`: Extra blocks to include in the reply.
-* `--add-to-followers / --no-add-to-followers`: Add the comment's author to the followers (the API adds by default).
+* `--is-add-to-followers / --no-is-add-to-followers`: Add the comment's author to the followers (the API adds by default).
 * `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
 * `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -4597,12 +4597,12 @@ Edit a comment on an entity (PATCH …/comments/COMMENT_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities comments update [OPTIONS] TYPE ID COMMENT_ID
+$ ycli tracker entities comments update [OPTIONS] ENTITY_TYPE ID COMMENT_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `COMMENT_ID`: Comment id.  [required]
 
@@ -4610,7 +4610,7 @@ $ ycli tracker entities comments update [OPTIONS] TYPE ID COMMENT_ID
 
 * `--text TEXT`: New comment text.  [required]
 * `--expand TEXT`: Extra blocks to include in the reply.
-* `--add-to-followers / --no-add-to-followers`: Add the comment's author to the followers (the API adds by default).
+* `--is-add-to-followers / --no-is-add-to-followers`: Add the comment's author to the followers (the API adds by default).
 * `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
 * `--notify-author / --no-notify-author`: Notify the author of the change (the API does not by default).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -4626,12 +4626,12 @@ Delete a comment from an entity (DELETE …/comments/COMMENT_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities comments delete [OPTIONS] TYPE ID COMMENT_ID
+$ ycli tracker entities comments delete [OPTIONS] ENTITY_TYPE ID COMMENT_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `COMMENT_ID`: Comment id.  [required]
 
@@ -4675,12 +4675,12 @@ Add checklist items to an entity (POST …/checklistItems).
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists create [OPTIONS] TYPE ID
+$ ycli tracker entities checklists create [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4706,12 +4706,12 @@ The text is sent verbatim — never JSON-coerced — and only the first ``=`` sp
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists update [OPTIONS] TYPE ID
+$ ycli tracker entities checklists update [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4734,12 +4734,12 @@ Edit a single checklist item (PATCH …/checklistItems/ITEM_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists items-update [OPTIONS] TYPE ID ITEM_ID
+$ ycli tracker entities checklists items-update [OPTIONS] ENTITY_TYPE ID ITEM_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
@@ -4766,12 +4766,12 @@ Remove one checklist item (DELETE …/checklistItems/ITEM_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists items-delete [OPTIONS] TYPE ID ITEM_ID
+$ ycli tracker entities checklists items-delete [OPTIONS] ENTITY_TYPE ID ITEM_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
@@ -4794,12 +4794,12 @@ Clear the whole checklist (DELETE …/checklistItems).
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists delete [OPTIONS] TYPE ID
+$ ycli tracker entities checklists delete [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4821,12 +4821,12 @@ Reorder a checklist item (POST …/checklistItems/ITEM_ID/_move).
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists move [OPTIONS] TYPE ID ITEM_ID
+$ ycli tracker entities checklists move [OPTIONS] ENTITY_TYPE ID ITEM_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `ITEM_ID`: Checklist item id.  [required]
 
@@ -4870,12 +4870,12 @@ List an entity's links to other entities (GET …/links).
 **Usage**:
 
 ```console
-$ ycli tracker entities links list [OPTIONS] TYPE ID
+$ ycli tracker entities links list [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4893,12 +4893,12 @@ Create a link between entities (POST …/links).
 **Usage**:
 
 ```console
-$ ycli tracker entities links create [OPTIONS] TYPE ID
+$ ycli tracker entities links create [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4918,12 +4918,12 @@ Delete a link (DELETE …/links?right=RIGHT).
 **Usage**:
 
 ```console
-$ ycli tracker entities links delete [OPTIONS] TYPE ID RIGHT
+$ ycli tracker entities links delete [OPTIONS] ENTITY_TYPE ID RIGHT
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `RIGHT`: Id of the entity to unlink.  [required]
 
@@ -4964,12 +4964,12 @@ List files attached to an entity (GET …/attachments).
 **Usage**:
 
 ```console
-$ ycli tracker entities attachments list [OPTIONS] TYPE ID
+$ ycli tracker entities attachments list [OPTIONS] ENTITY_TYPE ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 
 **Options**:
@@ -4987,12 +4987,12 @@ Get one attachment's metadata (GET …/attachments/FILE_ID).
 **Usage**:
 
 ```console
-$ ycli tracker entities attachments get [OPTIONS] TYPE ID FILE_ID
+$ ycli tracker entities attachments get [OPTIONS] ENTITY_TYPE ID FILE_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `FILE_ID`: Attachment file id.  [required]
 
@@ -5035,12 +5035,12 @@ Attach a previously uploaded temp file to an entity (POST …/attachments/TEMP_F
 **Usage**:
 
 ```console
-$ ycli tracker entities attachments attach [OPTIONS] TYPE ID TEMP_FILE_ID
+$ ycli tracker entities attachments attach [OPTIONS] ENTITY_TYPE ID TEMP_FILE_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `TEMP_FILE_ID`: Temp file id.  [required]
 
@@ -5063,12 +5063,12 @@ Detach a file from an entity (DELETE …/attachments/FILE_ID; empty response bod
 **Usage**:
 
 ```console
-$ ycli tracker entities attachments delete [OPTIONS] TYPE ID FILE_ID
+$ ycli tracker entities attachments delete [OPTIONS] ENTITY_TYPE ID FILE_ID
 ```
 
 **Arguments**:
 
-* `TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
+* `ENTITY_TYPE`: Entity type (report: search only). Known values: project, portfolio, goal, report.  [required]
 * `ID`: Entity id (or shortId).  [required]
 * `FILE_ID`: Attachment file id.  [required]
 
@@ -5476,8 +5476,8 @@ $ ycli tracker gaps create [OPTIONS]
 
 * `--user TEXT`: Login or id of the absent user.
 * `--workflow TEXT`: Kind of absence. Known values: vacation, paid_day_off, illness, absence, trip, conference_trip, conference, learning, maternity, duty.
-* `--from TEXT`: Start of the absence (ISO 8601).
-* `--to TEXT`: End of the absence (ISO 8601).
+* `--date-from TEXT`: Start of the absence (ISO 8601).
+* `--date-to TEXT`: End of the absence (ISO 8601).
 * `--id TEXT`: Identifier of the absence (generated if omitted).
 * `--full-day / --part-day`: Whether it covers whole days.
 * `--work-in-absence / --no-work-in-absence`: Whether the user works.
@@ -5504,8 +5504,8 @@ $ ycli tracker gaps search [OPTIONS] USER...
 
 **Options**:
 
-* `--from TEXT`: Window start (ISO 8601); default: now.
-* `--to TEXT`: Window end (ISO 8601); must be after --from.
+* `--date-from TEXT`: Window start (ISO 8601); default: now.
+* `--date-to TEXT`: Window end (ISO 8601); must be after --from.
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).

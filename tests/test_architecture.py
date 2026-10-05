@@ -404,8 +404,6 @@ def test_arch1_served_check_bites():
 # (service, groups, leaf; spaces and hyphens as `_`) is the MCP tool name. An MCP tool may differ
 # from the CLI command that reaches the same operation only here (tool name -> reason).
 ARCH1_NAME_EXCEPTIONS: dict[str, str] = {
-    "wiki_pages_get_meta": "one CLI command, `wiki pages get --fields`, where MCP serves the body "
-    "(`wiki_pages_get`) and the metadata (`wiki_pages_get_meta`) as two tools with fixed fields",
     "tracker_entities_comments_list_relative": "one CLI command, `tracker entities comments "
     "list --relative`, where MCP serves the relative-id page walk as its own tool",
 }

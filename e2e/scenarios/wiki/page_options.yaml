@@ -3,7 +3,7 @@
 name: wiki/page-options
 steps:
   - id: create
-    run: wiki pages create --slug ${RUN} --title "${RUN} page" --content "first body ${RUN}" --fields content,breadcrumbs --silent
+    run: wiki pages create --slug ${RUN} --title "${RUN} page" --content "first body ${RUN}" --fields content,breadcrumbs --is-silent
     expect:
       slug: ${RUN}
       "contains(content, 'first body ${RUN}')": true
@@ -12,7 +12,7 @@ steps:
       id: id
     cleanup: wiki pages delete ${id} --recursive
   - id: child
-    run: wiki pages create --slug ${RUN}/child --title "${RUN} child" --content "child body" --silent
+    run: wiki pages create --slug ${RUN}/child --title "${RUN} child" --content "child body" --is-silent
     expect:
       slug: ${RUN}/child
   - id: with-self
@@ -25,11 +25,11 @@ steps:
     expect:
       "length(@)": 2
   - id: update
-    run: wiki pages update ${id} --content "second body ${RUN}" --fields content --silent --allow-merge
+    run: wiki pages update ${id} --content "second body ${RUN}" --fields content --is-silent --allow-merge
     expect:
       "contains(content, 'second body ${RUN}')": true
   - id: append
-    run: wiki pages append ${id} --content "appended ${RUN}" --fields content --silent
+    run: wiki pages append ${id} --content "appended ${RUN}" --fields content --is-silent
     expect:
       "contains(content, 'appended ${RUN}')": true
   - id: revisions
@@ -55,7 +55,7 @@ steps:
       reactions: []
       "author.username != null": true
   - id: comments
-    run: wiki comments list ${id} --order-by created_at --order-direction desc --status unresolved --all
+    run: wiki comments list ${id} --order-by created_at --order-direction desc --status-filter unresolved --all
     expect:
       "length(@)": 1
   - id: attachments

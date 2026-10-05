@@ -73,9 +73,9 @@ CASES = [
             "search",
             "--created-by",
             "veikus",
-            "--from",
+            "--created-from",
             "2018-06-06T00:00:00",
-            "--to",
+            "--created-to",
             "2018-06-07T00:00:00",
         ],
         mcp=(

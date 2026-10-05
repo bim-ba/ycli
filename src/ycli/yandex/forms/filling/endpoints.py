@@ -1,7 +1,7 @@
 """Forms form-filling operations, declared once (sans-IO).
 
 Examples:
-    >>> submit("686d", {"name": "Ann"}, dry_run=True, key=None).params
+    >>> submit("686d", {"name": "Ann"}, validate_only=True, key=None).params
     {'dry_run': 'true', 'key': None}
 """
 
@@ -17,9 +17,9 @@ def get(survey: str, *, key: str | None) -> Endpoint[FillableForm]:
 
 
 def submit(
-    survey: str, body: SubmitBody, *, dry_run: bool, key: str | None
+    survey: str, body: SubmitBody, *, validate_only: bool, key: str | None
 ) -> Endpoint[SubmitResult]:
-    params = {"dry_run": flag(dry_run), "key": key}
+    params = {"dry_run": flag(validate_only), "key": key}
     return Endpoint(
         "POST", f"surveys/{segment(survey)}/form", SubmitResult, json=body, params=params
     )

@@ -145,7 +145,7 @@ def test_a_column_suggestion_is_sent_with_the_fields_given(api, flags, sent):
             {"order_by": "weight", "order_direction": "up"},
         ),
         (
-            ["comments", "list", "7", "--status", "open"],
+            ["comments", "list", "7", "--status-filter", "open"],
             "pages/7/comments",
             {"status_filter": "open"},
         ),
