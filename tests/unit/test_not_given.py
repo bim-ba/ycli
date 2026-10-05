@@ -12,7 +12,7 @@ import ycli.cli.app as cli
 from tests.full_server import mcp
 from tests.hosts import FORMS_BASE, TRACKER_BASE
 
-SRC = Path(__file__).resolve().parents[1] / "src" / "ycli"
+SRC = Path(__file__).resolve().parents[2] / "src" / "ycli"
 
 
 def _sentinel_defaults(source: str) -> list[str]:
