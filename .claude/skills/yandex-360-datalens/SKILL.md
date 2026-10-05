@@ -105,6 +105,9 @@ An operation takes the fields of its request as arguments, under one name on eve
 | Move one or several workbooks | `uv run ycli datalens workbooks move <workbook_id> [--collection-id <id>]` · `move-bulk <id> <id>…` | `datalens_workbooks_move` · `datalens_workbooks_move_bulk` |
 | Delete one or several workbooks | `uv run ycli datalens workbooks delete <workbook_id>` · `delete-bulk <id> <id>…` | `datalens_workbooks_delete` · `datalens_workbooks_delete_bulk` |
 | Give or take away roles on a workbook | `uv run ycli datalens workbooks access-bindings-update <workbook_id> --delta '<json>'…` | `datalens_workbooks_access_bindings_update` |
+| Lock an entry for editing | `uv run ycli datalens entrylocks create <entry_id> --data '{"duration": 300000}'` | `datalens_entrylocks_create` |
+| Hold a lock longer | `uv run ycli datalens entrylocks extend <entry_id> --data '{"lockToken": "…", "duration": 600000}'` | `datalens_entrylocks_extend` |
+| Release a lock | `uv run ycli datalens entrylocks delete <entry_id> --params '{"lockToken": "…"}'` | `datalens_entrylocks_delete` |
 
 **No parent is the root.** Leave `--parent-id` / `parent_id` (a collection) or `--collection-id` / `collection_id` (a workbook) out to create in the root or to move there: `move <id>` with no destination moves it to the root.
 
@@ -117,3 +120,5 @@ An operation takes the fields of its request as arguments, under one name on eve
 ```
 
 `action` is `ADD` or `REMOVE`; subject `type` is one of `userAccount`, `federatedUser`, `serviceAccount`, `group`, `invitee`, `system`. It answers with an operation; `done` says whether it has been applied.
+
+**A lock is held by its token.** `entrylocks create` answers with the token alone: keep it, `extend` and `delete` take it. The duration is in milliseconds. An entry that is already locked answers 423 `ERR.US.ENTRY_IS_LOCKED` with who holds the lock and until when; releasing an entry that is not locked answers 404.
