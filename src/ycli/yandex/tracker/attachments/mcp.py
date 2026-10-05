@@ -129,15 +129,13 @@ def import_(
     created_by: Annotated[
         str, Field(description="Login or id of the user to record as the file's author.")
     ],
-    data: Annotated[
-        str, Field(description="File content as UTF-8 text (binary files: use the CLI).")
-    ],
+    data: Annotated[Base64Bytes, Field(description="The file's bytes, base64-encoded.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> Attachment:
-    """Import a text-file attachment onto an issue preserving its original metadata (admin-only).
+    """Import a file onto an issue with its original author and creation time (admin-only).
 
-    ``data`` is the file content as text (UTF-8-encoded on upload) — for binary files use the
-    CLI (``ycli tracker attachments import``), which reads raw bytes from disk. ``created_at`` uses
+    The file travels as base64 in the request, so keep it small; for a large file run
+    ``ycli tracker attachments import`` instead. ``created_at`` uses
     ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. Returns the imported attachment.
     """
     return client.attachments.import_(
@@ -145,5 +143,5 @@ def import_(
         filename=filename,
         created_at=created_at,
         created_by=created_by,
-        data=data.encode("utf-8"),
+        data=data,
     )

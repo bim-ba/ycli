@@ -115,10 +115,10 @@ def webhook_log_list(
         int | None, typer.Option(help="Max records (API default 10, max 100).")
     ] = None,
     date_from: Annotated[
-        str | None, typer.Option("--from", help="Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
+        str | None, typer.Option(help="Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
     ] = None,
     date_to: Annotated[
-        str | None, typer.Option("--to", help="Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
+        str | None, typer.Option(help="Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).")
     ] = None,
     *,
     tracker: TrackerClient,

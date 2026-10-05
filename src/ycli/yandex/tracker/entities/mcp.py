@@ -96,23 +96,21 @@ def get(
 @mcp.tool(name="entities_search", annotations={**RO, "title": "Search Tracker entities"})
 def search(
     entity_type: SearchTypeArg,
-    input_text: Annotated[
-        str | None, Field(description="Substring to match in the entity name.")
-    ] = None,
-    order_by: Annotated[str | None, Field(description="Field key to sort the results by.")] = None,
+    body: Annotated[
+        EntitySearch,
+        Field(description="What to find: name substring, filter, sort order; ``{}`` for all."),
+    ],
     fields: Annotated[
         str | None, Field(description="Comma-separated extra fields to include.")
     ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[Entity]:
-    """Entities of a given type matching a name substring, sorted server-side.
+    """Entities of a given type that match a name substring and a filter, sorted server-side.
 
-    Returns a flat list of entities. Pass ``input_text`` to match part of the name and
-    ``order_by`` (e.g. ``entityStatus``) to sort. For richer filtering (by author, status,
-    followers, …) use the CLI ``tracker entities search --filter`` which accepts an arbitrary
-    filter object.
+    Returns a flat list of entities. ``body.input`` matches part of the name, ``body.filter``
+    is a field → value object (author, status, followers, …), ``body.orderBy`` with
+    ``body.orderAsc`` sorts, and ``body.rootOnly`` keeps the entities with no parent.
     """
-    body = EntitySearch.model_validate({"input": input_text, "orderBy": order_by})
     return client.entities.search(entity_type, body, fields=fields)
 
 

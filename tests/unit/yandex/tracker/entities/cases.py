@@ -421,7 +421,7 @@ CASES = [
         ],
         mcp=(
             "tracker_entities_search",
-            {"entity_type": "goal", "input_text": "Revenue", "fields": "entityStatus"},
+            {"entity_type": "goal", "body": {"input": "Revenue"}, "fields": "entityStatus"},
         ),
         exchanges=[
             (
@@ -443,7 +443,7 @@ CASES = [
         cli=None,
         mcp=(
             "tracker_entities_search",
-            {"entity_type": "portfolio", "input_text": "Infra", "order_by": "summary"},
+            {"entity_type": "portfolio", "body": {"input": "Infra", "orderBy": "summary"}},
         ),
         exchanges=[
             (
@@ -461,7 +461,7 @@ CASES = [
         "tracker.entities.search",
         args=("project",),
         cli=["tracker", "entities", "search", "project"],
-        mcp=("tracker_entities_search", {"entity_type": "project"}),
+        mcp=("tracker_entities_search", {"entity_type": "project", "body": {}}),
         exchanges=[
             (Sent("POST", "entities/project/_search", json={}), Reply(json={"values": []})),
         ],
@@ -827,7 +827,6 @@ CASES = [
             "list",
             "portfolio",
             "pf22",
-            "--all",
             "--limit",
             "10",
         ],
@@ -1445,7 +1444,10 @@ CASES = [
         "tracker.entities.search",
         args=("report", {"orderBy": "updatedAt"}),
         cli=None,
-        mcp=("tracker_entities_search", {"entity_type": "report", "order_by": "updatedAt"}),
+        mcp=(
+            "tracker_entities_search",
+            {"entity_type": "report", "body": {"orderBy": "updatedAt"}},
+        ),
         exchanges=[
             (
                 Sent("POST", "entities/report/_search", json={"orderBy": "updatedAt"}),
