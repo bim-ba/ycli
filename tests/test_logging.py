@@ -6,7 +6,7 @@ import logging
 import pytest
 from typer.testing import CliRunner
 
-from ycli.log import LOGGER_NAME, configure
+from ycli.log import LOGGER_NAME, LogFormat, LogLevel, configure
 
 logger = logging.getLogger("ycli.test")
 
@@ -31,7 +31,7 @@ def test_library_is_silent_until_configured():
 
 
 def test_configure_emits_to_stderr_at_level(capsys):
-    configure("INFO")
+    configure(LogLevel.INFO)
     logger.debug("hidden-line")
     logger.info("shown-line")
     err = capsys.readouterr().err
@@ -40,14 +40,14 @@ def test_configure_emits_to_stderr_at_level(capsys):
 
 
 def test_configure_is_idempotent(capsys):
-    configure("INFO")
-    configure("INFO")  # a second call swaps the handler instead of stacking one
+    configure(LogLevel.INFO)
+    configure(LogLevel.INFO)  # a second call swaps the handler instead of stacking one
     logger.info("once")
     assert capsys.readouterr().err.count("once") == 1
 
 
 def test_configure_json_format(capsys):
-    configure("INFO", "json")
+    configure(LogLevel.INFO, LogFormat.JSON)
     logger.info("structured %s", "line")
     entry = json.loads(capsys.readouterr().err)
     assert entry["level"] == "INFO"
@@ -56,7 +56,7 @@ def test_configure_json_format(capsys):
 
 
 def test_json_format_carries_the_exception(capsys):
-    configure("INFO", "json")
+    configure(LogLevel.INFO, LogFormat.JSON)
     try:
         raise ValueError("boom")
     except ValueError:

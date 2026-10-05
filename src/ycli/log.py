@@ -7,17 +7,33 @@ MCP server call :func:`configure`, which installs exactly one stderr handler: st
 clean for command output and for the MCP stdio protocol.
 
 Examples:
-    >>> configure("INFO", "json")  # doctest: +SKIP
+    >>> configure(LogLevel.INFO, LogFormat.JSON)  # doctest: +SKIP
 """
 
 from __future__ import annotations
 
+import enum
 import json
 import logging
 import sys
-from typing import Literal
 
-type LogFormat = Literal["text", "json"]
+
+class LogFormat(enum.StrEnum):
+    """How a log line is written."""
+
+    TEXT = "text"
+    JSON = "json"
+
+
+class LogLevel(enum.StrEnum):
+    """The least severe record that is written; the names of the stdlib ``logging`` levels."""
+
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
+
 
 LOGGER_NAME = "ycli"
 # The channel of HTTP traffic: the core sessions and the token client both log to it.
@@ -47,7 +63,7 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(entry, ensure_ascii=False)
 
 
-def configure(level: str = "WARNING", log_format: LogFormat = "text") -> None:
+def configure(level: LogLevel = LogLevel.WARNING, log_format: LogFormat = LogFormat.TEXT) -> None:
     """Send ``ycli`` records at ``level`` and above to stderr, replacing an earlier setup.
 
     Idempotent: a repeated call swaps the handler instead of stacking a second one, and binds
@@ -60,7 +76,7 @@ def configure(level: str = "WARNING", log_format: LogFormat = "text") -> None:
     handler.name = _HANDLER_NAME
     handler.setFormatter(
         JSONFormatter()
-        if log_format == "json"
+        if log_format is LogFormat.JSON
         else logging.Formatter("%(levelname)s %(name)s: %(message)s")
     )
     logger.addHandler(handler)

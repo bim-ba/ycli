@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ycli.settings import CredentialKind
+
 if TYPE_CHECKING:
     from ycli.settings import AppConfig, Credentials
     from ycli.yandex.base import DomainClient
@@ -44,7 +46,7 @@ def build_client[C: DomainClient](
     # Imported here: httpx2 costs ~0.2 s, paid only once a client is built.
     from ycli.yandex.core.auth import IAMTokenAuth, OAuthTokenAuth
 
-    scheme = IAMTokenAuth if credentials.kind == "iam" else OAuthTokenAuth
+    scheme = IAMTokenAuth if credentials.kind is CredentialKind.IAM else OAuthTokenAuth
     return client_cls(
         auth=scheme(credentials.token),
         organization_id=credentials.organization_id,

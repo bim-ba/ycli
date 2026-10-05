@@ -70,8 +70,12 @@ suggests the known values, and a tool's schema shows them (`anyOf` of the `enum`
   `Literal` or `StrEnum` with the same values.
 - **Strict on purpose** (not sets of Yandex values): a discriminator field, by which pydantic
   picks the class (`type` of a question or a subscription); `forms questions --type`, the five
-  types the flags can build; the sets ycli's own code branches on (`Method`, `Effect`, the log
-  level and format, `CredentialKind`); a `StrEnum` option that names a part of the address.
+  types the flags can build.
+- **A set of ycli's own is a `StrEnum`.** The rule in one line: a closed set that ycli owns is a
+  `StrEnum`, a set of values of the API is `Literal[...] | str`. ycli's own sets are the ones
+  only a release of ycli changes: `OutputFormat`, `Transport`, `Kind`, `LogLevel`, `LogFormat`,
+  `CredentialKind` (and `Method`, `Effect`, still `Literal`, which follow). A member equals its
+  string, so a setting, an option and a reply field carry the same text as before.
 
 ### A field the API ignores
 
