@@ -351,11 +351,11 @@ class EntitiesClient(Resource):
         """
         return self._session.send(endpoints.update_bulk(entity_type, body))
 
-    def bulk_get(self, operation_id: str) -> BulkChangeOperation:
-        """``GET /bulkchange/{operation_id}`` → the current bulk-change operation status.
+    def bulk_get(self, bulk_id: str) -> BulkChangeOperation:
+        """``GET /bulkchange/{bulk_id}`` → the current bulk-change operation status.
 
         Args:
-            operation_id: The bulk-change operation's id.
+            bulk_id: The bulk-change operation's id.
 
         Returns:
             The operation with its current status.
@@ -364,7 +364,7 @@ class EntitiesClient(Resource):
             >>> tracker.entities.bulk_get("658").status
             'COMPLETE'
         """
-        return self._session.send(endpoints.bulk_get(operation_id))
+        return self._session.send(endpoints.bulk_get(bulk_id))
 
     def reports_create(self, body: ReportCreate) -> Entity:
         """``POST /entities/report/`` — build an issue report from a ``{fields: …}`` body.

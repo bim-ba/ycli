@@ -265,16 +265,14 @@ def attachments_get(
     annotations={**RO, "title": "Get Tracker entity bulk-change status"},
 )
 def bulk_get(
-    operation_id: Annotated[
-        str, Field(description="Operation id returned by entities_update_bulk.")
-    ],
+    bulk_id: Annotated[str, Field(description="Operation id returned by entities_update_bulk.")],
     client: TrackerClient = Depends(tracker_client),
 ) -> BulkChangeOperation:
     """Current status of an async entity bulk-change operation started by ``entities_update_bulk``.
 
     ``status`` runs ``CREATED`` → ``COMPLETE`` / ``FAILED``; poll until it settles.
     """
-    return client.entities.bulk_get(operation_id)
+    return client.entities.bulk_get(bulk_id)
 
 
 @mcp.tool(

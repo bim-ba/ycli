@@ -174,8 +174,8 @@ def update_bulk(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChange
     return Endpoint("POST", path, BulkChangeOperation, json=body)
 
 
-def bulk_get(operation_id: str) -> Endpoint[BulkChangeOperation]:
-    return Endpoint("GET", f"bulkchange/{segment(operation_id)}", BulkChangeOperation)
+def bulk_get(bulk_id: str) -> Endpoint[BulkChangeOperation]:
+    return Endpoint("GET", f"bulkchange/{segment(bulk_id)}", BulkChangeOperation)
 
 
 def reports_create(body: ReportCreate) -> Endpoint[Entity]:

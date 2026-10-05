@@ -668,7 +668,7 @@ CASES = [
         "tracker.entities.bulk_get",
         args=("658",),
         cli=["tracker", "entities", "bulk-get", "658"],
-        mcp=("tracker_entities_bulk_get", {"operation_id": "658"}),
+        mcp=("tracker_entities_bulk_get", {"bulk_id": "658"}),
         exchanges=[
             (Sent("GET", "bulkchange/658"), Reply(json={"id": "658", "status": "COMPLETE"})),
         ],

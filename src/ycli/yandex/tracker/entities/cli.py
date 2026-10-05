@@ -346,12 +346,12 @@ def update_bulk(
 
 @app.command("bulk-get")
 def bulk_get(
-    operation_id: Annotated[str, typer.Argument(metavar="OPERATION_ID", help="Bulk-change id.")],
+    bulk_id: Annotated[str, typer.Argument(metavar="BULK_ID", help="Bulk-change id.")],
     *,
     tracker: TrackerClient,
 ) -> BulkChangeOperation:
     """Print a bulk-change operation's status (GET /bulkchange/OPERATION_ID)."""
-    return tracker.entities.bulk_get(operation_id)
+    return tracker.entities.bulk_get(bulk_id)
 
 
 @app.command("reports-create")

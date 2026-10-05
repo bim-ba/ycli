@@ -36,15 +36,15 @@ AnswersFileArg = Annotated[
 
 @app.command()
 def get(
-    survey: SurveyIDArg, key: Annotated[str | None, _KEY] = None, *, forms: FormsClient
+    survey_id: SurveyIDArg, key: Annotated[str | None, _KEY] = None, *, forms: FormsClient
 ) -> FillableForm:
     """Print the fillable-form settings for SURVEY (GET …/form) — pages, conditions, values."""
-    return forms.filling.get(survey, key=key)
+    return forms.filling.get(survey_id, key=key)
 
 
 @app.command()
 def submit(
-    survey: SurveyIDArg,
+    survey_id: SurveyIDArg,
     body_file: AnswersFileArg,
     validate_only: Annotated[
         bool,
@@ -56,12 +56,12 @@ def submit(
 ) -> SubmitResult:
     """Submit a form response from --body-file (POST …/form); --validate-only validates only."""
     payload = SubmitBody.model_validate_json(body_file.read_bytes())
-    return forms.filling.submit(survey, payload, validate_only=validate_only, key=key)
+    return forms.filling.submit(survey_id, payload, validate_only=validate_only, key=key)
 
 
 @app.command()
 def suggest(
-    survey: SurveyIDArg,
+    survey_id: SurveyIDArg,
     question: Annotated[
         str | None, typer.Option(help="Question slug the suggestion is for.")
     ] = None,
@@ -78,7 +78,7 @@ def suggest(
 ) -> ItemList[Suggestion]:
     """Get fill suggestions for a question (GET …/suggest)."""
     return forms.filling.suggest(
-        survey,
+        survey_id,
         question=question,
         text=text,
         suggest_id=suggest_id,

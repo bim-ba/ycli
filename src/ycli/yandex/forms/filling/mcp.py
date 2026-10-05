@@ -20,7 +20,7 @@ mcp = FastMCP("forms-filling")
 
 @mcp.tool(name="filling_get", annotations={**RO, "title": "Get Forms fillable form"})
 def get(
-    survey: Annotated[
+    survey_id: Annotated[
         str,
         Field(description="Form id, its slug, or an id+verification-key combination."),
     ],
@@ -37,7 +37,7 @@ def get(
     under. Complements ``surveys_get`` (admin settings) and ``questions_list`` (authoring view).
     Post a response with ``filling_submit``.
     """
-    return client.filling.get(survey, key=key)
+    return client.filling.get(survey_id, key=key)
 
 
 @mcp.tool(
@@ -45,7 +45,7 @@ def get(
     annotations={**RO, "title": "Get Forms fill suggestions"},
 )
 def suggest(
-    survey: Annotated[str, Field(description="Form id or slug.")],
+    survey_id: Annotated[str, Field(description="Form id or slug.")],
     question: Annotated[str | None, Field(description="Question slug to suggest for.")] = None,
     text: Annotated[str | None, Field(description="Search text typed so far.")] = None,
     suggest_id: Annotated[
@@ -63,7 +63,7 @@ def suggest(
     item's ``id``/``text`` is a candidate value for the answer.
     """
     return client.filling.suggest(
-        survey, question=question, text=text, suggest_id=suggest_id, parent_id=parent_id
+        survey_id, question=question, text=text, suggest_id=suggest_id, parent_id=parent_id
     )
 
 
@@ -72,7 +72,7 @@ def suggest(
     annotations={**WRITE, "title": "Submit Forms response"},
 )
 def submit(
-    survey: Annotated[str, Field(description="Form id or slug of a published form.")],
+    survey_id: Annotated[str, Field(description="Form id or slug of a published form.")],
     body: Annotated[
         SubmitBody,
         Field(description="Answer map keyed by question slug (see ``filling_get`` for the slugs)."),
@@ -92,4 +92,4 @@ def submit(
     scalar, a string list, a ``{begin, end}`` date range, or matrix ``{row, column}`` items.
     Returns the success-page payload (``answer_id`` confirms the save).
     """
-    return client.filling.submit(survey, body, validate_only=validate_only, key=key)
+    return client.filling.submit(survey_id, body, validate_only=validate_only, key=key)
