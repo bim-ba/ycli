@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.84.1 (2026-10-05)
+
+### Bug Fixes
+
+- **datalens**: A validation error names the field wherever DataLens lists it
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`306876d`](https://github.com/bim-ba/ycli/commit/306876d72b86dbbde35a3a71f06c97bd58413524))
+
+### Build System
+
+- Re-lock uv.lock for 0.84.0
+  ([`c5a04e5`](https://github.com/bim-ba/ycli/commit/c5a04e516961a19b2b86165da314b8c1466ba18c))
+
+### Testing
+
+- **e2e**: A recorded reply gives the same fixture whatever ycli knows elsewhere
+  ([`a6e278c`](https://github.com/bim-ba/ycli/commit/a6e278ce96a511227c79d06407bdf81020df7432))
+
+
 ## v0.84.0 (2026-10-05)
 
 ### Build System
