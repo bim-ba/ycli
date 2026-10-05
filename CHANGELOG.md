@@ -9,6 +9,23 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.71.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.70.0
+  ([`27bacaf`](https://github.com/bim-ba/ycli/commit/27bacaf74cc26d2cfb0d762bd4bf6b87ff5c7cef))
+
+### Refactoring
+
+- A parameter has one name, the SDK argument's ([#328](https://github.com/bim-ba/ycli/pull/328),
+  [`5891751`](https://github.com/bim-ba/ycli/commit/589175150143c5c38f6e34cde7f7058dad75628a))
+
+### Breaking Changes
+
+- These CLI options changed; the old spellings no longer work.
+
+
 ## v0.70.0 (2026-10-05)
 
 ### Build System
