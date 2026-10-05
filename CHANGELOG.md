@@ -9,6 +9,19 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.81.1 (2026-10-05)
+
+### Bug Fixes
+
+- **settings**: An error about the credentials never quotes the value that failed
+  ([`da7ef04`](https://github.com/bim-ba/ycli/commit/da7ef04e0fb0009bc4519b6e188613ee258b0bfd))
+
+### Build System
+
+- Re-lock uv.lock for 0.81.0
+  ([`57d54f6`](https://github.com/bim-ba/ycli/commit/57d54f6149dfa9e73317377237483aaf8b9e22c9))
+
+
 ## v0.81.0 (2026-10-05)
 
 ### Build System
