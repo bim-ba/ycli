@@ -71,6 +71,8 @@ def _version_callback(value: bool) -> None:
     if value:
         from ycli import __version__
 
+        # violation(arch-4): eager, it runs before any command, so there is no result to return;
+        # through output.render `--version` would import yaml, rich and pydantic first
         typer.echo(__version__)
         raise typer.Exit
 

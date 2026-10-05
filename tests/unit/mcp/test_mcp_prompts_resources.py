@@ -183,7 +183,7 @@ def test_mcp_methods_lists_prompts_and_resources_under_the_same_flags():
     assert "wiki_page_from_issue" not in tools.stdout.split()
 
 
-SKILLS = Path(__file__).resolve().parent.parent / "plugins" / "yandex-360" / "skills"
+SKILLS = Path(__file__).resolve().parents[3] / "plugins" / "yandex-360" / "skills"
 GUIDES = {
     "ycli://guide": ("ycli.mcp", "yandex-360"),
     **{

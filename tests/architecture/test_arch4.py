@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from tests.architecture.scanners import SRC, _dotted, _import_aliases
+from tests.architecture.scanners import SRC, _dotted, _import_aliases, unexplained
 
 # Serializers that turn a result into text. Only output.render may call them (ARCH-4).
 _SERIALIZERS = frozenset(
@@ -75,41 +75,32 @@ _PRINTERS = frozenset(
      "pprint.pp"}
 )  # fmt: skip
 _STDOUT_NAMES = frozenset({"stdout", "__stdout__"})
-# Where stdout may be written, and why: the renderer itself, and one eager option.
+# Where stdout may be written, and why: the renderer itself. Any other place that touches
+# stdout says why on the line above, `# violation(arch-4): <reason>`.
 ARCH4_STDOUT_HOMES = {Path("cli/output.py"): "output.render, the one output path"}
-ARCH4_STDOUT_FUNCTIONS = {
-    # Eager: it runs before any command, so there is no result to return. Routing it through
-    # output.render would import yaml/rich/pydantic first (measured 48 -> 110 ms for --version).
-    "cli/app.py:_version_callback": "`ycli --version` prints the version and exits",
-    # Reads whether stdout is a terminal (to know if a person can be asked); it writes nothing.
-    "cli/guard.py:attended": "the confirmation prompt needs a terminal on stdin and stdout",
-}
 
 
-def _stdout_writes(source: str, exempt_functions: frozenset[str] = frozenset()) -> list[str]:
-    """Places in ``source`` that write to stdout.
+def _stdout_lines(source: str) -> list[tuple[int, str]]:
+    """(line, finding) for the places in ``source`` that write to stdout.
 
     They are ``print`` in any spelling (``builtins.print``, ``rich.print``, ``pprint``, an import
     alias), ``typer.echo`` / ``secho`` and ``Console(...)`` without a stderr flag, ``os.write``,
-    and any use of ``stdout`` / ``__stdout__``. Messages to stderr are UI, not output. Top-level
-    functions named in ``exempt_functions`` are skipped.
+    and any use of ``stdout`` / ``__stdout__``. Messages to stderr are UI, not output.
     """
     tree = ast.parse(source)
     aliases = _import_aliases(tree)
     found = []
     for top in tree.body:
-        if isinstance(top, ast.FunctionDef) and top.name in exempt_functions:
-            continue
         for node in ast.walk(top):
             if isinstance(node, ast.Call):
                 name = _dotted(node.func, aliases)
                 last = name.rpartition(".")[2] or getattr(node.func, "attr", "")
                 if name in _PRINTERS:
-                    found.append(f"print (line {node.lineno})")
+                    found.append((node.lineno, f"print (line {node.lineno})"))
                 elif last in {"echo", "secho", "Console"} and not _to_stderr(node):
-                    found.append(f"{last} (line {node.lineno})")
+                    found.append((node.lineno, f"{last} (line {node.lineno})"))
                 elif name == "os.write":
-                    found.append(f"os.write (line {node.lineno})")
+                    found.append((node.lineno, f"os.write (line {node.lineno})"))
             elif (
                 (isinstance(node, ast.Attribute) and node.attr in _STDOUT_NAMES)
                 or (
@@ -121,8 +112,13 @@ def _stdout_writes(source: str, exempt_functions: frozenset[str] = frozenset()) 
                     and any(a.name in _STDOUT_NAMES for a in node.names)
                 )
             ):
-                found.append(f"stdout (line {node.lineno})")
+                found.append((node.lineno, f"stdout (line {node.lineno})"))
     return found
+
+
+def _stdout_writes(source: str, path: str = "<source>") -> list[str]:
+    """Stdout writes of ``source`` with no ``# violation(arch-4)`` above, and markers above none."""
+    return unexplained(_stdout_lines(source), source, "arch-4", path)
 
 
 def test_arch4_commands_return_and_never_print():
@@ -136,10 +132,7 @@ def test_arch4_commands_return_and_never_print():
         rel = p.relative_to(SRC)
         if rel in ARCH4_STDOUT_HOMES:
             continue
-        exempt = frozenset(
-            key.partition(":")[2] for key in ARCH4_STDOUT_FUNCTIONS if key.startswith(f"{rel}:")
-        )
-        if writes := _stdout_writes(p.read_text(encoding="utf-8"), exempt):
+        if writes := _stdout_writes(p.read_text(encoding="utf-8"), str(rel)):
             offenders[str(rel)] = writes
     assert not offenders, f"return the value instead of printing it: {offenders}"
 
@@ -168,6 +161,14 @@ def test_arch4_stdout_guard_bites():
     assert _stdout_writes("typer.echo('note', err=True)") == []
     assert _stdout_writes("Console(stderr=True).print('Opening')") == []
     assert _stdout_writes("console.print('Opening')") == []  # a stderr console made elsewhere
-    version = "def _version_callback(value):\n    typer.echo(value)\n"
-    assert _stdout_writes(version, frozenset({"_version_callback"})) == []
-    assert _stdout_writes(version) == ["echo (line 2)"]
+    # Both sides: a marked write passes, an unmarked one and a marker above no write do not.
+    version = (
+        "def _version_callback(value):\n"
+        "    # violation(arch-4): eager, there is no result to return\n"
+        "    typer.echo(value)\n"
+    )
+    assert _stdout_writes(version) == []
+    assert _stdout_writes(version.replace("arch-4", "arch-9")) == ["echo (line 3)"]
+    assert _stdout_writes(version.replace("typer.echo(value)", "return value"), "cli/app.py") == [
+        "cli/app.py:2: violation(arch-4) marks nothing the check finds"
+    ]

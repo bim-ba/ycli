@@ -135,7 +135,7 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch3_write_tools_carry_write_tag` keeps `--read-only` complete over the served tools,
   and `test_arch3_no_tool_states_its_tags_itself` keeps a second statement out. `status_get`, the one
   tool outside a resource, is checked on its own (`tests/yandex/status/test_mcp.py`).
-  A prompt and a resource follow their tools (`tests/test_mcp_prompts_resources.py`): a
+  A prompt and a resource follow their tools (`tests/unit/mcp/test_mcp_prompts_resources.py`): a
   prompt lists the tools its text names, all of them exist, and one write among them means
   the `write` tag; a resource template names the read tool it repeats and returns what that
   tool returns; the server offers neither when one of those tools is not served, so `--read-only`
@@ -152,8 +152,8 @@ allowlist entry in code with its reason, never prose here. Tests are in
   `test_arch4_serialization_confined_to_output` (AST: `json.dumps`, `yaml.safe_dump`,
   `pydantic_core.to_json`, `.model_dump_json()` and their aliases), each with a bite test.
 - **Exceptions:** `ARCH4_SERIALIZATION_HOMES` (`log.py` formats stderr log records with
-  `json.dumps`) and `ARCH4_STDOUT_FUNCTIONS` (the eager `--version` callback, and
-  `guard.attended`, which only asks whether stdout is a terminal). Bytes and raw text are result
+  `json.dumps`) and `# violation(arch-4): <reason>` above a line that touches stdout (the eager
+  `--version` callback, and `guard.attended`, which only asks whether stdout is a terminal). Bytes and raw text are result
   types (`BinaryResult`, `str`), not exceptions.
 - **Field names:** CLI and MCP output both keep each API's own field names (Tracker
   `createdAt`, Wiki `created_at`), so a key reads the same in the vendor docs, in `--format json`
