@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 
 from ycli.cli.errors import exit_code_for
 from ycli.cli.exit_codes import ExitCode
-from ycli.settings import ORGANIZATION_ID_ENV
+from ycli.settings import ORGANIZATION_ID_ENV, CredentialKind
 from ycli.yandex.errors import YandexAuthError, YandexConnectionError, YandexError
 from ycli.yandex.factory import build_client
 from ycli.yandex.registry import SERVICES
@@ -194,7 +194,7 @@ def _check_service(
         fix = (
             f"{IAM_LIFETIME}: issue a new one (`yc iam create-token`), or check that the "
             f"account may use {name}"
-            if credentials.kind == "iam"
+            if credentials.kind is CredentialKind.IAM
             else f"give your OAuth app the {name} permissions and sign in again, or ask an "
             f"administrator to enable {name} for the organization"
         )
