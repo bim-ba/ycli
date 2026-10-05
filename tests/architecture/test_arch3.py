@@ -44,12 +44,12 @@ def test_arch3_effect_override_guard_bites():
     marked = (
         "def search(body):\n"
         "    # violation(arch-3): POST _search only reads\n"
-        '    return Endpoint("POST", "x", json=body, effect="read")\n'
+        '    return Endpoint(HTTPMethod.POST, "x", json=body, effect=Effect.READ)\n'
     )
     assert _unmarked_overrides(marked, module) == []
     unmarked = marked.replace("violation(arch-3)", "violation(arch-9)")
     assert _unmarked_overrides(unmarked, module) == [f"{module}:search"]
-    stale = marked.replace(', effect="read"', "")
+    stale = marked.replace(", effect=Effect.READ", "")
     assert _unmarked_overrides(stale, module) == [
         f"{module}:2: violation(arch-3) marks nothing the check finds"
     ]

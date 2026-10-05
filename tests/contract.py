@@ -20,7 +20,7 @@ Example:
     ...     exchanges=[(Sent("GET", "issues/DE-7"), Reply(json={"key": "DE-7"}))],
     ... )
     >>> case.id, case.expected_effect
-    ('tracker.issues.get:tracker issues get', 'read')
+    ('tracker.issues.get:tracker issues get', <Effect.READ: 'read'>)
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ from __future__ import annotations
 import importlib
 import json
 from dataclasses import dataclass, field, replace
+from http import HTTPMethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
 
     import httpx2
 
-    from ycli.yandex.core.endpoint import Effect, Method
+    from ycli.yandex.core.endpoint import Effect
 
 TESTS = Path(__file__).parent
 
@@ -68,7 +69,7 @@ class Sent:
     ``content`` a raw body sent verbatim. ``headers`` must each be present with these values.
     """
 
-    method: Method
+    method: str
     path: str
     params: Mapping[str, str | list[str]] = field(default_factory=dict)
     json: Any = NO_BODY
@@ -129,7 +130,7 @@ class Case:
     def expected_effect(self) -> Effect:
         """The stated ``effect``, or the strongest one the requests' methods imply."""
         return self.effect or strongest(
-            _EFFECT_BY_METHOD[sent.method] for sent, _ in self.exchanges
+            _EFFECT_BY_METHOD[HTTPMethod(sent.method)] for sent, _ in self.exchanges
         )
 
     @property

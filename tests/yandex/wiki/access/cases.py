@@ -1,6 +1,7 @@
 """Contract cases for Wiki ``/pages/{id}/access`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.wiki.access.models import PageAccessCreate, PageAccessUpdate
 
 
@@ -101,7 +102,7 @@ CASES = [
             "wiki_access_update",
             {"page_id": 6003, "access_id": "5003", "body": UPDATE_BODY, "prevent_selflock": True},
         ),
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         exchanges=[
             (
                 Sent(
@@ -122,7 +123,7 @@ CASES = [
             "wiki_access_update",
             {"page_id": 6004, "access_id": "5004", "body": {"inheritance": "not_inherited"}},
         ),
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         exchanges=[
             (
                 Sent("POST", "pages/6004/access/5004", json={"inheritance": "not_inherited"}),

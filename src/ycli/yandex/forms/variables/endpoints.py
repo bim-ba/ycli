@@ -7,10 +7,14 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.variables.models import VariableInfo
 from ycli.yandex.models import ItemList
 
 
 def list_(survey_id: str) -> Endpoint[ItemList[VariableInfo]]:
-    return Endpoint("GET", f"surveys/{segment(survey_id)}/variables", ItemList[VariableInfo])
+    return Endpoint(
+        HTTPMethod.GET, f"surveys/{segment(survey_id)}/variables", ItemList[VariableInfo]
+    )

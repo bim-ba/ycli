@@ -2,6 +2,7 @@
 
 from tests.contract import Case, Reply, Sent
 from tests.yandex.tracker.links.import_cases import IMPORT_CASES
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.tracker.links.models import LinkCreate
 
 CASES = [
@@ -93,7 +94,7 @@ CASES = [
                 Reply(json={"links": [{"id": 442, "type": {"id": "subtask"}}]}),
             ),
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     # No filters: an empty body, one page; --limit stops the walk, --all lifts the cap.
     Case(
@@ -121,7 +122,7 @@ CASES = [
                 ),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
         output=[
             {
                 "id": 451,
@@ -149,7 +150,7 @@ CASES = [
                 Reply(json={"links": [{"id": 461}]}),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
 ]
 CASES += IMPORT_CASES

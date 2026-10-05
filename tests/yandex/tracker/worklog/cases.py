@@ -2,6 +2,7 @@
 
 from tests.contract import Case, Reply, Sent
 from tests.yandex.tracker.worklog.import_cases import IMPORT_CASES
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.tracker.worklog.models import WorklogCreate, WorklogSearch, WorklogUpdate
 
 CASES = [
@@ -99,7 +100,7 @@ CASES = [
                 Reply(json=[{"id": 641, "duration": "PT2H"}]),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.worklog.search",
@@ -107,7 +108,7 @@ CASES = [
         cli=["tracker", "worklog", "search"],
         mcp=("tracker_worklog_search", {}),
         exchanges=[(Sent("POST", "worklog/_search", json={}), Reply(json=[]))],
-        effect="read",
+        effect=Effect.READ,
     ),
     # The CLI repeats createdAt for each end of the range.
     Case(

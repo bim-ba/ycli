@@ -2,16 +2,17 @@
 
 Examples:
     >>> search({"createdBy": "alice"}).effect
-    'read'
+    <Effect.READ: 'read'>
     >>> list_global("alice", ["from:2018-06-06", "to:2018-06-07"]).params["createdAt"]
     ['from:2018-06-06', 'to:2018-06-07']
 """
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.worklog.models import (
@@ -36,7 +37,7 @@ def list_(issue_key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Workl
     """``GET /issues/{key}/worklog``: ascending ids, each next page from ``id=<last record>``."""
     return Paged(
         Endpoint(
-            "GET",
+            HTTPMethod.GET,
             f"issues/{segment(issue_key)}/worklog",
             ItemList[Worklog],
             params={"perPage": page_size},
@@ -49,7 +50,9 @@ def list_(issue_key: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Workl
 def search(body: WorklogSearch) -> Endpoint[ItemList[Worklog]]:
     """``POST /worklog/_search`` only reads."""
     # violation(arch-3): POST _search only reads
-    return Endpoint("POST", "worklog/_search", ItemList[Worklog], json=body, effect="read")
+    return Endpoint(
+        HTTPMethod.POST, "worklog/_search", ItemList[Worklog], json=body, effect=Effect.READ
+    )
 
 
 def list_global(
@@ -57,23 +60,23 @@ def list_global(
 ) -> Endpoint[ItemList[Worklog]]:
     """``GET /worklog``; a list ``created_at`` repeats ``createdAt`` (``from:…``, ``to:…``)."""
     params = {"createdBy": created_by, "createdAt": created_at}
-    return Endpoint("GET", "worklog", ItemList[Worklog], params=params)
+    return Endpoint(HTTPMethod.GET, "worklog", ItemList[Worklog], params=params)
 
 
 def create(issue_key: str, body: WorklogCreate) -> Endpoint[Worklog]:
-    return Endpoint("POST", f"issues/{segment(issue_key)}/worklog", Worklog, json=body)
+    return Endpoint(HTTPMethod.POST, f"issues/{segment(issue_key)}/worklog", Worklog, json=body)
 
 
 def update(issue_key: str, record_id: int | str, body: WorklogUpdate) -> Endpoint[Worklog]:
     path = f"issues/{segment(issue_key)}/worklog/{segment(record_id)}"
-    return Endpoint("PATCH", path, Worklog, json=body)
+    return Endpoint(HTTPMethod.PATCH, path, Worklog, json=body)
 
 
 def delete(issue_key: str, record_id: int | str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"issues/{segment(issue_key)}/worklog/{segment(record_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"issues/{segment(issue_key)}/worklog/{segment(record_id)}")
 
 
 def import_(issue_key: str, body: ImportWorklog) -> Endpoint[ItemList[Worklog]]:
     """The live endpoint answers with a JSON array of the created record(s)."""
     path = f"issues/{segment(issue_key)}/worklogs/_import"
-    return Endpoint("POST", path, ItemList[Worklog], json=body)
+    return Endpoint(HTTPMethod.POST, path, ItemList[Worklog], json=body)

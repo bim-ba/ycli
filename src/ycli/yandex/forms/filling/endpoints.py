@@ -7,13 +7,17 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.filling.models import FillableForm, SubmitBody, SubmitResult, Suggestion
 from ycli.yandex.models import ItemList
 
 
 def get(survey_id: str, *, key: str | None) -> Endpoint[FillableForm]:
-    return Endpoint("GET", f"surveys/{segment(survey_id)}/form", FillableForm, params={"key": key})
+    return Endpoint(
+        HTTPMethod.GET, f"surveys/{segment(survey_id)}/form", FillableForm, params={"key": key}
+    )
 
 
 def submit(
@@ -21,11 +25,15 @@ def submit(
 ) -> Endpoint[SubmitResult]:
     params = {"dry_run": validate_only, "key": key}
     return Endpoint(
-        "POST", f"surveys/{segment(survey_id)}/form", SubmitResult, json=body, params=params
+        HTTPMethod.POST,
+        f"surveys/{segment(survey_id)}/form",
+        SubmitResult,
+        json=body,
+        params=params,
     )
 
 
 def suggest(survey_id: str, params: dict[str, str | None]) -> Endpoint[ItemList[Suggestion]]:
     return Endpoint(
-        "GET", f"surveys/{segment(survey_id)}/suggest", ItemList[Suggestion], params=params
+        HTTPMethod.GET, f"surveys/{segment(survey_id)}/suggest", ItemList[Suggestion], params=params
     )

@@ -7,9 +7,11 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.wiki.me.models import Me
 
 
 def get() -> Endpoint[Me]:
-    return Endpoint("GET", "users/me", Me)
+    return Endpoint(HTTPMethod.GET, "users/me", Me)

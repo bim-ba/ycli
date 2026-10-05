@@ -7,6 +7,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.components.models import (
@@ -19,11 +21,11 @@ from ycli.yandex.tracker.components.models import (
 
 
 def list_() -> Endpoint[ItemList[Component]]:
-    return Endpoint("GET", "components", ItemList[Component])
+    return Endpoint(HTTPMethod.GET, "components", ItemList[Component])
 
 
 def create(body: ComponentCreate) -> Endpoint[Component]:
-    return Endpoint("POST", "components", Component, json=body)
+    return Endpoint(HTTPMethod.POST, "components", Component, json=body)
 
 
 def update(
@@ -31,7 +33,7 @@ def update(
 ) -> Endpoint[Component]:
     """``PATCH /components/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
     return Endpoint(
-        "PATCH",
+        HTTPMethod.PATCH,
         f"components/{segment(component_id)}",
         Component,
         json=body,
@@ -41,7 +43,7 @@ def update(
 
 def list_for_queue(queue_id: str, *, fields: str | None = None) -> Endpoint[ItemList[Component]]:
     return Endpoint(
-        "GET",
+        HTTPMethod.GET,
         f"queues/{segment(queue_id)}/components",
         ItemList[Component],
         params={"fields": fields},
@@ -50,19 +52,19 @@ def list_for_queue(queue_id: str, *, fields: str | None = None) -> Endpoint[Item
 
 def get(component_id: int, *, fields: str | None = None) -> Endpoint[Component]:
     return Endpoint(
-        "GET", f"components/{segment(component_id)}", Component, params={"fields": fields}
+        HTTPMethod.GET, f"components/{segment(component_id)}", Component, params={"fields": fields}
     )
 
 
 def delete(component_id: int) -> Endpoint[None]:
-    return Endpoint("DELETE", f"components/{segment(component_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"components/{segment(component_id)}")
 
 
 def user_permissions_get(component_id: int, user_id: str) -> Endpoint[ComponentUserAccess]:
     path = f"components/{segment(component_id)}/permissions/users/{segment(user_id)}"
-    return Endpoint("GET", path, ComponentUserAccess)
+    return Endpoint(HTTPMethod.GET, path, ComponentUserAccess)
 
 
 def group_permissions_get(component_id: int, group_id: int) -> Endpoint[ComponentGroupAccess]:
     path = f"components/{segment(component_id)}/permissions/groups/{segment(group_id)}"
-    return Endpoint("GET", path, ComponentGroupAccess)
+    return Endpoint(HTTPMethod.GET, path, ComponentGroupAccess)

@@ -7,12 +7,14 @@ Examples:
     >>> get("data/x", fields=None, revision_id=None, raise_on_redirect=False).params
     {'slug': 'data/x', 'fields': None, 'revision_id': None, 'raise_on_redirect': False}
     >>> update(7, {"content": "# X"}, fields=None, is_silent=False, allow_merge=False).effect
-    'idempotent_write'
+    <Effect.IDEMPOTENT_WRITE: 'idempotent_write'>
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from http import HTTPMethod
+
+from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import AsyncOperation, CursorPage
 from ycli.yandex.wiki.pages.models import (
@@ -40,7 +42,7 @@ def get(
         "revision_id": revision_id,
         "raise_on_redirect": raise_on_redirect,
     }
-    return Endpoint("GET", "pages", PageDetails, params=params)
+    return Endpoint(HTTPMethod.GET, "pages", PageDetails, params=params)
 
 
 def get_by_id(
@@ -51,7 +53,7 @@ def get_by_id(
         "revision_id": revision_id,
         "raise_on_redirect": raise_on_redirect,
     }
-    return Endpoint("GET", f"pages/{segment(page_id)}", PageDetails, params=params)
+    return Endpoint(HTTPMethod.GET, f"pages/{segment(page_id)}", PageDetails, params=params)
 
 
 def descendants_list(
@@ -65,7 +67,7 @@ def descendants_list(
         "show_all": show_all,
     }
     return Paged(
-        Endpoint("GET", "pages/descendants", CursorPage[PageRef], params=params),
+        Endpoint(HTTPMethod.GET, "pages/descendants", CursorPage[PageRef], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -82,7 +84,7 @@ def descendants_list_by_id(
         "show_all": show_all,
     }
     return Paged(
-        Endpoint("GET", path, CursorPage[PageRef], params=params),
+        Endpoint(HTTPMethod.GET, path, CursorPage[PageRef], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -93,7 +95,9 @@ def grids_list(
 ) -> Paged[CursorPage[GridRef], GridRef]:
     params = {"page_size": 50, "order_by": order_by, "order_direction": order_direction}
     return Paged(
-        Endpoint("GET", f"pages/{segment(page_id)}/grids", CursorPage[GridRef], params=params),
+        Endpoint(
+            HTTPMethod.GET, f"pages/{segment(page_id)}/grids", CursorPage[GridRef], params=params
+        ),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -103,7 +107,7 @@ def create(
     body: PageCreate, *, fields: str | None, is_silent: bool | None
 ) -> Endpoint[PageDetails]:
     params = {"fields": fields, "is_silent": is_silent}
-    return Endpoint("POST", "pages", PageDetails, params=params, json=body)
+    return Endpoint(HTTPMethod.POST, "pages", PageDetails, params=params, json=body)
 
 
 def update(
@@ -117,12 +121,14 @@ def update(
     path = f"pages/{segment(page_id)}"
     params = {"fields": fields, "is_silent": is_silent, "allow_merge": allow_merge}
     # violation(arch-3): POST /pages/{id} replaces fields; a resend is a no-op
-    return Endpoint("POST", path, PageDetails, params=params, json=body, effect="idempotent_write")
+    return Endpoint(
+        HTTPMethod.POST, path, PageDetails, params=params, json=body, effect=Effect.IDEMPOTENT_WRITE
+    )
 
 
 def delete(page_id: int, *, recursive: bool | None) -> Endpoint[PageDeleteResult]:
     params = {"recursive": recursive}
-    return Endpoint("DELETE", f"pages/{segment(page_id)}", PageDeleteResult, params=params)
+    return Endpoint(HTTPMethod.DELETE, f"pages/{segment(page_id)}", PageDeleteResult, params=params)
 
 
 def append(
@@ -130,17 +136,17 @@ def append(
 ) -> Endpoint[PageDetails]:
     path = f"pages/{segment(page_id)}/append-content"
     params = {"fields": fields, "is_silent": is_silent}
-    return Endpoint("POST", path, PageDetails, params=params, json=body)
+    return Endpoint(HTTPMethod.POST, path, PageDetails, params=params, json=body)
 
 
 def clone(page_id: int, body: PageClone) -> Endpoint[AsyncOperation]:
-    return Endpoint("POST", f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
+    return Endpoint(HTTPMethod.POST, f"pages/{segment(page_id)}/clone", AsyncOperation, json=body)
 
 
 def move(body: PageMove, *, validate_only: bool | None) -> Endpoint[AsyncOperation]:
     """``POST /pages/move`` (undocumented): a new address for pages, or only a check of one."""
     params = {"dry_run": validate_only}
-    return Endpoint("POST", "pages/move", AsyncOperation, params=params, json=body)
+    return Endpoint(HTTPMethod.POST, "pages/move", AsyncOperation, params=params, json=body)
 
 
 def revisions_list(
@@ -150,7 +156,10 @@ def revisions_list(
     params = {"page_size": 50, "ids": ids}
     return Paged(
         Endpoint(
-            "GET", f"pages/{segment(page_id)}/revisions", CursorPage[PageRevision], params=params
+            HTTPMethod.GET,
+            f"pages/{segment(page_id)}/revisions",
+            CursorPage[PageRevision],
+            params=params,
         ),
         WIKI_CURSOR,
         lambda page: page.results,
@@ -167,7 +176,12 @@ def backlinks_list(
         "show_all": show_all,
     }
     return Paged(
-        Endpoint("GET", f"pages/{segment(page_id)}/backlinks", CursorPage[PageRef], params=params),
+        Endpoint(
+            HTTPMethod.GET,
+            f"pages/{segment(page_id)}/backlinks",
+            CursorPage[PageRef],
+            params=params,
+        ),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -176,4 +190,4 @@ def backlinks_list(
 def search(body: SearchRequest) -> Endpoint[SearchPage]:
     """``POST /search`` only reads: one page of full-text hits."""
     # violation(arch-3): POST /search only reads
-    return Endpoint("POST", "search", SearchPage, json=body, effect="read")
+    return Endpoint(HTTPMethod.POST, "search", SearchPage, json=body, effect=Effect.READ)

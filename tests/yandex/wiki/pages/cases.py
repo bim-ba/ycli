@@ -2,6 +2,7 @@
 
 from tests.contract import Case, Reply, Sent
 from tests.yandex.wiki.pages.search_cases import SEARCH_CASES
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.wiki.pages.models import (
     PageAppendContent,
     PageClone,
@@ -347,7 +348,7 @@ CASES = [
                 Reply(json=_page(4402, "eng/renamed")),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "wiki.pages.update",
@@ -360,7 +361,7 @@ CASES = [
                 Reply(json=_page(4403, "eng/body")),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "wiki.pages.delete",
@@ -1097,7 +1098,7 @@ CASES = [
                 Reply(json=_page(4406, "eng/merged", content="# Merged")),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "wiki.pages.delete",

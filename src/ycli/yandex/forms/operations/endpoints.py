@@ -7,9 +7,11 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.forms.models import OperationResult
 
 
 def get(operation_id: str) -> Endpoint[OperationResult]:
-    return Endpoint("GET", f"operations/{segment(operation_id)}", OperationResult)
+    return Endpoint(HTTPMethod.GET, f"operations/{segment(operation_id)}", OperationResult)

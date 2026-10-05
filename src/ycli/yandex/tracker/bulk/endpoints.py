@@ -10,14 +10,18 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkIssueResult
 
 
 def get(bulk_id: str) -> Endpoint[BulkChange]:
-    return Endpoint("GET", f"bulkchange/{segment(bulk_id)}", BulkChange)
+    return Endpoint(HTTPMethod.GET, f"bulkchange/{segment(bulk_id)}", BulkChange)
 
 
 def issues_list(bulk_id: str) -> Endpoint[ItemList[BulkIssueResult]]:
-    return Endpoint("GET", f"bulkchange/{segment(bulk_id)}/issues", ItemList[BulkIssueResult])
+    return Endpoint(
+        HTTPMethod.GET, f"bulkchange/{segment(bulk_id)}/issues", ItemList[BulkIssueResult]
+    )

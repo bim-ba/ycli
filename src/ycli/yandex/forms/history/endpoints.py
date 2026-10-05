@@ -7,6 +7,7 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
@@ -28,7 +29,9 @@ def list_(survey_id: str, *, ordering: str | None) -> Paged[HistoryPage, History
     """``GET /surveys/{id}/history``, paged by sending back the ``iteration_key`` cursor."""
     params = {"ordering": ordering, "limit": PAGE_SIZE}
     return Paged(
-        Endpoint("GET", f"surveys/{segment(survey_id)}/history", HistoryPage, params=params),
+        Endpoint(
+            HTTPMethod.GET, f"surveys/{segment(survey_id)}/history", HistoryPage, params=params
+        ),
         CursorPagination(cursor_of=_iteration_key, cursor_param="iteration_key"),
         lambda page: page.items,
     )

@@ -16,6 +16,7 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING, Self
 
 from pydantic import SecretStr
@@ -45,10 +46,12 @@ def _next_page_token(response: httpx2.Response) -> str | None:
     return response.json().get("nextPageToken")
 
 
-GET_IDENTITY: Endpoint[Identity] = Endpoint("GET", "info", Identity, params={"format": "json"})
+GET_IDENTITY: Endpoint[Identity] = Endpoint(
+    HTTPMethod.GET, "info", Identity, params={"format": "json"}
+)
 LIST_ORGANIZATIONS: Paged[OrganizationList, Organization] = Paged(
     Endpoint(
-        "GET",
+        HTTPMethod.GET,
         "directory/v1/org",
         OrganizationList,
         params={"pageSize": ORGANIZATIONS_PAGE_SIZE},
