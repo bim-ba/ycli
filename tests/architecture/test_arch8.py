@@ -6,15 +6,20 @@ import ast
 import functools
 from pathlib import Path
 
-from tests.architecture.scanners import SRC, YANDEX, _dotted, _import_aliases
+from tests.architecture.scanners import (
+    SRC,
+    YANDEX,
+    _dotted,
+    _import_aliases,
+    violation_markers,
+)
 
 # ARCH-8 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
 # `body` parameter is the resource's request model, never a bare `dict`/`dict[...]`, in every
 # layer that hands it on: the MCP tool, the client method and the endpoint builder. Fail-closed;
-# an exception would be listed here (id -> reason).
+# an exception would carry `# violation(arch-8): <reason>` above the function, and there is none.
 # `Annotated[Base64Bytes, …]` (binary uploads) is an `ast.Subscript` whose `.value` is
 # `ast.Name(id="Annotated")`, never `dict`, so it never matches this check.
-ARCH8_BODY_DICT_ALLOWLIST: dict[str, str] = {}
 
 
 def _bare_dict_annotation(annotation: ast.expr | None) -> bool:
@@ -34,20 +39,16 @@ def _bare_dict_annotation(annotation: ast.expr | None) -> bool:
     )
 
 
-def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
-    """``@mcp.tool``-decorated functions in ``source`` with a bare-``dict`` ``body`` parameter.
+def _bare_dict_bodies(source: str, module_label: str) -> list[tuple[int, str]]:
+    """(line, finding) for ``@mcp.tool`` functions in ``source`` with a bare-``dict`` ``body``.
 
-    Detects the ``@mcp.tool`` decorator the same way :func:`_read_tool_write_offenders` does.
-    Matches both ``def`` and ``async def`` tool functions, so a future async write tool cannot
-    slip a bare-``dict`` ``body`` past the guard. For each such function, every
-    positional-or-keyword and keyword-only parameter named ``body`` is checked; a bare
-    ``dict``/``dict[...]`` annotation is an offender unless ``{module_label}:{function_name}``
-    is listed in :data:`ARCH8_BODY_DICT_ALLOWLIST`. Pure over source text so the guard can be
-    exercised on a synthetic module (the prove-it test).
+    The line is the first of the function's definition (its first decorator). Matches both
+    ``def`` and ``async def`` tool functions, so a future async write tool cannot slip a
+    bare-``dict`` ``body`` past the guard. Every positional-or-keyword and keyword-only parameter
+    named ``body`` is checked.
     """
-    tree = ast.parse(source)
-    offenders: list[str] = []
-    for node in ast.walk(tree):
+    found: list[tuple[int, str]] = []
+    for node in ast.walk(ast.parse(source)):
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
         if not any(
@@ -57,18 +58,29 @@ def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
             for deco in node.decorator_list
         ):
             continue
-        for arg in (*node.args.args, *node.args.kwonlyargs):
-            if arg.arg != "body" or arg.annotation is None:
-                continue
-            if not _bare_dict_annotation(arg.annotation):
-                continue
-            if f"{module_label}:{node.name}" in ARCH8_BODY_DICT_ALLOWLIST:
-                continue
-            offenders.append(
+        first = min(deco.lineno for deco in node.decorator_list)
+        found += [
+            (
+                first,
                 f"{module_label}: {node.name}(body: {ast.unparse(arg.annotation)}) "
-                "— must be a typed pydantic model, not dict"
+                "— must be a typed pydantic model, not dict",
             )
-    return offenders
+            for arg in (*node.args.args, *node.args.kwonlyargs)
+            if arg.arg == "body"
+            and arg.annotation is not None
+            and _bare_dict_annotation(arg.annotation)
+        ]
+    return found
+
+
+def _untyped_body_offenders(source: str, module_label: str) -> list[str]:
+    """The :func:`_bare_dict_bodies` of ``source`` with no ``# violation(arch-8)`` above them.
+
+    Pure over source text so the guard can be exercised on a synthetic module (the prove-it
+    test).
+    """
+    markers = violation_markers(source, "arch-8")
+    return [text for line, text in _bare_dict_bodies(source, module_label) if line not in markers]
 
 
 def test_arch8_mcp_write_tool_bodies_are_typed():
@@ -76,8 +88,8 @@ def test_arch8_mcp_write_tool_bodies_are_typed():
 
     docs/conventions/resources.md §4: the model becomes the tool's input schema, so an agent
     sees field names/types/aliases instead of an opaque ``object``, and a malformed payload
-    fails schema validation before the HTTP call. Fail-closed: only the one documented
-    ``ARCH8_BODY_DICT_ALLOWLIST`` entry is exempt.
+    fails schema validation before the HTTP call. Fail-closed: only a function with
+    ``# violation(arch-8): <reason>`` above it is exempt.
     """
     offenders = []
     for layer in ("mcp.py", "client.py", "endpoints.py"):
@@ -86,7 +98,7 @@ def test_arch8_mcp_write_tool_bodies_are_typed():
             offenders += _untyped_body_offenders(path.read_text(encoding="utf-8"), rel)
     assert not offenders, (
         "a `body` parameter must be a typed pydantic model, not dict — convert the parameter, "
-        f"or add a documented ARCH8_BODY_DICT_ALLOWLIST entry: {offenders}"
+        f"or put `# violation(arch-8): <reason>` above the function: {offenders}"
     )
 
 
@@ -118,8 +130,8 @@ def test_arch8_a_request_body_is_dumped_only_by_the_endpoint():
     ]
 
 
-def test_arch8_typed_body_guard_bites(monkeypatch):
-    """Prove-it: the guard flags bare/subscripted ``dict`` bodies and respects the allowlist.
+def test_arch8_typed_body_guard_bites():
+    """Prove-it: the guard flags bare/subscripted ``dict`` bodies and respects a marker.
 
     A typed model or ``Annotated[Base64Bytes, …]`` is not flagged.
     """
@@ -164,8 +176,8 @@ def test_arch8_typed_body_guard_bites(monkeypatch):
     )
     assert _untyped_body_offenders(binary_upload, "synthetic/mcp.py") == []
 
-    monkeypatch.setitem(ARCH8_BODY_DICT_ALLOWLIST, "synthetic/mcp.py:create", "a listed exception")
-    assert _untyped_body_offenders(bare, "synthetic/mcp.py") == []
+    marked = "# violation(arch-8): the API takes any object here\n" + bare
+    assert _untyped_body_offenders(marked, "synthetic/mcp.py") == []
 
 
 # Who may turn a status into a typed error, and why. ``raise_for_status``
@@ -178,10 +190,6 @@ ARCH8_ERROR_MAPPERS = {
         "the OAuth login flow: a 400/401 with an OAuth error code is a device-flow polling "
         "state (RFC 6749 §5.2), not a failure for the session to raise"
     ),
-}
-# Functions that raise a status-carrying YandexError with no response to map, and why.
-ARCH8_LOCAL_RAISES = {
-    "yandex/core/endpoint.py:check_path": "refuses a path before any request is sent",
 }
 # YandexError subclasses that carry no HTTP status: raising one maps no status.
 ARCH8_STATUSLESS_ERRORS = {
@@ -211,23 +219,33 @@ def _error_mapping_offenders(rel: Path, source: str) -> list[str]:
 
     Anywhere: ``raise_for_status``. Outside ``ARCH8_ERROR_MAPPERS``: any use of
     ``error_for_status``, building a status-carrying ``YandexError`` (``YandexNotFoundError(…)``)
-    and reading a response's ``status_code``. A top-level function listed in
-    ``ARCH8_LOCAL_RAISES`` may build such an error.
+    and reading a response's ``status_code``. Such an error may be built by hand only with
+    ``# violation(arch-8): <reason>`` on the line above.
     """
     tree = ast.parse(source)
     aliases = _import_aliases(tree)
     mapper = rel in ARCH8_ERROR_MAPPERS
+    marked = set(violation_markers(source, "arch-8"))
     offenders = []
     for top in tree.body:
-        local_raise = f"{rel}:{getattr(top, 'name', '')}" in ARCH8_LOCAL_RAISES
-        offenders += _mapping_offenders_in(
-            top, rel, aliases, mapper=mapper, local_raise=local_raise
-        )
+        offenders += _mapping_offenders_in(top, rel, aliases, mapper=mapper, marked=marked)
     return offenders
 
 
+def _hand_raises(source: str) -> list[int]:
+    """The lines of ``source`` that build a status-carrying ``YandexError`` by hand."""
+    tree = ast.parse(source)
+    aliases = _import_aliases(tree)
+    return sorted(
+        node.lineno
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and _dotted(node.func, aliases).rpartition(".")[2] in _status_errors()
+    )
+
+
 def _mapping_offenders_in(
-    top: ast.stmt, rel: Path, aliases: dict[str, str], *, mapper: bool, local_raise: bool
+    top: ast.stmt, rel: Path, aliases: dict[str, str], *, mapper: bool, marked: set[int]
 ) -> list[str]:
     """The :func:`_error_mapping_offenders` findings inside one top-level statement."""
     offenders = []
@@ -249,7 +267,7 @@ def _mapping_offenders_in(
             offenders.append(f"{where}: reads status_code outside ARCH8_ERROR_MAPPERS")
         elif (
             isinstance(node, ast.Call)
-            and not local_raise
+            and node.lineno not in marked
             and (name := _dotted(node.func, aliases).rpartition(".")[2]) in _status_errors()
         ):
             offenders.append(f"{where}: raises {name} by hand instead of error_for_status")
@@ -288,10 +306,40 @@ def test_arch8_error_mapping_guard_bites():
     assert _error_mapping_offenders(resource, clean) == []
     mapped = "raise error_for_status(response.status_code, message, url=u)"
     assert _error_mapping_offenders(session, mapped) == []
-    # A listed local refusal may raise; the same raise in another function may not.
-    refusal = "def {}(path):\n    raise YandexClientError(path)\n"
+    # A marked local refusal may raise; the same raise with no marker may not.
+    refusal = "def check_path(path):\n{}    raise YandexClientError(path)\n"
     endpoint = Path("yandex/core/endpoint.py")
-    assert _error_mapping_offenders(endpoint, refusal.format("check_path")) == []
-    assert _error_mapping_offenders(endpoint, refusal.format("build_url")) == [
+    marker = "    # violation(arch-8): refused before any request is sent\n"
+    assert _error_mapping_offenders(endpoint, refusal.format(marker)) == []
+    assert _error_mapping_offenders(endpoint, refusal.format("")) == [
         "yandex/core/endpoint.py:2: raises YandexClientError by hand instead of error_for_status"
+    ]
+
+
+def _stale_markers(rel: str, source: str) -> list[str]:
+    """``# violation(arch-8)`` markers of ``source`` above neither a hand-built error nor a body."""
+    explained = set(_hand_raises(source)) | {line for line, _ in _bare_dict_bodies(source, rel)}
+    return [
+        f"{rel}:{marker}: violation(arch-8) marks nothing the checks find"
+        for line, marker in sorted(violation_markers(source, "arch-8").items())
+        if line not in explained
+    ]
+
+
+def test_arch8_a_marker_stands_above_what_it_explains():
+    """Every ``# violation(arch-8)`` is above a hand-built status error or a ``dict`` body."""
+    stale = [
+        finding
+        for path in sorted(SRC.rglob("*.py"))
+        for finding in _stale_markers(str(path.relative_to(SRC)), path.read_text(encoding="utf-8"))
+    ]
+    assert stale == []
+    marked = (
+        "def check_path(path):\n"
+        "    # violation(arch-8): refused before any request is sent\n"
+        "    raise YandexClientError(path)\n"
+    )
+    assert _stale_markers("a/endpoint.py", marked) == []
+    assert _stale_markers("a/endpoint.py", marked.replace("YandexClientError", "ValueError")) == [
+        "a/endpoint.py:2: violation(arch-8) marks nothing the checks find"
     ]
