@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import McpError, ToolError
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 from typer.testing import CliRunner
 
 from tests.architecture.test_arch1 import surface_asymmetries
@@ -38,11 +38,15 @@ from tests.full_server import tool_with_output_schema
 from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
 from ycli.cli.app import app
+from ycli.yandex.core.auth import IAMTokenAuth
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
+
+    from ycli.yandex.base import DomainClient
+    from ycli.yandex.service import Service
 
 SERVICE_BY_NAME = {service.name: service for service in SERVICES}
 
@@ -64,16 +68,34 @@ def _serve(monkeypatch: pytest.MonkeyPatch, case: Case) -> MockAPI:
             content=reply.content,
         )
     monkeypatch.setattr("ycli.yandex.core.session.default_transport", api.transport)
+    # A service of Yandex Cloud names its organization with another id (``tests/conftest.py``
+    # sets the Yandex 360 one).
+    monkeypatch.setenv("YANDEX_CLOUD_ORGANIZATION_ID", "c")
+    if not SERVICE_BY_NAME[case.domain].profile.oauth_token:
+        # The service takes an IAM token only: one way to sign in, so the OAuth token goes.
+        monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
+        monkeypatch.setenv("YANDEX_CLOUD_IAM_TOKEN", "t")
     return api
+
+
+def _client(service: Service) -> DomainClient:
+    """The service's SDK client, signed in the way the service takes."""
+    client_class = service.client_class()
+    if service.profile.oauth_token:
+        return client_class(oauth_token="t", organization_id="o", cloud_organization_id="c")
+    auth = IAMTokenAuth(SecretStr("t"))
+    return client_class(auth=auth, organization_id="o", cloud_organization_id="c")
 
 
 def _check_sent(case: Case, api: MockAPI, surface: str) -> None:
     base_url = SERVICE_BY_NAME[case.domain].profile.base_url
     problems = mismatches([sent for sent, _ in case.exchanges], api.calls, base_url)
+    signed_in = "OAuth t" if SERVICE_BY_NAME[case.domain].profile.oauth_token else "Bearer t"
     for request in api.calls:
-        if request.headers.get("Authorization") != "OAuth t":
-            problems.append(f"{request.url}: no OAuth credentials")
-        if request.headers.get("X-Org-Id") != "o":
+        if request.headers.get("Authorization") != signed_in:
+            problems.append(f"{request.url}: no credentials")
+        expected = SERVICE_BY_NAME[case.domain].profile.headers_for("o", "c")
+        if any(request.headers.get(name) != value for name, value in expected.items()):
             problems.append(f"{request.url}: no organization header")
     if api.calls and effect_sent(api.calls) != case.expected_effect:
         problems.append(f"effect {effect_sent(api.calls)!r} != {case.expected_effect!r}")
@@ -83,8 +105,7 @@ def _check_sent(case: Case, api: MockAPI, surface: str) -> None:
 def _run_sdk(case: Case) -> object:
     """What the SDK returned, as the CLI would print it (``None`` when it returned nothing)."""
     domain, resource, method = case.operation.split(".")
-    client_class = SERVICE_BY_NAME[domain].client_class()
-    with client_class(oauth_token="t", organization_id="o") as client:
+    with _client(SERVICE_BY_NAME[domain]) as client:
         args = [getattr(client, a.resource) if isinstance(a, Sibling) else a for a in case.args]
         result = getattr(getattr(client, resource), method)(*args, **case.kwargs)
     return (
@@ -222,7 +243,7 @@ def _core_resources() -> dict[str, object]:
     """``<domain>.<resource>`` → the resource client, for every resource on the httpx2 core."""
     resources = {}
     for service in SERVICES:
-        with service.client_class()(oauth_token="t", organization_id="o") as client:
+        with _client(service) as client:
             for name, value in vars(client).items():
                 if isinstance(value, Resource):
                     resources[f"{service.name}.{name}"] = value

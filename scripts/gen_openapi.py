@@ -51,7 +51,12 @@ if TYPE_CHECKING:
     from scripts.api_drift import Recorded
 
 SCHEMAS = "#/components/schemas/"
-TITLES = {"tracker": "Yandex Tracker", "wiki": "Yandex Wiki", "forms": "Yandex Forms"}
+TITLES = {
+    "tracker": "Yandex Tracker",
+    "wiki": "Yandex Wiki",
+    "forms": "Yandex Forms",
+    "datalens": "Yandex DataLens",
+}
 _PLACEHOLDER = re.compile(r"\{([^}]*)\}|<([^>]*)>")
 _JSON = "application/json"
 _QUALIFIED = re.compile(r"ycli__yandex__[a-z]+__(\w+?)__models__(\w+)")

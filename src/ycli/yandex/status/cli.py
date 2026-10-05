@@ -83,7 +83,7 @@ def status(*, context: typer.Context, config: AppConfig) -> AuthReport | ExitWit
     report = build_report(credentials, config)
     return (
         report
-        if all(s.valid for s in report.services)
+        if all(s.valid or not s.configured for s in report.services)
         else ExitWith(report, exit_code=failure_code(report.services))
     )
 
@@ -323,7 +323,9 @@ def _write_env_file(
     Messages go to stderr: stdout carries only the report the command returns.
     """
     accepted = [status.service for status in report.services if status.valid]
-    rejected = [status.service for status in report.services if not status.valid]
+    rejected = [
+        status.service for status in report.services if status.configured and not status.valid
+    ]
     verdict = f"The token works for: {', '.join(accepted) or 'no service'}."
     if rejected:
         verdict += f" Rejected by: {', '.join(rejected)}."

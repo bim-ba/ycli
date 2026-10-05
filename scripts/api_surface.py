@@ -54,7 +54,12 @@ OPENAPI_URLS = {
 TRACKER_INDEX = "https://yandex.ru/support/tracker/en/llms.txt"
 TRACKER_PAGE = re.compile(r"https://yandex\.ru/support/tracker/en/(api/[^)\s]+)\.md")
 # The services ycli covers: compared with what ycli sends. A test keeps it equal to the registry.
-SERVICES = ("tracker", *OPENAPI_URLS)
+SERVICES = ("tracker", *OPENAPI_URLS, "datalens")
+# A service that is being wrapped section by section, and until when (#352): a section (the
+# operation's ``group``, its tag in the specification) is compared from the change that wraps
+# its first operation; the sections not begun stay an inventory of names. Remove the entry when
+# every section of the service has an operation wrapped: the rule then says nothing.
+BY_SECTION = {"datalens": "141 operations in 33 sections, wrapped resource by resource"}
 
 
 @dataclass(frozen=True)

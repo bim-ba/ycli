@@ -54,11 +54,25 @@ class OrganizationStatus(APIModel):
 
 
 class ServiceAuthStatus(APIModel):
-    """One service's probe: whether the token works there, or why not."""
+    """One service's probe: whether the token works there, or why not.
+
+    A service the credentials cannot reach as they are (no organization of its kind, or a
+    token it does not take) is not probed: ``configured`` is ``False`` and ``detail`` says
+    what to set. That is not a failure of the others.
+    """
 
     service: str = Field(description="Service probed, e.g. `tracker`.")
     valid: bool = Field(default=False, description="Whether the token works in the service.")
-    detail: str = Field(default="", description="Why the probe failed; empty when it passed.")
+    configured: bool = Field(
+        default=True,
+        description="`false` when the credentials cannot reach the service as they are: "
+        "it was not probed, and `detail` says what to set.",
+    )
+    detail: str = Field(
+        default="",
+        description="Why the probe failed, or what a service that is not configured needs; "
+        "empty when it passed.",
+    )
 
 
 class AuthReport(APIModel):

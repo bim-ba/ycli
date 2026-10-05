@@ -33,7 +33,10 @@ def test_split_names_trims_and_drops_blanks():
 @pytest.mark.parametrize(
     ("kwargs", "message"),
     [
-        ({"toolsets": ("nope",)}, "unknown toolset.*nope.*valid: tracker, wiki, forms, core, all"),
+        (
+            {"toolsets": ("nope",)},
+            "unknown toolset.*nope.*valid: tracker, wiki, forms, datalens, core, all",
+        ),
         ({"toolsets": ()}, "none given"),
         ({"exclude_tools": (STATUS_TOOL,)}, "always served"),
         ({"tools": ("nope_get",)}, "unknown tool 'nope_get'"),
@@ -48,7 +51,7 @@ def test_a_bad_selection_fails_at_construction(kwargs, message):
 @pytest.mark.parametrize(
     ("selection", "services"),
     [
-        (Selection(), ("tracker", "wiki", "forms")),
+        (Selection(), ("tracker", "wiki", "forms", "datalens")),
         (Selection(toolsets=("wiki",)), ("wiki",)),
         (Selection(toolsets=("forms", "tracker")), ("tracker", "forms")),
         (Selection(toolsets=(CORE,)), ("tracker", "wiki", "forms")),

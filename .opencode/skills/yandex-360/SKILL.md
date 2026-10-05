@@ -21,7 +21,7 @@ gets access configured and routes you to the right domain skill.
 ## When NOT to use
 
 - Once access is configured and you know the domain — load the domain skill directly
-  (`yandex-360-tracker`, `yandex-360-wiki`, `yandex-360-forms`).
+  (`yandex-360-tracker`, `yandex-360-wiki`, `yandex-360-forms`, `yandex-360-datalens`).
 
 ## 1. Install
 
@@ -88,6 +88,7 @@ Registering the MCP server with a client (e.g. Claude Code `.mcp.json`):
 | Issues, epics, comments, transitions, links, worklog, changelog | **`yandex-360-tracker`** |
 | Wiki pages, full-text search, page tree, page moves, revisions, backlinks, comments, attachments, page access, YFM authoring | **`yandex-360-wiki`** |
 | Forms, questions/schema, responses, publishing | **`yandex-360-forms`** |
+| DataLens: signing in and the instance (in progress) | **`yandex-360-datalens`** |
 
 Each domain skill documents its CLI commands, MCP tools, SDK client, and the API quirks
 that matter for that service.

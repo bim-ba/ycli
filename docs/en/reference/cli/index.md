@@ -32,6 +32,7 @@ Exit codes: 0 ok · 1 failure · 2 usage · 3 not found · 4 auth · 5 rate limi
 * [`ycli tracker`](tracker.md): Yandex Tracker: issues, queues, boards, sprints, fields, automation.
 * [`ycli wiki`](wiki.md): Yandex Wiki: pages, grids, comments, attachments.
 * [`ycli forms`](forms.md): Yandex Forms: surveys, questions, answers, publishing.
+* [`ycli datalens`](datalens.md): Yandex DataLens: workbooks, connections, datasets, charts, dashboards.
 * [`ycli auth`](auth.md): Inspect and obtain Yandex 360 credentials.
 * [`ycli mcp`](mcp.md): MCP server control (reads + writes).
 * [`ycli doctor`](doctor.md): Check what a working call needs and say what to fix.

@@ -48,7 +48,7 @@ type: how-to
 
 === "В один клик"
 
-    Плагин ставит сервер и четыре навыка вместе, с версией, равной версии плагина:
+    Плагин ставит сервер и пять навыков вместе, с версией, равной версии плагина:
 
     ```text
     /plugin marketplace add bim-ba/ycli
@@ -377,7 +377,7 @@ docker run --rm ghcr.io/bim-ba/ycli --version
 
 ## Только навыки { #skills-only }
 
-Без MCP-сервера четыре навыка ставятся в любого агента, который поддерживает [skills CLI](https://github.com/vercel-labs/skills):
+Без MCP-сервера пять навыков ставятся в любого агента, который поддерживает [skills CLI](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add bim-ba/ycli/plugins/yandex-360

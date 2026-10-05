@@ -21,7 +21,8 @@ class ServiceProfile:
     A service names the organization by its kind: ``org_header`` takes a Yandex 360 organization
     (``X-Org-Id``), ``cloud_org_header`` a Yandex Cloud one (``X-Cloud-Org-Id``; ``x-dl-org-id``
     for DataLens). A service that lives in one kind only leaves the other header ``None``; some
-    (Maps) take none.
+    (Maps) take none. ``oauth_token`` is whether the service takes a Yandex ID OAuth token:
+    DataLens takes an IAM token only.
 
     Examples:
         >>> ServiceProfile("https://api.example.net/v1").headers_for("org-1")
@@ -34,6 +35,7 @@ class ServiceProfile:
     org_header: str | None = ORG_HEADER
     cloud_org_header: str | None = CLOUD_ORG_HEADER
     headers: Mapping[str, str] = field(default_factory=dict)
+    oauth_token: bool = True
 
     def headers_for(
         self, organization_id: str | None, cloud_organization_id: str | None = None

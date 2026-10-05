@@ -25,6 +25,14 @@ class YandexInvalidRequestError(YandexError):
     """
 
 
+class YandexNotConfiguredError(YandexError):
+    """The credentials cannot reach this service as they are; the message says what to set.
+
+    Nothing was sent. The other services are not affected: ``ycli auth status`` lists this
+    one as not configured and still passes.
+    """
+
+
 class YandexUnexpectedReplyError(YandexError):
     """The API answered, but its reply does not fit the model ycli reads it into.
 

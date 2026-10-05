@@ -24,6 +24,8 @@ An invalid value fails at startup, naming the variable (exit code 2).
 
 An exported but empty variable counts as unset. See [Authenticate](../how-to/authenticate.md).
 
+DataLens takes an IAM token or a service account's key, not an OAuth token, and a Yandex Cloud organization (sent as `x-dl-org-id`). Without them `ycli auth status` lists `datalens` as not configured, with what to set, and still exits 0; `ycli doctor` skips it; a `ycli datalens` command exits 2 with the same text.
+
 ## Settings
 
 Optional settings follow the `YCLI__<GROUP>__<SETTING>` pattern. An empty one counts as unset too.

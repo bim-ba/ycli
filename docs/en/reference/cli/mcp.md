@@ -26,7 +26,7 @@ $ ycli mcp [OPTIONS] COMMAND [ARGS]...
 
 ## `ycli mcp start`
 
-Run the MCP server (tools namespaced tracker_*, wiki_*, forms_*, status_*).
+Run the MCP server (tools namespaced tracker_*, wiki_*, forms_*, datalens_*, status_*).
 
 **Usage**:
 
@@ -36,7 +36,7 @@ $ ycli mcp start [OPTIONS]
 
 **Options**:
 
-* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, core, all (core = a curated everyday profile; all = every service, the default). status_get is always served.  [default: all]
+* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, datalens, core, all (core = a curated everyday profile; all = every service, the default). status_get is always served.  [default: all]
 * `--tools TEXT`: Comma-separated extra tool names to serve beyond the toolsets.
 * `--exclude-tools TEXT`: Comma-separated tool names to hide.
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.
@@ -65,7 +65,7 @@ $ ycli mcp methods [OPTIONS]
 
 **Options**:
 
-* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, core, all (core = a curated everyday profile; all = every service, the default). status_get is always served.  [default: all]
+* `--toolsets TEXT`: Comma-separated toolsets to serve: tracker, wiki, forms, datalens, core, all (core = a curated everyday profile; all = every service, the default). status_get is always served.  [default: all]
 * `--tools TEXT`: Comma-separated extra tool names to serve beyond the toolsets.
 * `--exclude-tools TEXT`: Comma-separated tool names to hide.
 * `--read-only`: Serve only read tools (hide every write-tagged tool); wins over --tools.

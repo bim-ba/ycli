@@ -181,7 +181,9 @@ def sdk_pages() -> dict[str, str]:
     pages: dict[str, str] = {}
     for service in SERVICES:
         client_class = service.client_class()
-        client = client_class(oauth_token="token", organization_id="org")
+        client = client_class(
+            oauth_token="token", organization_id="org", cloud_organization_id="cloud-org"
+        )
         resources = {
             attribute: type(value)
             for attribute, value in vars(client).items()

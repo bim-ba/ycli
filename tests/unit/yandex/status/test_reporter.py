@@ -6,6 +6,7 @@ import logging
 import pytest
 from pydantic import SecretStr
 
+from tests.unit.yandex.datalens.tenant.cases import TENANT
 from ycli.settings import AppConfig, Credentials
 from ycli.yandex.status.reporter import CLOUD_ORGANIZATION, build_report
 
@@ -14,6 +15,8 @@ ORG_URL = "https://api360.yandex.net/directory/v1/org"
 TRACKER_ME = "https://api.tracker.yandex.net/v3/myself"
 WIKI_ME = "https://api.wiki.yandex.net/v1/users/me"
 FORMS_ME = "https://api.forms.yandex.net/v1/users/me"
+DATALENS_PROBE = "https://api.datalens.tech/rpc/getTenantDetails"
+NEEDS_CLOUD = "needs a Yandex Cloud organization: set YANDEX_CLOUD_ORGANIZATION_ID"
 
 CREDENTIALS = Credentials(oauth_token=SecretStr("tok"), organization_id="42")
 
@@ -45,10 +48,11 @@ def test_the_report_names_the_owner_the_organization_and_every_service(api):
     assert report.organization is not None
     assert (report.organization.id, report.organization.name) == ("42", "Acme")
     assert report.organization.detail == ""
-    assert [(s.service, s.valid, s.detail) for s in report.services] == [
-        ("tracker", True, ""),
-        ("wiki", True, ""),
-        ("forms", True, ""),
+    assert [(s.service, s.valid, s.configured, s.detail) for s in report.services] == [
+        ("tracker", True, True, ""),
+        ("wiki", True, True, ""),
+        ("forms", True, True, ""),
+        ("datalens", False, False, NEEDS_CLOUD),
     ]
 
 
@@ -65,7 +69,12 @@ def test_the_report_dumps_with_the_agreed_shape(api):
     }
     assert dumped["credential"] == "oauth"
     assert dumped["organization"] == {"id": "42", "kind": "360", "name": "Acme", "detail": ""}
-    assert dumped["services"][0] == {"service": "tracker", "valid": True, "detail": ""}
+    assert dumped["services"][0] == {
+        "service": "tracker",
+        "valid": True,
+        "configured": True,
+        "detail": "",
+    }
 
 
 @pytest.mark.parametrize("status", [401, 403])
@@ -91,7 +100,7 @@ def test_an_api_360_outage_is_a_note_not_a_crash(api):
     assert report.organization is not None
     assert report.organization.name is None
     assert "503" in report.organization.detail
-    assert all(s.valid for s in report.services)
+    assert all(s.valid for s in report.services if s.configured)
 
 
 @pytest.mark.parametrize("status", [401, 503])
@@ -100,7 +109,7 @@ def test_an_unreadable_owner_leaves_the_report_without_one_and_logs_why(api, cap
         report = _report(api, identity={"content": b"nope", "status": status})
     assert report.identity is None
     assert str(status) in caplog.text
-    assert all(s.valid for s in report.services)
+    assert all(s.valid for s in report.services if s.configured)
 
 
 @pytest.mark.parametrize("service", ["tracker", "wiki", "forms"])
@@ -110,7 +119,7 @@ def test_one_failing_service_does_not_hide_the_others(api, service, status, deta
     by_name = {s.service: s for s in _report(api, **{service: failing}).services}
     assert by_name[service].valid is False
     assert detail in by_name[service].detail
-    assert all(s.valid for name, s in by_name.items() if name != service)
+    assert all(s.valid for name, s in by_name.items() if name != service and s.configured)
 
 
 def test_an_iam_token_is_reported_without_asking_yandex_id_or_api_360(api):
@@ -122,7 +131,7 @@ def test_an_iam_token_is_reported_without_asking_yandex_id_or_api_360(api):
     assert report.organization is not None
     assert (report.organization.id, report.organization.name) == ("42", None)
     assert "OAuth token only" in report.organization.detail
-    assert all(service.valid for service in report.services)
+    assert all(service.valid for service in report.services if service.configured)
     assert {call.headers["Authorization"] for call in api.calls} == {"Bearer t1.x"}
     assert not any(call.url.host in {"login.yandex.ru", "api360.yandex.net"} for call in api.calls)
 
@@ -142,6 +151,7 @@ def test_a_cloud_organization_alone_is_reported_as_such(api):
         organization_id=None,
         cloud_organization_id="b1g",
     )
+    api.add("POST", DATALENS_PROBE, json=TENANT)
     report = build_report(iam, AppConfig())
     assert report.organization is not None
     assert report.organization.model_dump(mode="json") == {
@@ -176,3 +186,47 @@ def test_both_organizations_are_reported_the_yandex_360_one_first(api):
     assert (report.organization.id, report.organization.kind) == ("42", "360")
     assert (report.cloud_organization.id, report.cloud_organization.kind) == ("b1g", "cloud")
     assert all("X-Cloud-Org-Id" not in call.headers for call in api.calls)
+
+
+def test_a_service_the_credentials_reach_is_probed(api):
+    """DataLens takes an IAM token and a Yandex Cloud organization: with both it is probed."""
+    _probes(api)
+    api.add("POST", DATALENS_PROBE, json=TENANT)
+    iam = Credentials(
+        oauth_token=None,
+        iam_token=SecretStr("t1.x"),
+        organization_id=None,
+        cloud_organization_id="b1g",
+    )
+    datalens = build_report(iam, AppConfig()).services[-1]
+    assert datalens.model_dump() == {
+        "service": "datalens",
+        "valid": True,
+        "configured": True,
+        "detail": "",
+    }
+    probe = next(call for call in api.calls if call.url.host == "api.datalens.tech")
+    assert probe.headers["x-dl-org-id"] == "b1g"
+
+
+def test_a_service_without_its_organization_is_not_configured_and_not_probed(api):
+    datalens = _report(api).services[-1]
+    assert (datalens.service, datalens.valid, datalens.configured) == ("datalens", False, False)
+    assert datalens.detail == NEEDS_CLOUD
+    assert not any(call.url.host == "api.datalens.tech" for call in api.calls)
+
+
+def test_a_service_that_takes_no_oauth_token_is_not_configured_with_one(api):
+    """The other side: the organization is there, the token is of a kind DataLens does not take."""
+    api.add("GET", ID_URL, json={"id": "7", "login": "ivan"})
+    _probes(api)
+    credentials = Credentials(
+        oauth_token=SecretStr("tok"), organization_id=None, cloud_organization_id="b1g"
+    )
+    datalens = build_report(credentials, AppConfig()).services[-1]
+    assert (datalens.valid, datalens.configured) == (False, False)
+    assert datalens.detail == (
+        "takes an IAM token or a service account's key, not an OAuth token: sign in with "
+        "YANDEX_CLOUD_IAM_TOKEN or YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_FILE"
+    )
+    assert not any(call.url.host == "api.datalens.tech" for call in api.calls)

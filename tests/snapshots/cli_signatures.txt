@@ -2,6 +2,8 @@ api: --all:BOOLEAN=False --dry-run:BOOLEAN=False --field:TEXT --format:CHOICE --
 auth login: --device-name:TEXT --dry-run:BOOLEAN=False --format:CHOICE --implicit:BOOLEAN=False --profile:TEXT --yes:BOOLEAN=False
 auth profiles: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 auth status: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens auth status: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
+datalens tenant details-get: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 doctor: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False
 forms access grant: --action:TEXT! --cloud-uid:TEXT --dry-run:BOOLEAN=False --format:CHOICE --group-id:TEXT --group-src:TEXT --profile:TEXT --uid:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!
 forms access list: --dry-run:BOOLEAN=False --format:CHOICE --profile:TEXT --yes:BOOLEAN=False SURVEY_ID:TEXT!

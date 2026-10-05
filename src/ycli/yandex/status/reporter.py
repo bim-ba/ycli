@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ycli.settings import OrganizationKind
 from ycli.yandex.errors import YandexAuthError, YandexError
-from ycli.yandex.factory import build_client
+from ycli.yandex.factory import build_client, not_configured
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.models import (
     AuthReport,
@@ -56,11 +56,18 @@ def build_report(credentials: Credentials, config: AppConfig) -> AuthReport:
     """The full report: owner (Yandex ID), organization (API 360) and one probe per service.
 
     The owner and the organization are context, not a verdict: when either read fails the report
-    still carries every service's probe.
+    still carries every service's probe. A service the credentials cannot reach is listed as
+    not configured, with what it needs, and is not probed.
     """
     identity, organization = owner_and_organization(credentials, config)
     services = []
     for service in SERVICES:
+        reason = not_configured(service.profile, credentials)
+        if reason:
+            services.append(
+                ServiceAuthStatus(service=service.name, configured=False, detail=reason)
+            )
+            continue
         with build_client(service.client_class(), credentials, config) as client:
             services.append(probe_service(service.name, client))
     return AuthReport(

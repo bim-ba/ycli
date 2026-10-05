@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from ycli.yandex.core.pagination import Pagination
 
 # Tracker's reference pages are prose and omit paging parameters: only what a page lists counts.
-EXHAUSTIVE = frozenset(api_surface.OPENAPI_URLS)
+EXHAUSTIVE = frozenset({*api_surface.OPENAPI_URLS, "datalens"})
 
 # Published operations ycli deliberately does not wrap, each with its reason.
 NOT_WRAPPED: dict[tuple[str, str, str], str] = {
@@ -179,6 +179,8 @@ class Drift:
 
     ``bodies_published`` counts the wrapped operations whose published request body lists its
     fields; ``bodies_compared`` those of them ycli has a typed body for.
+    ``pending`` holds the operations of the sections not begun yet, for a service that is
+    wrapped section by section (``api_surface.BY_SECTION``): they are neither wrapped nor missing.
     """
 
     service: str
@@ -189,11 +191,13 @@ class Drift:
     gaps: tuple[Gap, ...]
     bodies_published: int = 0
     bodies_compared: int = 0
+    pending: tuple[Operation, ...] = ()
 
     @property
     def wrapped(self) -> int:
         """How many published operations ycli wraps."""
-        return len(self.published) - len(self.not_wrapped) - len(self.excluded)
+        left = len(self.not_wrapped) + len(self.excluded) + len(self.pending)
+        return len(self.published) - left
 
 
 def _models(annotation: Any) -> list[type[BaseModel]]:
@@ -290,6 +294,7 @@ def replay(case: Case) -> list[Recorded]:
     with client_class(
         oauth_token="t",
         organization_id="o",
+        cloud_organization_id="c",
         transport=api.transport(),
         before_send=lambda _effect, request: announced.append(request),
     ) as client:
@@ -466,6 +471,11 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
             gaps.append(gap)
 
     missing = [operation for operation in published if operation.key not in reached]
+    pending: list[Operation] = []
+    if service in api_surface.BY_SECTION:
+        begun = {operation.group for operation in published if operation.key in reached}
+        pending = [operation for operation in missing if operation.group not in begun]
+        missing = [operation for operation in missing if operation.group in begun]
     reasons = {key[1:]: reason for key, reason in NOT_WRAPPED.items() if key[0] == service}
     return Drift(
         service=service,
@@ -476,6 +486,7 @@ def compare(service: str, published: list[Operation], sent: list[Call]) -> Drift
         ),
         unpublished=tuple(_unique(unpublished)),
         gaps=tuple(gaps),
+        pending=tuple(pending),
         bodies_published=bodies_published,
         bodies_compared=bodies_compared,
     )

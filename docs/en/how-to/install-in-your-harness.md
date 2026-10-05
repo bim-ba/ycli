@@ -48,7 +48,7 @@ Prefer a container to `uv`? See [Docker](#docker). Something not working? See [I
 
 === "One click"
 
-    The plugin installs the server and the four skills together, pinned to the plugin's version:
+    The plugin installs the server and the five skills together, pinned to the plugin's version:
 
     ```text
     /plugin marketplace add bim-ba/ycli
@@ -377,7 +377,7 @@ Tags: `<version>` for each release and `latest`; `linux/amd64` and `linux/arm64`
 
 ## Skills only
 
-Without the MCP server, the four skills install into any agent that supports the [skills CLI](https://github.com/vercel-labs/skills):
+Without the MCP server, the five skills install into any agent that supports the [skills CLI](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add bim-ba/ycli/plugins/yandex-360

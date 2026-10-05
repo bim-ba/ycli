@@ -35,7 +35,9 @@ assert "start" in mcp_group.list_commands(context), "mcp start missing"
 from ycli.yandex.registry import SERVICES  # noqa: E402
 
 for service in SERVICES:
-    with service.client_class()(oauth_token="smoke", organization_id="smoke"):
+    with service.client_class()(
+        oauth_token="smoke", organization_id="smoke", cloud_organization_id="smoke"
+    ):
         pass
 
 # The MCP guides are links to the plugin's skills in the repository: the distribution must

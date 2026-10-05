@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Generate README's Coverage section from the live code (a reproducible artifact).
 
-Introspects the three domain clients **offline** (dummy credentials — constructing a client
+Introspects the domain clients **offline** (dummy credentials — constructing a client
 opens no connection) plus the committed public-surface data (the CLI
 tree from :func:`tests.snapshots._surface.cli_tree` and the tool names in the MCP signature
 snapshot ``tests/snapshots/mcp_signatures.txt``) and emits the Markdown block README embeds
@@ -51,6 +51,7 @@ from scripts import api_drift, api_surface  # noqa: E402
 from tests.snapshots._surface import cli_tree  # noqa: E402
 
 from ycli.yandex.core.resource import Resource  # noqa: E402
+from ycli.yandex.datalens.client import DataLensClient  # noqa: E402
 from ycli.yandex.forms.client import FormsClient  # noqa: E402
 from ycli.yandex.tracker.client import TrackerClient  # noqa: E402
 from ycli.yandex.wiki.client import WikiClient  # noqa: E402
@@ -62,10 +63,21 @@ MCP_SIGNATURES = ROOT / "tests" / "snapshots" / "mcp_signatures.txt"
 # Committed map of resource/operation → public Yandex API-reference page (relative paths).
 # The vendored api-ref under references/ is git-ignored, so the links live here, not there.
 COVERAGE_URLS = ROOT / "scripts" / "coverage_urls.toml"
-API_DOCS = "https://yandex.ru/support/{domain}/en/{section}/{path}"
 # Tracker moved its reference from `api-ref/` to `api/` (the old URLs answer 301); Wiki and
-# Forms still serve `api-ref/`.
-API_SECTION = {"tracker": "api", "wiki": "api-ref", "forms": "api-ref"}
+# Forms still serve `api-ref/`. DataLens is documented with Yandex Cloud, a page an operation.
+API_DOCS = {
+    "tracker": "https://yandex.ru/support/tracker/en/api/{path}",
+    "wiki": "https://yandex.ru/support/wiki/en/api-ref/{path}",
+    "forms": "https://yandex.ru/support/forms/en/api-ref/{path}",
+    "datalens": "https://yandex.cloud/en/docs/datalens/openapi-ref/{path}",
+}
+# A service as a heading names it, and as the Russian README does (nominative, genitive).
+TITLES = {
+    "tracker": ("Tracker", "Трекер", "Трекера"),
+    "wiki": ("Wiki", "Вики", "Вики"),
+    "forms": ("Forms", "Формы", "Форм"),
+    "datalens": ("DataLens", "DataLens", "DataLens"),
+}
 # The preview README shows above the tables, regenerated with them.
 COVERAGE_SVG = ROOT / "docs" / "assets" / "coverage.svg"
 COVERAGE_SVG_URL = "https://raw.githubusercontent.com/bim-ba/ycli/main/docs/assets/coverage.svg"
@@ -120,6 +132,9 @@ FORMS_CATEGORIES: list[tuple[str, list[str]]] = [
     ("Distribution", ["keysets", "filling"]),
     ("Media", ["files", "images"]),
     ("Identity", ["me"]),
+]
+DATALENS_CATEGORIES: list[tuple[str, list[str]]] = [
+    ("Organization", ["tenant"]),
 ]
 
 
@@ -233,7 +248,7 @@ def _load_link_map() -> dict[str, dict[str, dict]]:
 
 def _doc_url(slug: str, path: str) -> str:
     """A relative api-ref ``path`` → its absolute public Yandex documentation URL."""
-    return API_DOCS.format(domain=slug, section=API_SECTION[slug], path=path)
+    return API_DOCS[slug].format(path=path)
 
 
 def _link(text: str, url: str | None) -> str:
@@ -408,6 +423,11 @@ def _totals(reports: list[DomainReport]) -> Totals:
     )
 
 
+def _listed(names: list[str]) -> str:
+    """``["Tracker", "Wiki", "Forms"]`` -> ``"Tracker, Wiki, and Forms"``."""
+    return ", ".join(names[:-1]) + f", and {names[-1]}"
+
+
 def _render_not_covered(drift: api_drift.Drift) -> list[str]:
     """The published operations of a service that ycli does not wrap, each with its reason."""
     reasons = dict(drift.excluded)
@@ -437,7 +457,8 @@ def _render(reports: list[DomainReport], found: tuple[api_drift.Drift, ...]) -> 
         + '" width="760">',
         "",
         f"`ycli` wraps **{totals.operations} operations across {totals.resources} resources** of "
-        "the Tracker, Wiki, and Forms REST API. Every one is reachable from the **Python SDK** "
+        f"the {_listed([report.title for report in reports])} API. Every one is reachable "
+        "from the **Python SDK** "
         f"and the **CLI**, and {totals.mcp_tools} **MCP** tools serve them to agents "
         f"({totals.domain_mcp_tools} per service plus {cross_cutting_names}).",
         "",
@@ -449,10 +470,12 @@ def _render(reports: list[DomainReport], found: tuple[api_drift.Drift, ...]) -> 
         "mark): ycli sends every published parameter and reads every published field. "
         f"**Partial** ({PARTIAL}): ycli wraps it and differs somewhere; the mark links to the "
         f"row that says where and why. **Not covered** ({NOT_COVERED}): Yandex publishes it "
-        "and ycli does not wrap it; these are listed under each service. Wiki and Forms are "
-        "measured against their OpenAPI documents; Tracker publishes none, so its state is "
-        "measured against the reference pages (operations, and query parameters where a page "
-        "lists them). Generated from the code by "
+        "and ycli does not wrap it; these are listed under each service. Wiki, Forms and "
+        "DataLens are measured against their OpenAPI documents; Tracker publishes none, so "
+        "its state is measured against the reference pages (operations, and query parameters "
+        "where a page lists them). DataLens is in progress, wrapped section by section: the "
+        "operations of a section ycli has not begun are pending, not missing. Generated from "
+        "the code by "
         "[`scripts/gen_coverage.py`](scripts/gen_coverage.py); do not edit by hand.",
     ]
     for report in reports:
@@ -495,6 +518,7 @@ PUBLISHED = {
     "tracker": "[API reference](https://yandex.ru/support/tracker/en/api/about-api)",
     "wiki": f"[OpenAPI]({api_surface.OPENAPI_URLS['wiki']})",
     "forms": f"[OpenAPI]({api_surface.OPENAPI_URLS['forms']})",
+    "datalens": f"[OpenAPI]({api_surface.SOURCES['datalens'].url})",
 }
 TRACKER_DOCS = "https://yandex.ru/support/tracker/en/"
 # How each kind of difference reads in the table, in the order they are listed.
@@ -536,8 +560,8 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
         "### Against the published API",
         "",
         "What ycli sends, replayed from its contract tests, compared with what Yandex publishes: "
-        "the Wiki and Forms OpenAPI documents and Tracker's API reference (prose, so only "
-        "operations and the query parameters a page lists are compared). A request body is "
+        "the Wiki, Forms and DataLens OpenAPI documents and Tracker's API reference (prose, so "
+        "only operations and the query parameters a page lists are compared). A request body is "
         "compared only where ycli has a typed model for it and the model is closed; the "
         "**Bodies compared** column says how many that is, so an empty list is not read as "
         "a match. The published side is "
@@ -552,16 +576,18 @@ def _render_drift(drifts: tuple[api_drift.Drift, ...]) -> list[str]:
     ]
     for drift in drifts:
         excluded = f" (+{len(drift.excluded)} on purpose)" if drift.excluded else ""
+        pending = f" (+{len(drift.pending)} pending)" if drift.pending else ""
         lines.append(
-            f"| {drift.service.capitalize()} | {len(drift.published)} | {drift.wrapped} | "
-            f"{len(drift.not_wrapped)}{excluded} | {len(drift.gaps)} | {_bodies(drift)} | "
+            f"| {TITLES[drift.service][0]} | {len(drift.published)} | {drift.wrapped} | "
+            f"{len(drift.not_wrapped)}{excluded}{pending} | {len(drift.gaps)} | "
+            f"{_bodies(drift)} | "
             f"{PUBLISHED[drift.service]} |"
         )
     for drift in drifts:
         lines += [
             "",
             "<details>",
-            f"<summary><b>{drift.service.capitalize()}: what differs</b></summary>",
+            f"<summary><b>{TITLES[drift.service][0]}: what differs</b></summary>",
         ]
         if drift.not_wrapped:
             lines += ["", "**Published, not wrapped**", ""]
@@ -673,7 +699,7 @@ def render_svg(reports: list[DomainReport]) -> str:
 
 
 def _reports() -> list[DomainReport]:
-    """The three per-domain reports, computed from the live clients + committed link map."""
+    """The per-domain reports, computed from the live clients + committed link map."""
     paths = _cli_paths()
     tools = _mcp_tool_names()
     link_map = _load_link_map()
@@ -690,6 +716,12 @@ def _reports() -> list[DomainReport]:
         DomainSpec(
             "Forms", "forms", FormsClient(oauth_token="x", organization_id="x"), FORMS_CATEGORIES
         ),
+        DomainSpec(
+            "DataLens",
+            "datalens",
+            DataLensClient(oauth_token="x", cloud_organization_id="x"),
+            DATALENS_CATEGORIES,
+        ),
     ]
     gaps = api_drift.partial(api_drifts())
     return [_report(spec, paths, tools, link_map.get(spec.slug, {}), gaps) for spec in specs]
@@ -698,7 +730,8 @@ def _reports() -> list[DomainReport]:
 def _render_ru(reports: list[DomainReport]) -> str:
     """The Russian README's short Coverage section: the preview, the totals, the tables link."""
     totals = _totals(reports)
-    services = {"tracker": "Трекер", "wiki": "Вики", "forms": "Формы"}
+    services = {slug: names[1] for slug, names in TITLES.items()}
+    of = [TITLES[report.slug][2] for report in reports]
     per_service = ", ".join(
         f"{services[report.slug]} — {report.operation_count}" for report in reports
     )
@@ -709,7 +742,8 @@ def _render_ru(reports: list[DomainReport]) -> str:
             f'<img src="{COVERAGE_SVG_URL}" alt="Операций: {totals.operations}, ресурсов: '
             f'{totals.resources}" width="760">',
             "",
-            f"Операций REST API Трекера, Вики и Форм: **{totals.operations}** ({per_service}), "
+            f"Операций API {', '.join(of[:-1])} и {of[-1]}: **{totals.operations}** "
+            f"({per_service}), "
             f"ресурсов: **{totals.resources}**; все операции доступны из **Python SDK** и **CLI**. "
             f"MCP-инструментов для агентов: **{totals.mcp_tools}**. Таблицы по ресурсам и "
             "операциям — в [английском README](README.md#coverage).",

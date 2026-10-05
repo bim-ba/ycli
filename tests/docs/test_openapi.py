@@ -110,7 +110,8 @@ def test_schemas_use_the_api_field_names_and_say_which_models_are_closed(service
         if found.case.domain == service:
             replies = {model.__name__ for model in api_drift._models(found.endpoint.response_type)}
             assert not replies & closed, sorted(replies & closed)
-    assert closed, "no request body of the service is closed"
+    bodies = any("requestBody" in operation for operation in _operations(service).values())
+    assert closed or not bodies, "no request body of the service is closed"
     for found in api_drift.recorded():
         for model in api_drift._models(found.endpoint.response_type):
             if found.case.domain != service or not issubclass(model, APIModel):

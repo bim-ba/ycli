@@ -20,7 +20,10 @@ from ycli.yandex.registry import SERVICES
 CANONICAL = {"__init__.py", "endpoints.py", "client.py", "cli.py", "mcp.py"}
 # Directories of a service that are not resources, and why (scripts/new_endpoint.py refuses
 # them as a resource name).
-RESERVED_NAMES = {"mcp": "<domain>/mcp/ is the service's MCP server"}
+RESERVED_NAMES = {
+    "mcp": "<domain>/mcp/ is the service's MCP server",
+    "schemas": "<domain>/schemas/ holds models generated from the service's specification",
+}
 
 
 def _is_resource_dir(path: Path) -> bool:
@@ -120,7 +123,9 @@ def _load_gen_coverage():
 @functools.cache
 def _clients() -> dict[str, object]:
     return {
-        service.name: service.client_class()(oauth_token="x", organization_id="x")
+        service.name: service.client_class()(
+            oauth_token="x", organization_id="x", cloud_organization_id="x"
+        )
         for service in SERVICES
     }
 

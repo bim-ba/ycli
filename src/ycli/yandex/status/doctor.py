@@ -16,7 +16,7 @@ from ycli.cli.errors import exit_code_for
 from ycli.cli.exit_codes import ExitCode
 from ycli.settings import ORGANIZATION_ID_ENV, CredentialKind, OrganizationKind
 from ycli.yandex.errors import YandexAuthError, YandexConnectionError, YandexError
-from ycli.yandex.factory import build_client
+from ycli.yandex.factory import build_client, not_configured
 from ycli.yandex.registry import SERVICES
 from ycli.yandex.status.models import Check, DoctorReport
 from ycli.yandex.status.release_client import DISTRIBUTION, is_newer, latest_release
@@ -200,6 +200,10 @@ def _check_service(
         diagnosis.skipped(check)
         return
     service = next(service for service in SERVICES if service.name == name)
+    reason = not_configured(service.profile, credentials)
+    if reason:
+        diagnosis.skipped(check, f"not configured: it {reason}")
+        return
     with build_client(service.client_class(), credentials, config) as client:
         error = probe_error(client)
     if error is None:
