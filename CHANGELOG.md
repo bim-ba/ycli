@@ -9,6 +9,20 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.80.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.79.1
+  ([`5f4fb2e`](https://github.com/bim-ba/ycli/commit/5f4fb2e54ae1ea676b2b48da822630a615ddc433))
+
+### Features
+
+- **datalens**: DataLens joins the services, with the details of its instance
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`999265e`](https://github.com/bim-ba/ycli/commit/999265e57ffc19be7f5c30bd369f2ee438bfeef9))
+
+
 ## v0.79.1 (2026-10-05)
 
 ### Bug Fixes
