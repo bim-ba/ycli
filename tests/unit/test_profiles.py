@@ -171,9 +171,27 @@ def test_auth_profiles_lists_them_without_a_token(work, profiles_directory, monk
         result = runner.invoke(cli.app, ["-vv", "-o", "json", "auth", "profiles"])
     assert result.exit_code == 0, result.output
     assert json.loads(result.stdout) == [
-        {"name": "broken", "organization_id": None, "credential": None, "active": False},
-        {"name": "cloud", "organization_id": "9", "credential": "iam", "active": True},
-        {"name": "work", "organization_id": "7", "credential": "oauth", "active": False},
+        {
+            "name": "broken",
+            "organization_id": None,
+            "organization_kind": None,
+            "credential": None,
+            "active": False,
+        },
+        {
+            "name": "cloud",
+            "organization_id": "9",
+            "organization_kind": "360",
+            "credential": "iam",
+            "active": True,
+        },
+        {
+            "name": "work",
+            "organization_id": "7",
+            "organization_kind": "360",
+            "credential": "oauth",
+            "active": False,
+        },
     ]
     assert PROFILE_TOKEN not in result.output
     assert PROFILE_TOKEN not in caplog.text

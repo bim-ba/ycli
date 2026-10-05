@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, ClassVar, Self
 
 from pydantic import SecretStr
 
-from ycli.settings import HTTPConfig
+from ycli.settings import CLOUD_ORGANIZATION_ID_ENV, ORGANIZATION_ID_ENV, HTTPConfig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -37,7 +37,8 @@ class DomainClient(ABC):
     Sign in with ``oauth_token=`` (a Yandex ID OAuth token), or with ``auth=`` for anything
     else: :class:`~ycli.yandex.core.auth.IAMTokenAuth`, ``ServiceAccountAuth`` or your own
     ``httpx2.Auth``. ``profile`` is the service's
-    :class:`~ycli.yandex.core.profile.ServiceProfile`. ``http``
+    :class:`~ycli.yandex.core.profile.ServiceProfile`; of ``organization_id`` (Yandex 360) and
+    ``cloud_organization_id`` (Yandex Cloud) the service takes the kind it lives in. ``http``
     defaults to :class:`~ycli.settings.HTTPConfig`'s own defaults, so there is no second copy of
     them here; ``transport`` replaces the network (tests); ``before_send`` is called once per
     endpoint, before its first attempt, with its effect and request (a surface's seam to confirm
@@ -52,15 +53,23 @@ class DomainClient(ABC):
         *,
         oauth_token: str | None = None,
         auth: httpx2.Auth | None = None,
-        organization_id: str,
+        organization_id: str | None = None,
+        cloud_organization_id: str | None = None,
         http: HTTPConfig | None = None,
         transport: httpx2.BaseTransport | None = None,
         before_send: BeforeSend | None = None,
     ) -> None:
         if bool(oauth_token) == (auth is not None):
             raise ValueError("pass an OAuth token or an auth, one of the two")
-        if not organization_id:
-            raise ValueError("an organization id is required")
+        kinds = (
+            (self.profile.org_header, organization_id, ORGANIZATION_ID_ENV),
+            (self.profile.cloud_org_header, cloud_organization_id, CLOUD_ORGANIZATION_ID_ENV),
+        )
+        taken = [variable for header, _, variable in kinds if header]
+        if taken and not any(header and value for header, value, _ in kinds):
+            raise ValueError(
+                f"{type(self).__name__} needs an organization: set {' or '.join(taken)}"
+            )
         # Imported here: httpx2 costs ~0.2 s, paid only once a domain client is built.
         from ycli.yandex.core.auth import OAuthTokenAuth
         from ycli.yandex.core.session import connect
@@ -69,6 +78,7 @@ class DomainClient(ABC):
             self.profile,
             auth=auth or OAuthTokenAuth(SecretStr(oauth_token or "")),
             organization_id=organization_id,
+            cloud_organization_id=cloud_organization_id,
             http=http or HTTPConfig(),
             transport=transport,
             before_send=before_send,

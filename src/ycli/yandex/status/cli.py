@@ -202,7 +202,8 @@ def _saved_profile(name: str, active: str | None) -> SavedProfile:
         return SavedProfile(name=name, active=name == active)
     return SavedProfile(
         name=name,
-        organization_id=credentials.organization_id,
+        organization_id=credentials.organization[0],
+        organization_kind=credentials.organization[1],
         credential=credentials.kind,
         active=name == active,
     )

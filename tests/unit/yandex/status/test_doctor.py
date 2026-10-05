@@ -5,14 +5,18 @@ from importlib.metadata import version
 
 import httpx2
 import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
 from ycli.cli import app as cli
 from ycli.cli.exit_codes import ExitCode
 from ycli.settings import AppConfig, Credentials, credential_sources, proxy_variables
+from ycli.yandex.core.auth import IAM_TOKEN_URL
 from ycli.yandex.status import doctor
 from ycli.yandex.status.doctor import diagnose
+from ycli.yandex.status.reporter import CLOUD_ORGANIZATION
 
 ID_URL = "https://login.yandex.ru/info"
 ORG_URL = "https://api360.yandex.net/directory/v1/org"
@@ -320,3 +324,58 @@ def test_only_the_token_that_is_set_is_named(monkeypatch, tmp_path, environment,
     for name, value in environment.items():
         monkeypatch.setenv(name, value)
     assert list(credential_sources()) == names
+
+
+def _checks(api, credentials, *extra_urls):
+    for url in (PYPI_URL, *extra_urls, *PROBES.values()):
+        api.add("GET", url, **ANSWERS[url])
+    report, exit_code = diagnose(credentials, {}, [], AppConfig())
+    return {check.check: check for check in report.checks}, report, exit_code
+
+
+def test_a_cloud_organization_is_named_with_why_it_has_no_name(api):
+    iam = Credentials(
+        oauth_token=None,
+        iam_token=SecretStr("t1.secret"),
+        organization_id=None,
+        cloud_organization_id="b1g",
+    )
+    checks, _, exit_code = _checks(api, iam)
+    assert exit_code is ExitCode.OK
+    assert checks["organization"].detail == f"b1g, {CLOUD_ORGANIZATION}"
+    probes = [call for call in api.calls if str(call.url) in PROBES.values()]
+    assert [call.headers.get("X-Cloud-Org-Id") for call in probes] == ["b1g"] * len(PROBES)
+
+
+def test_an_oauth_token_with_a_cloud_organization_does_not_ask_api_360(api):
+    oauth = Credentials(
+        oauth_token=SecretStr("y0_secret"), organization_id=None, cloud_organization_id="b1g"
+    )
+    checks, _, exit_code = _checks(api, oauth, ID_URL)
+    assert exit_code is ExitCode.OK
+    assert checks["token"].detail == "belongs to ivan"
+    assert checks["organization"].detail == f"b1g, {CLOUD_ORGANIZATION}"
+    assert ORG_URL not in [str(call.url).split("?")[0] for call in api.calls]
+
+
+def test_a_service_account_key_is_named_and_tested_by_the_services(api):
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)  # for this test only
+    pem = key.private_bytes(
+        serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()
+    ).decode()
+    text = json.dumps({"id": "key-1", "service_account_id": "sa-1", "private_key": pem})
+    account = Credentials(
+        oauth_token=None, service_account_key=SecretStr(text), organization_id="42"
+    )
+    for _ in PROBES:  # each client exchanges the key for a token of its own
+        api.add(
+            "POST",
+            IAM_TOKEN_URL,
+            json={"iamToken": "t1.minted", "expiresAt": "2099-01-01T00:00:00Z"},
+        )
+    checks, report, exit_code = _checks(api, account)
+    assert (report.ok, exit_code) == (True, ExitCode.OK)
+    assert checks["token"].detail == (
+        "a service account's key (exchanged for IAM tokens as they expire)"
+    )
+    assert "PRIVATE KEY" not in report.model_dump_json()

@@ -9,6 +9,79 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.77.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.76.0
+  ([`b56121f`](https://github.com/bim-ba/ycli/commit/b56121f6b4738aa2096045c9681eca810b73b6e9))
+
+### Features
+
+- A service account's key and a Yandex Cloud organization sign in
+  ([#251](https://github.com/bim-ba/ycli/pull/251),
+  [`77536c7`](https://github.com/bim-ba/ycli/commit/77536c78bb3bc13515fca84a6c7d6bad734a6bf0))
+
+
+## v0.76.0 (2026-10-05)
+
+### Bug Fixes
+
+- Nine places where a command and its tool behaved differently
+  ([#328](https://github.com/bim-ba/ycli/pull/328),
+  [`c1c78e4`](https://github.com/bim-ba/ycli/commit/c1c78e432158d46e645c2ab6226875bf7acf7906))
+
+### Build System
+
+- Re-lock uv.lock for 0.75.0
+  ([`d727e13`](https://github.com/bim-ba/ycli/commit/d727e131d72ff429e49742c8597da4948e298f2b))
+
+### Chores
+
+- **api**: The DataLens snapshot holds the 141 operations published today
+  ([#268](https://github.com/bim-ba/ycli/pull/268),
+  [`845332b`](https://github.com/bim-ba/ycli/commit/845332bcedc4850f9e20417f63c9c5e6282c8643))
+
+### Refactoring
+
+- From __future__ import annotations stays only where a module needs it
+  ([#312](https://github.com/bim-ba/ycli/pull/312),
+  [`a015b18`](https://github.com/bim-ba/ycli/commit/a015b189bbdb605c5aed2001b5f1bafe25270e45))
+
+### Testing
+
+- An option that names a set's values by hand says why above itself
+  ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`d892d3a`](https://github.com/bim-ba/ycli/commit/d892d3af93944b715846ffb02ed4558b28617f3e))
+
+- The checks of conventions and of the public surface live in tests/architecture
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`4ad7c01`](https://github.com/bim-ba/ycli/commit/4ad7c01ff994037bccd6cfaeba2f0e28ec607570))
+
+- The tests of the SDK live in tests/unit/yandex, the contract in tests/contract
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`838240a`](https://github.com/bim-ba/ycli/commit/838240a2946c6e9c5ccec3241524c9687f488b20))
+
+- The tests of the tools around the package live in tests/tooling
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`472d877`](https://github.com/bim-ba/ycli/commit/472d877ac283c4604bb5de43de3a9077ff46202a))
+
+- The tests of what is published live in tests/docs
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`c5f228f`](https://github.com/bim-ba/ycli/commit/c5f228f8698f116c0490415d04aea714313a6c5b))
+
+### Breaking Changes
+
+- Tool parameters: `tracker_entities_search` takes `body` instead of `input_text` and `order_by`;
+  `tracker_worklog_list_global` takes `created_from` / `created_to` instead of `created_at`;
+  `tracker_attachments_import` takes `data` as base64 instead of text.
+
+- Options: `tracker triggers webhook-log-list --date-from/--date-to` (were `--from/--to`), `tracker
+  worklog list-global --created-from/--created-to` (were `--from/--to`); `tracker entities
+  events-list` without `--all` stops at the configured cap; `tracker entities comments list --all
+  --limit N` is `--limit N`.
+
+
 ## v0.75.0 (2026-10-05)
 
 ### Build System

@@ -78,6 +78,7 @@ _VIOLATION_RE = re.compile(r"\s*# violation\((?P<rule>[a-z0-9-]+)\): \S")
 # docs/conventions/resources.md that states each.
 CONVENTION_RULES = {
     "naming": "7. Naming an operation",
+    "value-set": "1. Every model inherits `APIModel`: A field with a set of values",
     "as-given": "6. Writing a client and its CLI commands (ycli sends what the caller gave)",
 }
 

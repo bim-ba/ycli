@@ -47,7 +47,7 @@ def _missing_credentials_error(monkeypatch, tmp_path) -> ValidationError:
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     with pytest.raises(ValidationError) as exc_info:
-        Credentials()  # ty: ignore[missing-argument]
+        Credentials()
     return exc_info.value
 
 
@@ -65,7 +65,7 @@ def test_missing_single_credential_uses_singular_phrasing(monkeypatch, tmp_path)
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "present")
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     with pytest.raises(ValidationError) as exc_info:
-        Credentials()  # ty: ignore[missing-argument]
+        Credentials()
     message = format_cli_error(exc_info.value)
     assert "YANDEX_ID_ORGANIZATION_ID is not set" in message
     assert "YANDEX_ID_OAUTH_TOKEN" not in message  # the one that IS set is not named

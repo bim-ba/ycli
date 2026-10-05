@@ -17,7 +17,7 @@ def test_build_passes_raw_args_and_does_not_read_env(api, monkeypatch, tmp_path)
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
     monkeypatch.chdir(tmp_path)  # prevent .env from leaking
-    creds = Credentials()  # ty: ignore[missing-argument]
+    creds = Credentials()
     cfg = AppConfig(http={"timeout_seconds": 12.0, "retries": 5})  # ty: ignore[invalid-argument-type]
     client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
@@ -36,7 +36,7 @@ def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     monkeypatch.setenv("YCLI__HTTP__TIMEOUT_SECONDS", "0.5")
     monkeypatch.chdir(tmp_path)
-    creds = Credentials()  # ty: ignore[missing-argument]
+    creds = Credentials()
     cfg = AppConfig()
     client = build_client(TrackerClient, creds, cfg)
     assert isinstance(client, TrackerClient)
@@ -49,7 +49,7 @@ def test_build_forwards_before_send_to_the_core_session(api, monkeypatch, tmp_pa
     seen: list[tuple[str, str]] = []
     client = build_client(
         TrackerClient,
-        Credentials(),  # ty: ignore[missing-argument]
+        Credentials(),
         AppConfig(),
         before_send=lambda effect, request: seen.append((effect, request.method)),
     )

@@ -22,6 +22,7 @@ from ycli.yandex.forms.answers.models import (
 from ycli.yandex.forms.client import FormsClient
 from ycli.yandex.forms.dependencies import (
     DESTRUCTIVE,
+    LIMIT_CAP,
     RO,
     WRITE,
     SurveyID,
@@ -57,6 +58,9 @@ def get(
 @mcp.tool(name="answers_list", annotations={**RO, "title": "List Forms answers"})
 def list_(
     survey_id: SurveyID,
+    limit: Annotated[
+        int | None, Field(ge=1, description=f"Max answers to return; {LIMIT_CAP}")
+    ] = None,
     questions: Annotated[
         str | None, Field(description="Comma-separated question ids to return answers for.")
     ] = None,
@@ -86,14 +90,14 @@ def list_(
     client: FormsClient = Depends(forms_client),
     config: AppConfig = Depends(app_config),
 ) -> AnswersResponse:
-    """A form's responses, capped at config.http.max_items (drains pages via the next cursor).
+    """A form's responses, at most ``limit`` (drains pages via the next cursor).
 
     Returns the ``{columns, answers, next}`` envelope; ``next`` is always ``None``
-    in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
+    in the merged result.
     """
     return client.answers.list(
         survey_id,
-        limit=config.http.max_items,
+        limit=config.http.cap(limit),
         questions=questions,
         use_slugs=use_slugs,
         date_from=date_from,

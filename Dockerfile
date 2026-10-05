@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Builds the ycli image from this source tree: the whole CLI, which serves MCP over stdio when
 # run with no arguments (`docker run IMAGE tracker issues get KEY` runs that command instead).
-# Stage one installs the project (with the `mcp` extra) and its locked dependencies into a virtual
+# Stage one installs the project (with the `mcp` and `service-account` extras) and its locked dependencies into a virtual
 # environment; stage two copies only that environment onto a plain Python runtime. Both stages use
 # the same Python so the venv's interpreter link holds.
 
@@ -15,7 +15,7 @@ COPY pyproject.toml uv.lock README.md LICENSE CHANGELOG.md ./
 COPY src ./src
 # guide.md in the package links to the plugin's skills.
 COPY plugins ./plugins
-RUN uv sync --frozen --no-dev --extra mcp --no-editable --no-cache
+RUN uv sync --frozen --no-dev --extra mcp --extra service-account --no-editable --no-cache
 
 FROM python:3.12-slim-trixie
 LABEL org.opencontainers.image.title="ycli" \

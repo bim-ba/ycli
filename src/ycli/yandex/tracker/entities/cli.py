@@ -12,7 +12,8 @@ import typer
 
 from ycli.cli.fields import parse_fields
 from ycli.cli.output import BinaryResult
-from ycli.cli.typedefs import values_argument, values_option
+from ycli.cli.typedefs import AllOption, LimitOption, values_argument, values_option
+from ycli.settings import AppConfig
 from ycli.yandex.models import Ack, ItemList
 from ycli.yandex.tracker.client import TrackerClient
 from ycli.yandex.tracker.entities.models import (
@@ -245,7 +246,8 @@ def search(
 def events_list(
     entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
-    limit: Annotated[int | None, typer.Option(help="Max events (default: all).")] = None,
+    limit: LimitOption = None,
+    all_: AllOption = False,
     selected: Annotated[str | None, typer.Option(help="Event id to build the list around.")] = None,
     new_events_on_top: Annotated[
         bool | None,
@@ -255,13 +257,14 @@ def events_list(
         str | None, typer.Option(help="forward (the default) or backward.")
     ] = None,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[EntityEvent]:
     """Print an entity's event history (GET …/events/_relative, auto-paginated)."""
     return tracker.entities.events_list(
         entity_type,
         entity_id,
-        limit=limit,
+        limit=config.http.cap(limit, all_=all_),
         selected=selected,
         new_events_on_top=new_events_on_top,
         direction=direction,
@@ -398,18 +401,16 @@ EntityCommentIDArg = Annotated[str, typer.Argument(metavar="COMMENT_ID", help="C
 def comments_list(
     entity_type: EntityTypeArg,
     entity_id: EntityIDArg,
-    all_: Annotated[
-        bool, typer.Option("--all", help="Drain the paginated (_relative) listing.")
-    ] = False,
-    limit: Annotated[
-        int | None, typer.Option(help="Max comments when --all (default: all).")
-    ] = None,
+    limit: LimitOption = None,
+    all_: AllOption = False,
     *,
+    config: AppConfig,
     tracker: TrackerClient,
 ) -> ItemList[Comment]:
-    """List comments on an entity (GET …/comments; --all uses …/comments/_relative)."""
-    if all_:
-        return tracker.entities.comments_list_relative(entity_type, entity_id, limit=limit)
+    """List comments on an entity (GET …/comments; --limit or --all pages …/comments/_relative)."""
+    if all_ or limit is not None:
+        cap = config.http.cap(limit, all_=all_)
+        return tracker.entities.comments_list_relative(entity_type, entity_id, limit=cap)
     return tracker.entities.comments_list(entity_type, entity_id)
 
 
