@@ -3,6 +3,7 @@
 import json
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.wiki.grids.models import (
     CellsUpdate,
     ColumnsAdd,
@@ -241,7 +242,7 @@ CASES = [
                 _revision("13"),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "wiki.grids.update",
@@ -254,7 +255,7 @@ CASES = [
                 _revision("5"),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "wiki.grids.delete",
@@ -590,7 +591,7 @@ CASES = [
                 ),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "wiki.grids.clone",
@@ -652,7 +653,7 @@ CASES = [
         args=(G2, ColumnSuggest.model_validate({"title": "Due date"})),
         cli=["wiki", "grids", "columns", "suggest", G2, "--title", "Due date"],
         mcp=("wiki_grids_columns_suggest", {"grid_id": G2, "body": {"title": "Due date"}}),
-        effect="read",
+        effect=Effect.READ,
         exchanges=[
             (
                 Sent("POST", f"grids/{G2}/columns/suggest", json={"title": "Due date"}),
@@ -665,7 +666,7 @@ CASES = [
         args=(G3, ColumnSuggest.model_validate({"slug": "stage"})),
         cli=["wiki", "grids", "columns", "suggest", G3, "--slug", "stage"],
         mcp=None,
-        effect="read",
+        effect=Effect.READ,
         exchanges=[
             (
                 Sent("POST", f"grids/{G3}/columns/suggest", json={"slug": "stage"}),
@@ -676,7 +677,7 @@ CASES = [
     # POST /grids/{id}/column/{slug} (undocumented; the path says "column", singular).
     Case(
         "wiki.grids.columns_update",
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         args=(G1, "stage", ColumnUpdate.model_validate(COLUMN_UPDATE)),
         cli=[
             "wiki",
@@ -737,7 +738,7 @@ CASES = [
     ),
     Case(
         "wiki.grids.columns_update",
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         args=(G2, "note", ColumnUpdate.model_validate({"title": "Remarks", "required": False})),
         cli=[
             "wiki",
@@ -770,7 +771,7 @@ CASES = [
     # The fields the CLI has no flag for: SDK and MCP only.
     Case(
         "wiki.grids.columns_update",
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         args=(G3, "assignee", ColumnUpdate.model_validate(COLUMN_UPDATE_EXTRA)),
         cli=None,
         mcp=(
@@ -800,7 +801,7 @@ CASES = [
     # POST /grids/{id}/rows/{row_id} (undocumented): pin or colour a row.
     Case(
         "wiki.grids.rows_update",
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         args=(
             G1,
             "103",
@@ -840,7 +841,7 @@ CASES = [
     ),
     Case(
         "wiki.grids.rows_update",
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
         args=(G2, "207", RowUpdate.model_validate({"pinned": False})),
         cli=["wiki", "grids", "rows", "update", G2, "207", "--no-pinned"],
         mcp=None,

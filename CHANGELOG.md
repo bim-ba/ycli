@@ -9,6 +9,39 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.75.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.74.0
+  ([`87033ee`](https://github.com/bim-ba/ycli/commit/87033ee0c5f87be4f5d810b1730b87ce1338c8ac))
+
+### Refactoring
+
+- The HTTP method is http.HTTPMethod and the effect is an enum
+  ([#312](https://github.com/bim-ba/ycli/pull/312),
+  [`23c8717`](https://github.com/bim-ba/ycli/commit/23c8717b8792e1e2713898acd8dd2e53a2ff42c3))
+
+### Testing
+
+- A status error built by hand says why above the raise
+  ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`ddf89e2`](https://github.com/bim-ba/ycli/commit/ddf89e299e1e58c62590b4f50e5c4b5b197c0de1))
+
+- The tests of the CLI live in tests/unit/cli ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`87c7573`](https://github.com/bim-ba/ycli/commit/87c75735fac818d59979e55f62520f90354628dc))
+
+- The tests of the MCP server live in tests/unit/mcp
+  ([#323](https://github.com/bim-ba/ycli/pull/323),
+  [`20716aa`](https://github.com/bim-ba/ycli/commit/20716aada88826287bf8c69d641538b42135b4df))
+
+### Breaking Changes
+
+- The type aliases `ycli.yandex.core.endpoint.Method` and the `Literal` `Effect` are gone.
+  `Endpoint.method` is typed `http.HTTPMethod` and `Endpoint.effect` is an `Effect` member; code
+  that builds an `Endpoint` with a string still runs, and a type checker now reports it.
+
+
 ## v0.74.0 (2026-10-05)
 
 ### Build System

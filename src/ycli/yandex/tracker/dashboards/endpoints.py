@@ -7,6 +7,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.tracker.dashboards.models import (
     CycleTimeWidget,
@@ -17,9 +19,9 @@ from ycli.yandex.tracker.dashboards.models import (
 
 
 def create(body: DashboardCreate) -> Endpoint[Dashboard]:
-    return Endpoint("POST", "dashboards/", Dashboard, json=body)
+    return Endpoint(HTTPMethod.POST, "dashboards/", Dashboard, json=body)
 
 
 def widgets_create_cycle_time(dashboard_id: str, body: CycleTimeWidget) -> Endpoint[Widget]:
     path = f"dashboards/{segment(dashboard_id)}/widgets/cycleTime"
-    return Endpoint("POST", path, Widget, json=body)
+    return Endpoint(HTTPMethod.POST, path, Widget, json=body)

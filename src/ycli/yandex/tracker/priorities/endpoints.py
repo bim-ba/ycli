@@ -7,17 +7,21 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.priorities.models import Priority, PriorityCreate, PriorityUpdate
 
 
 def list_(*, localized: bool | None) -> Endpoint[ItemList[Priority]]:
-    return Endpoint("GET", "priorities", ItemList[Priority], params={"localized": localized})
+    return Endpoint(
+        HTTPMethod.GET, "priorities", ItemList[Priority], params={"localized": localized}
+    )
 
 
 def create(body: PriorityCreate) -> Endpoint[Priority]:
-    return Endpoint("POST", "priorities/", Priority, json=body)
+    return Endpoint(HTTPMethod.POST, "priorities/", Priority, json=body)
 
 
 def update(
@@ -25,7 +29,7 @@ def update(
 ) -> Endpoint[Priority]:
     """``PATCH /priorities/{id}?version=`` — ``version`` is the optimistic lock, sent when set."""
     return Endpoint(
-        "PATCH",
+        HTTPMethod.PATCH,
         f"priorities/{segment(priority_id)}",
         Priority,
         json=body,

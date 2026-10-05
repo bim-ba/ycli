@@ -4,10 +4,12 @@ Examples:
     >>> get("686d").path
     'surveys/686d'
     >>> publish("686d").effect
-    'write'
+    <Effect.WRITE: 'write'>
 """
 
 from __future__ import annotations
+
+from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import OffsetLimitPagination
@@ -37,31 +39,31 @@ def list_(
         "orderby": orderby,
     }
     return Paged(
-        Endpoint("GET", "surveys", SurveysResponse, params=params),
+        Endpoint(HTTPMethod.GET, "surveys", SurveysResponse, params=params),
         OffsetLimitPagination(page_size=PAGE_SIZE),
         lambda page: page.result,
     )
 
 
 def get(survey_id: str) -> Endpoint[Survey]:
-    return Endpoint("GET", f"surveys/{segment(survey_id)}", Survey)
+    return Endpoint(HTTPMethod.GET, f"surveys/{segment(survey_id)}", Survey)
 
 
 def create(body: SurveyCreate) -> Endpoint[Survey]:
-    return Endpoint("POST", "surveys", Survey, json=body)
+    return Endpoint(HTTPMethod.POST, "surveys", Survey, json=body)
 
 
 def update(survey_id: str, body: SurveyUpdate) -> Endpoint[Survey]:
-    return Endpoint("PATCH", f"surveys/{segment(survey_id)}", Survey, json=body)
+    return Endpoint(HTTPMethod.PATCH, f"surveys/{segment(survey_id)}", Survey, json=body)
 
 
 def delete(survey_id: str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"surveys/{segment(survey_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"surveys/{segment(survey_id)}")
 
 
 def publish(survey_id: str) -> Endpoint[None]:
-    return Endpoint("POST", f"surveys/{segment(survey_id)}/publish")
+    return Endpoint(HTTPMethod.POST, f"surveys/{segment(survey_id)}/publish")
 
 
 def unpublish(survey_id: str) -> Endpoint[None]:
-    return Endpoint("POST", f"surveys/{segment(survey_id)}/unpublish")
+    return Endpoint(HTTPMethod.POST, f"surveys/{segment(survey_id)}/unpublish")

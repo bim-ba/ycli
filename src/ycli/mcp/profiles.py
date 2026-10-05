@@ -12,8 +12,8 @@ the workspace.
 | Wiki | page get / create / update / append, subtree, search, comments | grids, access, deletes |
 | Forms | survey, question and answer reads | editing, publishing, deletes |
 
-A name here must exist in the full server; ``tests/test_mcp_selection.py`` keeps that true and
-keeps the count between 30 and 50.
+A name here must exist in the full server; ``tests/unit/mcp/test_mcp_selection.py`` keeps that
+true and keeps the count between 30 and 50.
 
 Examples:
     >>> "tracker_issues_get" in CORE_TOOLS and "tracker_queues_delete" not in CORE_TOOLS

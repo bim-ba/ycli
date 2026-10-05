@@ -10,17 +10,19 @@ Nothing here does I/O: :meth:`Endpoint.request` builds a native ``httpx2.Request
 client (so its base URL and default headers apply) and :meth:`Endpoint.parse` reads a response.
 
 Examples:
-    >>> Endpoint("GET", "issues/TEST-1").effect
-    'read'
-    >>> Endpoint("POST", "issues/_search", effect="read").idempotent
+    >>> Endpoint(HTTPMethod.GET, "issues/TEST-1").effect
+    <Effect.READ: 'read'>
+    >>> Endpoint(HTTPMethod.POST, "issues/_search", effect=Effect.READ).idempotent
     True
 """
 
 from __future__ import annotations
 
+import enum
 from dataclasses import KW_ONLY, dataclass, field
 from functools import cache
-from typing import TYPE_CHECKING, Any, Literal, cast
+from http import HTTPMethod
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import quote, unquote
 
 from pydantic import TypeAdapter, ValidationError
@@ -36,20 +38,27 @@ if TYPE_CHECKING:
 
     from ycli.yandex.core.pagination import Pagination
 
-type Effect = Literal["read", "write", "idempotent_write", "destructive"]
-type Method = Literal["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "DELETE", "POST"]
+
+class Effect(enum.StrEnum):
+    """What a call does to the server; the retry policy and the MCP hints read it."""
+
+    READ = "read"
+    WRITE = "write"
+    IDEMPOTENT_WRITE = "idempotent_write"
+    DESTRUCTIVE = "destructive"
+
 
 # A request carries the endpoint it was built from, and every page of a listing the listing.
 ENDPOINT_EXTENSION = "ycli.endpoint"
 PAGED_EXTENSION = "ycli.paged"
-_EFFECT_BY_METHOD: dict[Method, Effect] = {
-    "GET": "read",
-    "HEAD": "read",
-    "OPTIONS": "read",
-    "PUT": "idempotent_write",
-    "PATCH": "idempotent_write",
-    "DELETE": "destructive",
-    "POST": "write",
+_EFFECT_BY_METHOD: dict[HTTPMethod, Effect] = {
+    HTTPMethod.GET: Effect.READ,
+    HTTPMethod.HEAD: Effect.READ,
+    HTTPMethod.OPTIONS: Effect.READ,
+    HTTPMethod.PUT: Effect.IDEMPOTENT_WRITE,
+    HTTPMethod.PATCH: Effect.IDEMPOTENT_WRITE,
+    HTTPMethod.DELETE: Effect.DESTRUCTIVE,
+    HTTPMethod.POST: Effect.WRITE,
 }
 
 
@@ -128,7 +137,7 @@ class Endpoint[T]:
     construction.
     """
 
-    method: Method
+    method: HTTPMethod
     path: str
     response_type: type[T] | None = None
     _: KW_ONLY
@@ -153,7 +162,7 @@ class Endpoint[T]:
     @property
     def idempotent(self) -> bool:
         """Safe to send twice — the retry policy re-sends only these after a 5xx or lost link."""
-        return self.effect in {"read", "idempotent_write"}
+        return self.effect in {Effect.READ, Effect.IDEMPOTENT_WRITE}
 
     @property
     def body(self) -> Any:
@@ -167,7 +176,7 @@ class Endpoint[T]:
             >>> class Rename(RequestBody):
             ...     name: str
             ...     note: str | None = None
-            >>> Endpoint("PATCH", "boards/7", json=Rename(name="Sprint")).body
+            >>> Endpoint(HTTPMethod.PATCH, "boards/7", json=Rename(name="Sprint")).body
             {'name': 'Sprint'}
         """
         return to_jsonable_python(self.json, context=WIRE)

@@ -15,11 +15,12 @@ class Resource:
         session: The session the resource's endpoints are sent through.
 
     Examples:
+        >>> from http import HTTPMethod
         >>> from ycli.yandex.core.endpoint import Endpoint
         >>> from ycli.yandex.tracker.me.models import Me
         >>> class MeClient(Resource):
         ...     def get(self) -> Me:
-        ...         return self._session.send(Endpoint("GET", "myself", Me))
+        ...         return self._session.send(Endpoint(HTTPMethod.GET, "myself", Me))
         >>> MeClient(session=tracker.me._session).get().login
         'alice'
     """

@@ -10,6 +10,7 @@ from ycli.cli import guard
 from ycli.cli.app import app
 from ycli.cli.exit_codes import ExitCode
 from ycli.cli.guard import SendGuard
+from ycli.yandex.core.endpoint import Effect
 
 runner = CliRunner()
 DELETE_BOARD = ["tracker", "boards", "delete", "7"]
@@ -36,7 +37,7 @@ def _attended(monkeypatch, value: bool) -> None:
     monkeypatch.setattr(guard, "attended", lambda: value)
 
 
-@pytest.mark.parametrize("effect", ["read", "write", "idempotent_write"])
+@pytest.mark.parametrize("effect", [Effect.READ, Effect.WRITE, Effect.IDEMPOTENT_WRITE])
 def test_only_a_destructive_effect_asks(asked, monkeypatch, effect):
     _attended(monkeypatch, True)
     SendGuard({})(effect, REQUEST)
@@ -45,7 +46,7 @@ def test_only_a_destructive_effect_asks(asked, monkeypatch, effect):
 
 def test_a_destructive_effect_asks_on_a_terminal_and_masks_secrets(asked, monkeypatch):
     _attended(monkeypatch, True)
-    SendGuard({})("destructive", REQUEST)
+    SendGuard({})(Effect.DESTRUCTIVE, REQUEST)
     assert asked == [
         "DELETE https://api.test/v1/items/7?token=%2A%2A%2A — this deletes data. Continue?"
     ]
@@ -54,14 +55,14 @@ def test_a_destructive_effect_asks_on_a_terminal_and_masks_secrets(asked, monkey
 
 def test_yes_skips_the_question(asked, monkeypatch):
     _attended(monkeypatch, True)
-    SendGuard({"yes": True})("destructive", REQUEST)
+    SendGuard({"yes": True})(Effect.DESTRUCTIVE, REQUEST)
     assert asked == []
 
 
 def test_without_a_terminal_it_is_a_usage_error_that_says_to_pass_yes(asked, monkeypatch, capsys):
     _attended(monkeypatch, False)
     with pytest.raises(typer.Exit) as stopped:
-        SendGuard({})("destructive", REQUEST)
+        SendGuard({})(Effect.DESTRUCTIVE, REQUEST)
     assert stopped.value.exit_code == ExitCode.USAGE
     assert "Pass --yes" in capsys.readouterr().err
     assert asked == []
@@ -75,7 +76,7 @@ def test_a_declined_prompt_aborts(monkeypatch):
 
     monkeypatch.setattr(guard.typer, "confirm", decline)
     with pytest.raises(typer.Abort):
-        SendGuard({})("destructive", REQUEST)
+        SendGuard({})(Effect.DESTRUCTIVE, REQUEST)
 
 
 def test_attended_needs_a_terminal_on_stdin_and_stdout(monkeypatch):

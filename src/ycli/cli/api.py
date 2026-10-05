@@ -28,10 +28,10 @@ from ycli.yandex.registry import SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+    from http import HTTPMethod
 
     import httpx2
 
-    from ycli.yandex.core.endpoint import Method
     from ycli.yandex.service import Service
 
 # Help text lives with the root sub-app list (ycli.cli.app).
@@ -169,7 +169,7 @@ def _endpoint(
         headers["Content-Type"] = "application/json"
     try:
         return Endpoint(
-            cast("Method", verb),
+            cast("HTTPMethod", verb),
             path_only,
             params=params,
             json=None if in_query else fields or None,

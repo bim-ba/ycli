@@ -4,6 +4,7 @@ import base64
 from pathlib import Path
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.wiki.uploadsessions.models import UploadSessionCreate
 
 PART = Path(__file__).with_name("part3.bin")
@@ -106,7 +107,7 @@ CASES = [
         cli=["wiki", "uploadsessions", "abort", SID],
         mcp=("wiki_uploadsessions_abort", {"session_id": SID}),
         exchanges=[(Sent("POST", f"upload_sessions/{SID}/abort"), Reply(json=_session("aborted")))],
-        effect="destructive",
+        effect=Effect.DESTRUCTIVE,
     ),
     Case(
         "wiki.uploadsessions.abort_all",
@@ -115,6 +116,6 @@ CASES = [
         exchanges=[
             (Sent("POST", "upload_sessions/abort_active_uploads"), Reply(json={"status": "ok"}))
         ],
-        effect="destructive",
+        effect=Effect.DESTRUCTIVE,
     ),
 ]

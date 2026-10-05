@@ -1,6 +1,7 @@
 """Contract cases for Wiki ``/search``, sent by ``pages.search`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.wiki.pages.models import SearchRequest
 
 HIT = {
@@ -75,7 +76,7 @@ SEARCH_CASES = [
                 "cursor": 3,
             },
         ),
-        effect="read",
+        effect=Effect.READ,
         exchanges=[
             (
                 Sent("POST", "search", json=FULL_BODY),
@@ -94,7 +95,7 @@ SEARCH_CASES = [
         ),
         cli=["wiki", "pages", "search", "budget"],
         mcp=None,
-        effect="read",
+        effect=Effect.READ,
         exchanges=[
             (
                 Sent(
@@ -119,7 +120,7 @@ SEARCH_CASES = [
         ),
         cli=None,
         mcp=("wiki_pages_search", {"text": "onboarding"}),
-        effect="read",
+        effect=Effect.READ,
         exchanges=[
             (
                 Sent(

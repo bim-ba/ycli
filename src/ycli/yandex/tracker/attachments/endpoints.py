@@ -9,32 +9,40 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.attachments.models import Attachment
 
 
 def list_(issue_key: str) -> Endpoint[ItemList[Attachment]]:
-    return Endpoint("GET", f"issues/{segment(issue_key)}/attachments", ItemList[Attachment])
+    return Endpoint(
+        HTTPMethod.GET, f"issues/{segment(issue_key)}/attachments", ItemList[Attachment]
+    )
 
 
 def download(issue_key: str, file_id: str, filename: str) -> Endpoint[bytes]:
     path = f"issues/{segment(issue_key)}/attachments/{segment(file_id)}/{segment(filename)}"
-    return Endpoint("GET", path, bytes)
+    return Endpoint(HTTPMethod.GET, path, bytes)
 
 
 def thumbnails_download(issue_key: str, file_id: str) -> Endpoint[bytes]:
-    return Endpoint("GET", f"issues/{segment(issue_key)}/thumbnails/{segment(file_id)}", bytes)
+    return Endpoint(
+        HTTPMethod.GET, f"issues/{segment(issue_key)}/thumbnails/{segment(file_id)}", bytes
+    )
 
 
 def get(issue_key: str, file_id: str) -> Endpoint[Attachment]:
     """``GET …/attachments/{file_id}`` → the metadata; the bytes come from the ``/{name}`` path."""
     path = f"issues/{segment(issue_key)}/attachments/{segment(file_id)}"
-    return Endpoint("GET", path, Attachment)
+    return Endpoint(HTTPMethod.GET, path, Attachment)
 
 
 def delete(issue_key: str, file_id: str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"issues/{segment(issue_key)}/attachments/{segment(file_id)}")
+    return Endpoint(
+        HTTPMethod.DELETE, f"issues/{segment(issue_key)}/attachments/{segment(file_id)}"
+    )
 
 
 def upload(
@@ -42,7 +50,7 @@ def upload(
 ) -> Endpoint[Attachment]:
     """Multipart field ``file``; the query ``filename`` renames the stored file when set."""
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         f"issues/{segment(issue_key)}/attachments",
         Attachment,
         params={"filename": rename_to},
@@ -53,7 +61,7 @@ def upload(
 def upload_temp(*, filename: str, data: bytes, rename_to: str | None) -> Endpoint[Attachment]:
     """``POST /attachments``: the returned id attaches to one issue or comment, once."""
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         "attachments",
         Attachment,
         params={"filename": rename_to},
@@ -66,7 +74,7 @@ def import_(
 ) -> Endpoint[Attachment]:
     """Multipart upload; the API docs name no part, so it keeps the name ycli always sent."""
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         f"issues/{segment(issue_key)}/attachments/_import",
         Attachment,
         params={"filename": filename, "createdAt": created_at, "createdBy": created_by},
@@ -79,7 +87,7 @@ def import_for_comment(
 ) -> Endpoint[Attachment]:
     """Multipart upload onto a comment; the part name is the one :func:`import_` sends."""
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         f"issues/{segment(issue_key)}/comments/{segment(comment_id)}/attachments/_import",
         Attachment,
         params={"filename": filename, "createdAt": created_at, "createdBy": created_by},

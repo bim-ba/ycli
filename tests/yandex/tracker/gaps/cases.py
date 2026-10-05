@@ -1,6 +1,7 @@
 """Contract cases for Tracker ``/gaps`` (employee absences; see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.tracker.gaps.models import GapInput, GapsCreate
 
 USER = {
@@ -227,7 +228,7 @@ CASES = [
                 ),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     # Without a window only the users go out; --limit caps the users returned.
     Case(
@@ -255,7 +256,7 @@ CASES = [
                 ),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
         output=[
             {
                 "user": {
@@ -293,7 +294,7 @@ CASES = [
                 ),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.gaps.delete",
