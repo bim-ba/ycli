@@ -6,7 +6,7 @@ each rule's wording, check and exceptions, so read it rather than this summary. 
 invariant, state **PASS/FAIL** with `file:line` evidence:
 
 - **ARCH-1 — Surface parity.** Every new SDK operation is wrapped on both the CLI and MCP, or
-  added to `ARCH1_SURFACE_ASYMMETRIES` with a reason. The name of every new or renamed
+  its client method carries `# violation(arch-1): <reason>`. The name of every new or renamed
   operation follows "Naming an operation" in `docs/conventions/resources.md`: read that
   section and compare each name with it (the tests check only the mechanical part).
 - **ARCH-2 — Layers.** The core imports no service or surface; no HTTP library in

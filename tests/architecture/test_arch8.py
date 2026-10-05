@@ -11,7 +11,7 @@ from tests.architecture.scanners import SRC, YANDEX, _dotted, _import_aliases
 # ARCH-8 typed body (docs/conventions/resources.md §4 "Typed request body — never `dict`"): a
 # `body` parameter is the resource's request model, never a bare `dict`/`dict[...]`, in every
 # layer that hands it on: the MCP tool, the client method and the endpoint builder. Fail-closed;
-# an exception would be listed here (id -> reason), as in `ARCH1_SURFACE_ASYMMETRIES`.
+# an exception would be listed here (id -> reason).
 # `Annotated[Base64Bytes, …]` (binary uploads) is an `ast.Subscript` whose `.value` is
 # `ast.Name(id="Annotated")`, never `dict`, so it never matches this check.
 ARCH8_BODY_DICT_ALLOWLIST: dict[str, str] = {}

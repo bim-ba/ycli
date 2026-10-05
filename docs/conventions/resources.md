@@ -375,10 +375,9 @@ The name is `[parts_]verb[_qualifier]`.
 A Python keyword or builtin cannot name a function: the method is `issues.import_`, and the
 functions in `endpoints.py`, `cli.py` and `mcp.py` are `import_` and `list_`.
 
-Two tools have no command of their own name, because one command serves both
-(`ARCH1_NAME_EXCEPTIONS`: `wiki_pages_get_meta` beside `wiki pages get --fields`,
-`tracker_entities_comments_list_relative` beside `tracker entities comments list --relative`),
-and two tools share one operation: `tracker_issues_list` and `tracker_issues_search` both call
+One tool has no command of its own name, because one command serves two tools
+(`tracker_entities_comments_list_relative` beside `tracker entities comments list --relative`,
+marked `# violation(arch-1)` above the tool), and two tools share one operation: `tracker_issues_list` and `tracker_issues_search` both call
 `issues.search`.
 
 **Who holds this.** The tests hold what a machine reads without judgment: one name on every

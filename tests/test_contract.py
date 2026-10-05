@@ -20,7 +20,7 @@ from fastmcp.exceptions import McpError, ToolError
 from pydantic import BaseModel
 from typer.testing import CliRunner
 
-from tests.architecture.test_arch1 import ARCH1_SURFACE_ASYMMETRIES
+from tests.architecture.test_arch1 import surface_asymmetries
 from tests.contract import (
     UNSTATED,
     Case,
@@ -247,7 +247,7 @@ def coverage_gaps(
 ) -> dict[str, list[str]]:
     """What the ``cases`` leave uncovered, or name without it existing (empty lists: nothing)."""
     named = {case.operation for case in cases}
-    exempt = set(ARCH1_SURFACE_ASYMMETRIES)
+    exempt = surface_asymmetries()
     return {
         "operations without a case": sorted(operations - named),
         "operations no CLI case reaches": sorted(

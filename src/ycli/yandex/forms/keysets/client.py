@@ -109,6 +109,7 @@ class KeysetsClient(Resource):
         """
         self._session.send(endpoints.delete(survey_id, keyset_id))
 
+    # violation(arch-1): CLI-only, bytes do not round-trip an MCP tool result
     def download(self, survey_id: str, keyset_id: int) -> bytes:
         """``GET /surveys/{id}/keysets/{keyset_id}/download`` → the key set's raw bytes.
 

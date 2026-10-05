@@ -275,6 +275,8 @@ def bulk_get(
     return client.entities.bulk_get(bulk_id)
 
 
+# violation(arch-1): one CLI command, `tracker entities comments list --relative`, where MCP serves
+# the relative-id page walk as its own tool
 @mcp.tool(
     name="entities_comments_list_relative",
     annotations={**RO, "title": "List Tracker entity comments (relative)"},
