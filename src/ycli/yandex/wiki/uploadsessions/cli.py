@@ -4,8 +4,6 @@
 ``wiki attachments attach`` / ``wiki attachments upload``. ``abort`` / ``abort-all`` cancel.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated
 

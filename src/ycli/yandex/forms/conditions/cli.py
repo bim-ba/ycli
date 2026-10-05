@@ -3,8 +3,6 @@
 The conditions belong to a question, a page, the submit button or an integration group (hook).
 """
 
-from __future__ import annotations
-
 import json
 from pathlib import Path
 from typing import Annotated

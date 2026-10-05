@@ -4,8 +4,6 @@ Inherit ``APIModel`` (lenient parse, ignore extras) like every other Yandex mode
 these are plain data with no serialization logic (that lives in ``output.py``).
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel

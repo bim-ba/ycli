@@ -1,7 +1,5 @@
 """`forms hooks` commands: a form's integration groups (reads + writes)."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

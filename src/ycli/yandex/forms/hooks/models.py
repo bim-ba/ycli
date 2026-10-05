@@ -4,8 +4,6 @@ A hook groups integrations (``subscriptions``) that share trigger conditions: on
 a hook whose conditions match runs each of its active integrations.
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.forms.models import ConditionsResponse

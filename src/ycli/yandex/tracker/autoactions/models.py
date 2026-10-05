@@ -8,8 +8,6 @@ The two log endpoints return different shapes: ``/logs`` lists run summaries
 (:class:`AutoactionRunEntry`).
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

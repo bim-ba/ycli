@@ -1,7 +1,5 @@
 """Pydantic models for Tracker issue types (IssueType + ItemList[IssueType] + write bodies)."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

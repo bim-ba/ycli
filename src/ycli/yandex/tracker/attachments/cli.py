@@ -1,7 +1,5 @@
 """`tracker attachments` commands (reads render; the downloads write raw bytes)."""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated
 

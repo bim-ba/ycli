@@ -7,8 +7,6 @@ types. One class per type serves both directions: ``id`` and the attachment meta
 from the server, and :meth:`SubscriptionsClient.create` / ``modify`` never send ``id``.
 """
 
-from __future__ import annotations
-
 from typing import Annotated, Any, Literal
 
 from pydantic import Field, TypeAdapter

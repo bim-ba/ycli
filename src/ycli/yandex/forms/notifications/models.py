@@ -4,8 +4,6 @@ A notification is one run of one integration for one answer. It is ``pending`` u
 integration finishes, then ``success``, ``error`` or ``canceled``.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field

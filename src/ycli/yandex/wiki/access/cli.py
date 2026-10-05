@@ -1,7 +1,5 @@
 """`wiki access` commands — who may read and edit a page."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

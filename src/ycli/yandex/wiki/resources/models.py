@@ -1,7 +1,5 @@
 """Pydantic v2 models for Yandex Wiki /pages/{id}/resources responses."""
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field

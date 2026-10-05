@@ -5,8 +5,6 @@ e-mail, a quiz score, …) with the renderers and arguments each accepts, not th
 configured on a subscription (those are ``SubscriptionVariable``).
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

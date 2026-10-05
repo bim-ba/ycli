@@ -1,7 +1,5 @@
 """Pydantic models for Tracker issue transitions (Transition + ItemList[Transition])."""
 
-from __future__ import annotations
-
 from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel

@@ -1,7 +1,5 @@
 """Pydantic v2 models for Yandex Wiki /recovery_tokens responses."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.wiki.models import PageIdentity

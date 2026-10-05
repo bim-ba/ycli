@@ -1,7 +1,5 @@
 """Pydantic models for Tracker issue comments (Comment + ItemList[Comment])."""
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import Field

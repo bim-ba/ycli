@@ -1,7 +1,5 @@
 """`wiki pages` commands — argument-based; dumps full pydantic models as JSON."""
 
-from __future__ import annotations
-
 from datetime import datetime
 from typing import Annotated
 

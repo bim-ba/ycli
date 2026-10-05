@@ -5,8 +5,6 @@ Examples:
     'dashboards/10/widgets/cycleTime'
 """
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Endpoint, segment

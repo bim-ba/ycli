@@ -1,7 +1,5 @@
 """`forms variables` command: the variable types a form's integrations can reference."""
 
-from __future__ import annotations
-
 import typer
 
 from ycli.yandex.forms.client import FormsClient

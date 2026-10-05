@@ -1,7 +1,5 @@
 """Tracker issue ``/changelog`` client on the httpx2 core."""
 
-from __future__ import annotations
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.changelog import endpoints

@@ -12,8 +12,6 @@ Three families:
   ``layer`` shapes, so extra keys are preserved).
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import ConfigDict, Field

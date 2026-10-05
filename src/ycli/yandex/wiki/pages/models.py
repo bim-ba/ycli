@@ -1,7 +1,5 @@
 """Pydantic v2 models for Yandex Wiki /pages responses."""
 
-from __future__ import annotations
-
 from datetime import datetime  # pydantic reads the field type at runtime
 from typing import Literal
 

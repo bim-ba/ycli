@@ -6,8 +6,6 @@ revision read off ``grids get``, which the edit is based on) except ``create``. 
 asynchronous: ``--wait`` (default) polls the ``operations`` resource to a terminal state.
 """
 
-from __future__ import annotations
-
 import json
 from typing import Annotated
 

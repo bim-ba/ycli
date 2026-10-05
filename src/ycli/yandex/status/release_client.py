@@ -4,8 +4,6 @@ The one request ycli sends to a host that is not Yandex's. It carries no credent
 session is built with an auth that adds nothing, and PyPI's JSON API needs none.
 """
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 import httpx2

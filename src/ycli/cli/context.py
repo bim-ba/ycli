@@ -4,8 +4,6 @@ Stored on ``ctx.obj`` by the root callback. Everything is lazy, so ``--help`` an
 make no API call never need credentials.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import Any, cast
 

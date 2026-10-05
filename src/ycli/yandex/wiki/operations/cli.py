@@ -1,7 +1,5 @@
 """`wiki operations` commands — read the status of an async page/grid clone."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

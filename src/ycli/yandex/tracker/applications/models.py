@@ -1,7 +1,5 @@
 """Pydantic models for Tracker external applications (Application + ItemList[Application])."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel

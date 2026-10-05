@@ -1,7 +1,5 @@
 """`forms access` commands: who may edit and who may fill a form."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

@@ -1,7 +1,5 @@
 """Yandex Forms CLI — mounts the per-resource sub-apps."""
 
-from __future__ import annotations
-
 import typer
 
 from ycli.yandex.forms import SERVICE

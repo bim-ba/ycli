@@ -1,7 +1,5 @@
 """`tracker issues` commands — argument-based; dumps full pydantic models as JSON."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

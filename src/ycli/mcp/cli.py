@@ -1,7 +1,5 @@
 """``ycli mcp`` sub-app: run the server and list its tools. Importable without the mcp extra."""
 
-from __future__ import annotations
-
 import enum
 from typing import Annotated
 

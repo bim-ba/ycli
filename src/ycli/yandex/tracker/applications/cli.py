@@ -1,7 +1,5 @@
 """`tracker applications` commands."""
 
-from __future__ import annotations
-
 import typer
 
 from ycli.yandex.models import ItemList

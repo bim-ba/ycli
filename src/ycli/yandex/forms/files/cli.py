@@ -4,8 +4,6 @@ upload / download move raw bytes (binary payloads), so they are CLI/SDK-only; ve
 also ship as MCP tools (``files_verify`` / ``files_delete``).
 """
 
-from __future__ import annotations
-
 import itertools
 from typing import Annotated
 

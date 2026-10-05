@@ -9,8 +9,6 @@ Examples:
     ('tracker', 'wiki')
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 
 from ycli.mcp.profiles import CORE_TOOLS, STATUS_TOOL

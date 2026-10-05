@@ -5,8 +5,6 @@ Every write in the pipeline (create / parts-upload / finish / abort) returns the
 The lone typed request body is :class:`UploadSessionCreate` (``file_name`` + ``file_size``).
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

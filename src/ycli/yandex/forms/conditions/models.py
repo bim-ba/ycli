@@ -8,8 +8,6 @@ groups and is data, not transport, so it stays public (:class:`ConditionsRespons
 capped at 100 characters.
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.forms.models import (

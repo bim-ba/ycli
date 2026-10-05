@@ -27,8 +27,6 @@ INIT = '"""Yandex {domain} /{resource} resource (endpoints · client · cli · m
 
 MODELS = '''"""Pydantic models for {domain} /{resource}."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel
@@ -47,8 +45,6 @@ and its client method a flat ``ItemList``; ``tracker/issues/`` is the worked exa
 A shape another resource of the service already reads is imported from the service's
 ``models.py``, not declared again.
 """
-
-from __future__ import annotations
 
 from http import HTTPMethod
 
@@ -93,8 +89,6 @@ class {cls}Client(Resource):
 '''
 
 CLI = '''"""{domain} /{resource} Typer commands — each returns its result; the root prints it."""
-
-from __future__ import annotations
 
 from typing import Annotated
 

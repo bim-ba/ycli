@@ -5,8 +5,6 @@ see the Forms "form-filling keys" API. ``keyset_id`` is an **integer** (unlike `
 which is a 24-char hex string).
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

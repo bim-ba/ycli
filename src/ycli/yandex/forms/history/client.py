@@ -1,7 +1,5 @@
 """Forms ``/surveys/{id}/history`` client on the httpx2 core (a form's change log)."""
 
-from __future__ import annotations
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.forms.history import endpoints
 from ycli.yandex.forms.history.models import HistoryEvent
