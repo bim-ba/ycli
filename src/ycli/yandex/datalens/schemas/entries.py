@@ -35,15 +35,21 @@ class GetEntriesRelationsArgs(RequestBody):
 
 
 class RenameEntryResultEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="ID of the renamed entry.")
-    key: str = Field(..., description="Updated key of the entry.")
-    scope: shared.EntryScope
-    type: str = Field(..., description="Type of the renamed entry.")
-    updated_at: str = Field(
-        ..., alias="updatedAt", description="Date and time when the entry was renamed."
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="ID of the renamed entry."
     )
-    updated_by: str = Field(
-        ..., alias="updatedBy", description="ID of the user who renamed the entry."
+    key: str | None = Field(default=None, description="Updated key of the entry.")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(default=None, description="Type of the renamed entry.")
+    updated_at: str | None = Field(
+        default=None,
+        alias="updatedAt",
+        description="Date and time when the entry was renamed.",
+    )
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="ID of the user who renamed the entry.",
     )
 
 
@@ -84,40 +90,48 @@ class GetRevisionsArgs(RequestBody):
 class GetEntriesRelationsEntryPermissions(APIModel):
     """Basic permissions for the entry."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class GetEntriesRelationsEntryFullPermissions(APIModel):
     """Full permissions for the entry."""
 
-    list_access_bindings: bool = Field(
-        ...,
+    list_access_bindings: bool | None = Field(
+        default=None,
         alias="listAccessBindings",
         description="Permission to list access bindings.",
     )
-    update_access_bindings: bool = Field(
-        ...,
+    update_access_bindings: bool | None = Field(
+        default=None,
         alias="updateAccessBindings",
         description="Permission to update access bindings.",
     )
-    limited_view: bool = Field(
-        ..., alias="limitedView", description="Permission for limited viewing."
+    limited_view: bool | None = Field(
+        default=None, alias="limitedView", description="Permission for limited viewing."
     )
-    view: bool = Field(..., description="Permission to view.")
-    update: bool = Field(..., description="Permission to update.")
-    copy_: bool = Field(..., alias="copy", description="Permission to copy.")
-    move: bool = Field(..., description="Permission to move.")
-    delete: bool = Field(..., description="Permission to delete.")
-    create_entry_binding: bool = Field(
-        ...,
+    view: bool | None = Field(default=None, description="Permission to view.")
+    update: bool | None = Field(default=None, description="Permission to update.")
+    copy_: bool | None = Field(default=None, alias="copy", description="Permission to copy.")
+    move: bool | None = Field(default=None, description="Permission to move.")
+    delete: bool | None = Field(default=None, description="Permission to delete.")
+    create_entry_binding: bool | None = Field(
+        default=None,
         alias="createEntryBinding",
         description="Permission to create entry binding.",
     )
-    create_limited_entry_binding: bool = Field(
-        ...,
+    create_limited_entry_binding: bool | None = Field(
+        default=None,
         alias="createLimitedEntryBinding",
         description="Permission to create limited entry binding.",
     )
@@ -126,10 +140,18 @@ class GetEntriesRelationsEntryFullPermissions(APIModel):
 class GetEntriesPermissionsResultValueVariant1Permissions(APIModel):
     """Permissions for the entry."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class GetEntriesPermissionsResultValueVariant2(APIModel):
@@ -137,41 +159,55 @@ class GetEntriesPermissionsResultValueVariant2(APIModel):
 
 
 class GetRevisionsResultEntriesItem(APIModel):
-    rev_id: str = Field(..., alias="revId", description="Unique identifier of the revision.")
-    updated_at: str = Field(
-        ...,
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Unique identifier of the revision."
+    )
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the revision was last updated.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the revision.",
     )
-    is_saved: bool = Field(
-        ..., alias="isSaved", description="Whether this is the latest saved revision."
+    is_saved: bool | None = Field(
+        default=None,
+        alias="isSaved",
+        description="Whether this is the latest saved revision.",
     )
-    is_published: bool = Field(
-        ..., alias="isPublished", description="Whether this is the published revision."
+    is_published: bool | None = Field(
+        default=None,
+        alias="isPublished",
+        description="Whether this is the published revision.",
     )
 
 
 class GetEntriesRelationsEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
-    scope: shared.EntryScope
-    type: str = Field(
-        ...,
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(
+        default=None,
         description="Specified type of the entry from scope (e.g. type of the connection or visualization type for charts).",
     )
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    public: bool = Field(..., description="Indicates if the entry is public.")
-    tenant_id: str | None = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    public: bool | None = Field(default=None, description="Indicates if the entry is public.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
+    )
     workbook_id: str | None = Field(
-        ..., alias="workbookId", description="ID of the workbook the entry belongs to."
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook the entry belongs to.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the entry belongs to.",
     )
@@ -185,7 +221,9 @@ class GetEntriesRelationsEntry(APIModel):
 
 
 class GetEntriesRelationsResult(APIModel):
-    relations: list[GetEntriesRelationsEntry] = Field(..., description="List of related entries.")
+    relations: list[GetEntriesRelationsEntry] | None = Field(
+        default=None, description="List of related entries."
+    )
     next_page_token: str | None = Field(
         default=None,
         alias="nextPageToken",
@@ -194,7 +232,7 @@ class GetEntriesRelationsResult(APIModel):
 
 
 class GetRevisionsResult(APIModel):
-    entries: list[GetRevisionsResultEntriesItem]
+    entries: list[GetRevisionsResultEntriesItem] | None = None
     next_page_token: str | None = Field(
         default=None,
         alias="nextPageToken",
@@ -203,7 +241,7 @@ class GetRevisionsResult(APIModel):
 
 
 class GetEntriesPermissionsResultValueVariant1(APIModel):
-    permissions: GetEntriesPermissionsResultValueVariant1Permissions
+    permissions: GetEntriesPermissionsResultValueVariant1Permissions | None = None
 
 
 class GetEntriesPermissionsResult(

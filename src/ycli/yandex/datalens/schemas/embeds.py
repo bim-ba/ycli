@@ -16,49 +16,59 @@ class EmbedSettings(APIModel):
 
 
 class Embed(APIModel):
-    embed_id: str = Field(..., alias="embedId", description="Unique identifier of the embedding.")
-    title: str = Field(..., description="Name of the embedding.")
-    embedding_secret_id: str = Field(
-        ...,
+    embed_id: str | None = Field(
+        default=None, alias="embedId", description="Unique identifier of the embedding."
+    )
+    title: str | None = Field(default=None, description="Name of the embedding.")
+    embedding_secret_id: str | None = Field(
+        default=None,
         alias="embeddingSecretId",
         description="ID of the key for embedding used for authentication.",
     )
-    entry_id: str = Field(
-        ..., alias="entryId", description="ID of the entry being privately embedded."
+    entry_id: str | None = Field(
+        default=None,
+        alias="entryId",
+        description="ID of the entry being privately embedded.",
     )
-    deps_ids: list[str] = Field(..., alias="depsIds", description="Array of dependency entry IDs.")
-    unsigned_params: list[str] = Field(
-        ...,
+    deps_ids: list[str] | None = Field(
+        default=None, alias="depsIds", description="Array of dependency entry IDs."
+    )
+    unsigned_params: list[str] | None = Field(
+        default=None,
         alias="unsignedParams",
         description="Array of unsigned parameters to be provided in the embedding link.",
     )
-    private_params: list[str] = Field(
-        ...,
+    private_params: list[str] | None = Field(
+        default=None,
         alias="privateParams",
         description="Array of signed parameters that are provided as part of the token.",
     )
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the embedding."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the embedding.",
     )
-    created_at: str = Field(
-        ..., alias="createdAt", description="Timestamp when the embedding was created."
+    created_at: str | None = Field(
+        default=None,
+        alias="createdAt",
+        description="Timestamp when the embedding was created.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Timestamp when the embedding was last updated.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who was the last to update the embedding.",
     )
-    public_params_mode: bool = Field(
-        ...,
+    public_params_mode: bool | None = Field(
+        default=None,
         alias="publicParamsMode",
         description="Whether default parameters mode is enabled.",
     )
-    settings: EmbedSettings
+    settings: EmbedSettings | None = None
 
 
 class CreateEmbedArgs(RequestBody):
@@ -97,7 +107,9 @@ class ListEmbedsArgs(RequestBody):
 
 
 class DeleteEmbedResult(APIModel):
-    embed_id: str = Field(..., alias="embedId", description="ID of the deleted embedding.")
+    embed_id: str | None = Field(
+        default=None, alias="embedId", description="ID of the deleted embedding."
+    )
 
 
 class DeleteEmbedArgs(RequestBody):

@@ -81,20 +81,22 @@ class CurrentTenantDetailsSettings(APIModel):
 
 
 class CurrentTenantDetails(APIModel):
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the current DataLens tenant.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the current DataLens tenant."
+    )
     org_id: str | None = Field(
-        ...,
+        default=None,
         alias="orgId",
         description="ID of the organization. Null when the tenant has no organization.",
     )
-    settings: CurrentTenantDetailsSettings
-    dlp_enabled: bool = Field(
-        ...,
+    settings: CurrentTenantDetailsSettings | None = None
+    dlp_enabled: bool | None = Field(
+        default=None,
         alias="dlpEnabled",
         description="Whether DataLens Platform mode is enabled for the tenant.",
     )
-    folders_enabled: bool = Field(
-        ...,
+    folders_enabled: bool | None = Field(
+        default=None,
         alias="foldersEnabled",
         description="Whether legacy folder navigation is enabled for the tenant.",
     )

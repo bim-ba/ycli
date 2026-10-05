@@ -42,15 +42,21 @@ class DeleteSqlQueryResponse(APIModel):
     pass
 
 
+class ParamModel(APIModel):
+    name: str | None = None
+
+
 class SqlQueryDataParamsItemVariant1DefaultValue(APIModel):
     """Default value of the parameter."""
 
-    from_: str = Field(..., alias="from", description="Start of the interval.")
-    to: str = Field(..., description="End of the interval.")
+    from_: str | None = Field(default=None, alias="from", description="Start of the interval.")
+    to: str | None = Field(default=None, description="End of the interval.")
 
 
 class SqlQueryDataParamsItemVariant2(APIModel):
-    type: Literal["date"] | Literal["datetime"] = Field(..., description="Type of the parameter.")
+    type: Literal["date"] | Literal["datetime"] | None = Field(
+        default=None, description="Type of the parameter."
+    )
     default_value: str | None = Field(
         default=None,
         alias="defaultValue",
@@ -59,8 +65,8 @@ class SqlQueryDataParamsItemVariant2(APIModel):
 
 
 class SqlQueryDataParamsItemVariant3(APIModel):
-    type: Literal["string"] | Literal["number"] | Literal["boolean"] = Field(
-        ..., description="Type of the parameter."
+    type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
+        default=None, description="Type of the parameter."
     )
     default_value: str | float | bool | None = Field(
         default=None,
@@ -78,10 +84,18 @@ class SqlQueryAnnotation(APIModel):
 class GetSqlQueryResultPermissions(APIModel):
     """Permissions for the SQL query."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class CreateSqlQueryArgsParamsItemVariant1DefaultValue(APIModel):
@@ -139,13 +153,13 @@ class UpdateSqlQueryArgsParamsItemVariant3(APIModel):
 
 
 class RunSqlQueryResultResultsItemVariant1ColumnsItem(APIModel):
-    name: str = Field(..., description="Name of the column.")
+    name: str | None = Field(default=None, description="Name of the column.")
 
 
 class RunSqlQueryResultResultsItemVariant2(APIModel):
     status: Literal["error"] = Field(..., description="Status of the statement.")
-    code: str = Field(..., description="Error code.")
-    message: str = Field(..., description="Error message.")
+    code: str | None = Field(default=None, description="Error code.")
+    message: str | None = Field(default=None, description="Error message.")
     database_message: str | None = Field(
         default=None,
         alias="databaseMessage",
@@ -158,19 +172,19 @@ class RunSqlQueryArgsParamsValueVariant5(APIModel):
     to: str = Field(..., description="End of the interval.")
 
 
-class ParamModel(CreateSqlQueryArgsParamsItemVariant2, Param):
+class ParamModel1(CreateSqlQueryArgsParamsItemVariant2, Param):
     pass
 
 
-class ParamModel1(CreateSqlQueryArgsParamsItemVariant3, Param):
+class ParamModel2(CreateSqlQueryArgsParamsItemVariant3, Param):
     pass
 
 
-class ParamModel2(UpdateSqlQueryArgsParamsItemVariant2, Param):
+class ParamModel3(UpdateSqlQueryArgsParamsItemVariant2, Param):
     pass
 
 
-class ParamModel3(UpdateSqlQueryArgsParamsItemVariant3, Param):
+class ParamModel4(UpdateSqlQueryArgsParamsItemVariant3, Param):
     pass
 
 
@@ -188,17 +202,17 @@ class RunSqlQueryArgs(RequestBody):
     )
 
 
-class ParamModel4(SqlQueryDataParamsItemVariant2, Param):
+class ParamModel5(SqlQueryDataParamsItemVariant2, ParamModel):
     pass
 
 
-class ParamModel5(SqlQueryDataParamsItemVariant3, Param):
+class ParamModel6(SqlQueryDataParamsItemVariant3, ParamModel):
     pass
 
 
 class SqlQueryDataParamsItemVariant1(APIModel):
-    type: Literal["date-interval"] | Literal["datetime-interval"] = Field(
-        ..., description="Type of the parameter."
+    type: Literal["date-interval"] | Literal["datetime-interval"] | None = Field(
+        default=None, description="Type of the parameter."
     )
     default_value: SqlQueryDataParamsItemVariant1DefaultValue | None = Field(
         default=None, alias="defaultValue"
@@ -225,12 +239,12 @@ class UpdateSqlQueryArgsParamsItemVariant1(APIModel):
 
 class RunSqlQueryResultResultsItemVariant1(APIModel):
     status: Literal["success"] = Field(..., description="Status of the statement.")
-    columns: list[RunSqlQueryResultResultsItemVariant1ColumnsItem] = Field(
-        ...,
+    columns: list[RunSqlQueryResultResultsItemVariant1ColumnsItem] | None = Field(
+        default=None,
         description="Columns of the statement result. Empty for statements that return no rows.",
     )
-    rows: list[list[str | float | bool | None]] = Field(
-        ...,
+    rows: list[list[str | float | bool | None]] | None = Field(
+        default=None,
         description="Rows of the statement result, with values in the order of the columns.",
     )
     affected_rows: float | None = Field(
@@ -240,12 +254,12 @@ class RunSqlQueryResultResultsItemVariant1(APIModel):
     )
 
 
-class ParamModel6(CreateSqlQueryArgsParamsItemVariant1, Param):
+class ParamModel7(CreateSqlQueryArgsParamsItemVariant1, Param):
     pass
 
 
-class ParamModel7(RootModel[ParamModel6 | ParamModel | ParamModel1]):
-    root: ParamModel6 | ParamModel | ParamModel1
+class ParamModel8(RootModel[ParamModel7 | ParamModel1 | ParamModel2]):
+    root: ParamModel7 | ParamModel1 | ParamModel2
 
 
 class CreateSqlQueryArgs(RequestBody):
@@ -262,17 +276,17 @@ class CreateSqlQueryArgs(RequestBody):
         description="ID of the connection. Supported connection types: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino.",
     )
     query: str = Field(..., description="Text of the SQL query.")
-    params: list[ParamModel7] | None = Field(
+    params: list[ParamModel8] | None = Field(
         default=None, description="Parameters of the SQL query."
     )
 
 
-class ParamModel8(UpdateSqlQueryArgsParamsItemVariant1, Param):
+class ParamModel9(UpdateSqlQueryArgsParamsItemVariant1, Param):
     pass
 
 
-class ParamModel9(RootModel[ParamModel8 | ParamModel2 | ParamModel3]):
-    root: ParamModel8 | ParamModel2 | ParamModel3
+class ParamModel10(RootModel[ParamModel9 | ParamModel3 | ParamModel4]):
+    root: ParamModel9 | ParamModel3 | ParamModel4
 
 
 class UpdateSqlQueryArgs(RequestBody):
@@ -284,107 +298,123 @@ class UpdateSqlQueryArgs(RequestBody):
         description="ID of the connection. Supported connection types: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino.",
     )
     query: str = Field(..., description="Text of the SQL query.")
-    params: list[ParamModel9] | None = Field(
+    params: list[ParamModel10] | None = Field(
         default=None, description="Parameters of the SQL query."
     )
 
 
 class RunSqlQueryResult(APIModel):
-    id: str = Field(..., description="ID of the query run.")
-    connection_id: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the query run.")
+    connection_id: str | None = Field(
+        default=None,
         alias="connectionId",
         description="ID of the connection the query was executed on.",
     )
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    status: Literal["success", "error", "pending", "partial_success"] | str = Field(
-        ..., description="Status of the query run."
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    query: str = Field(..., description="Text of the executed query.")
-    statement_positions: list[list[Any]] = Field(
-        ...,
+    status: Literal["success", "error", "pending", "partial_success"] | str | None = Field(
+        default=None, description="Status of the query run."
+    )
+    query: str | None = Field(default=None, description="Text of the executed query.")
+    statement_positions: list[list[Any]] | None = Field(
+        default=None,
         alias="statementPositions",
         description="Start and end indexes of the executed statements.",
     )
-    results: list[RunSqlQueryResultResultsItemVariant1 | RunSqlQueryResultResultsItemVariant2] = (
-        Field(
-            ...,
-            description="Results of the executed statements, in the order of the statements.",
-        )
+    results: (
+        list[RunSqlQueryResultResultsItemVariant1 | RunSqlQueryResultResultsItemVariant2] | None
+    ) = Field(
+        default=None,
+        description="Results of the executed statements, in the order of the statements.",
     )
-    created_by: str = Field(..., alias="createdBy", description="ID of the user who ran the query.")
-    created_at: str = Field(
-        ...,
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="ID of the user who ran the query."
+    )
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the query run was created.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the query run was updated.",
     )
 
 
-class ParamModel10(SqlQueryDataParamsItemVariant1, Param):
+class ParamModel11(SqlQueryDataParamsItemVariant1, ParamModel):
     pass
 
 
-class ParamModel11(RootModel[ParamModel10 | ParamModel4 | ParamModel5]):
-    root: ParamModel10 | ParamModel4 | ParamModel5
+class ParamModel12(RootModel[ParamModel11 | ParamModel5 | ParamModel6]):
+    root: ParamModel11 | ParamModel5 | ParamModel6
 
 
 class SqlQueryData(APIModel):
     """Data of the SQL query entry."""
 
-    connection_id: str = Field(..., alias="connectionId", description="ID of the connection.")
-    query: str = Field(..., description="Text of the SQL query.")
-    statement_positions: list[list[Any]] = Field(
-        ...,
+    connection_id: str | None = Field(
+        default=None, alias="connectionId", description="ID of the connection."
+    )
+    query: str | None = Field(default=None, description="Text of the SQL query.")
+    statement_positions: list[list[Any]] | None = Field(
+        default=None,
         alias="statementPositions",
         description="Start and end indexes of the query statements.",
     )
-    params: list[ParamModel11] | None = Field(
+    params: list[ParamModel12] | None = Field(
         default=None, description="Parameters of the SQL query."
     )
 
 
 class SqlQuery(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the SQL query.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the SQL query."
+    )
     scope: Literal["sql_query"] = Field(..., description="Scope of the SQL query entry.")
-    type: str = Field(..., description="Type of the SQL query entry.")
-    key: str = Field(..., description="Key of the SQL query entry.")
-    workbook_id: str = Field(
-        ...,
+    type: str | None = Field(default=None, description="Type of the SQL query entry.")
+    key: str | None = Field(default=None, description="Key of the SQL query entry.")
+    workbook_id: str | None = Field(
+        default=None,
         alias="workbookId",
         description="ID of the workbook containing the SQL query.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection containing the SQL query.",
     )
-    rev_id: str = Field(..., alias="revId", description="ID of the current SQL query revision.")
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved SQL query revision.")
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="ID of the current SQL query revision."
+    )
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved SQL query revision."
+    )
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published SQL query revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published SQL query revision.",
     )
-    data: SqlQueryData
-    annotation: SqlQueryAnnotation | None
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the SQL query."
+    data: SqlQueryData | None = None
+    annotation: SqlQueryAnnotation | None = None
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the SQL query.",
     )
-    created_at: str = Field(
-        ...,
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the SQL query was created.",
     )
-    updated_by: str = Field(
-        ...,
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the SQL query.",
     )
-    updated_at: str = Field(
-        ...,
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the SQL query was last updated.",
     )
@@ -398,18 +428,20 @@ class SqlQuery(APIModel):
         alias="revUpdatedAt",
         description="Date and time when the current revision was last updated.",
     )
-    tenant_id: str = Field(
-        ..., alias="tenantId", description="ID of the tenant that owns the SQL query."
+    tenant_id: str | None = Field(
+        default=None,
+        alias="tenantId",
+        description="ID of the tenant that owns the SQL query.",
     )
-    hidden: bool = Field(..., description="Whether the SQL query is hidden.")
-    version: float | None = Field(..., description="Schema version of the SQL query.")
+    hidden: bool | None = Field(default=None, description="Whether the SQL query is hidden.")
+    version: float | None = Field(default=None, description="Schema version of the SQL query.")
     links: dict[str, Any] | None = Field(
         default=None, description="Links to the entries the SQL query depends on."
     )
 
 
 class GetSqlQueryResult(APIModel):
-    entry: SqlQuery
+    entry: SqlQuery | None = None
     is_favorite: bool | None = Field(
         default=None,
         alias="isFavorite",
@@ -419,8 +451,8 @@ class GetSqlQueryResult(APIModel):
 
 
 class CreateSqlQueryResult(APIModel):
-    entry: SqlQuery
+    entry: SqlQuery | None = None
 
 
 class UpdateSqlQueryResult(APIModel):
-    entry: SqlQuery
+    entry: SqlQuery | None = None

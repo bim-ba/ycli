@@ -32,28 +32,38 @@ class CreateWorkbookArgs(RequestBody):
 
 
 class Workbook(APIModel):
-    workbook_id: str = Field(
-        ..., alias="workbookId", description="Unique identifier of the workbook."
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="Unique identifier of the workbook.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
-    title: str = Field(..., description="Title of the workbook.")
-    description: str | None = Field(..., description="Description of the workbook.")
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    meta: Meta = Field(..., description="Metadata associated with the workbook.")
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the workbook."
+    title: str | None = Field(default=None, description="Title of the workbook.")
+    description: str | None = Field(default=None, description="Description of the workbook.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    updated_by: str = Field(
-        ...,
+    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the workbook.",
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the workbook.",
     )
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
     status: Literal["creating", "deleting", "active", "deleted"] | str | None = Field(
         default=None, description="Status of the workbook."
     )
@@ -166,7 +176,7 @@ class ListWorkbookAccessBindingsArgs(RequestBody):
 
 
 class DeleteWorkbooksResponse(APIModel):
-    workbooks: list[Workbook] = Field(..., description="Deleted workbooks.")
+    workbooks: list[Workbook] | None = Field(default=None, description="Deleted workbooks.")
 
 
 class GetWorkbooksByIdsResponse(RootModel[list[Workbook]]):
@@ -174,70 +184,106 @@ class GetWorkbooksByIdsResponse(RootModel[list[Workbook]]):
 
 
 class MoveWorkbooksResponse(APIModel):
-    workbooks: list[Workbook] = Field(..., description="Moved workbooks.")
+    workbooks: list[Workbook] | None = Field(default=None, description="Moved workbooks.")
 
 
 class GetWorkbookResultPermissions(APIModel):
     """Permissions for the workbook."""
 
-    list_access_bindings: bool = Field(
-        ...,
+    list_access_bindings: bool | None = Field(
+        default=None,
         alias="listAccessBindings",
         description="Indicates if access bindings for the workbook can be listed.",
     )
-    update_access_bindings: bool = Field(
-        ...,
+    update_access_bindings: bool | None = Field(
+        default=None,
         alias="updateAccessBindings",
         description="Indicates if access bindings for the workbook can be updated.",
     )
-    limited_view: bool = Field(
-        ...,
+    limited_view: bool | None = Field(
+        default=None,
         alias="limitedView",
         description="Indicates if the workbook can be viewed with limited access.",
     )
-    view: bool = Field(..., description="Indicates if the workbook can be viewed.")
-    update: bool = Field(..., description="Indicates if the workbook can be updated.")
-    copy_: bool = Field(..., alias="copy", description="Indicates if the workbook can be copied.")
-    move: bool = Field(..., description="Indicates if the workbook can be moved.")
-    publish: bool = Field(..., description="Indicates if entries in the workbook can be published.")
-    embed: bool = Field(..., description="Indicates if entries in the workbook can be embedded.")
-    delete: bool = Field(..., description="Indicates if the workbook can be deleted.")
+    view: bool | None = Field(default=None, description="Indicates if the workbook can be viewed.")
+    update: bool | None = Field(
+        default=None, description="Indicates if the workbook can be updated."
+    )
+    copy_: bool | None = Field(
+        default=None,
+        alias="copy",
+        description="Indicates if the workbook can be copied.",
+    )
+    move: bool | None = Field(default=None, description="Indicates if the workbook can be moved.")
+    publish: bool | None = Field(
+        default=None,
+        description="Indicates if entries in the workbook can be published.",
+    )
+    embed: bool | None = Field(
+        default=None,
+        description="Indicates if entries in the workbook can be embedded.",
+    )
+    delete: bool | None = Field(
+        default=None, description="Indicates if the workbook can be deleted."
+    )
 
 
 class GetWorkbooksListResultWorkbooksItemPermissions(APIModel):
     """Permissions for the workbook."""
 
-    list_access_bindings: bool = Field(
-        ...,
+    list_access_bindings: bool | None = Field(
+        default=None,
         alias="listAccessBindings",
         description="Indicates if access bindings for the workbook can be listed.",
     )
-    update_access_bindings: bool = Field(
-        ...,
+    update_access_bindings: bool | None = Field(
+        default=None,
         alias="updateAccessBindings",
         description="Indicates if access bindings for the workbook can be updated.",
     )
-    limited_view: bool = Field(
-        ...,
+    limited_view: bool | None = Field(
+        default=None,
         alias="limitedView",
         description="Indicates if the workbook can be viewed with limited access.",
     )
-    view: bool = Field(..., description="Indicates if the workbook can be viewed.")
-    update: bool = Field(..., description="Indicates if the workbook can be updated.")
-    copy_: bool = Field(..., alias="copy", description="Indicates if the workbook can be copied.")
-    move: bool = Field(..., description="Indicates if the workbook can be moved.")
-    publish: bool = Field(..., description="Indicates if entries in the workbook can be published.")
-    embed: bool = Field(..., description="Indicates if entries in the workbook can be embedded.")
-    delete: bool = Field(..., description="Indicates if the workbook can be deleted.")
+    view: bool | None = Field(default=None, description="Indicates if the workbook can be viewed.")
+    update: bool | None = Field(
+        default=None, description="Indicates if the workbook can be updated."
+    )
+    copy_: bool | None = Field(
+        default=None,
+        alias="copy",
+        description="Indicates if the workbook can be copied.",
+    )
+    move: bool | None = Field(default=None, description="Indicates if the workbook can be moved.")
+    publish: bool | None = Field(
+        default=None,
+        description="Indicates if entries in the workbook can be published.",
+    )
+    embed: bool | None = Field(
+        default=None,
+        description="Indicates if entries in the workbook can be embedded.",
+    )
+    delete: bool | None = Field(
+        default=None, description="Indicates if the workbook can be deleted."
+    )
 
 
 class GetWorkbookEntriesEntryPermissions(APIModel):
     """Permissions for the entry."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class GetWorkbookEntriesArgsOrderBy(APIModel):
@@ -258,105 +304,147 @@ class GetWorkbookEntriesArgsFilters(APIModel):
 
 
 class CreateWorkbookResult(APIModel):
-    workbook_id: str = Field(
-        ..., alias="workbookId", description="Unique identifier of the workbook."
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="Unique identifier of the workbook.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
-    title: str = Field(..., description="Title of the workbook.")
-    description: str | None = Field(..., description="Description of the workbook.")
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    meta: Meta = Field(..., description="Metadata associated with the workbook.")
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the workbook."
+    title: str | None = Field(default=None, description="Title of the workbook.")
+    description: str | None = Field(default=None, description="Description of the workbook.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    updated_by: str = Field(
-        ...,
+    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the workbook.",
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the workbook.",
     )
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
     status: Literal["creating", "deleting", "active", "deleted"] | str | None = Field(
         default=None, description="Status of the workbook."
     )
-    operation: shared.DatalensOperation
+    operation: shared.DatalensOperation | None = None
 
 
 class GetWorkbookResult(APIModel):
-    workbook_id: str = Field(
-        ..., alias="workbookId", description="Unique identifier of the workbook."
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="Unique identifier of the workbook.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
-    title: str = Field(..., description="Title of the workbook.")
-    description: str | None = Field(..., description="Description of the workbook.")
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    meta: Meta = Field(..., description="Metadata associated with the workbook.")
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the workbook."
+    title: str | None = Field(default=None, description="Title of the workbook.")
+    description: str | None = Field(default=None, description="Description of the workbook.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    updated_by: str = Field(
-        ...,
+    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the workbook.",
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the workbook.",
     )
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
     status: Literal["creating", "deleting", "active", "deleted"] | str | None = Field(
         default=None, description="Status of the workbook."
     )
-    permissions: GetWorkbookResultPermissions
+    permissions: GetWorkbookResultPermissions | None = None
 
 
 class GetWorkbookEntriesEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    scope: shared.EntryScope
-    type: str = Field(..., description="Entity type of the entry.")
-    key: str | None = Field(..., description="Key identifier of the entry.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(default=None, description="Entity type of the entry.")
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
     display_key: str | None = Field(
-        ..., alias="displayKey", description="Display key of the entry."
+        default=None, alias="displayKey", description="Display key of the entry."
     )
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the entry."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the entry.",
     )
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    updated_by: str = Field(
-        ..., alias="updatedBy", description="ID of the user who last updated the entry."
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
     )
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    saved_id: str | None = Field(..., alias="savedId", description="Saved revision ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published revision ID.")
-    rev_id: str = Field(..., alias="revId", description="Current revision ID.")
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
-    hidden: bool | None = Field(..., description="Indicates if the entry is hidden.")
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="ID of the user who last updated the entry.",
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved revision ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published revision ID."
+    )
+    rev_id: str | None = Field(default=None, alias="revId", description="Current revision ID.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
     workbook_id: str | None = Field(
-        ..., alias="workbookId", description="ID of the workbook the entry belongs to."
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook the entry belongs to.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the entry belongs to.",
     )
-    tenant_id: str | None = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    is_favorite: bool = Field(
-        ...,
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
+    )
+    is_favorite: bool | None = Field(
+        default=None,
         alias="isFavorite",
         description="Indicates if the entry is marked as favorite.",
     )
-    is_locked: bool = Field(..., alias="isLocked", description="Indicates if the entry is locked.")
+    is_locked: bool | None = Field(
+        default=None, alias="isLocked", description="Indicates if the entry is locked."
+    )
     permissions: GetWorkbookEntriesEntryPermissions | None = None
-    mirrored: bool | None = Field(..., description="Indicates if the entry is mirrored.")
+    mirrored: bool | None = Field(default=None, description="Indicates if the entry is mirrored.")
 
 
 class GetWorkbookEntriesResult(APIModel):
-    entries: list[GetWorkbookEntriesEntry] = Field(..., description="List of workbook entries.")
+    entries: list[GetWorkbookEntriesEntry] | None = Field(
+        default=None, description="List of workbook entries."
+    )
     next_page_token: str | None = Field(
         default=None,
         alias="nextPageToken",
@@ -395,28 +483,38 @@ class GetWorkbookEntriesArgs(RequestBody):
 
 
 class GetWorkbooksListResultWorkbooksItem(APIModel):
-    workbook_id: str = Field(
-        ..., alias="workbookId", description="Unique identifier of the workbook."
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="Unique identifier of the workbook.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the workbook belongs to.",
     )
-    title: str = Field(..., description="Title of the workbook.")
-    description: str | None = Field(..., description="Description of the workbook.")
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    meta: Meta = Field(..., description="Metadata associated with the workbook.")
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the workbook."
+    title: str | None = Field(default=None, description="Title of the workbook.")
+    description: str | None = Field(default=None, description="Description of the workbook.")
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
     )
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    updated_by: str = Field(
-        ...,
+    meta: Meta | None = Field(default=None, description="Metadata associated with the workbook.")
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the workbook.",
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    updated_by: str | None = Field(
+        default=None,
         alias="updatedBy",
         description="ID of the user who last updated the workbook.",
     )
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
     status: Literal["creating", "deleting", "active", "deleted"] | str | None = Field(
         default=None, description="Status of the workbook."
     )
@@ -424,8 +522,8 @@ class GetWorkbooksListResultWorkbooksItem(APIModel):
 
 
 class GetWorkbooksListResult(APIModel):
-    workbooks: list[GetWorkbooksListResultWorkbooksItem] = Field(
-        ..., description="List of workbooks."
+    workbooks: list[GetWorkbooksListResultWorkbooksItem] | None = Field(
+        default=None, description="List of workbooks."
     )
     next_page_token: str | None = Field(
         default=None,

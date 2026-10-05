@@ -630,38 +630,38 @@ class ReportDataV2(APIModel):
 
 class ReportV2(APIModel):
     annotation: EntryAnnotation | None = None
-    created_by: str = Field(..., alias="createdBy")
-    created_at: str = Field(..., alias="createdAt")
-    updated_by: str = Field(..., alias="updatedBy")
-    updated_at: str = Field(..., alias="updatedAt")
+    created_by: str | None = Field(default=None, alias="createdBy")
+    created_at: str | None = Field(default=None, alias="createdAt")
+    updated_by: str | None = Field(default=None, alias="updatedBy")
+    updated_at: str | None = Field(default=None, alias="updatedAt")
     rev_updated_by: str | None = Field(default=None, alias="revUpdatedBy")
     rev_updated_at: str | None = Field(default=None, alias="revUpdatedAt")
-    data: ReportDataV2
-    entry_id: str = Field(..., alias="entryId")
-    key: str
+    data: ReportDataV2 | None = None
+    entry_id: str | None = Field(default=None, alias="entryId")
+    key: str | None = None
     scope: Literal["report"]
-    hidden: bool
-    meta: ReportMetaV2 | None
-    published_id: str | None = Field(..., alias="publishedId")
-    saved_id: str = Field(..., alias="savedId")
-    rev_id: str = Field(..., alias="revId")
-    tenant_id: str = Field(..., alias="tenantId")
+    hidden: bool | None = None
+    meta: ReportMetaV2 | None = None
+    published_id: str | None = Field(default=None, alias="publishedId")
+    saved_id: str | None = Field(default=None, alias="savedId")
+    rev_id: str | None = Field(default=None, alias="revId")
+    tenant_id: str | None = Field(default=None, alias="tenantId")
     type: Literal[""]
-    workbook_id: str | None = Field(..., alias="workbookId")
-    collection_id: str | None = Field(..., alias="collectionId")
+    workbook_id: str | None = Field(default=None, alias="workbookId")
+    collection_id: str | None = Field(default=None, alias="collectionId")
     version: Literal[2]
     public: Literal[False]
     links: dict[str, Any] | None = None
 
 
 class GetReportV2Result(APIModel):
-    entry: ReportV2
+    entry: ReportV2 | None = None
     is_favorite: bool | None = Field(default=None, alias="isFavorite")
     permissions: shared.EntryPermissions | None = None
 
 
 class CreateReportV2Result(APIModel):
-    entry: ReportV2
+    entry: ReportV2 | None = None
     permissions: shared.EntryPermissions | None = None
 
 
@@ -673,7 +673,7 @@ class CreateReportV2Args(EntryLocationIdentifiers):
 
 
 class UpdateReportV2Result(APIModel):
-    entry: ReportV2
+    entry: ReportV2 | None = None
 
 
 class UpdateReportV2Args(RequestBody):

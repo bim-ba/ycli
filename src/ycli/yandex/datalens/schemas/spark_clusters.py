@@ -48,23 +48,25 @@ class StopSparkClusterArgs(RequestBody):
 
 
 class SparkResourcePreset(APIModel):
-    id: str = Field(..., description="ID of the resource preset.")
-    cores: str = Field(
-        ..., description="Number of CPU cores for an instance created with the preset."
+    id: str | None = Field(default=None, description="ID of the resource preset.")
+    cores: str | None = Field(
+        default=None,
+        description="Number of CPU cores for an instance created with the preset.",
     )
-    memory: str = Field(
-        ..., description="RAM volume for an instance created with the preset, in bytes."
+    memory: str | None = Field(
+        default=None,
+        description="RAM volume for an instance created with the preset, in bytes.",
     )
 
 
 class ListSparkResourcePresetsResult(APIModel):
-    resource_presets: list[SparkResourcePreset] = Field(
-        ...,
+    resource_presets: list[SparkResourcePreset] | None = Field(
+        default=None,
         alias="resourcePresets",
         description="Spark resource presets available in the cloud environment.",
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of resource presets.",
     )
@@ -102,44 +104,44 @@ class GetSparkResourcePresetArgs(RequestBody):
 
 
 class SparkClusterConfigResourcePoolsDriverScalePolicyVariant1FixedScale(APIModel):
-    size: str = Field(..., description="Number of instances in the resource pool.")
+    size: str | None = Field(default=None, description="Number of instances in the resource pool.")
 
 
 class SparkClusterConfigResourcePoolsDriverScalePolicyVariant2AutoScale(APIModel):
-    min_size: str = Field(
-        ...,
+    min_size: str | None = Field(
+        default=None,
         alias="minSize",
         description="Minimum number of instances in the resource pool.",
     )
-    max_size: str = Field(
-        ...,
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum number of instances in the resource pool.",
     )
-    initial_size: str = Field(
-        ...,
+    initial_size: str | None = Field(
+        default=None,
         alias="initialSize",
         description="Initial number of instances in the resource pool.",
     )
 
 
 class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1FixedScale(APIModel):
-    size: str = Field(..., description="Number of instances in the resource pool.")
+    size: str | None = Field(default=None, description="Number of instances in the resource pool.")
 
 
 class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2AutoScale(APIModel):
-    min_size: str = Field(
-        ...,
+    min_size: str | None = Field(
+        default=None,
         alias="minSize",
         description="Minimum number of instances in the resource pool.",
     )
-    max_size: str = Field(
-        ...,
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum number of instances in the resource pool.",
     )
-    initial_size: str = Field(
-        ...,
+    initial_size: str | None = Field(
+        default=None,
         alias="initialSize",
         description="Initial number of instances in the resource pool.",
     )
@@ -148,13 +150,13 @@ class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2AutoScale(APIMod
 class SparkClusterConfigDependencies(APIModel):
     """Packages installed in the cluster."""
 
-    pip_packages: list[str] = Field(
-        ...,
+    pip_packages: list[str] | None = Field(
+        default=None,
         alias="pipPackages",
         description="Python packages installed in the cluster.",
     )
-    deb_packages: list[str] = Field(
-        ...,
+    deb_packages: list[str] | None = Field(
+        default=None,
         alias="debPackages",
         description="Debian packages installed in the cluster.",
     )
@@ -163,7 +165,7 @@ class SparkClusterConfigDependencies(APIModel):
 class SparkClusterConfigLogging(APIModel):
     """Cluster logging configuration."""
 
-    enabled: bool = Field(..., description="Whether cluster logging is enabled.")
+    enabled: bool | None = Field(default=None, description="Whether cluster logging is enabled.")
 
 
 class CreateSparkClusterArgsConfigResourcePoolsDriverScalePolicyVariant1FixedScale(APIModel):
@@ -232,29 +234,29 @@ class CreateSparkClusterArgsConfigLogging(APIModel):
 
 
 class SparkClusterConfigResourcePoolsDriverScalePolicyVariant1(APIModel):
-    fixed_scale: SparkClusterConfigResourcePoolsDriverScalePolicyVariant1FixedScale = Field(
-        ..., alias="fixedScale"
+    fixed_scale: SparkClusterConfigResourcePoolsDriverScalePolicyVariant1FixedScale | None = Field(
+        default=None, alias="fixedScale"
     )
     scale_type: Literal["fixedScale"] = Field(..., alias="scaleType")
 
 
 class SparkClusterConfigResourcePoolsDriverScalePolicyVariant2(APIModel):
-    auto_scale: SparkClusterConfigResourcePoolsDriverScalePolicyVariant2AutoScale = Field(
-        ..., alias="autoScale"
+    auto_scale: SparkClusterConfigResourcePoolsDriverScalePolicyVariant2AutoScale | None = Field(
+        default=None, alias="autoScale"
     )
     scale_type: Literal["autoScale"] = Field(..., alias="scaleType")
 
 
 class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1(APIModel):
-    fixed_scale: SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1FixedScale = Field(
-        ..., alias="fixedScale"
+    fixed_scale: SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1FixedScale | None = (
+        Field(default=None, alias="fixedScale")
     )
     scale_type: Literal["fixedScale"] = Field(..., alias="scaleType")
 
 
 class SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2(APIModel):
-    auto_scale: SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2AutoScale = Field(
-        ..., alias="autoScale"
+    auto_scale: SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2AutoScale | None = Field(
+        default=None, alias="autoScale"
     )
     scale_type: Literal["autoScale"] = Field(..., alias="scaleType")
 
@@ -286,25 +288,31 @@ class CreateSparkClusterArgsConfigResourcePoolsExecutorScalePolicyVariant2(APIMo
 class SparkClusterConfigResourcePoolsDriver(APIModel):
     """Driver resource pool."""
 
-    resource_preset_id: str = Field(
-        ..., alias="resourcePresetId", description="ID of the Spark resource preset."
+    resource_preset_id: str | None = Field(
+        default=None,
+        alias="resourcePresetId",
+        description="ID of the Spark resource preset.",
     )
     scale_policy: (
         SparkClusterConfigResourcePoolsDriverScalePolicyVariant1
         | SparkClusterConfigResourcePoolsDriverScalePolicyVariant2
-    ) = Field(..., alias="scalePolicy", description="Resource pool scaling policy.")
+        | None
+    ) = Field(default=None, alias="scalePolicy", description="Resource pool scaling policy.")
 
 
 class SparkClusterConfigResourcePoolsExecutor(APIModel):
     """Executor resource pool."""
 
-    resource_preset_id: str = Field(
-        ..., alias="resourcePresetId", description="ID of the Spark resource preset."
+    resource_preset_id: str | None = Field(
+        default=None,
+        alias="resourcePresetId",
+        description="ID of the Spark resource preset.",
     )
     scale_policy: (
         SparkClusterConfigResourcePoolsExecutorScalePolicyVariant1
         | SparkClusterConfigResourcePoolsExecutorScalePolicyVariant2
-    ) = Field(..., alias="scalePolicy", description="Resource pool scaling policy.")
+        | None
+    ) = Field(default=None, alias="scalePolicy", description="Resource pool scaling policy.")
 
 
 class CreateSparkClusterArgsConfigResourcePoolsDriver(APIModel):
@@ -332,8 +340,8 @@ class CreateSparkClusterArgsConfigResourcePoolsExecutor(APIModel):
 
 
 class SparkClusterConfigResourcePools(APIModel):
-    driver: SparkClusterConfigResourcePoolsDriver
-    executor: SparkClusterConfigResourcePoolsExecutor
+    driver: SparkClusterConfigResourcePoolsDriver | None = None
+    executor: SparkClusterConfigResourcePoolsExecutor | None = None
 
 
 class CreateSparkClusterArgsConfigResourcePools(APIModel):
@@ -342,12 +350,16 @@ class CreateSparkClusterArgsConfigResourcePools(APIModel):
 
 
 class SparkClusterConfig(APIModel):
-    spark_version: str = Field(
-        ..., alias="sparkVersion", description="Spark version used by the cluster."
+    spark_version: str | None = Field(
+        default=None,
+        alias="sparkVersion",
+        description="Spark version used by the cluster.",
     )
-    resource_pools: SparkClusterConfigResourcePools = Field(..., alias="resourcePools")
-    dependencies: SparkClusterConfigDependencies | None
-    logging: SparkClusterConfigLogging | None
+    resource_pools: SparkClusterConfigResourcePools | None = Field(
+        default=None, alias="resourcePools"
+    )
+    dependencies: SparkClusterConfigDependencies | None = None
+    logging: SparkClusterConfigLogging | None = None
 
 
 class CreateSparkClusterArgsConfig(APIModel):
@@ -362,24 +374,26 @@ class CreateSparkClusterArgsConfig(APIModel):
 
 
 class SparkCluster(APIModel):
-    id: str = Field(..., description="ID of the Spark cluster.")
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the managed Spark cluster.")
-    collection_id: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the Spark cluster.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the managed Spark cluster."
+    )
+    collection_id: str | None = Field(
+        default=None,
         alias="collectionId",
         description="ID of the DataLens collection that contains the cluster.",
     )
-    cloud_environment_id: str = Field(
-        ...,
+    cloud_environment_id: str | None = Field(
+        default=None,
         alias="cloudEnvironmentId",
         description="ID of the associated cloud environment.",
     )
-    name: str = Field(..., description="Name of the Spark cluster.")
-    description: str = Field(..., description="Description of the Spark cluster.")
-    labels: dict[str, str] = Field(..., description="Spark cluster labels.")
-    config: SparkClusterConfig
-    health: Literal["HEALTH_UNKNOWN", "ALIVE", "DEAD", "DEGRADED"] | str = Field(
-        ..., description="Aggregated health of the Spark cluster."
+    name: str | None = Field(default=None, description="Name of the Spark cluster.")
+    description: str | None = Field(default=None, description="Description of the Spark cluster.")
+    labels: dict[str, str] | None = Field(default=None, description="Spark cluster labels.")
+    config: SparkClusterConfig | None = None
+    health: Literal["HEALTH_UNKNOWN", "ALIVE", "DEAD", "DEGRADED"] | str | None = Field(
+        default=None, description="Aggregated health of the Spark cluster."
     )
     status: (
         Literal[
@@ -393,20 +407,23 @@ class SparkCluster(APIModel):
             "STARTING",
         ]
         | str
-    ) = Field(..., description="Current status of the Spark cluster.")
-    entry_id: str = Field(
-        ...,
+        | None
+    ) = Field(default=None, description="Current status of the Spark cluster.")
+    entry_id: str | None = Field(
+        default=None,
         alias="entryId",
         description="ID of the DataLens entry of the Spark cluster. Empty when the cluster has no entry.",
     )
 
 
 class ListSparkClustersResult(APIModel):
-    spark_clusters: list[SparkCluster] = Field(
-        ..., alias="sparkClusters", description="Spark clusters matching the request."
+    spark_clusters: list[SparkCluster] | None = Field(
+        default=None,
+        alias="sparkClusters",
+        description="Spark clusters matching the request.",
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of Spark clusters.",
     )

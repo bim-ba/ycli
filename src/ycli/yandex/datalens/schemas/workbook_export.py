@@ -12,7 +12,9 @@ from . import shared
 
 
 class StartWorkbookExportResult(APIModel):
-    export_id: str = Field(..., alias="exportId", description="ID of the started workbook export.")
+    export_id: str | None = Field(
+        default=None, alias="exportId", description="ID of the started workbook export."
+    )
 
 
 class StartWorkbookExportArgs(RequestBody):
@@ -20,9 +22,11 @@ class StartWorkbookExportArgs(RequestBody):
 
 
 class GetWorkbookExportStatusResult(APIModel):
-    export_id: str = Field(..., alias="exportId", description="ID of the workbook export.")
-    status: shared.WorkbookTransferProcessStatus
-    progress: float = Field(..., description="Workbook export progress percentage.")
+    export_id: str | None = Field(
+        default=None, alias="exportId", description="ID of the workbook export."
+    )
+    status: shared.WorkbookTransferProcessStatus | None = None
+    progress: float | None = Field(default=None, description="Workbook export progress percentage.")
     notifications: list[shared.WorkbookTransferNotification] | None = Field(
         default=None, description="Notifications generated during the workbook export."
     )
@@ -45,7 +49,11 @@ class GetWorkbookExportResultArgs(RequestBody):
 
 
 class CancelWorkbookExportResult(APIModel):
-    export_id: str = Field(..., alias="exportId", description="ID of the canceled workbook export.")
+    export_id: str | None = Field(
+        default=None,
+        alias="exportId",
+        description="ID of the canceled workbook export.",
+    )
 
 
 class CancelWorkbookExportArgs(RequestBody):
@@ -55,11 +63,17 @@ class CancelWorkbookExportArgs(RequestBody):
 
 
 class GetWorkbookExportResultResultData(APIModel):
-    export: dict[str, Any] = Field(..., description="Serialized workbook export data.")
-    hash: str = Field(..., description="Hash of the serialized workbook export data.")
+    export: dict[str, Any] | None = Field(
+        default=None, description="Serialized workbook export data."
+    )
+    hash: str | None = Field(
+        default=None, description="Hash of the serialized workbook export data."
+    )
 
 
 class GetWorkbookExportResultResult(APIModel):
-    export_id: str = Field(..., alias="exportId", description="ID of the workbook export.")
-    data: GetWorkbookExportResultResultData
-    status: shared.WorkbookTransferProcessStatus
+    export_id: str | None = Field(
+        default=None, alias="exportId", description="ID of the workbook export."
+    )
+    data: GetWorkbookExportResultResultData | None = None
+    status: shared.WorkbookTransferProcessStatus | None = None
