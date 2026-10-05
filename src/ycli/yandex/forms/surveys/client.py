@@ -20,7 +20,7 @@ class SurveysClient(Resource):
         ownership: str | None = None,
         group: str | None = None,
         favourite: bool | None = None,
-        show_all: bool = False,
+        show_all: bool | None = None,
         orderby: str | None = None,
     ) -> ItemList[Survey]:
         """``GET /surveys`` → every form, page by page, at most ``limit`` (``None`` = all).

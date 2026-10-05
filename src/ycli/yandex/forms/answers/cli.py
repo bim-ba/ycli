@@ -56,8 +56,11 @@ def list_(
         str | None, typer.Option(help="Comma-separated question ids to return answers for.")
     ] = None,
     use_slugs: Annotated[
-        bool, typer.Option("--use-slugs", help="Name questions and options by slug, not id.")
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--use-slugs/--no-use-slugs", help="Name questions and options by slug, not id."
+        ),
+    ] = None,
     date_from: Annotated[
         str | None, typer.Option(help="ISO-8601: answers given at or after.")
     ] = None,
@@ -129,11 +132,11 @@ def _finish_export(
 def export(
     survey_id: SurveyIDArg,
     export_format: Annotated[
-        str, values_option(ExportFormat, "--format", help="Export format.")
-    ] = "xlsx",
+        str | None, values_option(ExportFormat, "--format", help="Export format.")
+    ] = None,
     upload: Annotated[
-        str, values_option(ExportUpload, help="Where the result goes; disk is Yandex Disk.")
-    ] = "default",
+        str | None, values_option(ExportUpload, help="Where the result goes; disk is Yandex Disk.")
+    ] = None,
     started_at: Annotated[
         str | None, typer.Option(help="ISO-8601 start of the answer range (inclusive).")
     ] = None,
@@ -173,8 +176,8 @@ def export(
         upload=upload,
         started_at=started_at,
         finished_at=finished_at,
-        pks=pk or None,
-        columns=column or None,
+        pks=pk,
+        columns=column,
         limit=limit,
         upload_files=upload_files,
     )

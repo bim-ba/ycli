@@ -171,7 +171,7 @@ CASES = [
         "wiki.pages.get_by_id",
         args=(4102,),
         kwargs={"fields": "content"},
-        cli=["wiki", "pages", "get-by-id", "4102"],
+        cli=["wiki", "pages", "get-by-id", "4102", "--fields", "content"],
         mcp=None,
         exchanges=[
             (
@@ -406,7 +406,7 @@ CASES = [
                 {"content": "## Footer", "body": {"location": "bottom"}}
             ),
         ),
-        cli=["wiki", "pages", "append", "4602", "--content", "## Footer"],
+        cli=["wiki", "pages", "append", "4602", "--content", "## Footer", "--location", "bottom"],
         mcp=None,
         exchanges=[
             (
@@ -520,7 +520,7 @@ CASES = [
     ),
     Case(
         "wiki.pages.clone",
-        args=(4702, PageClone.model_validate({"target": "eng/mirror", "subscribe_me": False})),
+        args=(4702, PageClone.model_validate({"target": "eng/mirror"})),
         cli=["wiki", "pages", "clone", "4702", "--target", "eng/mirror", "--no-wait"],
         mcp=("wiki_pages_clone", {"page_id": 4702, "body": {"target": "eng/mirror"}}),
         exchanges=[
@@ -528,7 +528,7 @@ CASES = [
                 Sent(
                     "POST",
                     "pages/4702/clone",
-                    json={"target": "eng/mirror", "subscribe_me": False},
+                    json={"target": "eng/mirror"},
                 ),
                 Reply(json={"operation": {"type": "clone", "id": "task-4702"}}),
             )
@@ -611,8 +611,7 @@ CASES = [
             )
         ],
     ),
-    # The API refuses a move that does not say whether to copy inherited access, so the default
-    # is an explicit false on every surface.
+    # An explicit false is sent; ycli adds none of its own.
     Case(
         "wiki.pages.move",
         args=(
@@ -623,10 +622,23 @@ CASES = [
                 }
             ),
         ),
-        cli=["wiki", "pages", "move", "eng/b", "eng/c", "--no-wait"],
+        cli=[
+            "wiki",
+            "pages",
+            "move",
+            "eng/b",
+            "eng/c",
+            "--no-copy-inherited-access",
+            "--no-wait",
+        ],
         mcp=(
             "wiki_pages_move",
-            {"body": {"operations": [{"source": "eng/b", "target": "eng/c"}]}},
+            {
+                "body": {
+                    "operations": [{"source": "eng/b", "target": "eng/c"}],
+                    "copy_inherited_access": False,
+                }
+            },
         ),
         exchanges=[
             (
@@ -1116,6 +1128,8 @@ CASES = [
             "4606",
             "--content",
             "## Quiet note",
+            "--location",
+            "bottom",
             "--fields",
             "content",
             "--is-silent",

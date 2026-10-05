@@ -32,7 +32,7 @@ form id you pass to ``surveys_get`` / ``questions_list`` / ``answers_list``.
 | `ownership` | string or null |  | ``mine`` (created by the caller) or ``shared`` (open to them). |
 | `group` | string or null |  | Keep the forms of this group. |
 | `favourite` | boolean or null |  | Only favourites (true) or only the others (false). |
-| `show_all` | boolean |  | For an administrator, every form of the organization. |
+| `show_all` | boolean or null |  | For an administrator, every form of the organization. |
 | `orderby` | string or null |  | Sort, a comma list such as ``name,-modified,-count``. |
 
 ## `forms_surveys_get`
@@ -132,7 +132,7 @@ Type-specific detail (validators, options, conditions) comes in the fields of it
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to fetch. |
-| `with_slugs` | boolean |  | Refer to other questions by slug instead of id. |
+| `with_slugs` | boolean or null |  | Refer to other questions by slug instead of id. |
 
 ## `forms_questions_create`
 
@@ -178,7 +178,7 @@ The API answers ``204 No Content``; the returned record confirms the accepted ac
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (hex ObjectId) the question belongs to. |
 | `question_id` | string | yes | Question id (integer) to delete. |
-| `force` | boolean |  | Ignored by the API: a question that a display condition refers to is refused all the same. |
+| `force` | boolean or null |  | Ignored by the API: a question that a display condition refers to is refused all the same. |
 
 ## `forms_questions_move`
 
@@ -593,7 +593,7 @@ in the merged result. Use the CLI ``--all`` flag for an uncapped drain.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `questions` | string or null |  | Comma-separated question ids to return answers for. |
-| `use_slugs` | boolean |  | Name questions and options by slug instead of id. |
+| `use_slugs` | boolean or null |  | Name questions and options by slug instead of id. |
 | `date_from` | string or null |  | ISO-8601: answers given at or after. |
 | `date_to` | string or null |  | ISO-8601: answers given at or before. |
 | `ordering` | `asc` · `desc` or string or null |  | ``asc`` is oldest first; the default is ``desc``. |
@@ -908,7 +908,7 @@ Returns the success-page payload (``answer_id`` confirms the save).
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id or slug of a published form. |
 | `body` | object | yes | Answer map keyed by question slug (see ``filling_get`` for the slugs). |
-| `validate_only` | boolean |  | Validate only — saves nothing and fires no integrations. |
+| `validate_only` | boolean or null |  | Validate only — saves nothing and fires no integrations. |
 | `key` | string or null |  | Personal-link fill key, when the form uses one. |
 
 ## `forms_hooks_list`

@@ -136,6 +136,8 @@ CASES = [
             "a",
             "--option",
             "b",
+            "--options-type",
+            "FixedListOptionsProvider",
             "--no-readonly",
         ],
         mcp=None,
@@ -221,7 +223,16 @@ CASES = [
                 options_provider=OptionsProviderInput(type="FixedListOptionsProvider", values=["y"])
             ),
         ),
-        cli=["tracker", "fields", "update", "tags", "--option", "y"],
+        cli=[
+            "tracker",
+            "fields",
+            "update",
+            "tags",
+            "--option",
+            "y",
+            "--options-type",
+            "FixedListOptionsProvider",
+        ],
         mcp=None,
         exchanges=[
             (

@@ -407,7 +407,7 @@ $ ycli tracker issues update-bulk [OPTIONS]
 * `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
 * `--query TEXT`: Query-language filter selecting issues (instead of --issue).
 * `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
-* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
+* `--notify / --no-notify`: Notify affected users.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -434,9 +434,9 @@ $ ycli tracker issues move-bulk [OPTIONS] QUEUE
 * `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
 * `--query TEXT`: Query-language filter selecting issues (instead of --issue).
 * `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
-* `--move-all-fields`: Carry versions/components/projects across.
-* `--initial-status`: Reset each issue's status to the initial one.
-* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
+* `--move-all-fields / --no-move-all-fields`: Carry versions/components/projects across.
+* `--initial-status / --no-initial-status`: Reset each issue's status to the initial one.
+* `--notify / --no-notify`: Notify affected users.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -463,7 +463,7 @@ $ ycli tracker issues transition-bulk [OPTIONS] TRANSITION
 * `--issue TEXT`: Issue key to include (repeatable; omit when using --query).
 * `--query TEXT`: Query-language filter selecting issues (instead of --issue).
 * `-F, --field TEXT`: Field to set, key=value (JSON-coerced; repeatable).
-* `--notify / --no-notify`: Notify affected users.  [default: no-notify]
+* `--notify / --no-notify`: Notify affected users.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1003,7 +1003,7 @@ $ ycli tracker worklog create [OPTIONS] ISSUE_KEY
 **Options**:
 
 * `--duration TEXT`: Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).  [required]
-* `--start TEXT`: Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted.
+* `--start TEXT`: Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.  [required]
 * `--comment TEXT`: Optional note saved in the time report.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1195,6 +1195,7 @@ $ ycli tracker checklists create [OPTIONS] ISSUE_KEY
 * `--checked / --no-checked`: Done flag.
 * `--assignee TEXT`: Assignee login or id.
 * `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
+* `--deadline-type TEXT`: Deadline kind: date or quarter; the API requires it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1222,6 +1223,7 @@ $ ycli tracker checklists update [OPTIONS] ISSUE_KEY ITEM_ID
 * `--checked / --no-checked`: Done flag.
 * `--assignee TEXT`: Assignee login or id.
 * `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
+* `--deadline-type TEXT`: Deadline kind: date or quarter; the API requires it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1734,9 +1736,9 @@ $ ycli tracker statuses create [OPTIONS]
 **Options**:
 
 * `--key TEXT`: Key of the new status (Latin, lower-case start).  [required]
+* `--type TEXT`: Status type. Known values: new, inProgress, paused, done, cancelled.  [required]
 * `--name-ru TEXT`: Status name in Russian.
 * `--name-en TEXT`: Status name in English.
-* `--type TEXT`: Status type. Known values: new, inProgress, paused, done, cancelled.  [default: new]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -2352,7 +2354,7 @@ $ ycli tracker localfields create [OPTIONS] QUEUE_ID
 * `--order INTEGER`: Position in the org's field list.
 * `--readonly / --no-readonly`: Whether the field value is read-only.
 * `--option TEXT`: Allowed drop-down value (repeatable).
-* `--options-type TEXT`: Drop-down provider type for --option values.  [default: FixedListOptionsProvider]
+* `--options-type TEXT`: Drop-down provider type for --option values.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -2385,7 +2387,7 @@ $ ycli tracker localfields update [OPTIONS] QUEUE_ID FIELD_KEY
 * `--visible / --no-visible`: Always show the field.
 * `--hidden / --no-hidden`: Fully hide the field.
 * `--option TEXT`: Allowed drop-down value (repeatable).
-* `--options-type TEXT`: Drop-down provider type for --option values.  [default: FixedListOptionsProvider]
+* `--options-type TEXT`: Drop-down provider type for --option values.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -2476,7 +2478,7 @@ $ ycli tracker fields create [OPTIONS]
 * `--order INTEGER`: Position in the org's field list.
 * `--readonly / --no-readonly`: Whether the field value is read-only.
 * `--option TEXT`: Allowed drop-down value (repeatable).
-* `--options-type TEXT`: Drop-down provider type for --option values.  [default: FixedListOptionsProvider]
+* `--options-type TEXT`: Drop-down provider type for --option values.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -2502,7 +2504,7 @@ $ ycli tracker fields update [OPTIONS] FIELD_ID
 * `--name-ru TEXT`: New field name in Russian.
 * `--name-en TEXT`: New field name in English.
 * `--option TEXT`: Allowed drop-down value (repeatable).
-* `--options-type TEXT`: Drop-down provider type for --option values.  [default: FixedListOptionsProvider]
+* `--options-type TEXT`: Drop-down provider type for --option values.
 * `--version INTEGER`: Current version for the optimistic lock (?version=).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4016,8 +4018,8 @@ $ ycli tracker remotelinks create [OPTIONS] ISSUE_KEY
 
 * `--key TEXT`: Key of the object in the external app.  [required]
 * `--origin TEXT`: Identifier of the external application.  [required]
-* `--relationship TEXT`: Link type (RELATES recommended).  [default: RELATES]
-* `--backlink / --no-backlink`: Also create the mirror link in the app.  [default: no-backlink]
+* `--relationship TEXT`: Link type (RELATES recommended).  [required]
+* `--backlink / --no-backlink`: Also create the mirror link in the app.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -4261,7 +4263,7 @@ $ ycli tracker entities delete [OPTIONS] ENTITY_TYPE ID
 
 **Options**:
 
-* `--with-board`: Also delete the entity's board.
+* `--with-board / --no-with-board`: Also delete the entity's board.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -4287,8 +4289,8 @@ $ ycli tracker entities search [OPTIONS] ENTITY_TYPE
 * `--input-text TEXT`: Substring in the entity name.
 * `--filter TEXT`: Filter key=value (JSON-coerced; repeatable).
 * `--order-by TEXT`: Field key to sort by.
-* `--order-asc`: Sort ascending.
-* `--root-only`: Only top-level entities.
+* `--order-asc / --no-order-asc`: Sort ascending.
+* `--root-only / --no-root-only`: Only top-level entities.
 * `--fields TEXT`: Comma-separated extra fields to include.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -4483,8 +4485,9 @@ $ ycli tracker entities reports-create [OPTIONS]
 
 * `--summary TEXT`: Report name (required).  [required]
 * `--query TEXT`: Issue filter in Tracker Query Language (required).  [required]
-* `--format TEXT`: Export format. Known values: xlsx, xml, csv.  [default: xlsx]
-* `-F, --field TEXT`: Issue field key to include as a column (repeatable).
+* `--type TEXT`: Export type: issueFilterExport.  [required]
+* `-F, --field TEXT`: Issue field key to include as a column (repeatable).  [required]
+* `--format TEXT`: Export format. Known values: xlsx, xml, csv.
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
@@ -4749,6 +4752,7 @@ $ ycli tracker entities checklists items-update [OPTIONS] ENTITY_TYPE ID ITEM_ID
 * `--checked / --no-checked`: Mark the item done or not done.
 * `--assignee TEXT`: Assignee user id/login.
 * `--deadline TEXT`: Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.
+* `--deadline-type TEXT`: Deadline kind: date or quarter; the API requires it.
 * `--expand TEXT`: Extra blocks to include in the reply.
 * `--fields TEXT`: Comma-separated fields to include in the reply.
 * `--notify / --no-notify`: Notify the users in the fields of the object (the API notifies by default).
@@ -5185,7 +5189,7 @@ $ ycli tracker workflows create [OPTIONS]
 
 * `--name TEXT`: Name of the workflow.  [required]
 * `--initial-action TEXT`: Initial action as a JSON object.  [required]
-* `--step TEXT`: Step as a JSON object: status plus actions (repeatable).
+* `--step TEXT`: Step as a JSON object: status plus actions (repeatable).  [required]
 * `--id TEXT`: Identifier of the workflow (generated if omitted).
 * `--queue TEXT`: Queue key to bind to (shared if omitted).
 * `--visual`: Send type VISUAL (the only type today).

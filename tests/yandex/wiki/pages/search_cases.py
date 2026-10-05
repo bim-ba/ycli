@@ -89,10 +89,6 @@ SEARCH_CASES = [
             SearchRequest.model_validate(
                 {
                     "query": "budget",
-                    "cursor": 1,
-                    "limit": 10,
-                    "order_by": "relevancy",
-                    "highlight": False,
                 }
             ),
         ),
@@ -106,10 +102,6 @@ SEARCH_CASES = [
                     "search",
                     json={
                         "query": "budget",
-                        "cursor": 1,
-                        "limit": 10,
-                        "order_by": "relevancy",
-                        "highlight": False,
                     },
                 ),
                 Reply(json={"results": [], "next_cursor": "2", "prev_cursor": None}),
@@ -122,10 +114,6 @@ SEARCH_CASES = [
             SearchRequest.model_validate(
                 {
                     "query": "onboarding",
-                    "cursor": 1,
-                    "limit": 10,
-                    "order_by": "relevancy",
-                    "highlight": False,
                 }
             ),
         ),
@@ -139,10 +127,6 @@ SEARCH_CASES = [
                     "search",
                     json={
                         "query": "onboarding",
-                        "cursor": 1,
-                        "limit": 10,
-                        "order_by": "relevancy",
-                        "highlight": False,
                     },
                 ),
                 Reply(json={"results": [FILE_HIT], "next_cursor": None, "prev_cursor": None}),

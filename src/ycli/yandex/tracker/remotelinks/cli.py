@@ -29,19 +29,17 @@ def create(
         str, typer.Option("--key", help="Key of the object in the external app.")
     ],
     origin: Annotated[str, typer.Option(help="Identifier of the external application.")],
-    relationship: Annotated[str, typer.Option(help="Link type (RELATES recommended).")] = "RELATES",
+    relationship: Annotated[str, typer.Option(help="Link type (RELATES recommended).")],
     backlink: Annotated[
-        bool,
+        bool | None,
         typer.Option("--backlink/--no-backlink", help="Also create the mirror link in the app."),
-    ] = False,
+    ] = None,
     *,
     tracker: TrackerClient,
 ) -> RemoteLink:
     """Add an external link to issue ISSUE_KEY (POST /issues/{issue_key}/remotelinks)."""
     body = RemoteLinkCreate(relationship=relationship, key=object_key, origin=origin)
-    return tracker.remotelinks.create(
-        issue_key, body=body, backlink="true" if backlink else "false"
-    )
+    return tracker.remotelinks.create(issue_key, body=body, backlink=backlink)
 
 
 @app.command()

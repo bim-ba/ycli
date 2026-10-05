@@ -29,7 +29,7 @@ steps:
     expect:
       "contains(content, 'second body ${RUN}')": true
   - id: append
-    run: wiki pages append ${id} --content "appended ${RUN}" --fields content --is-silent
+    run: wiki pages append ${id} --content "appended ${RUN}" --location bottom --fields content --is-silent
     expect:
       "contains(content, 'appended ${RUN}')": true
   - id: revisions

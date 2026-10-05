@@ -349,6 +349,13 @@ check of its own to say it. A reply that does not fit its model is another error
   clears a field. A test asks `is not None`, not truthiness. An MCP tool parameter follows the
   same rule (`Annotated[str | None, Field(…)] = None`; `limit` is `int | None` with `ge=1`).
   `tests/test_not_given.py` fails on a `""` or `0` default in a `cli.py` or an `mcp.py`.
+- ycli sends what the caller gave and nothing of its own (#296). A boolean is three-valued on
+  every surface: `Annotated[bool | None, typer.Option("--notify/--no-notify", …)] = None` in the
+  CLI, `bool | None = None` in a tool and in the SDK; `True` and `False` are both sent, `None` is
+  left out. No option, parameter or body field carries a default of ycli's own: where the API
+  declares a default it applies by itself, and where the API requires a value the option is
+  required. No `x or None` on a value the caller gave: an empty string or a `False` is a value.
+  A place that departs from this on purpose is marked `# violation(as-given): <reason>`.
 - An async trigger (export, clone, bulk change) takes `--wait/--no-wait`, default `--wait`, and
   polls through `ycli.cli.progress.wait_for`; the matching `operations get` read ships on every
   surface so an agent can poll it too.

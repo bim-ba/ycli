@@ -61,8 +61,8 @@ def list_(
         str | None, Field(description="Comma-separated question ids to return answers for.")
     ] = None,
     use_slugs: Annotated[
-        bool, Field(description="Name questions and options by slug instead of id.")
-    ] = False,
+        bool | None, Field(description="Name questions and options by slug instead of id.")
+    ] = None,
     date_from: Annotated[
         str | None, Field(description="ISO-8601: answers given at or after.")
     ] = None,

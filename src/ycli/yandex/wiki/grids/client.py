@@ -229,9 +229,7 @@ class GridsClient(Resource):
     def columns_create(self, grid_id: str, body: ColumnsAdd) -> RevisionResult:
         """``POST /grids/{id}/columns`` — add columns. ``body`` is a ``ColumnsAdd``.
 
-        The API requires a ``slug`` on every column (400 ``value_error.missing`` without one);
-        ``ColumnsAdd`` derives it from the title when omitted, but a raw dict body passed here
-        directly must carry it.
+        The API requires ``slug`` and ``required`` on every column.
 
         Args:
             grid_id: The grid's id.
@@ -242,7 +240,9 @@ class GridsClient(Resource):
 
         Examples:
             >>> grid_id = "0b5e6f7a-1c2d-4e3f-8a9b-0c1d2e3f4a01"
-            >>> columns = [{"title": "Due Date", "type": "date", "slug": "due_date"}]
+            >>> columns = [
+            ...     {"title": "Due Date", "type": "date", "slug": "due_date", "required": False}
+            ... ]
             >>> from ycli.yandex.wiki.grids.models import ColumnsAdd
             >>> wiki.grids.columns_create(
             ...     grid_id, ColumnsAdd.model_validate({"revision": "16", "columns": columns})

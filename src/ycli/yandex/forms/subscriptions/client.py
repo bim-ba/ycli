@@ -13,11 +13,6 @@ if TYPE_CHECKING:
     from ycli.yandex.models import ItemList
 
 
-def _without_id(body: Subscription) -> Subscription:
-    # ``id`` is the server's: a subscription read back and edited must not send it.
-    return body.model_copy(update={"id": None})
-
-
 class SubscriptionsClient(Resource):
     """List, get, create, update and delete the integrations of a hook; upload attachments."""
 
@@ -74,7 +69,7 @@ class SubscriptionsClient(Resource):
             ... ).id
             5
         """
-        return self._session.send(endpoints.create(survey_id, hook_id, _without_id(body)))
+        return self._session.send(endpoints.create(survey_id, hook_id, body))
 
     def update(
         self, survey_id: str, hook_id: int, subscription_id: int, body: Subscription
@@ -97,9 +92,7 @@ class SubscriptionsClient(Resource):
             ... ).active
             False
         """
-        return self._session.send(
-            endpoints.update(survey_id, hook_id, subscription_id, _without_id(body))
-        )
+        return self._session.send(endpoints.update(survey_id, hook_id, subscription_id, body))
 
     def delete(self, survey_id: str, hook_id: int, subscription_id: int) -> None:
         """``DELETE …/subscriptions/{subscription_id}`` (200, no body).

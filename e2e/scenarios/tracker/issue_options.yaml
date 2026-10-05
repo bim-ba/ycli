@@ -56,6 +56,19 @@ steps:
     run: tracker entities checklists create project ${project} --text "step one" --fields checklistItems --no-notify --no-notify-author
     expect:
       "length(fields.checklistItems)": 1
+    save:
+      item: "fields.checklistItems[0].id"
+  - id: checklist-deadline
+    run: tracker entities checklists items-update project ${project} ${item} --deadline 2027-01-01T00:00:00.000+0000 --deadline-type date --fields checklistItems
+    expect:
+      "fields.checklistItems[0].deadline.deadlineType": date
+  - id: report
+    run: 'tracker entities reports-create --summary "${RUN} report" --query "Queue: ${QUEUE}" --type issueFilterExport --field key --field summary'
+    expect:
+      entityType: report
+    save:
+      report: id
+    cleanup: tracker entities delete report ${report}
   - id: entity-comment
     run: tracker entities comments create project ${project} --text "note ${RUN}" --no-is-add-to-followers --no-notify --expand html
     expect:

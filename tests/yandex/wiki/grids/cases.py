@@ -30,11 +30,6 @@ def _revision(value: str) -> Reply:
 
 
 ROWS = [{"name": "Launch", "owner": "vera"}, {"name": "Review", "owner": "ivan"}]
-COLUMNS = [
-    {"title": "Due Date", "type": "date", "slug": "due_date"},
-    {"title": "Stage", "type": "select", "slug": "stage", "required": True,
-     "select_options": ["todo", "done"]},
-]  # fmt: skip
 COLUMNS_SENT = [
     {"title": "Due Date", "type": "date", "slug": "due_date", "required": False},
     {"title": "Stage", "type": "select", "slug": "stage", "required": True,
@@ -426,10 +421,10 @@ CASES = [
     ),
     Case(
         "wiki.grids.rows_move",
-        args=(G2, RowsMove.model_validate({"revision": "6"})),
-        cli=["wiki", "grids", "rows", "move", G2, "--revision", "6"],
+        args=(G2, RowsMove.model_validate({"row_id": "r1"})),
+        cli=["wiki", "grids", "rows", "move", G2, "--row-id", "r1"],
         mcp=None,
-        exchanges=[(Sent("POST", f"grids/{G2}/rows/move", json={"revision": "6"}), _revision("7"))],
+        exchanges=[(Sent("POST", f"grids/{G2}/rows/move", json={"row_id": "r1"}), _revision("7"))],
     ),
     Case(
         "wiki.grids.columns_create",
@@ -446,13 +441,13 @@ CASES = [
             "--revision",
             "16",
             "--columns",
-            json.dumps(COLUMNS),
+            json.dumps(COLUMNS_SENT),
             "--position",
             "1",
         ],
         mcp=(
             "wiki_grids_columns_create",
-            {"grid_id": G1, "body": {"revision": "16", "columns": COLUMNS, "position": 1}},
+            {"grid_id": G1, "body": {"revision": "16", "columns": COLUMNS_SENT, "position": 1}},
         ),
         exchanges=[
             (
@@ -552,11 +547,18 @@ CASES = [
     ),
     Case(
         "wiki.grids.columns_move",
-        args=(G2, ColumnsMove.model_validate({"revision": "7"})),
-        cli=["wiki", "grids", "columns", "move", G2, "--revision", "7"],
+        args=(G2, ColumnsMove.model_validate({"column_slug": "owner", "position": 0})),
+        cli=["wiki", "grids", "columns", "move", G2, "--column-slug", "owner", "--position", "0"],
         mcp=None,
         exchanges=[
-            (Sent("POST", f"grids/{G2}/columns/move", json={"revision": "7"}), _revision("8"))
+            (
+                Sent(
+                    "POST",
+                    f"grids/{G2}/columns/move",
+                    json={"column_slug": "owner", "position": 0},
+                ),
+                _revision("8"),
+            )
         ],
     ),
     Case(
@@ -630,7 +632,7 @@ CASES = [
     ),
     Case(
         "wiki.grids.clone",
-        args=(G2, GridClone.model_validate({"target": "eng/shape-only", "with_data": False})),
+        args=(G2, GridClone.model_validate({"target": "eng/shape-only"})),
         cli=["wiki", "grids", "clone", G2, "--target", "eng/shape-only", "--no-wait"],
         mcp=("wiki_grids_clone", {"grid_id": G2, "body": {"target": "eng/shape-only"}}),
         exchanges=[
@@ -638,7 +640,7 @@ CASES = [
                 Sent(
                     "POST",
                     f"grids/{G2}/clone",
-                    json={"target": "eng/shape-only", "with_data": False},
+                    json={"target": "eng/shape-only"},
                 ),
                 Reply(json={"operation": {"type": "clone_inline_grid", "id": "task-6202"}}),
             )

@@ -56,7 +56,7 @@ def update(
     tracker: TrackerClient,
 ) -> Column:
     """Edit column COLUMN_ID on board BOARD_ID (PATCH) — only supplied fields are sent."""
-    body = ColumnUpdate(name=name, statuses=status or None)
+    body = ColumnUpdate(name=name, statuses=status)
     return tracker.columns.update(board_id, column_id, body)
 
 

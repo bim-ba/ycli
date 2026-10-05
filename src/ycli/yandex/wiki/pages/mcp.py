@@ -45,15 +45,15 @@ RevisionID = Annotated[
     Field(description="Show this past revision (an id from ``pages_revisions_list``)."),
 ]
 RaiseOnRedirect = Annotated[
-    bool, Field(description="Fail if the page is a redirect instead of following it.")
+    bool | None, Field(description="Fail if the page is a redirect instead of following it.")
 ]
 PageReplyFields = Annotated[
     str | None,
     Field(description="Extra blocks to include in the reply (CSV), e.g. ``content,attributes``."),
 ]
-Silent = Annotated[bool, Field(description="Do not notify the page's subscribers.")]
-IncludeSelf = Annotated[bool, Field(description="Also return the ancestor page itself.")]
-ShowAll = Annotated[bool, Field(description="The API's ``show_all`` flag.")]
+Silent = Annotated[bool | None, Field(description="Do not notify the page's subscribers.")]
+IncludeSelf = Annotated[bool | None, Field(description="Also return the ancestor page itself.")]
+ShowAll = Annotated[bool | None, Field(description="The API's ``show_all`` flag.")]
 OrderDirection = Annotated[
     SortDirection | None, Field(description="Sort direction for ``order_by``.")
 ]
@@ -63,7 +63,7 @@ OrderDirection = Annotated[
 def get(
     slug: Slug,
     revision_id: RevisionID = None,
-    raise_on_redirect: RaiseOnRedirect = False,
+    raise_on_redirect: RaiseOnRedirect = None,
     client: WikiClient = Depends(wiki_client),
 ) -> str:
     """The page's markdown body for SLUG."""
@@ -87,8 +87,8 @@ def descendants_list(
     limit: Annotated[
         int | None, Field(ge=1, description=f"Max descendant refs to return; {LIMIT_CAP}")
     ] = None,
-    include_self: IncludeSelf = False,
-    show_all: ShowAll = False,
+    include_self: IncludeSelf = None,
+    show_all: ShowAll = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:
@@ -139,7 +139,7 @@ def get_by_id(
         ),
     ] = None,
     revision_id: RevisionID = None,
-    raise_on_redirect: RaiseOnRedirect = False,
+    raise_on_redirect: RaiseOnRedirect = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """A single page by its numeric id — the id-based twin of ``pages_get``/``pages_get_meta``.
@@ -166,8 +166,8 @@ def descendants_list_by_id(
     limit: Annotated[
         int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
     ] = None,
-    include_self: IncludeSelf = False,
-    show_all: ShowAll = False,
+    include_self: IncludeSelf = None,
+    show_all: ShowAll = None,
     client: WikiClient = Depends(wiki_client),
     config: AppConfig = Depends(app_config),
 ) -> ItemList[PageRef]:
@@ -194,7 +194,7 @@ def create(
     title: Annotated[str, Field(description="Page title.")],
     content: Annotated[str, Field(description="Page body in YFM markdown.")],
     fields: PageReplyFields = None,
-    is_silent: Silent = False,
+    is_silent: Silent = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """Create a wiki page at ``slug`` (``POST /pages``).
@@ -219,11 +219,11 @@ def update(
     content: Annotated[str, Field(description="New page body in YFM markdown (full replace).")],
     title: Annotated[str | None, Field(description="New title (unchanged when omitted).")] = None,
     fields: PageReplyFields = None,
-    is_silent: Silent = False,
+    is_silent: Silent = None,
     allow_merge: Annotated[
-        bool,
+        bool | None,
         Field(description="Merge with a concurrent edit (3-way merge) instead of failing."),
-    ] = False,
+    ] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """Replace a wiki page's body (and optionally its title) by numeric id.
@@ -244,7 +244,7 @@ def update(
 @mcp.tool(name="pages_delete", annotations={**DESTRUCTIVE, "title": "Delete Wiki page"})
 def delete(
     page_id: Annotated[int, Field(description="Numeric id of the page to delete.")],
-    recursive: Annotated[bool, Field(description="Also delete every page under it.")] = False,
+    recursive: Annotated[bool | None, Field(description="Also delete every page under it.")] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDeleteResult:
     """Delete a wiki page by numeric id (``DELETE /pages/{id}``).
@@ -270,7 +270,7 @@ def append(
         ),
     ],
     fields: PageReplyFields = None,
-    is_silent: Silent = False,
+    is_silent: Silent = None,
     client: WikiClient = Depends(wiki_client),
 ) -> PageDetails:
     """Append a YFM fragment to a wiki page without rewriting the whole body.
@@ -319,8 +319,8 @@ def move(
         ),
     ],
     validate_only: Annotated[
-        bool, Field(description="Validate the move without applying it.")
-    ] = False,
+        bool | None, Field(description="Validate the move without applying it.")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> AsyncOperation:
     """Move or rename pages (``POST /pages/move`` — asynchronous; undocumented by Yandex).
@@ -367,11 +367,12 @@ def revisions_list(
 def backlinks_list(
     page_id: Annotated[int, Field(description="Numeric id of the page that is linked to.")],
     for_cluster: Annotated[
-        bool, Field(description="Links to the page's whole subtree, not just the page.")
-    ] = False,
+        bool | None, Field(description="Links to the page's whole subtree, not just the page.")
+    ] = None,
     show_all: Annotated[
-        bool, Field(description="The API's ``show_all`` flag (undocumented; no effect seen live).")
-    ] = False,
+        bool | None,
+        Field(description="The API's ``show_all`` flag (undocumented; no effect seen live)."),
+    ] = None,
     limit: Annotated[
         int | None, Field(ge=1, description="Max refs (omitted: the configured cap).")
     ] = None,
@@ -400,12 +401,14 @@ def search(
             "``show_obsolete``."
         ),
     ] = None,
-    order_by: Annotated[SearchOrder, Field(description="How to sort the hits.")] = "relevancy",
+    order_by: Annotated[SearchOrder | None, Field(description="How to sort the hits.")] = None,
     highlight: Annotated[
-        bool, Field(description="Wrap the matches in ``<em>`` tags in title and content.")
-    ] = False,
-    limit: Annotated[int, Field(description="Hits per page.")] = 10,
-    cursor: Annotated[int, Field(description="Number of the result page to fetch, from 1.")] = 1,
+        bool | None, Field(description="Wrap the matches in ``<em>`` tags in title and content.")
+    ] = None,
+    limit: Annotated[int | None, Field(description="Hits per page.")] = None,
+    cursor: Annotated[
+        int | None, Field(description="Number of the result page to fetch, from 1.")
+    ] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> SearchPage:
     """Full-text search over wiki pages and files; returns one page of hits.

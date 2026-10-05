@@ -14,10 +14,11 @@ from ycli.yandex.tracker.checklists.models import (
     ChecklistItemUpdate,
 )
 from ycli.yandex.tracker.client import TrackerClient
-from ycli.yandex.tracker.models import DeadlineInput
 from ycli.yandex.tracker.typedefs import (
+    DeadlineTypeOpt,
     IssueKeyArg,
     ItemIDArg,
+    deadline_option,
 )
 
 app = typer.Typer(name="checklists", help="Tracker issue checklists.", no_args_is_help=True)
@@ -43,6 +44,7 @@ def create(
     checked: CheckedOpt = None,
     assignee: AssigneeOpt = None,
     deadline: DeadlineOpt = None,
+    deadline_type: DeadlineTypeOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Checklist:
@@ -51,7 +53,7 @@ def create(
         text=text,
         checked=checked,
         assignee=assignee,
-        deadline=DeadlineInput(date=deadline) if deadline is not None else None,
+        deadline=deadline_option(deadline, deadline_type),
     )
     return tracker.checklists.create(issue_key, body=body)
 
@@ -64,6 +66,7 @@ def update(
     checked: CheckedOpt = None,
     assignee: AssigneeOpt = None,
     deadline: DeadlineOpt = None,
+    deadline_type: DeadlineTypeOpt = None,
     *,
     tracker: TrackerClient,
 ) -> Checklist:
@@ -72,7 +75,7 @@ def update(
         text=text,
         checked=checked,
         assignee=assignee,
-        deadline=DeadlineInput(date=deadline) if deadline is not None else None,
+        deadline=deadline_option(deadline, deadline_type),
     )
     return tracker.checklists.update(issue_key, item_id, body=body)
 

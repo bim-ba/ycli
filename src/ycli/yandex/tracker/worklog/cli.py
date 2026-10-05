@@ -85,7 +85,7 @@ def list_global(
     created_at = [
         f"{prefix}:{value}"
         for prefix, value in (("from", created_from), ("to", created_to))
-        if value
+        if value is not None
     ]
     return tracker.worklog.list_global(created_by=created_by, created_at=created_at or None)
 
@@ -96,10 +96,7 @@ def create(
     duration: Annotated[
         str, typer.Option(help="Time spent, ISO-8601 duration (e.g. PT2H, PT300M, P1DT3H).")
     ],
-    start: Annotated[
-        str | None,
-        typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm; now when omitted."),
-    ] = None,
+    start: Annotated[str, typer.Option(help="Work start time, YYYY-MM-DDThh:mm:ss.sss±hhmm.")],
     comment: Annotated[
         str | None, typer.Option(help="Optional note saved in the time report.")
     ] = None,
@@ -107,8 +104,7 @@ def create(
     tracker: TrackerClient,
 ) -> Worklog:
     """Log time spent on issue ISSUE_KEY (POST /issues/{key}/worklog)."""
-    named = {"start": start} if start is not None else {}
-    body = WorklogCreate(duration=duration, comment=comment, **named)
+    body = WorklogCreate(duration=duration, start=start, comment=comment)
     return tracker.worklog.create(issue_key, body=body)
 
 

@@ -229,13 +229,13 @@ class DeadlineInput(RequestBody):
     """Typed ``deadline`` block for a checklist item or key result write body.
 
     Examples:
-        >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000").model_dump()
+        >>> DeadlineInput(date="2025-12-01T00:00:00.000+0000", deadline_type="date").model_dump()
         {'date': '2025-12-01T00:00:00.000+0000', 'deadlineType': 'date'}
     """
 
     date: str = Field(description="Deadline date, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
     deadline_type: str = Field(
-        default="date", alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
+        alias="deadlineType", description="Deadline kind: 'date' or 'quarter'."
     )
 
 

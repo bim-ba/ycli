@@ -154,7 +154,7 @@ $ ycli forms surveys list [OPTIONS]
 * `--ownership TEXT`: mine (created by you) or shared (open to you).
 * `--group TEXT`: Only forms of this group.
 * `--favourite / --no-favourite`: Only favourites (or only the others).
-* `--show-all`: As an administrator, every form of the organization.
+* `--show-all / --no-show-all`: As an administrator, every form of the organization.
 * `--orderby TEXT`: Sort, e.g. name,-modified,-count.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -366,7 +366,7 @@ $ ycli forms questions get [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--with-slugs`: Refer to other questions by slug, not id.
+* `--with-slugs / --no-with-slugs`: Refer to other questions by slug, not id.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -457,7 +457,7 @@ $ ycli forms questions delete [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--force`: Ignored by the API: a question that a display condition refers to is refused all the same.
+* `--force / --no-force`: Ignored by the API: a question that a display condition refers to is refused all the same.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -468,8 +468,8 @@ $ ycli forms questions delete [OPTIONS] SURVEY_ID QUESTION_ID
 
 Move a question (POST …/questions/{id}/move) to another page / position.
 
-``--position`` without a page target is silently ignored by the API (200, nothing moves),
-so ``--page`` defaults to 1 here when only ``--position`` is given.
+``--position`` without a page target is ignored by the API (200, nothing moves): give
+``--page`` or ``--page-id`` with it.
 
 **Usage**:
 
@@ -484,10 +484,10 @@ $ ycli forms questions move [OPTIONS] SURVEY_ID QUESTION_ID
 
 **Options**:
 
-* `--page INTEGER`: Target page number, 1-based (visibly defaults to 1 when only --position is given — the API silently ignores a bare position).
+* `--page INTEGER`: Target page number, 1-based.
 * `--page-id INTEGER`: Target page id.
 * `--position INTEGER`: New position on the page, 1-based.
-* `--create-page`: Create a new page for the question.
+* `--create-page / --no-create-page`: Create a new page for the question.
 * `--question TEXT`: Question id/slug to move into a question series.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1422,7 +1422,7 @@ $ ycli forms answers list [OPTIONS] SURVEY_ID
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `--questions TEXT`: Comma-separated question ids to return answers for.
-* `--use-slugs`: Name questions and options by slug, not id.
+* `--use-slugs / --no-use-slugs`: Name questions and options by slug, not id.
 * `--date-from TEXT`: ISO-8601: answers given at or after.
 * `--date-to TEXT`: ISO-8601: answers given at or before.
 * `--ordering TEXT`: asc is oldest first; the default is desc. Known values: asc, desc.
@@ -1450,8 +1450,8 @@ $ ycli forms answers export [OPTIONS] SURVEY_ID
 
 **Options**:
 
-* `--format TEXT`: Export format. Known values: csv, xlsx, json.  [default: xlsx]
-* `--upload TEXT`: Where the result goes; disk is Yandex Disk. Known values: default, disk.  [default: default]
+* `--format TEXT`: Export format. Known values: csv, xlsx, json.
+* `--upload TEXT`: Where the result goes; disk is Yandex Disk. Known values: default, disk.
 * `--started-at TEXT`: ISO-8601 start of the answer range (inclusive).
 * `--finished-at TEXT`: ISO-8601 end of the answer range (inclusive).
 * `--limit INTEGER`: Max answers to export (default: all).
@@ -1988,7 +1988,7 @@ $ ycli forms files download [OPTIONS]
 
 * `--path TEXT`: File download path (from an upload response).  [required]
 * `-O, --output TEXT`: Write to this path; omit or '-' for stdout.
-* `--download`: Ask the API for a Content-Disposition filename header.
+* `--download / --no-download`: Ask the API for a Content-Disposition filename header.
 * `--hash TEXT`: Access hash from the upload response (anonymous download).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -2143,7 +2143,7 @@ $ ycli forms filling submit [OPTIONS] SURVEY_ID
 **Options**:
 
 * `--body-file FILE`: JSON file: an answer map keyed by question slug (see `filling get` values).  [required]
-* `--validate-only`: Validate only — save nothing, fire no integrations.
+* `--validate-only / --no-validate-only`: Validate only — save nothing, fire no integrations.
 * `--key TEXT`: Personal-link fill key, when the form uses one.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.

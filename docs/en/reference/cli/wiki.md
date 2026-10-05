@@ -154,7 +154,7 @@ $ ycli wiki pages get [OPTIONS] SLUG
 **Options**:
 
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
-* `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
+* `--raise-on-redirect / --no-raise-on-redirect`: Fail if the page is a redirect, do not follow it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -201,8 +201,8 @@ $ ycli wiki pages descendants-list [OPTIONS] SLUG
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--include-self`: Also list the ancestor page itself.
-* `--show-all`: The API's show_all flag.
+* `--include-self / --no-include-self`: Also list the ancestor page itself.
+* `--show-all / --no-show-all`: The API's show_all flag.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -225,9 +225,9 @@ $ ycli wiki pages get-by-id [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--fields TEXT`: Comma-separated fields, e.g. content,attributes.  [default: content]
+* `--fields TEXT`: Comma-separated fields, e.g. content,attributes.
 * `--revision-id INTEGER`: Show this past revision (ids from `revisions-list`).
-* `--raise-on-redirect`: Fail if the page is a redirect, do not follow it.
+* `--raise-on-redirect / --no-raise-on-redirect`: Fail if the page is a redirect, do not follow it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -252,8 +252,8 @@ $ ycli wiki pages descendants-list-by-id [OPTIONS] PAGE_ID
 
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
-* `--include-self`: Also list the ancestor page itself.
-* `--show-all`: The API's show_all flag.
+* `--include-self / --no-include-self`: Also list the ancestor page itself.
+* `--show-all / --no-show-all`: The API's show_all flag.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -302,7 +302,7 @@ $ ycli wiki pages create [OPTIONS]
 * `--title TEXT`: Page title.  [required]
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
-* `--is-silent`: Do not notify the page's subscribers.
+* `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -328,8 +328,8 @@ $ ycli wiki pages update [OPTIONS] PAGE_ID
 * `--content TEXT`: Markdown body — pass "$(cat file.md)".  [required]
 * `--title TEXT`: New title (optional).
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
-* `--is-silent`: Do not notify the page's subscribers.
-* `--allow-merge`: Merge with a concurrent edit instead of failing.
+* `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
+* `--allow-merge / --no-allow-merge`: Merge with a concurrent edit instead of failing.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -352,7 +352,7 @@ $ ycli wiki pages delete [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--recursive`: Also delete every page under it.
+* `--recursive / --no-recursive`: Also delete every page under it.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -364,8 +364,7 @@ $ ycli wiki pages delete [OPTIONS] PAGE_ID
 Append content to a wiki page (POST /pages/{id}/append-content).
 
 The API requires exactly one placement selector (``body`` / ``section`` / ``anchor``) and
-rejects a bare ``{content}`` with 400, so the CLI always sends the whole-page ``body``
-selector — ``--location bottom`` unless overridden with ``--location top``.
+rejects a bare ``{content}`` with 400: ``--location`` gives the whole-page ``body`` selector.
 
 **Usage**:
 
@@ -380,9 +379,9 @@ $ ycli wiki pages append [OPTIONS] PAGE_ID
 **Options**:
 
 * `--content TEXT`: YFM fragment to append — pass "$(cat file.md)".  [required]
-* `--location TEXT`: Where in the body. Known values: top, bottom.  [default: bottom]
+* `--location TEXT`: Where in the body; without a placement the API answers 400. Known values: top, bottom.
 * `--fields TEXT`: Comma-separated blocks to include in the reply.
-* `--is-silent`: Do not notify the page's subscribers.
+* `--is-silent / --no-is-silent`: Do not notify the page's subscribers.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -407,7 +406,7 @@ $ ycli wiki pages clone [OPTIONS] PAGE_ID
 
 * `--target TEXT`: Destination slug for the copy.  [required]
 * `--title TEXT`: Title of the copy, if renaming.
-* `--subscribe-me`: Subscribe yourself to the copy.
+* `--subscribe-me / --no-subscribe-me`: Subscribe yourself to the copy.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -434,8 +433,8 @@ $ ycli wiki pages move [OPTIONS] SOURCE TARGET
 
 * `--next-to TEXT`: Sibling slug to place the page next to.
 * `--position TEXT`: Which side of --next-to. Known values: before, after.
-* `--copy-inherited-access / --no-copy-inherited-access`: Copy accesses inherited from the old parent (the API needs an explicit choice).  [default: no-copy-inherited-access]
-* `--validate-only`: Validate the move without applying it (nothing to wait for).
+* `--copy-inherited-access / --no-copy-inherited-access`: Copy accesses inherited from the old parent; the API can refuse a move without a choice.
+* `--validate-only / --no-validate-only`: Validate the move without applying it (nothing to wait for).
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -484,8 +483,8 @@ $ ycli wiki pages backlinks-list [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--for-cluster`: Links to the page's whole subtree.
-* `--show-all`: The API's show_all flag (no effect seen live).
+* `--for-cluster / --no-for-cluster`: Links to the page's whole subtree.
+* `--show-all / --no-show-all`: The API's show_all flag (no effect seen live).
 * `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
 * `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -520,11 +519,11 @@ $ ycli wiki pages search [OPTIONS] QUERY
 * `--created-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Created until (with --created-from).
 * `--modified-from [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified from (with --modified-to).
 * `--modified-to [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]`: Modified until (with --modified-from).
-* `--show-obsolete`: Also return obsolete documents.
-* `--order-by TEXT`: What to sort the hits by. Known values: relevancy, creation_date, modified_date.  [default: relevancy]
-* `--highlight`: Wrap matches in <em> tags.
-* `--limit INTEGER`: Results per page.  [default: 10]
-* `--cursor INTEGER`: Result page to fetch, from 1 (see next_cursor).  [default: 1]
+* `--show-obsolete / --no-show-obsolete`: Also return obsolete documents.
+* `--order-by TEXT`: What to sort the hits by. Known values: relevancy, creation_date, modified_date.
+* `--highlight / --no-highlight`: Wrap matches in <em> tags.
+* `--limit INTEGER`: Results per page.
+* `--cursor INTEGER`: Result page to fetch, from 1 (see next_cursor).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -602,7 +601,7 @@ $ ycli wiki access update [OPTIONS] PAGE_ID ACCESS_ID
 
 * `--role TEXT`: New role. Known values: reader, editor, extra_editor, author.
 * `--inheritance TEXT`: Whether the access also covers subpages. Known values: inherited, not_inherited.
-* `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
+* `--prevent-selflock / --no-prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -626,7 +625,7 @@ $ ycli wiki access delete [OPTIONS] PAGE_ID ACCESS_ID
 
 **Options**:
 
-* `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
+* `--prevent-selflock / --no-prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -649,7 +648,7 @@ $ ycli wiki access clear [OPTIONS] PAGE_ID
 
 **Options**:
 
-* `--prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
+* `--prevent-selflock / --no-prevent-selflock`: Refuse the change if it would leave you without read access or the right to change accesses.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1206,7 +1205,7 @@ $ ycli wiki grids update [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `--title TEXT`: New grid title.
 * `--default-sort TEXT`: New default sort as JSON in the write shape '[{"<column_slug>": "asc"|"desc"}]', e.g. '[{"priority": "desc"}]'.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1255,7 +1254,7 @@ $ ycli wiki grids clone [OPTIONS] GRID_ID
 
 * `--target TEXT`: Destination page slug (created if absent).  [required]
 * `--title TEXT`: Title of the copy, if renaming.
-* `--with-data`: Copy the rows too, not just the structure.
+* `--with-data / --no-with-data`: Copy the rows too, not just the structure.
 * `--wait / --no-wait`: Poll to a terminal status before printing.  [default: wait]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1300,8 +1299,8 @@ $ ycli wiki grids rows create [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--rows TEXT`: Rows as JSON, e.g. '[{"name":"x"}]' (slug→value).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `--position INTEGER`: Zero-based target index.
 * `--after-row-id TEXT`: Insert after this row id.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
@@ -1326,8 +1325,8 @@ $ ycli wiki grids rows delete [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--row-id TEXT`: Row id to delete (repeatable).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1350,8 +1349,8 @@ $ ycli wiki grids rows move [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
-* `--row-id TEXT`: Id of the first row to move.
+* `--row-id TEXT`: Id of the first row to move.  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `--after-row-id TEXT`: Move to just after this row id.
 * `--position INTEGER`: Zero-based target index.
 * `--rows-count INTEGER`: How many consecutive rows to move.
@@ -1427,8 +1426,8 @@ $ ycli wiki grids columns create [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--columns TEXT`: Columns as JSON, e.g. '[{"title":"C","type":"string","slug":"c"}]'.  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `--position INTEGER`: Zero-based target index.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1452,8 +1451,8 @@ $ ycli wiki grids columns delete [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--column-slug TEXT`: Column slug to delete (repeatable).  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1476,9 +1475,9 @@ $ ycli wiki grids columns move [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
-* `--column-slug TEXT`: Slug of the first column to move.
-* `--position INTEGER`: Zero-based target index.
+* `--column-slug TEXT`: Slug of the first column to move.  [required]
+* `--position INTEGER`: Zero-based destination index.  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `--columns-count INTEGER`: How many consecutive columns to move.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
@@ -1578,8 +1577,8 @@ $ ycli wiki grids cells update [OPTIONS] GRID_ID
 
 **Options**:
 
-* `--revision TEXT`: Grid revision the edit is based on.  [required]
 * `--cells TEXT`: Cells as JSON, e.g. '[{"row_id":1,"column_slug":"name","value":"x"}]'.  [required]
+* `--revision TEXT`: Grid revision the edit is based on.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -1754,7 +1753,7 @@ $ ycli wiki uploadsessions parts-upload [OPTIONS] SESSION_ID FILE_PATH
 
 **Options**:
 
-* `--part-number INTEGER`: 1-based part index (1 for the first part, +1 per next part).  [default: 1]
+* `--part-number INTEGER`: 1-based part index (1 for the first part, +1 per next part).  [required]
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
