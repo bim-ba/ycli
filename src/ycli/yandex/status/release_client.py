@@ -6,6 +6,8 @@ session is built with an auth that adds nothing, and PyPI's JSON API needs none.
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 import httpx2
 from pydantic import Field
 
@@ -37,7 +39,9 @@ def latest_release() -> str:
     """
     session = connect(PYPI, auth=httpx2.Auth(), http=RELEASE_CHECK_HTTP)
     try:
-        return session.send(Endpoint("GET", f"pypi/{DISTRIBUTION}/json", _Project)).info.version
+        return session.send(
+            Endpoint(HTTPMethod.GET, f"pypi/{DISTRIBUTION}/json", _Project)
+        ).info.version
     finally:
         session.close()
 

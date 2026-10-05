@@ -9,6 +9,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.attachments.models import (
     AttachedFile,
@@ -26,7 +28,7 @@ def list_(
     path = f"pages/{segment(page_id)}/attachments"
     params = {"page_size": 100, "order_by": order_by, "order_direction": order_direction}
     return Paged(
-        Endpoint("GET", path, CursorPage[Attachment], params=params),
+        Endpoint(HTTPMethod.GET, path, CursorPage[Attachment], params=params),
         WIKI_CURSOR,
         lambda page: page.results,
     )
@@ -34,30 +36,32 @@ def list_(
 
 def get(page_id: int, file_id: int) -> Endpoint[AttachedFile]:
     """``GET /pages/{id}/attachments/{file_id}`` (undocumented): one attachment's metadata."""
-    return Endpoint("GET", f"pages/{segment(page_id)}/attachments/{segment(file_id)}", AttachedFile)
+    return Endpoint(
+        HTTPMethod.GET, f"pages/{segment(page_id)}/attachments/{segment(file_id)}", AttachedFile
+    )
 
 
 def previews_download(page_id: int, file_id: int) -> Endpoint[bytes]:
     """``GET …/{file_id}/preview`` (undocumented): the preview image; base64 text if none."""
     path = f"pages/{segment(page_id)}/attachments/{segment(file_id)}/preview"
-    return Endpoint("GET", path, bytes)
+    return Endpoint(HTTPMethod.GET, path, bytes)
 
 
 def download(page_id: int, file_id: int) -> Endpoint[bytes]:
     path = f"pages/{segment(page_id)}/attachments/{segment(file_id)}/download"
-    return Endpoint("GET", path, bytes)
+    return Endpoint(HTTPMethod.GET, path, bytes)
 
 
 def download_by_url(url: str) -> Endpoint[bytes]:
     """``GET /pages/attachments/download_by_url`` — the API redirects to the file, followed."""
     params = {"url": url, "download": "true"}
-    return Endpoint("GET", "pages/attachments/download_by_url", bytes, params=params)
+    return Endpoint(HTTPMethod.GET, "pages/attachments/download_by_url", bytes, params=params)
 
 
 def delete(page_id: int, file_id: int) -> Endpoint[None]:
-    return Endpoint("DELETE", f"pages/{segment(page_id)}/attachments/{segment(file_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"pages/{segment(page_id)}/attachments/{segment(file_id)}")
 
 
 def attach(page_id: int, body: AttachmentCreate) -> Endpoint[AttachResponse]:
     path = f"pages/{segment(page_id)}/attachments"
-    return Endpoint("POST", path, AttachResponse, json=body)
+    return Endpoint(HTTPMethod.POST, path, AttachResponse, json=body)

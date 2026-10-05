@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parent.parent / "src"
+SRC = Path(__file__).resolve().parents[2] / "src"
 SINGULAR = re.compile(r"^\s*Example:\s*$", re.MULTILINE)
 
 

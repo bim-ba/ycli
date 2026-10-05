@@ -10,6 +10,7 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
@@ -42,29 +43,33 @@ def list_(filters: NotificationFilter) -> Paged[NotificationPage, Notification]:
     """
     params = {**filters.params(), "page_size": PAGE_SIZE}
     return Paged(
-        Endpoint("GET", "notifications", NotificationPage, params=params),
+        Endpoint(HTTPMethod.GET, "notifications", NotificationPage, params=params),
         NextURLPagination(url_of=_next_link, query_only=True),
         lambda page: page.result,
     )
 
 
 def get(notification_id: int) -> Endpoint[NotificationDetails]:
-    return Endpoint("GET", f"notifications/{segment(notification_id)}", NotificationDetails)
+    return Endpoint(
+        HTTPMethod.GET, f"notifications/{segment(notification_id)}", NotificationDetails
+    )
 
 
 def status_get(notification_id: int) -> Endpoint[NotificationStatus]:
-    return Endpoint("GET", f"notifications/{segment(notification_id)}/status", NotificationStatus)
+    return Endpoint(
+        HTTPMethod.GET, f"notifications/{segment(notification_id)}/status", NotificationStatus
+    )
 
 
 def restart(notification_id: int) -> Endpoint[NotificationAction]:
     path = f"notifications/{segment(notification_id)}/restart"
-    return Endpoint("POST", path, NotificationAction)
+    return Endpoint(HTTPMethod.POST, path, NotificationAction)
 
 
 def cancel(notification_id: int) -> Endpoint[NotificationAction]:
     path = f"notifications/{segment(notification_id)}/cancel"
-    return Endpoint("POST", path, NotificationAction)
+    return Endpoint(HTTPMethod.POST, path, NotificationAction)
 
 
 def errors_list(survey_id: str) -> Endpoint[ItemList[int]]:
-    return Endpoint("GET", f"surveys/{segment(survey_id)}/show-errors", ItemList[int])
+    return Endpoint(HTTPMethod.GET, f"surveys/{segment(survey_id)}/show-errors", ItemList[int])

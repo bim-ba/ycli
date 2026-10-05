@@ -7,12 +7,14 @@ Examples:
     >>> delete(7, "9", prevent_selflock=True).params
     {'prevent_selflock': True}
     >>> update(7, "9", {"role": "reader"}, prevent_selflock=False).effect
-    'idempotent_write'
+    <Effect.IDEMPOTENT_WRITE: 'idempotent_write'>
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, segment
+from http import HTTPMethod
+
+from ycli.yandex.core.endpoint import Effect, Endpoint, segment
 from ycli.yandex.wiki.access.models import PageAccess, PageAccessCreate, PageAccessUpdate
 
 
@@ -21,7 +23,7 @@ def _selflock(prevent_selflock: bool | None) -> dict[str, bool | None]:
 
 
 def create(page_id: int, body: PageAccessCreate) -> Endpoint[PageAccess]:
-    return Endpoint("POST", f"pages/{segment(page_id)}/access", PageAccess, json=body)
+    return Endpoint(HTTPMethod.POST, f"pages/{segment(page_id)}/access", PageAccess, json=body)
 
 
 def update(
@@ -30,21 +32,21 @@ def update(
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
     # violation(arch-3): POST access sets role; a resend is a no-op
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         path,
         PageAccess,
         params=_selflock(prevent_selflock),
         json=body,
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     )
 
 
 def delete(page_id: int, access_id: str, *, prevent_selflock: bool | None) -> Endpoint[None]:
     path = f"pages/{segment(page_id)}/access/{segment(access_id)}"
-    return Endpoint("DELETE", path, params=_selflock(prevent_selflock))
+    return Endpoint(HTTPMethod.DELETE, path, params=_selflock(prevent_selflock))
 
 
 def clear(page_id: int, *, prevent_selflock: bool | None) -> Endpoint[None]:
     return Endpoint(
-        "DELETE", f"pages/{segment(page_id)}/access", params=_selflock(prevent_selflock)
+        HTTPMethod.DELETE, f"pages/{segment(page_id)}/access", params=_selflock(prevent_selflock)
     )

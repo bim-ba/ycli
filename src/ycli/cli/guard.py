@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 def attended() -> bool:
     """Whether a person can be asked: stdin and stdout are both terminals (not a pipe or a CI)."""
+    # violation(arch-4): only asks whether stdout is a terminal; it writes nothing
     return sys.stdin.isatty() and sys.stdout.isatty()
 
 
@@ -56,11 +57,14 @@ class SendGuard:
 
     def __call__(self, effect: Effect, request: httpx2.Request) -> None:
         """Let a read pass, stop a write under ``--dry-run``, confirm a delete without ``--yes``."""
-        if effect == "read":
+        # Imported here: the core is loaded by the time a request is about to go.
+        from ycli.yandex.core.endpoint import Effect
+
+        if effect is Effect.READ:
             return
         if self.options.get("dry_run"):
             raise DryRunPlanned(PlannedRequest.of(request))
-        if effect == "destructive" and not self.options.get("yes"):
+        if effect is Effect.DESTRUCTIVE and not self.options.get("yes"):
             self._confirm(f"{request.method} {shown(request.url)} — this deletes data.")
 
     def _confirm(self, what: str) -> None:

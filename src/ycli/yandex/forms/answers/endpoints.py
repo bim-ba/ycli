@@ -4,11 +4,12 @@ Examples:
     >>> get(answer_id=7, answer_key=None).params
     {'answer_id': 7, 'answer_key': None}
     >>> export("686d", {"format": "xlsx"}).effect
-    'write'
+    <Effect.WRITE: 'write'>
 """
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
 def get(*, answer_id: int | None, answer_key: str | None) -> Endpoint[AnswerDetails]:
     """``GET /answers`` — a flat route keyed by query, not nested under ``/surveys/{id}``."""
     params = {"answer_id": answer_id, "answer_key": answer_key}
-    return Endpoint("GET", "answers", AnswerDetails, params=params)
+    return Endpoint(HTTPMethod.GET, "answers", AnswerDetails, params=params)
 
 
 def _next_url(response: httpx2.Response) -> str | None:
@@ -64,7 +65,9 @@ def list_(
         "format": answer_format,
     }
     return Paged(
-        Endpoint("GET", f"surveys/{segment(survey_id)}/answers", AnswersResponse, params=params),
+        Endpoint(
+            HTTPMethod.GET, f"surveys/{segment(survey_id)}/answers", AnswersResponse, params=params
+        ),
         NextURLPagination(url_of=_next_url, query_only=True),
         lambda page: page.answers,
     )
@@ -72,7 +75,7 @@ def list_(
 
 def export(survey_id: str, body: AnswerExport) -> Endpoint[OperationResult]:
     return Endpoint(
-        "POST", f"surveys/{segment(survey_id)}/answers/export", OperationResult, json=body
+        HTTPMethod.POST, f"surveys/{segment(survey_id)}/answers/export", OperationResult, json=body
     )
 
 
@@ -87,13 +90,18 @@ def export_results_get(survey_id: str, task_id: str) -> Endpoint[OperationResult
     path = f"surveys/{segment(survey_id)}/answers/export-results"
     params = {"task_id": task_id}
     return Endpoint(
-        "GET", path, OperationResult, params=params, parser=_export_status, follow_redirects=False
+        HTTPMethod.GET,
+        path,
+        OperationResult,
+        params=params,
+        parser=_export_status,
+        follow_redirects=False,
     )
 
 
 def export_download(survey_id: str, task_id: str) -> Endpoint[bytes]:
     path = f"surveys/{segment(survey_id)}/answers/export-results"
-    return Endpoint("GET", path, bytes, params={"task_id": task_id})
+    return Endpoint(HTTPMethod.GET, path, bytes, params={"task_id": task_id})
 
 
 def integrations_list(
@@ -101,13 +109,15 @@ def integrations_list(
 ) -> Endpoint[ItemList[AnswerIntegration]]:
     """``GET /answers/integrations`` — flat like :func:`get`, keyed by query."""
     params = {"answer_id": answer_id, "answer_key": answer_key}
-    return Endpoint("GET", "answers/integrations", ItemList[AnswerIntegration], params=params)
+    return Endpoint(
+        HTTPMethod.GET, "answers/integrations", ItemList[AnswerIntegration], params=params
+    )
 
 
 def delete(survey_id: str, answer_id: int) -> Endpoint[None]:
-    return Endpoint("DELETE", f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}")
 
 
 def restore(survey_id: str, answer_id: int) -> Endpoint[None]:
     path = f"surveys/{segment(survey_id)}/answers/{segment(answer_id)}/restore"
-    return Endpoint("POST", path)
+    return Endpoint(HTTPMethod.POST, path)

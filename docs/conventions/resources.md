@@ -74,7 +74,7 @@ suggests the known values, and a tool's schema shows them (`anyOf` of the `enum`
 - **A set of ycli's own is a `StrEnum`.** The rule in one line: a closed set that ycli owns is a
   `StrEnum`, a set of values of the API is `Literal[...] | str`. ycli's own sets are the ones
   only a release of ycli changes: `OutputFormat`, `Transport`, `Kind`, `LogLevel`, `LogFormat`,
-  `CredentialKind` (and `Method`, `Effect`, still `Literal`, which follow). A member equals its
+  `CredentialKind`, `Effect`; the HTTP method is the standard library's `http.HTTPMethod`. A member equals its
   string, so a setting, an option and a reply field carry the same text as before.
 
 ### A field the API ignores
@@ -167,7 +167,7 @@ Every MCP tool MUST satisfy the following metadata contract.  fastmcp auto-deriv
 | `name` | `@mcp.tool(name=…)` | the operation's name with its resource in front (`boards_update`), see [Naming an operation](#7-naming-an-operation). Prefixed with the service it is the CLI path of the same operation (`tracker_boards_update` = `ycli tracker boards update`) |
 | description | function docstring (first line) | One sentence; the LLM's primary selector — **required** |
 | output schema | return type annotation | A concrete type (`ModelClass`, `list[X]`, `dict[str, Any]`) — **required**; bodyless writes return `Ack` (see below) |
-| parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueID`, `Version`, `SurveyID`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
+| parameters | `Annotated[T, Field(description=…)]` | **Every** input property carries a non-empty description (`tests/unit/mcp/test_mcp_metadata.py`). Reuse the shared aliases in `<domain>/dependencies.py` (`IssueKey`, `QueueID`, `Version`, `SurveyID`, `Slug`, …) instead of repeating a description per tool; a request `body` model describes itself through its fields |
 | `annotations` | `@mcp.tool(annotations={**<SET>, "title": "…"})` | `<SET>` matches the verb class exactly: `RO` for reads, `WRITE` for additive creates, `WRITE_IDEMPOTENT` for PATCH-style edits, `DESTRUCTIVE` for delete/clear/abort — plus an imperative title. Explicit because the MCP-spec default for an unannotated tool is `destructiveHint=true` |
 | `tags` | never passed | The root server derives them (`ycli.mcp.listing.DerivedTags`): the service from the tool's name, `write` when `readOnlyHint` is not true — the tag `ycli mcp start --read-only` disables wholesale. A tool that passes `tags=` fails `test_arch3_no_tool_states_its_tags_itself` |
 
@@ -347,7 +347,7 @@ check of its own to say it. A reply that does not fit its model is another error
   `""` or `0`: an explicit empty string or zero is a value and is sent, so `--description ""`
   clears a field. A test asks `is not None`, not truthiness. An MCP tool parameter follows the
   same rule (`Annotated[str | None, Field(…)] = None`; `limit` is `int | None` with `ge=1`).
-  `tests/test_not_given.py` fails on a `""` or `0` default in a `cli.py` or an `mcp.py`.
+  `tests/unit/test_not_given.py` fails on a `""` or `0` default in a `cli.py` or an `mcp.py`.
 - ycli sends what the caller gave and nothing of its own (#296). A boolean is three-valued on
   every surface: `Annotated[bool | None, typer.Option("--notify/--no-notify", …)] = None` in the
   CLI, `bool | None = None` in a tool and in the SDK; `True` and `False` are both sent, `None` is

@@ -8,6 +8,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.wiki.cursor import WIKI_CURSOR
 from ycli.yandex.wiki.models import CursorPage
@@ -31,7 +33,10 @@ def list_(
     }
     return Paged(
         Endpoint(
-            "GET", f"pages/{segment(page_id)}/resources", CursorPage[ResourceItem], params=params
+            HTTPMethod.GET,
+            f"pages/{segment(page_id)}/resources",
+            CursorPage[ResourceItem],
+            params=params,
         ),
         WIKI_CURSOR,
         lambda page: page.results,

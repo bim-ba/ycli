@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 import pytest
 from pydantic import SecretStr
 
@@ -34,7 +36,7 @@ def _get_with(status: int, path: str = "detail", **answer):
         http=HTTPConfig(retries=0),
         transport=api.transport(),
     )
-    return session.send(Endpoint("GET", path, dict))
+    return session.send(Endpoint(HTTPMethod.GET, path, dict))
 
 
 def _get(status: int):

@@ -1,6 +1,7 @@
 """SyncSession / AsyncSession: typed errors, retries by effect, logging, page walking."""
 
 import logging
+from http import HTTPMethod
 
 import httpx2
 import pytest
@@ -37,13 +38,15 @@ def _session(api: MockAPI, retries: int = 2, max_pages: int = 1000):
 
 
 def _listing() -> Paged[list[int], int]:
-    return Paged(Endpoint("GET", "items", list[int]), PageNumberPagination(page_size=2), list)
+    return Paged(
+        Endpoint(HTTPMethod.GET, "items", list[int]), PageNumberPagination(page_size=2), list
+    )
 
 
 def test_send_applies_base_url_auth_and_org_header():
     api = MockAPI()
     api.add("GET", URL, json=[1])
-    assert _session(api).send(Endpoint("GET", "items", list[int])) == [1]
+    assert _session(api).send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
     request = api.calls[0]
     assert request.headers["Authorization"] == "OAuth y0_secret"
     assert request.headers["X-Org-Id"] == "org"
@@ -57,14 +60,14 @@ def test_non_2xx_raises_the_typed_error_with_the_api_message(status, error):
     api = MockAPI()
     api.add("GET", URL, json={"errorMessages": ["Nope."]}, status=status)
     with pytest.raises(error, match=r"Nope\."):
-        _session(api, retries=0).send(Endpoint("GET", "items"))
+        _session(api, retries=0).send(Endpoint(HTTPMethod.GET, "items"))
 
 
 def test_a_5xx_is_retried_for_a_read():
     api = MockAPI()
     api.add("GET", URL, status=503)
     api.add("GET", URL, json=[1])
-    assert _session(api).send(Endpoint("GET", "items", list[int])) == [1]
+    assert _session(api).send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
     assert len(api.calls) == 2
 
 
@@ -72,7 +75,7 @@ def test_a_5xx_is_not_retried_for_a_create():
     api = MockAPI()
     api.add("POST", URL, status=503)
     with pytest.raises(YandexServerError):
-        _session(api).send(Endpoint("POST", "items"))
+        _session(api).send(Endpoint(HTTPMethod.POST, "items"))
     assert len(api.calls) == 1
 
 
@@ -82,7 +85,7 @@ def test_a_429_is_retried_even_for_a_create_and_reads_retry_after(caplog):
     api.add("POST", URL, status=429, headers={"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"})
     api.add("POST", URL, json={"id": 1})
     caplog.set_level(logging.INFO, logger="ycli.http")
-    assert _session(api).send(Endpoint("POST", "items", dict)) == {"id": 1}
+    assert _session(api).send(Endpoint(HTTPMethod.POST, "items", dict)) == {"id": 1}
     assert len(api.calls) == 3
     assert "retrying POST https://api.test/v1/items (attempt 2 of 3)" in caplog.text
 
@@ -91,7 +94,7 @@ def test_retries_run_out():
     api = MockAPI()
     api.add("GET", URL, status=429, headers={"Retry-After": "0"})
     with pytest.raises(YandexRateLimitError) as caught:
-        _session(api, retries=1).send(Endpoint("GET", "items"))
+        _session(api, retries=1).send(Endpoint(HTTPMethod.GET, "items"))
     assert caught.value.retry_after == 0.0
     assert len(api.calls) == 2
 
@@ -105,13 +108,13 @@ def test_a_lost_connection_is_a_typed_error():
         PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=httpx2.MockTransport(_drop)
     )
     with pytest.raises(YandexConnectionError, match="connection refused"):
-        session.send(Endpoint("GET", "items"))
+        session.send(Endpoint(HTTPMethod.GET, "items"))
 
 
 def test_a_path_that_leaves_its_endpoint_is_never_sent():
     api = MockAPI()
     with pytest.raises(YandexClientError, match="leaves its endpoint"):
-        _session(api).send(Endpoint("PATCH", "items/..%2Fqueues%2FDE", json={}))
+        _session(api).send(Endpoint(HTTPMethod.PATCH, "items/..%2Fqueues%2FDE", json={}))
     assert api.calls == []
 
 
@@ -126,14 +129,14 @@ def test_a_redirect_loop_is_a_typed_error():
         transport=httpx2.MockTransport(_redirect_loop),
     )
     with pytest.raises(YandexConnectionError, match="TooManyRedirects"):
-        session.send(Endpoint("GET", "items"))
+        session.send(Endpoint(HTTPMethod.GET, "items"))
 
 
 def test_each_request_is_logged_without_secrets(caplog):
     api = MockAPI()
     api.add("GET", URL, json=[])
     caplog.set_level(logging.INFO, logger="ycli.http")
-    _session(api).send(Endpoint("GET", "items"))
+    _session(api).send(Endpoint(HTTPMethod.GET, "items"))
     assert "GET https://api.test/v1/items -> 200" in caplog.text
     assert "y0_secret" not in caplog.text
 
@@ -203,11 +206,11 @@ async def test_async_session_mirrors_the_sync_contract(caplog):
         http=HTTPConfig(retries=1),
         transport=api.transport(),
     )
-    assert await session.send(Endpoint("GET", "items", list[int])) == [1, 2]
+    assert await session.send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1, 2]
     assert [item async for item in session.iterate(_listing())] == [3]
     with pytest.raises(YandexServerError):
         api.add("GET", f"{URL}/broken", status=500)
-        await session.send(Endpoint("GET", "items/broken"))
+        await session.send(Endpoint(HTTPMethod.GET, "items/broken"))
     await session.aclose()
 
 
@@ -229,7 +232,7 @@ async def test_async_path_that_leaves_its_endpoint_is_never_sent():
     api = MockAPI()
     session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport())
     with pytest.raises(YandexClientError):
-        await session.send(Endpoint("DELETE", "items/..%2Fqueues%2FDE"))
+        await session.send(Endpoint(HTTPMethod.DELETE, "items/..%2Fqueues%2FDE"))
     assert api.calls == []
 
 
@@ -238,7 +241,7 @@ async def test_async_lost_connection_is_typed():
         PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=httpx2.MockTransport(_drop)
     )
     with pytest.raises(YandexConnectionError):
-        await session.send(Endpoint("GET", "items"))
+        await session.send(Endpoint(HTTPMethod.GET, "items"))
 
 
 def test_the_default_transport_is_httpx2s_own():
@@ -264,14 +267,14 @@ def test_a_redirect_is_followed():
     api = MockAPI()
     api.add("GET", f"{URL}/OLD-1", status=301, headers={"Location": f"{URL}/NEW-1"})
     api.add("GET", f"{URL}/NEW-1", json={"key": "NEW-1"})
-    assert _session(api).send(Endpoint("GET", "items/OLD-1", dict)) == {"key": "NEW-1"}
+    assert _session(api).send(Endpoint(HTTPMethod.GET, "items/OLD-1", dict)) == {"key": "NEW-1"}
 
 
 def test_a_retry_after_beyond_the_cap_fails_fast():
     api = MockAPI()
     api.add("GET", URL, status=429, headers={"Retry-After": "86400"})
     with pytest.raises(YandexRateLimitError) as caught:
-        _session(api).send(Endpoint("GET", "items"))
+        _session(api).send(Endpoint(HTTPMethod.GET, "items"))
     assert caught.value.retry_after == 86400.0
     assert len(api.calls) == 1
 
@@ -281,14 +284,14 @@ def test_a_retry_after_that_is_not_a_delay_is_ignored(value):
     api = MockAPI()
     api.add("GET", URL, status=429, headers={"Retry-After": value})
     api.add("GET", URL, json=[1])
-    assert _session(api).send(Endpoint("GET", "items", list[int])) == [1]
+    assert _session(api).send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
 
 
 def test_secret_query_parameters_are_masked_in_logs_and_errors(caplog):
     api = MockAPI()
     api.add("GET", URL, status=404, json={"message": "nope"})
     caplog.set_level(logging.INFO, logger="ycli.http")
-    endpoint = Endpoint("GET", "items", params={"apikey": "TOPSECRET", "lang": "ru"})
+    endpoint = Endpoint(HTTPMethod.GET, "items", params={"apikey": "TOPSECRET", "lang": "ru"})
     with pytest.raises(YandexNotFoundError) as caught:
         _session(api).send(endpoint)
     assert "TOPSECRET" not in str(caught.value)
@@ -306,7 +309,10 @@ def test_an_endpoint_can_take_a_redirect_instead_of_following_it():
     api = MockAPI()
     api.add("GET", URL, status=302, headers={"Location": "https://files.test/export.csv"})
     endpoint = Endpoint(
-        "GET", "items", parser=lambda response: response.is_redirect, follow_redirects=False
+        HTTPMethod.GET,
+        "items",
+        parser=lambda response: response.is_redirect,
+        follow_redirects=False,
     )
     assert _session(api).send(endpoint) is True
     assert len(api.calls) == 1
@@ -317,7 +323,10 @@ async def test_async_send_can_take_a_redirect_too():
     api.add("GET", URL, status=302, headers={"Location": "https://files.test/export.csv"})
     session = connect_async(PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport())
     endpoint = Endpoint(
-        "GET", "items", parser=lambda response: response.status_code, follow_redirects=False
+        HTTPMethod.GET,
+        "items",
+        parser=lambda response: response.status_code,
+        follow_redirects=False,
     )
     assert await session.send(endpoint) == 302
     await session.aclose()
@@ -332,7 +341,7 @@ def test_a_3xx_that_is_not_an_unfollowed_redirect_is_an_error(status, headers):
     api.add("DELETE", URL, status=status, headers=headers)
     api.add("GET", "https://files.test/x", status=300)
     with pytest.raises(YandexClientError):
-        _session(api, retries=0).send(Endpoint("DELETE", "items"))
+        _session(api, retries=0).send(Endpoint(HTTPMethod.DELETE, "items"))
 
 
 # --- before_send: one call per endpoint, ahead of the first attempt -------------------------------
@@ -366,7 +375,7 @@ def test_the_hook_sees_the_effect_and_the_request_before_anything_is_sent():
     api = MockAPI()
     api.add("DELETE", f"{URL}/7", status=204)
     hook = _Hook(api)
-    _hooked(api, hook).send(Endpoint("DELETE", "items/7"))
+    _hooked(api, hook).send(Endpoint(HTTPMethod.DELETE, "items/7"))
     [(effect, request, sent_before)] = hook.calls
     assert (effect, request.method, str(request.url), sent_before) == (
         "destructive",
@@ -380,7 +389,7 @@ def test_a_hook_that_raises_stops_the_request():
     api = MockAPI()
     hook = _Hook(api, refuse=True)
     with pytest.raises(RuntimeError, match="refused"):
-        _hooked(api, hook).send(Endpoint("POST", "items"))
+        _hooked(api, hook).send(Endpoint(HTTPMethod.POST, "items"))
     assert api.calls == []
 
 
@@ -389,7 +398,7 @@ def test_the_hook_runs_once_however_many_attempts_follow():
     api.add("GET", URL, status=503)
     api.add("GET", URL, json=[1])
     hook = _Hook(api)
-    assert _hooked(api, hook).send(Endpoint("GET", "items", list[int])) == [1]
+    assert _hooked(api, hook).send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
     assert len(api.calls) == 2
     assert len(hook.calls) == 1
 
@@ -413,7 +422,7 @@ async def test_the_async_session_calls_the_hook_the_same_way():
     session = connect_async(
         PROFILE, auth=OAuthTokenAuth(SecretStr("t")), transport=api.transport(), before_send=hook
     )
-    await session.send(Endpoint("DELETE", "items/7"))
+    await session.send(Endpoint(HTTPMethod.DELETE, "items/7"))
     assert [item async for item in session.iterate(_listing())] == [1, 2, 3]
     assert [(effect, sent) for effect, _, sent in hook.calls] == [("destructive", 0), ("read", 1)]
     await session.aclose()
@@ -428,7 +437,7 @@ async def test_an_async_hook_that_raises_stops_the_request():
         before_send=_Hook(api, refuse=True),
     )
     with pytest.raises(RuntimeError, match="refused"):
-        await session.send(Endpoint("POST", "items"))
+        await session.send(Endpoint(HTTPMethod.POST, "items"))
     assert api.calls == []
 
 

@@ -1,6 +1,7 @@
 """Contract cases for Forms ``/surveys/{id}/access`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.forms.access.models import AccessGrant, AccessRevoke, AccessUpdate
 
 SID = "686d0a1b2c3d4e5f000000d0"
@@ -46,7 +47,7 @@ CASES = [
                 Reply(json=PERMISSIONS),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "forms.access.grant",
@@ -70,7 +71,7 @@ CASES = [
                 Reply(json=PERMISSIONS),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "forms.access.grant",
@@ -94,7 +95,7 @@ CASES = [
                 Reply(json=PERMISSIONS),
             )
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "forms.access.revoke",
@@ -121,7 +122,7 @@ CASES = [
                 Reply(json=PERMISSIONS),
             )
         ],
-        effect="destructive",
+        effect=Effect.DESTRUCTIVE,
     ),
     Case(
         "forms.access.revoke",
@@ -136,6 +137,6 @@ CASES = [
                 Reply(json=PERMISSIONS),
             )
         ],
-        effect="destructive",
+        effect=Effect.DESTRUCTIVE,
     ),
 ]

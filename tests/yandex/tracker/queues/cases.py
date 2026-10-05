@@ -1,6 +1,7 @@
 """Contract cases for Tracker ``/queues`` and ``/versions`` (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.tracker.queues.models import (
     IssueTypeConfigInput,
     QueueCreate,
@@ -386,7 +387,7 @@ CASES = [
                 Reply(status=204),
             )
         ],
-        effect="destructive",
+        effect=Effect.DESTRUCTIVE,
     ),
     Case(
         "tracker.queues.versions_create",

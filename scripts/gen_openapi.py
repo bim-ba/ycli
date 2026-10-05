@@ -242,7 +242,7 @@ def _operation(
         "operationId": f"{resource}_{method}",
         "tags": [resource],
         "x-ycli-operations": sorted({call.operation.split(".", 1)[1] for call in calls}),
-        "x-ycli-effect": primary.endpoint.effect,
+        "x-ycli-effect": str(primary.endpoint.effect),
     }
     if primary.pagination is not None:
         operation["x-ycli-pagination"] = type(primary.pagination).__name__

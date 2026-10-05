@@ -1,6 +1,7 @@
 """``--dry-run`` — a write is not sent; the request it would send is printed instead."""
 
 import json
+from http import HTTPMethod
 
 import httpx2
 import pytest
@@ -94,9 +95,9 @@ def test_reads_go_through_and_the_first_write_is_the_plan():
     api = MockAPI()
     api.add("GET", "https://api.test/v1/items", json=[1])
     session = _session(api, SendGuard({"dry_run": True}))
-    assert session.send(Endpoint("GET", "items", list[int])) == [1]
+    assert session.send(Endpoint(HTTPMethod.GET, "items", list[int])) == [1]
     with pytest.raises(DryRunPlanned) as planned:
-        session.send(Endpoint("PATCH", "items/1", json={"a": 1}))
+        session.send(Endpoint(HTTPMethod.PATCH, "items/1", json={"a": 1}))
     assert (planned.value.plan.method, planned.value.plan.body) == ("PATCH", {"a": 1})
     assert [call.method for call in api.calls] == ["GET"]  # the write never went out
 

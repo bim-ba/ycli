@@ -7,6 +7,7 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, segment
@@ -22,19 +23,19 @@ def _local_fields(queue_id: str) -> str:
 
 
 def list_(queue_id: str) -> Endpoint[ItemList[LocalField]]:
-    return Endpoint("GET", _local_fields(queue_id), ItemList[LocalField])
+    return Endpoint(HTTPMethod.GET, _local_fields(queue_id), ItemList[LocalField])
 
 
 def get(queue_id: str, field_key: str) -> Endpoint[LocalField]:
-    return Endpoint("GET", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField)
+    return Endpoint(HTTPMethod.GET, f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField)
 
 
 def create(queue_id: str, body: FieldCreate) -> Endpoint[LocalField]:
-    return Endpoint("POST", _local_fields(queue_id), LocalField, json=body)
+    return Endpoint(HTTPMethod.POST, _local_fields(queue_id), LocalField, json=body)
 
 
 def update(queue_id: str, field_key: str, body: LocalFieldUpdate) -> Endpoint[LocalField]:
     """``PATCH …/localFields/{key}`` — unlike global fields, no ``?version=`` lock."""
     return Endpoint(
-        "PATCH", f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField, json=body
+        HTTPMethod.PATCH, f"{_local_fields(queue_id)}/{segment(field_key)}", LocalField, json=body
     )

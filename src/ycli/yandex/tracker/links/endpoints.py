@@ -7,9 +7,10 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.links.models import ImportLink, Link, LinkCreate, LinkPage
@@ -21,7 +22,7 @@ PAGE_SIZE = 50
 
 
 def list_(issue_key: str) -> Endpoint[ItemList[Link]]:
-    return Endpoint("GET", f"issues/{segment(issue_key)}/links", ItemList[Link])
+    return Endpoint(HTTPMethod.GET, f"issues/{segment(issue_key)}/links", ItemList[Link])
 
 
 def list_filtered(
@@ -32,11 +33,11 @@ def list_filtered(
     return Paged(
         # violation(arch-3): POST _list only reads
         Endpoint(
-            "POST",
+            HTTPMethod.POST,
             f"issues/{segment(issue_key)}/links/_list",
             LinkPage,
             json={name: value for name, value in body.items() if value is not None},
-            effect="read",
+            effect=Effect.READ,
         ),
         PageNumberPagination(page_size=PAGE_SIZE),
         lambda page: page.links,
@@ -44,12 +45,12 @@ def list_filtered(
 
 
 def create(issue_key: str, body: LinkCreate) -> Endpoint[Link]:
-    return Endpoint("POST", f"issues/{segment(issue_key)}/links", Link, json=body)
+    return Endpoint(HTTPMethod.POST, f"issues/{segment(issue_key)}/links", Link, json=body)
 
 
 def delete(issue_key: str, link_id: str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"issues/{segment(issue_key)}/links/{segment(link_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"issues/{segment(issue_key)}/links/{segment(link_id)}")
 
 
 def import_(issue_key: str, body: ImportLink) -> Endpoint[Link]:
-    return Endpoint("POST", f"issues/{segment(issue_key)}/links/_import", Link, json=body)
+    return Endpoint(HTTPMethod.POST, f"issues/{segment(issue_key)}/links/_import", Link, json=body)
