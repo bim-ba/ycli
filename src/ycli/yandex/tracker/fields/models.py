@@ -30,6 +30,11 @@ class FieldProvider(APIModel):
         default_factory=list,
         description="Allowed field values; present only on an options provider.",
     )
+    need_validation: bool | None = Field(
+        default=None,
+        alias="needValidation",
+        description="Whether a value of the list is checked for validity.",
+    )
 
 
 class CustomField(APIModel):
@@ -93,6 +98,10 @@ class CustomField(APIModel):
         default=None, description="Object with information about the field's category."
     )
     type: str | None = Field(default=None, description="Type of the field.")
+    hidden: bool | None = Field(
+        default=None,
+        description="Whether the field is hidden in the interface even when it is filled in.",
+    )
 
 
 class FieldCategoryRecord(APIModel):

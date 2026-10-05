@@ -4,9 +4,9 @@
       "display": "<display>",
       "id": "<id>",
       "screen": {
-        "<unknown-1>": "<unknown-1>",
-        "<unknown-2>": "<unknown-2>",
-        "<unknown-3>": "<unknown-3>"
+        "display": "<display>",
+        "id": "<id>",
+        "self": "<self>"
       },
       "self": "<self>",
       "to": {
@@ -29,5 +29,5 @@
     }
   ],
   "status": 200,
-  "unknown_keys": 4
+  "unknown_keys": 0
 }

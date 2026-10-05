@@ -7,6 +7,7 @@ from ycli.yandex.models import (
     DisplayStr,
     RequestBody,  # pydantic resolves field types via get_type_hints() at runtime
 )
+from ycli.yandex.tracker.models import KeyedReference, UserReference
 
 
 class Worklog(APIModel):
@@ -31,6 +32,19 @@ class Worklog(APIModel):
     )
     start: str | None = Field(default=None, description="When the work started (ISO 8601).")
     comment: str | None = Field(default=None, description="Note saved with the record.")
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the record."
+    )
+    version: int | None = Field(default=None, description="Version of the record.")
+    issue: KeyedReference | None = Field(
+        default=None, description="The issue the time was spent on."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="When the record was last changed (ISO 8601)."
+    )
+    updated_by: UserReference | None = Field(
+        default=None, alias="updatedBy", description="The user who last changed the record."
+    )
 
 
 class WorklogCreate(RequestBody):

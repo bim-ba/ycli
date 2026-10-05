@@ -62,10 +62,6 @@ SAME_SHAPE: dict[tuple[str, frozenset[str]], str] = {
     ): UNRELATED_BODIES,
     (
         "tracker",
-        frozenset({"links.LinkObject", "transitions.StatusRef"}),
-    ): "different things that happen to have a key and a display name",
-    (
-        "tracker",
         frozenset({"workflows.WorkflowActionInput", "workflows.WorkflowActionUpdate"}),
     ): TWO_OPERATIONS,
 }

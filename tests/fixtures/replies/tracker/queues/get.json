@@ -1,15 +1,11 @@
 {
   "body": {
-    "<unknown-10>": "<unknown-10>",
     "<unknown-1>": true,
     "<unknown-2>": true,
     "<unknown-3>": "<unknown-3>",
     "<unknown-4>": true,
     "<unknown-5>": false,
-    "<unknown-6>": false,
-    "<unknown-7>": false,
-    "<unknown-8>": false,
-    "<unknown-9>": false,
+    "<unknown-6>": "<unknown-6>",
     "assignAuto": false,
     "defaultPriority": {
       "display": "<display>",
@@ -23,6 +19,8 @@
       "key": "<key>",
       "self": "<self>"
     },
+    "denyConductorAutolink": false,
+    "denyTrackerAutolink": false,
     "denyVoting": false,
     "description": "<description>",
     "id": 1,
@@ -67,6 +65,8 @@
     },
     "name": "<name>",
     "self": "<self>",
+    "useComponentPermissionsIntersection": false,
+    "useLastSignature": false,
     "version": 1,
     "workflows": {
       "<key-1>": [
@@ -80,5 +80,5 @@
     }
   },
   "status": 200,
-  "unknown_keys": 10
+  "unknown_keys": 6
 }
