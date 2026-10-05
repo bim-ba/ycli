@@ -1,6 +1,0 @@
-[
-{"method": "POST", "path": "/device/code", "name": "screen-code-oauth", "kind": "create", "by": "shape"},
-{"method": "GET", "path": "/info", "name": "user-information", "verb": "info", "kind": "get", "by": "name"},
-{"method": "POST", "path": "/revoke_token", "name": "token-invalidate", "verb": "revoke", "kind": "state", "by": "name"},
-{"method": "POST", "path": "/token", "name": "code-url", "kind": "create", "by": "shape"}
-]

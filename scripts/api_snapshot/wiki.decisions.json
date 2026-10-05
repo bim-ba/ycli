@@ -1,4 +1,0 @@
-[
-{"method": "GET", "base": "/v1", "path": "/pages", "name": "wiki_api_v2_public_pages_page_details_view_get_page_details_view", "kind": "get", "why": "returns the one page at the required `slug` (PageFullDetailsSchema), not a listing"},
-{"method": "POST", "base": "/v1", "path": "/upload_sessions/{session_id}/finish", "name": "wiki_api_v2_public_upload_sessions_views_complete_multipart_upload_view", "kind": "state", "why": "completes an upload session; the name's `upload` is the object, and nothing is created"}
-]

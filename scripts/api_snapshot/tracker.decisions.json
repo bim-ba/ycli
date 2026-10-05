@@ -1,7 +1,0 @@
-[
-{"method": "GET", "base": "/v3", "path": "/entities/{entity_type}/{entity_ID}/extendedPermissions", "name": "get-access", "kind": "get", "why": "returns one object, the entity's access settings (`acl`, `permissionSources`, `parentEntities`)"},
-{"method": "GET", "base": "/v3", "path": "/entities/{entity_type}/{entity_ID}/permissions", "name": "get-permissions", "kind": "get", "why": "returns one object with `READ`, `WRITE` and `GRANT` at its root"},
-{"method": "GET", "base": "/v3", "path": "/issues/_suggest", "name": "get-suggest", "kind": "search", "why": "suggests issues by the text typed; the page's name says get"},
-{"method": "POST", "base": "/v3", "path": "/issues/{issue_ID}/transitions/{transition_ID}/_execute", "name": "new-transition", "kind": "state", "why": "moves the issue to another status; the page's name says new, and nothing is created"},
-{"method": "POST", "base": "/v3", "path": "/system/search/scroll/_clear", "name": "search-release", "kind": "other", "why": "releases the scroll contexts of a search; it reads nothing, and the page's name says search"}
-]
