@@ -13,6 +13,7 @@ Examples:
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, Self
 
 from pydantic import SecretStr
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
     from ycli.yandex.core.session import BeforeSend, SyncSession
 
 
-class DomainClient:
+class DomainClient(ABC):
     """One service's resource clients over one core session; a subclass declares only ``_wire``.
 
     Sign in with ``oauth_token=`` (a Yandex ID OAuth token), or with ``auth=`` for anything
@@ -95,13 +96,13 @@ class DomainClient:
         """Yield the items of any ``paged`` listing of this service, at most ``limit``."""
         return self._session.iterate(paged, limit=limit)
 
+    @abstractmethod
     def probe(self) -> None:
         """One cheap authenticated read: returns when the token works for this service.
 
         A rejected token raises :class:`~ycli.yandex.errors.YandexAuthError`; ``ycli auth
         status`` calls this for every service in the registry.
         """
-        raise NotImplementedError
 
     def _connect(
         self,
@@ -124,6 +125,6 @@ class DomainClient:
             before_send=before_send,
         )
 
+    @abstractmethod
     def _wire(self, session: SyncSession) -> None:
         """Attach the per-resource clients over the shared ``session`` (per domain)."""
-        raise NotImplementedError
