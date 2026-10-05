@@ -9,6 +9,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
@@ -24,24 +26,26 @@ def _board_id(board: Board) -> str | None:
 def list_(*, page_size: int = PAGE_SIZE) -> Paged[ItemList[Board], Board]:
     """``GET /boards/_paginate``: ascending ids, each next page from ``id=<last board id>``."""
     return Paged(
-        Endpoint("GET", "boards/_paginate", ItemList[Board], params={"perPage": page_size}),
+        Endpoint(
+            HTTPMethod.GET, "boards/_paginate", ItemList[Board], params={"perPage": page_size}
+        ),
         RelativeIDPagination(id_of=_board_id),
         lambda page: page.root,
     )
 
 
 def get(board_id: int) -> Endpoint[Board]:
-    return Endpoint("GET", f"boards/{segment(board_id)}", Board)
+    return Endpoint(HTTPMethod.GET, f"boards/{segment(board_id)}", Board)
 
 
 def create(body: BoardCreate) -> Endpoint[Board]:
     """``POST /liveBoards/``: the older ``POST /boards/`` silently ignores the body."""
-    return Endpoint("POST", "liveBoards/", Board, json=body)
+    return Endpoint(HTTPMethod.POST, "liveBoards/", Board, json=body)
 
 
 def update(board_id: int, body: BoardUpdate) -> Endpoint[Board]:
-    return Endpoint("PATCH", f"boards/{segment(board_id)}", Board, json=body)
+    return Endpoint(HTTPMethod.PATCH, f"boards/{segment(board_id)}", Board, json=body)
 
 
 def delete(board_id: int) -> Endpoint[None]:
-    return Endpoint("DELETE", f"boards/{segment(board_id)}")
+    return Endpoint(HTTPMethod.DELETE, f"boards/{segment(board_id)}")

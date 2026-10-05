@@ -1,5 +1,7 @@
 """DomainClient: one core session per domain client, closed with it; no empty credential."""
 
+from http import HTTPMethod
+
 import httpx2
 import pytest
 from pydantic import SecretStr
@@ -62,12 +64,12 @@ def test_a_probe_is_one_read_of_the_services_own_me_endpoint(api, client_class, 
 def test_a_client_sends_any_endpoint_through_its_session(api):
     api.add("GET", f"{WIKI_BASE}/x", json={"results": [1]})
     with WikiClient(oauth_token="t", organization_id="o") as client:
-        assert client.send(Endpoint("GET", "x", dict)) == {"results": [1]}
+        assert client.send(Endpoint(HTTPMethod.GET, "x", dict)) == {"results": [1]}
 
 
 def test_a_client_walks_any_listing_through_its_session(api):
     api.add("GET", f"{WIKI_BASE}/x", json={"results": [1, 2], "next_cursor": "c"})
     api.add("GET", f"{WIKI_BASE}/x", json={"results": [3]})
-    paged = Paged(Endpoint("GET", "x", dict), WIKI_CURSOR, lambda page: page["results"])
+    paged = Paged(Endpoint(HTTPMethod.GET, "x", dict), WIKI_CURSOR, lambda page: page["results"])
     with WikiClient(oauth_token="t", organization_id="o") as client:
         assert list(client.iterate(paged, limit=3)) == [1, 2, 3]

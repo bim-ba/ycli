@@ -1,6 +1,7 @@
 """Contract cases for Tracker ``/entities``: projects, portfolios, goals (see tests/contract.py)."""
 
 from tests.contract import Case, Reply, Sent, with_query
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
     ACLInput,
@@ -402,7 +403,7 @@ CASES = [
                 Reply(json={"hits": 1, "pages": 1, "values": [ENTITY]}),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.entities.search",
@@ -433,7 +434,7 @@ CASES = [
                 Reply(json={"values": [{"id": "g10"}, {"id": "g11"}]}),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     # The MCP tool sorts without stating a direction (the CLI's --order-by always sends one).
     Case(
@@ -454,7 +455,7 @@ CASES = [
                 Reply(json={"values": []}),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.entities.search",
@@ -464,7 +465,7 @@ CASES = [
         exchanges=[
             (Sent("POST", "entities/project/_search", json={}), Reply(json={"values": []})),
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     # Paging the search is SDK-only, and the SDK reads the one page asked for.
     Case(
@@ -484,7 +485,7 @@ CASES = [
                 Reply(json={"hits": 80, "pages": 4, "values": [{"id": "g12"}]}),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     # Drained from the last event's id until an empty page; the MCP default cap (500) and the
     # CLI's "all" both ask for full 100-event pages.
@@ -1437,7 +1438,7 @@ CASES = [
                 ),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     # The MCP tool reaches the report type too, without the author filter the CLI offers.
     Case(
@@ -1451,7 +1452,7 @@ CASES = [
                 Reply(json={"hits": 0, "pages": 0, "values": []}),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.entities.permissions_get_direct",

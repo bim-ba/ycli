@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from tests.contract import Case, Reply, Sent
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.forms.files.models import FileIn
 
 SID = "686d0a1b2c3d4e5f00000040"
@@ -69,7 +70,7 @@ CASES = [
                 Reply(json=[FILE]),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "forms.files.download",

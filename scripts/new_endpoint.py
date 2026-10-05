@@ -50,13 +50,15 @@ A shape another resource of the service already reads is imported from the servi
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.{domain}.{resource}.models import {cls}
 
 
 def get(item_id: str) -> Endpoint[{cls}]:
     # FILL: the real path.
-    return Endpoint("GET", f"FILL/{resource}/{{segment(item_id)}}", {cls})
+    return Endpoint(HTTPMethod.GET, f"FILL/{resource}/{{segment(item_id)}}", {cls})
 '''
 
 CLIENT = '''"""{domain} ``/{resource}`` client on the httpx2 core — sends ``endpoints``."""

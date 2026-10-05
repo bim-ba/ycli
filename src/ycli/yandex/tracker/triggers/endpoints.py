@@ -9,6 +9,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
@@ -34,7 +36,7 @@ def list_(queue_id: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Trigge
     """``GET /queues/{id}/triggers``, ascending by id, each next page from ``id=<last id>``."""
     return Paged(
         Endpoint(
-            "GET",
+            HTTPMethod.GET,
             f"queues/{segment(queue_id)}/triggers",
             ItemList[Trigger],
             params={"perPage": page_size},
@@ -45,18 +47,18 @@ def list_(queue_id: str, *, page_size: int = PAGE_SIZE) -> Paged[ItemList[Trigge
 
 
 def get(queue_id: str, trigger_id: int) -> Endpoint[Trigger]:
-    return Endpoint("GET", _trigger_path(queue_id, trigger_id), Trigger)
+    return Endpoint(HTTPMethod.GET, _trigger_path(queue_id, trigger_id), Trigger)
 
 
 def create(queue_id: str, body: TriggerCreate) -> Endpoint[Trigger]:
-    return Endpoint("POST", f"queues/{segment(queue_id)}/triggers", Trigger, json=body)
+    return Endpoint(HTTPMethod.POST, f"queues/{segment(queue_id)}/triggers", Trigger, json=body)
 
 
 def update(
     queue_id: str, trigger_id: int, body: TriggerUpdate, *, version: int | None
 ) -> Endpoint[Trigger]:
     path = _trigger_path(queue_id, trigger_id)
-    return Endpoint("PATCH", path, Trigger, json=body, params={"version": version})
+    return Endpoint(HTTPMethod.PATCH, path, Trigger, json=body, params={"version": version})
 
 
 def webhook_log_list(
@@ -71,4 +73,4 @@ def webhook_log_list(
     """The Webhook-action run log (API default 10 records, ``limit`` up to 100)."""
     params = {"issueId": issue_id, "limit": limit, "from": date_from, "to": date_to}
     path = f"{_trigger_path(queue_id, trigger_id)}/webhooks/log"
-    return Endpoint("GET", path, ItemList[WebhookLogEntry], params=params)
+    return Endpoint(HTTPMethod.GET, path, ItemList[WebhookLogEntry], params=params)

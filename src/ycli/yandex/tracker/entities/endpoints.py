@@ -6,7 +6,7 @@ Examples:
     >>> get("project", "655f", expand=None, fields="summary").params
     {'expand': None, 'fields': 'summary'}
     >>> search("goal", {}, fields=None, per_page=None, page=None).effect
-    'read'
+    <Effect.READ: 'read'>
     >>> events = events_list(
     ...     "project", "655f", per_page=100, selected=None, new_events_on_top=None, direction=None
     ... )
@@ -16,9 +16,10 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.entities.models import (
@@ -67,7 +68,11 @@ def create(
     fields: str | None,
 ) -> Endpoint[Entity]:
     return Endpoint(
-        "POST", f"entities/{segment(entity_type)}", Entity, json=body, params={"fields": fields}
+        HTTPMethod.POST,
+        f"entities/{segment(entity_type)}",
+        Entity,
+        json=body,
+        params={"fields": fields},
     )
 
 
@@ -75,7 +80,7 @@ def get(
     entity_type: str, entity_id: str, *, expand: str | None, fields: str | None
 ) -> Endpoint[Entity]:
     params = {"expand": expand, "fields": fields}
-    return Endpoint("GET", _entity(entity_type, entity_id), Entity, params=params)
+    return Endpoint(HTTPMethod.GET, _entity(entity_type, entity_id), Entity, params=params)
 
 
 def update(
@@ -87,7 +92,7 @@ def update(
     fields: str | None,
 ) -> Endpoint[Entity]:
     return Endpoint(
-        "PATCH",
+        HTTPMethod.PATCH,
         _entity(entity_type, entity_id),
         Entity,
         json=body,
@@ -97,7 +102,7 @@ def update(
 
 def delete(entity_type: str, entity_id: str, *, with_board: bool | None) -> Endpoint[None]:
     params = {"withBoard": with_board}
-    return Endpoint("DELETE", _entity(entity_type, entity_id), params=params)
+    return Endpoint(HTTPMethod.DELETE, _entity(entity_type, entity_id), params=params)
 
 
 def search(
@@ -111,12 +116,12 @@ def search(
     """``POST …/_search`` only reads; one page, the one ``per_page``/``page`` select."""
     # violation(arch-3): POST _search only reads
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         f"entities/{segment(entity_type)}/_search",
         EntitySearchResponse,
         params={"fields": fields, "perPage": per_page, "page": page},
         json=body,
-        effect="read",
+        effect=Effect.READ,
     )
 
 
@@ -132,7 +137,7 @@ def events_list(
     """``GET …/events/_relative``, each next page from the last event's id (``from=``)."""
     return Paged(
         Endpoint(
-            "GET",
+            HTTPMethod.GET,
             f"{_entity(entity_type, entity_id)}/events/_relative",
             EntityEventsResponse,
             params={
@@ -149,38 +154,40 @@ def events_list(
 
 def permissions_get(entity_type: str, entity_id: str) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
-    return Endpoint("GET", path, ExtendedPermissions)
+    return Endpoint(HTTPMethod.GET, path, ExtendedPermissions)
 
 
 def permissions_update(
     entity_type: str, entity_id: str, body: PermissionsUpdate
 ) -> Endpoint[ExtendedPermissions]:
     path = f"{_entity(entity_type, entity_id)}/extendedPermissions"
-    return Endpoint("PATCH", path, ExtendedPermissions, json=body)
+    return Endpoint(HTTPMethod.PATCH, path, ExtendedPermissions, json=body)
 
 
 def permissions_get_direct(entity_type: str, entity_id: str) -> Endpoint[ACL]:
-    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/permissions", ACL)
+    return Endpoint(HTTPMethod.GET, f"{_entity(entity_type, entity_id)}/permissions", ACL)
 
 
 def permissions_update_direct(
     entity_type: str, entity_id: str, body: DirectPermissionsUpdate
 ) -> Endpoint[ACL]:
-    return Endpoint("PATCH", f"{_entity(entity_type, entity_id)}/permissions", ACL, json=body)
+    return Endpoint(
+        HTTPMethod.PATCH, f"{_entity(entity_type, entity_id)}/permissions", ACL, json=body
+    )
 
 
 def update_bulk(entity_type: str, body: BulkChangeUpdate) -> Endpoint[BulkChangeOperation]:
     """Each call starts a new async operation: a plain, non-idempotent write."""
     path = f"entities/{segment(entity_type)}/bulkchange/_update"
-    return Endpoint("POST", path, BulkChangeOperation, json=body)
+    return Endpoint(HTTPMethod.POST, path, BulkChangeOperation, json=body)
 
 
 def bulk_get(bulk_id: str) -> Endpoint[BulkChangeOperation]:
-    return Endpoint("GET", f"bulkchange/{segment(bulk_id)}", BulkChangeOperation)
+    return Endpoint(HTTPMethod.GET, f"bulkchange/{segment(bulk_id)}", BulkChangeOperation)
 
 
 def reports_create(body: ReportCreate) -> Endpoint[Entity]:
-    return Endpoint("POST", "entities/report/", Entity, json=body)
+    return Endpoint(HTTPMethod.POST, "entities/report/", Entity, json=body)
 
 
 # ---- comments ------------------------------------------------------------------------------
@@ -190,7 +197,7 @@ def comments_list(
     entity_type: str, entity_id: str, *, expand: str | None
 ) -> Endpoint[ItemList[Comment]]:
     path = f"{_entity(entity_type, entity_id)}/comments"
-    return Endpoint("GET", path, ItemList[Comment], params={"expand": expand})
+    return Endpoint(HTTPMethod.GET, path, ItemList[Comment], params={"expand": expand})
 
 
 def comments_list_relative(
@@ -199,7 +206,7 @@ def comments_list_relative(
     """``GET …/comments/_relative``, each next page from the last comment's ``longId``."""
     return Paged(
         Endpoint(
-            "GET",
+            HTTPMethod.GET,
             f"{_entity(entity_type, entity_id)}/comments/_relative",
             CommentsRelativeResponse,
             params={"perPage": per_page},
@@ -213,7 +220,7 @@ def comments_get(
     entity_type: str, entity_id: str, comment_id: str, *, expand: str | None
 ) -> Endpoint[Comment]:
     path = f"{_entity(entity_type, entity_id)}/comments/{segment(comment_id)}"
-    return Endpoint("GET", path, Comment, params={"expand": expand})
+    return Endpoint(HTTPMethod.GET, path, Comment, params={"expand": expand})
 
 
 def comments_create(
@@ -227,7 +234,7 @@ def comments_create(
     notify_author: bool | None,
 ) -> Endpoint[Comment]:
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         f"{_entity(entity_type, entity_id)}/comments",
         Comment,
         json=body,
@@ -253,7 +260,7 @@ def comments_update(
 ) -> Endpoint[Comment]:
     path = f"{_entity(entity_type, entity_id)}/comments/{segment(comment_id)}"
     return Endpoint(
-        "PATCH",
+        HTTPMethod.PATCH,
         path,
         Comment,
         json=body,
@@ -275,7 +282,9 @@ def comments_delete(
     notify_author: bool | None,
 ) -> Endpoint[None]:
     path = f"{_entity(entity_type, entity_id)}/comments/{segment(comment_id)}"
-    return Endpoint("DELETE", path, params={"notify": notify, "notifyAuthor": notify_author})
+    return Endpoint(
+        HTTPMethod.DELETE, path, params={"notify": notify, "notifyAuthor": notify_author}
+    )
 
 
 # ---- checklists ----------------------------------------------------------------------------
@@ -293,7 +302,7 @@ def checklists_create(
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems"
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         path,
         Entity,
         json=body,
@@ -318,7 +327,7 @@ def checklists_update(
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems"
     return Endpoint(
-        "PATCH",
+        HTTPMethod.PATCH,
         path,
         Entity,
         json=body,
@@ -344,7 +353,7 @@ def checklists_items_update(
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems/{segment(item_id)}"
     return Endpoint(
-        "PATCH",
+        HTTPMethod.PATCH,
         path,
         Entity,
         json=body,
@@ -367,7 +376,7 @@ def checklists_delete(
     notify_author: bool | None,
 ) -> Endpoint[Entity]:
     return Endpoint(
-        "DELETE",
+        HTTPMethod.DELETE,
         f"{_entity(entity_type, entity_id)}/checklistItems",
         Entity,
         params={
@@ -391,7 +400,7 @@ def checklists_items_delete(
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems/{segment(item_id)}"
     return Endpoint(
-        "DELETE",
+        HTTPMethod.DELETE,
         path,
         Entity,
         params={
@@ -416,7 +425,7 @@ def checklists_move(
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/checklistItems/{segment(item_id)}/_move"
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         path,
         Entity,
         json=body,
@@ -434,33 +443,35 @@ def checklists_move(
 
 def links_list(entity_type: str, entity_id: str, *, fields: str | None) -> Endpoint[ItemList[Link]]:
     path = f"{_entity(entity_type, entity_id)}/links"
-    return Endpoint("GET", path, ItemList[Link], params={"fields": fields})
+    return Endpoint(HTTPMethod.GET, path, ItemList[Link], params={"fields": fields})
 
 
 def links_create(entity_type: str, entity_id: str, body: LinkInput) -> Endpoint[None]:
     """``POST …/links`` answers 200 with no body."""
-    return Endpoint("POST", f"{_entity(entity_type, entity_id)}/links", json=body)
+    return Endpoint(HTTPMethod.POST, f"{_entity(entity_type, entity_id)}/links", json=body)
 
 
 def links_delete(entity_type: str, entity_id: str, right: str) -> Endpoint[None]:
     path = f"{_entity(entity_type, entity_id)}/links"
-    return Endpoint("DELETE", path, params={"right": right})
+    return Endpoint(HTTPMethod.DELETE, path, params={"right": right})
 
 
 # ---- attachments ---------------------------------------------------------------------------
 
 
 def attachments_list(entity_type: str, entity_id: str) -> Endpoint[ItemList[Attachment]]:
-    return Endpoint("GET", f"{_entity(entity_type, entity_id)}/attachments", ItemList[Attachment])
+    return Endpoint(
+        HTTPMethod.GET, f"{_entity(entity_type, entity_id)}/attachments", ItemList[Attachment]
+    )
 
 
 def attachments_get(entity_type: str, entity_id: str, file_id: str) -> Endpoint[Attachment]:
     path = f"{_entity(entity_type, entity_id)}/attachments/{segment(file_id)}"
-    return Endpoint("GET", path, Attachment)
+    return Endpoint(HTTPMethod.GET, path, Attachment)
 
 
 def attachments_download(file_id: str, filename: str) -> Endpoint[bytes]:
-    return Endpoint("GET", f"attachments/{segment(file_id)}/{segment(filename)}", bytes)
+    return Endpoint(HTTPMethod.GET, f"attachments/{segment(file_id)}/{segment(filename)}", bytes)
 
 
 def attachments_attach(
@@ -475,7 +486,7 @@ def attachments_attach(
 ) -> Endpoint[Entity]:
     path = f"{_entity(entity_type, entity_id)}/attachments/{segment(temp_file_id)}"
     return Endpoint(
-        "POST",
+        HTTPMethod.POST,
         path,
         Entity,
         params={
@@ -490,4 +501,4 @@ def attachments_attach(
 def attachments_delete(entity_type: str, entity_id: str, file_id: str) -> Endpoint[None]:
     """``DELETE …/attachments/{file_id}`` answers with an empty body."""
     path = f"{_entity(entity_type, entity_id)}/attachments/{segment(file_id)}"
-    return Endpoint("DELETE", path)
+    return Endpoint(HTTPMethod.DELETE, path)

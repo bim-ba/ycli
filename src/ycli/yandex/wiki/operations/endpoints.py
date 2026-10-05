@@ -7,6 +7,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.wiki.operations.models import (
     CloneOperationStatus,
@@ -16,13 +18,13 @@ from ycli.yandex.wiki.operations.models import (
 
 
 def clone_get(task_id: str) -> Endpoint[CloneOperationStatus]:
-    return Endpoint("GET", f"operations/clone/{segment(task_id)}", CloneOperationStatus)
+    return Endpoint(HTTPMethod.GET, f"operations/clone/{segment(task_id)}", CloneOperationStatus)
 
 
 def clone_inline_grid_get(task_id: str) -> Endpoint[GridCloneOperationStatus]:
     path = f"operations/clone_inline_grid/{segment(task_id)}"
-    return Endpoint("GET", path, GridCloneOperationStatus)
+    return Endpoint(HTTPMethod.GET, path, GridCloneOperationStatus)
 
 
 def move_get(task_id: str) -> Endpoint[MoveOperationStatus]:
-    return Endpoint("GET", f"operations/move/{segment(task_id)}", MoveOperationStatus)
+    return Endpoint(HTTPMethod.GET, f"operations/move/{segment(task_id)}", MoveOperationStatus)

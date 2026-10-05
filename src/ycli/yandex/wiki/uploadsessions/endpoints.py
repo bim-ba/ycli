@@ -8,12 +8,14 @@ Examples:
     >>> parts_upload("s-1", part_number=2, data=b"x").params
     {'part_number': 2}
     >>> abort("s-1").effect
-    'destructive'
+    <Effect.DESTRUCTIVE: 'destructive'>
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, segment
+from http import HTTPMethod
+
+from ycli.yandex.core.endpoint import Effect, Endpoint, segment
 from ycli.yandex.wiki.uploadsessions.models import (
     AbortActiveUploadsResult,
     UploadSession,
@@ -22,17 +24,17 @@ from ycli.yandex.wiki.uploadsessions.models import (
 
 
 def create(body: UploadSessionCreate) -> Endpoint[UploadSession]:
-    return Endpoint("POST", "upload_sessions", UploadSession, json=body)
+    return Endpoint(HTTPMethod.POST, "upload_sessions", UploadSession, json=body)
 
 
 def get(session_id: str) -> Endpoint[UploadSession]:
-    return Endpoint("GET", f"upload_sessions/{segment(session_id)}", UploadSession)
+    return Endpoint(HTTPMethod.GET, f"upload_sessions/{segment(session_id)}", UploadSession)
 
 
 def parts_upload(session_id: str, *, part_number: int, data: bytes) -> Endpoint[UploadSession]:
     """``PUT …/upload_part``: the raw bytes as the body, the 1-based part index in the query."""
     return Endpoint(
-        "PUT",
+        HTTPMethod.PUT,
         f"upload_sessions/{segment(session_id)}/upload_part",
         UploadSession,
         params={"part_number": part_number},
@@ -42,16 +44,16 @@ def parts_upload(session_id: str, *, part_number: int, data: bytes) -> Endpoint[
 
 
 def finish(session_id: str) -> Endpoint[UploadSession]:
-    return Endpoint("POST", f"upload_sessions/{segment(session_id)}/finish", UploadSession)
+    return Endpoint(HTTPMethod.POST, f"upload_sessions/{segment(session_id)}/finish", UploadSession)
 
 
 def abort(session_id: str) -> Endpoint[UploadSession]:
     path = f"upload_sessions/{segment(session_id)}/abort"
     # violation(arch-3): POST abort discards uploaded parts
-    return Endpoint("POST", path, UploadSession, effect="destructive")
+    return Endpoint(HTTPMethod.POST, path, UploadSession, effect=Effect.DESTRUCTIVE)
 
 
 def abort_all() -> Endpoint[AbortActiveUploadsResult]:
     path = "upload_sessions/abort_active_uploads"
     # violation(arch-3): POST abort discards every upload
-    return Endpoint("POST", path, AbortActiveUploadsResult, effect="destructive")
+    return Endpoint(HTTPMethod.POST, path, AbortActiveUploadsResult, effect=Effect.DESTRUCTIVE)

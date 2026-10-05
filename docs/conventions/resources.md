@@ -74,7 +74,7 @@ suggests the known values, and a tool's schema shows them (`anyOf` of the `enum`
 - **A set of ycli's own is a `StrEnum`.** The rule in one line: a closed set that ycli owns is a
   `StrEnum`, a set of values of the API is `Literal[...] | str`. ycli's own sets are the ones
   only a release of ycli changes: `OutputFormat`, `Transport`, `Kind`, `LogLevel`, `LogFormat`,
-  `CredentialKind` (and `Method`, `Effect`, still `Literal`, which follow). A member equals its
+  `CredentialKind`, `Effect`; the HTTP method is the standard library's `http.HTTPMethod`. A member equals its
   string, so a setting, an option and a reply field carry the same text as before.
 
 ### A field the API ignores

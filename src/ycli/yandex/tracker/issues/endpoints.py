@@ -4,12 +4,14 @@ Examples:
     >>> get("TEST-1", expand=None, fields=None).path
     'issues/TEST-1'
     >>> search(IssueSearch(query="Queue: TEST"), expand=None).endpoint.effect
-    'read'
+    <Effect.READ: 'read'>
 """
 
 from __future__ import annotations
 
-from ycli.yandex.core.endpoint import Endpoint, Paged, segment
+from http import HTTPMethod
+
+from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment
 from ycli.yandex.core.pagination import PageNumberPagination, ScrollPagination
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.bulk.models import BulkChange, BulkMove, BulkTransition, BulkUpdate
@@ -33,7 +35,10 @@ def get(
     fields: str | None,
 ) -> Endpoint[Issue]:
     return Endpoint(
-        "GET", f"issues/{segment(issue_key)}", Issue, params={"expand": expand, "fields": fields}
+        HTTPMethod.GET,
+        f"issues/{segment(issue_key)}",
+        Issue,
+        params={"expand": expand, "fields": fields},
     )
 
 
@@ -46,12 +51,12 @@ def search(
     """
     # violation(arch-3): POST _search only reads
     endpoint = Endpoint(
-        "POST",
+        HTTPMethod.POST,
         "issues/_search",
         ItemList[Issue],
         params={"expand": expand},
         json=body,
-        effect="read",
+        effect=Effect.READ,
     )
     return Paged(endpoint, PageNumberPagination(page_size=page_size), lambda page: page.root)
 
@@ -77,14 +82,19 @@ def search_scroll(
     }
     # violation(arch-3): POST _search only reads
     endpoint = Endpoint(
-        "POST", "issues/_search", ItemList[Issue], params=params, json=body, effect="read"
+        HTTPMethod.POST,
+        "issues/_search",
+        ItemList[Issue],
+        params=params,
+        json=body,
+        effect=Effect.READ,
     )
     return Paged(endpoint, ScrollPagination(), lambda page: page.root)
 
 
 def count(body: IssueSearch) -> Endpoint[int]:
     # violation(arch-3): POST _count only reads
-    return Endpoint("POST", "issues/_count", int, json=body, effect="read")
+    return Endpoint(HTTPMethod.POST, "issues/_count", int, json=body, effect=Effect.READ)
 
 
 def create(
@@ -92,11 +102,11 @@ def create(
     *,
     notify: bool | None,
 ) -> Endpoint[Issue]:
-    return Endpoint("POST", "issues/", Issue, json=body, params={"notify": notify})
+    return Endpoint(HTTPMethod.POST, "issues/", Issue, json=body, params={"notify": notify})
 
 
 def update(issue_key: str, body: IssueUpdate) -> Endpoint[Issue]:
-    return Endpoint("PATCH", f"issues/{segment(issue_key)}", Issue, json=body)
+    return Endpoint(HTTPMethod.PATCH, f"issues/{segment(issue_key)}", Issue, json=body)
 
 
 def move(
@@ -117,7 +127,7 @@ def move(
         "notify": notify,
         "notifyAuthor": notify_author,
     }
-    return Endpoint("POST", f"issues/{segment(issue_key)}/_move", Issue, params=params)
+    return Endpoint(HTTPMethod.POST, f"issues/{segment(issue_key)}/_move", Issue, params=params)
 
 
 def suggest(
@@ -137,13 +147,15 @@ def suggest(
         "expand": expand,
         "embed": embed,
     }
-    return Endpoint("GET", "issues/_suggest", ItemList[Issue], params=params)
+    return Endpoint(HTTPMethod.GET, "issues/_suggest", ItemList[Issue], params=params)
 
 
 def scroll_clear(body: ScrollClear) -> Endpoint[None]:
     """``POST /system/search/scroll/_clear`` — releasing a scroll is safe to repeat."""
     # violation(arch-3): releasing a scroll twice is harmless
-    return Endpoint("POST", "system/search/scroll/_clear", json=body, effect="idempotent_write")
+    return Endpoint(
+        HTTPMethod.POST, "system/search/scroll/_clear", json=body, effect=Effect.IDEMPOTENT_WRITE
+    )
 
 
 def update_bulk(
@@ -151,7 +163,9 @@ def update_bulk(
     *,
     notify: bool | None,
 ) -> Endpoint[BulkChange]:
-    return Endpoint("POST", "bulkchange/_update", BulkChange, json=body, params={"notify": notify})
+    return Endpoint(
+        HTTPMethod.POST, "bulkchange/_update", BulkChange, json=body, params={"notify": notify}
+    )
 
 
 def move_bulk(
@@ -159,7 +173,9 @@ def move_bulk(
     *,
     notify: bool | None,
 ) -> Endpoint[BulkChange]:
-    return Endpoint("POST", "bulkchange/_move", BulkChange, json=body, params={"notify": notify})
+    return Endpoint(
+        HTTPMethod.POST, "bulkchange/_move", BulkChange, json=body, params={"notify": notify}
+    )
 
 
 def transition_bulk(
@@ -168,9 +184,9 @@ def transition_bulk(
     notify: bool | None,
 ) -> Endpoint[BulkChange]:
     return Endpoint(
-        "POST", "bulkchange/_transition", BulkChange, json=body, params={"notify": notify}
+        HTTPMethod.POST, "bulkchange/_transition", BulkChange, json=body, params={"notify": notify}
     )
 
 
 def import_(body: ImportTask) -> Endpoint[Issue]:
-    return Endpoint("POST", "issues/_import", Issue, json=body)
+    return Endpoint(HTTPMethod.POST, "issues/_import", Issue, json=body)

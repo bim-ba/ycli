@@ -3,6 +3,7 @@
 from tests.contract import Case, Reply, Sent, with_query
 from tests.yandex.tracker.issues.bulk_cases import BULK_CASES
 from tests.yandex.tracker.issues.import_cases import IMPORT_CASES
+from ycli.yandex.core.endpoint import Effect
 from ycli.yandex.tracker.issues.models import IssueCreate, IssueSearch, IssueUpdate, ScrollClear
 
 ISSUE = {"key": "DE-7", "summary": "Fix the login page"}
@@ -47,7 +48,7 @@ CASES = [
                 Reply(json=[ISSUE]),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.issues.search",
@@ -63,7 +64,7 @@ CASES = [
                 Reply(json=[ISSUE]),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.issues.count",
@@ -76,7 +77,7 @@ CASES = [
                 Reply(json=12),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.issues.create",
@@ -166,7 +167,7 @@ CASES = [
         exchanges=[
             (Sent("POST", "system/search/scroll/_clear", json={"scroll-1": "token-1"}), Reply())
         ],
-        effect="idempotent_write",
+        effect=Effect.IDEMPOTENT_WRITE,
     ),
     Case(
         "tracker.issues.count",
@@ -179,7 +180,7 @@ CASES = [
                 Reply(json=3),
             )
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
     Case(
         "tracker.issues.create",
@@ -383,7 +384,7 @@ CASES += [
                 Reply(json=[]),
             ),
         ],
-        effect="read",
+        effect=Effect.READ,
     ),
 ]
 CASES += BULK_CASES

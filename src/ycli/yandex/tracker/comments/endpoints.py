@@ -9,6 +9,7 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
 from typing import TYPE_CHECKING
 
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
@@ -32,7 +33,7 @@ def list_(
     """``GET /issues/{key}/comments``, each next page from ``id=<last comment id>``."""
     return Paged(
         Endpoint(
-            "GET",
+            HTTPMethod.GET,
             f"issues/{segment(issue_key)}/comments",
             ItemList[Comment],
             params={"perPage": page_size, "expand": expand},
@@ -44,26 +45,30 @@ def list_(
 
 def get(issue_key: str, comment_id: int | str, *, expand: str | None = None) -> Endpoint[Comment]:
     path = f"issues/{segment(issue_key)}/comments/{segment(comment_id)}"
-    return Endpoint("GET", path, Comment, params={"expand": expand})
+    return Endpoint(HTTPMethod.GET, path, Comment, params={"expand": expand})
 
 
 def create(issue_key: str, body: CommentCreate) -> Endpoint[Comment]:
-    return Endpoint("POST", f"issues/{segment(issue_key)}/comments/", Comment, json=body)
+    return Endpoint(HTTPMethod.POST, f"issues/{segment(issue_key)}/comments/", Comment, json=body)
 
 
 def update(issue_key: str, comment_id: int | str, body: CommentUpdate) -> Endpoint[Comment]:
     path = f"issues/{segment(issue_key)}/comments/{segment(comment_id)}"
-    return Endpoint("PATCH", path, Comment, json=body)
+    return Endpoint(HTTPMethod.PATCH, path, Comment, json=body)
 
 
 def delete(issue_key: str, comment_id: int | str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"issues/{segment(issue_key)}/comments/{segment(comment_id)}")
+    return Endpoint(
+        HTTPMethod.DELETE, f"issues/{segment(issue_key)}/comments/{segment(comment_id)}"
+    )
 
 
 def reactions_create(issue_key: str, comment_id: int | str, name: str) -> Endpoint[Comment]:
     path = f"issues/{segment(issue_key)}/comments/{segment(comment_id)}/reactions/{segment(name)}"
-    return Endpoint("POST", path, Comment)
+    return Endpoint(HTTPMethod.POST, path, Comment)
 
 
 def import_(issue_key: str, body: ImportComment) -> Endpoint[Comment]:
-    return Endpoint("POST", f"issues/{segment(issue_key)}/comments/_import", Comment, json=body)
+    return Endpoint(
+        HTTPMethod.POST, f"issues/{segment(issue_key)}/comments/_import", Comment, json=body
+    )

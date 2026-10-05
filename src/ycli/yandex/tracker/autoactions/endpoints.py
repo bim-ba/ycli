@@ -7,6 +7,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, segment
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.autoactions.models import (
@@ -22,19 +24,23 @@ def _autoaction_path(queue_id: str, action_id: int) -> str:
 
 
 def get(queue_id: str, action_id: int) -> Endpoint[Autoaction]:
-    return Endpoint("GET", _autoaction_path(queue_id, action_id), Autoaction)
+    return Endpoint(HTTPMethod.GET, _autoaction_path(queue_id, action_id), Autoaction)
 
 
 def create(queue_id: str, body: AutoactionCreate) -> Endpoint[Autoaction]:
-    return Endpoint("POST", f"queues/{segment(queue_id)}/autoactions", Autoaction, json=body)
+    return Endpoint(
+        HTTPMethod.POST, f"queues/{segment(queue_id)}/autoactions", Autoaction, json=body
+    )
 
 
 def logs_list(queue_id: str, action_id: int) -> Endpoint[ItemList[AutoactionLogEntry]]:
     return Endpoint(
-        "GET", f"{_autoaction_path(queue_id, action_id)}/logs", ItemList[AutoactionLogEntry]
+        HTTPMethod.GET,
+        f"{_autoaction_path(queue_id, action_id)}/logs",
+        ItemList[AutoactionLogEntry],
     )
 
 
 def logs_get(queue_id: str, action_id: int, run_id: str) -> Endpoint[ItemList[AutoactionRunEntry]]:
     path = f"{_autoaction_path(queue_id, action_id)}/logs/{segment(run_id)}"
-    return Endpoint("GET", path, ItemList[AutoactionRunEntry])
+    return Endpoint(HTTPMethod.GET, path, ItemList[AutoactionRunEntry])

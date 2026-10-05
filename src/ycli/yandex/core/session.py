@@ -17,6 +17,7 @@ and :class:`AsyncSession` differ only in ``await``. Both:
   empty page or after ``max_pages`` so a misbehaving cursor cannot loop forever.
 
 Examples:
+    >>> from http import HTTPMethod
     >>> from pydantic import SecretStr
     >>> from ycli.yandex.core.auth import OAuthTokenAuth
     >>> from ycli.yandex.core.endpoint import Endpoint
@@ -25,7 +26,7 @@ Examples:
     >>> session = connect(
     ...     TrackerClient.profile, auth=OAuthTokenAuth(SecretStr("token")), organization_id="1"
     ... )
-    >>> session.send(Endpoint("GET", "myself", Me)).login
+    >>> session.send(Endpoint(HTTPMethod.GET, "myself", Me)).login
     'alice'
     >>> session.close()
 """

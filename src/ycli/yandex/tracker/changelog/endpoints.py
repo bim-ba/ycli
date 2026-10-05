@@ -8,6 +8,8 @@ Examples:
 
 from __future__ import annotations
 
+from http import HTTPMethod
+
 from ycli.yandex.core.endpoint import Endpoint, Paged, segment
 from ycli.yandex.core.pagination import RelativeIDPagination
 from ycli.yandex.models import ItemList
@@ -31,7 +33,7 @@ def list_(
     """``GET /issues/{key}/changelog``, each next page from ``id=<last change id>``."""
     return Paged(
         Endpoint(
-            "GET",
+            HTTPMethod.GET,
             f"issues/{segment(issue_key)}/changelog",
             ItemList[ChangelogEntry],
             params={"perPage": page_size, "field": field, "type": change_type, "sort": sort},
