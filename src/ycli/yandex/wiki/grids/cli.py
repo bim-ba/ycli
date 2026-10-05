@@ -121,6 +121,7 @@ def update(
     grid_id: GridIDArg,
     revision: RevisionOpt = None,
     title: Annotated[str | None, typer.Option(help="New grid title.")] = None,
+    # violation(value-set): a JSON value; its help shows the shape
     default_sort: Annotated[
         str | None,
         typer.Option(
