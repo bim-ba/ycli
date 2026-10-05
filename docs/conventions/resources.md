@@ -343,7 +343,7 @@ check of its own to say it. A reply that does not fit its model is another error
   `Annotated[…, typer.Option(help=…)]`. A write builds the typed request model from the options.
 - A local file is a `Path` with `exists=True, dir_okay=False, readable=True`, so a missing file
   is a usage error, not a traceback; a JSON body file goes through `Model.model_validate_json`
-  (`tests/test_cli_files.py` lists every such command).
+  (`tests/unit/cli/test_cli_files.py` lists every such command).
 - An option that is not given is `None` (`Annotated[str | None, typer.Option(…)] = None`), never
   `""` or `0`: an explicit empty string or zero is a value and is sent, so `--description ""`
   clears a field. A test asks `is not None`, not truthiness. An MCP tool parameter follows the
