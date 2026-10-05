@@ -39,7 +39,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   (`zensical.toml`, `zensical.ru.toml`), published only by a release. The CLI /
   MCP / SDK reference is generated (`uv run scripts/gen_reference.py`), and so are the CLI / MCP /
   SDK example tabs a page includes (`uv run scripts/gen_examples.py`, from the contract cases);
-  `tests/test_docs_site.py` holds the contract. Docstrings are Google style (ruff `D`), and pydoclint checks
+  `tests/docs/test_docs_site.py` holds the contract. Docstrings are Google style (ruff `D`), and pydoclint checks
   Args/Returns/Raises from its own pre-commit environment, because its `docstring-parser-fork`
   and fastmcp's `docstring-parser` install the same module.
 - **Auth:** the composition roots are `Credentials()` / `AppConfig()` in `AppContext` (which injects clients into commands) for the CLI
@@ -85,7 +85,7 @@ Claude Code **plugin** under `plugins/yandex-360/`. Published on PyPI as `yandex
   regenerate, never hand-author (the `demo.svg` incident).
 - **API drift.** `scripts/api_snapshot/` holds the operations Yandex publishes, names only
   (`scripts/api_drift.py --refresh` rewrites it); README's "Against the published API" and
-  `tests/test_api_drift.py` compare it with what the contract cases send, and the weekly
+  `tests/tooling/test_api_drift.py` compare it with what the contract cases send, and the weekly
   `api-drift` workflow opens an issue when Yandex changes it. A published operation is wrapped
   or listed with its reason in `NOT_WRAPPED`; every parameter or field that differs is fixed
   or listed in `EXPLAINED` / `EXPLAINED_EVERYWHERE`. That holds for the services in the registry;

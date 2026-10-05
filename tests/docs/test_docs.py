@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 
 # User-facing doc files and globs to scan for purged idioms.
 # Historical / rule-defining files are intentionally excluded:

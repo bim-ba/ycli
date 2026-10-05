@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-_HOOK = Path(__file__).resolve().parent.parent / ".claude" / "hooks" / "git_guard.py"
+_HOOK = Path(__file__).resolve().parents[2] / ".claude" / "hooks" / "git_guard.py"
 
 
 def _load():
