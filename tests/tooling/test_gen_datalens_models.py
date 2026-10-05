@@ -427,3 +427,38 @@ def test_a_reply_without_a_field_the_document_requires_is_read():
 
     workbook = GetWorkbookResult.model_validate({"workbookId": "w1", "title": "Q1"})
     assert (workbook.workbook_id, workbook.permissions) == ("w1", None)
+
+
+def test_fields_and_one_of_becomes_one_of_each_with_the_fields():
+    """Both sides: the members are written out and named by place; a mapped union is left."""
+    named = {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}
+    text = {"type": "object", "properties": {"text": {"type": "string"}}}
+    number = {"type": "object", "properties": {"number": {"type": "integer"}}}
+    item = {"allOf": [named, {"anyOf": [text, number]}]}
+    arguments = {"type": "object", "properties": {"params": {"type": "array", "items": item}}}
+    mapped = {
+        "allOf": [
+            named,
+            {
+                "oneOf": [{"$ref": REF + "Kind"}],
+                "discriminator": {"propertyName": "kind", "mapping": {"a": REF + "Kind"}},
+            },
+        ]
+    }
+    kind = {"type": "object", "properties": {"kind": {"enum": ["a"]}}}
+    reply = {"type": "object", "properties": {"mapped": mapped}}
+    spec = {
+        "paths": {"/rpc/getThing": _operation(arguments, reply)},
+        "components": {"schemas": {"Kind": kind}},
+    }
+    schemas = gen.prepare(spec)["components"]["schemas"]
+    members = schemas["things.GetThingRequest"]["properties"]["params"]["items"]["anyOf"]
+    assert [member["$ref"].removeprefix(REF) for member in members] == [
+        "things.GetThingRequestParamsItemVariant1",
+        "things.GetThingRequestParamsItemVariant2",
+    ]
+    assert sorted(schemas["things.GetThingRequestParamsItemVariant2"]["properties"]) == [
+        "name",
+        "number",
+    ]
+    assert "allOf" in schemas["things.GetThingResponse"]["properties"]["mapped"]

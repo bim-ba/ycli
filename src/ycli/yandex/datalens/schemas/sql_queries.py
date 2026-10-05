@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import Field, RootModel
+from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody
 
@@ -30,10 +30,6 @@ class GetSqlQueryArgs(RequestBody):
     )
 
 
-class Param(APIModel):
-    name: str | None = None
-
-
 class DeleteSqlQueryArgs(RequestBody):
     sql_query_id: str = Field(..., alias="sqlQueryId", description="ID of the SQL query to delete.")
 
@@ -50,6 +46,7 @@ class SqlQueryDataParamsItemVariant1DefaultValue(APIModel):
 
 
 class SqlQueryDataParamsItemVariant2(APIModel):
+    name: str | None = None
     type: Literal["date"] | Literal["datetime"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -61,6 +58,7 @@ class SqlQueryDataParamsItemVariant2(APIModel):
 
 
 class SqlQueryDataParamsItemVariant3(APIModel):
+    name: str | None = None
     type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -102,6 +100,7 @@ class CreateSqlQueryArgsParamsItemVariant1DefaultValue(APIModel):
 
 
 class CreateSqlQueryArgsParamsItemVariant2(APIModel):
+    name: str | None = None
     type: Literal["date"] | Literal["datetime"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -113,6 +112,7 @@ class CreateSqlQueryArgsParamsItemVariant2(APIModel):
 
 
 class CreateSqlQueryArgsParamsItemVariant3(APIModel):
+    name: str | None = None
     type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -131,6 +131,7 @@ class UpdateSqlQueryArgsParamsItemVariant1DefaultValue(APIModel):
 
 
 class UpdateSqlQueryArgsParamsItemVariant2(APIModel):
+    name: str | None = None
     type: Literal["date"] | Literal["datetime"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -142,6 +143,7 @@ class UpdateSqlQueryArgsParamsItemVariant2(APIModel):
 
 
 class UpdateSqlQueryArgsParamsItemVariant3(APIModel):
+    name: str | None = None
     type: Literal["string"] | Literal["number"] | Literal["boolean"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -172,22 +174,6 @@ class RunSqlQueryArgsParamsValueVariant5(APIModel):
     to: str | None = Field(default=None, description="End of the interval.")
 
 
-class ParamModel(CreateSqlQueryArgsParamsItemVariant2, Param):
-    pass
-
-
-class ParamModel1(CreateSqlQueryArgsParamsItemVariant3, Param):
-    pass
-
-
-class ParamModel2(UpdateSqlQueryArgsParamsItemVariant2, Param):
-    pass
-
-
-class ParamModel3(UpdateSqlQueryArgsParamsItemVariant3, Param):
-    pass
-
-
 class RunSqlQueryArgs(RequestBody):
     sql_query_id: str = Field(..., alias="sqlQueryId", description="ID of the SQL query to run.")
     params: (
@@ -202,15 +188,8 @@ class RunSqlQueryArgs(RequestBody):
     )
 
 
-class ParamModel4(SqlQueryDataParamsItemVariant2, Param):
-    pass
-
-
-class ParamModel5(SqlQueryDataParamsItemVariant3, Param):
-    pass
-
-
 class SqlQueryDataParamsItemVariant1(APIModel):
+    name: str | None = None
     type: Literal["date-interval"] | Literal["datetime-interval"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -220,6 +199,7 @@ class SqlQueryDataParamsItemVariant1(APIModel):
 
 
 class CreateSqlQueryArgsParamsItemVariant1(APIModel):
+    name: str | None = None
     type: Literal["date-interval"] | Literal["datetime-interval"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -229,6 +209,7 @@ class CreateSqlQueryArgsParamsItemVariant1(APIModel):
 
 
 class UpdateSqlQueryArgsParamsItemVariant1(APIModel):
+    name: str | None = None
     type: Literal["date-interval"] | Literal["datetime-interval"] | None = Field(
         default=None, description="Type of the parameter."
     )
@@ -254,14 +235,6 @@ class RunSqlQueryResultResultsItemVariant1(APIModel):
     )
 
 
-class ParamModel6(CreateSqlQueryArgsParamsItemVariant1, Param):
-    pass
-
-
-class ParamModel7(RootModel[ParamModel6 | ParamModel | ParamModel1]):
-    root: ParamModel6 | ParamModel | ParamModel1
-
-
 class CreateSqlQueryArgs(RequestBody):
     workbook_id: str = Field(
         ...,
@@ -276,17 +249,14 @@ class CreateSqlQueryArgs(RequestBody):
         description="ID of the connection. Supported connection types: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino.",
     )
     query: str = Field(..., description="Text of the SQL query.")
-    params: list[ParamModel7] | None = Field(
-        default=None, description="Parameters of the SQL query."
-    )
-
-
-class ParamModel8(UpdateSqlQueryArgsParamsItemVariant1, Param):
-    pass
-
-
-class ParamModel9(RootModel[ParamModel8 | ParamModel2 | ParamModel3]):
-    root: ParamModel8 | ParamModel2 | ParamModel3
+    params: (
+        list[
+            CreateSqlQueryArgsParamsItemVariant1
+            | CreateSqlQueryArgsParamsItemVariant2
+            | CreateSqlQueryArgsParamsItemVariant3
+        ]
+        | None
+    ) = Field(default=None, description="Parameters of the SQL query.")
 
 
 class UpdateSqlQueryArgs(RequestBody):
@@ -298,9 +268,14 @@ class UpdateSqlQueryArgs(RequestBody):
         description="ID of the connection. Supported connection types: PostgreSQL, ClickHouse, MySQL, Greenplum, Trino.",
     )
     query: str = Field(..., description="Text of the SQL query.")
-    params: list[ParamModel9] | None = Field(
-        default=None, description="Parameters of the SQL query."
-    )
+    params: (
+        list[
+            UpdateSqlQueryArgsParamsItemVariant1
+            | UpdateSqlQueryArgsParamsItemVariant2
+            | UpdateSqlQueryArgsParamsItemVariant3
+        ]
+        | None
+    ) = Field(default=None, description="Parameters of the SQL query.")
 
 
 class RunSqlQueryResult(APIModel):
@@ -343,14 +318,6 @@ class RunSqlQueryResult(APIModel):
     )
 
 
-class ParamModel10(SqlQueryDataParamsItemVariant1, Param):
-    pass
-
-
-class ParamModel11(RootModel[ParamModel10 | ParamModel4 | ParamModel5]):
-    root: ParamModel10 | ParamModel4 | ParamModel5
-
-
 class SqlQueryData(APIModel):
     """Data of the SQL query entry."""
 
@@ -363,9 +330,14 @@ class SqlQueryData(APIModel):
         alias="statementPositions",
         description="Start and end indexes of the query statements.",
     )
-    params: list[ParamModel11] | None = Field(
-        default=None, description="Parameters of the SQL query."
-    )
+    params: (
+        list[
+            SqlQueryDataParamsItemVariant1
+            | SqlQueryDataParamsItemVariant2
+            | SqlQueryDataParamsItemVariant3
+        ]
+        | None
+    ) = Field(default=None, description="Parameters of the SQL query.")
 
 
 class SqlQuery(APIModel):

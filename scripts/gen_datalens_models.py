@@ -182,6 +182,52 @@ def _plain(spec: dict[str, Any]) -> None:
             del schema[key]
 
 
+def _spread_unions(spec: dict[str, Any]) -> int:
+    """Write "these fields and one of those" as "one of those, each with these fields"; count them.
+
+    ``allOf: [{name}, {anyOf: [A, B]}]`` becomes ``anyOf: [{name, ...A}, {name, ...B}]``. The
+    generator does the same, but names every class it makes after the property and numbers them in
+    the order it meets them (``ParamModel7``), so a schema added elsewhere would rename them. Each
+    member written out here is an object in place, and gets its name from where it stands.
+    """
+
+    def objects(schemas: list[dict[str, Any]]) -> list[dict[str, Any]] | None:
+        """The objects ``schemas`` are or refer to; ``None`` when one of them is no object."""
+        found = [aimed for schema in schemas if (aimed := _target(spec, schema)) is not None]
+        whole = len(found) == len(schemas) and all("properties" in aimed for aimed in found)
+        return found if whole else None
+
+    spread = 0
+    for schema in list(_every_schema(spec)):
+        members = schema.get("allOf")
+        if not isinstance(members, list):
+            continue
+        unions = [member for member in members if "anyOf" in member or "oneOf" in member]
+        parts = objects([member for member in members if member not in unions])
+        # A union that names its members by a mapping keeps them as the schemas they are.
+        if len(unions) != 1 or parts is None or "discriminator" in unions[0]:
+            continue
+        (union,) = unions
+        key = "anyOf" if "anyOf" in union else "oneOf"
+        pieces = [objects([*parts, variant]) for variant in union[key]]
+        if any(found is None for found in pieces):
+            continue
+        variants = []
+        for found in pieces:
+            merged: dict[str, Any] = {"type": "object", "properties": {}, "required": []}
+            for piece in found or []:
+                merged["properties"].update(copy.deepcopy(piece["properties"]))
+                merged["required"] += [
+                    name for name in piece.get("required", []) if name not in merged["required"]
+                ]
+            variants.append(merged)
+        del schema["allOf"]
+        schema.update({name: value for name, value in union.items() if name != key})
+        schema[key] = variants
+        spread += 1
+    return spread
+
+
 def _require_discriminators(spec: dict[str, Any]) -> set[int]:
     """Make each union's discriminator a required property of its members; return those nodes.
 
@@ -355,7 +401,8 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
         spec: The OpenAPI document as DataLens publishes it.
 
     Returns:
-        A copy with no generator directives and no defaults, in which a union's discriminator is
+        A copy with no generator directives and no defaults, in which "these fields and one of
+        those" is written as its members, a union's discriminator is
         required in its members, a set of string values is open, nothing else is required
         below the top level of a request, only a request envelope is closed to unknown fields,
         every object has a name made from its place, a schema no
@@ -389,6 +436,7 @@ def prepare(spec: dict[str, Any]) -> dict[str, Any]:
     """
     spec = copy.deepcopy(spec)
     _plain(spec)
+    _spread_unions(spec)
     tags = _require_discriminators(spec)
     _open_value_sets(spec, keep=tags)
     _require_only_kinds(spec, keep=tags)
