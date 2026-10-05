@@ -72,6 +72,21 @@ async def test_an_agent_is_told_the_field_datalens_refused(api):
             '{"status": 403, "code": "LICENSE_IS_REQUIRED", "message": "No license"}',
             "LICENSE_IS_REQUIRED: No license",
         ),
+        # Measured: the list of fields is `details` itself, not `details.details`.
+        (
+            '{"status": 400, "code": "VALIDATION_ERROR", "message": "Invalid params", '
+            '"details": [{"code": "custom", "path": ["sort"], "message": '
+            '"sort must contain at least one field when offset is greater than 0"}]}',
+            "VALIDATION_ERROR: Invalid params (sort: sort must contain at least one field when "
+            "offset is greater than 0)",
+        ),
+        # Measured: details that describe the error and list no field; the message says it.
+        (
+            '{"status": 400, "code": "ERR.DS_API.FIELD.NOT_FOUND", "message": "Unknown field '
+            'Region", "details": {"title": "ERR.DS_API.FIELD.NOT_FOUND", "description": '
+            '"Unknown field Region"}}',
+            "ERR.DS_API.FIELD.NOT_FOUND: Unknown field Region",
+        ),
         # Details of another shape, or items that name nothing, add nothing.
         ('{"code": "X", "message": "Bad", "details": {"details": "text"}}', "X: Bad"),
         ('{"code": "X", "message": "Bad", "details": {"details": [{"path": []}, 5]}}', "X: Bad"),

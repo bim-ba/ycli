@@ -213,7 +213,11 @@ def move_bulk(
     collection_id: IntoCollection = None,
     client: DataLensClient = Depends(datalens_client),
 ) -> WorkbooksMoved:
-    """Move several workbooks into a collection, or into the root when none is given."""
+    """Move several workbooks into a collection, or into the root when none is given.
+
+    All or none: if one workbook already lies in the destination, the API answers 409 and
+    moves none of them.
+    """
     return client.workbooks.move_bulk(workbook_ids, collection_id=collection_id)
 
 
