@@ -181,7 +181,7 @@ skip-magic-trailing-comma = false
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF", "ANN", "TC", "D"]
+select = ["E", "W", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "PTH", "RUF", "ANN", "TC", "D", "TID251"]
 # D105/D107: a magic method and `__init__` are described by their class docstring (Google style).
 ignore = ["ANN401", "D105", "D107"]
 
@@ -190,6 +190,11 @@ convention = "google"
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastmcp.dependencies.Depends"]
+
+# ARCH-5: the environment is read in `settings.py` and nowhere else in the package.
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"os.environ".msg = "read the environment in ycli/settings.py only (ARCH-5)"
+"os.getenv".msg = "read the environment in ycli/settings.py only (ARCH-5)"
 
 [tool.ruff.lint.isort]
 known-first-party = ["ycli"]
@@ -205,8 +210,10 @@ runtime-evaluated-base-classes = [
 
 [tool.ruff.lint.per-file-ignores]
 # Only the shipped package must document every public name; the rest keeps the format rules.
-"tests/**/*.py" = ["ANN", "D1"]
-"scripts/**/*.py" = ["D1"]
+"tests/**/*.py" = ["ANN", "D1", "TID251"]
+"scripts/**/*.py" = ["D1", "TID251"]
+"e2e/**/*.py" = ["TID251"]
+"src/ycli/settings.py" = ["TID251"]
 "{e2e,docs,.claude}/**/*.py" = ["D1"]
 # Sans-IO builders named after their operation; the resource client documents the operation.
 "src/ycli/yandex/**/endpoints.py" = ["D103"]
