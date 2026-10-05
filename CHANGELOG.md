@@ -9,6 +9,29 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.73.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.72.0
+  ([`26621f3`](https://github.com/bim-ba/ycli/commit/26621f3288965c60d4889d3ca6ad36192f224701))
+
+### Refactoring
+
+- A survey is `survey_id` and a bulk change is `bulk_id` in every method
+  ([#328](https://github.com/bim-ba/ycli/pull/328),
+  [`8b7ee59`](https://github.com/bim-ba/ycli/commit/8b7ee59cfbfdd1e9e5a16262ef1bdcc956307ecc))
+
+### Breaking Changes
+
+- The argument `survey` is renamed to `survey_id` in `forms.filling.get`, `forms.filling.submit` and
+  `forms.filling.suggest`, in the `endpoints` functions of the same names and in the tools
+  `forms_filling_get`, `forms_filling_submit`, `forms_filling_suggest`. The argument `operation_id`
+  is renamed to `bulk_id` in `tracker.entities.bulk_get`, its `endpoints` function and the tool
+  `tracker_entities_bulk_get`. A call that passes the value by position is not affected. On the CLI
+  the positionals are shown as `SURVEY_ID` and `BULK_ID`; commands are typed as before.
+
+
 ## v0.72.0 (2026-10-05)
 
 ### Build System
