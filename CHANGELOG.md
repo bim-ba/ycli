@@ -9,6 +9,24 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.70.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.69.0
+  ([`71c3304`](https://github.com/bim-ba/ycli/commit/71c3304387928f8861a535282b8c0b837fc91198))
+
+### Refactoring
+
+- Five more operations take the name the convention gives them
+  ([#268](https://github.com/bim-ba/ycli/pull/268),
+  [`14025ed`](https://github.com/bim-ba/ycli/commit/14025ed1b0d4822fd56d76f34a6a447f81ec2c72))
+
+### Breaking Changes
+
+- These names changed; the old ones no longer answer.
+
+
 ## v0.69.0 (2026-10-05)
 
 ### Build System
