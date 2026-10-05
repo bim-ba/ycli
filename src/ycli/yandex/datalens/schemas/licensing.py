@@ -87,45 +87,6 @@ class GetLicensesArgs(RequestBody):
     )
 
 
-class Current(APIModel):
-    """Current license limit."""
-
-    type: Literal["regular", "forced"] | str = Field(..., description="Type of the license limit.")
-    value: float = Field(..., description="Maximum number of active licenses.")
-    started_at: str = Field(
-        ...,
-        alias="startedAt",
-        description="Date and time when the license limit takes effect.",
-    )
-    active_licenses_count: float | None = Field(
-        ...,
-        alias="activeLicensesCount",
-        description="Number of active licenses counted against the limit.",
-    )
-
-
-class Next(APIModel):
-    """Upcoming license limit."""
-
-    type: Literal["regular", "forced"] | str = Field(..., description="Type of the license limit.")
-    value: float = Field(..., description="Maximum number of active licenses.")
-    started_at: str = Field(
-        ...,
-        alias="startedAt",
-        description="Date and time when the license limit takes effect.",
-    )
-    active_licenses_count: float | None = Field(
-        ...,
-        alias="activeLicensesCount",
-        description="Number of active licenses counted against the limit.",
-    )
-
-
-class LicenseLimits(APIModel):
-    current: Current | None = Field(..., description="Current license limit.")
-    next: Next | None = Field(..., description="Upcoming license limit.")
-
-
 class SetLicenseLimitArgs(RequestBody):
     value: float = Field(
         ...,
@@ -183,3 +144,42 @@ class AssignLicensesResponse(RootModel[list[License]]):
     """Licenses assigned to the users."""
 
     root: list[License] = Field(..., description="Licenses assigned to the users.")
+
+
+class LicenseLimitsCurrent(APIModel):
+    """Current license limit."""
+
+    type: Literal["regular", "forced"] | str = Field(..., description="Type of the license limit.")
+    value: float = Field(..., description="Maximum number of active licenses.")
+    started_at: str = Field(
+        ...,
+        alias="startedAt",
+        description="Date and time when the license limit takes effect.",
+    )
+    active_licenses_count: float | None = Field(
+        ...,
+        alias="activeLicensesCount",
+        description="Number of active licenses counted against the limit.",
+    )
+
+
+class LicenseLimitsNext(APIModel):
+    """Upcoming license limit."""
+
+    type: Literal["regular", "forced"] | str = Field(..., description="Type of the license limit.")
+    value: float = Field(..., description="Maximum number of active licenses.")
+    started_at: str = Field(
+        ...,
+        alias="startedAt",
+        description="Date and time when the license limit takes effect.",
+    )
+    active_licenses_count: float | None = Field(
+        ...,
+        alias="activeLicensesCount",
+        description="Number of active licenses counted against the limit.",
+    )
+
+
+class LicenseLimits(APIModel):
+    current: LicenseLimitsCurrent | None
+    next: LicenseLimitsNext | None

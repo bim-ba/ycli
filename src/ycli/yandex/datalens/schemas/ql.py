@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import Field, RootModel
+from pydantic import ConfigDict, Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
 
@@ -50,20 +50,6 @@ class DeleteQLChartArgs(RequestBody):
     chart_id: str = Field(..., alias="chartId")
 
 
-class UpdateQLChartArgs(RequestBody):
-    entry_id: str = Field(..., alias="entryId")
-    template: Literal["ql"]
-    annotation: shared.EntryAnnotationArg | None = None
-    mode: shared.EntryUpdateMode
-    data: dict[str, Any]
-
-
-class CreateQLChartArgs(EntryLocationIdentifiers):
-    template: Literal["ql"]
-    annotation: shared.EntryAnnotationArg | None = None
-    data: dict[str, Any]
-
-
 class DeleteQLChartResponse(APIModel):
     pass
 
@@ -74,3 +60,31 @@ class UpdateQLChartResponse(RootModel[dict[str, Any]]):
 
 class CreateQLChartResponse(RootModel[dict[str, Any]]):
     root: dict[str, Any]
+
+
+class UpdateQLChartArgsData(RootModel[dict[str, Any]]):
+    root: dict[str, Any]
+
+
+class CreateQLChartArgsData(RootModel[dict[str, Any]]):
+    root: dict[str, Any]
+
+
+class UpdateQLChartArgs(APIModel):
+    model_config = ConfigDict(
+        extra="allow",
+    )
+    __annotations__ = {
+        "__pydantic_extra__": dict[str, Any],
+    }
+    entry_id: str = Field(..., alias="entryId")
+    template: Literal["ql"]
+    annotation: shared.EntryAnnotationArg | None = None
+    mode: shared.EntryUpdateMode
+    data: UpdateQLChartArgsData
+
+
+class CreateQLChartArgs(EntryLocationIdentifiers):
+    template: Literal["ql"]
+    annotation: shared.EntryAnnotationArg | None = None
+    data: CreateQLChartArgsData

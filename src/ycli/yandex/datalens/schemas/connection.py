@@ -43,13 +43,13 @@ class RequiredParameterInfo(APIModel):
 
 class AppmetricaApi(APIModel):
     accuracy: float | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -62,29 +62,29 @@ class AppmetricaApi(APIModel):
 
 class AppmetricaApi2(APIModel):
     accuracy: float | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     counter_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     token: str | None = None
 
 
 class Bigquery(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
     credentials: str
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str
     project_id: str
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     type: Literal["bigquery"]
     updated_at: str | None = None
@@ -92,26 +92,26 @@ class Bigquery(APIModel):
 
 
 class Bigquery2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     credentials: str | None = None
-    description: str | None = ""
+    description: str | None = None
     project_id: str | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
 
 
 class Bitrix24(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -124,21 +124,21 @@ class Bitrix24(APIModel):
 
 
 class Bitrix242(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     portal: str | None = None
     token: str | None = None
 
 
 class ChBillingAnalytics(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -149,16 +149,16 @@ class ChBillingAnalytics(APIModel):
 
 
 class ChBillingAnalytics2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class ChYaMusicPodcastStats(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -170,21 +170,21 @@ class ChYaMusicPodcastStats(APIModel):
 
 
 class ChYaMusicPodcastStats2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
     token: str | None = None
 
 
 class Chyt(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     alias: str
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
+    dir_path: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -192,7 +192,7 @@ class Chyt(APIModel):
     name: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     secure: bool | None = None
     token: str
@@ -202,23 +202,23 @@ class Chyt(APIModel):
 
 
 class Chyt2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     alias: str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     host: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     secure: bool | None = None
     token: str | None = None
 
 
 class Clickhouse(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
@@ -227,82 +227,82 @@ class Clickhouse(APIModel):
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_connection_manager_delegation_is_set_current: bool | None = None
     dlp_managed_folder_id: str | None = None
-    experimental_features: Literal["on", "off"] | str | None = "off"
+    experimental_features: Literal["on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     name: str
     password: str | None = None
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
-    readonly: int | None = 2
+    readonly: int | None = None
     secure: Literal["on", "off"] | str | None = None
     ssl_ca: str | None = None
-    ssl_ca_verify: Literal["on", "off"] | str | None = "on"
+    ssl_ca_verify: Literal["on", "off"] | str | None = None
     type: Literal["clickhouse"]
     updated_at: str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
     workbook_id: str | None = None
 
 
 class Clickhouse2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     connection_manager_cloud_id: str | None = None
     connection_manager_connection_id: str | None = None
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_folder_id: str | None = None
-    experimental_features: Literal["on", "off"] | str | None = "off"
+    experimental_features: Literal["on", "off"] | str | None = None
     host: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
-    readonly: int | None = 2
+    readonly: int | None = None
     secure: Literal["on", "off"] | str | None = None
     ssl_ca: str | None = None
-    ssl_ca_verify: Literal["on", "off"] | str | None = "on"
+    ssl_ca_verify: Literal["on", "off"] | str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
 
 
 class Equeo(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -313,17 +313,17 @@ class Equeo(APIModel):
 
 
 class Equeo2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class Extractor1c(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -334,21 +334,21 @@ class Extractor1c(APIModel):
 
 
 class Extractor1c2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class Greenplum(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "auto"
+    description: str | None = None
+    dir_path: str | None = None
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -359,10 +359,10 @@ class Greenplum(APIModel):
     password: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["greenplum"]
     updated_at: str | None = None
     username: str
@@ -370,35 +370,35 @@ class Greenplum(APIModel):
 
 
 class Greenplum2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "auto"
+    description: str | None = None
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     username: str | None = None
 
 
 class Gsheets(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -410,21 +410,21 @@ class Gsheets(APIModel):
 
 
 class Gsheets2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     url: str | None = None
 
 
 class JsonApi(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     allowed_methods: list[Literal["GET", "POST", "PUT", "PATCH", "DELETE"] | str]
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -441,9 +441,9 @@ class JsonApi(APIModel):
 
 
 class JsonApi2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     allowed_methods: list[Literal["GET", "POST", "PUT", "PATCH", "DELETE"] | str] | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str | None = None
     path: str | None = None
     plain_headers: dict[str, Any] | None = None
@@ -454,11 +454,11 @@ class JsonApi2(APIModel):
 
 class KonturMarket(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -469,19 +469,19 @@ class KonturMarket(APIModel):
 
 
 class KonturMarket2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class MetrikaApi(APIModel):
     accuracy: float | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -494,23 +494,23 @@ class MetrikaApi(APIModel):
 
 class MetrikaApi2(APIModel):
     accuracy: float | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     counter_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     token: str | None = None
 
 
 class Monitoring(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None
     collection_id: str | None = None
     created_at: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     folder_id: str
     id: str | None = None
     key: str | None = None
@@ -523,23 +523,23 @@ class Monitoring(APIModel):
 
 
 class Monitoring2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str | None = None
     service_account_id: str | None = None
 
 
 class Moysklad(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -550,20 +550,20 @@ class Moysklad(APIModel):
 
 
 class Moysklad2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class Mssql(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -572,7 +572,7 @@ class Mssql(APIModel):
     password: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     type: Literal["mssql"]
     updated_at: str | None = None
@@ -581,23 +581,23 @@ class Mssql(APIModel):
 
 
 class Mssql2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str | None = None
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     username: str | None = None
 
 
 class Mysql(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
@@ -606,82 +606,82 @@ class Mysql(APIModel):
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_connection_manager_delegation_is_set_current: bool | None = None
     dlp_managed_folder_id: str | None = None
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "off"
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     name: str
     password: str | None = None
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["mysql"]
     updated_at: str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
     workbook_id: str | None = None
 
 
 class Mysql2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     connection_manager_cloud_id: str | None = None
     connection_manager_connection_id: str | None = None
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_folder_id: str | None = None
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "off"
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
 
 
 class Oracle(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_connect_method: Literal["sid", "service_name"] | str
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -690,10 +690,10 @@ class Oracle(APIModel):
     password: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["oracle"]
     updated_at: str | None = None
     username: str
@@ -701,26 +701,26 @@ class Oracle(APIModel):
 
 
 class Oracle2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_connect_method: Literal["sid", "service_name"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str | None = None
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     username: str | None = None
 
 
 class Postgres(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
@@ -729,83 +729,83 @@ class Postgres(APIModel):
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_connection_manager_delegation_is_set_current: bool | None = None
     dlp_managed_folder_id: str | None = None
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "auto"
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     name: str
     password: str | None = None
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["postgres"]
     updated_at: str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
     workbook_id: str | None = None
 
 
 class Postgres2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     connection_manager_cloud_id: str | None = None
     connection_manager_connection_id: str | None = None
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_folder_id: str | None = None
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "auto"
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
 
 
 class Promql(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     auth_header: str | None = None
-    auth_type: Literal["header", "password"] | str | None = "password"
+    auth_type: Literal["header", "password"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -822,14 +822,14 @@ class Promql(APIModel):
 
 
 class Promql2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     auth_header: str | None = None
-    auth_type: Literal["header", "password"] | str | None = "password"
+    auth_type: Literal["header", "password"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str | None = None
     password: str | None = None
     path: str | None = None
@@ -839,11 +839,11 @@ class Promql2(APIModel):
 
 
 class SmbHeatmaps(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -855,28 +855,28 @@ class SmbHeatmaps(APIModel):
 
 
 class SmbHeatmaps2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
     token: str | None = None
 
 
 class Snowflake(APIModel):
     account_name: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     client_id: str
     client_secret: str
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     refresh_token: str | None = None
     refresh_token_expire_time: AwareDatetime | None = None
@@ -891,14 +891,14 @@ class Snowflake(APIModel):
 
 class Snowflake2(APIModel):
     account_name: str | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     client_id: str | None = None
     client_secret: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     refresh_token: str | None = None
     refresh_token_expire_time: AwareDatetime | None = None
@@ -909,15 +909,15 @@ class Snowflake2(APIModel):
 
 
 class Speechsense(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    auth_type: Literal["service_account", "user_credentials"] | str | None = "user_credentials"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    auth_type: Literal["service_account", "user_credentials"] | str | None = None
     cloud_id: str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     folder_id: str | None = None
     id: str | None = None
     key: str | None = None
@@ -931,21 +931,23 @@ class Speechsense(APIModel):
 
 
 class Speechsense2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    auth_type: Literal["service_account", "user_credentials"] | str | None = "user_credentials"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    auth_type: Literal["service_account", "user_credentials"] | str | None = None
     cloud_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str | None = None
     project_id: str | None = None
     service_account_id: str | None = None
 
 
 class Trino(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     auth_type: (
-        Literal["certificate", "header", "jwt", "kerberos", "none", "oauth2", "password"] | None
+        Literal["certificate", "header", "jwt", "kerberos", "none", "oauth2", "password"]
+        | str
+        | None
     ) = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
@@ -953,11 +955,11 @@ class Trino(APIModel):
     cluster_entry_id: str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     extra_credentials: dict[str, Any] | None = None
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
@@ -972,11 +974,11 @@ class Trino(APIModel):
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str | None = None
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["trino"]
     updated_at: str | None = None
     username: str | None = None
@@ -984,18 +986,20 @@ class Trino(APIModel):
 
 
 class Trino2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     auth_type: (
-        Literal["certificate", "header", "jwt", "kerberos", "none", "oauth2", "password"] | None
+        Literal["certificate", "header", "jwt", "kerberos", "none", "oauth2", "password"]
+        | str
+        | None
     ) = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None = None
     cluster_entry_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     extra_credentials: dict[str, Any] | None = None
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
@@ -1006,20 +1010,20 @@ class Trino2(APIModel):
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str | None = None
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     username: str | None = None
 
 
 class UsageAnalyticsDetailed(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1030,16 +1034,16 @@ class UsageAnalyticsDetailed(APIModel):
 
 
 class UsageAnalyticsDetailed2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class UsageAnalyticsLight(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1050,23 +1054,23 @@ class UsageAnalyticsLight(APIModel):
 
 
 class UsageAnalyticsLight2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    description: str | None = ""
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    description: str | None = None
 
 
 class Ydb(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    auth_type: Literal["anonymous", "password", "oauth"] | None = None
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    auth_type: Literal["anonymous", "password", "oauth"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str
     delegation_is_set: bool | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     folder_id: str
     host: str
     id: str | None = None
@@ -1077,11 +1081,11 @@ class Ydb(APIModel):
     name: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "on"
+    ssl_enable: Literal["on", "off"] | str | None = None
     token: str | None = None
     type: Literal["ydb"]
     updated_at: str | None = None
@@ -1090,48 +1094,48 @@ class Ydb(APIModel):
 
 
 class Ydb2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    auth_type: Literal["anonymous", "password", "oauth"] | None = None
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    auth_type: Literal["anonymous", "password", "oauth"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str | None = None
     host: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str | None = None
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "on"
+    ssl_enable: Literal["on", "off"] | str | None = None
     token: str | None = None
     username: str | None = None
 
 
 class Yq(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
-    dir_path: str | None = "Connection"
+    description: str | None = None
+    dir_path: str | None = None
     folder_id: str
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str
     type: Literal["yq"]
@@ -1140,16 +1144,16 @@ class Yq(APIModel):
 
 
 class Yq2(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str | None = None
 
@@ -1329,12 +1333,12 @@ class ConnectionOptions(APIModel):
 
 class AppmetricaApi1(APIModel):
     accuracy: float | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1347,13 +1351,13 @@ class AppmetricaApi1(APIModel):
 
 
 class Bigquery1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
     credentials: str
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1361,7 +1365,7 @@ class Bigquery1(APIModel):
     options: ConnectionOptions
     project_id: str
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     type: Literal["bigquery"]
     updated_at: str | None = None
@@ -1369,13 +1373,13 @@ class Bigquery1(APIModel):
 
 
 class Bitrix241(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1389,10 +1393,10 @@ class Bitrix241(APIModel):
 
 
 class ChBillingAnalytics1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1404,10 +1408,10 @@ class ChBillingAnalytics1(APIModel):
 
 
 class ChYaMusicPodcastStats1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1420,14 +1424,14 @@ class ChYaMusicPodcastStats1(APIModel):
 
 
 class Chyt1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     alias: str
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -1436,7 +1440,7 @@ class Chyt1(APIModel):
     options: ConnectionOptions
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     secure: bool | None = None
     token: str
@@ -1446,7 +1450,7 @@ class Chyt1(APIModel):
 
 
 class Clickhouse1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
@@ -1455,47 +1459,47 @@ class Clickhouse1(APIModel):
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_connection_manager_delegation_is_set_current: bool | None = None
     dlp_managed_folder_id: str | None = None
-    experimental_features: Literal["on", "off"] | str | None = "off"
+    experimental_features: Literal["on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     name: str
     options: ConnectionOptions
     password: str | None = None
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
-    readonly: int | None = 2
+    readonly: int | None = None
     secure: Literal["on", "off"] | str | None = None
     ssl_ca: str | None = None
-    ssl_ca_verify: Literal["on", "off"] | str | None = "on"
+    ssl_ca_verify: Literal["on", "off"] | str | None = None
     type: Literal["clickhouse"]
     updated_at: str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
     workbook_id: str | None = None
 
 
 class Equeo1(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1508,10 +1512,10 @@ class Equeo1(APIModel):
 
 class Extractor1c1(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1523,15 +1527,15 @@ class Extractor1c1(APIModel):
 
 
 class Greenplum1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "auto"
+    description: str | None = None
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -1543,10 +1547,10 @@ class Greenplum1(APIModel):
     password: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["greenplum"]
     updated_at: str | None = None
     username: str
@@ -1554,13 +1558,13 @@ class Greenplum1(APIModel):
 
 
 class Gsheets1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1573,11 +1577,11 @@ class Gsheets1(APIModel):
 
 
 class JsonApi1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     allowed_methods: list[Literal["GET", "POST", "PUT", "PATCH", "DELETE"] | str]
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -1596,10 +1600,10 @@ class JsonApi1(APIModel):
 
 class KonturMarket1(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1612,12 +1616,12 @@ class KonturMarket1(APIModel):
 
 class MetrikaApi1(APIModel):
     accuracy: float | None = None
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
-    description: str | None = ""
+    data_export_forbidden: Literal["on", "off"] | str | None = None
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1630,14 +1634,14 @@ class MetrikaApi1(APIModel):
 
 
 class Monitoring1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None
     collection_id: str | None = None
     created_at: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str
     id: str | None = None
     key: str | None = None
@@ -1652,10 +1656,10 @@ class Monitoring1(APIModel):
 
 class Moysklad1(APIModel):
     access_token: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1667,14 +1671,14 @@ class Moysklad1(APIModel):
 
 
 class Mssql1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -1684,7 +1688,7 @@ class Mssql1(APIModel):
     password: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     type: Literal["mssql"]
     updated_at: str | None = None
@@ -1693,7 +1697,7 @@ class Mssql1(APIModel):
 
 
 class Mysql1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
@@ -1702,49 +1706,49 @@ class Mysql1(APIModel):
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_connection_manager_delegation_is_set_current: bool | None = None
     dlp_managed_folder_id: str | None = None
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "off"
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     name: str
     options: ConnectionOptions
     password: str | None = None
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["mysql"]
     updated_at: str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
     workbook_id: str | None = None
 
 
 class Oracle1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_connect_method: Literal["sid", "service_name"] | str
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -1754,10 +1758,10 @@ class Oracle1(APIModel):
     password: str
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["oracle"]
     updated_at: str | None = None
     username: str
@@ -1765,7 +1769,7 @@ class Oracle1(APIModel):
 
 
 class Postgres1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
@@ -1774,50 +1778,50 @@ class Postgres1(APIModel):
     connection_manager_delegation_is_set: bool | None = None
     connection_manager_folder_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     dlp_managed_cloud_id: str | None = None
     dlp_managed_cluster_id: str | None = None
     dlp_managed_connection_manager_connection_id: str | None = None
     dlp_managed_connection_manager_delegation_is_set: bool | None = None
     dlp_managed_connection_manager_delegation_is_set_current: bool | None = None
     dlp_managed_folder_id: str | None = None
-    enforce_collate: Literal["auto", "on", "off"] | str | None = "auto"
+    enforce_collate: Literal["auto", "on", "off"] | str | None = None
     host: str
     id: str | None = None
     key: str | None = None
     mdb_cluster_id: str | None = None
     mdb_folder_id: str | None = None
     meta: dict[str, Any] | None = None
-    mode: Literal["onpremise", "managed"] | None = None
+    mode: Literal["onpremise", "managed"] | str | None = None
     name: str
     options: ConnectionOptions
     password: str | None = None
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["postgres"]
     updated_at: str | None = None
     username: str | None = None
-    variant: Literal["default", "dlp"] | str | None = "default"
+    variant: Literal["default", "dlp"] | str | None = None
     workbook_id: str | None = None
 
 
 class Promql1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     auth_header: str | None = None
-    auth_type: Literal["header", "password"] | str | None = "password"
+    auth_type: Literal["header", "password"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
-    description: str | None = ""
+    description: str | None = None
     host: str
     id: str | None = None
     key: str | None = None
@@ -1835,10 +1839,10 @@ class Promql1(APIModel):
 
 
 class SmbHeatmaps1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1852,21 +1856,21 @@ class SmbHeatmaps1(APIModel):
 
 class Snowflake1(APIModel):
     account_name: str
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     client_id: str
     client_secret: str
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
     name: str
     options: ConnectionOptions
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     refresh_token: str | None = None
     refresh_token_expire_time: AwareDatetime | None = None
@@ -1880,14 +1884,14 @@ class Snowflake1(APIModel):
 
 
 class Speechsense1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    auth_type: Literal["service_account", "user_credentials"] | str | None = "user_credentials"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    auth_type: Literal["service_account", "user_credentials"] | str | None = None
     cloud_id: str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str | None = None
     id: str | None = None
     key: str | None = None
@@ -1902,9 +1906,11 @@ class Speechsense1(APIModel):
 
 
 class Trino1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     auth_type: (
-        Literal["certificate", "header", "jwt", "kerberos", "none", "oauth2", "password"] | None
+        Literal["certificate", "header", "jwt", "kerberos", "none", "oauth2", "password"]
+        | str
+        | None
     ) = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
@@ -1912,10 +1918,10 @@ class Trino1(APIModel):
     cluster_entry_id: str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     extra_credentials: dict[str, Any] | None = None
     folder_id: str | None = None
     form_fill_mode: Literal["cloud", "manually", "platform"] | str | None = None
@@ -1931,11 +1937,11 @@ class Trino1(APIModel):
     password: str | None = None
     port: int | None = None
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str | None = None
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "off"
+    ssl_enable: Literal["on", "off"] | str | None = None
     type: Literal["trino"]
     updated_at: str | None = None
     username: str | None = None
@@ -1943,10 +1949,10 @@ class Trino1(APIModel):
 
 
 class UsageAnalyticsDetailed1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1958,10 +1964,10 @@ class UsageAnalyticsDetailed1(APIModel):
 
 
 class UsageAnalyticsLight1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     created_at: str | None = None
-    description: str | None = ""
+    description: str | None = None
     id: str | None = None
     key: str | None = None
     meta: dict[str, Any] | None = None
@@ -1973,17 +1979,17 @@ class UsageAnalyticsLight1(APIModel):
 
 
 class Ydb1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
-    auth_type: Literal["anonymous", "password", "oauth"] | None = None
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
+    auth_type: Literal["anonymous", "password", "oauth"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     db_name: str
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str
     host: str
     id: str | None = None
@@ -1995,11 +2001,11 @@ class Ydb1(APIModel):
     options: ConnectionOptions
     port: int
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str
     ssl_ca: str | None = None
-    ssl_enable: Literal["on", "off"] | str | None = "on"
+    ssl_enable: Literal["on", "off"] | str | None = None
     token: str | None = None
     type: Literal["ydb"]
     updated_at: str | None = None
@@ -2008,15 +2014,15 @@ class Ydb1(APIModel):
 
 
 class Yq1(APIModel):
-    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = "allow"
+    ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     cache_invalidation_throttling_interval_sec: int | None = None
     cache_ttl_sec: int | None = None
     cloud_id: str | None
     collection_id: str | None = None
     created_at: str | None = None
-    data_export_forbidden: Literal["on", "off"] | str | None = "off"
+    data_export_forbidden: Literal["on", "off"] | str | None = None
     delegation_is_set: bool | None = None
-    description: str | None = ""
+    description: str | None = None
     folder_id: str
     id: str | None = None
     key: str | None = None
@@ -2024,7 +2030,7 @@ class Yq1(APIModel):
     name: str
     options: ConnectionOptions
     raw_sql_level: Literal["off", "subselect", "template", "dashsql", "readwrite"] | str | None = (
-        "off"
+        None
     )
     service_account_id: str
     type: Literal["yq"]

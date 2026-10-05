@@ -9,7 +9,7 @@ from pydantic import ConfigDict, Field
 from ycli.yandex.models import APIModel
 
 
-class Settings(APIModel):
+class CurrentTenantDetailsSettings(APIModel):
     """Public tenant settings. Additional public settings may be returned."""
 
     model_config = ConfigDict(
@@ -87,10 +87,7 @@ class CurrentTenantDetails(APIModel):
         alias="orgId",
         description="ID of the organization. Null when the tenant has no organization.",
     )
-    settings: Settings = Field(
-        ...,
-        description="Public tenant settings. Additional public settings may be returned.",
-    )
+    settings: CurrentTenantDetailsSettings
     dlp_enabled: bool = Field(
         ...,
         alias="dlpEnabled",

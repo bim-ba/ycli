@@ -9,136 +9,6 @@ from pydantic import Field, RootModel
 from ycli.yandex.models import APIModel, RequestBody
 
 
-class CatalogsConfigItem(APIModel):
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class Resources(APIModel):
-    """Resources assigned to the coordinator."""
-
-    resource_preset_id: str = Field(
-        ...,
-        alias="resourcePresetId",
-        description="ID of the Trino resource preset.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class CoordinatorConfig(APIModel):
-    resources: Resources = Field(..., description="Resources assigned to the coordinator.")
-
-
-class ResourcesModel(APIModel):
-    """Resources assigned to each worker."""
-
-    resource_preset_id: str = Field(
-        ...,
-        alias="resourcePresetId",
-        description="ID of the Trino resource preset.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class AutoScale(APIModel):
-    min_count: str = Field(
-        ...,
-        alias="minCount",
-        description="Minimum number of worker instances.",
-        pattern="^(?:0|[1-5]?\\d|6[0-4])$",
-    )
-    max_count: str = Field(
-        ...,
-        alias="maxCount",
-        description="Maximum number of worker instances.",
-        pattern="^(?:[1-9]|[1-5]\\d|6[0-4])$",
-    )
-
-
-class ScalePolicy(APIModel):
-    auto_scale: AutoScale = Field(..., alias="autoScale")
-    scale_type: Literal["autoScale"] = Field(..., alias="scaleType")
-
-
-class WorkerConfig(APIModel):
-    resources: ResourcesModel = Field(..., description="Resources assigned to each worker.")
-    scale_policy: ScalePolicy = Field(..., alias="scalePolicy")
-
-
-class Config(APIModel):
-    trino_version: str = Field(
-        ..., alias="trinoVersion", description="Trino version used by the cluster."
-    )
-    catalogs_config: list[CatalogsConfigItem] = Field(
-        ...,
-        alias="catalogsConfig",
-        description="REST catalogs attached to the cluster.",
-    )
-    coordinator_config: CoordinatorConfig = Field(..., alias="coordinatorConfig")
-    worker_config: WorkerConfig = Field(..., alias="workerConfig")
-
-
-class TrinoCluster(APIModel):
-    id: str = Field(..., description="ID of the Trino cluster.", min_length=1)
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the managed Trino cluster.")
-    collection_id: str = Field(
-        ...,
-        alias="collectionId",
-        description="ID of the DataLens collection that contains the cluster.",
-        min_length=1,
-    )
-    cloud_environment_id: str = Field(
-        ...,
-        alias="cloudEnvironmentId",
-        description="ID of the associated cloud environment.",
-        min_length=1,
-    )
-    name: str = Field(..., description="Name of the Trino cluster.", min_length=1)
-    description: str = Field(..., description="Description of the Trino cluster.")
-    labels: dict[str, str] = Field(..., description="Trino cluster labels.")
-    config: Config
-    health: Literal["HEALTH_UNKNOWN", "ALIVE", "DEAD", "DEGRADED"] | str = Field(
-        ..., description="Aggregated health of the Trino cluster."
-    )
-    status: (
-        Literal[
-            "STATUS_UNKNOWN",
-            "CREATING",
-            "RUNNING",
-            "ERROR",
-            "STOPPING",
-            "STOPPED",
-            "STARTING",
-            "UPDATING",
-        ]
-        | str
-    ) = Field(..., description="Current status of the Trino cluster.")
-    coordinator_url: str = Field(
-        ..., alias="coordinatorUrl", description="Address of the Trino coordinator."
-    )
-    entry_id: str = Field(
-        ...,
-        alias="entryId",
-        description="ID of the DataLens entry of the Trino cluster. Empty when the cluster has no entry.",
-    )
-
-
-class ListTrinoClustersResult(APIModel):
-    clusters: list[TrinoCluster] = Field(..., description="Trino clusters matching the request.")
-    next_page_token: str = Field(
-        ...,
-        alias="nextPageToken",
-        description="Token for the next page of Trino clusters.",
-    )
-
-
 class ListTrinoClustersArgs(RequestBody):
     page_size: int | None = Field(
         default=None,
@@ -184,54 +54,6 @@ class Labels(RootModel[str]):
     root: str = Field(..., max_length=63, pattern="^[-_0-9a-z]*$")
 
 
-class ScalePolicyModel(APIModel):
-    auto_scale: AutoScale = Field(..., alias="autoScale")
-
-
-class WorkerConfigModel(APIModel):
-    resources: ResourcesModel = Field(..., description="Resources assigned to each worker.")
-    scale_policy: ScalePolicyModel = Field(..., alias="scalePolicy")
-
-
-class CreateTrinoClusterArgs(RequestBody):
-    collection_id: str = Field(
-        ...,
-        alias="collectionId",
-        description="ID of the DataLens collection in which to create the cluster.",
-        max_length=50,
-        min_length=1,
-    )
-    cloud_environment_id: str = Field(
-        ...,
-        alias="cloudEnvironmentId",
-        description="ID of the cloud environment in which to create the cluster.",
-        max_length=50,
-        min_length=1,
-    )
-    name: str = Field(
-        ...,
-        description="Name of the Trino cluster.",
-        max_length=63,
-        min_length=1,
-        pattern="^[a-zA-Z0-9_-]+$",
-    )
-    description: str | None = Field(
-        default=None, description="Description of the Trino cluster.", max_length=256
-    )
-    labels: dict[str, Labels] | None = Field(default=None, description="Trino cluster labels.")
-    catalogs_config: list[CatalogsConfigItem] | None = Field(
-        default=None,
-        alias="catalogsConfig",
-        description="REST catalogs to attach to the cluster.",
-    )
-    worker_config: WorkerConfigModel = Field(..., alias="workerConfig")
-    trino_version: str | None = Field(
-        default=None,
-        alias="trinoVersion",
-        description="Trino version. The service default is used when omitted.",
-    )
-
-
 class DeleteTrinoClusterArgs(RequestBody):
     id: str = Field(
         ...,
@@ -259,29 +81,6 @@ class StopTrinoClusterArgs(RequestBody):
         max_length=50,
         min_length=1,
     )
-
-
-class Catalog(APIModel):
-    """REST catalog to attach to the cluster."""
-
-    catalog_id: str = Field(
-        ...,
-        alias="catalogId",
-        description="ID of the REST catalog.",
-        max_length=50,
-        min_length=1,
-    )
-
-
-class AddTrinoClusterCatalogArgs(RequestBody):
-    cluster_id: str = Field(
-        ...,
-        alias="clusterId",
-        description="ID of the Trino cluster.",
-        max_length=50,
-        min_length=1,
-    )
-    catalog: Catalog = Field(..., description="REST catalog to attach to the cluster.")
 
 
 class DeleteTrinoClusterCatalogArgs(RequestBody):
@@ -361,4 +160,244 @@ class GetTrinoResourcePresetArgs(RequestBody):
         description="ID of the cloud environment the resource preset is requested for.",
         max_length=50,
         min_length=1,
+    )
+
+
+class TrinoClusterConfigCatalogsConfigItem(APIModel):
+    catalog_id: str = Field(
+        ...,
+        alias="catalogId",
+        description="ID of the REST catalog.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class TrinoClusterConfigCoordinatorConfigResources(APIModel):
+    """Resources assigned to the coordinator."""
+
+    resource_preset_id: str = Field(
+        ...,
+        alias="resourcePresetId",
+        description="ID of the Trino resource preset.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class TrinoClusterConfigWorkerConfigResources(APIModel):
+    """Resources assigned to each worker."""
+
+    resource_preset_id: str = Field(
+        ...,
+        alias="resourcePresetId",
+        description="ID of the Trino resource preset.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class TrinoClusterConfigWorkerConfigScalePolicyAutoScale(APIModel):
+    min_count: str = Field(
+        ...,
+        alias="minCount",
+        description="Minimum number of worker instances.",
+        pattern="^(?:0|[1-5]?\\d|6[0-4])$",
+    )
+    max_count: str = Field(
+        ...,
+        alias="maxCount",
+        description="Maximum number of worker instances.",
+        pattern="^(?:[1-9]|[1-5]\\d|6[0-4])$",
+    )
+
+
+class CreateTrinoClusterArgsCatalogsConfigItem(APIModel):
+    catalog_id: str = Field(
+        ...,
+        alias="catalogId",
+        description="ID of the REST catalog.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class CreateTrinoClusterArgsWorkerConfigResources(APIModel):
+    """Resources assigned to each worker."""
+
+    resource_preset_id: str = Field(
+        ...,
+        alias="resourcePresetId",
+        description="ID of the Trino resource preset.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class CreateTrinoClusterArgsWorkerConfigScalePolicyAutoScale(APIModel):
+    min_count: str = Field(
+        ...,
+        alias="minCount",
+        description="Minimum number of worker instances.",
+        pattern="^(?:0|[1-5]?\\d|6[0-4])$",
+    )
+    max_count: str = Field(
+        ...,
+        alias="maxCount",
+        description="Maximum number of worker instances.",
+        pattern="^(?:[1-9]|[1-5]\\d|6[0-4])$",
+    )
+
+
+class AddTrinoClusterCatalogArgsCatalog(APIModel):
+    """REST catalog to attach to the cluster."""
+
+    catalog_id: str = Field(
+        ...,
+        alias="catalogId",
+        description="ID of the REST catalog.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class AddTrinoClusterCatalogArgs(RequestBody):
+    cluster_id: str = Field(
+        ...,
+        alias="clusterId",
+        description="ID of the Trino cluster.",
+        max_length=50,
+        min_length=1,
+    )
+    catalog: AddTrinoClusterCatalogArgsCatalog
+
+
+class TrinoClusterConfigCoordinatorConfig(APIModel):
+    resources: TrinoClusterConfigCoordinatorConfigResources
+
+
+class TrinoClusterConfigWorkerConfigScalePolicy(APIModel):
+    auto_scale: TrinoClusterConfigWorkerConfigScalePolicyAutoScale = Field(..., alias="autoScale")
+    scale_type: Literal["autoScale"] = Field(..., alias="scaleType")
+
+
+class CreateTrinoClusterArgsWorkerConfigScalePolicy(APIModel):
+    auto_scale: CreateTrinoClusterArgsWorkerConfigScalePolicyAutoScale = Field(
+        ..., alias="autoScale"
+    )
+
+
+class TrinoClusterConfigWorkerConfig(APIModel):
+    resources: TrinoClusterConfigWorkerConfigResources
+    scale_policy: TrinoClusterConfigWorkerConfigScalePolicy = Field(..., alias="scalePolicy")
+
+
+class CreateTrinoClusterArgsWorkerConfig(APIModel):
+    resources: CreateTrinoClusterArgsWorkerConfigResources
+    scale_policy: CreateTrinoClusterArgsWorkerConfigScalePolicy = Field(..., alias="scalePolicy")
+
+
+class CreateTrinoClusterArgs(RequestBody):
+    collection_id: str = Field(
+        ...,
+        alias="collectionId",
+        description="ID of the DataLens collection in which to create the cluster.",
+        max_length=50,
+        min_length=1,
+    )
+    cloud_environment_id: str = Field(
+        ...,
+        alias="cloudEnvironmentId",
+        description="ID of the cloud environment in which to create the cluster.",
+        max_length=50,
+        min_length=1,
+    )
+    name: str = Field(
+        ...,
+        description="Name of the Trino cluster.",
+        max_length=63,
+        min_length=1,
+        pattern="^[a-zA-Z0-9_-]+$",
+    )
+    description: str | None = Field(
+        default=None, description="Description of the Trino cluster.", max_length=256
+    )
+    labels: dict[str, Labels] | None = Field(default=None, description="Trino cluster labels.")
+    catalogs_config: list[CreateTrinoClusterArgsCatalogsConfigItem] | None = Field(
+        default=None,
+        alias="catalogsConfig",
+        description="REST catalogs to attach to the cluster.",
+    )
+    worker_config: CreateTrinoClusterArgsWorkerConfig = Field(..., alias="workerConfig")
+    trino_version: str | None = Field(
+        default=None,
+        alias="trinoVersion",
+        description="Trino version. The service default is used when omitted.",
+    )
+
+
+class TrinoClusterConfig(APIModel):
+    trino_version: str = Field(
+        ..., alias="trinoVersion", description="Trino version used by the cluster."
+    )
+    catalogs_config: list[TrinoClusterConfigCatalogsConfigItem] = Field(
+        ...,
+        alias="catalogsConfig",
+        description="REST catalogs attached to the cluster.",
+    )
+    coordinator_config: TrinoClusterConfigCoordinatorConfig = Field(..., alias="coordinatorConfig")
+    worker_config: TrinoClusterConfigWorkerConfig = Field(..., alias="workerConfig")
+
+
+class TrinoCluster(APIModel):
+    id: str = Field(..., description="ID of the Trino cluster.", min_length=1)
+    cluster_id: str = Field(..., alias="clusterId", description="ID of the managed Trino cluster.")
+    collection_id: str = Field(
+        ...,
+        alias="collectionId",
+        description="ID of the DataLens collection that contains the cluster.",
+        min_length=1,
+    )
+    cloud_environment_id: str = Field(
+        ...,
+        alias="cloudEnvironmentId",
+        description="ID of the associated cloud environment.",
+        min_length=1,
+    )
+    name: str = Field(..., description="Name of the Trino cluster.", min_length=1)
+    description: str = Field(..., description="Description of the Trino cluster.")
+    labels: dict[str, str] = Field(..., description="Trino cluster labels.")
+    config: TrinoClusterConfig
+    health: Literal["HEALTH_UNKNOWN", "ALIVE", "DEAD", "DEGRADED"] | str = Field(
+        ..., description="Aggregated health of the Trino cluster."
+    )
+    status: (
+        Literal[
+            "STATUS_UNKNOWN",
+            "CREATING",
+            "RUNNING",
+            "ERROR",
+            "STOPPING",
+            "STOPPED",
+            "STARTING",
+            "UPDATING",
+        ]
+        | str
+    ) = Field(..., description="Current status of the Trino cluster.")
+    coordinator_url: str = Field(
+        ..., alias="coordinatorUrl", description="Address of the Trino coordinator."
+    )
+    entry_id: str = Field(
+        ...,
+        alias="entryId",
+        description="ID of the DataLens entry of the Trino cluster. Empty when the cluster has no entry.",
+    )
+
+
+class ListTrinoClustersResult(APIModel):
+    clusters: list[TrinoCluster] = Field(..., description="Trino clusters matching the request.")
+    next_page_token: str = Field(
+        ...,
+        alias="nextPageToken",
+        description="Token for the next page of Trino clusters.",
     )

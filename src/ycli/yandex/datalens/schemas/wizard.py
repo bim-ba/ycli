@@ -12,37 +12,84 @@ from . import shared
 from .shared import EntryLocationIdentifiers
 
 
-class Operation(APIModel):
-    """Operation used to compare field values."""
-
-    code: str = Field(..., description="Filter operation code.")
-
-
-class Filter(APIModel):
-    """Filter applied to the field."""
-
-    operation: Operation = Field(..., description="Operation used to compare field values.")
-    value: str | list[str] | None = Field(
-        default=None, description="Value or values used by the filter operation."
+class WizardV1LineShapeSettingsSchema(APIModel):
+    line_width: float | Literal["auto"] | None = Field(
+        default=None,
+        alias="lineWidth",
+        description="Line width in pixels or automatic width.",
+    )
+    linecap: Literal["butt", "round", "square", "none"] | str | None = Field(
+        default=None, description="Shape used at line endpoints."
+    )
+    linejoin: Literal["bevel", "round", "miter", "unset"] | str | None = Field(
+        default=None, description="Shape used at line segment joins."
     )
 
 
-class WizardV1FiltersItemSchema(APIModel):
-    guid: str = Field(..., description="Identifier of the field used for filtering.")
-    dataset_id: str = Field(
-        ...,
-        alias="datasetId",
-        description="Identifier of the dataset containing the field.",
+class WizardLabelsItemSchema(APIModel):
+    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
+        default=None,
+        alias="labelPercentageBase",
+        description="Base used to calculate percentage labels.",
     )
+
+
+class WizardSortItemSchema(APIModel):
     fake_title: str | None = Field(
         default=None,
         alias="fakeTitle",
         description="Chart-local display title override for the field.",
     )
-    filter: Filter = Field(..., description="Filter applied to the field.")
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    direction: Literal["ASC", "DESC"] | str = Field(..., description="Sort direction.")
 
 
-class Formatting(APIModel):
+class GetWizardChartV1Args(RequestBody):
+    chart_id: str = Field(..., alias="chartId", description="ID of the Wizard chart to return.")
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook the Wizard chart belongs to.",
+    )
+    rev_id: str | None = Field(
+        default=None, alias="revId", description="Version ID for the Wizard chart."
+    )
+    include_permissions: bool | None = Field(
+        default=None,
+        alias="includePermissions",
+        description="Include information on configured permissions in the response.",
+    )
+    include_links: bool | None = Field(
+        default=None,
+        alias="includeLinks",
+        description="Include information on configured links in the response.",
+    )
+    include_favorite: bool | None = Field(
+        default=None,
+        alias="includeFavorite",
+        description="Include favorite status in the response.",
+    )
+    branch: shared.EntryBranch | None = None
+
+
+class DeleteWizardChartArgs(RequestBody):
+    chart_id: str = Field(..., alias="chartId")
+
+
+class DeleteWizardChartResponse(APIModel):
+    pass
+
+
+class WizardV1FiltersItemSchemaFilterOperation(APIModel):
+    """Operation used to compare field values."""
+
+    code: str = Field(..., description="Filter operation code.")
+
+
+class WizardFieldSchemaVariant1Formatting(APIModel):
     """Numeric formatting settings for the field."""
 
     format: Literal["number", "percent"] | str | None = Field(
@@ -72,44 +119,22 @@ class Formatting(APIModel):
     )
 
 
-class Thresholds(APIModel):
-    """Thresholds that define the gradient color scale."""
-
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
     mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
 
 
-class ThresholdsModel(APIModel):
-    """Thresholds that define the gradient color scale."""
-
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
     min: str = Field(..., description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
     max: str = Field(..., description="Upper gradient threshold.")
 
 
-class Settings(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: Thresholds | ThresholdsModel = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettings(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: Settings = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel(APIModel):
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIModel):
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -121,16 +146,7 @@ class SettingsModel(APIModel):
     color: str | None = Field(default=None, description="Custom bar color.")
 
 
-class ColorSettingsModel(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel1(APIModel):
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(APIModel):
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -156,65 +172,24 @@ class SettingsModel1(APIModel):
     )
 
 
-class ColorSettingsModel1(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel1 = Field(..., description="Two-color bar settings.")
-
-
-class Scale(APIModel):
-    """Scale used to calculate bar lengths."""
-
+class WizardFieldSchemaVariant1BarsSettingsScaleVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
 
 
-class SettingsModel2(APIModel):
+class WizardFieldSchemaVariant1BarsSettingsScaleVariant2Settings(APIModel):
     """Manual bar scale boundaries."""
 
     min: str | None = Field(default=None, description="Manual minimum scale value.")
     max: str | None = Field(default=None, description="Manual maximum scale value.")
 
 
-class ScaleModel(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel2 = Field(..., description="Manual bar scale boundaries.")
-
-
-class BarsSettings(APIModel):
-    """In-cell bar settings."""
-
-    enabled: bool = Field(..., description="Whether to display bars in table cells.")
-    color_settings: ColorSettings | ColorSettingsModel | ColorSettingsModel1 = Field(
-        ..., alias="colorSettings", description="Bar color settings."
-    )
-    show_labels: bool = Field(
-        ..., alias="showLabels", description="Whether to display values over bars."
-    )
-    align: Literal["left", "right", "default"] | str = Field(
-        ..., description="Bar alignment within table cells."
-    )
-    scale: Scale | ScaleModel = Field(..., description="Scale used to calculate bar lengths.")
-    show_bars_in_totals: bool = Field(
-        ...,
-        alias="showBarsInTotals",
-        description="Whether to display bars in total rows.",
-    )
-
-
-class SubTotalsSettings(APIModel):
+class WizardFieldSchemaVariant1SubTotalsSettings(APIModel):
     """Subtotal settings."""
 
     enabled: bool = Field(..., description="Whether to display subtotals for the field.")
 
 
-class PaletteState(APIModel):
+class WizardFieldSchemaVariant1BackgroundSettingsSettingsPaletteState(APIModel):
     """Discrete palette settings."""
 
     mounted_colors: dict[str, str] | None = Field(
@@ -225,7 +200,7 @@ class PaletteState(APIModel):
     palette: str | None = Field(default=None, description="Color palette identifier.")
 
 
-class GradientState(APIModel):
+class WizardFieldSchemaVariant1BackgroundSettingsSettingsGradientState(APIModel):
     """Continuous gradient settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -258,1992 +233,73 @@ class GradientState(APIModel):
     )
 
 
-class SettingsModel3(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class BackgroundSettings(APIModel):
-    """Conditional background settings."""
-
-    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
-    color_field_guid: str = Field(
-        ...,
-        alias="colorFieldGuid",
-        description="Identifier of the field used to color the background.",
-    )
-    settings_id: str = Field(
-        ...,
-        alias="settingsId",
-        description="Identifier of the background color settings.",
-    )
-    settings: SettingsModel3 = Field(..., description="Background color configuration.")
-
-
-class Width(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant1ColumnSettingsWidthVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
 
 
-class WidthModel(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant1ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
     value: str = Field(..., description="Column width percentage.")
 
 
-class WidthModel1(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant1ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
     value: str = Field(..., description="Column width in pixels.")
 
 
-class ColumnSettings(APIModel):
-    """Table column settings."""
-
-    width: Width | WidthModel | WidthModel1 = Field(..., description="Table column width settings.")
-    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
-        default=None,
-        alias="horizontalAlignment",
-        description="Horizontal alignment of values in the column.",
-    )
-
-
-class HintSettings(APIModel):
+class WizardFieldSchemaVariant1HintSettings(APIModel):
     """Field hint settings."""
 
     enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
     text: str | None = Field(default=None, description="Hint text displayed for the field.")
 
 
-class ThresholdsModel1(APIModel):
-    """Thresholds that define the gradient color scale."""
+class WizardFieldSchemaVariant1FieldsItemFormatting(APIModel):
+    """Numeric formatting settings for the field."""
 
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel2(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel4(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    thresholds: ThresholdsModel1 | ThresholdsModel2 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel2(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel4 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel5(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel3(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    settings: SettingsModel5 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel6(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel4(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel6 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel1(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel7(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel2(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel7 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel8(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel2(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel3(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel4(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class FieldModel(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    guid: str = Field(..., description="Field identifier.")
-    dataset_id: str = Field(
-        ...,
-        alias="datasetId",
-        description="Identifier of the dataset containing the field.",
-    )
-
-
-class WizardFieldSchema(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    guid: str = Field(..., description="Hierarchy identifier.")
-    title: str = Field(..., description="Hierarchy display title.")
-    data_type: Literal["hierarchy"] = Field(
-        ..., description="Data type identifying this field as a hierarchy."
-    )
-    fields: list[FieldModel] = Field(..., description="Fields included in the hierarchy.")
-
-
-class ThresholdsModel3(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel4(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel9(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel3 | ThresholdsModel4 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel5(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel9 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel10(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel6(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel10 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel11(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel7(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel11 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel3(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel12(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel4(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel12 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel13(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel5(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel6(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel7(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardFieldSchemaModel(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    guid: str = Field(..., description="Field identifier.")
-    dataset_id: str = Field(
-        ...,
-        alias="datasetId",
-        description="Identifier of the dataset containing the field.",
-    )
-
-
-class ThresholdsModel5(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel6(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel14(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel5 | ThresholdsModel6 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel8(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel14 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel15(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel9(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel15 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel16(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel10(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel16 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel5(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel17(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel6(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel17 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel18(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel8(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel9(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel10(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardFieldSchemaModel1(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Names"] = Field(
-        ..., description="Title identifying the Measure Names pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["string"] = Field(
-        ..., description="String data type of the Measure Names pseudo-field."
-    )
-
-
-class ThresholdsModel7(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel8(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel19(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel7 | ThresholdsModel8 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel11(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel19 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel20(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel12(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel20 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel21(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel13(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel21 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel7(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel22(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel8(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel22 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel23(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel11(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel12(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel13(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardFieldSchemaModel2(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Values"] = Field(
-        ..., description="Title identifying the Measure Values pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["float"] = Field(
-        ..., description="Numeric data type of the Measure Values pseudo-field."
-    )
 
 
-class WizardFieldSchemaModel3(
-    RootModel[
-        WizardFieldSchema
-        | WizardFieldSchemaModel
-        | WizardFieldSchemaModel1
-        | WizardFieldSchemaModel2
-    ]
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
 ):
-    root: (
-        WizardFieldSchema
-        | WizardFieldSchemaModel
-        | WizardFieldSchemaModel1
-        | WizardFieldSchemaModel2
-    )
-
-
-class WizardV1LineShapeSettingsSchema(APIModel):
-    line_width: float | Literal["auto"] | None = Field(
-        default=None,
-        alias="lineWidth",
-        description="Line width in pixels or automatic width.",
-    )
-    linecap: Literal["butt", "round", "square", "none"] | str | None = Field(
-        default=None, description="Shape used at line endpoints."
-    )
-    linejoin: Literal["bevel", "round", "miter", "unset"] | str | None = Field(
-        default=None, description="Shape used at line segment joins."
-    )
-
-
-class ThresholdsModel9(APIModel):
-    """Thresholds that define the gradient color scale."""
-
     mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
 
 
-class ThresholdsModel10(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel24(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel9 | ThresholdsModel10 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel14(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel24 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel25(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel15(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel25 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel26(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel16(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel26 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel9(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel27(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel10(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel27 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel28(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel14(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel15(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel16(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class ThresholdsModel11(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel12(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel29(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel11 | ThresholdsModel12 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel17(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel29 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel30(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel18(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel30 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel31(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel19(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel31 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel11(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel32(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel12(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel32 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel33(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel17(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel18(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel19(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardLabelsItemSchema(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    guid: str = Field(..., description="Hierarchy identifier.")
-    title: str = Field(..., description="Hierarchy display title.")
-    data_type: Literal["hierarchy"] = Field(
-        ..., description="Data type identifying this field as a hierarchy."
-    )
-    fields: list[FieldModel] = Field(..., description="Fields included in the hierarchy.")
-
-
-class ThresholdsModel13(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel14(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel34(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel13 | ThresholdsModel14 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel20(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel34 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel35(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel21(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel35 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel36(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel22(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel36 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel13(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel37(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel14(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel37 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel38(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel20(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel21(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel22(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardLabelsItemSchemaModel(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    guid: str = Field(..., description="Field identifier.")
-    dataset_id: str = Field(
-        ...,
-        alias="datasetId",
-        description="Identifier of the dataset containing the field.",
-    )
-
-
-class ThresholdsModel15(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel16(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel39(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel15 | ThresholdsModel16 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel23(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel39 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel40(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel24(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel40 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel41(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel25(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel41 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel15(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel42(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel16(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel42 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel43(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel23(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel24(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel25(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardLabelsItemSchemaModel1(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Names"] = Field(
-        ..., description="Title identifying the Measure Names pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["string"] = Field(
-        ..., description="String data type of the Measure Names pseudo-field."
-    )
-
-
-class ThresholdsModel17(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel18(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel44(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel17 | ThresholdsModel18 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel26(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel44 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel45(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel27(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel45 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel46(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel28(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel46 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel17(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel47(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel18(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel47 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel48(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel26(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel27(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel28(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardLabelsItemSchemaModel2(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Values"] = Field(
-        ..., description="Title identifying the Measure Values pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["float"] = Field(
-        ..., description="Numeric data type of the Measure Values pseudo-field."
-    )
-
-
-class WizardLabelsItemSchemaModel3(APIModel):
-    label_percentage_base: Literal["auto", "first", "previous"] | str | None = Field(
-        default=None,
-        alias="labelPercentageBase",
-        description="Base used to calculate percentage labels.",
-    )
-
-
-class WizardLabelsItemSchemaModel4(
-    WizardLabelsItemSchema,
-    WizardLabelsItemSchemaModel3,
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
 ):
-    pass
-
-
-class WizardLabelsItemSchemaModel5(
-    WizardLabelsItemSchemaModel,
-    WizardLabelsItemSchemaModel3,
-):
-    pass
-
-
-class WizardLabelsItemSchemaModel6(
-    WizardLabelsItemSchemaModel1,
-    WizardLabelsItemSchemaModel3,
-):
-    pass
-
-
-class WizardLabelsItemSchemaModel7(
-    WizardLabelsItemSchemaModel2,
-    WizardLabelsItemSchemaModel3,
-):
-    pass
-
-
-class WizardLabelsItemSchemaModel8(
-    RootModel[
-        WizardLabelsItemSchemaModel4
-        | WizardLabelsItemSchemaModel5
-        | WizardLabelsItemSchemaModel6
-        | WizardLabelsItemSchemaModel7
-    ]
-):
-    root: (
-        WizardLabelsItemSchemaModel4
-        | WizardLabelsItemSchemaModel5
-        | WizardLabelsItemSchemaModel6
-        | WizardLabelsItemSchemaModel7
-    )
-
-
-class ThresholdsModel19(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel20(APIModel):
-    """Thresholds that define the gradient color scale."""
-
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
     min: str = Field(..., description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
     max: str = Field(..., description="Upper gradient threshold.")
 
 
-class SettingsModel49(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel19 | ThresholdsModel20 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel29(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel49 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel50(APIModel):
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings(APIModel):
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -2255,16 +311,7 @@ class SettingsModel50(APIModel):
     color: str | None = Field(default=None, description="Custom bar color.")
 
 
-class ColorSettingsModel30(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel50 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel51(APIModel):
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settings(APIModel):
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -2290,160 +337,134 @@ class SettingsModel51(APIModel):
     )
 
 
-class ColorSettingsModel31(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel51 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel19(APIModel):
-    """Scale used to calculate bar lengths."""
-
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
 
 
-class SettingsModel52(APIModel):
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings(APIModel):
     """Manual bar scale boundaries."""
 
     min: str | None = Field(default=None, description="Manual minimum scale value.")
     max: str | None = Field(default=None, description="Manual maximum scale value.")
 
 
-class ScaleModel20(APIModel):
-    """Scale used to calculate bar lengths."""
+class WizardFieldSchemaVariant1FieldsItemSubTotalsSettings(APIModel):
+    """Subtotal settings."""
 
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel52 = Field(..., description="Manual bar scale boundaries.")
+    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
 
 
-class SettingsModel53(APIModel):
-    """Background color configuration."""
+class WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
 
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
     )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
     )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class WidthModel29(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
 
 
-class WidthModel30(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
     value: str = Field(..., description="Column width percentage.")
 
 
-class WidthModel31(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
     value: str = Field(..., description="Column width in pixels.")
 
 
-class WizardPseudoFieldSchema(APIModel):
-    fake_title: str | None = Field(
+class WizardFieldSchemaVariant1FieldsItemHintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardFieldSchemaVariant2Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Names"] = Field(
-        ..., description="Title identifying the Measure Names pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["string"] = Field(
-        ..., description="String data type of the Measure Names pseudo-field."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class ThresholdsModel21(APIModel):
-    """Thresholds that define the gradient color scale."""
-
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
     mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
 
 
-class ThresholdsModel22(APIModel):
-    """Thresholds that define the gradient color scale."""
-
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
     mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
     min: str = Field(..., description="Lower gradient threshold.")
     mid: str | None = Field(default=None, description="Middle gradient threshold.")
     max: str = Field(..., description="Upper gradient threshold.")
 
 
-class SettingsModel54(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel21 | ThresholdsModel22 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel32(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel54 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel55(APIModel):
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIModel):
     """Single-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -2455,16 +476,7 @@ class SettingsModel55(APIModel):
     color: str | None = Field(default=None, description="Custom bar color.")
 
 
-class ColorSettingsModel33(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel55 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel56(APIModel):
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(APIModel):
     """Two-color bar settings."""
 
     palette: str | None = Field(default=None, description="Color palette identifier.")
@@ -2490,129 +502,749 @@ class SettingsModel56(APIModel):
     )
 
 
-class ColorSettingsModel34(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel56 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel21(APIModel):
-    """Scale used to calculate bar lengths."""
-
+class WizardFieldSchemaVariant2BarsSettingsScaleVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
 
 
-class SettingsModel57(APIModel):
+class WizardFieldSchemaVariant2BarsSettingsScaleVariant2Settings(APIModel):
     """Manual bar scale boundaries."""
 
     min: str | None = Field(default=None, description="Manual minimum scale value.")
     max: str | None = Field(default=None, description="Manual maximum scale value.")
 
 
-class ScaleModel22(APIModel):
-    """Scale used to calculate bar lengths."""
+class WizardFieldSchemaVariant2SubTotalsSettings(APIModel):
+    """Subtotal settings."""
 
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel57 = Field(..., description="Manual bar scale boundaries.")
+    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
 
 
-class SettingsModel58(APIModel):
-    """Background color configuration."""
+class WizardFieldSchemaVariant2BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
 
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
     )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardFieldSchemaVariant2BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
     )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class WidthModel32(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant2ColumnSettingsWidthVariant1(APIModel):
     mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
 
 
-class WidthModel33(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant2ColumnSettingsWidthVariant2(APIModel):
     mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
     value: str = Field(..., description="Column width percentage.")
 
 
-class WidthModel34(APIModel):
-    """Table column width settings."""
-
+class WizardFieldSchemaVariant2ColumnSettingsWidthVariant3(APIModel):
     mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
     value: str = Field(..., description="Column width in pixels.")
 
 
-class WizardPseudoFieldSchemaModel(APIModel):
-    fake_title: str | None = Field(
+class WizardFieldSchemaVariant2HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardFieldSchemaVariant3Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Values"] = Field(
-        ..., description="Title identifying the Measure Values pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["float"] = Field(
-        ..., description="Numeric data type of the Measure Values pseudo-field."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class WizardPseudoFieldSchemaModel1(
-    RootModel[WizardPseudoFieldSchema | WizardPseudoFieldSchemaModel]
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
 ):
-    root: WizardPseudoFieldSchema | WizardPseudoFieldSchemaModel
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
 
 
-class WizardSortItemSchema(APIModel):
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str = Field(..., description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str = Field(..., description="Upper gradient threshold.")
+
+
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardFieldSchemaVariant3BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardFieldSchemaVariant3BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardFieldSchemaVariant3SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+
+
+class WizardFieldSchemaVariant3BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardFieldSchemaVariant3BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardFieldSchemaVariant3ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardFieldSchemaVariant3ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str = Field(..., description="Column width percentage.")
+
+
+class WizardFieldSchemaVariant3ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str = Field(..., description="Column width in pixels.")
+
+
+class WizardFieldSchemaVariant3HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardFieldSchemaVariant4Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str = Field(..., description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str = Field(..., description="Upper gradient threshold.")
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardFieldSchemaVariant4BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardFieldSchemaVariant4BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardFieldSchemaVariant4SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+
+
+class WizardFieldSchemaVariant4BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardFieldSchemaVariant4BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardFieldSchemaVariant4ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardFieldSchemaVariant4ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str = Field(..., description="Column width percentage.")
+
+
+class WizardFieldSchemaVariant4ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str = Field(..., description="Column width in pixels.")
+
+
+class WizardFieldSchemaVariant4HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardPseudoFieldSchemaVariant1Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str = Field(..., description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str = Field(..., description="Upper gradient threshold.")
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardPseudoFieldSchemaVariant1SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+
+
+class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str = Field(..., description="Column width percentage.")
+
+
+class WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str = Field(..., description="Column width in pixels.")
+
+
+class WizardPseudoFieldSchemaVariant1HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardPseudoFieldSchemaVariant2Formatting(APIModel):
+    """Numeric formatting settings for the field."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
+        default=None,
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
+    )
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
+        default=None,
+        alias="labelMode",
+        description="How the formatted label is displayed.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1(
+    APIModel
+):
+    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2(
+    APIModel
+):
+    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
+    min: str = Field(..., description="Lower gradient threshold.")
+    mid: str | None = Field(default=None, description="Middle gradient threshold.")
+    max: str = Field(..., description="Upper gradient threshold.")
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings(APIModel):
+    """Single-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_index: float | None = Field(
+        default=None,
+        alias="colorIndex",
+        description="Selected color index in the palette.",
+    )
+    color: str | None = Field(default=None, description="Custom bar color.")
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings(APIModel):
+    """Two-color bar settings."""
+
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    negative_color_index: float | None = Field(
+        default=None,
+        alias="negativeColorIndex",
+        description="Palette color index for negative values.",
+    )
+    negative_color: str | None = Field(
+        default=None,
+        alias="negativeColor",
+        description="Custom color for negative values.",
+    )
+    positive_color_index: float | None = Field(
+        default=None,
+        alias="positiveColorIndex",
+        description="Palette color index for positive values.",
+    )
+    positive_color: str | None = Field(
+        default=None,
+        alias="positiveColor",
+        description="Custom color for positive values.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings(APIModel):
+    """Manual bar scale boundaries."""
+
+    min: str | None = Field(default=None, description="Manual minimum scale value.")
+    max: str | None = Field(default=None, description="Manual maximum scale value.")
+
+
+class WizardPseudoFieldSchemaVariant2SubTotalsSettings(APIModel):
+    """Subtotal settings."""
+
+    enabled: bool = Field(..., description="Whether to display subtotals for the field.")
+
+
+class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState(APIModel):
+    """Discrete palette settings."""
+
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+
+
+class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState(APIModel):
+    """Continuous gradient settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    reversed: bool | None = Field(
+        default=None, description="Whether to reverse the gradient palette."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
+
+
+class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant1(APIModel):
+    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
+
+
+class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant2(APIModel):
+    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
+    value: str = Field(..., description="Column width percentage.")
+
+
+class WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant3(APIModel):
+    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
+    value: str = Field(..., description="Column width in pixels.")
+
+
+class WizardPseudoFieldSchemaVariant2HintSettings(APIModel):
+    """Field hint settings."""
+
+    enabled: bool | None = Field(default=None, description="Whether the field hint is enabled.")
+    text: str | None = Field(default=None, description="Hint text displayed for the field.")
+
+
+class WizardSortItemSchemaVariant1(APIModel):
     fake_title: str | None = Field(
         default=None,
         alias="fakeTitle",
@@ -2631,441 +1263,7 @@ class WizardSortItemSchema(APIModel):
     )
 
 
-class ThresholdsModel23(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel24(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel59(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel23 | ThresholdsModel24 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel35(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel59 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel60(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel36(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel60 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel61(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel37(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel61 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel23(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel62(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel24(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel62 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel63(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel35(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel36(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel37(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardSortItemSchemaModel(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Names"] = Field(
-        ..., description="Title identifying the Measure Names pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["string"] = Field(
-        ..., description="String data type of the Measure Names pseudo-field."
-    )
-
-
-class ThresholdsModel25(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate gradient thresholds automatically.")
-
-
-class ThresholdsModel26(APIModel):
-    """Thresholds that define the gradient color scale."""
-
-    mode: Literal["manual"] = Field(..., description="Use manually specified gradient thresholds.")
-    min: str = Field(..., description="Lower gradient threshold.")
-    mid: str | None = Field(default=None, description="Middle gradient threshold.")
-    max: str = Field(..., description="Upper gradient threshold.")
-
-
-class SettingsModel64(APIModel):
-    """Gradient bar color settings."""
-
-    gradient_type: Literal["2-point", "3-point"] | str = Field(
-        ..., alias="gradientType", description="Gradient type."
-    )
-    thresholds: ThresholdsModel25 | ThresholdsModel26 = Field(
-        ..., description="Thresholds that define the gradient color scale."
-    )
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
-
-
-class ColorSettingsModel38(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["gradient"] = Field(
-        ..., alias="colorType", description="Use a gradient to color bars."
-    )
-    settings: SettingsModel64 = Field(..., description="Gradient bar color settings.")
-
-
-class SettingsModel65(APIModel):
-    """Single-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    color_index: float | None = Field(
-        default=None,
-        alias="colorIndex",
-        description="Selected color index in the palette.",
-    )
-    color: str | None = Field(default=None, description="Custom bar color.")
-
-
-class ColorSettingsModel39(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["one-color"] = Field(
-        ..., alias="colorType", description="Use one color for all bars."
-    )
-    settings: SettingsModel65 = Field(..., description="Single-color bar settings.")
-
-
-class SettingsModel66(APIModel):
-    """Two-color bar settings."""
-
-    palette: str | None = Field(default=None, description="Color palette identifier.")
-    negative_color_index: float | None = Field(
-        default=None,
-        alias="negativeColorIndex",
-        description="Palette color index for negative values.",
-    )
-    negative_color: str | None = Field(
-        default=None,
-        alias="negativeColor",
-        description="Custom color for negative values.",
-    )
-    positive_color_index: float | None = Field(
-        default=None,
-        alias="positiveColorIndex",
-        description="Palette color index for positive values.",
-    )
-    positive_color: str | None = Field(
-        default=None,
-        alias="positiveColor",
-        description="Custom color for positive values.",
-    )
-
-
-class ColorSettingsModel40(APIModel):
-    """Bar color settings."""
-
-    color_type: Literal["two-color"] = Field(
-        ...,
-        alias="colorType",
-        description="Use separate colors for negative and positive bars.",
-    )
-    settings: SettingsModel66 = Field(..., description="Two-color bar settings.")
-
-
-class ScaleModel25(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the bar scale automatically.")
-
-
-class SettingsModel67(APIModel):
-    """Manual bar scale boundaries."""
-
-    min: str | None = Field(default=None, description="Manual minimum scale value.")
-    max: str | None = Field(default=None, description="Manual maximum scale value.")
-
-
-class ScaleModel26(APIModel):
-    """Scale used to calculate bar lengths."""
-
-    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
-    settings: SettingsModel67 = Field(..., description="Manual bar scale boundaries.")
-
-
-class SettingsModel68(APIModel):
-    """Background color configuration."""
-
-    palette_state: PaletteState = Field(
-        ..., alias="paletteState", description="Discrete palette settings."
-    )
-    gradient_state: GradientState = Field(
-        ..., alias="gradientState", description="Continuous gradient settings."
-    )
-    is_continuous: bool = Field(
-        ...,
-        alias="isContinuous",
-        description="Whether to use continuous instead of discrete coloring.",
-    )
-
-
-class WidthModel38(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["auto"] = Field(..., description="Calculate the column width automatically.")
-
-
-class WidthModel39(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["percent"] = Field(..., description="Set the column width as a percentage.")
-    value: str = Field(..., description="Column width percentage.")
-
-
-class WidthModel40(APIModel):
-    """Table column width settings."""
-
-    mode: Literal["pixel"] = Field(..., description="Set the column width in pixels.")
-    value: str = Field(..., description="Column width in pixels.")
-
-
-class WizardSortItemSchemaModel1(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    markup_type: Literal["none", "md", "html"] | str | None = Field(
-        default=None,
-        alias="markupType",
-        description="Markup type used to render field values.",
-    )
-    formatting: Formatting | None = Field(
-        default=None, description="Numeric formatting settings for the field."
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    hide_label_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="hideLabelMode",
-        description="Whether to hide the field label.",
-    )
-    bars_settings: BarsSettings | None = Field(
-        default=None, alias="barsSettings", description="In-cell bar settings."
-    )
-    sub_totals_settings: SubTotalsSettings | None = Field(
-        default=None, alias="subTotalsSettings", description="Subtotal settings."
-    )
-    background_settings: BackgroundSettings | None = Field(
-        default=None,
-        alias="backgroundSettings",
-        description="Conditional background settings.",
-    )
-    column_settings: ColumnSettings | None = Field(
-        default=None, alias="columnSettings", description="Table column settings."
-    )
-    hint_settings: HintSettings | None = Field(
-        default=None, alias="hintSettings", description="Field hint settings."
-    )
-    title: Literal["Measure Values"] = Field(
-        ..., description="Title identifying the Measure Values pseudo-field."
-    )
-    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
-    data_type: Literal["float"] = Field(
-        ..., description="Numeric data type of the Measure Values pseudo-field."
-    )
-
-
-class WizardSortItemSchemaModel2(APIModel):
-    fake_title: str | None = Field(
-        default=None,
-        alias="fakeTitle",
-        description="Chart-local display title override for the field.",
-    )
-    format: str | None = Field(
-        default=None,
-        description="Date or datetime format, separate from numeric formatting.",
-    )
-    direction: Literal["ASC", "DESC"] | str = Field(..., description="Sort direction.")
-
-
-class WizardSortItemSchemaModel3(WizardSortItemSchemaModel, WizardSortItemSchemaModel2):
-    pass
-
-
-class WizardSortItemSchemaModel4(
-    WizardSortItemSchemaModel1,
-    WizardSortItemSchemaModel2,
-):
-    pass
-
-
-class WizardSortItemSchemaModel5(
-    RootModel[WizardSortItemSchemaModel3 | WizardSortItemSchemaModel4]
-):
-    root: WizardSortItemSchemaModel3 | WizardSortItemSchemaModel4
-
-
-class WizardSortItemSchemaModel6(RootModel[WizardSortItemSchema | WizardSortItemSchemaModel5]):
-    root: WizardSortItemSchema | WizardSortItemSchemaModel5
-
-
-class LayerSettings(APIModel):
+class WizardV1GeolayerLayerSchemaVariant1LayerSettings(APIModel):
     """Geographic layer configuration."""
 
     id: str = Field(..., description="Unique layer identifier.")
@@ -3075,30 +1273,13 @@ class LayerSettings(APIModel):
     )
 
 
-class Points(APIModel):
-    """Point coordinate configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields containing point coordinates."
-    )
-
-
-class SettingsModel69(APIModel):
+class WizardV1GeolayerLayerSchemaVariant1SizeSettings(APIModel):
     """Map point size settings."""
 
     radius: float | None = Field(default=None, description="Radius of map points in pixels.")
 
 
-class Size(APIModel):
-    """Point size configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used to determine map point sizes."
-    )
-    settings: SettingsModel69 | None = Field(default=None, description="Map point size settings.")
-
-
-class SettingsModel70(APIModel):
+class WizardV1GeolayerLayerSchemaVariant1ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -3153,24 +1334,7 @@ class SettingsModel70(APIModel):
     )
 
 
-class Colors(APIModel):
-    """Color configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used for color encoding."
-    )
-    settings: SettingsModel70 | None = Field(default=None, description="Color settings.")
-
-
-class Labels(APIModel):
-    """Data label configuration."""
-
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as point labels."
-    )
-
-
-class SettingsModel71(APIModel):
+class WizardV1GeolayerLayerSchemaVariant1TooltipSettings(APIModel):
     """Tooltip display settings."""
 
     color: Literal["on", "off"] | str | None = Field(
@@ -3183,43 +1347,23 @@ class SettingsModel71(APIModel):
     )
 
 
-class Tooltip(APIModel):
-    """Tooltip configuration."""
+class WizardV1GeolayerLayerSchemaVariant2LayerSettings(APIModel):
+    """Geographic layer configuration."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields displayed in point tooltips."
-    )
-    settings: SettingsModel71 | None = Field(default=None, description="Tooltip display settings.")
-
-
-class Filters(APIModel):
-    """Filter configuration."""
-
-    items: list[WizardV1FiltersItemSchema] | None = Field(
-        default=None, description="Filters applied to the layer."
+    id: str = Field(..., description="Unique layer identifier.")
+    name: str = Field(..., description="Layer display name.")
+    alpha: float | None = Field(
+        default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
 
-class WizardV1GeolayerLayerSchema(APIModel):
-    type: Literal["geopoint"] = Field(..., description="Geopoint layer type.")
-    layer_settings: LayerSettings = Field(
-        ..., alias="layerSettings", description="Geographic layer configuration."
-    )
-    points: Points = Field(..., description="Point coordinate configuration.")
-    size: Size | None = Field(default=None, description="Point size configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: Labels | None = Field(default=None, description="Data label configuration.")
-    tooltip: Tooltip | None = Field(default=None, description="Tooltip configuration.")
-    filters: Filters | None = Field(default=None, description="Filter configuration.")
-
-
-class SettingsModel72(APIModel):
+class WizardV1GeolayerLayerSchemaVariant2SizeSettings(APIModel):
     """Map point size settings."""
 
     radius: float | None = Field(default=None, description="Radius of map points in pixels.")
 
 
-class SettingsModel73(APIModel):
+class WizardV1GeolayerLayerSchemaVariant2ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -3274,7 +1418,7 @@ class SettingsModel73(APIModel):
     )
 
 
-class SettingsModel74(APIModel):
+class WizardV1GeolayerLayerSchemaVariant2TooltipSettings(APIModel):
     """Tooltip display settings."""
 
     color: Literal["on", "off"] | str | None = Field(
@@ -3287,22 +1431,17 @@ class SettingsModel74(APIModel):
     )
 
 
-class WizardV1GeolayerLayerSchemaModel(APIModel):
-    layer_settings: LayerSettings = Field(
-        ..., alias="layerSettings", description="Geographic layer configuration."
-    )
-    points: Points = Field(..., description="Point coordinate configuration.")
-    size: Size | None = Field(default=None, description="Point size configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: Labels | None = Field(default=None, description="Data label configuration.")
-    tooltip: Tooltip | None = Field(default=None, description="Tooltip configuration.")
-    filters: Filters | None = Field(default=None, description="Filter configuration.")
-    type: Literal["geopoint-with-cluster"] = Field(
-        ..., description="Clustered geopoint layer type."
+class WizardV1GeolayerLayerSchemaVariant3LayerSettings(APIModel):
+    """Geographic layer configuration."""
+
+    id: str = Field(..., description="Unique layer identifier.")
+    name: str = Field(..., description="Layer display name.")
+    alpha: float | None = Field(
+        default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
 
-class SettingsModel75(APIModel):
+class WizardV1GeolayerLayerSchemaVariant3PolylinesSettings(APIModel):
     """Polyline display settings."""
 
     polyline_points: Literal["on", "off"] | str | None = Field(
@@ -3312,32 +1451,7 @@ class SettingsModel75(APIModel):
     )
 
 
-class Polylines(APIModel):
-    """Polyline configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields containing polyline coordinates."
-    )
-    settings: SettingsModel75 | None = Field(default=None, description="Polyline display settings.")
-
-
-class Measures(APIModel):
-    """Measure configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Measures displayed in polyline tooltips."
-    )
-
-
-class Grouping(APIModel):
-    """Grouping configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used to group polyline points."
-    )
-
-
-class SettingsModel76(APIModel):
+class WizardV1GeolayerLayerSchemaVariant3ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -3392,36 +1506,72 @@ class SettingsModel76(APIModel):
     )
 
 
-class Sort(APIModel):
-    """Sorting configuration."""
+class WizardV1GeolayerLayerSchemaVariant4LayerSettings(APIModel):
+    """Geographic layer configuration."""
 
-    items: list[WizardSortItemSchemaModel6] | None = Field(
-        default=None, description="Chart sorting rules."
+    id: str = Field(..., description="Unique layer identifier.")
+    name: str = Field(..., description="Layer display name.")
+    alpha: float | None = Field(
+        default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
 
-class WizardV1GeolayerLayerSchemaModel1(APIModel):
-    type: Literal["polyline"] = Field(..., description="Geopolyline layer type.")
-    layer_settings: LayerSettings = Field(
-        ..., alias="layerSettings", description="Geographic layer configuration."
+class WizardV1GeolayerLayerSchemaVariant4ColorsSettings(APIModel):
+    """Color settings."""
+
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
     )
-    polylines: Polylines = Field(..., description="Polyline configuration.")
-    measures: Measures | None = Field(default=None, description="Measure configuration.")
-    grouping: Grouping | None = Field(default=None, description="Grouping configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    filters: Filters | None = Field(default=None, description="Filter configuration.")
-
-
-class Polygons(APIModel):
-    """Polygon configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields containing polygon geometry."
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    polygon_borders: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="polygonBorders",
+        description="Whether polygon borders are displayed.",
+    )
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used for coloring.",
+    )
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    colored_by_measure: bool | None = Field(
+        default=None,
+        alias="coloredByMeasure",
+        description="Whether colors are determined by a measure.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_mode: Literal["palette", "gradient"] | str | None = Field(
+        default=None, alias="colorMode", description="Color assignment mode."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class SettingsModel77(APIModel):
+class WizardV1GeolayerLayerSchemaVariant4TooltipSettings(APIModel):
     """Tooltip display settings."""
 
     color: Literal["on", "off"] | str | None = Field(
@@ -3434,35 +1584,17 @@ class SettingsModel77(APIModel):
     )
 
 
-class TooltipModel(APIModel):
-    """Tooltip configuration."""
+class WizardV1GeolayerLayerSchemaVariant5LayerSettings(APIModel):
+    """Geographic layer configuration."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields displayed in polygon tooltips."
-    )
-    settings: SettingsModel77 | None = Field(default=None, description="Tooltip display settings.")
-
-
-class WizardV1GeolayerLayerSchemaModel2(APIModel):
-    type: Literal["geopolygon"] = Field(..., description="Geopolygon layer type.")
-    layer_settings: LayerSettings = Field(
-        ..., alias="layerSettings", description="Geographic layer configuration."
-    )
-    polygons: Polygons = Field(..., description="Polygon configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    tooltip: TooltipModel | None = Field(default=None, description="Tooltip configuration.")
-    filters: Filters | None = Field(default=None, description="Filter configuration.")
-
-
-class PointsModel(APIModel):
-    """Point coordinate configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields containing heatmap point coordinates."
+    id: str = Field(..., description="Unique layer identifier.")
+    name: str = Field(..., description="Layer display name.")
+    alpha: float | None = Field(
+        default=None, description="Layer opacity as a percentage from 0 to 100."
     )
 
 
-class SettingsModel78(APIModel):
+class WizardV1GeolayerLayerSchemaVariant5ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -3517,42 +1649,14 @@ class SettingsModel78(APIModel):
     )
 
 
-class WizardV1GeolayerLayerSchemaModel3(APIModel):
-    type: Literal["heatmap"] = Field(..., description="Geo heatmap layer type.")
-    layer_settings: LayerSettings = Field(
-        ..., alias="layerSettings", description="Geographic layer configuration."
-    )
-    points: PointsModel = Field(..., description="Point coordinate configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    filters: Filters | None = Field(default=None, description="Filter configuration.")
-
-
-class WizardV1GeolayerLayerSchemaModel4(
-    RootModel[
-        WizardV1GeolayerLayerSchema
-        | WizardV1GeolayerLayerSchemaModel
-        | WizardV1GeolayerLayerSchemaModel1
-        | WizardV1GeolayerLayerSchemaModel2
-        | WizardV1GeolayerLayerSchemaModel3
-    ]
-):
-    root: (
-        WizardV1GeolayerLayerSchema
-        | WizardV1GeolayerLayerSchemaModel
-        | WizardV1GeolayerLayerSchemaModel1
-        | WizardV1GeolayerLayerSchemaModel2
-        | WizardV1GeolayerLayerSchemaModel3
-    )
-
-
-class LayerSettingsModel(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant1LayerSettings(APIModel):
     """Layer configuration."""
 
     id: str = Field(..., description="Unique layer identifier.")
     name: str = Field(..., description="Layer display name.")
 
 
-class AxisLabelFormatting(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant1XSettingsAxisLabelFormatting(APIModel):
     """Numeric axis label formatting."""
 
     format: Literal["number", "percent"] | str | None = Field(
@@ -3582,211 +1686,67 @@ class AxisLabelFormatting(APIModel):
     )
 
 
-class SettingsModel79(APIModel):
-    """X-axis settings."""
+class WizardV1CombinedChartLayerSchemaVariant1YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
-    axis_label_date_format: str | None = Field(
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Y2SettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class X(APIModel):
-    """X-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(..., description="Fields placed on the X-axis.")
-    settings: SettingsModel79 | None = Field(default=None, description="X-axis settings.")
-
-
-class SettingsModel80(APIModel):
-    """Primary Y-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
-        default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
-    )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
-    )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
-    )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
-        default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
-    )
-
-
-class Y(APIModel):
-    """Primary Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Fields placed on the primary Y-axis. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel80 | None = Field(default=None, description="Primary Y-axis settings.")
-
-
-class SettingsModel81(APIModel):
-    """Secondary Y-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
-        default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
-    )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
-    )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
-    )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
-        default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
-    )
-
-
-class Y2(APIModel):
-    """Secondary Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Fields placed on the secondary Y-axis. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel81 | None = Field(default=None, description="Secondary Y-axis settings.")
-
-
-class SettingsModel82(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant1ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -3841,7 +1801,7 @@ class SettingsModel82(APIModel):
     )
 
 
-class CommonLineSettings(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant1ShapesSettingsCommonLineSettings(APIModel):
     """Line shape settings shared by all series."""
 
     line_width: float | Literal["auto"] | None = Field(
@@ -3857,39 +1817,7 @@ class CommonLineSettings(APIModel):
     )
 
 
-class SettingsModel83(APIModel):
-    """Line shape settings."""
-
-    field_guid: str | None = Field(
-        default=None,
-        alias="fieldGuid",
-        description="Identifier of the field used to assign shapes.",
-    )
-    mounted_shapes: dict[str, str] | None = Field(
-        default=None,
-        alias="mountedShapes",
-        description="Mapping of series or field values to line dash styles.",
-    )
-    line_settings: dict[str, WizardV1LineShapeSettingsSchema] | None = Field(
-        default=None, alias="lineSettings", description="Line shape settings by series."
-    )
-    common_line_settings: CommonLineSettings | None = Field(
-        default=None,
-        alias="commonLineSettings",
-        description="Line shape settings shared by all series.",
-    )
-
-
-class Shapes(APIModel):
-    """Line shape configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used for line encoding."
-    )
-    settings: SettingsModel83 | None = Field(default=None, description="Line shape settings.")
-
-
-class SettingsModel84(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant1LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -3897,157 +1825,74 @@ class SettingsModel84(APIModel):
     )
 
 
-class LabelsModel(APIModel):
-    """Data label configuration."""
+class WizardV1CombinedChartLayerSchemaVariant2LayerSettings(APIModel):
+    """Layer configuration."""
 
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as data labels."
-    )
-    settings: SettingsModel84 | None = Field(default=None, description="Data label settings.")
+    id: str = Field(..., description="Unique layer identifier.")
+    name: str = Field(..., description="Layer display name.")
 
 
-class WizardV1CombinedChartLayerSchema(APIModel):
-    type: Literal["line"] = Field(..., description="Line layer type.")
-    layer_settings: LayerSettingsModel = Field(
-        ..., alias="layerSettings", description="Layer configuration."
-    )
-    x: X = Field(..., description="X-axis configuration.")
-    y: Y | None = Field(default=None, description="Primary Y-axis configuration.")
-    y2: Y2 | None = Field(default=None, description="Secondary Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    shapes: Shapes | None = Field(default=None, description="Line shape configuration.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
+class WizardV1CombinedChartLayerSchemaVariant2XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-
-class SettingsModel85(APIModel):
-    """X-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel86(APIModel):
-    """Y-axis settings."""
+class WizardV1CombinedChartLayerSchemaVariant2YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class YModel(APIModel):
-    """Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel86 | None = Field(default=None, description="Y-axis settings.")
-
-
-class SettingsModel87(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant2ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -4102,7 +1947,7 @@ class SettingsModel87(APIModel):
     )
 
 
-class SettingsModel88(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant2LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -4115,145 +1960,74 @@ class SettingsModel88(APIModel):
     )
 
 
-class LabelsModel1(APIModel):
-    """Data label configuration."""
+class WizardV1CombinedChartLayerSchemaVariant3LayerSettings(APIModel):
+    """Layer configuration."""
 
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as data labels."
-    )
-    settings: SettingsModel88 | None = Field(default=None, description="Data label settings.")
+    id: str = Field(..., description="Unique layer identifier.")
+    name: str = Field(..., description="Layer display name.")
 
 
-class WizardV1CombinedChartLayerSchemaModel(APIModel):
-    type: Literal["column"] = Field(..., description="Column layer type.")
-    layer_settings: LayerSettingsModel = Field(
-        ..., alias="layerSettings", description="Layer configuration."
-    )
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel | None = Field(default=None, description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel1 | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
+class WizardV1CombinedChartLayerSchemaVariant3XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-
-class SettingsModel89(APIModel):
-    """X-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel90(APIModel):
-    """Y-axis settings."""
+class WizardV1CombinedChartLayerSchemaVariant3YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel91(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant3ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -4308,7 +2082,7 @@ class SettingsModel91(APIModel):
     )
 
 
-class SettingsModel92(APIModel):
+class WizardV1CombinedChartLayerSchemaVariant3LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -4316,33 +2090,7 @@ class SettingsModel92(APIModel):
     )
 
 
-class WizardV1CombinedChartLayerSchemaModel1(APIModel):
-    type: Literal["area"] = Field(..., description="Area layer type.")
-    layer_settings: LayerSettingsModel = Field(
-        ..., alias="layerSettings", description="Layer configuration."
-    )
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel | None = Field(default=None, description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-
-
-class WizardV1CombinedChartLayerSchemaModel2(
-    RootModel[
-        WizardV1CombinedChartLayerSchema
-        | WizardV1CombinedChartLayerSchemaModel
-        | WizardV1CombinedChartLayerSchemaModel1
-    ]
-):
-    root: (
-        WizardV1CombinedChartLayerSchema
-        | WizardV1CombinedChartLayerSchemaModel
-        | WizardV1CombinedChartLayerSchemaModel1
-    )
-
-
-class FieldModel1(APIModel):
+class WizardV1ConfigSchemaSourcesUpdatesItemField(APIModel):
     """Field properties changed by the operation."""
 
     guid: str = Field(..., description="Unique field identifier.")
@@ -4466,44 +2214,21 @@ class FieldModel1(APIModel):
     )
 
 
-class Update(APIModel):
-    action: (
-        Literal["add_field", "add", "update_field", "update", "delete", "delete_field"] | str
-    ) = Field(..., description="Operation applied to the local field.")
-    field: FieldModel1 = Field(..., description="Field properties changed by the operation.")
-    debug_info: str | None = Field(
-        default=None,
-        description="Internal marker describing how the field update was produced.",
-    )
-
-
-class FieldModel2(APIModel):
+class WizardV1ConfigSchemaSourcesLinksItemFieldsValueField(APIModel):
     """Field participating in the dataset link."""
 
     title: str = Field(..., description="Linked field title.")
     guid: str = Field(..., description="Linked field identifier.")
 
 
-class Dataset(APIModel):
+class WizardV1ConfigSchemaSourcesLinksItemFieldsValueDataset(APIModel):
     """Dataset containing the linked field."""
 
     id: str = Field(..., description="Linked dataset identifier.")
     real_name: str = Field(..., alias="realName", description="Linked dataset display name.")
 
 
-class Fields(APIModel):
-    field: FieldModel2 = Field(..., description="Field participating in the dataset link.")
-    dataset: Dataset = Field(..., description="Dataset containing the linked field.")
-
-
-class Link(APIModel):
-    id: str = Field(..., description="Dataset link identifier.")
-    fields: dict[str, Fields] = Field(
-        ..., description="Linked field information keyed by dataset identifier."
-    )
-
-
-class FieldModel3(APIModel):
+class WizardV1ConfigSchemaSourcesHierarchiesItemFieldsItem(APIModel):
     guid: str = Field(..., description="Identifier of a field in the hierarchy.")
     dataset_id: str = Field(
         ...,
@@ -4512,38 +2237,9 @@ class FieldModel3(APIModel):
     )
 
 
-class Hierarchy(APIModel):
-    guid: str = Field(..., description="Hierarchy identifier.")
-    title: str = Field(..., description="Hierarchy display title.")
-    fields: list[FieldModel3] = Field(..., description="Ordered fields included in the hierarchy.")
-
-
-class Sources(APIModel):
-    """Data sources, chart-local field updates, dataset links, hierarchies, and filters used by the chart."""
-
-    datasets_ids: list[str] = Field(
-        ...,
-        alias="datasetsIds",
-        description="Datasets used by the chart to retrieve data.",
-    )
-    updates: list[Update] | None = Field(
-        default=None,
-        description="Operations that add, update, or delete chart-local fields.",
-    )
-    links: list[Link] | None = Field(
-        default=None,
-        description="Fields used to link datasets in multi-dataset charts.",
-    )
-    hierarchies: list[Hierarchy] | None = Field(
-        default=None,
-        description="Sets of fields used for interactive drill-down in the chart.",
-    )
-    filters: list[WizardV1FiltersItemSchema] | None = Field(
-        default=None, description="Filters applied to chart data."
-    )
-
-
-class PeriodSettings(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettingsPeriodSettings(
+    APIModel
+):
     """Size and unit of the initial navigator window."""
 
     type: (
@@ -4577,247 +2273,97 @@ class PeriodSettings(APIModel):
     )
 
 
-class NavigatorSettings(APIModel):
-    """Chart navigator settings."""
+class WizardV1ConfigSchemaVisualizationVariant1XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    navigator_mode: Literal["show", "hide"] | str = Field(
-        ...,
-        alias="navigatorMode",
-        description="Whether the chart navigator is displayed.",
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    selected_lines: list[str] = Field(
-        ...,
-        alias="selectedLines",
-        description="Series names shown in the navigator; values are not field GUIDs.",
-    )
-    lines_mode: Literal["all", "selected"] | str = Field(
-        ...,
-        alias="linesMode",
-        description="Which chart series are displayed in the navigator.",
-    )
-    period_settings: PeriodSettings = Field(
-        ...,
-        alias="periodSettings",
-        description="Size and unit of the initial navigator window.",
-    )
-
-
-class ChartSettings(APIModel):
-    """Chart configuration."""
-
-    title: str | None = Field(default=None, description="Chart title.")
-    title_mode: Literal["show", "hide"] | str | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="titleMode",
-        description="Whether the chart title is displayed.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    legend_mode: Literal["show", "hide"] | str | None = Field(
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
+    )
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="legendMode",
-        description="Whether the chart legend is displayed.",
-    )
-    tooltip: Literal["show", "hide"] | str | None = Field(
-        default=None, description="Whether chart tooltips are displayed."
-    )
-    tooltip_sum: Literal["on", "off"] | str | None = Field(
-        default=None,
-        alias="tooltipSum",
-        description="Whether tooltips include a total value.",
-    )
-    feed: str | None = Field(default=None, description="Comment feed identifier.")
-    navigator_settings: NavigatorSettings | None = Field(
-        default=None, alias="navigatorSettings", description="Chart navigator settings."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel93(APIModel):
-    """X-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant1YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel94(APIModel):
-    """Primary Y-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant1Y2SettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class YModel1(APIModel):
-    """Primary Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Fields placed on the primary Y-axis. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel94 | None = Field(default=None, description="Primary Y-axis settings.")
-
-
-class SettingsModel95(APIModel):
-    """Secondary Y-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
-        default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
-    )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
-    )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
-    )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
-        default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
-    )
-
-
-class SettingsModel96(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant1ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -4872,30 +2418,23 @@ class SettingsModel96(APIModel):
     )
 
 
-class SettingsModel97(APIModel):
-    """Line shape settings."""
+class WizardV1ConfigSchemaVisualizationVariant1ShapesSettingsCommonLineSettings(APIModel):
+    """Line shape settings shared by all series."""
 
-    field_guid: str | None = Field(
+    line_width: float | Literal["auto"] | None = Field(
         default=None,
-        alias="fieldGuid",
-        description="Identifier of the field used to assign shapes.",
+        alias="lineWidth",
+        description="Line width in pixels or automatic width.",
     )
-    mounted_shapes: dict[str, str] | None = Field(
-        default=None,
-        alias="mountedShapes",
-        description="Mapping of series or field values to line dash styles.",
+    linecap: Literal["butt", "round", "square", "none"] | str | None = Field(
+        default=None, description="Shape used at line endpoints."
     )
-    line_settings: dict[str, WizardV1LineShapeSettingsSchema] | None = Field(
-        default=None, alias="lineSettings", description="Line shape settings by series."
-    )
-    common_line_settings: CommonLineSettings | None = Field(
-        default=None,
-        alias="commonLineSettings",
-        description="Line shape settings shared by all series.",
+    linejoin: Literal["bevel", "round", "miter", "unset"] | str | None = Field(
+        default=None, description="Shape used at line segment joins."
     )
 
 
-class SettingsModel98(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant1LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -4903,159 +2442,103 @@ class SettingsModel98(APIModel):
     )
 
 
-class Segments(APIModel):
-    """Segmentation configuration."""
+class WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettingsPeriodSettings(
+    APIModel
+):
+    """Size and unit of the initial navigator window."""
 
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used to split the chart into segments."
+    type: (
+        Literal[
+            "date",
+            "genericdatetime",
+            "datetimetz",
+            "integer",
+            "uinteger",
+            "string",
+            "float",
+            "boolean",
+            "geopoint",
+            "geopolygon",
+            "markup",
+            "heatmap",
+            "array_int",
+            "array_float",
+            "array_str",
+            "unsupported",
+            "hierarchy",
+            "tree_str",
+            "tree_int",
+            "tree_float",
+        ]
+        | str
+    ) = Field(..., description="Data type of the navigator axis field.")
+    value: str = Field(..., description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
+        ..., description="Unit of the navigator window size."
     )
 
 
-class Visualization(APIModel):
-    """Chart visualization configuration."""
+class WizardV1ConfigSchemaVisualizationVariant2XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    type: Literal["line"] = Field(..., description="Line visualization type.")
-    chart_settings: ChartSettings | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel1 | None = Field(default=None, description="Primary Y-axis configuration.")
-    y2: Y2 | None = Field(default=None, description="Secondary Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    shapes: Shapes | None = Field(default=None, description="Line shape configuration.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    segments: Segments | None = Field(default=None, description="Segmentation configuration.")
-
-
-class SettingsModel99(APIModel):
-    """X-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel100(APIModel):
-    """Y-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant2YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class YModel2(APIModel):
-    """Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel100 | None = Field(default=None, description="Y-axis settings.")
-
-
-class SettingsModel101(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant2ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -5110,7 +2593,7 @@ class SettingsModel101(APIModel):
     )
 
 
-class SettingsModel102(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant2LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -5123,148 +2606,103 @@ class SettingsModel102(APIModel):
     )
 
 
-class LabelsModel2(APIModel):
-    """Data label configuration."""
+class WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettingsPeriodSettings(
+    APIModel
+):
+    """Size and unit of the initial navigator window."""
 
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as data labels."
+    type: (
+        Literal[
+            "date",
+            "genericdatetime",
+            "datetimetz",
+            "integer",
+            "uinteger",
+            "string",
+            "float",
+            "boolean",
+            "geopoint",
+            "geopolygon",
+            "markup",
+            "heatmap",
+            "array_int",
+            "array_float",
+            "array_str",
+            "unsupported",
+            "hierarchy",
+            "tree_str",
+            "tree_int",
+            "tree_float",
+        ]
+        | str
+    ) = Field(..., description="Data type of the navigator axis field.")
+    value: str = Field(..., description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
+        ..., description="Unit of the navigator window size."
     )
-    settings: SettingsModel102 | None = Field(default=None, description="Data label settings.")
 
 
-class VisualizationModel(APIModel):
-    """Chart visualization configuration."""
+class WizardV1ConfigSchemaVisualizationVariant3XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    type: Literal["column"] = Field(..., description="Column visualization type.")
-    chart_settings: ChartSettings | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel2 | None = Field(default=None, description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel2 | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    segments: Segments | None = Field(default=None, description="Segmentation configuration.")
-
-
-class SettingsModel103(APIModel):
-    """X-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel104(APIModel):
-    """Y-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant3YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel105(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant3ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -5319,7 +2757,7 @@ class SettingsModel105(APIModel):
     )
 
 
-class SettingsModel106(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant3LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -5327,170 +2765,103 @@ class SettingsModel106(APIModel):
     )
 
 
-class VisualizationModel1(APIModel):
-    """Chart visualization configuration."""
+class WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettingsPeriodSettings(
+    APIModel
+):
+    """Size and unit of the initial navigator window."""
 
-    chart_settings: ChartSettings | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel2 | None = Field(default=None, description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    segments: Segments | None = Field(default=None, description="Segmentation configuration.")
-    type: Literal["column100p"] = Field(..., description="Normalized column visualization type.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-
-
-class ChartSettingsModel(APIModel):
-    """Chart configuration."""
-
-    title: str | None = Field(default=None, description="Chart title.")
-    title_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="titleMode",
-        description="Whether the chart title is displayed.",
-    )
-    legend_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="legendMode",
-        description="Whether the chart legend is displayed.",
-    )
-    tooltip: Literal["show", "hide"] | str | None = Field(
-        default=None, description="Whether chart tooltips are displayed."
-    )
-    tooltip_sum: Literal["on", "off"] | str | None = Field(
-        default=None,
-        alias="tooltipSum",
-        description="Whether tooltips include a total value.",
-    )
-    feed: str | None = Field(default=None, description="Comment feed identifier.")
-    navigator_settings: NavigatorSettings | None = Field(
-        default=None, alias="navigatorSettings", description="Chart navigator settings."
-    )
-    stacking: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether area series are stacked."
+    type: (
+        Literal[
+            "date",
+            "genericdatetime",
+            "datetimetz",
+            "integer",
+            "uinteger",
+            "string",
+            "float",
+            "boolean",
+            "geopoint",
+            "geopolygon",
+            "markup",
+            "heatmap",
+            "array_int",
+            "array_float",
+            "array_str",
+            "unsupported",
+            "hierarchy",
+            "tree_str",
+            "tree_int",
+            "tree_float",
+        ]
+        | str
+    ) = Field(..., description="Data type of the navigator axis field.")
+    value: str = Field(..., description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
+        ..., description="Unit of the navigator window size."
     )
 
 
-class SettingsModel107(APIModel):
-    """X-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant4XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel108(APIModel):
-    """Y-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant4YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel109(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant4ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -5545,7 +2916,7 @@ class SettingsModel109(APIModel):
     )
 
 
-class SettingsModel110(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant4LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -5553,139 +2924,67 @@ class SettingsModel110(APIModel):
     )
 
 
-class VisualizationModel2(APIModel):
-    """Chart visualization configuration."""
+class WizardV1ConfigSchemaVisualizationVariant5XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    type: Literal["area"] = Field(..., description="Area visualization type.")
-    chart_settings: ChartSettingsModel | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel2 | None = Field(default=None, description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    segments: Segments | None = Field(default=None, description="Segmentation configuration.")
-
-
-class SettingsModel111(APIModel):
-    """X-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel112(APIModel):
-    """Y-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant5YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel113(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant5ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -5740,7 +3039,7 @@ class SettingsModel113(APIModel):
     )
 
 
-class SettingsModel114(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant5LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -5748,50 +3047,43 @@ class SettingsModel114(APIModel):
     )
 
 
-class ChartSettingsModel1(APIModel):
-    """Chart configuration."""
+class WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettingsPeriodSettings(
+    APIModel
+):
+    """Size and unit of the initial navigator window."""
 
-    title: str | None = Field(default=None, description="Chart title.")
-    title_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="titleMode",
-        description="Whether the chart title is displayed.",
-    )
-    legend_mode: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="legendMode",
-        description="Whether the chart legend is displayed.",
-    )
-    tooltip: Literal["show", "hide"] | str | None = Field(
-        default=None, description="Whether chart tooltips are displayed."
-    )
-    tooltip_sum: Literal["on", "off"] | str | None = Field(
-        default=None,
-        alias="tooltipSum",
-        description="Whether tooltips include a total value.",
-    )
-    feed: str | None = Field(default=None, description="Comment feed identifier.")
-    navigator_settings: NavigatorSettings | None = Field(
-        default=None, alias="navigatorSettings", description="Chart navigator settings."
-    )
-
-
-class VisualizationModel3(APIModel):
-    """Chart visualization configuration."""
-
-    x: X = Field(..., description="X-axis configuration.")
-    y: YModel2 | None = Field(default=None, description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    segments: Segments | None = Field(default=None, description="Segmentation configuration.")
-    type: Literal["area100p"] = Field(..., description="Normalized area visualization type.")
-    chart_settings: ChartSettingsModel1 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
+    type: (
+        Literal[
+            "date",
+            "genericdatetime",
+            "datetimetz",
+            "integer",
+            "uinteger",
+            "string",
+            "float",
+            "boolean",
+            "geopoint",
+            "geopolygon",
+            "markup",
+            "heatmap",
+            "array_int",
+            "array_float",
+            "array_str",
+            "unsupported",
+            "hierarchy",
+            "tree_str",
+            "tree_int",
+            "tree_float",
+        ]
+        | str
+    ) = Field(..., description="Data type of the navigator axis field.")
+    value: str = Field(..., description="Initial navigator window size.")
+    period: Literal["month", "year", "day", "hour", "week", "quarter"] | str = Field(
+        ..., description="Unit of the navigator window size."
     )
 
 
-class ChartSettingsModel2(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant6ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -5816,141 +3108,67 @@ class ChartSettingsModel2(APIModel):
     feed: str | None = Field(default=None, description="Comment feed identifier.")
 
 
-class SettingsModel115(APIModel):
-    """X-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant6XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
-    axis_label_date_format: str | None = Field(
+
+
+class WizardV1ConfigSchemaVisualizationVariant6YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class XModel(APIModel):
-    """X-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Fields placed on the X-axis. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel115 | None = Field(default=None, description="X-axis settings.")
-
-
-class SettingsModel116(APIModel):
-    """Y-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
-        default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
-    )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
-    )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
-    )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
-        default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
-    )
-
-
-class YModel3(APIModel):
-    """Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(..., description="Fields placed on the Y-axis.")
-    settings: SettingsModel116 | None = Field(default=None, description="Y-axis settings.")
-
-
-class SettingsModel117(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant6ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -6005,7 +3223,7 @@ class SettingsModel117(APIModel):
     )
 
 
-class SettingsModel118(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant6LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -6018,147 +3236,92 @@ class SettingsModel118(APIModel):
     )
 
 
-class LabelsModel3(APIModel):
-    """Data label configuration."""
+class WizardV1ConfigSchemaVisualizationVariant7ChartSettings(APIModel):
+    """Chart configuration."""
 
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as data labels."
-    )
-    settings: SettingsModel118 | None = Field(default=None, description="Data label settings.")
-
-
-class VisualizationModel4(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["bar"] = Field(..., description="Bar visualization type.")
-    chart_settings: ChartSettingsModel2 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    x: XModel | None = Field(default=None, description="X-axis configuration.")
-    y: YModel3 = Field(..., description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel3 | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-
-
-class SettingsModel119(APIModel):
-    """X-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    title: str | None = Field(default=None, description="Chart title.")
+    title_mode: Literal["show", "hide"] | str | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="titleMode",
+        description="Whether the chart title is displayed.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
-    )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
-    )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    legend_mode: Literal["show", "hide"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
+        alias="legendMode",
+        description="Whether the chart legend is displayed.",
     )
-    axis_label_date_format: str | None = Field(
+    tooltip: Literal["show", "hide"] | str | None = Field(
+        default=None, description="Whether chart tooltips are displayed."
+    )
+    tooltip_sum: Literal["on", "off"] | str | None = Field(
         default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
+        alias="tooltipSum",
+        description="Whether tooltips include a total value.",
     )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    feed: str | None = Field(default=None, description="Comment feed identifier.")
+
+
+class WizardV1ConfigSchemaVisualizationVariant7XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
-        default=None, description="How null values are displayed."
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel120(APIModel):
-    """Y-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant7YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class SettingsModel121(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant7ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -6213,7 +3376,7 @@ class SettingsModel121(APIModel):
     )
 
 
-class SettingsModel122(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant7LabelsSettings(APIModel):
     """Data label settings."""
 
     overlap: Literal["on", "off"] | str | None = Field(
@@ -6221,21 +3384,7 @@ class SettingsModel122(APIModel):
     )
 
 
-class VisualizationModel5(APIModel):
-    """Chart visualization configuration."""
-
-    chart_settings: ChartSettingsModel2 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    x: XModel | None = Field(default=None, description="X-axis configuration.")
-    y: YModel3 = Field(..., description="Y-axis configuration.")
-    colors: Colors | None = Field(default=None, description="Color configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    type: Literal["bar100p"] = Field(..., description="Normalized bar visualization type.")
-    labels: LabelsModel | None = Field(default=None, description="Data label configuration.")
-
-
-class ChartSettingsModel3(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant8ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -6265,24 +3414,7 @@ class ChartSettingsModel3(APIModel):
     )
 
 
-class Dimensions(APIModel):
-    """Dimension configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Dimensions used to create funnel stages."
-    )
-
-
-class MeasuresModel(APIModel):
-    """Measure configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Measures used to size funnel stages. Measures only: a dimension placed here needs an aggregation.",
-    )
-
-
-class SettingsModel123(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant8ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -6337,16 +3469,7 @@ class SettingsModel123(APIModel):
     )
 
 
-class ColorsModel(APIModel):
-    """Color configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields used to assign stage colors."
-    )
-    settings: SettingsModel123 | None = Field(default=None, description="Color settings.")
-
-
-class SettingsModel124(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant8LabelsSettings(APIModel):
     """Data label settings."""
 
     position: Literal["outside", "inside"] | str | None = Field(
@@ -6368,30 +3491,7 @@ class SettingsModel124(APIModel):
     )
 
 
-class LabelsModel4(APIModel):
-    """Data label configuration."""
-
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as stage labels."
-    )
-    settings: SettingsModel124 | None = Field(default=None, description="Data label settings.")
-
-
-class VisualizationModel6(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["funnel"] = Field(..., description="Funnel visualization type.")
-    chart_settings: ChartSettingsModel3 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    dimensions: Dimensions = Field(..., description="Dimension configuration.")
-    measures: MeasuresModel = Field(..., description="Measure configuration.")
-    colors: ColorsModel | None = Field(default=None, description="Color configuration.")
-    labels: LabelsModel4 | None = Field(default=None, description="Data label configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-
-
-class ChartSettingsModel4(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant9ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -6411,159 +3511,67 @@ class ChartSettingsModel4(APIModel):
     feed: str | None = Field(default=None, description="Comment feed identifier.")
 
 
-class SettingsModel125(APIModel):
-    """X-axis settings."""
+class WizardV1ConfigSchemaVisualizationVariant9XSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
 
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
     )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
     )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
-    axis_label_date_format: str | None = Field(
+
+
+class WizardV1ConfigSchemaVisualizationVariant9YSettingsAxisLabelFormatting(APIModel):
+    """Numeric axis label formatting."""
+
+    format: Literal["number", "percent"] | str | None = Field(
+        default=None, description="Number formatting mode."
+    )
+    show_rank_delimiter: bool | None = Field(
         default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
+        alias="showRankDelimiter",
+        description="Whether to separate digit groups in numbers.",
     )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    prefix: str | None = Field(
+        default=None, description="Text displayed before the formatted value."
     )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
+    postfix: str | None = Field(
+        default=None, description="Text displayed after the formatted value."
+    )
+    unit: Literal["auto", "k", "m", "b", "t"] | str | None = Field(
+        default=None, description="Unit used to scale the numeric value."
+    )
+    precision: float | None = Field(
+        default=None, description="Number of decimal places to display."
+    )
+    label_mode: Literal["absolute", "percent"] | str | None = Field(
         default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    holidays: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether holidays are highlighted on the axis."
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
+        alias="labelMode",
+        description="How the formatted label is displayed.",
     )
 
 
-class XModel1(APIModel):
-    """X-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(..., description="Fields placed on the X-axis.")
-    settings: SettingsModel125 | None = Field(default=None, description="X-axis settings.")
-
-
-class SettingsModel126(APIModel):
-    """Y-axis settings."""
-
-    title: Literal["auto", "manual", "off"] | str | None = Field(
-        default=None, description="Axis title display mode."
-    )
-    title_value: str | None = Field(
-        default=None, alias="titleValue", description="Custom axis title."
-    )
-    type: Literal["linear", "logarithmic"] | str | None = Field(
-        default=None, description="Axis scale type."
-    )
-    grid: Literal["on", "off"] | str | None = Field(
-        default=None, description="Whether axis grid lines are displayed."
-    )
-    grid_step: Literal["auto", "manual"] | str | None = Field(
-        default=None, alias="gridStep", description="Grid step calculation mode."
-    )
-    grid_step_value: float | None = Field(
-        default=None,
-        alias="gridStepValue",
-        description="Manual grid-line spacing in pixels.",
-    )
-    hide_labels: Literal["yes", "no"] | str | None = Field(
-        default=None, alias="hideLabels", description="Whether axis labels are hidden."
-    )
-    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
-        default=None, alias="labelsView", description="Axis label orientation."
-    )
-    axis_label_formatting: AxisLabelFormatting | None = Field(
-        default=None,
-        alias="axisLabelFormatting",
-        description="Numeric axis label formatting.",
-    )
-    axis_label_date_format: str | None = Field(
-        default=None,
-        alias="axisLabelDateFormat",
-        description="Date or datetime axis label format.",
-    )
-    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
-        default=None, alias="axisFormatMode", description="Axis label formatting mode."
-    )
-    axis_visibility: Literal["show", "hide"] | str | None = Field(
-        default=None,
-        alias="axisVisibility",
-        description="Whether the axis is displayed.",
-    )
-    scale: Literal["auto", "manual"] | str | None = Field(
-        default=None, description="Axis boundary calculation mode."
-    )
-    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
-        default=None,
-        alias="scaleValue",
-        description="Automatic scale mode or manual minimum and maximum values.",
-    )
-    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
-        default=None,
-        alias="axisModeMap",
-        description="Maps field GUIDs to discrete or continuous axis modes.",
-    )
-
-
-class YModel4(APIModel):
-    """Y-axis configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields placed on the Y-axis."
-    )
-    settings: SettingsModel126 | None = Field(default=None, description="Y-axis settings.")
-
-
-class PointsModel1(APIModel):
-    """Point grouping configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None,
-        description="Fields used to group points and add tooltip information.",
-    )
-
-
-class SettingsModel127(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant9SizeSettings(APIModel):
     """Point size settings."""
 
     radius: float | None = Field(default=None, description="Default point radius in pixels.")
@@ -6575,17 +3583,7 @@ class SettingsModel127(APIModel):
     )
 
 
-class SizeModel(APIModel):
-    """Point size configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None,
-        description="Fields used to determine point sizes. Measures only: a dimension placed here needs an aggregation.",
-    )
-    settings: SettingsModel127 | None = Field(default=None, description="Point size settings.")
-
-
-class SettingsModel128(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant9ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -6640,16 +3638,7 @@ class SettingsModel128(APIModel):
     )
 
 
-class ColorsModel1(APIModel):
-    """Color configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used for color encoding."
-    )
-    settings: SettingsModel128 | None = Field(default=None, description="Color settings.")
-
-
-class SettingsModel129(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant9ShapesSettings(APIModel):
     """Marker shape settings."""
 
     field_guid: str | None = Field(
@@ -6664,32 +3653,7 @@ class SettingsModel129(APIModel):
     )
 
 
-class ShapesModel(APIModel):
-    """Marker shape configuration."""
-
-    items: list[WizardFieldSchemaModel3] | None = Field(
-        default=None, description="Fields used for shape encoding."
-    )
-    settings: SettingsModel129 | None = Field(default=None, description="Marker shape settings.")
-
-
-class VisualizationModel7(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["scatter"] = Field(..., description="Scatter visualization type.")
-    chart_settings: ChartSettingsModel4 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    x: XModel1 = Field(..., description="X-axis configuration.")
-    y: YModel4 | None = Field(default=None, description="Y-axis configuration.")
-    points: PointsModel1 | None = Field(default=None, description="Point grouping configuration.")
-    size: SizeModel | None = Field(default=None, description="Point size configuration.")
-    colors: ColorsModel1 | None = Field(default=None, description="Color configuration.")
-    shapes: ShapesModel | None = Field(default=None, description="Marker shape configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-
-
-class ChartSettingsModel5(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant10ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -6708,15 +3672,7 @@ class ChartSettingsModel5(APIModel):
     )
 
 
-class DimensionsModel(APIModel):
-    """Dimension configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Dimensions used to create pie slices."
-    )
-
-
-class SettingsModel130(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant10ColorsSettings(APIModel):
     """Color settings."""
 
     thresholds_mode: Literal["auto", "manual"] | str | None = Field(
@@ -6771,38 +3727,62 @@ class SettingsModel130(APIModel):
     )
 
 
-class MeasuresModel1(APIModel):
-    """Measure configuration."""
+class WizardV1ConfigSchemaVisualizationVariant11ColorsSettings(APIModel):
+    """Color settings."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Measures used to determine slice sizes. Measures only: a dimension placed here needs an aggregation.",
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    polygon_borders: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="polygonBorders",
+        description="Whether polygon borders are displayed.",
+    )
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used for coloring.",
+    )
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    colored_by_measure: bool | None = Field(
+        default=None,
+        alias="coloredByMeasure",
+        description="Whether colors are determined by a measure.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_mode: Literal["palette", "gradient"] | str | None = Field(
+        default=None, alias="colorMode", description="Color assignment mode."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class LabelsModel5(APIModel):
-    """Data label configuration."""
-
-    items: list[WizardLabelsItemSchemaModel8] | None = Field(
-        default=None, description="Fields whose values are displayed as slice labels."
-    )
-
-
-class VisualizationModel8(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["pie"] = Field(..., description="Pie visualization type.")
-    chart_settings: ChartSettingsModel5 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    dimensions: DimensionsModel | None = Field(default=None, description="Dimension configuration.")
-    colors: ColorsModel1 | None = Field(default=None, description="Color configuration.")
-    measures: MeasuresModel1 = Field(..., description="Measure configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    labels: LabelsModel5 | None = Field(default=None, description="Data label configuration.")
-
-
-class ChartSettingsModel6(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant11ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -6824,21 +3804,7 @@ class ChartSettingsModel6(APIModel):
     )
 
 
-class VisualizationModel9(APIModel):
-    """Chart visualization configuration."""
-
-    dimensions: DimensionsModel | None = Field(default=None, description="Dimension configuration.")
-    colors: ColorsModel1 | None = Field(default=None, description="Color configuration.")
-    measures: MeasuresModel1 = Field(..., description="Measure configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-    labels: LabelsModel5 | None = Field(default=None, description="Data label configuration.")
-    type: Literal["donut"] = Field(..., description="Donut visualization type.")
-    chart_settings: ChartSettingsModel6 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-
-
-class ChartSettingsModel7(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant12ChartSettings(APIModel):
     """Chart configuration."""
 
     metric_font_color_palette: str | None = Field(
@@ -6867,38 +3833,62 @@ class ChartSettingsModel7(APIModel):
     title: str | None = Field(default=None, description="Metric title.")
 
 
-class MeasuresModel2(APIModel):
-    """Measure configuration."""
+class WizardV1ConfigSchemaVisualizationVariant12ColorsSettings(APIModel):
+    """Color settings."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Measures displayed by the metric. Measures only: a dimension placed here needs an aggregation.",
-    )
-
-
-class ColorsModel2(APIModel):
-    """Color configuration."""
-
-    settings: SettingsModel130 | None = Field(default=None, description="Color settings.")
-
-
-class VisualizationModel10(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["metric"] = Field(..., description="Metric visualization type.")
-    is_markup: bool | None = Field(
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
         default=None,
-        alias="isMarkup",
-        description="Whether the metric value uses the markup data type.",
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
     )
-    chart_settings: ChartSettingsModel7 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
     )
-    measures: MeasuresModel2 = Field(..., description="Measure configuration.")
-    colors: ColorsModel2 | None = Field(default=None, description="Color configuration.")
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    polygon_borders: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="polygonBorders",
+        description="Whether polygon borders are displayed.",
+    )
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used for coloring.",
+    )
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    colored_by_measure: bool | None = Field(
+        default=None,
+        alias="coloredByMeasure",
+        description="Whether colors are determined by a measure.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_mode: Literal["palette", "gradient"] | str | None = Field(
+        default=None, alias="colorMode", description="Color assignment mode."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
+    )
 
 
-class ChartSettingsModel8(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant13ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -6912,45 +3902,62 @@ class ChartSettingsModel8(APIModel):
     )
 
 
-class DimensionsModel1(APIModel):
-    """Dimension configuration."""
+class WizardV1ConfigSchemaVisualizationVariant13ColorsSettings(APIModel):
+    """Color settings."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Dimensions used to group treemap nodes."
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    polygon_borders: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="polygonBorders",
+        description="Whether polygon borders are displayed.",
+    )
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used for coloring.",
+    )
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    colored_by_measure: bool | None = Field(
+        default=None,
+        alias="coloredByMeasure",
+        description="Whether colors are determined by a measure.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_mode: Literal["palette", "gradient"] | str | None = Field(
+        default=None, alias="colorMode", description="Color assignment mode."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class MeasuresModel3(APIModel):
-    """Measure configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Measures used to size treemap nodes. Measures only: a dimension placed here needs an aggregation.",
-    )
-
-
-class ColorsModel3(APIModel):
-    """Color configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields used to assign node colors."
-    )
-    settings: SettingsModel130 | None = Field(default=None, description="Color settings.")
-
-
-class VisualizationModel11(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["treemap"] = Field(..., description="Treemap visualization type.")
-    chart_settings: ChartSettingsModel8 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    dimensions: DimensionsModel1 = Field(..., description="Dimension configuration.")
-    measures: MeasuresModel3 = Field(..., description="Measure configuration.")
-    colors: ColorsModel3 | None = Field(default=None, description="Color configuration.")
-
-
-class ChartSettingsModel9(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant14ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -6986,36 +3993,62 @@ class ChartSettingsModel9(APIModel):
     )
 
 
-class Columns(APIModel):
-    """Column configuration."""
+class WizardV1ConfigSchemaVisualizationVariant14ColorsSettings(APIModel):
+    """Color settings."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields displayed as table columns."
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    polygon_borders: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="polygonBorders",
+        description="Whether polygon borders are displayed.",
+    )
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used for coloring.",
+    )
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    colored_by_measure: bool | None = Field(
+        default=None,
+        alias="coloredByMeasure",
+        description="Whether colors are determined by a measure.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_mode: Literal["palette", "gradient"] | str | None = Field(
+        default=None, alias="colorMode", description="Color assignment mode."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class ColorsModel4(APIModel):
-    """Color configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Fields used for conditional coloring."
-    )
-    settings: SettingsModel130 | None = Field(default=None, description="Color settings.")
-
-
-class VisualizationModel12(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["flatTable"] = Field(..., description="Flat table visualization type.")
-    chart_settings: ChartSettingsModel9 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    columns: Columns = Field(..., description="Column configuration.")
-    colors: ColorsModel4 | None = Field(default=None, description="Color configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-
-
-class ChartSettingsModel10(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant15ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -7055,46 +4088,62 @@ class ChartSettingsModel10(APIModel):
     )
 
 
-class ColumnsModel(APIModel):
-    """Column configuration."""
+class WizardV1ConfigSchemaVisualizationVariant15ColorsSettings(APIModel):
+    """Color settings."""
 
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Dimensions displayed as pivot columns."
+    thresholds_mode: Literal["auto", "manual"] | str | None = Field(
+        default=None,
+        alias="thresholdsMode",
+        description="Mode used to calculate gradient thresholds.",
+    )
+    left_threshold: str | None = Field(
+        default=None, alias="leftThreshold", description="Lower gradient threshold."
+    )
+    middle_threshold: str | None = Field(
+        default=None, alias="middleThreshold", description="Middle gradient threshold."
+    )
+    right_threshold: str | None = Field(
+        default=None, alias="rightThreshold", description="Upper gradient threshold."
+    )
+    gradient_palette: str | None = Field(
+        default=None,
+        alias="gradientPalette",
+        description="Gradient palette identifier.",
+    )
+    gradient_mode: Literal["2-point", "3-point"] | str | None = Field(
+        default=None, alias="gradientMode", description="Gradient type."
+    )
+    polygon_borders: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="polygonBorders",
+        description="Whether polygon borders are displayed.",
+    )
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used for coloring.",
+    )
+    mounted_colors: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedColors",
+        description="Mapping of field values to colors.",
+    )
+    colored_by_measure: bool | None = Field(
+        default=None,
+        alias="coloredByMeasure",
+        description="Whether colors are determined by a measure.",
+    )
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    color_mode: Literal["palette", "gradient"] | str | None = Field(
+        default=None, alias="colorMode", description="Color assignment mode."
+    )
+    null_mode: Literal["ignore", "as-0"] | str | None = Field(
+        default=None, alias="nullMode", description="How null values are colored."
     )
 
 
-class Rows(APIModel):
-    """Row configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ..., description="Dimensions displayed as pivot rows."
-    )
-
-
-class MeasuresModel4(APIModel):
-    """Measure configuration."""
-
-    items: list[WizardFieldSchemaModel3] = Field(
-        ...,
-        description="Measures displayed in pivot cells. Measures only: a dimension placed here needs an aggregation.",
-    )
-
-
-class VisualizationModel13(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["pivotTable"] = Field(..., description="Pivot table visualization type.")
-    chart_settings: ChartSettingsModel10 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
-    )
-    columns: ColumnsModel = Field(..., description="Column configuration.")
-    rows: Rows = Field(..., description="Row configuration.")
-    measures: MeasuresModel4 = Field(..., description="Measure configuration.")
-    colors: ColorsModel4 | None = Field(default=None, description="Color configuration.")
-    sort: Sort | None = Field(default=None, description="Sorting configuration.")
-
-
-class ChartSettingsModel11(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant16ChartSettings(APIModel):
     """Map configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -7130,24 +4179,7 @@ class ChartSettingsModel11(APIModel):
     )
 
 
-class VisualizationModel14(APIModel):
-    """Chart visualization configuration."""
-
-    type: Literal["geolayer"] = Field(..., description="Geolayer visualization type.")
-    chart_settings: ChartSettingsModel11 | None = Field(
-        default=None, alias="chartSettings", description="Map configuration."
-    )
-    layers: list[WizardV1GeolayerLayerSchemaModel4] = Field(
-        ..., description="Layers included in the map."
-    )
-    selected_layer_id: str | None = Field(
-        default=None,
-        alias="selectedLayerId",
-        description="Identifier of the currently selected layer.",
-    )
-
-
-class ChartSettingsModel12(APIModel):
+class WizardV1ConfigSchemaVisualizationVariant17ChartSettings(APIModel):
     """Chart configuration."""
 
     title: str | None = Field(default=None, description="Chart title.")
@@ -7167,14 +4199,4295 @@ class ChartSettingsModel12(APIModel):
     feed: str | None = Field(default=None, description="Comment feed identifier.")
 
 
-class VisualizationModel15(APIModel):
-    """Chart visualization configuration."""
+class WizardV1Annotation(APIModel):
+    """Annotation information."""
 
-    type: Literal["combined-chart"] = Field(..., description="Combined chart visualization type.")
-    chart_settings: ChartSettingsModel12 | None = Field(
-        default=None, alias="chartSettings", description="Chart configuration."
+    description: str | None = Field(default=None, description="Description of the entry.")
+
+
+class GetWizardChartV1ResultPermissions(APIModel):
+    """Permissions for the chart."""
+
+    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
+    read: bool = Field(..., description="Indicates if there are permissions to read.")
+    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
+    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+
+
+class WizardV1FiltersItemSchemaFilter(APIModel):
+    """Filter applied to the field."""
+
+    operation: WizardV1FiltersItemSchemaFilterOperation
+    value: str | list[str] | None = Field(
+        default=None, description="Value or values used by the filter operation."
     )
-    layers: list[WizardV1CombinedChartLayerSchemaModel2] = Field(
+
+
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings
+
+
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings
+
+
+class WizardFieldSchemaVariant1BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardFieldSchemaVariant1BarsSettingsScaleVariant2Settings
+
+
+class WizardFieldSchemaVariant1BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardFieldSchemaVariant1BackgroundSettingsSettingsPaletteState = Field(
+        ..., alias="paletteState"
+    )
+    gradient_state: WizardFieldSchemaVariant1BackgroundSettingsSettingsGradientState = Field(
+        ..., alias="gradientState"
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardFieldSchemaVariant1ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardFieldSchemaVariant1ColumnSettingsWidthVariant1
+        | WizardFieldSchemaVariant1ColumnSettingsWidthVariant2
+        | WizardFieldSchemaVariant1ColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2Settings
+
+
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3Settings
+
+
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2Settings
+
+
+class WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsPaletteState = (
+        Field(..., alias="paletteState")
+    )
+    gradient_state: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettingsGradientState = (
+        Field(..., alias="gradientState")
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardFieldSchemaVariant1FieldsItemColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant1
+        | WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant2
+        | WizardFieldSchemaVariant1FieldsItemColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings
+
+
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings
+
+
+class WizardFieldSchemaVariant2BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardFieldSchemaVariant2BarsSettingsScaleVariant2Settings
+
+
+class WizardFieldSchemaVariant2BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardFieldSchemaVariant2BackgroundSettingsSettingsPaletteState = Field(
+        ..., alias="paletteState"
+    )
+    gradient_state: WizardFieldSchemaVariant2BackgroundSettingsSettingsGradientState = Field(
+        ..., alias="gradientState"
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardFieldSchemaVariant2ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardFieldSchemaVariant2ColumnSettingsWidthVariant1
+        | WizardFieldSchemaVariant2ColumnSettingsWidthVariant2
+        | WizardFieldSchemaVariant2ColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2Settings
+
+
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3Settings
+
+
+class WizardFieldSchemaVariant3BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardFieldSchemaVariant3BarsSettingsScaleVariant2Settings
+
+
+class WizardFieldSchemaVariant3BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardFieldSchemaVariant3BackgroundSettingsSettingsPaletteState = Field(
+        ..., alias="paletteState"
+    )
+    gradient_state: WizardFieldSchemaVariant3BackgroundSettingsSettingsGradientState = Field(
+        ..., alias="gradientState"
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardFieldSchemaVariant3ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardFieldSchemaVariant3ColumnSettingsWidthVariant1
+        | WizardFieldSchemaVariant3ColumnSettingsWidthVariant2
+        | WizardFieldSchemaVariant3ColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2Settings
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3Settings
+
+
+class WizardFieldSchemaVariant4BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardFieldSchemaVariant4BarsSettingsScaleVariant2Settings
+
+
+class WizardFieldSchemaVariant4BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardFieldSchemaVariant4BackgroundSettingsSettingsPaletteState = Field(
+        ..., alias="paletteState"
+    )
+    gradient_state: WizardFieldSchemaVariant4BackgroundSettingsSettingsGradientState = Field(
+        ..., alias="gradientState"
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardFieldSchemaVariant4ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardFieldSchemaVariant4ColumnSettingsWidthVariant1
+        | WizardFieldSchemaVariant4ColumnSettingsWidthVariant2
+        | WizardFieldSchemaVariant4ColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2Settings
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3Settings
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2Settings
+
+
+class WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsPaletteState = Field(
+        ..., alias="paletteState"
+    )
+    gradient_state: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettingsGradientState = Field(
+        ..., alias="gradientState"
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant1ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant1
+        | WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant2
+        | WizardPseudoFieldSchemaVariant1ColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings(APIModel):
+    """Gradient bar color settings."""
+
+    gradient_type: Literal["2-point", "3-point"] | str = Field(
+        ..., alias="gradientType", description="Gradient type."
+    )
+    thresholds: (
+        WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant1
+        | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1SettingsThresholdsVariant2
+    ) = Field(..., description="Thresholds that define the gradient color scale.")
+    palette: str | None = Field(default=None, description="Color palette identifier.")
+    reversed: bool | None = Field(default=None, description="Whether to reverse the color palette.")
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2(APIModel):
+    color_type: Literal["one-color"] = Field(
+        ..., alias="colorType", description="Use one color for all bars."
+    )
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2Settings
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3(APIModel):
+    color_type: Literal["two-color"] = Field(
+        ...,
+        alias="colorType",
+        description="Use separate colors for negative and positive bars.",
+    )
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3Settings
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2(APIModel):
+    mode: Literal["manual"] = Field(..., description="Use a manually specified bar scale.")
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2Settings
+
+
+class WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings(APIModel):
+    """Background color configuration."""
+
+    palette_state: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsPaletteState = Field(
+        ..., alias="paletteState"
+    )
+    gradient_state: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettingsGradientState = Field(
+        ..., alias="gradientState"
+    )
+    is_continuous: bool = Field(
+        ...,
+        alias="isContinuous",
+        description="Whether to use continuous instead of discrete coloring.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant2ColumnSettings(APIModel):
+    """Table column settings."""
+
+    width: (
+        WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant1
+        | WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant2
+        | WizardPseudoFieldSchemaVariant2ColumnSettingsWidthVariant3
+    ) = Field(..., description="Table column width settings.")
+    horizontal_alignment: Literal["auto", "start", "center", "end"] | str | None = Field(
+        default=None,
+        alias="horizontalAlignment",
+        description="Horizontal alignment of values in the column.",
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant1XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant1XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant1YSettings(APIModel):
+    """Primary Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant1YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Y2Settings(APIModel):
+    """Secondary Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant1Y2SettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant1ShapesSettings(APIModel):
+    """Line shape settings."""
+
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used to assign shapes.",
+    )
+    mounted_shapes: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedShapes",
+        description="Mapping of series or field values to line dash styles.",
+    )
+    line_settings: dict[str, WizardV1LineShapeSettingsSchema] | None = Field(
+        default=None, alias="lineSettings", description="Line shape settings by series."
+    )
+    common_line_settings: (
+        WizardV1CombinedChartLayerSchemaVariant1ShapesSettingsCommonLineSettings | None
+    ) = Field(default=None, alias="commonLineSettings")
+
+
+class WizardV1CombinedChartLayerSchemaVariant2XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant2XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant2YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant2YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant3XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant3XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant3YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1CombinedChartLayerSchemaVariant3YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaSourcesUpdatesItem(APIModel):
+    action: (
+        Literal["add_field", "add", "update_field", "update", "delete", "delete_field"] | str
+    ) = Field(..., description="Operation applied to the local field.")
+    field: WizardV1ConfigSchemaSourcesUpdatesItemField
+    debug_info: str | None = Field(
+        default=None,
+        description="Internal marker describing how the field update was produced.",
+    )
+
+
+class WizardV1ConfigSchemaSourcesLinksItemFieldsValue(APIModel):
+    field: WizardV1ConfigSchemaSourcesLinksItemFieldsValueField
+    dataset: WizardV1ConfigSchemaSourcesLinksItemFieldsValueDataset
+
+
+class WizardV1ConfigSchemaSourcesHierarchiesItem(APIModel):
+    guid: str = Field(..., description="Hierarchy identifier.")
+    title: str = Field(..., description="Hierarchy display title.")
+    fields: list[WizardV1ConfigSchemaSourcesHierarchiesItemFieldsItem] = Field(
+        ..., description="Ordered fields included in the hierarchy."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettings(APIModel):
+    """Chart navigator settings."""
+
+    navigator_mode: Literal["show", "hide"] | str = Field(
+        ...,
+        alias="navigatorMode",
+        description="Whether the chart navigator is displayed.",
+    )
+    selected_lines: list[str] = Field(
+        ...,
+        alias="selectedLines",
+        description="Series names shown in the navigator; values are not field GUIDs.",
+    )
+    lines_mode: Literal["all", "selected"] | str = Field(
+        ...,
+        alias="linesMode",
+        description="Which chart series are displayed in the navigator.",
+    )
+    period_settings: WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettingsPeriodSettings = Field(
+        ..., alias="periodSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant1XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1YSettings(APIModel):
+    """Primary Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant1YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Y2Settings(APIModel):
+    """Secondary Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant1Y2SettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1ShapesSettings(APIModel):
+    """Line shape settings."""
+
+    field_guid: str | None = Field(
+        default=None,
+        alias="fieldGuid",
+        description="Identifier of the field used to assign shapes.",
+    )
+    mounted_shapes: dict[str, str] | None = Field(
+        default=None,
+        alias="mountedShapes",
+        description="Mapping of series or field values to line dash styles.",
+    )
+    line_settings: dict[str, WizardV1LineShapeSettingsSchema] | None = Field(
+        default=None, alias="lineSettings", description="Line shape settings by series."
+    )
+    common_line_settings: (
+        WizardV1ConfigSchemaVisualizationVariant1ShapesSettingsCommonLineSettings | None
+    ) = Field(default=None, alias="commonLineSettings")
+
+
+class WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettings(APIModel):
+    """Chart navigator settings."""
+
+    navigator_mode: Literal["show", "hide"] | str = Field(
+        ...,
+        alias="navigatorMode",
+        description="Whether the chart navigator is displayed.",
+    )
+    selected_lines: list[str] = Field(
+        ...,
+        alias="selectedLines",
+        description="Series names shown in the navigator; values are not field GUIDs.",
+    )
+    lines_mode: Literal["all", "selected"] | str = Field(
+        ...,
+        alias="linesMode",
+        description="Which chart series are displayed in the navigator.",
+    )
+    period_settings: WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettingsPeriodSettings = Field(
+        ..., alias="periodSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant2XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant2XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant2YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant2YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettings(APIModel):
+    """Chart navigator settings."""
+
+    navigator_mode: Literal["show", "hide"] | str = Field(
+        ...,
+        alias="navigatorMode",
+        description="Whether the chart navigator is displayed.",
+    )
+    selected_lines: list[str] = Field(
+        ...,
+        alias="selectedLines",
+        description="Series names shown in the navigator; values are not field GUIDs.",
+    )
+    lines_mode: Literal["all", "selected"] | str = Field(
+        ...,
+        alias="linesMode",
+        description="Which chart series are displayed in the navigator.",
+    )
+    period_settings: WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettingsPeriodSettings = Field(
+        ..., alias="periodSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant3XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant3XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant3YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant3YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettings(APIModel):
+    """Chart navigator settings."""
+
+    navigator_mode: Literal["show", "hide"] | str = Field(
+        ...,
+        alias="navigatorMode",
+        description="Whether the chart navigator is displayed.",
+    )
+    selected_lines: list[str] = Field(
+        ...,
+        alias="selectedLines",
+        description="Series names shown in the navigator; values are not field GUIDs.",
+    )
+    lines_mode: Literal["all", "selected"] | str = Field(
+        ...,
+        alias="linesMode",
+        description="Which chart series are displayed in the navigator.",
+    )
+    period_settings: WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettingsPeriodSettings = Field(
+        ..., alias="periodSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant4XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant4XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant4YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant4YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant5XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant5XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant5YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant5YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettings(APIModel):
+    """Chart navigator settings."""
+
+    navigator_mode: Literal["show", "hide"] | str = Field(
+        ...,
+        alias="navigatorMode",
+        description="Whether the chart navigator is displayed.",
+    )
+    selected_lines: list[str] = Field(
+        ...,
+        alias="selectedLines",
+        description="Series names shown in the navigator; values are not field GUIDs.",
+    )
+    lines_mode: Literal["all", "selected"] | str = Field(
+        ...,
+        alias="linesMode",
+        description="Which chart series are displayed in the navigator.",
+    )
+    period_settings: WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettingsPeriodSettings = Field(
+        ..., alias="periodSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant6XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant6XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant6YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant6YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant7XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant7XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    nulls: Literal["ignore", "connect", "as-0", "use-previous"] | str | None = Field(
+        default=None, description="How null values are displayed."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant7YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant7YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant9XSettings(APIModel):
+    """X-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant9XSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    holidays: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether holidays are highlighted on the axis."
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant9YSettings(APIModel):
+    """Y-axis settings."""
+
+    title: Literal["auto", "manual", "off"] | str | None = Field(
+        default=None, description="Axis title display mode."
+    )
+    title_value: str | None = Field(
+        default=None, alias="titleValue", description="Custom axis title."
+    )
+    type: Literal["linear", "logarithmic"] | str | None = Field(
+        default=None, description="Axis scale type."
+    )
+    grid: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether axis grid lines are displayed."
+    )
+    grid_step: Literal["auto", "manual"] | str | None = Field(
+        default=None, alias="gridStep", description="Grid step calculation mode."
+    )
+    grid_step_value: float | None = Field(
+        default=None,
+        alias="gridStepValue",
+        description="Manual grid-line spacing in pixels.",
+    )
+    hide_labels: Literal["yes", "no"] | str | None = Field(
+        default=None, alias="hideLabels", description="Whether axis labels are hidden."
+    )
+    labels_view: Literal["auto", "horizontal", "vertical", "angle"] | str | None = Field(
+        default=None, alias="labelsView", description="Axis label orientation."
+    )
+    axis_label_formatting: (
+        WizardV1ConfigSchemaVisualizationVariant9YSettingsAxisLabelFormatting | None
+    ) = Field(default=None, alias="axisLabelFormatting")
+    axis_label_date_format: str | None = Field(
+        default=None,
+        alias="axisLabelDateFormat",
+        description="Date or datetime axis label format.",
+    )
+    axis_format_mode: Literal["auto", "by-field", "manual"] | str | None = Field(
+        default=None, alias="axisFormatMode", description="Axis label formatting mode."
+    )
+    axis_visibility: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="axisVisibility",
+        description="Whether the axis is displayed.",
+    )
+    scale: Literal["auto", "manual"] | str | None = Field(
+        default=None, description="Axis boundary calculation mode."
+    )
+    scale_value: Literal["min-max", "data-min-max", "0-max"] | str | list[Any] | None = Field(
+        default=None,
+        alias="scaleValue",
+        description="Automatic scale mode or manual minimum and maximum values.",
+    )
+    axis_mode_map: dict[str, Literal["discrete", "continuous"] | str] | None = Field(
+        default=None,
+        alias="axisModeMap",
+        description="Maps field GUIDs to discrete or continuous axis modes.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant12Colors(APIModel):
+    """Color configuration."""
+
+    settings: WizardV1ConfigSchemaVisualizationVariant12ColorsSettings | None = None
+
+
+class WizardV1FiltersItemSchema(APIModel):
+    guid: str = Field(..., description="Identifier of the field used for filtering.")
+    dataset_id: str = Field(
+        ...,
+        alias="datasetId",
+        description="Identifier of the dataset containing the field.",
+    )
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    filter: WizardV1FiltersItemSchemaFilter
+
+
+class WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings
+
+
+class WizardFieldSchemaVariant1BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardFieldSchemaVariant1BackgroundSettingsSettings
+
+
+class WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1Settings
+
+
+class WizardFieldSchemaVariant1FieldsItemBackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardFieldSchemaVariant1FieldsItemBackgroundSettingsSettings
+
+
+class WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings
+
+
+class WizardFieldSchemaVariant2BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardFieldSchemaVariant2BackgroundSettingsSettings
+
+
+class WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1Settings
+
+
+class WizardFieldSchemaVariant3BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardFieldSchemaVariant3BackgroundSettingsSettings
+
+
+class WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1Settings
+
+
+class WizardFieldSchemaVariant4BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardFieldSchemaVariant4BackgroundSettingsSettings
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1Settings
+
+
+class WizardPseudoFieldSchemaVariant1BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardPseudoFieldSchemaVariant1BackgroundSettingsSettings
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1(APIModel):
+    color_type: Literal["gradient"] = Field(
+        ..., alias="colorType", description="Use a gradient to color bars."
+    )
+    settings: WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1Settings
+
+
+class WizardPseudoFieldSchemaVariant2BackgroundSettings(APIModel):
+    """Conditional background settings."""
+
+    enabled: bool = Field(..., description="Whether conditional background coloring is enabled.")
+    color_field_guid: str = Field(
+        ...,
+        alias="colorFieldGuid",
+        description="Identifier of the field used to color the background.",
+    )
+    settings_id: str = Field(
+        ...,
+        alias="settingsId",
+        description="Identifier of the background color settings.",
+    )
+    settings: WizardPseudoFieldSchemaVariant2BackgroundSettingsSettings
+
+
+class WizardV1GeolayerLayerSchemaVariant1Filters(APIModel):
+    """Filter configuration."""
+
+    items: list[WizardV1FiltersItemSchema] | None = Field(
+        default=None, description="Filters applied to the layer."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant2Filters(APIModel):
+    """Filter configuration."""
+
+    items: list[WizardV1FiltersItemSchema] | None = Field(
+        default=None, description="Filters applied to the layer."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant3Filters(APIModel):
+    """Filter configuration."""
+
+    items: list[WizardV1FiltersItemSchema] | None = Field(
+        default=None, description="Filters applied to the layer."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant4Filters(APIModel):
+    """Filter configuration."""
+
+    items: list[WizardV1FiltersItemSchema] | None = Field(
+        default=None, description="Filters applied to the layer."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant5Filters(APIModel):
+    """Filter configuration."""
+
+    items: list[WizardV1FiltersItemSchema] | None = Field(
+        default=None, description="Filters applied to the layer."
+    )
+
+
+class WizardV1ConfigSchemaSourcesLinksItem(APIModel):
+    id: str = Field(..., description="Dataset link identifier.")
+    fields: dict[str, WizardV1ConfigSchemaSourcesLinksItemFieldsValue] = Field(
+        ..., description="Linked field information keyed by dataset identifier."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1ChartSettings(APIModel):
+    """Chart configuration."""
+
+    title: str | None = Field(default=None, description="Chart title.")
+    title_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="titleMode",
+        description="Whether the chart title is displayed.",
+    )
+    legend_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="legendMode",
+        description="Whether the chart legend is displayed.",
+    )
+    tooltip: Literal["show", "hide"] | str | None = Field(
+        default=None, description="Whether chart tooltips are displayed."
+    )
+    tooltip_sum: Literal["on", "off"] | str | None = Field(
+        default=None,
+        alias="tooltipSum",
+        description="Whether tooltips include a total value.",
+    )
+    feed: str | None = Field(default=None, description="Comment feed identifier.")
+    navigator_settings: (
+        WizardV1ConfigSchemaVisualizationVariant1ChartSettingsNavigatorSettings | None
+    ) = Field(default=None, alias="navigatorSettings")
+
+
+class WizardV1ConfigSchemaVisualizationVariant2ChartSettings(APIModel):
+    """Chart configuration."""
+
+    title: str | None = Field(default=None, description="Chart title.")
+    title_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="titleMode",
+        description="Whether the chart title is displayed.",
+    )
+    legend_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="legendMode",
+        description="Whether the chart legend is displayed.",
+    )
+    tooltip: Literal["show", "hide"] | str | None = Field(
+        default=None, description="Whether chart tooltips are displayed."
+    )
+    tooltip_sum: Literal["on", "off"] | str | None = Field(
+        default=None,
+        alias="tooltipSum",
+        description="Whether tooltips include a total value.",
+    )
+    feed: str | None = Field(default=None, description="Comment feed identifier.")
+    navigator_settings: (
+        WizardV1ConfigSchemaVisualizationVariant2ChartSettingsNavigatorSettings | None
+    ) = Field(default=None, alias="navigatorSettings")
+
+
+class WizardV1ConfigSchemaVisualizationVariant3ChartSettings(APIModel):
+    """Chart configuration."""
+
+    title: str | None = Field(default=None, description="Chart title.")
+    title_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="titleMode",
+        description="Whether the chart title is displayed.",
+    )
+    legend_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="legendMode",
+        description="Whether the chart legend is displayed.",
+    )
+    tooltip: Literal["show", "hide"] | str | None = Field(
+        default=None, description="Whether chart tooltips are displayed."
+    )
+    tooltip_sum: Literal["on", "off"] | str | None = Field(
+        default=None,
+        alias="tooltipSum",
+        description="Whether tooltips include a total value.",
+    )
+    feed: str | None = Field(default=None, description="Comment feed identifier.")
+    navigator_settings: (
+        WizardV1ConfigSchemaVisualizationVariant3ChartSettingsNavigatorSettings | None
+    ) = Field(default=None, alias="navigatorSettings")
+
+
+class WizardV1ConfigSchemaVisualizationVariant4ChartSettings(APIModel):
+    """Chart configuration."""
+
+    title: str | None = Field(default=None, description="Chart title.")
+    title_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="titleMode",
+        description="Whether the chart title is displayed.",
+    )
+    legend_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="legendMode",
+        description="Whether the chart legend is displayed.",
+    )
+    tooltip: Literal["show", "hide"] | str | None = Field(
+        default=None, description="Whether chart tooltips are displayed."
+    )
+    tooltip_sum: Literal["on", "off"] | str | None = Field(
+        default=None,
+        alias="tooltipSum",
+        description="Whether tooltips include a total value.",
+    )
+    feed: str | None = Field(default=None, description="Comment feed identifier.")
+    navigator_settings: (
+        WizardV1ConfigSchemaVisualizationVariant4ChartSettingsNavigatorSettings | None
+    ) = Field(default=None, alias="navigatorSettings")
+    stacking: Literal["on", "off"] | str | None = Field(
+        default=None, description="Whether area series are stacked."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant5ChartSettings(APIModel):
+    """Chart configuration."""
+
+    title: str | None = Field(default=None, description="Chart title.")
+    title_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="titleMode",
+        description="Whether the chart title is displayed.",
+    )
+    legend_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="legendMode",
+        description="Whether the chart legend is displayed.",
+    )
+    tooltip: Literal["show", "hide"] | str | None = Field(
+        default=None, description="Whether chart tooltips are displayed."
+    )
+    tooltip_sum: Literal["on", "off"] | str | None = Field(
+        default=None,
+        alias="tooltipSum",
+        description="Whether tooltips include a total value.",
+    )
+    feed: str | None = Field(default=None, description="Comment feed identifier.")
+    navigator_settings: (
+        WizardV1ConfigSchemaVisualizationVariant5ChartSettingsNavigatorSettings | None
+    ) = Field(default=None, alias="navigatorSettings")
+
+
+class WizardFieldSchemaVariant1BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant1
+        | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant2
+        | WizardFieldSchemaVariant1BarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardFieldSchemaVariant1BarsSettingsScaleVariant1
+        | WizardFieldSchemaVariant1BarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardFieldSchemaVariant1FieldsItemBarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant1
+        | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant2
+        | WizardFieldSchemaVariant1FieldsItemBarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant1
+        | WizardFieldSchemaVariant1FieldsItemBarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardFieldSchemaVariant2BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant1
+        | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant2
+        | WizardFieldSchemaVariant2BarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardFieldSchemaVariant2BarsSettingsScaleVariant1
+        | WizardFieldSchemaVariant2BarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardFieldSchemaVariant3BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant1
+        | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant2
+        | WizardFieldSchemaVariant3BarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardFieldSchemaVariant3BarsSettingsScaleVariant1
+        | WizardFieldSchemaVariant3BarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardFieldSchemaVariant4BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant1
+        | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant2
+        | WizardFieldSchemaVariant4BarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardFieldSchemaVariant4BarsSettingsScaleVariant1
+        | WizardFieldSchemaVariant4BarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant1BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant1
+        | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant2
+        | WizardPseudoFieldSchemaVariant1BarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant1
+        | WizardPseudoFieldSchemaVariant1BarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardPseudoFieldSchemaVariant2BarsSettings(APIModel):
+    """In-cell bar settings."""
+
+    enabled: bool = Field(..., description="Whether to display bars in table cells.")
+    color_settings: (
+        WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant1
+        | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant2
+        | WizardPseudoFieldSchemaVariant2BarsSettingsColorSettingsVariant3
+    ) = Field(..., alias="colorSettings", description="Bar color settings.")
+    show_labels: bool = Field(
+        ..., alias="showLabels", description="Whether to display values over bars."
+    )
+    align: Literal["left", "right", "default"] | str = Field(
+        ..., description="Bar alignment within table cells."
+    )
+    scale: (
+        WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant1
+        | WizardPseudoFieldSchemaVariant2BarsSettingsScaleVariant2
+    ) = Field(..., description="Scale used to calculate bar lengths.")
+    show_bars_in_totals: bool = Field(
+        ...,
+        alias="showBarsInTotals",
+        description="Whether to display bars in total rows.",
+    )
+
+
+class WizardV1ConfigSchemaSources(APIModel):
+    """Data sources, chart-local field updates, dataset links, hierarchies, and filters used by the chart."""
+
+    datasets_ids: list[str] = Field(
+        ...,
+        alias="datasetsIds",
+        description="Datasets used by the chart to retrieve data.",
+    )
+    updates: list[WizardV1ConfigSchemaSourcesUpdatesItem] | None = Field(
+        default=None,
+        description="Operations that add, update, or delete chart-local fields.",
+    )
+    links: list[WizardV1ConfigSchemaSourcesLinksItem] | None = Field(
+        default=None,
+        description="Fields used to link datasets in multi-dataset charts.",
+    )
+    hierarchies: list[WizardV1ConfigSchemaSourcesHierarchiesItem] | None = Field(
+        default=None,
+        description="Sets of fields used for interactive drill-down in the chart.",
+    )
+    filters: list[WizardV1FiltersItemSchema] | None = Field(
+        default=None, description="Filters applied to chart data."
+    )
+
+
+class WizardFieldSchemaVariant1FieldsItem(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardFieldSchemaVariant1FieldsItemFormatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardFieldSchemaVariant1FieldsItemBarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardFieldSchemaVariant1FieldsItemSubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardFieldSchemaVariant1FieldsItemBackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardFieldSchemaVariant1FieldsItemColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardFieldSchemaVariant1FieldsItemHintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    guid: str = Field(..., description="Field identifier.")
+    dataset_id: str = Field(
+        ...,
+        alias="datasetId",
+        description="Identifier of the dataset containing the field.",
+    )
+
+
+class WizardFieldSchemaVariant2(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardFieldSchemaVariant2Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardFieldSchemaVariant2BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardFieldSchemaVariant2SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardFieldSchemaVariant2BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardFieldSchemaVariant2ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardFieldSchemaVariant2HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    guid: str = Field(..., description="Field identifier.")
+    dataset_id: str = Field(
+        ...,
+        alias="datasetId",
+        description="Identifier of the dataset containing the field.",
+    )
+
+
+class WizardFieldSchemaVariant3(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardFieldSchemaVariant3Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardFieldSchemaVariant3BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardFieldSchemaVariant3SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardFieldSchemaVariant3BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardFieldSchemaVariant3ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardFieldSchemaVariant3HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    title: Literal["Measure Names"] = Field(
+        ..., description="Title identifying the Measure Names pseudo-field."
+    )
+    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
+    data_type: Literal["string"] = Field(
+        ..., description="String data type of the Measure Names pseudo-field."
+    )
+
+
+class WizardFieldSchemaVariant4(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardFieldSchemaVariant4Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardFieldSchemaVariant4BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardFieldSchemaVariant4SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardFieldSchemaVariant4BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardFieldSchemaVariant4ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardFieldSchemaVariant4HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    title: Literal["Measure Values"] = Field(
+        ..., description="Title identifying the Measure Values pseudo-field."
+    )
+    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
+    data_type: Literal["float"] = Field(
+        ..., description="Numeric data type of the Measure Values pseudo-field."
+    )
+
+
+class WizardPseudoFieldSchemaVariant1(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardPseudoFieldSchemaVariant1Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardPseudoFieldSchemaVariant1BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardPseudoFieldSchemaVariant1SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardPseudoFieldSchemaVariant1BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardPseudoFieldSchemaVariant1ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardPseudoFieldSchemaVariant1HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    title: Literal["Measure Names"] = Field(
+        ..., description="Title identifying the Measure Names pseudo-field."
+    )
+    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
+    data_type: Literal["string"] = Field(
+        ..., description="String data type of the Measure Names pseudo-field."
+    )
+
+
+class WizardPseudoFieldSchemaVariant2(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardPseudoFieldSchemaVariant2Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardPseudoFieldSchemaVariant2BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardPseudoFieldSchemaVariant2SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardPseudoFieldSchemaVariant2BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardPseudoFieldSchemaVariant2ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardPseudoFieldSchemaVariant2HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    title: Literal["Measure Values"] = Field(
+        ..., description="Title identifying the Measure Values pseudo-field."
+    )
+    type: Literal["PSEUDO"] = Field(..., description="Field type identifying a pseudo-field.")
+    data_type: Literal["float"] = Field(
+        ..., description="Numeric data type of the Measure Values pseudo-field."
+    )
+
+
+class WizardLabelsItemSchemaModel(WizardFieldSchemaVariant2, WizardLabelsItemSchema):
+    pass
+
+
+class WizardLabelsItemSchemaModel1(WizardFieldSchemaVariant3, WizardLabelsItemSchema):
+    pass
+
+
+class WizardLabelsItemSchemaModel2(WizardFieldSchemaVariant4, WizardLabelsItemSchema):
+    pass
+
+
+class WizardPseudoFieldSchema(
+    RootModel[WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2]
+):
+    root: WizardPseudoFieldSchemaVariant1 | WizardPseudoFieldSchemaVariant2
+
+
+class WizardSortItemSchemaModel(WizardPseudoFieldSchemaVariant1, WizardSortItemSchema):
+    pass
+
+
+class WizardSortItemSchemaModel1(WizardPseudoFieldSchemaVariant2, WizardSortItemSchema):
+    pass
+
+
+class WizardSortItemSchemaModel2(RootModel[WizardSortItemSchemaModel | WizardSortItemSchemaModel1]):
+    root: WizardSortItemSchemaModel | WizardSortItemSchemaModel1
+
+
+class WizardSortItemSchemaModel3(
+    RootModel[WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel2]
+):
+    root: WizardSortItemSchemaVariant1 | WizardSortItemSchemaModel2
+
+
+class WizardFieldSchemaVariant1(APIModel):
+    fake_title: str | None = Field(
+        default=None,
+        alias="fakeTitle",
+        description="Chart-local display title override for the field.",
+    )
+    markup_type: Literal["none", "md", "html"] | str | None = Field(
+        default=None,
+        alias="markupType",
+        description="Markup type used to render field values.",
+    )
+    formatting: WizardFieldSchemaVariant1Formatting | None = None
+    format: str | None = Field(
+        default=None,
+        description="Date or datetime format, separate from numeric formatting.",
+    )
+    hide_label_mode: Literal["show", "hide"] | str | None = Field(
+        default=None,
+        alias="hideLabelMode",
+        description="Whether to hide the field label.",
+    )
+    bars_settings: WizardFieldSchemaVariant1BarsSettings | None = Field(
+        default=None, alias="barsSettings"
+    )
+    sub_totals_settings: WizardFieldSchemaVariant1SubTotalsSettings | None = Field(
+        default=None, alias="subTotalsSettings"
+    )
+    background_settings: WizardFieldSchemaVariant1BackgroundSettings | None = Field(
+        default=None, alias="backgroundSettings"
+    )
+    column_settings: WizardFieldSchemaVariant1ColumnSettings | None = Field(
+        default=None, alias="columnSettings"
+    )
+    hint_settings: WizardFieldSchemaVariant1HintSettings | None = Field(
+        default=None, alias="hintSettings"
+    )
+    guid: str = Field(..., description="Hierarchy identifier.")
+    title: str = Field(..., description="Hierarchy display title.")
+    data_type: Literal["hierarchy"] = Field(
+        ..., description="Data type identifying this field as a hierarchy."
+    )
+    fields: list[WizardFieldSchemaVariant1FieldsItem] = Field(
+        ..., description="Fields included in the hierarchy."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant3Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant2Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1CombinedChartLayerSchemaVariant3Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant2Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant3Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant4Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant5Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant6Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant7Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant8Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant9Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant10Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant11Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant14Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant15Sort(APIModel):
+    """Sorting configuration."""
+
+    items: list[WizardSortItemSchemaModel3] | None = Field(
+        default=None, description="Chart sorting rules."
+    )
+
+
+class WizardFieldSchema(
+    RootModel[
+        WizardFieldSchemaVariant1
+        | WizardFieldSchemaVariant2
+        | WizardFieldSchemaVariant3
+        | WizardFieldSchemaVariant4
+    ]
+):
+    root: (
+        WizardFieldSchemaVariant1
+        | WizardFieldSchemaVariant2
+        | WizardFieldSchemaVariant3
+        | WizardFieldSchemaVariant4
+    )
+
+
+class WizardLabelsItemSchemaModel3(WizardFieldSchemaVariant1, WizardLabelsItemSchema):
+    pass
+
+
+class WizardLabelsItemSchemaModel4(
+    RootModel[
+        WizardLabelsItemSchemaModel3
+        | WizardLabelsItemSchemaModel
+        | WizardLabelsItemSchemaModel1
+        | WizardLabelsItemSchemaModel2
+    ]
+):
+    root: (
+        WizardLabelsItemSchemaModel3
+        | WizardLabelsItemSchemaModel
+        | WizardLabelsItemSchemaModel1
+        | WizardLabelsItemSchemaModel2
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant1Points(APIModel):
+    """Point coordinate configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields containing point coordinates.")
+
+
+class WizardV1GeolayerLayerSchemaVariant1Size(APIModel):
+    """Point size configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to determine map point sizes."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant1SizeSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant1Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant1ColorsSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant1Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as point labels."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant1Tooltip(APIModel):
+    """Tooltip configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields displayed in point tooltips.")
+    settings: WizardV1GeolayerLayerSchemaVariant1TooltipSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant2Points(APIModel):
+    """Point coordinate configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields containing point coordinates.")
+
+
+class WizardV1GeolayerLayerSchemaVariant2Size(APIModel):
+    """Point size configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to determine map point sizes."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant2SizeSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant2Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant2ColorsSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant2Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as point labels."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant2Tooltip(APIModel):
+    """Tooltip configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields displayed in point tooltips.")
+    settings: WizardV1GeolayerLayerSchemaVariant2TooltipSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant3Polylines(APIModel):
+    """Polyline configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ..., description="Fields containing polyline coordinates."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant3PolylinesSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant3Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Measures displayed in polyline tooltips."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant3Grouping(APIModel):
+    """Grouping configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to group polyline points."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant3Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant3ColorsSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant4Polygons(APIModel):
+    """Polygon configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields containing polygon geometry.")
+
+
+class WizardV1GeolayerLayerSchemaVariant4Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant4ColorsSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant4Tooltip(APIModel):
+    """Tooltip configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields displayed in polygon tooltips.")
+    settings: WizardV1GeolayerLayerSchemaVariant4TooltipSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant5Points(APIModel):
+    """Point coordinate configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ..., description="Fields containing heatmap point coordinates."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant5Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1GeolayerLayerSchemaVariant5ColorsSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1CombinedChartLayerSchemaVariant1XSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Y(APIModel):
+    """Primary Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the primary Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant1YSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Y2(APIModel):
+    """Secondary Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the secondary Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant1Y2Settings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant1ColorsSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Shapes(APIModel):
+    """Line shape configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for line encoding."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant1ShapesSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant1LabelsSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant2X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1CombinedChartLayerSchemaVariant2XSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant2Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant2YSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant2Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant2ColorsSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant2Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant2LabelsSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant3X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1CombinedChartLayerSchemaVariant3XSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant3Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant3YSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant3Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant3ColorsSettings | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant3Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1CombinedChartLayerSchemaVariant3LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant1XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Y(APIModel):
+    """Primary Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the primary Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant1YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Y2(APIModel):
+    """Secondary Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the secondary Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant1Y2Settings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant1ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Shapes(APIModel):
+    """Line shape configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for line encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant1ShapesSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant1LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1Segments(APIModel):
+    """Segmentation configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to split the chart into segments."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant2X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant2XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant2Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant2YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant2Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant2ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant2Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant2LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant2Segments(APIModel):
+    """Segmentation configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to split the chart into segments."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant3X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant3XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant3Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant3YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant3Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant3ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant3Segments(APIModel):
+    """Segmentation configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to split the chart into segments."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant3Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant3LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant4X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant4XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant4Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant4YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant4Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant4ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant4Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant4LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant4Segments(APIModel):
+    """Segmentation configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to split the chart into segments."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant5X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant5XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant5Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the Y-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant5YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant5Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant5ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant5Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant5LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant5Segments(APIModel):
+    """Segmentation configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used to split the chart into segments."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant6X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the X-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant6XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant6Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the Y-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant6YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant6Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant6ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant6Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant6LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant7X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Fields placed on the X-axis. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant7XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant7Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the Y-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant7YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant7Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant7ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant7Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as data labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant7LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant8Dimensions(APIModel):
+    """Dimension configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ..., description="Dimensions used to create funnel stages."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant8Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Measures used to size funnel stages. Measures only: a dimension placed here needs an aggregation.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant8Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields used to assign stage colors.")
+    settings: WizardV1ConfigSchemaVisualizationVariant8ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant8Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as stage labels."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant8LabelsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant9X(APIModel):
+    """X-axis configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields placed on the X-axis.")
+    settings: WizardV1ConfigSchemaVisualizationVariant9XSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant9Y(APIModel):
+    """Y-axis configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields placed on the Y-axis."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant9YSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant9Points(APIModel):
+    """Point grouping configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
+        description="Fields used to group points and add tooltip information.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant9Size(APIModel):
+    """Point size configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None,
+        description="Fields used to determine point sizes. Measures only: a dimension placed here needs an aggregation.",
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant9SizeSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant9Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant9ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant9Shapes(APIModel):
+    """Marker shape configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for shape encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant9ShapesSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant10Dimensions(APIModel):
+    """Dimension configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Dimensions used to create pie slices.")
+
+
+class WizardV1ConfigSchemaVisualizationVariant10Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant10ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant10Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Measures used to determine slice sizes. Measures only: a dimension placed here needs an aggregation.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant10Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as slice labels."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant11Dimensions(APIModel):
+    """Dimension configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Dimensions used to create pie slices.")
+
+
+class WizardV1ConfigSchemaVisualizationVariant11Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] | None = Field(
+        default=None, description="Fields used for color encoding."
+    )
+    settings: WizardV1ConfigSchemaVisualizationVariant11ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant11Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Measures used to determine slice sizes. Measures only: a dimension placed here needs an aggregation.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant11Labels(APIModel):
+    """Data label configuration."""
+
+    items: list[WizardLabelsItemSchemaModel4] | None = Field(
+        default=None, description="Fields whose values are displayed as slice labels."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant12Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Measures displayed by the metric. Measures only: a dimension placed here needs an aggregation.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant13Dimensions(APIModel):
+    """Dimension configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ..., description="Dimensions used to group treemap nodes."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant13Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Measures used to size treemap nodes. Measures only: a dimension placed here needs an aggregation.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant13Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields used to assign node colors.")
+    settings: WizardV1ConfigSchemaVisualizationVariant13ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant14Columns(APIModel):
+    """Column configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields displayed as table columns.")
+
+
+class WizardV1ConfigSchemaVisualizationVariant14Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields used for conditional coloring.")
+    settings: WizardV1ConfigSchemaVisualizationVariant14ColorsSettings | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant15Columns(APIModel):
+    """Column configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ..., description="Dimensions displayed as pivot columns."
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant15Rows(APIModel):
+    """Row configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Dimensions displayed as pivot rows.")
+
+
+class WizardV1ConfigSchemaVisualizationVariant15Measures(APIModel):
+    """Measure configuration."""
+
+    items: list[WizardFieldSchema] = Field(
+        ...,
+        description="Measures displayed in pivot cells. Measures only: a dimension placed here needs an aggregation.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant15Colors(APIModel):
+    """Color configuration."""
+
+    items: list[WizardFieldSchema] = Field(..., description="Fields used for conditional coloring.")
+    settings: WizardV1ConfigSchemaVisualizationVariant15ColorsSettings | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant1(APIModel):
+    type: Literal["geopoint"] = Field(..., description="Geopoint layer type.")
+    layer_settings: WizardV1GeolayerLayerSchemaVariant1LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    points: WizardV1GeolayerLayerSchemaVariant1Points
+    size: WizardV1GeolayerLayerSchemaVariant1Size | None = None
+    colors: WizardV1GeolayerLayerSchemaVariant1Colors | None = None
+    labels: WizardV1GeolayerLayerSchemaVariant1Labels | None = None
+    tooltip: WizardV1GeolayerLayerSchemaVariant1Tooltip | None = None
+    filters: WizardV1GeolayerLayerSchemaVariant1Filters | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant2(APIModel):
+    layer_settings: WizardV1GeolayerLayerSchemaVariant2LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    points: WizardV1GeolayerLayerSchemaVariant2Points
+    size: WizardV1GeolayerLayerSchemaVariant2Size | None = None
+    colors: WizardV1GeolayerLayerSchemaVariant2Colors | None = None
+    labels: WizardV1GeolayerLayerSchemaVariant2Labels | None = None
+    tooltip: WizardV1GeolayerLayerSchemaVariant2Tooltip | None = None
+    filters: WizardV1GeolayerLayerSchemaVariant2Filters | None = None
+    type: Literal["geopoint-with-cluster"] = Field(
+        ..., description="Clustered geopoint layer type."
+    )
+
+
+class WizardV1GeolayerLayerSchemaVariant3(APIModel):
+    type: Literal["polyline"] = Field(..., description="Geopolyline layer type.")
+    layer_settings: WizardV1GeolayerLayerSchemaVariant3LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    polylines: WizardV1GeolayerLayerSchemaVariant3Polylines
+    measures: WizardV1GeolayerLayerSchemaVariant3Measures | None = None
+    grouping: WizardV1GeolayerLayerSchemaVariant3Grouping | None = None
+    colors: WizardV1GeolayerLayerSchemaVariant3Colors | None = None
+    sort: WizardV1GeolayerLayerSchemaVariant3Sort | None = None
+    filters: WizardV1GeolayerLayerSchemaVariant3Filters | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant4(APIModel):
+    type: Literal["geopolygon"] = Field(..., description="Geopolygon layer type.")
+    layer_settings: WizardV1GeolayerLayerSchemaVariant4LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    polygons: WizardV1GeolayerLayerSchemaVariant4Polygons
+    colors: WizardV1GeolayerLayerSchemaVariant4Colors | None = None
+    tooltip: WizardV1GeolayerLayerSchemaVariant4Tooltip | None = None
+    filters: WizardV1GeolayerLayerSchemaVariant4Filters | None = None
+
+
+class WizardV1GeolayerLayerSchemaVariant5(APIModel):
+    type: Literal["heatmap"] = Field(..., description="Geo heatmap layer type.")
+    layer_settings: WizardV1GeolayerLayerSchemaVariant5LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    points: WizardV1GeolayerLayerSchemaVariant5Points
+    colors: WizardV1GeolayerLayerSchemaVariant5Colors | None = None
+    filters: WizardV1GeolayerLayerSchemaVariant5Filters | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant1(APIModel):
+    type: Literal["line"] = Field(..., description="Line layer type.")
+    layer_settings: WizardV1CombinedChartLayerSchemaVariant1LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    x: WizardV1CombinedChartLayerSchemaVariant1X
+    y: WizardV1CombinedChartLayerSchemaVariant1Y | None = None
+    y2: WizardV1CombinedChartLayerSchemaVariant1Y2 | None = None
+    colors: WizardV1CombinedChartLayerSchemaVariant1Colors | None = None
+    shapes: WizardV1CombinedChartLayerSchemaVariant1Shapes | None = None
+    labels: WizardV1CombinedChartLayerSchemaVariant1Labels | None = None
+    sort: WizardV1CombinedChartLayerSchemaVariant1Sort | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant2(APIModel):
+    type: Literal["column"] = Field(..., description="Column layer type.")
+    layer_settings: WizardV1CombinedChartLayerSchemaVariant2LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    x: WizardV1CombinedChartLayerSchemaVariant2X
+    y: WizardV1CombinedChartLayerSchemaVariant2Y | None = None
+    colors: WizardV1CombinedChartLayerSchemaVariant2Colors | None = None
+    labels: WizardV1CombinedChartLayerSchemaVariant2Labels | None = None
+    sort: WizardV1CombinedChartLayerSchemaVariant2Sort | None = None
+
+
+class WizardV1CombinedChartLayerSchemaVariant3(APIModel):
+    type: Literal["area"] = Field(..., description="Area layer type.")
+    layer_settings: WizardV1CombinedChartLayerSchemaVariant3LayerSettings = Field(
+        ..., alias="layerSettings"
+    )
+    x: WizardV1CombinedChartLayerSchemaVariant3X
+    y: WizardV1CombinedChartLayerSchemaVariant3Y | None = None
+    colors: WizardV1CombinedChartLayerSchemaVariant3Colors | None = None
+    labels: WizardV1CombinedChartLayerSchemaVariant3Labels | None = None
+    sort: WizardV1CombinedChartLayerSchemaVariant3Sort | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant1(APIModel):
+    type: Literal["line"] = Field(..., description="Line visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant1ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant1X
+    y: WizardV1ConfigSchemaVisualizationVariant1Y | None = None
+    y2: WizardV1ConfigSchemaVisualizationVariant1Y2 | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant1Colors | None = None
+    shapes: WizardV1ConfigSchemaVisualizationVariant1Shapes | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant1Labels | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant1Sort | None = None
+    segments: WizardV1ConfigSchemaVisualizationVariant1Segments | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant2(APIModel):
+    type: Literal["column"] = Field(..., description="Column visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant2ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant2X
+    y: WizardV1ConfigSchemaVisualizationVariant2Y | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant2Colors | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant2Labels | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant2Sort | None = None
+    segments: WizardV1ConfigSchemaVisualizationVariant2Segments | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant3(APIModel):
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant3ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant3X
+    y: WizardV1ConfigSchemaVisualizationVariant3Y | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant3Colors | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant3Sort | None = None
+    segments: WizardV1ConfigSchemaVisualizationVariant3Segments | None = None
+    type: Literal["column100p"] = Field(..., description="Normalized column visualization type.")
+    labels: WizardV1ConfigSchemaVisualizationVariant3Labels | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant4(APIModel):
+    type: Literal["area"] = Field(..., description="Area visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant4ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant4X
+    y: WizardV1ConfigSchemaVisualizationVariant4Y | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant4Colors | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant4Labels | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant4Sort | None = None
+    segments: WizardV1ConfigSchemaVisualizationVariant4Segments | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant5(APIModel):
+    x: WizardV1ConfigSchemaVisualizationVariant5X
+    y: WizardV1ConfigSchemaVisualizationVariant5Y | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant5Colors | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant5Labels | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant5Sort | None = None
+    segments: WizardV1ConfigSchemaVisualizationVariant5Segments | None = None
+    type: Literal["area100p"] = Field(..., description="Normalized area visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant5ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant6(APIModel):
+    type: Literal["bar"] = Field(..., description="Bar visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant6ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant6X | None = None
+    y: WizardV1ConfigSchemaVisualizationVariant6Y
+    colors: WizardV1ConfigSchemaVisualizationVariant6Colors | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant6Labels | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant6Sort | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant7(APIModel):
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant7ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant7X | None = None
+    y: WizardV1ConfigSchemaVisualizationVariant7Y
+    colors: WizardV1ConfigSchemaVisualizationVariant7Colors | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant7Sort | None = None
+    type: Literal["bar100p"] = Field(..., description="Normalized bar visualization type.")
+    labels: WizardV1ConfigSchemaVisualizationVariant7Labels | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant8(APIModel):
+    type: Literal["funnel"] = Field(..., description="Funnel visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant8ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    dimensions: WizardV1ConfigSchemaVisualizationVariant8Dimensions
+    measures: WizardV1ConfigSchemaVisualizationVariant8Measures
+    colors: WizardV1ConfigSchemaVisualizationVariant8Colors | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant8Labels | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant8Sort | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant9(APIModel):
+    type: Literal["scatter"] = Field(..., description="Scatter visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant9ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    x: WizardV1ConfigSchemaVisualizationVariant9X
+    y: WizardV1ConfigSchemaVisualizationVariant9Y | None = None
+    points: WizardV1ConfigSchemaVisualizationVariant9Points | None = None
+    size: WizardV1ConfigSchemaVisualizationVariant9Size | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant9Colors | None = None
+    shapes: WizardV1ConfigSchemaVisualizationVariant9Shapes | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant9Sort | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant10(APIModel):
+    type: Literal["pie"] = Field(..., description="Pie visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant10ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    dimensions: WizardV1ConfigSchemaVisualizationVariant10Dimensions | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant10Colors | None = None
+    measures: WizardV1ConfigSchemaVisualizationVariant10Measures
+    sort: WizardV1ConfigSchemaVisualizationVariant10Sort | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant10Labels | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant11(APIModel):
+    dimensions: WizardV1ConfigSchemaVisualizationVariant11Dimensions | None = None
+    colors: WizardV1ConfigSchemaVisualizationVariant11Colors | None = None
+    measures: WizardV1ConfigSchemaVisualizationVariant11Measures
+    sort: WizardV1ConfigSchemaVisualizationVariant11Sort | None = None
+    labels: WizardV1ConfigSchemaVisualizationVariant11Labels | None = None
+    type: Literal["donut"] = Field(..., description="Donut visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant11ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant12(APIModel):
+    type: Literal["metric"] = Field(..., description="Metric visualization type.")
+    is_markup: bool | None = Field(
+        default=None,
+        alias="isMarkup",
+        description="Whether the metric value uses the markup data type.",
+    )
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant12ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    measures: WizardV1ConfigSchemaVisualizationVariant12Measures
+    colors: WizardV1ConfigSchemaVisualizationVariant12Colors | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant13(APIModel):
+    type: Literal["treemap"] = Field(..., description="Treemap visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant13ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    dimensions: WizardV1ConfigSchemaVisualizationVariant13Dimensions
+    measures: WizardV1ConfigSchemaVisualizationVariant13Measures
+    colors: WizardV1ConfigSchemaVisualizationVariant13Colors | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant14(APIModel):
+    type: Literal["flatTable"] = Field(..., description="Flat table visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant14ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    columns: WizardV1ConfigSchemaVisualizationVariant14Columns
+    colors: WizardV1ConfigSchemaVisualizationVariant14Colors | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant14Sort | None = None
+
+
+class WizardV1ConfigSchemaVisualizationVariant15(APIModel):
+    type: Literal["pivotTable"] = Field(..., description="Pivot table visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant15ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    columns: WizardV1ConfigSchemaVisualizationVariant15Columns
+    rows: WizardV1ConfigSchemaVisualizationVariant15Rows
+    measures: WizardV1ConfigSchemaVisualizationVariant15Measures
+    colors: WizardV1ConfigSchemaVisualizationVariant15Colors | None = None
+    sort: WizardV1ConfigSchemaVisualizationVariant15Sort | None = None
+
+
+class WizardV1GeolayerLayerSchema(
+    RootModel[
+        WizardV1GeolayerLayerSchemaVariant1
+        | WizardV1GeolayerLayerSchemaVariant2
+        | WizardV1GeolayerLayerSchemaVariant3
+        | WizardV1GeolayerLayerSchemaVariant4
+        | WizardV1GeolayerLayerSchemaVariant5
+    ]
+):
+    root: (
+        WizardV1GeolayerLayerSchemaVariant1
+        | WizardV1GeolayerLayerSchemaVariant2
+        | WizardV1GeolayerLayerSchemaVariant3
+        | WizardV1GeolayerLayerSchemaVariant4
+        | WizardV1GeolayerLayerSchemaVariant5
+    )
+
+
+class WizardV1CombinedChartLayerSchema(
+    RootModel[
+        WizardV1CombinedChartLayerSchemaVariant1
+        | WizardV1CombinedChartLayerSchemaVariant2
+        | WizardV1CombinedChartLayerSchemaVariant3
+    ]
+):
+    root: (
+        WizardV1CombinedChartLayerSchemaVariant1
+        | WizardV1CombinedChartLayerSchemaVariant2
+        | WizardV1CombinedChartLayerSchemaVariant3
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant16(APIModel):
+    type: Literal["geolayer"] = Field(..., description="Geolayer visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant16ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    layers: list[WizardV1GeolayerLayerSchema] = Field(
+        ..., description="Layers included in the map."
+    )
+    selected_layer_id: str | None = Field(
+        default=None,
+        alias="selectedLayerId",
+        description="Identifier of the currently selected layer.",
+    )
+
+
+class WizardV1ConfigSchemaVisualizationVariant17(APIModel):
+    type: Literal["combined-chart"] = Field(..., description="Combined chart visualization type.")
+    chart_settings: WizardV1ConfigSchemaVisualizationVariant17ChartSettings | None = Field(
+        default=None, alias="chartSettings"
+    )
+    layers: list[WizardV1CombinedChartLayerSchema] = Field(
         ..., description="Layers included in the combined chart."
     )
     selected_layer_id: str | None = Field(
@@ -7185,35 +8498,26 @@ class VisualizationModel15(APIModel):
 
 
 class WizardV1ConfigSchema(APIModel):
-    sources: Sources = Field(
-        ...,
-        description="Data sources, chart-local field updates, dataset links, hierarchies, and filters used by the chart.",
-    )
+    sources: WizardV1ConfigSchemaSources
     visualization: (
-        Visualization
-        | VisualizationModel
-        | VisualizationModel1
-        | VisualizationModel2
-        | VisualizationModel3
-        | VisualizationModel4
-        | VisualizationModel5
-        | VisualizationModel6
-        | VisualizationModel7
-        | VisualizationModel8
-        | VisualizationModel9
-        | VisualizationModel10
-        | VisualizationModel11
-        | VisualizationModel12
-        | VisualizationModel13
-        | VisualizationModel14
-        | VisualizationModel15
+        WizardV1ConfigSchemaVisualizationVariant1
+        | WizardV1ConfigSchemaVisualizationVariant2
+        | WizardV1ConfigSchemaVisualizationVariant3
+        | WizardV1ConfigSchemaVisualizationVariant4
+        | WizardV1ConfigSchemaVisualizationVariant5
+        | WizardV1ConfigSchemaVisualizationVariant6
+        | WizardV1ConfigSchemaVisualizationVariant7
+        | WizardV1ConfigSchemaVisualizationVariant8
+        | WizardV1ConfigSchemaVisualizationVariant9
+        | WizardV1ConfigSchemaVisualizationVariant10
+        | WizardV1ConfigSchemaVisualizationVariant11
+        | WizardV1ConfigSchemaVisualizationVariant12
+        | WizardV1ConfigSchemaVisualizationVariant13
+        | WizardV1ConfigSchemaVisualizationVariant14
+        | WizardV1ConfigSchemaVisualizationVariant15
+        | WizardV1ConfigSchemaVisualizationVariant16
+        | WizardV1ConfigSchemaVisualizationVariant17
     ) = Field(..., description="Chart visualization configuration.")
-
-
-class Annotation(APIModel):
-    """Annotation information."""
-
-    description: str | None = Field(default=None, description="Description of the entry.")
 
 
 class WizardV1(APIModel):
@@ -7253,17 +8557,8 @@ class WizardV1(APIModel):
     ) = None
     meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
     links: dict[str, Any] | None = Field(default=None, description="Link information.")
-    annotation: Annotation | None = Field(default=None, description="Annotation information.")
+    annotation: WizardV1Annotation | None = None
     data: WizardV1ConfigSchema
-
-
-class Permissions(APIModel):
-    """Permissions for the chart."""
-
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
 
 
 class GetWizardChartV1Result(APIModel):
@@ -7273,39 +8568,7 @@ class GetWizardChartV1Result(APIModel):
         alias="isFavorite",
         description="Indicates if the chart is marked as favorite.",
     )
-    permissions: Permissions | None = Field(default=None, description="Permissions for the chart.")
-
-
-class GetWizardChartV1Args(RequestBody):
-    chart_id: str = Field(..., alias="chartId", description="ID of the Wizard chart to return.")
-    workbook_id: str | None = Field(
-        default=None,
-        alias="workbookId",
-        description="ID of the workbook the Wizard chart belongs to.",
-    )
-    rev_id: str | None = Field(
-        default=None, alias="revId", description="Version ID for the Wizard chart."
-    )
-    include_permissions: bool | None = Field(
-        default=None,
-        alias="includePermissions",
-        description="Include information on configured permissions in the response.",
-    )
-    include_links: bool | None = Field(
-        default=None,
-        alias="includeLinks",
-        description="Include information on configured links in the response.",
-    )
-    include_favorite: bool | None = Field(
-        default=None,
-        alias="includeFavorite",
-        description="Include favorite status in the response.",
-    )
-    branch: shared.EntryBranch | None = None
-
-
-class DeleteWizardChartArgs(RequestBody):
-    chart_id: str = Field(..., alias="chartId")
+    permissions: GetWizardChartV1ResultPermissions | None = None
 
 
 class UpdateWizardV1Result(APIModel):
@@ -7327,7 +8590,3 @@ class CreateWizardChartV1Result(APIModel):
 class CreateWizardChartV1Args(EntryLocationIdentifiers):
     data: WizardV1ConfigSchema
     annotation: shared.EntryAnnotationArg | None = None
-
-
-class DeleteWizardChartResponse(APIModel):
-    pass

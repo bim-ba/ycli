@@ -4,109 +4,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import ConfigDict, Field, RootModel
+from pydantic import Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
-
-
-class CreatedAt(APIModel):
-    """Time when the cloud environment was created."""
-
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
-
-
-class UpdatedAt(APIModel):
-    """Time when the cloud environment was last updated."""
-
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
-
-
-class Storage(APIModel):
-    """Storage settings of the cloud environment."""
-
-    max_size: str = Field(
-        ...,
-        alias="maxSize",
-        description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
-    )
-
-
-class CloudEnvironment(APIModel):
-    id: str = Field(..., description="ID of the cloud environment.", min_length=1)
-    name: str = Field(..., description="Name of the cloud environment.", min_length=1)
-    description: str | None = Field(
-        default=None, description="Description of the cloud environment."
-    )
-    created_at: CreatedAt = Field(
-        ...,
-        alias="createdAt",
-        description="Time when the cloud environment was created.",
-    )
-    created_by_id: str = Field(
-        ..., alias="createdById", description="ID of the cloud environment creator."
-    )
-    updated_at: UpdatedAt = Field(
-        ...,
-        alias="updatedAt",
-        description="Time when the cloud environment was last updated.",
-    )
-    updated_by_id: str = Field(
-        ...,
-        alias="updatedById",
-        description="ID of the user who last updated the cloud environment.",
-    )
-    status: (
-        Literal[
-            "STATUS_UNSPECIFIED",
-            "CREATING",
-            "READY",
-            "ERROR",
-            "DELETING",
-            "BROKEN",
-        ]
-        | str
-    ) = Field(..., description="Current status of the cloud environment.")
-    status_details: str = Field(
-        ..., alias="statusDetails", description="Details of the current status."
-    )
-    cloud_id: str = Field(
-        ...,
-        alias="cloudId",
-        description="ID of the cloud that hosts the cloud environment.",
-    )
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    subnet_id: str = Field(
-        ...,
-        alias="subnetId",
-        description="ID of the subnet used by the cloud environment.",
-    )
-    security_group_ids: list[str] = Field(
-        ...,
-        alias="securityGroupIds",
-        description="IDs of the security groups used by the cloud environment.",
-    )
-    permissions: dict[str, bool] | None = Field(
-        default=None,
-        description="Permissions of the current user for the cloud environment.",
-    )
-    storage: Storage | None = Field(
-        default=None, description="Storage settings of the cloud environment."
-    )
-
-
-class ListCloudEnvironmentsResult(APIModel):
-    cloud_environments: list[CloudEnvironment] = Field(
-        ...,
-        alias="cloudEnvironments",
-        description="Cloud environments matching the request.",
-    )
-    next_page_token: str = Field(
-        ...,
-        alias="nextPageToken",
-        description="Token for the next page of cloud environments.",
-    )
 
 
 class FilterItem(RootModel[str]):
@@ -153,7 +53,40 @@ class GetCloudEnvironmentArgs(RequestBody):
     )
 
 
-class StorageModel(APIModel):
+class DeleteCloudEnvironmentArgs(RequestBody):
+    id: str = Field(
+        ...,
+        description="ID of the cloud environment to delete.",
+        max_length=50,
+        min_length=1,
+    )
+
+
+class CloudEnvironmentCreatedAt(APIModel):
+    """Time when the cloud environment was created."""
+
+    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+
+
+class CloudEnvironmentUpdatedAt(APIModel):
+    """Time when the cloud environment was last updated."""
+
+    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+
+
+class CloudEnvironmentStorage(APIModel):
+    """Storage settings of the cloud environment."""
+
+    max_size: str = Field(
+        ...,
+        alias="maxSize",
+        description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
+    )
+
+
+class CreateCloudEnvironmentArgsStorage(APIModel):
     """Storage settings of the cloud environment."""
 
     max_size: str = Field(
@@ -161,6 +94,83 @@ class StorageModel(APIModel):
         alias="maxSize",
         description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
         pattern="^\\d+$",
+    )
+
+
+class UpdateCloudEnvironmentArgsStorage(APIModel):
+    """New storage settings of the cloud environment. Fails for an environment created without storage."""
+
+    max_size: str = Field(
+        ...,
+        alias="maxSize",
+        description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
+        pattern="^\\d+$",
+    )
+
+
+class CloudEnvironment(APIModel):
+    id: str = Field(..., description="ID of the cloud environment.", min_length=1)
+    name: str = Field(..., description="Name of the cloud environment.", min_length=1)
+    description: str | None = Field(
+        default=None, description="Description of the cloud environment."
+    )
+    created_at: CloudEnvironmentCreatedAt = Field(..., alias="createdAt")
+    created_by_id: str = Field(
+        ..., alias="createdById", description="ID of the cloud environment creator."
+    )
+    updated_at: CloudEnvironmentUpdatedAt = Field(..., alias="updatedAt")
+    updated_by_id: str = Field(
+        ...,
+        alias="updatedById",
+        description="ID of the user who last updated the cloud environment.",
+    )
+    status: (
+        Literal[
+            "STATUS_UNSPECIFIED",
+            "CREATING",
+            "READY",
+            "ERROR",
+            "DELETING",
+            "BROKEN",
+        ]
+        | str
+    ) = Field(..., description="Current status of the cloud environment.")
+    status_details: str = Field(
+        ..., alias="statusDetails", description="Details of the current status."
+    )
+    cloud_id: str = Field(
+        ...,
+        alias="cloudId",
+        description="ID of the cloud that hosts the cloud environment.",
+    )
+    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
+    subnet_id: str = Field(
+        ...,
+        alias="subnetId",
+        description="ID of the subnet used by the cloud environment.",
+    )
+    security_group_ids: list[str] = Field(
+        ...,
+        alias="securityGroupIds",
+        description="IDs of the security groups used by the cloud environment.",
+    )
+    permissions: dict[str, bool] | None = Field(
+        default=None,
+        description="Permissions of the current user for the cloud environment.",
+    )
+    storage: CloudEnvironmentStorage | None = None
+
+
+class ListCloudEnvironmentsResult(APIModel):
+    cloud_environments: list[CloudEnvironment] = Field(
+        ...,
+        alias="cloudEnvironments",
+        description="Cloud environments matching the request.",
+    )
+    next_page_token: str = Field(
+        ...,
+        alias="nextPageToken",
+        description="Token for the next page of cloud environments.",
     )
 
 
@@ -195,28 +205,12 @@ class CreateCloudEnvironmentArgs(RequestBody):
         alias="securityGroupIds",
         description="IDs of the security groups used by the cloud environment.",
     )
-    storage: StorageModel | None = Field(
-        default=None, description="Storage settings of the cloud environment."
-    )
+    storage: CreateCloudEnvironmentArgsStorage | None = None
 
 
-class StorageModel1(APIModel):
-    """New storage settings of the cloud environment. Fails for an environment created without storage."""
-
-    max_size: str = Field(
-        ...,
-        alias="maxSize",
-        description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
-        pattern="^\\d+$",
-    )
-
-
-class UpdateCloudEnvironmentArgs(APIModel):
+class UpdateCloudEnvironmentArgs(RequestBody):
     """Only the fields passed in the request are updated; at least one of them is required. The network and the cloud cannot be changed."""
 
-    model_config = ConfigDict(
-        extra="forbid",
-    )
     id: str = Field(
         ...,
         description="ID of the cloud environment to update.",
@@ -239,16 +233,4 @@ class UpdateCloudEnvironmentArgs(APIModel):
         alias="securityGroupIds",
         description="New IDs of the security groups used by the cloud environment.",
     )
-    storage: StorageModel1 | None = Field(
-        default=None,
-        description="New storage settings of the cloud environment. Fails for an environment created without storage.",
-    )
-
-
-class DeleteCloudEnvironmentArgs(RequestBody):
-    id: str = Field(
-        ...,
-        description="ID of the cloud environment to delete.",
-        max_length=50,
-        min_length=1,
-    )
+    storage: UpdateCloudEnvironmentArgsStorage | None = None

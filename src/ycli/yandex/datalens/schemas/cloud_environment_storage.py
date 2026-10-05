@@ -53,22 +53,6 @@ class CreateBucketUploadUrlArgs(RequestBody):
     )
 
 
-class LastModified(APIModel):
-    """Time when the object was last modified."""
-
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
-    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
-
-
-class GetBucketObjectMetadataResult(APIModel):
-    size: str = Field(..., description="Size of the object in bytes.")
-    last_modified: LastModified | None = Field(
-        default=None,
-        alias="lastModified",
-        description="Time when the object was last modified.",
-    )
-
-
 class GetBucketObjectMetadataArgs(RequestBody):
     cloud_environment_id: str = Field(
         ...,
@@ -114,4 +98,18 @@ class ListBucketObjectsArgs(RequestBody):
         default=None,
         alias="pageToken",
         description="Token for the next page of objects.",
+    )
+
+
+class GetBucketObjectMetadataResultLastModified(APIModel):
+    """Time when the object was last modified."""
+
+    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
+
+
+class GetBucketObjectMetadataResult(APIModel):
+    size: str = Field(..., description="Size of the object in bytes.")
+    last_modified: GetBucketObjectMetadataResultLastModified | None = Field(
+        default=None, alias="lastModified"
     )

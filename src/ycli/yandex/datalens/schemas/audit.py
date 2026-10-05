@@ -54,37 +54,6 @@ class GetAuditEntriesUpdatesArgs(RequestBody):
     )
 
 
-class Permissions(APIModel):
-    """Permissions granted to the user for the entry."""
-
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
-
-
-class GetAuditEntryPermissionsForUserResult(APIModel):
-    permissions: Permissions = Field(
-        ..., description="Permissions granted to the user for the entry."
-    )
-
-
-class GetAuditEntryPermissionsForUserResultModel(APIModel):
-    error: Literal["NOT_FOUND"] = Field(..., description="Error code indicating a missing entry.")
-
-
-class GetAuditEntryPermissionsForUserResultModel1(
-    RootModel[
-        dict[
-            str, GetAuditEntryPermissionsForUserResult | GetAuditEntryPermissionsForUserResultModel
-        ]
-    ]
-):
-    root: dict[
-        str, GetAuditEntryPermissionsForUserResult | GetAuditEntryPermissionsForUserResultModel
-    ]
-
-
 class GetAuditEntryPermissionsForUserArgs(RequestBody):
     entry_ids: list[str] = Field(
         ...,
@@ -96,3 +65,36 @@ class GetAuditEntryPermissionsForUserArgs(RequestBody):
         alias="userId",
         description="ID of the user whose permissions should be returned.",
     )
+
+
+class GetAuditEntryPermissionsForUserResultValueVariant1Permissions(APIModel):
+    """Permissions granted to the user for the entry."""
+
+    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
+    read: bool = Field(..., description="Indicates if there are permissions to read.")
+    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
+    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+
+
+class GetAuditEntryPermissionsForUserResultValueVariant2(APIModel):
+    error: Literal["NOT_FOUND"] = Field(..., description="Error code indicating a missing entry.")
+
+
+class GetAuditEntryPermissionsForUserResultValueVariant1(APIModel):
+    permissions: GetAuditEntryPermissionsForUserResultValueVariant1Permissions
+
+
+class GetAuditEntryPermissionsForUserResult(
+    RootModel[
+        dict[
+            str,
+            GetAuditEntryPermissionsForUserResultValueVariant1
+            | GetAuditEntryPermissionsForUserResultValueVariant2,
+        ]
+    ]
+):
+    root: dict[
+        str,
+        GetAuditEntryPermissionsForUserResultValueVariant1
+        | GetAuditEntryPermissionsForUserResultValueVariant2,
+    ]

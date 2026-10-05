@@ -42,23 +42,32 @@ jobs:
           uv run python scripts/api_drift.py --live > "$RUNNER_TEMP/changes.md"
           cat "$RUNNER_TEMP/changes.md" >> "$GITHUB_STEP_SUMMARY"
       # The models of DataLens are generated from its specification, which is not committed:
-      # this is the one place they are compared with it. A failed fetch fails the run.
+      # this is the one place they are compared with it. A run that cannot regenerate them
+      # still reports the rest: the failure is written into the issue and ends the job last.
       - name: Compare the DataLens models with the published specification
         run: |
+          : > "$RUNNER_TEMP/models.md"
           status=0
           uv run python scripts/gen_datalens_models.py --check --live > "$RUNNER_TEMP/models.txt" || status=$?
           if [ -s "$RUNNER_TEMP/models.txt" ]; then
             {
-              echo
               echo "### DataLens models"
               echo
+              echo "The generated models no longer match the specification DataLens publishes."
               echo "\`uv run scripts/gen_datalens_models.py\` regenerates them:"
               echo
               sed 's/^/- /' "$RUNNER_TEMP/models.txt"
-            } | tee -a "$RUNNER_TEMP/changes.md" >> "$GITHUB_STEP_SUMMARY"
+            } > "$RUNNER_TEMP/models.md"
           elif [ "$status" -ne 0 ]; then
-            exit "$status"
+            {
+              echo "### DataLens models"
+              echo
+              echo "The models could not be regenerated from the published specification"
+              echo "(exit code $status): see the log of the run."
+            } > "$RUNNER_TEMP/models.md"
+            touch "$RUNNER_TEMP/models.failed"
           fi
+          cat "$RUNNER_TEMP/models.md" >> "$GITHUB_STEP_SUMMARY"
       - name: Open, update or close the issue
         env:
           GH_TOKEN: ${{ github.token }}
@@ -68,15 +77,23 @@ jobs:
           gh label create api-drift --color D93F0B --force \
             --description "Yandex changed an API that ycli wraps"
           number="$(gh issue list --label api-drift --state open --json number --jq '.[0].number // empty')"
-          if [ -s "$RUNNER_TEMP/changes.md" ]; then
+          if [ -s "$RUNNER_TEMP/changes.md" ] || [ -s "$RUNNER_TEMP/models.md" ]; then
             {
-              echo "Yandex's published API no longer matches \`scripts/api_snapshot/\`."
-              echo
-              cat "$RUNNER_TEMP/changes.md"
-              echo
-              echo "To accept the change: \`uv run python scripts/api_drift.py --refresh\`, then"
-              echo "\`uv run python scripts/gen_coverage.py --write\`. \`uv run pytest tests/tooling/test_api_drift.py\`"
-              echo "fails on a new operation until ycli wraps it or lists it in \`NOT_WRAPPED\`."
+              echo "What Yandex publishes no longer matches what ycli holds."
+              if [ -s "$RUNNER_TEMP/changes.md" ]; then
+                echo
+                echo "### \`scripts/api_snapshot/\`"
+                echo
+                cat "$RUNNER_TEMP/changes.md"
+                echo
+                echo "To accept the change: \`uv run python scripts/api_drift.py --refresh\`, then"
+                echo "\`uv run python scripts/gen_coverage.py --write\`. \`uv run pytest tests/tooling/test_api_drift.py\`"
+                echo "fails on a new operation until ycli wraps it or lists it in \`NOT_WRAPPED\`."
+              fi
+              if [ -s "$RUNNER_TEMP/models.md" ]; then
+                echo
+                cat "$RUNNER_TEMP/models.md"
+              fi
               echo
               echo "Found by [this run]($RUN_URL); this issue is rewritten by every later run."
             } > "$RUNNER_TEMP/body.md"
@@ -89,3 +106,6 @@ jobs:
           elif [ -n "$number" ]; then
             gh issue close "$number" --comment "The published API matches the snapshot again ($RUN_URL)."
           fi
+      - name: Fail when the DataLens models could not be regenerated
+        if: always()
+        run: test ! -e "$RUNNER_TEMP/models.failed"

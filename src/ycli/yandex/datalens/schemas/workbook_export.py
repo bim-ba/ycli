@@ -36,17 +36,6 @@ class GetWorkbookExportStatusArgs(RequestBody):
     )
 
 
-class Data(APIModel):
-    export: dict[str, Any] = Field(..., description="Serialized workbook export data.")
-    hash: str = Field(..., description="Hash of the serialized workbook export data.")
-
-
-class GetWorkbookExportResultResult(APIModel):
-    export_id: str = Field(..., alias="exportId", description="ID of the workbook export.")
-    data: Data
-    status: shared.WorkbookTransferProcessStatus
-
-
 class GetWorkbookExportResultArgs(RequestBody):
     export_id: str = Field(
         ...,
@@ -63,3 +52,14 @@ class CancelWorkbookExportArgs(RequestBody):
     export_id: str = Field(
         ..., alias="exportId", description="ID of the workbook export to cancel."
     )
+
+
+class GetWorkbookExportResultResultData(APIModel):
+    export: dict[str, Any] = Field(..., description="Serialized workbook export data.")
+    hash: str = Field(..., description="Hash of the serialized workbook export data.")
+
+
+class GetWorkbookExportResultResult(APIModel):
+    export_id: str = Field(..., alias="exportId", description="ID of the workbook export.")
+    data: GetWorkbookExportResultResultData
+    status: shared.WorkbookTransferProcessStatus
