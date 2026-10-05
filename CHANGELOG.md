@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.82.1 (2026-10-05)
+
+### Bug Fixes
+
+- **datalens**: A generated model requires only what tells a kind; the arguments of an operation
+  stay ([#376](https://github.com/bim-ba/ycli/pull/376),
+  [`d98881d`](https://github.com/bim-ba/ycli/commit/d98881d4688691b82d87ec0ee1f6ba0c598c050f))
+
+### Build System
+
+- Re-lock uv.lock for 0.82.0
+  ([`c83b754`](https://github.com/bim-ba/ycli/commit/c83b754e67a6ec3800056fe0a483c16e5414efc0))
+
+### Testing
+
+- **e2e**: The real replies of the API are recorded as fixtures, scrubbed
+  ([#143](https://github.com/bim-ba/ycli/pull/143),
+  [`c0b2fae`](https://github.com/bim-ba/ycli/commit/c0b2faeba6f12673e7680d24c0a6232a2d9daa4f))
+
+
 ## v0.82.0 (2026-10-05)
 
 ### Build System
