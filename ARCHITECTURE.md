@@ -167,7 +167,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   models, with no `timeout=30`-style literal or `MAX_…` constant elsewhere; a fact of the API
   (a page size it accepts, a status code) is a named constant in the module that uses it.
 - **Why:** a second copy drifts, and a hardcoded literal silently beats configuration.
-- **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`);
+- **Check:** `test_arch5_single_sources_of_truth` (+ `test_arch5_guard_bites`); environment access
+  is held by ruff instead (`TID251`, `flake8-tidy-imports.banned-api` in `pyproject.toml`, with
+  `settings.py` as the one file allowed), so `ruff check` fails on it;
   `test_arch5_every_host_home_still_spells_a_host` keeps the allowlist free of stale entries, and
   `test_arch5_a_logger_name_is_spelled_in_one_module` (+ bite test) the logger names single.
 - **Exceptions:** `ARCH5_HOST_HOMES` — the IAM token endpoint, the Yandex ID / API 360 hosts

@@ -1335,8 +1335,6 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
     if rel != Path("settings.py"):
         if _CREDENTIAL_ENV_RE.search(text):
             offenders.append(f"{rel}: credential variable name spelled outside settings.py")
-        if re.search(r"\bos\.(environ|getenv)\b|\bfrom os import (environ|getenv)\b", text):
-            offenders.append(f"{rel}: environment access outside settings.py")
         code = "\n".join(line for line in text.splitlines() if ">>>" not in line)  # not doctests
         if _LITERAL_DEFAULT_RE.search(code):
             offenders.append(f"{rel}: a literal default shadows the HTTP settings")
@@ -1348,7 +1346,7 @@ def _single_source_offenders(rel: Path, text: str) -> list[str]:
 
 
 def test_arch5_single_sources_of_truth():
-    """Version, credentials, org header, hosts, env access and timeouts each have one home."""
+    """Version, credentials, org header, hosts and timeouts each have one home."""
     offenders = [
         finding
         for p in SRC.rglob("*.py")
@@ -1410,9 +1408,6 @@ def test_arch5_guard_bites():
         'headers = {"X-Org-Id": org}',
         'URL = "https://api.wiki.yandex.net/v1"',
         'URL = "https://pypi.org/pypi/other/json"',
-        "token = os.environ['T']",
-        "token = os.getenv('T')",
-        "from os import environ",
         "session.send(request, timeout=30)",
         "def session(*, timeout_seconds: float = 30.0) -> None: ...",
         "def __init__(self, retries: int = 3) -> None: ...",
