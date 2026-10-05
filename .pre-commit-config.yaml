@@ -16,7 +16,7 @@ repos:
         files: ^src/ycli/.*\.py$
       - id: architecture-tests
         name: architecture invariants (ARCH-1..8)
-        entry: uv run pytest tests/test_architecture.py tests/test_snapshots.py tests/test_docs.py -q --no-cov
+        entry: uv run pytest tests/architecture/ tests/test_snapshots.py tests/test_docs.py -q --no-cov
         language: system
         pass_filenames: false
         # The Python surface, plus the live docs tests/test_docs.py scans (keep in sync with

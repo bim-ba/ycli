@@ -20,6 +20,7 @@ from fastmcp.exceptions import McpError, ToolError
 from pydantic import BaseModel
 from typer.testing import CliRunner
 
+from tests.architecture.test_arch1 import ARCH1_SURFACE_ASYMMETRIES
 from tests.contract import (
     UNSTATED,
     Case,
@@ -36,7 +37,6 @@ from tests.full_server import mcp as root_mcp
 from tests.full_server import tool_with_output_schema
 from tests.mock_api import MockAPI
 from tests.snapshots._surface import cli_tree
-from tests.test_architecture import ARCH1_SURFACE_ASYMMETRIES
 from ycli.cli.app import app
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.registry import SERVICES
