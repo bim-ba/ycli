@@ -3,8 +3,6 @@
 Run a subcommand directly: ``uv run ycli wiki pages get <slug>`` (or ``python -m ycli.cli``).
 """
 
-from __future__ import annotations
-
 import logging
 from typing import Annotated
 

@@ -1,7 +1,5 @@
 """Pydantic models for Tracker resolutions (Resolution + ItemList[Resolution] + write bodies)."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

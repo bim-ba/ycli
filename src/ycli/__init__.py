@@ -4,8 +4,6 @@ One codebase, many surfaces: a Typer CLI (``ycli``), a FastMCP server (``ycli mc
 and an importable Python SDK under ``ycli.yandex``. Distributed on PyPI as ``yandex-cli``.
 """
 
-from __future__ import annotations
-
 import logging
 
 # A library never configures logging; it only emits. The CLI and MCP entry points attach a real

@@ -5,8 +5,6 @@ Mirrors ``GET /queues/{id}/localFields`` (array) and
 queue; the same object shape serves both endpoints.
 """
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import APIModel, RequestBody

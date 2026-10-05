@@ -3,8 +3,6 @@
 Every method sends one declaration from :mod:`ycli.yandex.tracker.users.endpoints`.
 """
 
-from __future__ import annotations
-
 from ycli.yandex.core.resource import Resource
 from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.users import endpoints

@@ -10,8 +10,6 @@ Examples:
     <Effect.IDEMPOTENT_WRITE: 'idempotent_write'>
 """
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Effect, Endpoint, Paged, segment

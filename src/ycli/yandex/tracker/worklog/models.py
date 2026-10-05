@@ -1,7 +1,5 @@
 """Pydantic models for Tracker worklog (Worklog + ItemList[Worklog])."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import (

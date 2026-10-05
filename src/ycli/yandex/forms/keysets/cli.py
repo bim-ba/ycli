@@ -1,7 +1,5 @@
 """`forms keysets` commands (reads + writes; download is a binary payload — CLI/SDK only)."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

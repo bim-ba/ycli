@@ -1,7 +1,5 @@
 """`tracker columns` commands (agile board columns)."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

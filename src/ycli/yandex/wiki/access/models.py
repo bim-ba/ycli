@@ -7,8 +7,6 @@ access_lists,owner`` reads them back (see :class:`~ycli.yandex.wiki.pages.models
 Replies keep unknown fields (:class:`~ycli.yandex.models.APIModel`); request bodies refuse them.
 """
 
-from __future__ import annotations
-
 from typing import Any, Literal
 
 from pydantic import Field

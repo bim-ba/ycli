@@ -83,7 +83,7 @@ A request field or parameter that the API accepts and does nothing with stays in
 description begins with `IGNORED_BY_API` (`ycli.yandex.models`), so the CLI help, the MCP
 input schema and the reference say so; its body model inherits `WarnsOnIgnored`, so setting
 it logs a warning (a reply carrying the same name is read silently); `scripts/api_drift.py`
-lists it in `EXPLAINED` with the `IGNORED` reason, and `tests/test_api_drift.py` fails when
+lists it in `EXPLAINED` with the `IGNORED` reason, and `tests/tooling/test_api_drift.py` fails when
 one of the two is missing.
 
 ---
@@ -295,6 +295,10 @@ The CLI/SDK path carries the native model instance and is unaffected; only the M
 `/new-endpoint` (`scripts/new_endpoint.py`) generates a new resource on the httpx2 core;
 `tracker/issues/` and the Forms resources are worked examples.
 
+A module carries `from __future__ import annotations` only where it needs it: a type imported
+under `if TYPE_CHECKING:` or a class named before it is defined (most `client.py`). Elsewhere
+the line does nothing and is left out; from Python 3.14 it is needed nowhere.
+
 **`endpoints.py`** — sans-IO declarations: one function per operation Yandex publishes, returning
 an `Endpoint` (or a `Paged` listing with its core `Pagination`) and named like the client method
 that sends it (`boards.update` sends `endpoints.update`; a builtin's name takes an underscore,
@@ -314,7 +318,7 @@ that sends it (`boards.update` sends `endpoints.update`; a builtin's name takes 
   `wiki` and `forms` clients into every doctest). `+SKIP` only where an example needs a real file
   or the network.
 
-**`models.py`** — `from __future__ import annotations`; inherit `APIModel` (§1); every field
+**`models.py`** — inherit `APIModel` (§1); every field
 carries `Field(description=…)`, which becomes the MCP schema text. Request bodies are typed
 models (`XCreate` / `XUpdate`), discriminated where the API is polymorphic.
 
@@ -331,7 +335,7 @@ check of its own to say it. A reply that does not fit its model is another error
 
 **`cli.py`**:
 
-- `from __future__ import annotations`; `app = typer.Typer(name=…, help=…, no_args_is_help=True)`;
+- `app = typer.Typer(name=…, help=…, no_args_is_help=True)`;
   `--help` works without credentials because a client is built only when a command runs.
 - A command declares the clients it needs as keyword-only parameters
   (`*, tracker: TrackerClient`, or `config: AppConfig`); `ycli.cli.inject` fills them and hides

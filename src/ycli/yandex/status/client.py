@@ -7,8 +7,6 @@ this builds a plain ``httpx2.Client`` and maps every other failure through
 constructor arguments — this never reads the environment (ARCH-7).
 """
 
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass
 from http import HTTPStatus

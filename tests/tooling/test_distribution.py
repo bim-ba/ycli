@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-_ROOT = Path(__file__).resolve().parent.parent
+_ROOT = Path(__file__).resolve().parents[2]
 _PYPROJECT = tomllib.loads((_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 _VERSION = _PYPROJECT["project"]["version"]
 _SERVER_NAME = "io.github.bim-ba/ycli"

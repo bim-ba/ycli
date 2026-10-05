@@ -5,8 +5,6 @@ Examples:
     'issues/DE-1/transitions/close/_execute'
 """
 
-from __future__ import annotations
-
 from http import HTTPMethod
 
 from ycli.yandex.core.endpoint import Endpoint, segment

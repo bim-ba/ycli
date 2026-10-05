@@ -1,7 +1,5 @@
 """`tracker dashboards` commands — create dashboards and add cycle-time widgets."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

@@ -20,8 +20,6 @@ Examples:
     True
 """
 
-from __future__ import annotations
-
 # The one always-served tool: the auth probe an agent needs to explain a failing call.
 STATUS_TOOL = "status_get"
 

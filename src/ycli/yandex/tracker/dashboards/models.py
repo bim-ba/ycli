@@ -1,7 +1,5 @@
 """Pydantic models for Tracker dashboards and their cycle-time widgets."""
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

@@ -6,8 +6,6 @@ A form has one permission per ``action``: ``change`` (edit the form, read its an
 ``public`` (anyone with the link).
 """
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import Field

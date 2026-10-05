@@ -1,7 +1,5 @@
 """Pydantic models for the Tracker changelog (ChangeField + ChangelogEntry)."""
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

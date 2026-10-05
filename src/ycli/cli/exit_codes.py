@@ -4,8 +4,6 @@ Kept apart (no imports) so the root ``--help`` can list the table without loadin
 the CLI; ``ycli.cli.errors.exit_code_for`` maps an exception onto it, the README documents it.
 """
 
-from __future__ import annotations
-
 import enum
 
 

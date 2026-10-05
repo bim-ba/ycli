@@ -1,7 +1,5 @@
 """Pydantic models for Tracker issue links (LinkObject + Link + ItemList[Link])."""
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import Field

@@ -1,7 +1,5 @@
 """`wiki recovery` commands — restore a page deleted via `wiki pages delete`."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer

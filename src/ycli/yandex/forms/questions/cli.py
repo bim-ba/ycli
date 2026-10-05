@@ -1,7 +1,5 @@
 """`forms questions` commands (reads + writes; writes also ship as MCP tools)."""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated, Literal
 

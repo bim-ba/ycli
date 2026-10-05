@@ -5,8 +5,6 @@ requests take up to 100 absences at once. The API names the window ``from``/``to
 code says ``date_from``/``date_to`` (the docs' JSON is accepted as is).
 """
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import AliasChoices, Field

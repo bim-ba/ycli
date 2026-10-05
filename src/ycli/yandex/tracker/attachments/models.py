@@ -1,7 +1,5 @@
 """Pydantic models for Tracker issue attachments (Attachment + ItemList[Attachment])."""
 
-from __future__ import annotations
-
 from pydantic import Field
 
 from ycli.yandex.models import (  # pydantic resolves field types via get_type_hints() at runtime

@@ -1,7 +1,5 @@
 """`forms images` commands: upload (a binary payload, so CLI/SDK only) and clone."""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Annotated
 

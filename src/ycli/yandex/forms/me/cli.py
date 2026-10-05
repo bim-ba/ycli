@@ -1,7 +1,5 @@
 """`forms me` commands."""
 
-from __future__ import annotations
-
 import typer
 
 from ycli.yandex.forms.client import FormsClient

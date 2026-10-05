@@ -1,7 +1,5 @@
 """Models for `ycli auth status` and the `status_get` MCP tool."""
 
-from __future__ import annotations
-
 from typing import Literal
 
 from pydantic import Field

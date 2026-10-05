@@ -10,8 +10,6 @@ Examples:
     >>> configure(LogLevel.INFO, LogFormat.JSON)  # doctest: +SKIP
 """
 
-from __future__ import annotations
-
 import enum
 import json
 import logging

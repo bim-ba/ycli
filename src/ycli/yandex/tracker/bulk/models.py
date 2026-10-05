@@ -7,8 +7,6 @@ The ``--wait`` CLI path drives that poll via :func:`ycli.yandex.polling.poll`, u
 :attr:`BulkChange.is_terminal` as the stop predicate.
 """
 
-from __future__ import annotations
-
 from typing import Any
 
 from pydantic import Field

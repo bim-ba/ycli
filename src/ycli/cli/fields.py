@@ -1,7 +1,5 @@
 """Shared CLI helper — the ``key=value`` field parser behind ``--field`` and ``ycli api -f/-F``."""
 
-from __future__ import annotations
-
 import json
 import re
 import sys

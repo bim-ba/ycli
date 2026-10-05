@@ -4,8 +4,6 @@ Kept free of any HTTP library so cli/mcp may import it under ARCH-2. The core se
 (``core/session.py``) maps a non-2xx response to one of these and raises it.
 """
 
-from __future__ import annotations
-
 import json
 from http import HTTPStatus
 

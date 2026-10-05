@@ -1,7 +1,5 @@
 """`forms history` command: a form's change log."""
 
-from __future__ import annotations
-
 from typing import Annotated
 
 import typer
