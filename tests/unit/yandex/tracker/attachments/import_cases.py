@@ -36,7 +36,7 @@ IMPORT_CASES = [
                 "filename": "renamed.png",
                 "created_at": "2022-05-06T07:08:09.000+0000",
                 "created_by": "16",
-                "data": "PNGDATA",
+                "data": "UE5HREFUQQ==",
             },
         ),
         exchanges=[

@@ -978,8 +978,8 @@ $ ycli tracker worklog list-global [OPTIONS]
 **Options**:
 
 * `--created-by TEXT`: Author login or id.
-* `--from TEXT`: Range start, YYYY-MM-DDThh:mm:ss.
-* `--to TEXT`: Range end, YYYY-MM-DDThh:mm:ss.
+* `--created-from TEXT`: Range start, YYYY-MM-DDThh:mm:ss.
+* `--created-to TEXT`: Range end, YYYY-MM-DDThh:mm:ss.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -3763,8 +3763,8 @@ $ ycli tracker triggers webhook-log-list [OPTIONS] QUEUE_ID TRIGGER_ID
 
 * `--issue-id TEXT`: Scope the logs to one issue key/id.
 * `--limit INTEGER`: Max records (API default 10, max 100).
-* `--from TEXT`: Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).
-* `--to TEXT`: Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).
+* `--date-from TEXT`: Range start (YYYY-MM-DDThh:mm:ss.sss±hhmm).
+* `--date-to TEXT`: Range end (YYYY-MM-DDThh:mm:ss.sss±hhmm).
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
@@ -4315,7 +4315,8 @@ $ ycli tracker entities events-list [OPTIONS] ENTITY_TYPE ID
 
 **Options**:
 
-* `--limit INTEGER`: Max events (default: all).
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
 * `--selected TEXT`: Event id to build the list around.
 * `--new-events-on-top / --no-new-events-on-top`: Newest events first.
 * `--direction TEXT`: forward (the default) or backward.
@@ -4517,7 +4518,7 @@ $ ycli tracker entities comments [OPTIONS] COMMAND [ARGS]...
 
 #### `ycli tracker entities comments list`
 
-List comments on an entity (GET …/comments; --all uses …/comments/_relative).
+List comments on an entity (GET …/comments; --limit or --all pages …/comments/_relative).
 
 **Usage**:
 
@@ -4532,8 +4533,8 @@ $ ycli tracker entities comments list [OPTIONS] ENTITY_TYPE ID
 
 **Options**:
 
-* `--all`: Drain the paginated (_relative) listing.
-* `--limit INTEGER`: Max comments when --all (default: all).
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.

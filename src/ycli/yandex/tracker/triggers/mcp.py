@@ -81,6 +81,12 @@ def webhook_log_list(
         int | None,
         Field(description="Max records (the API's default is 10, its maximum 100)."),
     ] = None,
+    date_from: Annotated[
+        str | None, Field(description="Range start, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+    ] = None,
+    date_to: Annotated[
+        str | None, Field(description="Range end, YYYY-MM-DDThh:mm:ss.sss±hhmm.")
+    ] = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> ItemList[WebhookLogEntry]:
     """The execution log of a trigger's HTTP-request (Webhook) action, newest first.
@@ -88,7 +94,14 @@ def webhook_log_list(
     Each record holds the outbound request and received response for one run. Only Webhook
     actions produce these; a trigger with no HTTP action returns an empty list.
     """
-    return client.triggers.webhook_log_list(queue_id, trigger_id, issue_id=issue_id, limit=limit)
+    return client.triggers.webhook_log_list(
+        queue_id,
+        trigger_id,
+        issue_id=issue_id,
+        limit=limit,
+        date_from=date_from,
+        date_to=date_to,
+    )
 
 
 @mcp.tool(

@@ -423,15 +423,15 @@ all are optional.
 
 *List Tracker org-wide worklog* · read-only
 
-Org-wide worklog entries via ``GET /worklog`` query filters (author / exact timestamp).
+Org-wide worklog entries via ``GET /worklog`` query filters (author, creation time).
 
-A lighter sibling of ``worklog_search`` (which takes a time *range*); both filters are
-optional.
+A lighter sibling of ``worklog_search``; every filter is optional.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `created_by` | string or null |  | Login or id of the record author to filter by. |
-| `created_at` | string or null |  | Creation timestamp to filter by (``YYYY-MM-DDThh:mm:ss``). |
+| `created_from` | string or null |  | Start of the creation-time range (``YYYY-MM-DDThh:mm:ss``). |
+| `created_to` | string or null |  | End of the creation-time range (``YYYY-MM-DDThh:mm:ss``). |
 
 ## `tracker_worklog_create`
 
@@ -1556,10 +1556,10 @@ once. The file travels as base64 in the request, so keep it small.
 
 *Import Tracker issue attachment* · write
 
-Import a text-file attachment onto an issue preserving its original metadata (admin-only).
+Import a file onto an issue with its original author and creation time (admin-only).
 
-``data`` is the file content as text (UTF-8-encoded on upload) — for binary files use the
-CLI (``ycli tracker attachments import``), which reads raw bytes from disk. ``created_at`` uses
+The file travels as base64 in the request, so keep it small; for a large file run
+``ycli tracker attachments import`` instead. ``created_at`` uses
 ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. Returns the imported attachment.
 
 | Parameter | Type | Required | Description |
@@ -1568,7 +1568,7 @@ CLI (``ycli tracker attachments import``), which reads raw bytes from disk. ``cr
 | `filename` | string | yes | Name the imported file gets on the issue. |
 | `created_at` | string | yes | Original creation time, ``YYYY-MM-DDThh:mm:ss.sss±hhmm``. |
 | `created_by` | string | yes | Login or id of the user to record as the file's author. |
-| `data` | string | yes | File content as UTF-8 text (binary files: use the CLI). |
+| `data` | string | yes | The file's bytes, base64-encoded. |
 
 ## `tracker_macros_list`
 
@@ -1681,6 +1681,8 @@ actions produce these; a trigger with no HTTP action returns an empty list.
 | `trigger_id` | integer | yes | Numeric identifier of the trigger. |
 | `issue_id` | string or null |  | Optional issue key/id to scope the logs to one issue. |
 | `limit` | integer or null |  | Max records (the API's default is 10, its maximum 100). |
+| `date_from` | string or null |  | Range start, YYYY-MM-DDThh:mm:ss.sss±hhmm. |
+| `date_to` | string or null |  | Range end, YYYY-MM-DDThh:mm:ss.sss±hhmm. |
 
 ## `tracker_triggers_create`
 
@@ -1890,18 +1892,16 @@ metric widgets, or ``summary,description,entityStatus`` for the basics. Use
 
 *Search Tracker entities* · read-only
 
-Entities of a given type matching a name substring, sorted server-side.
+Entities of a given type that match a name substring and a filter, sorted server-side.
 
-Returns a flat list of entities. Pass ``input_text`` to match part of the name and
-``order_by`` (e.g. ``entityStatus``) to sort. For richer filtering (by author, status,
-followers, …) use the CLI ``tracker entities search --filter`` which accepts an arbitrary
-filter object.
+Returns a flat list of entities. ``body.input`` matches part of the name, ``body.filter``
+is a field → value object (author, status, followers, …), ``body.orderBy`` with
+``body.orderAsc`` sorts, and ``body.rootOnly`` keeps the entities with no parent.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
 | `entity_type` | string | yes | Entity type: ``project``, ``portfolio``, ``goal`` or ``report`` (issue reports). |
-| `input_text` | string or null |  | Substring to match in the entity name. |
-| `order_by` | string or null |  | Field key to sort the results by. |
+| `body` | object | yes | What to find: name substring, filter, sort order; ``{}`` for all. |
 | `fields` | string or null |  | Comma-separated extra fields to include. |
 
 ## `tracker_entities_events_list`

@@ -63,13 +63,16 @@ def get(
         str | None, Field(description="Return only these column slugs (CSV).")
     ] = None,
     only_rows: Annotated[str | None, Field(description="Return only these row ids (CSV).")] = None,
+    revision: Annotated[
+        str | None, Field(description="Load this past revision instead of the current one.")
+    ] = None,
     sort: Annotated[str | None, Field(description="Row sort, e.g. ``slug,-slug2``.")] = None,
     client: WikiClient = Depends(wiki_client),
 ) -> Grid:
     """A single dynamic table (grid) by its UUID, with structure, rows and revision.
 
     Grids are the modern dynamic tables attached to a page; find a grid's id with
-    ``pages_grids_list``. Use ``filter``/``only_cols``/``only_rows``/``sort`` to narrow large
+    ``pages_grids_list``. Use ``row_filter``/``only_cols``/``only_rows``/``sort`` to narrow large
     grids server-side, and ``fields=attributes,user_permissions`` for extra blocks. The returned
     ``revision`` is what any subsequent write must send back.
     """
@@ -79,6 +82,7 @@ def get(
         row_filter=row_filter,
         only_cols=only_cols,
         only_rows=only_rows,
+        revision=revision,
         sort=sort,
     )
 

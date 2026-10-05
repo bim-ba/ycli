@@ -7,7 +7,7 @@ from typing import Any
 
 import httpx2
 import pytest
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel, TypeAdapter
 
 from ycli.yandex.core.endpoint import (
     ENDPOINT_EXTENSION,
@@ -208,3 +208,17 @@ def test_a_reply_that_does_not_fit_the_model_is_a_typed_error():
     assert "the reply to GET things does not fit what ycli expects" in str(caught.value)
     assert caught.value.url == "https://api.example/v1/things"
     assert caught.value.status is None
+
+
+def test_a_reply_a_parser_cannot_read_is_the_same_typed_error():
+    """An endpoint with a parser of its own answers like one with a response type (#328)."""
+    response = httpx2.Response(
+        200, json={"items": "x"}, request=httpx2.Request("GET", "https://api.example/v1/things")
+    )
+    endpoint = Endpoint(
+        HTTPMethod.GET,
+        "things",
+        parser=lambda reply: TypeAdapter(list[int]).validate_json(reply.content),
+    )
+    with pytest.raises(YandexUnexpectedReplyError, match="the reply to GET things does not fit"):
+        endpoint.parse(response)

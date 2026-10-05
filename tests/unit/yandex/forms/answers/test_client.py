@@ -58,3 +58,12 @@ async def test_a_tool_sends_no_selector_as_given(api):
     async with Client(mcp) as client:
         await client.call_tool("forms_answers_get", {})
     assert dict(api.calls[0].url.params) == {}
+
+
+async def test_the_tool_stops_at_its_limit(api):
+    """``forms_answers_list`` takes ``limit`` like the command does (#328)."""
+    answers = [{"id": 1, "data": []}, {"id": 2, "data": []}, {"id": 3, "data": []}]
+    api.add("GET", f"{BASE}/surveys/s1/answers", json={"answers": answers, "columns": []})
+    async with Client(mcp) as client:
+        result = await client.call_tool("forms_answers_list", {"survey_id": "s1", "limit": 2})
+    assert [answer["id"] for answer in result.structured_content["answers"]] == [1, 2]

@@ -120,12 +120,15 @@ CASES = [
             "list-global",
             "--created-by",
             "alice",
-            "--from",
+            "--created-from",
             "2019-01-01",
-            "--to",
+            "--created-to",
             "2019-02-01",
         ],
-        mcp=None,
+        mcp=(
+            "tracker_worklog_list_global",
+            {"created_by": "alice", "created_from": "2019-01-01", "created_to": "2019-02-01"},
+        ),
         exchanges=[
             (
                 Sent(
@@ -141,10 +144,7 @@ CASES = [
         "tracker.worklog.list_global",
         kwargs={"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
         cli=None,
-        mcp=(
-            "tracker_worklog_list_global",
-            {"created_by": "bob", "created_at": "2020-03-04T05:06:07"},
-        ),
+        mcp=None,
         exchanges=[
             (
                 Sent("GET", "worklog", {"createdBy": "bob", "createdAt": "2020-03-04T05:06:07"}),

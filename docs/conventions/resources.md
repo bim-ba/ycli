@@ -63,7 +63,8 @@ suggests the known values, and a tool's schema shows them (`anyOf` of the `enum`
 - **CLI.** Typer has no "one of these or any string" type, so the option is a string built by
   `ycli.cli.typedefs.values_option(SortDirection, "--order", help="Sort direction.")`, which
   takes the values for the help text and the completion from the definition. Do not list the
-  values by hand: `test_an_option_takes_the_values_it_names_from_the_definition_of_the_set`.
+  values by hand: `test_an_option_takes_the_values_it_names_from_the_definition_of_the_set`; an
+  option that must is marked `# violation(value-set): <reason>` above the parameter.
 - **One definition per set**, used by name: a set of one resource in its `models.py`, of
   several in the service's `models.py`, of several services in `ycli.yandex.models`
   (`SortDirection`, `GroupSource`). `test_a_closed_value_set_is_defined_once` fails on a second
@@ -414,7 +415,7 @@ Code that departs from a rule on purpose says so where it does, in one line:
 def logs_get(...) -> ItemList[AutoactionRunEntry]:
 ```
 
-The form is `# violation(<rule>): <reason>`; the rule is one of this page (`naming`, `as-given`) or
+The form is `# violation(<rule>): <reason>`; the rule is one of this page (`naming`, `as-given`, `value-set`) or
 an invariant (`arch-9`). The marker is a comment line of its own, right above the line where the
 departure starts: the `raise`, the `Endpoint(...)`, the `def` of the method. A reviewer who meets
 the code sees that the departure was chosen, and a search for `violation(` lists every one.
