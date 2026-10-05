@@ -71,7 +71,7 @@ class CreateHtmlPageResultEntryMeta(APIModel):
         alias="objectId",
         description="ID of the object containing the HTML content.",
     )
-    policy_version: float | None = Field(
+    policy_version: int | float | None = Field(
         default=None,
         alias="policyVersion",
         description="Version of the security policy injected into the HTML content.",
@@ -115,7 +115,7 @@ class GetHtmlPageResultMeta(APIModel):
         alias="objectId",
         description="ID of the object containing the HTML content.",
     )
-    policy_version: float | None = Field(
+    policy_version: int | float | None = Field(
         default=None,
         alias="policyVersion",
         description="Version of the security policy injected into the HTML content.",
@@ -153,7 +153,7 @@ class UpdateHtmlPageResultEntryMeta(APIModel):
         alias="objectId",
         description="ID of the object containing the HTML content.",
     )
-    policy_version: float | None = Field(
+    policy_version: int | float | None = Field(
         default=None,
         alias="policyVersion",
         description="Version of the security policy injected into the HTML content.",

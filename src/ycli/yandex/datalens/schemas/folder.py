@@ -736,7 +736,7 @@ class ModifyPermissionsArgs(RequestBody):
     nested: bool | None = Field(
         default=None, description="Apply changes recursively to all nested entries."
     )
-    page: float | None = Field(default=None, description="Page number for paginated results.")
-    page_size: float | None = Field(
+    page: int | float | None = Field(default=None, description="Page number for paginated results.")
+    page_size: int | float | None = Field(
         default=None, alias="pageSize", description="Number of results per page."
     )

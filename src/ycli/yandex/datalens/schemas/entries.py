@@ -25,7 +25,9 @@ class GetEntriesRelationsArgs(RequestBody):
         alias="includePermissionsInfo",
         description="Include permission information in the response.",
     )
-    limit: float | None = Field(default=None, description="Maximum number of results to return.")
+    limit: int | float | None = Field(
+        default=None, description="Maximum number of results to return."
+    )
     page_token: str | None = Field(
         default=None,
         alias="pageToken",

@@ -60,7 +60,9 @@ class GetAuditEntriesUpdatesArgs(RequestBody):
     to: AwareDatetime | None = Field(
         default=None, description="End date for filtering entries by updatedAt"
     )
-    limit: float | None = Field(default=None, description="Maximum number of entries to return")
+    limit: int | float | None = Field(
+        default=None, description="Maximum number of entries to return"
+    )
     page_token: str | None = Field(
         default=None, alias="pageToken", description="Token for pagination"
     )

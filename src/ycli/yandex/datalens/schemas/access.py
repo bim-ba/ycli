@@ -78,7 +78,7 @@ class AccessExtBatchListMembersArgs(RequestBody):
         | str
         | None
     ) = Field(default=None, alias="tabId", description="Subject type used to filter members.")
-    page_size: float | None = Field(
+    page_size: int | float | None = Field(
         default=None,
         alias="pageSize",
         description="Maximum number of members to return.",

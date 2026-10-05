@@ -42,7 +42,7 @@ class RequiredParameterInfo(APIModel):
 
 
 class AppmetricaApi(APIModel):
-    accuracy: float | None = None
+    accuracy: int | float | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str | None = None
@@ -61,7 +61,7 @@ class AppmetricaApi(APIModel):
 
 
 class AppmetricaApi2(APIModel):
-    accuracy: float | None = None
+    accuracy: int | float | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     counter_id: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -474,7 +474,7 @@ class KonturMarket2(APIModel):
 
 
 class MetrikaApi(APIModel):
-    accuracy: float | None = None
+    accuracy: int | float | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str | None = None
@@ -493,7 +493,7 @@ class MetrikaApi(APIModel):
 
 
 class MetrikaApi2(APIModel):
-    accuracy: float | None = None
+    accuracy: int | float | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     counter_id: str | None = None
     data_export_forbidden: Literal["on", "off"] | str | None = None
@@ -1332,7 +1332,7 @@ class ConnectionOptions(APIModel):
 
 
 class AppmetricaApi1(APIModel):
-    accuracy: float | None = None
+    accuracy: int | float | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str | None = None
@@ -1615,7 +1615,7 @@ class KonturMarket1(APIModel):
 
 
 class MetrikaApi1(APIModel):
-    accuracy: float | None = None
+    accuracy: int | float | None = None
     ai_access_level: Literal["allow", "allow_trusted", "deny"] | str | None = None
     collection_id: str | None = None
     counter_id: str | None = None
