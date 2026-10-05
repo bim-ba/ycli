@@ -17,6 +17,7 @@ Examples:
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -44,6 +45,20 @@ def _with_url(request: httpx2.Request, url: httpx2.URL) -> httpx2.Request:
 
 def _with_params(request: httpx2.Request, params: Mapping[str, Any]) -> httpx2.Request:
     return _with_url(request, request.url.copy_merge_params(params))
+
+
+def _with_body(request: httpx2.Request, fields: Mapping[str, Any]) -> httpx2.Request:
+    """The same request with ``fields`` set in its JSON body (an empty body counts as ``{}``)."""
+    body = {**(json.loads(request.content) if request.content else {}), **fields}
+    # The length belongs to the old body; httpx2 writes the new one, and derives ``Host``.
+    headers = {
+        name: value
+        for name, value in request.headers.items()
+        if name.lower() not in {"host", "content-length"}
+    }
+    return httpx2.Request(
+        request.method, request.url, headers=headers, json=body, extensions=request.extensions
+    )
 
 
 class Pagination(ABC):
@@ -146,6 +161,44 @@ class CursorPagination(Pagination):
         if not cursor or request.url.params.get(self.cursor_param) == cursor:
             return None
         return _with_params(request, {self.cursor_param: cursor})
+
+
+@dataclass(frozen=True)
+class BodyCursorPagination(Pagination):
+    """A cursor read from the response, sent back in the JSON body (DataLens ``pageToken``).
+
+    For an API whose listings are ``POST`` with every argument in the body. ``page_size``, when
+    given, is sent with every page as ``size_param``.
+
+    Examples:
+        >>> paging = BodyCursorPagination(cursor_of=lambda r: r.json().get("nextPageToken"))
+        >>> first = httpx2.Request("POST", "https://x/rpc/getEntries", json={"scope": "dash"})
+        >>> reply = httpx2.Response(200, json={"nextPageToken": "t2"})
+        >>> paging.next(first, reply, [1]).content
+        b'{"scope":"dash","pageToken":"t2"}'
+    """
+
+    cursor_of: Callable[[httpx2.Response], str | None]
+    cursor_param: str = "pageToken"
+    page_size: int | None = None
+    size_param: str = "pageSize"
+
+    def first(self, request: httpx2.Request) -> httpx2.Request:
+        """The endpoint's own request, with the page size when one is set."""
+        if self.page_size is None:
+            return request
+        return _with_body(request, {self.size_param: self.page_size})
+
+    def next(
+        self, request: httpx2.Request, response: httpx2.Response, items: Sequence[object]
+    ) -> httpx2.Request | None:
+        """The request with the response's cursor, or ``None`` when absent or not advancing."""
+        cursor = self.cursor_of(response)
+        sent = json.loads(request.content).get(self.cursor_param) if request.content else None
+        # A cursor equal to the one just sent means the API stopped advancing.
+        if not cursor or sent == cursor:
+            return None
+        return _with_body(request, {self.cursor_param: cursor})
 
 
 @dataclass(frozen=True)

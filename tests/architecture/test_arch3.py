@@ -8,12 +8,20 @@ from tests.architecture.scanners import SRC, YANDEX, _mcp_tools, _probe_tools, u
 
 
 def _effect_overrides(source: str, module: str) -> list[tuple[int, str]]:
-    """(line, ``module:function``) for every endpoint in ``source`` built with ``effect=``."""
+    """(line, ``module:function``) for every endpoint in ``source`` built with ``effect=``.
+
+    An ``RPC(...)`` call is not one: there the method implies nothing, so the effect it names
+    overrides nothing (and it cannot be left out).
+    """
     found = set()
     for function in ast.walk(ast.parse(source)):
         if isinstance(function, ast.FunctionDef):
             for call in ast.walk(function):
-                if isinstance(call, ast.Call) and any(k.arg == "effect" for k in call.keywords):
+                if (
+                    isinstance(call, ast.Call)
+                    and ast.unparse(call.func) != "RPC"
+                    and any(k.arg == "effect" for k in call.keywords)
+                ):
                     found.add((call.lineno, f"{module}:{function.name}"))
     return sorted(found)
 
@@ -52,6 +60,13 @@ def test_arch3_effect_override_guard_bites():
     stale = marked.replace(", effect=Effect.READ", "")
     assert _unmarked_overrides(stale, module) == [
         f"{module}:2: violation(arch-3) marks nothing the check finds"
+    ]
+    # An RPC operation names its effect always: no marker is asked for, and one would be stale.
+    rpc = 'def get(dashboard_id):\n    return RPC("getDashboard", Dashboard, effect=Effect.READ)\n'
+    assert _unmarked_overrides(rpc, "datalens/dashboards/endpoints.py") == []
+    marked_rpc = rpc.replace("    return", "    # violation(arch-3): only reads\n    return")
+    assert _unmarked_overrides(marked_rpc, "datalens/dashboards/endpoints.py") == [
+        "datalens/dashboards/endpoints.py:2: violation(arch-3) marks nothing the check finds"
     ]
 
 
