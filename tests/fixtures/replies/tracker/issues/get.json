@@ -42,6 +42,20 @@
       "<unknown-3>": "<unknown-3>",
       "<unknown-4>": "<unknown-4>"
     },
+    "resolution": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>",
+      "self": "<self>"
+    },
+    "resolvedAt": "<resolvedAt>",
+    "resolvedBy": {
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
+    },
     "self": "<self>",
     "status": {
       "<unknown-1>": "<unknown-1>",
