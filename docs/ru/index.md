@@ -73,6 +73,7 @@ description: "ycli управляет Яндекс Трекером, Вики и
 | подключить ИИ-клиент | [Установка в вашем ИИ-клиенте](how-to/install-in-your-harness.md) |
 | запустить один сервер на команду | [Свой MCP-сервер по HTTP](how-to/self-host-over-http.md) |
 | вызвать эндпоинт, который ycli не оборачивает | [Вызов необёрнутого эндпоинта](how-to/call-an-unwrapped-endpoint.md) |
+| вызвать API из кода на asyncio | [Асинхронный вызов API](how-to/call-the-api-asynchronously.md) |
 | найти команду, инструмент, метод или настройку | [Справочник](reference/configuration.md) |
 | понять, почему ycli устроен именно так | [Устройство](explanation/design.md) |
 | сравнить ycli с серверами самого Яндекса и сообщества | [ycli и другие инструменты](explanation/comparison.md) |

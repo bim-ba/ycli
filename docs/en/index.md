@@ -73,6 +73,7 @@ The command, the tool an agent calls and the Python method are the same operatio
 | connect an AI client | [Install in your AI client](how-to/install-in-your-harness.md) |
 | run one server for a team | [Self-host over HTTP](how-to/self-host-over-http.md) |
 | call an endpoint ycli does not wrap | [Call an unwrapped endpoint](how-to/call-an-unwrapped-endpoint.md) |
+| call the API from asyncio code | [Call the API asynchronously](how-to/call-the-api-asynchronously.md) |
 | look up a command, a tool, a method or a setting | [Reference](reference/configuration.md) |
 | understand why ycli is built this way | [Design](explanation/design.md) |
 | compare ycli with Yandex's own servers and the community ones | [ycli and the other tools](explanation/comparison.md) |

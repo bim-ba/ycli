@@ -26,6 +26,7 @@ nav = [
     "how-to/script-the-cli.md",
     "how-to/use-in-ci.md",
     "how-to/call-an-unwrapped-endpoint.md",
+    "how-to/call-the-api-asynchronously.md",
   ] },
   { "Reference" = [
     "reference/configuration.md",
