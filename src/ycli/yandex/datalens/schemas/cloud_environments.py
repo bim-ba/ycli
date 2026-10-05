@@ -47,22 +47,22 @@ class DeleteCloudEnvironmentArgs(RequestBody):
 class CloudEnvironmentCreatedAt(APIModel):
     """Time when the cloud environment was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class CloudEnvironmentUpdatedAt(APIModel):
     """Time when the cloud environment was last updated."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class CloudEnvironmentStorage(APIModel):
     """Storage settings of the cloud environment."""
 
-    max_size: str = Field(
-        ...,
+    max_size: str | None = Field(
+        default=None,
         alias="maxSize",
         description="Maximum size of the storage bucket in bytes. Zero means unlimited.",
     )
@@ -89,18 +89,20 @@ class UpdateCloudEnvironmentArgsStorage(APIModel):
 
 
 class CloudEnvironment(APIModel):
-    id: str = Field(..., description="ID of the cloud environment.")
-    name: str = Field(..., description="Name of the cloud environment.")
+    id: str | None = Field(default=None, description="ID of the cloud environment.")
+    name: str | None = Field(default=None, description="Name of the cloud environment.")
     description: str | None = Field(
         default=None, description="Description of the cloud environment."
     )
-    created_at: CloudEnvironmentCreatedAt = Field(..., alias="createdAt")
-    created_by_id: str = Field(
-        ..., alias="createdById", description="ID of the cloud environment creator."
+    created_at: CloudEnvironmentCreatedAt | None = Field(default=None, alias="createdAt")
+    created_by_id: str | None = Field(
+        default=None,
+        alias="createdById",
+        description="ID of the cloud environment creator.",
     )
-    updated_at: CloudEnvironmentUpdatedAt = Field(..., alias="updatedAt")
-    updated_by_id: str = Field(
-        ...,
+    updated_at: CloudEnvironmentUpdatedAt | None = Field(default=None, alias="updatedAt")
+    updated_by_id: str | None = Field(
+        default=None,
         alias="updatedById",
         description="ID of the user who last updated the cloud environment.",
     )
@@ -114,23 +116,28 @@ class CloudEnvironment(APIModel):
             "BROKEN",
         ]
         | str
-    ) = Field(..., description="Current status of the cloud environment.")
-    status_details: str = Field(
-        ..., alias="statusDetails", description="Details of the current status."
+        | None
+    ) = Field(default=None, description="Current status of the cloud environment.")
+    status_details: str | None = Field(
+        default=None,
+        alias="statusDetails",
+        description="Details of the current status.",
     )
-    cloud_id: str = Field(
-        ...,
+    cloud_id: str | None = Field(
+        default=None,
         alias="cloudId",
         description="ID of the cloud that hosts the cloud environment.",
     )
-    tenant_id: str = Field(..., alias="tenantId", description="ID of the DataLens tenant.")
-    subnet_id: str = Field(
-        ...,
+    tenant_id: str | None = Field(
+        default=None, alias="tenantId", description="ID of the DataLens tenant."
+    )
+    subnet_id: str | None = Field(
+        default=None,
         alias="subnetId",
         description="ID of the subnet used by the cloud environment.",
     )
-    security_group_ids: list[str] = Field(
-        ...,
+    security_group_ids: list[str] | None = Field(
+        default=None,
         alias="securityGroupIds",
         description="IDs of the security groups used by the cloud environment.",
     )
@@ -142,13 +149,13 @@ class CloudEnvironment(APIModel):
 
 
 class ListCloudEnvironmentsResult(APIModel):
-    cloud_environments: list[CloudEnvironment] = Field(
-        ...,
+    cloud_environments: list[CloudEnvironment] | None = Field(
+        default=None,
         alias="cloudEnvironments",
         description="Cloud environments matching the request.",
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of cloud environments.",
     )

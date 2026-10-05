@@ -18,7 +18,7 @@ class GetChartDataArgs(RequestBody):
 
 
 class GetWizardChartDataResultResultsItemSchemaItem(APIModel):
-    name: str
+    name: str | None = None
     guid: str | None = Field(default=None, description="Field GUID, when provided by the source.")
     type: (
         Literal[
@@ -44,19 +44,20 @@ class GetWizardChartDataResultResultsItemSchemaItem(APIModel):
             "tree_float",
         ]
         | str
-    )
+        | None
+    ) = None
 
 
 class GetQLChartDataResultResultsItemSchemaItem(APIModel):
-    name: str
-    type: str = Field(
-        ...,
+    name: str | None = None
+    type: str | None = Field(
+        default=None,
         description='QL value type, for example "number" or "string". Numeric values may be returned as strings.',
     )
 
 
 class GetEditorChartDataResultResultsItemSchemaItem(APIModel):
-    name: str
+    name: str | None = None
 
 
 class GetDatasetDataRequestFiltersItem(APIModel):
@@ -108,8 +109,8 @@ class GetDatasetDataRequestSortItem(APIModel):
 
 
 class GetDatasetDataResponseSchemaItem(APIModel):
-    name: str = Field(..., description="Dataset field name.")
-    guid: str = Field(..., description="Dataset field GUID.")
+    name: str | None = Field(default=None, description="Dataset field name.")
+    guid: str | None = Field(default=None, description="Dataset field GUID.")
     type: (
         Literal[
             "date",
@@ -134,7 +135,8 @@ class GetDatasetDataResponseSchemaItem(APIModel):
             "tree_float",
         ]
         | str
-    ) = Field(..., description="Dataset field data type.")
+        | None
+    ) = Field(default=None, description="Dataset field data type.")
 
 
 class GetDatasetDataRequest(RequestBody):
@@ -162,53 +164,61 @@ class GetDatasetDataRequest(RequestBody):
 
 
 class GetDatasetDataResponse(APIModel):
-    schema_: list[GetDatasetDataResponseSchemaItem] = Field(
-        ..., alias="schema", description="Returned columns in row value order."
+    schema_: list[GetDatasetDataResponseSchemaItem] | None = Field(
+        default=None, alias="schema", description="Returned columns in row value order."
     )
-    rows: list[list[Any]] = Field(..., description="Rows with values ordered according to schema.")
+    rows: list[list[Any]] | None = Field(
+        default=None, description="Rows with values ordered according to schema."
+    )
 
 
 class GetWizardChartDataResultResultsItem(APIModel):
-    schema_: list[GetWizardChartDataResultResultsItemSchemaItem] = Field(
-        ..., alias="schema", description="Columns in row value order."
+    schema_: list[GetWizardChartDataResultResultsItemSchemaItem] | None = Field(
+        default=None, alias="schema", description="Columns in row value order."
     )
-    rows: list[list[Any]] = Field(..., description="Values ordered according to schema.")
+    rows: list[list[Any]] | None = Field(
+        default=None, description="Values ordered according to schema."
+    )
 
 
 class GetQLChartDataResultResultsItem(APIModel):
-    schema_: list[GetQLChartDataResultResultsItemSchemaItem] = Field(
-        ..., alias="schema", description="Columns in row value order."
+    schema_: list[GetQLChartDataResultResultsItemSchemaItem] | None = Field(
+        default=None, alias="schema", description="Columns in row value order."
     )
-    rows: list[list[Any]] = Field(..., description="Values ordered according to schema.")
+    rows: list[list[Any]] | None = Field(
+        default=None, description="Values ordered according to schema."
+    )
 
 
 class GetEditorChartDataResultResultsItem(APIModel):
-    schema_: list[GetEditorChartDataResultResultsItemSchemaItem] = Field(
-        ..., alias="schema", description="Columns in row value order."
+    schema_: list[GetEditorChartDataResultResultsItemSchemaItem] | None = Field(
+        default=None, alias="schema", description="Columns in row value order."
     )
-    rows: list[list[Any]] = Field(..., description="Values ordered according to schema.")
+    rows: list[list[Any]] | None = Field(
+        default=None, description="Values ordered according to schema."
+    )
 
 
 class GetWizardChartDataResult(APIModel):
     chart_type: Literal["wizard"] = Field(..., alias="chartType")
-    results: list[GetWizardChartDataResultResultsItem] = Field(
-        ...,
+    results: list[GetWizardChartDataResultResultsItem] | None = Field(
+        default=None,
         description="Tables in query and block order. Results with different schemas are returned separately.",
     )
 
 
 class GetQLChartDataResult(APIModel):
     chart_type: Literal["ql"] = Field(..., alias="chartType")
-    results: list[GetQLChartDataResultResultsItem] = Field(
-        ...,
+    results: list[GetQLChartDataResultResultsItem] | None = Field(
+        default=None,
         description="Tables in query and block order. Results with different schemas are returned separately.",
     )
 
 
 class GetEditorChartDataResult(APIModel):
     chart_type: Literal["editor"] = Field(..., alias="chartType")
-    results: list[GetEditorChartDataResultResultsItem] = Field(
-        ...,
+    results: list[GetEditorChartDataResultResultsItem] | None = Field(
+        default=None,
         description="Tables in query and block order. Results with different schemas are returned separately.",
     )
 

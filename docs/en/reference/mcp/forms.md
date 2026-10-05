@@ -1013,7 +1013,7 @@ integration with its integer ``id``.
 |---|---|:---:|---|
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
-| `body` | any | yes | The integration; ``type`` selects its schema. |
+| `body` | object | yes | The integration; ``type`` selects its schema. Its schema is not listed here: read `Subscription` with schema_get(service="forms", name="Subscription"), then the definitions it refers to. |
 
 ## `forms_subscriptions_update`
 
@@ -1026,7 +1026,7 @@ Change an integration: only the fields set in ``body`` change.
 | `survey_id` | string | yes | Form id (24-char hex), from ``surveys_list``. |
 | `hook_id` | integer | yes | Integration group id (integer) from hooks_list. |
 | `subscription_id` | integer | yes | Integration id (integer) from subscriptions_list. |
-| `body` | any | yes | Fields to change; ``type`` must match the integration's type. |
+| `body` | object | yes | Fields to change; ``type`` must match the integration's type. Its schema is not listed here: read `Subscription` with schema_get(service="forms", name="Subscription"), then the definitions it refers to. |
 
 ## `forms_subscriptions_delete`
 

@@ -21,7 +21,7 @@ accepts 128). Pick what the session needs:
 | `--read-only` | no write tools; always wins over the flags above |
 | `--tool-search` | a search tool and a call proxy instead of the tools, for a large set |
 
-`status_get` is always served. To see which tools a set of flags gives without starting the
+`status_get` and `schema_get` are always served: the first checks the credentials, the second reads the schema of a body that its tool lists as a free-form object (a body too large to list whole). To see which tools a set of flags gives without starting the
 server:
 
 ```bash

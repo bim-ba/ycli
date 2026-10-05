@@ -9,6 +9,47 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.82.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.81.2
+  ([`7178ce5`](https://github.com/bim-ba/ycli/commit/7178ce5fad94968c0e91e8170b9913f8294b2212))
+
+### Features
+
+- **mcp**: A tool lists at most 32 KB of schema; a larger body is read with schema_get
+  ([#365](https://github.com/bim-ba/ycli/pull/365),
+  [`ebc0d7a`](https://github.com/bim-ba/ycli/commit/ebc0d7ad062102cb9681326acd489481eac058e6))
+
+
+## v0.81.2 (2026-10-05)
+
+### Bug Fixes
+
+- **datalens**: A reply is read even when DataLens leaves out a field its document requires
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`5b5b335`](https://github.com/bim-ba/ycli/commit/5b5b33569d7ccde5b4074f86fa9de97ff6d2d80c))
+
+### Build System
+
+- Re-lock uv.lock for 0.81.1
+  ([`ae58625`](https://github.com/bim-ba/ycli/commit/ae5862569566124ff837f2da2cd5b13b099c431f))
+
+
+## v0.81.1 (2026-10-05)
+
+### Bug Fixes
+
+- **settings**: An error about the credentials never quotes the value that failed
+  ([`da7ef04`](https://github.com/bim-ba/ycli/commit/da7ef04e0fb0009bc4519b6e188613ee258b0bfd))
+
+### Build System
+
+- Re-lock uv.lock for 0.81.0
+  ([`57d54f6`](https://github.com/bim-ba/ycli/commit/57d54f6149dfa9e73317377237483aaf8b9e22c9))
+
+
 ## v0.81.0 (2026-10-05)
 
 ### Build System

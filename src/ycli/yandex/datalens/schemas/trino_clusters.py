@@ -58,23 +58,25 @@ class DeleteTrinoClusterCatalogArgs(RequestBody):
 
 
 class TrinoResourcePreset(APIModel):
-    id: str = Field(..., description="ID of the resource preset.")
-    cores: str = Field(
-        ..., description="Number of CPU cores for an instance created with the preset."
+    id: str | None = Field(default=None, description="ID of the resource preset.")
+    cores: str | None = Field(
+        default=None,
+        description="Number of CPU cores for an instance created with the preset.",
     )
-    memory: str = Field(
-        ..., description="RAM volume for an instance created with the preset, in bytes."
+    memory: str | None = Field(
+        default=None,
+        description="RAM volume for an instance created with the preset, in bytes.",
     )
 
 
 class ListTrinoResourcePresetsResult(APIModel):
-    resource_presets: list[TrinoResourcePreset] = Field(
-        ...,
+    resource_presets: list[TrinoResourcePreset] | None = Field(
+        default=None,
         alias="resourcePresets",
         description="Trino resource presets available in the cloud environment.",
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of resource presets.",
     )
@@ -112,28 +114,42 @@ class GetTrinoResourcePresetArgs(RequestBody):
 
 
 class TrinoClusterConfigCatalogsConfigItem(APIModel):
-    catalog_id: str = Field(..., alias="catalogId", description="ID of the REST catalog.")
+    catalog_id: str | None = Field(
+        default=None, alias="catalogId", description="ID of the REST catalog."
+    )
 
 
 class TrinoClusterConfigCoordinatorConfigResources(APIModel):
     """Resources assigned to the coordinator."""
 
-    resource_preset_id: str = Field(
-        ..., alias="resourcePresetId", description="ID of the Trino resource preset."
+    resource_preset_id: str | None = Field(
+        default=None,
+        alias="resourcePresetId",
+        description="ID of the Trino resource preset.",
     )
 
 
 class TrinoClusterConfigWorkerConfigResources(APIModel):
     """Resources assigned to each worker."""
 
-    resource_preset_id: str = Field(
-        ..., alias="resourcePresetId", description="ID of the Trino resource preset."
+    resource_preset_id: str | None = Field(
+        default=None,
+        alias="resourcePresetId",
+        description="ID of the Trino resource preset.",
     )
 
 
 class TrinoClusterConfigWorkerConfigScalePolicyAutoScale(APIModel):
-    min_count: str = Field(..., alias="minCount", description="Minimum number of worker instances.")
-    max_count: str = Field(..., alias="maxCount", description="Maximum number of worker instances.")
+    min_count: str | None = Field(
+        default=None,
+        alias="minCount",
+        description="Minimum number of worker instances.",
+    )
+    max_count: str | None = Field(
+        default=None,
+        alias="maxCount",
+        description="Maximum number of worker instances.",
+    )
 
 
 class CreateTrinoClusterArgsCatalogsConfigItem(APIModel):
@@ -165,11 +181,13 @@ class AddTrinoClusterCatalogArgs(RequestBody):
 
 
 class TrinoClusterConfigCoordinatorConfig(APIModel):
-    resources: TrinoClusterConfigCoordinatorConfigResources
+    resources: TrinoClusterConfigCoordinatorConfigResources | None = None
 
 
 class TrinoClusterConfigWorkerConfigScalePolicy(APIModel):
-    auto_scale: TrinoClusterConfigWorkerConfigScalePolicyAutoScale = Field(..., alias="autoScale")
+    auto_scale: TrinoClusterConfigWorkerConfigScalePolicyAutoScale | None = Field(
+        default=None, alias="autoScale"
+    )
     scale_type: Literal["autoScale"] = Field(..., alias="scaleType")
 
 
@@ -180,8 +198,10 @@ class CreateTrinoClusterArgsWorkerConfigScalePolicy(APIModel):
 
 
 class TrinoClusterConfigWorkerConfig(APIModel):
-    resources: TrinoClusterConfigWorkerConfigResources
-    scale_policy: TrinoClusterConfigWorkerConfigScalePolicy = Field(..., alias="scalePolicy")
+    resources: TrinoClusterConfigWorkerConfigResources | None = None
+    scale_policy: TrinoClusterConfigWorkerConfigScalePolicy | None = Field(
+        default=None, alias="scalePolicy"
+    )
 
 
 class CreateTrinoClusterArgsWorkerConfig(APIModel):
@@ -217,37 +237,43 @@ class CreateTrinoClusterArgs(RequestBody):
 
 
 class TrinoClusterConfig(APIModel):
-    trino_version: str = Field(
-        ..., alias="trinoVersion", description="Trino version used by the cluster."
+    trino_version: str | None = Field(
+        default=None,
+        alias="trinoVersion",
+        description="Trino version used by the cluster.",
     )
-    catalogs_config: list[TrinoClusterConfigCatalogsConfigItem] = Field(
-        ...,
+    catalogs_config: list[TrinoClusterConfigCatalogsConfigItem] | None = Field(
+        default=None,
         alias="catalogsConfig",
         description="REST catalogs attached to the cluster.",
     )
-    coordinator_config: TrinoClusterConfigCoordinatorConfig = Field(..., alias="coordinatorConfig")
-    worker_config: TrinoClusterConfigWorkerConfig = Field(..., alias="workerConfig")
+    coordinator_config: TrinoClusterConfigCoordinatorConfig | None = Field(
+        default=None, alias="coordinatorConfig"
+    )
+    worker_config: TrinoClusterConfigWorkerConfig | None = Field(default=None, alias="workerConfig")
 
 
 class TrinoCluster(APIModel):
-    id: str = Field(..., description="ID of the Trino cluster.")
-    cluster_id: str = Field(..., alias="clusterId", description="ID of the managed Trino cluster.")
-    collection_id: str = Field(
-        ...,
+    id: str | None = Field(default=None, description="ID of the Trino cluster.")
+    cluster_id: str | None = Field(
+        default=None, alias="clusterId", description="ID of the managed Trino cluster."
+    )
+    collection_id: str | None = Field(
+        default=None,
         alias="collectionId",
         description="ID of the DataLens collection that contains the cluster.",
     )
-    cloud_environment_id: str = Field(
-        ...,
+    cloud_environment_id: str | None = Field(
+        default=None,
         alias="cloudEnvironmentId",
         description="ID of the associated cloud environment.",
     )
-    name: str = Field(..., description="Name of the Trino cluster.")
-    description: str = Field(..., description="Description of the Trino cluster.")
-    labels: dict[str, str] = Field(..., description="Trino cluster labels.")
-    config: TrinoClusterConfig
-    health: Literal["HEALTH_UNKNOWN", "ALIVE", "DEAD", "DEGRADED"] | str = Field(
-        ..., description="Aggregated health of the Trino cluster."
+    name: str | None = Field(default=None, description="Name of the Trino cluster.")
+    description: str | None = Field(default=None, description="Description of the Trino cluster.")
+    labels: dict[str, str] | None = Field(default=None, description="Trino cluster labels.")
+    config: TrinoClusterConfig | None = None
+    health: Literal["HEALTH_UNKNOWN", "ALIVE", "DEAD", "DEGRADED"] | str | None = Field(
+        default=None, description="Aggregated health of the Trino cluster."
     )
     status: (
         Literal[
@@ -261,21 +287,26 @@ class TrinoCluster(APIModel):
             "UPDATING",
         ]
         | str
-    ) = Field(..., description="Current status of the Trino cluster.")
-    coordinator_url: str = Field(
-        ..., alias="coordinatorUrl", description="Address of the Trino coordinator."
+        | None
+    ) = Field(default=None, description="Current status of the Trino cluster.")
+    coordinator_url: str | None = Field(
+        default=None,
+        alias="coordinatorUrl",
+        description="Address of the Trino coordinator.",
     )
-    entry_id: str = Field(
-        ...,
+    entry_id: str | None = Field(
+        default=None,
         alias="entryId",
         description="ID of the DataLens entry of the Trino cluster. Empty when the cluster has no entry.",
     )
 
 
 class ListTrinoClustersResult(APIModel):
-    clusters: list[TrinoCluster] = Field(..., description="Trino clusters matching the request.")
-    next_page_token: str = Field(
-        ...,
+    clusters: list[TrinoCluster] | None = Field(
+        default=None, description="Trino clusters matching the request."
+    )
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for the next page of Trino clusters.",
     )

@@ -15,21 +15,31 @@ class GetEntriesV2ResultEntriesItemVariant1(APIModel):
     is_locked: Literal[True] = Field(
         ..., alias="isLocked", description="Indicates that the entry is locked."
     )
-    entry_id: str = Field(
-        ..., alias="entryId", description="Unique identifier of the locked entry."
+    entry_id: str | None = Field(
+        default=None,
+        alias="entryId",
+        description="Unique identifier of the locked entry.",
     )
-    scope: shared.EntryScope
-    type: str = Field(..., description="Type of the locked entry.")
-    name: str = Field(..., description="Name of the entry.")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(default=None, description="Type of the locked entry.")
+    name: str | None = Field(default=None, description="Name of the entry.")
 
 
 class GetEntriesV2ResultEntriesItemVariant2Permissions(APIModel):
     """Permissions for the entry."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class GetEntriesV2ArgsOrderBy(APIModel):
@@ -50,19 +60,35 @@ class GetEntriesV2ArgsFilters(APIModel):
 class ListDirectoryBreadCrumbPermissions(APIModel):
     """Permissions for the breadcrumb item."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class ListDirectoryEntryPermissions(APIModel):
     """Permissions for the entry."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class ListDirectoryArgsOrderBy(APIModel):
@@ -151,60 +177,88 @@ class GetEntriesV2Args(RequestBody):
 
 
 class ListDirectoryBreadCrumb(APIModel):
-    title: str = Field(..., description="Title of the breadcrumb item.")
-    path: str = Field(..., description="Path of the breadcrumb item.")
-    entry_id: str = Field(..., alias="entryId", description="Entry ID of the breadcrumb item.")
-    is_locked: bool = Field(..., alias="isLocked", description="Indicates if the item is locked.")
-    permissions: ListDirectoryBreadCrumbPermissions
+    title: str | None = Field(default=None, description="Title of the breadcrumb item.")
+    path: str | None = Field(default=None, description="Path of the breadcrumb item.")
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Entry ID of the breadcrumb item."
+    )
+    is_locked: bool | None = Field(
+        default=None, alias="isLocked", description="Indicates if the item is locked."
+    )
+    permissions: ListDirectoryBreadCrumbPermissions | None = None
 
 
 class ListDirectoryEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str = Field(..., description="Key identifier of the entry.")
-    scope: shared.EntryScope
-    type: str = Field(..., description="Type of the entry (e.g., dash, dataset, connection).")
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
-    created_at: str = Field(..., alias="createdAt", description="Creation timestamp.")
-    updated_at: str = Field(..., alias="updatedAt", description="Last update timestamp.")
-    created_by: str = Field(..., alias="createdBy", description="Creator of the entry.")
-    updated_by: str = Field(..., alias="updatedBy", description="Last updater of the entry.")
-    saved_id: str = Field(..., alias="savedId", description="Saved version ID.")
-    published_id: str | None = Field(..., alias="publishedId", description="Published version ID.")
-    hidden: bool = Field(..., description="Indicates if the entry is hidden.")
-    workbook_id: str = Field(
-        ..., alias="workbookId", description="ID of the workbook the entry belongs to."
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
+    )
+    key: str | None = Field(default=None, description="Key identifier of the entry.")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(
+        default=None, description="Type of the entry (e.g., dash, dataset, connection)."
+    )
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    created_at: str | None = Field(
+        default=None, alias="createdAt", description="Creation timestamp."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Last update timestamp."
+    )
+    created_by: str | None = Field(
+        default=None, alias="createdBy", description="Creator of the entry."
+    )
+    updated_by: str | None = Field(
+        default=None, alias="updatedBy", description="Last updater of the entry."
+    )
+    saved_id: str | None = Field(default=None, alias="savedId", description="Saved version ID.")
+    published_id: str | None = Field(
+        default=None, alias="publishedId", description="Published version ID."
+    )
+    hidden: bool | None = Field(default=None, description="Indicates if the entry is hidden.")
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook the entry belongs to.",
     )
     workbook_title: str | None = Field(
         default=None, alias="workbookTitle", description="Workbook name."
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection the entry belongs to.",
     )
     collection_title: str | None = Field(
         default=None, alias="collectionTitle", description="Collection name."
     )
-    is_favorite: bool = Field(
-        ...,
+    is_favorite: bool | None = Field(
+        default=None,
         alias="isFavorite",
         description="Indicates if the entry is marked as favorite.",
     )
-    is_locked: bool = Field(..., alias="isLocked", description="Indicates if the entry is locked.")
+    is_locked: bool | None = Field(
+        default=None, alias="isLocked", description="Indicates if the entry is locked."
+    )
     permissions: ListDirectoryEntryPermissions | None = None
-    name: str = Field(..., description="Name of the entry.")
+    name: str | None = Field(default=None, description="Name of the entry.")
 
 
 class ListDirectoryResult(APIModel):
-    has_next_page: bool = Field(
-        ..., alias="hasNextPage", description="Indicates if there are more pages."
+    has_next_page: bool | None = Field(
+        default=None,
+        alias="hasNextPage",
+        description="Indicates if there are more pages.",
     )
-    bread_crumbs: list[ListDirectoryBreadCrumb] = Field(
-        ...,
+    bread_crumbs: list[ListDirectoryBreadCrumb] | None = Field(
+        default=None,
         alias="breadCrumbs",
         description="Navigation breadcrumbs for the current path.",
     )
-    entries: list[ListDirectoryEntry] = Field(..., description="List of directory entries.")
+    entries: list[ListDirectoryEntry] | None = Field(
+        default=None, description="List of directory entries."
+    )
 
 
 class ListDirectoryArgs(RequestBody):
@@ -229,32 +283,48 @@ class ListDirectoryArgs(RequestBody):
 
 
 class GetEntriesV2ResultEntriesItemVariant2(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry.")
-    key: str = Field(..., description="Key of the entry.")
-    scope: shared.EntryScope
-    type: str = Field(..., description="Type of the entry.")
-    meta: dict[str, Any] | None = Field(..., description="Metadata associated with the entry.")
-    created_at: str = Field(
-        ..., alias="createdAt", description="Date and time when the entry was created."
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry."
     )
-    updated_at: str = Field(
-        ...,
+    key: str | None = Field(default=None, description="Key of the entry.")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(default=None, description="Type of the entry.")
+    meta: dict[str, Any] | None = Field(
+        default=None, description="Metadata associated with the entry."
+    )
+    created_at: str | None = Field(
+        default=None,
+        alias="createdAt",
+        description="Date and time when the entry was created.",
+    )
+    updated_at: str | None = Field(
+        default=None,
         alias="updatedAt",
         description="Date and time when the entry was last updated.",
     )
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the entry."
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the entry.",
     )
-    updated_by: str = Field(
-        ..., alias="updatedBy", description="ID of the user who last updated the entry."
+    updated_by: str | None = Field(
+        default=None,
+        alias="updatedBy",
+        description="ID of the user who last updated the entry.",
     )
-    saved_id: str = Field(..., alias="savedId", description="ID of the saved entry revision.")
+    saved_id: str | None = Field(
+        default=None, alias="savedId", description="ID of the saved entry revision."
+    )
     published_id: str | None = Field(
-        ..., alias="publishedId", description="ID of the published entry revision."
+        default=None,
+        alias="publishedId",
+        description="ID of the published entry revision.",
     )
-    hidden: bool = Field(..., description="Whether the entry is hidden.")
+    hidden: bool | None = Field(default=None, description="Whether the entry is hidden.")
     workbook_id: str | None = Field(
-        ..., alias="workbookId", description="ID of the workbook containing the entry."
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook containing the entry.",
     )
     workbook_title: str | None = Field(
         default=None,
@@ -262,7 +332,7 @@ class GetEntriesV2ResultEntriesItemVariant2(APIModel):
         description="Title of the workbook containing the entry.",
     )
     collection_id: str | None = Field(
-        ...,
+        default=None,
         alias="collectionId",
         description="ID of the collection containing the entry.",
     )
@@ -271,8 +341,8 @@ class GetEntriesV2ResultEntriesItemVariant2(APIModel):
         alias="collectionTitle",
         description="Title of the collection containing the entry.",
     )
-    is_favorite: bool = Field(
-        ...,
+    is_favorite: bool | None = Field(
+        default=None,
         alias="isFavorite",
         description="Whether the entry is marked as a favorite.",
     )
@@ -282,9 +352,11 @@ class GetEntriesV2ResultEntriesItemVariant2(APIModel):
         description="Indicates that the entry is not locked.",
     )
     permissions: GetEntriesV2ResultEntriesItemVariant2Permissions | None = None
-    links: dict[str, Any] | None = Field(..., description="Links associated with the entry.")
+    links: dict[str, Any] | None = Field(
+        default=None, description="Links associated with the entry."
+    )
     data: dict[str, Any] | None = Field(default=None, description="Data stored in the entry.")
-    name: str = Field(..., description="Name of the entry.")
+    name: str | None = Field(default=None, description="Name of the entry.")
 
 
 class GetEntriesV2Result(APIModel):
@@ -293,6 +365,6 @@ class GetEntriesV2Result(APIModel):
         alias="nextPageToken",
         description="Token for the next page of entries.",
     )
-    entries: list[GetEntriesV2ResultEntriesItemVariant1 | GetEntriesV2ResultEntriesItemVariant2] = (
-        Field(..., description="Entries matching the request.")
-    )
+    entries: (
+        list[GetEntriesV2ResultEntriesItemVariant1 | GetEntriesV2ResultEntriesItemVariant2] | None
+    ) = Field(default=None, description="Entries matching the request.")

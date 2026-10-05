@@ -113,10 +113,18 @@ class DashConnectionV2(APIModel):
 
 
 class EntryPermissions(APIModel):
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class EntryBranch(RootModel[Literal["saved", "published"] | str]):
@@ -166,23 +174,23 @@ class WorkbookTransferNotification(APIModel):
         description="ID of the entry associated with the notification.",
     )
     scope: EntryScope | None = None
-    code: str = Field(..., description="Notification code.")
+    code: str | None = Field(default=None, description="Notification code.")
     message: str | None = Field(default=None, description="Notification message.")
-    level: WorkbookTransferNotificationLevel
+    level: WorkbookTransferNotificationLevel | None = None
     details: Any | None = Field(default=None, description="Additional notification details.")
 
 
 class DatalensOperationCreatedAt(APIModel):
     """Operation creation timestamp."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class DatalensOperationModifiedAt(APIModel):
     """Operation last modification timestamp."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
@@ -528,14 +536,14 @@ class USAccessBindingDeltaAccessBindingSubject(APIModel):
 class AccessBindingInheritedFrom(APIModel):
     """Resource from which the access binding is inherited."""
 
-    id: str = Field(..., description="Unique identifier of the resource.")
-    type: str = Field(..., description="Type of the resource.")
+    id: str | None = Field(default=None, description="Unique identifier of the resource.")
+    type: str | None = Field(default=None, description="Type of the resource.")
 
 
 class SubjectWithBindingsSubjectClaims(APIModel):
     """Subject details."""
 
-    sub: str = Field(..., description="Subject identifier.")
+    sub: str | None = Field(default=None, description="Subject identifier.")
     sub_type: (
         Literal[
             "SUBJECT_TYPE_UNSPECIFIED",
@@ -546,29 +554,30 @@ class SubjectWithBindingsSubjectClaims(APIModel):
             "_system",
         ]
         | str
-    ) = Field(..., alias="subType", description="Subject type.")
-    email: str = Field(..., description="Subject email address.")
+        | None
+    ) = Field(default=None, alias="subType", description="Subject type.")
+    email: str | None = Field(default=None, description="Subject email address.")
 
 
 class LakehouseOperationCreatedAt(APIModel):
     """Time when the operation was created."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class LakehouseOperationModifiedAt(APIModel):
     """Time when the operation was last modified."""
 
-    seconds: str = Field(..., description="Number of seconds since the Unix epoch.")
+    seconds: str | None = Field(default=None, description="Number of seconds since the Unix epoch.")
     nanos: float | None = Field(default=None, description="Fractional seconds in nanoseconds.")
 
 
 class LakehouseOperationError(APIModel):
     """Operation error, if the operation failed."""
 
-    code: float = Field(..., description="Operation error code.")
-    message: str = Field(..., description="Operation error message.")
+    code: float | None = Field(default=None, description="Operation error code.")
+    message: str | None = Field(default=None, description="Operation error message.")
     details: list[Any] | None = Field(
         default=None, description="Additional operation error details."
     )
@@ -577,15 +586,17 @@ class LakehouseOperationError(APIModel):
 class DatalensOperation(APIModel):
     """Asynchronous datalens operation."""
 
-    id: str = Field(..., description="Unique identifier of the operation.")
-    description: str = Field(..., description="Description of the operation.")
-    created_by: str = Field(
-        ..., alias="createdBy", description="ID of the user who created the operation."
+    id: str | None = Field(default=None, description="Unique identifier of the operation.")
+    description: str | None = Field(default=None, description="Description of the operation.")
+    created_by: str | None = Field(
+        default=None,
+        alias="createdBy",
+        description="ID of the user who created the operation.",
     )
-    created_at: DatalensOperationCreatedAt = Field(..., alias="createdAt")
-    modified_at: DatalensOperationModifiedAt = Field(..., alias="modifiedAt")
-    metadata: DatalensOperationMetadata
-    done: bool = Field(..., description="Indicates if the operation has completed.")
+    created_at: DatalensOperationCreatedAt | None = Field(default=None, alias="createdAt")
+    modified_at: DatalensOperationModifiedAt | None = Field(default=None, alias="modifiedAt")
+    metadata: DatalensOperationMetadata | None = None
+    done: bool | None = Field(default=None, description="Indicates if the operation has completed.")
 
 
 class DashControlElementV2(
@@ -712,47 +723,55 @@ class DashControlSourceManualV2Model4(
 
 
 class AccessBinding(APIModel):
-    role_id: str = Field(..., alias="roleId", description="ID of the role assigned to the subject.")
-    inherited_from: AccessBindingInheritedFrom | None = Field(..., alias="inheritedFrom")
+    role_id: str | None = Field(
+        default=None,
+        alias="roleId",
+        description="ID of the role assigned to the subject.",
+    )
+    inherited_from: AccessBindingInheritedFrom | None = Field(default=None, alias="inheritedFrom")
 
 
 class SubjectWithBindings(APIModel):
-    subject_claims: SubjectWithBindingsSubjectClaims = Field(..., alias="subjectClaims")
-    access_bindings: list[AccessBinding] = Field(
-        ...,
+    subject_claims: SubjectWithBindingsSubjectClaims | None = Field(
+        default=None, alias="subjectClaims"
+    )
+    access_bindings: list[AccessBinding] | None = Field(
+        default=None,
         alias="accessBindings",
         description="Access bindings assigned directly to the subject.",
     )
-    inherited_access_bindings: list[AccessBinding] = Field(
-        ...,
+    inherited_access_bindings: list[AccessBinding] | None = Field(
+        default=None,
         alias="inheritedAccessBindings",
         description="Access bindings inherited by the subject.",
     )
 
 
 class ListAccessBindingsResult(APIModel):
-    subjects_with_bindings: list[SubjectWithBindings] = Field(
-        ...,
+    subjects_with_bindings: list[SubjectWithBindings] | None = Field(
+        default=None,
         alias="subjectsWithBindings",
         description="Subjects and their access bindings.",
     )
-    next_page_token: str = Field(
-        ...,
+    next_page_token: str | None = Field(
+        default=None,
         alias="nextPageToken",
         description="Token for retrieving the next page of results.",
     )
 
 
 class LakehouseOperation(APIModel):
-    id: str = Field(..., description="Unique ID of the operation.")
+    id: str | None = Field(default=None, description="Unique ID of the operation.")
     description: str | None = Field(default=None, description="Description of the operation.")
     created_at: LakehouseOperationCreatedAt | None = Field(default=None, alias="createdAt")
     created_by: str | None = Field(
         default=None, alias="createdBy", description="ID of the operation creator."
     )
     modified_at: LakehouseOperationModifiedAt | None = Field(default=None, alias="modifiedAt")
-    done: bool = Field(..., description="Whether the operation has completed.")
-    metadata: dict[str, Any] = Field(..., description="Service-specific operation metadata.")
+    done: bool | None = Field(default=None, description="Whether the operation has completed.")
+    metadata: dict[str, Any] | None = Field(
+        default=None, description="Service-specific operation metadata."
+    )
     error: LakehouseOperationError | None = None
     response: dict[str, Any] | None = Field(
         default=None, description="Service-specific operation response."

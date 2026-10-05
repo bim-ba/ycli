@@ -116,8 +116,9 @@ allowlist entry in code with its reason, never prose here. Tests are in
   (`httpx2`) directly — HTTP lives in `client.py` and `ycli.yandex.core`; `fastmcp` is not imported directly by the
   CLI, clients, models or the `ycli.mcp` package `__init__` (the base install loads `ycli mcp`
   without the extra).
-- **Exceptions:** the MCP server (`ycli.mcp.server`) and its listing transforms
-  (`ycli.mcp.listing`) import `fastmcp` (`ignore_imports`); `ycli mcp start` / `methods` import
+- **Exceptions:** the MCP server (`ycli.mcp.server`), its listing transforms
+  (`ycli.mcp.listing`), its HTTP sign-in (`ycli.mcp.http_auth`) and its `schema_get` tool
+  (`ycli.mcp.schemas`) import `fastmcp` (`ignore_imports`); `ycli mcp start` / `methods` import
   the server lazily, behind the extra.
   Imports under `if TYPE_CHECKING:` are ignored (they never run).
 
@@ -207,9 +208,14 @@ allowlist entry in code with its reason, never prose here. Tests are in
 - **Rule:** data crosses a boundary as a parsed model: a request body is a typed request
   model from the MCP tool and the CLI command down to the endpoint, which dumps it once
   (`Endpoint.body`, through the serializer of `APIModel`), and a non-2xx answer becomes a typed `YandexError` in one place
-  (`errors.error_for_status`).
+  (`errors.error_for_status`). A body whose schema would take its MCP tool over the schema
+  budget (`SCHEMA_BUDGET_BYTES`, 32 KB) is listed as a free-form object (`OverBudget`) and
+  validated by the same model: the tool still receives a typed body, and the `schema_get` tool
+  serves its schema one definition at a time.
 - **Why:** parse, don't validate — a malformed value fails at the edge with a clear error.
-- **Check:** `test_arch8_mcp_write_tool_bodies_are_typed` (no `body: dict` in an MCP tool, a
+- **Check:** `test_every_tool_lists_a_schema_within_the_budget` (with a bite test: the same
+  body is over the budget unmarked and within it marked),
+  `test_arch8_mcp_write_tool_bodies_are_typed` (no `body: dict` in an MCP tool, a
   client method or an endpoint builder), `test_arch8_a_request_body_is_dumped_only_by_the_endpoint`
   (none of the three dumps a model) and
   `test_arch8_errors_are_mapped_in_one_place` (each with a bite test): `raise_for_status`

@@ -1,4 +1,4 @@
-datalens_tenant_details_get a3b3e9a3a5374fe9
+datalens_tenant_details_get ca02e82af678e878
 forms_access_grant f3b96b4ea415f565
 forms_access_list f3b96b4ea415f565
 forms_access_revoke f3b96b4ea415f565
@@ -77,6 +77,7 @@ forms_surveys_publish 5037df4f3953d287
 forms_surveys_unpublish 5037df4f3953d287
 forms_surveys_update f570d2dacaf1eca6
 forms_variables_list 927ea81fd7eb1dc2
+schema_get a2b2e6e7730da01a
 status_get 9e6b9e28b0a949e4
 tracker_applications_list 30142cd9e25f3353
 tracker_attachments_delete 5037df4f3953d287

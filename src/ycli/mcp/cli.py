@@ -32,7 +32,8 @@ _Toolsets = Annotated[
         "--toolsets",
         help=(
             f"Comma-separated toolsets to serve: {', '.join(TOOLSET_NAMES)} (core = a curated "
-            "everyday profile; all = every service, the default). status_get is always served."
+            "everyday profile; all = every service, the default). status_get and schema_get are "
+            "always served."
         ),
     ),
 ]
@@ -54,7 +55,8 @@ _ToolSearch = Annotated[
     bool,
     typer.Option(
         "--tool-search",
-        help="List a search tool and a call proxy instead of the tools (BM25); status_get stays.",
+        help="List a search tool and a call proxy instead of the tools (BM25); status_get and "
+        "schema_get stay.",
     ),
 ]
 

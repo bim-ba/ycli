@@ -11,7 +11,7 @@ Several tools connect an agent or a terminal to Yandex Tracker, Wiki and Forms. 
 
 | Project | Services | MCP tools | Writes | Reads-only mode | Tools that carry read / write hints |
 |---|---|---|---|---|---|
-| ycli | Tracker, Wiki, Forms; DataLens in progress | 323: Tracker 187, Wiki 56, Forms 78, DataLens 1, and `status_get` | yes | `ycli mcp start --read-only` | all |
+| ycli | Tracker, Wiki, Forms; DataLens in progress | 324: Tracker 187, Wiki 56, Forms 78, DataLens 1, and `status_get`, `schema_get` | yes | `ycli mcp start --read-only` | all |
 | Yandex Tracker MCP server | Tracker | 72 | yes | not documented | 72 of 72 |
 | Yandex Wiki MCP server | Wiki | 33 | yes | not documented; a token with only the `wiki:read` scope cannot write | 0 of 33 |
 | Yandex Forms MCP server | Forms | 18 | yes | not documented | 0 of 18 |

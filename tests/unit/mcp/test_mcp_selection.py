@@ -10,7 +10,7 @@ from fastmcp.exceptions import ToolError
 from tests.full_server import mcp as full_server
 from tests.hosts import TRACKER_BASE
 from ycli.mcp.listing import UnknownToolError
-from ycli.mcp.profiles import CORE_TOOLS, STATUS_TOOL
+from ycli.mcp.profiles import ALWAYS_SERVED, CORE_TOOLS, SCHEMA_TOOL, STATUS_TOOL
 from ycli.mcp.selection import CORE, Selection, split_names
 from ycli.mcp.server import build_server, check_tool_names
 from ycli.yandex.mcp import WRITE_TAG
@@ -39,6 +39,7 @@ def test_split_names_trims_and_drops_blanks():
         ),
         ({"toolsets": ()}, "none given"),
         ({"exclude_tools": (STATUS_TOOL,)}, "always served"),
+        ({"exclude_tools": (SCHEMA_TOOL,)}, "always served"),
         ({"tools": ("nope_get",)}, "unknown tool 'nope_get'"),
         ({"exclude_tools": ("get",)}, "unknown tool 'get'"),
     ],
@@ -87,18 +88,18 @@ async def test_default_serves_every_tool():
 @pytest.mark.parametrize("service", ["tracker", "wiki", "forms"])
 async def test_a_service_toolset_serves_that_service_and_status(service):
     tools = await every_tool()
-    expected = {name for name in tools if name.startswith(f"{service}_")} | {STATUS_TOOL}
+    expected = {name for name in tools if name.startswith(f"{service}_")} | {*ALWAYS_SERVED}
     assert await served(Selection(toolsets=(service,))) == expected
 
 
 async def test_several_toolsets_union():
     names = await served(Selection(toolsets=("wiki", "forms")))
-    assert {n.split("_")[0] for n in names} == {"wiki", "forms", "status"}
+    assert {n.split("_")[0] for n in names} == {"wiki", "forms", "status", "schema"}
 
 
 def test_core_profile_is_curated_and_exists_in_the_full_server():
     assert 30 <= len(CORE_TOOLS) <= 50
-    assert STATUS_TOOL in CORE_TOOLS
+    assert {*ALWAYS_SERVED} <= CORE_TOOLS
 
 
 async def test_core_profile_names_all_exist():
@@ -173,7 +174,7 @@ async def test_status_is_served_under_every_selection():
         Selection(toolsets=(CORE,), read_only=True),
         Selection(toolsets=("forms",), exclude_tools=("forms_surveys_get",)),
     ):
-        assert STATUS_TOOL in await served(selection)
+        assert {*ALWAYS_SERVED} <= await served(selection)
 
 
 @pytest.mark.parametrize(
@@ -228,7 +229,7 @@ async def test_tool_search_lists_a_search_interface_and_status():
     server = build_server(Selection(tool_search=True))
     async with Client(server) as client:
         names = {tool.name for tool in await client.list_tools()}
-        assert names == {"search_tools", "call_tool", STATUS_TOOL}
+        assert names == {"search_tools", "call_tool", *ALWAYS_SERVED}
         found = await client.call_tool("search_tools", {"query": "tracker issue comments add"})
     assert "tracker_comments_create" in {
         item["name"] for item in found.structured_content["result"]

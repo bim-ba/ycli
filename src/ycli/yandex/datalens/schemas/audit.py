@@ -12,28 +12,40 @@ from . import shared
 
 
 class AuditEntry(APIModel):
-    entry_id: str = Field(..., alias="entryId", description="Unique identifier of the entry")
-    key: str | None = Field(..., description="Entry key identifier")
-    is_deleted: bool = Field(
-        ..., alias="isDeleted", description="Flag indicating if the entry is deleted"
+    entry_id: str | None = Field(
+        default=None, alias="entryId", description="Unique identifier of the entry"
+    )
+    key: str | None = Field(default=None, description="Entry key identifier")
+    is_deleted: bool | None = Field(
+        default=None,
+        alias="isDeleted",
+        description="Flag indicating if the entry is deleted",
     )
     workbook_id: str | None = Field(
-        ..., alias="workbookId", description="ID of the associated workbook"
+        default=None, alias="workbookId", description="ID of the associated workbook"
     )
     collection_id: str | None = Field(
-        ..., alias="collectionId", description="ID of the associated collection"
+        default=None,
+        alias="collectionId",
+        description="ID of the associated collection",
     )
     parent_folder_id: str | None = Field(
-        ..., alias="parentFolderId", description="ID of the associated folder"
+        default=None, alias="parentFolderId", description="ID of the associated folder"
     )
-    scope: shared.EntryScope
-    type: str | None = Field(..., description="Type of the entry")
-    updated_at: str = Field(..., alias="updatedAt", description="Timestamp of the last update")
-    user_id: str = Field(..., alias="userId", description="ID of the user who made the change")
+    scope: shared.EntryScope | None = None
+    type: str | None = Field(default=None, description="Type of the entry")
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="Timestamp of the last update"
+    )
+    user_id: str | None = Field(
+        default=None, alias="userId", description="ID of the user who made the change"
+    )
 
 
 class GetAuditEntriesUpdatesResult(APIModel):
-    entries: list[AuditEntry] = Field(..., description="Entries updated in the requested period.")
+    entries: list[AuditEntry] | None = Field(
+        default=None, description="Entries updated in the requested period."
+    )
     next_page_token: str | None = Field(
         default=None,
         alias="nextPageToken",
@@ -70,10 +82,18 @@ class GetAuditEntryPermissionsForUserArgs(RequestBody):
 class GetAuditEntryPermissionsForUserResultValueVariant1Permissions(APIModel):
     """Permissions granted to the user for the entry."""
 
-    execute: bool = Field(..., description="Indicates if there are permissions to execute.")
-    read: bool = Field(..., description="Indicates if there are permissions to read.")
-    edit: bool = Field(..., description="Indicates if there are permissions to edit.")
-    admin: bool = Field(..., description="Indicates if there are permissions for admin.")
+    execute: bool | None = Field(
+        default=None, description="Indicates if there are permissions to execute."
+    )
+    read: bool | None = Field(
+        default=None, description="Indicates if there are permissions to read."
+    )
+    edit: bool | None = Field(
+        default=None, description="Indicates if there are permissions to edit."
+    )
+    admin: bool | None = Field(
+        default=None, description="Indicates if there are permissions for admin."
+    )
 
 
 class GetAuditEntryPermissionsForUserResultValueVariant2(APIModel):
@@ -81,7 +101,7 @@ class GetAuditEntryPermissionsForUserResultValueVariant2(APIModel):
 
 
 class GetAuditEntryPermissionsForUserResultValueVariant1(APIModel):
-    permissions: GetAuditEntryPermissionsForUserResultValueVariant1Permissions
+    permissions: GetAuditEntryPermissionsForUserResultValueVariant1Permissions | None = None
 
 
 class GetAuditEntryPermissionsForUserResult(

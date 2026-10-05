@@ -10,7 +10,7 @@ from ycli.yandex.models import APIModel, RequestBody
 
 
 class AccessExtSubjectClaims(APIModel):
-    sub: str = Field(..., description="Subject identifier.")
+    sub: str | None = Field(default=None, description="Subject identifier.")
     sub_type: (
         Literal[
             "SUBJECT_TYPE_UNSPECIFIED",
@@ -21,13 +21,20 @@ class AccessExtSubjectClaims(APIModel):
             "_system",
         ]
         | str
-    ) = Field(..., alias="subType", description="Subject type.")
-    email: str = Field(..., description="Subject email address.")
-    name: str = Field(..., description="Subject display name.")
-    given_name: str = Field(..., alias="givenName", description="Subject given name.")
-    family_name: str = Field(..., alias="familyName", description="Subject family name.")
-    preferred_username: str = Field(
-        ..., alias="preferredUsername", description="Preferred username of the subject."
+        | None
+    ) = Field(default=None, alias="subType", description="Subject type.")
+    email: str | None = Field(default=None, description="Subject email address.")
+    name: str | None = Field(default=None, description="Subject display name.")
+    given_name: str | None = Field(
+        default=None, alias="givenName", description="Subject given name."
+    )
+    family_name: str | None = Field(
+        default=None, alias="familyName", description="Subject family name."
+    )
+    preferred_username: str | None = Field(
+        default=None,
+        alias="preferredUsername",
+        description="Preferred username of the subject.",
     )
     federation: Any | None = Field(
         default=None, description="Federation associated with the subject."
@@ -44,9 +51,13 @@ class AccessExtSubjectClaims(APIModel):
 
 
 class AccessExtBatchListMembersResult(APIModel):
-    members: list[AccessExtSubjectClaims] = Field(..., description="Members matching the request.")
-    next_page_token: str = Field(
-        ..., alias="nextPageToken", description="Token for the next page of members."
+    members: list[AccessExtSubjectClaims] | None = Field(
+        default=None, description="Members matching the request."
+    )
+    next_page_token: str | None = Field(
+        default=None,
+        alias="nextPageToken",
+        description="Token for the next page of members.",
     )
 
 

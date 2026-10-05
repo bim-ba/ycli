@@ -8,13 +8,15 @@ from ycli.yandex.models import APIModel, RequestBody
 
 
 class CreateEmbeddingSecretResult(APIModel):
-    embedding_secret_id: str = Field(
-        ...,
+    embedding_secret_id: str | None = Field(
+        default=None,
         alias="embeddingSecretId",
         description="ID of the newly created key for embedding.",
     )
-    private_key: str = Field(
-        ..., alias="privateKey", description="Private key for accessing the embedding."
+    private_key: str | None = Field(
+        default=None,
+        alias="privateKey",
+        description="Private key for accessing the embedding.",
     )
 
 
@@ -28,24 +30,24 @@ class CreateEmbeddingSecretArgs(RequestBody):
 
 
 class EmbeddingSecret(APIModel):
-    embedding_secret_id: str = Field(
-        ...,
+    embedding_secret_id: str | None = Field(
+        default=None,
         alias="embeddingSecretId",
         description="Unique identifier of the key for embedding.",
     )
-    title: str = Field(..., description="Name of the key for embedding.")
-    workbook_id: str = Field(
-        ...,
+    title: str | None = Field(default=None, description="Name of the key for embedding.")
+    workbook_id: str | None = Field(
+        default=None,
         alias="workbookId",
         description="ID of the workbook associated with the key for embedding.",
     )
-    created_by: str = Field(
-        ...,
+    created_by: str | None = Field(
+        default=None,
         alias="createdBy",
         description="ID of the user who created the key for embedding.",
     )
-    created_at: str = Field(
-        ...,
+    created_at: str | None = Field(
+        default=None,
         alias="createdAt",
         description="Date and time when the key for embedding was created.",
     )
@@ -60,8 +62,8 @@ class ListEmbeddingSecretsArgs(RequestBody):
 
 
 class DeleteEmbeddingSecretResult(APIModel):
-    embedding_secret_id: str = Field(
-        ...,
+    embedding_secret_id: str | None = Field(
+        default=None,
         alias="embeddingSecretId",
         description="ID of the deleted key for embedding.",
     )

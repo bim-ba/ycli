@@ -12,9 +12,13 @@ from . import shared
 
 
 class StartWorkbookImportResult(APIModel):
-    import_id: str = Field(..., alias="importId", description="ID of the started workbook import.")
-    workbook_id: str = Field(
-        ..., alias="workbookId", description="ID of the workbook created by the import."
+    import_id: str | None = Field(
+        default=None, alias="importId", description="ID of the started workbook import."
+    )
+    workbook_id: str | None = Field(
+        default=None,
+        alias="workbookId",
+        description="ID of the workbook created by the import.",
     )
 
 
@@ -32,12 +36,16 @@ class StartWorkbookImportArgs(RequestBody):
 
 
 class GetWorkbookImportStatusResult(APIModel):
-    import_id: str = Field(..., alias="importId", description="ID of the workbook import.")
-    workbook_id: str = Field(..., alias="workbookId", description="ID of the imported workbook.")
-    status: shared.WorkbookTransferProcessStatus
-    progress: float = Field(..., description="Workbook import progress percentage.")
+    import_id: str | None = Field(
+        default=None, alias="importId", description="ID of the workbook import."
+    )
+    workbook_id: str | None = Field(
+        default=None, alias="workbookId", description="ID of the imported workbook."
+    )
+    status: shared.WorkbookTransferProcessStatus | None = None
+    progress: float | None = Field(default=None, description="Workbook import progress percentage.")
     notifications: list[shared.WorkbookTransferNotification] | None = Field(
-        ..., description="Notifications generated during the workbook import."
+        default=None, description="Notifications generated during the workbook import."
     )
 
 

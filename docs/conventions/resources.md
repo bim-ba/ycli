@@ -53,7 +53,7 @@ DataLens publishes one OpenAPI document with about 600 schemas, and its objects 
 write by hand, so `scripts/gen_datalens_models.py` generates them into
 `src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
 are met by the script, not by an editor: before the generator runs it rewrites the document so
-that a reply is read openly, a set of values is open, only the envelope of a request is closed
+that a reply is read openly and requires no field but the one that tells its kind (DataLens leaves out fields its document calls required), a set of values is open, only the envelope of a request is closed
 (and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
 and is not sent) or a limit on its value (its length, range or pattern is the API's to enforce), and every class is named from the place of its schema, so a schema added
 elsewhere renames nothing.
@@ -271,6 +271,18 @@ options, merges, and validates the result into the model.
 
 The only exception is a binary upload, which takes `Base64Bytes` (see below); another would carry
 `# violation(arch-8): <reason>` above the function, and there is none.
+
+### A body over the schema budget
+
+A client reads every tool's input schema before its first call, and some cut a large one short (Codex compacts a schema over 5,000 bytes; #372). So a tool's input schema weighs at most `SCHEMA_BUDGET_BYTES` (32 KB, `ycli.yandex.mcp`), measured as `len(json.dumps(schema))` of what the server lists. A body that would take its tool over the budget is marked:
+
+```python
+SUBSCRIPTION = "ycli.yandex.forms.subscriptions.models:Subscription"
+
+body: Annotated[Subscription, OverBudget(SUBSCRIPTION, "The integration; ``type`` selects its schema.")]
+```
+
+The listing then shows the parameter as a free-form object whose description names the definition to read, and the `schema_get(service, name)` tool serves that definition and each one it refers to, one per call. The value is still validated by the model: the tool receives a typed body, and a call with a wrong field is refused with the field's path. The address is `module:name` of the model or of the named union; `schema_get` keeps no map of its own and reads the addresses from the listing. Within a service a name means one definition: two bodies may share one, and two different definitions under one name stop the index (`test_one_name_is_one_definition_within_a_service`). The SDK and the CLI do not change. `test_every_tool_lists_a_schema_within_the_budget` names the tool and the parameter to mark; a mark that is no longer needed is not checked for.
 
 ### `Ack` for bodyless write responses
 
