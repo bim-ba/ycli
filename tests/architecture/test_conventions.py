@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field, RootModel
 from scripts import api_drift
 
 import ycli.yandex
+from tests.architecture.scanners import unexplained
 from tests.full_server import tools_with_output_schemas
 from ycli.yandex.models import (
     IGNORED_BY_API,
@@ -351,18 +352,17 @@ def test_the_value_set_check_bites():
     assert frozenset({"x"}) not in sets
 
 
-# An option that names a set's values by hand although the set has a definition to take them from.
-VALUES_WRITTEN_BY_HAND = {
-    "yandex/wiki/grids/cli.py:update.default_sort": "a JSON value; its help shows the shape",
-}
-
-
 def _options_naming_a_set_by_hand(
     sources: dict[str, str], sets: dict[frozenset[str], list[str]]
 ) -> list[str]:
-    """Plain ``str`` options and tool parameters whose text lists every value of a defined set."""
+    """Plain ``str`` options and tool parameters whose text lists every value of a defined set.
+
+    One that does so on purpose has ``# violation(value-set): <reason>`` on the line above the
+    parameter; such a marker above anything else is reported too.
+    """
     offenders = []
     for path, source in sources.items():
+        found = []
         if not path.endswith(("cli.py", "mcp.py")) and "/cli/" not in path:
             continue
         for function in ast.walk(ast.parse(source)):
@@ -388,7 +388,8 @@ def _options_naming_a_set_by_hand(
                 ]
                 words = set(re.findall(r"[\w%]+", " ".join(texts)))
                 if any(values <= words for values in sets):
-                    offenders.append(f"{path}:{function.name}.{argument.arg}")
+                    found.append((argument.lineno, f"{path}:{function.name}.{argument.arg}"))
+        offenders += unexplained(found, source, "value-set", path)
     return offenders
 
 
@@ -399,7 +400,7 @@ def test_an_option_takes_the_values_it_names_from_the_definition_of_the_set():
     """
     sources = _sources()
     found = _options_naming_a_set_by_hand(sources, _value_sets(sources))
-    assert sorted(found) == sorted(VALUES_WRITTEN_BY_HAND)
+    assert found == []
 
 
 def test_the_hand_written_values_check_bites():
@@ -415,6 +416,17 @@ def test_the_hand_written_values_check_bites():
     }
     found = _options_naming_a_set_by_hand(sources, _value_sets(sources))
     assert found == ["a/cli.py:list_.by_hand"]
+    # Both sides: a marked option passes; the marker above an option that names no set does not.
+    marker = "    # violation(value-set): a JSON value; its help shows the shape\n"
+    marked = dict(sources)
+    marked["a/cli.py"] = sources["a/cli.py"].replace("    by_hand:", marker + "    by_hand:")
+    assert _options_naming_a_set_by_hand(marked, _value_sets(marked)) == []
+    stale = dict(sources)
+    stale["a/cli.py"] = sources["a/cli.py"].replace("    other:", marker + "    other:")
+    assert _options_naming_a_set_by_hand(stale, _value_sets(stale)) == [
+        "a/cli.py:list_.by_hand",
+        "a/cli.py:4: violation(value-set) marks nothing the check finds",
+    ]
 
 
 def _annotated_aliases(sources: dict[str, str]) -> dict[str, list[str]]:
