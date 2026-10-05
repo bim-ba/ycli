@@ -1,9 +1,12 @@
 """Each pagination kind: the first request it shapes and the next one it derives."""
 
+import json
+
 import httpx2
 import pytest
 
 from ycli.yandex.core.pagination import (
+    BodyCursorPagination,
     CursorPagination,
     LinkHeaderPagination,
     NextURLPagination,
@@ -68,6 +71,34 @@ def test_cursor_from_the_body_and_a_non_advancing_cursor():
     assert second.url.params["cursor"] == "c2"
     assert pagination.next(second, httpx2.Response(200, json={"next_cursor": "c2"}), [2]) is None
     assert pagination.next(second, httpx2.Response(200, json={"next_cursor": None}), [2]) is None
+
+
+def test_a_body_cursor_goes_into_the_json_body_and_keeps_the_rest_of_it():
+    pagination = BodyCursorPagination(
+        cursor_of=lambda response: response.json().get("nextPageToken"), page_size=50
+    )
+    first = pagination.first(_request())
+    assert json.loads(first.content) == {"filter": {}, "pageSize": 50}
+    second = pagination.next(first, httpx2.Response(200, json={"nextPageToken": "t2"}), [1])
+    assert second is not None
+    assert json.loads(second.content) == {"filter": {}, "pageSize": 50, "pageToken": "t2"}
+    # The request is otherwise the same: method, address, headers, and a length for the new body.
+    assert (second.method, second.url, second.headers["X-Org-Id"]) == ("POST", first.url, "o")
+    assert second.headers["Content-Length"] == str(len(second.content))
+    assert pagination.next(second, httpx2.Response(200, json={"nextPageToken": "t2"}), [2]) is None
+    assert pagination.next(second, httpx2.Response(200, json={}), [2]) is None
+
+
+def test_a_body_cursor_works_without_a_page_size_and_without_a_body():
+    """DataLens names the cursor ``page`` in four listings; a call with no arguments has no body."""
+    pagination = BodyCursorPagination(
+        cursor_of=lambda response: response.json()["nextPageToken"], cursor_param="page"
+    )
+    bare = httpx2.Request("POST", BASE)
+    assert pagination.first(bare) is bare
+    following = pagination.next(bare, httpx2.Response(200, json={"nextPageToken": "2"}), [1])
+    assert following is not None
+    assert json.loads(following.content) == {"page": "2"}
 
 
 def test_link_header_copies_only_the_query_of_a_schemeless_link():

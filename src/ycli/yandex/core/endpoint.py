@@ -3,8 +3,9 @@
 An endpoint knows its HTTP method and path, its query and body, the type its response parses
 into, and its *effect*: what calling it does to the server. The effect follows from the
 method (``GET`` reads, ``PATCH``/``PUT`` edit, ``DELETE`` destroys, ``POST`` writes) unless the
-endpoint states otherwise, as a ``POST …/_search`` does. Retries follow that one value, and the
-MCP tool annotations must agree with it.
+endpoint states otherwise, as a ``POST …/_search`` does. Where the method says nothing, in an
+RPC API whose every operation is a ``POST``, :func:`RPC` writes the endpoint and the effect is
+always named. Retries follow that one value, and the MCP tool annotations must agree with it.
 
 Nothing here does I/O: :meth:`Endpoint.request` builds a native ``httpx2.Request`` through the
 client (so its base URL and default headers apply) and :meth:`Endpoint.parse` reads a response.
@@ -214,6 +215,45 @@ class Endpoint[T]:
                 f"the reply to {self.method} {self.path} does not fit what ycli expects ({fields})",
                 url=str(response.url),
             ) from exc
+
+
+def RPC[T](  # noqa: N802 - reads as the kind of call it writes, beside ``Endpoint``
+    name: str,
+    response_type: type[T] | None = None,
+    *,
+    json: Any = None,
+    effect: Effect,
+    parser: Callable[[httpx2.Response], T] | None = None,
+) -> Endpoint[T]:
+    """An operation of an RPC API: ``POST rpc/<name>`` with its arguments in the body.
+
+    It is one more way to write an :class:`Endpoint`, not another kind of request. Every
+    operation of such an API is a ``POST``, so the method says nothing about what the call does:
+    ``effect`` has no default here and is always named.
+
+    Args:
+        name: The operation's own name (``getDashboard``).
+        response_type: The type the reply parses into; ``None`` ignores the reply.
+        json: The request body: a request model or plain JSON data.
+        effect: What the call does to the server.
+        parser: Reads a reply that is not one JSON type.
+
+    Returns:
+        The endpoint that sends the call.
+
+    Examples:
+        >>> get = RPC("getDashboard", json={"dashboardId": "d1"}, effect=Effect.READ)
+        >>> (get.method.value, get.path, get.idempotent)
+        ('POST', 'rpc/getDashboard', True)
+    """
+    return Endpoint(
+        HTTPMethod.POST,
+        f"rpc/{segment(name)}",
+        response_type,
+        json=json,
+        effect=effect,
+        parser=parser,
+    )
 
 
 @dataclass(frozen=True, slots=True)
