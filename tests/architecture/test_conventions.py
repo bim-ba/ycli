@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field, RootModel
 from scripts import api_drift
 
 import ycli.yandex
-from tests.architecture.scanners import unexplained
+from tests.architecture.scanners import GENERATED, is_generated, unexplained
 from tests.full_server import tools_with_output_schemas
 from ycli.yandex.models import (
     IGNORED_BY_API,
@@ -34,17 +34,19 @@ MODEL_BASE_EXCEPTIONS = {
 
 
 def _models() -> list[type[BaseModel]]:
-    """Every pydantic model class defined under ``ycli.yandex``."""
+    """Every pydantic model class written by hand under ``ycli.yandex`` (``GENERATED`` apart)."""
     for module in pkgutil.walk_packages(ycli.yandex.__path__, "ycli.yandex."):
         importlib.import_module(module.name)
 
     def subclasses(cls: type[BaseModel]) -> list[type[BaseModel]]:
         return [found for sub in cls.__subclasses__() for found in (sub, *subclasses(sub))]
 
+    generated = tuple(".".join(("ycli", *home.parts, "")) for home in GENERATED)
     return [
         cls
         for cls in subclasses(BaseModel)
         if cls.__module__.startswith("ycli.yandex.")
+        and not cls.__module__.startswith(generated)
         and not cls.__pydantic_generic_metadata__["origin"]  # ItemList[X] is ItemList
     ]
 
@@ -321,10 +323,12 @@ def _value_sets(sources: dict[str, str]) -> dict[frozenset[str], list[str]]:
 
 
 def _sources() -> dict[str, str]:
-    """Every module of the package by its path under ``src/ycli``: ``{"cli/app.py": "..."}``."""
+    """Every hand-written module by its path under ``src/ycli``: ``{"cli/app.py": "..."}``."""
     root = Path(ycli.__file__).parent
     return {
-        str(path.relative_to(root)): path.read_text(encoding="utf-8") for path in root.rglob("*.py")
+        str(path.relative_to(root)): path.read_text(encoding="utf-8")
+        for path in root.rglob("*.py")
+        if not is_generated(path.relative_to(root))
     }
 
 

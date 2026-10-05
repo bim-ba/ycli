@@ -15,6 +15,19 @@ from ycli.yandex.registry import SERVICES
 SRC = Path(__file__).resolve().parents[2] / "src" / "ycli"
 YANDEX = SRC / "yandex"
 DOMAINS = tuple(service.name for service in SERVICES)
+# Code that a script writes from a published specification, and what holds it instead of the
+# conventions for hand-written code (docs/conventions/resources.md, "Generated models").
+GENERATED = {
+    Path("yandex/datalens/schemas"): (
+        "scripts/gen_datalens_models.py; tests/tooling/test_gen_datalens_models.py holds that "
+        "no file was edited by hand and that every module imports"
+    ),
+}
+
+
+def is_generated(path: Path) -> bool:
+    """Whether ``path`` (under ``src/ycli``) lies in a directory of generated code."""
+    return any(home in path.parents for home in GENERATED)
 
 
 def _mcp_tools():

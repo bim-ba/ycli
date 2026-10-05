@@ -47,6 +47,36 @@ A public model that is renamed or merged stops importing under its old name in t
 release: no alias is kept. The commit that does it carries a `BREAKING CHANGE` footer listing
 "was → is", which becomes the changelog entry.
 
+### Generated models
+
+DataLens publishes one OpenAPI document with about 600 schemas, and its objects are too large to
+write by hand, so `scripts/gen_datalens_models.py` generates them into
+`src/ycli/yandex/datalens/schemas/`, one module per section of the API. The rules of this page
+are met by the script, not by an editor: before the generator runs it rewrites the document so
+that a reply is read openly, a set of values is open, only the envelope of a request is closed
+(and takes `RequestBody`), no field has a default of the document's (what is not given is `None`
+and is not sent), and every class is named from the place of its schema, so a schema added
+elsewhere renames nothing.
+
+A generated file is never edited by hand and carries no `# violation` marker; the checks of this
+page skip the directory (`GENERATED` in `tests/architecture/scanners.py`), and
+`tests/tooling/test_gen_datalens_models.py` holds what stands in for them:
+
+- every file is the one the script wrote: its checksum is in `scripts/datalens_schemas.sha256`,
+  which the script writes, and a file changed, added or removed without the script fails;
+- every file is nothing but models: it imports only from `pydantic`, `typing`, `datetime` and
+  `ycli.yandex.models`, its classes inherit only from `APIModel`, `RequestBody`, `RootModel`
+  and each other, and it runs no code. The document is downloaded, and its extensions that
+  would tell the generator to import or inherit something else are removed before it is read;
+- every module imports.
+
+The specification itself is not committed; the weekly `api-drift` run regenerates from the
+published one and reports a difference.
+
+A resource does not hand a generated class to its callers under the generator's name: its
+`models.py` imports the classes it uses and gives them their public names, and those names
+follow this page.
+
 ### A field with a set of values
 
 A set of values is the known values plus any string, and the definition itself says so:

@@ -115,6 +115,7 @@ exclude_also = [
 
 [dependency-groups]
 dev = [
+    "datamodel-code-generator==0.83.0",
     "import-linter>=2.12",
     "jmespath>=1.1.0",
     "openapi-spec-validator>=0.9.0",
@@ -217,6 +218,9 @@ runtime-evaluated-base-classes = [
 "{e2e,docs,.claude}/**/*.py" = ["D1"]
 # Sans-IO builders named after their operation; the resource client documents the operation.
 "src/ycli/yandex/**/endpoints.py" = ["D103"]
+# Generated from the DataLens specification (scripts/gen_datalens_models.py): a class has the
+# docstring its schema has, and a description is as long as DataLens wrote it.
+"src/ycli/yandex/datalens/schemas/*.py" = ["D1", "E501", "RUF001"]
 # Typer reads command annotations at runtime (inspect.signature(eval_str=True)), so their
 # imports must stay real imports, never `if TYPE_CHECKING:` ones.
 "src/ycli/**/cli.py" = ["TC001", "TC003"]
