@@ -8,7 +8,7 @@ from ycli.yandex.factory import build_client
 from ycli.yandex.tracker.client import TrackerClient
 
 
-def test_build_passes_raw_args_and_does_not_read_env(api, monkeypatch, tmp_path):
+def test_build_passes_raw_args_and_does_not_read_env(api, monkeypatch):
     """build_client takes instances (not env) and wires the sub-clients.
 
     monkeypatch sets the env so Credentials() resolves; build_client must
@@ -16,7 +16,6 @@ def test_build_passes_raw_args_and_does_not_read_env(api, monkeypatch, tmp_path)
     """
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "t")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "o")
-    monkeypatch.chdir(tmp_path)  # prevent .env from leaking
     creds = Credentials()
     cfg = AppConfig(http={"timeout_seconds": 12.0, "retries": 5})  # ty: ignore[invalid-argument-type]
     client = build_client(TrackerClient, creds, cfg)
@@ -30,12 +29,11 @@ def test_build_passes_raw_args_and_does_not_read_env(api, monkeypatch, tmp_path)
     assert core._attempts == 6  # the first try and 5 retries
 
 
-def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
+def test_build_forwards_fractional_timeout(monkeypatch):
     """A fractional ``timeout_seconds`` reaches the client unrounded: 0.5 must not become 0."""
     monkeypatch.setenv("YANDEX_ID_OAUTH_TOKEN", "tok")
     monkeypatch.setenv("YANDEX_ID_ORGANIZATION_ID", "org")
     monkeypatch.setenv("YCLI__HTTP__TIMEOUT_SECONDS", "0.5")
-    monkeypatch.chdir(tmp_path)
     creds = Credentials()
     cfg = AppConfig()
     client = build_client(TrackerClient, creds, cfg)
@@ -43,9 +41,8 @@ def test_build_forwards_fractional_timeout(monkeypatch, tmp_path):
     assert client.me._session._client.timeout.read == 0.5
 
 
-def test_build_forwards_before_send_to_the_core_session(api, monkeypatch, tmp_path):
+def test_build_forwards_before_send_to_the_core_session(api, monkeypatch):
     """The hook reaches the session: it is called with the effect before the request goes out."""
-    monkeypatch.chdir(tmp_path)
     seen: list[tuple[str, str]] = []
     client = build_client(
         TrackerClient,

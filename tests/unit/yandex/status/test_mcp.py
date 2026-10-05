@@ -49,8 +49,7 @@ async def test_status_get_marks_invalid_on_401(api, monkeypatch):
     assert services["tracker"].detail == "token invalid or expired"
 
 
-async def test_status_get_without_credentials_names_the_missing_variables(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)
+async def test_status_get_without_credentials_names_the_missing_variables(monkeypatch):
     monkeypatch.delenv("YANDEX_ID_OAUTH_TOKEN", raising=False)
     monkeypatch.delenv("YANDEX_ID_ORGANIZATION_ID", raising=False)
     async with Client(status_mcp.mcp) as client:

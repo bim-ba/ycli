@@ -103,8 +103,7 @@ def test_two_ways_to_sign_in_are_refused_by_name():
     )
 
 
-def test_no_organization_of_either_kind_is_reported_as_the_missing_variable(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)  # no .env
+def test_no_organization_of_either_kind_is_reported_as_the_missing_variable(monkeypatch):
     for name in ("YANDEX_ID_ORGANIZATION_ID", "YCLI__AUTH__ORGANIZATION_ID"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.delenv("YANDEX_CLOUD_ORGANIZATION_ID", raising=False)
@@ -114,8 +113,7 @@ def test_no_organization_of_either_kind_is_reported_as_the_missing_variable(monk
     assert missing_credentials(caught.value) == ["YANDEX_ID_ORGANIZATION_ID"]
 
 
-def test_the_sources_name_only_what_is_set_of_each_group(monkeypatch, tmp_path):
-    monkeypatch.chdir(tmp_path)
+def test_the_sources_name_only_what_is_set_of_each_group(monkeypatch):
     for name in ("YANDEX_ID_OAUTH_TOKEN", "YANDEX_CLOUD_IAM_TOKEN", "YANDEX_ID_ORGANIZATION_ID"):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("YANDEX_CLOUD_SERVICE_ACCOUNT_KEY_FILE", "key.json")

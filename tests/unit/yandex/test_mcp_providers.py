@@ -74,10 +74,9 @@ async def test_a_tool_call_closes_the_client_it_built(api, monkeypatch):
     ],
 )
 async def test_a_tool_call_without_credentials_names_the_missing_variables(
-    monkeypatch, tmp_path, unset, named
+    monkeypatch, unset, named
 ):
     """Not FastMCP's "Failed to resolve dependency 'client'", which names nothing."""
-    monkeypatch.chdir(tmp_path)  # no repo .env
     for name in unset:
         monkeypatch.delenv(name, raising=False)
     async with Client(issues_mcp.mcp) as client:
