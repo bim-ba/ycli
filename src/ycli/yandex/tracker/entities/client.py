@@ -703,7 +703,7 @@ class EntitiesClient(Resource):
             )
         )
 
-    def checklists_update_item(
+    def checklists_items_update(
         self,
         entity_type: str,
         entity_id: str,
@@ -734,7 +734,7 @@ class EntitiesClient(Resource):
 
         Examples:
             >>> from ycli.yandex.tracker.entities.models import ChecklistItemInput
-            >>> tracker.entities.checklists_update_item(
+            >>> tracker.entities.checklists_items_update(
             ...     "portfolio",
             ...     "pf32",
             ...     "1f",
@@ -742,7 +742,7 @@ class EntitiesClient(Resource):
             ... ).id
             'pf32'
         """
-        endpoint = endpoints.checklists_update_item(
+        endpoint = endpoints.checklists_items_update(
             entity_type,
             entity_id,
             item_id,
@@ -794,7 +794,7 @@ class EntitiesClient(Resource):
             )
         )
 
-    def checklists_delete_item(
+    def checklists_items_delete(
         self,
         entity_type: str,
         entity_id: str,
@@ -822,11 +822,11 @@ class EntitiesClient(Resource):
             The updated entity.
 
         Examples:
-            >>> tracker.entities.checklists_delete_item("goal", "g35", "3f").id
+            >>> tracker.entities.checklists_items_delete("goal", "g35", "3f").id
             'g35'
         """
         return self._session.send(
-            endpoints.checklists_delete_item(
+            endpoints.checklists_items_delete(
                 entity_type,
                 entity_id,
                 item_id,

@@ -192,8 +192,8 @@ ARCH1_SURFACE_ASYMMETRIES: dict[str, str] = {
     "tracker.entities.attachments_download": "binary download — CLI-only (bytes)",
     "wiki.attachments.download": "binary download — CLI-only (bytes)",
     "wiki.attachments.download_by_url": "binary download — CLI-only (bytes)",
-    "wiki.attachments.preview_download": "binary download — CLI-only (bytes)",
-    "forms.answers.download_export": "binary download — CLI-only (bytes)",
+    "wiki.attachments.previews_download": "binary download — CLI-only (bytes)",
+    "forms.answers.export_download": "binary download — CLI-only (bytes)",
     "forms.files.download": "binary download — CLI-only (bytes)",
     "forms.keysets.download": "binary download — CLI-only (bytes)",
     # Binary upload — the CLI streams a local file; no MCP tool by design.

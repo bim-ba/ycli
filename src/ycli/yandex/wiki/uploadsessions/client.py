@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 
 
 class UploadSessionsClient(Resource):
-    """``/upload_sessions``: create · get · upload-part · finish · abort."""
+    """``/upload_sessions``: create · get · parts-upload · finish · abort."""
 
     def create(self, body: UploadSessionCreate) -> UploadSession:
         """Open an upload session from a typed ``UploadSessionCreate`` body. Returns the session.
 
-        The returned ``session_id`` addresses the session for ``upload_part`` / ``finish``.
+        The returned ``session_id`` addresses the session for ``parts_upload`` / ``finish``.
 
         Args:
             body: The file's name and size.
@@ -57,7 +57,7 @@ class UploadSessionsClient(Resource):
         """
         return self._session.send(endpoints.get(session_id))
 
-    def upload_part(self, session_id: str, *, part_number: int, data: bytes) -> UploadSession:
+    def parts_upload(self, session_id: str, *, part_number: int, data: bytes) -> UploadSession:
         """Upload one file part as raw ``application/octet-stream`` bytes. Returns the session.
 
         ``part_number`` is 1-based (1 for the first part, +1 for each next). Parts may be
@@ -73,10 +73,10 @@ class UploadSessionsClient(Resource):
 
         Examples:
             >>> session_id = "9c8b7a6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"
-            >>> wiki.uploadsessions.upload_part(session_id, part_number=1, data=b"part").status
+            >>> wiki.uploadsessions.parts_upload(session_id, part_number=1, data=b"part").status
             'in_progress'
         """
-        endpoint = endpoints.upload_part(session_id, part_number=part_number, data=data)
+        endpoint = endpoints.parts_upload(session_id, part_number=part_number, data=data)
         return self._session.send(endpoint)
 
     def finish(self, session_id: str) -> UploadSession:

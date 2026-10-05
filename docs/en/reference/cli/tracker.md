@@ -4663,8 +4663,8 @@ $ ycli tracker entities checklists [OPTIONS] COMMAND [ARGS]...
 
 * `create`: Add checklist items to an entity (POST...
 * `update`: Replace the whole checklist (PATCH...
-* `update-item`: Edit a single checklist item (PATCH...
-* `delete-item`: Remove one checklist item (DELETE...
+* `items-update`: Edit a single checklist item (PATCH...
+* `items-delete`: Remove one checklist item (DELETE...
 * `delete`: Clear the whole checklist (DELETE...
 * `move`: Reorder a checklist item (POST...
 
@@ -4727,14 +4727,14 @@ $ ycli tracker entities checklists update [OPTIONS] TYPE ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli tracker entities checklists update-item`
+#### `ycli tracker entities checklists items-update`
 
 Edit a single checklist item (PATCH …/checklistItems/ITEM_ID).
 
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists update-item [OPTIONS] TYPE ID ITEM_ID
+$ ycli tracker entities checklists items-update [OPTIONS] TYPE ID ITEM_ID
 ```
 
 **Arguments**:
@@ -4759,14 +4759,14 @@ $ ycli tracker entities checklists update-item [OPTIONS] TYPE ID ITEM_ID
 * `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
 * `--help`: Show this message and exit.
 
-#### `ycli tracker entities checklists delete-item`
+#### `ycli tracker entities checklists items-delete`
 
 Remove one checklist item (DELETE …/checklistItems/ITEM_ID).
 
 **Usage**:
 
 ```console
-$ ycli tracker entities checklists delete-item [OPTIONS] TYPE ID ITEM_ID
+$ ycli tracker entities checklists items-delete [OPTIONS] TYPE ID ITEM_ID
 ```
 
 **Arguments**:

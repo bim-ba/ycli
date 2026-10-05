@@ -1,6 +1,6 @@
 """Pydantic v2 models for Yandex Wiki /upload_sessions (the binary upload pipeline).
 
-Every write in the pipeline (create / upload-part / finish / abort) returns the same
+Every write in the pipeline (create / parts-upload / finish / abort) returns the same
 :class:`UploadSession` snapshot; ``abort_all`` returns the tiny :class:`AbortActiveUploadsResult`.
 The lone typed request body is :class:`UploadSessionCreate` (``file_name`` + ``file_size``).
 """
@@ -14,7 +14,7 @@ from ycli.yandex.wiki.models import User
 
 
 class UploadSession(APIModel):
-    """A file upload session — create / get / upload-part / finish / abort all return this shape.
+    """A file upload session — create / get / parts-upload / finish / abort all return this shape.
 
     ``session_id`` addresses the session across the whole pipeline; ``status`` walks
     ``not_started`` → ``in_progress`` → ``finished`` (or ``aborted`` / ``used`` / ``cleanup``).

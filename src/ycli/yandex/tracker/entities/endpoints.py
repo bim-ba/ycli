@@ -330,7 +330,7 @@ def checklists_update(
     )
 
 
-def checklists_update_item(
+def checklists_items_update(
     entity_type: str,
     entity_id: str,
     item_id: str,
@@ -378,7 +378,7 @@ def checklists_delete(
     )
 
 
-def checklists_delete_item(
+def checklists_items_delete(
     entity_type: str,
     entity_id: str,
     item_id: str,

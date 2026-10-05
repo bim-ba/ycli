@@ -548,7 +548,7 @@ def checklists_update(
     """Replace/update a Tracker entity's checklist items in one call.
 
     ``body`` is a bare array of items, each with ``id``/``text``/``checked``. To edit a single
-    item by id use ``entities_checklists_update_item``. Returns the entity with its checklist.
+    item by id use ``entities_checklists_items_update``. Returns the entity with its checklist.
     """
     return client.entities.checklists_update(
         entity_type,
@@ -562,10 +562,10 @@ def checklists_update(
 
 
 @mcp.tool(
-    name="entities_checklists_update_item",
+    name="entities_checklists_items_update",
     annotations={**WRITE_IDEMPOTENT, "title": "Edit Tracker entity checklist item"},
 )
-def checklists_update_item(
+def checklists_items_update(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     item_id: Annotated[str, Field(description="Checklist item id.")],
@@ -580,7 +580,7 @@ def checklists_update_item(
 
     Returns the entity with its updated checklist.
     """
-    return client.entities.checklists_update_item(
+    return client.entities.checklists_items_update(
         entity_type,
         entity_id,
         item_id,
@@ -607,7 +607,7 @@ def checklists_delete(
 ) -> Entity:
     """Permanently delete the ENTIRE checklist of a Tracker entity (all items, irreversible).
 
-    To remove a single item use ``entities_checklists_delete_item``. Returns the entity.
+    To remove a single item use ``entities_checklists_items_delete``. Returns the entity.
     """
     return client.entities.checklists_delete(
         entity_type,
@@ -620,10 +620,10 @@ def checklists_delete(
 
 
 @mcp.tool(
-    name="entities_checklists_delete_item",
+    name="entities_checklists_items_delete",
     annotations={**DESTRUCTIVE, "title": "Delete Tracker entity checklist item"},
 )
-def checklists_delete_item(
+def checklists_items_delete(
     entity_type: EntityTypeName,
     entity_id: EntityID,
     item_id: Annotated[str, Field(description="Checklist item id.")],
@@ -637,7 +637,7 @@ def checklists_delete_item(
 
     Returns the entity with its remaining checklist.
     """
-    return client.entities.checklists_delete_item(
+    return client.entities.checklists_items_delete(
         entity_type,
         entity_id,
         item_id,

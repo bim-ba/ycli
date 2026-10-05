@@ -434,7 +434,7 @@ Fetching the bytes (``download``, ``preview``) is CLI/SDK-only.
 Attach file(s) from finished upload sessions to a wiki page.
 
 The final step of the upload pipeline: create the session (``uploadsessions_create``),
-send the bytes (``uploadsessions_upload_part``), close it (``uploadsessions_finish``),
+send the bytes (``uploadsessions_parts_upload``), close it (``uploadsessions_finish``),
 then attach here. For one small file, ``attachments_upload`` runs the whole pipeline in
 a single call. Returns the newly-attached files.
 
@@ -451,7 +451,7 @@ Upload one small file and attach it to a wiki page in a single call.
 
 Runs the whole pipeline end to end: opens an upload session sized to ``data``, PUTs the
 bytes as a single part, finishes the session, and attaches it to the page. Small-file
-path — for large files drive ``uploadsessions_create`` / ``uploadsessions_upload_part``
+path — for large files drive ``uploadsessions_create`` / ``uploadsessions_parts_upload``
 (chunked) / ``uploadsessions_finish`` + ``attachments_attach`` yourself. Returns the
 newly-attached files.
 
@@ -791,7 +791,7 @@ file is attached to a page.
 
 Open an upload session — step 1 of the Wiki file-upload pipeline.
 
-The returned ``session_id`` addresses the session for ``uploadsessions_upload_part`` /
+The returned ``session_id`` addresses the session for ``uploadsessions_parts_upload`` /
 ``uploadsessions_finish``. For a single small file, ``attachments_upload`` runs the whole
 pipeline in one call instead.
 
@@ -799,7 +799,7 @@ pipeline in one call instead.
 |---|---|:---:|---|
 | `body` | object | yes | ``file_name`` + total ``file_size`` in bytes (sum of every part). |
 
-## `wiki_uploadsessions_upload_part`
+## `wiki_uploadsessions_parts_upload`
 
 *Upload Wiki file part* · idempotent write
 

@@ -1,6 +1,6 @@
 """`wiki uploadsessions` commands — the low-level binary upload pipeline.
 
-``create`` → ``upload-part`` (repeat per part) → ``finish``, then attach the file with
+``create`` → ``parts-upload`` (repeat per part) → ``finish``, then attach the file with
 ``wiki attachments attach`` / ``wiki attachments upload``. ``abort`` / ``abort-all`` cancel.
 """
 
@@ -47,8 +47,8 @@ def get(session_id: SessionIDArg, *, wiki: WikiClient) -> UploadSession:
     return wiki.uploadsessions.get(session_id=session_id)
 
 
-@app.command("upload-part")
-def upload_part(
+@app.command("parts-upload")
+def parts_upload(
     session_id: SessionIDArg,
     file_path: Annotated[
         Path,
@@ -68,7 +68,7 @@ def upload_part(
 ) -> UploadSession:
     """Upload one octet-stream part from FILE_PATH (PUT .../{session_id}/upload_part)."""
     data = file_path.read_bytes()
-    return wiki.uploadsessions.upload_part(session_id, part_number=part_number, data=data)
+    return wiki.uploadsessions.parts_upload(session_id, part_number=part_number, data=data)
 
 
 @app.command()

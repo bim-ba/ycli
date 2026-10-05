@@ -2218,7 +2218,7 @@ Add checklist item(s) to a Tracker entity; returns the entity with its checklist
 Replace/update a Tracker entity's checklist items in one call.
 
 ``body`` is a bare array of items, each with ``id``/``text``/``checked``. To edit a single
-item by id use ``entities_checklists_update_item``. Returns the entity with its checklist.
+item by id use ``entities_checklists_items_update``. Returns the entity with its checklist.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -2230,7 +2230,7 @@ item by id use ``entities_checklists_update_item``. Returns the entity with its 
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
-## `tracker_entities_checklists_update_item`
+## `tracker_entities_checklists_items_update`
 
 *Edit Tracker entity checklist item* · idempotent write
 
@@ -2255,7 +2255,7 @@ Returns the entity with its updated checklist.
 
 Permanently delete the ENTIRE checklist of a Tracker entity (all items, irreversible).
 
-To remove a single item use ``entities_checklists_delete_item``. Returns the entity.
+To remove a single item use ``entities_checklists_items_delete``. Returns the entity.
 
 | Parameter | Type | Required | Description |
 |---|---|:---:|---|
@@ -2266,7 +2266,7 @@ To remove a single item use ``entities_checklists_delete_item``. Returns the ent
 | `notify` | boolean or null |  | Notify the users in the fields of the object; omitted, the API notifies. |
 | `notify_author` | boolean or null |  | Notify the author of the change; omitted, the API does not. |
 
-## `tracker_entities_checklists_delete_item`
+## `tracker_entities_checklists_items_delete`
 
 *Delete Tracker entity checklist item* · destructive write
 

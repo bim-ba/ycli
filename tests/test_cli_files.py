@@ -46,7 +46,7 @@ READS_A_FILE = [
         "1",
     ],
     ["wiki", "attachments", "upload", "11", "{file}"],
-    ["wiki", "uploadsessions", "upload-part", "session-1", "{file}"],
+    ["wiki", "uploadsessions", "parts-upload", "session-1", "{file}"],
 ]
 
 
