@@ -26,6 +26,7 @@ $ ycli datalens [OPTIONS] COMMAND [ARGS]...
 * `collections`: DataLens collections.
 * `workbooks`: DataLens workbooks.
 * `entrylocks`: Locks on DataLens entries.
+* `members`: DataLens members.
 
 ## `ycli datalens auth`
 
@@ -887,6 +888,50 @@ $ ycli datalens entrylocks delete [OPTIONS] ENTRY_ID
 **Options**:
 
 * `--params TEXT`: Which lock to release, as a JSON object: {"lockToken": "..."}, or {"force": true} for a lock held by another.  [required]
+* `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
+* `-y, --yes`: Do not ask before an operation that deletes data.
+* `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.
+* `--profile NAME`: Use the credentials saved as this profile (YCLI_PROFILE); the environment's and .env's are then not read. `ycli auth profiles` lists them.
+* `-F, --field TEXT`: Set any field of the request body: key=value, key[sub]=value for a nested one (JSON-coerced; repeatable). A flag of the command wins over it. Objects merge; a list replaces the one below it.
+* `--body-file FILE`: A JSON object (YAML in a .yaml / .yml file) laid under the request body: -F and the command's flags win over it. Objects merge; a list is replaced, not added to. YAML guesses types (no, 1.10): quote a value meant as text.
+* `--help`: Show this message and exit.
+
+## `ycli datalens members`
+
+DataLens members.
+
+**Usage**:
+
+```console
+$ ycli datalens members [OPTIONS] COMMAND [ARGS]...
+```
+
+**Options**:
+
+* `--help`: Show this message and exit.
+
+**Commands**:
+
+* `list`: List the users, groups and service...
+
+### `ycli datalens members list`
+
+List the users, groups and service accounts a role can be given to (auto-paginated).
+
+**Usage**:
+
+```console
+$ ycli datalens members list [OPTIONS]
+```
+
+**Options**:
+
+* `--limit INTEGER RANGE`: Max items to fetch (default: the configured cap).  [x>=1]
+* `--all`: Fetch everything, ignoring the cap.
+* `--language TEXT`: Language of the names. Known values: en, ru.
+* `--search TEXT`: Keep the names or addresses that have this.
+* `--tab-id TEXT`: Keep one kind of subject. Known values: SUBJECT_TYPE_UNSPECIFIED, USER_ACCOUNT, GROUP, INVITEE, SERVICE_ACCOUNT, _system.
+* `--filter TEXT`: A filter expression of the API.
 * `-o, --format [auto|json|yaml|pretty]`: Output format (auto = pretty on a TTY, JSON when piped).
 * `-y, --yes`: Do not ask before an operation that deletes data.
 * `--dry-run`: Do not send a write: print the request it would send instead. Reads still run, and only the first write of a command is shown.

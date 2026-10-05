@@ -26,3 +26,7 @@ Examples use a client built as `datalens = DataLensClient(oauth_token="…", org
 ## entrylocks
 
 ::: ycli.yandex.datalens.entrylocks.client.EntryLocksClient
+
+## members
+
+::: ycli.yandex.datalens.members.client.MembersClient

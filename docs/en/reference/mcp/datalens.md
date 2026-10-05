@@ -7,7 +7,7 @@ generated: true
 
 # Datalens MCP tools
 
-29 tools.
+30 tools.
 
 ## `datalens_tenant_details_get`
 
@@ -357,3 +357,21 @@ An entry that is not locked answers 404.
 |---|---|:---:|---|
 | `entry_id` | string | yes | Entry id. |
 | `params` | object | yes | The token of the lock, or `force` for another's lock. |
+
+## `datalens_members_list`
+
+*List DataLens members* · read-only
+
+The users, groups and service accounts of the organization, auto-paginated.
+
+The ``sub`` of a member is the subject id a role is given to: find it here before
+``collections_access_bindings_update`` or ``workbooks_access_bindings_update``. Capped at
+the configured item cap unless ``limit`` is given.
+
+| Parameter | Type | Required | Description |
+|---|---|:---:|---|
+| `limit` | integer or null |  | Max members to return; omitted means the configured cap (YCLI__HTTP__MAX_ITEMS). |
+| `language` | `en` · `ru` or string or null |  | Language of the names. |
+| `search` | string or null |  | Keep the members whose name or address has this text. |
+| `tab_id` | `SUBJECT_TYPE_UNSPECIFIED` · `USER_ACCOUNT` · `GROUP` · `INVITEE` · `SERVICE_ACCOUNT` · `_system` or string or null |  | Keep one kind of subject. |
+| `filter` | string or null |  | A filter expression of the API. |
