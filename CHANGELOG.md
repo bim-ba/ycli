@@ -9,6 +9,26 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.78.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.77.0
+  ([`6334be5`](https://github.com/bim-ba/ycli/commit/6334be51e6baf774c8e688bb4c585b9be4949140))
+
+### Features
+
+- **core**: An RPC operation is written with RPC(), and a listing can page in its body
+  ([#352](https://github.com/bim-ba/ycli/pull/352),
+  [`b28412c`](https://github.com/bim-ba/ycli/commit/b28412c8281771805b6967a32764315e482e8e44))
+
+### Refactoring
+
+- **api**: A field the API ignores is explained by its mark, not by a second list
+  ([#332](https://github.com/bim-ba/ycli/pull/332),
+  [`0a104ac`](https://github.com/bim-ba/ycli/commit/0a104ac03f4e947c21d3a803102b7492befccc3b))
+
+
 ## v0.77.0 (2026-10-05)
 
 ### Build System
