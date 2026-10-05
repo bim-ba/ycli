@@ -20,7 +20,7 @@ from ycli.yandex.registry import SERVICES
 
 DOMAINS = tuple(service.name for service in SERVICES)
 ROOT = Path(__file__).resolve().parent.parent / "src" / "ycli" / "yandex"
-# Directory names of a service that are not resources (tests/test_architecture.py agrees).
+# Directory names of a service that are not resources (tests/architecture/test_arch1.py agrees).
 RESERVED_NAMES = {"mcp": "<domain>/mcp/ is the service's MCP server"}
 
 INIT = '"""Yandex {domain} /{resource} resource (endpoints · client · cli · mcp · models)."""\n'

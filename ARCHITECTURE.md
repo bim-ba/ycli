@@ -2,7 +2,7 @@
 
 `ycli` exposes one SDK four ways (CLI, MCP server, Python SDK, Claude Code plugin).
 Its strength is a regular, symmetric layout — and that regularity is enforced, not hoped for.
-These invariants are checked by `tests/test_architecture.py`, import-linter (`pyproject.toml`),
+These invariants are checked by `tests/architecture/`, import-linter (`pyproject.toml`),
 and `tests/test_snapshots.py`. A failing build names the violated invariant.
 
 ## Layout
@@ -60,7 +60,7 @@ Notable shared pieces:
 
 Each rule states a principle; the mechanics live in its check, and every exception is an
 allowlist entry in code with its reason, never prose here. Tests are in
-`tests/test_architecture.py` unless named otherwise.
+`tests/architecture/` unless named otherwise.
 
 ### ARCH-1 — Surface parity
 - **Rule:** every public SDK operation is wrapped on both the CLI and the MCP surface, under one
@@ -280,6 +280,6 @@ so generated resources can target it.
 ## Changing an invariant
 
 These are deliberate, not incidental. To change one: edit this file **and** its enforcing check
-(in `tests/test_architecture.py`, `pyproject.toml`, or the snapshots) **in the same PR**, and say
+(in `tests/architecture/`, `pyproject.toml`, or the snapshots) **in the same PR**, and say
 so in the PR body. A reviewer (human or `/arch-review`) should reject a surface/structure change
 that isn't reflected here.

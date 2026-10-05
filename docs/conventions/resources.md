@@ -237,7 +237,7 @@ a field given as `null`). A command that merges `--field` values into its body d
 options, merges, and validates the result into the model.
 
 The only exception is a binary upload, which takes `Base64Bytes` (see below);
-`ARCH8_BODY_DICT_ALLOWLIST` in `tests/test_architecture.py` is where another would be listed,
+`ARCH8_BODY_DICT_ALLOWLIST` in `tests/architecture/test_arch8.py` is where another would be listed,
 and it is empty.
 
 ### `Ack` for bodyless write responses
@@ -257,12 +257,12 @@ form (pydantic `Base64Bytes` input — see `wiki_attachments_upload` and the
 
 ### Enforcement
 
-`tests/test_architecture.py::test_arch8_mcp_write_tool_bodies_are_typed` AST-walks every
+`tests/architecture/test_arch8.py::test_arch8_mcp_write_tool_bodies_are_typed` AST-walks every
 `mcp.py`, `client.py` and `endpoints.py` and fails the build on a bare `dict`/`dict[...]`
 `body` parameter; `test_arch8_a_request_body_is_dumped_only_by_the_endpoint` fails on a
 `.model_dump(` in any of the three. Both are fail-closed, with no exception today.
 
-`tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema`
+`tests/architecture/test_tool_metadata.py::test_every_mcp_tool_has_description_and_output_schema`
 asserts that every registered tool has a non-empty `description` and a non-`None`
 `outputSchema`.  The test uses `fastmcp.Client` to list tools from the mounted root
 server and checks the `tool.description` and `tool.output_schema` attributes (MCP spec
@@ -433,12 +433,12 @@ search for `violation(` lists every one.
 | `APIModel` base | `tests/test_conventions.py::test_every_model_inherits_apimodel` (exceptions in `MODEL_BASE_EXCEPTIONS`) |
 | No list class of a resource's own | `tests/test_conventions.py::test_no_resource_defines_a_list_class_of_its_own` |
 | `dependencies` import path | import-linter contract `conventions: a resource mcp.py imports from its domain dependencies` (`uv run lint-imports`) |
-| MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/test_architecture.py` ARCH-3 |
-| Serialization confinement | `tests/test_architecture.py` ARCH-4 |
+| MCP annotation honesty (each tool's hints against the strongest effect it sends, `write` tag) | `tests/test_contract.py`, `tests/architecture/test_arch3.py` |
+| Serialization confinement | `tests/architecture/test_arch4.py` |
 | Discriminated MCP output unions | `tests/test_conventions.py::test_every_union_a_tool_returns_is_discriminated` |
-| MCP tool description + output schema | `tests/test_architecture.py::test_every_mcp_tool_has_description_and_output_schema` |
+| MCP tool description + output schema | `tests/architecture/test_tool_metadata.py::test_every_mcp_tool_has_description_and_output_schema` |
 | Acronyms keep their capitals in a CapWords name | `tests/test_conventions.py::test_an_acronym_keeps_its_capitals_in_a_name` |
-| One name on every surface, no synonym, `get` returns one object | `tests/test_architecture.py`: `test_arch1_cli_path_equals_mcp_name`, `test_arch1_sdk_method_equals_tool_name`, `test_arch1_a_get_returns_one_object` |
+| One name on every surface, no synonym, `get` returns one object | `tests/architecture/test_arch1.py`: `test_arch1_cli_path_equals_mcp_name`, `test_arch1_sdk_method_equals_tool_name`, `test_arch1_a_get_returns_one_object` |
 | The verb, the parts and their order | review: `/arch-review` against [Naming an operation](#7-naming-an-operation) |
 | An `Annotated` alias is defined once | `tests/test_conventions.py::test_an_annotated_alias_is_defined_once` |
 | Every model field carries a description | `tests/test_conventions.py::test_every_model_field_has_a_description` |

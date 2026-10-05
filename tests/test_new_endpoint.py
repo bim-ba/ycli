@@ -11,7 +11,7 @@ import pytest
 from fastmcp import Client
 
 import ycli.yandex.tracker
-from tests import test_architecture as architecture
+from tests.architecture import test_arch1, test_arch4, test_arch5, test_arch8
 from ycli.yandex.core.endpoint import Endpoint
 from ycli.yandex.core.resource import Resource
 
@@ -96,11 +96,11 @@ def test_the_scaffold_passes_the_architecture_checks(tmp_path):
     offenders = []
     for filename, source in _generated(tmp_path).items():
         relative = Path(filename).relative_to("src/ycli")
-        offenders += architecture._stdout_writes(source)
-        offenders += architecture._serializations(source)
-        offenders += architecture._single_source_offenders(relative, source)
-        offenders += architecture._untyped_body_offenders(source, filename)
-        offenders += architecture._error_mapping_offenders(relative, source)
+        offenders += test_arch4._stdout_writes(source)
+        offenders += test_arch4._serializations(source)
+        offenders += test_arch5._single_source_offenders(relative, source)
+        offenders += test_arch8._untyped_body_offenders(source, filename)
+        offenders += test_arch8._error_mapping_offenders(relative, source)
     assert offenders == []
 
 
@@ -128,7 +128,7 @@ def test_the_scaffolded_model_describes_every_field(scaffolded):
 def test_a_reserved_name_is_refused_as_a_resource(monkeypatch, capsys):
     """``<domain>/mcp/`` is the service's MCP server, so no resource can take the name."""
     module = _load_scaffolder()
-    assert module.RESERVED_NAMES == architecture.RESERVED_NAMES
+    assert module.RESERVED_NAMES == test_arch1.RESERVED_NAMES
     monkeypatch.setattr(sys, "argv", ["new_endpoint.py", "tracker", "mcp"])
     with pytest.raises(SystemExit) as refused:
         module.main()
