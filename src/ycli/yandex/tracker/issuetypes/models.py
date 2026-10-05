@@ -23,6 +23,12 @@ class IssueType(APIModel):
         default=None,
         description="Display name of the issue type; null in the live v3 API, which uses ``name``.",
     )
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the issue type."
+    )
+    id: int | str | None = Field(default=None, description="Identifier of the issue type.")
+    version: int | None = Field(default=None, description="Version of the issue type.")
+    description: str | None = Field(default=None, description="Description of the issue type.")
 
 
 class IssueTypeCreate(RequestBody):

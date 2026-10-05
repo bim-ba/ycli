@@ -3,18 +3,7 @@
 from pydantic import ConfigDict, Field
 
 from ycli.yandex.models import APIModel
-
-
-class StatusRef(APIModel):
-    """The target status of a transition (the ``to`` object): its key + display name.
-
-    Examples:
-        >>> StatusRef.model_validate({"key": "closed", "display": "Closed"}).key
-        'closed'
-    """
-
-    key: str | None = Field(default=None, description="Key of the target status.")
-    display: str | None = Field(default=None, description="Display name of the target status.")
+from ycli.yandex.tracker.models import KeyedReference, Reference
 
 
 class Transition(APIModel):
@@ -38,9 +27,15 @@ class Transition(APIModel):
         default=None,
         description="Display name of the transition, as on the Tracker button.",
     )  # present on the GET list response
-    to: StatusRef | None = Field(
+    to: KeyedReference | None = Field(
         default=None, description="Status the transition leads to; present on the execute response."
     )  # present on the POST _execute response (the target status)
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the transition."
+    )
+    screen: Reference | None = Field(
+        default=None, description="The screen the transition shows before it runs, if any."
+    )
 
 
 class TransitionExecute(APIModel):

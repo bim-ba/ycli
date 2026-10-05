@@ -5,11 +5,7 @@
       "<unknown-2>": true,
       "<unknown-3>": "<unknown-3>",
       "<unknown-4>": false,
-      "<unknown-5>": false,
-      "<unknown-6>": false,
-      "<unknown-7>": false,
-      "<unknown-8>": false,
-      "<unknown-9>": "<unknown-9>",
+      "<unknown-5>": "<unknown-5>",
       "assignAuto": false,
       "defaultPriority": {
         "display": "<display>",
@@ -24,6 +20,8 @@
         "self": "<self>"
       },
       "deleted": true,
+      "denyConductorAutolink": false,
+      "denyTrackerAutolink": false,
       "denyVoting": false,
       "id": 1,
       "key": "<key>",
@@ -36,6 +34,8 @@
       },
       "name": "<name>",
       "self": "<self>",
+      "useComponentPermissionsIntersection": false,
+      "useLastSignature": false,
       "version": 1
     },
     {
@@ -43,11 +43,7 @@
       "<unknown-2>": true,
       "<unknown-3>": "<unknown-3>",
       "<unknown-4>": false,
-      "<unknown-5>": false,
-      "<unknown-6>": false,
-      "<unknown-7>": false,
-      "<unknown-8>": false,
-      "<unknown-9>": "<unknown-9>",
+      "<unknown-5>": "<unknown-5>",
       "assignAuto": false,
       "defaultPriority": {
         "display": "<display>",
@@ -61,6 +57,8 @@
         "key": "<key>",
         "self": "<self>"
       },
+      "denyConductorAutolink": false,
+      "denyTrackerAutolink": false,
       "denyVoting": false,
       "description": "<description>",
       "id": 1,
@@ -74,6 +72,8 @@
       },
       "name": "<name>",
       "self": "<self>",
+      "useComponentPermissionsIntersection": false,
+      "useLastSignature": false,
       "version": 1
     },
     {
@@ -81,11 +81,7 @@
       "<unknown-2>": true,
       "<unknown-3>": "<unknown-3>",
       "<unknown-4>": false,
-      "<unknown-5>": false,
-      "<unknown-6>": false,
-      "<unknown-7>": false,
-      "<unknown-8>": false,
-      "<unknown-9>": "<unknown-9>",
+      "<unknown-5>": "<unknown-5>",
       "assignAuto": false,
       "defaultPriority": {
         "display": "<display>",
@@ -99,6 +95,8 @@
         "key": "<key>",
         "self": "<self>"
       },
+      "denyConductorAutolink": false,
+      "denyTrackerAutolink": false,
       "denyVoting": false,
       "id": 1,
       "key": "<key>",
@@ -111,9 +109,11 @@
       },
       "name": "<name>",
       "self": "<self>",
+      "useComponentPermissionsIntersection": false,
+      "useLastSignature": false,
       "version": 1
     }
   ],
   "status": 200,
-  "unknown_keys": 10
+  "unknown_keys": 6
 }

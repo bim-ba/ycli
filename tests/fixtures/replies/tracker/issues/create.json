@@ -1,14 +1,7 @@
 {
   "body": {
-    "<unknown-1>": 0,
-    "<unknown-2>": 0,
-    "<unknown-3>": "<unknown-3>",
-    "<unknown-4>": {
-      "<unknown-1>": "<unknown-1>",
-      "<unknown-2>": "<unknown-2>",
-      "<unknown-3>": "<unknown-3>"
-    },
-    "<unknown-5>": 0,
+    "commentWithExternalMessageCount": 0,
+    "commentWithoutExternalMessageCount": 0,
     "createdAt": "<createdAt>",
     "createdBy": {
       "<unknown-1>": "<unknown-1>",
@@ -40,6 +33,12 @@
       "<unknown-3>": "<unknown-3>",
       "<unknown-4>": "<unknown-4>"
     },
+    "statusStartTime": "<statusStartTime>",
+    "statusType": {
+      "display": "<display>",
+      "id": "<id>",
+      "key": "<key>"
+    },
     "summary": "<summary>",
     "type": {
       "<unknown-1>": "<unknown-1>",
@@ -49,14 +48,15 @@
     },
     "updatedAt": "<updatedAt>",
     "updatedBy": {
-      "<unknown-1>": "<unknown-1>",
-      "<unknown-2>": "<unknown-2>",
-      "<unknown-3>": "<unknown-3>",
-      "<unknown-4>": 1,
-      "<unknown-5>": "<unknown-5>"
+      "cloudUid": "<cloudUid>",
+      "display": "<display>",
+      "id": "<id>",
+      "passportUid": 1,
+      "self": "<self>"
     },
-    "version": 1
+    "version": 1,
+    "votes": 0
   },
   "status": 201,
-  "unknown_keys": 11
+  "unknown_keys": 0
 }

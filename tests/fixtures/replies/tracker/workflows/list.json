@@ -36,9 +36,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -88,9 +88,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -135,9 +135,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -195,9 +195,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -228,9 +228,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -316,9 +316,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -382,9 +382,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -495,9 +495,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -514,9 +514,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -572,9 +572,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -591,9 +591,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -624,9 +624,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -737,9 +737,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -756,9 +756,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -803,9 +803,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -905,9 +905,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -952,9 +952,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -1040,9 +1040,9 @@
               "id": "<id>",
               "name": "<name>",
               "screen": {
-                "<unknown-1>": "<unknown-1>",
-                "<unknown-2>": "<unknown-2>",
-                "<unknown-3>": "<unknown-3>"
+                "display": "<display>",
+                "id": "<id>",
+                "self": "<self>"
               },
               "target": {
                 "display": "<display>",
@@ -1097,27 +1097,27 @@
       "steps": [
         {
           "<unknown-1>": {
+            "<unknown-1>": 0,
+            "<unknown-2>": 100
+          },
+          "metaAction": {
             "<unknown-1>": {
               "<unknown-1>": 100,
               "<unknown-2>": 0
             },
-            "<unknown-2>": "<unknown-2>",
-            "<unknown-3>": "<unknown-3>",
-            "<unknown-4>": [
+            "<unknown-2>": [
               {
                 "<unknown-1>": "<unknown-1>"
               }
             ],
-            "<unknown-5>": {
-              "<unknown-1>": "<unknown-1>",
-              "<unknown-2>": "<unknown-2>",
-              "<unknown-3>": "<unknown-3>",
-              "<unknown-4>": "<unknown-4>"
+            "id": "<id>",
+            "name": "<name>",
+            "target": {
+              "display": "<display>",
+              "id": "<id>",
+              "key": "<key>",
+              "self": "<self>"
             }
-          },
-          "<unknown-2>": {
-            "<unknown-1>": 0,
-            "<unknown-2>": 100
           },
           "status": {
             "display": "<display>",
@@ -1128,53 +1128,53 @@
         },
         {
           "<unknown-1>": {
-            "<unknown-1>": {
-              "<unknown-1>": 150,
-              "<unknown-2>": 170
-            },
-            "<unknown-2>": "<unknown-2>",
-            "<unknown-3>": "<unknown-3>",
-            "<unknown-4>": {
-              "<unknown-1>": "<unknown-1>",
-              "<unknown-2>": "<unknown-2>",
-              "<unknown-3>": "<unknown-3>",
-              "<unknown-4>": "<unknown-4>"
-            }
-          },
-          "<unknown-2>": {
-            "<unknown-1>": 170,
+            "<unknown-1>": 700,
             "<unknown-2>": 100
           },
-          "status": {
-            "display": "<display>",
-            "id": "<id>",
-            "key": "<key>",
-            "self": "<self>"
-          }
-        },
-        {
-          "<unknown-1>": {
+          "metaAction": {
             "<unknown-1>": {
               "<unknown-1>": 150,
               "<unknown-2>": 700
             },
-            "<unknown-2>": "<unknown-2>",
-            "<unknown-3>": "<unknown-3>",
-            "<unknown-4>": {
-              "<unknown-1>": "<unknown-1>",
-              "<unknown-2>": "<unknown-2>",
-              "<unknown-3>": "<unknown-3>"
+            "id": "<id>",
+            "name": "<name>",
+            "screen": {
+              "display": "<display>",
+              "id": "<id>",
+              "self": "<self>"
             },
-            "<unknown-5>": {
-              "<unknown-1>": "<unknown-1>",
-              "<unknown-2>": "<unknown-2>",
-              "<unknown-3>": "<unknown-3>",
-              "<unknown-4>": "<unknown-4>"
+            "target": {
+              "display": "<display>",
+              "id": "<id>",
+              "key": "<key>",
+              "self": "<self>"
             }
           },
-          "<unknown-2>": {
-            "<unknown-1>": 700,
+          "status": {
+            "display": "<display>",
+            "id": "<id>",
+            "key": "<key>",
+            "self": "<self>"
+          }
+        },
+        {
+          "<unknown-1>": {
+            "<unknown-1>": 170,
             "<unknown-2>": 100
+          },
+          "metaAction": {
+            "<unknown-1>": {
+              "<unknown-1>": 150,
+              "<unknown-2>": 170
+            },
+            "id": "<id>",
+            "name": "<name>",
+            "target": {
+              "display": "<display>",
+              "id": "<id>",
+              "key": "<key>",
+              "self": "<self>"
+            }
           },
           "status": {
             "display": "<display>",
