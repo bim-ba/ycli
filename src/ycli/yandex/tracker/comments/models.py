@@ -39,6 +39,9 @@ class Comment(APIModel):
         2238
     """
 
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the comment."
+    )
     id: int | str | None = Field(default=None, description="Comment identifier.")
     long_id: str | None = Field(
         default=None, alias="longId", description="Comment identifier as a string."

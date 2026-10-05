@@ -16,7 +16,7 @@ from typing import Any, Literal
 from pydantic import AliasChoices, Field, RootModel
 
 from ycli.yandex.models import APIModel, RequestBody
-from ycli.yandex.tracker.models import KeyedReference, LocalizedName, UserReference
+from ycli.yandex.tracker.models import KeyedReference, LocalizedName, Reference, UserReference
 
 
 class WorkflowTransition(APIModel):
@@ -34,6 +34,10 @@ class WorkflowTransition(APIModel):
     target: KeyedReference | None = Field(
         default=None, description="The status the action moves the issue to."
     )
+    screen: Reference | None = Field(
+        default=None,
+        description="The transition screen: the fields to fill in when the action runs.",
+    )
 
 
 class WorkflowStep(APIModel):
@@ -47,6 +51,11 @@ class WorkflowStep(APIModel):
     status: KeyedReference | None = Field(default=None, description="The status of the step.")
     actions: list[WorkflowTransition] = Field(
         default_factory=list, description="Actions (transitions) available from this status."
+    )
+    meta_action: WorkflowTransition | None = Field(
+        default=None,
+        alias="metaAction",
+        description="The meta-action of the step, which runs automatically.",
     )
 
 

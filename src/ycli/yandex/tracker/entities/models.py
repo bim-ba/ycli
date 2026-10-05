@@ -310,6 +310,11 @@ class Comment(APIModel):
         default=None, alias="longId", description="String (long) comment identifier."
     )
     text: str | None = Field(default=None, description="Comment text.")
+    text_html: str | None = Field(
+        default=None,
+        alias="textHtml",
+        description="Comment text as HTML; present when asked for with ``expand=html``.",
+    )
     created_by: UserReference | None = Field(
         default=None, alias="createdBy", description="Comment author."
     )

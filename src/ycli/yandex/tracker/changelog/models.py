@@ -9,6 +9,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     DisplayStr,
     IDStr,
 )
+from ycli.yandex.tracker.models import KeyedReference
 
 
 class ChangeField(APIModel):
@@ -59,3 +60,8 @@ class ChangelogEntry(APIModel):
     fields: list[ChangeField] = Field(
         default_factory=list, description="The issue fields changed by this event."
     )
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the change."
+    )
+    issue: KeyedReference | None = Field(default=None, description="The issue that was changed.")
+    transport: str | None = Field(default=None, description="Service parameter.")

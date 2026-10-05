@@ -10,6 +10,7 @@ from ycli.yandex.models import (  # pydantic resolves field types via get_type_h
     KeyStr,
     RequestBody,
 )
+from ycli.yandex.tracker.models import KeyedReference, UserReference
 
 #: How a scrolled search orders its results.
 ScrollType = Literal["sorted", "unsorted"] | str
@@ -39,6 +40,52 @@ class Issue(APIModel):
     )
     created_by: DisplayStr = Field(
         default=None, alias="createdBy", description="Display name of the issue author."
+    )
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the issue."
+    )
+    id: str | None = Field(default=None, description="Issue identifier.")
+    version: int | None = Field(
+        default=None, description="Issue version; each change of a field increases it."
+    )
+    updated_at: str | None = Field(
+        default=None, alias="updatedAt", description="When the issue was last changed (ISO 8601)."
+    )
+    updated_by: UserReference | None = Field(
+        default=None, alias="updatedBy", description="The user who last changed the issue."
+    )
+    status_start_time: str | None = Field(
+        default=None,
+        alias="statusStartTime",
+        description="When the issue entered its current status (ISO 8601).",
+    )
+    status_type: KeyedReference | None = Field(
+        default=None, alias="statusType", description="The type of the current status."
+    )
+    previous_status: KeyedReference | None = Field(
+        default=None, alias="previousStatus", description="The previous status of the issue."
+    )
+    last_comment_updated_at: str | None = Field(
+        default=None,
+        alias="lastCommentUpdatedAt",
+        description="When the last comment was updated (ISO 8601).",
+    )
+    comment_with_external_message_count: int | None = Field(
+        default=None,
+        alias="commentWithExternalMessageCount",
+        description="Number of comments with external messages (emails sent from the issue).",
+    )
+    comment_without_external_message_count: int | None = Field(
+        default=None,
+        alias="commentWithoutExternalMessageCount",
+        description="Number of comments without external messages.",
+    )
+    followers: list[UserReference] = Field(
+        default_factory=list, description="The users following the issue."
+    )
+    votes: int | None = Field(default=None, description="Number of votes for the issue.")
+    favorite: bool | None = Field(
+        default=None, description="Whether the issue is in the caller's favourites."
     )
 
 

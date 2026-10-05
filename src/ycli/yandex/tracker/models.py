@@ -187,6 +187,9 @@ class LinkType(APIModel):
     outward: str | None = Field(
         default=None, description="Name of the link as seen from the requested issue."
     )
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the link type."
+    )
 
 
 class AutomationAction(APIModel):

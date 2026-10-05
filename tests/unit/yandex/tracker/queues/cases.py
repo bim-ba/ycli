@@ -67,7 +67,8 @@ def _listed(key: str) -> dict:
     """A queue as listed with only its key, every other field at its default."""
     unset = (
         "self", "id", "version", "name", "description", "lead", "assignAuto", "defaultType",
-        "defaultPriority", "denyVoting",
+        "defaultPriority", "denyVoting", "denyTrackerAutolink", "denyConductorAutolink",
+        "useComponentPermissionsIntersection", "useLastSignature",
     )  # fmt: skip
     empty = {"teamUsers": [], "issueTypes": [], "versions": [], "workflows": {}}
     return {"key": key, **dict.fromkeys(unset), **empty, "issueTypesConfig": []}

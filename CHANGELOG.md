@@ -9,6 +9,25 @@ released sections by hand.
 
 <!-- version list -->
 
+## v0.85.0 (2026-10-05)
+
+### Build System
+
+- Re-lock uv.lock for 0.84.1
+  ([`03ba5ed`](https://github.com/bim-ba/ycli/commit/03ba5ed2615bd59e19f5f468fb3c0a3dcbcd8656))
+
+### Features
+
+- **tracker**: The reply models name the fields Tracker sends and documents
+  ([#377](https://github.com/bim-ba/ycli/pull/377),
+  [`a47f917`](https://github.com/bim-ba/ycli/commit/a47f917cc1d2fe41023591bc5c70acab3496ce76))
+
+### Breaking Changes
+
+- **tracker**: SDK: `ycli.yandex.tracker.transitions.models.StatusRef` is gone. With `id` and `self`
+  it had the shape of `ycli.yandex.tracker.models.KeyedReference`, which `Transition.to` now is.
+
+
 ## v0.84.1 (2026-10-05)
 
 ### Bug Fixes

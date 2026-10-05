@@ -27,6 +27,15 @@ class Priority(APIModel):
         default=None,
         description="Display name of the priority; null in the live v3 API, which uses ``name``.",
     )
+    self_url: str | None = Field(
+        default=None, alias="self", description="API resource URL of the priority."
+    )
+    id: int | str | None = Field(default=None, description="Identifier of the priority.")
+    version: int | None = Field(default=None, description="Version of the priority.")
+    description: str | None = Field(default=None, description="Description of the priority.")
+    order: int | None = Field(
+        default=None, description="Weight of the priority: its place in the list in the interface."
+    )
 
 
 class PriorityCreate(RequestBody):

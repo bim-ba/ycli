@@ -116,6 +116,24 @@ class Queue(APIModel):
         alias="issueTypesConfig",
         description="Per-issue-type workflow/resolution configuration of the queue.",
     )
+    deny_tracker_autolink: bool | None = Field(
+        default=None,
+        alias="denyTrackerAutolink",
+        description="Whether a key of another queue's issue in a comment or a description "
+        "links the issues automatically (true: the link is added).",
+    )
+    deny_conductor_autolink: bool | None = Field(
+        default=None, alias="denyConductorAutolink", description="Service parameter."
+    )
+    use_component_permissions_intersection: bool | None = Field(
+        default=None,
+        alias="useComponentPermissionsIntersection",
+        description="How access to an issue with several components is worked out: the "
+        "intersection of the components' permissions (true) or their union (false).",
+    )
+    use_last_signature: bool | None = Field(
+        default=None, alias="useLastSignature", description="Service parameter."
+    )
 
 
 class QueueVersionInfo(APIModel):
