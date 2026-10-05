@@ -1,4 +1,0 @@
-[
-{"method": "PATCH", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "kind": "add", "aspect": "membership", "why": "adds cohosts to the meeting's set; the specification names no operation, and PATCH alone reads as an update"},
-{"method": "DELETE", "base": "/v1/telemost-api", "path": "/conferences/{id}/cohosts", "kind": "remove", "aspect": "membership", "why": "removes the cohosts named in the query from the set; the conference and the users stay"}
-]

@@ -1,5 +1,0 @@
-[
-{"method": "GET", "base": "/v2", "path": "/regions/{regionId}", "name": "searchRegionsById", "kind": "get", "why": "one region by its id; the API names it search"},
-{"method": "GET", "base": "/v2", "path": "/regions/{regionId}/children", "name": "searchRegionChildren", "kind": "list", "why": "the children of one region, paged, with no query; the API names it search"},
-{"method": "POST", "base": "/v2", "path": "/auth/token", "name": "getAuthTokenInfo", "kind": "get", "why": "reads the properties of the token the request carries; a POST with no filter in its body"}
-]
