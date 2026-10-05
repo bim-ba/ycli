@@ -13,7 +13,7 @@ CASES = [
         "tracker.issues.get",
         args=("DE-7",),
         cli=["tracker", "issues", "get", "DE-7"],
-        mcp=("tracker_issues_get", {"key": "DE-7"}),
+        mcp=("tracker_issues_get", {"issue_key": "DE-7"}),
         exchanges=[(Sent("GET", "issues/DE-7"), Reply(json=ISSUE))],
     ),
     Case(
@@ -131,7 +131,7 @@ CASES = [
         ],
         mcp=(
             "tracker_issues_update",
-            {"key": "DE-7", "body": {"summary": "Renamed", "priority": {"key": "critical"}}},
+            {"issue_key": "DE-7", "body": {"summary": "Renamed", "priority": {"key": "critical"}}},
         ),
         exchanges=[
             (
@@ -148,7 +148,7 @@ CASES = [
         "tracker.issues.move",
         args=("DE-7", "OPS"),
         cli=["tracker", "issues", "move", "DE-7", "OPS"],
-        mcp=("tracker_issues_move", {"key": "DE-7", "queue": "OPS"}),
+        mcp=("tracker_issues_move", {"issue_key": "DE-7", "queue": "OPS"}),
         exchanges=[(Sent("POST", "issues/DE-7/_move", {"queue": "OPS"}), Reply(json=ISSUE))],
     ),
     Case(

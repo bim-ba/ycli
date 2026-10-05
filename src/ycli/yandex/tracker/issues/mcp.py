@@ -42,13 +42,13 @@ _LIMIT = f"Max issues to return; {LIMIT_CAP}"
 
 @mcp.tool(name="issues_get", annotations={**RO, "title": "Get Tracker issue"})
 def get(
-    key: IssueKey,
+    issue_key: IssueKey,
     expand: Expand = None,
     fields: ReplyFields = None,
     client: TrackerClient = Depends(tracker_client),
 ) -> Issue:
     """A single Tracker issue by key."""
-    return client.issues.get(key, expand=expand, fields=fields)
+    return client.issues.get(issue_key, expand=expand, fields=fields)
 
 
 @mcp.tool(name="issues_list", annotations={**RO, "title": "List Tracker issues"})
@@ -174,18 +174,18 @@ def create(
     annotations={**WRITE_IDEMPOTENT, "title": "Update Tracker issue"},
 )
 def update(
-    key: IssueKey, body: IssueUpdate, client: TrackerClient = Depends(tracker_client)
+    issue_key: IssueKey, body: IssueUpdate, client: TrackerClient = Depends(tracker_client)
 ) -> Issue:
     """Update fields of a Tracker issue; only the keys present in ``body`` are changed.
 
     Status is NOT changed here — use ``transitions_execute``. Returns the updated issue.
     """
-    return client.issues.update(key, body)
+    return client.issues.update(issue_key, body)
 
 
 @mcp.tool(name="issues_move", annotations={**WRITE, "title": "Move Tracker issue"})
 def move(
-    key: IssueKey,
+    issue_key: IssueKey,
     queue: Annotated[str, Field(description="Target queue key, e.g. NEW.")],
     expand: Expand = None,
     initial_status: Annotated[
@@ -206,7 +206,7 @@ def move(
     dropped. Returns the moved issue with its new key.
     """
     return client.issues.move(
-        key,
+        issue_key,
         queue,
         expand=expand,
         initial_status=initial_status,

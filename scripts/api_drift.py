@@ -140,7 +140,7 @@ class Recorded:
     """One endpoint a contract case made the SDK send, with the requests that carried it.
 
     ``template`` is the endpoint's path with each segment that came from an argument of the
-    SDK call named after it: ``/issues/DE-7`` sent by ``issues.get(key="DE-7")`` is
+    SDK call named after it: ``/issues/DE-7`` sent by ``issues.get(issue_key="DE-7")`` is
     ``/issues/{key}``. ``arguments`` are those of that call by name, ``hints`` their
     annotations.
     """

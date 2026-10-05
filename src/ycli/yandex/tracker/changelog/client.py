@@ -13,7 +13,7 @@ class ChangelogClient(Resource):
 
     def list(
         self,
-        key: str,
+        issue_key: str,
         *,
         limit: int | None = None,
         field: str | None = None,
@@ -27,7 +27,7 @@ class ChangelogClient(Resource):
         ``limit`` (``None`` = the full history); a small cap narrows the page to ``limit`` rows.
 
         Args:
-            key: The issue key.
+            issue_key: The issue key.
             limit: The most events to return; ``None`` returns the full history.
             field: Keep the changes of this field, e.g. ``status`` or ``checklistItems``.
             change_type: Keep the changes of this type, e.g. ``IssueWorkflow``.
@@ -42,6 +42,6 @@ class ChangelogClient(Resource):
         """
         page_size = min(endpoints.PAGE_SIZE, limit) if limit else endpoints.PAGE_SIZE
         paged = endpoints.list_(
-            key, page_size=page_size, field=field, change_type=change_type, sort=sort
+            issue_key, page_size=page_size, field=field, change_type=change_type, sort=sort
         )
         return ItemList[ChangelogEntry](list(self._session.iterate(paged, limit=limit)))

@@ -10,7 +10,7 @@
     {
       "name": "tracker_worklog_create",
       "arguments": {
-        "key": "DE-66",
+        "issue_key": "DE-66",
         "body": {
           "duration": "PT2H",
           "start": "2021-03-04T10:00:00.000+0300",

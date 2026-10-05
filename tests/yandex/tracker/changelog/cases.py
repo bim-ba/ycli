@@ -18,7 +18,7 @@ CASES = [
         args=("DE-21",),
         kwargs={"limit": 500},
         cli=["tracker", "changelog", "list", "DE-21"],
-        mcp=("tracker_changelog_list", {"key": "DE-21"}),
+        mcp=("tracker_changelog_list", {"issue_key": "DE-21"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-21/changelog", {"perPage": "100"}),
@@ -39,7 +39,7 @@ CASES = [
         args=("DE-22",),
         kwargs={"limit": 1},
         cli=["tracker", "changelog", "list", "DE-22", "--limit", "1"],
-        mcp=("tracker_changelog_list", {"key": "DE-22", "limit": 1}),
+        mcp=("tracker_changelog_list", {"issue_key": "DE-22", "limit": 1}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-22/changelog", {"perPage": "1"}),

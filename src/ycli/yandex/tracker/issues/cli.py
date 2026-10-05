@@ -28,7 +28,7 @@ from ycli.yandex.tracker.typedefs import (
     ExpandOpt,
     ImportCreatedAtOpt,
     ImportCreatedByOpt,
-    KeyArg,
+    IssueKeyArg,
     NotifyAuthorOpt,
     NotifyOpt,
     ReplyFieldsOpt,
@@ -54,10 +54,14 @@ def _key(value: str | None) -> dict[str, str] | None:
 
 @app.command()
 def get(
-    key: KeyArg, expand: ExpandOpt = None, fields: ReplyFieldsOpt = None, *, tracker: TrackerClient
+    issue_key: IssueKeyArg,
+    expand: ExpandOpt = None,
+    fields: ReplyFieldsOpt = None,
+    *,
+    tracker: TrackerClient,
 ) -> Issue:
-    """Print a single issue (full model) for KEY."""
-    return tracker.issues.get(key, expand=expand, fields=fields)
+    """Print a single issue (full model) for ISSUE_KEY."""
+    return tracker.issues.get(issue_key, expand=expand, fields=fields)
 
 
 @app.command("list")
@@ -161,7 +165,7 @@ def create(
 
 @app.command()
 def update(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     summary: Annotated[str | None, typer.Option(help="New summary.")] = None,
     type_: Annotated[str | None, typer.Option("--type", help="New issue type key.")] = None,
     priority: Annotated[str | None, typer.Option(help="New priority key.")] = None,
@@ -175,7 +179,7 @@ def update(
     *,
     tracker: TrackerClient,
 ) -> Issue:
-    """Update issue KEY (PATCH /issues/{key}) — only supplied fields are sent."""
+    """Update issue ISSUE_KEY (PATCH /issues/{key}) — only supplied fields are sent."""
     named = IssueUpdate(
         summary=summary,
         type=_key(type_),
@@ -185,12 +189,12 @@ def update(
         tags=tag or None,
     )
     body = IssueUpdate.model_validate(named.model_dump(exclude_none=True) | parse_fields(field))
-    return tracker.issues.update(key, body=body)
+    return tracker.issues.update(issue_key, body=body)
 
 
 @app.command()
 def move(
-    key: KeyArg,
+    issue_key: IssueKeyArg,
     queue: Annotated[str, typer.Argument(metavar="QUEUE", help="Target queue key, e.g. NEW.")],
     expand: ExpandOpt = None,
     initial_status: Annotated[
@@ -212,9 +216,9 @@ def move(
     *,
     tracker: TrackerClient,
 ) -> Issue:
-    """Move issue KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE)."""
+    """Move issue ISSUE_KEY to another QUEUE (POST /issues/{key}/_move?queue=QUEUE)."""
     return tracker.issues.move(
-        key,
+        issue_key,
         queue,
         expand=expand,
         initial_status=initial_status,

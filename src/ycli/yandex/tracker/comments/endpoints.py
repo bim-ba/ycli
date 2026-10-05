@@ -27,13 +27,13 @@ def _comment_id(comment: Comment) -> str | None:
 
 
 def list_(
-    key: str, *, expand: str | None, page_size: int = PAGE_SIZE
+    issue_key: str, *, expand: str | None, page_size: int = PAGE_SIZE
 ) -> Paged[ItemList[Comment], Comment]:
     """``GET /issues/{key}/comments``, each next page from ``id=<last comment id>``."""
     return Paged(
         Endpoint(
             "GET",
-            f"issues/{segment(key)}/comments",
+            f"issues/{segment(issue_key)}/comments",
             ItemList[Comment],
             params={"perPage": page_size, "expand": expand},
         ),
@@ -42,26 +42,26 @@ def list_(
     )
 
 
-def get(key: str, comment_id: int | str, *, expand: str | None = None) -> Endpoint[Comment]:
-    path = f"issues/{segment(key)}/comments/{segment(comment_id)}"
+def get(issue_key: str, comment_id: int | str, *, expand: str | None = None) -> Endpoint[Comment]:
+    path = f"issues/{segment(issue_key)}/comments/{segment(comment_id)}"
     return Endpoint("GET", path, Comment, params={"expand": expand})
 
 
-def create(key: str, body: CommentCreate) -> Endpoint[Comment]:
-    return Endpoint("POST", f"issues/{segment(key)}/comments/", Comment, json=body)
+def create(issue_key: str, body: CommentCreate) -> Endpoint[Comment]:
+    return Endpoint("POST", f"issues/{segment(issue_key)}/comments/", Comment, json=body)
 
 
-def update(key: str, comment_id: int | str, body: CommentUpdate) -> Endpoint[Comment]:
-    path = f"issues/{segment(key)}/comments/{segment(comment_id)}"
+def update(issue_key: str, comment_id: int | str, body: CommentUpdate) -> Endpoint[Comment]:
+    path = f"issues/{segment(issue_key)}/comments/{segment(comment_id)}"
     return Endpoint("PATCH", path, Comment, json=body)
 
 
-def delete(key: str, comment_id: int | str) -> Endpoint[None]:
-    return Endpoint("DELETE", f"issues/{segment(key)}/comments/{segment(comment_id)}")
+def delete(issue_key: str, comment_id: int | str) -> Endpoint[None]:
+    return Endpoint("DELETE", f"issues/{segment(issue_key)}/comments/{segment(comment_id)}")
 
 
-def reactions_create(key: str, comment_id: int | str, name: str) -> Endpoint[Comment]:
-    path = f"issues/{segment(key)}/comments/{segment(comment_id)}/reactions/{segment(name)}"
+def reactions_create(issue_key: str, comment_id: int | str, name: str) -> Endpoint[Comment]:
+    path = f"issues/{segment(issue_key)}/comments/{segment(comment_id)}/reactions/{segment(name)}"
     return Endpoint("POST", path, Comment)
 
 

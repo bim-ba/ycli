@@ -245,6 +245,6 @@ async def test_tool_search_respects_the_selection(api):
             await client.call_tool("call_tool", {"name": "tracker_issues_create"})
         api.add("GET", f"{TRACKER_BASE}/issues/QA-1", json={"key": "QA-1"})
         result = await client.call_tool(
-            "call_tool", {"name": "tracker_issues_get", "arguments": {"key": "QA-1"}}
+            "call_tool", {"name": "tracker_issues_get", "arguments": {"issue_key": "QA-1"}}
         )
     assert result.structured_content == {"key": "QA-1"} or "QA-1" in str(result.content)

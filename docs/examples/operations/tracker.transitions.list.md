@@ -10,7 +10,7 @@
     {
       "name": "tracker_transitions_list",
       "arguments": {
-        "key": "DE-51"
+        "issue_key": "DE-51"
       }
     }
     ```

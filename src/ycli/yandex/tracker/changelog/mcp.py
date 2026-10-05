@@ -23,7 +23,7 @@ mcp = FastMCP("tracker-changelog")
 
 @mcp.tool(name="changelog_list", annotations={**RO, "title": "List Tracker issue changelog"})
 def list_(
-    key: IssueKey,
+    issue_key: IssueKey,
     limit: Annotated[
         int | None,
         Field(ge=1, description=f"Max changes to return; {LIMIT_CAP}"),
@@ -44,4 +44,6 @@ def list_(
     is given.
     """
     cap = config.http.cap(limit)
-    return client.changelog.list(key, limit=cap, field=field, change_type=change_type, sort=sort)
+    return client.changelog.list(
+        issue_key, limit=cap, field=field, change_type=change_type, sort=sort
+    )

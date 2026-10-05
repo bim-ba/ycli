@@ -55,19 +55,19 @@ def queue_digest(queue: str) -> str:
         ]
     },
 )
-def issue_brief(key: str) -> str:
+def issue_brief(issue_key: str) -> str:
     """Brief me on one Tracker issue: where it stands, what was decided, what blocks it.
 
     Args:
-        key: Issue key, e.g. QUEUE-123.
+        issue_key: Issue key, e.g. QUEUE-123.
 
     Returns:
         The request for the model.
     """
     return (
-        f"Brief me on the Yandex Tracker issue {key}.\n\n"
+        f"Brief me on the Yandex Tracker issue {issue_key}.\n\n"
         f"Call tracker_issues_get, tracker_comments_list, tracker_links_list and "
-        f"tracker_changelog_list for {key}, then answer with:\n\n"
+        f"tracker_changelog_list for {issue_key}, then answer with:\n\n"
         "- what the issue asks for, in two sentences;\n"
         "- its status, assignee and deadline, and how long it has been in this status "
         "(from the changelog);\n"

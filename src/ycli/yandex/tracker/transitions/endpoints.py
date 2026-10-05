@@ -12,12 +12,12 @@ from ycli.yandex.models import ItemList
 from ycli.yandex.tracker.transitions.models import Transition, TransitionExecute
 
 
-def list_(key: str) -> Endpoint[ItemList[Transition]]:
-    return Endpoint("GET", f"issues/{segment(key)}/transitions", ItemList[Transition])
+def list_(issue_key: str) -> Endpoint[ItemList[Transition]]:
+    return Endpoint("GET", f"issues/{segment(issue_key)}/transitions", ItemList[Transition])
 
 
 def execute(
-    key: str, transition_id: str, body: TransitionExecute
+    issue_key: str, transition_id: str, body: TransitionExecute
 ) -> Endpoint[ItemList[Transition]]:
-    path = f"issues/{segment(key)}/transitions/{segment(transition_id)}/_execute"
+    path = f"issues/{segment(issue_key)}/transitions/{segment(transition_id)}/_execute"
     return Endpoint("POST", path, ItemList[Transition], json=body)

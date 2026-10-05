@@ -10,7 +10,7 @@
     {
       "name": "tracker_transitions_execute",
       "arguments": {
-        "key": "DE-52",
+        "issue_key": "DE-52",
         "transition_id": "close",
         "body": {
           "comment": "done",

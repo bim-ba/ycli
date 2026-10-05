@@ -12,7 +12,7 @@ CASES = [
         args=("DE-11",),
         kwargs={"limit": 500},
         cli=["tracker", "comments", "list", "DE-11"],
-        mcp=("tracker_comments_list", {"key": "DE-11"}),
+        mcp=("tracker_comments_list", {"issue_key": "DE-11"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-11/comments", {"perPage": "100"}),
@@ -33,7 +33,7 @@ CASES = [
         args=("DE-12",),
         kwargs={"limit": 3},
         cli=["tracker", "comments", "list", "DE-12", "--limit", "3"],
-        mcp=("tracker_comments_list", {"key": "DE-12", "limit": 3}),
+        mcp=("tracker_comments_list", {"issue_key": "DE-12", "limit": 3}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-12/comments", {"perPage": "3"}),
@@ -58,7 +58,7 @@ CASES = [
         "tracker.comments.create",
         args=("DE-14", CommentCreate.model_validate({"text": "Готово ✅"})),
         cli=["tracker", "comments", "create", "DE-14", "--text", "Готово ✅"],
-        mcp=("tracker_comments_create", {"key": "DE-14", "body": {"text": "Готово ✅"}}),
+        mcp=("tracker_comments_create", {"issue_key": "DE-14", "body": {"text": "Готово ✅"}}),
         exchanges=[
             (
                 Sent("POST", "issues/DE-14/comments/", json={"text": "Готово ✅"}),
@@ -84,7 +84,7 @@ CASES = [
         mcp=(
             "tracker_comments_create",
             {
-                "key": "DE-15",
+                "issue_key": "DE-15",
                 "body": {
                     "text": "Please review",
                     "summonees": ["bob"],
@@ -115,7 +115,7 @@ CASES = [
         cli=["tracker", "comments", "update", "DE-16", "161", "--text", "fixed typo"],
         mcp=(
             "tracker_comments_update",
-            {"key": "DE-16", "comment_id": "161", "body": {"text": "fixed typo"}},
+            {"issue_key": "DE-16", "comment_id": "161", "body": {"text": "fixed typo"}},
         ),
         exchanges=[
             (
@@ -128,7 +128,7 @@ CASES = [
         "tracker.comments.delete",
         args=("DE-17", "171"),
         cli=["tracker", "comments", "delete", "DE-17", "171"],
-        mcp=("tracker_comments_delete", {"key": "DE-17", "comment_id": "171"}),
+        mcp=("tracker_comments_delete", {"issue_key": "DE-17", "comment_id": "171"}),
         exchanges=[(Sent("DELETE", "issues/DE-17/comments/171"), Reply(status=204))],
     ),
     Case(
@@ -137,7 +137,7 @@ CASES = [
         cli=["tracker", "comments", "reactions-create", "DE-18", "181", "HEART"],
         mcp=(
             "tracker_comments_reactions_create",
-            {"key": "DE-18", "comment_id": "181", "name": "HEART"},
+            {"issue_key": "DE-18", "comment_id": "181", "name": "HEART"},
         ),
         exchanges=[
             (
@@ -153,7 +153,7 @@ CASES = [
         cli=["tracker", "comments", "get", "DE-5", "9001", "--expand", "attachments,html"],
         mcp=(
             "tracker_comments_get",
-            {"key": "DE-5", "comment_id": "9001", "expand": "attachments,html"},
+            {"issue_key": "DE-5", "comment_id": "9001", "expand": "attachments,html"},
         ),
         exchanges=[
             (

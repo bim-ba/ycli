@@ -9,7 +9,7 @@ CASES = [
         "tracker.links.list",
         args=("DE-41",),
         cli=["tracker", "links", "list", "DE-41"],
-        mcp=("tracker_links_list", {"key": "DE-41"}),
+        mcp=("tracker_links_list", {"issue_key": "DE-41"}),
         exchanges=[
             (
                 Sent("GET", "issues/DE-41/links"),
@@ -26,7 +26,7 @@ CASES = [
         cli=["tracker", "links", "create", "DE-42", "is dependent by", "OPS-9"],
         mcp=(
             "tracker_links_create",
-            {"key": "DE-42", "body": {"relationship": "is dependent by", "issue": "OPS-9"}},
+            {"issue_key": "DE-42", "body": {"relationship": "is dependent by", "issue": "OPS-9"}},
         ),
         exchanges=[
             (
@@ -43,7 +43,7 @@ CASES = [
         "tracker.links.delete",
         args=("DE-43", "431"),
         cli=["tracker", "links", "delete", "DE-43", "431"],
-        mcp=("tracker_links_delete", {"key": "DE-43", "link_id": "431"}),
+        mcp=("tracker_links_delete", {"issue_key": "DE-43", "link_id": "431"}),
         exchanges=[(Sent("DELETE", "issues/DE-43/links/431"), Reply(status=204))],
     ),
     Case(
@@ -66,7 +66,7 @@ CASES = [
         ],
         mcp=(
             "tracker_links_list_filtered",
-            {"key": "DE-44", "link_types": ["relates", "subtask"], "fields": ["id", "type"]},
+            {"issue_key": "DE-44", "link_types": ["relates", "subtask"], "fields": ["id", "type"]},
         ),
         exchanges=[
             (
@@ -101,7 +101,7 @@ CASES = [
         args=("DE-45",),
         kwargs={"limit": 1},
         cli=["tracker", "links", "list-filtered", "DE-45", "--limit", "1"],
-        mcp=("tracker_links_list_filtered", {"key": "DE-45", "limit": 1}),
+        mcp=("tracker_links_list_filtered", {"issue_key": "DE-45", "limit": 1}),
         exchanges=[
             (
                 Sent("POST", "issues/DE-45/links/_list", {"page": "1", "perPage": "50"}, {}),

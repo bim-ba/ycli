@@ -47,7 +47,7 @@ async def _call(client: httpx2.AsyncClient, tool: str, token: str | None) -> htt
         "jsonrpc": "2.0",
         "id": 1,
         "method": "tools/call",
-        "params": {"name": tool, "arguments": {"key": "DE-1"}},
+        "params": {"name": tool, "arguments": {"issue_key": "DE-1"}},
     }
     return await client.post("/mcp", headers=headers, json=request)
 

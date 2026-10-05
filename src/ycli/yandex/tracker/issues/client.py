@@ -34,7 +34,7 @@ class IssuesClient(Resource):
 
     def get(
         self,
-        key: str,
+        issue_key: str,
         *,
         expand: str | None = None,
         fields: str | None = None,
@@ -42,7 +42,7 @@ class IssuesClient(Resource):
         """``GET /issues/{key}`` → a single ``Issue``.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             expand: The extra blocks to include: ``transitions``, ``attachments``, ``comments``.
             fields: The comma-separated issue fields to include in the reply.
 
@@ -53,7 +53,7 @@ class IssuesClient(Resource):
             >>> tracker.issues.get("DE-7").summary
             'Fix the login page'
         """
-        return self._session.send(endpoints.get(key, expand=expand, fields=fields))
+        return self._session.send(endpoints.get(issue_key, expand=expand, fields=fields))
 
     def search(
         self,
@@ -143,21 +143,21 @@ class IssuesClient(Resource):
         """
         return self._session.send(endpoints.create(body, notify=notify))
 
-    def update(self, key: str, body: IssueUpdate) -> Issue:
+    def update(self, issue_key: str, body: IssueUpdate) -> Issue:
         """``PATCH /issues/{key}`` — update fields; returns the updated ``Issue``.
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             body: The fields to change.
 
         Returns:
             The updated issue.
         """
-        return self._session.send(endpoints.update(key, body))
+        return self._session.send(endpoints.update(issue_key, body))
 
     def move(
         self,
-        key: str,
+        issue_key: str,
         queue: str,
         *,
         expand: str | None = None,
@@ -169,7 +169,7 @@ class IssuesClient(Resource):
         """``POST /issues/{key}/_move?queue=<key>`` — returns the moved ``Issue`` (new key).
 
         Args:
-            key: The issue's key.
+            issue_key: The issue's key.
             queue: The key of the queue to move the issue to.
             expand: The extra blocks to include: ``attachments``, ``comments``, ``workflow``,
                 ``transitions``.
@@ -187,7 +187,7 @@ class IssuesClient(Resource):
         """
         return self._session.send(
             endpoints.move(
-                key,
+                issue_key,
                 queue,
                 expand=expand,
                 initial_status=initial_status,

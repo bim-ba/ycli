@@ -18,21 +18,21 @@ mcp = FastMCP("wiki-prompts")
     tags=WRITE_TAGS,
     meta={NEEDS_TOOLS: ["tracker_comments_list", "tracker_issues_get", "wiki_pages_create"]},
 )
-def page_from_issue(key: str, parent_slug: str) -> str:
+def page_from_issue(issue_key: str, parent_slug: str) -> str:
     """Draft a Wiki page from a Tracker issue and its discussion, then create it once approved.
 
     Args:
-        key: Issue key, e.g. QUEUE-123.
+        issue_key: Issue key, e.g. QUEUE-123.
         parent_slug: Slug of the page the new one goes under, e.g. team/decisions.
 
     Returns:
         The request for the model.
     """
     return (
-        f"Write a Yandex Wiki page from the Yandex Tracker issue {key}.\n\n"
-        f"1. Call tracker_issues_get and tracker_comments_list for {key}.\n"
+        f"Write a Yandex Wiki page from the Yandex Tracker issue {issue_key}.\n\n"
+        f"1. Call tracker_issues_get and tracker_comments_list for {issue_key}.\n"
         "2. Draft the page in Markdown: the context, what was decided and why, the alternatives "
-        f"that were rejected, the open questions, and a link back to {key}. Leave out the "
+        f"that were rejected, the open questions, and a link back to {issue_key}. Leave out the "
         "back-and-forth; keep the names of who decided what.\n"
         f"3. Show me the draft, the title and the slug you propose under {parent_slug}/, and "
         "wait for my answer.\n"
