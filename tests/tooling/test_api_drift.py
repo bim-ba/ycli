@@ -1119,3 +1119,48 @@ def test_default_mode_prints_the_gaps(capsys):
     wiki = len(api_surface.load("wiki"))
     assert f"wiki: {wiki} of {wiki} published operations wrapped" in out
     assert "unknown_request: " in out
+
+
+def test_a_pager_adds_its_parameters_where_it_sends_them():
+    """A query pager's parameters are query parameters; a body pager's are fields of the body."""
+    by_operation = {call.operation: call for call in api_drift.calls()}
+    in_body = by_operation["datalens.collections.content_list"]
+    assert in_body.query == frozenset()
+    assert in_body.request is not None and {"page", "pageSize"} <= in_body.request
+    in_query = by_operation["wiki.comments.list"]
+    assert "cursor" in in_query.query
+
+
+RPC_DOCUMENT = {
+    "paths": {
+        "/rpc/getThing": {"post": {"tags": ["Thing"], "responses": {"200": {}}}},
+        "/rpc/dropThing": {"post": {"tags": ["Thing"], "responses": {"200": {}}}},
+    }
+}
+
+
+def test_fetch_gives_an_rpc_operation_the_reference_page_the_docs_list(monkeypatch):
+    """The page is read from the files there are: an operation without a file has none."""
+    source = api_surface.SOURCES["datalens"]
+    tree = {"tree": [{"path": "Things/rpcgetThing-post.md"}, {"path": "Things/index.md"}]}
+    _serve(monkeypatch, {source.url: json.dumps(RPC_DOCUMENT), source.pages: json.dumps(tree)})
+    pages = {operation.name: operation.page for operation in api_surface.fetch("datalens")}
+    assert pages == {"getThing": "Things/rpcgetThing-post", "dropThing": ""}
+
+
+@pytest.mark.parametrize(
+    "tree",
+    [
+        {"tree": [{"path": "Things/rpcgetThing-post.md"}], "truncated": True},
+        {"tree": [{"path": "Things/index.md"}]},
+        {"message": "API rate limit exceeded"},
+        # A section without its own page: the coverage tables link a resource to it.
+        {"tree": [{"path": "Things/rpcgetThing-post.md"}]},
+    ],
+)
+def test_a_listing_of_pages_that_is_cut_short_or_empty_stops_the_refresh(monkeypatch, tree):
+    """A refresh must not write a snapshot that lost the pages it had."""
+    source = api_surface.SOURCES["datalens"]
+    _serve(monkeypatch, {source.url: json.dumps(RPC_DOCUMENT), source.pages: json.dumps(tree)})
+    with pytest.raises(SystemExit, match=r"cut short or empty|no index\.md"):
+        api_surface.fetch("datalens")

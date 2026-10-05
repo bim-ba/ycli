@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 from ycli.yandex.base import DomainClient
 from ycli.yandex.datalens import SERVICE
+from ycli.yandex.datalens.collections.client import CollectionsClient
 from ycli.yandex.datalens.tenant.client import TenantClient
 
 
@@ -28,3 +29,4 @@ class DataLensClient(DomainClient):
 
     def _wire(self, session: SyncSession) -> None:
         self.tenant = TenantClient(session=session)
+        self.collections = CollectionsClient(session=session)
