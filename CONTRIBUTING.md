@@ -74,7 +74,7 @@ OpenAPI documents, Tracker's API reference), reduced to names.
   derived from the same replayed cases and ycli's models. The docs workflow publishes them on
   the site; they are not committed.
 - A published operation must be wrapped or listed with its reason in `NOT_WRAPPED`
-  (`scripts/api_drift.py`); `tests/test_api_drift.py` fails otherwise.
+  (`scripts/api_drift.py`); `tests/tooling/test_api_drift.py` fails otherwise.
 - A query parameter, body field or response field that differs from the published one is
   added, or listed with its reason in `EXPLAINED`
   (one operation) or `EXPLAINED_EVERYWHERE` (a name across the service). The test fails on a
