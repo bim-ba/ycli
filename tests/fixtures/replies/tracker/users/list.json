@@ -4,23 +4,6 @@
     "users": [
       {
         "cloudUid": "<cloudUid>",
-        "disableNotifications": true,
-        "dismissed": false,
-        "display": "<display>",
-        "email": "<email>",
-        "external": false,
-        "firstName": "<firstName>",
-        "hasLicense": true,
-        "lastName": "<lastName>",
-        "login": "<login>",
-        "passportUid": 3,
-        "self": "<self>",
-        "trackerUid": 2,
-        "uid": 1,
-        "useNewFilters": true
-      },
-      {
-        "cloudUid": "<cloudUid>",
         "disableNotifications": false,
         "dismissed": false,
         "display": "<display>",
@@ -32,13 +15,30 @@
         "lastLoginDate": "<lastLoginDate>",
         "lastName": "<lastName>",
         "login": "<login>",
-        "passportUid": 6,
+        "passportUid": 1,
         "self": "<self>",
         "sources": [
           "<sources>"
         ],
-        "trackerUid": 5,
-        "uid": 4,
+        "trackerUid": 1,
+        "uid": 1,
+        "useNewFilters": true
+      },
+      {
+        "cloudUid": "<cloudUid>",
+        "disableNotifications": true,
+        "dismissed": false,
+        "display": "<display>",
+        "email": "<email>",
+        "external": false,
+        "firstName": "<firstName>",
+        "hasLicense": true,
+        "lastName": "<lastName>",
+        "login": "<login>",
+        "passportUid": 1,
+        "self": "<self>",
+        "trackerUid": 1,
+        "uid": 1,
         "useNewFilters": true
       },
       {
@@ -51,10 +51,10 @@
         "hasLicense": true,
         "lastName": "<lastName>",
         "login": "<login>",
-        "passportUid": 9,
+        "passportUid": 1,
         "self": "<self>",
-        "trackerUid": 8,
-        "uid": 7,
+        "trackerUid": 1,
+        "uid": 1,
         "useNewFilters": true
       }
     ]

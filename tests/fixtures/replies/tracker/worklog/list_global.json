@@ -4,60 +4,60 @@
       "comment": "<comment>",
       "createdAt": "<createdAt>",
       "createdBy": {
-        "cloudUid": "<cloudUid>",
-        "display": "<display>",
-        "id": "<id>",
-        "passportUid": 3,
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": 1,
+        "<unknown-5>": "<unknown-5>"
       },
       "duration": "<duration>",
       "id": 1,
       "issue": {
-        "display": "<display>",
-        "id": "<id>",
-        "key": "<key>",
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>"
       },
       "self": "<self>",
       "start": "<start>",
       "updatedAt": "<updatedAt>",
       "updatedBy": {
-        "cloudUid": "<cloudUid>",
-        "display": "<display>",
-        "id": "<id>",
-        "passportUid": 4,
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": 1,
+        "<unknown-5>": "<unknown-5>"
       },
-      "version": 2
+      "version": 1
     },
     {
       "createdAt": "<createdAt>",
       "createdBy": {
-        "cloudUid": "<cloudUid>",
-        "display": "<display>",
-        "id": "<id>",
-        "passportUid": 7,
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": 1,
+        "<unknown-5>": "<unknown-5>"
       },
       "duration": "<duration>",
-      "id": 5,
+      "id": 1,
       "issue": {
-        "display": "<display>",
-        "id": "<id>",
-        "key": "<key>",
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>"
       },
       "self": "<self>",
       "start": "<start>",
       "updatedAt": "<updatedAt>",
       "updatedBy": {
-        "cloudUid": "<cloudUid>",
-        "display": "<display>",
-        "id": "<id>",
-        "passportUid": 8,
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": 1,
+        "<unknown-5>": "<unknown-5>"
       },
-      "version": 6
+      "version": 1
     }
   ],
   "status": 200,

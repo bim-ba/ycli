@@ -12,11 +12,11 @@
       {
         "<key-1>": [
           {
-            "hidden": false,
-            "id": "<id>",
-            "label": "<label>",
-            "multiline": false,
-            "type": "<type>"
+            "<unknown-1>": false,
+            "<unknown-2>": "<unknown-2>",
+            "<unknown-3>": "<unknown-3>",
+            "<unknown-4>": false,
+            "<unknown-5>": "<unknown-5>"
           }
         ]
       }

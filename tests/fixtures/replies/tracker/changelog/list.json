@@ -4,36 +4,36 @@
       "fields": [
         {
           "field": {
-            "display": "<display>",
-            "id": "<id>",
-            "self": "<self>"
+            "<unknown-1>": "<unknown-1>",
+            "<unknown-2>": "<unknown-2>",
+            "<unknown-3>": "<unknown-3>"
           },
           "from": null,
           "to": {
-            "display": "<display>",
-            "id": "<id>",
-            "key": "<key>",
-            "self": "<self>"
+            "<unknown-1>": "<unknown-1>",
+            "<unknown-2>": "<unknown-2>",
+            "<unknown-3>": "<unknown-3>",
+            "<unknown-4>": "<unknown-4>"
           }
         }
       ],
       "id": "<id>",
       "issue": {
-        "display": "<display>",
-        "id": "<id>",
-        "key": "<key>",
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": "<unknown-4>"
       },
       "self": "<self>",
       "transport": "<transport>",
       "type": "<type>",
       "updatedAt": "<updatedAt>",
       "updatedBy": {
-        "cloudUid": "<cloudUid>",
-        "display": "<display>",
-        "id": "<id>",
-        "passportUid": 1,
-        "self": "<self>"
+        "<unknown-1>": "<unknown-1>",
+        "<unknown-2>": "<unknown-2>",
+        "<unknown-3>": "<unknown-3>",
+        "<unknown-4>": 1,
+        "<unknown-5>": "<unknown-5>"
       }
     }
   ],

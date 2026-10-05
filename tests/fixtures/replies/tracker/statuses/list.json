@@ -8,16 +8,16 @@
       "order": 100,
       "self": "<self>",
       "type": "<type>",
-      "version": 2
+      "version": 1
     },
     {
-      "id": 57,
+      "id": 1,
       "key": "<key>",
       "name": "<name>",
       "order": 1,
       "self": "<self>",
       "type": "<type>",
-      "version": 58
+      "version": 1
     }
   ],
   "status": 200,

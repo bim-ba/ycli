@@ -10,10 +10,10 @@
       },
       "order": 10,
       "self": "<self>",
-      "version": 2
+      "version": 1
     },
     {
-      "id": 15,
+      "id": 1,
       "key": "<key>",
       "name": {
         "en": "<en>",
@@ -21,7 +21,7 @@
       },
       "order": 55,
       "self": "<self>",
-      "version": 16
+      "version": 1
     }
   ],
   "status": 200,
